@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.upedge.ums.modules.organization.dao.OrganizationMenuDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.upedge.ums.modules.organization.entity.OrganizationMenu" id="BaseResultMap">
+        <result property="orgId" column="org_id"/>
+        <result property="menuId" column="menu_id"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        `org_id`,`menu_id`
+    </sql>
+
+    <select id="selectByPrimaryKey" parameterType="com.upedge.ums.modules.organization.entity.OrganizationMenu" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from organization_menu
+        where org_id = #{orgId}
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="com.upedge.ums.modules.organization.entity.OrganizationMenu">
+        delete from organization_menu
+        where org_id = #{orgId}
+    </delete>
+
+    <update id="updateByPrimaryKeySelective" parameterType="com.upedge.ums.modules.organization.entity.OrganizationMenu">
+        update organization_menu
+        <set>
+            <if test="menuId != null">
+                menu_id = #{menuId},
+            </if>
+        </set>
+        where org_id = #{orgId}
+    </update>
+
+    <update id="updateByPrimaryKey" parameterType="com.upedge.ums.modules.organization.entity.OrganizationMenu">
+        update organization_menu
+        <set>
+        org_id = #{orgId},
+        menu_id = #{menuId},
+        </set>
+        where org_id = #{orgId}
+    </update>
+
+    <insert id="insert" keyColumn="org_id" keyProperty="orgId" parameterType="com.upedge.ums.modules.organization.entity.OrganizationMenu" useGeneratedKeys="true">
+        insert into organization_menu
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            org_id,
+            menu_id
+        </trim>
+        values (
+        #{orgId},
+        #{menuId}
+        )
+    </insert>
+
+    <insert id="insertSelective"  keyColumn="org_id" keyProperty="orgId"  parameterType="com.upedge.ums.modules.organization.entity.OrganizationMenu" useGeneratedKeys="true">
+        insert into organization_menu
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="orgId != null" >
+              org_id
+            </if>
+            <if test="menuId != null" >
+              menu_id
+            </if>
+
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="orgId != null" >
+                #{orgId}
+            </if>
+            <if test="menuId != null" >
+                #{menuId}
+            </if>
+
+        </trim>
+    </insert>
+
+    <insert id="insertByBatch" parameterType="java.util.List">
+        insert into organization_menu
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+           org_id,
+           menu_id
+        </trim>
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+               #{item.orgId},
+               #{item.menuId}
+            </trim>
+        </foreach>
+    </insert>
+
+    <sql id="Query_Condition">
+        <if test="t != null">
+            where
+            <trim prefix=" " suffix=" " suffixOverrides=" and ">
+                1 = 1 and
+                    <if test="t.orgId != null">
+                        org_id = #{t.orgId} and
+                    </if>
+                    <if test="t.menuId != null">
+                        menu_id = #{t.menuId} and
+                    </if>
+            </trim>
+        </if>
+    </sql>
+
+    <select id="select" parameterType="com.upedge.common.base.Page" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from organization_menu
+        <include refid="Query_Condition"/>
+        <if test="orderBy != null">
+            order by ${orderBy}
+        </if>
+        <if test="pageNum != null and pageSize != null">
+            limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+        </if>
+    </select>
+
+    <select id="count" parameterType="com.upedge.common.base.Page" resultType="java.lang.Long">
+        select
+        count(1)
+        from organization_menu
+        <include refid="Query_Condition"/>
+    </select>
+
+
+</mapper>

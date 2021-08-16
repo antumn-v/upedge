@@ -1,0 +1,64 @@
+import {
+    ${classname}List,
+    ${classname}Add,
+    ${classname}Delete,
+    ${classname}Update
+} from '@/api/${classname}'
+
+const state = {}
+
+const actions = {
+    get${className}List({ commit }, data) {
+        return new Promise((resolve, reject) => {
+                ${classname}List(data)
+                .then(res => {
+                resolve(res)
+            })
+    .catch(error => {
+            reject(error)
+        })
+    })
+    },
+    set${className}Add({ commit }, data) {
+        return new Promise((resolve, reject) => {
+                ${classname}Add(data)
+                .then(res => {
+                resolve(res)
+            })
+    .catch(error => {
+            reject(error)
+        })
+    })
+    },
+    set${className}Delete({ commit }, data) {
+        return new Promise((resolve, reject) => {
+                ${classname}Delete(data)
+                .then(res => {
+                resolve(res)
+            })
+    .catch(error => {
+            reject(error)
+        })
+    })
+    },
+    set${className}Update({ commit }, data) {
+        return new Promise((resolve, reject) => {
+                ${classname}Update(data)
+                .then(res => {
+                resolve(res)
+            })
+    .catch(error => {
+            reject(error)
+        })
+    })
+    },
+}
+
+const mutations = {}
+
+export default {
+    namespaced: true,
+    state,
+    actions,
+    mutations
+}

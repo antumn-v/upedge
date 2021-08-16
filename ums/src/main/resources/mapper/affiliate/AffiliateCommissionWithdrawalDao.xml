@@ -1,0 +1,348 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.upedge.ums.modules.affiliate.dao.AffiliateCommissionWithdrawalDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.upedge.ums.modules.affiliate.entity.AffiliateCommissionWithdrawal" id="BaseResultMap">
+        <result property="id" column="id"/>
+        <result property="customerId" column="customer_id"/>
+        <result property="withdrawalAccountId" column="withdrawal_account_id"/>
+        <result property="amount" column="amount"/>
+        <result property="path" column="path"/>
+        <result property="remark" column="remark"/>
+        <result property="state" column="state"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="reason" column="reason"/>
+        <result property="adminUserId" column="admin_user_id"/>
+        <result property="receiveAccount" column="receive_account"/>
+        <result property="paymentAccount" column="payment_account"/>
+        <result property="managerCode" column="manager_code"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        `id`,`customer_id`,`withdrawal_account_id`,`amount`,`path`,`remark`,`state`,`create_time`,`update_time`,`reason`,`admin_user_id`,`receive_account`,`payment_account`,`manager_code`
+    </sql>
+
+    <select id="selectByPrimaryKey" parameterType="com.upedge.ums.modules.affiliate.entity.AffiliateCommissionWithdrawal" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from affiliate_commission_withdrawal
+        where id = #{id}
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="com.upedge.ums.modules.affiliate.entity.AffiliateCommissionWithdrawal">
+        delete from affiliate_commission_withdrawal
+        where id = #{id}
+    </delete>
+
+    <update id="updateByPrimaryKeySelective" parameterType="com.upedge.ums.modules.affiliate.entity.AffiliateCommissionWithdrawal">
+        update affiliate_commission_withdrawal
+        <set>
+            <if test="customerId != null">
+                customer_id = #{customerId},
+            </if>
+            <if test="withdrawalAccountId != null">
+                withdrawal_account_id = #{withdrawalAccountId},
+            </if>
+            <if test="amount != null">
+                amount = #{amount},
+            </if>
+            <if test="path != null">
+                path = #{path},
+            </if>
+            <if test="remark != null">
+                remark = #{remark},
+            </if>
+            <if test="state != null">
+                state = #{state},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime},
+            </if>
+            <if test="updateTime != null">
+                update_time = #{updateTime},
+            </if>
+            <if test="reason != null">
+                reason = #{reason},
+            </if>
+            <if test="adminUserId != null">
+                admin_user_id = #{adminUserId},
+            </if>
+            <if test="receiveAccount != null">
+                receive_account = #{receiveAccount},
+            </if>
+            <if test="paymentAccount != null">
+                payment_account = #{paymentAccount},
+            </if>
+            <if test="managerCode != null">
+                manager_code = #{managerCode},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <update id="updateByPrimaryKey" parameterType="com.upedge.ums.modules.affiliate.entity.AffiliateCommissionWithdrawal">
+        update affiliate_commission_withdrawal
+        <set>
+        id = #{id},
+        customer_id = #{customerId},
+        withdrawal_account_id = #{withdrawalAccountId},
+        amount = #{amount},
+        path = #{path},
+        remark = #{remark},
+        state = #{state},
+        create_time = #{createTime},
+        update_time = #{updateTime},
+        reason = #{reason},
+        admin_user_id = #{adminUserId},
+        receive_account = #{receiveAccount},
+        payment_account = #{paymentAccount},
+        manager_code = #{managerCode},
+        </set>
+        where id = #{id}
+    </update>
+
+    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.upedge.ums.modules.affiliate.entity.AffiliateCommissionWithdrawal" useGeneratedKeys="true">
+        insert into affiliate_commission_withdrawal
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            id,
+            customer_id,
+            withdrawal_account_id,
+            amount,
+            path,
+            remark,
+            state,
+            create_time,
+            update_time,
+            reason,
+            admin_user_id,
+            receive_account,
+            payment_account,
+            manager_code
+        </trim>
+        values (
+        #{id},
+        #{customerId},
+        #{withdrawalAccountId},
+        #{amount},
+        #{path},
+        #{remark},
+        #{state},
+        #{createTime},
+        #{updateTime},
+        #{reason},
+        #{adminUserId},
+        #{receiveAccount},
+        #{paymentAccount},
+        #{managerCode}
+        )
+    </insert>
+
+    <insert id="insertSelective"  keyColumn="id" keyProperty="id"  parameterType="com.upedge.ums.modules.affiliate.entity.AffiliateCommissionWithdrawal" useGeneratedKeys="true">
+        insert into affiliate_commission_withdrawal
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null" >
+              id
+            </if>
+            <if test="customerId != null" >
+              customer_id
+            </if>
+            <if test="withdrawalAccountId != null" >
+              withdrawal_account_id
+            </if>
+            <if test="amount != null" >
+              amount
+            </if>
+            <if test="path != null" >
+              path
+            </if>
+            <if test="remark != null" >
+              remark
+            </if>
+            <if test="state != null" >
+              state
+            </if>
+            <if test="createTime != null" >
+              create_time
+            </if>
+            <if test="updateTime != null" >
+              update_time
+            </if>
+            <if test="reason != null" >
+              reason
+            </if>
+            <if test="adminUserId != null" >
+              admin_user_id
+            </if>
+            <if test="receiveAccount != null" >
+              receive_account
+            </if>
+            <if test="paymentAccount != null" >
+              payment_account
+            </if>
+            <if test="managerCode != null" >
+              manager_code
+            </if>
+
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null" >
+                #{id}
+            </if>
+            <if test="customerId != null" >
+                #{customerId}
+            </if>
+            <if test="withdrawalAccountId != null" >
+                #{withdrawalAccountId}
+            </if>
+            <if test="amount != null" >
+                #{amount}
+            </if>
+            <if test="path != null" >
+                #{path}
+            </if>
+            <if test="remark != null" >
+                #{remark}
+            </if>
+            <if test="state != null" >
+                #{state}
+            </if>
+            <if test="createTime != null" >
+                #{createTime}
+            </if>
+            <if test="updateTime != null" >
+                #{updateTime}
+            </if>
+            <if test="reason != null" >
+                #{reason}
+            </if>
+            <if test="adminUserId != null" >
+                #{adminUserId}
+            </if>
+            <if test="receiveAccount != null" >
+                #{receiveAccount}
+            </if>
+            <if test="paymentAccount != null" >
+                #{paymentAccount}
+            </if>
+            <if test="managerCode != null" >
+                #{managerCode}
+            </if>
+
+        </trim>
+    </insert>
+
+    <insert id="insertByBatch" parameterType="java.util.List">
+        insert into affiliate_commission_withdrawal
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+           id,
+           customer_id,
+           withdrawal_account_id,
+           amount,
+           path,
+           remark,
+           state,
+           create_time,
+           update_time,
+           reason,
+           admin_user_id,
+           receive_account,
+           payment_account,
+           manager_code
+        </trim>
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+               #{item.id},
+               #{item.customerId},
+               #{item.withdrawalAccountId},
+               #{item.amount},
+               #{item.path},
+               #{item.remark},
+               #{item.state},
+               #{item.createTime},
+               #{item.updateTime},
+               #{item.reason},
+               #{item.adminUserId},
+               #{item.receiveAccount},
+               #{item.paymentAccount},
+               #{item.managerCode}
+            </trim>
+        </foreach>
+    </insert>
+
+    <sql id="Query_Condition">
+        <if test="t != null">
+            where
+            <trim prefix=" " suffix=" " suffixOverrides=" and ">
+                1 = 1 and
+                    <if test="t.id != null">
+                        id = #{t.id} and
+                    </if>
+                    <if test="t.customerId != null">
+                        customer_id = #{t.customerId} and
+                    </if>
+                    <if test="t.withdrawalAccountId != null">
+                        withdrawal_account_id = #{t.withdrawalAccountId} and
+                    </if>
+                    <if test="t.amount != null">
+                        amount = #{t.amount} and
+                    </if>
+                    <if test="t.path != null">
+                        path = #{t.path} and
+                    </if>
+                    <if test="t.remark != null">
+                        remark = #{t.remark} and
+                    </if>
+                    <if test="t.state != null">
+                        state = #{t.state} and
+                    </if>
+                    <if test="t.createTime != null">
+                        create_time = #{t.createTime} and
+                    </if>
+                    <if test="t.updateTime != null">
+                        update_time = #{t.updateTime} and
+                    </if>
+                    <if test="t.reason != null">
+                        reason = #{t.reason} and
+                    </if>
+                    <if test="t.adminUserId != null">
+                        admin_user_id = #{t.adminUserId} and
+                    </if>
+                    <if test="t.receiveAccount != null">
+                        receive_account = #{t.receiveAccount} and
+                    </if>
+                    <if test="t.paymentAccount != null">
+                        payment_account = #{t.paymentAccount} and
+                    </if>
+                    <if test="t.managerCode != null">
+                        manager_code = #{t.managerCode} and
+                    </if>
+            </trim>
+        </if>
+    </sql>
+
+    <select id="select" parameterType="com.upedge.common.base.Page" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from affiliate_commission_withdrawal
+        <include refid="Query_Condition"/>
+        <if test="orderBy != null">
+            order by ${orderBy}
+        </if>
+        <if test="pageNum != null and pageSize != null">
+            limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+        </if>
+    </select>
+
+    <select id="count" parameterType="com.upedge.common.base.Page" resultType="java.lang.Long">
+        select
+        count(1)
+        from affiliate_commission_withdrawal
+        <include refid="Query_Condition"/>
+    </select>
+
+
+</mapper>

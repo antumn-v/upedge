@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.upedge.ums.modules.user.dao.CustomerDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.upedge.ums.modules.user.entity.Customer" id="BaseResultMap">
+        <result property="id" column="id"/>
+        <result property="cname" column="cname"/>
+        <result property="cstatus" column="cstatus"/>
+        <result property="createTime" column="create_time"/>
+        <result property="customerSignupUserId" column="customer_signup_user_id"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        `id`,`cname`,`cstatus`,`create_time`,`customer_signup_user_id`
+    </sql>
+
+    <select id="selectByPrimaryKey" parameterType="com.upedge.ums.modules.user.entity.Customer" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from customer
+        where id = #{id}
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="com.upedge.ums.modules.user.entity.Customer">
+        delete from customer
+        where id = #{id}
+    </delete>
+
+    <update id="updateByPrimaryKeySelective" parameterType="com.upedge.ums.modules.user.entity.Customer">
+        update customer
+        <set>
+            <if test="cname != null">
+                cname = #{cname},
+            </if>
+            <if test="cstatus != null">
+                cstatus = #{cstatus},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime},
+            </if>
+            <if test="customerSignupUserId != null">
+                customer_signup_user_id = #{customerSignupUserId},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <update id="updateByPrimaryKey" parameterType="com.upedge.ums.modules.user.entity.Customer">
+        update customer
+        <set>
+        id = #{id},
+        cname = #{cname},
+        cstatus = #{cstatus},
+        create_time = #{createTime},
+        customer_signup_user_id = #{customerSignupUserId},
+        </set>
+        where id = #{id}
+    </update>
+
+    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.upedge.ums.modules.user.entity.Customer" useGeneratedKeys="true">
+        insert into customer
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            id,
+            cname,
+            cstatus,
+            create_time,
+            customer_signup_user_id
+        </trim>
+        values (
+        #{id},
+        #{cname},
+        #{cstatus},
+        #{createTime},
+        #{customerSignupUserId}
+        )
+    </insert>
+
+    <insert id="insertSelective"  keyColumn="id" keyProperty="id"  parameterType="com.upedge.ums.modules.user.entity.Customer" useGeneratedKeys="true">
+        insert into customer
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null" >
+              id
+            </if>
+            <if test="cname != null" >
+              cname
+            </if>
+            <if test="cstatus != null" >
+              cstatus
+            </if>
+            <if test="createTime != null" >
+              create_time
+            </if>
+            <if test="customerSignupUserId != null" >
+              customer_signup_user_id
+            </if>
+
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null" >
+                #{id}
+            </if>
+            <if test="cname != null" >
+                #{cname}
+            </if>
+            <if test="cstatus != null" >
+                #{cstatus}
+            </if>
+            <if test="createTime != null" >
+                #{createTime}
+            </if>
+            <if test="customerSignupUserId != null" >
+                #{customerSignupUserId}
+            </if>
+
+        </trim>
+    </insert>
+
+    <insert id="insertByBatch" parameterType="java.util.List">
+        insert into customer
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+           id,
+           cname,
+           cstatus,
+           create_time,
+           customer_signup_user_id
+        </trim>
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+               #{item.id},
+               #{item.cname},
+               #{item.cstatus},
+               #{item.createTime},
+               #{item.customerSignupUserId}
+            </trim>
+        </foreach>
+    </insert>
+
+    <sql id="Query_Condition">
+        <if test="t != null">
+            where
+            <trim prefix=" " suffix=" " suffixOverrides=" and ">
+                1 = 1 and
+                    <if test="t.id != null">
+                        id = #{t.id} and
+                    </if>
+                    <if test="t.cname != null">
+                        cname = #{t.cname} and
+                    </if>
+                    <if test="t.cstatus != null">
+                        cstatus = #{t.cstatus} and
+                    </if>
+                    <if test="t.createTime != null">
+                        create_time = #{t.createTime} and
+                    </if>
+                    <if test="t.customerSignupUserId != null">
+                        customer_signup_user_id = #{t.customerSignupUserId} and
+                    </if>
+            </trim>
+        </if>
+    </sql>
+
+    <select id="select" parameterType="com.upedge.common.base.Page" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from customer
+        <include refid="Query_Condition"/>
+        <if test="orderBy != null">
+            order by ${orderBy}
+        </if>
+        <if test="pageNum != null and pageSize != null">
+            limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+        </if>
+    </select>
+
+    <select id="count" parameterType="com.upedge.common.base.Page" resultType="java.lang.Long">
+        select
+        count(1)
+        from customer
+        <include refid="Query_Condition"/>
+    </select>
+
+
+</mapper>

@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.upedge.ums.modules.user.dao.CustomerSettingDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.upedge.ums.modules.user.entity.CustomerSetting" id="BaseResultMap">
+        <result property="id" column="id"/>
+        <result property="customerId" column="customer_id"/>
+        <result property="settingName" column="setting_name"/>
+        <result property="settingValue" column="setting_value"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        `id`,`customer_id`,`setting_name`,`setting_value`
+    </sql>
+
+    <select id="selectByPrimaryKey" parameterType="com.upedge.ums.modules.user.entity.CustomerSetting" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from customer_setting
+        where id = #{id}
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="com.upedge.ums.modules.user.entity.CustomerSetting">
+        delete from customer_setting
+        where id = #{id}
+    </delete>
+
+    <update id="updateByPrimaryKeySelective" parameterType="com.upedge.ums.modules.user.entity.CustomerSetting">
+        update customer_setting
+        <set>
+            <if test="customerId != null">
+                customer_id = #{customerId},
+            </if>
+            <if test="settingName != null">
+                setting_name = #{settingName},
+            </if>
+            <if test="settingValue != null">
+                setting_value = #{settingValue},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <update id="updateByPrimaryKey" parameterType="com.upedge.ums.modules.user.entity.CustomerSetting">
+        update customer_setting
+        <set>
+        id = #{id},
+        customer_id = #{customerId},
+        setting_name = #{settingName},
+        setting_value = #{settingValue},
+        </set>
+        where id = #{id}
+    </update>
+
+    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.upedge.ums.modules.user.entity.CustomerSetting" useGeneratedKeys="true">
+        insert into customer_setting
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            id,
+            customer_id,
+            setting_name,
+            setting_value
+        </trim>
+        values (
+        #{id},
+        #{customerId},
+        #{settingName},
+        #{settingValue}
+        )
+    </insert>
+
+    <insert id="insertSelective"  keyColumn="id" keyProperty="id"  parameterType="com.upedge.ums.modules.user.entity.CustomerSetting" useGeneratedKeys="true">
+        insert into customer_setting
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null" >
+              id
+            </if>
+            <if test="customerId != null" >
+              customer_id
+            </if>
+            <if test="settingName != null" >
+              setting_name
+            </if>
+            <if test="settingValue != null" >
+              setting_value
+            </if>
+
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null" >
+                #{id}
+            </if>
+            <if test="customerId != null" >
+                #{customerId}
+            </if>
+            <if test="settingName != null" >
+                #{settingName}
+            </if>
+            <if test="settingValue != null" >
+                #{settingValue}
+            </if>
+
+        </trim>
+    </insert>
+
+    <insert id="insertByBatch" parameterType="java.util.List">
+        insert into customer_setting
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+           id,
+           customer_id,
+           setting_name,
+           setting_value
+        </trim>
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+               #{item.id},
+               #{item.customerId},
+               #{item.settingName},
+               #{item.settingValue}
+            </trim>
+        </foreach>
+    </insert>
+
+    <sql id="Query_Condition">
+        <if test="t != null">
+            where
+            <trim prefix=" " suffix=" " suffixOverrides=" and ">
+                1 = 1 and
+                    <if test="t.id != null">
+                        id = #{t.id} and
+                    </if>
+                    <if test="t.customerId != null">
+                        customer_id = #{t.customerId} and
+                    </if>
+                    <if test="t.settingName != null">
+                        setting_name = #{t.settingName} and
+                    </if>
+                    <if test="t.settingValue != null">
+                        setting_value = #{t.settingValue} and
+                    </if>
+            </trim>
+        </if>
+    </sql>
+
+    <select id="select" parameterType="com.upedge.common.base.Page" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from customer_setting
+        <include refid="Query_Condition"/>
+        <if test="orderBy != null">
+            order by ${orderBy}
+        </if>
+        <if test="pageNum != null and pageSize != null">
+            limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+        </if>
+    </select>
+
+    <select id="count" parameterType="com.upedge.common.base.Page" resultType="java.lang.Long">
+        select
+        count(1)
+        from customer_setting
+        <include refid="Query_Condition"/>
+    </select>
+
+
+</mapper>

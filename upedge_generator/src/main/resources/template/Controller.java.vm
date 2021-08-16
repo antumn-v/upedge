@@ -1,0 +1,82 @@
+package ${package}.${moduleName}.controller;
+
+import java.util.Arrays;
+import java.util.Map;
+
+import com.upedge.common.constant.ResultCode;
+import org.springframework.beans.factory.annotation.Autowired;
+import com.upedge.common.component.annotation.Permission;
+import ${package}.${moduleName}.entity.${className};
+import ${package}.${moduleName}.service.${className}Service;
+import org.springframework.web.bind.annotation.*;
+import java.util.List;
+import com.upedge.common.constant.Constant;
+import ${package}.${moduleName}.request.${className}AddRequest;
+import ${package}.${moduleName}.request.${className}ListRequest;
+import ${package}.${moduleName}.request.${className}UpdateRequest;
+
+import ${package}.${moduleName}.response.${className}AddResponse;
+import ${package}.${moduleName}.response.${className}DelResponse;
+import ${package}.${moduleName}.response.${className}InfoResponse;
+import ${package}.${moduleName}.response.${className}ListResponse;
+import ${package}.${moduleName}.response.${className}UpdateResponse;
+import javax.validation.Valid;
+
+/**
+ * ${comments}
+ *
+ * @author ${author}
+ */
+@RestController
+@RequestMapping("/${classname}")
+public class ${className}Controller {
+    @Autowired
+    private ${className}Service ${classname}Service;
+
+
+    @RequestMapping(value="/info/{id}", method=RequestMethod.GET)
+    @Permission(permission = "${moduleName}:${pathName}:info:id")
+    public ${className}InfoResponse info(@PathVariable ${pk.attrType} id) {
+        ${className} result = ${classname}Service.selectByPrimaryKey(id);
+        ${className}InfoResponse res = new ${className}InfoResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS,result,id);
+        return res;
+    }
+
+    @RequestMapping(value="/list", method=RequestMethod.POST)
+    @Permission(permission = "${moduleName}:${pathName}:list")
+    public ${className}ListResponse list(@RequestBody @Valid ${className}ListRequest request) {
+        List<${className}> results = ${classname}Service.select(request);
+        Long total = ${classname}Service.count(request);
+        request.setTotal(total);
+        ${className}ListResponse res = new ${className}ListResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS,results,request);
+        return res;
+    }
+
+    @RequestMapping(value="/add", method=RequestMethod.POST)
+    @Permission(permission = "${moduleName}:${pathName}:add")
+    public ${className}AddResponse add(@RequestBody @Valid ${className}AddRequest request) {
+        ${className} entity=request.to${className}();
+        ${classname}Service.insertSelective(entity);
+        ${className}AddResponse res = new ${className}AddResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS,entity,request);
+        return res;
+    }
+
+    @RequestMapping(value="/del/{id}", method=RequestMethod.POST)
+    @Permission(permission = "${moduleName}:${pathName}:del:id")
+    public ${className}DelResponse del(@PathVariable ${pk.attrType} id) {
+        ${classname}Service.deleteByPrimaryKey(id);
+        ${className}DelResponse res = new ${className}DelResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS);
+        return res;
+    }
+
+    @RequestMapping(value="/update/{id}", method=RequestMethod.POST)
+    @Permission(permission = "${moduleName}:${pathName}:update")
+    public ${className}UpdateResponse update(@PathVariable ${pk.attrType} id,@RequestBody @Valid ${className}UpdateRequest request) {
+        ${className} entity=request.to${className}(id);
+        ${classname}Service.updateByPrimaryKeySelective(entity);
+        ${className}UpdateResponse res = new ${className}UpdateResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS);
+        return res;
+    }
+
+
+}

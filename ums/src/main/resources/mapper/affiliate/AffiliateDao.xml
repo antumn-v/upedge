@@ -1,0 +1,222 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.upedge.ums.modules.affiliate.dao.AffiliateDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.upedge.ums.modules.affiliate.entity.Affiliate" id="BaseResultMap">
+        <result property="id" column="id"/>
+        <result property="referrerId" column="referrer_id"/>
+        <result property="refereeId" column="referee_id"/>
+        <result property="refereeCommission" column="referee_commission"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="source" column="source"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        `id`,`referrer_id`,`referee_id`,`referee_commission`,`create_time`,`update_time`,`source`
+    </sql>
+
+    <select id="selectByPrimaryKey" parameterType="com.upedge.ums.modules.affiliate.entity.Affiliate" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from affiliate
+        where id = #{id}
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="com.upedge.ums.modules.affiliate.entity.Affiliate">
+        delete from affiliate
+        where id = #{id}
+    </delete>
+
+    <update id="updateByPrimaryKeySelective" parameterType="com.upedge.ums.modules.affiliate.entity.Affiliate">
+        update affiliate
+        <set>
+            <if test="referrerId != null">
+                referrer_id = #{referrerId},
+            </if>
+            <if test="refereeId != null">
+                referee_id = #{refereeId},
+            </if>
+            <if test="refereeCommission != null">
+                referee_commission = #{refereeCommission},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime},
+            </if>
+            <if test="updateTime != null">
+                update_time = #{updateTime},
+            </if>
+            <if test="source != null">
+                source = #{source},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <update id="updateByPrimaryKey" parameterType="com.upedge.ums.modules.affiliate.entity.Affiliate">
+        update affiliate
+        <set>
+        id = #{id},
+        referrer_id = #{referrerId},
+        referee_id = #{refereeId},
+        referee_commission = #{refereeCommission},
+        create_time = #{createTime},
+        update_time = #{updateTime},
+        source = #{source},
+        </set>
+        where id = #{id}
+    </update>
+
+    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.upedge.ums.modules.affiliate.entity.Affiliate" useGeneratedKeys="true">
+        insert into affiliate
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            id,
+            referrer_id,
+            referee_id,
+            referee_commission,
+            create_time,
+            update_time,
+            source
+        </trim>
+        values (
+        #{id},
+        #{referrerId},
+        #{refereeId},
+        #{refereeCommission},
+        #{createTime},
+        #{updateTime},
+        #{source}
+        )
+    </insert>
+
+    <insert id="insertSelective"  keyColumn="id" keyProperty="id"  parameterType="com.upedge.ums.modules.affiliate.entity.Affiliate" useGeneratedKeys="true">
+        insert into affiliate
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null" >
+              id
+            </if>
+            <if test="referrerId != null" >
+              referrer_id
+            </if>
+            <if test="refereeId != null" >
+              referee_id
+            </if>
+            <if test="refereeCommission != null" >
+              referee_commission
+            </if>
+            <if test="createTime != null" >
+              create_time
+            </if>
+            <if test="updateTime != null" >
+              update_time
+            </if>
+            <if test="source != null" >
+              source
+            </if>
+
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null" >
+                #{id}
+            </if>
+            <if test="referrerId != null" >
+                #{referrerId}
+            </if>
+            <if test="refereeId != null" >
+                #{refereeId}
+            </if>
+            <if test="refereeCommission != null" >
+                #{refereeCommission}
+            </if>
+            <if test="createTime != null" >
+                #{createTime}
+            </if>
+            <if test="updateTime != null" >
+                #{updateTime}
+            </if>
+            <if test="source != null" >
+                #{source}
+            </if>
+
+        </trim>
+    </insert>
+
+    <insert id="insertByBatch" parameterType="java.util.List">
+        insert into affiliate
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+           id,
+           referrer_id,
+           referee_id,
+           referee_commission,
+           create_time,
+           update_time,
+           source
+        </trim>
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+               #{item.id},
+               #{item.referrerId},
+               #{item.refereeId},
+               #{item.refereeCommission},
+               #{item.createTime},
+               #{item.updateTime},
+               #{item.source}
+            </trim>
+        </foreach>
+    </insert>
+
+    <sql id="Query_Condition">
+        <if test="t != null">
+            where
+            <trim prefix=" " suffix=" " suffixOverrides=" and ">
+                1 = 1 and
+                    <if test="t.id != null">
+                        id = #{t.id} and
+                    </if>
+                    <if test="t.referrerId != null">
+                        referrer_id = #{t.referrerId} and
+                    </if>
+                    <if test="t.refereeId != null">
+                        referee_id = #{t.refereeId} and
+                    </if>
+                    <if test="t.refereeCommission != null">
+                        referee_commission = #{t.refereeCommission} and
+                    </if>
+                    <if test="t.createTime != null">
+                        create_time = #{t.createTime} and
+                    </if>
+                    <if test="t.updateTime != null">
+                        update_time = #{t.updateTime} and
+                    </if>
+                    <if test="t.source != null">
+                        source = #{t.source} and
+                    </if>
+            </trim>
+        </if>
+    </sql>
+
+    <select id="select" parameterType="com.upedge.common.base.Page" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from affiliate
+        <include refid="Query_Condition"/>
+        <if test="orderBy != null">
+            order by ${orderBy}
+        </if>
+        <if test="pageNum != null and pageSize != null">
+            limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+        </if>
+    </select>
+
+    <select id="count" parameterType="com.upedge.common.base.Page" resultType="java.lang.Long">
+        select
+        count(1)
+        from affiliate
+        <include refid="Query_Condition"/>
+    </select>
+
+
+</mapper>

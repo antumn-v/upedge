@@ -1,0 +1,29 @@
+import request from '@/utils/request'
+
+export function ${classname}List(data) {
+    return request({
+        url: '/base/${classname}/list',
+        method: 'post',
+        data
+    })
+}
+export function ${classname}Add(data) {
+    return request({
+        url: '/base/${classname}/add',
+        method: 'post',
+        data
+    })
+}
+export function ${classname}Delete(data) {
+    return request({
+        url: `/base/${classname}/delete/${data.id}`,
+        method: 'post'
+    })
+}
+export function ${classname}Update(data) {
+    return request({
+        url: `/base/${classname}/update/${data.id}`,
+        method: 'post',
+        data
+    })
+}

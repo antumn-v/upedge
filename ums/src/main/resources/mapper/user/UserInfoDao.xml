@@ -1,0 +1,373 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.upedge.ums.modules.user.dao.UserInfoDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.upedge.ums.modules.user.entity.UserInfo" id="BaseResultMap">
+        <result property="id" column="id"/>
+        <result property="customerId" column="customer_id"/>
+        <result property="orgId" column="org_id"/>
+        <result property="username" column="username"/>
+        <result property="avatar" column="avatar"/>
+        <result property="mobile" column="mobile"/>
+        <result property="email" column="email"/>
+        <result property="country" column="country"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="whatsapp" column="whatsapp"/>
+        <result property="wechat" column="wechat"/>
+        <result property="fbInfo" column="fb_info"/>
+        <result property="skype" column="skype"/>
+        <result property="sex" column="sex"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        `id`,`customer_id`,`org_id`,`username`,`avatar`,`mobile`,`email`,`country`,`create_time`,`update_time`,`whatsapp`,`wechat`,`fb_info`,`skype`,`sex`
+    </sql>
+
+    <select id="selectByPrimaryKey" parameterType="com.upedge.ums.modules.user.entity.UserInfo" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from user_info
+        where id = #{id}
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="com.upedge.ums.modules.user.entity.UserInfo">
+        delete from user_info
+        where id = #{id}
+    </delete>
+
+    <update id="updateByPrimaryKeySelective" parameterType="com.upedge.ums.modules.user.entity.UserInfo">
+        update user_info
+        <set>
+            <if test="customerId != null">
+                customer_id = #{customerId},
+            </if>
+            <if test="orgId != null">
+                org_id = #{orgId},
+            </if>
+            <if test="username != null">
+                username = #{username},
+            </if>
+            <if test="avatar != null">
+                avatar = #{avatar},
+            </if>
+            <if test="mobile != null">
+                mobile = #{mobile},
+            </if>
+            <if test="email != null">
+                email = #{email},
+            </if>
+            <if test="country != null">
+                country = #{country},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime},
+            </if>
+            <if test="updateTime != null">
+                update_time = #{updateTime},
+            </if>
+            <if test="whatsapp != null">
+                whatsapp = #{whatsapp},
+            </if>
+            <if test="wechat != null">
+                wechat = #{wechat},
+            </if>
+            <if test="fbInfo != null">
+                fb_info = #{fbInfo},
+            </if>
+            <if test="skype != null">
+                skype = #{skype},
+            </if>
+            <if test="sex != null">
+                sex = #{sex},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <update id="updateByPrimaryKey" parameterType="com.upedge.ums.modules.user.entity.UserInfo">
+        update user_info
+        <set>
+        id = #{id},
+        customer_id = #{customerId},
+        org_id = #{orgId},
+        username = #{username},
+        avatar = #{avatar},
+        mobile = #{mobile},
+        email = #{email},
+        country = #{country},
+        create_time = #{createTime},
+        update_time = #{updateTime},
+        whatsapp = #{whatsapp},
+        wechat = #{wechat},
+        fb_info = #{fbInfo},
+        skype = #{skype},
+        sex = #{sex},
+        </set>
+        where id = #{id}
+    </update>
+
+    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.upedge.ums.modules.user.entity.UserInfo" useGeneratedKeys="true">
+        insert into user_info
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            id,
+            customer_id,
+            org_id,
+            username,
+            avatar,
+            mobile,
+            email,
+            country,
+            create_time,
+            update_time,
+            whatsapp,
+            wechat,
+            fb_info,
+            skype,
+            sex
+        </trim>
+        values (
+        #{id},
+        #{customerId},
+        #{orgId},
+        #{username},
+        #{avatar},
+        #{mobile},
+        #{email},
+        #{country},
+        #{createTime},
+        #{updateTime},
+        #{whatsapp},
+        #{wechat},
+        #{fbInfo},
+        #{skype},
+        #{sex}
+        )
+    </insert>
+
+    <insert id="insertSelective"  keyColumn="id" keyProperty="id"  parameterType="com.upedge.ums.modules.user.entity.UserInfo" useGeneratedKeys="true">
+        insert into user_info
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null" >
+              id
+            </if>
+            <if test="customerId != null" >
+              customer_id
+            </if>
+            <if test="orgId != null" >
+              org_id
+            </if>
+            <if test="username != null" >
+              username
+            </if>
+            <if test="avatar != null" >
+              avatar
+            </if>
+            <if test="mobile != null" >
+              mobile
+            </if>
+            <if test="email != null" >
+              email
+            </if>
+            <if test="country != null" >
+              country
+            </if>
+            <if test="createTime != null" >
+              create_time
+            </if>
+            <if test="updateTime != null" >
+              update_time
+            </if>
+            <if test="whatsapp != null" >
+              whatsapp
+            </if>
+            <if test="wechat != null" >
+              wechat
+            </if>
+            <if test="fbInfo != null" >
+              fb_info
+            </if>
+            <if test="skype != null" >
+              skype
+            </if>
+            <if test="sex != null" >
+              sex
+            </if>
+
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null" >
+                #{id}
+            </if>
+            <if test="customerId != null" >
+                #{customerId}
+            </if>
+            <if test="orgId != null" >
+                #{orgId}
+            </if>
+            <if test="username != null" >
+                #{username}
+            </if>
+            <if test="avatar != null" >
+                #{avatar}
+            </if>
+            <if test="mobile != null" >
+                #{mobile}
+            </if>
+            <if test="email != null" >
+                #{email}
+            </if>
+            <if test="country != null" >
+                #{country}
+            </if>
+            <if test="createTime != null" >
+                #{createTime}
+            </if>
+            <if test="updateTime != null" >
+                #{updateTime}
+            </if>
+            <if test="whatsapp != null" >
+                #{whatsapp}
+            </if>
+            <if test="wechat != null" >
+                #{wechat}
+            </if>
+            <if test="fbInfo != null" >
+                #{fbInfo}
+            </if>
+            <if test="skype != null" >
+                #{skype}
+            </if>
+            <if test="sex != null" >
+                #{sex}
+            </if>
+
+        </trim>
+    </insert>
+
+    <insert id="insertByBatch" parameterType="java.util.List">
+        insert into user_info
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+           id,
+           customer_id,
+           org_id,
+           username,
+           avatar,
+           mobile,
+           email,
+           country,
+           create_time,
+           update_time,
+           whatsapp,
+           wechat,
+           fb_info,
+           skype,
+           sex
+        </trim>
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+               #{item.id},
+               #{item.customerId},
+               #{item.orgId},
+               #{item.username},
+               #{item.avatar},
+               #{item.mobile},
+               #{item.email},
+               #{item.country},
+               #{item.createTime},
+               #{item.updateTime},
+               #{item.whatsapp},
+               #{item.wechat},
+               #{item.fbInfo},
+               #{item.skype},
+               #{item.sex}
+            </trim>
+        </foreach>
+    </insert>
+
+    <sql id="Query_Condition">
+        <if test="t != null">
+            where
+            <trim prefix=" " suffix=" " suffixOverrides=" and ">
+                1 = 1 and
+                    <if test="t.id != null">
+                        id = #{t.id} and
+                    </if>
+                    <if test="t.customerId != null">
+                        customer_id = #{t.customerId} and
+                    </if>
+                    <if test="t.orgId != null">
+                        org_id = #{t.orgId} and
+                    </if>
+                    <if test="t.username != null">
+                        username = #{t.username} and
+                    </if>
+                    <if test="t.avatar != null">
+                        avatar = #{t.avatar} and
+                    </if>
+                    <if test="t.mobile != null">
+                        mobile = #{t.mobile} and
+                    </if>
+                    <if test="t.email != null">
+                        email = #{t.email} and
+                    </if>
+                    <if test="t.country != null">
+                        country = #{t.country} and
+                    </if>
+                    <if test="t.createTime != null">
+                        create_time = #{t.createTime} and
+                    </if>
+                    <if test="t.updateTime != null">
+                        update_time = #{t.updateTime} and
+                    </if>
+                    <if test="t.whatsapp != null">
+                        whatsapp = #{t.whatsapp} and
+                    </if>
+                    <if test="t.wechat != null">
+                        wechat = #{t.wechat} and
+                    </if>
+                    <if test="t.fbInfo != null">
+                        fb_info = #{t.fbInfo} and
+                    </if>
+                    <if test="t.skype != null">
+                        skype = #{t.skype} and
+                    </if>
+                    <if test="t.sex != null">
+                        sex = #{t.sex} and
+                    </if>
+            </trim>
+        </if>
+    </sql>
+
+    <select id="select" parameterType="com.upedge.common.base.Page" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from user_info
+        <include refid="Query_Condition"/>
+        <if test="orderBy != null">
+            order by ${orderBy}
+        </if>
+        <if test="pageNum != null and pageSize != null">
+            limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+        </if>
+    </select>
+
+    <select id="count" parameterType="com.upedge.common.base.Page" resultType="java.lang.Long">
+        select
+        count(1)
+        from user_info
+        <include refid="Query_Condition"/>
+    </select>
+
+    <select id="selectByEmail" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from user_info
+        where email = #{email}
+    </select>
+
+
+</mapper>

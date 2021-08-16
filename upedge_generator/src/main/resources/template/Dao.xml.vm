@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="${package}.${moduleName}.dao.${className}Dao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="${package}.${moduleName}.entity.${className}" id="BaseResultMap">
+#foreach($column in $columns)
+        <result property="${column.attrname}" column="${column.columnName}"/>
+#end
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        #foreach($column in $columns)
+`${column.columnName}`#if($foreach.count<($columns.size())),#end
+#end
+
+    </sql>
+
+    <select id="selectByPrimaryKey" parameterType="${package}.${moduleName}.entity.${className}" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from ${tableName}
+        where ${pk.columnName} = #{${pk.attrname}}
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="${package}.${moduleName}.entity.${className}">
+        delete from ${tableName}
+        where ${pk.columnName} = #{${pk.attrname}}
+    </delete>
+
+    <update id="updateByPrimaryKeySelective" parameterType="${package}.${moduleName}.entity.${className}">
+        update ${tableName}
+        <set>
+#foreach($column in $columns)
+#if($column.attrname!=$pk.attrname)
+            <if test="${column.attrname} != null">
+                ${column.columnName} = #{${column.attrname}},
+            </if>
+#end
+#end
+        </set>
+        where ${pk.columnName} = #{${pk.attrname}}
+    </update>
+
+    <update id="updateByPrimaryKey" parameterType="${package}.${moduleName}.entity.${className}">
+        update ${tableName}
+        <set>
+#if($column.attrname!=$pk.attrname)
+#foreach($column in $columns)
+        ${column.columnName} = #{${column.attrname}},
+#end
+#end
+        </set>
+        where ${pk.columnName} = #{${pk.attrname}}
+    </update>
+
+    <insert id="insert" keyColumn="${pk.columnName}" keyProperty="${pk.attrname}" parameterType="${package}.${moduleName}.entity.${className}" useGeneratedKeys="true">
+        insert into ${tableName}
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+#foreach($column in $columns)
+            ${column.columnName}#if($foreach.count<($columns.size())),
+#end
+#end
+
+        </trim>
+        values (
+#foreach($column in $columns)
+        #{${column.attrname}}#if($foreach.count<($columns.size())),
+#end
+#end
+
+        )
+    </insert>
+
+    <insert id="insertSelective"  keyColumn="${pk.columnName}" keyProperty="${pk.attrname}"  parameterType="${package}.${moduleName}.entity.${className}" useGeneratedKeys="true">
+        insert into ${tableName}
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+#foreach($column in $columns)
+            <if test="${column.attrname} != null" >
+              ${column.columnName}
+            </if>
+#end
+
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+#foreach($column in $columns)
+            <if test="${column.attrname} != null" >
+                #{${column.attrname}}
+            </if>
+#end
+
+        </trim>
+    </insert>
+
+    <insert id="insertByBatch" parameterType="java.util.List">
+        insert into ${tableName}
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+#foreach($column in $columns)
+           ${column.columnName}#if($foreach.count<($columns.size())),
+#end
+#end
+
+        </trim>
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+#foreach($column in $columns)
+               #{item.${column.attrname}}#if($foreach.count<($columns.size())),
+#end
+#end
+
+            </trim>
+        </foreach>
+    </insert>
+
+    <sql id="Query_Condition">
+        <if test="t != null">
+            where
+            <trim prefix=" " suffix=" " suffixOverrides=" and ">
+                1 = 1 and
+#foreach($column in $columns)
+                    <if test="t.${column.attrname} != null">
+                        ${column.columnName} = #{t.${column.attrname}} and
+                    </if>
+#end
+            </trim>
+        </if>
+    </sql>
+
+    <select id="select" parameterType="com.upedge.common.base.Page" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from ${tableName}
+        <include refid="Query_Condition"/>
+        <if test="orderBy != null">
+            order by ${orderBy}
+        </if>
+        <if test="pageNum != null and pageSize != null">
+            limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+        </if>
+    </select>
+
+    <select id="count" parameterType="com.upedge.common.base.Page" resultType="java.lang.Long">
+        select
+        count(1)
+        from ${tableName}
+        <include refid="Query_Condition"/>
+    </select>
+
+
+</mapper>

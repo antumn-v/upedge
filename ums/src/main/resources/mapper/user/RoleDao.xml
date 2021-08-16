@@ -1,0 +1,257 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.upedge.ums.modules.user.dao.RoleDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.upedge.ums.modules.user.entity.Role" id="BaseResultMap">
+        <result property="id" column="id"/>
+        <result property="customerId" column="customer_id"/>
+        <result property="roleCode" column="role_code"/>
+        <result property="roleName" column="role_name"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="applicationId" column="application_id"/>
+        <result property="roleType" column="role_type"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        `id`,`customer_id`,`role_code`,`role_name`,`create_time`,`update_time`,`application_id`,`role_type`
+    </sql>
+
+    <select id="selectByPrimaryKey" parameterType="com.upedge.ums.modules.user.entity.Role" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from role
+        where id = #{id}
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="com.upedge.ums.modules.user.entity.Role">
+        delete from role
+        where id = #{id}
+    </delete>
+
+    <update id="updateByPrimaryKeySelective" parameterType="com.upedge.ums.modules.user.entity.Role">
+        update role
+        <set>
+            <if test="customerId != null">
+                customer_id = #{customerId},
+            </if>
+            <if test="roleCode != null">
+                role_code = #{roleCode},
+            </if>
+            <if test="roleName != null">
+                role_name = #{roleName},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime},
+            </if>
+            <if test="updateTime != null">
+                update_time = #{updateTime},
+            </if>
+            <if test="applicationId != null">
+                application_id = #{applicationId},
+            </if>
+            <if test="roleType != null">
+                role_type = #{roleType},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <update id="updateByPrimaryKey" parameterType="com.upedge.ums.modules.user.entity.Role">
+        update role
+        <set>
+        id = #{id},
+        customer_id = #{customerId},
+        role_code = #{roleCode},
+        role_name = #{roleName},
+        create_time = #{createTime},
+        update_time = #{updateTime},
+        application_id = #{applicationId},
+        role_type = #{roleType},
+        </set>
+        where id = #{id}
+    </update>
+
+    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.upedge.ums.modules.user.entity.Role" useGeneratedKeys="true">
+        insert into role
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            id,
+            customer_id,
+            role_code,
+            role_name,
+            create_time,
+            update_time,
+            application_id,
+            role_type
+        </trim>
+        values (
+        #{id},
+        #{customerId},
+        #{roleCode},
+        #{roleName},
+        #{createTime},
+        #{updateTime},
+        #{applicationId},
+        #{roleType}
+        )
+    </insert>
+
+    <insert id="insertSelective"  keyColumn="id" keyProperty="id"  parameterType="com.upedge.ums.modules.user.entity.Role" useGeneratedKeys="true">
+        insert into role
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null" >
+              id
+            </if>
+            <if test="customerId != null" >
+              customer_id
+            </if>
+            <if test="roleCode != null" >
+              role_code
+            </if>
+            <if test="roleName != null" >
+              role_name
+            </if>
+            <if test="createTime != null" >
+              create_time
+            </if>
+            <if test="updateTime != null" >
+              update_time
+            </if>
+            <if test="applicationId != null" >
+              application_id
+            </if>
+            <if test="roleType != null" >
+              role_type
+            </if>
+
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null" >
+                #{id}
+            </if>
+            <if test="customerId != null" >
+                #{customerId}
+            </if>
+            <if test="roleCode != null" >
+                #{roleCode}
+            </if>
+            <if test="roleName != null" >
+                #{roleName}
+            </if>
+            <if test="createTime != null" >
+                #{createTime}
+            </if>
+            <if test="updateTime != null" >
+                #{updateTime}
+            </if>
+            <if test="applicationId != null" >
+                #{applicationId}
+            </if>
+            <if test="roleType != null" >
+                #{roleType}
+            </if>
+
+        </trim>
+    </insert>
+
+    <insert id="insertByBatch" parameterType="java.util.List">
+        insert into role
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+           id,
+           customer_id,
+           role_code,
+           role_name,
+           create_time,
+           update_time,
+           application_id,
+           role_type
+        </trim>
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+               #{item.id},
+               #{item.customerId},
+               #{item.roleCode},
+               #{item.roleName},
+               #{item.createTime},
+               #{item.updateTime},
+               #{item.applicationId},
+               #{item.roleType}
+            </trim>
+        </foreach>
+    </insert>
+
+    <sql id="Query_Condition">
+        <if test="t != null">
+            where
+            <trim prefix=" " suffix=" " suffixOverrides=" and ">
+                1 = 1 and
+                    <if test="t.id != null">
+                        id = #{t.id} and
+                    </if>
+                    <if test="t.customerId != null">
+                        customer_id = #{t.customerId} and
+                    </if>
+                    <if test="t.roleCode != null">
+                        role_code = #{t.roleCode} and
+                    </if>
+                    <if test="t.roleName != null">
+                        role_name = #{t.roleName} and
+                    </if>
+                    <if test="t.createTime != null">
+                        create_time = #{t.createTime} and
+                    </if>
+                    <if test="t.updateTime != null">
+                        update_time = #{t.updateTime} and
+                    </if>
+                    <if test="t.applicationId != null">
+                        application_id = #{t.applicationId} and
+                    </if>
+                    <if test="t.roleType != null">
+                        role_type = #{t.roleType} and
+                    </if>
+            </trim>
+        </if>
+    </sql>
+
+    <select id="select" parameterType="com.upedge.common.base.Page" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from role
+        <include refid="Query_Condition"/>
+        <if test="orderBy != null">
+            order by ${orderBy}
+        </if>
+        <if test="pageNum != null and pageSize != null">
+            limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+        </if>
+    </select>
+
+    <select id="count" parameterType="com.upedge.common.base.Page" resultType="java.lang.Long">
+        select
+        count(1)
+        from role
+        <include refid="Query_Condition"/>
+    </select>
+
+
+    <select id="selectByApplicationIdAndRoleCode" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from role
+        where application_id=#{applicationId}
+        and role_code = #{roleCode}
+    </select>
+    <select id="selectRoleByUser" resultType="com.upedge.ums.modules.user.entity.Role">
+        select
+        <include refid="Base_Column_List"/>
+        from role r
+        left join user_role u
+        on u.role_id = r.id
+        where u.user_id = #{userId}
+    </select>
+
+
+</mapper>

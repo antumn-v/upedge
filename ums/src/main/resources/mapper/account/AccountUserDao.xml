@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.upedge.ums.modules.account.dao.AccountUserDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.upedge.ums.modules.account.entity.AccountUser" id="BaseResultMap">
+        <result property="userId" column="user_id"/>
+        <result property="accountId" column="account_id"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        `user_id`,`account_id`
+    </sql>
+
+    <sql id="AccountColumn">
+    id,`name`, customer_id, balance, rebate, credit,credit_limit, commission,status
+  </sql>
+
+    <select id="selectByPrimaryKey" parameterType="com.upedge.ums.modules.account.entity.AccountUser" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from account_user
+        where user_id = #{userId}
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="com.upedge.ums.modules.account.entity.AccountUser">
+        delete from account_user
+        where user_id = #{userId}
+    </delete>
+
+    <update id="updateByPrimaryKeySelective" parameterType="com.upedge.ums.modules.account.entity.AccountUser">
+        update account_user
+        <set>
+            <if test="accountId != null">
+                account_id = #{accountId},
+            </if>
+        </set>
+        where user_id = #{userId}
+    </update>
+
+    <update id="updateByPrimaryKey" parameterType="com.upedge.ums.modules.account.entity.AccountUser">
+        update account_user
+        <set>
+        user_id = #{userId},
+        account_id = #{accountId},
+        </set>
+        where user_id = #{userId}
+    </update>
+
+    <insert id="insert" keyColumn="user_id" keyProperty="userId" parameterType="com.upedge.ums.modules.account.entity.AccountUser" useGeneratedKeys="true">
+        insert into account_user
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            user_id,
+            account_id
+        </trim>
+        values (
+        #{userId},
+        #{accountId}
+        )
+    </insert>
+
+    <insert id="insertSelective"  keyColumn="user_id" keyProperty="userId"  parameterType="com.upedge.ums.modules.account.entity.AccountUser" useGeneratedKeys="true">
+        insert into account_user
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="userId != null" >
+              user_id
+            </if>
+            <if test="accountId != null" >
+              account_id
+            </if>
+
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="userId != null" >
+                #{userId}
+            </if>
+            <if test="accountId != null" >
+                #{accountId}
+            </if>
+
+        </trim>
+    </insert>
+
+    <insert id="insertByBatch" parameterType="java.util.List">
+        insert into account_user
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+           user_id,
+           account_id
+        </trim>
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+               #{item.userId},
+               #{item.accountId}
+            </trim>
+        </foreach>
+    </insert>
+
+    <sql id="Query_Condition">
+        <if test="t != null">
+            where
+            <trim prefix=" " suffix=" " suffixOverrides=" and ">
+                1 = 1 and
+                    <if test="t.userId != null">
+                        user_id = #{t.userId} and
+                    </if>
+                    <if test="t.accountId != null">
+                        account_id = #{t.accountId} and
+                    </if>
+            </trim>
+        </if>
+    </sql>
+
+    <select id="select" parameterType="com.upedge.common.base.Page" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from account_user
+        <include refid="Query_Condition"/>
+        <if test="orderBy != null">
+            order by ${orderBy}
+        </if>
+        <if test="pageNum != null and pageSize != null">
+            limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+        </if>
+    </select>
+
+    <select id="count" parameterType="com.upedge.common.base.Page" resultType="java.lang.Long">
+        select
+        count(1)
+        from account_user
+        <include refid="Query_Condition"/>
+    </select>
+    <select id="selectUserAccount" resultType="com.upedge.ums.modules.account.entity.Account">
+        select <include refid="AccountColumn"/>
+        from account a
+        inner join account_user au
+        on a.id = au.account_id
+        where au.user_id = #{userId}
+        and a.status = '1'
+        limit 1
+    </select>
+
+
+</mapper>

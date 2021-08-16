@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.upedge.ums.modules.user.dao.CustomerApplicationDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.upedge.ums.modules.user.entity.CustomerApplication" id="BaseResultMap">
+        <result property="customerId" column="customer_id"/>
+        <result property="applicationId" column="application_id"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        `customer_id`,`application_id`
+    </sql>
+
+    <select id="selectByPrimaryKey" parameterType="com.upedge.ums.modules.user.entity.CustomerApplication" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from customer_application
+        where customer_id = #{customerId}
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="com.upedge.ums.modules.user.entity.CustomerApplication">
+        delete from customer_application
+        where customer_id = #{customerId}
+    </delete>
+
+    <update id="updateByPrimaryKeySelective" parameterType="com.upedge.ums.modules.user.entity.CustomerApplication">
+        update customer_application
+        <set>
+            <if test="applicationId != null">
+                application_id = #{applicationId},
+            </if>
+        </set>
+        where customer_id = #{customerId}
+    </update>
+
+    <update id="updateByPrimaryKey" parameterType="com.upedge.ums.modules.user.entity.CustomerApplication">
+        update customer_application
+        <set>
+        customer_id = #{customerId},
+        application_id = #{applicationId},
+        </set>
+        where customer_id = #{customerId}
+    </update>
+
+    <insert id="insert" keyColumn="customer_id" keyProperty="customerId" parameterType="com.upedge.ums.modules.user.entity.CustomerApplication" useGeneratedKeys="true">
+        insert into customer_application
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            customer_id,
+            application_id
+        </trim>
+        values (
+        #{customerId},
+        #{applicationId}
+        )
+    </insert>
+
+    <insert id="insertSelective"  keyColumn="customer_id" keyProperty="customerId"  parameterType="com.upedge.ums.modules.user.entity.CustomerApplication" useGeneratedKeys="true">
+        insert into customer_application
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="customerId != null" >
+              customer_id
+            </if>
+            <if test="applicationId != null" >
+              application_id
+            </if>
+
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="customerId != null" >
+                #{customerId}
+            </if>
+            <if test="applicationId != null" >
+                #{applicationId}
+            </if>
+
+        </trim>
+    </insert>
+
+    <insert id="insertByBatch" parameterType="java.util.List">
+        insert into customer_application
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+           customer_id,
+           application_id
+        </trim>
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+               #{item.customerId},
+               #{item.applicationId}
+            </trim>
+        </foreach>
+    </insert>
+
+    <sql id="Query_Condition">
+        <if test="t != null">
+            where
+            <trim prefix=" " suffix=" " suffixOverrides=" and ">
+                1 = 1 and
+                    <if test="t.customerId != null">
+                        customer_id = #{t.customerId} and
+                    </if>
+                    <if test="t.applicationId != null">
+                        application_id = #{t.applicationId} and
+                    </if>
+            </trim>
+        </if>
+    </sql>
+
+    <select id="select" parameterType="com.upedge.common.base.Page" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from customer_application
+        <include refid="Query_Condition"/>
+        <if test="orderBy != null">
+            order by ${orderBy}
+        </if>
+        <if test="pageNum != null and pageSize != null">
+            limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+        </if>
+    </select>
+
+    <select id="count" parameterType="com.upedge.common.base.Page" resultType="java.lang.Long">
+        select
+        count(1)
+        from customer_application
+        <include refid="Query_Condition"/>
+    </select>
+
+
+</mapper>

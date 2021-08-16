@@ -1,0 +1,28 @@
+package ${package}.${moduleName}.service;
+
+import ${package}.${moduleName}.entity.${className};
+import com.upedge.common.base.Page;
+import java.util.List;
+
+/**
+ * @author ${author}
+ */
+public interface ${className}Service{
+
+    ${className} selectByPrimaryKey(${pk.attrType} ${pk.attrname});
+
+    int deleteByPrimaryKey(${pk.attrType} ${pk.attrname});
+
+    int updateByPrimaryKey(${className} record);
+
+    int updateByPrimaryKeySelective(${className} record);
+
+    int insert(${className} record);
+
+    int insertSelective(${className} record);
+
+    List<${className}> select(Page<${className}> record);
+
+    long count(Page<${className}> record);
+}
+

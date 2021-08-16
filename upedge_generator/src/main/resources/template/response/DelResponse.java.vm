@@ -1,0 +1,12 @@
+package ${package}.${moduleName}.response;
+
+import com.upedge.common.base.BaseResponse;
+
+/**
+ * @author ${author}
+ */
+public class ${className}DelResponse extends BaseResponse {
+    public ${className}DelResponse(int code, String msg) {
+        super(code,msg);
+    }
+}

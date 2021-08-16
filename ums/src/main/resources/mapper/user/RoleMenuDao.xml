@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.upedge.ums.modules.user.dao.RoleMenuDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.upedge.ums.modules.user.entity.RoleMenu" id="BaseResultMap">
+        <result property="roleId" column="role_id"/>
+        <result property="menuId" column="menu_id"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        `role_id`,`menu_id`
+    </sql>
+
+    <select id="selectByPrimaryKey" parameterType="com.upedge.ums.modules.user.entity.RoleMenu" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from role_menu
+        where role_id = #{roleId}
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="com.upedge.ums.modules.user.entity.RoleMenu">
+        delete from role_menu
+        where role_id = #{roleId}
+    </delete>
+
+    <update id="updateByPrimaryKeySelective" parameterType="com.upedge.ums.modules.user.entity.RoleMenu">
+        update role_menu
+        <set>
+            <if test="menuId != null">
+                menu_id = #{menuId},
+            </if>
+        </set>
+        where role_id = #{roleId}
+    </update>
+
+    <update id="updateByPrimaryKey" parameterType="com.upedge.ums.modules.user.entity.RoleMenu">
+        update role_menu
+        <set>
+        role_id = #{roleId},
+        menu_id = #{menuId},
+        </set>
+        where role_id = #{roleId}
+    </update>
+
+    <insert id="insert" keyColumn="role_id" keyProperty="roleId" parameterType="com.upedge.ums.modules.user.entity.RoleMenu" useGeneratedKeys="true">
+        insert into role_menu
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            role_id,
+            menu_id
+        </trim>
+        values (
+        #{roleId},
+        #{menuId}
+        )
+    </insert>
+
+    <insert id="insertSelective"  keyColumn="role_id" keyProperty="roleId"  parameterType="com.upedge.ums.modules.user.entity.RoleMenu" useGeneratedKeys="true">
+        insert into role_menu
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="roleId != null" >
+              role_id
+            </if>
+            <if test="menuId != null" >
+              menu_id
+            </if>
+
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="roleId != null" >
+                #{roleId}
+            </if>
+            <if test="menuId != null" >
+                #{menuId}
+            </if>
+
+        </trim>
+    </insert>
+
+    <insert id="insertByBatch" parameterType="java.util.List">
+        insert into role_menu
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+           role_id,
+           menu_id
+        </trim>
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+               #{item.roleId},
+               #{item.menuId}
+            </trim>
+        </foreach>
+    </insert>
+
+    <sql id="Query_Condition">
+        <if test="t != null">
+            where
+            <trim prefix=" " suffix=" " suffixOverrides=" and ">
+                1 = 1 and
+                    <if test="t.roleId != null">
+                        role_id = #{t.roleId} and
+                    </if>
+                    <if test="t.menuId != null">
+                        menu_id = #{t.menuId} and
+                    </if>
+            </trim>
+        </if>
+    </sql>
+
+    <select id="select" parameterType="com.upedge.common.base.Page" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from role_menu
+        <include refid="Query_Condition"/>
+        <if test="orderBy != null">
+            order by ${orderBy}
+        </if>
+        <if test="pageNum != null and pageSize != null">
+            limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+        </if>
+    </select>
+
+    <select id="count" parameterType="com.upedge.common.base.Page" resultType="java.lang.Long">
+        select
+        count(1)
+        from role_menu
+        <include refid="Query_Condition"/>
+    </select>
+    <select id="selectRoleMenuByApplication" resultType="com.upedge.ums.modules.application.entity.Menu">
+        select  m.`id`,m.`application_id`,m.`title`,
+        m.`name`,m.`url`,m.`parent_id`,m.`menu_path`,m.`seq`,
+        m.`update_time`,m.`create_time`,m.`menu_type`,m.`menu_group`
+        from role_menu rm
+        inner join menu m
+        on rm.menu_id = m.id
+        where rm.role_id = #{roleId}
+        and m.application_id = #{applicationId}
+    </select>
+
+
+</mapper>

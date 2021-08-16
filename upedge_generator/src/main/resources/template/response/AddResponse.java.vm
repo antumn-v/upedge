@@ -1,0 +1,12 @@
+package ${package}.${moduleName}.response;
+
+import com.upedge.common.base.BaseResponse;
+import ${package}.${moduleName}.request.${className}AddRequest;
+/**
+ * @author ${author}
+ */
+public class ${className}AddResponse extends BaseResponse {
+    public ${className}AddResponse(int code, String msg, Object data, ${className}AddRequest req) {
+        super(code,msg,data,req);
+    }
+}

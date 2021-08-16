@@ -1,0 +1,222 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.upedge.ums.modules.application.dao.ApplicationDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.upedge.ums.modules.application.entity.Application" id="BaseResultMap">
+        <result property="id" column="id"/>
+        <result property="name" column="name"/>
+        <result property="code" column="code"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="url" column="url"/>
+        <result property="menuGroup" column="menu_group"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        `id`,`name`,`code`,`create_time`,`update_time`,`url`,`menu_group`
+    </sql>
+
+    <select id="selectByPrimaryKey" parameterType="com.upedge.ums.modules.application.entity.Application" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from application
+        where id = #{id}
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="com.upedge.ums.modules.application.entity.Application">
+        delete from application
+        where id = #{id}
+    </delete>
+
+    <update id="updateByPrimaryKeySelective" parameterType="com.upedge.ums.modules.application.entity.Application">
+        update application
+        <set>
+            <if test="name != null">
+                name = #{name},
+            </if>
+            <if test="code != null">
+                code = #{code},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime},
+            </if>
+            <if test="updateTime != null">
+                update_time = #{updateTime},
+            </if>
+            <if test="url != null">
+                url = #{url},
+            </if>
+            <if test="menuGroup != null">
+                menu_group = #{menuGroup},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <update id="updateByPrimaryKey" parameterType="com.upedge.ums.modules.application.entity.Application">
+        update application
+        <set>
+        id = #{id},
+        name = #{name},
+        code = #{code},
+        create_time = #{createTime},
+        update_time = #{updateTime},
+        url = #{url},
+        menu_group = #{menuGroup},
+        </set>
+        where id = #{id}
+    </update>
+
+    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.upedge.ums.modules.application.entity.Application" useGeneratedKeys="true">
+        insert into application
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            id,
+            name,
+            code,
+            create_time,
+            update_time,
+            url,
+            menu_group
+        </trim>
+        values (
+        #{id},
+        #{name},
+        #{code},
+        #{createTime},
+        #{updateTime},
+        #{url},
+        #{menuGroup}
+        )
+    </insert>
+
+    <insert id="insertSelective"  keyColumn="id" keyProperty="id"  parameterType="com.upedge.ums.modules.application.entity.Application" useGeneratedKeys="true">
+        insert into application
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null" >
+              id
+            </if>
+            <if test="name != null" >
+              name
+            </if>
+            <if test="code != null" >
+              code
+            </if>
+            <if test="createTime != null" >
+              create_time
+            </if>
+            <if test="updateTime != null" >
+              update_time
+            </if>
+            <if test="url != null" >
+              url
+            </if>
+            <if test="menuGroup != null" >
+              menu_group
+            </if>
+
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null" >
+                #{id}
+            </if>
+            <if test="name != null" >
+                #{name}
+            </if>
+            <if test="code != null" >
+                #{code}
+            </if>
+            <if test="createTime != null" >
+                #{createTime}
+            </if>
+            <if test="updateTime != null" >
+                #{updateTime}
+            </if>
+            <if test="url != null" >
+                #{url}
+            </if>
+            <if test="menuGroup != null" >
+                #{menuGroup}
+            </if>
+
+        </trim>
+    </insert>
+
+    <insert id="insertByBatch" parameterType="java.util.List">
+        insert into application
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+           id,
+           name,
+           code,
+           create_time,
+           update_time,
+           url,
+           menu_group
+        </trim>
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+               #{item.id},
+               #{item.name},
+               #{item.code},
+               #{item.createTime},
+               #{item.updateTime},
+               #{item.url},
+               #{item.menuGroup}
+            </trim>
+        </foreach>
+    </insert>
+
+    <sql id="Query_Condition">
+        <if test="t != null">
+            where
+            <trim prefix=" " suffix=" " suffixOverrides=" and ">
+                1 = 1 and
+                    <if test="t.id != null">
+                        id = #{t.id} and
+                    </if>
+                    <if test="t.name != null">
+                        name = #{t.name} and
+                    </if>
+                    <if test="t.code != null">
+                        code = #{t.code} and
+                    </if>
+                    <if test="t.createTime != null">
+                        create_time = #{t.createTime} and
+                    </if>
+                    <if test="t.updateTime != null">
+                        update_time = #{t.updateTime} and
+                    </if>
+                    <if test="t.url != null">
+                        url = #{t.url} and
+                    </if>
+                    <if test="t.menuGroup != null">
+                        menu_group = #{t.menuGroup} and
+                    </if>
+            </trim>
+        </if>
+    </sql>
+
+    <select id="select" parameterType="com.upedge.common.base.Page" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from application
+        <include refid="Query_Condition"/>
+        <if test="orderBy != null">
+            order by ${orderBy}
+        </if>
+        <if test="pageNum != null and pageSize != null">
+            limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+        </if>
+    </select>
+
+    <select id="count" parameterType="com.upedge.common.base.Page" resultType="java.lang.Long">
+        select
+        count(1)
+        from application
+        <include refid="Query_Condition"/>
+    </select>
+
+
+</mapper>

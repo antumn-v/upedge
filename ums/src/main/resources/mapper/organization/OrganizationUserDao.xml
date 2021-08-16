@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.upedge.ums.modules.organization.dao.OrganizationUserDao">
+
+    <!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.upedge.ums.modules.organization.entity.OrganizationUser" id="BaseResultMap">
+        <result property="orgId" column="org_id"/>
+        <result property="userId" column="user_id"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        `org_id`,`user_id`
+    </sql>
+
+    <select id="selectByPrimaryKey" parameterType="com.upedge.ums.modules.organization.entity.OrganizationUser"
+            resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from organization_user
+        where org_id = #{orgId}
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="com.upedge.ums.modules.organization.entity.OrganizationUser">
+        delete from organization_user
+        where org_id = #{orgId}
+    </delete>
+
+    <update id="updateByPrimaryKeySelective"
+            parameterType="com.upedge.ums.modules.organization.entity.OrganizationUser">
+        update organization_user
+        <set>
+            <if test="userId != null">
+                user_id = #{userId},
+            </if>
+        </set>
+        where org_id = #{orgId}
+    </update>
+
+    <update id="updateByPrimaryKey" parameterType="com.upedge.ums.modules.organization.entity.OrganizationUser">
+        update organization_user
+        <set>
+            org_id = #{orgId},
+            user_id = #{userId},
+        </set>
+        where org_id = #{orgId}
+    </update>
+
+    <insert id="insert" keyColumn="org_id" keyProperty="orgId"
+            parameterType="com.upedge.ums.modules.organization.entity.OrganizationUser" useGeneratedKeys="true">
+        insert into organization_user
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            org_id,
+            user_id
+        </trim>
+        values (
+        #{orgId},
+        #{userId}
+        )
+    </insert>
+
+    <insert id="insertSelective" keyColumn="org_id" keyProperty="orgId"
+            parameterType="com.upedge.ums.modules.organization.entity.OrganizationUser" useGeneratedKeys="true">
+        insert into organization_user
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="orgId != null">
+                org_id
+            </if>
+            <if test="userId != null">
+                user_id
+            </if>
+
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="orgId != null">
+                #{orgId}
+            </if>
+            <if test="userId != null">
+                #{userId}
+            </if>
+
+        </trim>
+    </insert>
+
+    <insert id="insertByBatch" parameterType="java.util.List">
+        insert into organization_user
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            org_id,
+            user_id
+        </trim>
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+                #{item.orgId},
+                #{item.userId}
+            </trim>
+        </foreach>
+    </insert>
+
+    <sql id="Query_Condition">
+        <if test="t != null">
+            where
+            <trim prefix=" " suffix=" " suffixOverrides=" and ">
+                1 = 1 and
+                <if test="t.orgId != null">
+                    org_id = #{t.orgId} and
+                </if>
+                <if test="t.userId != null">
+                    user_id = #{t.userId} and
+                </if>
+            </trim>
+        </if>
+    </sql>
+
+    <select id="select" parameterType="com.upedge.common.base.Page" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from organization_user
+        <include refid="Query_Condition"/>
+        <if test="orderBy != null">
+            order by ${orderBy}
+        </if>
+        <if test="pageNum != null and pageSize != null">
+            limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+        </if>
+    </select>
+
+    <select id="count" parameterType="com.upedge.common.base.Page" resultType="java.lang.Long">
+        select
+        count(1)
+        from organization_user
+        <include refid="Query_Condition"/>
+    </select>
+
+    <select id="selectOrgIdsByUserId" resultType="java.lang.Long">
+        select org_id
+        from organization_user
+        where user_id = #{userId}
+     </select>
+    <select id="selectUserParentOrganization"
+            resultType="com.upedge.ums.modules.organization.entity.Organization">
+        select id, customer_id, org_path, org_name, org_parent, create_time, update_time
+        from organization_user ou
+        inner join organization o
+        on ou.org_id = o.id
+        where ou.user_id = #{userId}
+        and o.org_parent = '0'
+        limit 1
+    </select>
+
+
+</mapper>

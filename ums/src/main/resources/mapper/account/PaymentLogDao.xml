@@ -1,0 +1,312 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.upedge.ums.modules.account.dao.PaymentLogDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.upedge.ums.modules.account.entity.PaymentLog" id="BaseResultMap">
+        <result property="id" column="id"/>
+        <result property="accountId" column="account_id"/>
+        <result property="customerId" column="customer_id"/>
+        <result property="orderType" column="order_type"/>
+        <result property="amount" column="amount"/>
+        <result property="credit" column="credit"/>
+        <result property="rebate" column="rebate"/>
+        <result property="fee" column="fee"/>
+        <result property="payStatus" column="pay_status"/>
+        <result property="payType" column="pay_type"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        `id`,`account_id`,`customer_id`,`order_type`,`amount`,`credit`,`rebate`,`fee`,`pay_status`,`pay_type`,`create_time`,`update_time`
+    </sql>
+
+    <select id="selectByPrimaryKey" parameterType="com.upedge.ums.modules.account.entity.PaymentLog" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from payment_log
+        where id = #{id}
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="com.upedge.ums.modules.account.entity.PaymentLog">
+        delete from payment_log
+        where id = #{id}
+    </delete>
+
+    <update id="updateByPrimaryKeySelective" parameterType="com.upedge.ums.modules.account.entity.PaymentLog">
+        update payment_log
+        <set>
+            <if test="accountId != null">
+                account_id = #{accountId},
+            </if>
+            <if test="customerId != null">
+                customer_id = #{customerId},
+            </if>
+            <if test="orderType != null">
+                order_type = #{orderType},
+            </if>
+            <if test="amount != null">
+                amount = #{amount},
+            </if>
+            <if test="credit != null">
+                credit = #{credit},
+            </if>
+            <if test="rebate != null">
+                rebate = #{rebate},
+            </if>
+            <if test="fee != null">
+                fee = #{fee},
+            </if>
+            <if test="payStatus != null">
+                pay_status = #{payStatus},
+            </if>
+            <if test="payType != null">
+                pay_type = #{payType},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime},
+            </if>
+            <if test="updateTime != null">
+                update_time = #{updateTime},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <update id="updateByPrimaryKey" parameterType="com.upedge.ums.modules.account.entity.PaymentLog">
+        update payment_log
+        <set>
+        id = #{id},
+        account_id = #{accountId},
+        customer_id = #{customerId},
+        order_type = #{orderType},
+        amount = #{amount},
+        credit = #{credit},
+        rebate = #{rebate},
+        fee = #{fee},
+        pay_status = #{payStatus},
+        pay_type = #{payType},
+        create_time = #{createTime},
+        update_time = #{updateTime},
+        </set>
+        where id = #{id}
+    </update>
+
+    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.upedge.ums.modules.account.entity.PaymentLog" useGeneratedKeys="true">
+        insert into payment_log
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            id,
+            account_id,
+            customer_id,
+            order_type,
+            amount,
+            credit,
+            rebate,
+            fee,
+            pay_status,
+            pay_type,
+            create_time,
+            update_time
+        </trim>
+        values (
+        #{id},
+        #{accountId},
+        #{customerId},
+        #{orderType},
+        #{amount},
+        #{credit},
+        #{rebate},
+        #{fee},
+        #{payStatus},
+        #{payType},
+        #{createTime},
+        #{updateTime}
+        )
+    </insert>
+
+    <insert id="insertSelective"  keyColumn="id" keyProperty="id"  parameterType="com.upedge.ums.modules.account.entity.PaymentLog" useGeneratedKeys="true">
+        insert into payment_log
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null" >
+              id
+            </if>
+            <if test="accountId != null" >
+              account_id
+            </if>
+            <if test="customerId != null" >
+              customer_id
+            </if>
+            <if test="orderType != null" >
+              order_type
+            </if>
+            <if test="amount != null" >
+              amount
+            </if>
+            <if test="credit != null" >
+              credit
+            </if>
+            <if test="rebate != null" >
+              rebate
+            </if>
+            <if test="fee != null" >
+              fee
+            </if>
+            <if test="payStatus != null" >
+              pay_status
+            </if>
+            <if test="payType != null" >
+              pay_type
+            </if>
+            <if test="createTime != null" >
+              create_time
+            </if>
+            <if test="updateTime != null" >
+              update_time
+            </if>
+
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null" >
+                #{id}
+            </if>
+            <if test="accountId != null" >
+                #{accountId}
+            </if>
+            <if test="customerId != null" >
+                #{customerId}
+            </if>
+            <if test="orderType != null" >
+                #{orderType}
+            </if>
+            <if test="amount != null" >
+                #{amount}
+            </if>
+            <if test="credit != null" >
+                #{credit}
+            </if>
+            <if test="rebate != null" >
+                #{rebate}
+            </if>
+            <if test="fee != null" >
+                #{fee}
+            </if>
+            <if test="payStatus != null" >
+                #{payStatus}
+            </if>
+            <if test="payType != null" >
+                #{payType}
+            </if>
+            <if test="createTime != null" >
+                #{createTime}
+            </if>
+            <if test="updateTime != null" >
+                #{updateTime}
+            </if>
+
+        </trim>
+    </insert>
+
+    <insert id="insertByBatch" parameterType="java.util.List">
+        insert into payment_log
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+           id,
+           account_id,
+           customer_id,
+           order_type,
+           amount,
+           credit,
+           rebate,
+           fee,
+           pay_status,
+           pay_type,
+           create_time,
+           update_time
+        </trim>
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+               #{item.id},
+               #{item.accountId},
+               #{item.customerId},
+               #{item.orderType},
+               #{item.amount},
+               #{item.credit},
+               #{item.rebate},
+               #{item.fee},
+               #{item.payStatus},
+               #{item.payType},
+               #{item.createTime},
+               #{item.updateTime}
+            </trim>
+        </foreach>
+    </insert>
+
+    <sql id="Query_Condition">
+        <if test="t != null">
+            where
+            <trim prefix=" " suffix=" " suffixOverrides=" and ">
+                1 = 1 and
+                    <if test="t.id != null">
+                        id = #{t.id} and
+                    </if>
+                    <if test="t.accountId != null">
+                        account_id = #{t.accountId} and
+                    </if>
+                    <if test="t.customerId != null">
+                        customer_id = #{t.customerId} and
+                    </if>
+                    <if test="t.orderType != null">
+                        order_type = #{t.orderType} and
+                    </if>
+                    <if test="t.amount != null">
+                        amount = #{t.amount} and
+                    </if>
+                    <if test="t.credit != null">
+                        credit = #{t.credit} and
+                    </if>
+                    <if test="t.rebate != null">
+                        rebate = #{t.rebate} and
+                    </if>
+                    <if test="t.fee != null">
+                        fee = #{t.fee} and
+                    </if>
+                    <if test="t.payStatus != null">
+                        pay_status = #{t.payStatus} and
+                    </if>
+                    <if test="t.payType != null">
+                        pay_type = #{t.payType} and
+                    </if>
+                    <if test="t.createTime != null">
+                        create_time = #{t.createTime} and
+                    </if>
+                    <if test="t.updateTime != null">
+                        update_time = #{t.updateTime} and
+                    </if>
+            </trim>
+        </if>
+    </sql>
+
+    <select id="select" parameterType="com.upedge.common.base.Page" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from payment_log
+        <include refid="Query_Condition"/>
+        <if test="orderBy != null">
+            order by ${orderBy}
+        </if>
+        <if test="pageNum != null and pageSize != null">
+            limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+        </if>
+    </select>
+
+    <select id="count" parameterType="com.upedge.common.base.Page" resultType="java.lang.Long">
+        select
+        count(1)
+        from payment_log
+        <include refid="Query_Condition"/>
+    </select>
+
+
+</mapper>

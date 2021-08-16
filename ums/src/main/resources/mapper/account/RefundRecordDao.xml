@@ -1,0 +1,258 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.upedge.ums.modules.account.dao.RefundRecordDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.upedge.ums.modules.account.entity.RefundRecord" id="BaseResultMap">
+        <result property="id" column="id"/>
+        <result property="rechargeRecordId" column="recharge_record_id"/>
+        <result property="customerId" column="customer_id"/>
+        <result property="orderId" column="order_id"/>
+        <result property="orderType" column="order_type"/>
+        <result property="amount" column="amount"/>
+        <result property="source" column="source"/>
+        <result property="createTime" column="create_time"/>
+        <result property="seq" column="seq"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        `id`,`recharge_record_id`,`customer_id`,`order_id`,`order_type`,`amount`,`source`,`create_time`,`seq`
+    </sql>
+
+    <select id="selectByPrimaryKey" parameterType="com.upedge.ums.modules.account.entity.RefundRecord" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from refund_record
+        where id = #{id}
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="com.upedge.ums.modules.account.entity.RefundRecord">
+        delete from refund_record
+        where id = #{id}
+    </delete>
+
+    <update id="updateByPrimaryKeySelective" parameterType="com.upedge.ums.modules.account.entity.RefundRecord">
+        update refund_record
+        <set>
+            <if test="rechargeRecordId != null">
+                recharge_record_id = #{rechargeRecordId},
+            </if>
+            <if test="customerId != null">
+                customer_id = #{customerId},
+            </if>
+            <if test="orderId != null">
+                order_id = #{orderId},
+            </if>
+            <if test="orderType != null">
+                order_type = #{orderType},
+            </if>
+            <if test="amount != null">
+                amount = #{amount},
+            </if>
+            <if test="source != null">
+                source = #{source},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime},
+            </if>
+            <if test="seq != null">
+                seq = #{seq},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <update id="updateByPrimaryKey" parameterType="com.upedge.ums.modules.account.entity.RefundRecord">
+        update refund_record
+        <set>
+        id = #{id},
+        recharge_record_id = #{rechargeRecordId},
+        customer_id = #{customerId},
+        order_id = #{orderId},
+        order_type = #{orderType},
+        amount = #{amount},
+        source = #{source},
+        create_time = #{createTime},
+        seq = #{seq},
+        </set>
+        where id = #{id}
+    </update>
+
+    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.upedge.ums.modules.account.entity.RefundRecord" useGeneratedKeys="true">
+        insert into refund_record
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            id,
+            recharge_record_id,
+            customer_id,
+            order_id,
+            order_type,
+            amount,
+            source,
+            create_time,
+            seq
+        </trim>
+        values (
+        #{id},
+        #{rechargeRecordId},
+        #{customerId},
+        #{orderId},
+        #{orderType},
+        #{amount},
+        #{source},
+        #{createTime},
+        #{seq}
+        )
+    </insert>
+
+    <insert id="insertSelective"  keyColumn="id" keyProperty="id"  parameterType="com.upedge.ums.modules.account.entity.RefundRecord" useGeneratedKeys="true">
+        insert into refund_record
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null" >
+              id
+            </if>
+            <if test="rechargeRecordId != null" >
+              recharge_record_id
+            </if>
+            <if test="customerId != null" >
+              customer_id
+            </if>
+            <if test="orderId != null" >
+              order_id
+            </if>
+            <if test="orderType != null" >
+              order_type
+            </if>
+            <if test="amount != null" >
+              amount
+            </if>
+            <if test="source != null" >
+              source
+            </if>
+            <if test="createTime != null" >
+              create_time
+            </if>
+            <if test="seq != null" >
+              seq
+            </if>
+
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null" >
+                #{id}
+            </if>
+            <if test="rechargeRecordId != null" >
+                #{rechargeRecordId}
+            </if>
+            <if test="customerId != null" >
+                #{customerId}
+            </if>
+            <if test="orderId != null" >
+                #{orderId}
+            </if>
+            <if test="orderType != null" >
+                #{orderType}
+            </if>
+            <if test="amount != null" >
+                #{amount}
+            </if>
+            <if test="source != null" >
+                #{source}
+            </if>
+            <if test="createTime != null" >
+                #{createTime}
+            </if>
+            <if test="seq != null" >
+                #{seq}
+            </if>
+
+        </trim>
+    </insert>
+
+    <insert id="insertByBatch" parameterType="java.util.List">
+        insert into refund_record
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+           id,
+           recharge_record_id,
+           customer_id,
+           order_id,
+           order_type,
+           amount,
+           source,
+           create_time,
+           seq
+        </trim>
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+               #{item.id},
+               #{item.rechargeRecordId},
+               #{item.customerId},
+               #{item.orderId},
+               #{item.orderType},
+               #{item.amount},
+               #{item.source},
+               #{item.createTime},
+               #{item.seq}
+            </trim>
+        </foreach>
+    </insert>
+
+    <sql id="Query_Condition">
+        <if test="t != null">
+            where
+            <trim prefix=" " suffix=" " suffixOverrides=" and ">
+                1 = 1 and
+                    <if test="t.id != null">
+                        id = #{t.id} and
+                    </if>
+                    <if test="t.rechargeRecordId != null">
+                        recharge_record_id = #{t.rechargeRecordId} and
+                    </if>
+                    <if test="t.customerId != null">
+                        customer_id = #{t.customerId} and
+                    </if>
+                    <if test="t.orderId != null">
+                        order_id = #{t.orderId} and
+                    </if>
+                    <if test="t.orderType != null">
+                        order_type = #{t.orderType} and
+                    </if>
+                    <if test="t.amount != null">
+                        amount = #{t.amount} and
+                    </if>
+                    <if test="t.source != null">
+                        source = #{t.source} and
+                    </if>
+                    <if test="t.createTime != null">
+                        create_time = #{t.createTime} and
+                    </if>
+                    <if test="t.seq != null">
+                        seq = #{t.seq} and
+                    </if>
+            </trim>
+        </if>
+    </sql>
+
+    <select id="select" parameterType="com.upedge.common.base.Page" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from refund_record
+        <include refid="Query_Condition"/>
+        <if test="orderBy != null">
+            order by ${orderBy}
+        </if>
+        <if test="pageNum != null and pageSize != null">
+            limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+        </if>
+    </select>
+
+    <select id="count" parameterType="com.upedge.common.base.Page" resultType="java.lang.Long">
+        select
+        count(1)
+        from refund_record
+        <include refid="Query_Condition"/>
+    </select>
+
+
+</mapper>

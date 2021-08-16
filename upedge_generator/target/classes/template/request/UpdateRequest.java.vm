@@ -1,0 +1,32 @@
+package ${package}.${moduleName}.request;
+
+import ${package}.${moduleName}.entity.${className};
+import java.util.Date;
+import lombok.Data;
+#if(${hasBigDecimal})
+import java.math.BigDecimal;
+#end
+/**
+ * @author ${author}
+ */
+@Data
+public class ${className}UpdateRequest{
+
+#foreach ($column in $columns)
+#if($column.attrname!=$pk.attrname)
+    /**
+     * $column.comments
+     */
+    private $column.attrType $column.attrname;
+#end
+#end
+
+    public ${className} to${className}(${pk.attrType} id){
+        ${className} ${classname}=new ${className}();
+#foreach ($column in $columns)
+        ${classname}.set${column.attrName}(${column.attrname});
+#end
+        return ${classname};
+    }
+
+}

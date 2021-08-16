@@ -1,0 +1,312 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.upedge.ums.modules.application.dao.MenuDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.upedge.ums.modules.application.entity.Menu" id="BaseResultMap">
+        <result property="id" column="id"/>
+        <result property="applicationId" column="application_id"/>
+        <result property="title" column="title"/>
+        <result property="name" column="name"/>
+        <result property="url" column="url"/>
+        <result property="parentId" column="parent_id"/>
+        <result property="menuPath" column="menu_path"/>
+        <result property="seq" column="seq"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="createTime" column="create_time"/>
+        <result property="menuType" column="menu_type"/>
+        <result property="menuGroup" column="menu_group"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        `id`,`application_id`,`title`,`name`,`url`,`parent_id`,`menu_path`,`seq`,`update_time`,`create_time`,`menu_type`,`menu_group`
+    </sql>
+
+    <select id="selectByPrimaryKey" parameterType="com.upedge.ums.modules.application.entity.Menu" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from menu
+        where id = #{id}
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="com.upedge.ums.modules.application.entity.Menu">
+        delete from menu
+        where id = #{id}
+    </delete>
+
+    <update id="updateByPrimaryKeySelective" parameterType="com.upedge.ums.modules.application.entity.Menu">
+        update menu
+        <set>
+            <if test="applicationId != null">
+                application_id = #{applicationId},
+            </if>
+            <if test="title != null">
+                title = #{title},
+            </if>
+            <if test="name != null">
+                name = #{name},
+            </if>
+            <if test="url != null">
+                url = #{url},
+            </if>
+            <if test="parentId != null">
+                parent_id = #{parentId},
+            </if>
+            <if test="menuPath != null">
+                menu_path = #{menuPath},
+            </if>
+            <if test="seq != null">
+                seq = #{seq},
+            </if>
+            <if test="updateTime != null">
+                update_time = #{updateTime},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime},
+            </if>
+            <if test="menuType != null">
+                menu_type = #{menuType},
+            </if>
+            <if test="menuGroup != null">
+                menu_group = #{menuGroup},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <update id="updateByPrimaryKey" parameterType="com.upedge.ums.modules.application.entity.Menu">
+        update menu
+        <set>
+        id = #{id},
+        application_id = #{applicationId},
+        title = #{title},
+        name = #{name},
+        url = #{url},
+        parent_id = #{parentId},
+        menu_path = #{menuPath},
+        seq = #{seq},
+        update_time = #{updateTime},
+        create_time = #{createTime},
+        menu_type = #{menuType},
+        menu_group = #{menuGroup},
+        </set>
+        where id = #{id}
+    </update>
+
+    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.upedge.ums.modules.application.entity.Menu" useGeneratedKeys="true">
+        insert into menu
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            id,
+            application_id,
+            title,
+            name,
+            url,
+            parent_id,
+            menu_path,
+            seq,
+            update_time,
+            create_time,
+            menu_type,
+            menu_group
+        </trim>
+        values (
+        #{id},
+        #{applicationId},
+        #{title},
+        #{name},
+        #{url},
+        #{parentId},
+        #{menuPath},
+        #{seq},
+        #{updateTime},
+        #{createTime},
+        #{menuType},
+        #{menuGroup}
+        )
+    </insert>
+
+    <insert id="insertSelective"  keyColumn="id" keyProperty="id"  parameterType="com.upedge.ums.modules.application.entity.Menu" useGeneratedKeys="true">
+        insert into menu
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null" >
+              id
+            </if>
+            <if test="applicationId != null" >
+              application_id
+            </if>
+            <if test="title != null" >
+              title
+            </if>
+            <if test="name != null" >
+              name
+            </if>
+            <if test="url != null" >
+              url
+            </if>
+            <if test="parentId != null" >
+              parent_id
+            </if>
+            <if test="menuPath != null" >
+              menu_path
+            </if>
+            <if test="seq != null" >
+              seq
+            </if>
+            <if test="updateTime != null" >
+              update_time
+            </if>
+            <if test="createTime != null" >
+              create_time
+            </if>
+            <if test="menuType != null" >
+              menu_type
+            </if>
+            <if test="menuGroup != null" >
+              menu_group
+            </if>
+
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null" >
+                #{id}
+            </if>
+            <if test="applicationId != null" >
+                #{applicationId}
+            </if>
+            <if test="title != null" >
+                #{title}
+            </if>
+            <if test="name != null" >
+                #{name}
+            </if>
+            <if test="url != null" >
+                #{url}
+            </if>
+            <if test="parentId != null" >
+                #{parentId}
+            </if>
+            <if test="menuPath != null" >
+                #{menuPath}
+            </if>
+            <if test="seq != null" >
+                #{seq}
+            </if>
+            <if test="updateTime != null" >
+                #{updateTime}
+            </if>
+            <if test="createTime != null" >
+                #{createTime}
+            </if>
+            <if test="menuType != null" >
+                #{menuType}
+            </if>
+            <if test="menuGroup != null" >
+                #{menuGroup}
+            </if>
+
+        </trim>
+    </insert>
+
+    <insert id="insertByBatch" parameterType="java.util.List">
+        insert into menu
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+           id,
+           application_id,
+           title,
+           name,
+           url,
+           parent_id,
+           menu_path,
+           seq,
+           update_time,
+           create_time,
+           menu_type,
+           menu_group
+        </trim>
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+               #{item.id},
+               #{item.applicationId},
+               #{item.title},
+               #{item.name},
+               #{item.url},
+               #{item.parentId},
+               #{item.menuPath},
+               #{item.seq},
+               #{item.updateTime},
+               #{item.createTime},
+               #{item.menuType},
+               #{item.menuGroup}
+            </trim>
+        </foreach>
+    </insert>
+
+    <sql id="Query_Condition">
+        <if test="t != null">
+            where
+            <trim prefix=" " suffix=" " suffixOverrides=" and ">
+                1 = 1 and
+                    <if test="t.id != null">
+                        id = #{t.id} and
+                    </if>
+                    <if test="t.applicationId != null">
+                        application_id = #{t.applicationId} and
+                    </if>
+                    <if test="t.title != null">
+                        title = #{t.title} and
+                    </if>
+                    <if test="t.name != null">
+                        name = #{t.name} and
+                    </if>
+                    <if test="t.url != null">
+                        url = #{t.url} and
+                    </if>
+                    <if test="t.parentId != null">
+                        parent_id = #{t.parentId} and
+                    </if>
+                    <if test="t.menuPath != null">
+                        menu_path = #{t.menuPath} and
+                    </if>
+                    <if test="t.seq != null">
+                        seq = #{t.seq} and
+                    </if>
+                    <if test="t.updateTime != null">
+                        update_time = #{t.updateTime} and
+                    </if>
+                    <if test="t.createTime != null">
+                        create_time = #{t.createTime} and
+                    </if>
+                    <if test="t.menuType != null">
+                        menu_type = #{t.menuType} and
+                    </if>
+                    <if test="t.menuGroup != null">
+                        menu_group = #{t.menuGroup} and
+                    </if>
+            </trim>
+        </if>
+    </sql>
+
+    <select id="select" parameterType="com.upedge.common.base.Page" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from menu
+        <include refid="Query_Condition"/>
+        <if test="orderBy != null">
+            order by ${orderBy}
+        </if>
+        <if test="pageNum != null and pageSize != null">
+            limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+        </if>
+    </select>
+
+    <select id="count" parameterType="com.upedge.common.base.Page" resultType="java.lang.Long">
+        select
+        count(1)
+        from menu
+        <include refid="Query_Condition"/>
+    </select>
+
+
+</mapper>

@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.upedge.ums.modules.organization.dao.OrganizationRoleDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.upedge.ums.modules.organization.entity.OrganizationRole" id="BaseResultMap">
+        <result property="orgId" column="org_id"/>
+        <result property="roleId" column="role_id"/>
+        <result property="dataType" column="data_type"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        `org_id`,`role_id`,`data_type`
+    </sql>
+
+    <select id="selectByPrimaryKey" parameterType="com.upedge.ums.modules.organization.entity.OrganizationRole" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from organization_role
+        where org_id = #{orgId}
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="com.upedge.ums.modules.organization.entity.OrganizationRole">
+        delete from organization_role
+        where org_id = #{orgId}
+    </delete>
+
+    <update id="updateByPrimaryKeySelective" parameterType="com.upedge.ums.modules.organization.entity.OrganizationRole">
+        update organization_role
+        <set>
+            <if test="roleId != null">
+                role_id = #{roleId},
+            </if>
+            <if test="dataType != null">
+                data_type = #{dataType},
+            </if>
+        </set>
+        where org_id = #{orgId}
+    </update>
+
+    <update id="updateByPrimaryKey" parameterType="com.upedge.ums.modules.organization.entity.OrganizationRole">
+        update organization_role
+        <set>
+        org_id = #{orgId},
+        role_id = #{roleId},
+        data_type = #{dataType},
+        </set>
+        where org_id = #{orgId}
+    </update>
+
+    <insert id="insert" keyColumn="org_id" keyProperty="orgId" parameterType="com.upedge.ums.modules.organization.entity.OrganizationRole" useGeneratedKeys="true">
+        insert into organization_role
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            org_id,
+            role_id,
+            data_type
+        </trim>
+        values (
+        #{orgId},
+        #{roleId},
+        #{dataType}
+        )
+    </insert>
+
+    <insert id="insertSelective"  keyColumn="org_id" keyProperty="orgId"  parameterType="com.upedge.ums.modules.organization.entity.OrganizationRole" useGeneratedKeys="true">
+        insert into organization_role
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="orgId != null" >
+              org_id
+            </if>
+            <if test="roleId != null" >
+              role_id
+            </if>
+            <if test="dataType != null" >
+              data_type
+            </if>
+
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="orgId != null" >
+                #{orgId}
+            </if>
+            <if test="roleId != null" >
+                #{roleId}
+            </if>
+            <if test="dataType != null" >
+                #{dataType}
+            </if>
+
+        </trim>
+    </insert>
+
+    <insert id="insertByBatch" parameterType="java.util.List">
+        insert into organization_role
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+           org_id,
+           role_id,
+           data_type
+        </trim>
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+               #{item.orgId},
+               #{item.roleId},
+               #{item.dataType}
+            </trim>
+        </foreach>
+    </insert>
+
+    <sql id="Query_Condition">
+        <if test="t != null">
+            where
+            <trim prefix=" " suffix=" " suffixOverrides=" and ">
+                1 = 1 and
+                    <if test="t.orgId != null">
+                        org_id = #{t.orgId} and
+                    </if>
+                    <if test="t.roleId != null">
+                        role_id = #{t.roleId} and
+                    </if>
+                    <if test="t.dataType != null">
+                        data_type = #{t.dataType} and
+                    </if>
+            </trim>
+        </if>
+    </sql>
+
+    <select id="select" parameterType="com.upedge.common.base.Page" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from organization_role
+        <include refid="Query_Condition"/>
+        <if test="orderBy != null">
+            order by ${orderBy}
+        </if>
+        <if test="pageNum != null and pageSize != null">
+            limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+        </if>
+    </select>
+
+    <select id="count" parameterType="com.upedge.common.base.Page" resultType="java.lang.Long">
+        select
+        count(1)
+        from organization_role
+        <include refid="Query_Condition"/>
+    </select>
+
+
+</mapper>

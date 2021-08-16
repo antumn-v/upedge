@@ -1,0 +1,87 @@
+package ${package}.${moduleName}.service.impl;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import java.util.List;
+import com.upedge.common.base.Page;
+import org.springframework.beans.factory.annotation.Autowired;
+import ${package}.${moduleName}.dao.${className}Dao;
+import ${package}.${moduleName}.entity.${className};
+import ${package}.${moduleName}.service.${className}Service;
+
+
+@Service
+public class ${className}ServiceImpl implements ${className}Service {
+
+    @Autowired
+    private ${className}Dao ${classname}Dao;
+
+
+
+    /**
+     *
+     */
+    @Transactional
+    public int deleteByPrimaryKey(${pk.attrType} ${pk.attrname}) {
+        ${className} record = new ${className}();
+        record.set${pk.attrName}(${pk.attrname});
+        return ${classname}Dao.deleteByPrimaryKey(record);
+    }
+
+    /**
+     *
+     */
+    @Transactional
+    public int insert(${className} record) {
+        return ${classname}Dao.insert(record);
+    }
+
+    /**
+     *
+     */
+    @Transactional
+    public int insertSelective(${className} record) {
+        return ${classname}Dao.insert(record);
+    }
+
+    /**
+     *
+     */
+    public ${className} selectByPrimaryKey(${pk.attrType} ${pk.attrname}){
+        ${className} record = new ${className}();
+        record.set${pk.attrName}(${pk.attrname});
+        return ${classname}Dao.selectByPrimaryKey(record);
+    }
+
+    /**
+    *
+    */
+    @Transactional
+    public int updateByPrimaryKeySelective(${className} record) {
+        return ${classname}Dao.updateByPrimaryKeySelective(record);
+    }
+
+    /**
+    *
+    */
+    @Transactional
+    public int updateByPrimaryKey(${className} record) {
+        return ${classname}Dao.updateByPrimaryKey(record);
+    }
+
+    /**
+    *
+    */
+    public List<${className}> select(Page<${className}> record){
+        record.initFromNum();
+        return ${classname}Dao.select(record);
+    }
+
+    /**
+    *
+    */
+    public long count(Page<${className}> record){
+        return ${classname}Dao.count(record);
+    }
+
+}

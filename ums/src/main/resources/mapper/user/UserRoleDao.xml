@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.upedge.ums.modules.user.dao.UserRoleDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.upedge.ums.modules.user.entity.UserRole" id="BaseResultMap">
+        <result property="userId" column="user_id"/>
+        <result property="roleId" column="role_id"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        `user_id`,`role_id`
+    </sql>
+
+    <select id="selectByPrimaryKey" parameterType="com.upedge.ums.modules.user.entity.UserRole" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from user_role
+        where user_id = #{userId}
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="com.upedge.ums.modules.user.entity.UserRole">
+        delete from user_role
+        where user_id = #{userId}
+    </delete>
+
+    <update id="updateByPrimaryKeySelective" parameterType="com.upedge.ums.modules.user.entity.UserRole">
+        update user_role
+        <set>
+            <if test="roleId != null">
+                role_id = #{roleId},
+            </if>
+        </set>
+        where user_id = #{userId}
+    </update>
+
+    <update id="updateByPrimaryKey" parameterType="com.upedge.ums.modules.user.entity.UserRole">
+        update user_role
+        <set>
+        user_id = #{userId},
+        role_id = #{roleId},
+        </set>
+        where user_id = #{userId}
+    </update>
+
+    <insert id="insert" keyColumn="user_id" keyProperty="userId" parameterType="com.upedge.ums.modules.user.entity.UserRole" useGeneratedKeys="true">
+        insert into user_role
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            user_id,
+            role_id
+        </trim>
+        values (
+        #{userId},
+        #{roleId}
+        )
+    </insert>
+
+    <insert id="insertSelective"  keyColumn="user_id" keyProperty="userId"  parameterType="com.upedge.ums.modules.user.entity.UserRole" useGeneratedKeys="true">
+        insert into user_role
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="userId != null" >
+              user_id
+            </if>
+            <if test="roleId != null" >
+              role_id
+            </if>
+
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="userId != null" >
+                #{userId}
+            </if>
+            <if test="roleId != null" >
+                #{roleId}
+            </if>
+
+        </trim>
+    </insert>
+
+    <insert id="insertByBatch" parameterType="java.util.List">
+        insert into user_role
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+           user_id,
+           role_id
+        </trim>
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+               #{item.userId},
+               #{item.roleId}
+            </trim>
+        </foreach>
+    </insert>
+
+    <sql id="Query_Condition">
+        <if test="t != null">
+            where
+            <trim prefix=" " suffix=" " suffixOverrides=" and ">
+                1 = 1 and
+                    <if test="t.userId != null">
+                        user_id = #{t.userId} and
+                    </if>
+                    <if test="t.roleId != null">
+                        role_id = #{t.roleId} and
+                    </if>
+            </trim>
+        </if>
+    </sql>
+
+    <select id="select" parameterType="com.upedge.common.base.Page" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from user_role
+        <include refid="Query_Condition"/>
+        <if test="orderBy != null">
+            order by ${orderBy}
+        </if>
+        <if test="pageNum != null and pageSize != null">
+            limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+        </if>
+    </select>
+
+    <select id="count" parameterType="com.upedge.common.base.Page" resultType="java.lang.Long">
+        select
+        count(1)
+        from user_role
+        <include refid="Query_Condition"/>
+    </select>
+
+
+</mapper>

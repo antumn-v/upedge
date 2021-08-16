@@ -1,0 +1,10 @@
+package ${package}.${moduleName}.request;
+
+import com.upedge.common.base.Page;
+import ${package}.${moduleName}.entity.${className};
+
+/**
+ * @author ${author}
+ */
+public class ${className}ListRequest extends Page<${className}> {
+}

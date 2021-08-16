@@ -1,0 +1,492 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.upedge.ums.modules.account.dao.PaypalPaymentDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.upedge.ums.modules.account.entity.PaypalPayment" id="BaseResultMap">
+        <result property="id" column="id"/>
+        <result property="saleId" column="sale_id"/>
+        <result property="paymentId" column="payment_id"/>
+        <result property="paymentMethod" column="payment_method"/>
+        <result property="payerEmail" column="payer_email"/>
+        <result property="payerName" column="payer_name"/>
+        <result property="payerId" column="payer_id"/>
+        <result property="state" column="state"/>
+        <result property="amount" column="amount"/>
+        <result property="currency" column="currency"/>
+        <result property="fixFee" column="fix_fee"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="payeeEmail" column="payee_email"/>
+        <result property="merchantId" column="merchant_id"/>
+        <result property="remark" column="remark"/>
+        <result property="accountPaymethodId" column="account_paymethod_id"/>
+        <result property="accountId" column="account_id"/>
+        <result property="requestId" column="request_id"/>
+        <result property="orderType" column="order_type"/>
+        <result property="customerId" column="customer_id"/>
+        <result property="userId" column="user_id"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        `id`,`sale_id`,`payment_id`,`payment_method`,`payer_email`,`payer_name`,`payer_id`,`state`,`amount`,`currency`,`fix_fee`,`create_time`,`update_time`,`payee_email`,`merchant_id`,`remark`,`account_paymethod_id`,`account_id`,`request_id`,`order_type`,`customer_id`,`user_id`
+    </sql>
+
+    <select id="selectByPrimaryKey" parameterType="com.upedge.ums.modules.account.entity.PaypalPayment" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from paypal_payment
+        where id = #{id}
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="com.upedge.ums.modules.account.entity.PaypalPayment">
+        delete from paypal_payment
+        where id = #{id}
+    </delete>
+
+    <update id="updateByPrimaryKeySelective" parameterType="com.upedge.ums.modules.account.entity.PaypalPayment">
+        update paypal_payment
+        <set>
+            <if test="saleId != null">
+                sale_id = #{saleId},
+            </if>
+            <if test="paymentId != null">
+                payment_id = #{paymentId},
+            </if>
+            <if test="paymentMethod != null">
+                payment_method = #{paymentMethod},
+            </if>
+            <if test="payerEmail != null">
+                payer_email = #{payerEmail},
+            </if>
+            <if test="payerName != null">
+                payer_name = #{payerName},
+            </if>
+            <if test="payerId != null">
+                payer_id = #{payerId},
+            </if>
+            <if test="state != null">
+                state = #{state},
+            </if>
+            <if test="amount != null">
+                amount = #{amount},
+            </if>
+            <if test="currency != null">
+                currency = #{currency},
+            </if>
+            <if test="fixFee != null">
+                fix_fee = #{fixFee},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime},
+            </if>
+            <if test="updateTime != null">
+                update_time = #{updateTime},
+            </if>
+            <if test="payeeEmail != null">
+                payee_email = #{payeeEmail},
+            </if>
+            <if test="merchantId != null">
+                merchant_id = #{merchantId},
+            </if>
+            <if test="remark != null">
+                remark = #{remark},
+            </if>
+            <if test="accountPaymethodId != null">
+                account_paymethod_id = #{accountPaymethodId},
+            </if>
+            <if test="accountId != null">
+                account_id = #{accountId},
+            </if>
+            <if test="requestId != null">
+                request_id = #{requestId},
+            </if>
+            <if test="orderType != null">
+                order_type = #{orderType},
+            </if>
+            <if test="customerId != null">
+                customer_id = #{customerId},
+            </if>
+            <if test="userId != null">
+                user_id = #{userId},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <update id="updateByPrimaryKey" parameterType="com.upedge.ums.modules.account.entity.PaypalPayment">
+        update paypal_payment
+        <set>
+        id = #{id},
+        sale_id = #{saleId},
+        payment_id = #{paymentId},
+        payment_method = #{paymentMethod},
+        payer_email = #{payerEmail},
+        payer_name = #{payerName},
+        payer_id = #{payerId},
+        state = #{state},
+        amount = #{amount},
+        currency = #{currency},
+        fix_fee = #{fixFee},
+        create_time = #{createTime},
+        update_time = #{updateTime},
+        payee_email = #{payeeEmail},
+        merchant_id = #{merchantId},
+        remark = #{remark},
+        account_paymethod_id = #{accountPaymethodId},
+        account_id = #{accountId},
+        request_id = #{requestId},
+        order_type = #{orderType},
+        customer_id = #{customerId},
+        user_id = #{userId},
+        </set>
+        where id = #{id}
+    </update>
+
+    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.upedge.ums.modules.account.entity.PaypalPayment" useGeneratedKeys="true">
+        insert into paypal_payment
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            id,
+            sale_id,
+            payment_id,
+            payment_method,
+            payer_email,
+            payer_name,
+            payer_id,
+            state,
+            amount,
+            currency,
+            fix_fee,
+            create_time,
+            update_time,
+            payee_email,
+            merchant_id,
+            remark,
+            account_paymethod_id,
+            account_id,
+            request_id,
+            order_type,
+            customer_id,
+            user_id
+        </trim>
+        values (
+        #{id},
+        #{saleId},
+        #{paymentId},
+        #{paymentMethod},
+        #{payerEmail},
+        #{payerName},
+        #{payerId},
+        #{state},
+        #{amount},
+        #{currency},
+        #{fixFee},
+        #{createTime},
+        #{updateTime},
+        #{payeeEmail},
+        #{merchantId},
+        #{remark},
+        #{accountPaymethodId},
+        #{accountId},
+        #{requestId},
+        #{orderType},
+        #{customerId},
+        #{userId}
+        )
+    </insert>
+
+    <insert id="insertSelective"  keyColumn="id" keyProperty="id"  parameterType="com.upedge.ums.modules.account.entity.PaypalPayment" useGeneratedKeys="true">
+        insert into paypal_payment
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null" >
+              id
+            </if>
+            <if test="saleId != null" >
+              sale_id
+            </if>
+            <if test="paymentId != null" >
+              payment_id
+            </if>
+            <if test="paymentMethod != null" >
+              payment_method
+            </if>
+            <if test="payerEmail != null" >
+              payer_email
+            </if>
+            <if test="payerName != null" >
+              payer_name
+            </if>
+            <if test="payerId != null" >
+              payer_id
+            </if>
+            <if test="state != null" >
+              state
+            </if>
+            <if test="amount != null" >
+              amount
+            </if>
+            <if test="currency != null" >
+              currency
+            </if>
+            <if test="fixFee != null" >
+              fix_fee
+            </if>
+            <if test="createTime != null" >
+              create_time
+            </if>
+            <if test="updateTime != null" >
+              update_time
+            </if>
+            <if test="payeeEmail != null" >
+              payee_email
+            </if>
+            <if test="merchantId != null" >
+              merchant_id
+            </if>
+            <if test="remark != null" >
+              remark
+            </if>
+            <if test="accountPaymethodId != null" >
+              account_paymethod_id
+            </if>
+            <if test="accountId != null" >
+              account_id
+            </if>
+            <if test="requestId != null" >
+              request_id
+            </if>
+            <if test="orderType != null" >
+              order_type
+            </if>
+            <if test="customerId != null" >
+              customer_id
+            </if>
+            <if test="userId != null" >
+              user_id
+            </if>
+
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null" >
+                #{id}
+            </if>
+            <if test="saleId != null" >
+                #{saleId}
+            </if>
+            <if test="paymentId != null" >
+                #{paymentId}
+            </if>
+            <if test="paymentMethod != null" >
+                #{paymentMethod}
+            </if>
+            <if test="payerEmail != null" >
+                #{payerEmail}
+            </if>
+            <if test="payerName != null" >
+                #{payerName}
+            </if>
+            <if test="payerId != null" >
+                #{payerId}
+            </if>
+            <if test="state != null" >
+                #{state}
+            </if>
+            <if test="amount != null" >
+                #{amount}
+            </if>
+            <if test="currency != null" >
+                #{currency}
+            </if>
+            <if test="fixFee != null" >
+                #{fixFee}
+            </if>
+            <if test="createTime != null" >
+                #{createTime}
+            </if>
+            <if test="updateTime != null" >
+                #{updateTime}
+            </if>
+            <if test="payeeEmail != null" >
+                #{payeeEmail}
+            </if>
+            <if test="merchantId != null" >
+                #{merchantId}
+            </if>
+            <if test="remark != null" >
+                #{remark}
+            </if>
+            <if test="accountPaymethodId != null" >
+                #{accountPaymethodId}
+            </if>
+            <if test="accountId != null" >
+                #{accountId}
+            </if>
+            <if test="requestId != null" >
+                #{requestId}
+            </if>
+            <if test="orderType != null" >
+                #{orderType}
+            </if>
+            <if test="customerId != null" >
+                #{customerId}
+            </if>
+            <if test="userId != null" >
+                #{userId}
+            </if>
+
+        </trim>
+    </insert>
+
+    <insert id="insertByBatch" parameterType="java.util.List">
+        insert into paypal_payment
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+           id,
+           sale_id,
+           payment_id,
+           payment_method,
+           payer_email,
+           payer_name,
+           payer_id,
+           state,
+           amount,
+           currency,
+           fix_fee,
+           create_time,
+           update_time,
+           payee_email,
+           merchant_id,
+           remark,
+           account_paymethod_id,
+           account_id,
+           request_id,
+           order_type,
+           customer_id,
+           user_id
+        </trim>
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+               #{item.id},
+               #{item.saleId},
+               #{item.paymentId},
+               #{item.paymentMethod},
+               #{item.payerEmail},
+               #{item.payerName},
+               #{item.payerId},
+               #{item.state},
+               #{item.amount},
+               #{item.currency},
+               #{item.fixFee},
+               #{item.createTime},
+               #{item.updateTime},
+               #{item.payeeEmail},
+               #{item.merchantId},
+               #{item.remark},
+               #{item.accountPaymethodId},
+               #{item.accountId},
+               #{item.requestId},
+               #{item.orderType},
+               #{item.customerId},
+               #{item.userId}
+            </trim>
+        </foreach>
+    </insert>
+
+    <sql id="Query_Condition">
+        <if test="t != null">
+            where
+            <trim prefix=" " suffix=" " suffixOverrides=" and ">
+                1 = 1 and
+                    <if test="t.id != null">
+                        id = #{t.id} and
+                    </if>
+                    <if test="t.saleId != null">
+                        sale_id = #{t.saleId} and
+                    </if>
+                    <if test="t.paymentId != null">
+                        payment_id = #{t.paymentId} and
+                    </if>
+                    <if test="t.paymentMethod != null">
+                        payment_method = #{t.paymentMethod} and
+                    </if>
+                    <if test="t.payerEmail != null">
+                        payer_email = #{t.payerEmail} and
+                    </if>
+                    <if test="t.payerName != null">
+                        payer_name = #{t.payerName} and
+                    </if>
+                    <if test="t.payerId != null">
+                        payer_id = #{t.payerId} and
+                    </if>
+                    <if test="t.state != null">
+                        state = #{t.state} and
+                    </if>
+                    <if test="t.amount != null">
+                        amount = #{t.amount} and
+                    </if>
+                    <if test="t.currency != null">
+                        currency = #{t.currency} and
+                    </if>
+                    <if test="t.fixFee != null">
+                        fix_fee = #{t.fixFee} and
+                    </if>
+                    <if test="t.createTime != null">
+                        create_time = #{t.createTime} and
+                    </if>
+                    <if test="t.updateTime != null">
+                        update_time = #{t.updateTime} and
+                    </if>
+                    <if test="t.payeeEmail != null">
+                        payee_email = #{t.payeeEmail} and
+                    </if>
+                    <if test="t.merchantId != null">
+                        merchant_id = #{t.merchantId} and
+                    </if>
+                    <if test="t.remark != null">
+                        remark = #{t.remark} and
+                    </if>
+                    <if test="t.accountPaymethodId != null">
+                        account_paymethod_id = #{t.accountPaymethodId} and
+                    </if>
+                    <if test="t.accountId != null">
+                        account_id = #{t.accountId} and
+                    </if>
+                    <if test="t.requestId != null">
+                        request_id = #{t.requestId} and
+                    </if>
+                    <if test="t.orderType != null">
+                        order_type = #{t.orderType} and
+                    </if>
+                    <if test="t.customerId != null">
+                        customer_id = #{t.customerId} and
+                    </if>
+                    <if test="t.userId != null">
+                        user_id = #{t.userId} and
+                    </if>
+            </trim>
+        </if>
+    </sql>
+
+    <select id="select" parameterType="com.upedge.common.base.Page" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from paypal_payment
+        <include refid="Query_Condition"/>
+        <if test="orderBy != null">
+            order by ${orderBy}
+        </if>
+        <if test="pageNum != null and pageSize != null">
+            limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+        </if>
+    </select>
+
+    <select id="count" parameterType="com.upedge.common.base.Page" resultType="java.lang.Long">
+        select
+        count(1)
+        from paypal_payment
+        <include refid="Query_Condition"/>
+    </select>
+
+
+</mapper>

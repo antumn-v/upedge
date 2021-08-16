@@ -1,0 +1,222 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.upedge.ums.modules.organization.dao.OrganizationDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.upedge.ums.modules.organization.entity.Organization" id="BaseResultMap">
+        <result property="id" column="id"/>
+        <result property="customerId" column="customer_id"/>
+        <result property="orgPath" column="org_path"/>
+        <result property="orgName" column="org_name"/>
+        <result property="orgParent" column="org_parent"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        `id`,`customer_id`,`org_path`,`org_name`,`org_parent`,`create_time`,`update_time`
+    </sql>
+
+    <select id="selectByPrimaryKey" parameterType="com.upedge.ums.modules.organization.entity.Organization" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from organization
+        where id = #{id}
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="com.upedge.ums.modules.organization.entity.Organization">
+        delete from organization
+        where id = #{id}
+    </delete>
+
+    <update id="updateByPrimaryKeySelective" parameterType="com.upedge.ums.modules.organization.entity.Organization">
+        update organization
+        <set>
+            <if test="customerId != null">
+                customer_id = #{customerId},
+            </if>
+            <if test="orgPath != null">
+                org_path = #{orgPath},
+            </if>
+            <if test="orgName != null">
+                org_name = #{orgName},
+            </if>
+            <if test="orgParent != null">
+                org_parent = #{orgParent},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime},
+            </if>
+            <if test="updateTime != null">
+                update_time = #{updateTime},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <update id="updateByPrimaryKey" parameterType="com.upedge.ums.modules.organization.entity.Organization">
+        update organization
+        <set>
+        id = #{id},
+        customer_id = #{customerId},
+        org_path = #{orgPath},
+        org_name = #{orgName},
+        org_parent = #{orgParent},
+        create_time = #{createTime},
+        update_time = #{updateTime},
+        </set>
+        where id = #{id}
+    </update>
+
+    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.upedge.ums.modules.organization.entity.Organization" useGeneratedKeys="true">
+        insert into organization
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            id,
+            customer_id,
+            org_path,
+            org_name,
+            org_parent,
+            create_time,
+            update_time
+        </trim>
+        values (
+        #{id},
+        #{customerId},
+        #{orgPath},
+        #{orgName},
+        #{orgParent},
+        #{createTime},
+        #{updateTime}
+        )
+    </insert>
+
+    <insert id="insertSelective"  keyColumn="id" keyProperty="id"  parameterType="com.upedge.ums.modules.organization.entity.Organization" useGeneratedKeys="true">
+        insert into organization
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null" >
+              id
+            </if>
+            <if test="customerId != null" >
+              customer_id
+            </if>
+            <if test="orgPath != null" >
+              org_path
+            </if>
+            <if test="orgName != null" >
+              org_name
+            </if>
+            <if test="orgParent != null" >
+              org_parent
+            </if>
+            <if test="createTime != null" >
+              create_time
+            </if>
+            <if test="updateTime != null" >
+              update_time
+            </if>
+
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null" >
+                #{id}
+            </if>
+            <if test="customerId != null" >
+                #{customerId}
+            </if>
+            <if test="orgPath != null" >
+                #{orgPath}
+            </if>
+            <if test="orgName != null" >
+                #{orgName}
+            </if>
+            <if test="orgParent != null" >
+                #{orgParent}
+            </if>
+            <if test="createTime != null" >
+                #{createTime}
+            </if>
+            <if test="updateTime != null" >
+                #{updateTime}
+            </if>
+
+        </trim>
+    </insert>
+
+    <insert id="insertByBatch" parameterType="java.util.List">
+        insert into organization
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+           id,
+           customer_id,
+           org_path,
+           org_name,
+           org_parent,
+           create_time,
+           update_time
+        </trim>
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+               #{item.id},
+               #{item.customerId},
+               #{item.orgPath},
+               #{item.orgName},
+               #{item.orgParent},
+               #{item.createTime},
+               #{item.updateTime}
+            </trim>
+        </foreach>
+    </insert>
+
+    <sql id="Query_Condition">
+        <if test="t != null">
+            where
+            <trim prefix=" " suffix=" " suffixOverrides=" and ">
+                1 = 1 and
+                    <if test="t.id != null">
+                        id = #{t.id} and
+                    </if>
+                    <if test="t.customerId != null">
+                        customer_id = #{t.customerId} and
+                    </if>
+                    <if test="t.orgPath != null">
+                        org_path = #{t.orgPath} and
+                    </if>
+                    <if test="t.orgName != null">
+                        org_name = #{t.orgName} and
+                    </if>
+                    <if test="t.orgParent != null">
+                        org_parent = #{t.orgParent} and
+                    </if>
+                    <if test="t.createTime != null">
+                        create_time = #{t.createTime} and
+                    </if>
+                    <if test="t.updateTime != null">
+                        update_time = #{t.updateTime} and
+                    </if>
+            </trim>
+        </if>
+    </sql>
+
+    <select id="select" parameterType="com.upedge.common.base.Page" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from organization
+        <include refid="Query_Condition"/>
+        <if test="orderBy != null">
+            order by ${orderBy}
+        </if>
+        <if test="pageNum != null and pageSize != null">
+            limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+        </if>
+    </select>
+
+    <select id="count" parameterType="com.upedge.common.base.Page" resultType="java.lang.Long">
+        select
+        count(1)
+        from organization
+        <include refid="Query_Condition"/>
+    </select>
+
+
+</mapper>

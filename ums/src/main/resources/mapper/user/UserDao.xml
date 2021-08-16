@@ -1,0 +1,286 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.upedge.ums.modules.user.dao.UserDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.upedge.ums.modules.user.entity.User" id="BaseResultMap">
+        <result property="id" column="id"/>
+        <result property="customerId" column="customer_id"/>
+        <result property="loginName" column="login_name"/>
+        <result property="loginPass" column="login_pass"/>
+        <result property="userType" column="user_type"/>
+        <result property="status" column="status"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="lastLoginTime" column="last_login_time"/>
+        <result property="loginCount" column="login_count"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        `id`,`customer_id`,`login_name`,`login_pass`,`user_type`,`status`,`create_time`,`update_time`,`last_login_time`,`login_count`
+    </sql>
+
+    <select id="selectByPrimaryKey" parameterType="com.upedge.ums.modules.user.entity.User" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from user
+        where id = #{id}
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="com.upedge.ums.modules.user.entity.User">
+        delete from user
+        where id = #{id}
+    </delete>
+
+    <update id="updateByPrimaryKeySelective" parameterType="com.upedge.ums.modules.user.entity.User">
+        update user
+        <set>
+            <if test="customerId != null">
+                customer_id = #{customerId},
+            </if>
+            <if test="loginName != null">
+                login_name = #{loginName},
+            </if>
+            <if test="loginPass != null">
+                login_pass = #{loginPass},
+            </if>
+            <if test="userType != null">
+                user_type = #{userType},
+            </if>
+            <if test="status != null">
+                status = #{status},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime},
+            </if>
+            <if test="updateTime != null">
+                update_time = #{updateTime},
+            </if>
+            <if test="lastLoginTime != null">
+                last_login_time = #{lastLoginTime},
+            </if>
+            <if test="loginCount != null">
+                login_count = #{loginCount},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <update id="updateByPrimaryKey" parameterType="com.upedge.ums.modules.user.entity.User">
+        update user
+        <set>
+        id = #{id},
+        customer_id = #{customerId},
+        login_name = #{loginName},
+        login_pass = #{loginPass},
+        user_type = #{userType},
+        status = #{status},
+        create_time = #{createTime},
+        update_time = #{updateTime},
+        last_login_time = #{lastLoginTime},
+        login_count = #{loginCount},
+        </set>
+        where id = #{id}
+    </update>
+    <update id="refreshLoginData">
+        update user set last_login_time=#{lastLoginTime},login_count=login_count+1
+    where id=#{id}
+    </update>
+
+    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.upedge.ums.modules.user.entity.User" useGeneratedKeys="true">
+        insert into user
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            id,
+            customer_id,
+            login_name,
+            login_pass,
+            user_type,
+            status,
+            create_time,
+            update_time,
+            last_login_time,
+            login_count
+        </trim>
+        values (
+        #{id},
+        #{customerId},
+        #{loginName},
+        #{loginPass},
+        #{userType},
+        #{status},
+        #{createTime},
+        #{updateTime},
+        #{lastLoginTime},
+        #{loginCount}
+        )
+    </insert>
+
+    <insert id="insertSelective"  keyColumn="id" keyProperty="id"  parameterType="com.upedge.ums.modules.user.entity.User" useGeneratedKeys="true">
+        insert into user
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null" >
+              id
+            </if>
+            <if test="customerId != null" >
+              customer_id
+            </if>
+            <if test="loginName != null" >
+              login_name
+            </if>
+            <if test="loginPass != null" >
+              login_pass
+            </if>
+            <if test="userType != null" >
+              user_type
+            </if>
+            <if test="status != null" >
+              status
+            </if>
+            <if test="createTime != null" >
+              create_time
+            </if>
+            <if test="updateTime != null" >
+              update_time
+            </if>
+            <if test="lastLoginTime != null" >
+              last_login_time
+            </if>
+            <if test="loginCount != null" >
+              login_count
+            </if>
+
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null" >
+                #{id}
+            </if>
+            <if test="customerId != null" >
+                #{customerId}
+            </if>
+            <if test="loginName != null" >
+                #{loginName}
+            </if>
+            <if test="loginPass != null" >
+                #{loginPass}
+            </if>
+            <if test="userType != null" >
+                #{userType}
+            </if>
+            <if test="status != null" >
+                #{status}
+            </if>
+            <if test="createTime != null" >
+                #{createTime}
+            </if>
+            <if test="updateTime != null" >
+                #{updateTime}
+            </if>
+            <if test="lastLoginTime != null" >
+                #{lastLoginTime}
+            </if>
+            <if test="loginCount != null" >
+                #{loginCount}
+            </if>
+
+        </trim>
+    </insert>
+
+    <insert id="insertByBatch" parameterType="java.util.List">
+        insert into user
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+           id,
+           customer_id,
+           login_name,
+           login_pass,
+           user_type,
+           status,
+           create_time,
+           update_time,
+           last_login_time,
+           login_count
+        </trim>
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+               #{item.id},
+               #{item.customerId},
+               #{item.loginName},
+               #{item.loginPass},
+               #{item.userType},
+               #{item.status},
+               #{item.createTime},
+               #{item.updateTime},
+               #{item.lastLoginTime},
+               #{item.loginCount}
+            </trim>
+        </foreach>
+    </insert>
+
+    <sql id="Query_Condition">
+        <if test="t != null">
+            where
+            <trim prefix=" " suffix=" " suffixOverrides=" and ">
+                1 = 1 and
+                    <if test="t.id != null">
+                        id = #{t.id} and
+                    </if>
+                    <if test="t.customerId != null">
+                        customer_id = #{t.customerId} and
+                    </if>
+                    <if test="t.loginName != null">
+                        login_name = #{t.loginName} and
+                    </if>
+                    <if test="t.loginPass != null">
+                        login_pass = #{t.loginPass} and
+                    </if>
+                    <if test="t.userType != null">
+                        user_type = #{t.userType} and
+                    </if>
+                    <if test="t.status != null">
+                        status = #{t.status} and
+                    </if>
+                    <if test="t.createTime != null">
+                        create_time = #{t.createTime} and
+                    </if>
+                    <if test="t.updateTime != null">
+                        update_time = #{t.updateTime} and
+                    </if>
+                    <if test="t.lastLoginTime != null">
+                        last_login_time = #{t.lastLoginTime} and
+                    </if>
+                    <if test="t.loginCount != null">
+                        login_count = #{t.loginCount} and
+                    </if>
+            </trim>
+        </if>
+    </sql>
+
+    <select id="select" parameterType="com.upedge.common.base.Page" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from user
+        <include refid="Query_Condition"/>
+        <if test="orderBy != null">
+            order by ${orderBy}
+        </if>
+        <if test="pageNum != null and pageSize != null">
+            limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+        </if>
+    </select>
+
+    <select id="count" parameterType="com.upedge.common.base.Page" resultType="java.lang.Long">
+        select
+        count(1)
+        from user
+        <include refid="Query_Condition"/>
+    </select>
+
+    <select id="selectUserByLoginName" resultMap="BaseResultMap">
+        select <include refid="Base_Column_List"/>
+        from `user`
+        where login_name = #{loginName}
+    </select>
+
+
+</mapper>

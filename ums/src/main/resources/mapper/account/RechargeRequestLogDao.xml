@@ -1,0 +1,384 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.upedge.ums.modules.account.dao.RechargeRequestLogDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.upedge.ums.modules.account.entity.RechargeRequestLog" id="BaseResultMap">
+        <result property="id" column="id"/>
+        <result property="accountId" column="account_id"/>
+        <result property="accountPaymethodId" column="account_paymethod_id"/>
+        <result property="customerId" column="customer_id"/>
+        <result property="requestUserId" column="request_user_id"/>
+        <result property="handleUserId" column="handle_user_id"/>
+        <result property="repaymentAmount" column="repayment_amount"/>
+        <result property="amount" column="amount"/>
+        <result property="benefits" column="benefits"/>
+        <result property="customerMoney" column="customer_money"/>
+        <result property="remarks" column="remarks"/>
+        <result property="transferFlow" column="transfer_flow"/>
+        <result property="rechargeType" column="recharge_type"/>
+        <result property="status" column="status"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        `id`,`account_id`,`account_paymethod_id`,`customer_id`,`request_user_id`,`handle_user_id`,`repayment_amount`,`amount`,`benefits`,`customer_money`,`remarks`,`transfer_flow`,`recharge_type`,`status`,`create_time`,`update_time`
+    </sql>
+
+    <select id="selectByPrimaryKey" parameterType="com.upedge.ums.modules.account.entity.RechargeRequestLog" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from recharge_request_log
+        where id = #{id}
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="com.upedge.ums.modules.account.entity.RechargeRequestLog">
+        delete from recharge_request_log
+        where id = #{id}
+    </delete>
+
+    <update id="updateByPrimaryKeySelective" parameterType="com.upedge.ums.modules.account.entity.RechargeRequestLog">
+        update recharge_request_log
+        <set>
+            <if test="accountId != null">
+                account_id = #{accountId},
+            </if>
+            <if test="accountPaymethodId != null">
+                account_paymethod_id = #{accountPaymethodId},
+            </if>
+            <if test="customerId != null">
+                customer_id = #{customerId},
+            </if>
+            <if test="requestUserId != null">
+                request_user_id = #{requestUserId},
+            </if>
+            <if test="handleUserId != null">
+                handle_user_id = #{handleUserId},
+            </if>
+            <if test="repaymentAmount != null">
+                repayment_amount = #{repaymentAmount},
+            </if>
+            <if test="amount != null">
+                amount = #{amount},
+            </if>
+            <if test="benefits != null">
+                benefits = #{benefits},
+            </if>
+            <if test="customerMoney != null">
+                customer_money = #{customerMoney},
+            </if>
+            <if test="remarks != null">
+                remarks = #{remarks},
+            </if>
+            <if test="transferFlow != null">
+                transfer_flow = #{transferFlow},
+            </if>
+            <if test="rechargeType != null">
+                recharge_type = #{rechargeType},
+            </if>
+            <if test="status != null">
+                status = #{status},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime},
+            </if>
+            <if test="updateTime != null">
+                update_time = #{updateTime},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <update id="updateByPrimaryKey" parameterType="com.upedge.ums.modules.account.entity.RechargeRequestLog">
+        update recharge_request_log
+        <set>
+        id = #{id},
+        account_id = #{accountId},
+        account_paymethod_id = #{accountPaymethodId},
+        customer_id = #{customerId},
+        request_user_id = #{requestUserId},
+        handle_user_id = #{handleUserId},
+        repayment_amount = #{repaymentAmount},
+        amount = #{amount},
+        benefits = #{benefits},
+        customer_money = #{customerMoney},
+        remarks = #{remarks},
+        transfer_flow = #{transferFlow},
+        recharge_type = #{rechargeType},
+        status = #{status},
+        create_time = #{createTime},
+        update_time = #{updateTime},
+        </set>
+        where id = #{id}
+    </update>
+
+    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.upedge.ums.modules.account.entity.RechargeRequestLog" useGeneratedKeys="true">
+        insert into recharge_request_log
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            id,
+            account_id,
+            account_paymethod_id,
+            customer_id,
+            request_user_id,
+            handle_user_id,
+            repayment_amount,
+            amount,
+            benefits,
+            customer_money,
+            remarks,
+            transfer_flow,
+            recharge_type,
+            status,
+            create_time,
+            update_time
+        </trim>
+        values (
+        #{id},
+        #{accountId},
+        #{accountPaymethodId},
+        #{customerId},
+        #{requestUserId},
+        #{handleUserId},
+        #{repaymentAmount},
+        #{amount},
+        #{benefits},
+        #{customerMoney},
+        #{remarks},
+        #{transferFlow},
+        #{rechargeType},
+        #{status},
+        #{createTime},
+        #{updateTime}
+        )
+    </insert>
+
+    <insert id="insertSelective"  keyColumn="id" keyProperty="id"  parameterType="com.upedge.ums.modules.account.entity.RechargeRequestLog" useGeneratedKeys="true">
+        insert into recharge_request_log
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null" >
+              id
+            </if>
+            <if test="accountId != null" >
+              account_id
+            </if>
+            <if test="accountPaymethodId != null" >
+              account_paymethod_id
+            </if>
+            <if test="customerId != null" >
+              customer_id
+            </if>
+            <if test="requestUserId != null" >
+              request_user_id
+            </if>
+            <if test="handleUserId != null" >
+              handle_user_id
+            </if>
+            <if test="repaymentAmount != null" >
+              repayment_amount
+            </if>
+            <if test="amount != null" >
+              amount
+            </if>
+            <if test="benefits != null" >
+              benefits
+            </if>
+            <if test="customerMoney != null" >
+              customer_money
+            </if>
+            <if test="remarks != null" >
+              remarks
+            </if>
+            <if test="transferFlow != null" >
+              transfer_flow
+            </if>
+            <if test="rechargeType != null" >
+              recharge_type
+            </if>
+            <if test="status != null" >
+              status
+            </if>
+            <if test="createTime != null" >
+              create_time
+            </if>
+            <if test="updateTime != null" >
+              update_time
+            </if>
+
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null" >
+                #{id}
+            </if>
+            <if test="accountId != null" >
+                #{accountId}
+            </if>
+            <if test="accountPaymethodId != null" >
+                #{accountPaymethodId}
+            </if>
+            <if test="customerId != null" >
+                #{customerId}
+            </if>
+            <if test="requestUserId != null" >
+                #{requestUserId}
+            </if>
+            <if test="handleUserId != null" >
+                #{handleUserId}
+            </if>
+            <if test="repaymentAmount != null" >
+                #{repaymentAmount}
+            </if>
+            <if test="amount != null" >
+                #{amount}
+            </if>
+            <if test="benefits != null" >
+                #{benefits}
+            </if>
+            <if test="customerMoney != null" >
+                #{customerMoney}
+            </if>
+            <if test="remarks != null" >
+                #{remarks}
+            </if>
+            <if test="transferFlow != null" >
+                #{transferFlow}
+            </if>
+            <if test="rechargeType != null" >
+                #{rechargeType}
+            </if>
+            <if test="status != null" >
+                #{status}
+            </if>
+            <if test="createTime != null" >
+                #{createTime}
+            </if>
+            <if test="updateTime != null" >
+                #{updateTime}
+            </if>
+
+        </trim>
+    </insert>
+
+    <insert id="insertByBatch" parameterType="java.util.List">
+        insert into recharge_request_log
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+           id,
+           account_id,
+           account_paymethod_id,
+           customer_id,
+           request_user_id,
+           handle_user_id,
+           repayment_amount,
+           amount,
+           benefits,
+           customer_money,
+           remarks,
+           transfer_flow,
+           recharge_type,
+           status,
+           create_time,
+           update_time
+        </trim>
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+               #{item.id},
+               #{item.accountId},
+               #{item.accountPaymethodId},
+               #{item.customerId},
+               #{item.requestUserId},
+               #{item.handleUserId},
+               #{item.repaymentAmount},
+               #{item.amount},
+               #{item.benefits},
+               #{item.customerMoney},
+               #{item.remarks},
+               #{item.transferFlow},
+               #{item.rechargeType},
+               #{item.status},
+               #{item.createTime},
+               #{item.updateTime}
+            </trim>
+        </foreach>
+    </insert>
+
+    <sql id="Query_Condition">
+        <if test="t != null">
+            where
+            <trim prefix=" " suffix=" " suffixOverrides=" and ">
+                1 = 1 and
+                    <if test="t.id != null">
+                        id = #{t.id} and
+                    </if>
+                    <if test="t.accountId != null">
+                        account_id = #{t.accountId} and
+                    </if>
+                    <if test="t.accountPaymethodId != null">
+                        account_paymethod_id = #{t.accountPaymethodId} and
+                    </if>
+                    <if test="t.customerId != null">
+                        customer_id = #{t.customerId} and
+                    </if>
+                    <if test="t.requestUserId != null">
+                        request_user_id = #{t.requestUserId} and
+                    </if>
+                    <if test="t.handleUserId != null">
+                        handle_user_id = #{t.handleUserId} and
+                    </if>
+                    <if test="t.repaymentAmount != null">
+                        repayment_amount = #{t.repaymentAmount} and
+                    </if>
+                    <if test="t.amount != null">
+                        amount = #{t.amount} and
+                    </if>
+                    <if test="t.benefits != null">
+                        benefits = #{t.benefits} and
+                    </if>
+                    <if test="t.customerMoney != null">
+                        customer_money = #{t.customerMoney} and
+                    </if>
+                    <if test="t.remarks != null">
+                        remarks = #{t.remarks} and
+                    </if>
+                    <if test="t.transferFlow != null">
+                        transfer_flow = #{t.transferFlow} and
+                    </if>
+                    <if test="t.rechargeType != null">
+                        recharge_type = #{t.rechargeType} and
+                    </if>
+                    <if test="t.status != null">
+                        status = #{t.status} and
+                    </if>
+                    <if test="t.createTime != null">
+                        create_time = #{t.createTime} and
+                    </if>
+                    <if test="t.updateTime != null">
+                        update_time = #{t.updateTime} and
+                    </if>
+            </trim>
+        </if>
+    </sql>
+
+    <select id="select" parameterType="com.upedge.common.base.Page" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from recharge_request_log
+        <include refid="Query_Condition"/>
+        <if test="orderBy != null">
+            order by ${orderBy}
+        </if>
+        <if test="pageNum != null and pageSize != null">
+            limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+        </if>
+    </select>
+
+    <select id="count" parameterType="com.upedge.common.base.Page" resultType="java.lang.Long">
+        select
+        count(1)
+        from recharge_request_log
+        <include refid="Query_Condition"/>
+    </select>
+
+
+</mapper>
