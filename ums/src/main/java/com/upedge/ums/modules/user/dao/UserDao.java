@@ -11,6 +11,9 @@ import org.apache.ibatis.annotations.Param;
  */
 public interface UserDao{
 
+
+    User selectByLoginName(String loginName);
+
     void refreshLoginData(User user);
 
     User selectUserByLoginName(@Param("loginName") String loginName);

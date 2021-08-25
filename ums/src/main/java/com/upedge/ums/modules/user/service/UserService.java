@@ -16,6 +16,8 @@ import java.util.List;
  */
 public interface UserService{
 
+    User selectByLoginName(String loginName);
+
     UserProfileResponse profile();
 
 

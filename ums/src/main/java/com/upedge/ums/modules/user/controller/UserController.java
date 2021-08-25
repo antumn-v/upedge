@@ -3,8 +3,11 @@ package com.upedge.ums.modules.user.controller;
 import java.util.Arrays;
 import java.util.Map;
 
+import com.upedge.common.base.BaseResponse;
 import com.upedge.common.constant.ResultCode;
 import com.upedge.common.exception.CustomerException;
+import com.upedge.common.model.user.vo.Session;
+import com.upedge.common.web.util.UserUtil;
 import com.upedge.ums.modules.user.request.*;
 import com.upedge.ums.modules.user.response.*;
 import lombok.extern.slf4j.Slf4j;
@@ -13,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.upedge.common.component.annotation.Permission;
 import com.upedge.ums.modules.user.entity.User;
 import com.upedge.ums.modules.user.service.UserService;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import com.upedge.common.constant.Constant;
@@ -31,6 +35,10 @@ public class UserController {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    RedisTemplate redisTemplate;
+
+
 
     @PostMapping("/signup")
     public CustomerSignUpResponse customerSingUp(@RequestBody @Valid CustomerSignUpRequest request) throws CustomerException {
@@ -47,6 +55,20 @@ public class UserController {
     @PostMapping("/signin")
     public UserSignInResponse userSignIn(@RequestBody @Valid UserSignInRequest request) {
         return userService.signIn(request);
+    }
+
+    @GetMapping("/profile")
+    public BaseResponse profile(){
+        return userService.profile();
+    }
+
+    @GetMapping("/loginNameAvailable")
+    public BaseResponse loginNameAvailable(@RequestParam String loginName){
+        User user = userService.selectByLoginName(loginName);
+        if(null != user){
+            return new BaseResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS,false);
+        }
+        return new BaseResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS,true);
     }
 
 
@@ -71,7 +93,8 @@ public class UserController {
     @RequestMapping(value="/add", method=RequestMethod.POST)
     @Permission(permission = "user:user:add")
     public UserAddResponse add(@RequestBody @Valid UserAddRequest request) {
-        User entity=request.toUser();
+        Session session = UserUtil.getSession(redisTemplate);
+        User entity=request.toUser(session.getCustomerId());
         userService.insertSelective(entity);
         UserAddResponse res = new UserAddResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS,entity,request);
         return res;

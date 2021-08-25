@@ -2,6 +2,8 @@ package com.upedge.ums.modules.account.service.impl;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.math.BigDecimal;
 import java.util.List;
 import com.upedge.common.base.Page;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,6 +44,12 @@ public class AccountServiceImpl implements AccountService {
     @Transactional
     public int insertSelective(Account record) {
         return accountDao.insert(record);
+    }
+
+    @Override
+    public boolean addAccountBalance(Long accountId, BigDecimal amount) {
+
+        return accountDao.addAccountBalance(accountId, amount);
     }
 
     /**

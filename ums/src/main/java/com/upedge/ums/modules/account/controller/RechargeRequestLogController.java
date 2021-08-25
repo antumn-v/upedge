@@ -3,11 +3,18 @@ package com.upedge.ums.modules.account.controller;
 import java.util.Arrays;
 import java.util.Map;
 
+import com.upedge.common.base.BaseResponse;
 import com.upedge.common.constant.ResultCode;
+import com.upedge.common.model.user.vo.Session;
+import com.upedge.common.web.util.UserUtil;
+import com.upedge.ums.modules.account.request.TransferRechargeRequest;
+import com.upedge.ums.modules.user.entity.UserInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import com.upedge.common.component.annotation.Permission;
 import com.upedge.ums.modules.account.entity.RechargeRequestLog;
 import com.upedge.ums.modules.account.service.RechargeRequestLogService;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import com.upedge.common.constant.Constant;
@@ -33,6 +40,14 @@ public class RechargeRequestLogController {
     @Autowired
     private RechargeRequestLogService rechargeRequestLogService;
 
+    @Autowired
+    RedisTemplate redisTemplate;
+
+    @PostMapping("/transfer")
+    public BaseResponse transferRechargeRequest(@RequestBody TransferRechargeRequest rechargeRequest){
+        Session session = UserUtil.getSession(redisTemplate);
+        return rechargeRequestLogService.transferRechargeRequest(rechargeRequest,session);
+    }
 
     @RequestMapping(value="/info/{id}", method=RequestMethod.GET)
     @Permission(permission = "account:rechargerequestlog:info:id")

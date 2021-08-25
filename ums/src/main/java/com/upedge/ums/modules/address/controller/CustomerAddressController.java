@@ -56,8 +56,13 @@ public class CustomerAddressController {
     @Permission(permission = "address:customeraddress:add")
     public CustomerAddressAddResponse add(@RequestBody @Valid CustomerAddressAddRequest request) {
         CustomerAddress entity=request.toCustomerAddress();
-        customerAddressService.insertSelective(entity);
-        CustomerAddressAddResponse res = new CustomerAddressAddResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS,entity,request);
+        int i = customerAddressService.insertSelective(entity);
+        CustomerAddressAddResponse res = null;
+        if (i == 1){
+            res = new CustomerAddressAddResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS,entity,request);
+        }else {
+            res = new CustomerAddressAddResponse(ResultCode.FAIL_CODE,Constant.MESSAGE_FAIL,entity,request);
+        }
         return res;
     }
 

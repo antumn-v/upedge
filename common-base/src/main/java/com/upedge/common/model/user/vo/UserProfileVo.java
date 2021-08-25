@@ -18,7 +18,7 @@ public class UserProfileVo {
     /**
      * 用户的角色
      */
-    private List<String> roles = new ArrayList<String>();
+    private RoleVo roleVo;
 
     /**
      * 用户的许可

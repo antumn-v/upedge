@@ -1,5 +1,8 @@
 package com.upedge.ums.modules.address.service.impl;
 
+import com.upedge.common.model.user.vo.Session;
+import com.upedge.common.web.util.UserUtil;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
@@ -16,12 +19,15 @@ public class CustomerAddressServiceImpl implements CustomerAddressService {
     @Autowired
     private CustomerAddressDao customerAddressDao;
 
+    @Autowired
+    RedisTemplate redisTemplate;
+
 
 
     /**
      *
      */
-    @Transactional
+    @Override
     public int deleteByPrimaryKey(Long id) {
         CustomerAddress record = new CustomerAddress();
         record.setId(id);
@@ -32,16 +38,34 @@ public class CustomerAddressServiceImpl implements CustomerAddressService {
      *
      */
     @Transactional
+    @Override
     public int insert(CustomerAddress record) {
-        return customerAddressDao.insert(record);
+        return insertSelective(record);
     }
 
     /**
      *
      */
     @Transactional
+    @Override
     public int insertSelective(CustomerAddress record) {
-        return customerAddressDao.insert(record);
+        Session session = UserUtil.getSession(redisTemplate);
+        Page page = new Page();
+        page.setPageSize(-1);
+        Long count = customerAddressDao.count(page);
+        if (count == 10){
+            return 0;
+        }
+        if (count == null || count == 0){
+            record.setIsDefault(true);
+        }
+        int i = customerAddressDao.insert(record);
+        if (i == 1){
+            if (record.getIsDefault()){
+                customerAddressDao.cancelOtherDefaultAddress(record.getId(),session.getCustomerId());
+            }
+        }
+        return i;
     }
 
     /**

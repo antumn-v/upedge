@@ -2,13 +2,19 @@ package com.upedge.ums.modules.account.dao;
 
 import com.upedge.ums.modules.account.entity.Account;
 import org.apache.ibatis.annotations.Mapper;
+
+import java.math.BigDecimal;
 import java.util.List;
 import com.upedge.common.base.Page;
+import org.apache.ibatis.annotations.Param;
 
 /**
  * @author gx
  */
 public interface AccountDao{
+
+    boolean addAccountBalance(@Param("id") Long id,
+                              @Param("amount") BigDecimal amount);
 
     Account selectByPrimaryKey(Account record);
 

@@ -10,6 +10,14 @@ import lombok.Data;
  */
 @Data
 public class RechargeRequestLog{
+	//银行转账
+	public static final Integer TRANSFER_REQUEST_TYPE = 0;
+	//PayPal
+	public static final Integer PAYPAL_REQUEST_TYPE = 0;
+
+	public static final Integer PENDING = 0;
+	public static final Integer SUCCESS = 1;
+	public static final Integer FAILED = 0;
 
 	/**
 	 * 
@@ -59,6 +67,10 @@ public class RechargeRequestLog{
 	 * 流水号
 	 */
     private String transferFlow;
+	/**
+	 * 凭证
+	 */
+	private String voucher;
 	/**
 	 * 0:电汇 1:paypal充值 2:payoneer充值,3:payoneer申请
 	 */

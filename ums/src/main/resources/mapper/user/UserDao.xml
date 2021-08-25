@@ -281,6 +281,11 @@
         from `user`
         where login_name = #{loginName}
     </select>
+    <select id="selectByLoginName" resultType="com.upedge.ums.modules.user.entity.User">
+        select <include refid="Base_Column_List"/>
+        from `user`
+        where login_name = #{loginName}
+    </select>
 
 
 </mapper>

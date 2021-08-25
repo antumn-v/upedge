@@ -40,6 +40,12 @@
         delete from customer_address
         where id = #{id}
     </delete>
+    <update id="cancelOtherDefaultAddress">
+        update customer_address
+        set is_default = '0'
+        where customer_id = #{customerId}
+        and id != #{id}
+    </update>
 
     <update id="updateByPrimaryKeySelective" parameterType="com.upedge.ums.modules.address.entity.CustomerAddress">
         update customer_address

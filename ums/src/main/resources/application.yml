@@ -82,6 +82,11 @@ logging:
     com.upedge.ums: DEBUG
     com.upedge.test: DEBUG
 
+files:
+  image:
+    transfer:
+      local: 'E:/developer/files/upedge/'
+      prefix: 'http://localhost:8611/image/'
 
 upedge:
   thread:

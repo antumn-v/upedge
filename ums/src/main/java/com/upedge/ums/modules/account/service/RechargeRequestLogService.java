@@ -1,13 +1,21 @@
 package com.upedge.ums.modules.account.service;
 
+import com.upedge.common.base.BaseResponse;
+import com.upedge.common.model.user.vo.Session;
 import com.upedge.ums.modules.account.entity.RechargeRequestLog;
 import com.upedge.common.base.Page;
+import com.upedge.ums.modules.account.request.TransferRechargeRequest;
+
 import java.util.List;
 
 /**
  * @author gx
  */
 public interface RechargeRequestLogService{
+
+    BaseResponse transferRechargeRequest(TransferRechargeRequest rechargeRequest, Session session);
+
+    BaseResponse confirmRechargeRequest(Long id,Session session);
 
     RechargeRequestLog selectByPrimaryKey(Long id);
 

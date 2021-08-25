@@ -16,7 +16,8 @@ public class BaseResponse implements Serializable {
 	protected Object data;
 	
 	protected Object req;
-	
+
+
 	public BaseResponse() {
 		
 	}

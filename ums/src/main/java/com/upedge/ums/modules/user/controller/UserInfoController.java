@@ -29,7 +29,8 @@ import javax.validation.Valid;
  */
 @RestController
 @RequestMapping("/userInfo")
-public class UserInfoController {
+public class
+UserInfoController {
     @Autowired
     private UserInfoService userInfoService;
 

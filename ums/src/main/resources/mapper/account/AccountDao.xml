@@ -213,6 +213,12 @@
         </foreach>
     </insert>
 
+    <update id="addAccountBalance">
+        update account
+        set balance = balance + #{amount}
+        where id = #{id}
+    </update>
+
     <sql id="Query_Condition">
         <if test="t != null">
             where

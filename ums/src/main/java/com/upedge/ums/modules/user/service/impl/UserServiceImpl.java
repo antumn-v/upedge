@@ -143,6 +143,14 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public User selectByLoginName(String loginName) {
+        if (StringUtils.isBlank(loginName)){
+            return null;
+        }
+        return userDao.selectByLoginName(loginName);
+    }
+
+    @Override
     public UserProfileResponse profile() {
 
         Session session = UserUtil.getSession(redisTemplate);
@@ -151,18 +159,18 @@ public class UserServiceImpl implements UserService {
         }
         UserInfo userInfo = userInfoService.selectByPrimaryKey(session.getId());
         List<Menu> menus = roleMenuService.selectRoleMenuByApplication(session.getRole().getId(), session.getApplicationId());
-
         UserProfileVo userData = new UserProfileVo();
         UserInfoVo userInfoVo = new UserInfoVo();
         BeanUtils.copyProperties(userInfo, userInfoVo);
         userData.setUserinfo(userInfoVo);
+        userData.setRoleVo(session.getRole());
         List<MenuVo> menuVos = menus.stream().map(menu -> {
             MenuVo menuVo = new MenuVo();
             BeanUtils.copyProperties(menu, menuVo);
             return menuVo;
         }).collect(Collectors.toList());
         userData.setMenus(menuVos);
-        userData.setRoles(new ArrayList<String>());
+
         userData.setPermissions(new ArrayList<String>());
         return new UserProfileResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS, userData);
     }

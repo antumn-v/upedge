@@ -69,7 +69,7 @@ public class CustomerAddress{
 	/**
 	 * 0 默认  1 非默认
 	 */
-    private Integer isDefault;
+    private Boolean isDefault;
 	/**
 	 * 0=普通地址，1=账单地址
 	 */
