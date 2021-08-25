@@ -1,0 +1,49 @@
+server:
+  port: 8611
+spring:
+  application:
+    name: spring-cloud-consul-zuul
+  cloud:
+    loadbalancer:
+      ribbon:
+        enabled: false
+    nacos:
+      discovery:
+        namespace: public
+        group: ${spring.application.name}
+      username: nacos
+      password: nacos
+      server-addr: 192.168.10.13:8848
+  redis:
+    database: 0
+    host: 192.168.10.13
+    port: 6379
+    password: 123456
+    lettuce:
+      pool:
+        max-active: 8
+        max-idle: 8
+        min-idle: 0
+logging:
+  config: classpath:logback-boot.xml
+zuul:
+  host:
+    connect-timeout-millis: 35000 #HTTP连接超时要比Hystrix的大
+    socket-timeout-millis: 60000   #socket超时
+  #routes: #没有定义路由的其他服务访问的方式：http://ZUUL_HOST:ZUUL_PORT/微服务在注册中心的serviceId/**
+  #  ribbon:
+  #    path: /ribbon/**
+  #    serviceId: subscriber  # 转发到消费者 /ribbon/
+  #  feign:
+  #    path: /feign/**
+  #    serviceId: subscriber  # 转发到消费者 /feign/
+  routes:
+    ums-service:
+      path: /ums/**
+      service-id: ums
+      url: http://localhost:8000/
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
