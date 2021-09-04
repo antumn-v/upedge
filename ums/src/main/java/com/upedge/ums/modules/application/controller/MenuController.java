@@ -4,10 +4,13 @@ import java.util.Arrays;
 import java.util.Map;
 
 import com.upedge.common.constant.ResultCode;
+import com.upedge.common.model.user.vo.Session;
+import com.upedge.common.web.util.UserUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import com.upedge.common.component.annotation.Permission;
 import com.upedge.ums.modules.application.entity.Menu;
 import com.upedge.ums.modules.application.service.MenuService;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import com.upedge.common.constant.Constant;
@@ -33,6 +36,9 @@ public class MenuController {
     @Autowired
     private MenuService menuService;
 
+    @Autowired
+    RedisTemplate redisTemplate;
+
 
     @RequestMapping(value="/info/{id}", method=RequestMethod.GET)
     @Permission(permission = "application:menu:info:id")
@@ -55,7 +61,8 @@ public class MenuController {
     @RequestMapping(value="/add", method=RequestMethod.POST)
     @Permission(permission = "application:menu:add")
     public MenuAddResponse add(@RequestBody @Valid MenuAddRequest request) {
-        Menu entity=request.toMenu();
+        Session session = UserUtil.getSession(redisTemplate);
+        Menu entity=request.toMenu(session);
         menuService.insertSelective(entity);
         MenuAddResponse res = new MenuAddResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS,entity,request);
         return res;

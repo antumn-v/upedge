@@ -299,15 +299,7 @@ public class UserServiceImpl implements UserService {
         Long applicationId = request.getApplicationId();
         Long userId = IdGenerate.nextId();
         Customer customer = request.toCustomer(needApprove);
-        String s = (String) redisTemplate.opsForHash().get(RedisKey.HASH_LOGINNAME_CUSTOMERID, request.getLoginName());
-        Long customerId = null;
-        if (StringUtils.isNotBlank(s)) {
-            customerId = Long.parseLong(s);
-        }
 
-        if (null != customerId) {
-            customer.setId(customerId);
-        }
         customer.setCustomerSignupUserId(userId);
         customerService.insert(customer);
 

@@ -7,8 +7,10 @@ import com.upedge.common.base.BaseResponse;
 import com.upedge.common.constant.ResultCode;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.web.util.UserUtil;
-import com.upedge.ums.modules.account.request.TransferRechargeRequest;
+import com.upedge.ums.modules.account.request.*;
 import com.upedge.ums.modules.user.entity.UserInfo;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import com.upedge.common.component.annotation.Permission;
 import com.upedge.ums.modules.account.entity.RechargeRequestLog;
@@ -18,9 +20,6 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import com.upedge.common.constant.Constant;
-import com.upedge.ums.modules.account.request.RechargeRequestLogAddRequest;
-import com.upedge.ums.modules.account.request.RechargeRequestLogListRequest;
-import com.upedge.ums.modules.account.request.RechargeRequestLogUpdateRequest;
 
 import com.upedge.ums.modules.account.response.RechargeRequestLogAddResponse;
 import com.upedge.ums.modules.account.response.RechargeRequestLogDelResponse;
@@ -34,6 +33,7 @@ import javax.validation.Valid;
  *
  * @author gx
  */
+@Api(tags = "/充值申请")
 @RestController
 @RequestMapping("/rechargeRequestLog")
 public class RechargeRequestLogController {
@@ -43,10 +43,25 @@ public class RechargeRequestLogController {
     @Autowired
     RedisTemplate redisTemplate;
 
+    @ApiOperation("提交转账充值申请")
     @PostMapping("/transfer")
     public BaseResponse transferRechargeRequest(@RequestBody TransferRechargeRequest rechargeRequest){
         Session session = UserUtil.getSession(redisTemplate);
         return rechargeRequestLogService.transferRechargeRequest(rechargeRequest,session);
+    }
+
+    @ApiOperation("确认转账充值申请")
+    @PostMapping("/confirm")
+    public BaseResponse confirmTransferRecharge(@RequestBody @Valid ConfirmTransferRechargeRequest request){
+        Session session = UserUtil.getSession(redisTemplate);
+        return rechargeRequestLogService.confirmRechargeRequest(request.getId(),session);
+    }
+
+    @ApiOperation("驳回转账充值申请")
+    @PostMapping("/reject")
+    public BaseResponse rejectTransferRecharge(@RequestBody @Valid RejectRechargeRequest request){
+        Session session = UserUtil.getSession(redisTemplate);
+        return rechargeRequestLogService.rejectRechargeRequest(request,session);
     }
 
     @RequestMapping(value="/info/{id}", method=RequestMethod.GET)
@@ -57,6 +72,8 @@ public class RechargeRequestLogController {
         return res;
     }
 
+
+    @ApiOperation("充值申请列表")
     @RequestMapping(value="/list", method=RequestMethod.POST)
     @Permission(permission = "account:rechargerequestlog:list")
     public RechargeRequestLogListResponse list(@RequestBody @Valid RechargeRequestLogListRequest request) {

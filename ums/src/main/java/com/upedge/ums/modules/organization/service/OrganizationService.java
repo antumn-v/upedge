@@ -1,5 +1,6 @@
 package com.upedge.ums.modules.organization.service;
 
+import com.upedge.common.base.BaseResponse;
 import com.upedge.ums.modules.organization.entity.Organization;
 import com.upedge.common.base.Page;
 import java.util.List;
@@ -8,6 +9,8 @@ import java.util.List;
  * @author gx
  */
 public interface OrganizationService{
+
+    BaseResponse organizationTree();
 
     Organization selectByPrimaryKey(Long id);
 

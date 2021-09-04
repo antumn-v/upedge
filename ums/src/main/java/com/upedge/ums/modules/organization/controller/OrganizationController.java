@@ -3,11 +3,15 @@ package com.upedge.ums.modules.organization.controller;
 import java.util.Arrays;
 import java.util.Map;
 
+import com.upedge.common.base.BaseResponse;
 import com.upedge.common.constant.ResultCode;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import com.upedge.common.component.annotation.Permission;
 import com.upedge.ums.modules.organization.entity.Organization;
 import com.upedge.ums.modules.organization.service.OrganizationService;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import com.upedge.common.constant.Constant;
@@ -27,13 +31,26 @@ import javax.validation.Valid;
  *
  * @author gx
  */
+@Api(tags = "部门管理")
 @RestController
 @RequestMapping("/organization")
 public class OrganizationController {
     @Autowired
     private OrganizationService organizationService;
 
+    @Autowired
+    RedisTemplate redisTemplate;
 
+    /**
+     * 部门树
+     * @return
+     */
+    @GetMapping("/tree")
+    public BaseResponse orgTree(){
+        return organizationService.organizationTree();
+    }
+
+    @ApiOperation("部门详情")
     @RequestMapping(value="/info/{id}", method=RequestMethod.GET)
     @Permission(permission = "organization:organization:info:id")
     public OrganizationInfoResponse info(@PathVariable Long id) {
@@ -52,6 +69,7 @@ public class OrganizationController {
         return res;
     }
 
+    @ApiOperation("增加部门")
     @RequestMapping(value="/add", method=RequestMethod.POST)
     @Permission(permission = "organization:organization:add")
     public OrganizationAddResponse add(@RequestBody @Valid OrganizationAddRequest request) {
@@ -61,6 +79,8 @@ public class OrganizationController {
         return res;
     }
 
+
+    @ApiOperation("删除部门")
     @RequestMapping(value="/del/{id}", method=RequestMethod.POST)
     @Permission(permission = "organization:organization:del:id")
     public OrganizationDelResponse del(@PathVariable Long id) {
@@ -69,6 +89,7 @@ public class OrganizationController {
         return res;
     }
 
+    @ApiOperation("修改部门")
     @RequestMapping(value="/update/{id}", method=RequestMethod.POST)
     @Permission(permission = "organization:organization:update")
     public OrganizationUpdateResponse update(@PathVariable Long id,@RequestBody @Valid OrganizationUpdateRequest request) {

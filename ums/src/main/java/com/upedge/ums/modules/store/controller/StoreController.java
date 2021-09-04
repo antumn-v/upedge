@@ -4,10 +4,15 @@ import java.util.Arrays;
 import java.util.Map;
 
 import com.upedge.common.constant.ResultCode;
+import com.upedge.common.model.user.vo.Session;
+import com.upedge.common.web.util.UserUtil;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import com.upedge.common.component.annotation.Permission;
 import com.upedge.ums.modules.store.entity.Store;
 import com.upedge.ums.modules.store.service.StoreService;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import com.upedge.common.constant.Constant;
@@ -27,12 +32,15 @@ import javax.validation.Valid;
  *
  * @author gx
  */
+@Api(tags = "客户店铺管理")
 @RestController
 @RequestMapping("/store")
 public class StoreController {
     @Autowired
     private StoreService storeService;
 
+    @Autowired
+    RedisTemplate redisTemplate;
 
     @RequestMapping(value="/info/{id}", method=RequestMethod.GET)
     @Permission(permission = "store:store:info:id")
@@ -42,9 +50,15 @@ public class StoreController {
         return res;
     }
 
+    @ApiOperation("客户店铺列表")
     @RequestMapping(value="/list", method=RequestMethod.POST)
     @Permission(permission = "store:store:list")
     public StoreListResponse list(@RequestBody @Valid StoreListRequest request) {
+        Session session = UserUtil.getSession(redisTemplate);
+        if (request.getT() == null){
+            request.setT(new Store());
+        }
+        request.getT().setCustomerId(session.getCustomerId());
         List<Store> results = storeService.select(request);
         Long total = storeService.count(request);
         request.setTotal(total);

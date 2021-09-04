@@ -41,11 +41,9 @@ public class RoleUpdateRequest{
     public Role toRole(Long id){
         Role role=new Role();
         role.setId(id);
-        role.setCustomerId(customerId);
         role.setRoleCode(roleCode);
         role.setRoleName(roleName);
-        role.setCreateTime(createTime);
-        role.setUpdateTime(updateTime);
+        role.setUpdateTime(new Date());
         role.setApplicationId(applicationId);
         role.setRoleType(roleType);
         return role;

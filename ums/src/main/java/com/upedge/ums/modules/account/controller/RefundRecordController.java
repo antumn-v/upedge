@@ -27,8 +27,8 @@ import javax.validation.Valid;
  *
  * @author gx
  */
-@RestController
-@RequestMapping("/refundRecord")
+//@RestController
+//@RequestMapping("/refundRecord")
 public class RefundRecordController {
     @Autowired
     private RefundRecordService refundRecordService;

@@ -27,8 +27,8 @@ import javax.validation.Valid;
  *
  * @author gx
  */
-@RestController
-@RequestMapping("/rechargeLog")
+//@RestController
+//@RequestMapping("/rechargeLog")
 public class RechargeLogController {
     @Autowired
     private RechargeLogService rechargeLogService;

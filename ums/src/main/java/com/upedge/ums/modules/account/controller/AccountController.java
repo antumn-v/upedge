@@ -4,6 +4,8 @@ import java.util.Arrays;
 import java.util.Map;
 
 import com.upedge.common.constant.ResultCode;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import com.upedge.common.component.annotation.Permission;
 import com.upedge.ums.modules.account.entity.Account;
@@ -27,13 +29,14 @@ import javax.validation.Valid;
  *
  * @author gx
  */
+@Api(tags = "账户管理，暂不开发")
 @RestController
 @RequestMapping("/account")
 public class AccountController {
     @Autowired
     private AccountService accountService;
 
-
+    @ApiOperation("账户详情")
     @RequestMapping(value="/info/{id}", method=RequestMethod.GET)
     @Permission(permission = "account:account:info:id")
     public AccountInfoResponse info(@PathVariable Long id) {
@@ -42,6 +45,7 @@ public class AccountController {
         return res;
     }
 
+    @ApiOperation("账户列表")
     @RequestMapping(value="/list", method=RequestMethod.POST)
     @Permission(permission = "account:account:list")
     public AccountListResponse list(@RequestBody @Valid AccountListRequest request) {
@@ -52,6 +56,7 @@ public class AccountController {
         return res;
     }
 
+    @ApiOperation("添加账户")
     @RequestMapping(value="/add", method=RequestMethod.POST)
     @Permission(permission = "account:account:add")
     public AccountAddResponse add(@RequestBody @Valid AccountAddRequest request) {
@@ -61,6 +66,7 @@ public class AccountController {
         return res;
     }
 
+    @ApiOperation("删除账户")
     @RequestMapping(value="/del/{id}", method=RequestMethod.POST)
     @Permission(permission = "account:account:del:id")
     public AccountDelResponse del(@PathVariable Long id) {
@@ -69,6 +75,7 @@ public class AccountController {
         return res;
     }
 
+    @ApiOperation("修改账户")
     @RequestMapping(value="/update/{id}", method=RequestMethod.POST)
     @Permission(permission = "account:account:update")
     public AccountUpdateResponse update(@PathVariable Long id,@RequestBody @Valid AccountUpdateRequest request) {

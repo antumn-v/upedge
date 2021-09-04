@@ -1,6 +1,8 @@
 package com.upedge.ums.modules.user.request;
 
 import com.upedge.common.base.Page;
+import com.upedge.common.model.user.vo.Session;
+import com.upedge.common.utils.IdGenerate;
 import com.upedge.ums.modules.user.entity.Role;
 import java.util.Date;
 import lombok.Data;
@@ -39,14 +41,15 @@ public class RoleAddRequest{
     */
     private Integer roleType;
 
-    public Role toRole(){
+    public Role toRole(Session session){
         Role role=new Role();
-        role.setCustomerId(customerId);
+        role.setId(IdGenerate.nextId());
+        role.setCustomerId(session.getCustomerId());
         role.setRoleCode(roleCode);
         role.setRoleName(roleName);
-        role.setCreateTime(createTime);
-        role.setUpdateTime(updateTime);
-        role.setApplicationId(applicationId);
+        role.setCreateTime(new Date());
+        role.setUpdateTime(new Date());
+        role.setApplicationId(session.getApplicationId());
         role.setRoleType(roleType);
         return role;
     }

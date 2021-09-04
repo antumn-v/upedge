@@ -1,6 +1,7 @@
 package com.upedge.ums.modules.application.request;
 
 import com.upedge.common.base.Page;
+import com.upedge.common.model.user.vo.Session;
 import com.upedge.ums.modules.application.entity.Menu;
 import java.util.Date;
 import lombok.Data;
@@ -55,9 +56,9 @@ public class MenuAddRequest{
     */
     private String menuGroup;
 
-    public Menu toMenu(){
+    public Menu toMenu(Session session){
         Menu menu=new Menu();
-        menu.setApplicationId(applicationId);
+        menu.setApplicationId(session.getApplicationId());
         menu.setTitle(title);
         menu.setName(name);
         menu.setUrl(url);

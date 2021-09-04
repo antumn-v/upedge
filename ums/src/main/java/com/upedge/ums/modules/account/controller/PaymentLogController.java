@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.Map;
 
 import com.upedge.common.constant.ResultCode;
+import io.swagger.annotations.Api;
 import org.springframework.beans.factory.annotation.Autowired;
 import com.upedge.common.component.annotation.Permission;
 import com.upedge.ums.modules.account.entity.PaymentLog;
@@ -27,6 +28,7 @@ import javax.validation.Valid;
  *
  * @author gx
  */
+@Api(tags = "交易日志，暂不开发")
 @RestController
 @RequestMapping("/paymentLog")
 public class PaymentLogController {

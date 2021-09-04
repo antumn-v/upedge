@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.Map;
 
 import com.upedge.common.constant.ResultCode;
+import io.swagger.annotations.Api;
 import org.springframework.beans.factory.annotation.Autowired;
 import com.upedge.common.component.annotation.Permission;
 import com.upedge.ums.modules.account.entity.PaypalPayment;
@@ -27,6 +28,7 @@ import javax.validation.Valid;
  *
  * @author gx
  */
+@Api(tags = "paypal交易记录，先不用管")
 @RestController
 @RequestMapping("/paypalPayment")
 public class PaypalPaymentController {

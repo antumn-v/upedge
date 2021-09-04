@@ -10,6 +10,8 @@ import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.web.util.UserUtil;
 import com.upedge.ums.modules.user.request.*;
 import com.upedge.ums.modules.user.response.*;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +31,7 @@ import javax.validation.Valid;
  * @author gx
  */
 @Slf4j
+@Api(tags = "用户管理")
 @RestController
 @RequestMapping("/user")
 public class UserController {
@@ -39,7 +42,7 @@ public class UserController {
     RedisTemplate redisTemplate;
 
 
-
+    @ApiOperation("注册")
     @PostMapping("/signup")
     public CustomerSignUpResponse customerSingUp(@RequestBody @Valid CustomerSignUpRequest request) throws CustomerException {
         String loginName = request.getLoginName();
@@ -52,16 +55,19 @@ public class UserController {
         return userService.signUp(request);
     }
 
+    @ApiOperation("登录")
     @PostMapping("/signin")
     public UserSignInResponse userSignIn(@RequestBody @Valid UserSignInRequest request) {
         return userService.signIn(request);
     }
 
+    @ApiOperation("客户个人信息")
     @GetMapping("/profile")
     public BaseResponse profile(){
         return userService.profile();
     }
 
+    @ApiOperation("验证客户登录名是否可用")
     @GetMapping("/loginNameAvailable")
     public BaseResponse loginNameAvailable(@RequestParam String loginName){
         User user = userService.selectByLoginName(loginName);

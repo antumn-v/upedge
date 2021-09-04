@@ -45,19 +45,7 @@
             <scope>compile</scope>
         </dependency>
 
-        <!-- swagger2 依赖 -->
-        <!--swagger-->
-        <dependency>
-            <groupId>io.springfox</groupId>
-            <artifactId>springfox-swagger2</artifactId>
-            <version>2.9.2</version>
-        </dependency>
-        <!--swagger ui-->
-        <dependency>
-            <groupId>io.springfox</groupId>
-            <artifactId>springfox-swagger-ui</artifactId>
-            <version>2.9.2</version>
-        </dependency>
+
 
         <dependency>
             <groupId>com.alibaba.cloud</groupId>
