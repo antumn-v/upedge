@@ -3,9 +3,15 @@ package com.upedge.ums.modules.application.controller;
 import java.util.Arrays;
 import java.util.Map;
 
+import com.upedge.common.base.BaseResponse;
 import com.upedge.common.constant.ResultCode;
+import com.upedge.common.exception.CustomerException;
+import com.upedge.common.model.user.vo.MenuVo;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.web.util.UserUtil;
+import com.upedge.ums.modules.application.request.MenuTreeRequest;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import com.upedge.common.component.annotation.Permission;
 import com.upedge.ums.modules.application.entity.Menu;
@@ -30,6 +36,7 @@ import javax.validation.Valid;
  *
  * @author gx
  */
+@Api(tags = "菜单管理")
 @RestController
 @RequestMapping("/menu")
 public class MenuController {
@@ -39,6 +46,13 @@ public class MenuController {
     @Autowired
     RedisTemplate redisTemplate;
 
+    @ApiOperation("菜单树")
+    @PostMapping("/tree")
+    public BaseResponse menuTree(@RequestBody MenuTreeRequest request) throws CustomerException {
+        Session session = UserUtil.getSession(redisTemplate);
+        List<MenuVo> menuVos = menuService.menuTree(session,request);
+        return BaseResponse.success(menuVos);
+    }
 
     @RequestMapping(value="/info/{id}", method=RequestMethod.GET)
     @Permission(permission = "application:menu:info:id")

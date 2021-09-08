@@ -26,6 +26,8 @@ public interface RoleMenuService{
 
     int insert(RoleMenu record);
 
+    int batchInsert(List<RoleMenu> roleMenus);
+
     int insertSelective(RoleMenu record);
 
     List<RoleMenu> select(Page<RoleMenu> record);

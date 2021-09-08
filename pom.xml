@@ -12,6 +12,8 @@
         <module>upedge_generator</module>
         <module>ums</module>
         <module>common-redis</module>
+        <module>thirdparty-service</module>
+        <module>pms</module>
     </modules>
 
 

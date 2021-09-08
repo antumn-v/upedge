@@ -70,31 +70,7 @@ public class AccountLogController {
         return res;
     }
 
-    @RequestMapping(value="/add", method=RequestMethod.POST)
-    @Permission(permission = "account:accountlog:add")
-    public AccountLogAddResponse add(@RequestBody @Valid AccountLogAddRequest request) {
-        AccountLog entity=request.toAccountLog();
-        accountLogService.insertSelective(entity);
-        AccountLogAddResponse res = new AccountLogAddResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS,entity,request);
-        return res;
-    }
 
-    @RequestMapping(value="/del/{id}", method=RequestMethod.POST)
-    @Permission(permission = "account:accountlog:del:id")
-    public AccountLogDelResponse del(@PathVariable Integer id) {
-        accountLogService.deleteByPrimaryKey(id);
-        AccountLogDelResponse res = new AccountLogDelResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS);
-        return res;
-    }
-
-    @RequestMapping(value="/update/{id}", method=RequestMethod.POST)
-    @Permission(permission = "account:accountlog:update")
-    public AccountLogUpdateResponse update(@PathVariable Integer id,@RequestBody @Valid AccountLogUpdateRequest request) {
-        AccountLog entity=request.toAccountLog(id);
-        accountLogService.updateByPrimaryKeySelective(entity);
-        AccountLogUpdateResponse res = new AccountLogUpdateResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS);
-        return res;
-    }
 
 
 }

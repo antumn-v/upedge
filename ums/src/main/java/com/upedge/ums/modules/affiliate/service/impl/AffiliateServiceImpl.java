@@ -1,5 +1,9 @@
 package com.upedge.ums.modules.affiliate.service.impl;
 
+import com.upedge.common.utils.IdGenerate;
+import com.upedge.ums.modules.user.entity.Customer;
+import com.upedge.ums.modules.user.entity.CustomerSetting;
+import com.upedge.ums.modules.user.service.CustomerSettingService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
@@ -15,6 +19,10 @@ public class AffiliateServiceImpl implements AffiliateService {
 
     @Autowired
     private AffiliateDao affiliateDao;
+
+    @Autowired
+    CustomerSettingService customerSettingService;
+
 
 
 
@@ -42,6 +50,21 @@ public class AffiliateServiceImpl implements AffiliateService {
     @Transactional
     public int insertSelective(Affiliate record) {
         return affiliateDao.insert(record);
+    }
+
+    @Override
+    public String customerReferralCode(Long customerId) {
+        CustomerSetting customerSetting = customerSettingService.selectByCustomerAndSettingName(customerId,CustomerSetting.AFFILIATE_REFERRAL_CODE);
+        if (null == customerSetting){
+            String code = IdGenerate.generateShortUuid();
+            customerSetting = new CustomerSetting();
+            customerSetting.setCustomerId(customerId);
+            customerSetting.setSettingValue(code);
+            customerSetting.setSettingName(CustomerSetting.AFFILIATE_REFERRAL_CODE);
+            customerSettingService.insert(customerSetting);
+            return code;
+        }
+        return customerSetting.getSettingValue();
     }
 
     /**

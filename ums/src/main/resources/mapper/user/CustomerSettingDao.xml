@@ -163,6 +163,13 @@
         from customer_setting
         <include refid="Query_Condition"/>
     </select>
+    <select id="selectByCustomerAndSettingName"
+            resultType="com.upedge.ums.modules.user.entity.CustomerSetting">
+        select <include refid="Base_Column_List"/>
+        from customer_setting
+        where customer_id = #{customerId}
+        and setting_name = #{settingName}
+    </select>
 
 
 </mapper>

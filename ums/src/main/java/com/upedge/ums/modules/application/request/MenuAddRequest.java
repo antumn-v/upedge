@@ -55,20 +55,28 @@ public class MenuAddRequest{
     * 菜单分组
     */
     private String menuGroup;
+    /**
+    * 
+    */
+    private Boolean createPerm;
 
     public Menu toMenu(Session session){
         Menu menu=new Menu();
-        menu.setApplicationId(session.getApplicationId());
+        menu.setApplicationId(applicationId);
         menu.setTitle(title);
         menu.setName(name);
         menu.setUrl(url);
         menu.setParentId(parentId);
         menu.setMenuPath(menuPath);
         menu.setSeq(seq);
-        menu.setUpdateTime(updateTime);
-        menu.setCreateTime(createTime);
+        menu.setUpdateTime(new Date());
+        menu.setCreateTime(new Date());
         menu.setMenuType(menuType);
         menu.setMenuGroup(menuGroup);
+        if (createPerm == null){
+            createPerm = true;
+        }
+        menu.setCreatePerm(createPerm);
         return menu;
     }
 

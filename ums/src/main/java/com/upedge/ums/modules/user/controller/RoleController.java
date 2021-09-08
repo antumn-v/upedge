@@ -3,7 +3,9 @@ package com.upedge.ums.modules.user.controller;
 import java.util.Arrays;
 import java.util.Map;
 
+import com.upedge.common.base.BaseResponse;
 import com.upedge.common.constant.ResultCode;
+import com.upedge.common.model.user.vo.RoleVo;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.web.util.UserUtil;
 import io.swagger.annotations.Api;
@@ -46,7 +48,7 @@ public class RoleController {
     @RequestMapping(value="/info/{id}", method=RequestMethod.GET)
     @Permission(permission = "user:role:info:id")
     public RoleInfoResponse info(@PathVariable Long id) {
-        Role result = roleService.selectByPrimaryKey(id);
+        RoleVo result = roleService.selectRoleInfo(id);
         RoleInfoResponse res = new RoleInfoResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS,result,id);
         return res;
     }
@@ -88,11 +90,9 @@ public class RoleController {
 
     @RequestMapping(value="/update/{id}", method=RequestMethod.POST)
     @Permission(permission = "user:role:update")
-    public RoleUpdateResponse update(@PathVariable Long id,@RequestBody @Valid RoleUpdateRequest request) {
-        Role entity=request.toRole(id);
-        roleService.updateByPrimaryKeySelective(entity);
-        RoleUpdateResponse res = new RoleUpdateResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS);
-        return res;
+    public BaseResponse update(@PathVariable Long id, @RequestBody @Valid RoleUpdateRequest request) {
+
+        return roleService.updateRole(request,id);
     }
 
 

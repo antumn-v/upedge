@@ -9,6 +9,8 @@ import java.util.List;
  */
 public interface AffiliateService{
 
+    public String customerReferralCode(Long customerId);
+
     Affiliate selectByPrimaryKey(Long id);
 
     int deleteByPrimaryKey(Long id);

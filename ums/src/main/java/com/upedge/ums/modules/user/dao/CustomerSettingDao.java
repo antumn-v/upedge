@@ -4,11 +4,15 @@ import com.upedge.ums.modules.user.entity.CustomerSetting;
 import org.apache.ibatis.annotations.Mapper;
 import java.util.List;
 import com.upedge.common.base.Page;
+import org.apache.ibatis.annotations.Param;
 
 /**
  * @author gx
  */
 public interface CustomerSettingDao{
+
+    CustomerSetting selectByCustomerAndSettingName(@Param("customerId")Long customerId,
+                                                   @Param("settingName")String settingName);
 
     CustomerSetting selectByPrimaryKey(CustomerSetting record);
 

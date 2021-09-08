@@ -53,6 +53,10 @@ public class MenuUpdateRequest{
      * 菜单分组
      */
     private String menuGroup;
+    /**
+     * 
+     */
+    private Boolean createPerm;
 
     public Menu toMenu(Long id){
         Menu menu=new Menu();
@@ -64,10 +68,14 @@ public class MenuUpdateRequest{
         menu.setParentId(parentId);
         menu.setMenuPath(menuPath);
         menu.setSeq(seq);
-        menu.setUpdateTime(updateTime);
-        menu.setCreateTime(createTime);
+        menu.setUpdateTime(new Date());
+        menu.setCreateTime(new Date());
         menu.setMenuType(menuType);
         menu.setMenuGroup(menuGroup);
+        if (createPerm == null){
+            createPerm = true;
+        }
+        menu.setCreatePerm(createPerm);
         return menu;
     }
 

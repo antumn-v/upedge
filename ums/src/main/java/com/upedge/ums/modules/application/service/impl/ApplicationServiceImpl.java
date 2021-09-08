@@ -44,6 +44,13 @@ public class ApplicationServiceImpl implements ApplicationService {
         return applicationDao.insert(record);
     }
 
+    @Override
+    public List<Application> allApplications() {
+        Page<Application> applicationPage = new Page<>();
+        applicationPage.setPageSize(-1);
+        return null;
+    }
+
     /**
      *
      */

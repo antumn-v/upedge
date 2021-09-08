@@ -17,10 +17,11 @@
         <result property="createTime" column="create_time"/>
         <result property="menuType" column="menu_type"/>
         <result property="menuGroup" column="menu_group"/>
+        <result property="createPerm" column="create_perm"/>
     </resultMap>
 
     <sql id="Base_Column_List">
-        `id`,`application_id`,`title`,`name`,`url`,`parent_id`,`menu_path`,`seq`,`update_time`,`create_time`,`menu_type`,`menu_group`
+        `id`,`application_id`,`title`,`name`,`url`,`parent_id`,`menu_path`,`seq`,`update_time`,`create_time`,`menu_type`,`menu_group`,create_perm
     </sql>
 
     <select id="selectByPrimaryKey" parameterType="com.upedge.ums.modules.application.entity.Menu" resultMap="BaseResultMap">
@@ -71,6 +72,9 @@
             <if test="menuGroup != null">
                 menu_group = #{menuGroup},
             </if>
+            <if test="createPerm != null">
+                create_perm = #{createPerm},
+            </if>
         </set>
         where id = #{id}
     </update>
@@ -89,6 +93,7 @@
         update_time = #{updateTime},
         create_time = #{createTime},
         menu_type = #{menuType},
+        create_perm = #{createPerm},
         menu_group = #{menuGroup},
         </set>
         where id = #{id}
@@ -108,6 +113,7 @@
             update_time,
             create_time,
             menu_type,
+            create_perm,
             menu_group
         </trim>
         values (
@@ -122,6 +128,7 @@
         #{updateTime},
         #{createTime},
         #{menuType},
+        #{createPerm},
         #{menuGroup}
         )
     </insert>
@@ -165,6 +172,9 @@
             <if test="menuGroup != null" >
               menu_group
             </if>
+            <if test="createPerm != null" >
+              create_perm
+            </if>
 
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
@@ -204,6 +214,9 @@
             <if test="menuGroup != null" >
                 #{menuGroup}
             </if>
+            <if test="createPerm != null" >
+                #{createPerm}
+            </if>
 
         </trim>
     </insert>
@@ -222,6 +235,7 @@
            update_time,
            create_time,
            menu_type,
+           create_perm,
            menu_group
         </trim>
         values
@@ -238,6 +252,7 @@
                #{item.updateTime},
                #{item.createTime},
                #{item.menuType},
+               #{item.createPerm},
                #{item.menuGroup}
             </trim>
         </foreach>
@@ -283,6 +298,9 @@
                     </if>
                     <if test="t.menuGroup != null">
                         menu_group = #{t.menuGroup} and
+                    </if>
+                    <if test="t.createPerm != null">
+                        create_perm = #{t.createPerm} and
                     </if>
             </trim>
         </if>

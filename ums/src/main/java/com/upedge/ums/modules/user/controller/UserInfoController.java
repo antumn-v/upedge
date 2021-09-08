@@ -4,6 +4,8 @@ import java.util.Arrays;
 import java.util.Map;
 
 import com.upedge.common.constant.ResultCode;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import com.upedge.common.component.annotation.Permission;
 import com.upedge.ums.modules.user.entity.UserInfo;
@@ -27,6 +29,7 @@ import javax.validation.Valid;
  *
  * @author gx
  */
+@Api(tags = "用户信息管理")
 @RestController
 @RequestMapping("/userInfo")
 public class
@@ -35,6 +38,7 @@ UserInfoController {
     private UserInfoService userInfoService;
 
 
+    @ApiOperation("用户信息详情")
     @RequestMapping(value="/info/{id}", method=RequestMethod.GET)
     @Permission(permission = "user:userinfo:info:id")
     public UserInfoInfoResponse info(@PathVariable Long id) {
@@ -70,6 +74,7 @@ UserInfoController {
         return res;
     }
 
+    @ApiOperation("修改用户信息")
     @RequestMapping(value="/update/{id}", method=RequestMethod.POST)
     @Permission(permission = "user:userinfo:update")
     public UserInfoUpdateResponse update(@PathVariable Long id,@RequestBody @Valid UserInfoUpdateRequest request) {

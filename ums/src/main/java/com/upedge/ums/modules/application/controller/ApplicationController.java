@@ -1,9 +1,18 @@
 package com.upedge.ums.modules.application.controller;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Map;
 
+import com.upedge.common.base.BaseResponse;
+import com.upedge.common.base.Page;
 import com.upedge.common.constant.ResultCode;
+import com.upedge.ums.modules.application.vo.ApplicationVo;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.Tag;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import com.upedge.common.component.annotation.Permission;
 import com.upedge.ums.modules.application.entity.Application;
@@ -27,12 +36,31 @@ import javax.validation.Valid;
  *
  * @author gx
  */
+@Api(tags = "应用管理")
 @RestController
 @RequestMapping("/application")
 public class ApplicationController {
     @Autowired
     private ApplicationService applicationService;
 
+    @ApiOperation("所有应用")
+    @GetMapping("/all")
+    public BaseResponse allApplications(){
+        Page<Application> applicationPage = new Page<>();
+        applicationPage.setPageSize(-1);
+        List<Application> applications = applicationService.select(applicationPage);
+        List<ApplicationVo> applicationVoList=new ArrayList<>();
+        applications.forEach(application -> {
+            ApplicationVo applicationVo=new ApplicationVo();
+            BeanUtils.copyProperties(application,applicationVo);
+            if(!StringUtils.isBlank(application.getMenuGroup())){
+                String [] groupArr=application.getMenuGroup().split(",");
+                applicationVo.setMenuGroupList(Arrays.asList(groupArr));
+                applicationVoList.add(applicationVo);
+            }
+        });
+        return BaseResponse.success(applicationVoList);
+    }
 
     @RequestMapping(value="/info/{id}", method=RequestMethod.GET)
     @Permission(permission = "application:application:info:id")

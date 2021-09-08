@@ -2,6 +2,8 @@ package com.upedge.ums.modules.user.request;
 
 import com.upedge.ums.modules.user.entity.Role;
 import java.util.Date;
+import java.util.List;
+
 import lombok.Data;
 /**
  * @author gx
@@ -37,6 +39,10 @@ public class RoleUpdateRequest{
      * 0=应用默认角色，1=部门自定义角色，2=客户自定义角色
      */
     private Integer roleType;
+
+    private List<Long> menuIds;
+
+    private List<String> permissions;
 
     public Role toRole(Long id){
         Role role=new Role();

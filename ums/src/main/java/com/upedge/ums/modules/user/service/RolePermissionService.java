@@ -23,6 +23,8 @@ public interface RolePermissionService{
 
     int insert(RolePermission record);
 
+    int batchInsert(List<RolePermission> rolePermissions);
+
     int insertSelective(RolePermission record);
 
     List<RolePermission> select(Page<RolePermission> record);

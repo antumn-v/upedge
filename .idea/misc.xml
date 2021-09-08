@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ExternalStorageConfigurationManager" enabled="true" />
+  <component name="FrameworkDetectionExcludesConfiguration">
+    <file type="ejb" url="file://$PROJECT_DIR$/upedge_ums/ejbs" />
+    <file type="javaeeApplication" url="file://$PROJECT_DIR$/upedge_ums/ear" />
+    <file type="web" url="file://$PROJECT_DIR$/upedge_ums/servlets/servlet" />
+  </component>
+  <component name="MavenProjectsManager">
+    <option name="originalFiles">
+      <list>
+        <option value="$PROJECT_DIR$/pom.xml" />
+        <option value="$PROJECT_DIR$/ums/pom.xml" />
+        <option value="$PROJECT_DIR$/common-web/pom.xml" />
+        <option value="$PROJECT_DIR$/common-base/pom.xml" />
+        <option value="$PROJECT_DIR$/zuul/pom.xml" />
+        <option value="$PROJECT_DIR$/thirdparty-service/panda-shopify/pom.xml" />
+        <option value="$PROJECT_DIR$/thirdparty-service/panda-saihe/pom.xml" />
+        <option value="$PROJECT_DIR$/thirdparty-service/panda-1688/pom.xml" />
+        <option value="$PROJECT_DIR$/pms/pom.xml" />
+      </list>
+    </option>
+    <option name="ignoredFiles">
+      <set>
+        <option value="$PROJECT_DIR$/untitled/pom.xml" />
+        <option value="$PROJECT_DIR$/upedge-ums/pom.xml" />
+        <option value="$PROJECT_DIR$/upedge_ums/pom.xml" />
+      </set>
+    </option>
+  </component>
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_1_8" project-jdk-name="1.8" project-jdk-type="JavaSDK">
+    <output url="file://$PROJECT_DIR$/out" />
+  </component>
+</project>

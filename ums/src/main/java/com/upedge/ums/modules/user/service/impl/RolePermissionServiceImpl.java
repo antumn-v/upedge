@@ -1,5 +1,6 @@
 package com.upedge.ums.modules.user.service.impl;
 
+import com.upedge.common.utils.ListUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
@@ -34,6 +35,14 @@ public class RolePermissionServiceImpl implements RolePermissionService {
     @Transactional
     public int insert(RolePermission record) {
         return rolePermissionDao.insert(record);
+    }
+
+    @Override
+    public int batchInsert(List<RolePermission> rolePermissions) {
+        if (ListUtils.isNotEmpty(rolePermissions)){
+            return rolePermissionDao.insertByBatch(rolePermissions);
+        }
+        return 0;
     }
 
     /**

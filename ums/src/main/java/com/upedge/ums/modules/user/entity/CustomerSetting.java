@@ -10,6 +10,8 @@ import lombok.Data;
 @Data
 public class CustomerSetting{
 
+	public static final String AFFILIATE_REFERRAL_CODE = "affiliate_referral_code";
+
 	/**
 	 * 
 	 */

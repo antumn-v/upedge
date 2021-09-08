@@ -1,13 +1,20 @@
 package com.upedge.ums.modules.affiliate.controller;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Map;
 
+import com.upedge.common.base.BaseResponse;
 import com.upedge.common.constant.ResultCode;
+import com.upedge.common.model.user.vo.Session;
+import com.upedge.common.web.util.UserUtil;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import com.upedge.common.component.annotation.Permission;
 import com.upedge.ums.modules.affiliate.entity.Affiliate;
 import com.upedge.ums.modules.affiliate.service.AffiliateService;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import com.upedge.common.constant.Constant;
@@ -27,11 +34,27 @@ import javax.validation.Valid;
  *
  * @author gx
  */
+@Api(tags = "联盟管理")
 @RestController
 @RequestMapping("/affiliate")
 public class AffiliateController {
     @Autowired
     private AffiliateService affiliateService;
+
+    @Autowired
+    RedisTemplate redisTemplate;
+
+    @ApiOperation("联盟推荐码")
+    @GetMapping("/referralCode")
+    public BaseResponse customerReferralCode(){
+        Map<String,String> map = new HashMap<>();
+        Session session = UserUtil.getSession(redisTemplate);
+        String referralCode = affiliateService.customerReferralCode(session.getCustomerId());
+        map.put("referralCode",referralCode);
+        return BaseResponse.success(map);
+    }
+
+
 
 
     @RequestMapping(value="/info/{id}", method=RequestMethod.GET)

@@ -1,5 +1,6 @@
 package com.upedge.ums.modules.user.service.impl;
 
+import com.upedge.common.utils.ListUtils;
 import com.upedge.ums.modules.application.entity.Menu;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -35,6 +36,14 @@ public class RoleMenuServiceImpl implements RoleMenuService {
     @Transactional
     public int insert(RoleMenu record) {
         return roleMenuDao.insert(record);
+    }
+
+    @Override
+    public int batchInsert(List<RoleMenu> roleMenus) {
+        if (ListUtils.isNotEmpty(roleMenus)){
+            return roleMenuDao.insertByBatch(roleMenus);
+        }
+        return 0;
     }
 
     /**

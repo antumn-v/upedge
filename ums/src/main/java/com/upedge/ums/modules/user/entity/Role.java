@@ -10,6 +10,13 @@ import lombok.Data;
 @Data
 public class Role{
 
+	public static final Integer SYSTEM_DEFAULT_ROLE = 0;
+
+	public static final Integer ORGANIZATION_ROLE = 1;
+
+	public static final Integer CUSTOMER_ROLE = 2;
+
+
 	/**
 	 * 
 	 */

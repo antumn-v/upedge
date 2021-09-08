@@ -2,12 +2,17 @@ package com.upedge.ums.modules.user.service;
 
 import com.upedge.ums.modules.user.entity.CustomerSetting;
 import com.upedge.common.base.Page;
+import org.apache.ibatis.annotations.Param;
+
 import java.util.List;
 
 /**
  * @author gx
  */
 public interface CustomerSettingService{
+
+    CustomerSetting selectByCustomerAndSettingName(Long customerId,
+                                                   String settingName);
 
     CustomerSetting selectByPrimaryKey(Integer id);
 

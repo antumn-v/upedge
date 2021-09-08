@@ -58,5 +58,7 @@ public class Menu{
 	 * 菜单分组
 	 */
     private String menuGroup;
+    
+    private Boolean createPerm;
 
 }

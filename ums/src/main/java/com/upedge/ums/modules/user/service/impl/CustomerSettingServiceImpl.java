@@ -49,6 +49,11 @@ public class CustomerSettingServiceImpl implements CustomerSettingService {
         return customerSettingDao.insert(record);
     }
 
+    @Override
+    public CustomerSetting selectByCustomerAndSettingName(Long customerId, String settingName) {
+        return customerSettingDao.selectByCustomerAndSettingName(customerId, settingName);
+    }
+
     /**
      *
      */

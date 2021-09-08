@@ -45,6 +45,7 @@ public class OrganizationController {
      * 部门树
      * @return
      */
+    @ApiOperation("部门树")
     @GetMapping("/tree")
     public BaseResponse orgTree(){
         return organizationService.organizationTree();

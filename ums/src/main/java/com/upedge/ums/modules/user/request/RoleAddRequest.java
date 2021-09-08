@@ -1,10 +1,14 @@
 package com.upedge.ums.modules.user.request;
 
 import com.upedge.common.base.Page;
+import com.upedge.common.model.user.vo.MenuVo;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.utils.IdGenerate;
+import com.upedge.ums.modules.application.entity.TPermission;
 import com.upedge.ums.modules.user.entity.Role;
 import java.util.Date;
+import java.util.List;
+
 import lombok.Data;
 /**
  * @author gx
@@ -41,6 +45,11 @@ public class RoleAddRequest{
     */
     private Integer roleType;
 
+
+    private List<Long> menuIds;
+
+    private List<String> permissions;
+
     public Role toRole(Session session){
         Role role=new Role();
         role.setId(IdGenerate.nextId());
@@ -50,6 +59,9 @@ public class RoleAddRequest{
         role.setCreateTime(new Date());
         role.setUpdateTime(new Date());
         role.setApplicationId(session.getApplicationId());
+        if (roleType == null){
+            roleType = Role.CUSTOMER_ROLE;
+        }
         role.setRoleType(roleType);
         return role;
     }

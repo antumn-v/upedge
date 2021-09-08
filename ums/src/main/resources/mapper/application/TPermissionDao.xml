@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.upedge.ums.modules.application.dao.TPermissionDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.upedge.ums.modules.application.entity.TPermission" id="BaseResultMap">
+        <result property="id" column="id"/>
+        <result property="parentId" column="parent_jd"/>
+        <result property="name" column="name"/>
+        <result property="type" column="type"/>
+        <result property="description" column="description"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        `id`,`parent_jd`,`name`,`type`,`description`
+    </sql>
+
+    <select id="selectByPrimaryKey" parameterType="com.upedge.ums.modules.application.entity.TPermission" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from t_permission
+        where id = #{id}
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="com.upedge.ums.modules.application.entity.TPermission">
+        delete from t_permission
+        where id = #{id}
+    </delete>
+
+    <update id="updateByPrimaryKeySelective" parameterType="com.upedge.ums.modules.application.entity.TPermission">
+        update t_permission
+        <set>
+            <if test="parentId != null">
+                parent_jd = #{parentId},
+            </if>
+            <if test="name != null">
+                name = #{name},
+            </if>
+            <if test="type != null">
+                type = #{type},
+            </if>
+            <if test="description != null">
+                description = #{description},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <update id="updateByPrimaryKey" parameterType="com.upedge.ums.modules.application.entity.TPermission">
+        update t_permission
+        <set>
+        id = #{id},
+        parent_jd = #{parentId},
+        name = #{name},
+        type = #{type},
+        description = #{description},
+        </set>
+        where id = #{id}
+    </update>
+
+    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.upedge.ums.modules.application.entity.TPermission" useGeneratedKeys="true">
+        insert into t_permission
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            id,
+            parent_jd,
+            name,
+            type,
+            description
+        </trim>
+        values (
+        #{id},
+        #{parentId},
+        #{name},
+        #{type},
+        #{description}
+        )
+    </insert>
+
+    <insert id="insertSelective"  keyColumn="id" keyProperty="id"  parameterType="com.upedge.ums.modules.application.entity.TPermission" useGeneratedKeys="true">
+        insert into t_permission
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null" >
+              id
+            </if>
+            <if test="parentId != null" >
+              parent_jd
+            </if>
+            <if test="name != null" >
+              name
+            </if>
+            <if test="type != null" >
+              type
+            </if>
+            <if test="description != null" >
+              description
+            </if>
+
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null" >
+                #{id}
+            </if>
+            <if test="parentId != null" >
+                #{parentId}
+            </if>
+            <if test="name != null" >
+                #{name}
+            </if>
+            <if test="type != null" >
+                #{type}
+            </if>
+            <if test="description != null" >
+                #{description}
+            </if>
+
+        </trim>
+    </insert>
+
+    <insert id="insertByBatch" parameterType="java.util.List">
+        insert into t_permission
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+           id,
+           parent_jd,
+           name,
+           type,
+           description
+        </trim>
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+               #{item.id},
+               #{item.parentId},
+               #{item.name},
+               #{item.type},
+               #{item.description}
+            </trim>
+        </foreach>
+    </insert>
+
+    <sql id="Query_Condition">
+        <if test="t != null">
+            where
+            <trim prefix=" " suffix=" " suffixOverrides=" and ">
+                1 = 1 and
+                    <if test="t.id != null">
+                        id = #{t.id} and
+                    </if>
+                    <if test="t.parentId != null">
+                        parent_jd = #{t.parentId} and
+                    </if>
+                    <if test="t.name != null">
+                        name = #{t.name} and
+                    </if>
+                    <if test="t.type != null">
+                        type = #{t.type} and
+                    </if>
+                    <if test="t.description != null">
+                        description = #{t.description} and
+                    </if>
+            </trim>
+        </if>
+    </sql>
+
+    <select id="select" parameterType="com.upedge.common.base.Page" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from t_permission
+        <include refid="Query_Condition"/>
+        <if test="orderBy != null">
+            order by ${orderBy}
+        </if>
+        <if test="pageNum != null and pageSize != null">
+            limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+        </if>
+    </select>
+
+    <select id="count" parameterType="com.upedge.common.base.Page" resultType="java.lang.Long">
+        select
+        count(1)
+        from t_permission
+        <include refid="Query_Condition"/>
+    </select>
+
+
+</mapper>

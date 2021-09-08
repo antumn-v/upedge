@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <annotationProcessing>
+      <profile default="true" name="Default" enabled="true" />
+      <profile name="Maven default annotation processors profile" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <module name="upedge_ums" />
+        <module name="zuul" />
+        <module name="common-base" />
+        <module name="ums" />
+        <module name="thirdparty-service" />
+        <module name="upedge_generator" />
+        <module name="upedge-shopify" />
+        <module name="common-redis" />
+        <module name="pms" />
+        <module name="common-web" />
+        <module name="upedge-1688" />
+        <module name="upedge-saihe" />
+      </profile>
+    </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="ear" target="1.8" />
+      <module name="ejbs" target="1.8" />
+      <module name="logging" target="1.8" />
+      <module name="primary-source" target="1.8" />
+      <module name="projects" target="1.8" />
+      <module name="servlet" target="1.8" />
+      <module name="servlets" target="1.8" />
+      <module name="upedge-ums" target="1.8" />
+      <module name="upedge_ums" target="1.8" />
+    </bytecodeTargetLevel>
+  </component>
+  <component name="JavacSettings">
+    <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="common-base" options="-parameters" />
+      <module name="common-redis" options="-parameters" />
+      <module name="common-web" options="-parameters" />
+      <module name="pms" options="-parameters" />
+      <module name="thirdparty-service" options="-parameters" />
+      <module name="ums" options="-parameters" />
+      <module name="upedge-1688" options="-parameters" />
+      <module name="upedge-saihe" options="-parameters" />
+      <module name="upedge-shopify" options="-parameters" />
+      <module name="upedge-ums" options="" />
+      <module name="upedge_generator" options="-parameters" />
+      <module name="zuul" options="-parameters" />
+    </option>
+  </component>
+</project>
