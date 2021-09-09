@@ -77,12 +77,13 @@ public class UserController {
         return new BaseResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS,true);
     }
 
-//    @ApiOperation("修改密码")
-//    @PostMapping("/updatePass")
-//    public BaseResponse userUpdatePassword(@RequestBody @Valid UserUpdatePwdRequest request){
-//
-//
-//    }
+    @ApiOperation("修改密码")
+    @PostMapping("/updatePass")
+    public BaseResponse userUpdatePassword(@RequestBody @Valid UserUpdatePwdRequest request){
+        Session session = UserUtil.getSession(redisTemplate);
+        return userService.userUpdatePassword(request,session);
+
+    }
 
         @RequestMapping(value="/info/{id}", method=RequestMethod.GET)
     @Permission(permission = "user:user:info:id")

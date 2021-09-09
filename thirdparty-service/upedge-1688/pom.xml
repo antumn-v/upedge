@@ -27,6 +27,14 @@
             <version>4.11</version>
             <scope>test</scope>
         </dependency>
+
+        <dependency>
+            <groupId>com.upedge</groupId>
+            <artifactId>common-base</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+            <scope>compile</scope>
+        </dependency>
+
         <!--1688 sdk-->
         <dependency>
             <groupId>local-sdk2</groupId>

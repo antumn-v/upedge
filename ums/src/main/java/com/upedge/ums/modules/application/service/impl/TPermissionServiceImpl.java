@@ -57,11 +57,22 @@ public class TPermissionServiceImpl implements TPermissionService {
     }
 
     @Override
+    public List<PermissionVo> selectByMenuId(Long menuId) {
+        List<TPermission> tPermissions = tPermissionDao.selectByMenuId(menuId);
+        try {
+            return treePermissions(tPermissions);
+        } catch (CustomerException e) {
+            e.printStackTrace();
+        }
+        return new ArrayList<>();
+    }
+
+    @Override
     public List<PermissionVo> treePermission() throws CustomerException {
         Page<TPermission> page = new Page<>();
         page.setPageSize(-1);
         List<TPermission> permissions = select(page);
-        return treeMenu(permissions);
+        return treePermissions(permissions);
     }
 
     /**
@@ -105,7 +116,7 @@ public class TPermissionServiceImpl implements TPermissionService {
     }
 
 
-    public List<PermissionVo> treeMenu(List<TPermission> list) throws CustomerException {
+    public List<PermissionVo> treePermissions(List<TPermission> list) throws CustomerException {
         // 初始化结果
         List<PermissionVo> result = new ArrayList<PermissionVo>();
         // 初始化索引

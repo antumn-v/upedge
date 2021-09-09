@@ -1,0 +1,258 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.upedge.pms.modules.product.dao.ProductVariantAttrDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.upedge.pms.modules.product.entity.ProductVariantAttr" id="BaseResultMap">
+        <result property="id" column="id"/>
+        <result property="variantAttrCname" column="variant_attr_cname"/>
+        <result property="variantAttrEname" column="variant_attr_ename"/>
+        <result property="originalAttrCvalue" column="original_attr_cvalue"/>
+        <result property="variantAttrCvalue" column="variant_attr_cvalue"/>
+        <result property="variantAttrEvalue" column="variant_attr_evalue"/>
+        <result property="variantId" column="variant_id"/>
+        <result property="productId" column="product_id"/>
+        <result property="seq" column="seq"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        `id`,`variant_attr_cname`,`variant_attr_ename`,`original_attr_cvalue`,`variant_attr_cvalue`,`variant_attr_evalue`,`variant_id`,`product_id`,`seq`
+    </sql>
+
+    <select id="selectByPrimaryKey" parameterType="com.upedge.pms.modules.product.entity.ProductVariantAttr" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from product_variant_attr
+        where id = #{id}
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="com.upedge.pms.modules.product.entity.ProductVariantAttr">
+        delete from product_variant_attr
+        where id = #{id}
+    </delete>
+
+    <update id="updateByPrimaryKeySelective" parameterType="com.upedge.pms.modules.product.entity.ProductVariantAttr">
+        update product_variant_attr
+        <set>
+            <if test="variantAttrCname != null">
+                variant_attr_cname = #{variantAttrCname},
+            </if>
+            <if test="variantAttrEname != null">
+                variant_attr_ename = #{variantAttrEname},
+            </if>
+            <if test="originalAttrCvalue != null">
+                original_attr_cvalue = #{originalAttrCvalue},
+            </if>
+            <if test="variantAttrCvalue != null">
+                variant_attr_cvalue = #{variantAttrCvalue},
+            </if>
+            <if test="variantAttrEvalue != null">
+                variant_attr_evalue = #{variantAttrEvalue},
+            </if>
+            <if test="variantId != null">
+                variant_id = #{variantId},
+            </if>
+            <if test="productId != null">
+                product_id = #{productId},
+            </if>
+            <if test="seq != null">
+                seq = #{seq},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <update id="updateByPrimaryKey" parameterType="com.upedge.pms.modules.product.entity.ProductVariantAttr">
+        update product_variant_attr
+        <set>
+        id = #{id},
+        variant_attr_cname = #{variantAttrCname},
+        variant_attr_ename = #{variantAttrEname},
+        original_attr_cvalue = #{originalAttrCvalue},
+        variant_attr_cvalue = #{variantAttrCvalue},
+        variant_attr_evalue = #{variantAttrEvalue},
+        variant_id = #{variantId},
+        product_id = #{productId},
+        seq = #{seq},
+        </set>
+        where id = #{id}
+    </update>
+
+    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.upedge.pms.modules.product.entity.ProductVariantAttr" useGeneratedKeys="true">
+        insert into product_variant_attr
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            id,
+            variant_attr_cname,
+            variant_attr_ename,
+            original_attr_cvalue,
+            variant_attr_cvalue,
+            variant_attr_evalue,
+            variant_id,
+            product_id,
+            seq
+        </trim>
+        values (
+        #{id},
+        #{variantAttrCname},
+        #{variantAttrEname},
+        #{originalAttrCvalue},
+        #{variantAttrCvalue},
+        #{variantAttrEvalue},
+        #{variantId},
+        #{productId},
+        #{seq}
+        )
+    </insert>
+
+    <insert id="insertSelective"  keyColumn="id" keyProperty="id"  parameterType="com.upedge.pms.modules.product.entity.ProductVariantAttr" useGeneratedKeys="true">
+        insert into product_variant_attr
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null" >
+              id
+            </if>
+            <if test="variantAttrCname != null" >
+              variant_attr_cname
+            </if>
+            <if test="variantAttrEname != null" >
+              variant_attr_ename
+            </if>
+            <if test="originalAttrCvalue != null" >
+              original_attr_cvalue
+            </if>
+            <if test="variantAttrCvalue != null" >
+              variant_attr_cvalue
+            </if>
+            <if test="variantAttrEvalue != null" >
+              variant_attr_evalue
+            </if>
+            <if test="variantId != null" >
+              variant_id
+            </if>
+            <if test="productId != null" >
+              product_id
+            </if>
+            <if test="seq != null" >
+              seq
+            </if>
+
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null" >
+                #{id}
+            </if>
+            <if test="variantAttrCname != null" >
+                #{variantAttrCname}
+            </if>
+            <if test="variantAttrEname != null" >
+                #{variantAttrEname}
+            </if>
+            <if test="originalAttrCvalue != null" >
+                #{originalAttrCvalue}
+            </if>
+            <if test="variantAttrCvalue != null" >
+                #{variantAttrCvalue}
+            </if>
+            <if test="variantAttrEvalue != null" >
+                #{variantAttrEvalue}
+            </if>
+            <if test="variantId != null" >
+                #{variantId}
+            </if>
+            <if test="productId != null" >
+                #{productId}
+            </if>
+            <if test="seq != null" >
+                #{seq}
+            </if>
+
+        </trim>
+    </insert>
+
+    <insert id="insertByBatch" parameterType="java.util.List">
+        insert into product_variant_attr
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+           id,
+           variant_attr_cname,
+           variant_attr_ename,
+           original_attr_cvalue,
+           variant_attr_cvalue,
+           variant_attr_evalue,
+           variant_id,
+           product_id,
+           seq
+        </trim>
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+               #{item.id},
+               #{item.variantAttrCname},
+               #{item.variantAttrEname},
+               #{item.originalAttrCvalue},
+               #{item.variantAttrCvalue},
+               #{item.variantAttrEvalue},
+               #{item.variantId},
+               #{item.productId},
+               #{item.seq}
+            </trim>
+        </foreach>
+    </insert>
+
+    <sql id="Query_Condition">
+        <if test="t != null">
+            where
+            <trim prefix=" " suffix=" " suffixOverrides=" and ">
+                1 = 1 and
+                    <if test="t.id != null">
+                        id = #{t.id} and
+                    </if>
+                    <if test="t.variantAttrCname != null">
+                        variant_attr_cname = #{t.variantAttrCname} and
+                    </if>
+                    <if test="t.variantAttrEname != null">
+                        variant_attr_ename = #{t.variantAttrEname} and
+                    </if>
+                    <if test="t.originalAttrCvalue != null">
+                        original_attr_cvalue = #{t.originalAttrCvalue} and
+                    </if>
+                    <if test="t.variantAttrCvalue != null">
+                        variant_attr_cvalue = #{t.variantAttrCvalue} and
+                    </if>
+                    <if test="t.variantAttrEvalue != null">
+                        variant_attr_evalue = #{t.variantAttrEvalue} and
+                    </if>
+                    <if test="t.variantId != null">
+                        variant_id = #{t.variantId} and
+                    </if>
+                    <if test="t.productId != null">
+                        product_id = #{t.productId} and
+                    </if>
+                    <if test="t.seq != null">
+                        seq = #{t.seq} and
+                    </if>
+            </trim>
+        </if>
+    </sql>
+
+    <select id="select" parameterType="com.upedge.common.base.Page" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from product_variant_attr
+        <include refid="Query_Condition"/>
+        <if test="orderBy != null">
+            order by ${orderBy}
+        </if>
+        <if test="pageNum != null and pageSize != null">
+            limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+        </if>
+    </select>
+
+    <select id="count" parameterType="com.upedge.common.base.Page" resultType="java.lang.Long">
+        select
+        count(1)
+        from product_variant_attr
+        <include refid="Query_Condition"/>
+    </select>
+
+
+</mapper>

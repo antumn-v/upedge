@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.upedge.pms.modules.product.dao.ProductAttrDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.upedge.pms.modules.product.entity.ProductAttr" id="BaseResultMap">
+        <result property="id" column="id"/>
+        <result property="productId" column="product_id"/>
+        <result property="attrKey" column="attr_key"/>
+        <result property="attrValue" column="attr_value"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        `id`,`product_id`,`attr_key`,`attr_value`
+    </sql>
+
+    <select id="selectByPrimaryKey" parameterType="com.upedge.pms.modules.product.entity.ProductAttr" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from product_attr
+        where id = #{id}
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="com.upedge.pms.modules.product.entity.ProductAttr">
+        delete from product_attr
+        where id = #{id}
+    </delete>
+
+    <update id="updateByPrimaryKeySelective" parameterType="com.upedge.pms.modules.product.entity.ProductAttr">
+        update product_attr
+        <set>
+            <if test="productId != null">
+                product_id = #{productId},
+            </if>
+            <if test="attrKey != null">
+                attr_key = #{attrKey},
+            </if>
+            <if test="attrValue != null">
+                attr_value = #{attrValue},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <update id="updateByPrimaryKey" parameterType="com.upedge.pms.modules.product.entity.ProductAttr">
+        update product_attr
+        <set>
+        id = #{id},
+        product_id = #{productId},
+        attr_key = #{attrKey},
+        attr_value = #{attrValue},
+        </set>
+        where id = #{id}
+    </update>
+
+    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.upedge.pms.modules.product.entity.ProductAttr" useGeneratedKeys="true">
+        insert into product_attr
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            id,
+            product_id,
+            attr_key,
+            attr_value
+        </trim>
+        values (
+        #{id},
+        #{productId},
+        #{attrKey},
+        #{attrValue}
+        )
+    </insert>
+
+    <insert id="insertSelective"  keyColumn="id" keyProperty="id"  parameterType="com.upedge.pms.modules.product.entity.ProductAttr" useGeneratedKeys="true">
+        insert into product_attr
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null" >
+              id
+            </if>
+            <if test="productId != null" >
+              product_id
+            </if>
+            <if test="attrKey != null" >
+              attr_key
+            </if>
+            <if test="attrValue != null" >
+              attr_value
+            </if>
+
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null" >
+                #{id}
+            </if>
+            <if test="productId != null" >
+                #{productId}
+            </if>
+            <if test="attrKey != null" >
+                #{attrKey}
+            </if>
+            <if test="attrValue != null" >
+                #{attrValue}
+            </if>
+
+        </trim>
+    </insert>
+
+    <insert id="insertByBatch" parameterType="java.util.List">
+        insert into product_attr
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+           id,
+           product_id,
+           attr_key,
+           attr_value
+        </trim>
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+               #{item.id},
+               #{item.productId},
+               #{item.attrKey},
+               #{item.attrValue}
+            </trim>
+        </foreach>
+    </insert>
+
+    <sql id="Query_Condition">
+        <if test="t != null">
+            where
+            <trim prefix=" " suffix=" " suffixOverrides=" and ">
+                1 = 1 and
+                    <if test="t.id != null">
+                        id = #{t.id} and
+                    </if>
+                    <if test="t.productId != null">
+                        product_id = #{t.productId} and
+                    </if>
+                    <if test="t.attrKey != null">
+                        attr_key = #{t.attrKey} and
+                    </if>
+                    <if test="t.attrValue != null">
+                        attr_value = #{t.attrValue} and
+                    </if>
+            </trim>
+        </if>
+    </sql>
+
+    <select id="select" parameterType="com.upedge.common.base.Page" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from product_attr
+        <include refid="Query_Condition"/>
+        <if test="orderBy != null">
+            order by ${orderBy}
+        </if>
+        <if test="pageNum != null and pageSize != null">
+            limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+        </if>
+    </select>
+
+    <select id="count" parameterType="com.upedge.common.base.Page" resultType="java.lang.Long">
+        select
+        count(1)
+        from product_attr
+        <include refid="Query_Condition"/>
+    </select>
+
+
+</mapper>

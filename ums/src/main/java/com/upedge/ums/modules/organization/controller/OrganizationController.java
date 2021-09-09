@@ -5,6 +5,7 @@ import java.util.Map;
 
 import com.upedge.common.base.BaseResponse;
 import com.upedge.common.constant.ResultCode;
+import com.upedge.ums.modules.user.request.RoleAddRequest;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,6 +60,7 @@ public class OrganizationController {
         OrganizationInfoResponse res = new OrganizationInfoResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS,result,id);
         return res;
     }
+
 
     @RequestMapping(value="/list", method=RequestMethod.POST)
     @Permission(permission = "organization:organization:list")

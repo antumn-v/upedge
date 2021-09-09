@@ -13,6 +13,8 @@ public class TPermissionUpdateRequest{
      * 
      */
     private Long parentId;
+
+    private Long menuId;
     /**
      * 
      */
@@ -30,6 +32,7 @@ public class TPermissionUpdateRequest{
         TPermission tPermission=new TPermission();
         tPermission.setId(id);
         tPermission.setParentId(parentId);
+        tPermission.setMenuId(menuId);
         tPermission.setName(name);
         tPermission.setType(type);
         tPermission.setDescription(description);

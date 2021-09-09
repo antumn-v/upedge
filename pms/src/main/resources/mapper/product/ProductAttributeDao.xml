@@ -1,0 +1,276 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.upedge.pms.modules.product.dao.ProductAttributeDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.upedge.pms.modules.product.entity.ProductAttribute" id="BaseResultMap">
+        <result property="id" column="id"/>
+        <result property="productId" column="product_id"/>
+        <result property="aliCnCategoryId" column="ali_cn_category_id"/>
+        <result property="aliCnCategoryName" column="ali_cn_category_name"/>
+        <result property="itemNo" column="item_no"/>
+        <result property="turnover" column="turnover"/>
+        <result property="score" column="score"/>
+        <result property="entryEname" column="entry_ename"/>
+        <result property="entryCname" column="entry_cname"/>
+        <result property="warehouseId" column="warehouse_id"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        `id`,`product_id`,`ali_cn_category_id`,`ali_cn_category_name`,`item_no`,`turnover`,`score`,`entry_ename`,`entry_cname`,`warehouse_id`
+    </sql>
+
+    <select id="selectByPrimaryKey" parameterType="com.upedge.pms.modules.product.entity.ProductAttribute" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from product_attribute
+        where id = #{id}
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="com.upedge.pms.modules.product.entity.ProductAttribute">
+        delete from product_attribute
+        where id = #{id}
+    </delete>
+
+    <update id="updateByPrimaryKeySelective" parameterType="com.upedge.pms.modules.product.entity.ProductAttribute">
+        update product_attribute
+        <set>
+            <if test="productId != null">
+                product_id = #{productId},
+            </if>
+            <if test="aliCnCategoryId != null">
+                ali_cn_category_id = #{aliCnCategoryId},
+            </if>
+            <if test="aliCnCategoryName != null">
+                ali_cn_category_name = #{aliCnCategoryName},
+            </if>
+            <if test="itemNo != null">
+                item_no = #{itemNo},
+            </if>
+            <if test="turnover != null">
+                turnover = #{turnover},
+            </if>
+            <if test="score != null">
+                score = #{score},
+            </if>
+            <if test="entryEname != null">
+                entry_ename = #{entryEname},
+            </if>
+            <if test="entryCname != null">
+                entry_cname = #{entryCname},
+            </if>
+            <if test="warehouseId != null">
+                warehouse_id = #{warehouseId},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <update id="updateByPrimaryKey" parameterType="com.upedge.pms.modules.product.entity.ProductAttribute">
+        update product_attribute
+        <set>
+        id = #{id},
+        product_id = #{productId},
+        ali_cn_category_id = #{aliCnCategoryId},
+        ali_cn_category_name = #{aliCnCategoryName},
+        item_no = #{itemNo},
+        turnover = #{turnover},
+        score = #{score},
+        entry_ename = #{entryEname},
+        entry_cname = #{entryCname},
+        warehouse_id = #{warehouseId},
+        </set>
+        where id = #{id}
+    </update>
+
+    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.upedge.pms.modules.product.entity.ProductAttribute" useGeneratedKeys="true">
+        insert into product_attribute
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            id,
+            product_id,
+            ali_cn_category_id,
+            ali_cn_category_name,
+            item_no,
+            turnover,
+            score,
+            entry_ename,
+            entry_cname,
+            warehouse_id
+        </trim>
+        values (
+        #{id},
+        #{productId},
+        #{aliCnCategoryId},
+        #{aliCnCategoryName},
+        #{itemNo},
+        #{turnover},
+        #{score},
+        #{entryEname},
+        #{entryCname},
+        #{warehouseId}
+        )
+    </insert>
+
+    <insert id="insertSelective"  keyColumn="id" keyProperty="id"  parameterType="com.upedge.pms.modules.product.entity.ProductAttribute" useGeneratedKeys="true">
+        insert into product_attribute
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null" >
+              id
+            </if>
+            <if test="productId != null" >
+              product_id
+            </if>
+            <if test="aliCnCategoryId != null" >
+              ali_cn_category_id
+            </if>
+            <if test="aliCnCategoryName != null" >
+              ali_cn_category_name
+            </if>
+            <if test="itemNo != null" >
+              item_no
+            </if>
+            <if test="turnover != null" >
+              turnover
+            </if>
+            <if test="score != null" >
+              score
+            </if>
+            <if test="entryEname != null" >
+              entry_ename
+            </if>
+            <if test="entryCname != null" >
+              entry_cname
+            </if>
+            <if test="warehouseId != null" >
+              warehouse_id
+            </if>
+
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null" >
+                #{id}
+            </if>
+            <if test="productId != null" >
+                #{productId}
+            </if>
+            <if test="aliCnCategoryId != null" >
+                #{aliCnCategoryId}
+            </if>
+            <if test="aliCnCategoryName != null" >
+                #{aliCnCategoryName}
+            </if>
+            <if test="itemNo != null" >
+                #{itemNo}
+            </if>
+            <if test="turnover != null" >
+                #{turnover}
+            </if>
+            <if test="score != null" >
+                #{score}
+            </if>
+            <if test="entryEname != null" >
+                #{entryEname}
+            </if>
+            <if test="entryCname != null" >
+                #{entryCname}
+            </if>
+            <if test="warehouseId != null" >
+                #{warehouseId}
+            </if>
+
+        </trim>
+    </insert>
+
+    <insert id="insertByBatch" parameterType="java.util.List">
+        insert into product_attribute
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+           id,
+           product_id,
+           ali_cn_category_id,
+           ali_cn_category_name,
+           item_no,
+           turnover,
+           score,
+           entry_ename,
+           entry_cname,
+           warehouse_id
+        </trim>
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+               #{item.id},
+               #{item.productId},
+               #{item.aliCnCategoryId},
+               #{item.aliCnCategoryName},
+               #{item.itemNo},
+               #{item.turnover},
+               #{item.score},
+               #{item.entryEname},
+               #{item.entryCname},
+               #{item.warehouseId}
+            </trim>
+        </foreach>
+    </insert>
+
+    <sql id="Query_Condition">
+        <if test="t != null">
+            where
+            <trim prefix=" " suffix=" " suffixOverrides=" and ">
+                1 = 1 and
+                    <if test="t.id != null">
+                        id = #{t.id} and
+                    </if>
+                    <if test="t.productId != null">
+                        product_id = #{t.productId} and
+                    </if>
+                    <if test="t.aliCnCategoryId != null">
+                        ali_cn_category_id = #{t.aliCnCategoryId} and
+                    </if>
+                    <if test="t.aliCnCategoryName != null">
+                        ali_cn_category_name = #{t.aliCnCategoryName} and
+                    </if>
+                    <if test="t.itemNo != null">
+                        item_no = #{t.itemNo} and
+                    </if>
+                    <if test="t.turnover != null">
+                        turnover = #{t.turnover} and
+                    </if>
+                    <if test="t.score != null">
+                        score = #{t.score} and
+                    </if>
+                    <if test="t.entryEname != null">
+                        entry_ename = #{t.entryEname} and
+                    </if>
+                    <if test="t.entryCname != null">
+                        entry_cname = #{t.entryCname} and
+                    </if>
+                    <if test="t.warehouseId != null">
+                        warehouse_id = #{t.warehouseId} and
+                    </if>
+            </trim>
+        </if>
+    </sql>
+
+    <select id="select" parameterType="com.upedge.common.base.Page" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from product_attribute
+        <include refid="Query_Condition"/>
+        <if test="orderBy != null">
+            order by ${orderBy}
+        </if>
+        <if test="pageNum != null and pageSize != null">
+            limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+        </if>
+    </select>
+
+    <select id="count" parameterType="com.upedge.common.base.Page" resultType="java.lang.Long">
+        select
+        count(1)
+        from product_attribute
+        <include refid="Query_Condition"/>
+    </select>
+
+
+</mapper>

@@ -1,0 +1,245 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.upedge.pms.modules.supplier.dao.SupplierDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.upedge.pms.modules.supplier.entity.Supplier" id="BaseResultMap">
+        <result property="id" column="id"/>
+        <result property="loginId" column="login_id"/>
+        <result property="supplierName" column="supplier_name"/>
+        <result property="supplierLink" column="supplier_link"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="companyName" column="company_name"/>
+        <result property="categoryName" column="category_name"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        `id`,`login_id`,`supplier_name`,`supplier_link`,`create_time`,`update_time`,`company_name`,`category_name`
+    </sql>
+
+    <select id="selectByPrimaryKey" parameterType="com.upedge.pms.modules.supplier.entity.Supplier" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from supplier
+        where id = #{id}
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="com.upedge.pms.modules.supplier.entity.Supplier">
+        delete from supplier
+        where id = #{id}
+    </delete>
+
+    <update id="updateByPrimaryKeySelective" parameterType="com.upedge.pms.modules.supplier.entity.Supplier">
+        update supplier
+        <set>
+            <if test="loginId != null">
+                login_id = #{loginId},
+            </if>
+            <if test="supplierName != null">
+                supplier_name = #{supplierName},
+            </if>
+            <if test="supplierLink != null">
+                supplier_link = #{supplierLink},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime},
+            </if>
+            <if test="updateTime != null">
+                update_time = #{updateTime},
+            </if>
+            <if test="companyName != null">
+                company_name = #{companyName},
+            </if>
+            <if test="categoryName != null">
+                category_name = #{categoryName},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <update id="updateByPrimaryKey" parameterType="com.upedge.pms.modules.supplier.entity.Supplier">
+        update supplier
+        <set>
+        id = #{id},
+        login_id = #{loginId},
+        supplier_name = #{supplierName},
+        supplier_link = #{supplierLink},
+        create_time = #{createTime},
+        update_time = #{updateTime},
+        company_name = #{companyName},
+        category_name = #{categoryName},
+        </set>
+        where id = #{id}
+    </update>
+
+    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.upedge.pms.modules.supplier.entity.Supplier" useGeneratedKeys="true">
+        insert into supplier
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            id,
+            login_id,
+            supplier_name,
+            supplier_link,
+            create_time,
+            update_time,
+            company_name,
+            category_name
+        </trim>
+        values (
+        #{id},
+        #{loginId},
+        #{supplierName},
+        #{supplierLink},
+        #{createTime},
+        #{updateTime},
+        #{companyName},
+        #{categoryName}
+        )
+    </insert>
+
+    <insert id="insertSelective"  keyColumn="id" keyProperty="id"  parameterType="com.upedge.pms.modules.supplier.entity.Supplier" useGeneratedKeys="true">
+        insert into supplier
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null" >
+              id
+            </if>
+            <if test="loginId != null" >
+              login_id
+            </if>
+            <if test="supplierName != null" >
+              supplier_name
+            </if>
+            <if test="supplierLink != null" >
+              supplier_link
+            </if>
+            <if test="createTime != null" >
+              create_time
+            </if>
+            <if test="updateTime != null" >
+              update_time
+            </if>
+            <if test="companyName != null" >
+              company_name
+            </if>
+            <if test="categoryName != null" >
+              category_name
+            </if>
+
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null" >
+                #{id}
+            </if>
+            <if test="loginId != null" >
+                #{loginId}
+            </if>
+            <if test="supplierName != null" >
+                #{supplierName}
+            </if>
+            <if test="supplierLink != null" >
+                #{supplierLink}
+            </if>
+            <if test="createTime != null" >
+                #{createTime}
+            </if>
+            <if test="updateTime != null" >
+                #{updateTime}
+            </if>
+            <if test="companyName != null" >
+                #{companyName}
+            </if>
+            <if test="categoryName != null" >
+                #{categoryName}
+            </if>
+
+        </trim>
+    </insert>
+
+    <insert id="insertByBatch" parameterType="java.util.List">
+        insert into supplier
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+           id,
+           login_id,
+           supplier_name,
+           supplier_link,
+           create_time,
+           update_time,
+           company_name,
+           category_name
+        </trim>
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+               #{item.id},
+               #{item.loginId},
+               #{item.supplierName},
+               #{item.supplierLink},
+               #{item.createTime},
+               #{item.updateTime},
+               #{item.companyName},
+               #{item.categoryName}
+            </trim>
+        </foreach>
+    </insert>
+
+    <sql id="Query_Condition">
+        <if test="t != null">
+            where
+            <trim prefix=" " suffix=" " suffixOverrides=" and ">
+                1 = 1 and
+                    <if test="t.id != null">
+                        id = #{t.id} and
+                    </if>
+                    <if test="t.loginId != null">
+                        login_id = #{t.loginId} and
+                    </if>
+                    <if test="t.supplierName != null">
+                        supplier_name = #{t.supplierName} and
+                    </if>
+                    <if test="t.supplierLink != null">
+                        supplier_link = #{t.supplierLink} and
+                    </if>
+                    <if test="t.createTime != null">
+                        create_time = #{t.createTime} and
+                    </if>
+                    <if test="t.updateTime != null">
+                        update_time = #{t.updateTime} and
+                    </if>
+                    <if test="t.companyName != null">
+                        company_name = #{t.companyName} and
+                    </if>
+                    <if test="t.categoryName != null">
+                        category_name = #{t.categoryName} and
+                    </if>
+            </trim>
+        </if>
+    </sql>
+
+    <select id="select" parameterType="com.upedge.common.base.Page" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from supplier
+        <include refid="Query_Condition"/>
+        <if test="orderBy != null">
+            order by ${orderBy}
+        </if>
+        <if test="pageNum != null and pageSize != null">
+            limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+        </if>
+    </select>
+
+    <select id="count" parameterType="com.upedge.common.base.Page" resultType="java.lang.Long">
+        select
+        count(1)
+        from supplier
+        <include refid="Query_Condition"/>
+    </select>
+    <select id="selectByLoginId" resultType="com.upedge.pms.modules.supplier.entity.Supplier">
+        select <include refid="Base_Column_List"/>
+        from supplier
+        where login_id = #{supplierLoginId}
+    </select>
+
+
+</mapper>

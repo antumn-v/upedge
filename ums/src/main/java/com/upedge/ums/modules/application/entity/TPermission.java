@@ -14,6 +14,8 @@ public class TPermission{
 	 * 
 	 */
     private Long id;
+
+    private Long menuId;
 	/**
 	 * 
 	 */

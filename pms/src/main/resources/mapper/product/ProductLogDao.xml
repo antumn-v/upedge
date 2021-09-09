@@ -1,0 +1,240 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.upedge.pms.modules.product.dao.ProductLogDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.upedge.pms.modules.product.entity.ProductLog" id="BaseResultMap">
+        <result property="id" column="id"/>
+        <result property="optType" column="opt_type"/>
+        <result property="oldInfo" column="old_info"/>
+        <result property="newInfo" column="new_info"/>
+        <result property="productId" column="product_id"/>
+        <result property="sku" column="sku"/>
+        <result property="adminUser" column="admin_user"/>
+        <result property="createTime" column="create_time"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        `id`,`opt_type`,`old_info`,`new_info`,`product_id`,`sku`,`admin_user`,`create_time`
+    </sql>
+
+    <select id="selectByPrimaryKey" parameterType="com.upedge.pms.modules.product.entity.ProductLog" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from product_log
+        where id = #{id}
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="com.upedge.pms.modules.product.entity.ProductLog">
+        delete from product_log
+        where id = #{id}
+    </delete>
+
+    <update id="updateByPrimaryKeySelective" parameterType="com.upedge.pms.modules.product.entity.ProductLog">
+        update product_log
+        <set>
+            <if test="optType != null">
+                opt_type = #{optType},
+            </if>
+            <if test="oldInfo != null">
+                old_info = #{oldInfo},
+            </if>
+            <if test="newInfo != null">
+                new_info = #{newInfo},
+            </if>
+            <if test="productId != null">
+                product_id = #{productId},
+            </if>
+            <if test="sku != null">
+                sku = #{sku},
+            </if>
+            <if test="adminUser != null">
+                admin_user = #{adminUser},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <update id="updateByPrimaryKey" parameterType="com.upedge.pms.modules.product.entity.ProductLog">
+        update product_log
+        <set>
+        id = #{id},
+        opt_type = #{optType},
+        old_info = #{oldInfo},
+        new_info = #{newInfo},
+        product_id = #{productId},
+        sku = #{sku},
+        admin_user = #{adminUser},
+        create_time = #{createTime},
+        </set>
+        where id = #{id}
+    </update>
+
+    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.upedge.pms.modules.product.entity.ProductLog" useGeneratedKeys="true">
+        insert into product_log
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            id,
+            opt_type,
+            old_info,
+            new_info,
+            product_id,
+            sku,
+            admin_user,
+            create_time
+        </trim>
+        values (
+        #{id},
+        #{optType},
+        #{oldInfo},
+        #{newInfo},
+        #{productId},
+        #{sku},
+        #{adminUser},
+        #{createTime}
+        )
+    </insert>
+
+    <insert id="insertSelective"  keyColumn="id" keyProperty="id"  parameterType="com.upedge.pms.modules.product.entity.ProductLog" useGeneratedKeys="true">
+        insert into product_log
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null" >
+              id
+            </if>
+            <if test="optType != null" >
+              opt_type
+            </if>
+            <if test="oldInfo != null" >
+              old_info
+            </if>
+            <if test="newInfo != null" >
+              new_info
+            </if>
+            <if test="productId != null" >
+              product_id
+            </if>
+            <if test="sku != null" >
+              sku
+            </if>
+            <if test="adminUser != null" >
+              admin_user
+            </if>
+            <if test="createTime != null" >
+              create_time
+            </if>
+
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null" >
+                #{id}
+            </if>
+            <if test="optType != null" >
+                #{optType}
+            </if>
+            <if test="oldInfo != null" >
+                #{oldInfo}
+            </if>
+            <if test="newInfo != null" >
+                #{newInfo}
+            </if>
+            <if test="productId != null" >
+                #{productId}
+            </if>
+            <if test="sku != null" >
+                #{sku}
+            </if>
+            <if test="adminUser != null" >
+                #{adminUser}
+            </if>
+            <if test="createTime != null" >
+                #{createTime}
+            </if>
+
+        </trim>
+    </insert>
+
+    <insert id="insertByBatch" parameterType="java.util.List">
+        insert into product_log
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+           id,
+           opt_type,
+           old_info,
+           new_info,
+           product_id,
+           sku,
+           admin_user,
+           create_time
+        </trim>
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+               #{item.id},
+               #{item.optType},
+               #{item.oldInfo},
+               #{item.newInfo},
+               #{item.productId},
+               #{item.sku},
+               #{item.adminUser},
+               #{item.createTime}
+            </trim>
+        </foreach>
+    </insert>
+
+    <sql id="Query_Condition">
+        <if test="t != null">
+            where
+            <trim prefix=" " suffix=" " suffixOverrides=" and ">
+                1 = 1 and
+                    <if test="t.id != null">
+                        id = #{t.id} and
+                    </if>
+                    <if test="t.optType != null">
+                        opt_type = #{t.optType} and
+                    </if>
+                    <if test="t.oldInfo != null">
+                        old_info = #{t.oldInfo} and
+                    </if>
+                    <if test="t.newInfo != null">
+                        new_info = #{t.newInfo} and
+                    </if>
+                    <if test="t.productId != null">
+                        product_id = #{t.productId} and
+                    </if>
+                    <if test="t.sku != null">
+                        sku = #{t.sku} and
+                    </if>
+                    <if test="t.adminUser != null">
+                        admin_user = #{t.adminUser} and
+                    </if>
+                    <if test="t.createTime != null">
+                        create_time = #{t.createTime} and
+                    </if>
+            </trim>
+        </if>
+    </sql>
+
+    <select id="select" parameterType="com.upedge.common.base.Page" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from product_log
+        <include refid="Query_Condition"/>
+        <if test="orderBy != null">
+            order by ${orderBy}
+        </if>
+        <if test="pageNum != null and pageSize != null">
+            limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+        </if>
+    </select>
+
+    <select id="count" parameterType="com.upedge.common.base.Page" resultType="java.lang.Long">
+        select
+        count(1)
+        from product_log
+        <include refid="Query_Condition"/>
+    </select>
+
+
+</mapper>

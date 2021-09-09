@@ -10,6 +10,8 @@ import com.upedge.common.base.Page;
  */
 public interface TPermissionDao{
 
+    List<TPermission> selectByMenuId(Long menuId);
+
     TPermission selectByPrimaryKey(TPermission record);
 
     int deleteByPrimaryKey(TPermission record);

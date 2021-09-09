@@ -11,6 +11,8 @@ import java.util.List;
  */
 public interface TPermissionService{
 
+    List<PermissionVo> selectByMenuId(Long menuId);
+
     List<PermissionVo> treePermission() throws CustomerException;
 
     TPermission selectByPrimaryKey(Long id);

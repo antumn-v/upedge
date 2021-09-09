@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.upedge.pms.modules.product.dao.CustomerPrivateProductDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.upedge.pms.modules.product.entity.CustomerPrivateProduct" id="BaseResultMap">
+        <result property="id" column="id"/>
+        <result property="productId" column="product_id"/>
+        <result property="customerId" column="customer_id"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        `id`,`product_id`,`customer_id`
+    </sql>
+
+    <select id="selectByPrimaryKey" parameterType="com.upedge.pms.modules.product.entity.CustomerPrivateProduct" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from customer_private_product
+        where id = #{id}
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="com.upedge.pms.modules.product.entity.CustomerPrivateProduct">
+        delete from customer_private_product
+        where id = #{id}
+    </delete>
+
+    <update id="updateByPrimaryKeySelective" parameterType="com.upedge.pms.modules.product.entity.CustomerPrivateProduct">
+        update customer_private_product
+        <set>
+            <if test="productId != null">
+                product_id = #{productId},
+            </if>
+            <if test="customerId != null">
+                customer_id = #{customerId},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <update id="updateByPrimaryKey" parameterType="com.upedge.pms.modules.product.entity.CustomerPrivateProduct">
+        update customer_private_product
+        <set>
+        id = #{id},
+        product_id = #{productId},
+        customer_id = #{customerId},
+        </set>
+        where id = #{id}
+    </update>
+
+    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.upedge.pms.modules.product.entity.CustomerPrivateProduct" useGeneratedKeys="true">
+        insert into customer_private_product
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            id,
+            product_id,
+            customer_id
+        </trim>
+        values (
+        #{id},
+        #{productId},
+        #{customerId}
+        )
+    </insert>
+
+    <insert id="insertSelective"  keyColumn="id" keyProperty="id"  parameterType="com.upedge.pms.modules.product.entity.CustomerPrivateProduct" useGeneratedKeys="true">
+        insert into customer_private_product
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null" >
+              id
+            </if>
+            <if test="productId != null" >
+              product_id
+            </if>
+            <if test="customerId != null" >
+              customer_id
+            </if>
+
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null" >
+                #{id}
+            </if>
+            <if test="productId != null" >
+                #{productId}
+            </if>
+            <if test="customerId != null" >
+                #{customerId}
+            </if>
+
+        </trim>
+    </insert>
+
+    <insert id="insertByBatch" parameterType="java.util.List">
+        insert into customer_private_product
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+           id,
+           product_id,
+           customer_id
+        </trim>
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+               #{item.id},
+               #{item.productId},
+               #{item.customerId}
+            </trim>
+        </foreach>
+    </insert>
+
+    <sql id="Query_Condition">
+        <if test="t != null">
+            where
+            <trim prefix=" " suffix=" " suffixOverrides=" and ">
+                1 = 1 and
+                    <if test="t.id != null">
+                        id = #{t.id} and
+                    </if>
+                    <if test="t.productId != null">
+                        product_id = #{t.productId} and
+                    </if>
+                    <if test="t.customerId != null">
+                        customer_id = #{t.customerId} and
+                    </if>
+            </trim>
+        </if>
+    </sql>
+
+    <select id="select" parameterType="com.upedge.common.base.Page" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from customer_private_product
+        <include refid="Query_Condition"/>
+        <if test="orderBy != null">
+            order by ${orderBy}
+        </if>
+        <if test="pageNum != null and pageSize != null">
+            limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+        </if>
+    </select>
+
+    <select id="count" parameterType="com.upedge.common.base.Page" resultType="java.lang.Long">
+        select
+        count(1)
+        from customer_private_product
+        <include refid="Query_Condition"/>
+    </select>
+
+
+</mapper>

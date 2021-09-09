@@ -10,15 +10,15 @@
         <module name="upedge_ums" />
         <module name="zuul" />
         <module name="common-base" />
-        <module name="ums" />
-        <module name="thirdparty-service" />
+        <module name="common-redis" />
+        <module name="upedge-saihe" />
         <module name="upedge_generator" />
         <module name="upedge-shopify" />
-        <module name="common-redis" />
+        <module name="ums" />
         <module name="pms" />
-        <module name="common-web" />
         <module name="upedge-1688" />
-        <module name="upedge-saihe" />
+        <module name="thirdparty-service" />
+        <module name="common-web" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>

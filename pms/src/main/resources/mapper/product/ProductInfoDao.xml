@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.upedge.pms.modules.product.dao.ProductInfoDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.upedge.pms.modules.product.entity.ProductInfo" id="BaseResultMap">
+        <result property="id" column="id"/>
+        <result property="productDesc" column="product_desc"/>
+        <result property="productId" column="product_id"/>
+        <result property="cnDesc" column="cn_desc"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        `id`,`product_desc`,`product_id`,`cn_desc`
+    </sql>
+
+    <select id="selectByPrimaryKey" parameterType="com.upedge.pms.modules.product.entity.ProductInfo" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from product_info
+        where id = #{id}
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="com.upedge.pms.modules.product.entity.ProductInfo">
+        delete from product_info
+        where id = #{id}
+    </delete>
+
+    <update id="updateByPrimaryKeySelective" parameterType="com.upedge.pms.modules.product.entity.ProductInfo">
+        update product_info
+        <set>
+            <if test="productDesc != null">
+                product_desc = #{productDesc},
+            </if>
+            <if test="productId != null">
+                product_id = #{productId},
+            </if>
+            <if test="cnDesc != null">
+                cn_desc = #{cnDesc},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <update id="updateByPrimaryKey" parameterType="com.upedge.pms.modules.product.entity.ProductInfo">
+        update product_info
+        <set>
+        id = #{id},
+        product_desc = #{productDesc},
+        product_id = #{productId},
+        cn_desc = #{cnDesc},
+        </set>
+        where id = #{id}
+    </update>
+
+    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.upedge.pms.modules.product.entity.ProductInfo" useGeneratedKeys="true">
+        insert into product_info
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            id,
+            product_desc,
+            product_id,
+            cn_desc
+        </trim>
+        values (
+        #{id},
+        #{productDesc},
+        #{productId},
+        #{cnDesc}
+        )
+    </insert>
+
+    <insert id="insertSelective"  keyColumn="id" keyProperty="id"  parameterType="com.upedge.pms.modules.product.entity.ProductInfo" useGeneratedKeys="true">
+        insert into product_info
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null" >
+              id
+            </if>
+            <if test="productDesc != null" >
+              product_desc
+            </if>
+            <if test="productId != null" >
+              product_id
+            </if>
+            <if test="cnDesc != null" >
+              cn_desc
+            </if>
+
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null" >
+                #{id}
+            </if>
+            <if test="productDesc != null" >
+                #{productDesc}
+            </if>
+            <if test="productId != null" >
+                #{productId}
+            </if>
+            <if test="cnDesc != null" >
+                #{cnDesc}
+            </if>
+
+        </trim>
+    </insert>
+
+    <insert id="insertByBatch" parameterType="java.util.List">
+        insert into product_info
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+           id,
+           product_desc,
+           product_id,
+           cn_desc
+        </trim>
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+               #{item.id},
+               #{item.productDesc},
+               #{item.productId},
+               #{item.cnDesc}
+            </trim>
+        </foreach>
+    </insert>
+
+    <sql id="Query_Condition">
+        <if test="t != null">
+            where
+            <trim prefix=" " suffix=" " suffixOverrides=" and ">
+                1 = 1 and
+                    <if test="t.id != null">
+                        id = #{t.id} and
+                    </if>
+                    <if test="t.productDesc != null">
+                        product_desc = #{t.productDesc} and
+                    </if>
+                    <if test="t.productId != null">
+                        product_id = #{t.productId} and
+                    </if>
+                    <if test="t.cnDesc != null">
+                        cn_desc = #{t.cnDesc} and
+                    </if>
+            </trim>
+        </if>
+    </sql>
+
+    <select id="select" parameterType="com.upedge.common.base.Page" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from product_info
+        <include refid="Query_Condition"/>
+        <if test="orderBy != null">
+            order by ${orderBy}
+        </if>
+        <if test="pageNum != null and pageSize != null">
+            limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+        </if>
+    </select>
+
+    <select id="count" parameterType="com.upedge.common.base.Page" resultType="java.lang.Long">
+        select
+        count(1)
+        from product_info
+        <include refid="Query_Condition"/>
+    </select>
+
+
+</mapper>

@@ -1,6 +1,7 @@
 package com.upedge.ums.modules.user.service.impl;
 
 import com.alibaba.fastjson.JSON;
+import com.upedge.common.base.BaseResponse;
 import com.upedge.common.constant.BaseCode;
 import com.upedge.common.constant.Constant;
 import com.upedge.common.constant.ResultCode;
@@ -32,6 +33,7 @@ import com.upedge.ums.modules.organization.service.OrganizationUserService;
 import com.upedge.ums.modules.user.entity.*;
 import com.upedge.ums.modules.user.request.CustomerSignUpRequest;
 import com.upedge.ums.modules.user.request.UserSignInRequest;
+import com.upedge.ums.modules.user.request.UserUpdatePwdRequest;
 import com.upedge.ums.modules.user.response.CustomerSignUpResponse;
 import com.upedge.ums.modules.user.response.UserProfileResponse;
 import com.upedge.ums.modules.user.response.UserSignInResponse;
@@ -171,8 +173,25 @@ public class UserServiceImpl implements UserService {
         }).collect(Collectors.toList());
         userData.setMenus(menuVos);
 
-        userData.setPermissions(new ArrayList<String>());
+        userData.setPermissions(session.getPermissions());
         return new UserProfileResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS, userData);
+    }
+
+    @Override
+    public BaseResponse userUpdatePassword(UserUpdatePwdRequest request, Session current) {
+        //验证旧密码
+        if (!current.getLoginpass().equalsIgnoreCase(
+                UserUtil.encryptPassword(request.getOldPass()))) {
+            new BaseResponse(ResultCode.FAIL_CODE, "old password error!");
+        }
+        User user = new User();
+        user.setId(current.getId());
+        user.setLoginPass(UserUtil.encryptPassword(request.getNewPass(), current.getLoginname()));
+        updateByPrimaryKeySelective(user);
+        current.setLoginpass(user.getLoginPass());
+        UserUtil.updateUser(redisTemplate, current);
+        return new BaseResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS);
+
     }
 
     /**

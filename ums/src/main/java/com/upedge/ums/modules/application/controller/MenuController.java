@@ -7,9 +7,11 @@ import com.upedge.common.base.BaseResponse;
 import com.upedge.common.constant.ResultCode;
 import com.upedge.common.exception.CustomerException;
 import com.upedge.common.model.user.vo.MenuVo;
+import com.upedge.common.model.user.vo.PermissionVo;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.web.util.UserUtil;
 import com.upedge.ums.modules.application.request.MenuTreeRequest;
+import com.upedge.ums.modules.application.service.TPermissionService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,6 +44,9 @@ import javax.validation.Valid;
 public class MenuController {
     @Autowired
     private MenuService menuService;
+
+    @Autowired
+    TPermissionService tPermissionService;
 
     @Autowired
     RedisTemplate redisTemplate;
@@ -97,6 +102,13 @@ public class MenuController {
         menuService.updateByPrimaryKeySelective(entity);
         MenuUpdateResponse res = new MenuUpdateResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS);
         return res;
+    }
+
+
+    @GetMapping("/{menuId}/permissions")
+    public BaseResponse menuPermissions(@PathVariable Long menuId){
+        List<PermissionVo> permissionVos = tPermissionService.selectByMenuId(menuId);
+        return BaseResponse.success(permissionVos);
     }
 
 

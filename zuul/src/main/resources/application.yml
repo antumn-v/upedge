@@ -42,6 +42,10 @@ zuul:
       path: /ums/**
       service-id: ums
       url: http://localhost:8000/
+    pms-service:
+      path: /pms/**
+      service-id: pms
+      url: http://localhost:8100/
 management:
   endpoints:
     web:

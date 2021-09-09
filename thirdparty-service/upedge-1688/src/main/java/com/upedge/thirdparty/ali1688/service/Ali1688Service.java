@@ -2,15 +2,16 @@ package com.upedge.thirdparty.ali1688.service;
 
 import com.alibaba.ocean.rawsdk.ApiExecutor;
 import com.alibaba.ocean.rawsdk.common.SDKResult;
-import com.panda.common.utils.GetImgUrlList;
+
+import com.upedge.common.utils.GetImgUrlList;
 import com.upedge.thirdparty.ali1688.entity.listPushed.AlibabaCrossSyncProductListPushedParam;
 import com.upedge.thirdparty.ali1688.entity.listPushed.AlibabaCrossSyncProductListPushedResult;
-import com.panda.thirdparty.ali1688.entity.product.*;
+
 import com.upedge.thirdparty.ali1688.entity.product.*;
 import com.upedge.thirdparty.ali1688.entity.supplier.AlibabaAccountAgentCrossBasicParam;
 import com.upedge.thirdparty.ali1688.entity.supplier.SimpleAccountInfo;
 import com.upedge.thirdparty.ali1688.entity.translate.TranslateResult;
-import com.panda.thirdparty.ali1688.vo.*;
+
 import com.upedge.thirdparty.ali1688.config.AlibabaConfig;
 import com.upedge.thirdparty.ali1688.entity.listPushed.CommonResult;
 import com.upedge.thirdparty.ali1688.entity.supplier.AlibabaAccountAgentCrossBasicResult;
