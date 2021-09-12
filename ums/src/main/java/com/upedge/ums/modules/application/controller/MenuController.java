@@ -81,7 +81,7 @@ public class MenuController {
     @Permission(permission = "application:menu:add")
     public MenuAddResponse add(@RequestBody @Valid MenuAddRequest request) {
         Session session = UserUtil.getSession(redisTemplate);
-        Menu entity=request.toMenu(session);
+        Menu entity=request.toMenu();
         menuService.insertSelective(entity);
         MenuAddResponse res = new MenuAddResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS,entity,request);
         return res;

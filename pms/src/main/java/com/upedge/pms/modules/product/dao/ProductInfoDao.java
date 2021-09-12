@@ -10,6 +10,8 @@ import com.upedge.common.base.Page;
  */
 public interface ProductInfoDao{
 
+    ProductInfo selectByProductId(Long productId);
+
     ProductInfo selectByPrimaryKey(ProductInfo record);
 
     int deleteByPrimaryKey(ProductInfo record);

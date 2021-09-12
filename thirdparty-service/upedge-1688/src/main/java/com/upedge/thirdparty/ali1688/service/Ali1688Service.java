@@ -29,8 +29,8 @@ public class Ali1688Service {
     /**
      * 获取1688产品
      */
-    public static ProductVo getProduct(String alibabaProductId){
-        ProductVo productVo=new ProductVo();
+    public static AlibabaProductVo getProduct(String alibabaProductId){
+        AlibabaProductVo AlibabaProductVo=new AlibabaProductVo();
         long s=System.currentTimeMillis();
         ProductInfo productInfo=getAlibabaProductDetail(alibabaProductId);
         long e=System.currentTimeMillis();
@@ -38,9 +38,9 @@ public class Ali1688Service {
         if(productInfo==null){
             return null;
         }
-        productVo.setProductSku(alibabaProductId);
-        productVo.setOriginalTitle(productInfo.getSubject());
-        productVo.setProductTitle(productInfo.getSubject());
+        AlibabaProductVo.setProductSku(alibabaProductId);
+        AlibabaProductVo.setOriginalTitle(productInfo.getSubject());
+        AlibabaProductVo.setProductTitle(productInfo.getSubject());
 
         String price="";
         //参考价格，返回价格区间，可能为空
@@ -70,7 +70,7 @@ public class Ali1688Service {
 
         ProductInfoVo productInfoVo=productInfo.toProductInfoVo();
         //产品描述
-        productVo.setProductInfoVo(productInfoVo);
+        AlibabaProductVo.setProductInfoVo(productInfoVo);
         //提取描述图片
         List<String> descImgList= GetImgUrlList.listImgUrlList(productInfo.getDescription());
 
@@ -89,7 +89,7 @@ public class Ali1688Service {
         if(imageInfo!=null&&imageInfo.getImages()!=null&&imageInfo.getImages().size()>0){
             //产品主图
             String productImage="https://cbu01.alicdn.com/"+imageInfo.getImages().get(0);
-            productVo.setProductImage(productImage);
+            AlibabaProductVo.setProductImage(productImage);
             for (String img : imageInfo.getImages()) {
                 if(!imgMap.containsKey(img)) {
                     imgMap.put("https://cbu01.alicdn.com/"+img, imgMap.size() + 1);
@@ -163,12 +163,12 @@ public class Ali1688Service {
             productVariantAttrVo.setVariantAttrEvalue("default");
             productVariantAttrVo.setSeq(1);
             productVariantAttrVoList.add(productVariantAttrVo);
-            productVariantVo.setVariantImage(productVo.getProductImage());
+            productVariantVo.setVariantImage(AlibabaProductVo.getProductImage());
             productVariantVo.setVariantAttrVoList(productVariantAttrVoList);
             productVariantVoList.add(productVariantVo);
         }
         //产品变体列表
-        productVo.setProductVariantVoList(productVariantVoList);
+        AlibabaProductVo.setProductVariantVoList(productVariantVoList);
 
         //产品图片
         for(Map.Entry<String,Integer> image:imgMap.entrySet()){
@@ -197,27 +197,25 @@ public class Ali1688Service {
         }
 
         //产品图片列表
-        productVo.setProductImgVoList(productImgVoList);
+        AlibabaProductVo.setProductImgVoList(productImgVoList);
 
         //获取供应商信息
         SimpleAccountInfo simpleAccountInfo=getSimpleAccountInfo(productInfo.getSupplierLoginId());
         //供应商信息
         SupplierVo supplierVo=simpleAccountInfo.toSupplierVo();
-        productVo.setSupplierVo(supplierVo);
+        AlibabaProductVo.setSupplierVo(supplierVo);
 
         productAttributeVo.setAliCnCategoryName(simpleAccountInfo.getCategoryName());
         productAttributeVo.setEntryCname(simpleAccountInfo.getCategoryName());
         productAttributeVo.setEntryEname(simpleAccountInfo.getCategoryName());
-        productVo.setProductAttributeVo(productAttributeVo);
+        AlibabaProductVo.setProductAttributeVo(productAttributeVo);
 
         //翻译 标题&报关英文名&变体属性
         List<String> translateAttr=new ArrayList<>(attrSet);
         translateAttr.add(productInfo.getSubject());
         translateAttr.add(simpleAccountInfo.getCategoryName());
-        long start=System.currentTimeMillis();
         TranslateResult translateResult= TranslateService.translate(translateAttr);
-        long end=System.currentTimeMillis();
-        System.out.println("产品翻译时间:"+(end-start));
+
         if(translateResult!=null&&translateResult.getResult()!=null) {
             //报关英文名
             String enCategoryName=translateResult.getResult().get(simpleAccountInfo.getCategoryName());
@@ -228,10 +226,20 @@ public class Ali1688Service {
             if(translateResult!=null&&translateResult.getResult()!=null){
                 String enTitle=translateResult.getResult().get(productInfo.getSubject());
                 if(!StringUtils.isBlank(enTitle)){
-                    productVo.setProductTitle(enTitle);
+                    AlibabaProductVo.setProductTitle(enTitle);
                 }
+
             }
-            productVo.getProductVariantVoList().forEach(variant -> {
+            List<String> descAttr = new ArrayList<>();
+            descAttr.add(productInfoVo.getCnDesc());
+            TranslateResult  descTranslateResult= TranslateService.translate(descAttr);
+            String enDesc = descTranslateResult.getResult().get(productInfoVo.getCnDesc());
+            if (StringUtils.isNotBlank(enDesc)){
+                productInfoVo.setProductDesc(enDesc);
+                AlibabaProductVo.setProductInfoVo(productInfoVo);
+            }
+
+            AlibabaProductVo.getProductVariantVoList().forEach(variant -> {
                 List<ProductVariantAttrVo> variantAttrVoList=variant.getVariantAttrVoList();
                 for(ProductVariantAttrVo attr:variantAttrVoList){
                     String cname = attr.getVariantAttrCname();
@@ -248,7 +256,7 @@ public class Ali1688Service {
             });
         }
 
-        return productVo;
+        return AlibabaProductVo;
     }
 
     /**

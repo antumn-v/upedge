@@ -1,5 +1,6 @@
 package com.upedge.pms.modules.product.service.impl;
 
+import com.upedge.common.utils.ListUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
@@ -42,6 +43,14 @@ public class ProductVariantAttrServiceImpl implements ProductVariantAttrService 
     @Transactional
     public int insertSelective(ProductVariantAttr record) {
         return productVariantAttrDao.insert(record);
+    }
+
+    @Override
+    public List<ProductVariantAttr> selectByVariantIds(List<Long> variantIds) {
+        if (ListUtils.isNotEmpty(variantIds)){
+            return productVariantAttrDao.selectByVariantIds(variantIds);
+        }
+        return null;
     }
 
     @Override

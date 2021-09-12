@@ -11,8 +11,11 @@ import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.utils.UrlUtils;
 import com.upedge.common.web.util.UserUtil;
 import com.upedge.pms.modules.product.request.ImportFrom1688Request;
+import com.upedge.pms.modules.product.vo.ProductVo;
 import com.upedge.thirdparty.ali1688.service.Ali1688Service;
-import com.upedge.thirdparty.ali1688.vo.ProductVo;
+import com.upedge.thirdparty.ali1688.vo.AlibabaProductVo;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import com.upedge.common.component.annotation.Permission;
@@ -40,6 +43,7 @@ import javax.validation.Valid;
  *
  * @author gx
  */
+@Api(tags = "产品管理")
 @RestController
 @RequestMapping("/product")
 public class ProductController {
@@ -49,7 +53,7 @@ public class ProductController {
     @Autowired
     RedisTemplate redisTemplate;
 
-
+    @ApiOperation("1688导入产品")
     @RequestMapping(value="/importFrom1688", method=RequestMethod.POST)
     public BaseResponse importFrom1688(@RequestBody ImportFrom1688Request request) {
         if(!StringUtils.isBlank(request.getUrl())){
@@ -61,38 +65,26 @@ public class ProductController {
         }
         Product p=productService.selectByProductSku(request.getOriginalProductId());
         if(p!=null){
-            StringJoiner joiner=new StringJoiner(",");
-            joiner.add("产品已存在");
-            joiner.add("id:"+p.getId());
-            if(p.getState().equals(ProductConstant.State.ABANDONPOOL.getCode())){
-                joiner.add("在废弃池");
-            }else if(p.getState().equals(ProductConstant.State.CHOOSING.getCode())){
-                joiner.add("在选品池");
-            }else if(p.getState().equals(ProductConstant.State.EDITING.getCode())){
-                joiner.add("在收藏夹");
-                if(!StringUtils.isBlank(p.getUserId())){
-                    joiner.add("userId:"+p.getUserId());
-                }
-            }else{
-                joiner.add("在商品池");
-                if(!StringUtils.isBlank(p.getUserId())){
-                    joiner.add("userId:"+p.getUserId());
-                }
-            }
-            return new BaseResponse(ResultCode.FAIL_CODE,joiner.toString());
+            return BaseResponse.success();
         }
-        ProductVo productVo= Ali1688Service.getProduct(request.getOriginalProductId());
+        AlibabaProductVo AlibabaProductVo= Ali1688Service.getProduct(request.getOriginalProductId());
         Session session = UserUtil.getSession(redisTemplate);
-        if(productVo==null){
+        if(AlibabaProductVo==null){
             return new BaseResponse(ResultCode.FAIL_CODE,Constant.MESSAGE_FAIL);
         }
         try {
-            return productService.importFrom1688(productVo,session);
+            return productService.importFrom1688(AlibabaProductVo,session);
         } catch (Exception e) {
             return new BaseResponse(ResultCode.FAIL_CODE,e.getMessage());
         }
     }
 
+    @ApiOperation("产品详情")
+    @GetMapping("/detail/{id}")
+    public BaseResponse productDetail(@PathVariable Long id) {
+        ProductVo productVo = productService.productDetail(id);
+        return BaseResponse.success(productVo);
+    }
 
     @RequestMapping(value="/info/{id}", method=RequestMethod.GET)
     @Permission(permission = "product:product:info:id")
@@ -112,22 +104,7 @@ public class ProductController {
         return res;
     }
 
-    @RequestMapping(value="/add", method=RequestMethod.POST)
-    @Permission(permission = "product:product:add")
-    public ProductAddResponse add(@RequestBody @Valid ProductAddRequest request) {
-        Product entity=request.toProduct();
-        productService.insertSelective(entity);
-        ProductAddResponse res = new ProductAddResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS,entity,request);
-        return res;
-    }
 
-    @RequestMapping(value="/del/{id}", method=RequestMethod.POST)
-    @Permission(permission = "product:product:del:id")
-    public ProductDelResponse del(@PathVariable Long id) {
-        productService.deleteByPrimaryKey(id);
-        ProductDelResponse res = new ProductDelResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS);
-        return res;
-    }
 
     @RequestMapping(value="/update/{id}", method=RequestMethod.POST)
     @Permission(permission = "product:product:update")

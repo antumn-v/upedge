@@ -9,6 +9,8 @@ import java.util.List;
  */
 public interface ProductInfoService{
 
+    ProductInfo selectByProductId(Long id);
+
     ProductInfo selectByPrimaryKey(Long id);
 
     int deleteByPrimaryKey(Long id);

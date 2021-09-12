@@ -45,6 +45,12 @@ public class ProductImgServiceImpl implements ProductImgService {
         return productImgDao.insert(record);
     }
 
+    @Override
+    public List<ProductImg> selectByProductId(Long productId) {
+
+        return productImgDao.selectByProductId(productId);
+    }
+
     /**
      *
      */

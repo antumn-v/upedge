@@ -58,7 +58,21 @@ public class Menu{
 	 * 菜单分组
 	 */
     private String menuGroup;
-    
+	/**
+	 * 权限名
+	 */
+    private String permissionName;
+	/**
+	 * 0=页面权限，1=按钮权限
+	 */
+    private Integer permissionType;
+	/**
+	 * 0=禁用 1=启用
+	 */
+    private Integer state;
+	/**
+	 * 
+	 */
     private Boolean createPerm;
 
 }

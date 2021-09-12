@@ -44,6 +44,11 @@ public class ProductAttributeServiceImpl implements ProductAttributeService {
         return productAttributeDao.insert(record);
     }
 
+    @Override
+    public ProductAttribute selectByProductId(Long productId) {
+        return productAttributeDao.selectByProductId(productId);
+    }
+
     /**
      *
      */

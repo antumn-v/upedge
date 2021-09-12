@@ -8,21 +8,23 @@ import com.upedge.common.exception.CustomerException;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.utils.IdGenerate;
 import com.upedge.common.web.util.UserUtil;
+import com.upedge.pms.modules.category.entity.Category;
 import com.upedge.pms.modules.category.entity.CategoryMapping;
 import com.upedge.pms.modules.category.service.CategoryMappingService;
+import com.upedge.pms.modules.category.service.CategoryService;
 import com.upedge.pms.modules.product.entity.*;
 import com.upedge.pms.modules.product.service.*;
+import com.upedge.pms.modules.product.vo.ProductVo;
+import com.upedge.pms.modules.product.vo.VariantAttrVo;
 import com.upedge.pms.modules.supplier.entity.Supplier;
 import com.upedge.pms.modules.supplier.service.SupplierService;
 import com.upedge.thirdparty.ali1688.vo.ProductVariantAttrVo;
-import com.upedge.thirdparty.ali1688.vo.ProductVo;
+import com.upedge.thirdparty.ali1688.vo.AlibabaProductVo;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.stream.Collectors;
@@ -54,10 +56,16 @@ public class ProductServiceImpl implements ProductService {
     ProductAttributeService productAttributeService;
 
     @Autowired
+    ProductAttrService productAttrService;
+
+    @Autowired
     SupplierService supplierService;
 
     @Autowired
     CategoryMappingService categoryMappingService;
+
+    @Autowired
+    CategoryService categoryService;
 
     @Autowired
     ThreadPoolExecutor threadPoolExecutor;
@@ -90,31 +98,100 @@ public class ProductServiceImpl implements ProductService {
         return productDao.insert(record);
     }
 
+    @Override
+    public ProductVo productDetail(Long id) {
+        Product product = productDao.selectByPrimaryKey(id);
+        if(product==null){
+            return null;
+        }
+        ProductVo adminProductVo=new ProductVo()
+                ;
+        BeanUtils.copyProperties(product,adminProductVo);
+        Category category=categoryService.selectByPrimaryKey(product.getCategoryId());
+        if(category!=null) {
+            adminProductVo.setCategoryId(Long.parseLong(category.getCateCode()));
+        }
+        //开启异步任务 获取属性
+        CompletableFuture<Void> productAttributeFuture = CompletableFuture.runAsync(() -> {
+            ProductAttribute productAttribute=productAttributeService.selectByProductId(id);
+            adminProductVo.setProductAttribute(productAttribute);
+        }, threadPoolExecutor);
+
+        //开启异步任务  获取图片列表
+        CompletableFuture<Void> productImgListFuture = CompletableFuture.runAsync(() -> {
+            List<ProductImg> productImgList=productImgService.selectByProductId(id);
+            adminProductVo.setProductImgList(productImgList);
+        }, threadPoolExecutor);
+
+        //开启异步任务  获取产品描述
+        CompletableFuture<Void> productInfoFuture = CompletableFuture.runAsync(() -> {
+            ProductInfo productInfo=productInfoService.selectByProductId(id);
+            adminProductVo.setProductInfo(productInfo);
+        }, threadPoolExecutor);
+
+
+        //开启异步任务  获取产品描述
+        List<Long> variantIds=new ArrayList<>();
+        //属性-值列表
+        Map<String, VariantAttrVo> attrMap=new HashMap<>();
+        Map<String,Set<String>> attrValSet=new HashMap<>();
+        Map<Long,ProductVariant> productVariantMap=new HashMap<>();
+        CompletableFuture<Void> productVariantListFuture = CompletableFuture.runAsync(() -> {
+            List<ProductVariant> productVariantList=productVariantService.selectByProductId(id);
+            productVariantList.forEach(productVariant -> {
+                variantIds.add(productVariant.getId());
+                productVariantMap.put(productVariant.getId(),productVariant);
+            });
+        }, threadPoolExecutor).thenRunAsync(()->{
+            //获取产品属性
+            List<ProductVariant> productVariantList =productVariantService.getProductVariantList(variantIds, attrMap, attrValSet, productVariantMap);
+            adminProductVo.setProductVariantList(productVariantList);
+
+        },threadPoolExecutor);
+
+        //等到所有任务都完成
+        try {
+            CompletableFuture.allOf(productAttributeFuture,productImgListFuture,productInfoFuture,productVariantListFuture).get();
+        }catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+
+        //装载属性
+        List<VariantAttrVo> variantAttrVoList=new ArrayList<>();
+        for(VariantAttrVo v:attrMap.values()){
+            variantAttrVoList.add(v);
+        }
+        adminProductVo.setVariantAttrVos(variantAttrVoList);
+
+        return adminProductVo;
+    }
+
     @Transactional
     @Override
-    public BaseResponse importFrom1688(ProductVo productVo, Session session) {
+    public BaseResponse importFrom1688(AlibabaProductVo AlibabaProductVo, Session session) {
         long start=System.currentTimeMillis();
         Long productId= IdGenerate.nextId();
-        String mainImage = productVo.getProductImage();
+        String mainImage = AlibabaProductVo.getProductImage();
         CompletableFuture<Void> future1 = CompletableFuture.runAsync(() -> {
             //产品供应商
-            Supplier supplier=supplierService.selectByLoginId(productVo.getSupplierVo().getLoginId());
+            Supplier supplier=supplierService.selectByLoginId(AlibabaProductVo.getSupplierVo().getLoginId());
             if(supplier==null){
                 supplier=new Supplier();
-                BeanUtils.copyProperties(productVo.getSupplierVo(),supplier);
+                BeanUtils.copyProperties(AlibabaProductVo.getSupplierVo(),supplier);
                 supplier.setUpdateTime(new Date());
                 supplier.setCreateTime(new Date());
                 supplierService.insert(supplier);
             }
 
             //产品类目
-            Long aliCnCategoryId=productVo.getProductAttributeVo().getAliCnCategoryId();
+            Long aliCnCategoryId=AlibabaProductVo.getProductAttributeVo().getAliCnCategoryId();
             CategoryMapping categoryMapping= categoryMappingService.selectByAliCateCode(String.valueOf(aliCnCategoryId));
 
             //产品
             Product product=new Product();
-            BeanUtils.copyProperties(productVo,product);
-            product.setOriginalId(productVo.getProductSku());
+            BeanUtils.copyProperties(AlibabaProductVo,product);
+            product.setOriginalId(AlibabaProductVo.getProductSku());
             if(categoryMapping!=null) {
                 product.setCategoryId(categoryMapping.getCategoryId());
             }
@@ -139,7 +216,7 @@ public class ProductServiceImpl implements ProductService {
             productDao.insert(product);
 
             ProductAttribute productAttribute=new ProductAttribute();
-            BeanUtils.copyProperties(productVo.getProductAttributeVo(),productAttribute);
+            BeanUtils.copyProperties(AlibabaProductVo.getProductAttributeVo(),productAttribute);
             productAttribute.setId(IdGenerate.nextId());
             productAttribute.setProductId(productId);
             if(categoryMapping!=null){
@@ -153,7 +230,7 @@ public class ProductServiceImpl implements ProductService {
         CompletableFuture<Void> future2 = CompletableFuture.runAsync(() -> {
             //产品图片
             List<ProductImg> productImgList=new ArrayList<>();
-            productVo.getProductImgVoList().forEach(productImgVo -> {
+            AlibabaProductVo.getProductImgVoList().forEach(productImgVo -> {
                 ProductImg productImg=new ProductImg();
                 BeanUtils.copyProperties(productImgVo,productImg);
                 productImg.setId(IdGenerate.nextId());
@@ -166,7 +243,7 @@ public class ProductServiceImpl implements ProductService {
         CompletableFuture<Void> future3 = CompletableFuture.runAsync(() -> {
             //产品描述
             ProductInfo productInfo=new ProductInfo();
-            BeanUtils.copyProperties(productVo.getProductInfoVo(),productInfo);
+            BeanUtils.copyProperties(AlibabaProductVo.getProductInfoVo(),productInfo);
             productInfo.setId(IdGenerate.nextId());
             productInfo.setProductId(productId);
             productInfoService.insert(productInfo);
@@ -176,7 +253,7 @@ public class ProductServiceImpl implements ProductService {
             //产品变体
             List<ProductVariant> productVariantList=new ArrayList<>();
             List<ProductVariantAttr> productVariantAttrList=new ArrayList<>();
-            productVo.getProductVariantVoList().forEach(productVariantVo -> {
+            AlibabaProductVo.getProductVariantVoList().forEach(productVariantVo -> {
                 ProductVariant productVariant=new ProductVariant();
                 BeanUtils.copyProperties(productVariantVo,productVariant);
                 Long variantId=IdGenerate.nextId();

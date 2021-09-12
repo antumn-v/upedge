@@ -181,6 +181,11 @@
         from product_img
         <include refid="Query_Condition"/>
     </select>
+    <select id="selectByProductId" resultType="com.upedge.pms.modules.product.entity.ProductImg">
+        select <include refid="Base_Column_List"/>
+        from product_img
+        where product_id = #{productId}
+    </select>
 
 
 </mapper>

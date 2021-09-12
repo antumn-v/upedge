@@ -253,6 +253,16 @@
         from product_variant_attr
         <include refid="Query_Condition"/>
     </select>
+    <select id="selectByVariantIds" resultType="com.upedge.pms.modules.product.entity.ProductVariantAttr">
+        select
+        <include refid="Base_Column_List" />
+        from product_variant_attr
+        where variant_id in
+        <foreach collection="variantIds" index="index" item="item"
+                 separator="," open="(" close=")">
+            #{item}
+        </foreach>
+    </select>
 
 
 </mapper>

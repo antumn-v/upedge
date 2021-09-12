@@ -8,7 +8,7 @@ import java.util.List;
  * @author author
  */
 @Data
-public class ProductVo{
+public class AlibabaProductVo{
 
 	/**
 	*

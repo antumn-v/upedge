@@ -9,6 +9,8 @@ import java.util.List;
  */
 public interface ProductImgService{
 
+    List<ProductImg> selectByProductId(Long productId);
+
     ProductImg selectByPrimaryKey(Long id);
 
     int insertByBatch(List<ProductImg> productImgs);

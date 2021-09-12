@@ -10,6 +10,8 @@ import com.upedge.common.base.Page;
  */
 public interface ProductAttributeDao{
 
+    ProductAttribute selectByProductId(Long productId);
+
     ProductAttribute selectByPrimaryKey(ProductAttribute record);
 
     int deleteByPrimaryKey(ProductAttribute record);

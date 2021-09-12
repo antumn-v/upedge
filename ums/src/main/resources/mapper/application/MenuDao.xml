@@ -17,11 +17,14 @@
         <result property="createTime" column="create_time"/>
         <result property="menuType" column="menu_type"/>
         <result property="menuGroup" column="menu_group"/>
+        <result property="permissionName" column="permission_name"/>
+        <result property="permissionType" column="permission_type"/>
+        <result property="state" column="state"/>
         <result property="createPerm" column="create_perm"/>
     </resultMap>
 
     <sql id="Base_Column_List">
-        `id`,`application_id`,`title`,`name`,`url`,`parent_id`,`menu_path`,`seq`,`update_time`,`create_time`,`menu_type`,`menu_group`,create_perm
+        `id`,`application_id`,`title`,`name`,`url`,`parent_id`,`menu_path`,`seq`,`update_time`,`create_time`,`menu_type`,`menu_group`,`permission_name`,`permission_type`,`state`,`create_perm`
     </sql>
 
     <select id="selectByPrimaryKey" parameterType="com.upedge.ums.modules.application.entity.Menu" resultMap="BaseResultMap">
@@ -72,6 +75,15 @@
             <if test="menuGroup != null">
                 menu_group = #{menuGroup},
             </if>
+            <if test="permissionName != null">
+                permission_name = #{permissionName},
+            </if>
+            <if test="permissionType != null">
+                permission_type = #{permissionType},
+            </if>
+            <if test="state != null">
+                state = #{state},
+            </if>
             <if test="createPerm != null">
                 create_perm = #{createPerm},
             </if>
@@ -93,8 +105,11 @@
         update_time = #{updateTime},
         create_time = #{createTime},
         menu_type = #{menuType},
-        create_perm = #{createPerm},
         menu_group = #{menuGroup},
+        permission_name = #{permissionName},
+        permission_type = #{permissionType},
+        state = #{state},
+        create_perm = #{createPerm},
         </set>
         where id = #{id}
     </update>
@@ -113,8 +128,11 @@
             update_time,
             create_time,
             menu_type,
-            create_perm,
-            menu_group
+            menu_group,
+            permission_name,
+            permission_type,
+            state,
+            create_perm
         </trim>
         values (
         #{id},
@@ -128,8 +146,11 @@
         #{updateTime},
         #{createTime},
         #{menuType},
-        #{createPerm},
-        #{menuGroup}
+        #{menuGroup},
+        #{permissionName},
+        #{permissionType},
+        #{state},
+        #{createPerm}
         )
     </insert>
 
@@ -171,6 +192,15 @@
             </if>
             <if test="menuGroup != null" >
               menu_group
+            </if>
+            <if test="permissionName != null" >
+              permission_name
+            </if>
+            <if test="permissionType != null" >
+              permission_type
+            </if>
+            <if test="state != null" >
+              state
             </if>
             <if test="createPerm != null" >
               create_perm
@@ -214,6 +244,15 @@
             <if test="menuGroup != null" >
                 #{menuGroup}
             </if>
+            <if test="permissionName != null" >
+                #{permissionName}
+            </if>
+            <if test="permissionType != null" >
+                #{permissionType}
+            </if>
+            <if test="state != null" >
+                #{state}
+            </if>
             <if test="createPerm != null" >
                 #{createPerm}
             </if>
@@ -235,8 +274,11 @@
            update_time,
            create_time,
            menu_type,
-           create_perm,
-           menu_group
+           menu_group,
+           permission_name,
+           permission_type,
+           state,
+           create_perm
         </trim>
         values
         <foreach collection="list" item="item" index="index" separator=",">
@@ -252,8 +294,11 @@
                #{item.updateTime},
                #{item.createTime},
                #{item.menuType},
-               #{item.createPerm},
-               #{item.menuGroup}
+               #{item.menuGroup},
+               #{item.permissionName},
+               #{item.permissionType},
+               #{item.state},
+               #{item.createPerm}
             </trim>
         </foreach>
     </insert>
@@ -298,6 +343,15 @@
                     </if>
                     <if test="t.menuGroup != null">
                         menu_group = #{t.menuGroup} and
+                    </if>
+                    <if test="t.permissionName != null">
+                        permission_name = #{t.permissionName} and
+                    </if>
+                    <if test="t.permissionType != null">
+                        permission_type = #{t.permissionType} and
+                    </if>
+                    <if test="t.state != null">
+                        state = #{t.state} and
                     </if>
                     <if test="t.createPerm != null">
                         create_perm = #{t.createPerm} and

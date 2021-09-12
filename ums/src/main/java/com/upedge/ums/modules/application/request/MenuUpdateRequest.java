@@ -54,6 +54,18 @@ public class MenuUpdateRequest{
      */
     private String menuGroup;
     /**
+     * 权限名
+     */
+    private String permissionName;
+    /**
+     * 0=页面权限，1=按钮权限
+     */
+    private Integer permissionType;
+    /**
+     * 0=禁用 1=启用
+     */
+    private Integer state;
+    /**
      * 
      */
     private Boolean createPerm;
@@ -68,13 +80,13 @@ public class MenuUpdateRequest{
         menu.setParentId(parentId);
         menu.setMenuPath(menuPath);
         menu.setSeq(seq);
-        menu.setUpdateTime(new Date());
-        menu.setCreateTime(new Date());
+        menu.setUpdateTime(updateTime);
+        menu.setCreateTime(createTime);
         menu.setMenuType(menuType);
         menu.setMenuGroup(menuGroup);
-        if (createPerm == null){
-            createPerm = true;
-        }
+        menu.setPermissionName(permissionName);
+        menu.setPermissionType(permissionType);
+        menu.setState(state);
         menu.setCreatePerm(createPerm);
         return menu;
     }

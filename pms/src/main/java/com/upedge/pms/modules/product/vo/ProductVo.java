@@ -1,5 +1,6 @@
 package com.upedge.pms.modules.product.vo;
 
+import com.upedge.pms.modules.product.entity.*;
 import lombok.Data;
 
 import java.util.ArrayList;
@@ -87,11 +88,18 @@ public class ProductVo {
 	*/
 	private Date updateTime;
 
-	private List<Integer> stateList=new ArrayList<>();
-
 	private Integer gteState;
 
+	private ProductAttribute productAttribute;
 
-	private String managerCode;
+	private List<ProductImg> productImgList;
+
+	private ProductInfo productInfo;
+
+	private List<ProductVariant> productVariantList;
+
+	private List<ProductAttr> productAttrList;
+
+	private List<VariantAttrVo> variantAttrVos;
 
 }

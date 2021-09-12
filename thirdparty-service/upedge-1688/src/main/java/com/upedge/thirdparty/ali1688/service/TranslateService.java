@@ -31,7 +31,7 @@ public class TranslateService {
             //2、封装请求参数
             List<BasicNameValuePair> list = new ArrayList<BasicNameValuePair>();
 
-            list.add(new BasicNameValuePair("key", "AIzaSyA9K7vX4VJL6SSZbwrwnwBzEaH1Zl_qbnM"));
+            list.add(new BasicNameValuePair("key", "AIzaSyACb5jC3UatfkfNVfK9P0kI1EN19SRklaE"));
             list.add(new BasicNameValuePair("model", "nmt"));
             list.add(new BasicNameValuePair("source", "zh-CN"));
             list.add(new BasicNameValuePair("format", "text"));

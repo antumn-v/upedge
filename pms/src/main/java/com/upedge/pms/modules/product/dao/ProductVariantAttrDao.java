@@ -4,11 +4,14 @@ import com.upedge.pms.modules.product.entity.ProductVariantAttr;
 import org.apache.ibatis.annotations.Mapper;
 import java.util.List;
 import com.upedge.common.base.Page;
+import org.apache.ibatis.annotations.Param;
 
 /**
  * @author gx
  */
 public interface ProductVariantAttrDao{
+
+    List<ProductVariantAttr> selectByVariantIds(@Param("variantIds") List<Long> variantIds);
 
     ProductVariantAttr selectByPrimaryKey(ProductVariantAttr record);
 

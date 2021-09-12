@@ -10,6 +10,8 @@ import com.upedge.common.base.Page;
  */
 public interface ProductVariantDao{
 
+    List<ProductVariant> selectByProductId(Long productId);
+
     ProductVariant selectByPrimaryKey(ProductVariant record);
 
     int deleteByPrimaryKey(ProductVariant record);

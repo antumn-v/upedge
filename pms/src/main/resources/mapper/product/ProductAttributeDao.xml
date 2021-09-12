@@ -271,6 +271,11 @@
         from product_attribute
         <include refid="Query_Condition"/>
     </select>
+    <select id="selectByProductId" resultType="com.upedge.pms.modules.product.entity.ProductAttribute">
+        select <include refid="Base_Column_List"/>
+        from product_attribute
+        where product_id = #{productId}
+    </select>
 
 
 </mapper>

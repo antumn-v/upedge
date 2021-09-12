@@ -2,7 +2,10 @@ package com.upedge.pms.modules.product.entity;
 
 import java.math.BigDecimal;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
+
 import lombok.Data;
 
 /**
@@ -80,4 +83,5 @@ public class ProductVariant{
 	 */
     private BigDecimal height;
 
+	private List<ProductVariantAttr> productVariantAttrList=new ArrayList<>();
 }

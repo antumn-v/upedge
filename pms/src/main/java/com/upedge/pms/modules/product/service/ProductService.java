@@ -4,7 +4,8 @@ import com.upedge.common.base.BaseResponse;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.pms.modules.product.entity.Product;
 import com.upedge.common.base.Page;
-import com.upedge.thirdparty.ali1688.vo.ProductVo;
+import com.upedge.pms.modules.product.vo.ProductVo;
+import com.upedge.thirdparty.ali1688.vo.AlibabaProductVo;
 
 import java.util.List;
 
@@ -13,7 +14,9 @@ import java.util.List;
  */
 public interface ProductService{
 
-    BaseResponse importFrom1688(ProductVo productVo, Session session);
+    ProductVo productDetail(Long id);
+
+    BaseResponse importFrom1688(AlibabaProductVo AlibabaProductVo, Session session);
 
     Product selectByProductSku(String productSku);
 

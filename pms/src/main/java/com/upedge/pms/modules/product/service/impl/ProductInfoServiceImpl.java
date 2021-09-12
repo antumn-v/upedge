@@ -44,6 +44,11 @@ public class ProductInfoServiceImpl implements ProductInfoService {
         return productInfoDao.insert(record);
     }
 
+    @Override
+    public ProductInfo selectByProductId(Long id) {
+        return null;
+    }
+
     /**
      *
      */

@@ -10,6 +10,8 @@ import com.upedge.common.base.Page;
  */
 public interface ProductImgDao{
 
+    List<ProductImg> selectByProductId(Long productId);
+
     ProductImg selectByPrimaryKey(ProductImg record);
 
     int deleteByPrimaryKey(ProductImg record);

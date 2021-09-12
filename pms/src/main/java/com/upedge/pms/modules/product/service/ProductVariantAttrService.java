@@ -9,6 +9,8 @@ import java.util.List;
  */
 public interface ProductVariantAttrService{
 
+    List<ProductVariantAttr> selectByVariantIds(List<Long> variantIds);
+
     int insertByBatch(List<ProductVariantAttr> productVariantAttrs);
 
     ProductVariantAttr selectByPrimaryKey(Long id);

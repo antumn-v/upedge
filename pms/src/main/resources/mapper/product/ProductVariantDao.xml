@@ -397,6 +397,11 @@
         from product_variant
         <include refid="Query_Condition"/>
     </select>
+    <select id="selectByProductId" resultType="com.upedge.pms.modules.product.entity.ProductVariant">
+        select <include refid="Base_Column_List"/>
+        from product_variant
+        where product_id = #{productId}
+    </select>
 
 
 </mapper>
