@@ -44,6 +44,12 @@ public class UserRoleServiceImpl implements UserRoleService {
         return userRoleDao.insert(record);
     }
 
+    @Override
+    public List<Long> selectUserIdByRoleId(Long roleId) {
+
+        return userRoleDao.selectUserIdByRoleId(roleId);
+    }
+
     /**
      *
      */

@@ -5,7 +5,15 @@ import java.util.Map;
 
 import com.upedge.common.base.BaseResponse;
 import com.upedge.common.constant.ResultCode;
+import com.upedge.common.exception.CustomerException;
+import com.upedge.common.model.user.vo.Session;
+import com.upedge.common.web.util.UserUtil;
+import com.upedge.ums.modules.organization.entity.OrganizationRole;
+import com.upedge.ums.modules.organization.request.*;
+import com.upedge.ums.modules.organization.service.OrganizationRoleService;
+import com.upedge.ums.modules.organization.vo.OrganizationRoleVo;
 import com.upedge.ums.modules.user.request.RoleAddRequest;
+import com.upedge.ums.modules.user.service.RoleService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,9 +24,6 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import com.upedge.common.constant.Constant;
-import com.upedge.ums.modules.organization.request.OrganizationAddRequest;
-import com.upedge.ums.modules.organization.request.OrganizationListRequest;
-import com.upedge.ums.modules.organization.request.OrganizationUpdateRequest;
 
 import com.upedge.ums.modules.organization.response.OrganizationAddResponse;
 import com.upedge.ums.modules.organization.response.OrganizationDelResponse;
@@ -40,6 +45,13 @@ public class OrganizationController {
     private OrganizationService organizationService;
 
     @Autowired
+    OrganizationRoleService organizationRoleService;
+
+
+    @Autowired
+    RoleService roleService;
+
+    @Autowired
     RedisTemplate redisTemplate;
 
     /**
@@ -49,7 +61,12 @@ public class OrganizationController {
     @ApiOperation("部门树")
     @GetMapping("/tree")
     public BaseResponse orgTree(){
-        return organizationService.organizationTree();
+        try {
+            return organizationService.organizationTree();
+        } catch (CustomerException e) {
+            e.printStackTrace();
+            return BaseResponse.failed();
+        }
     }
 
     @ApiOperation("部门详情")
@@ -76,7 +93,8 @@ public class OrganizationController {
     @RequestMapping(value="/add", method=RequestMethod.POST)
     @Permission(permission = "organization:organization:add")
     public OrganizationAddResponse add(@RequestBody @Valid OrganizationAddRequest request) {
-        Organization entity=request.toOrganization();
+        Session session = UserUtil.getSession(redisTemplate);
+        Organization entity=request.toOrganization(session);
         organizationService.insertSelective(entity);
         OrganizationAddResponse res = new OrganizationAddResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS,entity,request);
         return res;
@@ -100,6 +118,29 @@ public class OrganizationController {
         organizationService.updateByPrimaryKeySelective(entity);
         OrganizationUpdateResponse res = new OrganizationUpdateResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS);
         return res;
+    }
+
+
+    @ApiOperation("部门添加角色")
+    @PostMapping("/addRole")
+    public BaseResponse organizationAddRole(@RequestBody OrganizationRoleAddRequest request){
+        OrganizationRole organizationRole = request.toOrganizationRole();
+        organizationRoleService.insert(organizationRole);
+        return BaseResponse.success();
+    }
+
+    @ApiOperation("部门删除角色")
+    @PostMapping("/deleteRole")
+    public BaseResponse organizationDeleteRole(@RequestBody OrganizationRoleDeleteRequest request){
+        return organizationRoleService.deleteOrganizationRole(request);
+    }
+
+    @ApiOperation("组织角色列表")
+    @GetMapping("/{orgId}/roles")
+    public BaseResponse organizationRoles(@PathVariable Long orgId){
+        List<OrganizationRoleVo> organizationRoleVos = organizationRoleService.organizationRoles(orgId);
+        return BaseResponse.success(organizationRoleVos);
+
     }
 
 

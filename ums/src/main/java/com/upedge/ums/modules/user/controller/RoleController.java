@@ -72,12 +72,9 @@ public class RoleController {
     @ApiOperation("添加角色")
     @RequestMapping(value="/add", method=RequestMethod.POST)
     @Permission(permission = "user:role:add")
-    public RoleAddResponse add(@RequestBody @Valid RoleAddRequest request) {
+    public BaseResponse add(@RequestBody @Valid RoleAddRequest request) {
         Session session = UserUtil.getSession(redisTemplate);
-        Role entity=request.toRole(session);
-        roleService.insertSelective(entity);
-        RoleAddResponse res = new RoleAddResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS,entity,request);
-        return res;
+        return roleService.addRole(request,session);
     }
 
     @RequestMapping(value="/del/{id}", method=RequestMethod.POST)

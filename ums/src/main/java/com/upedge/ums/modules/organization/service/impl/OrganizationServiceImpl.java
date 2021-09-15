@@ -3,8 +3,11 @@ package com.upedge.ums.modules.organization.service.impl;
 import com.upedge.common.base.BaseResponse;
 import com.upedge.common.constant.Constant;
 import com.upedge.common.constant.ResultCode;
+import com.upedge.common.exception.CustomerException;
+import com.upedge.common.model.user.vo.MenuVo;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.web.util.UserUtil;
+import com.upedge.ums.modules.application.entity.Menu;
 import com.upedge.ums.modules.organization.vo.OrganizationTreeVo;
 import org.springframework.beans.BeanUtils;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -61,7 +64,7 @@ public class OrganizationServiceImpl implements OrganizationService {
     }
 
     @Override
-    public BaseResponse organizationTree() {
+    public BaseResponse organizationTree() throws CustomerException {
         Session session = UserUtil.getSession(redisTemplate);
         Page<Organization> organizationPage = new Page<>();
         Organization organization = new Organization();
@@ -113,43 +116,47 @@ public class OrganizationServiceImpl implements OrganizationService {
     }
 
 
-    private BaseResponse tree(List<Organization> organizations)  {
-        List<OrganizationTreeVo> list = new ArrayList<>();
-        BeanUtils.copyProperties(organizations,list);
-        // 初始化结果集
+    private BaseResponse tree(List<Organization> list) throws CustomerException {
+        // 初始化结果
         List<OrganizationTreeVo> result = new ArrayList<OrganizationTreeVo>();
         // 初始化索引
-        Map<Long,OrganizationTreeVo> map = new HashMap<Long,OrganizationTreeVo>();
+        Map<Long, OrganizationTreeVo> map = new HashMap<Long,OrganizationTreeVo>();
         // 死循环阈值
         int maxLoop = (list.size() + 1)*list.size()/2;
         while(list.size() > 0) {
-            OrganizationTreeVo org = list.get(0);
+            Organization organization  = list.get(0);
+            OrganizationTreeVo organizationTreeVo = new OrganizationTreeVo();
+            organizationTreeVo.setChildren(new ArrayList<>());
+            BeanUtils.copyProperties(organization,organizationTreeVo);
             // 一级节点
-            if(org.getOrgParent().longValue() == 0L) {
-                result.add(org);
-                map.put(org.getId(),org);
+            if(organization.getOrgParent().longValue() == 0L) {
+                result.add(organizationTreeVo);
+                map.put(organization.getId(),organizationTreeVo);
                 list.remove(0);
             }
             else {
                 //其他节点
-                if(map.containsKey(org.getOrgParent())) {
+                if(map.containsKey(organization.getOrgParent())) {
                     //父节点地址在map中有记录
-                    OrganizationTreeVo parent = map.get(org.getOrgParent());
-                    parent.getChildren().add(org);
-                    map.put(org.getId(), org);
+                    OrganizationTreeVo parent = map.get(organization.getOrgParent());
+                    parent.getChildren().add(organizationTreeVo);
+                    map.put(organization.getId(), organizationTreeVo);
                     list.remove(0);
                 }
                 else {
                     // 如果没有找到父节点就将其移动到队列的末尾
                     list.remove(0);
-                    list.add(org);
+                    list.add(organization);
                 }
             }
             if(maxLoop-- < 0) {
                 //当循环到此时，说明有孤立节点，终止循环
-                return new BaseResponse(ResultCode.FAIL_CODE,Constant.MESSAGE_FAIL);
+                throw new CustomerException(ResultCode.FAIL_CODE, Constant.MESSAGE_FAIL);
             }
         }
         return new BaseResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS,result);
+
+
+
     }
 }

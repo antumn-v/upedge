@@ -9,6 +9,9 @@ import java.util.List;
  */
 public interface UserRoleService{
 
+
+    List<Long> selectUserIdByRoleId(Long roleId);
+
     UserRole selectByPrimaryKey(Long userId);
 
     int deleteByPrimaryKey(Long userId);

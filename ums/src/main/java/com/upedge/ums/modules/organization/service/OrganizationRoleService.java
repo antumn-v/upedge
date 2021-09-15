@@ -1,7 +1,12 @@
 package com.upedge.ums.modules.organization.service;
 
+import com.upedge.common.base.BaseResponse;
+import com.upedge.common.model.user.vo.RoleVo;
 import com.upedge.ums.modules.organization.entity.OrganizationRole;
 import com.upedge.common.base.Page;
+import com.upedge.ums.modules.organization.request.OrganizationRoleDeleteRequest;
+import com.upedge.ums.modules.organization.vo.OrganizationRoleVo;
+
 import java.util.List;
 
 /**
@@ -9,7 +14,11 @@ import java.util.List;
  */
 public interface OrganizationRoleService{
 
+    List<OrganizationRoleVo> organizationRoles(Long orgId);
+
     OrganizationRole selectByPrimaryKey(Long orgId);
+
+    BaseResponse deleteOrganizationRole(OrganizationRoleDeleteRequest request);
 
     int deleteByPrimaryKey(Long orgId);
 

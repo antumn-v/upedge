@@ -1,6 +1,7 @@
 package com.upedge.ums.modules.organization.service;
 
 import com.upedge.common.base.BaseResponse;
+import com.upedge.common.exception.CustomerException;
 import com.upedge.ums.modules.organization.entity.Organization;
 import com.upedge.common.base.Page;
 import java.util.List;
@@ -10,7 +11,7 @@ import java.util.List;
  */
 public interface OrganizationService{
 
-    BaseResponse organizationTree();
+    BaseResponse organizationTree() throws CustomerException;
 
     Organization selectByPrimaryKey(Long id);
 

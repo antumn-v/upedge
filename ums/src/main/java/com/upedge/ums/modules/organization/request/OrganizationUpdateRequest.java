@@ -40,7 +40,7 @@ public class OrganizationUpdateRequest{
         organization.setCustomerId(customerId);
         organization.setOrgPath(orgPath);
         organization.setOrgName(orgName);
-        organization.setOrgParent(orgParent);
+//        organization.setOrgParent(orgParent);
         organization.setCreateTime(createTime);
         organization.setUpdateTime(updateTime);
         return organization;

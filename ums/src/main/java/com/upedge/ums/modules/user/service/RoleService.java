@@ -16,6 +16,8 @@ import java.util.List;
  */
 public interface RoleService{
 
+
+
     RoleVo selectRoleInfo(Long roleId);
 
     BaseResponse addRole(RoleAddRequest request, Session session);

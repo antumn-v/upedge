@@ -25,6 +25,11 @@
         delete from organization_role
         where org_id = #{orgId}
     </delete>
+    <delete id="delectOrganizationRole">
+        delete from organization_role
+        where org_id = #{orgId}
+        and role_id = #{roleId}
+    </delete>
 
     <update id="updateByPrimaryKeySelective" parameterType="com.upedge.ums.modules.organization.entity.OrganizationRole">
         update organization_role
@@ -145,6 +150,7 @@
         from organization_role
         <include refid="Query_Condition"/>
     </select>
+
 
 
 </mapper>

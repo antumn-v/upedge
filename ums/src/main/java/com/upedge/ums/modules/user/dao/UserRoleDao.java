@@ -10,6 +10,8 @@ import com.upedge.common.base.Page;
  */
 public interface UserRoleDao{
 
+    List<Long> selectUserIdByRoleId(Long roleId);
+
     UserRole selectByPrimaryKey(UserRole record);
 
     int deleteByPrimaryKey(UserRole record);

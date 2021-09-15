@@ -69,15 +69,13 @@ public class UserInfoUpdateRequest{
     public UserInfo toUserInfo(Long id){
         UserInfo userInfo=new UserInfo();
         userInfo.setId(id);
-        userInfo.setCustomerId(customerId);
         userInfo.setOrgId(orgId);
         userInfo.setUsername(username);
         userInfo.setAvatar(avatar);
         userInfo.setMobile(mobile);
         userInfo.setEmail(email);
         userInfo.setCountry(country);
-        userInfo.setCreateTime(createTime);
-        userInfo.setUpdateTime(updateTime);
+        userInfo.setUpdateTime(new Date());
         userInfo.setWhatsapp(whatsapp);
         userInfo.setWechat(wechat);
         userInfo.setFbInfo(fbInfo);

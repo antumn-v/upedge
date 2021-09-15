@@ -83,6 +83,9 @@ public class MenuAddRequest{
         menu.setSeq(seq);
         menu.setUpdateTime(updateTime);
         menu.setCreateTime(createTime);
+        if(menuType == null){
+            menuType = 1;
+        }
         menu.setMenuType(menuType);
         menu.setMenuGroup(menuGroup);
         menu.setPermissionName(permissionName);

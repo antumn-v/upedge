@@ -127,6 +127,11 @@
         from user_role
         <include refid="Query_Condition"/>
     </select>
+    <select id="selectUserIdByRoleId" resultType="java.lang.Long">
+        select user_id
+        from user_role
+        where role_id = #{roleId}
+    </select>
 
 
 </mapper>
