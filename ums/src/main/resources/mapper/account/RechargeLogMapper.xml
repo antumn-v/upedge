@@ -1,0 +1,247 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.upedge.ums.modules.account.dao.RechargeLogMapper">
+    <resultMap id="BaseResultMap" type="com.upedge.ums.modules.account.entity.RechargeLog">
+        <id column="id" property="id" jdbcType="BIGINT"/>
+        <result column="account_id" property="accountId" jdbcType="INTEGER"/>
+        <result column="relate_id" property="relateId" jdbcType="INTEGER"/>
+        <result column="amount" property="amount" jdbcType="DECIMAL"/>
+        <result column="rebate" property="rebate" jdbcType="DECIMAL"/>
+        <result column="payed" property="payed" jdbcType="DECIMAL"/>
+        <result column="recharge_status" property="rechargeStatus" jdbcType="INTEGER"/>
+        <result column="recharge_type" property="rechargeType" jdbcType="INTEGER"/>
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
+        <result column="update_time" property="updateTime" jdbcType="TIMESTAMP"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+    id, account_id, relate_id, amount, rebate, payed, recharge_status,recharge_type,create_time, update_time
+  </sql>
+
+    <sql id="Query_Conditions">
+        <where>
+            <if test="customerId != null">
+                and a.customer_id = #{customerId}
+            </if>
+            <if test="t != null">
+                <if test="t.id != null">
+                    and l.id = #{t.id}
+                </if>
+                <if test="t.accountId != null">
+                    and l.account_id = #{t.accountId}
+                </if>
+                <if test="t.relateId != null">
+                    and l.relate_id = #{t.relateId}
+                </if>
+                <if test="t.rechargeStatus != null">
+                    and l.recharge_status = #{t.rechargeStatus}
+                </if>
+                <if test="t.rechargeStatus != null">
+                    and l.recharge_type = #{t.rechargeType}
+                </if>
+            </if>
+            <if test="condition != null">
+                and ${condition}
+            </if>
+        </where>
+    </sql>
+
+    <select id="selectUndoneRecordByAccount" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from recharge_log
+        where account_id = #{accountId}
+        and recharge_status &lt; '2'
+        order by create_time asc
+    </select>
+
+    <select id="selectRechargeList" resultMap="BaseResultMap"
+            parameterType="com.upedge.ums.modules.account.request.RechargeListRequest">
+        select
+        l.id, l.account_id, l.relate_id,
+        l.amount, l.rebate, l.payed,
+        l.recharge_status, l.create_time, l.update_time
+        from recharge_log l
+        inner join account a
+        on a.id = l.account_id
+        <include refid="Query_Conditions"/>
+        <if test="condition != null">
+            and ${condition}
+        </if>
+        order by l.create_time asc
+        <if test="pageNum != null and pageSize != null">
+            limit #{fromNum},#{pageSize}
+        </if>
+    </select>
+
+    <select id="getRechargeCount" resultType="java.lang.Long" parameterType="com.upedge.common.base.Page">
+        select count(l.id)
+        from recharge_log l
+        <include refid="Query_Conditions"/>
+    </select>
+
+    <update id="revokeRecharge">
+    update recharge_log
+    set recharge_status = '3'
+    where id = #{id}
+    and recharge_status &lt; 2
+  </update>
+
+
+    <!--  ********************************************-->
+
+    <select id="selectByPrimaryKey" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from recharge_log
+        where id = #{id,jdbcType=INTEGER}
+    </select>
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from recharge_log
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+    <insert id="insert" parameterType="com.upedge.ums.modules.account.entity.RechargeLog" useGeneratedKeys="true"
+            keyProperty="id">
+    insert into recharge_log (id, account_id, relate_id,
+      amount, rebate, payed,recharge_type,
+      recharge_status, create_time, update_time
+      )
+    values (#{id,jdbcType=BIGINT}, #{accountId,jdbcType=BIGINT}, #{relateId,jdbcType=INTEGER},
+      #{amount,jdbcType=DECIMAL}, #{rebate,jdbcType=DECIMAL}, #{payed,jdbcType=DECIMAL},
+      #{rechargeType},
+      #{rechargeStatus}, #{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP}
+      )
+  </insert>
+    <insert id="insertSelective" parameterType="com.upedge.ums.modules.account.entity.RechargeLog">
+        insert into recharge_log
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="accountId != null">
+                account_id,
+            </if>
+            <if test="relateId != null">
+                relate_id,
+            </if>
+            <if test="amount != null">
+                amount,
+            </if>
+            <if test="rebate != null">
+                rebate,
+            </if>
+            <if test="payed != null">
+                payed,
+            </if>
+            <if test="rechargeStatus != null">
+                recharge_status,
+            </if>
+            <if test="createTime != null">
+                create_time,
+            </if>
+            <if test="updateTime != null">
+                update_time,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id,jdbcType=BIGINT},
+            </if>
+            <if test="accountId != null">
+                #{accountId,jdbcType=INTEGER},
+            </if>
+            <if test="relateId != null">
+                #{relateId,jdbcType=INTEGER},
+            </if>
+            <if test="amount != null">
+                #{amount,jdbcType=DECIMAL},
+            </if>
+            <if test="rebate != null">
+                #{rebate,jdbcType=DECIMAL},
+            </if>
+            <if test="payed != null">
+                #{payed,jdbcType=DECIMAL},
+            </if>
+            <if test="rechargeStatus != null">
+                #{rechargeStatus,jdbcType=INTEGER},
+            </if>
+            <if test="createTime != null">
+                #{createTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="updateTime != null">
+                #{updateTime,jdbcType=TIMESTAMP},
+            </if>
+        </trim>
+    </insert>
+    <update id="updateByPrimaryKeySelective" parameterType="com.upedge.ums.modules.account.entity.RechargeLog">
+        update recharge_log
+        <set>
+            <if test="accountId != null">
+                account_id = #{accountId,jdbcType=INTEGER},
+            </if>
+            <if test="relateId != null">
+                relate_id = #{relateId,jdbcType=INTEGER},
+            </if>
+            <if test="amount != null">
+                amount = #{amount,jdbcType=DECIMAL},
+            </if>
+            <if test="rebate != null">
+                rebate = #{rebate,jdbcType=DECIMAL},
+            </if>
+            <if test="payed != null">
+                payed = #{payed,jdbcType=DECIMAL},
+            </if>
+            <if test="rechargeStatus != null">
+                recharge_status = #{rechargeStatus,jdbcType=INTEGER},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="updateTime != null">
+                update_time = #{updateTime,jdbcType=TIMESTAMP},
+            </if>
+        </set>
+        where id = #{id,jdbcType=BIGINT}
+    </update>
+
+    <update id="updateByPrimaryKey" parameterType="com.upedge.ums.modules.account.entity.RechargeLog">
+    update recharge_log
+    set account_id = #{accountId,jdbcType=INTEGER},
+      relate_id = #{relateId,jdbcType=INTEGER},
+      amount = #{amount,jdbcType=DECIMAL},
+      rebate = #{rebate,jdbcType=DECIMAL},
+      payed = #{payed,jdbcType=DECIMAL},
+      recharge_status = #{rechargeStatus,jdbcType=INTEGER},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      update_time = #{updateTime,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+
+    <update id="updateByBatch" parameterType="java.util.List">
+        <foreach collection="rechargeLogs" item="log" separator=";">
+            update recharge_log
+            set
+            amount = #{log.amount,jdbcType=DECIMAL},
+            rebate = #{log.rebate,jdbcType=DECIMAL},
+            payed = #{log.payed,jdbcType=DECIMAL},
+            recharge_status = #{log.rechargeStatus,jdbcType=INTEGER},
+            update_time = #{log.updateTime,jdbcType=TIMESTAMP}
+            where id = #{log.id,jdbcType=BIGINT}
+        </foreach>
+
+    </update>
+
+    <update id="updateByMap" parameterType="java.util.Map">
+        <foreach collection="rechargeLogMap" index="id" item="log" separator=";">
+            update recharge_log
+            set
+            amount = #{log.amount,jdbcType=DECIMAL},
+            rebate = #{log.rebate,jdbcType=DECIMAL},
+            payed = #{log.payed,jdbcType=DECIMAL},
+            recharge_status = #{log.rechargeStatus,jdbcType=INTEGER},
+            update_time = #{log.updateTime,jdbcType=TIMESTAMP}
+            where id = #{log.id,jdbcType=BIGINT}
+        </foreach>
+
+    </update>
+
+</mapper>

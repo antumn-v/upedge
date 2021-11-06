@@ -1,11 +1,12 @@
 package com.upedge.ums.modules.store.entity;
 
-import java.io.Serializable;
-import java.util.Date;
 import lombok.Data;
 
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+
 /**
- * @author gx
+ * @author author
  */
 @Data
 public class StoreSetting{
@@ -17,14 +18,17 @@ public class StoreSetting{
 	/**
 	 * 
 	 */
+	@NotNull
     private Long storeId;
 	/**
 	 * 
 	 */
+	@NotBlank
     private String settingName;
 	/**
 	 * 
 	 */
+	@NotBlank
     private String settingValue;
 
 }

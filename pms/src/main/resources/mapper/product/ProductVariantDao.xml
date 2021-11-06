@@ -24,9 +24,91 @@
         <result property="height" column="height"/>
     </resultMap>
 
+    <resultMap type="com.upedge.pms.modules.product.vo.SaiheSkuVo" id="SaiheSkuVo">
+        <result property="cateType" column="cateType"/>
+        <result property="customerSku" column="customerSku"/>
+        <result property="parentSku" column="parentSku"/>
+        <result property="productId" column="productId"/>
+        <result property="weight" column="weight"/>
+        <result property="netWeight" column="netWeight"/>
+        <result property="grossWeight" column="grossWeight"/>
+        <result property="perProductPackWeight" column="perProductPackWeight"/>
+        <result property="supplierName" column="supplierName"/>
+        <result property="purchaseLink" column="purchaseLink"/>
+        <result property="productEntryEnName" column="productEntryEnName"/>
+        <result property="productEntryCnName" column="productEntryCnName"/>
+        <result property="entryPrice" column="entryPrice"/>
+        <result property="supplyPrice" column="supplyPrice"/>
+        <result property="mainImage" column="mainImage"/>
+        <result property="developUser" column="developUser"/>
+        <result property="chargeUser" column="chargeUser"/>
+        <result property="editorUser" column="editorUser"/>
+        <result property="imageHandleUser" column="imageHandleUser"/>
+        <result property="purchaseUser" column="purchaseUser"/>
+        <result property="supplierCode" column="supplierCode"/>
+        <result property="wareHouseId" column="wareHouseId"/>
+        <result property="shippingAttribute" column="shippingAttribute"/>
+        <result property="userId" column="userId"/>
+        <result property="shippingId" column="shippingId"/>
+
+        <collection property="attrList" ofType="com.upedge.pms.modules.product.vo.SaiheSkuAttrVo">
+            <result property="variantAttrCvalue" column="variantAttrCvalue"/>
+            <result property="variantAttrEvalue" column="variantAttrEvalue"/>
+            <result property="seq" column="seq"/>
+        </collection>
+    </resultMap>
     <sql id="Base_Column_List">
         `id`,`original_variant_id`,`product_id`,`variant_sku`,`variant_image`,`variant_price`,`usd_price`,`inventory`,`weight`,`state`,`volume_weight`,`variant_type`,`cn_name`,`en_name`,`length`,`width`,`height`
     </sql>
+
+
+    <select id="listSaiheSkuVo" resultMap="SaiheSkuVo">
+        select
+        p.cate_type as cateType,
+        v.variant_sku as customerSku,
+        p.product_sku as parentSku,
+        v.product_id as productId,
+        p.shipping_id as shippingId,
+        p.user_id as userId,
+        v.weight as weight,
+        v.weight as netWeight,
+        v.weight as grossWeight,
+        v.weight as perProductPackWeight,
+        s.supplier_name as supplierName,
+        p.product_sku as purchaseLink,
+        IFNULL(a.entry_ename,c.cate_name) as productEntryEnName,
+        IFNULL(a.entry_cname,cc.cate_name) as productEntryCnName,
+        v.variant_price/6.3 as entryPrice,
+        v.variant_price as supplyPrice,
+        v.variant_image as mainImage,
+        --         jsu.username as developUser,
+        --         jsu.username as chargeUser,
+        --         jsu.username as editorUser,
+        --         jsu.username as imageHandleUser,
+        --         jsu.username as purchaseUser,
+        a.item_no as supplierCode,
+        a.warehouse_id as wareHouseId,
+        --     t.saihe_id as shippingAttribute,
+        p.shipping_id as shippingId,
+        pva.variant_attr_cvalue as variantAttrCvalue,
+        pva.variant_attr_evalue as variantAttrEvalue,
+        pva.seq as seq
+        from product_variant v
+        left join product_attribute a on v.product_id=a.product_id
+        left join product p on v.product_id=p.id
+        left join supplier s on  s.id = p.supplier_id
+        --       left join shipping_template t on p.shipping_id=t.id
+        left join category c on p.category_id=c.id
+        left join ali_cn_category cc on a.ali_cn_category_id=cc.id
+        --       left join user_info jsu on jsu.id=p.user_id
+        left join product_variant_attr pva on pva.variant_id=v.id
+        where v.state=1 and v.product_id in
+        <foreach collection="ids" index="index" item="item"
+                 separator="," open="(" close=")">
+            #{item}
+        </foreach>
+    </select>
+
 
     <select id="selectByPrimaryKey" parameterType="com.upedge.pms.modules.product.entity.ProductVariant" resultMap="BaseResultMap">
         select
@@ -401,6 +483,18 @@
         select <include refid="Base_Column_List"/>
         from product_variant
         where product_id = #{productId}
+    </select>
+    <select id="selectVariantPriceRange" resultType="java.util.Map">
+        select min(variant_price) as minPrice,
+        max(variant_price) as maxPrice
+        from product_variant
+        where product_id = #{productId}
+        and state = '1'
+    </select>
+    <select id="selectBySku" resultType="com.upedge.pms.modules.product.entity.ProductVariant">
+        select <include refid="Base_Column_List"/>
+        from product_variant
+        where variant_sku = #{sku}
     </select>
 
 

@@ -1,0 +1,227 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.upedge.ums.modules.account.dao.AccountPayMethodMapper" >
+  <resultMap id="BaseResultMap" type="com.upedge.ums.modules.account.entity.AccountPayMethod" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="account_id" property="accountId" jdbcType="INTEGER" />
+    <result column="paymethod_id" property="paymethodId" jdbcType="INTEGER" />
+    <result column="bank_num" property="bankNum" jdbcType="VARCHAR" />
+    <result column="isdefault" property="isdefault" jdbcType="INTEGER" />
+    <result column="autopay" property="autopay" jdbcType="INTEGER" />
+    <result column="status" property="status" jdbcType="INTEGER" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="update_time" property="updateTime" jdbcType="TIMESTAMP" />
+  </resultMap>
+
+  <resultMap id="AccountPayMethodDetail" type="com.upedge.ums.modules.account.entity.AccountPayMethod" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="account_id" property="accountId" jdbcType="INTEGER" />
+    <result column="paymethod_id" property="paymethodId" jdbcType="INTEGER" />
+    <result column="bank_num" property="bankNum" jdbcType="VARCHAR" />
+    <result column="isdefault" property="isdefault" jdbcType="INTEGER" />
+    <result column="autopay" property="autopay" jdbcType="INTEGER" />
+    <result column="status" property="status" jdbcType="INTEGER" />
+    <result column="route_type" property="routeType" jdbcType="INTEGER" />
+    <result column="route_name" property="routeName" jdbcType="VARCHAR" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="update_time" property="updateTime" jdbcType="TIMESTAMP" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, account_id, paymethod_id, bank_num, isdefault, autopay, status, create_time,
+    update_time
+  </sql>
+
+  <select id="selectByAccountIdAndPaymethodId" resultMap="BaseResultMap">
+    select <include refid="Base_Column_List"/>
+    from account_paymethod
+    where account_id = #{accountId}
+    and paymethod_id = #{methodId}
+  </select>
+
+  <select id="selectByAccountIdAndBankNum" resultMap="BaseResultMap">
+    select <include refid="Base_Column_List"/>
+    from account_paymethod
+    where account_id = #{accountId}
+    and bank_num = #{bankNum}
+  </select>
+
+  <select id="selectByAccount" resultMap="BaseResultMap">
+    select <include refid="Base_Column_List"/>
+    from account_paymethod
+    where account_id = #{accountId}
+  </select>
+
+  <select id="selectPayMethodDetailByAccountId" resultMap="AccountPayMethodDetail">
+    select a.id, account_id, paymethod_id, bank_num, isdefault, autopay, a.status, create_time,
+    update_time,route_type,route_name
+    from account_paymethod a
+    left join paymethod p
+    on a.paymethod_id = p.id
+    where a.account_id = #{accountId}
+    <if test="r != null">
+      <if test="r.status  != null">
+        and a.status = #{r.status}
+      </if>
+      <if test="r.routeType != null">
+        and route_type = #{r.routeType}
+      </if>
+      <if test="r.routeName != null">
+        and route_name = #{r.routeName}
+      </if>
+      <if test="r.bankNum != null">
+        and bank_num = #{r.bankNum}
+      </if>
+    </if>
+  </select>
+
+  <update id="updateOtherPayMethodUnDefault">
+    update account_paymethod
+    set isdefault = '0'
+    where account_id = #{accountId}
+    and id != #{id}
+  </update>
+
+
+  <update id="disableAccountPayMethod">
+    update account_paymethod
+    set status = '0'
+    where paymethod_id = #{paymethodId}
+  </update>
+
+  <update id="enableAccountPayMethod">
+    update account_paymethod
+    set status = '1'
+    where paymethod_id = #{paymethodId}
+  </update>
+
+  <delete id="removePayMethodByAccountId">
+    delete
+    from account_paymethod
+    where account_id = #{accountId}
+    and paymethod_id = #{methodId}
+  </delete>
+
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from account_paymethod
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from account_paymethod
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.upedge.ums.modules.account.entity.AccountPayMethod" useGeneratedKeys="true" keyProperty="id" >
+    insert into account_paymethod (account_id, paymethod_id,
+      bank_num, isdefault, autopay, 
+      status, create_time, update_time
+      )
+    values ( #{accountId}, #{paymethodId},
+      #{bankNum,jdbcType=VARCHAR}, #{isdefault,jdbcType=INTEGER}, #{autopay,jdbcType=INTEGER}, 
+      #{status,jdbcType=INTEGER}, #{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.upedge.ums.modules.account.entity.AccountPayMethod" >
+    insert into account_paymethod
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="accountId != null" >
+        account_id,
+      </if>
+      <if test="paymethodId != null" >
+        paymethod_id,
+      </if>
+      <if test="bankNum != null" >
+        bank_num,
+      </if>
+      <if test="isdefault != null" >
+        isdefault,
+      </if>
+      <if test="autopay != null" >
+        autopay,
+      </if>
+      <if test="status != null" >
+        status,
+      </if>
+      <if test="createTime != null" >
+        create_time,
+      </if>
+      <if test="updateTime != null" >
+        update_time,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="accountId != null" >
+        #{accountId,jdbcType=INTEGER},
+      </if>
+      <if test="paymethodId != null" >
+        #{paymethodId,jdbcType=INTEGER},
+      </if>
+      <if test="bankNum != null" >
+        #{bankNum,jdbcType=VARCHAR},
+      </if>
+      <if test="isdefault != null" >
+        #{isdefault,jdbcType=INTEGER},
+      </if>
+      <if test="autopay != null" >
+        #{autopay,jdbcType=INTEGER},
+      </if>
+      <if test="status != null" >
+        #{status,jdbcType=INTEGER},
+      </if>
+      <if test="createTime != null" >
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null" >
+        #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.upedge.ums.modules.account.entity.AccountPayMethod" >
+    update account_paymethod
+    <set >
+      <if test="accountId != null" >
+        account_id = #{accountId,jdbcType=INTEGER},
+      </if>
+      <if test="paymethodId != null" >
+        paymethod_id = #{paymethodId,jdbcType=INTEGER},
+      </if>
+      <if test="bankNum != null" >
+        bank_num = #{bankNum,jdbcType=VARCHAR},
+      </if>
+      <if test="isdefault != null" >
+        isdefault = #{isdefault,jdbcType=INTEGER},
+      </if>
+      <if test="autopay != null" >
+        autopay = #{autopay,jdbcType=INTEGER},
+      </if>
+      <if test="status != null" >
+        status = #{status,jdbcType=INTEGER},
+      </if>
+      <if test="createTime != null" >
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null" >
+        update_time = #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.upedge.ums.modules.account.entity.AccountPayMethod" >
+    update account_paymethod
+    set account_id = #{accountId,jdbcType=INTEGER},
+      paymethod_id = #{paymethodId,jdbcType=INTEGER},
+      bank_num = #{bankNum,jdbcType=VARCHAR},
+      isdefault = #{isdefault,jdbcType=INTEGER},
+      autopay = #{autopay,jdbcType=INTEGER},
+      status = #{status,jdbcType=INTEGER},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      update_time = #{updateTime,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>

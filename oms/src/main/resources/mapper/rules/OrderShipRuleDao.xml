@@ -1,0 +1,396 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.upedge.oms.modules.rules.dao.OrderShipRuleDao">
+
+    <!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.upedge.oms.modules.rules.entity.OrderShipRule" id="BaseResultMap">
+        <result property="id" column="id"/>
+        <result property="customerId" column="customer_id"/>
+        <result property="title" column="title"/>
+        <result property="orderAmountMin" column="order_amount_min"/>
+        <result property="orderAmountMax" column="order_amount_max"/>
+        <result property="freightMin" column="freight_min"/>
+        <result property="freightMax" column="freight_max"/>
+        <result property="state" column="state"/>
+        <result property="shippingMethodId" column="shipping_method_id"/>
+        <result property="shippingMethodName" column="shipping_method_name"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="sequence" column="sequence"/>
+    </resultMap>
+
+    <resultMap type="com.upedge.oms.modules.rules.vo.OrderShipRuleVo" id="OrderShipRuleVo">
+        <result property="id" column="id"/>
+        <result property="customerId" column="customer_id"/>
+        <result property="title" column="title"/>
+        <result property="orderAmountMin" column="order_amount_min"/>
+        <result property="orderAmountMax" column="order_amount_max"/>
+        <result property="freightMin" column="freight_min"/>
+        <result property="freightMax" column="freight_max"/>
+        <result property="state" column="state"/>
+        <result property="shippingMethodId" column="shipping_method_id"/>
+        <result property="shippingMethodName" column="shipping_method_name"/>
+        <result property="sequence" column="sequence"/>
+        <collection property="countries" ofType="com.upedge.oms.modules.rules.vo.OrderShipRuleCountryVo">
+            <result property="countryName" column="country_name"/>
+            <result property="areaId" column="area_id"/>
+        </collection>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        `id`,`customer_id`,`title`,
+        `order_amount_min`,`order_amount_max`,`freight_min`,`freight_max`,
+        `state`,`shipping_method_id`,`shipping_method_name`,`create_time`,`update_time`,`sequence`
+    </sql>
+
+    <select id="selectByCondition" resultMap="BaseResultMap"
+            parameterType="com.upedge.oms.modules.rules.dto.ShipRuleConditionDto">
+        select
+        r.`id`,r.`customer_id`,`title`,
+        `order_amount_min`,`order_amount_max`,`freight_min`,`freight_max`,
+        `state`,`shipping_method_id`,`shipping_method_name`,`sequence`
+        from order_ship_rule r
+        inner join order_ship_rule_country o
+        on r.id = o.ship_rule_id
+        where r.customer_id = #{customerId}
+        and o.area_id = #{areaId}
+        and state != '2'
+        and #{amount} between r.order_amount_min and r.order_amount_max
+        and #{freight} between r.freight_min and r.freight_max
+        order by r.sequence asc
+    </select>
+
+    <select id="selectShipRuleById" resultMap="OrderShipRuleVo">
+        select
+        r.`id`,`customer_id`,`title`,
+        `order_amount_min`,`order_amount_max`,`freight_min`,`freight_max`,
+        `state`,`shipping_method_id`,`shipping_method_name`,`sequence`,
+        o.country_name,o.area_id
+        from order_ship_rule r
+        inner join order_ship_rule_country o
+        on r.id = o.ship_rule_id
+        where r.id = #{id}
+    </select>
+
+    <select id="selectCustomerShipRules" resultMap="OrderShipRuleVo">
+        select
+        r.`id`,r.`customer_id`,`title`,
+        `order_amount_min`,`order_amount_max`,`freight_min`,`freight_max`,
+        `state`,`shipping_method_id`,`shipping_method_name`,`sequence`,
+        o.country_name,o.area_id
+        from order_ship_rule r
+        inner join order_ship_rule_country o
+        on r.id = o.ship_rule_id
+        where r.customer_id = #{customerId}
+        and state != '2'
+        order by create_time desc,sequence asc
+    </select>
+
+    <select id="selectByPrimaryKey" parameterType="com.upedge.oms.modules.rules.entity.OrderShipRule"
+            resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from order_ship_rule
+        where id = #{id}
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="com.upedge.oms.modules.rules.entity.OrderShipRule">
+        delete from order_ship_rule
+        where id = #{id}
+    </delete>
+
+    <update id="updateByPrimaryKeySelective" parameterType="com.upedge.oms.modules.rules.entity.OrderShipRule">
+        update order_ship_rule
+        <set>
+            <if test="customerId != null">
+                customer_id = #{customerId},
+            </if>
+            <if test="title != null">
+                title = #{title},
+            </if>
+            <if test="orderAmountMin != null">
+                order_amount_min = #{orderAmountMin},
+            </if>
+            <if test="orderAmountMax != null">
+                order_amount_max = #{orderAmountMax},
+            </if>
+            <if test="freightMin != null">
+                freight_min = #{freightMin},
+            </if>
+            <if test="freightMax != null">
+                freight_max = #{freightMax},
+            </if>
+            <if test="state != null">
+                state = #{state},
+            </if>
+            <if test="shippingMethodId != null">
+                shipping_method_id = #{shippingMethodId},
+            </if>
+            <if test="shippingMethodName != null">
+                shipping_method_name = #{shippingMethodName},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime},
+            </if>
+            <if test="updateTime != null">
+                update_time = #{updateTime},
+            </if>
+            <if test="sequence != null">
+                sequence = #{sequence},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <update id="updateByPrimaryKey" parameterType="com.upedge.oms.modules.rules.entity.OrderShipRule">
+        update order_ship_rule
+        <set>
+            id = #{id},
+            customer_id = #{customerId},
+            title = #{title},
+            order_amount_min = #{orderAmountMin},
+            order_amount_max = #{orderAmountMax},
+            freight_min = #{freightMin},
+            freight_max = #{freightMax},
+            state = #{state},
+            shipping_method_id = #{shippingMethodId},
+            shipping_method_name = #{shippingMethodName},
+            create_time = #{createTime},
+            update_time = #{updateTime},
+            sequence = #{sequence},
+        </set>
+        where id = #{id}
+    </update>
+
+    <insert id="insert" keyColumn="id" keyProperty="id"
+            parameterType="com.upedge.oms.modules.rules.entity.OrderShipRule" useGeneratedKeys="true">
+        insert into order_ship_rule
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            id,
+            customer_id,
+            title,
+            order_amount_min,
+            order_amount_max,
+            freight_min,
+            freight_max,
+            state,
+            shipping_method_id,
+            shipping_method_name ,
+            create_time,
+            update_time,
+            sequence
+        </trim>
+        values (
+        #{id},
+        #{customerId},
+        #{title},
+        #{orderAmountMin},
+        #{orderAmountMax},
+        #{freightMin},
+        #{freightMax},
+        #{state},
+        #{shippingMethodId},
+        #{shippingMethodName},
+        #{createTime},
+        #{createTime},
+        #{sequence}
+        )
+    </insert>
+
+    <insert id="insertSelective" keyColumn="id" keyProperty="id"
+            parameterType="com.upedge.oms.modules.rules.entity.OrderShipRule" useGeneratedKeys="true">
+        insert into order_ship_rule
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id
+            </if>
+            <if test="customerId != null">
+                customer_id
+            </if>
+            <if test="title != null">
+                title
+            </if>
+            <if test="orderAmountMin != null">
+                order_amount_min
+            </if>
+            <if test="orderAmountMax != null">
+                order_amount_max
+            </if>
+            <if test="freightMin != null">
+                freight_min
+            </if>
+            <if test="freightMax != null">
+                freight_max
+            </if>
+            <if test="state != null">
+                state
+            </if>
+            <if test="shippingMethodId != null">
+                shipping_method_id
+            </if>
+            <if test="shippingMethodName != null">
+                shipping_method_name
+            </if>
+            <if test="createTime != null">
+                create_time
+            </if>
+            <if test="updateTime != null">
+                update_time
+            </if>
+            <if test="sequence != null">
+                sequence
+            </if>
+
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id}
+            </if>
+            <if test="customerId != null">
+                #{customerId}
+            </if>
+            <if test="title != null">
+                #{title}
+            </if>
+            <if test="orderAmountMin != null">
+                #{orderAmountMin}
+            </if>
+            <if test="orderAmountMax != null">
+                #{orderAmountMax}
+            </if>
+            <if test="freightMin != null">
+                #{freightMin}
+            </if>
+            <if test="freightMax != null">
+                #{freightMax}
+            </if>
+            <if test="state != null">
+                #{state}
+            </if>
+            <if test="shippingMethodId != null">
+                #{shippingMethodId}
+            </if>
+            <if test="shippingMethodName != null">
+                #{shippingMethodName}
+            </if>
+            <if test="createTime != null">
+                #{createTime}
+            </if>
+            <if test="updateTime != null">
+                #{updateTime}
+            </if>
+            <if test="sequence != null">
+                #{sequence}
+            </if>
+
+        </trim>
+    </insert>
+
+    <insert id="insertByBatch" parameterType="java.util.List">
+        insert into order_ship_rule
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            id,
+            customer_id,
+            title,
+            order_amount_min,
+            order_amount_max,
+            freight_min,
+            freight_max,
+            state,
+            shipping_method_id,
+            shipping_method_name,
+            create_time,
+            update_time,
+            sequence
+        </trim>
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+                #{item.id},
+                #{item.customerId},
+                #{item.title},
+                #{item.orderAmountMin},
+                #{item.orderAmountMax},
+                #{item.freightMin},
+                #{item.freightMax},
+                #{item.state},
+                #{item.shippingMethodId},
+                #{item.shippingMethodName},
+                #{item.createTime},
+                #{item.updateTime},
+                #{item.sequence}
+            </trim>
+        </foreach>
+    </insert>
+
+    <sql id="Query_Condition">
+        <if test="t != null">
+            where
+            <trim prefix=" " suffix=" " suffixOverrides=" and ">
+                1 = 1 and
+                <if test="t.id != null">
+                    id = #{t.id} and
+                </if>
+                <if test="t.customerId != null">
+                    customer_id = #{t.customerId} and
+                </if>
+                <if test="t.title != null">
+                    title = #{t.title} and
+                </if>
+                <if test="t.orderAmountMin != null">
+                    order_amount_min = #{t.orderAmountMin} and
+                </if>
+                <if test="t.orderAmountMax != null">
+                    order_amount_max = #{t.orderAmountMax} and
+                </if>
+                <if test="t.freightMin != null">
+                    freight_min = #{t.freightMin} and
+                </if>
+                <if test="t.freightMax != null">
+                    freight_max = #{t.freightMax} and
+                </if>
+                <if test="t.state != null">
+                    state = #{t.state} and
+                </if>
+                <if test="t.shippingMethodId != null">
+                    shipping_method_id = #{t.shippingMethodId} and
+                </if>
+                <if test="shippingMethodName != null">
+                    shipping_method_name = #{shippingMethodName} and
+                </if>
+                <if test="t.createTime != null">
+                    create_time = #{t.createTime} and
+                </if>
+                <if test="t.updateTime != null">
+                    update_time = #{t.updateTime} and
+                </if>
+                <if test="t.sequence != null">
+                    sequence = #{t.sequence} and
+                </if>
+            </trim>
+        </if>
+    </sql>
+
+    <select id="select" parameterType="com.upedge.common.base.Page" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from order_ship_rule
+        <include refid="Query_Condition"/>
+        <if test="orderBy != null">
+            order by ${orderBy}
+        </if>
+        <if test="pageNum != null and pageSize != null">
+            limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+        </if>
+    </select>
+
+    <select id="count" parameterType="com.upedge.common.base.Page" resultType="java.lang.Long">
+        select
+        count(1)
+        from order_ship_rule
+        <include refid="Query_Condition"/>
+    </select>
+
+
+</mapper>

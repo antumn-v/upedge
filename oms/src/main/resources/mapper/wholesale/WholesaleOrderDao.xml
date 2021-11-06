@@ -1,0 +1,1291 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.upedge.oms.modules.wholesale.dao.WholesaleOrderDao">
+
+    <!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.upedge.oms.modules.wholesale.entity.WholesaleOrder" id="BaseResultMap">
+        <result property="id" column="id"/>
+        <result property="customerId" column="customer_id"/>
+        <result property="payAmount" column="pay_amount"/>
+        <result property="shipMethodId" column="ship_method_id"/>
+        <result property="shipPrice" column="ship_price"/>
+        <result property="totalWeight" column="total_weight"/>
+        <result property="productAmount" column="product_amount"/>
+        <result property="vatAmount" column="vat_amount"/>
+        <result property="productDischargeAmount" column="product_discharge_amount"/>
+        <result property="fixFee" column="fix_fee"/>
+        <result property="payMethod" column="pay_method"/>
+        <result property="payTime" column="pay_time"/>
+        <result property="paymentId" column="payment_id"/>
+        <result property="payState" column="pay_state"/>
+        <result property="refundState" column="refund_state"/>
+        <result property="shipState" column="ship_state"/>
+        <result property="toAreaId" column="to_area_id"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="saiheOrderCode" column="saihe_order_code"/>
+        <result property="orderStatus" column="order_status"/>
+        <result property="orderType" column="order_type"/>
+        <result property="managerCode" column="manager_code"/>
+    </resultMap>
+
+    <resultMap type="com.upedge.oms.modules.wholesale.vo.WholesaleOrderAppVo" id="WholesaleOrderAppVo">
+        <result property="id" column="id"/>
+        <result property="customerId" column="customer_id"/>
+        <result property="payAmount" column="pay_amount"/>
+        <result property="shipMethodId" column="ship_method_id"/>
+        <result property="shipPrice" column="ship_price"/>
+        <result property="totalWeight" column="total_weight"/>
+        <result property="productAmount" column="product_amount"/>
+        <result property="vatAmount" column="vat_amount"/>
+        <result property="productDischargeAmount" column="product_discharge_amount"/>
+        <result property="fixFee" column="fix_fee"/>
+        <result property="payMethod" column="pay_method"/>
+        <result property="payTime" column="pay_time"/>
+        <result property="paymentId" column="payment_id"/>
+        <result property="payState" column="pay_state"/>
+        <result property="refundState" column="refund_state"/>
+        <result property="shipState" column="ship_state"/>
+        <result property="toAreaId" column="to_area_id"/>
+        <result property="createTime" column="create_time"/>
+        <result property="orderType" column="order_type"/>
+        <result property="customerOrderNumber" column="customer_order_number"/>
+        <result property="storeName" column="store_name"/>
+        <collection property="itemVos" ofType="com.upedge.oms.modules.wholesale.vo.WholesaleOrderItemVo">
+            <result property="id" column="itemId"/>
+            <result property="adminVariantId" column="adminVariantId"/>
+            <result property="adminProductId" column="adminProductId"/>
+            <result property="adminVariantImg" column="adminVariantImg"/>
+            <result property="usdPrice" column="usdPrice"/>
+            <result property="adminProductTitle" column="adminProductTitle"/>
+            <result property="adminVariantSku" column="adminVariantSku"/>
+            <result property="adminVariantName" column="adminVariantName"/>
+            <result property="adminVariantName" column="adminVariantName"/>
+            <result property="quantity" column="quantity"/>
+            <result property="dischargeQuantity" column="dischargeQuantity"/>
+            <result property="adminVariantWeight" column="admin_variant_weight"/>
+            <result property="adminVariantVolume" column="admin_variant_volume"/>
+        </collection>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        `id`,`customer_id`,`pay_amount`,`ship_method_id`,`ship_price`,`total_weight`,`product_amount`,
+        `vat_amount`,`product_discharge_amount`,`fix_fee`,`pay_method`,`pay_time`,`payment_id`,`pay_state`,`manager_code`,
+        `refund_state`,`ship_state`,`to_area_id`,`create_time`,`update_time`,`saihe_order_code`,`order_status`,`order_type`
+    </sql>
+
+
+
+    <select id="selectOrderTrackingByDate" resultType="com.upedge.oms.modules.wholesale.vo.WholesaleOrderExport">
+        select wo.id as `orderId`,wo.pay_time as `payTime`,
+        wer.customer_order_number as `customerOrderNumber`,wer.store_name as `storeName`,
+        wt.shipping_method_name as `shippingMethod`,wt.tracking_code as `shippingNumber`
+        from wholesale_order wo
+        left join wholesale_excel_record wer
+        on wo.id = wer.wholesale_order_id
+        inner join wholesale_tracking wt
+        on wo.id = wt.order_id
+        where wo.customer_id = #{customerId}
+        and wo.create_time between #{start} and #{end}
+    </select>
+
+    <select id="selectPayAmountByPaymentId" resultType="java.math.BigDecimal">
+        select sum(product_amount + ship_price + vat_amount - product_discharge_amount)
+        from `wholesale_order`
+        where payment_id = #{paymentId};
+    </select>
+
+    <select id="selectOrderAppList" resultMap="WholesaleOrderAppVo"
+            parameterType="com.upedge.oms.modules.order.request.WholesaleOrderAppListRequest">
+        select distinctrow wo.`id`,wo.`customer_id`,wo.`pay_amount`,wo.`ship_method_id`,wo.`ship_price`,wo.`total_weight`,
+        wo.`product_amount`,wo.`vat_amount`,wo.`product_discharge_amount`,wo.`fix_fee`,
+        wo.`pay_method`,wo.`pay_time`,wo.`payment_id`,wo.`pay_state`,
+        wo.`refund_state`,wo.`ship_state`,wo.`create_time`,wo.`order_type`,
+        wer.customer_order_number,wer.store_name
+        from wholesale_order wo
+        left join wholesale_excel_record wer
+        on wo.id = wer.wholesale_order_id
+        <if test="t.productTitle != null">
+            left join wholesale_order_item woi
+            on wo.id = woi.order_id
+        </if>
+        <include refid="App_List_Condition"/>
+        order by wo.create_time desc
+        <if test="fromNum != null and pageSize != null">
+            limit #{fromNum},#{pageSize}
+        </if>
+    </select>
+
+    <select id="selectPayListByPaymentId" resultMap="WholesaleOrderAppVo">
+        select wo.`id`,wo.`customer_id`,wo.`pay_amount`,wo.`ship_method_id`,wo.`ship_price`,wo.`total_weight`,
+        wo.`product_amount`,wo.`vat_amount`,wo.`product_discharge_amount`,wo.`fix_fee`,
+        wo.`pay_method`,wo.`pay_time`,wo.`payment_id`,wo.`pay_state`,wo.to_area_id,
+        wo.`refund_state`,wo.`ship_state`,wo.`create_time`,wo.`order_type`,
+        woi.`id` as itemId,
+        woi.`admin_variant_id` as adminVariantId,
+        woi.`admin_product_id` as adminProductId,
+        woi.`admin_variant_image` as adminVariantImg,
+        woi.`usd_price` as usdPrice,
+        woi.`admin_product_title` as adminProductTitle,
+        woi.`admin_variant_sku` as adminVariantSku,
+        woi.`admin_variant_name` as adminVariantName,
+        woi.`quantity` as quantity,
+        woi.`discharge_quantity` as dischargeQuantity,
+        woi.admin_variant_weight,
+        woi.admin_variant_volume
+        from wholesale_order wo
+        inner join wholesale_order_item woi
+        on wo.id = woi.order_id
+        where wo.payment_id = #{paymentId}
+    </select>
+
+    <select id="selectOrderAppCount" resultType="java.lang.Long"
+            parameterType="com.upedge.oms.modules.order.request.WholesaleOrderAppListRequest">
+        select count(distinct wo.id)
+        from wholesale_order wo
+        <if test="t.productTitle != null">
+            left join wholesale_order_item woi
+            on wo.id = woi.order_id
+        </if>
+        <include refid="App_List_Condition"/>
+    </select>
+
+    <select id="selectTransactionDetailByPaymentId" resultType="com.upedge.common.model.order.TransactionDetail">
+        select id as orderId,'3' as orderType, pay_amount as `amount`,payment_id as payment_id,pay_time as payTime
+        from wholesale_order
+        where payment_id = #{paymentId}
+        and pay_state = '1'
+    </select>
+
+    <sql id="App_List_Condition">
+        <if test="t != null">
+            where
+            <trim prefix=" " suffix=" " suffixOverrides=" and ">
+                wo.customer_id = #{t.customerId} and
+                wo.order_status = '0' and
+                <if test="t.id != null">
+                    wo.id = #{t.id} and
+                </if>
+                <if test="t.payState != null">
+                    wo.pay_state = #{t.payState} and
+                </if>
+                <if test="t.refundState != null">
+                    wo.refund_state = #{t.refundState} and
+                </if>
+                <if test="t.shipState != null">
+                    wo.ship_state = #{t.shipState} and
+                </if>
+                <if test="t.productTitle">
+                    woi.admin_product_title like "%"#{t.productTitle}"%" and
+                </if>
+                <if test="t.beginTime != null and t.endTime != null">
+                    date(wo.create_time) between date(#{t.beginTime}) and date(#{t.endTime}) and
+                </if>
+                <if test="condition != null">
+                    ${condition} and
+                </if>
+            </trim>
+        </if>
+    </sql>
+
+
+    <update id="updateOrderProductAmount">
+        update wholesale_order
+        set product_amount = #{productAmount},
+        cny_product_amount = #{cnyProductAmount}
+        where id = #{id}
+        and pay_state = '0'
+        and order_type != '1'
+    </update>
+
+    <update id="updateVatAmountById">
+        update wholesale_order
+        set vat_amount = #{vatAmount}
+        where id = #{id}
+        and pay_state = '0'
+    </update>
+
+    <update id="updateOrderAsPaid" parameterType="com.upedge.oms.modules.order.dto.OrderTransactionDto">
+        update wholesale_order
+        set pay_state = '1',
+        pay_time = #{payTime},
+        pay_method = #{payMethod},
+        pay_amount = (product_amount + ship_price + vat_amount - product_discharge_amount),
+        fix_fee = round( (#{fixFeePercentage}*pay_amount+'0.3')/ ('1' - #{fixFeePercentage}) ,2)
+        where payment_id = #{paymentId}
+        and pay_state = '2'
+    </update>
+
+    <update id="updatePayStateByPaymentId">
+        update `wholesale_order`
+        set pay_state = #{payState}
+        where payment_id = #{paymentId}
+        and pay_state != '1'
+    </update>
+
+    <update id="updateDischargeAmountByMap">
+        <foreach collection="map" index="id" item="amount" separator=";">
+            update wholesale_order
+            set product_discharge_amount = #{amount}
+            where id = #{id}
+            and pay_state = '0'
+        </foreach>
+    </update>
+
+    <update id="updateOrderShipDetail">
+        update wholesale_order
+        set ship_method_id = #{methodId},
+        ship_price = #{price},
+        total_weight = #{weight}
+        where id = #{id}
+        and pay_state = '0'
+        limit 1
+    </update>
+
+    <update id="updateProductAmountByPaymentId">
+        update `wholesale_order` o
+        inner join
+        (
+        select oo.id as `orderId`,sum(quantity * usd_price) as `productAmount`
+        from wholesale_order_item oi
+        inner join `wholesale_order` oo
+        on oi.order_id = oo.id
+        where oo.payment_id = #{paymentId}
+        and oo.pay_state = '0'
+        group by oi.order_id
+        ) ooo
+        on o.id = ooo.orderId
+        set o.product_amount = ooo.productAmount
+        where o.payment_id = #{paymentId}
+        and o.pay_state = '0'
+        and o.order_type != '2'
+        and o.order_status = '0'
+    </update>
+
+    <update id="updateShipDetailByMap">
+        <foreach collection="map" index="orderId" item="ship" separator=";">
+            update wholesale_order
+            set ship_price = #{ship.price},
+            total_weight = #{ship.weight},
+            ship_method_id = #{ship.methodId}
+            where id = #{orderId}
+            and pay_state = '0'
+        </foreach>
+    </update>
+
+    <update id="updatePayStateById">
+        update wholesale_order
+        set pay_state = #{state}
+        where id = #{id}
+        and pay_state != '1'
+    </update>
+
+    <update id="updateVatAmountByMap">
+        <foreach collection="map" index="orderId" item="vatAmount" separator=";">
+            update wholesale_order
+            set vat_amount = #{vatAmount}
+            where id = #{orderId}
+            and pay_state = '0'
+        </foreach>
+    </update>
+
+    <update id="updatePaymentIdByIds">
+        update wholesale_order
+        set payment_id = #{paymentId}
+        where id in
+        <foreach collection="ids" item="id" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+        and pay_state = '0'
+    </update>
+
+    <update id="updateOrderToAreaId">
+        update wholesale_order
+        set to_area_id = #{areaId}
+        where id = #{id}
+        and pay_state = '0'
+    </update>
+
+    <select id="selectByPrimaryKey" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from wholesale_order
+        where id = #{id}
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="com.upedge.oms.modules.wholesale.entity.WholesaleOrder">
+        delete from wholesale_order
+        where id = #{id}
+    </delete>
+
+    <update id="updateByPrimaryKeySelective" parameterType="com.upedge.oms.modules.wholesale.entity.WholesaleOrder">
+        update wholesale_order
+        <set>
+            <if test="customerId != null">
+                customer_id = #{customerId},
+            </if>
+            <if test="payAmount != null">
+                pay_amount = #{payAmount},
+            </if>
+            <if test="shipMethodId != null">
+                ship_method_id = #{shipMethodId},
+            </if>
+            <if test="shipPrice != null">
+                ship_price = #{shipPrice},
+            </if>
+            <if test="totalWeight != null">
+                total_weight = #{totalWeight},
+            </if>
+            <if test="productAmount != null">
+                product_amount = #{productAmount},
+            </if>
+            <if test="vatAmount != null">
+                vat_amount = #{vatAmount},
+            </if>
+            <if test="productDischargeAmount != null">
+                product_discharge_amount = #{productDischargeAmount},
+            </if>
+            <if test="fixFee != null">
+                fix_fee = #{fixFee},
+            </if>
+            <if test="payMethod != null">
+                pay_method = #{payMethod},
+            </if>
+            <if test="payTime != null">
+                pay_time = #{payTime},
+            </if>
+            <if test="paymentId != null">
+                payment_id = #{paymentId},
+            </if>
+            <if test="payState != null">
+                pay_state = #{payState},
+            </if>
+            <if test="refundState != null">
+                refund_state = #{refundState},
+            </if>
+            <if test="shipState != null">
+                ship_state = #{shipState},
+            </if>
+            <if test="toAreaId != null">
+                to_area_id = #{toAreaId},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime},
+            </if>
+            <if test="updateTime != null">
+                update_time = #{updateTime},
+            </if>
+            <if test="saiheOrderCode != null">
+                saihe_order_code = #{saiheOrderCode},
+            </if>
+            <if test="orderStatus != null">
+                order_status = #{orderStatus},
+            </if>
+            <if test="orderType != null">
+                order_type = #{orderType},
+            </if>
+            <if test="managerCode != null">
+                manager_code = #{managerCode},
+            </if>
+        </set>
+        where id = #{id}
+        and pay_state = '0'
+    </update>
+
+    <update id="updateByPrimaryKey" parameterType="com.upedge.oms.modules.wholesale.entity.WholesaleOrder">
+        update wholesale_order
+        <set>
+            id = #{id},
+            customer_id = #{customerId},
+            pay_amount = #{payAmount},
+            ship_method_id = #{shipMethodId},
+            ship_price = #{shipPrice},
+            total_weight = #{totalWeight},
+            product_amount = #{productAmount},
+            vat_amount = #{vatAmount},
+            product_discharge_amount = #{productDischargeAmount},
+            fix_fee = #{fixFee},
+            pay_method = #{payMethod},
+            pay_time = #{payTime},
+            payment_id = #{paymentId},
+            pay_state = #{payState},
+            refund_state = #{refundState},
+            ship_state = #{shipState},
+            to_area_id = #{toAreaId},
+            create_time = #{createTime},
+            update_time = #{updateTime},
+            saihe_order_code = #{saiheOrderCode},
+            order_status = #{orderStatus},
+            order_type = #{orderType},
+            manager_code = #{managerCode},
+        </set>
+        where id = #{id}
+    </update>
+
+    <insert id="insert" keyColumn="id" keyProperty="id"
+            parameterType="com.upedge.oms.modules.wholesale.entity.WholesaleOrder" useGeneratedKeys="true">
+        insert into wholesale_order
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            id,
+            customer_id,
+            pay_amount,
+            ship_method_id,
+            ship_price,
+            total_weight,
+            product_amount,
+            vat_amount,
+            product_discharge_amount,
+            fix_fee,
+            pay_method,
+            pay_time,
+            payment_id,
+            pay_state,
+            refund_state,
+            ship_state,
+            to_area_id,
+            create_time,
+            update_time,
+            saihe_order_code,
+            order_status,
+            order_type,
+            manager_code
+        </trim>
+        values (
+        #{id},
+        #{customerId},
+        #{payAmount},
+        #{shipMethodId},
+        #{shipPrice},
+        #{totalWeight},
+        #{productAmount},
+        '0',
+        '0',
+        '0',
+        #{payMethod},
+        #{payTime},
+        #{paymentId},
+        '0',
+        '0',
+        '0',
+        #{toAreaId},
+        #{createTime},
+        #{updateTime},
+        #{saiheOrderCode},
+        #{orderStatus},
+        #{orderType},
+        #{managerCode}
+        )
+    </insert>
+
+    <insert id="insertSelective" keyColumn="id" keyProperty="id"
+            parameterType="com.upedge.oms.modules.wholesale.entity.WholesaleOrder" useGeneratedKeys="true">
+        insert into wholesale_order
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id
+            </if>
+            <if test="customerId != null">
+                customer_id
+            </if>
+            <if test="payAmount != null">
+                pay_amount
+            </if>
+            <if test="shipMethodId != null">
+                ship_method_id
+            </if>
+            <if test="shipPrice != null">
+                ship_price
+            </if>
+            <if test="totalWeight != null">
+                total_weight
+            </if>
+            <if test="productAmount != null">
+                product_amount
+            </if>
+            <if test="vatAmount != null">
+                vat_amount
+            </if>
+            <if test="productDischargeAmount != null">
+                product_discharge_amount
+            </if>
+            <if test="fixFee != null">
+                fix_fee
+            </if>
+            <if test="payMethod != null">
+                pay_method
+            </if>
+            <if test="payTime != null">
+                pay_time
+            </if>
+            <if test="paymentId != null">
+                payment_id
+            </if>
+            <if test="payState != null">
+                pay_state
+            </if>
+            <if test="refundState != null">
+                refund_state
+            </if>
+            <if test="shipState != null">
+                ship_state
+            </if>
+            <if test="toAreaId != null">
+                to_area_id
+            </if>
+            <if test="createTime != null">
+                create_time
+            </if>
+            <if test="updateTime != null">
+                update_time
+            </if>
+            <if test="saiheOrderCode != null">
+                saihe_order_code
+            </if>
+            <if test="orderStatus != null">
+                order_status
+            </if>
+            <if test="orderType != null">
+                order_type
+            </if>
+            <if test="managerCode != null">
+                manager_code
+            </if>
+
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id}
+            </if>
+            <if test="customerId != null">
+                #{customerId}
+            </if>
+            <if test="payAmount != null">
+                #{payAmount}
+            </if>
+            <if test="shipMethodId != null">
+                #{shipMethodId}
+            </if>
+            <if test="shipPrice != null">
+                #{shipPrice}
+            </if>
+            <if test="totalWeight != null">
+                #{totalWeight}
+            </if>
+            <if test="productAmount != null">
+                #{productAmount}
+            </if>
+            <if test="vatAmount != null">
+                #{vatAmount}
+            </if>
+            <if test="productDischargeAmount != null">
+                #{productDischargeAmount}
+            </if>
+            <if test="fixFee != null">
+                #{fixFee}
+            </if>
+            <if test="payMethod != null">
+                #{payMethod}
+            </if>
+            <if test="payTime != null">
+                #{payTime}
+            </if>
+            <if test="paymentId != null">
+                #{paymentId}
+            </if>
+            <if test="payState != null">
+                #{payState}
+            </if>
+            <if test="refundState != null">
+                #{refundState}
+            </if>
+            <if test="shipState != null">
+                #{shipState}
+            </if>
+            <if test="toAreaId != null">
+                #{toAreaId}
+            </if>
+            <if test="createTime != null">
+                #{createTime}
+            </if>
+            <if test="updateTime != null">
+                #{updateTime}
+            </if>
+            <if test="saiheOrderCode != null">
+                #{saiheOrderCode}
+            </if>
+            <if test="orderStatus != null">
+                #{orderStatus}
+            </if>
+            <if test="orderType != null">
+                #{orderType}
+            </if>
+            <if test="managerCode != null">
+                #{managerCode}
+            </if>
+
+        </trim>
+    </insert>
+
+    <insert id="insertByBatch" parameterType="java.util.List">
+        insert into wholesale_order
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            id,
+            customer_id,
+            pay_amount,
+            ship_method_id,
+            ship_price,
+            total_weight,
+            product_amount,
+            vat_amount,
+            product_discharge_amount,
+            fix_fee,
+            pay_method,
+            pay_time,
+            payment_id,
+            pay_state,
+            refund_state,
+            ship_state,
+            to_area_id,
+            create_time,
+            update_time,
+            saihe_order_code,
+            order_status,
+            order_type,
+            manager_code
+        </trim>
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+                #{item.id},
+                #{item.customerId},
+                #{item.payAmount},
+                #{item.shipMethodId},
+                #{item.shipPrice},
+                #{item.totalWeight},
+                #{item.productAmount},
+                #{item.vatAmount},
+                #{item.productDischargeAmount},
+                #{item.fixFee},
+                #{item.payMethod},
+                #{item.payTime},
+                #{item.paymentId},
+                #{item.payState},
+                #{item.refundState},
+                #{item.shipState},
+                #{item.toAreaId},
+                #{item.createTime},
+                #{item.updateTime},
+                #{item.saiheOrderCode},
+                #{item.orderStatus},
+                #{item.orderType},
+                #{item.managerCode}
+            </trim>
+        </foreach>
+    </insert>
+
+    <sql id="Query_Condition">
+        <if test="t != null">
+            where
+            <trim prefix=" " suffix=" " suffixOverrides=" and ">
+                1 = 1 and
+                <if test="t.id != null">
+                    id = #{t.id} and
+                </if>
+                <if test="t.customerId != null">
+                    customer_id = #{t.customerId} and
+                </if>
+                <if test="t.payAmount != null">
+                    pay_amount = #{t.payAmount} and
+                </if>
+                <if test="t.shipMethodId != null">
+                    ship_method_id = #{t.shipMethodId} and
+                </if>
+                <if test="t.shipPrice != null">
+                    ship_price = #{t.shipPrice} and
+                </if>
+                <if test="t.totalWeight != null">
+                    total_weight = #{t.totalWeight} and
+                </if>
+                <if test="t.productAmount != null">
+                    product_amount = #{t.productAmount} and
+                </if>
+                <if test="t.vatAmount != null">
+                    vat_amount = #{t.vatAmount} and
+                </if>
+                <if test="t.productDischargeAmount != null">
+                    product_discharge_amount = #{t.productDischargeAmount} and
+                </if>
+                <if test="t.fixFee != null">
+                    fix_fee = #{t.fixFee} and
+                </if>
+                <if test="t.payMethod != null">
+                    pay_method = #{t.payMethod} and
+                </if>
+                <if test="t.payTime != null">
+                    pay_time = #{t.payTime} and
+                </if>
+                <if test="t.paymentId != null">
+                    payment_id = #{t.paymentId} and
+                </if>
+                <if test="t.payState != null">
+                    pay_state = #{t.payState} and
+                </if>
+                <if test="t.refundState != null">
+                    refund_state = #{t.refundState} and
+                </if>
+                <if test="t.shipState != null">
+                    ship_state = #{t.shipState} and
+                </if>
+                <if test="t.toAreaId != null">
+                    to_area_id = #{t.toAreaId} and
+                </if>
+                <if test="t.createTime != null">
+                    create_time = #{t.createTime} and
+                </if>
+                <if test="t.updateTime != null">
+                    update_time = #{t.updateTime} and
+                </if>
+                <if test="t.saiheOrderCode != null">
+                    saihe_order_code = #{t.saiheOrderCode} and
+                </if>
+                <if test="t.orderStatus != null">
+                    order_status = #{t.orderStatus} and
+                </if>
+                <if test="t.orderType != null">
+                    order_type = #{t.orderType} and
+                </if>
+                <if test="t.managerCode != null">
+                    manager_code = #{t.managerCode} and
+                </if>
+                <if test="bagFlag != null and bagFlag == 0">
+                      saihe_order_code  is null  and
+                </if>
+                <if test="bagFlag != null and bagFlag == 1">
+                      saihe_order_code  is not null  and
+                </if>
+            </trim>
+        </if>
+    </sql>
+    <sql id="Query_Condition_page">
+        <if test="t != null">
+            where
+            <trim prefix=" " suffix=" " suffixOverrides=" and ">
+                1 = 1 and
+                <if test="t.id != null">
+                    id = #{t.id} and
+                </if>
+                <if test="t.customerId != null">
+                    customer_id = #{t.customerId} and
+                </if>
+                <if test="t.payAmount != null">
+                    pay_amount = #{t.payAmount} and
+                </if>
+                <if test="t.shipMethodId != null">
+                    ship_method_id = #{t.shipMethodId} and
+                </if>
+                <if test="t.shipPrice != null">
+                    ship_price = #{t.shipPrice} and
+                </if>
+                <if test="t.totalWeight != null">
+                    total_weight = #{t.totalWeight} and
+                </if>
+                <if test="t.productAmount != null">
+                    product_amount = #{t.productAmount} and
+                </if>
+                <if test="t.vatAmount != null">
+                    vat_amount = #{t.vatAmount} and
+                </if>
+                <if test="t.productDischargeAmount != null">
+                    product_discharge_amount = #{t.productDischargeAmount} and
+                </if>
+                <if test="t.fixFee != null">
+                    fix_fee = #{t.fixFee} and
+                </if>
+                <if test="t.payMethod != null">
+                    pay_method = #{t.payMethod} and
+                </if>
+                <if test="t.payTime != null">
+                    pay_time = #{t.payTime} and
+                </if>
+                <if test="t.paymentId != null">
+                    payment_id = #{t.paymentId} and
+                </if>
+                <if test="t.payState != null">
+                    pay_state = #{t.payState} and
+                </if>
+                <if test="t.refundState != null">
+                    refund_state = #{t.refundState} and
+                </if>
+                <if test="t.shipState != null">
+                    ship_state = #{t.shipState} and
+                </if>
+                <if test="t.toAreaId != null">
+                    to_area_id = #{t.toAreaId} and
+                </if>
+                <if test="t.createTime != null">
+                    create_time = #{t.createTime} and
+                </if>
+                <if test="t.updateTime != null">
+                    update_time = #{t.updateTime} and
+                </if>
+                <if test="t.saiheOrderCode != null">
+                    saihe_order_code = #{t.saiheOrderCode} and
+                </if>
+                <if test="t.orderStatus != null">
+                    order_status = #{t.orderStatus} and
+                </if>
+                <if test="t.orderType != null">
+                    order_type = #{t.orderType} and
+                </if>
+                <if test="t.managerCode != null">
+                    manager_code = #{t.managerCode} and
+                </if>
+            </trim>
+        </if>
+    </sql>
+
+    <select id="select" parameterType="com.upedge.common.base.Page" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from wholesale_order
+        <include refid="Query_Condition"/>
+        <if test="boundary != null and boundary!=''">
+            and ${boundary}
+        </if>
+        <if test="orderBy != null and orderBy !=''">
+            order by ${orderBy}
+        </if>
+        <if test="pageNum != null and pageSize != null ">
+            <if test="boundary == null or boundary==''">
+                limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+            </if>
+            <if test="boundary != null and boundary!=''">
+                limit #{pageSize,jdbcType=INTEGER}
+            </if>
+        </if>
+    </select>
+
+    <select id="count" parameterType="com.upedge.common.base.Page" resultType="java.lang.Long">
+        select
+        count(1)
+        from wholesale_order
+        <include refid="Query_Condition"/>
+    </select>
+
+    <select id="existPendingOrderByOriginal" resultType="java.lang.Integer">
+      select count(1) from wholesale_order o
+      left join wholesale_reship_info ori on ori.order_id=o.id
+      where ori.original_order_id=#{originalOrderId} and o.order_status=1 and o.order_type=2
+	</select>
+
+    <select id="existReshipOrderWaitTrackByOriginal" resultType="java.lang.Integer">
+      select count(1) from wholesale_order o
+      left join wholesale_reship_info ori on ori.order_id=o.id
+      where ori.original_order_id=#{originalOrderId}
+      and o.order_status=0 and o.order_type=2 and o.ship_state=0
+    </select>
+
+    <select id="reshipOrderTimesByOriginal" resultType="java.lang.Integer">
+      select count(1) from wholesale_order o
+      left join wholesale_reship_info ori on ori.order_id=o.id
+      where ori.original_order_id=#{originalOrderId} and o.order_status=0 and o.order_type=2
+    </select>
+
+    <update id="updatePendingOrderStatus">
+        update `wholesale_order`
+        set order_status=#{orderStatus}
+        where order_status=1 and id in
+        <foreach collection="ids" index="index" item="item"
+                 separator="," open="(" close=")">
+            #{item}
+        </foreach>
+    </update>
+
+    <update id="updateOrderAsRefunding">
+        update `wholesale_order` set refund_state=1
+        where id=#{id} and refund_state=0 limit 1
+    </update>
+
+    <update id="restoreOrderRefundState">
+        update `wholesale_order` set refund_state=0
+        where id=#{id} and refund_state=1 limit 1
+    </update>
+
+    <update id="updateOrderAsRefund">
+        update `wholesale_order` set refund_state=#{state} where id=#{id} and refund_state=1
+    </update>
+
+    <select id="querySaiheOrder" resultType="com.upedge.thirdparty.saihe.entity.SaiheOrder">
+        select
+        o.order_type as orderType,
+        o.id as clientOrderCode,
+        o.pay_time as payTime,
+        o.customer_id as customerId,
+        o.ship_price as transportPay,
+        o.vat_amount as vatAmount,
+        IFNULL(o.product_amount,0)+IFNULL(o.ship_price,0)+IFNULL(o.vat_amount,0) as totalPrice,
+        o.payment_id as transactionId,
+        od.city as city,
+        od.address1 as address1,
+        od.address2 as address2,
+        od.country as country,
+        od.country_code as countryCode,
+        od.first_name as firstName,
+        od.last_name as lastName,
+        od.email as email,
+        od.phone as phone,
+        od.province as province,
+        od.province_code as provinceCode,
+        od.zip as postalCode,
+        o.ship_method_id as shipMethodId
+        from `wholesale_order` o
+        left join wholesale_order_address od on o.id=od.order_id
+        where o.pay_state=1 and o.ship_state=0 and o.refund_state=0
+        and o.order_status=0
+        and o.saihe_order_code is NULL
+        and o.id=#{id}
+    </select>
+
+    <update id="updateSaiheOrderCode" >
+        update `wholesale_order` set saihe_order_code=#{orderCode}
+        where id=#{id}
+	</update>
+
+    <select id="wholesaleHandleImportData" resultType="java.lang.Long">
+        select count(1) from wholesale_order o
+        where o.pay_state=1 and o.ship_state=0 and o.refund_state=0
+        and o.order_status=0
+        and o.saihe_order_code is NULL
+        <if test="userManager != null and userManager !=''" >
+            and o.manager_code=#{userManager}
+        </if>
+    </select>
+
+    <select id="wholesaleHandleReshipData" resultType="java.lang.Long">
+        select count(1) from wholesale_order o
+        where o.pay_state=1 and o.ship_state=0 and o.refund_state=0
+        and o.order_status=1
+        <if test="userManager != null and userManager !=''" >
+            and o.manager_code=#{userManager}
+        </if>
+    </select>
+
+    <update id="delOrderShipInfoByProductId">
+        update `wholesale_order` set ship_method_id = null  ,  ship_price = 0
+         where id  in
+       (select a.order_id   from   (select order_id from  `wholesale_order_item` WHERE  admin_product_id = #{productId} ) a)
+    </update>
+    <update id="delOrderShipInfoByVariantId">
+        update `wholesale_order` set ship_method_id = null  ,  ship_price = 0
+         where id  in
+        (select a.order_id from  (select order_id from  `wholesale_order_item` WHERE  admin_variant_id = #{variantId} ) a)
+    </update>
+
+
+    <update id="updateOrderAsTracked">
+        update `wholesale_order` set ship_state=1
+        where id=#{id} and ship_state=0 limit 1
+    </update>
+    <update id="updateOrderShipMethod">
+       update `wholesale_order` set ship_method_id = null  ,  ship_price = 0  where id=#{id}
+    </update>
+    <update id="updateShipDetailById">
+         update `wholesale_order`
+        set ship_price = #{ship.price},
+        total_weight = #{ship.weight},
+        ship_method_id = #{ship.methodId}
+        where id = #{id}
+        and pay_state = '0'
+    </update>
+
+    <select id="wholesaleOrderPaidTotalNum" resultType="java.lang.Long">
+        select count(1) from `wholesale_order` o
+        where pay_state=1 and refund_state=0 and customer_id=#{customerId}
+    </select>
+
+    <select id="wholesaleOrderPaidAmount" resultType="java.math.BigDecimal">
+        select sum(pay_amount) from `wholesale_order` o
+        where pay_state=1 and refund_state=0 and customer_id=#{customerId}
+    </select>
+
+    <select id="wholesaleOrderPaidShipYesNum" resultType="java.lang.Long">
+        select count(1) from `wholesale_order` o
+        where pay_state=1 and refund_state=0 and ship_state=1 and customer_id=#{customerId}
+    </select>
+
+    <select id="wholesaleOrderPaidShipNoNum" resultType="java.lang.Long">
+        select count(1) from `wholesale_order` o
+        where pay_state=1 and refund_state=0 and ship_state=0 and customer_id=#{customerId}
+    </select>
+
+    <select id="wholesaleOrderToPayNum" resultType="java.lang.Long">
+        select count(1) from `wholesale_order` o
+        where pay_state=0 and customer_id=#{customerId}
+    </select>
+
+    <select id="wholesaleOrderCancelNum" resultType="java.lang.Long">
+        select count(1) from `wholesale_order` o
+        where pay_state=-1 and customer_id=#{customerId}
+    </select>
+
+    <!--今日付款批发订单数-->
+    <select id="todayPaidWholeSaleNum" resultType="java.lang.Integer">
+        select count(1) from `wholesale_order` o
+        where o.pay_state=1
+        and o.order_status =0
+        and date(o.pay_time)=#{todayDate}
+        <if test="userManager != null and userManager !=''" >
+            and o.manager_code=#{userManager}
+        </if>
+    </select>
+
+    <!--今日批发订单金额 正常订单 审核正常 已支付 产品费+运费+手续费+vat税费-->
+    <select id="todayPaidWholeSaleAmount" resultType="java.math.BigDecimal">
+        select sum(IFNULL(o.product_amount,0)+IFNULL(o.ship_price,0)+IFNULL(o.vat_amount,0)+IFNULL(o.fix_fee,0))
+        from `wholesale_order` o
+
+        <where>
+            o.pay_state=1
+            and o.order_status =0
+            and date(o.pay_time)= #{todayDate}
+            <if test="userManager != null and userManager !=''" >
+                and o.manager_code = #{userManager}
+            </if>
+        </where>
+    </select>
+
+    <!--近30天付款批发订单数-->
+    <select id="paidWholeSaleNum30Day" resultType="java.lang.Integer">
+        select count(1)
+        from `wholesale_order` o
+
+        where o.pay_state=1
+        and o.order_status =0
+        and date(o.pay_time) &lt;=#{todayDate} and date(o.pay_time) &gt; date_sub(#{todayDate}, INTERVAL 30 DAY)
+        <if test="userManager != null and userManager !=''" >
+            and o.manager_code=#{userManager}
+        </if>
+    </select>
+
+    <!--近30天付款批发订单金额 正常订单 审核正常 已支付 产品费+运费+手续费+vat税费-->
+    <select id="paidWholeSaleAmount30Day"  resultType="java.math.BigDecimal">
+        select sum(IFNULL(o.product_amount,0)+IFNULL(o.ship_price,0)+IFNULL(o.vat_amount,0)+IFNULL(o.fix_fee,0))
+        from `wholesale_order` o
+
+        where o.pay_state=1
+        and o.order_status =0
+        and date(o.pay_time) &lt;=#{todayDate} and date(o.pay_time) > date_sub(#{todayDate}, INTERVAL 30 DAY)
+        <if test="userManager != null and userManager !=''" >
+            and o.manager_code=#{userManager}
+        </if>
+    </select>
+
+    <!--客户付款批发订单数、付款金额，按天统计-->
+    <select id="paidWholesaleOrderDataByDay" resultType="com.upedge.oms.modules.statistics.dto.DashboardOrderDto">
+        select count(1) as orderPaidNum,
+        date(o.pay_time) as dayDate,
+        sum(IFNULL(o.product_amount,0)+IFNULL(o.ship_price,0)+IFNULL(o.vat_amount,0)+IFNULL(o.fix_fee,0)) as orderAmount
+        from `wholesale_order` o
+        where o.pay_state=1
+        and o.order_status =0
+        and date(o.pay_time) &lt;=#{endDay} and date(o.pay_time) >= #{startDay}
+        <if test="userManager != null and userManager!=''" >
+            and o.manager_code=#{userManager}
+        </if>
+        GROUP BY date(o.pay_time)
+    </select>
+
+    <!--客户批发订单数，按天统计-->
+    <select id="wholesaleOrderNumByDay" resultType="com.upedge.oms.modules.statistics.dto.DashboardOrderDto">
+        select count(1) as orderNum,
+        date(o.pay_time) as dayDate
+        from `wholesale_order` o
+        where date(o.create_time) &lt;=#{endDay} and date(o.create_time) >= #{startDay}
+        and o.order_status =0
+        and o.pay_state = 1
+        <if test="userManager != null and userManager!=''" >
+            and o.manager_code=#{userManager}
+        </if>
+        GROUP BY date(o.pay_time)
+    </select>
+
+    <!--付款普通订单金额，按天区间统计-->
+    <select id="paidWholesaleOrderAmountByDay" resultType="java.math.BigDecimal">
+        select sum(IFNULL(o.product_amount,0)+IFNULL(o.ship_price,0)+IFNULL(o.vat_amount,0)+IFNULL(o.fix_fee,0))
+        from `wholesale_order` o
+        where o.pay_state=1
+        and o.order_status =0
+        and date(o.pay_time) &lt;=#{endDay} and date(o.pay_time) >= #{startDay}
+        <if test="userManager != null and userManager !=''" >
+            and o.manager_code = #{userManager}
+        </if>
+    </select>
+
+    <!--本月下批发订单客户数-->
+    <select id="paidWholesaleOrderUserNum" resultType="java.lang.Integer">
+        select count(distinct o.customer_id)
+        from `wholesale_order` o
+        where o.pay_state=1
+        and o.order_status =0
+        and date(o.pay_time) &lt;=#{endDay} and date(o.pay_time) >= #{startDay}
+        <if test="userManager != null and userManager !=''" >
+            and o.manager_code=#{userManager}
+        </if>
+    </select>
+
+    <select id="wholesaleWaitTrackNum" resultType="java.lang.Long">
+        <!--select count(1)
+        from `wholesale_order` o
+        left join customer_admin_info cai on cai.customer_id=o.customer_id
+        where o.pay_state=1 and o.ship_state=0 and o.refund_state=0
+        and o.order_status =0
+        <if test="userManager != null and userManager !=''" >
+            and cai.admin_user_id=#{userManager}
+        </if>-->
+        select count(1)
+        from `wholesale_order` o
+        where o.pay_state=1 and o.ship_state=0 and o.refund_state=0
+        and o.order_status =0
+        <if test="userManager != null and userManager !=''" >
+            and o.manager_code=#{userManager}
+        </if>
+    </select>
+
+    <!--未发货订单分析(客户经理 订单数)-->
+    <select id="waitTrackOrderData" resultType="com.upedge.oms.modules.statistics.dto.WaitTrackOrderData">
+        select o.manager_code as adminUserId,count(1) as wholesaleNum from `wholesale_order` o
+        where o.pay_state=1 and o.ship_state=0 and o.order_status =0 and o.refund_state=0
+        and date_sub(#{currDate}, INTERVAL #{dayNum} DAY) >= date (o.pay_time)
+        group by o.manager_code
+    </select>
+
+    <!--未发货订单数据详情（客户维度）-->
+    <select id="waitTrackOrderDataDetails"  resultType="com.upedge.oms.modules.statistics.dto.WaitTrackOrderDataDetails">
+        select o.customer_id as customerId,count(1) as num
+        from `wholesale_order` o
+        <where>
+            o.pay_state=1 and o.ship_state=0 and o.order_status =0 and o.refund_state=0
+            and date_sub(#{currDate}, INTERVAL #{dayNum} DAY) >= date (o.pay_time)
+            <if test='adminUserId != "0"' >and o.manager_code=#{adminUserId}</if>
+            <if test='adminUserId == "0"' >and o.manager_code is null</if>
+        </where>
+        group by o.customer_id
+    </select>
+    <select id="queryConfirmAppRefundById" resultType="com.upedge.oms.modules.common.vo.RefundVo">
+            SELECT
+                ar.id AS id,
+                apo.saihe_order_code AS saiheOrderCode
+            FROM
+                wholesale_refund ar
+                LEFT JOIN `wholesale_order` apo ON apo.id = ar.order_id
+            WHERE
+                ar.state = 1
+            AND ar.id = #{id}
+    </select>
+    <select id="selectWholesaleOrderByPaymentId"
+            resultType="com.upedge.oms.modules.wholesale.entity.WholesaleOrder">
+
+          select  <include refid="Base_Column_List"/>
+          from   wholesale_order
+          where
+          payment_id  = #{paymentId}
+    </select>
+    <select id="getWholeSaleOrderAmountByManagerCodeSet" resultType="java.math.BigDecimal">
+        select
+        IFNULL(sum(
+            IFNULL(product_amount,0)
+            +IFNULL(ship_price,0)
+            +IFNULL(vat_amount,0)
+            +IFNULL(fix_fee,0)
+            ),0)
+		from wholesale_order
+		where pay_state=1
+		and date(pay_time) >= #{t.startDay} and date(pay_time) &lt;=#{t.endDay}
+		and manager_code	in
+		<foreach collection="t.managerCodeSet" item="managerCode" open="(" separator="," close=")">
+        #{managerCode}
+        </foreach>
+    </select>
+    <select id="getWholeSaleOrderCount" resultType="java.lang.String">
+        select
+           DISTINCT  customer_id
+        from wholesale_order
+        where pay_state=1
+        and date(pay_time) >= #{t.startDay} and date(pay_time) &lt;=#{t.endDay}
+        and manager_code	in
+        <foreach collection="t.managerCodeSet" item="managerCode" open="(" separator="," close=")">
+            #{managerCode}
+        </foreach>
+    </select>
+    <select id="selectPage" resultType="com.upedge.oms.modules.wholesale.entity.WholesaleOrder">
+        select
+        <include refid="Base_Column_List"/>
+        from wholesale_order
+        <include refid="Query_Condition_page"/>
+        <if test="boundary != null and boundary!=''">
+            <if test="t != null">
+                and ${ boundary}
+            </if>
+            <if test="t == null">
+                where ${ boundary}
+            </if>
+        </if>
+        <if test="orderBy != null and orderBy !=''">
+            order by ${orderBy}
+        </if>
+        <if test="pageNum != null and pageSize != null ">
+            <if test="boundary == null or boundary==''">
+                limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+            </if>
+            <if test="boundary != null and boundary!=''">
+                limit #{pageSize,jdbcType=INTEGER}
+            </if>
+        </if>
+    </select>
+
+    <select id="countPage" parameterType="com.upedge.common.base.Page" resultType="java.lang.Long">
+        select
+        count(1)
+        from wholesale_order
+        <include refid="Query_Condition_page"/>
+    </select>
+    <select id="selectPageByMove" resultType="com.upedge.oms.modules.wholesale.entity.WholesaleOrder">
+        select
+        `payment_id` ,`pay_time`, `customer_id`
+        from `wholesale_order`
+        <include refid="Query_Condition"/>
+        <if test="boundary != null and boundary!=''">
+            <if test="t != null">
+                and ${ boundary}
+            </if>
+            <if test="t == null">
+                where ${boundary}
+            </if>
+        </if>
+        group by  `payment_id`,`pay_time`,`customer_id`
+        <if test="orderBy != null and orderBy !=''">
+            order by ${orderBy}
+        </if>
+        <if test="pageNum != null and pageSize != null ">
+            <if test="boundary == null or boundary==''">
+                limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+            </if>
+            <if test="boundary != null and boundary!=''">
+                limit #{pageSize,jdbcType=INTEGER}
+            </if>
+        </if>
+    </select>
+    <select id="selectUploadSaiheAndUmsBywholesale" resultType="com.upedge.common.model.order.PaymentDetail">
+        select  payment_id   paymentId,  pay_time  payTime ,customer_id  customerId, pay_method  payMethod  from `wholesale_order`   where   pay_state = 1 and  saihe_order_code is null  and   pay_time > '2021-08-17 08:50:00'  GROUP BY  payment_id , pay_time  ,  customer_id, pay_method
+    </select>
+    <select id="selectUploadSaiheAndUmsOne" resultType="com.upedge.common.model.order.PaymentDetail">
+        select  payment_id   paymentId,  pay_time  payTime ,customer_id  customerId,
+        pay_method  payMethod  from `wholesale_order`
+        where    payment_id = #{paymentId}
+        pay_state = 1 and  saihe_order_code is null
+        and   pay_time > '2021-08-17 08:50:00'  GROUP BY  payment_id , pay_time  ,  customer_id, pay_method
+
+    </select>
+
+</mapper>

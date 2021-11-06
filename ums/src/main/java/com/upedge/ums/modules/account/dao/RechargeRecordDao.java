@@ -1,12 +1,13 @@
 package com.upedge.ums.modules.account.dao;
 
-import com.upedge.ums.modules.account.entity.RechargeRecord;
-import org.apache.ibatis.annotations.Mapper;
-import java.util.List;
 import com.upedge.common.base.Page;
+import com.upedge.ums.modules.account.entity.RechargeRecord;
+import com.upedge.ums.modules.account.vo.RecordVo;
+
+import java.util.List;
 
 /**
- * @author gx
+ * @author author
  */
 public interface RechargeRecordDao{
 
@@ -28,4 +29,9 @@ public interface RechargeRecordDao{
 
     long count(Page<RechargeRecord> record);
 
+    /**
+     * 获取关联的支付列表
+     */
+    List<RechargeRecord> listRechargeRecordRefundSeqByOrderId(Long orderId, Integer orderType);
+    List<RecordVo> listRechargeRecordByOrderId(Long orderId);
 }

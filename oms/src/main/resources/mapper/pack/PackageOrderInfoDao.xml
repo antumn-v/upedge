@@ -1,0 +1,520 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.upedge.oms.modules.pack.dao.PackageOrderInfoDao">
+
+    <!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.upedge.oms.modules.pack.entity.PackageOrderInfo" id="BaseResultMap">
+        <result property="packageId" column="package_id"/>
+        <result property="orderCode" column="order_code"/>
+        <result property="clientOrderCode" column="client_order_code"/>
+        <result property="managerCode" column="manager_code"/>
+        <result property="payTime" column="pay_time"/>
+        <result property="firstName" column="first_name"/>
+        <result property="lastName" column="last_name"/>
+        <result property="orderSourceId" column="order_source_id"/>
+        <result property="orderSourceName" column="order_source_name"/>
+        <result property="orderSourceType" column="order_source_type"/>
+        <result property="shipDate" column="ship_date"/>
+        <result property="handleTime" column="handle_time"/>
+        <result property="customerId" column="customer_id"/>
+        <result property="packageShipDuration" column="package_ship_duration"/>
+        <result property="payPackageDuration" column="pay_package_duration"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        `package_id`,`order_code`,`client_order_code`,`pay_time`,`first_name`,`last_name`,`order_source_id`,`order_source_name`,`order_source_type`,`ship_date`,`handle_time`,`customer_id`,`package_ship_duration`,`pay_package_duration`
+    </sql>
+
+    <select id="selectMaxHandleTimeAndOrderCountByDate" resultType="com.upedge.oms.modules.pack.vo.DailyOrderHandleVo"
+    parameterType="com.upedge.oms.modules.pack.request.OrderHandleTimeRequest">
+        select ceil(max(${typeField})/86400.0) as `day`,
+        count(client_order_code) as `orderCount`,
+        sum(handle_time) as `totalHandleTime`
+        from package_order_info
+        <include refid="Daily_Condition"/>
+    </select>
+
+    <select id="countDailyHandleOrder" resultType="com.upedge.oms.modules.pack.vo.DailyOrderHandleVo"
+    parameterType="com.upedge.oms.modules.pack.request.OrderHandleTimeRequest">
+        select ceil(${typeField}/86400.0) as `day`,count(client_order_code) as `orderCount`
+        from package_order_info
+        where 1 = 1
+        <if test="dateMonth != null and dateMonth != ''">
+            and DATE_FORMAT(ship_date,'%Y-%m') = #{dateMonth}
+        </if>
+        <if test="beginTime != null and endTime != null">
+            and date(ship_date) between #{beginTime} and #{endTime}
+        </if>
+        <if test="managerCode != null">
+            and manager_code = #{managerCode}
+        </if>
+        <if test="customerId != null">
+            and customer_id = #{customerId}
+        </if>
+        and ceil( handle_time / 86400.0 ) &lt;= #{maxHandleDay}
+        group by `day`
+        order by `day` asc
+    </select>
+
+
+    <select id="selectPackageAndOrderCount" resultType="com.upedge.oms.modules.pack.vo.PackageCountVo"
+            parameterType="com.upedge.oms.modules.pack.request.PackageDailyCountRequest">
+        select count(distinct package_id) as `packageCount`,
+        count(distinct client_order_code) as `packageOrderCount`
+        from package_order_info
+        <include refid="Daily_Condition"/>
+    </select>
+
+    <select id="countOneAppOrderToManySaiheOrder" resultType="java.lang.Integer"
+            parameterType="com.upedge.oms.modules.pack.request.PackageDailyCountRequest">
+        select count(1)
+        from(
+        select count(DISTINCT order_code) `c` from package_order_info
+        <include refid="Daily_Condition"/>
+        group by client_order_code
+        having `c` > '1'
+        ) t
+    </select>
+
+    <select id="countPackageHaveSameAppOrder" resultType="java.lang.Integer"
+            parameterType="com.upedge.oms.modules.pack.request.PackageDailyCountRequest">
+        select count(1)
+        from (select count(1) c from package_order_info
+        <include refid="Daily_Condition"/>
+        group by client_order_code,package_id having c>1) t
+    </select>
+
+    <select id="countOneAppOrderSplitManyPackage" resultType="java.lang.Integer"
+            parameterType="com.upedge.oms.modules.pack.request.PackageDailyCountRequest">
+        select count(1) from
+        (select client_order_code,count(1) c from package_order_info
+        <include refid="Daily_Condition"/>
+        group by client_order_code having c>1) t;
+    </select>
+
+    <sql id="Daily_Condition">
+        <trim prefix=" " suffix=" " suffixOverrides=" and ">
+            where 1 = 1 and
+            <if test="dateMonth != null and dateMonth != ''">
+                DATE_FORMAT(ship_date,'%Y-%m') = #{dateMonth} and
+            </if>
+            <if test="beginTime != null and endTime != null">
+                date(ship_date) between #{beginTime} and #{endTime} and
+            </if>
+            <if test="managerCode != null">
+                manager_code = #{managerCode} and
+            </if>
+            <if test="customerId != null">
+                customer_id = #{customerId} and
+            </if>
+            <if test="orderSourceId != null">
+                order_source_id = #{orderSourceId} and
+            </if>
+        </trim>
+    </sql>
+
+    <select id="selectManagerPackageOrderCountByDate"
+            parameterType="com.upedge.common.model.statistics.request.ManagerPackageStatisticsRequest"
+            resultType="com.upedge.common.model.statistics.vo.ManagerPackageOrderCountVo">
+        select manager_code as `managerCode`,
+        count(distinct client_order_code) as `orderCount`
+        from package_order_info
+        where date(ship_date) between #{beginTime} and #{endTime}
+        <if test="withDay != null">
+            and ceil(handle_time/86400.0) &lt;=#{withInDay}
+        </if>
+        group by manager_code
+    </select>
+
+    <select id="selectByPrimaryKey" parameterType="com.upedge.oms.modules.pack.entity.PackageOrderInfo"
+            resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from package_order_info
+        where package_id = #{packageId}
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="com.upedge.oms.modules.pack.entity.PackageOrderInfo">
+        delete from package_order_info
+        where package_id = #{packageId}
+    </delete>
+
+    <update id="updateByPrimaryKeySelective" parameterType="com.upedge.oms.modules.pack.entity.PackageOrderInfo">
+        update package_order_info
+        <set>
+            <if test="orderCode != null">
+                order_code = #{orderCode},
+            </if>
+            <if test="clientOrderCode != null">
+                client_order_code = #{clientOrderCode},
+            </if>
+            <if test="payTime != null">
+                pay_time = #{payTime},
+            </if>
+            <if test="firstName != null">
+                first_name = #{firstName},
+            </if>
+            <if test="lastName != null">
+                last_name = #{lastName},
+            </if>
+            <if test="orderSourceId != null">
+                order_source_id = #{orderSourceId},
+            </if>
+            <if test="orderSourceName != null">
+                order_source_name = #{orderSourceName},
+            </if>
+            <if test="orderSourceType != null">
+                order_source_type = #{orderSourceType},
+            </if>
+            <if test="shipDate != null">
+                ship_date = #{shipDate},
+            </if>
+            <if test="handleTime != null">
+                handle_time = #{handleTime},
+            </if>
+            <if test="customerId != null">
+                customer_id = #{customerId},
+            </if>
+            <if test="packageShipDuration != null">
+                package_ship_duration = #{packageShipDuration},
+            </if>
+            <if test="payPackageDuration != null">
+                pay_package_duration = #{payPackageDuration},
+            </if>
+        </set>
+        where package_id = #{packageId}
+    </update>
+
+    <update id="updateByPrimaryKey" parameterType="com.upedge.oms.modules.pack.entity.PackageOrderInfo">
+        update package_order_info
+        <set>
+            package_id = #{packageId},
+            order_code = #{orderCode},
+            client_order_code = #{clientOrderCode},
+            pay_time = #{payTime},
+            first_name = #{firstName},
+            last_name = #{lastName},
+            order_source_id = #{orderSourceId},
+            order_source_name = #{orderSourceName},
+            order_source_type = #{orderSourceType},
+            ship_date = #{shipDate},
+            handle_time = #{handleTime},
+            customer_id = #{customerId},
+            package_ship_duration = #{packageShipDuration},
+            pay_package_duration = #{payPackageDuration},
+        </set>
+        where package_id = #{packageId}
+    </update>
+
+    <insert id="insert" keyColumn="package_id" keyProperty="packageId"
+            parameterType="com.upedge.oms.modules.pack.entity.PackageOrderInfo" useGeneratedKeys="true">
+        insert into package_order_info
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            package_id,
+            order_code,
+            client_order_code,
+            pay_time,
+            first_name,
+            last_name,
+            order_source_id,
+            order_source_name,
+            order_source_type,
+            ship_date,
+            handle_time,
+            customer_id,
+            package_ship_duration,
+            pay_package_duration
+        </trim>
+        values (
+        #{packageId},
+        #{orderCode},
+        #{clientOrderCode},
+        #{payTime},
+        #{firstName},
+        #{lastName},
+        #{orderSourceId},
+        #{orderSourceName},
+        #{orderSourceType},
+        #{shipDate},
+        #{handleTime},
+        #{customerId},
+        #{packageShipDuration},
+        #{payPackageDuration}
+        )
+    </insert>
+
+    <insert id="insertSelective" keyColumn="package_id" keyProperty="packageId"
+            parameterType="com.upedge.oms.modules.pack.entity.PackageOrderInfo" useGeneratedKeys="true">
+        insert into package_order_info
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="packageId != null">
+                package_id
+            </if>
+            <if test="orderCode != null">
+                order_code
+            </if>
+            <if test="clientOrderCode != null">
+                client_order_code
+            </if>
+            <if test="payTime != null">
+                pay_time
+            </if>
+            <if test="firstName != null">
+                first_name
+            </if>
+            <if test="lastName != null">
+                last_name
+            </if>
+            <if test="orderSourceId != null">
+                order_source_id
+            </if>
+            <if test="orderSourceName != null">
+                order_source_name
+            </if>
+            <if test="orderSourceType != null">
+                order_source_type
+            </if>
+            <if test="shipDate != null">
+                ship_date
+            </if>
+            <if test="handleTime != null">
+                handle_time
+            </if>
+            <if test="customerId != null">
+                customer_id
+            </if>
+            <if test="packageShipDuration != null">
+                package_ship_duration
+            </if>
+            <if test="payPackageDuration != null">
+                pay_package_duration
+            </if>
+
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="packageId != null">
+                #{packageId}
+            </if>
+            <if test="orderCode != null">
+                #{orderCode}
+            </if>
+            <if test="clientOrderCode != null">
+                #{clientOrderCode}
+            </if>
+            <if test="payTime != null">
+                #{payTime}
+            </if>
+            <if test="firstName != null">
+                #{firstName}
+            </if>
+            <if test="lastName != null">
+                #{lastName}
+            </if>
+            <if test="orderSourceId != null">
+                #{orderSourceId}
+            </if>
+            <if test="orderSourceName != null">
+                #{orderSourceName}
+            </if>
+            <if test="orderSourceType != null">
+                #{orderSourceType}
+            </if>
+            <if test="shipDate != null">
+                #{shipDate}
+            </if>
+            <if test="handleTime != null">
+                #{handleTime}
+            </if>
+            <if test="customerId != null">
+                #{customerId}
+            </if>
+            <if test="packageShipDuration != null">
+                #{packageShipDuration}
+            </if>
+            <if test="payPackageDuration != null">
+                #{payPackageDuration}
+            </if>
+
+        </trim>
+    </insert>
+
+    <insert id="insertByBatch" parameterType="java.util.List">
+        insert into package_order_info
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            package_id,
+            order_code,
+            client_order_code,
+            pay_time,
+            first_name,
+            last_name,
+            order_source_id,
+            order_source_name,
+            order_source_type,
+            ship_date,
+            handle_time,
+            customer_id,
+            package_ship_duration,
+            pay_package_duration
+        </trim>
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+                #{item.packageId},
+                #{item.orderCode},
+                #{item.clientOrderCode},
+                #{item.payTime},
+                #{item.firstName},
+                #{item.lastName},
+                #{item.orderSourceId},
+                #{item.orderSourceName},
+                #{item.orderSourceType},
+                #{item.shipDate},
+                #{item.handleTime},
+                #{item.customerId},
+                #{item.packageShipDuration},
+                #{item.payPackageDuration}
+            </trim>
+        </foreach>
+    </insert>
+
+    <sql id="Query_Condition">
+        <if test="t != null">
+            where
+            <trim prefix=" " suffix=" " suffixOverrides=" and ">
+                1 = 1 and
+                <if test="t.packageId != null">
+                    package_id = #{t.packageId} and
+                </if>
+                <if test="t.orderCode != null">
+                    order_code = #{t.orderCode} and
+                </if>
+                <if test="t.clientOrderCode != null">
+                    client_order_code = #{t.clientOrderCode} and
+                </if>
+                <if test="t.payTime != null">
+                    pay_time = #{t.payTime} and
+                </if>
+                <if test="t.firstName != null">
+                    first_name = #{t.firstName} and
+                </if>
+                <if test="t.lastName != null">
+                    last_name = #{t.lastName} and
+                </if>
+                <if test="t.orderSourceId != null">
+                    order_source_id = #{t.orderSourceId} and
+                </if>
+                <if test="t.orderSourceName != null">
+                    order_source_name = #{t.orderSourceName} and
+                </if>
+                <if test="t.orderSourceType != null">
+                    order_source_type = #{t.orderSourceType} and
+                </if>
+                <if test="t.shipDate != null">
+                    ship_date = #{t.shipDate} and
+                </if>
+                <if test="t.handleTime != null">
+                    handle_time = #{t.handleTime} and
+                </if>
+                <if test="t.customerId != null">
+                    customer_id = #{t.customerId} and
+                </if>
+                <if test="t.packageShipDuration != null">
+                    package_ship_duration = #{t.packageShipDuration} and
+                </if>
+                <if test="t.payPackageDuration != null">
+                    pay_package_duration = #{t.payPackageDuration} and
+                </if>
+            </trim>
+        </if>
+    </sql>
+
+    <select id="select" parameterType="com.upedge.common.base.Page" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from package_order_info
+        <include refid="Query_Condition"/>
+        <if test="t.shipDateStart != null">
+            and ship_date &gt;= #{t.shipDateStart} and ship_date &lt;= #{t.shipDateEnd}
+        </if>
+        <if test="orderBy != null">
+            order by ${orderBy}
+        </if>
+        <if test="pageNum != null and pageSize != null">
+            limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+        </if>
+    </select>
+
+    <select id="count" parameterType="com.upedge.common.base.Page" resultType="java.lang.Long">
+        select
+        count(1)
+        from package_order_info
+        <include refid="Query_Condition"/>
+        <if test="t.shipDateStart != null">
+            and ship_date &gt;= #{t.shipDateStart} and ship_date &lt;= #{t.shipDateEnd}
+        </if>
+    </select>
+
+    <insert id="savePackageOrderInfo" parameterType="java.util.List">
+        insert into package_order_info(package_id,order_code,client_order_code,
+        pay_time,first_name,last_name,customer_id,manager_code,
+        order_source_id,order_source_name,order_source_type,ship_date,handle_time,
+        package_ship_duration,pay_package_duration)
+        values
+        <foreach collection="list" item="item" index="index"
+                 separator=",">
+            (#{item.packageId,jdbcType=INTEGER},
+            #{item.orderCode,jdbcType=VARCHAR},
+            #{item.clientOrderCode,jdbcType=VARCHAR},
+            #{item.payTime,jdbcType=TIMESTAMP},
+            #{item.firstName,jdbcType=VARCHAR},
+            #{item.lastName,jdbcType=VARCHAR},
+            #{item.customerId},
+            #{item.managerCode},
+            #{item.orderSourceId,jdbcType=INTEGER},
+            #{item.orderSourceName,jdbcType=VARCHAR},
+            #{item.orderSourceType,jdbcType=INTEGER},
+            #{item.shipDate,jdbcType=DATE},
+            #{item.handleTime,jdbcType=BIGINT},
+            #{item.packageShipDuration,jdbcType=BIGINT},
+            #{item.payPackageDuration,jdbcType=BIGINT})
+        </foreach>
+        ON DUPLICATE KEY UPDATE
+        client_order_code = VALUES(client_order_code),
+        pay_time = VALUES(pay_time),
+        first_name = VALUES(first_name),
+        last_name = VALUES(last_name),
+        order_source_id = VALUES(order_source_id),
+        order_source_name = VALUES(order_source_name),
+        ship_date = VALUES(ship_date),
+        handle_time = VALUES(handle_time),
+        package_ship_duration= VALUES(package_ship_duration),
+        pay_package_duration= VALUES(pay_package_duration)
+    </insert>
+
+    <delete id="deletePackageOrderInfo">
+        delete from package_order_info where package_id in
+        (select pi.package_id from package_info pi
+        where date(pi.ship_time)>=#{startDay} and date(pi.ship_time) &lt;=#{endDay} and  pi.update_token!=#{updateToken})
+    </delete>
+
+
+    <select id="totalPackageOrderPie" resultType="com.upedge.oms.modules.pack.vo.EchartsPie">
+        select count(DISTINCT client_order_code) as `value` ,order_source_name as `name` from package_order_info
+        where  ship_date>= #{startDay} and ship_date &lt;= #{endDay} group by order_source_name
+    </select>
+
+    <!--月包裹订单数-->
+    <select id="monthPackageOrderCount" resultType="java.lang.Integer">
+        select count(DISTINCT client_order_code) from package_order_info
+        where  ship_date>=#{startDay} and ship_date &lt;=#{endDay}
+    </select>
+    <select id="selectPackageOrderInfoByClientOrderCode"
+            resultType="com.upedge.oms.modules.pack.entity.PackageOrderInfo">
+        <include refid="Base_Column_List"/>
+        from package_order_info
+        where
+         client_order_code = #{clientOrderCode}
+    </select>
+
+</mapper>

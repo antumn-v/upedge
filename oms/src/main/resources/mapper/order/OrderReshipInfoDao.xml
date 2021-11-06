@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.upedge.oms.modules.order.dao.OrderReshipInfoDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.upedge.oms.modules.order.entity.OrderReshipInfo" id="BaseResultMap">
+        <result property="orderId" column="order_id"/>
+        <result property="originalOrderId" column="original_order_id"/>
+        <result property="reason" column="reason"/>
+        <result property="reship_times" column="reshipTimes"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        `order_id`,`original_order_id`,`reason`,`reship_times`
+    </sql>
+
+    <select id="selectByPrimaryKey" parameterType="com.upedge.oms.modules.order.entity.OrderReshipInfo" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from order_reship_info
+        where order_id = #{orderId}
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="com.upedge.oms.modules.order.entity.OrderReshipInfo">
+        delete from order_reship_info
+        where order_id = #{orderId}
+    </delete>
+
+    <update id="updateByPrimaryKeySelective" parameterType="com.upedge.oms.modules.order.entity.OrderReshipInfo">
+        update order_reship_info
+        <set>
+            <if test="originalOrderId != null">
+                original_order_id = #{originalOrderId},
+            </if>
+            <if test="reason != null">
+                reason = #{reason},
+            </if>
+        </set>
+        where order_id = #{orderId}
+    </update>
+
+    <update id="updateByPrimaryKey" parameterType="com.upedge.oms.modules.order.entity.OrderReshipInfo">
+        update order_reship_info
+        <set>
+        order_id = #{orderId},
+        original_order_id = #{originalOrderId},
+        reason = #{reason},
+        </set>
+        where order_id = #{orderId}
+    </update>
+
+    <insert id="insert" keyColumn="order_id" keyProperty="orderId" parameterType="com.upedge.oms.modules.order.entity.OrderReshipInfo" useGeneratedKeys="true">
+        insert into order_reship_info
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            order_id,
+            original_order_id,
+            reason,
+            reship_times
+        </trim>
+        values (
+        #{orderId},
+        #{originalOrderId},
+        #{reason},
+        #{reshipTimes}
+        )
+    </insert>
+
+    <insert id="insertSelective"  keyColumn="order_id" keyProperty="orderId"  parameterType="com.upedge.oms.modules.order.entity.OrderReshipInfo" useGeneratedKeys="true">
+        insert into order_reship_info
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="orderId != null" >
+              order_id
+            </if>
+            <if test="originalOrderId != null" >
+              original_order_id
+            </if>
+            <if test="reason != null" >
+              reason
+            </if>
+
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="orderId != null" >
+                #{orderId}
+            </if>
+            <if test="originalOrderId != null" >
+                #{originalOrderId}
+            </if>
+            <if test="reason != null" >
+                #{reason}
+            </if>
+
+        </trim>
+    </insert>
+
+    <insert id="insertByBatch" parameterType="java.util.List">
+        insert into order_reship_info
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+           order_id,
+           original_order_id,
+           reason
+        </trim>
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+               #{item.orderId},
+               #{item.originalOrderId},
+               #{item.reason}
+            </trim>
+        </foreach>
+    </insert>
+
+    <sql id="Query_Condition">
+        <if test="t != null">
+            where
+            <trim prefix=" " suffix=" " suffixOverrides=" and ">
+                1 = 1 and
+                    <if test="t.orderId != null">
+                        order_id = #{t.orderId} and
+                    </if>
+                    <if test="t.originalOrderId != null">
+                        original_order_id = #{t.originalOrderId} and
+                    </if>
+                    <if test="t.reason != null">
+                        reason = #{t.reason} and
+                    </if>
+            </trim>
+        </if>
+    </sql>
+
+    <select id="select" parameterType="com.upedge.common.base.Page" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from order_reship_info
+        <include refid="Query_Condition"/>
+        <if test="orderBy != null">
+            order by ${orderBy}
+        </if>
+        <if test="pageNum != null and pageSize != null">
+            limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+        </if>
+    </select>
+
+    <select id="count" parameterType="com.upedge.common.base.Page" resultType="java.lang.Long">
+        select
+        count(1)
+        from order_reship_info
+        <include refid="Query_Condition"/>
+    </select>
+
+    <update id="updateReshipTimes">
+        update order_reship_info ori
+        left join `order` o on o.id=ori.order_id
+        set ori.reship_times=#{reshipTimes}
+        where o.order_status=2 and
+        ori.order_id in
+        <foreach collection="ids" index="index" item="item"
+                 separator="," open="(" close=")">
+            #{item}
+        </foreach>
+    </update>
+
+    <select id="listOrderReshipInfoByIds" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from order_reship_info
+        where order_id in
+        <foreach collection="ids" index="index" item="item"
+                 separator="," open="(" close=")">
+            #{item}
+        </foreach>
+    </select>
+
+</mapper>

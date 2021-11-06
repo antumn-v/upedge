@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.upedge.pms.modules.product.dao.StoreProductImageDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.upedge.pms.modules.product.entity.StoreProductImage" id="BaseResultMap">
+        <result property="id" column="id"/>
+        <result property="platImageId" column="plat_image_id"/>
+        <result property="platProductId" column="plat_product_id"/>
+        <result property="productId" column="product_id"/>
+        <result property="src" column="src"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        `id`,`plat_image_id`,`plat_product_id`,`product_id`,`src`
+    </sql>
+
+    <select id="selectByPrimaryKey" parameterType="com.upedge.pms.modules.product.entity.StoreProductImage" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from store_product_image
+        where id = #{id}
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="com.upedge.pms.modules.product.entity.StoreProductImage">
+        delete from store_product_image
+        where id = #{id}
+    </delete>
+
+    <update id="updateByPrimaryKeySelective" parameterType="com.upedge.pms.modules.product.entity.StoreProductImage">
+        update store_product_image
+        <set>
+            <if test="platImageId != null">
+                plat_image_id = #{platImageId},
+            </if>
+            <if test="platProductId != null">
+                plat_product_id = #{platProductId},
+            </if>
+            <if test="productId != null">
+                product_id = #{productId},
+            </if>
+            <if test="src != null">
+                src = #{src},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <update id="updateByPrimaryKey" parameterType="com.upedge.pms.modules.product.entity.StoreProductImage">
+        update store_product_image
+        <set>
+        id = #{id},
+        plat_image_id = #{platImageId},
+        plat_product_id = #{platProductId},
+        product_id = #{productId},
+        src = #{src},
+        </set>
+        where id = #{id}
+    </update>
+
+    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.upedge.pms.modules.product.entity.StoreProductImage" useGeneratedKeys="true">
+        insert into store_product_image
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            id,
+            plat_image_id,
+            plat_product_id,
+            product_id,
+            src
+        </trim>
+        values (
+        #{id},
+        #{platImageId},
+        #{platProductId},
+        #{productId},
+        #{src}
+        )
+    </insert>
+
+    <insert id="insertSelective"  keyColumn="id" keyProperty="id"  parameterType="com.upedge.pms.modules.product.entity.StoreProductImage" useGeneratedKeys="true">
+        insert into store_product_image
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null" >
+              id
+            </if>
+            <if test="platImageId != null" >
+              plat_image_id
+            </if>
+            <if test="platProductId != null" >
+              plat_product_id
+            </if>
+            <if test="productId != null" >
+              product_id
+            </if>
+            <if test="src != null" >
+              src
+            </if>
+
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null" >
+                #{id}
+            </if>
+            <if test="platImageId != null" >
+                #{platImageId}
+            </if>
+            <if test="platProductId != null" >
+                #{platProductId}
+            </if>
+            <if test="productId != null" >
+                #{productId}
+            </if>
+            <if test="src != null" >
+                #{src}
+            </if>
+
+        </trim>
+    </insert>
+
+    <insert id="insertByBatch" parameterType="java.util.List">
+        insert into store_product_image
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+           id,
+           plat_image_id,
+           plat_product_id,
+           product_id,
+           src
+        </trim>
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+               #{id},
+               #{platImageId},
+               #{platProductId},
+               #{productId},
+               #{src}
+            </trim>
+        </foreach>
+    </insert>
+
+    <sql id="Query_Condition">
+        <if test="t != null">
+            where
+            <trim prefix=" " suffix=" " suffixOverrides=" and ">
+                1 = 1 and
+                    <if test="t.id != null">
+                        id = #{t.id} and
+                    </if>
+                    <if test="t.platImageId != null">
+                        plat_image_id = #{t.platImageId} and
+                    </if>
+                    <if test="t.platProductId != null">
+                        plat_product_id = #{t.platProductId} and
+                    </if>
+                    <if test="t.productId != null">
+                        product_id = #{t.productId} and
+                    </if>
+                    <if test="t.src != null">
+                        src = #{t.src} and
+                    </if>
+            </trim>
+        </if>
+    </sql>
+
+    <select id="select" parameterType="com.upedge.common.base.Page" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from store_product_image
+        <include refid="Query_Condition"/>
+        <if test="orderBy != null">
+            order by ${orderBy}
+        </if>
+        <if test="pageNum != null and pageSize != null">
+            limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+        </if>
+    </select>
+
+    <select id="count" parameterType="com.upedge.common.base.Page" resultType="java.lang.Long">
+        select
+        count(1)
+        from store_product_image
+        <include refid="Query_Condition"/>
+    </select>
+
+
+</mapper>

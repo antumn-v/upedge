@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.upedge.ums.modules.account.dao.RechargeBenefitsMapper" >
+  <resultMap id="BaseResultMap" type="com.upedge.ums.modules.account.entity.RechargeBenefits" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="application_id" property="applicationId" jdbcType="BIGINT" />
+    <result column="amount_start" property="amountStart" jdbcType="DECIMAL" />
+    <result column="amount_end" property="amountEnd" jdbcType="DECIMAL" />
+    <result column="benefits" property="benefits" jdbcType="DECIMAL" />
+    <result column="status" property="status" jdbcType="INTEGER" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="update_time" property="updateTime" jdbcType="TIMESTAMP" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, application_id, amount_start, amount_end, benefits, status, create_time, update_time
+  </sql>
+
+  <select id="selectBenefitsByAppAndAmount" resultType="java.math.BigDecimal">
+    select ifnull(benefits,'0')
+    from recharge_benefits
+    where application_id = #{applicationId}
+    and #{amount} between amount_start
+    and amount_end
+    union all
+    select ifnull(benefits,'0')
+    from recharge_benefits
+    where application_id = #{applicationId}
+    and #{amount} &gt; amount_start
+    and amount_end = '-1'
+  </select>
+
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from recharge_benefits
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from recharge_benefits
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.upedge.ums.modules.account.entity.RechargeBenefits" >
+    insert into recharge_benefits (id, application_id, amount_start, 
+      amount_end, benefits, status, 
+      create_time, update_time)
+    values (#{id,jdbcType=INTEGER}, #{applicationId,jdbcType=BIGINT}, #{amountStart,jdbcType=DECIMAL}, 
+      #{amountEnd,jdbcType=DECIMAL}, #{benefits,jdbcType=DECIMAL}, #{status,jdbcType=INTEGER}, 
+      #{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP})
+  </insert>
+  <insert id="insertSelective" parameterType="com.upedge.ums.modules.account.entity.RechargeBenefits" >
+    insert into recharge_benefits
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="applicationId != null" >
+        application_id,
+      </if>
+      <if test="amountStart != null" >
+        amount_start,
+      </if>
+      <if test="amountEnd != null" >
+        amount_end,
+      </if>
+      <if test="benefits != null" >
+        benefits,
+      </if>
+      <if test="status != null" >
+        status,
+      </if>
+      <if test="createTime != null" >
+        create_time,
+      </if>
+      <if test="updateTime != null" >
+        update_time,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="applicationId != null" >
+        #{applicationId,jdbcType=BIGINT},
+      </if>
+      <if test="amountStart != null" >
+        #{amountStart,jdbcType=DECIMAL},
+      </if>
+      <if test="amountEnd != null" >
+        #{amountEnd,jdbcType=DECIMAL},
+      </if>
+      <if test="benefits != null" >
+        #{benefits,jdbcType=DECIMAL},
+      </if>
+      <if test="status != null" >
+        #{status,jdbcType=INTEGER},
+      </if>
+      <if test="createTime != null" >
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null" >
+        #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.upedge.ums.modules.account.entity.RechargeBenefits" >
+    update recharge_benefits
+    <set >
+      <if test="applicationId != null" >
+        application_id = #{applicationId,jdbcType=BIGINT},
+      </if>
+      <if test="amountStart != null" >
+        amount_start = #{amountStart,jdbcType=DECIMAL},
+      </if>
+      <if test="amountEnd != null" >
+        amount_end = #{amountEnd,jdbcType=DECIMAL},
+      </if>
+      <if test="benefits != null" >
+        benefits = #{benefits,jdbcType=DECIMAL},
+      </if>
+      <if test="status != null" >
+        status = #{status,jdbcType=INTEGER},
+      </if>
+      <if test="createTime != null" >
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null" >
+        update_time = #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.upedge.ums.modules.account.entity.RechargeBenefits" >
+    update recharge_benefits
+    set application_id = #{applicationId,jdbcType=BIGINT},
+      amount_start = #{amountStart,jdbcType=DECIMAL},
+      amount_end = #{amountEnd,jdbcType=DECIMAL},
+      benefits = #{benefits,jdbcType=DECIMAL},
+      status = #{status,jdbcType=INTEGER},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      update_time = #{updateTime,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>

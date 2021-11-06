@@ -19,7 +19,7 @@ public class VariantController {
         Response response = new Response();
         Long storeProductId = jsonObject.getLong("productId");
         ShopifyRequestParam param = jsonObject.getJSONObject("param").toJavaObject(ShopifyRequestParam.class);
-        String url = "https://" + param.getShopName() + "/admin/api/" + param.getApiVersion() + "/products/"+storeProductId+"/variants.json";
+        String url = "https://" + param.getShopName() + ".myshopify.com/admin/api/" + param.getApiVersion() + "/products/"+storeProductId+"/variants.json";
         jsonObject.remove("param");
         ResponseEntity<JSONObject> entity =
                 RequestUtils.sendRequest(url, param.getToken(),null, HttpMethod.POST,jsonObject);
@@ -35,7 +35,7 @@ public class VariantController {
         if (!jsonObject.containsKey("param") || !jsonObject.containsKey("variant"))
             return response.failed("null data");
         ShopifyRequestParam param = jsonObject.getJSONObject("param").toJavaObject(ShopifyRequestParam.class);
-        String url = "https://" + param.getShopName() + "/admin/api/" + param.getApiVersion() + "/variants/" + id + ".json";
+        String url = "https://" + param.getShopName() + ".myshopify.com/admin/api/" + param.getApiVersion() + "/variants/" + id + ".json";
         jsonObject.remove("param");
 
         ResponseEntity<JSONObject> entity =

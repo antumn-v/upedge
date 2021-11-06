@@ -17,7 +17,7 @@ import com.upedge.common.web.util.UserUtil;
 import com.upedge.ums.modules.account.entity.Account;
 import com.upedge.ums.modules.account.entity.AccountUser;
 import com.upedge.ums.modules.account.service.AccountService;
-import com.upedge.ums.modules.account.service.AccountUserService;
+
 import com.upedge.ums.modules.application.entity.Application;
 import com.upedge.ums.modules.application.entity.Menu;
 import com.upedge.ums.modules.application.service.ApplicationService;
@@ -95,8 +95,6 @@ public class UserServiceImpl implements UserService {
     @Autowired
     AccountService accountService;
 
-    @Autowired
-    AccountUserService accountUserService;
 
     @Autowired
     CustomerApplicationService customerApplicationService;
@@ -314,7 +312,7 @@ public class UserServiceImpl implements UserService {
     }
 
 
-    private User userSignUp(CustomerSignUpRequest request) {
+    public User userSignUp(CustomerSignUpRequest request) {
         Long applicationId = request.getApplicationId();
         Long userId = IdGenerate.nextId();
         Customer customer = request.toCustomer(needApprove);
@@ -363,12 +361,9 @@ public class UserServiceImpl implements UserService {
         Account account = request.toAccount(customer);
         account.setName(userInfo.getUsername());
         account.setIsDefault(true);
-        accountService.insert(account);
+//        accountService.insert(account);
 
-        AccountUser accountUser = new AccountUser();
-        accountUser.setAccountId(account.getId());
-        accountUser.setUserId(user.getId());
-        accountUserService.insert(accountUser);
+
 
         UserApplication userApplicationKey = new UserApplication();
         userApplicationKey.setApplicationId(applicationId);
@@ -409,7 +404,7 @@ public class UserServiceImpl implements UserService {
         List<String> permissions = rolePermissionService.selectPermissionByRole(role.getId());
         session.setPermissions(permissions);
 
-        Account account = accountUserService.selectUserAccount(userId);
+        Account account = accountService.selectCustomerDefaultAccount(userId);
         if (null != account) {
             session.setAccountId(account.getId());
         }

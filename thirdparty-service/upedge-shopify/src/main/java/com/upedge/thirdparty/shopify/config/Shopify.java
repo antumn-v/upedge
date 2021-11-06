@@ -13,7 +13,7 @@ public class Shopify {
 
 
     public static String getShopifyApi(String shop, String api){
-        String url = "https://" + shop + "/admin/api/"+version+"/"+ api + ".json";
+        String url = "https://" + shop + ".myshopify.com/admin/api/"+version+"/"+ api + ".json";
         return url;
     }
 }

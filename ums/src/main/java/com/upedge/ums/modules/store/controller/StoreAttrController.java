@@ -1,38 +1,31 @@
 package com.upedge.ums.modules.store.controller;
 
-import java.util.Arrays;
-import java.util.Map;
-
-import com.upedge.common.constant.ResultCode;
-import org.springframework.beans.factory.annotation.Autowired;
 import com.upedge.common.component.annotation.Permission;
-import com.upedge.ums.modules.store.entity.StoreAttr;
-import com.upedge.ums.modules.store.service.StoreAttrService;
-import org.springframework.web.bind.annotation.*;
-import java.util.List;
 import com.upedge.common.constant.Constant;
+import com.upedge.common.constant.ResultCode;
+import com.upedge.ums.modules.store.entity.StoreAttr;
 import com.upedge.ums.modules.store.request.StoreAttrAddRequest;
 import com.upedge.ums.modules.store.request.StoreAttrListRequest;
 import com.upedge.ums.modules.store.request.StoreAttrUpdateRequest;
+import com.upedge.ums.modules.store.response.*;
+import com.upedge.ums.modules.store.service.StoreAttrService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
 
-import com.upedge.ums.modules.store.response.StoreAttrAddResponse;
-import com.upedge.ums.modules.store.response.StoreAttrDelResponse;
-import com.upedge.ums.modules.store.response.StoreAttrInfoResponse;
-import com.upedge.ums.modules.store.response.StoreAttrListResponse;
-import com.upedge.ums.modules.store.response.StoreAttrUpdateResponse;
 import javax.validation.Valid;
+import java.util.List;
+
 
 /**
  * 
  *
- * @author gx
+ * @author author
  */
 @RestController
 @RequestMapping("/storeAttr")
 public class StoreAttrController {
     @Autowired
     private StoreAttrService storeAttrService;
-
 
     @RequestMapping(value="/info/{id}", method=RequestMethod.GET)
     @Permission(permission = "store:storeattr:info:id")
@@ -71,7 +64,7 @@ public class StoreAttrController {
 
     @RequestMapping(value="/update/{id}", method=RequestMethod.POST)
     @Permission(permission = "store:storeattr:update")
-    public StoreAttrUpdateResponse update(@PathVariable Integer id,@RequestBody @Valid StoreAttrUpdateRequest request) {
+    public StoreAttrUpdateResponse update(@PathVariable Integer id, @RequestBody @Valid StoreAttrUpdateRequest request) {
         StoreAttr entity=request.toStoreAttr(id);
         storeAttrService.updateByPrimaryKeySelective(entity);
         StoreAttrUpdateResponse res = new StoreAttrUpdateResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS);

@@ -1,0 +1,222 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.upedge.tms.modules.ship.dao.SaiheTransportDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.upedge.tms.modules.ship.entity.SaiheTransport" id="BaseResultMap">
+        <result property="id" column="id"/>
+        <result property="carrierName" column="carrier_name"/>
+        <result property="transportName" column="transport_name"/>
+        <result property="transportNameEn" column="transport_name_en"/>
+        <result property="isRegistered" column="is_registered"/>
+        <result property="trackingMoreCode" column="tracking_more_code"/>
+        <result property="fcCode" column="fc_code"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        `id`,`carrier_name`,`transport_name`,`transport_name_en`,`is_registered`,`tracking_more_code`,`fc_code`
+    </sql>
+
+    <select id="selectByPrimaryKey" parameterType="com.upedge.tms.modules.ship.entity.SaiheTransport" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from saihe_transport
+        where id = #{id}
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="com.upedge.tms.modules.ship.entity.SaiheTransport">
+        delete from saihe_transport
+        where id = #{id}
+    </delete>
+
+    <update id="updateByPrimaryKeySelective" parameterType="com.upedge.tms.modules.ship.entity.SaiheTransport">
+        update saihe_transport
+        <set>
+            <if test="carrierName != null">
+                carrier_name = #{carrierName},
+            </if>
+            <if test="transportName != null">
+                transport_name = #{transportName},
+            </if>
+            <if test="transportNameEn != null">
+                transport_name_en = #{transportNameEn},
+            </if>
+            <if test="isRegistered != null">
+                is_registered = #{isRegistered},
+            </if>
+            <if test="trackingMoreCode != null">
+                tracking_more_code = #{trackingMoreCode},
+            </if>
+            <if test="fcCode != null">
+                fc_code = #{fcCode},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <update id="updateByPrimaryKey" parameterType="com.upedge.tms.modules.ship.entity.SaiheTransport">
+        update saihe_transport
+        <set>
+        id = #{id},
+        carrier_name = #{carrierName},
+        transport_name = #{transportName},
+        transport_name_en = #{transportNameEn},
+        is_registered = #{isRegistered},
+        tracking_more_code = #{trackingMoreCode},
+        fc_code = #{fcCode},
+        </set>
+        where id = #{id}
+    </update>
+
+    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.upedge.tms.modules.ship.entity.SaiheTransport" useGeneratedKeys="true">
+        insert into saihe_transport
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            id,
+            carrier_name,
+            transport_name,
+            transport_name_en,
+            is_registered,
+            tracking_more_code,
+            fc_code
+        </trim>
+        values (
+        #{id},
+        #{carrierName},
+        #{transportName},
+        #{transportNameEn},
+        #{isRegistered},
+        #{trackingMoreCode},
+        #{fcCode}
+        )
+    </insert>
+
+    <insert id="insertSelective"  keyColumn="id" keyProperty="id"  parameterType="com.upedge.tms.modules.ship.entity.SaiheTransport" useGeneratedKeys="true">
+        insert into saihe_transport
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null" >
+              id
+            </if>
+            <if test="carrierName != null" >
+              carrier_name
+            </if>
+            <if test="transportName != null" >
+              transport_name
+            </if>
+            <if test="transportNameEn != null" >
+              transport_name_en
+            </if>
+            <if test="isRegistered != null" >
+              is_registered
+            </if>
+            <if test="trackingMoreCode != null" >
+              tracking_more_code
+            </if>
+            <if test="fcCode != null" >
+              fc_code
+            </if>
+
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null" >
+                #{id}
+            </if>
+            <if test="carrierName != null" >
+                #{carrierName}
+            </if>
+            <if test="transportName != null" >
+                #{transportName}
+            </if>
+            <if test="transportNameEn != null" >
+                #{transportNameEn}
+            </if>
+            <if test="isRegistered != null" >
+                #{isRegistered}
+            </if>
+            <if test="trackingMoreCode != null" >
+                #{trackingMoreCode}
+            </if>
+            <if test="fcCode != null" >
+                #{fcCode}
+            </if>
+
+        </trim>
+    </insert>
+
+    <insert id="saveSaiheTransport" parameterType="java.util.List">
+        insert into saihe_transport(id,carrier_name,transport_name,
+        transport_name_en,is_registered)
+        values
+        <foreach collection="list" item="item" index="index"
+                 separator=",">
+            (#{item.id,jdbcType=INTEGER},
+            #{item.carrierName,jdbcType=VARCHAR},
+            #{item.transportName,jdbcType=VARCHAR},
+            #{item.transportNameEn,jdbcType=VARCHAR},
+            #{item.isRegistered,jdbcType=BIT})
+        </foreach>
+        ON DUPLICATE KEY UPDATE
+        carrier_name = VALUES(carrier_name),
+        transport_name = VALUES(transport_name),
+        transport_name_en = VALUES(transport_name_en),
+        is_registered = VALUES(is_registered)
+    </insert>
+
+    <sql id="Query_Condition">
+        <if test="t != null">
+            where
+            <trim prefix=" " suffix=" " suffixOverrides=" and ">
+                1 = 1 and
+                    <if test="t.id != null">
+                        id = #{t.id} and
+                    </if>
+                    <if test="t.carrierName != null">
+                        carrier_name LIKE CONCAT('%',#{t.carrierName},'%')  and
+                    </if>
+                    <if test="t.transportName != null">
+                        transport_name = #{t.transportName} and
+                    </if>
+                    <if test="t.transportNameEn != null">
+                        transport_name_en = #{t.transportNameEn} and
+                    </if>
+                    <if test="t.isRegistered != null">
+                        is_registered = #{t.isRegistered} and
+                    </if>
+                    <if test="t.trackingMoreCode != null">
+                        tracking_more_code = #{t.trackingMoreCode} and
+                    </if>
+                    <if test="t.fcCode != null">
+                        fc_code = #{t.fcCode} and
+                    </if>
+            </trim>
+        </if>
+    </sql>
+
+    <select id="select" parameterType="com.upedge.common.base.Page" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from saihe_transport
+        <include refid="Query_Condition"/>
+        <if test="orderBy != null">
+            order by ${orderBy}
+        </if>
+        <if test="pageNum != null and pageSize != null">
+            limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+        </if>
+    </select>
+
+    <select id="count" parameterType="com.upedge.common.base.Page" resultType="java.lang.Long">
+        select
+        count(1)
+        from saihe_transport
+        <include refid="Query_Condition"/>
+    </select>
+
+    <select id="allSaiheTransport"  resultMap="BaseResultMap">
+        select
+        `id`,`transport_name`
+        from saihe_transport
+    </select>
+
+
+</mapper>

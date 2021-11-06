@@ -1,0 +1,314 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.upedge.oms.modules.sales.dao.CustomerProductSalesLogDao">
+
+    <!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.upedge.oms.modules.sales.entity.CustomerProductSalesLog" id="BaseResultMap">
+        <result property="id" column="id"/>
+        <result property="variantId" column="variant_id"/>
+        <result property="productId" column="product_id"/>
+        <result property="quantity" column="quantity"/>
+        <result property="customerId" column="customer_id"/>
+        <result property="orderId" column="order_id"/>
+        <result property="orderItemId" column="order_item_id"/>
+        <result property="orderType" column="order_type"/>
+        <result property="state" column="state"/>
+        <result property="createTime" column="create_time"/>
+    </resultMap>
+
+    <resultMap id="CustomerProductDailySales" type="com.upedge.common.model.product.CustomerProductDailySales">
+        <id property="variantId" column="variantId"/>
+        <result property="productId" column="productIdId"/>
+        <result property="customerId" column="customerId"/>
+        <collection property="dailySalesList" ofType="com.upedge.common.model.product.DailySales">
+            <result property="sales" column="sales"/>
+            <result property="days" column="days"/>
+        </collection>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        `id`,`variant_id`,`product_id`,`quantity`,`customer_id`,`order_id`,order_item_id,`order_type`,`state`,`create_time`
+    </sql>
+
+    <select id="selectVariantIdByCustomerId" resultType="java.lang.Long">
+        select distinct variant_id
+        from customer_product_sales_log
+        where customer_id = #{customerId}
+    </select>
+
+    <select id="selectCustomerProductSales" resultMap="CustomerProductDailySales">
+        select variant_id as `variantId`,
+				product_id as `productId`,
+				sum(quantity) as `sales`,
+				'5' as `days`
+        from customer_product_sales_log
+        where customer_id = #{customerId}
+        and create_time >= DATE_SUB(now(),INTERVAL 5 Day)
+        and state = '1'
+        group by variant_id,product_id
+        union
+        select variant_id as `variantId`,
+				product_id as `productId`,
+				sum(quantity) as `sales`,
+				'10' as `days`
+        from customer_product_sales_log
+        where customer_id = #{customerId}
+        and create_time >= DATE_SUB(now(),INTERVAL 10 Day)
+        and state = '1'
+        group by variant_id,product_id
+        union
+        select variant_id as `variantId`,
+				product_id as `productId`,
+				sum(quantity) as `sales`,
+				'15' as `days`
+        from customer_product_sales_log
+        where customer_id = #{customerId}
+        and create_time >= DATE_SUB(now(),INTERVAL 15 Day)
+        and state = '1'
+        group by variant_id,product_id
+    </select>
+
+    <select id="selectByPrimaryKey" parameterType="com.upedge.oms.modules.sales.entity.CustomerProductSalesLog"
+            resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from customer_product_sales_log
+        where id = #{id}
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="com.upedge.oms.modules.sales.entity.CustomerProductSalesLog">
+        delete from customer_product_sales_log
+        where id = #{id}
+    </delete>
+
+    <update id="updateByPrimaryKeySelective" parameterType="com.upedge.oms.modules.sales.entity.CustomerProductSalesLog">
+        update customer_product_sales_log
+        <set>
+            <if test="variantId != null">
+                variant_id = #{variantId},
+            </if>
+            <if test="productId != null">
+                product_id = #{productId},
+            </if>
+            <if test="quantity != null">
+                quantity = #{quantity},
+            </if>
+            <if test="customerId != null">
+                customer_id = #{customerId},
+            </if>
+            <if test="orderId != null">
+                order_id = #{orderId},
+            </if>
+            <if test="orderType != null">
+                order_type = #{orderType},
+            </if>
+            <if test="state != null">
+                state = #{state},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <update id="updateByPrimaryKey" parameterType="com.upedge.oms.modules.sales.entity.CustomerProductSalesLog">
+        update customer_product_sales_log
+        <set>
+            id = #{id},
+            variant_id = #{variantId},
+            product_id = #{productId},
+            quantity = #{quantity},
+            customer_id = #{customerId},
+            order_id = #{orderId},
+            order_type = #{orderType},
+            state = #{state},
+            create_time = #{createTime},
+        </set>
+        where id = #{id}
+    </update>
+
+    <insert id="insert" keyColumn="id" keyProperty="id"
+            parameterType="com.upedge.oms.modules.sales.entity.CustomerProductSalesLog" useGeneratedKeys="true">
+        insert into customer_product_sales_log
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            id,
+            variant_id,
+            product_id,
+            quantity,
+            customer_id,
+            order_id,
+            order_item_id,
+            order_type,
+            state,
+            create_time
+        </trim>
+        values (
+        #{id},
+        #{variantId},
+        #{productId},
+        #{quantity},
+        #{customerId},
+        #{orderId},
+        #{orderItemId},
+        #{orderType},
+        #{state},
+        #{createTime}
+        )
+    </insert>
+
+    <insert id="insertSelective" keyColumn="id" keyProperty="id"
+            parameterType="com.upedge.oms.modules.sales.entity.CustomerProductSalesLog" useGeneratedKeys="true">
+        insert into customer_product_sales_log
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id
+            </if>
+            <if test="variantId != null">
+                variant_id
+            </if>
+            <if test="productId != null">
+                product_id
+            </if>
+            <if test="quantity != null">
+                quantity
+            </if>
+            <if test="customerId != null">
+                customer_id
+            </if>
+            <if test="orderId != null">
+                order_id
+            </if>
+            <if test="orderType != null">
+                order_type
+            </if>
+            <if test="state != null">
+                state
+            </if>
+            <if test="createTime != null">
+                create_time
+            </if>
+
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id}
+            </if>
+            <if test="variantId != null">
+                #{variantId}
+            </if>
+            <if test="productId != null">
+                #{productId}
+            </if>
+            <if test="quantity != null">
+                #{quantity}
+            </if>
+            <if test="customerId != null">
+                #{customerId}
+            </if>
+            <if test="orderId != null">
+                #{orderId}
+            </if>
+            <if test="orderType != null">
+                #{orderType}
+            </if>
+            <if test="state != null">
+                #{state}
+            </if>
+            <if test="createTime != null">
+                #{createTime}
+            </if>
+
+        </trim>
+    </insert>
+
+    <insert id="insertByBatch" parameterType="java.util.List">
+        insert into customer_product_sales_log
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            id,
+            variant_id,
+            product_id,
+            quantity,
+            customer_id,
+            order_id,
+            order_item_id,
+            order_type,
+            state,
+            create_time
+        </trim>
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+                #{item.id},
+                #{item.variantId},
+                #{item.productId},
+                #{item.quantity},
+                #{item.customerId},
+                #{item.orderId},
+                #{item.orderItemId},
+                #{item.orderType},
+                #{item.state},
+                #{item.createTime}
+            </trim>
+        </foreach>
+    </insert>
+
+    <sql id="Query_Condition">
+        <if test="t != null">
+            where
+            <trim prefix=" " suffix=" " suffixOverrides=" and ">
+                1 = 1 and
+                <if test="t.id != null">
+                    id = #{t.id} and
+                </if>
+                <if test="t.variantId != null">
+                    variant_id = #{t.variantId} and
+                </if>
+                <if test="t.productId != null">
+                    product_id = #{t.productId} and
+                </if>
+                <if test="t.quantity != null">
+                    quantity = #{t.quantity} and
+                </if>
+                <if test="t.customerId != null">
+                    customer_id = #{t.customerId} and
+                </if>
+                <if test="t.orderId != null">
+                    order_id = #{t.orderId} and
+                </if>
+                <if test="t.orderType != null">
+                    order_type = #{t.orderType} and
+                </if>
+                <if test="t.state != null">
+                    state = #{t.state} and
+                </if>
+                <if test="t.createTime != null">
+                    create_time = #{t.createTime} and
+                </if>
+            </trim>
+        </if>
+    </sql>
+
+    <select id="select" parameterType="com.upedge.common.base.Page" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from customer_product_sales_log
+        <include refid="Query_Condition"/>
+        <if test="orderBy != null">
+            order by ${orderBy}
+        </if>
+        <if test="pageNum != null and pageSize != null">
+            limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+        </if>
+    </select>
+
+    <select id="count" parameterType="com.upedge.common.base.Page" resultType="java.lang.Long">
+        select
+        count(1)
+        from customer_product_sales_log
+        <include refid="Query_Condition"/>
+    </select>
+
+
+</mapper>

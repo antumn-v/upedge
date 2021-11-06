@@ -18,6 +18,21 @@
         `id`,`referrer_id`,`referee_id`,`referee_commission`,`create_time`,`update_time`,`source`
     </sql>
 
+    <select id="searchCommissionByReferee" resultType="com.upedge.ums.modules.affiliate.vo.RefereeCommissionVo">
+        select concat(LEFT (c.cname, 1),'****',RIGHT (c.cname, 1)) as username,
+        aff.referee_commission as commission,aff.create_time as createTime
+        from affiliate aff
+        left join customer c
+        on aff.referee_id = c.id
+        where aff.referrer_id = #{referrerId}
+  </select>
+
+    <update id="updateRefereeCommission">
+        update affiliate
+        set referee_commission = referee_commission + #{commission}
+        where referee_id = #{refereeId}
+    </update>
+
     <select id="selectByPrimaryKey" parameterType="com.upedge.ums.modules.affiliate.entity.Affiliate" resultMap="BaseResultMap">
         select
         <include refid="Base_Column_List" />
@@ -86,7 +101,7 @@
         #{refereeId},
         #{refereeCommission},
         #{createTime},
-        #{updateTime},
+        #{createTime},
         #{source}
         )
     </insert>
@@ -144,7 +159,7 @@
     </insert>
 
     <insert id="insertByBatch" parameterType="java.util.List">
-        insert into affiliate
+        replace into affiliate
         <trim prefix="(" suffix=")" suffixOverrides=",">
            id,
            referrer_id,
@@ -217,6 +232,24 @@
         from affiliate
         <include refid="Query_Condition"/>
     </select>
+
+    <select id="queryAffiliateByReferee" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from affiliate
+        where referee_id = #{refereeId}
+    </select>
+    <select id="selectAffiliateVoByrefereeId" resultType="com.upedge.ums.modules.affiliate.entity.Affiliate">
+        select    <include refid="Base_Column_List" />
+        from affiliate
+        where referee_id = #{customerId}
+    </select>
+
+    <update id="subAffiliateCommission">
+		update affiliate set referee_commission=referee_commission-#{commission},
+		update_time=#{updateTime}
+		where id=#{id}
+	</update>
 
 
 </mapper>

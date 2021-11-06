@@ -1,0 +1,317 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.upedge.pms.modules.product.dao.ImportPriceRuleDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.upedge.pms.modules.product.entity.ImportPriceRule" id="BaseResultMap">
+        <result property="id" column="id"/>
+        <result property="userId" column="user_id"/>
+        <result property="rangeStart" column="range_start"/>
+        <result property="rangeEnd" column="range_end"/>
+        <result property="markupType" column="markup_type"/>
+        <result property="markupVal" column="markup_val"/>
+        <result property="compareMarkupType" column="compare_markup_type"/>
+        <result property="compareMarkupVal" column="compare_markup_val"/>
+        <result property="customerId" column="customer_id"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        `id`,`user_id`,`range_start`,`range_end`,`markup_type`,`markup_val`,`compare_markup_type`,`compare_markup_val`,`customer_id`,`create_time`,`update_time`
+    </sql>
+
+    <select id="selectByCustomerId" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from import_price_rule
+        where customer_id = #{customerId}
+    </select>
+
+    <select id="selectRestPriceRule" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from import_price_rule
+        where customer_id = #{customerId}
+        and #{price}
+        BETWEEN range_start and range_end
+        limit 1
+    </select>
+
+    <delete id="deleteByCustomerId">
+        delete
+        from import_price_rule
+        where customer_id = #{customerId}
+    </delete>
+
+    <select id="selectByPrimaryKey" parameterType="com.upedge.pms.modules.product.entity.ImportPriceRule" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from import_price_rule
+        where id = #{id}
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="com.upedge.pms.modules.product.entity.ImportPriceRule">
+        delete from import_price_rule
+        where id = #{id}
+    </delete>
+
+    <update id="updateByPrimaryKeySelective" parameterType="com.upedge.pms.modules.product.entity.ImportPriceRule">
+        update import_price_rule
+        <set>
+            <if test="userId != null">
+                user_id = #{userId},
+            </if>
+            <if test="rangeStart != null">
+                range_start = #{rangeStart},
+            </if>
+            <if test="rangeEnd != null">
+                range_end = #{rangeEnd},
+            </if>
+            <if test="markupType != null">
+                markup_type = #{markupType},
+            </if>
+            <if test="markupVal != null">
+                markup_val = #{markupVal},
+            </if>
+            <if test="compareMarkupType != null">
+                compare_markup_type = #{compareMarkupType},
+            </if>
+            <if test="compareMarkupVal != null">
+                compare_markup_val = #{compareMarkupVal},
+            </if>
+            <if test="customerId != null">
+                customer_id = #{customerId},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime},
+            </if>
+            <if test="updateTime != null">
+                update_time = #{updateTime},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <update id="updateByPrimaryKey" parameterType="com.upedge.pms.modules.product.entity.ImportPriceRule">
+        update import_price_rule
+        <set>
+        id = #{id},
+        user_id = #{userId},
+        range_start = #{rangeStart},
+        range_end = #{rangeEnd},
+        markup_type = #{markupType},
+        markup_val = #{markupVal},
+        compare_markup_type = #{compareMarkupType},
+        compare_markup_val = #{compareMarkupVal},
+        customer_id = #{customerId},
+        create_time = #{createTime},
+        update_time = #{updateTime},
+        </set>
+        where id = #{id}
+    </update>
+
+    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.upedge.pms.modules.product.entity.ImportPriceRule" useGeneratedKeys="true">
+        insert into import_price_rule
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            id,
+            user_id,
+            range_start,
+            range_end,
+            markup_type,
+            markup_val,
+            compare_markup_type,
+            compare_markup_val,
+            customer_id,
+            create_time,
+            update_time
+        </trim>
+        values (
+        #{id},
+        #{userId},
+        #{rangeStart},
+        #{rangeEnd},
+        #{markupType},
+        #{markupVal},
+        #{compareMarkupType},
+        #{compareMarkupVal},
+        #{customerId},
+        #{createTime},
+        #{updateTime}
+        )
+    </insert>
+
+    <insert id="insertSelective"  keyColumn="id" keyProperty="id"  parameterType="com.upedge.pms.modules.product.entity.ImportPriceRule" useGeneratedKeys="true">
+        insert into import_price_rule
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null" >
+              id
+            </if>
+            <if test="userId != null" >
+              user_id
+            </if>
+            <if test="rangeStart != null" >
+              range_start
+            </if>
+            <if test="rangeEnd != null" >
+              range_end
+            </if>
+            <if test="markupType != null" >
+              markup_type
+            </if>
+            <if test="markupVal != null" >
+              markup_val
+            </if>
+            <if test="compareMarkupType != null" >
+              compare_markup_type
+            </if>
+            <if test="compareMarkupVal != null" >
+              compare_markup_val
+            </if>
+            <if test="customerId != null" >
+              customer_id
+            </if>
+            <if test="createTime != null" >
+              create_time
+            </if>
+            <if test="updateTime != null" >
+              update_time
+            </if>
+
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null" >
+                #{id}
+            </if>
+            <if test="userId != null" >
+                #{userId}
+            </if>
+            <if test="rangeStart != null" >
+                #{rangeStart}
+            </if>
+            <if test="rangeEnd != null" >
+                #{rangeEnd}
+            </if>
+            <if test="markupType != null" >
+                #{markupType}
+            </if>
+            <if test="markupVal != null" >
+                #{markupVal}
+            </if>
+            <if test="compareMarkupType != null" >
+                #{compareMarkupType}
+            </if>
+            <if test="compareMarkupVal != null" >
+                #{compareMarkupVal}
+            </if>
+            <if test="customerId != null" >
+                #{customerId}
+            </if>
+            <if test="createTime != null" >
+                #{createTime}
+            </if>
+            <if test="updateTime != null" >
+                #{updateTime}
+            </if>
+
+        </trim>
+    </insert>
+
+    <insert id="insertByBatch" parameterType="java.util.List">
+        insert into import_price_rule
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+           id,
+           user_id,
+           range_start,
+           range_end,
+           markup_type,
+           markup_val,
+           compare_markup_type,
+           compare_markup_val,
+           customer_id,
+           create_time,
+           update_time
+        </trim>
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+               #{item.id},
+               #{item.userId},
+               #{item.rangeStart},
+               #{item.rangeEnd},
+               #{item.markupType},
+               #{item.markupVal},
+               #{item.compareMarkupType},
+               #{item.compareMarkupVal},
+               #{item.customerId},
+               #{item.createTime},
+               #{item.updateTime}
+            </trim>
+        </foreach>
+    </insert>
+
+    <sql id="Query_Condition">
+        <if test="t != null">
+            where
+            <trim prefix=" " suffix=" " suffixOverrides=" and ">
+                1 = 1 and
+                    <if test="t.id != null">
+                        id = #{t.id} and
+                    </if>
+                    <if test="t.userId != null">
+                        user_id = #{t.userId} and
+                    </if>
+                    <if test="t.rangeStart != null">
+                        range_start = #{t.rangeStart} and
+                    </if>
+                    <if test="t.rangeEnd != null">
+                        range_end = #{t.rangeEnd} and
+                    </if>
+                    <if test="t.markupType != null">
+                        markup_type = #{t.markupType} and
+                    </if>
+                    <if test="t.markupVal != null">
+                        markup_val = #{t.markupVal} and
+                    </if>
+                    <if test="t.compareMarkupType != null">
+                        compare_markup_type = #{t.compareMarkupType} and
+                    </if>
+                    <if test="t.compareMarkupVal != null">
+                        compare_markup_val = #{t.compareMarkupVal} and
+                    </if>
+                    <if test="t.customerId != null">
+                        customer_id = #{t.customerId} and
+                    </if>
+                    <if test="t.createTime != null">
+                        create_time = #{t.createTime} and
+                    </if>
+                    <if test="t.updateTime != null">
+                        update_time = #{t.updateTime} and
+                    </if>
+            </trim>
+        </if>
+    </sql>
+
+    <select id="select" parameterType="com.upedge.common.base.Page" resultMap="BaseResultMap">
+        select
+        `id`,`user_id`,ifnull(range_start,'0') as range_start,ifnull(`range_end`,'0') as range_end,`markup_type`,`markup_val`,`compare_markup_type`,`compare_markup_val`,`customer_id`,`create_time`,`update_time`
+        from import_price_rule
+        <include refid="Query_Condition"/>
+        <if test="orderBy != null">
+            order by ${orderBy}
+        </if>
+        <if test="pageNum != null and pageSize != null">
+            limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+        </if>
+    </select>
+
+    <select id="count" parameterType="com.upedge.common.base.Page" resultType="java.lang.Long">
+        select
+        count(1)
+        from import_price_rule
+        <include refid="Query_Condition"/>
+    </select>
+
+
+</mapper>

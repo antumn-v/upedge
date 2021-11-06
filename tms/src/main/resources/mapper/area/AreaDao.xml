@@ -1,0 +1,251 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.upedge.tms.modules.area.dao.AreaDao">
+
+    <!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.upedge.tms.modules.area.entity.Area" id="BaseResultMap">
+        <result property="id" column="id"/>
+        <result property="name" column="name"/>
+        <result property="enName" column="en_name"/>
+        <result property="areaCode" column="area_code"/>
+        <result property="updateTime" column="update_time"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        `id`,`name`,`en_name`,`area_code`,`update_time`
+    </sql>
+
+    <sql id="Area_Entity">
+        where
+        <trim prefix=" " suffix=" " suffixOverrides=" and ">
+            <if test="id != null">
+                id = #{id} and
+            </if>
+            <if test="name != null">
+                name = #{name} and
+            </if>
+            <if test="enName != null">
+                en_name = #{enName} and
+            </if>
+            <if test="areaCode != null">
+                area_code = #{areaCode} and
+            </if>
+        </trim>
+    </sql>
+
+    <select id="selectByEntity" resultType="com.upedge.common.model.ship.vo.AreaVo"
+            parameterType="com.upedge.common.model.ship.request.AreaSelectRequest">
+        select
+        `id`,`name`,`en_name` as `enName`,`area_code` as `areaCode`
+        from area
+        <include refid="Area_Entity"/>
+    </select>
+
+
+    <select id="selectIdByCountries" resultType="java.lang.Long" parameterType="java.lang.String">
+        select id
+        from area
+        where en_name in
+        <foreach collection="countries" item="country" open="(" close=")" separator=",">
+            #{country}
+        </foreach>
+    </select>
+
+    <select id="selectByPrimaryKey" parameterType="com.upedge.tms.modules.area.entity.Area" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from area
+        where id = #{id}
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="com.upedge.tms.modules.area.entity.Area">
+        delete from area
+        where id = #{id}
+    </delete>
+
+    <update id="updateByPrimaryKeySelective" parameterType="com.upedge.tms.modules.area.entity.Area">
+        update area
+        <set>
+            <if test="name != null">
+                name = #{name},
+            </if>
+            <if test="enName != null">
+                en_name = #{enName},
+            </if>
+            <if test="areaCode != null">
+                area_code = #{areaCode},
+            </if>
+            <if test="updateTime != null">
+                update_time = #{updateTime},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <update id="updateByPrimaryKey" parameterType="com.upedge.tms.modules.area.entity.Area">
+        update area
+        <set>
+            id = #{id},
+            name = #{name},
+            en_name = #{enName},
+            area_code = #{areaCode},
+            update_time = #{updateTime},
+        </set>
+        where id = #{id}
+    </update>
+
+    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.upedge.tms.modules.area.entity.Area"
+            useGeneratedKeys="true">
+        insert into area
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            id,
+            name,
+            en_name,
+            area_code,
+            update_time
+        </trim>
+        values (
+        #{id},
+        #{name},
+        #{enName},
+        #{areaCode},
+        #{updateTime}
+        )
+    </insert>
+
+    <insert id="insertSelective" keyColumn="id" keyProperty="id" parameterType="com.upedge.tms.modules.area.entity.Area"
+            useGeneratedKeys="true">
+        insert into area
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id
+            </if>
+            <if test="name != null">
+                name
+            </if>
+            <if test="enName != null">
+                en_name
+            </if>
+            <if test="areaCode != null">
+                area_code
+            </if>
+            <if test="updateTime != null">
+                update_time
+            </if>
+
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id}
+            </if>
+            <if test="name != null">
+                #{name}
+            </if>
+            <if test="enName != null">
+                #{enName}
+            </if>
+            <if test="areaCode != null">
+                #{areaCode}
+            </if>
+            <if test="updateTime != null">
+                #{updateTime}
+            </if>
+
+        </trim>
+    </insert>
+
+    <insert id="insertByBatch" parameterType="java.util.List">
+        insert into area
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            id,
+            name,
+            en_name,
+            area_code,
+            update_time
+        </trim>
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+                #{item.id},
+                #{item.name},
+                #{item.enName},
+                #{item.areaCode},
+                #{item.updateTime}
+            </trim>
+        </foreach>
+    </insert>
+
+    <sql id="Query_Condition">
+        <if test="t != null">
+            where
+            <trim prefix=" " suffix=" " suffixOverrides=" and ">
+                1 = 1 and
+                <if test="t.id != null">
+                    id = #{t.id} and
+                </if>
+                <if test="t.name != null">
+                 <!--   name = #{t.name} and -->
+                    name LIKE CONCAT('%',#{t.name},'%')  and
+                </if>
+                <if test="t.enName != null">
+                    <!--   en_name = #{t.enName} and -->
+                       en_name LIKE CONCAT('%',#{t.enName},'%') and
+                   </if>
+                   <if test="t.areaCode != null">
+                   <!--    area_code = #{t.areaCode} and -->
+                       area_code LIKE CONCAT('%',#{t.areaCode},'%') and
+                   </if>
+                   <if test="t.updateTime != null">
+                       update_time = #{t.updateTime} and
+                   </if>
+               </trim>
+           </if>
+       </sql>
+
+
+
+       <select id="select" parameterType="com.upedge.common.base.Page" resultMap="BaseResultMap">
+           select
+           <include refid="Base_Column_List"/>
+           from area
+           <include refid="Query_Condition"/>
+           <if test="orderBy != null">
+               order by ${orderBy}
+           </if>
+           <if test="pageNum != null and pageSize != null">
+               limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+           </if>
+       </select>
+
+       <select id="count" parameterType="com.upedge.common.base.Page" resultType="java.lang.Long">
+           select
+           count(1)
+           from area
+           <include refid="Query_Condition"/>
+       </select>
+
+       <select id="getRegionByName" resultMap="BaseResultMap">
+           select
+           <include refid="Base_Column_List"/>
+           from area where `name`=#{name}
+       </select>
+
+       <select id="allArea" resultMap="BaseResultMap">
+           select
+           <include refid="Base_Column_List"/>
+           from area
+       </select>
+
+       <select id="listArea"   resultMap="BaseResultMap">
+           select
+           `id`,`name`
+           from area
+           where id in
+           <foreach collection="ids" index="index" item="item"
+                    separator="," open="(" close=")">
+               #{item}
+           </foreach>
+       </select>
+
+   </mapper>

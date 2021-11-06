@@ -1,12 +1,12 @@
 package com.upedge.ums.modules.affiliate.entity;
 
-import java.math.BigDecimal;
-import java.io.Serializable;
-import java.util.Date;
 import lombok.Data;
 
+import java.math.BigDecimal;
+import java.util.Date;
+
 /**
- * @author gx
+ * @author author
  */
 @Data
 public class AffiliateCommissionRecord{
@@ -19,16 +19,15 @@ public class AffiliateCommissionRecord{
 	 * 被推荐人ID
 	 */
     private Long refereeId;
-	/**
-	 * 推荐人ID
-	 */
+
+
     private Long referrerId;
 	/**
 	 * 交易ID
 	 */
     private Long orderId;
 	/**
-	 * 充值 = 0,备库 = 1，普通 = 2，批发 = 3，转账 = 4，提现 = 5
+	 * 0=普通订单，1=批发订单
 	 */
     private Integer orderType;
 	/**
@@ -36,7 +35,7 @@ public class AffiliateCommissionRecord{
 	 */
     private BigDecimal commission;
 	/**
-	 * 退款=0，支付=1 提现=2
+	 * 退款=0，支付=1 现在提现=2 余额提现=3 批发退款=4
 	 */
     private Integer state;
 	/**

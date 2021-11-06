@@ -1,13 +1,62 @@
 package com.upedge.ums.modules.store.service.impl;
 
+import com.alibaba.fastjson.JSONObject;
+import com.upedge.common.base.BaseResponse;
+import com.upedge.common.base.Page;
+import com.upedge.common.constant.Constant;
+import com.upedge.common.constant.ResultCode;
+import com.upedge.common.constant.key.RedisKey;
+import com.upedge.common.enums.StoreSettingEnum;
+import com.upedge.common.model.old.ums.StoreNameAndUserVo;
+import com.upedge.common.model.store.StoreVo;
+import com.upedge.common.model.store.config.ShopifyConfig;
+import com.upedge.common.model.user.vo.Session;
+import com.upedge.common.utils.IdGenerate;
+import com.upedge.common.utils.TokenUtil;
+import com.upedge.common.web.util.UserUtil;
+import com.upedge.thirdparty.shopify.entity.shop.Shop;
+import com.upedge.thirdparty.shopify.moudles.shop.controller.ShopifyShopApi;
+import com.upedge.thirdparty.shoplazza.moudles.shop.api.ShoplazzaShopApi;
+import com.upedge.thirdparty.shoplazza.moudles.shop.entity.ShoplazzaShop;
+import com.upedge.thirdparty.woocommerce.entity.AuthParam;
+import com.upedge.thirdparty.woocommerce.moudles.shop.api.WoocommerceShopApi;
+import com.upedge.ums.async.StoreAsync;
+import com.upedge.ums.enums.ShopifyAttr;
+import com.upedge.ums.enums.WoocommerceAttr;
+import com.upedge.ums.modules.manager.entity.CustomerManager;
+import com.upedge.ums.modules.manager.service.CustomerManagerService;
+import com.upedge.ums.modules.organization.dao.OrganizationDao;
+import com.upedge.ums.modules.organization.dao.OrganizationMenuDao;
+import com.upedge.ums.modules.organization.dao.OrganizationRoleDao;
+import com.upedge.ums.modules.organization.dao.OrganizationUserDao;
+import com.upedge.ums.modules.organization.entity.Organization;
+import com.upedge.ums.modules.organization.entity.OrganizationMenu;
+import com.upedge.ums.modules.organization.entity.OrganizationRole;
+import com.upedge.ums.modules.organization.entity.OrganizationUser;
+import com.upedge.ums.modules.store.config.StoreConfig;
+import com.upedge.ums.modules.store.dao.StoreAttrDao;
+import com.upedge.ums.modules.store.dao.StoreDao;
+import com.upedge.ums.modules.store.dao.StoreSettingDao;
+import com.upedge.ums.modules.store.entity.*;
+import com.upedge.ums.modules.store.request.ShoplazzaAuthRequest;
+import com.upedge.ums.modules.store.request.WoocommerceAuthRequest;
+import com.upedge.ums.modules.store.response.ShopifyAuthResponse;
+import com.upedge.ums.modules.store.response.WoocommerceAuthResponse;
+import com.upedge.ums.modules.store.service.StoreService;
+import com.upedge.ums.modules.user.dao.RoleDao;
+import com.upedge.ums.modules.user.entity.Role;
+import com.upedge.ums.modules.user.entity.User;
+import com.upedge.ums.modules.user.request.CustomerSignUpRequest;
+import com.upedge.ums.modules.user.service.CustomerService;
+import com.upedge.ums.modules.user.service.impl.UserServiceImpl;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import java.util.List;
-import com.upedge.common.base.Page;
-import org.springframework.beans.factory.annotation.Autowired;
-import com.upedge.ums.modules.store.dao.StoreDao;
-import com.upedge.ums.modules.store.entity.Store;
-import com.upedge.ums.modules.store.service.StoreService;
+
+import java.util.*;
 
 
 @Service
@@ -16,12 +65,48 @@ public class StoreServiceImpl implements StoreService {
     @Autowired
     private StoreDao storeDao;
 
+    @Autowired
+    StoreAttrDao storeAttrDao;
+
+    @Autowired
+    OrganizationDao organizationDao;
+
+    @Autowired
+    RoleDao roleDao;
+
+    @Autowired
+    OrganizationRoleDao organizationRoleDao;
+
+    @Autowired
+    OrganizationUserDao organizationUserDao;
+
+    @Autowired
+    StoreSettingDao storeSettingDao;
+
+    @Autowired
+    OrganizationMenuDao organizationMenuDao;
+
+    @Autowired
+    StoreAsync storeAsync;
+
+    @Autowired
+    CustomerManagerService customerManagerService;
+
+    @Autowired
+    UserServiceImpl userServiceImpl;
+
+    @Autowired
+    CustomerService customerService;
+
+    @Autowired
+    RedisTemplate<String, Object> redisTemplate;
 
 
     /**
      *
      */
     @Transactional
+    @Override
     public int deleteByPrimaryKey(Long id) {
         Store record = new Store();
         record.setId(id);
@@ -32,6 +117,7 @@ public class StoreServiceImpl implements StoreService {
      *
      */
     @Transactional
+    @Override
     public int insert(Store record) {
         return storeDao.insert(record);
     }
@@ -40,48 +126,585 @@ public class StoreServiceImpl implements StoreService {
      *
      */
     @Transactional
+    @Override
     public int insertSelective(Store record) {
         return storeDao.insert(record);
+    }
+
+    @Override
+    public List<Store> selectStoreByCustomer(Long customerId) {
+        return storeDao.selectStoreByCustomer(customerId);
+    }
+
+    @Override
+    public List<Store> selectByCustomerOrgIds(Long customerId, List<Long> orgIds) {
+        return storeDao.selectByCustomerOrgIds(customerId, orgIds);
+    }
+
+    @Override
+    public List<String> selectAllStoreCurrency() {
+        return storeDao.selectAllStoreCurrency();
+    }
+
+    @Override
+    public BaseResponse storeSettingList() {
+
+        Session session = UserUtil.getSession(redisTemplate);
+
+        List<Store> stores = storeDao.selectStoreByCustomer(session.getCustomerId());
+
+        Map<String, List<StoreSetting>> map = new HashMap<>();
+
+        stores.forEach(store -> {
+            if (1 == store.getStatus()) {
+                map.put(store.getStoreName(), storeSettingDao.selectByStoreId(store.getId()));
+            }
+        });
+
+        return new BaseResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS, map);
+    }
+
+    @Override
+    public BaseResponse storeSettingUpdate(StoreSetting storeSetting) {
+        storeSettingDao.updateStoreSettingValueByName(storeSetting);
+        return new BaseResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS);
+    }
+
+    @Override
+    public void updateUsdRate() {
+        storeDao.updateUsdRate();
+    }
+
+    @Transactional
+    @Override
+    public Store updateShopifyStore(String storeUrl, String token, Session session) {
+        Shop shopDetail = ShopifyShopApi.getShopDetail(storeUrl, token);
+        if (null == shopDetail) {
+            return null;
+        }
+        User user = null;
+        Map<String, String> result = new HashMap<>();
+        Store store = storeDao.selectByStoreUrl(storeUrl);
+        if (session == null){
+            if(store != null){
+                user = userServiceImpl.selectByPrimaryKey(store.getUserId());
+            }else {
+                String password = System.currentTimeMillis()+"";
+                String loginName = shopDetail.getEmail();
+                user = userServiceImpl.selectByLoginName(loginName);
+                if (user != null){
+                    loginName = password;
+                }
+                CustomerSignUpRequest request = new CustomerSignUpRequest();
+                request.setEmail(shopDetail.getEmail());
+                request.setUsername(shopDetail.getName());
+                request.setCountry(shopDetail.getCountry());
+                request.setMobile(shopDetail.getPhone());
+                request.setLoginName(loginName);
+                request.setPassword(password);
+                request.setApplicationId(1L);
+                user = userServiceImpl.userSignUp(request);
+                redisTemplate.opsForHash().put(RedisKey.HASH_USER_NEED_RESET_PASSWTORD,user.getLoginName(),password);
+            }
+            result = userServiceImpl.userSignIn(user, 1L);
+            session = (Session) redisTemplate.opsForValue().get(TokenUtil.getTokenKey(result.get("token")));
+        }else {
+            user = userServiceImpl.selectByPrimaryKey(session.getId());
+            result = userServiceImpl.userSignIn(user, 1L);
+        }
+
+        boolean b = false;
+        Long storeId = null;
+        Long orgId;
+        if (null != store) {
+            b = true;
+            orgId = store.getOrgId();
+            storeId = store.getId();
+            storeAttrDao.deleteByStoreId(storeId);
+        } else {
+            orgId = IdGenerate.nextId();
+            storeId = IdGenerate.nextId();
+            store = new Store();
+        }
+
+        store.setId(storeId);
+        store.setOrgId(orgId);
+        store.setStoreName(storeUrl);
+        store.setStoreUrl(storeUrl);
+        store.setUserId(session.getId());
+        store.setCustomerId(session.getCustomerId());
+        store.setStatus(1);
+        store.setStoreType(StoreConfig.shopify_store);
+        store.setCurrency(shopDetail.getCurrency());
+        store.setTimezone(shopDetail.getTimezone());
+        store.setUpdateTime(new Date());
+
+        List<StoreAttr> attrs = new ArrayList<>();
+
+        StoreAttr accessToken = new StoreAttr();
+        accessToken.setAttrKey(ShopifyAttr.access_token.toString());
+        accessToken.setAttrValue(token);
+        accessToken.setStoreId(storeId);
+        attrs.add(accessToken);
+
+        StoreAttr locationId = new StoreAttr();
+        locationId.setStoreId(storeId);
+        locationId.setAttrKey(ShopifyAttr.location_id.toString());
+        locationId.setAttrValue(shopDetail.getPrimary_location_id() + "");
+        attrs.add(locationId);
+
+        storeAttrDao.insertByBatch(attrs);
+
+        store.setApiToken(token);
+
+        Organization organization = toOrganization(store);
+
+        if (b) {
+            organizationDao.updateByPrimaryKeySelective(organization);
+            storeDao.updateByPrimaryKey(store);
+        } else {
+
+            String orgPath = session.getParentOrganization().getId() + "|" + orgId;
+            organization.setOrgParent(session.getParentOrganization().getId());
+            organization.setOrgPath(orgPath);
+            store.setOrgPath(orgPath);
+            organizationDao.insert(organization);
+            storeDao.insert(store);
+            updateCustomerManagerAfterStore(session.getCustomerId());
+            saveDefaultRole(organization, session);
+            saveStoreSetting(storeId);
+        }
+        StoreVo storeVo = new StoreVo();
+        BeanUtils.copyProperties(store,storeVo);
+        redisTemplate.opsForValue().set(RedisKey.STRING_STORE + store.getId(),storeVo);
+
+        return store;
+    }
+
+
+    @Transactional
+    @Override
+    public WoocommerceAuthResponse woocommerceAuth(WoocommerceAuthRequest request) {
+        String storeUrl = request.getStoreUrl();
+
+        AuthParam auth = new AuthParam();
+        auth.setShopName(storeUrl);
+        auth.setApiKey(request.getApiKey());
+        auth.setApiSecret(request.getApiSecret());
+
+        Session session = UserUtil.getSession(redisTemplate);
+
+        Organization parent = new Organization();
+
+        Store store = storeDao.selectByStoreUrl(storeUrl);
+
+        boolean b = false;
+
+        Long storeId = null;
+
+        Long orgId = null;
+
+        if (null != store) {
+            if (!store.getCustomerId().equals(session.getCustomerId())) {
+                return new WoocommerceAuthResponse(ResultCode.FAIL_CODE, "The store has been bound to other users");
+            }
+            b = true;
+            orgId = store.getOrgId();
+            storeId = store.getId();
+            storeAttrDao.deleteByStoreId(storeId);
+        } else {
+            orgId = IdGenerate.nextId();
+            storeId = IdGenerate.nextId();
+            store = new Store();
+        }
+
+        store.setId(storeId);
+        store.setOrgId(orgId);
+        store.setStoreName(storeUrl);
+        store.setStoreUrl(storeUrl);
+        store.setUserId(session.getId());
+        store.setCustomerId(session.getCustomerId());
+        store.setStatus(1);
+
+        try {
+            JSONObject jsonObject = WoocommerceShopApi.shopSystemStatus(auth);
+            store.setCurrency(jsonObject.getJSONObject("settings").getString("currency"));
+            store.setTimezone(jsonObject.getJSONObject("environment").getString("default_timezone"));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        store.setStoreType(StoreConfig.woocommerce_store);
+        store.setUpdateTime(new Date());
+
+        Organization organization = toOrganization(store);
+
+        List<StoreAttr> attrs = new ArrayList<>();
+
+        StoreAttr key = new StoreAttr();
+        key.setAttrKey(WoocommerceAttr.api_key.toString());
+        key.setAttrValue(request.getApiKey());
+        key.setStoreId(storeId);
+        attrs.add(key);
+
+        StoreAttr secret = new StoreAttr();
+        secret.setStoreId(storeId);
+        secret.setAttrKey(WoocommerceAttr.api_secret.toString());
+        secret.setAttrValue(request.getApiSecret());
+        attrs.add(secret);
+
+        storeAttrDao.insertByBatch(attrs);
+
+        String accessToken = getStoreToken(store.getStoreType(), attrs);
+        store.setApiToken(accessToken);
+
+        if (b) {
+            organizationDao.updateByPrimaryKeySelective(organization);
+            /**
+             * 店铺不可更改用户组织信息
+             */
+            storeDao.updateByPrimaryKey(store);
+        } else {
+            String orgPath = parent.getId() + "|" + orgId;
+            organization.setOrgParent(parent.getId());
+            organization.setOrgPath(orgPath);
+            store.setOrgPath(orgPath);
+            organizationDao.insert(organization);
+            storeDao.insert(store);
+            updateCustomerManagerAfterStore(session.getCustomerId());
+            saveDefaultRole(organization, session);
+            saveStoreSetting(storeId);
+            OrganizationMenu organizationMenu = new OrganizationMenu();
+            organizationMenu.setOrgId(organization.getId());
+            organizationMenu.setMenuId(0L);
+            organizationMenuDao.insert(organizationMenu);
+        }
+
+        StoreVo storeVo = new StoreVo();
+        BeanUtils.copyProperties(store,storeVo);
+        redisTemplate.opsForValue().set(RedisKey.STRING_STORE + store.getId(),storeVo);
+        try {
+            storeAsync.getStoreData(store);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return new WoocommerceAuthResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS, store);
+    }
+
+    @Override
+    public ShopifyAuthResponse shopifyAuthRequest(String storeUrl) {
+
+        if (null == storeUrl) {
+            return new ShopifyAuthResponse(ResultCode.FAIL_CODE, "wrong url");
+        }
+        Session session = UserUtil.getSession(redisTemplate);
+        Store store = storeDao.selectByStoreUrl(storeUrl);
+        if (null != store) {
+
+            if (!session.getCustomerId().equals(store.getCustomerId())) {
+                return new ShopifyAuthResponse(ResultCode.FAIL_CODE, "The store has been bound to other users");
+            }
+
+            if (1 == store.getStatus()) {
+                return new ShopifyAuthResponse(ResultCode.FAIL_CODE, "Store cannot be re-authorized");
+            }
+        }
+        String nonce = System.currentTimeMillis() + "";
+        String url = getShopifyAuthUrl(storeUrl, nonce);
+        redisTemplate.opsForValue().set(nonce, session);
+        return new ShopifyAuthResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS, url);
+    }
+
+    @Transactional
+    @Override
+    public BaseResponse shoplazzaAuth(ShoplazzaAuthRequest request, Session session) {
+        String storeUrl = request.getStoreUrl();
+        String token = request.getAccessToken();
+        Organization parent = new Organization();
+
+        Store store = storeDao.selectByStoreUrl(storeUrl);
+
+        boolean b = false;
+
+        Long storeId = null;
+
+        Long orgId = null;
+
+        if (null != store) {
+            if (!store.getCustomerId().equals(session.getCustomerId())) {
+                return new WoocommerceAuthResponse(ResultCode.FAIL_CODE, "The store has been bound to other users");
+            }
+            b = true;
+            orgId = store.getOrgId();
+            storeId = store.getId();
+            storeAttrDao.deleteByStoreId(storeId);
+        } else {
+            orgId = IdGenerate.nextId();
+            storeId = IdGenerate.nextId();
+            store = new Store();
+        }
+
+        store.setId(storeId);
+        store.setOrgId(orgId);
+        store.setStoreName(storeUrl);
+        store.setStoreUrl(storeUrl);
+        store.setUserId(session.getId());
+        store.setCustomerId(session.getCustomerId());
+        store.setStatus(1);
+
+        JSONObject shopDetail = ShoplazzaShopApi.shoplazzaShopDetail(storeUrl, token);
+        if (shopDetail != null) {
+            ShoplazzaShop shoplazzaShop = shopDetail.toJavaObject(ShoplazzaShop.class);
+            store.setTimezone(shoplazzaShop.getTimezone());
+            store.setCurrency(shoplazzaShop.getCurrency());
+        }
+
+        store.setStoreType(StoreConfig.shoplazza_store);
+        store.setUpdateTime(new Date());
+
+        Organization organization = toOrganization(store);
+
+        store.setApiToken(request.getAccessToken());
+
+        if (b) {
+            organizationDao.updateByPrimaryKeySelective(organization);
+            /**
+             * 店铺不可更改用户组织信息
+             */
+            storeDao.updateByPrimaryKey(store);
+        } else {
+            String orgPath = parent.getId() + "|" + orgId;
+            organization.setOrgParent(parent.getId());
+            organization.setOrgPath(orgPath);
+            store.setOrgPath(orgPath);
+            organizationDao.insert(organization);
+            storeDao.insert(store);
+            updateCustomerManagerAfterStore(session.getCustomerId());
+//            saveDefaultRole(organization, session);
+            saveStoreSetting(storeId);
+            OrganizationMenu organizationMenu = new OrganizationMenu();
+            organizationMenu.setOrgId(organization.getId());
+            organizationMenu.setMenuId(0L);
+            organizationMenuDao.insert(organizationMenu);
+        }
+        StoreVo storeVo = new StoreVo();
+        BeanUtils.copyProperties(store,storeVo);
+        redisTemplate.opsForValue().set(RedisKey.STRING_STORE + store.getId(),storeVo);
+
+        try {
+            storeAsync.getStoreData(store);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return new BaseResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS, store);
     }
 
     /**
      *
      */
-    public Store selectByPrimaryKey(Long id){
-        Store record = new Store();
-        record.setId(id);
+    @Override
+    public Store selectByPrimaryKey(Store record) {
         return storeDao.selectByPrimaryKey(record);
     }
 
     /**
-    *
-    */
+     *
+     */
     @Transactional
+    @Override
     public int updateByPrimaryKeySelective(Store record) {
-        return storeDao.updateByPrimaryKeySelective(record);
+
+        int i = storeDao.updateByPrimaryKeySelective(record);
+
+        if (StringUtils.isNotBlank(record.getCurrency())) {
+            storeDao.updateUsdRateById(record.getId());
+        }
+
+        record = storeDao.selectByPrimaryKey(record);
+        redisTemplate.opsForValue().set(RedisKey.STRING_STORE + record.getId(), record);
+
+        return i;
     }
 
     /**
-    *
-    */
+     *
+     */
     @Transactional
+    @Override
     public int updateByPrimaryKey(Store record) {
-        return storeDao.updateByPrimaryKey(record);
+        int i = storeDao.updateByPrimaryKey(record);
+        if (StringUtils.isNotBlank(record.getCurrency())) {
+            storeDao.updateUsdRateById(record.getId());
+        }
+
+        record = storeDao.selectByPrimaryKey(record);
+        redisTemplate.opsForValue().set(RedisKey.STRING_STORE + record.getId(), record);
+        return i;
     }
 
     /**
-    *
-    */
-    public List<Store> select(Page<Store> record){
+     *
+     */
+    @Override
+    public List<Store> select(Page<Store> record) {
+
         record.initFromNum();
         return storeDao.select(record);
     }
 
     /**
-    *
-    */
-    public long count(Page<Store> record){
+     *
+     */
+    @Override
+    public long count(Page<Store> record) {
         return storeDao.count(record);
     }
+
+
+    public Organization toOrganization(Store store) {
+        Organization organization = new Organization();
+        organization.setCustomerId(store.getCustomerId());
+        organization.setOrgName(store.getStoreName());
+        organization.setId(store.getOrgId());
+        organization.setCreateTime(store.getUpdateTime());
+        organization.setUpdateTime(store.getUpdateTime());
+        return organization;
+    }
+
+    public void saveStoreSetting(Long storeId) {
+
+
+
+        List<StoreSetting> storeSettings = new ArrayList<>();
+        for (StoreSettingEnum storeSettingEnum : StoreSettingEnum.values()) {
+            StoreSetting storeSetting = new StoreSetting();
+            storeSetting.setStoreId(storeId);
+            storeSetting.setSettingName(storeSettingEnum.name());
+            storeSetting.setSettingValue(storeSettingEnum.getValue());
+            storeSettings.add(storeSetting);
+        }
+        if (0 < storeSettings.size()) {
+            storeSettingDao.insertByBatch(storeSettings);
+        }
+    }
+
+    public static String getShopifyAuthUrl(String shop, String nonce) {
+        StringBuffer url = new StringBuffer();
+        StringBuffer s = url.append("http://").append(shop).append(".myshopify.com/admin/oauth/authorize?client_id=")
+                .append(ShopifyConfig.api_key).append("&scope=")
+                .append(ShopifyConfig.scope).append("&redirect_uri=")
+                .append(ShopifyConfig.redirect_url)
+                .append("&state=").append(nonce);
+        return url.toString();
+    }
+
+    public void saveDefaultRole(Organization organization, Session session) {
+        Role role = new Role();
+        roleDao.insertSelective(role);
+
+        OrganizationRole organizationRole = new OrganizationRole();
+        organizationRole.setDataType(0);
+        organizationRole.setRoleId(role.getId());
+        organizationRole.setOrgId(organization.getId());
+        organizationRoleDao.insert(organizationRole);
+
+        OrganizationUser organizationUser = new OrganizationUser();
+        organizationUser.setUserId(session.getId());
+        organizationUser.setOrgId(organization.getId());
+        organizationUserDao.insert(organizationUser);
+    }
+
+    public String getStoreToken(Integer storeType, List<StoreAttr> attrs) {
+
+        if (StoreConfig.shopify_store.equals(storeType)) {
+            for (StoreAttr a : attrs) {
+                if (ShopifyAttr.access_token.toString().equals(a.getAttrKey())) {
+                    String base64UserMsg = Base64.getEncoder().encodeToString((ShopifyConfig.api_key + ":" + a.getAttrValue()).getBytes());
+                    return base64UserMsg;
+                }
+            }
+        } else {
+            String authmsg = null;
+            for (StoreAttr a : attrs) {
+                if (WoocommerceAttr.api_key.toString().equals(a.getAttrKey())) {
+                    if (null != authmsg) {
+                        authmsg = a.getAttrValue() + authmsg;
+                    } else {
+                        authmsg = a.getAttrValue();
+                    }
+                }
+                if (WoocommerceAttr.api_secret.toString().equals(a.getAttrKey())) {
+                    authmsg = authmsg + ":" + a.getAttrValue();
+                }
+            }
+            String base64UserMsg = Base64.getEncoder().encodeToString(authmsg.getBytes());
+            return base64UserMsg;
+        }
+        return null;
+    }
+
+
+    @Override
+    public StoreVo queryStoreSetting(Long storeId) {
+        List<StoreSetting> storeSettingList = storeSettingDao.selectByStoreId(storeId);
+        StoreVo storeVo = new StoreVo();
+        for (StoreSetting storeSetting : storeSettingList) {
+            if (storeSetting.getSettingName().equals("tracking_url")
+                    && !StringUtils.isBlank(storeSetting.getSettingValue())) {
+                storeVo.setTrackingUrl(storeSetting.getSettingValue());
+            }
+            if (storeSetting.getSettingName().equals("email_prompt")
+                    && storeSetting.getSettingValue().equals("1")) {
+                storeVo.setEmailPrompt(true);
+            }
+        }
+        return storeVo;
+    }
+
+    /**
+     * 查询单个店铺设置
+     * @return
+     */
+    @Override
+    public BaseResponse oneStoreSettingList(Long storeId) {
+
+        List<StoreSetting> resultList = storeSettingDao.selectByStoreId(storeId);
+
+        return new BaseResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS, resultList);
+        }
+
+    @Override
+    public int updateStoreByPrimaryKey(Store record) {
+        int i = storeDao.updateStoreByPrimaryKey(record);
+        if (StringUtils.isNotBlank(record.getCurrency())) {
+            storeDao.updateUsdRateById(record.getId());
+        }
+        record = storeDao.selectByPrimaryKey(record);
+        redisTemplate.opsForValue().set(RedisKey.STRING_STORE + record.getId(), record);
+        return i;
+    }
+
+    @Override
+    public BaseResponse storeSettingListUpdate(List<StoreSetting> list) {
+        for (StoreSetting storeSetting : list) {
+            storeSettingDao.updateStoreSettingValueByName(storeSetting);
+        }
+        return  BaseResponse.success();
+    }
+
+    @Override
+    public List<StoreNameAndUserVo> selectStoreNameByGroupuserId() {
+        return storeDao.selectStoreNameByGroupuserId();
+    }
+
+    //店铺授权完成后修改客户经理关联表信息
+    public void updateCustomerManagerAfterStore(Long customerId){
+        CustomerManager customerManager = new CustomerManager();
+        customerManager.setCustomerId(customerId);
+        customerManager.setIsAuthStore(true);
+        customerManagerService.updateByCustomerIdSelective(customerManager);
+    }
+
+
 
 }

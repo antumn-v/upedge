@@ -6,22 +6,22 @@ public class SaiheConfig {
     public static final String PRODUCT_URL="http://senbo.irobotbox.com/Api/API_ProductInfoManage.asmx";
 
     //用户名
-    public static final String USERNAME="PANDADUIJIE";//"PANDADUIJIE";
-    public static final String PASSWORD="LSJDKJHASDNBS";//"LSJDKJHASDNBS";
+    public static final String USERNAME="";//"upedgeDUIJIE";
+    public static final String PASSWORD="";//"LSJDKJHASDNBS";
     //客户号
-    public static final Integer CUSTOMER_ID=1555;
+    public static final Integer CUSTOMER_ID=0;
 
     //产品相关
-    public static final boolean SAIHE_PRODUCT_SWITCH=true;
+    public static final boolean SAIHE_PRODUCT_SWITCH=false;
     //订单、备库相关
     public static final boolean SAIHE_ORDER_SWITCH=true;
 
     //B2C网站平台	4 SOURCINBOX
-    public static final Integer SOURCINBOX_ORDER_SOURCE_TYPE=4;
+    public static final Integer SOURCINBOX_ORDER_SOURCE_TYPE=0;
     //潘达默认仓库
-    public static final Integer SOURCINBOX_DEFAULT_WAREHOURSE_ID=162;
+    public static final Integer SOURCINBOX_DEFAULT_WAREHOURSE_ID=0;
     //潘达默认订单来源渠道
-    public static final Integer SOURCINBOX_DEFAULT_ORDER_SOURCE_ID=128;
+    public static final Integer SOURCINBOX_DEFAULT_ORDER_SOURCE_ID=0;
 
     /**
      * 测试账号 ==》 客户id

@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.upedge.oms.modules.stock.dao.AdminVariantSkuDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.upedge.oms.modules.stock.entity.AdminVariantSku" id="BaseResultMap">
+        <result property="variantSku" column="variant_sku"/>
+        <result property="saiheSku" column="saihe_sku"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        `variant_sku`,`saihe_sku`
+    </sql>
+
+    <select id="selectByPrimaryKey" parameterType="com.upedge.oms.modules.stock.entity.AdminVariantSku" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from admin_variant_sku
+        where variant_sku = #{variantSku}
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="com.upedge.oms.modules.stock.entity.AdminVariantSku">
+        delete from admin_variant_sku
+        where variant_sku = #{variantSku}
+    </delete>
+
+    <update id="updateByPrimaryKeySelective" parameterType="com.upedge.oms.modules.stock.entity.AdminVariantSku">
+        update admin_variant_sku
+        <set>
+            <if test="saiheSku != null">
+                saihe_sku = #{saiheSku},
+            </if>
+        </set>
+        where variant_sku = #{variantSku}
+    </update>
+
+    <update id="updateByPrimaryKey" parameterType="com.upedge.oms.modules.stock.entity.AdminVariantSku">
+        update admin_variant_sku
+        <set>
+        variant_sku = #{variantSku},
+        saihe_sku = #{saiheSku},
+        </set>
+        where variant_sku = #{variantSku}
+    </update>
+
+    <insert id="insert" keyColumn="variant_sku" keyProperty="variantSku" parameterType="com.upedge.oms.modules.stock.entity.AdminVariantSku" useGeneratedKeys="true">
+        insert into admin_variant_sku
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            variant_sku,
+            saihe_sku
+        </trim>
+        values (
+        #{variantSku},
+        #{saiheSku}
+        )
+    </insert>
+
+    <insert id="insertSelective"  keyColumn="variant_sku" keyProperty="variantSku"  parameterType="com.upedge.oms.modules.stock.entity.AdminVariantSku" useGeneratedKeys="true">
+        insert into admin_variant_sku
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="variantSku != null" >
+              variant_sku
+            </if>
+            <if test="saiheSku != null" >
+              saihe_sku
+            </if>
+
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="variantSku != null" >
+                #{variantSku}
+            </if>
+            <if test="saiheSku != null" >
+                #{saiheSku}
+            </if>
+
+        </trim>
+    </insert>
+
+    <insert id="insertByBatch" parameterType="java.util.List">
+        insert into admin_variant_sku
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+           variant_sku,
+           saihe_sku
+        </trim>
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+               #{item.variantSku},
+               #{item.saiheSku}
+            </trim>
+        </foreach>
+    </insert>
+
+    <sql id="Query_Condition">
+        <if test="t != null">
+            where
+            <trim prefix=" " suffix=" " suffixOverrides=" and ">
+                1 = 1 and
+                    <if test="t.variantSku != null">
+                        variant_sku = #{t.variantSku} and
+                    </if>
+                    <if test="t.saiheSku != null">
+                        saihe_sku = #{t.saiheSku} and
+                    </if>
+            </trim>
+        </if>
+    </sql>
+
+    <select id="select" parameterType="com.upedge.common.base.Page" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from admin_variant_sku
+        <include refid="Query_Condition"/>
+        <if test="orderBy != null">
+            order by ${orderBy}
+        </if>
+        <if test="pageNum != null and pageSize != null">
+            limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+        </if>
+    </select>
+
+    <select id="count" parameterType="com.upedge.common.base.Page" resultType="java.lang.Long">
+        select
+        count(1)
+        from admin_variant_sku
+        <include refid="Query_Condition"/>
+    </select>
+
+
+</mapper>

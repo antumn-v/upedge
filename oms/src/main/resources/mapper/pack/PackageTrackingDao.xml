@@ -1,0 +1,689 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.upedge.oms.modules.pack.dao.PackageTrackingDao">
+
+    <!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.upedge.oms.modules.pack.entity.PackageTracking" id="BaseResultMap">
+        <result property="trackNumber" column="track_number"/>
+        <result property="transportId" column="transport_id"/>
+        <result property="transportName" column="transport_name"/>
+        <result property="trackingMoreCode" column="tracking_more_code"/>
+        <result property="state" column="state"/>
+        <result property="onlineTime" column="online_time"/>
+        <result property="signedTime" column="signed_time"/>
+        <result property="shipTime" column="ship_time"/>
+        <result property="trackStatus" column="track_status"/>
+        <result property="customerId" column="customer_id"/>
+        <result property="orderSourceId" column="order_source_id"/>
+        <result property="orderSourceName" column="order_source_name"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="destination" column="destination"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        `track_number`,`transport_id`,`transport_name`,`tracking_more_code`,`state`,`online_time`,`signed_time`,`ship_time`,`track_status`,`customer_id`,`order_source_id`,`order_source_name`,`update_time`,`destination`
+    </sql>
+
+    <select id="maxTrackDurationDays"  resultType="java.lang.Integer"
+    parameterType="com.upedge.oms.modules.pack.request.TrackingAnalysisRequest">
+        select
+        count(1) as `packageCount`,
+        <if test="durationType != null and durationType==1" >
+            --             max(To_Days(signed_time)-To_Days(online_time))
+            ceil(max(UNIX_TIMESTAMP(signed_time)-UNIX_TIMESTAMP(online_time))/86400.0) as `maxDay`,
+            IFNULL(sum(IFNULL(UNIX_TIMESTAMP(signed_time)-UNIX_TIMESTAMP(online_time),0)),0) as `totalTime`
+        </if>
+        <if test="durationType != null and durationType==2" >
+            --             max(To_Days(online_time)-To_Days(ship_time))
+            ceil(max(UNIX_TIMESTAMP(online_time)-UNIX_TIMESTAMP(ship_time))/86400.0) as `maxDay`,
+            IFNULL(sum(IFNULL(UNIX_TIMESTAMP(online_time)-UNIX_TIMESTAMP(ship_time),0)),0) as `totalTime`
+        </if>
+        <if test="durationType != null and durationType==3" >
+            --             max(To_Days(signed_time)-To_Days(ship_time))
+            ceil(max(UNIX_TIMESTAMP(signed_time)-UNIX_TIMESTAMP(ship_time))/86400.0) as `maxDay`,
+            IFNULL(sum(IFNULL(UNIX_TIMESTAMP(signed_time)-UNIX_TIMESTAMP(ship_time),0)),0) as `totalTime`
+        </if>
+        from package_tracking
+        <where>
+            <if test="startDay != null and startDay !=''" >date(ship_time)>=#{startDay}</if>
+            <if test="endDay != null and endDay !=''" >and date(ship_time) &lt;=#{endDay}</if>
+            <if test="orderSourceId != null and orderSourceId !=-1" >and order_source_id=#{orderSourceId}</if>
+            <if test="customerId != null and customerId !=''" > and customer_id=#{customerId}</if>
+            <if test="durationType != null and durationType==1" >
+                and signed_time is not null and online_time is not null
+            </if>
+            <if test="durationType != null and durationType==2" >
+                and online_time is not null and ship_time is not null
+            </if>
+            <if test="durationType != null and durationType==3" >
+                and signed_time is not null and ship_time is not null
+            </if>
+            and (UNIX_TIMESTAMP(signed_time)-UNIX_TIMESTAMP(online_time)) &lt; 8640000
+        </where>
+    </select>
+
+    <select id="selectPackageTracking" parameterType="com.upedge.oms.modules.pack.request.PackageTrackingListRequest"
+            resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from package_tracking
+        <include refid="TrackingList_Condition"/>
+        order by ship_time desc
+        <if test="pageNum != null and pageSize != null">
+            limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+        </if>
+    </select>
+
+    <select id="countPackageTracking" parameterType="com.upedge.oms.modules.pack.request.PackageTrackingListRequest"
+            resultType="java.lang.Long">
+        select count(1)
+        from package_tracking
+        <include refid="TrackingList_Condition"/>
+    </select>
+
+    <sql id="TrackingList_Condition">
+        <if test="t != null">
+            where
+            <trim prefix=" " suffix=" " suffixOverrides=" and ">
+                1 = 1 and
+                <if test="t.trackingNumber != null">
+                    track_number = #{t.trackingNumber} and
+                </if>
+                <if test="t.transportId != null">
+                    transport_id = #{t.transportId} and
+                </if>
+                <if test="t.trackStatus != null">
+                    <if test=" t.trackStatus!='blank' and t.trackStatus!='blank_code'">track_status=#{t.trackStatus}</if>
+                    <if test="t.trackStatus=='blank'">track_status is NULL</if>
+                    <if test="t.trackStatus=='blank_code'">track_status is NULL and tracking_more_code is not NULL</if>
+                    and
+                </if>
+                <if test="t.customerId != null">
+                    customer_id = #{t.customerId} and
+                </if>
+                <if test="t.orderSourceId != null">
+                    order_source_id = #{t.orderSourceId} and
+                </if>
+                <if test="t.destination != null">
+                    destination = #{t.destination} and
+                </if>
+                <if test="t.shipDateStart != null and t.shipDateEnd != null">
+                    date(ship_time) >= #{t.shipDateStart} and   date(ship_time) &lt;=  #{t.shipDateEnd}
+                </if>
+            </trim>
+        </if>
+    </sql>
+
+    <select id="selectPackingTrackingForRefresh"
+            parameterType="com.upedge.oms.modules.pack.request.PackageTrackingRefreshRequest"
+            resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from package_tracking
+        where 1 = 1
+        <if test="dateDay != null and dateDay != ''">
+            and date_format(ship_time,'%Y-%m-%d') = #{dateDay}
+        </if>
+        <if test="statusIsNull == true">
+            and track_status is null
+        </if>
+        <if test="trackingNumbers != null and trackingNumbers.size > 0">
+            and track_number in
+            <foreach collection="trackingNumbers" item="trackingNumber" open="(" close=")" separator=",">
+                #{trackingNumber}
+            </foreach>
+        </if>
+    </select>
+
+    <select id="selectByPrimaryKey" parameterType="com.upedge.oms.modules.pack.entity.PackageTracking"
+            resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from package_tracking
+        where track_number = #{trackNumber}
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="com.upedge.oms.modules.pack.entity.PackageTracking">
+        delete from package_tracking
+        where track_number = #{trackNumber}
+    </delete>
+
+    <update id="updateByPrimaryKeySelective" parameterType="com.upedge.oms.modules.pack.entity.PackageTracking">
+        update package_tracking
+        <set>
+            <if test="transportId != null">
+                transport_id = #{transportId},
+            </if>
+            <if test="trackingMoreCode != null">
+                tracking_more_code = #{trackingMoreCode},
+            </if>
+            <if test="state != null">
+                state = #{state},
+            </if>
+            <if test="onlineTime != null">
+                online_time = #{onlineTime},
+            </if>
+            <if test="signedTime != null">
+                signed_time = #{signedTime},
+            </if>
+            <if test="shipTime != null">
+                ship_time = #{shipTime},
+            </if>
+            <if test="trackStatus != null">
+                track_status = #{trackStatus},
+            </if>
+            <if test="customerId != null">
+                customer_id = #{customerId},
+            </if>
+            <if test="orderSourceId != null">
+                order_source_id = #{orderSourceId},
+            </if>
+            <if test="orderSourceName != null">
+                order_source_name = #{orderSourceName},
+            </if>
+            <if test="updateTime != null">
+                update_time = #{updateTime},
+            </if>
+            <if test="destination != null">
+                destination = #{destination},
+            </if>
+        </set>
+        where track_number = #{trackNumber}
+    </update>
+
+    <update id="updateByPrimaryKey" parameterType="com.upedge.oms.modules.pack.entity.PackageTracking">
+        update package_tracking
+        <set>
+            track_number = #{trackNumber},
+            transport_id = #{transportId},
+            transport_name = #{transportName},
+            tracking_more_code = #{trackingMoreCode},
+            state = #{state},
+            online_time = #{onlineTime},
+            signed_time = #{signedTime},
+            ship_time = #{shipTime},
+            track_status = #{trackStatus},
+            customer_id = #{customerId},
+            order_source_id = #{orderSourceId},
+            order_source_name = #{orderSourceName},
+            update_time = #{updateTime},
+            destination = #{destination},
+        </set>
+        where track_number = #{trackNumber}
+    </update>
+    <update id="updateTrackingMoreCodeByIds">
+            update package_tracking pt
+            set pt.tracking_more_code=(
+            select st.tracking_more_code  from saihe_transport st where st.id=pt.transport_id
+            )
+            where pt.tracking_more_code is NULL and pt.track_number in
+            <foreach collection="ids" index="index" item="item"
+                     separator="," open="(" close=")">
+                #{item}
+            </foreach>
+    </update>
+    <select id="getTrackingMoreCodeByIds"  resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from package_tracking
+        where tracking_more_code is NULL and track_number in
+        <foreach collection="ids" index="index" item="item"
+                 separator="," open="(" close=")">
+            #{item}
+        </foreach>
+    </select>
+
+
+    <update id="updateAppUserIdByIds">
+        update package_tracking pt
+        set pt.customer_id=(
+        select apo.customer_id  from `order` apo where apo.id=pt.order_id
+        )
+        where pt.customer_id is NULL and pt.track_number in
+        <foreach collection="ids" index="index" item="item"
+                 separator="," open="(" close=")">
+            #{item}
+        </foreach>
+    </update>
+    <update id="updateTrackingMoreCodeById">
+        request
+        update package_tracking pt
+        set pt.tracking_more_code= #{request.trackingMoreCode}
+        where pt.tracking_more_code is NULL
+        and pt.track_number  =  #{request.trackNumber}
+    </update>
+
+    <insert id="insert" keyColumn="track_number" keyProperty="trackNumber"
+            parameterType="com.upedge.oms.modules.pack.entity.PackageTracking" useGeneratedKeys="true">
+        insert into package_tracking
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            track_number,
+            transport_id,
+            transport_name,
+            tracking_more_code,
+            state,
+            online_time,
+            signed_time,
+            ship_time,
+            track_status,
+            customer_id,
+            order_source_id,
+            order_source_name,
+            update_time,
+            destination
+        </trim>
+        values (
+        #{trackNumber},
+        #{transportId},
+        #{transportName},
+        #{trackingMoreCode},
+        #{state},
+        #{onlineTime},
+        #{signedTime},
+        #{shipTime},
+        #{trackStatus},
+        #{customerId},
+        #{orderSourceId},
+        #{orderSourceName},
+        #{updateTime},
+        #{destination}
+        )
+    </insert>
+
+    <insert id="insertSelective" keyColumn="track_number" keyProperty="trackNumber"
+            parameterType="com.upedge.oms.modules.pack.entity.PackageTracking" useGeneratedKeys="true">
+        insert into package_tracking
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="trackNumber != null">
+                track_number
+            </if>
+            <if test="transportId != null">
+                transport_id
+            </if>
+            <if test="trackingMoreCode != null">
+                tracking_more_code
+            </if>
+            <if test="state != null">
+                state
+            </if>
+            <if test="onlineTime != null">
+                online_time
+            </if>
+            <if test="signedTime != null">
+                signed_time
+            </if>
+            <if test="shipTime != null">
+                ship_time
+            </if>
+            <if test="trackStatus != null">
+                track_status
+            </if>
+            <if test="customerId != null">
+                customer_id
+            </if>
+            <if test="orderSourceId != null">
+                order_source_id
+            </if>
+            <if test="orderSourceName != null">
+                order_source_name
+            </if>
+            <if test="updateTime != null">
+                update_time
+            </if>
+            <if test="destination != null">
+                destination
+            </if>
+
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="trackNumber != null">
+                #{trackNumber}
+            </if>
+            <if test="transportId != null">
+                #{transportId}
+            </if>
+            <if test="trackingMoreCode != null">
+                #{trackingMoreCode}
+            </if>
+            <if test="state != null">
+                #{state}
+            </if>
+            <if test="onlineTime != null">
+                #{onlineTime}
+            </if>
+            <if test="signedTime != null">
+                #{signedTime}
+            </if>
+            <if test="shipTime != null">
+                #{shipTime}
+            </if>
+            <if test="trackStatus != null">
+                #{trackStatus}
+            </if>
+            <if test="customerId != null">
+                #{customerId}
+            </if>
+            <if test="orderSourceId != null">
+                #{orderSourceId}
+            </if>
+            <if test="orderSourceName != null">
+                #{orderSourceName}
+            </if>
+            <if test="updateTime != null">
+                #{updateTime}
+            </if>
+            <if test="destination != null">
+                #{destination}
+            </if>
+
+        </trim>
+    </insert>
+
+    <insert id="insertByBatch" parameterType="java.util.List">
+        insert into package_tracking
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            track_number,
+            transport_id,
+            transport_name,
+            tracking_more_code,
+            state,
+            online_time,
+            signed_time,
+            ship_time,
+            track_status,
+            customer_id,
+            order_source_id,
+            order_source_name,
+            update_time,
+            destination
+        </trim>
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+                #{item.trackNumber},
+                #{item.transportId},
+                #{item.transportName},
+                #{item.trackingMoreCode},
+                #{item.state},
+                #{item.onlineTime},
+                #{item.signedTime},
+                #{item.shipTime},
+                #{item.trackStatus},
+                #{item.customerId},
+                #{item.orderSourceId},
+                #{item.orderSourceName},
+                #{item.updateTime},
+                #{item.destination}
+            </trim>
+        </foreach>
+    </insert>
+
+    <sql id="Query_Condition">
+        <if test="t != null">
+            where
+            <trim prefix=" " suffix=" " suffixOverrides=" and ">
+                1 = 1 and
+                <if test="t.trackNumber != null">
+                    track_number = #{t.trackNumber} and
+                </if>
+                <if test="t.transportId != null">
+                    transport_id = #{t.transportId} and
+                </if>
+                <if test="t.transportName != null">
+                    transport_name = #{t.transportName} and
+                </if>
+                <if test="t.trackingMoreCode != null">
+                    tracking_more_code = #{t.trackingMoreCode} and
+                </if>
+                <if test="t.state != null">
+                    state = #{t.state} and
+                </if>
+                <if test="t.onlineTime != null">
+                    online_time = #{t.onlineTime} and
+                </if>
+                <if test="t.signedTime != null">
+                    signed_time = #{t.signedTime} and
+                </if>
+                <if test="t.shipTime != null">
+                    ship_time = #{t.shipTime} and
+                </if>
+                <if test="t.trackStatus != null">
+                    track_status = #{t.trackStatus} and
+                </if>
+                <if test="t.customerId != null">
+                    customer_id = #{t.customerId} and
+                </if>
+                <if test="t.orderSourceId != null">
+                    order_source_id = #{t.orderSourceId} and
+                </if>
+                <if test="t.orderSourceName != null">
+                    order_source_name = #{t.orderSourceName} and
+                </if>
+                <if test="t.updateTime != null">
+                    update_time = #{t.updateTime} and
+                </if>
+                <if test="t.destination != null">
+                    destination = #{t.destination} and
+                </if>
+            </trim>
+        </if>
+    </sql>
+
+    <select id="select" parameterType="com.upedge.common.base.Page" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from package_tracking
+        <include refid="Query_Condition"/>
+        <if test="t.shipDateStart != null">
+            and ship_time &gt;= #{t.shipDateStart} and ship_time &lt;= #{t.shipDateEnd}
+        </if>
+        <if test="orderBy != null">
+            order by ${orderBy}
+        </if>
+        <if test="pageNum != null and pageSize != null">
+            limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+        </if>
+    </select>
+
+    <select id="count" parameterType="com.upedge.common.base.Page" resultType="java.lang.Long">
+        select
+        count(1)
+        from package_tracking
+        <include refid="Query_Condition"/>
+    </select>
+    <select id="getAnalysisLogisticsList" resultType="com.upedge.oms.modules.pack.vo.TrackTableItemVo">
+        SELECT
+        transport_id,
+        transport_name as transportName,
+        track_status,
+        count(1) c
+        FROM
+        package_tracking
+        WHERE 1=1
+        <if test="t.customerId != null">
+            AND customer_id = #{t.customerId}
+        </if>
+        <if test="t.shipDateStart != null and t.shipDateStart != ''">
+            and ship_time &gt;= #{t.shipDateStart} and ship_time &lt;= #{t.shipDateEnd}
+        </if>
+        <if test="t.destination != null and t.destination != ''">
+            AND destination =#{t.destination}
+        </if>
+        <if test="t.orderSourceId != null">
+            and order_source_id = #{t.orderSourceId}
+        </if>
+        GROUP BY
+        transport_id,
+        transport_name,
+        track_status
+        <if test="pageNum != null and pageSize != null">
+            limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+        </if>
+    </select>
+    <select id="getAnalysisLogisticsCount" resultType="java.lang.Long">
+
+        select count(*) from (
+        SELECT
+        count(1)
+        FROM
+        package_tracking
+        WHERE 1=1
+        <if test="t.customerId != null">
+            AND customer_id = #{t.customerId}
+        </if>
+        <if test="t.shipDateStart != null and t.shipDateStart != ''">
+            and ship_time &gt;= #{t.shipDateStart} and ship_time &lt;= #{t.shipDateEnd}
+        </if>
+        <if test="t.destination != null and t.destination != ''">
+            AND destination =#{t.destination}
+        </if>
+        <if test="t.orderSourceId != null">
+            and order_source_id = #{t.orderSourceId}
+        </if>
+        GROUP BY
+        transport_id,
+        track_status ) c
+    </select>
+
+
+    <select id="totalTrackDuration" resultType="java.lang.Long">
+        select
+        <if test="durationType != null and durationType==1">
+            IFNULL(sum(IFNULL(UNIX_TIMESTAMP(signed_time)-UNIX_TIMESTAMP(online_time),0)),0)
+        </if>
+        <if test="durationType != null and durationType==2">
+            IFNULL(sum(IFNULL(UNIX_TIMESTAMP(online_time)-UNIX_TIMESTAMP(ship_time),0)),0)
+        </if>
+        <if test="durationType != null and durationType==3">
+            IFNULL(sum(IFNULL(UNIX_TIMESTAMP(signed_time)-UNIX_TIMESTAMP(ship_time),0)),0)
+        </if>
+        from package_tracking
+        <where>
+            <if test="startDay != null and startDay !=''">date(ship_time)>=#{startDay}</if>
+            <if test="endDay != null and endDay !=''">and date(ship_time) &lt;=#{endDay}</if>
+            <if test="orderSourceId != null and orderSourceId !=-1">and order_source_id=#{orderSourceId}</if>
+            <if test=" customerId!= null and customerId !=''">and customer_id=#{customerId}</if>
+            <if test="transportId != null">and transport_id=#{transportId}</if>
+            <if test="destination != null and destination !=''">and destination=#{destination}</if>
+        </where>
+    </select>
+    <select id="countTrackDurationWithInDay" resultType="java.lang.Integer">
+        select count(1) from package_tracking
+        <where>
+            <if test="startDay != null and startDay !=''">date(ship_time)>=#{startDay}</if>
+            <if test="endDay != null and endDay !=''">and date(ship_time) &lt;=#{endDay}</if>
+            <if test="orderSourceId != null and orderSourceId !=-1">and order_source_id=#{orderSourceId}</if>
+            <if test="customerId != null and customerId !=''">and customer_id=#{customerId}</if>
+            <if test="transportId != null">and transport_id=#{transportId}</if>
+            <if test="destination != null and destination !=''">and destination=#{destination}</if>
+            <if test="withInDay != null">
+
+                <if test="durationType != null and durationType==1">
+                    and (To_Days(signed_time)-To_Days(online_time)) &lt;=#{withInDay}
+                </if>
+                <if test="durationType != null and durationType==2">
+                    and (To_Days(online_time)-To_Days(ship_time)) &lt;=#{withInDay}
+                </if>
+                <if test="durationType != null and durationType==3">
+                    and (To_Days(signed_time)-To_Days(ship_time)) &lt;=#{withInDay}
+                </if>
+
+            </if>
+            <if test="durationType != null and durationType==1">
+                and signed_time is not null and online_time is not null
+            </if>
+            <if test="durationType != null and durationType==2">
+                and online_time is not null and ship_time is not null
+            </if>
+            <if test="durationType != null and durationType==3">
+                and signed_time is not null and ship_time is not null
+            </if>
+        </where>
+    </select>
+    <select id="refreshBlankStatus" resultType="com.upedge.oms.modules.pack.entity.PackageTracking">
+        select
+        pt.track_number as trackNumber,
+        pt.tracking_more_code as trackingMoreCode,
+        pt.order_source_name as orderSourceName,
+        pt.app_user_id as appUserId,
+        pt.ship_time as shipTime,
+        pt.destination as destination,
+        pt.transport_id as transportId
+        from package_tracking pt
+        where track_status is NULL
+        <if test="page.boundary != null and page.boundary!=''">
+            and ${page.boundary}
+        </if>
+        <if test="page.orderBy != null and page.orderBy !=''">
+            order by ${page.orderBy}
+        </if>
+        <if test="page.pageNum != null and page.pageSize != null ">
+            <if test="page.boundary == null or page.boundary==''">
+                limit #{page.fromNum,jdbcType=INTEGER},#{page.pageSize,jdbcType=INTEGER}
+            </if>
+            <if test="page.boundary != null and page.boundary!=''">
+                limit #{page.pageSize,jdbcType=INTEGER}
+            </if>
+        </if>
+    </select>
+    <select id="selectPackingTrackingForRefreshPage"
+            resultType="com.upedge.oms.modules.pack.entity.PackageTracking">
+        select
+        <include refid="Base_Column_List"/>
+        from package_tracking
+        where 1 = 1
+        <if test="t.dateDay != null and t.dateDay != ''">
+            and date_format(ship_time,'%Y-%m-%d') = #{t.dateDay}
+        </if>
+        <if test="t.statusIsNull == true">
+            and track_status is null
+        </if>
+        <if test="t.trackingNumbers != null and t.trackingNumbers.size > 0">
+            and track_number in
+            <foreach collection="t.trackingNumbers" item="trackingNumber" open="(" close=")" separator=",">
+                #{trackingNumber}
+            </foreach>
+        </if>
+        <if test="boundary != null and boundary!=''">
+            and ${boundary}
+        </if>
+        <if test="orderBy != null and orderBy !=''">
+            order by ${orderBy}
+        </if>
+        <if test="pageNum != null and pageSize != null ">
+            <if test="boundary == null or boundary==''">
+                limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+            </if>
+            <if test="boundary != null and boundary!=''">
+                limit #{pageSize,jdbcType=INTEGER}
+            </if>
+        </if>
+    </select>
+
+    <insert id="savePackageTracking" parameterType="java.util.List">
+        replace into package_tracking(track_number,transport_id,tracking_more_code,
+        state,track_status,online_time,signed_time,ship_time,order_source_id,
+        order_source_name,update_time,destination,customer_id)
+        values
+        <foreach collection="list" item="item" index="index"
+                 separator=",">
+            (#{item.trackNumber,jdbcType=VARCHAR},
+            #{item.transportId,jdbcType=INTEGER},
+            #{item.trackingMoreCode,jdbcType=VARCHAR},
+            #{item.state,jdbcType=INTEGER},
+            #{item.trackStatus,jdbcType=VARCHAR},
+            #{item.onlineTime,jdbcType=TIMESTAMP},
+            #{item.signedTime,jdbcType=TIMESTAMP},
+            #{item.shipTime,jdbcType=TIMESTAMP},
+            #{item.orderSourceId,jdbcType=INTEGER},
+            #{item.orderSourceName,jdbcType=VARCHAR},
+            #{item.updateTime,jdbcType=TIMESTAMP},
+            #{item.destination,jdbcType=VARCHAR},
+            #{item.customerId}
+            )
+        </foreach>
+    </insert>
+
+
+</mapper>

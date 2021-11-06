@@ -1,17 +1,23 @@
 package com.upedge.ums.modules.account.service;
 
-import com.upedge.ums.modules.account.entity.AccountLog;
+import com.upedge.common.base.BaseResponse;
 import com.upedge.common.base.Page;
+import com.upedge.common.model.order.TransactionDetail;
+import com.upedge.common.model.user.request.OrderAccountLogRequest;
+import com.upedge.common.model.user.vo.OrderAccountLogVo;
+import com.upedge.ums.modules.account.entity.AccountLog;
+import com.upedge.ums.modules.account.request.AccountLogListRequest;
+
 import java.util.List;
 
 /**
- * @author gx
+ * @author author
  */
 public interface AccountLogService{
 
-    AccountLog selectByPrimaryKey(Integer id);
+    AccountLog selectByPrimaryKey(Long id);
 
-    int deleteByPrimaryKey(Integer id);
+    int deleteByPrimaryKey(Long id);
 
     int updateByPrimaryKey(AccountLog record);
 
@@ -24,5 +30,15 @@ public interface AccountLogService{
     List<AccountLog> select(Page<AccountLog> record);
 
     long count(Page<AccountLog> record);
+
+    BaseResponse orderInfoAccountFlow(Long transactionId);
+
+    BaseResponse accountLogPayInfo(String transactionId);
+
+    List<AccountLog> selectAllByTime(AccountLogListRequest request);
+
+    OrderAccountLogVo selectAccountLogByOrder(OrderAccountLogRequest accountLogQuery);
+
+    OrderAccountLogVo accountLogPayInfoByTransactionDetail(TransactionDetail transactionDetail);
 }
 

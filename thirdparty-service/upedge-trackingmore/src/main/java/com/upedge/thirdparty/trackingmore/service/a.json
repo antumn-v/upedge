@@ -1,0 +1,184 @@
+{
+  "meta": {
+    "code": 200,
+    "type": "Success",
+    "message": "Success"
+  },
+  "data": {
+    "id": "9db81e43925648b5ce0f96b523af17e4",
+    "tracking_number": "LT688503868CN",
+    "carrier_code": "china-ems",
+    "status": "delivered",
+    "created_at": "2019-05-20T18:40:47+08:00",
+    "updated_at": "2019-05-29T10:07:58+08:00",
+    "customer_email": "",
+    "title": "",
+    "order_id": "101780767965676",
+    "customer_name": "SAEC-BerryGo",
+    "original_country": "China",
+    "destination_country": "United States",
+    "itemTimeLength": 11,
+    "origin_info": {
+      "weblink": "http:\/\/www.ems.com.cn\/",
+      "phone": null,
+      "carrier_code": "china-ems",
+      "ItemReceived": "2019-05-17 18:42:00",
+      "ItemDispatched": null,
+      "DepartfromAirport": null,
+      "ArrivalfromAbroad": null,
+      "CustomsClearance": null,
+      "DestinationArrived": null,
+      "trackinfo": [
+        {
+          "Date": "2019-05-28 06:02:00",
+          "StatusDescription": "\u5230\u8fbe\u6295\u9012\u5c40",
+          "Details": "\u7f8e\u56fd",
+          "checkpoint_status": "pickup"
+        },
+        {
+          "Date": "2019-05-25 17:20:00",
+          "StatusDescription": "\u5230\u8fbe\u5904\u7406\u4e2d\u5fc3,\u6765\u81ea\u4e2d\u56fd \u676d\u5dde",
+          "Details": "\u7f8e\u56fd",
+          "checkpoint_status": "transit"
+        },
+        {
+          "Date": "2019-05-19 06:15:53",
+          "StatusDescription": "\u5230\u8fbe  \u4e2d\u56fd\u90ae\u653f\u901f\u9012\u7269\u6d41\u80a1\u4efd\u6709\u9650\u516c\u53f8\u676d\u5dde\u5e02\u56fd\u9645\u90ae\u4ef6\u4ea4\u6362\u7ad9 \u5904\u7406\u4e2d\u5fc3",
+          "Details": "",
+          "checkpoint_status": "transit"
+        },
+        {
+          "Date": "2019-05-19 04:25:11",
+          "StatusDescription": "\u79bb\u5f00\u676d\u5dde\u5e02 \u53d1\u5f80\u4e0b\u4e00\u76ee\u7684\u5730",
+          "Details": "\u676d\u5dde\u5e02",
+          "checkpoint_status": "transit"
+        },
+        {
+          "Date": "2019-05-17 20:15:27",
+          "StatusDescription": "\u5df2\u79bb\u5f00\u4e2d\u56fd\u90ae\u653f\u901f\u9012\u7269\u6d41\u80a1\u4efd\u6709\u9650\u516c\u53f8\u676d\u5dde\u5e02\u4f59\u676d\u533a\u8425\u4e1a\u90e8\u56fd\u9645\uff0c\u53d1\u5f80\u676d\u5dde\u5e02\u4e34\u5e73\u90ae\u653f\u5206\u5c40",
+          "Details": "\u676d\u5dde\u5e02",
+          "checkpoint_status": "transit"
+        },
+        {
+          "Date": "2019-05-17 18:42:00",
+          "StatusDescription": "\u4e2d\u56fd\u90ae\u653f\u901f\u9012\u7269\u6d41\u80a1\u4efd\u6709\u9650\u516c\u53f8\u676d\u5dde\u5e02\u4f59\u676d\u533a\u8425\u4e1a\u90e8\u56fd\u9645\u5df2\u6536\u4ef6\uff08\u674e\u704c\u4e91\uff09",
+          "Details": "\u676d\u5dde\u5e02",
+          "checkpoint_status": "transit",
+          "ItemNode": "ItemReceived"
+        }
+      ]
+    },
+    "service_code": "",
+    "substatus": null,
+    "destination_info": {
+      "ItemReceived": "2019-05-17 18:42",
+      "ItemDispatched": null,
+      "DepartfromAirport": null,
+      "ArrivalfromAbroad": null,
+      "CustomsClearance": null,
+      "DestinationArrived": null,
+      "weblink": "http:\/\/www.usps.com\/",
+      "phone": null,
+      "carrier_code": "usps",
+      "trackinfo": [
+        {
+          "Date": "2019-05-28 15:42",
+          "StatusDescription": "Delivered, In\/At Mailbox, Your item was delivered in or at the mailbox at 3:42 pm on May 28, 2019 in GLENVIEW, IL 60025.",
+          "Details": "GLENVIEW",
+          "checkpoint_status": "delivered"
+        },
+        {
+          "Date": "2019-05-28 09:50",
+          "StatusDescription": "Out for Delivery",
+          "Details": "GLENVIEW,IL,60025",
+          "checkpoint_status": "pickup"
+        },
+        {
+          "Date": "2019-05-28 09:40",
+          "StatusDescription": "Sorting Complete",
+          "Details": "GLENVIEW,IL,60025",
+          "checkpoint_status": "transit"
+        },
+        {
+          "Date": "2019-05-28 06:02",
+          "StatusDescription": "Arrived at Unit",
+          "Details": "GLENVIEW,IL,60026",
+          "checkpoint_status": "transit"
+        },
+        {
+          "Date": "2019-05-28 04:59",
+          "StatusDescription": "Arrived at USPS Facility",
+          "Details": "GLENVIEW,IL,60025",
+          "checkpoint_status": "transit"
+        },
+        {
+          "Date": "2019-05-28 03:50",
+          "StatusDescription": "Departed USPS Regional Facility",
+          "Details": "PALATINE IL DISTRIBUTION CENTER",
+          "checkpoint_status": "transit"
+        },
+        {
+          "Date": "2019-05-27 14:34",
+          "StatusDescription": "Arrived at USPS Regional Destination Facility",
+          "Details": "PALATINE IL DISTRIBUTION CENTER",
+          "checkpoint_status": "transit"
+        },
+        {
+          "Date": "2019-05-27 00:00",
+          "StatusDescription": "In Transit to Next Facility",
+          "Details": "",
+          "checkpoint_status": "transit"
+        },
+        {
+          "Date": "2019-05-26 00:59",
+          "StatusDescription": "Departed USPS Regional Destination Facility",
+          "Details": "CHICAGO IL INTERNATIONAL DISTRIBUTION CENTER",
+          "checkpoint_status": "transit"
+        },
+        {
+          "Date": "2019-05-26 00:59",
+          "StatusDescription": "Arrived at USPS Regional Destination Facility",
+          "Details": "CHICAGO IL INTERNATIONAL DISTRIBUTION CENTER",
+          "checkpoint_status": "transit"
+        },
+        {
+          "Date": "2019-05-25 17:20",
+          "StatusDescription": "Processed Through Facility",
+          "Details": "ISC CHICAGO IL (USPS)",
+          "checkpoint_status": "transit"
+        },
+        {
+          "Date": "2019-05-25 17:20",
+          "StatusDescription": "Origin Post is Preparing Shipment",
+          "Details": "",
+          "checkpoint_status": "transit"
+        },
+        {
+          "Date": "2019-05-18 22:09",
+          "StatusDescription": "Processed Through Facility",
+          "Details": "HANGZHOU EMS,CHINA",
+          "checkpoint_status": "transit"
+        },
+        {
+          "Date": "2019-05-18 20:00",
+          "StatusDescription": "Processed Through Facility",
+          "Details": "HANGZHOU,CHINA",
+          "checkpoint_status": "transit"
+        },
+        {
+          "Date": "2019-05-17 18:42",
+          "StatusDescription": "Acceptance",
+          "Details": "CHINA",
+          "checkpoint_status": "transit",
+          "ItemNode": "ItemReceived"
+        }
+      ]
+    },
+    "lastUpdateTime": "2019-05-28 15:42",
+    "lastEvent": "Delivered, In\/At Mailbox, Your item was delivered in or at the mailbox at 3:42 pm on May 28, 2019 in GLENVIEW, IL 60025.,GLENVIEW,2019-05-28 15:42"
+  },
+  "verifyInfo": {
+    "timeStr": 1559095683,
+    "signature": "89086842abadbaf66ada9551d4b6dcd4549d11399b8a8da185c07538786e8403"
+  }
+}

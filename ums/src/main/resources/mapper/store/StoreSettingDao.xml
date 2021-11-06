@@ -15,6 +15,21 @@
         `id`,`store_id`,`setting_name`,`setting_value`
     </sql>
 
+    <select id="selectByStoreId" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from store_setting
+        where store_id = #{storeId}
+    </select>
+
+
+    <update id="updateStoreSettingValueByName" parameterType="com.upedge.ums.modules.store.entity.StoreSetting">
+        update store_setting
+        set setting_value = #{settingValue}
+        where store_id = #{storeId}
+        and setting_name = #{settingName}
+    </update>
+
     <select id="selectByPrimaryKey" parameterType="com.upedge.ums.modules.store.entity.StoreSetting" resultMap="BaseResultMap">
         select
         <include refid="Base_Column_List" />

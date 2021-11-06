@@ -1,0 +1,537 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.upedge.ums.modules.account.dao.PayoneerPaymentDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.upedge.ums.modules.account.entity.payoneer.PayoneerPayment" id="BaseResultMap">
+        <result property="id" column="id"/>
+        <result property="accountId" column="account_id"/>
+        <result property="payoneerAccountId" column="payoneer_account_id"/>
+        <result property="paymentId" column="payment_id"/>
+        <result property="customerId" column="customer_id"/>
+        <result property="customerId" column="customer_id"/>
+        <result property="accountPaymethodId" column="account_paymethod_id"/>
+        <result property="commitId" column="commit_id"/>
+        <result property="status" column="status"/>
+        <result property="statusDescription" column="status_description"/>
+        <result property="fee" column="fee"/>
+        <result property="chargedAmount" column="charged_amount"/>
+        <result property="targetAmount" column="target_amount"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="lastStatus" column="last_status"/>
+        <result property="clientReferenceId" column="client_reference_id"/>
+        <result property="requestAmount" column="request_amount"/>
+        <result property="requestCurrency" column="request_currency"/>
+        <result property="sourceCurrency" column="source_currency"/>
+        <result property="rate" column="rate"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        `id`,`account_id`,`payoneer_account_id`,`customer_id`,`customer_id`,`payment_id`,`account_paymethod_id`,`commit_id`,`status`,`status_description`,`fee`,`charged_amount`,`target_amount`,`created_at`,`last_status`,`client_reference_id`,`request_amount`,`request_currency`,`source_currency`,`rate`,`create_time`,`update_time`
+    </sql>
+
+    <select id="selectByPrimaryKey" parameterType="com.upedge.ums.modules.account.entity.payoneer.PayoneerPayment" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from payoneer_payment
+        where id = #{id}
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="com.upedge.ums.modules.account.entity.payoneer.PayoneerPayment">
+        delete from payoneer_payment
+        where id = #{id}
+    </delete>
+
+    <update id="updateByPrimaryKeySelective" parameterType="com.upedge.ums.modules.account.entity.payoneer.PayoneerPayment">
+        update payoneer_payment
+        <set>
+            <if test="accountId != null">
+                account_id = #{accountId},
+            </if>
+            <if test="paymentId != null">
+                payment_id = #{paymentId},
+            </if>
+            <if test="customerId != null">
+                customer_id = #{customerId},
+            </if>
+            <if test="accountPaymethodId != null">
+                account_paymethod_id = #{accountPaymethodId},
+            </if>
+            <if test="commitId != null">
+                commit_id = #{commitId},
+            </if>
+            <if test="applicationId != null">
+                application_id = #{applicationId},
+            </if>
+            <if test="status != null">
+                status = #{status},
+            </if>
+            <if test="statusDescription != null">
+                status_description = #{statusDescription},
+            </if>
+            <if test="fee != null">
+                fee = #{fee},
+            </if>
+            <if test="chargedAmount != null">
+                charged_amount = #{chargedAmount},
+            </if>
+            <if test="targetAmount != null">
+                target_amount = #{targetAmount},
+            </if>
+            <if test="createdAt != null">
+                created_at = #{createdAt},
+            </if>
+            <if test="lastStatus != null">
+                last_status = #{lastStatus},
+            </if>
+            <if test="clientReferenceId != null">
+                client_reference_id = #{clientReferenceId},
+            </if>
+            <if test="requestAmount != null">
+                request_amount = #{requestAmount},
+            </if>
+            <if test="requestCurrency != null">
+                request_currency = #{requestCurrency},
+            </if>
+            <if test="sourceCurrency != null">
+                source_currency = #{sourceCurrency},
+            </if>
+            <if test="rate != null">
+                rate = #{rate},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime},
+            </if>
+            <if test="updateTime != null">
+                update_time = #{updateTime},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <update id="updateByPrimaryKey" parameterType="com.upedge.ums.modules.account.entity.payoneer.PayoneerPayment">
+        update payoneer_payment
+        <set>
+            id = #{id},
+            account_id = #{accountId},
+            payment_id = #{paymentId},
+            customer_id = #{customerId},
+            account_paymethod_id = #{accountPaymethodId},
+            commit_id = #{commitId},
+            application_id = #{applicationId},
+            status = #{status},
+            status_description = #{statusDescription},
+            fee = #{fee},
+            charged_amount = #{chargedAmount},
+            target_amount = #{targetAmount},
+            created_at = #{createdAt},
+            last_status = #{lastStatus},
+            client_reference_id = #{clientReferenceId},
+            request_amount = #{requestAmount},
+            request_currency = #{requestCurrency},
+            source_currency = #{sourceCurrency},
+            rate = #{rate},
+            create_time = #{createTime},
+            update_time = #{updateTime},
+        </set>
+        where id = #{id}
+    </update>
+
+    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.upedge.ums.modules.account.entity.payoneer.PayoneerPayment" useGeneratedKeys="true">
+        insert into payoneer_payment
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            id,
+            account_id,
+            payoneer_account_id,
+            payment_id,
+            customer_id,
+            account_paymethod_id,
+            commit_id,
+            application_id,
+            status,
+            status_description,
+            fee,
+            charged_amount,
+            target_amount,
+            created_at,
+            last_status,
+            client_reference_id,
+            request_amount,
+            request_currency,
+            source_currency,
+            rate,
+            create_time,
+            update_time
+        </trim>
+        values (
+        #{id},
+        #{accountId},
+        #{payoneerAccountId},
+        #{paymentId},
+        #{customerId},
+        #{accountPaymethodId},
+        #{commitId},
+        #{applicationId},
+        #{status},
+        #{statusDescription},
+        #{fee},
+        #{chargedAmount},
+        #{targetAmount},
+        #{createdAt},
+        #{lastStatus},
+        #{clientReferenceId},
+        #{requestAmount},
+        #{requestCurrency},
+        #{sourceCurrency},
+        #{rate},
+        #{createTime},
+        #{updateTime}
+        )
+    </insert>
+
+    <insert id="insertSelective"  keyColumn="id" keyProperty="id"  parameterType="com.upedge.ums.modules.account.entity.payoneer.PayoneerPayment" useGeneratedKeys="true">
+        insert into payoneer_payment
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null" >
+                id
+            </if>
+            <if test="accountId != null" >
+                account_id
+            </if>
+            <if test="paymentId != null" >
+                payment_id
+            </if>
+            <if test="customerId != null" >
+                customer_id
+            </if>
+            <if test="accountPaymethodId != null" >
+                account_paymethod_id
+            </if>
+            <if test="commitId != null" >
+                commit_id
+            </if>
+            <if test="applicationId != null" >
+                application_id
+            </if>
+            <if test="status != null" >
+                status
+            </if>
+            <if test="statusDescription != null" >
+                status_description
+            </if>
+            <if test="fee != null" >
+                fee
+            </if>
+            <if test="chargedAmount != null" >
+                charged_amount
+            </if>
+            <if test="targetAmount != null" >
+                target_amount
+            </if>
+            <if test="createdAt != null" >
+                created_at
+            </if>
+            <if test="lastStatus != null" >
+                last_status
+            </if>
+            <if test="clientReferenceId != null" >
+                client_reference_id
+            </if>
+            <if test="requestAmount != null" >
+                request_amount
+            </if>
+            <if test="requestCurrency != null" >
+                request_currency
+            </if>
+            <if test="sourceCurrency != null" >
+                source_currency
+            </if>
+            <if test="rate != null" >
+                rate
+            </if>
+            <if test="createTime != null" >
+                create_time
+            </if>
+            <if test="updateTime != null" >
+                update_time
+            </if>
+
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null" >
+                #{id}
+            </if>
+            <if test="accountId != null" >
+                #{accountId}
+            </if>
+            <if test="paymentId != null" >
+                #{paymentId}
+            </if>
+            <if test="customerId != null" >
+                #{customerId}
+            </if>
+            <if test="accountPaymethodId != null" >
+                #{accountPaymethodId}
+            </if>
+            <if test="commitId != null" >
+                #{commitId}
+            </if>
+            <if test="applicationId != null" >
+                #{applicationId}
+            </if>
+            <if test="status != null" >
+                #{status}
+            </if>
+            <if test="statusDescription != null" >
+                #{statusDescription}
+            </if>
+            <if test="fee != null" >
+                #{fee}
+            </if>
+            <if test="chargedAmount != null" >
+                #{chargedAmount}
+            </if>
+            <if test="targetAmount != null" >
+                #{targetAmount}
+            </if>
+            <if test="createdAt != null" >
+                #{createdAt}
+            </if>
+            <if test="lastStatus != null" >
+                #{lastStatus}
+            </if>
+            <if test="clientReferenceId != null" >
+                #{clientReferenceId}
+            </if>
+            <if test="requestAmount != null" >
+                #{requestAmount}
+            </if>
+            <if test="requestCurrency != null" >
+                #{requestCurrency}
+            </if>
+            <if test="sourceCurrency != null" >
+                #{sourceCurrency}
+            </if>
+            <if test="rate != null" >
+                #{rate}
+            </if>
+            <if test="createTime != null" >
+                #{createTime}
+            </if>
+            <if test="updateTime != null" >
+                #{updateTime}
+            </if>
+
+        </trim>
+    </insert>
+
+    <insert id="insertByBatch" parameterType="java.util.List">
+        insert into payoneer_payment
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            id,
+            account_id,
+            payoneer_account_id,
+            payment_id,
+            customer_id,
+            account_paymethod_id,
+            commit_id,
+            application_id,
+            status,
+            status_description,
+            fee,
+            charged_amount,
+            target_amount,
+            created_at,
+            last_status,
+            client_reference_id,
+            request_amount,
+            request_currency,
+            source_currency,
+            rate,
+            create_time,
+            update_time
+        </trim>
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+                #{item.id},
+                #{item.accountId},
+                #{item.payoneerAccountId},
+                #{item.paymentId},
+                #{item.customerId},
+                #{item.accountPaymethodId},
+                #{item.commitId},
+                #{item.applicationId},
+                #{item.status},
+                #{item.statusDescription},
+                #{item.fee},
+                #{item.chargedAmount},
+                #{item.targetAmount},
+                #{item.createdAt},
+                #{item.lastStatus},
+                #{item.clientReferenceId},
+                #{item.requestAmount},
+                #{item.requestCurrency},
+                #{item.sourceCurrency},
+                #{item.rate},
+                #{item.createTime},
+                #{item.updateTime}
+            </trim>
+        </foreach>
+    </insert>
+
+    <sql id="Query_Condition">
+        <if test="t != null">
+            where
+            <trim prefix=" " suffix=" " suffixOverrides=" and ">
+                1 = 1 and
+                <if test="t.id != null">
+                    id = #{t.id} and
+                </if>
+                <if test="t.accountId != null">
+                    account_id = #{t.accountId} and
+                </if>
+                <if test="t.paymentId != null">
+                    payment_id = #{t.paymentId} and
+                </if>
+                <if test="t.customerId != null">
+                    customer_id = #{t.customerId} and
+                </if>
+                <if test="t.accountPaymethodId != null">
+                    account_paymethod_id = #{t.accountPaymethodId} and
+                </if>
+                <if test="t.commitId != null">
+                    commit_id = #{t.commitId} and
+                </if>
+                <if test="t.applicationId != null">
+                    application_id = #{t.applicationId} and
+                </if>
+                <if test="t.status != null">
+                    status = #{t.status} and
+                </if>
+                <if test="t.statusDescription != null">
+                    status_description = #{t.statusDescription} and
+                </if>
+                <if test="t.fee != null">
+                    fee = #{t.fee} and
+                </if>
+                <if test="t.chargedAmount != null">
+                    charged_amount = #{t.chargedAmount} and
+                </if>
+                <if test="t.targetAmount != null">
+                    target_amount = #{t.targetAmount} and
+                </if>
+                <if test="t.createdAt != null">
+                    created_at = #{t.createdAt} and
+                </if>
+                <if test="t.lastStatus != null">
+                    last_status = #{t.lastStatus} and
+                </if>
+                <if test="t.clientReferenceId != null">
+                    client_reference_id = #{t.clientReferenceId} and
+                </if>
+                <if test="t.requestAmount != null">
+                    request_amount = #{t.requestAmount} and
+                </if>
+                <if test="t.requestCurrency != null">
+                    request_currency = #{t.requestCurrency} and
+                </if>
+                <if test="t.sourceCurrency != null">
+                    source_currency = #{t.sourceCurrency} and
+                </if>
+                <if test="t.rate != null">
+                    rate = #{t.rate} and
+                </if>
+                <if test="t.createTime != null">
+                    create_time = #{t.createTime} and
+                </if>
+                <if test="t.updateTime != null">
+                    update_time = #{t.updateTime} and
+                </if>
+                    <if test="t.id != null">
+                        id = #{t.id} and
+                    </if>
+                    <if test="t.accountId != null">
+                        account_id = #{t.accountId} and
+                    </if>
+                    <if test="t.paymentId != null">
+                        payment_id = #{t.paymentId} and
+                    </if>
+                    <if test="t.accountPaymethodId != null">
+                        account_paymethod_id = #{t.accountPaymethdId} and
+                    </if>
+                    <if test="t.commitId != null">
+                        commit_id = #{t.commitId} and
+                    </if>
+                    <if test="t.status != null">
+                        status = #{t.status} and
+                    </if>
+                    <if test="t.statusDescription != null">
+                        status_description = #{t.statusDescription} and
+                    </if>
+                    <if test="t.fee != null">
+                        fee = #{t.fee} and
+                    </if>
+                    <if test="t.chargedAmount != null">
+                        charged_amount = #{t.chargedAmount} and
+                    </if>
+                    <if test="t.targetAmount != null">
+                        target_amount = #{t.targetAmount} and
+                    </if>
+                    <if test="t.createdAt != null">
+                        created_at = #{t.createdAt} and
+                    </if>
+                    <if test="t.lastStatus != null">
+                        last_status = #{t.lastStatus} and
+                    </if>
+                    <if test="t.clientReferenceId != null">
+                        client_reference_id = #{t.clientReferenceId} and
+                    </if>
+                    <if test="t.requestAmount != null">
+                        request_amount = #{t.requestAmount} and
+                    </if>
+                    <if test="t.requestCurrency != null">
+                        request_currency = #{t.requestCurrency} and
+                    </if>
+                    <if test="t.sourceCurrency != null">
+                        source_currency = #{t.sourceCurrency} and
+                    </if>
+                    <if test="t.rate != null">
+                        rate = #{t.rate} and
+                    </if>
+                    <if test="t.customerId != null">
+                        customer_id = #{t.customerId} and
+                    </if>
+                    <if test="t.createTime != null">
+                        create_time = #{t.createTime} and
+                    </if>
+                    <if test="t.updateTime != null">
+                        update_time = #{t.updateTime} and
+                    </if>
+            </trim>
+        </if>
+    </sql>
+
+    <select id="select" parameterType="com.upedge.common.base.Page" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from payoneer_payment
+        <include refid="Query_Condition"/>
+        order by create_time desc
+        <if test="pageNum != null and pageSize != null">
+            limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+        </if>
+    </select>
+
+    <select id="count" parameterType="com.upedge.common.base.Page" resultType="java.lang.Long">
+        select
+        count(1)
+        from payoneer_payment
+        <include refid="Query_Condition"/>
+    </select>
+
+
+</mapper>

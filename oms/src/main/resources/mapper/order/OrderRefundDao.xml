@@ -1,0 +1,514 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.upedge.oms.modules.order.dao.OrderRefundDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.upedge.oms.modules.order.entity.OrderRefund" id="BaseResultMap">
+        <result property="id" column="id"/>
+        <result property="reason" column="reason"/>
+        <result property="orderId" column="order_id"/>
+        <result property="customerId" column="customer_id"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="rejectInfo" column="reject_info"/>
+        <result property="managerCode" column="manager_code"/>
+        <result property="refundAmount" column="refund_amount"/>
+        <result property="refundVatAmount" column="refund_vat_amount"/>
+        <result property="refundProductAmount" column="refund_product_amount"/>
+        <result property="refundShippingPrice" column="refund_shipping_price"/>
+        <result property="state" column="state"/>
+        <result property="source" column="source"/>
+        <result property="trackingState" column="tracking_state"/>
+        <result property="orderSourceId" column="order_source_id"/>
+        <result property="remark" column="remark"/>
+    </resultMap>
+
+    <resultMap type="com.upedge.oms.modules.order.vo.OrderRefundVo" id="OrderRefundVo">
+        <result property="id" column="id"/>
+        <result property="reason" column="reason"/>
+        <result property="orderId" column="order_id"/>
+        <result property="customerId" column="customer_id"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="rejectInfo" column="reject_info"/>
+        <result property="managerCode" column="manager_code"/>
+        <result property="refundAmount" column="refund_amount"/>
+        <result property="refundVatAmount" column="refund_vat_amount"/>
+        <result property="refundProductAmount" column="refund_product_amount"/>
+        <result property="refundShippingPrice" column="refund_shipping_price"/>
+        <result property="state" column="state"/>
+        <result property="source" column="source"/>
+        <result property="trackingState" column="tracking_state"/>
+        <result property="orderSourceId" column="order_source_id"/>
+        <result property="remark" column="remark"/>
+        <result property="payAmount" column="pay_amount"/>
+        <result property="shipPrice" column="ship_price"/>
+        <result property="productAmount" column="product_amount"/>
+        <result property="productDischargeAmount" column="product_discharge_amount"/>
+        <result property="fixFee" column="fix_fee"/>
+        <result property="payMethod" column="pay_method"/>
+        <result property="vatAmount" column="vat_amount"/>
+        <result property="payAmount" column="pay_amount"/>
+        <result property="shipState" column="ship_state"/>
+        <result property="saiheOrderCode" column="saihe_order_code"/>
+        <result property="paymentId" column="payment_id"/>
+        <result property="cnyProductAmount" column="cny_product_amount"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        `id`,`reason`,`order_id`,`customer_id`,`create_time`,`update_time`,`reject_info`,`manager_code`,`refund_amount`,`refund_vat_amount`,`refund_product_amount`,`refund_shipping_price`,`state`,`source`,`tracking_state`,`order_source_id`,`remark`
+    </sql>
+
+    <select id="selectRefundAmountByOrderId" resultType="java.math.BigDecimal">
+        select sum(refund_amount)
+        from order_refund
+        where order_id = #{orderId}
+        and state = '1'
+    </select>
+
+    <select id="selectByPrimaryKey" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from order_refund
+        where id = #{id}
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="com.upedge.oms.modules.order.entity.OrderRefund">
+        delete from order_refund
+        where id = #{id}
+    </delete>
+
+    <update id="updateByPrimaryKeySelective" parameterType="com.upedge.oms.modules.order.entity.OrderRefund">
+        update order_refund
+        <set>
+            <if test="reason != null">
+                reason = #{reason},
+            </if>
+            <if test="orderId != null">
+                order_id = #{orderId},
+            </if>
+            <if test="customerId != null">
+                customer_id = #{customerId},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime},
+            </if>
+            <if test="updateTime != null">
+                update_time = #{updateTime},
+            </if>
+            <if test="rejectInfo != null">
+                reject_info = #{rejectInfo},
+            </if>
+            <if test="managerCode != null">
+                manager_code = #{managerCode},
+            </if>
+            <if test="refundAmount != null">
+                refund_amount = #{refundAmount},
+            </if>
+            <if test="refundVatAmount != null">
+                refund_vat_amount = #{refundVatAmount},
+            </if>
+            <if test="refundProductAmount != null">
+                refund_product_amount = #{refundProductAmount},
+            </if>
+            <if test="refundShippingPrice != null">
+                refund_shipping_price = #{refundShippingPrice},
+            </if>
+            <if test="state != null">
+                state = #{state},
+            </if>
+            <if test="source != null">
+                source = #{source},
+            </if>
+            <if test="trackingState != null">
+                tracking_state = #{trackingState},
+            </if>
+            <if test="orderSourceId != null">
+                order_source_id = #{orderSourceId},
+            </if>
+            <if test="remark != null">
+                remark = #{remark},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <update id="updateByPrimaryKey" parameterType="com.upedge.oms.modules.order.entity.OrderRefund">
+        update order_refund
+        <set>
+        id = #{id},
+        reason = #{reason},
+        order_id = #{orderId},
+        customer_id = #{customerId},
+        create_time = #{createTime},
+        update_time = #{updateTime},
+        reject_info = #{rejectInfo},
+            manager_code = #{managerCode},
+        refund_amount = #{refundAmount},
+        refund_vat_amount = #{refundVatAmount},
+        refund_product_amount = #{refundProductAmount},
+        refund_shipping_price = #{refundShippingPrice},
+        state = #{state},
+        source = #{source},
+        tracking_state = #{trackingState},
+        order_source_id = #{orderSourceId},
+        remark = #{remark},
+        </set>
+        where id = #{id}
+    </update>
+
+    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.upedge.oms.modules.order.entity.OrderRefund" useGeneratedKeys="true">
+        insert into order_refund
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            id,
+            reason,
+            order_id,
+            customer_id,
+            create_time,
+            update_time,
+            reject_info,
+            manager_code,
+            refund_amount,
+            refund_vat_amount,
+            refund_product_amount,
+            refund_shipping_price,
+            state,
+            source,
+            tracking_state,
+            order_source_id,
+            remark
+        </trim>
+        values (
+        #{id},
+        #{reason},
+        #{orderId},
+        #{customerId},
+        #{createTime},
+        #{updateTime},
+        #{rejectInfo},
+        #{managerCode},
+        #{refundAmount},
+        #{refundVatAmount},
+        #{refundProductAmount},
+        #{refundShippingPrice},
+        #{state},
+        #{source},
+        #{trackingState},
+        #{orderSourceId},
+        #{remark}
+        )
+    </insert>
+
+    <insert id="insertSelective"  keyColumn="id" keyProperty="id"  parameterType="com.upedge.oms.modules.order.entity.OrderRefund" useGeneratedKeys="true">
+        insert into order_refund
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null" >
+              id
+            </if>
+            <if test="reason != null" >
+              reason
+            </if>
+            <if test="orderId != null" >
+              order_id
+            </if>
+            <if test="customerId != null" >
+              customer_id
+            </if>
+            <if test="createTime != null" >
+              create_time
+            </if>
+            <if test="updateTime != null" >
+              update_time
+            </if>
+            <if test="rejectInfo != null" >
+              reject_info
+            </if>
+            <if test="managerCode != null" >
+                manager_code
+            </if>
+            <if test="refundAmount != null" >
+              refund_amount
+            </if>
+            <if test="refundVatAmount != null" >
+              refund_vat_amount
+            </if>
+            <if test="refundProductAmount != null" >
+              refund_product_amount
+            </if>
+            <if test="refundShippingPrice != null" >
+              refund_shipping_price
+            </if>
+            <if test="state != null" >
+              state
+            </if>
+            <if test="source != null" >
+              source
+            </if>
+            <if test="trackingState != null" >
+              tracking_state
+            </if>
+            <if test="orderSourceId != null" >
+              order_source_id
+            </if>
+            <if test="remark != null" >
+              remark
+            </if>
+
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null" >
+                #{id}
+            </if>
+            <if test="reason != null" >
+                #{reason}
+            </if>
+            <if test="orderId != null" >
+                #{orderId}
+            </if>
+            <if test="customerId != null" >
+                #{customerId}
+            </if>
+            <if test="createTime != null" >
+                #{createTime}
+            </if>
+            <if test="updateTime != null" >
+                #{updateTime}
+            </if>
+            <if test="rejectInfo != null" >
+                #{rejectInfo}
+            </if>
+            <if test="managerCode != null" >
+                #{managerCode}
+            </if>
+            <if test="refundAmount != null" >
+                #{refundAmount}
+            </if>
+            <if test="refundVatAmount != null" >
+                #{refundVatAmount}
+            </if>
+            <if test="refundProductAmount != null" >
+                #{refundProductAmount}
+            </if>
+            <if test="refundShippingPrice != null" >
+                #{refundShippingPrice}
+            </if>
+            <if test="state != null" >
+                #{state}
+            </if>
+            <if test="source != null" >
+                #{source}
+            </if>
+            <if test="trackingState != null" >
+                #{trackingState}
+            </if>
+            <if test="orderSourceId != null" >
+                #{orderSourceId}
+            </if>
+            <if test="remark != null" >
+                #{remark}
+            </if>
+
+        </trim>
+    </insert>
+
+    <insert id="insertByBatch" parameterType="java.util.List">
+        insert into order_refund
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+           id,
+           reason,
+           order_id,
+           customer_id,
+           create_time,
+           update_time,
+           reject_info,
+            manager_code,
+           refund_amount,
+           refund_vat_amount,
+           refund_product_amount,
+           refund_shipping_price,
+           state,
+           source,
+           tracking_state,
+           order_source_id,
+           remark
+        </trim>
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+               #{item.id},
+               #{item.reason},
+               #{item.orderId},
+               #{item.customerId},
+               #{item.createTime},
+               #{item.updateTime},
+               #{item.rejectInfo},
+               #{item.managerCode},
+               #{item.refundAmount},
+               #{item.refundVatAmount},
+               #{item.refundProductAmount},
+               #{item.refundShippingPrice},
+               #{item.state},
+               #{item.source},
+               #{item.trackingState},
+               #{item.orderSourceId},
+               #{item.remark}
+            </trim>
+        </foreach>
+    </insert>
+
+    <sql id="Query_Condition">
+        <if test="t != null">
+            where
+            <trim prefix=" " suffix=" " suffixOverrides=" and ">
+                1 = 1 and
+                    <if test="t.id != null">
+                        r.id = #{t.id} and
+                    </if>
+                    <if test="t.orderId != null">
+                        r.order_id = #{t.orderId} and
+                    </if>
+                    <if test="t.customerId != null">
+                        r.customer_id = #{t.customerId} and
+                    </if>
+                    <if test="t.managerCode != null">
+                        r.manager_code = #{t.managerCode} and
+                    </if>
+                    <if test="t.state != null">
+                        r.state = #{t.state} and
+                    </if>
+                    <if test="t.gteState != null">
+                        r.state >=#{t.gteState} and
+                    </if>
+                    <if test="t.source != null">
+                        r.source = #{t.source} and
+                    </if>
+                    <if test="t.trackingState != null">
+                        r.tracking_state = #{t.trackingState} and
+                    </if>
+            </trim>
+        </if>
+    </sql>
+
+    <select id="select" parameterType="com.upedge.common.base.Page" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from order_refund o
+        <include refid="Query_Condition"/>
+        <if test="boundary != null and boundary!=''">
+            <if test="t != null">
+                and ${ boundary}
+            </if>
+            <if test="t == null">
+                where ${ boundary}
+            </if>
+        </if>
+        <if test="orderBy != null and orderBy !=''">
+            order by ${orderBy}
+        </if>
+        <if test="pageNum != null and pageSize != null ">
+            <if test="boundary == null or boundary==''">
+                limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+            </if>
+            <if test="boundary != null and boundary!=''">
+                limit #{pageSize,jdbcType=INTEGER}
+            </if>
+        </if>
+    </select>
+
+    <select id="count" parameterType="com.upedge.common.base.Page" resultType="java.lang.Long">
+        select
+        count(1)
+        from order_refund o
+        <include refid="Query_Condition"/>
+    </select>
+
+    <select id="refundOrderList" resultMap="OrderRefundVo" parameterType="com.upedge.common.base.Page">
+        select
+        r.`id`,
+        r.`reason`,
+        r.`order_id`,
+        r.`customer_id`,
+        r.`create_time`,
+        r.`update_time`,
+        r.`reject_info`,
+        r.`manager_code`,
+        r.`refund_amount`,
+        r.`refund_vat_amount`,
+        r.`refund_product_amount`,
+        r.`refund_shipping_price`,
+        r.`state`,`source`,
+        r.`tracking_state`,
+        r.`order_source_id`,
+        r.`remark`,
+        r.`manager_code`,
+        ifnull(o.`product_amount`,'0') as `product_amount`,
+        o.`product_discharge_amount`,
+        o.`fix_fee`,
+        o.`pay_method`,
+        ifnull(o.`vat_amount`,'0') as `vat_amount`,
+        ifnull(o.`ship_price`,'0') as `ship_price`,
+        o.`pay_amount`,
+        o.`ship_state`,
+        o.`payment_id`,
+        o.`saihe_order_code`,
+        o.`cny_product_amount`
+        from order_refund r
+        left join `order` o
+        on o.id = r.order_id
+        <include refid="Query_Condition"/>
+        order by o.update_time desc
+        <if test="pageNum != null and pageSize != null">
+            limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+        </if>
+    </select>
+
+    <select id="refundOrderCount" resultType="java.lang.Long" parameterType="com.upedge.common.base.Page">
+        select count(distinct r.id)
+        from order_refund r
+        <include refid="Query_Condition"/>
+    </select>
+
+    <update id="updateRemark">
+        update order_refund set remark=#{remark}
+        where id=#{id} and state=0 limit 1
+    </update>
+
+    <update id="rejectRefund">
+        update order_refund set
+        state=#{state},
+        reject_info=#{rejectInfo},
+        manager_code=#{managerCode},
+        update_time=#{updateTime}
+        where id=#{id} and state=0 limit 1
+    </update>
+
+    <update id="updateConfirmRefund">
+       update order_refund set state=#{state},
+       manager_code=#{managerCode},
+       update_time=#{updateTime}
+       where state=0 and id=#{id} limit 1
+    </update>
+
+    <update id="updateConfirmAppRefundTrackingState">
+         update order_refund set tracking_state=#{trackingState},order_source_id=#{orderSourceId}
+         where id=#{id}
+	</update>
+    <update id="updateRefundTrackingState">
+        UPDATE
+            order_refund
+        SET
+            tracking_state = #{trackingState},order_source_id=#{orderSourceId}
+        WHERE
+            id = #{id}
+    </update>
+
+    <select id="orderHandleRefundData" resultType="java.lang.Long">
+        select count(1) from order_refund
+        where state=0
+        <if test="managerCode != null and managerCode !=''" >
+        and manager_code=#{managerCode}
+        </if>
+    </select>
+
+</mapper>

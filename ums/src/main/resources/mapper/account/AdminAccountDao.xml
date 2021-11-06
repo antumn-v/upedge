@@ -1,0 +1,209 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.upedge.ums.modules.account.dao.AdminAccountDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.upedge.ums.modules.account.entity.AdminAccount" id="BaseResultMap">
+        <result property="id" column="id"/>
+        <result property="accountType" column="account_type"/>
+        <result property="accountNumber" column="account_number"/>
+        <result property="accountName" column="account_name"/>
+        <result property="accountFlag" column="account_flag"/>
+        <result property="state" column="state"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        `id`,`account_type`,`account_number`,`account_name`,`account_flag`,`state`
+    </sql>
+
+    <select id="selectByPrimaryKey" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from admin_account
+        where id = #{id}
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="com.upedge.ums.modules.account.entity.AdminAccount">
+        delete from admin_account
+        where id = #{id}
+    </delete>
+
+    <update id="updateByPrimaryKeySelective" parameterType="com.upedge.ums.modules.account.entity.AdminAccount">
+        update admin_account
+        <set>
+            <if test="accountType != null">
+                account_type = #{accountType},
+            </if>
+            <if test="accountNumber != null">
+                account_number = #{accountNumber},
+            </if>
+            <if test="accountName != null">
+                account_name = #{accountName},
+            </if>
+            <if test="accountFlag != null">
+                account_flag = #{accountFlag},
+            </if>
+            <if test="state != null">
+                state = #{state},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <update id="updateByPrimaryKey" parameterType="com.upedge.ums.modules.account.entity.AdminAccount">
+        update admin_account
+        <set>
+        id = #{id},
+        account_type = #{accountType},
+        account_number = #{accountNumber},
+        account_name = #{accountName},
+        account_flag = #{accountFlag},
+        state = #{state},
+        </set>
+        where id = #{id}
+    </update>
+
+    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.upedge.ums.modules.account.entity.AdminAccount" useGeneratedKeys="true">
+        insert into admin_account
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            id,
+            account_type,
+            account_number,
+            account_name,
+            account_flag,
+            state
+        </trim>
+        values (
+        #{id},
+        #{accountType},
+        #{accountNumber},
+        #{accountName},
+        #{accountFlag},
+        #{state}
+        )
+    </insert>
+
+    <insert id="insertSelective"  keyColumn="id" keyProperty="id"  parameterType="com.upedge.ums.modules.account.entity.AdminAccount" useGeneratedKeys="true">
+        insert into admin_account
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null" >
+              id
+            </if>
+            <if test="accountType != null" >
+              account_type
+            </if>
+            <if test="accountNumber != null" >
+              account_number
+            </if>
+            <if test="accountName != null" >
+              account_name
+            </if>
+            <if test="accountFlag != null" >
+              account_flag
+            </if>
+            <if test="state != null" >
+              state
+            </if>
+
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null" >
+                #{id}
+            </if>
+            <if test="accountType != null" >
+                #{accountType}
+            </if>
+            <if test="accountNumber != null" >
+                #{accountNumber}
+            </if>
+            <if test="accountName != null" >
+                #{accountName}
+            </if>
+            <if test="accountFlag != null" >
+                #{accountFlag}
+            </if>
+            <if test="state != null" >
+                #{state}
+            </if>
+
+        </trim>
+    </insert>
+
+    <insert id="insertByBatch" parameterType="java.util.List">
+        insert into admin_account
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+           id,
+           account_type,
+           account_number,
+           account_name,
+           account_flag,
+           state
+        </trim>
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+               #{item.id},
+               #{item.accountType},
+               #{item.accountNumber},
+               #{item.accountName},
+               #{item.accountFlag},
+               #{item.state}
+            </trim>
+        </foreach>
+    </insert>
+
+    <sql id="Query_Condition">
+        <if test="t != null">
+            where
+            <trim prefix=" " suffix=" " suffixOverrides=" and ">
+                1 = 1 and
+                    <if test="t.id != null">
+                        id = #{t.id} and
+                    </if>
+                    <if test="t.accountType != null">
+                        account_type = #{t.accountType} and
+                    </if>
+                    <if test="t.accountNumber != null">
+                        account_number = #{t.accountNumber} and
+                    </if>
+                    <if test="t.accountName != null">
+                        account_name LIKE CONCAT('%',#{t.accountName},'%')  and
+                    </if>
+                    <if test="t.accountFlag != null">
+                        account_flag = #{t.accountFlag} and
+                    </if>
+                    <if test="t.state != null">
+                        state = #{t.state} and
+                    </if>
+            </trim>
+        </if>
+    </sql>
+
+    <select id="select" parameterType="com.upedge.common.base.Page" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from admin_account
+        <include refid="Query_Condition"/>
+        <if test="orderBy != null">
+            order by ${orderBy}
+        </if>
+        <if test="pageNum != null and pageSize != null">
+            limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+        </if>
+    </select>
+
+    <select id="count" parameterType="com.upedge.common.base.Page" resultType="java.lang.Long">
+        select
+        count(1)
+        from admin_account
+        <include refid="Query_Condition"/>
+    </select>
+
+    <select id="allAdminAccount" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from admin_account
+    </select>
+
+</mapper>

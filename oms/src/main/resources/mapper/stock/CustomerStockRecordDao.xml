@@ -1,0 +1,320 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.upedge.oms.modules.stock.dao.CustomerStockRecordDao">
+
+    <!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.upedge.oms.modules.stock.entity.CustomerStockRecord" id="BaseResultMap">
+        <result property="id" column="id"/>
+        <result property="customerId" column="customer_id"/>
+        <result property="productId" column="product_id"/>
+        <result property="variantId" column="variant_id"/>
+        <result property="warehouseId" column="warehouse_id"/>
+        <result property="relateId" column="relate_id"/>
+        <result property="type" column="type"/>
+        <result property="orderType" column="order_type"/>
+        <result property="quantity" column="quantity"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="variantImage" column="variant_image"/>
+        <result property="variantSku" column="variant_sku"/>
+        <result property="variantName" column="variant_name"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        `id`,`customer_id`,`product_id`,`variant_id`,`warehouse_id`,`relate_id`,`type`,
+        `order_type`,`quantity`,`create_time`,`update_time`,`variant_image`,`variant_sku`,`variant_name`
+    </sql>
+
+    <select id="selectByPrimaryKey" parameterType="com.upedge.oms.modules.stock.entity.CustomerStockRecord"
+            resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from customer_stock_record
+        where id = #{id}
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="com.upedge.oms.modules.stock.entity.CustomerStockRecord">
+        delete from customer_stock_record
+        where id = #{id}
+    </delete>
+
+    <update id="updateByPrimaryKeySelective" parameterType="com.upedge.oms.modules.stock.entity.CustomerStockRecord">
+        update customer_stock_record
+        <set>
+            <if test="customerId != null">
+                customer_id = #{customerId},
+            </if>
+            <if test="productId != null">
+                product_id = #{productId},
+            </if>
+            <if test="variantId != null">
+                variant_id = #{variantId},
+            </if>
+            <if test="warehouseId != null">
+                warehouse_id = #{warehouseId},
+            </if>
+            <if test="relateId != null">
+                relate_id = #{relateId},
+            </if>
+            <if test="type != null">
+                type = #{type},
+            </if>
+            <if test="orderType != null">
+                order_type = #{orderType},
+            </if>
+            <if test="quantity != null">
+                quantity = #{quantity},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime},
+            </if>
+            <if test="updateTime != null">
+                update_time = #{updateTime},
+            </if>
+            <if test="variantImage != null">
+                variant_image = #{variantImage},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <update id="updateByPrimaryKey" parameterType="com.upedge.oms.modules.stock.entity.CustomerStockRecord">
+        update customer_stock_record
+        <set>
+            id = #{id},
+            customer_id = #{customerId},
+            product_id = #{productId},
+            variant_id = #{variantId},
+            warehouse_id = #{warehouseId},
+            relate_id = #{relateId},
+            type = #{type},
+            order_type = #{orderType},
+            quantity = #{quantity},
+            create_time = #{createTime},
+            update_time = #{updateTime},
+            variant_image = #{variantImage},
+        </set>
+        where id = #{id}
+    </update>
+
+    <insert id="insert" keyColumn="id" keyProperty="id"
+            parameterType="com.upedge.oms.modules.stock.entity.CustomerStockRecord" useGeneratedKeys="true">
+        insert into customer_stock_record
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            id,
+            customer_id,
+            product_id,
+            variant_id,
+            warehouse_id,
+            relate_id,
+            `type`,
+            order_type,
+            quantity,
+            create_time,
+            update_time,
+            variant_image
+        </trim>
+        values (
+        #{id},
+        #{customerId},
+        #{productId},
+        #{variantId},
+        #{warehouseId},
+        #{relateId},
+        #{type},
+        #{orderType},
+        #{quantity},
+        #{createTime},
+        #{updateTime},
+        #{variantImage}
+        )
+    </insert>
+
+    <insert id="insertSelective" keyColumn="id" keyProperty="id"
+            parameterType="com.upedge.oms.modules.stock.entity.CustomerStockRecord" useGeneratedKeys="true">
+        insert into customer_stock_record
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id
+            </if>
+            <if test="customerId != null">
+                customer_id
+            </if>
+            <if test="productId != null">
+                product_id
+            </if>
+            <if test="variantId != null">
+                variant_id
+            </if>
+            <if test="warehouseId != null">
+                warehouse_id
+            </if>
+            <if test="relateId != null">
+                relate_id
+            </if>
+            <if test="type != null">
+                type
+            </if>
+            <if test="orderType != null">
+                order_type
+            </if>
+            <if test="quantity != null">
+                quantity
+            </if>
+            <if test="createTime != null">
+                create_time
+            </if>
+            <if test="updateTime != null">
+                update_time
+            </if>
+            <if test="variantImage != null">
+                variant_image
+            </if>
+
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id}
+            </if>
+            <if test="customerId != null">
+                #{customerId}
+            </if>
+            <if test="productId != null">
+                #{productId}
+            </if>
+            <if test="variantId != null">
+                #{variantId}
+            </if>
+            <if test="warehouseId != null">
+                #{warehouseId}
+            </if>
+            <if test="relateId != null">
+                #{relateId}
+            </if>
+            <if test="type != null">
+                #{type}
+            </if>
+            <if test="orderType != null">
+                #{orderType}
+            </if>
+            <if test="quantity != null">
+                #{quantity}
+            </if>
+            <if test="createTime != null">
+                #{createTime}
+            </if>
+            <if test="updateTime != null">
+                #{updateTime}
+            </if>
+            <if test="variantImage != null">
+                #{variantImage}
+            </if>
+
+        </trim>
+    </insert>
+
+    <insert id="insertByBatch" parameterType="java.util.List">
+        insert into customer_stock_record
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            id,
+            customer_id,
+            product_id,
+            variant_id,
+            warehouse_id,
+            relate_id,
+            type,
+            order_type,
+            quantity,
+            create_time,
+            update_time,
+            variant_image,
+            variant_name,
+            variant_sku
+        </trim>
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+                #{item.id},
+                #{item.customerId},
+                #{item.productId},
+                #{item.variantId},
+                #{item.warehouseId},
+                #{item.relateId},
+                #{item.type},
+                #{item.orderType},
+                #{item.quantity},
+                #{item.createTime},
+                #{item.updateTime},
+                #{item.variantImage},
+                #{item.variantName},
+                #{item.variantSku}
+            </trim>
+        </foreach>
+    </insert>
+
+    <sql id="Query_Condition">
+        <if test="t != null">
+            where
+            <trim prefix=" " suffix=" " suffixOverrides=" and ">
+                1 = 1 and
+                <if test="t.id != null">
+                    id = #{t.id} and
+                </if>
+                <if test="t.customerId != null">
+                    customer_id = #{t.customerId} and
+                </if>
+                <if test="t.productId != null">
+                    product_id = #{t.productId} and
+                </if>
+                <if test="t.variantId != null">
+                    variant_id = #{t.variantId} and
+                </if>
+                <if test="t.warehouseId != null">
+                    warehouse_id = #{t.warehouseId} and
+                </if>
+                <if test="t.relateId != null">
+                    relate_id = #{t.relateId} and
+                </if>
+                <if test="t.type != null">
+                    type = #{t.type} and
+                </if>
+                <if test="t.orderType != null">
+                    order_type = #{t.orderType} and
+                </if>
+                <if test="t.quantity != null">
+                    quantity = #{t.quantity} and
+                </if>
+                <if test="t.createTime != null">
+                    create_time = #{t.createTime} and
+                </if>
+                <if test="t.updateTime != null">
+                    update_time = #{t.updateTime} and
+                </if>
+                <if test="t.variantImage != null">
+                    variant_image = #{t.variantImage} and
+                </if>
+            </trim>
+        </if>
+    </sql>
+
+    <select id="select" parameterType="com.upedge.common.base.Page" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from customer_stock_record
+        <include refid="Query_Condition"/>
+        order by update_time desc
+        <if test="pageNum != null and pageSize != null">
+            limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+        </if>
+    </select>
+
+    <select id="count" parameterType="com.upedge.common.base.Page" resultType="java.lang.Long">
+        select
+        count(1)
+        from customer_stock_record
+        <include refid="Query_Condition"/>
+    </select>
+
+
+</mapper>

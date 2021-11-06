@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.upedge.oms.modules.fulfillment.dao.OrderTrackingWoocUserDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.upedge.oms.modules.fulfillment.entity.OrderTrackingWoocUser" id="BaseResultMap">
+        <result property="customerId" column="customer_id"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        `customer_id`
+    </sql>
+
+    <select id="selectByPrimaryKey" parameterType="com.upedge.oms.modules.fulfillment.entity.OrderTrackingWoocUser" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from order_tracking_wooc_user
+        where customer_id = #{customerId}
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="com.upedge.oms.modules.fulfillment.entity.OrderTrackingWoocUser">
+        delete from order_tracking_wooc_user
+        where customer_id = #{customerId}
+    </delete>
+
+    <update id="updateByPrimaryKeySelective" parameterType="com.upedge.oms.modules.fulfillment.entity.OrderTrackingWoocUser">
+        update order_tracking_wooc_user
+        <set>
+        </set>
+        where customer_id = #{customerId}
+    </update>
+
+    <update id="updateByPrimaryKey" parameterType="com.upedge.oms.modules.fulfillment.entity.OrderTrackingWoocUser">
+        update order_tracking_wooc_user
+        <set>
+        customer_id = #{customerId},
+        </set>
+        where customer_id = #{customerId}
+    </update>
+
+    <insert id="insert" keyColumn="customer_id" keyProperty="customerId" parameterType="com.upedge.oms.modules.fulfillment.entity.OrderTrackingWoocUser" useGeneratedKeys="true">
+        insert into order_tracking_wooc_user
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            customer_id
+        </trim>
+        values (
+        #{customerId}
+        )
+    </insert>
+
+    <insert id="insertSelective"  keyColumn="customer_id" keyProperty="customerId"  parameterType="com.upedge.oms.modules.fulfillment.entity.OrderTrackingWoocUser" useGeneratedKeys="true">
+        insert into order_tracking_wooc_user
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="customerId != null" >
+              customer_id
+            </if>
+
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="customerId != null" >
+                #{customerId}
+            </if>
+
+        </trim>
+    </insert>
+
+    <insert id="insertByBatch" parameterType="java.util.List">
+        insert into order_tracking_wooc_user
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+           customer_id
+        </trim>
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+               #{item.customerId}
+            </trim>
+        </foreach>
+    </insert>
+
+    <sql id="Query_Condition">
+        <if test="t != null">
+            where
+            <trim prefix=" " suffix=" " suffixOverrides=" and ">
+                1 = 1 and
+                    <if test="t.customerId != null">
+                        customer_id = #{t.customerId} and
+                    </if>
+            </trim>
+        </if>
+    </sql>
+
+    <select id="select" parameterType="com.upedge.common.base.Page" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from order_tracking_wooc_user
+        <include refid="Query_Condition"/>
+        <if test="orderBy != null">
+            order by ${orderBy}
+        </if>
+        <if test="pageNum != null and pageSize != null">
+            limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+        </if>
+    </select>
+
+    <select id="count" parameterType="com.upedge.common.base.Page" resultType="java.lang.Long">
+        select
+        count(1)
+        from order_tracking_wooc_user
+        <include refid="Query_Condition"/>
+    </select>
+
+
+</mapper>

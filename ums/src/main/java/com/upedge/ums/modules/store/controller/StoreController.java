@@ -1,96 +1,356 @@
 package com.upedge.ums.modules.store.controller;
 
-import java.util.Arrays;
-import java.util.Map;
-
-import com.upedge.common.constant.ResultCode;
-import com.upedge.common.model.user.vo.Session;
-import com.upedge.common.web.util.UserUtil;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.alibaba.fastjson.JSONObject;
+import com.upedge.common.base.BaseResponse;
+import com.upedge.common.base.Page;
 import com.upedge.common.component.annotation.Permission;
+import com.upedge.common.constant.BaseCode;
+import com.upedge.common.constant.Constant;
+import com.upedge.common.constant.ResultCode;
+import com.upedge.common.constant.key.RedisKey;
+import com.upedge.common.feign.OmsFeignClient;
+import com.upedge.common.model.store.StoreVo;
+import com.upedge.common.model.store.config.ShopifyConfig;
+import com.upedge.common.model.store.request.StoreSearchRequest;
+import com.upedge.common.model.user.vo.Session;
+import com.upedge.common.utils.HMACValidation;
+import com.upedge.common.utils.ListUtils;
+import com.upedge.common.web.util.RequestUtil;
+import com.upedge.common.web.util.UserUtil;
+
+import com.upedge.thirdparty.shopify.moudles.shop.controller.ShopifyShopApi;
+import com.upedge.thirdparty.shopify.moudles.shop.entity.ShopifyGetTokenParam;
+import com.upedge.ums.async.StoreAsync;
 import com.upedge.ums.modules.store.entity.Store;
+import com.upedge.ums.modules.store.entity.StoreSetting;
+import com.upedge.ums.modules.store.request.*;
+import com.upedge.ums.modules.store.response.*;
 import com.upedge.ums.modules.store.service.StoreService;
+import com.upedge.ums.modules.user.entity.Customer;
+import com.upedge.ums.modules.user.entity.User;
+import com.upedge.ums.modules.user.service.CustomerService;
+import com.upedge.ums.modules.user.service.UserService;
+import com.upedge.ums.modules.user.service.impl.UserServiceImpl;
+import io.swagger.annotations.ApiOperation;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.*;
-import java.util.List;
-import com.upedge.common.constant.Constant;
-import com.upedge.ums.modules.store.request.StoreAddRequest;
-import com.upedge.ums.modules.store.request.StoreListRequest;
-import com.upedge.ums.modules.store.request.StoreUpdateRequest;
 
-import com.upedge.ums.modules.store.response.StoreAddResponse;
-import com.upedge.ums.modules.store.response.StoreDelResponse;
-import com.upedge.ums.modules.store.response.StoreInfoResponse;
-import com.upedge.ums.modules.store.response.StoreListResponse;
-import com.upedge.ums.modules.store.response.StoreUpdateResponse;
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import static com.upedge.ums.modules.store.service.impl.StoreServiceImpl.getShopifyAuthUrl;
 
 /**
  * 
  *
- * @author gx
+ * @author author
  */
-@Api(tags = "客户店铺管理")
 @RestController
 @RequestMapping("/store")
 public class StoreController {
+
+
     @Autowired
     private StoreService storeService;
 
     @Autowired
-    RedisTemplate redisTemplate;
+    CustomerService customerService;
+
+    @Autowired
+    OmsFeignClient omsFeignClient;
+
+    @Autowired
+    UserService userService;
+
+    @Autowired
+    UserServiceImpl userServiceImpl;
+
+    @Autowired
+    RedisTemplate<String, Object> redisTemplate;
+
+    @Autowired
+    StoreAsync storeAsync;
+
+    @ApiOperation("请求授权shopify店铺")
+    @PostMapping("/shopifyConnect")
+    public ShopifyAuthResponse shopifyAuthRequest(@RequestBody ShopifyAuthRequest request){
+        return storeService.shopifyAuthRequest(verifyStoreAddress(request.getShopName()));
+    }
+
+    @ApiOperation("授权回调地址")
+    @GetMapping("/shopifyAuth")
+    public BaseResponse shopifyAuth(@RequestParam("code") String code,
+                             @RequestParam("hmac") String hmac,
+                             @RequestParam("shop") String shop,
+                             @RequestParam("state") String state,
+                             @RequestParam("timestamp") String timestamp) throws IOException {
+        Session session = (Session) redisTemplate.opsForValue().get(state);
+        HttpServletRequest request = RequestUtil.getRequest();
+        String string = request.getQueryString();
+        String[] params = string.split("&");
+        List<String> args = new ArrayList<>();
+        for (int i = 0; i < params.length; i++) {
+            String s = params[i];
+            if (!s.contains("hmac")) {
+                args.add(s);
+            }
+        }
+        boolean verify = HMACValidation.Valicate(hmac, args, ShopifyConfig.api_select_key);
+        if (verify) {
+            ShopifyGetTokenParam param = new ShopifyGetTokenParam();
+            param.setApiKey(ShopifyConfig.api_key);
+            param.setApiSecret(ShopifyConfig.api_select_key);
+            param.setShopName(shop);
+            param.setCode(code);
+            JSONObject jsonObject = ShopifyShopApi.getToken(param);
+            if (!jsonObject.getBoolean("success")) {
+                return BaseResponse.failed();
+            }
+            String token = jsonObject.getJSONObject("data").getString("token");
+            Store store = storeService.updateShopifyStore(shop, token, session);
+            if (store != null){
+                try {
+                    storeAsync.getStoreData(store);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                return BaseResponse.success();
+            }
+            return BaseResponse.failed();
+
+        }
+        return BaseResponse.success("Verification failed");
+    }
+
+
+    @GetMapping("/connect/shopify")
+    public BaseResponse shopifyConnectRequest(@RequestParam("hmac") String hmac,
+                                              @RequestParam("shop") String shop){
+        Map<String, String> result = new HashMap<>();
+        result.put("url",null);
+        result.put("token",null);
+        HttpServletRequest request = RequestUtil.getRequest();
+        String string = request.getQueryString();
+        String[] params = string.split("&");
+        List<String> args = new ArrayList<>();
+        for (int i = 0; i < params.length; i++) {
+            String s = params[i];
+            if (!s.contains("hmac")) {
+                args.add(s);
+            }
+        }
+        boolean verify = HMACValidation.Valicate(hmac, args, ShopifyConfig.api_select_key);
+        if(verify){
+            Store store = new Store();
+            store.setStoreName(shop);
+            store = storeService.selectByPrimaryKey(store);
+            if(store == null || store.getStatus() != 1){
+                Session session = null;
+                String nonce = System.currentTimeMillis() + "";
+                String url = getShopifyAuthUrl(shop, nonce);
+                redisTemplate.opsForValue().set(nonce, session);
+                result.put("url",url);
+                return new ShopifyAuthResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS, url);
+            }else {
+                Customer customer = customerService.selectByPrimaryKey(store.getCustomerId());
+                User user = userService.selectByPrimaryKey(customer.getCustomerSignupUserId());
+                result = userServiceImpl.userSignIn(user, 1L);
+                result.put("url",null);
+                return new BaseResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS, result);
+            }
+        }
+        return BaseResponse.failed("Verification failed");
+    }
+
+    @PostMapping("/addShopifyStore/manual")
+    public ShopifyAuthResponse manualAddShopifyStore(@RequestBody ShopifyStoreManualAddRequest request){
+        Session session = UserUtil.getSession(redisTemplate);
+        String shop = request.getShop();
+        String token = request.getToken();
+        storeService.updateShopifyStore(shop, token, session);
+        return new ShopifyAuthResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS);
+    }
+
+    public static String verifyStoreAddress(String storeAddress) {
+        if (StringUtils.isBlank(storeAddress)){
+            return null;
+        }
+        String pattern = "[\\w\\-]+\\.myshopify.com";
+        // 创建 Pattern 对象
+        Pattern r = Pattern.compile(pattern);
+        // 现在创建 matcher 对象
+        Matcher m = r.matcher(storeAddress);
+        if (m.find()) {
+            return m.group(0);
+        } else {
+            return null;
+        }
+    }
+
+//    @ApiOperation("请求授权woocommerce店铺")
+//    @PostMapping("/auth/woocommerce")
+    public WoocommerceAuthResponse woocommerceAuth(@RequestBody @Valid WoocommerceAuthRequest request){
+        return storeService.woocommerceAuth(request);
+    }
+
+//    @ApiOperation("请求授权shoplazza店铺")
+//    @PostMapping("/auth/shoplazza")
+    public BaseResponse shoplazzaAuth(@RequestBody @Valid ShoplazzaAuthRequest request){
+        Session session = UserUtil.getSession(redisTemplate);
+        return storeService.shoplazzaAuth(request,session);
+    }
 
     @RequestMapping(value="/info/{id}", method=RequestMethod.GET)
-    @Permission(permission = "store:store:info:id")
     public StoreInfoResponse info(@PathVariable Long id) {
-        Store result = storeService.selectByPrimaryKey(id);
-        StoreInfoResponse res = new StoreInfoResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS,result,id);
+        Store store = new Store();
+        store.setId(id);
+        store = storeService.selectByPrimaryKey(store);
+        StoreInfoResponse res = new StoreInfoResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS,store,id);
         return res;
     }
 
-    @ApiOperation("客户店铺列表")
     @RequestMapping(value="/list", method=RequestMethod.POST)
     @Permission(permission = "store:store:list")
     public StoreListResponse list(@RequestBody @Valid StoreListRequest request) {
-        Session session = UserUtil.getSession(redisTemplate);
-        if (request.getT() == null){
+
+        if(null == request.getT()){
             request.setT(new Store());
         }
-        request.getT().setCustomerId(session.getCustomerId());
-        List<Store> results = storeService.select(request);
-        Long total = storeService.count(request);
-        request.setTotal(total);
-        StoreListResponse res = new StoreListResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS,results,request);
+        Session session = UserUtil.getSession(redisTemplate);
+        List<Long> orgIds = new ArrayList<>();
+        List<Store> results = new ArrayList<>();
+        Long total = 0L;
+        if (session.getUserType() == BaseCode.USER_ROLE_NORMAL) {
+            orgIds = session.getOrgIds();
+            if (ListUtils.isEmpty(orgIds)) {
+                return new StoreListResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS, new ArrayList<>(), request);
+            }
+            int i = 0;
+            results = storeService.selectByCustomerOrgIds(session.getCustomerId(), orgIds);
+            if (null != results) {
+                i = results.size();
+            }
+            request.setTotal(Long.parseLong(i + ""));
+        }else {
+            request.getT().setCustomerId(session.getCustomerId());
+
+            results = storeService.select(request);
+            total = storeService.count(request);
+            request.setTotal(total);
+        }
+
+
+        StoreListResponse res = new StoreListResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS, results, request);
         return res;
     }
 
-    @RequestMapping(value="/add", method=RequestMethod.POST)
-    @Permission(permission = "store:store:add")
-    public StoreAddResponse add(@RequestBody @Valid StoreAddRequest request) {
-        Store entity=request.toStore();
-        storeService.insertSelective(entity);
-        StoreAddResponse res = new StoreAddResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS,entity,request);
-        return res;
+    @GetMapping("/setting/list")
+    public BaseResponse storeSettingList() {
+        return storeService.storeSettingList();
+
     }
 
-    @RequestMapping(value="/del/{id}", method=RequestMethod.POST)
-    @Permission(permission = "store:store:del:id")
-    public StoreDelResponse del(@PathVariable Long id) {
-        storeService.deleteByPrimaryKey(id);
-        StoreDelResponse res = new StoreDelResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS);
-        return res;
+    /**
+     * 查询当前店铺设置信息
+     * @param storeId
+     * @return
+     */
+    @GetMapping("/setting/list/{storeId}")
+    public BaseResponse oneStoreSettingList(@PathVariable Long storeId) {
+        return storeService.oneStoreSettingList(storeId);
+
     }
 
-    @RequestMapping(value="/update/{id}", method=RequestMethod.POST)
+    @PostMapping("/setting/update")
+    public BaseResponse updateStoreSetting(@RequestBody @Valid StoreSetting storeSetting) {
+        return storeService.storeSettingUpdate(storeSetting);
+    }
+
+    /**
+     * 批量保存电偶设置
+     * @param list
+     * @return
+     */
+    @PostMapping("/settingList/update")
+     public BaseResponse updateStoreSettingList(@RequestBody @Valid List<StoreSetting> list) {
+        return storeService.storeSettingListUpdate(list);
+    }
+
+
+    /**
+     *
+     * @param id
+     * @param request
+     * @return
+     */
+    @RequestMapping(value = "/update/{id}", method = RequestMethod.POST)
     @Permission(permission = "store:store:update")
-    public StoreUpdateResponse update(@PathVariable Long id,@RequestBody @Valid StoreUpdateRequest request) {
-        Store entity=request.toStore(id);
+    public StoreUpdateResponse update(@PathVariable Long id, @RequestBody @Valid StoreUpdateRequest request) {
+        Store entity = request.toStore(id);
         storeService.updateByPrimaryKeySelective(entity);
-        StoreUpdateResponse res = new StoreUpdateResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS);
+        StoreUpdateResponse res = new StoreUpdateResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS);
         return res;
     }
 
+
+    @PostMapping("/search")
+    public BaseResponse storeSearch(@RequestBody StoreSearchRequest request) {
+        Store store = new Store();
+        BeanUtils.copyProperties(request, store);
+        store = storeService.selectByPrimaryKey(store);
+        if (null != store) {
+            StoreVo storeVo=storeService.queryStoreSetting(store.getId());
+            BeanUtils.copyProperties(store, storeVo);
+            redisTemplate.opsForValue().set(RedisKey.STRING_STORE + store.getId(), storeVo);
+            return new BaseResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS, storeVo);
+        }
+        return BaseResponse.failed("The shop does not exist");
+
+    }
+
+    @PostMapping("/getStoreData")
+    public BaseResponse testUpdateWoocommerceOrder() {
+        Page<Store> storePage = new Page<>();
+        storePage.setPageSize(-1);
+        List<Store> stores = storeService.select(storePage);
+        for (Store store1 : stores) {
+            try {
+                storeAsync.getStoreProductAndOrder(store1);
+                Thread.sleep(10000L);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+        }
+        return BaseResponse.success();
+    }
+
+
+    /**
+     * 店铺货币及汇率修改
+     * @param id
+     * @param request
+     * @return
+     */
+    @RequestMapping(value = "/updateStore/{id}", method = RequestMethod.POST)
+    @Permission(permission = "store:store:update")
+    public BaseResponse updateStore(@PathVariable Long id, @RequestBody @Valid Store request) {
+        request.setId(id);
+        int i = storeService.updateStoreByPrimaryKey(request);
+        if (i==1){
+            return BaseResponse.success();
+        }
+        return BaseResponse.failed();
+    }
 
 }

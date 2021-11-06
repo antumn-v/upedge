@@ -1,0 +1,331 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.upedge.oms.modules.common.dao.SaiheOrderRecordDao">
+
+    <!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.upedge.oms.modules.common.entity.SaiheOrderRecord" id="BaseResultMap">
+        <result property="id" column="id"/>
+        <result property="clientOrderCode" column="client_order_code"/>
+        <result property="orderType" column="order_type"/>
+        <result property="saiheOrderCode" column="saihe_order_code"/>
+        <result property="customerId" column="customer_id"/>
+        <result property="managerCode" column="manager_code"/>
+        <result property="orderSourceId" column="order_source_id"/>
+        <result property="orderSourceName" column="order_source_name"/>
+        <result property="shipMethodId" column="ship_method_id"/>
+        <result property="transportId" column="transport_id"/>
+        <result property="importTime" column="import_time"/>
+        <result property="state" column="state"/>
+        <result property="failReason" column="fail_reason"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        `id`,`client_order_code`,`order_type`,`saihe_order_code`,`customer_id`,`manager_code`,
+        `order_source_id`,`order_source_name`,`ship_method_id`,`transport_id`,`import_time`,`state`,`fail_reason`
+    </sql>
+
+    <select id="selectByClientOrderCode" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from saihe_order_record
+        where client_order_code = #{clientOrderCode}
+    </select>
+
+    <select id="selectByPrimaryKey" parameterType="com.upedge.oms.modules.common.entity.SaiheOrderRecord"
+            resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from saihe_order_record
+        where id = #{id}
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="com.upedge.oms.modules.common.entity.SaiheOrderRecord">
+        delete from saihe_order_record
+        where id = #{id}
+    </delete>
+
+    <update id="updateByPrimaryKeySelective" parameterType="com.upedge.oms.modules.common.entity.SaiheOrderRecord">
+        update saihe_order_record
+        <set>
+            <if test="clientOrderCode != null">
+                client_order_code = #{clientOrderCode},
+            </if>
+            <if test="orderType != null">
+                order_type = #{orderType},
+            </if>
+            <if test="saiheOrderCode != null">
+                saihe_order_code = #{saiheOrderCode},
+            </if>
+            <if test="customerId != null">
+                customer_id = #{customerId},
+            </if>
+            <if test="managerCode != null">
+                manager_code = #{managerCode},
+            </if>
+            <if test="orderSourceId != null">
+                order_source_id = #{orderSourceId},
+            </if>
+            <if test="orderSourceName != null">
+                order_source_name = #{orderSourceName},
+            </if>
+            <if test="shipMethodId != null">
+                ship_method_id = #{shipMethodId},
+            </if>
+            <if test="transportId != null">
+                transport_id = #{transportId},
+            </if>
+            <if test="importTime != null">
+                import_time = #{importTime},
+            </if>
+            <if test="state != null">
+                state = #{state},
+            </if>
+            <if test="failReason != null">
+                fail_reason = #{failReason},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <update id="updateByPrimaryKey" parameterType="com.upedge.oms.modules.common.entity.SaiheOrderRecord">
+        update saihe_order_record
+        <set>
+            client_order_code = #{clientOrderCode},
+            order_type = #{orderType},
+            saihe_order_code = #{saiheOrderCode},
+            customer_id = #{customerId},
+            manager_code = #{managerCode},
+            order_source_id = #{orderSourceId},
+            order_source_name = #{orderSourceName},
+            ship_method_id = #{shipMethodId},
+            transport_id = #{transportId},
+            import_time = #{importTime},
+            state = #{state},
+            fail_reason = #{failReason}
+        </set>
+        where id = #{id}
+    </update>
+
+    <insert id="insert" keyColumn="id" keyProperty="id"
+            parameterType="com.upedge.oms.modules.common.entity.SaiheOrderRecord" useGeneratedKeys="true">
+        replace into saihe_order_record
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            id,
+            client_order_code,
+            order_type,
+            saihe_order_code,
+            customer_id,
+            manager_code,
+            order_source_id,
+            order_source_name,
+            ship_method_id,
+            transport_id,
+            import_time,
+            state,
+            fail_reason
+        </trim>
+        values (
+        #{id},
+        #{clientOrderCode},
+        #{orderType},
+        #{saiheOrderCode},
+        #{customerId},
+        #{managerCode},
+        #{orderSourceId},
+        #{orderSourceName},
+        #{shipMethodId},
+        #{transportId},
+        #{importTime},
+        #{state},
+        #{failReason}
+        )
+    </insert>
+
+    <insert id="insertSelective" keyColumn="id" keyProperty="id"
+            parameterType="com.upedge.oms.modules.common.entity.SaiheOrderRecord" useGeneratedKeys="true">
+        insert into saihe_order_record
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id
+            </if>
+            <if test="clientOrderCode != null">
+                client_order_code
+            </if>
+            <if test="orderType != null">
+                order_type
+            </if>
+            <if test="saiheOrderCode != null">
+                saihe_order_code
+            </if>
+            <if test="customerId != null">
+                customer_id
+            </if>
+            <if test="managerCode != null">
+                manager_code
+            </if>
+            <if test="orderSourceId != null">
+                order_source_id
+            </if>
+            <if test="orderSourceName != null">
+                order_source_name
+            </if>
+            <if test="shipMethodId != null">
+                ship_method_id
+            </if>
+            <if test="transportId != null">
+                transport_id
+            </if>
+            <if test="importTime != null">
+                import_time
+            </if>
+            <if test="state != null">
+                state
+            </if>
+
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id}
+            </if>
+            <if test="clientOrderCode != null">
+                #{clientOrderCode}
+            </if>
+            <if test="orderType != null">
+                #{orderType}
+            </if>
+            <if test="saiheOrderCode != null">
+                #{saiheOrderCode}
+            </if>
+            <if test="customerId != null">
+                #{customerId}
+            </if>
+            <if test="managerCode != null">
+                #{managerCode}
+            </if>
+            <if test="orderSourceId != null">
+                #{orderSourceId}
+            </if>
+            <if test="orderSourceName != null">
+                #{orderSourceName}
+            </if>
+            <if test="shipMethodId != null">
+                #{shipMethodId}
+            </if>
+            <if test="transportId != null">
+                #{transportId}
+            </if>
+            <if test="importTime != null">
+                #{importTime}
+            </if>
+            <if test="state != null">
+                #{state}
+            </if>
+
+        </trim>
+    </insert>
+
+    <insert id="insertByBatch" parameterType="java.util.List">
+        insert into saihe_order_record
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            id,
+            client_order_code,
+            order_type,
+            saihe_order_code,
+            customer_id,
+            manager_code,
+            order_source_id,
+            order_source_name,
+            ship_method_id,
+            transport_id,
+            import_time,
+            state,
+            fail_reason
+        </trim>
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+                #{item.id},
+                #{item.clientOrderCode},
+                #{item.orderType},
+                #{item.saiheOrderCode},
+                #{item.customerId},
+                #{item.managerCode},
+                #{item.orderSourceId},
+                #{item.orderSourceName},
+                #{item.shipMethodId},
+                #{item.transportId},
+                #{item.importTime},
+                #{item.state},
+                #{item.failReason}
+            </trim>
+        </foreach>
+    </insert>
+
+    <sql id="Query_Condition">
+        <if test="t != null">
+            where
+            <trim prefix=" " suffix=" " suffixOverrides=" and ">
+                1 = 1 and
+                <if test="t.id != null">
+                    id = #{t.id} and
+                </if>
+                <if test="t.clientOrderCode != null">
+                    client_order_code = #{t.clientOrderCode} and
+                </if>
+                <if test="t.orderType != null">
+                    order_type = #{t.orderType} and
+                </if>
+                <if test="t.saiheOrderCode != null">
+                    saihe_order_code = #{t.saiheOrderCode} and
+                </if>
+                <if test="t.customerId != null">
+                    customer_id = #{t.customerId} and
+                </if>
+                <if test="t.managerCode != null">
+                    manager_code = #{t.managerCode} and
+                </if>
+                <if test="t.orderSourceId != null">
+                    order_source_id = #{t.orderSourceId} and
+                </if>
+                <if test="t.orderSourceName != null">
+                    order_source_name = #{t.orderSourceName} and
+                </if>
+                <if test="t.shipMethodId != null">
+                    ship_method_id = #{t.shipMethodId} and
+                </if>
+                <if test="t.transportId != null">
+                    transport_id = #{t.transportId} and
+                </if>
+                <if test="t.importTime != null">
+                    import_time = #{t.importTime} and
+                </if>
+                <if test="t.state != null">
+                    state = #{t.state} and
+                </if>
+            </trim>
+        </if>
+    </sql>
+
+    <select id="select" parameterType="com.upedge.common.base.Page" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from saihe_order_record
+        <include refid="Query_Condition"/>
+        <if test="orderBy != null">
+            order by ${orderBy}
+        </if>
+        <if test="pageNum != null and pageSize != null">
+            limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+        </if>
+    </select>
+
+    <select id="count" parameterType="com.upedge.common.base.Page" resultType="java.lang.Long">
+        select
+        count(1)
+        from saihe_order_record
+        <include refid="Query_Condition"/>
+    </select>
+
+
+</mapper>

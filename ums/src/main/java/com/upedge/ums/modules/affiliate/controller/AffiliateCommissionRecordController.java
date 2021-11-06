@@ -1,31 +1,26 @@
 package com.upedge.ums.modules.affiliate.controller;
 
-import java.util.Arrays;
-import java.util.Map;
-
-import com.upedge.common.constant.ResultCode;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.upedge.common.base.BaseResponse;
 import com.upedge.common.component.annotation.Permission;
-import com.upedge.ums.modules.affiliate.entity.AffiliateCommissionRecord;
-import com.upedge.ums.modules.affiliate.service.AffiliateCommissionRecordService;
-import org.springframework.web.bind.annotation.*;
-import java.util.List;
 import com.upedge.common.constant.Constant;
+import com.upedge.common.constant.ResultCode;
+import com.upedge.common.model.user.request.OrderBenefitsRequest;
+import com.upedge.ums.modules.affiliate.entity.AffiliateCommissionRecord;
 import com.upedge.ums.modules.affiliate.request.AffiliateCommissionRecordAddRequest;
 import com.upedge.ums.modules.affiliate.request.AffiliateCommissionRecordListRequest;
 import com.upedge.ums.modules.affiliate.request.AffiliateCommissionRecordUpdateRequest;
+import com.upedge.ums.modules.affiliate.response.*;
+import com.upedge.ums.modules.affiliate.service.AffiliateCommissionRecordService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
 
-import com.upedge.ums.modules.affiliate.response.AffiliateCommissionRecordAddResponse;
-import com.upedge.ums.modules.affiliate.response.AffiliateCommissionRecordDelResponse;
-import com.upedge.ums.modules.affiliate.response.AffiliateCommissionRecordInfoResponse;
-import com.upedge.ums.modules.affiliate.response.AffiliateCommissionRecordListResponse;
-import com.upedge.ums.modules.affiliate.response.AffiliateCommissionRecordUpdateResponse;
 import javax.validation.Valid;
+import java.util.List;
 
 /**
- * 佣金记录表
+ * 
  *
- * @author gx
+ * @author author
  */
 @RestController
 @RequestMapping("/affiliateCommissionRecord")
@@ -71,12 +66,21 @@ public class AffiliateCommissionRecordController {
 
     @RequestMapping(value="/update/{id}", method=RequestMethod.POST)
     @Permission(permission = "affiliate:affiliatecommissionrecord:update")
-    public AffiliateCommissionRecordUpdateResponse update(@PathVariable Long id,@RequestBody @Valid AffiliateCommissionRecordUpdateRequest request) {
+    public AffiliateCommissionRecordUpdateResponse update(@PathVariable Long id, @RequestBody @Valid AffiliateCommissionRecordUpdateRequest request) {
         AffiliateCommissionRecord entity=request.toAffiliateCommissionRecord(id);
         affiliateCommissionRecordService.updateByPrimaryKeySelective(entity);
         AffiliateCommissionRecordUpdateResponse res = new AffiliateCommissionRecordUpdateResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS);
         return res;
     }
 
+    @PostMapping("/packageMonthOrderBenefitsListAmount")
+    public BaseResponse packageMonthOrderBenefitsListAmount(@RequestBody OrderBenefitsRequest orderBenefitsRequest){
+        return  affiliateCommissionRecordService.packageMonthOrderBenefitsListAmount(orderBenefitsRequest);
+    };
+
+    @PostMapping("/affiliateCommissionRecord/packageMonthWholeSaleOrderBenefitsListAmount")
+    public BaseResponse packageMonthWholeSaleOrderBenefitsListAmount(@RequestBody OrderBenefitsRequest orderBenefitsRequest){
+        return  affiliateCommissionRecordService.packageMonthWholeSaleOrderBenefitsListAmount(orderBenefitsRequest);
+    };
 
 }

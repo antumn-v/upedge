@@ -10,6 +10,9 @@ import com.upedge.common.base.Page;
  */
 public interface CustomerPrivateProductDao{
 
+
+    int countByProductId(Long productId);
+
     CustomerPrivateProduct selectByPrimaryKey(CustomerPrivateProduct record);
 
     int deleteByPrimaryKey(CustomerPrivateProduct record);

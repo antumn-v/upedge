@@ -1,32 +1,121 @@
 package com.upedge.ums.modules.account.service;
 
+import com.upedge.common.base.BaseResponse;
+import com.upedge.common.exception.CustomerException;
+import com.upedge.common.model.account.AccountOrderRefundedRequest;
+import com.upedge.common.model.account.AccountPaymentRequest;
+import com.upedge.common.model.order.PaymentDetail;
 import com.upedge.ums.modules.account.entity.Account;
-import com.upedge.common.base.Page;
+import com.upedge.ums.modules.account.entity.AccountLog;
+import com.upedge.ums.modules.account.entity.AccountPayMethod;
+import com.upedge.ums.modules.account.entity.AccountUser;
+import com.upedge.ums.modules.account.request.*;
+import com.upedge.ums.modules.account.response.*;
 
 import java.math.BigDecimal;
-import java.util.List;
 
 /**
- * @author gx
+ * @author 海桐
  */
-public interface AccountService{
+public interface AccountService {
 
-    boolean addAccountBalance(Long  accountId, BigDecimal amount);
+    /**
+     * 客户默认账户，默认账户只有一个
+     * @param customerId
+     * @return
+     */
+    Account selectCustomerDefaultAccount(Long customerId);
 
-    Account selectByPrimaryKey(Long id);
 
-    int deleteByPrimaryKey(Long id);
+    AccountPayMethod selectByAccountBankNum(Long accountId, String bankNum);
 
-    int updateByPrimaryKey(Account record);
 
-    int updateByPrimaryKeySelective(Account record);
+    /**分页查询账户
+     * @param request
+     * @return
+     */
+    AccountListResponse pageAccount(AccountListRequest request);
 
-    int insert(Account record);
 
-    int insertSelective(Account record);
+    /**
+     * 增加账户
+     * @param request
+     * @return
+     */
+    AccountAddResponse addAccount(AccountAddRequest request);
 
-    List<Account> select(Page<Account> record);
+    /**
+     * 逻辑删除账户
+     * @param accountId 账户ID
+     * @return
+     */
+    AccountRemoveResponse removeAccount(Long accountId);
 
-    long count(Page<Account> record);
+    /**
+     * 查询账户所有支付方式
+     * @param accountId
+     * @return
+     */
+    AccountPayMethodListResponse accountPayMethodList(Long accountId, AccountPayMethodListRequest request);
+
+
+    AccountPaymethodAttrListResponse accountPaymethodAttrList(Integer accountPaymethodId);
+    /**
+     * 账户增加支付方式
+     * @param request
+     * @return
+     */
+    AccountPayMethodAddResponse addAccountPayMethod(AccountPayMethodAddRequest request);
+
+
+    /**
+     * 修改账户支付方式
+     * @param request
+     * @return
+     */
+    AccountPaymethodUpdateResponse updateAccountPaymethod(AccountPayMethodUpdateRequest request, Integer accountPaymethodId);
+    /**
+     * 账户移除支付方式
+     * @param accountId
+     * @param accountPaymethodId
+     * @return
+     */
+    AccountRemovePayMethodResponse accountRemovePayMethod(Long accountId, Integer accountPaymethodId);
+
+    /**
+     * 账户关联用户
+     * @return
+     */
+    AccountLinkUserResponse accountLinkUser(AccountUser accountUser);
+
+    /**
+     * 账户解除关联用户
+     * @param accountUser
+     * @return
+     */
+    AccountUnLinkUserResponse accountUnLinkUser(AccountUser accountUser);
+
+    /**
+     * 账户用户列表
+     * @param accountId
+     * @return
+     */
+    AccountUserListResponse accountUserList(Long accountId);
+
+    AccountCreditLimitUpdateResponse updateAccountCreditLimit(Long id, BigDecimal creditLimit);
+
+    boolean accountPayment(AccountPaymentRequest request);
+
+    boolean accountPayOrders(PaymentDetail paymentDetail);
+
+    BaseResponse accountOrderRefunded(AccountOrderRefundedRequest request) throws CustomerException;
+
+    Account selectDateByCustomerId(Long customerId);
+
+    /**
+     * 根据id查询 account_log
+     * @param id
+     * @return
+     */
+    AccountLog selectAccountLogById(Long id);
 }
-

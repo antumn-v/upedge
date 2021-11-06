@@ -1,0 +1,457 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.upedge.oms.modules.wholesale.dao.WholesaleOrderItemDao">
+
+    <!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.upedge.oms.modules.wholesale.entity.WholesaleOrderItem" id="BaseResultMap">
+        <result property="id" column="id"/>
+        <result property="orderId" column="order_id"/>
+        <result property="adminVariantId" column="admin_variant_id"/>
+        <result property="adminProductId" column="admin_product_id"/>
+        <result property="adminProductTitle" column="admin_product_title"/>
+        <result property="adminVariantSku" column="admin_variant_sku"/>
+        <result property="adminVariantName" column="admin_variant_name"/>
+        <result property="cartId" column="cart_id"/>
+        <result property="quantity" column="quantity"/>
+        <result property="dischargeQuantity" column="discharge_quantity"/>
+        <result property="adminVariantImage" column="admin_variant_image"/>
+        <result property="usdPrice" column="usd_price"/>
+        <result property="adminVariantWeight" column="admin_variant_weight"/>
+        <result property="adminVariantVolume" column="admin_variant_volume"/>
+        <result property="shippingId" column="shipping_id"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        `id`,`order_id`,`admin_variant_id`,`admin_product_id`,`admin_product_title`,`admin_variant_sku`,`admin_variant_name`,
+        `cart_id`,`quantity`,`discharge_quantity`,`admin_variant_image`,`usd_price`,
+        `admin_variant_weight`,`admin_variant_volume`,`shipping_id`
+    </sql>
+
+    <select id="selectOrderItemAmountByPaymentId"
+            resultType="com.upedge.oms.modules.order.vo.OrderProductAmountVo">
+        select o.id,
+        sum(quantity * usd_price) as `productAmount`,
+        sum(quantity * cny_price) as `cnyProductAmount`
+        from wholesale_order_item oi
+        inner join `wholesale_order` o
+        on oi.order_id = o.id
+        where o.payment_id = #{paymentId}
+        and o.pay_state = '0'
+        and o.order_status = '0'
+        and o.order_type != '1'
+        group by oi.order_id
+    </select>
+
+    <select id="selectByOrderPaymentId" resultMap="BaseResultMap">
+        select woi.`id`,`order_id`,`admin_variant_id`,`admin_product_id`,`admin_product_title`,`admin_variant_sku`,`admin_variant_name`,
+        `cart_id`,`quantity`,`discharge_quantity`,`admin_variant_image`,`usd_price`,`admin_variant_weight`,`admin_variant_volume`
+        from wholesale_order_item woi
+        inner join `wholesale_order` wo
+        on woi.order_id = wo.id
+        where wo.payment_id = #{paymentId}
+        and wo.pay_state = '1'
+    </select>
+
+    <select id="selectCountQuantityByOrderId" resultType="java.lang.Integer">
+        select sum(quantity)
+        from wholesale_order_item
+        where order_id = #{orderId}
+    </select>
+
+    <select id="selectDischargeQuantityByPaymentId" resultType="com.upedge.oms.modules.order.vo.ItemDischargeQuantityVo">
+        select oi.admin_variant_id as `variantId`,sum(oi.discharge_quantity) as `dischargeQuantity`
+        from wholesale_order_item oi
+        inner join `wholesale_order` o
+        on oi.order_id = o.id
+        where o.payment_id = #{paymentId}
+        and o.pay_state = '2'
+        and oi.discharge_quantity > '0'
+        group by oi.admin_variant_id
+    </select>
+
+    <update id="updateAdminVariantDetailByVariantId">
+        update wholesale_order_item oi
+        inner join `wholesale_order` o
+        on oi.order_id = o.id
+        set oi.${name} = #{value}
+        where oi.admin_variant_id = #{adminVariantId}
+        and o.pay_state = '0'
+    </update>
+
+    <update id="updateQuantityById">
+        update wholesale_order_item woi
+        inner join wholesale_order wo
+        on woi.order_id = wo.id
+        set woi.quantity = #{quantity}
+        where woi.id = #{id}
+        and wo.pay_state = '0'
+    </update>
+
+    <update id="updateDischargeQuantityByMap">
+        <foreach collection="map" index="id" item="quantity" separator=";">
+            update wholesale_order_item
+            set discharge_quantity = #{quantity}
+            where id = #{id}
+        </foreach>
+    </update>
+
+    <select id="selectByPrimaryKey" parameterType="com.upedge.oms.modules.wholesale.entity.WholesaleOrderItem" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from wholesale_order_item
+        where id = #{id}
+    </select>
+
+    <select id="selectAdminVariantDetailByOrder" resultType="com.upedge.common.model.product.VariantDetail">
+        select `admin_variant_id` as `variantId`,`admin_product_id` as `productId`,
+        (`quantity` * `admin_variant_weight`) as `weight`,(`quantity` *`admin_variant_volume`) as `volume`
+        from wholesale_order_item
+        where order_id = #{orderId}
+        group by 	`admin_variant_id`,`admin_product_id`,`quantity`,`admin_variant_weight`,`admin_variant_volume`
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="com.upedge.oms.modules.wholesale.entity.WholesaleOrderItem">
+        delete from wholesale_order_item
+        where id = #{id}
+    </delete>
+
+    <update id="updateByPrimaryKeySelective" parameterType="com.upedge.oms.modules.wholesale.entity.WholesaleOrderItem">
+        update wholesale_order_item
+        <set>
+            <if test="orderId != null">
+                order_id = #{orderId},
+            </if>
+            <if test="adminVariantId != null">
+                admin_variant_id = #{adminVariantId},
+            </if>
+            <if test="adminProductId != null">
+                admin_product_id = #{adminProductId},
+            </if>
+            <if test="adminVariantSku != null">
+                admin_variant_sku = #{adminVariantSku},
+            </if>
+            <if test="cartId != null">
+                cart_id = #{cartId},
+            </if>
+            <if test="quantity != null">
+                quantity = #{quantity},
+            </if>
+            <if test="dischargeQuantity != null">
+                discharge_quantity = #{dischargeQuantity},
+            </if>
+            <if test="adminVariantImage != null">
+                admin_variant_image = #{adminVariantImage},
+            </if>
+            <if test="usdPrice != null">
+                usd_price = #{usdPrice},
+            </if>
+            <if test="adminVariantWeight != null">
+                admin_variant_weight = #{adminVariantWeight},
+            </if>
+            <if test="adminVariantVolume != null">
+                admin_variant_volume = #{adminVariantVolume},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <update id="updateByPrimaryKey" parameterType="com.upedge.oms.modules.wholesale.entity.WholesaleOrderItem">
+        update wholesale_order_item
+        <set>
+            id = #{id},
+            order_id = #{orderId},
+            admin_variant_id = #{adminVariantId},
+            admin_product_id = #{adminProductId},
+            admin_variant_sku = #{adminVariantSku},
+            cart_id = #{cartId},
+            quantity = #{quantity},
+            discharge_quantity = #{dischargeQuantity},
+            admin_variant_image = #{adminVariantImage},
+            usd_price = #{usdPrice},
+            admin_variant_weight = #{adminVariantWeight},
+            admin_variant_volume = #{adminVariantVolume},
+        </set>
+        where id = #{id}
+    </update>
+
+    <update id="updateShippingIdByAdminProductId">
+        update wholesale_order_item oi
+        inner join `wholesale_order` o
+        on oi.order_id = o.id
+        set oi.shipping_id = #{shippingId}
+        where oi.admin_product_id = #{adminProductId}
+        and o.pay_state = '0'
+    </update>
+
+    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.upedge.oms.modules.wholesale.entity.WholesaleOrderItem" useGeneratedKeys="true">
+        insert into wholesale_order_item
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            id,
+            order_id,
+            admin_variant_id,
+            admin_product_id,
+            admin_product_title,
+            admin_variant_sku,
+            admin_variant_name,
+            cart_id,
+            quantity,
+            discharge_quantity,
+            admin_variant_image,
+            usd_price,
+            admin_variant_weight,
+            admin_variant_volume
+        </trim>
+        values (
+        #{id},
+        #{orderId},
+        #{adminVariantId},
+        #{adminProductId},
+        #{adminProductTitle},
+        #{adminVariantSku},
+        #{adminVariantName},
+        #{cartId},
+        #{quantity},
+        #{dischargeQuantity},
+        #{adminVariantImage},
+        #{usdPrice},
+        #{adminVariantWeight},
+        #{adminVariantVolume}
+        )
+    </insert>
+
+    <insert id="insertSelective"  keyColumn="id" keyProperty="id"  parameterType="com.upedge.oms.modules.wholesale.entity.WholesaleOrderItem" useGeneratedKeys="true">
+        insert into wholesale_order_item
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null" >
+                id
+            </if>
+            <if test="orderId != null" >
+                order_id
+            </if>
+            <if test="adminVariantId != null" >
+                admin_variant_id
+            </if>
+            <if test="adminProductId != null" >
+                admin_product_id
+            </if>
+            <if test="adminVariantSku != null" >
+                admin_variant_sku
+            </if>
+            <if test="cartId != null" >
+                cart_id
+            </if>
+            <if test="quantity != null" >
+                quantity
+            </if>
+            <if test="dischargeQuantity != null" >
+                discharge_quantity
+            </if>
+            <if test="adminVariantImage != null" >
+                admin_variant_image
+            </if>
+            <if test="usdPrice != null" >
+                usd_price
+            </if>
+            <if test="adminVariantWeight != null" >
+                admin_variant_weight
+            </if>
+            <if test="adminVariantVolume != null" >
+                admin_variant_volume
+            </if>
+
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null" >
+                #{id}
+            </if>
+            <if test="orderId != null" >
+                #{orderId}
+            </if>
+            <if test="adminVariantId != null" >
+                #{adminVariantId}
+            </if>
+            <if test="adminProductId != null" >
+                #{adminProductId}
+            </if>
+            <if test="adminVariantSku != null" >
+                #{adminVariantSku}
+            </if>
+            <if test="cartId != null" >
+                #{cartId}
+            </if>
+            <if test="quantity != null" >
+                #{quantity}
+            </if>
+            <if test="dischargeQuantity != null" >
+                #{dischargeQuantity}
+            </if>
+            <if test="adminVariantImage != null" >
+                #{adminVariantImage}
+            </if>
+            <if test="usdPrice != null" >
+                #{usdPrice}
+            </if>
+            <if test="adminVariantWeight != null" >
+                #{adminVariantWeight}
+            </if>
+            <if test="adminVariantVolume != null" >
+                #{adminVariantVolume}
+            </if>
+
+        </trim>
+    </insert>
+
+    <insert id="insertByBatch" parameterType="java.util.List">
+        insert into wholesale_order_item
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            id,
+            order_id,
+            admin_variant_id,
+            admin_product_id,
+            admin_product_title,
+            admin_variant_sku,
+            admin_variant_name,
+            cart_id,
+            quantity,
+            discharge_quantity,
+            admin_variant_image,
+            usd_price,
+            admin_variant_weight,
+            admin_variant_volume,
+            shipping_id
+        </trim>
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+                #{item.id},
+                #{item.orderId},
+                #{item.adminVariantId},
+                #{item.adminProductId},
+                #{item.adminProductTitle},
+                #{item.adminVariantSku},
+                #{item.adminVariantName},
+                #{item.cartId},
+                #{item.quantity},
+                #{item.dischargeQuantity},
+                #{item.adminVariantImage},
+                #{item.usdPrice},
+                #{item.adminVariantWeight},
+                #{item.adminVariantVolume},
+                #{item.shippingId}
+            </trim>
+        </foreach>
+    </insert>
+
+    <sql id="Query_Condition">
+        <if test="t != null">
+            where
+            <trim prefix=" " suffix=" " suffixOverrides=" and ">
+                1 = 1 and
+                <if test="t.id != null">
+                    id = #{t.id} and
+                </if>
+                <if test="t.orderId != null">
+                    order_id = #{t.orderId} and
+                </if>
+                <if test="t.adminVariantId != null">
+                    admin_variant_id = #{t.adminVariantId} and
+                </if>
+                <if test="t.adminProductId != null">
+                    admin_product_id = #{t.adminProductId} and
+                </if>
+                <if test="t.adminVariantSku != null">
+                    admin_variant_sku = #{t.adminVariantSku} and
+                </if>
+                <if test="t.cartId != null">
+                    cart_id = #{t.cartId} and
+                </if>
+                <if test="t.quantity != null">
+                    quantity = #{t.quantity} and
+                </if>
+                <if test="t.dischargeQuantity != null">
+                    discharge_quantity = #{t.dischargeQuantity} and
+                </if>
+                <if test="t.adminVariantImage != null">
+                    admin_variant_image = #{t.adminVariantImage} and
+                </if>
+                <if test="t.usdPrice != null">
+                    usd_price = #{t.usdPrice} and
+                </if>
+                <if test="t.adminVariantWeight != null">
+                    admin_variant_weight = #{t.adminVariantWeight} and
+                </if>
+                <if test="t.adminVariantVolume != null">
+                    admin_variant_volume = #{t.adminVariantVolume} and
+                </if>
+            </trim>
+        </if>
+    </sql>
+
+    <select id="select" parameterType="com.upedge.common.base.Page" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from wholesale_order_item
+        <include refid="Query_Condition"/>
+        <if test="orderBy != null">
+            order by ${orderBy}
+        </if>
+        <if test="pageNum != null and pageSize != null">
+            limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+        </if>
+    </select>
+
+    <select id="count" parameterType="com.upedge.common.base.Page" resultType="java.lang.Long">
+        select
+        count(1)
+        from wholesale_order_item
+        <include refid="Query_Condition"/>
+    </select>
+
+
+    <select id="listWholesaleOrderItem" resultType="com.upedge.oms.modules.wholesale.vo.WholesaleOrderItemVo">
+        select
+        oi.`id` as id,
+        oi.`order_id` as orderId,
+        oi.`admin_variant_id` as adminVariantId,
+        oi.`admin_product_id` as adminProductId,
+        oi.`admin_variant_image` as adminVariantImg,
+        oi.`usd_price` as usdPrice,
+        oi.`admin_product_title` as adminProductTitle,
+        oi.`admin_variant_sku` as adminVariantSku,
+        oi.`admin_variant_name` as adminVariantName,
+        oi.`quantity` as quantity,
+        oi.`discharge_quantity` as dischargeQuantity
+        from wholesale_order_item oi
+        where order_id = #{orderId}
+    </select>
+
+    <select id="queryWholesaleOrderItemByIdAndOrderId"  resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from wholesale_order_item
+        where id=#{id} and order_id=#{orderId}
+    </select>
+
+    <select id="listSaiheOrderItemByOrderId" resultType="com.upedge.thirdparty.saihe.entity.SaiheOrderItem">
+        select
+		woi.quantity as productNum,
+		woi.usd_price as salePrice,
+		woi.admin_variant_sku as sellerSku,
+		woi.admin_product_id as adminProductId,
+		woi.id as orderItemId
+		from wholesale_order_item woi
+		where  woi.order_id=#{orderId}
+    </select>
+    <select id="selectOrderItemListByProduct"
+            resultType="com.upedge.oms.modules.wholesale.entity.WholesaleOrderItem">
+        select DISTINCT oi.order_id from  `wholesale_order_item` oi  inner join  `wholesale_order` o on oi.order_id = o.id
+         WHERE oi.admin_product_id = #{productId}  and  o.pay_state = 0
+    </select>
+    <select id="selectOrderItemListByVariantId"
+            resultType="com.upedge.oms.modules.wholesale.entity.WholesaleOrderItem">
+        select  DISTINCT oi.order_id from  `wholesale_order_item` oi  inner join  `wholesale_order` o on oi.order_id = o.id
+         WHERE oi.admin_variant_id = #{variantId}  and  o.pay_state = 0
+    </select>
+
+</mapper>

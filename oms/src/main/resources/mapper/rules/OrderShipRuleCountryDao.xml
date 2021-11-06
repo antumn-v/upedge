@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.upedge.oms.modules.rules.dao.OrderShipRuleCountryDao">
+
+    <!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.upedge.oms.modules.rules.entity.OrderShipRuleCountry" id="BaseResultMap">
+        <result property="id" column="id"/>
+        <result property="customerId" column="customer_id"/>
+        <result property="shipRuleId" column="ship_rule_id"/>
+        <result property="countryName" column="country_name"/>
+        <result property="areaId" column="area_id"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        `id`,`customer_id`,`ship_rule_id`,`country_name`,`area_id`
+    </sql>
+
+    <delete id="deleteByShipRuleId">
+        delete from order_ship_rule_country
+        where ship_rule_id = #{shipRuleId}
+    </delete>
+
+    <select id="selectByPrimaryKey" parameterType="com.upedge.oms.modules.rules.entity.OrderShipRuleCountry"
+            resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from order_ship_rule_country
+        where id = #{id}
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="com.upedge.oms.modules.rules.entity.OrderShipRuleCountry">
+        delete from order_ship_rule_country
+        where id = #{id}
+    </delete>
+
+    <update id="updateByPrimaryKeySelective" parameterType="com.upedge.oms.modules.rules.entity.OrderShipRuleCountry">
+        update order_ship_rule_country
+        <set>
+            <if test="shipRuleId != null">
+                ship_rule_id = #{shipRuleId},
+            </if>
+            <if test="countryName != null">
+                country_name = #{countryName},
+            </if>
+            <if test="areaId != null">
+                area_id = #{areaId},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <update id="updateByPrimaryKey" parameterType="com.upedge.oms.modules.rules.entity.OrderShipRuleCountry">
+        update order_ship_rule_country
+        <set>
+            id = #{id},
+            ship_rule_id = #{shipRuleId},
+            country_name = #{countryName},
+            area_id = #{areaId},
+        </set>
+        where id = #{id}
+    </update>
+
+    <insert id="insert" keyColumn="id" keyProperty="id"
+            parameterType="com.upedge.oms.modules.rules.entity.OrderShipRuleCountry" useGeneratedKeys="true">
+        insert into order_ship_rule_country
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            id,
+            customer_id,
+            ship_rule_id,
+            country_name,
+            area_id
+        </trim>
+        values (
+        #{id},
+        #{customerId},
+        #{shipRuleId},
+        #{countryName},
+        #{areaId}
+        )
+    </insert>
+
+    <insert id="insertSelective" keyColumn="id" keyProperty="id"
+            parameterType="com.upedge.oms.modules.rules.entity.OrderShipRuleCountry" useGeneratedKeys="true">
+        insert into order_ship_rule_country
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id
+            </if>
+            <if test="shipRuleId != null">
+                ship_rule_id
+            </if>
+            <if test="countryName != null">
+                country_name
+            </if>
+            <if test="areaId != null">
+                area_id
+            </if>
+
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id}
+            </if>
+            <if test="shipRuleId != null">
+                #{shipRuleId}
+            </if>
+            <if test="countryName != null">
+                #{countryName}
+            </if>
+            <if test="areaId != null">
+                #{areaId}
+            </if>
+
+        </trim>
+    </insert>
+
+    <insert id="insertByBatch" parameterType="java.util.List">
+        insert into order_ship_rule_country
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            id,
+            customer_id,
+            ship_rule_id,
+            country_name,
+            area_id
+        </trim>
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+                #{item.id},
+                #{item.customerId},
+                #{item.shipRuleId},
+                #{item.countryName},
+                #{item.areaId}
+            </trim>
+        </foreach>
+    </insert>
+
+    <sql id="Query_Condition">
+        <if test="t != null">
+            where
+            <trim prefix=" " suffix=" " suffixOverrides=" and ">
+                1 = 1 and
+                <if test="t.id != null">
+                    id = #{t.id} and
+                </if>
+                <if test="t.customerId != null">
+                    customer_id = #{t.customerId} and
+                </if>
+                <if test="t.shipRuleId != null">
+                    ship_rule_id = #{t.shipRuleId} and
+                </if>
+                <if test="t.countryName != null">
+                    country_name = #{t.countryName} and
+                </if>
+                <if test="t.areaId != null">
+                    area_id = #{t.areaId} and
+                </if>
+            </trim>
+        </if>
+    </sql>
+
+    <select id="select" parameterType="com.upedge.common.base.Page" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from order_ship_rule_country
+        <include refid="Query_Condition"/>
+        <if test="orderBy != null">
+            order by ${orderBy}
+        </if>
+        <if test="pageNum != null and pageSize != null">
+            limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+        </if>
+    </select>
+
+    <select id="count" parameterType="com.upedge.common.base.Page" resultType="java.lang.Long">
+        select
+        count(1)
+        from order_ship_rule_country
+        <include refid="Query_Condition"/>
+    </select>
+
+
+</mapper>

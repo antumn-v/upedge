@@ -1,0 +1,303 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.upedge.ums.modules.account.dao.AdminCreditDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.upedge.ums.modules.account.entity.AdminCredit" id="BaseResultMap">
+        <result property="id" column="id"/>
+        <result property="reason" column="reason"/>
+        <result property="customerId" column="customer_id"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="state" column="state"/>
+        <result property="applyUserId" column="apply_user_id"/>
+        <result property="executeUserId" column="execute_user_id"/>
+        <result property="applyCredit" column="apply_credit"/>
+        <result property="currCredit" column="curr_credit"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        `id`,`reason`,`customer_id`,`create_time`,`update_time`,`state`,`apply_user_id`,`execute_user_id`,`apply_credit`,`curr_credit`
+    </sql>
+
+    <select id="selectByPrimaryKey" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from admin_credit
+        where id = #{id}
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="com.upedge.ums.modules.account.entity.AdminCredit">
+        delete from admin_credit
+        where id = #{id}
+    </delete>
+
+    <update id="updateByPrimaryKeySelective" parameterType="com.upedge.ums.modules.account.entity.AdminCredit">
+        update admin_credit
+        <set>
+            <if test="reason != null">
+                reason = #{reason},
+            </if>
+            <if test="customerId != null">
+                customer_id = #{customerId},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime},
+            </if>
+            <if test="updateTime != null">
+                update_time = #{updateTime},
+            </if>
+            <if test="state != null">
+                state = #{state},
+            </if>
+            <if test="applyUserId != null">
+                apply_user_id = #{applyUserId},
+            </if>
+            <if test="executeUserId != null">
+                execute_user_id = #{executeUserId},
+            </if>
+            <if test="applyCredit != null">
+                apply_credit = #{applyCredit},
+            </if>
+            <if test="currCredit != null">
+                curr_credit = #{currCredit},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <update id="updateByPrimaryKey" parameterType="com.upedge.ums.modules.account.entity.AdminCredit">
+        update admin_credit
+        <set>
+        id = #{id},
+        reason = #{reason},
+        customer_id = #{customerId},
+        create_time = #{createTime},
+        update_time = #{updateTime},
+        state = #{state},
+        apply_user_id = #{applyUserId},
+        execute_user_id = #{executeUserId},
+        apply_credit = #{applyCredit},
+        curr_credit = #{currCredit},
+        </set>
+        where id = #{id}
+    </update>
+
+    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.upedge.ums.modules.account.entity.AdminCredit" useGeneratedKeys="true">
+        insert into admin_credit
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            id,
+            reason,
+            customer_id,
+            create_time,
+            update_time,
+            state,
+            apply_user_id,
+            execute_user_id,
+            apply_credit,
+            curr_credit
+        </trim>
+        values (
+        #{id},
+        #{reason},
+        #{customerId},
+        #{createTime},
+        #{updateTime},
+        #{state},
+        #{applyUserId},
+        #{executeUserId},
+        #{applyCredit},
+        #{currCredit}
+        )
+    </insert>
+
+    <insert id="insertSelective"  keyColumn="id" keyProperty="id"  parameterType="com.upedge.ums.modules.account.entity.AdminCredit" useGeneratedKeys="true">
+        insert into admin_credit
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null" >
+              id
+            </if>
+            <if test="reason != null" >
+              reason
+            </if>
+            <if test="customerId != null" >
+              customer_id
+            </if>
+            <if test="createTime != null" >
+              create_time
+            </if>
+            <if test="updateTime != null" >
+              update_time
+            </if>
+            <if test="state != null" >
+              state
+            </if>
+            <if test="applyUserId != null" >
+              apply_user_id
+            </if>
+            <if test="executeUserId != null" >
+              execute_user_id
+            </if>
+            <if test="applyCredit != null" >
+              apply_credit
+            </if>
+            <if test="currCredit != null" >
+              curr_credit
+            </if>
+
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null" >
+                #{id}
+            </if>
+            <if test="reason != null" >
+                #{reason}
+            </if>
+            <if test="customerId != null" >
+                #{customerId}
+            </if>
+            <if test="createTime != null" >
+                #{createTime}
+            </if>
+            <if test="updateTime != null" >
+                #{updateTime}
+            </if>
+            <if test="state != null" >
+                #{state}
+            </if>
+            <if test="applyUserId != null" >
+                #{applyUserId}
+            </if>
+            <if test="executeUserId != null" >
+                #{executeUserId}
+            </if>
+            <if test="applyCredit != null" >
+                #{applyCredit}
+            </if>
+            <if test="currCredit != null" >
+                #{currCredit}
+            </if>
+
+        </trim>
+    </insert>
+
+    <insert id="insertByBatch" parameterType="java.util.List">
+        insert into admin_credit
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+           id,
+           reason,
+           customer_id,
+           create_time,
+           update_time,
+           state,
+           apply_user_id,
+           execute_user_id,
+           apply_credit,
+           curr_credit
+        </trim>
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+               #{item.id},
+               #{item.reason},
+               #{item.customerId},
+               #{item.createTime},
+               #{item.updateTime},
+               #{item.state},
+               #{item.applyUserId},
+               #{item.executeUserId},
+               #{item.applyCredit},
+               #{item.currCredit}
+            </trim>
+        </foreach>
+    </insert>
+
+    <sql id="Query_Condition">
+        <if test="t != null">
+            where
+            <trim prefix=" " suffix=" " suffixOverrides=" and ">
+                1 = 1 and
+                    <if test="t.id != null">
+                        id = #{t.id} and
+                    </if>
+                    <if test="t.reason != null">
+                        reason = #{t.reason} and
+                    </if>
+                    <if test="t.customerId != null">
+                        customer_id = #{t.customerId} and
+                    </if>
+                    <if test="t.createTime != null">
+                        create_time = #{t.createTime} and
+                    </if>
+                    <if test="t.updateTime != null">
+                        update_time = #{t.updateTime} and
+                    </if>
+                    <if test="t.state != null">
+                        state = #{t.state} and
+                    </if>
+                    <if test="t.gteState != null">
+                        state>=#{t.gteState} and
+                    </if>
+                    <if test="t.applyUserId != null">
+                        apply_user_id = #{t.applyUserId} and
+                    </if>
+                    <if test="t.executeUserId != null">
+                        execute_user_id = #{t.executeUserId} and
+                    </if>
+                    <if test="t.applyCredit != null">
+                        apply_credit = #{t.applyCredit} and
+                    </if>
+                    <if test="t.currCredit != null">
+                        curr_credit = #{t.currCredit} and
+                    </if>
+            </trim>
+        </if>
+    </sql>
+
+    <select id="select" parameterType="com.upedge.common.base.Page" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from admin_credit
+        <include refid="Query_Condition"/>
+        <if test="orderBy != null">
+            order by ${orderBy}
+        </if>
+        <if test="pageNum != null and pageSize != null">
+            limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+        </if>
+    </select>
+
+    <select id="count" parameterType="com.upedge.common.base.Page" resultType="java.lang.Long">
+        select
+        count(1)
+        from admin_credit
+        <include refid="Query_Condition"/>
+    </select>
+
+    <select id="queryAdminCreditByCustomerId" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from admin_credit
+        where customer_id=#{customerId} and state=0 limit 1
+    </select>
+
+    <update id="rejectApply">
+        update admin_credit set
+        state=#{state},
+        execute_user_id=#{executeUserId},
+        update_time=#{updateTime}
+        where state=0 and id = #{id}
+    </update>
+
+    <update id="confirmApply">
+        update admin_credit set
+        state=#{state},
+        execute_user_id=#{executeUserId},
+        update_time=#{updateTime},
+        curr_credit=#{currCredit}
+        where state=0 and id = #{id}
+    </update>
+
+
+</mapper>

@@ -27,7 +27,7 @@ public class ShopifyProductApi {
 
 
         ShopifyRequestParam param = new ShopifyRequestParam();
-        String url = "https://" + shop + "/admin/api/" + param.getApiVersion() + "/products.json";
+        String url = "https://" + shop + ".myshopify.com/admin/api/" + param.getApiVersion() + "/products.json";
         ResponseEntity<JSONObject> entity =
                 RequestUtils.sendRequest(url, token, null, HttpMethod.POST, jsonObject);
 
@@ -49,7 +49,7 @@ public class ShopifyProductApi {
         jsonObject.remove("param");
         if (StringUtils.isBlank(param.getParam()))
             param.setParam(null);
-        String url = "https://" + param.getShopName() + "/admin/api/" + param.getApiVersion() + "/products/count.json";
+        String url = "https://" + param.getShopName() + ".myshopify.com/admin/api/" + param.getApiVersion() + "/products/count.json";
         ResponseEntity<JSONObject> entity =
                 RequestUtils.sendRequest(url, param.getToken(), param.getParam(), HttpMethod.POST, jsonObject);
         jsonObject = entity.getBody();
@@ -62,7 +62,7 @@ public class ShopifyProductApi {
     public static JSONObject getStoreProducts(String shop, String token, Object body, String nextUrl, String param) {
         String url = null;
         if (StringUtils.isBlank(nextUrl)) {
-            url = "https://" + shop + "/admin/api/" + Shopify.version + "/products.json";
+            url = "https://" + shop + ".myshopify.com/admin/api/" + Shopify.version + "/products.json";
         } else {
             url = nextUrl;
 
@@ -92,7 +92,7 @@ public class ShopifyProductApi {
         if (!jsonObject.containsKey("param") || !jsonObject.containsKey("product"))
             return response.failed("null data");
 
-        String url = "https://" + shop + "/admin/api/" + Shopify.version + "/products/" + id + "/images.json";
+        String url = "https://" + shop + ".myshopify.com/admin/api/" + Shopify.version + "/products/" + id + "/images.json";
 
         ResponseEntity<JSONObject> entity =
                 RequestUtils.sendRequest(url, token, null, HttpMethod.POST, jsonObject);
@@ -102,7 +102,7 @@ public class ShopifyProductApi {
     }
 
     public static JSONObject updateProduct(JSONObject jsonObject, String token, String shop, @PathVariable String id) {
-        String url = "https://" + shop + "/admin/api/" + Shopify.version + "/products/" + id + ".json";
+        String url = "https://" + shop + ".myshopify.com/admin/api/" + Shopify.version + "/products/" + id + ".json";
 
 
         jsonObject =
@@ -127,7 +127,7 @@ public class ShopifyProductApi {
 
     public static JSONObject deleteProduct(String token, String shop, @PathVariable String id) {
 
-        String url = "https://" + shop + "/admin/api/" + Shopify.version + "/products/" + id + ".json";
+        String url = "https://" + shop + ".myshopify.com/admin/api/" + Shopify.version + "/products/" + id + ".json";
         return RequestUtils.sendRequest(url, token, null, HttpMethod.DELETE, null).getBody();
 
     }
@@ -140,7 +140,7 @@ public class ShopifyProductApi {
         }
         ShopifyRequestParam param = jsonObject.getJSONObject("param").toJavaObject(ShopifyRequestParam.class);
         jsonObject.remove("param");
-        String url = "https://" + param.getShopName() + "/admin/api/2020-01/inventory_levels/adjust.json";
+        String url = "https://" + param.getShopName() + ".myshopify.com/admin/api/2020-01/inventory_levels/adjust.json";
         jsonObject = jsonObject.getJSONObject("level");
         RequestUtils.sendRequest(url, param.getToken(), null, HttpMethod.POST, jsonObject);
         return response.success();

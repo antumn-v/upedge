@@ -1,0 +1,226 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.upedge.tms.modules.ship.dao.ShippingMethodTemplateDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.upedge.tms.modules.ship.entity.ShippingMethodTemplate" id="BaseResultMap">
+        <result property="id" column="id"/>
+        <result property="shippingId" column="shipping_id"/>
+        <result property="methodId" column="method_id"/>
+        <result property="sort" column="sort"/>
+    </resultMap>
+
+    <resultMap type="com.upedge.tms.modules.ship.entity.ShippingMethod" id="ShippingMethod">
+        <result property="id" column="id"/>
+        <result property="name" column="name"/>
+        <result property="desc" column="desc"/>
+        <result property="saiheTransportId" column="saihe_transport_id"/>
+        <result property="saiheTransportName" column="saihe_transport_name"/>
+        <result property="trackingUrl" column="tracking_url"/>
+        <result property="weightType" column="weight_type"/>
+        <result property="trackType" column="track_type"/>
+        <result property="paypalCarrierEnum" column="paypal_carrier_enum"/>
+        <result property="state" column="state"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        `id`,`shipping_id`,`method_id`,`sort`
+    </sql>
+
+    <select id="selectMethodIdsByTemplate" resultMap="ShippingMethod">
+        select m.id,m.name,m.weight_type
+        from shipping_method_template t
+        left join shipping_method m
+        on t.method_id = m.id
+        where t.shipping_id = #{templateId}
+        and m.state = '1'
+        order by t.sort asc
+    </select>
+
+    <select id="selectByPrimaryKey" parameterType="com.upedge.tms.modules.ship.entity.ShippingMethodTemplate" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from shipping_method_template
+        where id = #{id}
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="com.upedge.tms.modules.ship.entity.ShippingMethodTemplate">
+        delete from shipping_method_template
+        where id = #{id}
+    </delete>
+
+    <update id="updateByPrimaryKeySelective" parameterType="com.upedge.tms.modules.ship.entity.ShippingMethodTemplate">
+        update shipping_method_template
+        <set>
+            <if test="shippingId != null">
+                shipping_id = #{shippingId},
+            </if>
+            <if test="methodId != null">
+                method_id = #{methodId},
+            </if>
+            <if test="sort != null">
+                sort = #{sort},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <update id="updateByPrimaryKey" parameterType="com.upedge.tms.modules.ship.entity.ShippingMethodTemplate">
+        update shipping_method_template
+        <set>
+        id = #{id},
+        shipping_id = #{shippingId},
+        method_id = #{methodId},
+        sort = #{sort},
+        </set>
+        where id = #{id}
+    </update>
+
+    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.upedge.tms.modules.ship.entity.ShippingMethodTemplate" useGeneratedKeys="true">
+        insert into shipping_method_template
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            id,
+            shipping_id,
+            method_id,
+            sort
+        </trim>
+        values (
+        #{id},
+        #{shippingId},
+        #{methodId},
+        #{sort}
+        )
+    </insert>
+
+    <insert id="insertSelective"  keyColumn="id" keyProperty="id"  parameterType="com.upedge.tms.modules.ship.entity.ShippingMethodTemplate" useGeneratedKeys="true">
+        insert into shipping_method_template
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null" >
+              id
+            </if>
+            <if test="shippingId != null" >
+              shipping_id
+            </if>
+            <if test="methodId != null" >
+              method_id
+            </if>
+            <if test="sort != null" >
+              sort
+            </if>
+
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null" >
+                #{id}
+            </if>
+            <if test="shippingId != null" >
+                #{shippingId}
+            </if>
+            <if test="methodId != null" >
+                #{methodId}
+            </if>
+            <if test="sort != null" >
+                #{sort}
+            </if>
+
+        </trim>
+    </insert>
+
+    <insert id="insertByBatch" parameterType="java.util.List">
+        insert into shipping_method_template
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+           id,
+           shipping_id,
+           method_id,
+           sort
+        </trim>
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+               #{item.id},
+               #{item.shippingId},
+               #{item.methodId},
+               #{item.sort}
+            </trim>
+        </foreach>
+    </insert>
+
+    <sql id="Query_Condition">
+        <if test="t != null">
+            where
+            <trim prefix=" " suffix=" " suffixOverrides=" and ">
+                1 = 1 and
+                    <if test="t.id != null">
+                        id = #{t.id} and
+                    </if>
+                    <if test="t.shippingId != null">
+                        shipping_id = #{t.shippingId} and
+                    </if>
+                    <if test="t.methodId != null">
+                        method_id = #{t.methodId} and
+                    </if>
+                    <if test="t.sort != null">
+                        sort = #{t.sort} and
+                    </if>
+            </trim>
+        </if>
+    </sql>
+
+    <select id="select" parameterType="com.upedge.common.base.Page" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from shipping_method_template
+        <include refid="Query_Condition"/>
+        order by sort,id
+        <if test="pageNum != null and pageSize != null">
+            limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+        </if>
+    </select>
+
+    <select id="count" parameterType="com.upedge.common.base.Page" resultType="java.lang.Long">
+        select
+        count(1)
+        from shipping_method_template
+        <include refid="Query_Condition"/>
+    </select>
+
+    <update id="updateSort">
+        <foreach collection="list" item="item" index="index" open="" close="" separator=";">
+            update shipping_method_template
+            set sort=#{item.sort}
+            where id=#{item.id}
+        </foreach>
+    </update>
+
+    <select id="queryMethodTemplate" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from shipping_method_template
+        where shipping_id = #{shippingId} and method_id=#{methodId}
+    </select>
+
+    <select id="countShipMethod" resultType="java.lang.Integer">
+        select count(1) from shipping_method_template
+        where shipping_id = #{shippingId}
+    </select>
+
+    <select id="countShipNum"  resultType="java.lang.Integer">
+        select count(1) from shipping_method_template
+        where method_id = #{methodId}
+    </select>
+
+    <select id="listShippingMethodTemplate" resultMap="BaseResultMap">
+        select
+        smt.`id`,
+        smt.`shipping_id`,
+        smt.`method_id`,
+        smt.`sort`
+        from shipping_method_template smt
+        left join shipping_method sm on sm.id=smt.method_id
+        where sm.state=1
+    </select>
+
+</mapper>

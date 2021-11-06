@@ -1,16 +1,22 @@
 package com.upedge.ums.modules.account.dao;
 
-import com.upedge.ums.modules.account.entity.PaypalPayment;
-import org.apache.ibatis.annotations.Mapper;
-import java.util.List;
 import com.upedge.common.base.Page;
+import com.upedge.common.model.account.PaypalPayment;
+import org.apache.ibatis.annotations.Param;
+
+import java.math.BigDecimal;
+import java.util.List;
 
 /**
- * @author gx
+ * @author author
  */
 public interface PaypalPaymentDao{
 
-    PaypalPayment selectByPrimaryKey(PaypalPayment record);
+    BigDecimal selectFixFeeByAmount(BigDecimal amount, BigDecimal percentage);
+
+    PaypalPayment selectByPrimaryKey(Long id);
+
+    PaypalPayment selectByPaymentId(String paymentId);
 
     int deleteByPrimaryKey(PaypalPayment record);
 
@@ -28,4 +34,5 @@ public interface PaypalPaymentDao{
 
     long count(Page<PaypalPayment> record);
 
+    void paypalUpdateRemark(@Param("id") Long id, @Param("remark") String remark);
 }

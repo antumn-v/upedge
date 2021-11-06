@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.upedge.oms.modules.reason.dao.RefundReasonDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.upedge.oms.modules.reason.entity.RefundReason" id="BaseResultMap">
+        <result property="id" column="id"/>
+        <result property="reason" column="reason"/>
+        <result property="state" column="state"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        `id`,`reason`,`state`,`create_time`,`update_time`
+    </sql>
+
+    <select id="selectByPrimaryKey" parameterType="com.upedge.oms.modules.reason.entity.RefundReason" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from refund_reason
+        where id = #{id}
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="com.upedge.oms.modules.reason.entity.RefundReason">
+        delete from refund_reason
+        where id = #{id}
+    </delete>
+
+    <update id="updateByPrimaryKeySelective" parameterType="com.upedge.oms.modules.reason.entity.RefundReason">
+        update refund_reason
+        <set>
+            <if test="reason != null">
+                reason = #{reason},
+            </if>
+            <if test="state != null">
+                state = #{state},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime},
+            </if>
+            <if test="updateTime != null">
+                update_time = #{updateTime},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <update id="updateByPrimaryKey" parameterType="com.upedge.oms.modules.reason.entity.RefundReason">
+        update refund_reason
+        <set>
+        id = #{id},
+        reason = #{reason},
+        state = #{state},
+        create_time = #{createTime},
+        update_time = #{updateTime},
+        </set>
+        where id = #{id}
+    </update>
+
+    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.upedge.oms.modules.reason.entity.RefundReason" useGeneratedKeys="true">
+        insert into refund_reason
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            id,
+            reason,
+            state,
+            create_time,
+            update_time
+        </trim>
+        values (
+        #{id},
+        #{reason},
+        #{state},
+        #{createTime},
+        #{updateTime}
+        )
+    </insert>
+
+    <insert id="insertSelective"  keyColumn="id" keyProperty="id"  parameterType="com.upedge.oms.modules.reason.entity.RefundReason" useGeneratedKeys="true">
+        insert into refund_reason
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null" >
+              id
+            </if>
+            <if test="reason != null" >
+              reason
+            </if>
+            <if test="state != null" >
+              state
+            </if>
+            <if test="createTime != null" >
+              create_time
+            </if>
+            <if test="updateTime != null" >
+              update_time
+            </if>
+
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null" >
+                #{id}
+            </if>
+            <if test="reason != null" >
+                #{reason}
+            </if>
+            <if test="state != null" >
+                #{state}
+            </if>
+            <if test="createTime != null" >
+                #{createTime}
+            </if>
+            <if test="updateTime != null" >
+                #{updateTime}
+            </if>
+
+        </trim>
+    </insert>
+
+    <insert id="insertByBatch" parameterType="java.util.List">
+        insert into refund_reason
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+           id,
+           reason,
+           state,
+           create_time,
+           update_time
+        </trim>
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+               #{item.id},
+               #{item.reason},
+               #{item.state},
+               #{item.createTime},
+               #{item.updateTime}
+            </trim>
+        </foreach>
+    </insert>
+
+    <sql id="Query_Condition">
+        <if test="t != null">
+            where
+            <trim prefix=" " suffix=" " suffixOverrides=" and ">
+                1 = 1 and
+                    <if test="t.id != null">
+                        id = #{t.id} and
+                    </if>
+                    <if test="t.reason != null">
+                        reason = #{t.reason} and
+                    </if>
+                    <if test="t.state != null">
+                        state = #{t.state} and
+                    </if>
+                    <if test="t.createTime != null">
+                        create_time = #{t.createTime} and
+                    </if>
+                    <if test="t.updateTime != null">
+                        update_time = #{t.updateTime} and
+                    </if>
+            </trim>
+        </if>
+    </sql>
+
+    <select id="select" parameterType="com.upedge.common.base.Page" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from refund_reason
+        <include refid="Query_Condition"/>
+        <if test="orderBy != null">
+            order by ${orderBy}
+        </if>
+        <if test="pageNum != null and pageSize != null">
+            limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+        </if>
+    </select>
+
+    <select id="count" parameterType="com.upedge.common.base.Page" resultType="java.lang.Long">
+        select
+        count(1)
+        from refund_reason
+        <include refid="Query_Condition"/>
+    </select>
+
+    <select id="all" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from refund_reason where state=1
+    </select>
+
+</mapper>

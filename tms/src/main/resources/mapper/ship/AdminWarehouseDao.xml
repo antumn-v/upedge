@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.upedge.tms.modules.ship.dao.AdminWarehouseDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.upedge.tms.modules.ship.entity.AdminWarehouse" id="BaseResultMap">
+        <result property="id" column="id"/>
+        <result property="warehouseName" column="warehouse_name"/>
+        <result property="warehouseType" column="warehouse_type"/>
+        <result property="warehouseEname" column="warehouse_ename"/>
+        <result property="state" column="state"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        `id`,`warehouse_name`,`warehouse_type`,`warehouse_ename`,`state`
+    </sql>
+
+    <select id="selectByPrimaryKey" parameterType="com.upedge.tms.modules.ship.entity.AdminWarehouse" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from admin_warehouse
+        where id = #{id}
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="com.upedge.tms.modules.ship.entity.AdminWarehouse">
+        delete from admin_warehouse
+        where id = #{id}
+    </delete>
+
+    <update id="updateByPrimaryKeySelective" parameterType="com.upedge.tms.modules.ship.entity.AdminWarehouse">
+        update admin_warehouse
+        <set>
+            <if test="warehouseName != null">
+                warehouse_name = #{warehouseName},
+            </if>
+            <if test="warehouseType != null">
+                warehouse_type = #{warehouseType},
+            </if>
+            <if test="warehouseEname != null">
+                warehouse_ename = #{warehouseEname},
+            </if>
+            <if test="state != null">
+                state = #{state},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <update id="updateByPrimaryKey" parameterType="com.upedge.tms.modules.ship.entity.AdminWarehouse">
+        update admin_warehouse
+        <set>
+        id = #{id},
+        warehouse_name = #{warehouseName},
+        warehouse_type = #{warehouseType},
+        warehouse_ename = #{warehouseEname},
+        state = #{state},
+        </set>
+        where id = #{id}
+    </update>
+
+    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.upedge.tms.modules.ship.entity.AdminWarehouse" useGeneratedKeys="true">
+        insert into admin_warehouse
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            id,
+            warehouse_name,
+            warehouse_type,
+            warehouse_ename,
+            state
+        </trim>
+        values (
+        #{id},
+        #{warehouseName},
+        #{warehouseType},
+        #{warehouseEname},
+        #{state}
+        )
+    </insert>
+
+    <insert id="insertSelective"  keyColumn="id" keyProperty="id"  parameterType="com.upedge.tms.modules.ship.entity.AdminWarehouse" useGeneratedKeys="true">
+        insert into admin_warehouse
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null" >
+              id
+            </if>
+            <if test="warehouseName != null" >
+              warehouse_name
+            </if>
+            <if test="warehouseType != null" >
+              warehouse_type
+            </if>
+            <if test="warehouseEname != null" >
+              warehouse_ename
+            </if>
+            <if test="state != null" >
+              state
+            </if>
+
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null" >
+                #{id}
+            </if>
+            <if test="warehouseName != null" >
+                #{warehouseName}
+            </if>
+            <if test="warehouseType != null" >
+                #{warehouseType}
+            </if>
+            <if test="warehouseEname != null" >
+                #{warehouseEname}
+            </if>
+            <if test="state != null" >
+                #{state}
+            </if>
+
+        </trim>
+    </insert>
+
+    <insert id="saveByBatch" parameterType="java.util.List">
+        insert into admin_warehouse(id,warehouse_name,warehouse_type,
+        warehouse_ename,state)
+        values
+        <foreach collection="list" item="item" index="index"
+                 separator=",">
+            (#{item.id,jdbcType=INTEGER},
+            #{item.warehouseName,jdbcType=VARCHAR},
+            #{item.warehouseType,jdbcType=INTEGER},
+            #{item.warehouseEname,jdbcType=VARCHAR},
+            #{item.state,jdbcType=INTEGER})
+        </foreach>
+        ON DUPLICATE KEY UPDATE
+        warehouse_name = VALUES(warehouse_name),
+        warehouse_type = VALUES(warehouse_type)
+    </insert>
+
+    <sql id="Query_Condition">
+        <if test="t != null">
+            where
+            <trim prefix=" " suffix=" " suffixOverrides=" and ">
+                1 = 1 and
+                    <if test="t.id != null">
+                        id = #{t.id} and
+                    </if>
+                    <if test="t.warehouseName != null">
+                        warehouse_name = #{t.warehouseName} and
+                    </if>
+                    <if test="t.warehouseType != null">
+                        warehouse_type = #{t.warehouseType} and
+                    </if>
+                    <if test="t.warehouseEname != null">
+                        warehouse_ename = #{t.warehouseEname} and
+                    </if>
+                    <if test="t.state != null">
+                        state = #{t.state} and
+                    </if>
+            </trim>
+        </if>
+    </sql>
+
+    <select id="select" parameterType="com.upedge.common.base.Page" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from admin_warehouse
+        <include refid="Query_Condition"/>
+        <if test="orderBy != null">
+            order by ${orderBy}
+        </if>
+        <if test="pageNum != null and pageSize != null">
+            limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+        </if>
+    </select>
+
+    <select id="count" parameterType="com.upedge.common.base.Page" resultType="java.lang.Long">
+        select
+        count(1)
+        from admin_warehouse
+        <include refid="Query_Condition"/>
+    </select>
+
+    <select id="allUseWarehouses" resultMap="BaseResultMap">
+        select
+        `id`,`warehouse_name`,`warehouse_ename`
+        from admin_warehouse where state=1
+    </select>
+
+    <update id="updateWarehouseState">
+        update admin_warehouse set state=#{state} where id=#{id}
+    </update>
+
+
+</mapper>

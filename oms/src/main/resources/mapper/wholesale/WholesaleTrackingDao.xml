@@ -1,0 +1,246 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.upedge.oms.modules.wholesale.dao.WholesaleTrackingDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.upedge.oms.modules.wholesale.entity.WholesaleTracking" id="BaseResultMap">
+        <result property="id" column="id"/>
+        <result property="trackingCode" column="tracking_code"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="orderId" column="order_id"/>
+        <result property="shippingMethodName" column="shipping_method_name"/>
+        <result property="trackType" column="track_type"/>
+        <result property="transportId" column="transport_id"/>
+        <result property="createTime" column="create_time"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        `id`,`tracking_code`,`update_time`,`order_id`,`shipping_method_name`,`track_type`,`transport_id`,`create_time`
+    </sql>
+
+    <select id="selectByPrimaryKey" parameterType="com.upedge.oms.modules.wholesale.entity.WholesaleTracking" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from wholesale_tracking
+        where id = #{id}
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="com.upedge.oms.modules.wholesale.entity.WholesaleTracking">
+        delete from wholesale_tracking
+        where id = #{id}
+    </delete>
+
+    <update id="updateByPrimaryKeySelective" parameterType="com.upedge.oms.modules.wholesale.entity.WholesaleTracking">
+        update wholesale_tracking
+        <set>
+            <if test="trackingCode != null">
+                tracking_code = #{trackingCode},
+            </if>
+            <if test="updateTime != null">
+                update_time = #{updateTime},
+            </if>
+            <if test="orderId != null">
+                order_id = #{orderId},
+            </if>
+            <if test="shippingMethodName != null">
+                shipping_method_name = #{shippingMethodName},
+            </if>
+            <if test="trackType != null">
+                track_type = #{trackType},
+            </if>
+            <if test="transportId != null">
+                transport_id = #{transportId},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <update id="updateByPrimaryKey" parameterType="com.upedge.oms.modules.wholesale.entity.WholesaleTracking">
+        update wholesale_tracking
+        <set>
+        id = #{id},
+        tracking_code = #{trackingCode},
+        update_time = #{updateTime},
+        order_id = #{orderId},
+        shipping_method_name = #{shippingMethodName},
+        track_type = #{trackType},
+        transport_id = #{transportId},
+        create_time = #{createTime},
+        </set>
+        where id = #{id}
+    </update>
+
+    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.upedge.oms.modules.wholesale.entity.WholesaleTracking" useGeneratedKeys="true">
+        insert into wholesale_tracking
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            id,
+            tracking_code,
+            update_time,
+            order_id,
+            shipping_method_name,
+            track_type,
+            transport_id,
+            create_time
+        </trim>
+        values (
+        #{id},
+        #{trackingCode},
+        #{updateTime},
+        #{orderId},
+        #{shippingMethodName},
+        #{trackType},
+        #{transportId},
+        #{createTime}
+        )
+    </insert>
+
+    <insert id="insertSelective"  keyColumn="id" keyProperty="id"  parameterType="com.upedge.oms.modules.wholesale.entity.WholesaleTracking" useGeneratedKeys="true">
+        insert into wholesale_tracking
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null" >
+              id
+            </if>
+            <if test="trackingCode != null" >
+              tracking_code
+            </if>
+            <if test="updateTime != null" >
+              update_time
+            </if>
+            <if test="orderId != null" >
+              order_id
+            </if>
+            <if test="shippingMethodName != null" >
+              shipping_method_name
+            </if>
+            <if test="trackType != null" >
+              track_type
+            </if>
+            <if test="transportId != null" >
+              transport_id
+            </if>
+            <if test="createTime != null" >
+              create_time
+            </if>
+
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null" >
+                #{id}
+            </if>
+            <if test="trackingCode != null" >
+                #{trackingCode}
+            </if>
+            <if test="updateTime != null" >
+                #{updateTime}
+            </if>
+            <if test="orderId != null" >
+                #{orderId}
+            </if>
+            <if test="shippingMethodName != null" >
+                #{shippingMethodName}
+            </if>
+            <if test="trackType != null" >
+                #{trackType}
+            </if>
+            <if test="transportId != null" >
+                #{transportId}
+            </if>
+            <if test="createTime != null" >
+                #{createTime}
+            </if>
+
+        </trim>
+    </insert>
+
+    <insert id="insertByBatch" parameterType="java.util.List">
+        insert into wholesale_tracking
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+           id,
+           tracking_code,
+           update_time,
+           order_id,
+           shipping_method_name,
+           track_type,
+           transport_id,
+           create_time
+        </trim>
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+               #{item.id},
+               #{item.trackingCode},
+               #{item.updateTime},
+               #{item.orderId},
+               #{item.shippingMethodName},
+               #{item.trackType},
+               #{item.transportId},
+               #{item.createTime}
+            </trim>
+        </foreach>
+    </insert>
+
+    <sql id="Query_Condition">
+        <if test="t != null">
+            where
+            <trim prefix=" " suffix=" " suffixOverrides=" and ">
+                1 = 1 and
+                    <if test="t.id != null">
+                        id = #{t.id} and
+                    </if>
+                    <if test="t.trackingCode != null">
+                        tracking_code = #{t.trackingCode} and
+                    </if>
+                    <if test="t.updateTime != null">
+                        update_time = #{t.updateTime} and
+                    </if>
+                    <if test="t.orderId != null">
+                        order_id = #{t.orderId} and
+                    </if>
+                    <if test="t.shippingMethodName != null">
+                        shipping_method_name = #{t.shippingMethodName} and
+                    </if>
+                    <if test="t.trackType != null">
+                        track_type = #{t.trackType} and
+                    </if>
+                    <if test="t.transportId != null">
+                        transport_id = #{t.transportId} and
+                    </if>
+                    <if test="t.createTime != null">
+                        create_time = #{t.createTime} and
+                    </if>
+            </trim>
+        </if>
+    </sql>
+
+    <select id="select" parameterType="com.upedge.common.base.Page" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from wholesale_tracking
+        <include refid="Query_Condition"/>
+        <if test="orderBy != null">
+            order by ${orderBy}
+        </if>
+        <if test="pageNum != null and pageSize != null">
+            limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+        </if>
+    </select>
+
+    <select id="count" parameterType="com.upedge.common.base.Page" resultType="java.lang.Long">
+        select
+        count(1)
+        from wholesale_tracking
+        <include refid="Query_Condition"/>
+    </select>
+
+    <select id="queryWholesaleTrackingByOrderId" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from wholesale_tracking
+        where order_id = #{orderId}
+    </select>
+
+</mapper>

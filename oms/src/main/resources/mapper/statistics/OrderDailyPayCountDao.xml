@@ -1,0 +1,689 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.upedge.oms.modules.statistics.dao.OrderDailyPayCountDao">
+
+    <!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.upedge.oms.modules.statistics.entity.OrderDailyPayCount" id="BaseResultMap">
+        <result property="id" column="id"/>
+        <result property="customerId" column="customer_id"/>
+        <result property="managerCode" column="manager_code"/>
+        <result property="orderType" column="order_type"/>
+        <result property="orderPayCount" column="order_pay_count"/>
+        <result property="shipPrice" column="ship_price"/>
+        <result property="productAmount" column="product_amount"/>
+        <result property="productDischargeAmount" column="product_discharge_amount"/>
+        <result property="fixFee" column="fix_fee"/>
+        <result property="vatAmount" column="vat_amount"/>
+        <result property="payAmount" column="pay_amount"/>
+        <result property="creditAmount" column="credit_amount"/>
+        <result property="benefitPayAmount" column="benefit_pay_amount"/>
+        <result property="payTime" column="pay_time"/>
+        <result property="refundCount" column="refund_count"/>
+        <result property="refundAmount" column="refund_amount"/>
+        <result property="shippedRefundCount" column="shipped_refund_count"/>
+        <result property="shippedRefundAmount" column="shipped_refund_amount"/>
+        <result property="unShippedRefundCount" column="un_shipped_refund_count"/>
+        <result property="unShippedRefundAmount" column="un_shipped_refund_amount"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        `id`,`customer_id`,`manager_code`,`order_type`,`order_pay_count`,`ship_price`,`product_amount`,`product_discharge_amount`,`fix_fee`,`vat_amount`,`pay_amount`,`credit_amount`,`benefit_pay_amount`,`pay_time`,`refund_count`,`refund_amount`,`shipped_refund_count`,`shipped_refund_amount`,`un_shipped_refund_count`,`un_shipped_refund_amount`
+    </sql>
+
+    <select id="selectCustomerOrderStatistics" resultType="com.upedge.common.model.statistics.vo.CustomerOrderStatisticsVo"
+            parameterType="com.upedge.common.model.statistics.request.OrderStatisticsRequest">
+        select customer_id as `customerId`,
+        `manager_code` as `managerCode`,
+        sum(credit_amount) as `creditAmount`,
+        sum(pay_amount) as `payAmount`,
+        sum(order_pay_count) as `orderPayCount`,
+        sum(refund_amount) as `refundAmount`,
+        sum(refund_count) as `refundCount`,
+        sum(shipped_refund_count) as `shippedRefundCount`,
+        sum(shipped_refund_amount) as `shippedRefundAmount`,
+        sum(un_shipped_refund_count) as `unShippedRefundCount`,
+        sum(un_shipped_refund_amount) as `unShippedRefundAmount`,
+        sum(benefit_pay_amount) as `benefitPayAmount`
+        from order_daily_pay_count
+        <include refid="Statistics_Condition"/>
+        group by customer_id
+        order by `creditAmount` desc
+        <if test="fromNum != null and pageSize != null">
+            limit #{fromNum},#{pageSize}
+        </if>
+    </select>
+
+    <select id="selectManagerOrderStatistics" resultType="com.upedge.common.model.statistics.vo.ManagerOrderStatisticsVo"
+            parameterType="com.upedge.common.model.statistics.request.OrderStatisticsRequest">
+        select
+        `manager_code` as `managerCode`,
+        order_type as `orderType`,
+        sum(credit_amount) as `creditAmount`,
+        sum(pay_amount) as `payAmount`,
+        sum(order_pay_count) as `orderPayCount`,
+        sum(refund_amount) as `refundAmount`,
+        sum(refund_count) as `refundCount`,
+        count(DISTINCT customer_id) as `customerPlaceOrderCount`,
+        sum(shipped_refund_count) as `shippedRefundCount`,
+        sum(shipped_refund_amount) as `shippedRefundAmount`,
+        sum(un_shipped_refund_count) as `unShippedRefundCount`,
+        sum(un_shipped_refund_amount) as `unShippedRefundAmount`,
+        sum(benefit_pay_amount) as `benefitPayAmount`
+        from order_daily_pay_count
+        <include refid="Statistics_Condition"/>
+        group by manager_code,order_type
+        order by `creditAmount` desc
+    </select>
+
+    <sql id="Statistics_Condition">
+        <if test="t != null">
+            where
+            <trim prefix=" " suffix=" " suffixOverrides=" and ">
+                1 = 1 and
+                <if test="t.beginTime != null and t.endTime != null">
+                    date(pay_time) between #{t.beginTime} and #{t.endTime}
+                </if>
+                <if test="t.orderType != null">
+                    and order_type = #{t.orderType}
+                </if>
+                <if test="t.managerCode != null">
+                    and manager_code = #{t.managerCode}
+                </if>
+                <if test="t.customerId != null">
+                    and customer_id = #{t.customerId}
+                </if>
+            </trim>
+        </if>
+    </sql>
+
+
+    <select id="selectByCustomerOrderTypeAndDate" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from order_daily_pay_count
+        where customer_id = #{customerId}
+        and date(pay_time) = date(#{payTime})
+        and order_type = #{orderType}
+        limit 1
+    </select>
+
+    <update id="increaseOrderDailyCountById"
+            parameterType="com.upedge.oms.modules.statistics.entity.OrderDailyPayCount">
+        update order_daily_pay_count
+        set ship_price = ship_price + #{shipPrice},
+            product_amount = product_amount + #{productAmount},
+            product_discharge_amount = product_discharge_amount + #{productDischargeAmount},
+            fix_fee = fix_fee + #{fixFee},
+            vat_amount = vat_amount + #{vatAmount},
+            pay_amount = pay_amount + #{payAmount},
+            credit_amount = credit_amount + #{creditAmount},
+            order_pay_count = order_pay_count + #{orderPayCount}
+            <if test=" benefitPayAmount != null">
+              ,  benefit_pay_amount = benefit_pay_amount + #{benefitPayAmount}
+            </if>
+        where id = #{id}
+    </update>
+
+    <select id="selectByPrimaryKey" parameterType="com.upedge.oms.modules.statistics.entity.OrderDailyPayCount"
+            resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from order_daily_pay_count
+        where id = #{id}
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="com.upedge.oms.modules.statistics.entity.OrderDailyPayCount">
+        delete from order_daily_pay_count
+        where id = #{id}
+    </delete>
+
+    <update id="updateByPrimaryKeySelective" parameterType="com.upedge.oms.modules.statistics.entity.OrderDailyPayCount">
+        update order_daily_pay_count
+        <set>
+            <if test="customerId != null">
+                customer_id = #{customerId},
+            </if>
+            <if test="managerCode != null">
+                manager_code = #{managerCode},
+            </if>
+            <if test="orderType != null">
+                order_type = #{orderType},
+            </if>
+            <if test="orderPayCount != null">
+                order_pay_count = #{orderPayCount},
+            </if>
+            <if test="shipPrice != null">
+                ship_price = #{shipPrice},
+            </if>
+            <if test="productAmount != null">
+                product_amount = #{productAmount},
+            </if>
+            <if test="productDischargeAmount != null">
+                product_discharge_amount = #{productDischargeAmount},
+            </if>
+            <if test="fixFee != null">
+                fix_fee = #{fixFee},
+            </if>
+            <if test="vatAmount != null">
+                vat_amount = #{vatAmount},
+            </if>
+            <if test="payAmount != null">
+                pay_amount = #{payAmount},
+            </if>
+            <if test="creditAmount != null">
+                credit_amount = #{creditAmount},
+            </if>
+            <if test="benefitPayAmount != null">
+                benefit_pay_amount = #{benefitPayAmount},
+            </if>
+            <if test="payTime != null">
+                pay_time = #{payTime},
+            </if>
+            <if test="refundCount != null">
+                refund_count = #{refundCount},
+            </if>
+            <if test="refundAmount != null">
+                refund_amount = #{refundAmount},
+            </if>
+            <if test="shippedRefundCount != null">
+                shipped_refund_count = #{shippedRefundCount},
+            </if>
+            <if test="shippedRefundAmount != null">
+                shipped_refund_amount = #{shippedRefundAmount},
+            </if>
+            <if test="unShippedRefundCount != null">
+                un_shipped_refund_count = #{unShippedRefundCount},
+            </if>
+            <if test="unShippedRefundAmount != null">
+                un_shipped_refund_amount = #{unShippedRefundAmount},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <update id="updateByPrimaryKey" parameterType="com.upedge.oms.modules.statistics.entity.OrderDailyPayCount">
+        update order_daily_pay_count
+        <set>
+            id = #{id},
+            customer_id = #{customerId},
+            manager_code = #{managerCode},
+            order_type = #{orderType},
+            order_pay_count = #{orderPayCount},
+            ship_price = #{shipPrice},
+            product_amount = #{productAmount},
+            product_discharge_amount = #{productDischargeAmount},
+            fix_fee = #{fixFee},
+            vat_amount = #{vatAmount},
+            pay_amount = #{payAmount},
+            credit_amount = #{creditAmount},
+            benefit_pay_amount = #{benefitPayAmount},
+            pay_time = #{payTime},
+            refund_count = #{refundCount},
+            refund_amount = #{refundAmount},
+            shipped_refund_count = #{shippedRefundCount},
+            shipped_refund_amount = #{shippedRefundAmount},
+            un_shipped_refund_count = #{unShippedRefundCount},
+            un_shipped_refund_amount = #{unShippedRefundAmount},
+        </set>
+        where id = #{id}
+    </update>
+
+
+    <update id="updateRefundCount">
+        UPDATE `order_daily_pay_count`
+        SET
+            `refund_count` = refund_count + #{t.refundCount},
+            `refund_amount` =  refund_amount + #{t.refundAmount},
+            `shipped_refund_count` = shipped_refund_count + #{t.shippedRefundCount},
+            `shipped_refund_amount` = shipped_refund_amount + #{t.shippedRefundAmount},
+            `un_shipped_refund_count` = un_shipped_refund_count + #{t.unShippedRefundCount},
+            `un_shipped_refund_amount` = un_shipped_refund_amount + #{t.unShippedRefundAmount}
+        WHERE
+            `order_type` =  #{t.orderType}
+        and  `customer_id` = #{t.customerId}
+        and  date(pay_time) =  date(#{t.payTime})
+    </update>
+
+
+    <insert id="insert" keyColumn="id" keyProperty="id"
+            parameterType="com.upedge.oms.modules.statistics.entity.OrderDailyPayCount" useGeneratedKeys="true">
+        insert into order_daily_pay_count
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            id,
+            customer_id,
+            manager_code,
+            order_type,
+            order_pay_count,
+            ship_price,
+            product_amount,
+            product_discharge_amount,
+            fix_fee,
+            vat_amount,
+            pay_amount,
+            credit_amount,
+            benefit_pay_amount,
+            pay_time,
+            refund_count,
+            refund_amount,
+            shipped_refund_count,
+            shipped_refund_amount,
+            un_shipped_refund_count,
+            un_shipped_refund_amount
+        </trim>
+        values (
+        #{id},
+        #{customerId},
+        #{managerCode},
+        #{orderType},
+        #{orderPayCount},
+        #{shipPrice},
+        #{productAmount},
+        #{productDischargeAmount},
+        #{fixFee},
+        #{vatAmount},
+        #{payAmount},
+        #{creditAmount},
+        #{benefitPayAmount},
+        #{payTime},
+        #{refundCount},
+        #{refundAmount},
+        #{shippedRefundCount},
+        #{shippedRefundAmount},
+        #{unShippedRefundCount},
+        #{unShippedRefundAmount}
+        )
+    </insert>
+
+    <insert id="insertSelective" keyColumn="id" keyProperty="id"
+            parameterType="com.upedge.oms.modules.statistics.entity.OrderDailyPayCount" useGeneratedKeys="true">
+        insert into order_daily_pay_count
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id
+            </if>
+            <if test="customerId != null">
+                customer_id
+            </if>
+            <if test="managerCode != null">
+                manager_code
+            </if>
+            <if test="orderType != null">
+                order_type
+            </if>
+            <if test="orderPayCount != null">
+                order_pay_count
+            </if>
+            <if test="shipPrice != null">
+                ship_price
+            </if>
+            <if test="productAmount != null">
+                product_amount
+            </if>
+            <if test="productDischargeAmount != null">
+                product_discharge_amount
+            </if>
+            <if test="fixFee != null">
+                fix_fee
+            </if>
+            <if test="vatAmount != null">
+                vat_amount
+            </if>
+            <if test="payAmount != null">
+                pay_amount
+            </if>
+            <if test="creditAmount != null">
+                credit_amount
+            </if>
+            <if test="benefitPayAmount != null">
+                benefit_pay_amount
+            </if>
+            <if test="payTime != null">
+                pay_time
+            </if>
+            <if test="refundCount != null">
+                refund_count
+            </if>
+            <if test="refundAmount != null">
+                refund_amount
+            </if>
+            <if test="shippedRefundCount != null">
+                shipped_refund_count
+            </if>
+            <if test="shippedRefundAmount != null">
+                shipped_refund_amount
+            </if>
+            <if test="unShippedRefundCount != null">
+                un_shipped_refund_count
+            </if>
+            <if test="unShippedRefundAmount != null">
+                un_shipped_refund_amount
+            </if>
+
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id}
+            </if>
+            <if test="customerId != null">
+                #{customerId}
+            </if>
+            <if test="managerCode != null">
+                #{managerCode}
+            </if>
+            <if test="orderType != null">
+                #{orderType}
+            </if>
+            <if test="orderPayCount != null">
+                #{orderPayCount}
+            </if>
+            <if test="shipPrice != null">
+                #{shipPrice}
+            </if>
+            <if test="productAmount != null">
+                #{productAmount}
+            </if>
+            <if test="productDischargeAmount != null">
+                #{productDischargeAmount}
+            </if>
+            <if test="fixFee != null">
+                #{fixFee}
+            </if>
+            <if test="vatAmount != null">
+                #{vatAmount}
+            </if>
+            <if test="payAmount != null">
+                #{payAmount}
+            </if>
+            <if test="creditAmount != null">
+                #{creditAmount}
+            </if>
+            <if test="benefitPayAmount != null">
+                #{benefitPayAmount}
+            </if>
+            <if test="payTime != null">
+                #{payTime}
+            </if>
+            <if test="refundCount != null">
+                #{refundCount}
+            </if>
+            <if test="refundAmount != null">
+                #{refundAmount}
+            </if>
+            <if test="shippedRefundCount != null">
+                #{shippedRefundCount}
+            </if>
+            <if test="shippedRefundAmount != null">
+                #{shippedRefundAmount}
+            </if>
+            <if test="unShippedRefundCount != null">
+                #{unShippedRefundCount}
+            </if>
+            <if test="unShippedRefundAmount != null">
+                #{unShippedRefundAmount}
+            </if>
+
+        </trim>
+    </insert>
+
+    <insert id="insertByBatch" parameterType="java.util.List">
+        insert into order_daily_pay_count
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            id,
+            customer_id,
+            manager_code,
+            order_type,
+            order_pay_count,
+            ship_price,
+            product_amount,
+            product_discharge_amount,
+            fix_fee,
+            vat_amount,
+            pay_amount,
+            credit_amount,
+            benefit_pay_amount,
+            pay_time,
+            refund_count,
+            refund_amount,
+            shipped_refund_count,
+            shipped_refund_amount,
+            un_shipped_refund_count,
+            un_shipped_refund_amount
+        </trim>
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+                #{item.id},
+                #{item.customerId},
+                #{item.managerCode},
+                #{item.orderType},
+                #{item.orderPayCount},
+                #{item.shipPrice},
+                #{item.productAmount},
+                #{item.productDischargeAmount},
+                #{item.fixFee},
+                #{item.vatAmount},
+                #{item.payAmount},
+                #{item.creditAmount},
+                #{item.benefitPayAmount},
+                #{item.payTime},
+                #{item.refundCount},
+                #{item.refundAmount},
+                #{item.shippedRefundCount},
+                #{item.shippedRefundAmount},
+                #{item.unShippedRefundCount},
+                #{item.unShippedRefundAmount}
+            </trim>
+        </foreach>
+    </insert>
+
+    <insert id="insertRefundCount" keyColumn="id" keyProperty="id"
+            parameterType="com.upedge.oms.modules.statistics.entity.OrderDailyRefundCount" useGeneratedKeys="true">
+        INSERT IGNORE INTO order_daily_pay_count
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            id,
+            customer_id,
+            manager_code,
+            order_type,
+            pay_time,
+            refund_count,
+            refund_amount,
+            shipped_refund_count,
+            shipped_refund_amount,
+            un_shipped_refund_count,
+            un_shipped_refund_amount
+        </trim>
+        values (
+        #{id},
+        #{customerId},
+        #{managerCode},
+        #{orderType},
+        date(#{payTime}),
+        #{refundCount},
+        #{refundAmount},
+        #{shippedRefundCount},
+        #{shippedRefundAmount},
+        #{unShippedRefundCount},
+        #{unShippedRefundAmount}
+        )
+    </insert>
+
+
+    <sql id="Query_Condition">
+        <if test="t != null">
+            where
+            <trim prefix=" " suffix=" " suffixOverrides=" and ">
+                1 = 1 and
+                <if test="t.id != null">
+                    id = #{t.id} and
+                </if>
+                <if test="t.customerId != null">
+                    customer_id = #{t.customerId} and
+                </if>
+                <if test="t.managerCode != null">
+                    manager_code = #{t.managerCode} and
+                </if>
+                <if test="t.orderType != null">
+                    order_type = #{t.orderType} and
+                </if>
+                <if test="t.orderPayCount != null">
+                    order_pay_count = #{t.orderPayCount} and
+                </if>
+                <if test="t.shipPrice != null">
+                    ship_price = #{t.shipPrice} and
+                </if>
+                <if test="t.productAmount != null">
+                    product_amount = #{t.productAmount} and
+                </if>
+                <if test="t.productDischargeAmount != null">
+                    product_discharge_amount = #{t.productDischargeAmount} and
+                </if>
+                <if test="t.fixFee != null">
+                    fix_fee = #{t.fixFee} and
+                </if>
+                <if test="t.vatAmount != null">
+                    vat_amount = #{t.vatAmount} and
+                </if>
+                <if test="t.payAmount != null">
+                    pay_amount = #{t.payAmount} and
+                </if>
+                <if test="t.creditAmount != null">
+                    credit_amount = #{t.creditAmount} and
+                </if>
+                <if test="t.benefitPayAmount != null">
+                    benefit_pay_amount = #{t.benefitPayAmount} and
+                </if>
+                <if test="t.payTime != null">
+                    pay_time = #{t.payTime} and
+                </if>
+                <if test="t.refundCount != null">
+                    refund_count = #{t.refundCount} and
+                </if>
+                <if test="t.refundAmount != null">
+                    refund_amount = #{t.refundAmount} and
+                </if>
+                <if test="t.shippedRefundCount != null">
+                    shipped_refund_count = #{t.shippedRefundCount} and
+                </if>
+                <if test="t.shippedRefundAmount != null">
+                    shipped_refund_amount = #{t.shippedRefundAmount} and
+                </if>
+                <if test="t.unShippedRefundCount != null">
+                    un_shipped_refund_count = #{t.unShippedRefundCount} and
+                </if>
+                <if test="t.unShippedRefundAmount != null">
+                    un_shipped_refund_amount = #{t.unShippedRefundAmount} and
+                </if>
+            </trim>
+        </if>
+    </sql>
+
+    <select id="select" parameterType="com.upedge.common.base.Page" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from order_daily_pay_count
+        <include refid="Query_Condition"/>
+        <if test="orderBy != null">
+            order by ${orderBy}
+        </if>
+        <if test="pageNum != null and pageSize != null">
+            limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+        </if>
+    </select>
+
+    <select id="count" parameterType="com.upedge.common.base.Page" resultType="java.lang.Long">
+        select
+        count(1)
+        from order_daily_pay_count
+        <include refid="Query_Condition"/>
+    </select>
+
+    <!--当月发货包裹订单返点-->
+    <select id="totalPackageOrderBenefits" resultType="java.math.BigDecimal">
+    SELECT
+        IFNULL(sum(benefit_pay_amount),0) amount
+    from
+        order_daily_pay_count
+    WHERE
+        order_type = 2
+        and
+        <if test="managerCode != null and managerCode !=''" >
+            manager_code=#{managerCode} and
+        </if>
+      date(pay_time)>=#{startDay} and date(pay_time) &lt;=#{endDay}
+
+    </select>
+    <!--当月发货包裹批发订单返点-->
+    <select id="totalPackageWholeSaleOrderBenefits" resultType="java.math.BigDecimal">
+    SELECT
+        IFNULL(sum(benefit_pay_amount),0) amount
+    from
+        order_daily_pay_count
+    WHERE
+        order_type = 3
+        and
+        <if test="managerCode != null and managerCode !=''" >
+            manager_code=#{managerCode} and
+        </if>
+        date(pay_time)>=#{startDay} and date(pay_time) &lt;=#{endDay}
+    </select>
+    <select id="paidOrderDataByDay" resultType="com.upedge.oms.modules.statistics.dto.DashboardOrderDto">
+        select sum(order_pay_count) as orderPaidNum,
+        date(o.pay_time) as dayDate,
+        IFNULL(sum(o.credit_amount),0) as orderAmount
+        from `order_daily_pay_count` o
+        where o.order_type = #{orderType}
+        and date(o.pay_time) &lt;=#{endDay} and date(o.pay_time) >= #{startDay}
+        <if test="userManager != null and userManager!=''">
+            and o.manager_code=#{userManager}
+        </if>
+        GROUP BY date(o.pay_time)
+    </select>
+    <select id="selectTodayPaidOrderCount" resultType="com.upedge.common.model.order.vo.OrderDailyCountVo">
+        select o.order_pay_count orderNum,
+        o.pay_time  dayDate,
+        o.order_type  orderType,
+        IFNULL(o.credit_amount,0)  orderAmount
+        from `order_daily_pay_count` o
+        <where>
+            <if test="request.orderType != null">
+                o.order_type= #{request.order_type}
+            </if>
+            <if test="request.thisDay != null and request.thisDay!=''">
+                and date(o.pay_time)=#{request.thisDay}
+            </if>
+            <if test="request.managerCode != null and request.managerCode !='' ">
+                and o.manager_code=#{request.managerCode}
+            </if>
+
+        </where>
+
+    </select>
+    <select id="selectThirtydayPaidOrderCount"
+            resultType="com.upedge.common.model.order.vo.OrderDailyCountVo">
+        select sum(order_pay_count) as orderNum,
+        o.order_type orderType,
+        IFNULL(sum(o.credit_amount),0) as orderAmount
+        from `order_daily_pay_count` o
+        where
+        date(o.pay_time) &lt;=#{request.thisDay} and date(o.pay_time) &gt; date_sub(#{request.thisDay}, INTERVAL 30 DAY)
+        <if test="request.managerCode != null and request.managerCode!=''">
+            and o.manager_code=#{request.managerCode}
+        </if>
+        GROUP BY o.order_type
+    </select>
+    <select id="selectCurrMonthSaleAmount" resultType="com.upedge.common.model.order.vo.OrderDailyCountVo">
+        select sum(order_pay_count) as orderNum,
+        o.order_type orderType,
+        IFNULL(sum(o.credit_amount),0) as orderAmount
+        from `order_daily_pay_count` o
+        where
+        date(o.pay_time) &lt;=#{request.endDay} and date(o.pay_time) &gt; #{request.startDay}
+        <if test="request.managerCode != null and request.managerCode!=''">
+            and o.manager_code=#{request.managerCode}
+        </if>
+        GROUP BY o.order_type
+    </select>
+
+
+</mapper>

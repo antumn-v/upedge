@@ -1,0 +1,758 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.upedge.oms.modules.order.dao.OrderItemDao">
+
+    <!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.upedge.oms.modules.order.entity.OrderItem" id="BaseResultMap">
+        <result property="id" column="id"/>
+        <result property="orderId" column="order_id"/>
+        <result property="storeOrderItemId" column="store_order_item_id"/>
+        <result property="storeOrderId" column="store_order_id"/>
+        <result property="storeProductId" column="store_product_id"/>
+        <result property="storeVariantId" column="store_variant_id"/>
+        <result property="adminVariantId" column="admin_variant_id"/>
+        <result property="adminProductId" column="admin_product_id"/>
+        <result property="storeVariantName" column="store_variant_name"/>
+        <result property="storeVariantSku" column="store_variant_sku"/>
+        <result property="adminVariantImage" column="admin_variant_image"/>
+        <result property="storeProductTitle" column="store_product_title"/>
+        <result property="adminVariantSku" column="admin_variant_sku"/>
+        <result property="usdPrice" column="usd_price"/>
+        <result property="cnyPrice" column="cny_price"/>
+        <result property="adminVariantWeight" column="admin_variant_weight"/>
+        <result property="adminVariantVolume" column="admin_variant_volume"/>
+        <result property="quantity" column="quantity"/>
+        <result property="dischargeQuantity" column="discharge_quantity"/>
+        <result property="itemType" column="item_type"/>
+        <result property="shippingId" column="shipping_id"/>
+    </resultMap>
+
+    <resultMap type="com.upedge.oms.modules.order.vo.AppOrderItemVo" id="AppOrderItemVo">
+        <result property="id" column="id"/>
+        <result property="orderId" column="order_id"/>
+        <result property="storeOrderId" column="store_order_id"/>
+        <result property="storeProductId" column="store_product_id"/>
+        <result property="adminProductId" column="admin_product_id"/>
+        <result property="storeVariantName" column="store_variant_name"/>
+        <result property="storeVariantSku" column="store_variant_sku"/>
+        <result property="adminVariantImage" column="admin_variant_image"/>
+        <result property="storeProductTitle" column="store_product_title"/>
+        <result property="price" column="usd_price"/>
+        <result property="adminVariantWeight" column="admin_variant_weight"/>
+        <result property="adminVariantVolume" column="admin_variant_volume"/>
+        <result property="quantity" column="quantity"/>
+        <result property="dischargeQuantity" column="discharge_quantity"/>
+        <result property="itemType" column="item_type"/>
+    </resultMap>
+
+    <resultMap type="com.upedge.oms.modules.order.vo.OrderIdItemsVo" id="OrderIdItemsVo">
+        <result property="orderId" column="order_id"/>
+        <result property="storeOrderId" column="store_order_id"/>
+        <collection property="itemVos" ofType="com.upedge.oms.modules.order.vo.AppOrderItemVo">
+            <result property="id" column="id"/>
+            <result property="orderId" column="order_id"/>
+            <result property="storeOrderId" column="store_order_id"/>
+            <result property="storeProductId" column="store_product_id"/>
+            <result property="adminProductId" column="admin_product_id"/>
+            <result property="storeVariantName" column="store_variant_name"/>
+            <result property="storeVariantSku" column="store_variant_sku"/>
+            <result property="adminVariantImage" column="admin_variant_image"/>
+            <result property="storeProductTitle" column="store_product_title"/>
+            <result property="price" column="usd_price"/>
+            <result property="adminVariantWeight" column="admin_variant_weight"/>
+            <result property="adminVariantVolume" column="admin_variant_volume"/>
+            <result property="quantity" column="quantity"/>
+            <result property="dischargeQuantity" column="discharge_quantity"/>
+            <result property="itemType" column="item_type"/>
+        </collection>
+    </resultMap>
+
+    <resultMap type="com.upedge.oms.modules.stock.entity.CustomerStockRecord" id="StockRecord">
+        <result property="customerId" column="customer_id"/>
+        <result property="productId" column="product_id"/>
+        <result property="variantId" column="variant_id"/>
+        <result property="warehouseId" column="warehouse_id"/>
+        <result property="relateId" column="relate_id"/>
+        <result property="type" column="type"/>
+        <result property="orderType" column="order_type"/>
+        <result property="quantity" column="quantity"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="variantImage" column="variant_image"/>
+        <result property="variantSku" column="variant_sku"/>
+        <result property="variantName" column="variant_name"/>
+    </resultMap>
+
+    <resultMap type="com.upedge.oms.modules.order.vo.AppStoreOrderVo" id="OrderRelateItems">
+        <result property="storeOrderId" column="store_order_id"/>
+        <result property="platOrderCreateTime" column="plat_order_create_time"/>
+        <result property="platOrderName" column="plat_order_name"/>
+        <result property="financialStatus" column="financial_status"/>
+        <result property="fulfillmentStatus" column="fulfillment_status"/>
+        <result property="platOrderCreateTime" column="plat_order_create_time"/>
+        <result property="orderCustomerName" column="order_customer_name"/>
+        <result property="orderId" column="order_id"/>
+        <collection ofType="com.upedge.oms.modules.order.vo.AppOrderItemVo" property="itemVos">
+            <result property="id" column="itemId"/>
+            <result property="orderId" column="order_id"/>
+            <result property="adminProductId" column="admin_product_id"/>
+            <result property="adminVariantId" column="admin_variant_id"/>
+            <result property="storeVariantName" column="store_variant_name"/>
+            <result property="storeVariantSku" column="store_variant_sku"/>
+            <result property="adminVariantImage" column="admin_variant_image"/>
+            <result property="storeProductTitle" column="store_product_title"/>
+            <result property="price" column="usd_price"/>
+            <result property="adminVariantWeight" column="admin_variant_weight"/>
+            <result property="adminVariantVolume" column="admin_variant_volume"/>
+            <result property="quantity" column="quantity"/>
+            <result property="dischargeQuantity" column="discharge_quantity"/>
+            <result property="itemType" column="item_type"/>
+        </collection>
+    </resultMap>
+
+
+    <sql id="Base_Column_List">
+        `id`,`order_id`,`store_order_id`,`store_product_id`,
+        `store_order_item_id`,`store_variant_id`,`admin_variant_id`,`admin_product_id`,`store_variant_name`,
+        `store_variant_sku`,`admin_variant_image`,`store_product_title`,`usd_price`,`quantity`,`discharge_quantity`,
+        `admin_variant_weight`,`admin_variant_volume`,`item_type`,`shipping_id`,`admin_variant_sku`,`cny_price`
+    </sql>
+
+    <select id="selectItemByPaymentId" resultMap="BaseResultMap">
+        select oi.`id`,`order_id`,`store_order_item_id`,`store_variant_id`,`admin_variant_id`,`admin_product_id`,`store_variant_name`,
+        `store_variant_sku`,`admin_variant_image`,`store_product_title`,`usd_price`,`quantity`,`discharge_quantity`,
+        `admin_variant_weight`,`admin_variant_volume`,`item_type`
+        from order_item oi
+        inner join `order` o
+        on oi.order_id = o.id
+        where o.payment_id = #{paymentId}
+        and o.pay_state = '1'
+    </select>
+
+    <select id="selectStockRecordByPaymentId" resultMap="StockRecord">
+        select cps.warehouse_id,cps.variant_image,cps.variant_sku,cps.variant_name,
+        oi.discharge_quantity as `quantity`,'1' as `type`,'2' as `order_type`,
+        oi.order_id as `relate_id`,cps.variant_id,cps.product_id,cps.customer_id
+        from order_item oi
+        inner join `order` o
+        on oi.order_id = o.id
+        left join customer_product_stock cps
+        on oi.admin_variant_id = cps.variant_id
+        where o.payment_id = #{paymentId}
+        and cps.customer_id = #{customerId}
+        and oi.discharge_quantity > '0'
+        and o.pay_state = '1'
+    </select>
+
+    <select id="selectStoreOrderIdById" resultType="java.lang.Long">
+        select soi.store_order_id
+        from order_item oi
+        inner join store_order_item soi
+        on oi.store_order_item_id = soi.id
+        where oi.id = #{id}
+        limit 1
+    </select>
+
+    <select id="selectCountQuantityByOrderId" resultType="java.lang.Integer">
+        select count(quantity)
+        from order_item
+        where order_id = #{orderId}
+    </select>
+
+    <select id="selectAppOrderItemByOrderId" resultMap="AppOrderItemVo" parameterType="java.lang.Long">
+        select oi.id,oi.order_id,`admin_product_id`,`store_variant_name`,oi.store_order_id,
+        `store_variant_sku`,`admin_variant_image`,`store_product_title`,`usd_price`,`quantity`,
+        `discharge_quantity`,`admin_variant_weight`,`admin_variant_volume`
+        from order_item oi
+        where oi.order_id = #{orderId}
+    </select>
+
+    <select id="selectAppOrderItemByOrderIds" resultMap="OrderRelateItems" >
+        select DISTINCTROW oi.order_id as `orderId`,oi.store_order_id,store_product_id,
+        oi.id as itemId,oi.order_id,`admin_product_id`,`store_variant_name`,
+        `store_variant_sku`,`admin_variant_image`,`store_product_title`,`usd_price`,`quantity`,
+        `discharge_quantity`,`admin_variant_weight`,`admin_variant_volume`,
+        sor.store_name,
+        sor.financial_status,
+        sor.fulfillment_status,
+        sor.plat_order_create_time,
+        sor.plat_order_name,
+        sor.order_customer_name,
+        sor.order_id
+        from order_item oi
+        inner join store_order_relate sor
+        on oi.store_order_id = sor.store_order_id
+        where oi.order_id in
+        <foreach collection="orders" item="o" open="(" close=")" separator=",">
+            #{o.id}
+        </foreach>
+    </select>
+
+    <select id="selectAdminVariantDetailByOrder" resultType="com.upedge.common.model.product.VariantDetail">
+        select `admin_variant_id` as `variantId`,`admin_product_id` as `productId`,
+        (`quantity` * `admin_variant_weight`) as `weight`,(`quantity` *`admin_variant_volume`) as `volume`
+        from order_item
+        where order_id = #{orderId}
+        group by `admin_variant_id`,`admin_product_id`,`quantity`,`admin_variant_weight`,`admin_variant_volume`
+    </select>
+
+    <select id="selectAdminVariantDetailByOrderIds" resultType="com.upedge.common.model.product.VariantDetail">
+        select `admin_variant_id` as `variantId`,`admin_product_id` as `productId`,
+        (`quantity` * `admin_variant_weight`) as `weight`,(`quantity` *`admin_variant_volume`) as `volume`
+        from order_item
+        where order_id in
+        <foreach collection="orderIds" item="orderId" open="(" close=")" separator=",">
+            #{orderId}
+        </foreach>
+    </select>
+
+    <select id="selectDischargeQuantityByPaymentId" resultType="com.upedge.oms.modules.order.vo.ItemDischargeQuantityVo">
+        select oi.admin_variant_id as `variantId`,sum(oi.discharge_quantity) as `dischargeQuantity`
+        from order_item oi
+        inner join `order` o
+        on oi.order_id = o.id
+        where o.payment_id = #{paymentId}
+        and oi.discharge_quantity > '0'
+        group by oi.admin_variant_id
+    </select>
+
+    <update id="updateDischargeQuantityByMap">
+        <foreach collection="map" index="id" item="quantity" separator=";">
+            update order_item
+            set discharge_quantity = #{quantity}
+            where id = #{id}
+        </foreach>
+    </update>
+
+    <update id="updateAdminVariantByStoreVariantId">
+        update order_item oi
+        inner join `order` o
+        on oi.order_id = o.id
+        set admin_variant_id = #{r.variantId},
+            `admin_variant_weight` = #{r.weight},
+            `admin_variant_volume` = #{r.volume},
+            `admin_product_id` = #{r.productId},
+            `usd_price` = #{r.usdPrice},
+            `admin_variant_image` = #{r.image}
+        where store_variant_id = #{storeVariantId}
+        and o.pay_state = '0'
+        and o.order_type != '1'
+    </update>
+
+
+    <update id="updateAdminVariantDetailByVariantId">
+        update order_item oi
+        inner join `order` o
+        on oi.order_id = o.id
+        set oi.${name} = #{value}
+        where oi.admin_variant_id = #{adminVariantId}
+        and o.pay_state = '0'
+    </update>
+
+    <update id="updateUsdPriceByAdminVariantId">
+        update order_item oi
+        inner join `order` o
+        on oi.order_id = o.id
+        set oi.usd_price = #{usdPrice}
+        where oi.admin_variant_id = #{adminVariantId}
+        and o.pay_state = '0'
+    </update>
+
+    <update id="updateOrderIdByOrderIds">
+        update order_item oi
+        inner join `order` o
+        on oi.order_id = o.id
+        set oi.order_id = #{orderId}
+        where oi.order_id in
+        <foreach collection="orderIds" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+        and o.pay_state = '0'
+    </update>
+
+    <update id="updateOrderIdByOrderItemMap">
+        <foreach collection="orderItemMap" index="orderId" item="itemIds" separator=";">
+            update order_item
+            set order_id = #{orderId}
+            where id in
+            <foreach collection="itemIds" item="id" open="(" separator="," close=")">
+                #{id}
+            </foreach>
+        </foreach>
+    </update>
+
+
+    <select id="selectByPrimaryKey" parameterType="com.upedge.oms.modules.order.entity.OrderItem"
+            resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from order_item
+        where id = #{id}
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="com.upedge.oms.modules.order.entity.OrderItem">
+        delete from order_item
+        where id = #{id}
+    </delete>
+
+    <update id="updateByPrimaryKeySelective" parameterType="com.upedge.oms.modules.order.entity.OrderItem">
+        update order_item
+        <set>
+            <if test="orderId != null">
+                order_id = #{orderId},
+            </if>
+            <if test="storeOrderItemId != null">
+                store_order_item_id = #{storeOrderItemId},
+            </if>
+            <if test="storeVariantId != null">
+                store_variant_id = #{storeVariantId},
+            </if>
+            <if test="adminVariantId != null">
+                admin_variant_id = #{adminVariantId},
+            </if>
+            <if test="adminProductId != null">
+                admin_product_id = #{adminProductId},
+            </if>
+            <if test="storeVariantName != null">
+                store_variant_name = #{storeVariantName},
+            </if>
+            <if test="storeVariantSku != null">
+                store_variant_sku = #{storeVariantSku},
+            </if>
+            <if test="adminVariantImage != null">
+                admin_variant_image = #{adminVariantImage},
+            </if>
+            <if test="storeProductTitle != null">
+                store_product_title = #{storeProductTitle},
+            </if>
+            <if test="usdPrice != null">
+                usd_price = #{usdPrice},
+            </if>
+            <if test="quantity != null">
+                quantity = #{quantity},
+            </if>
+            <if test="dischargeQuantity != null">
+                discharge_quantity = #{dischargeQuantity},
+            </if>
+            <if test="storeProductId != null">
+                store_product_id = #{storeProductId},
+            </if>
+            <if test="storeOrderId != null">
+                store_order_id = #{storeOrderId},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <update id="updateByPrimaryKey" parameterType="com.upedge.oms.modules.order.entity.OrderItem">
+        update order_item
+        <set>
+            id = #{id},
+            order_id = #{orderId},
+            store_order_item_id = #{storeOrderItemId},
+            store_variant_id = #{storeVariantId},
+            admin_variant_id = #{adminVariantId},
+            admin_product_id = #{adminProductId},
+            store_variant_name = #{storeVariantName},
+            store_variant_sku = #{storeVariantSku},
+            admin_variant_image = #{adminVariantImage},
+            store_product_title = #{storeProductTitle},
+            usd_price = #{usdPrice},
+            admin_variant_weight = #{adminVariantWeight},
+            admin_variant_volume = #{adminVariantVolume},
+            quantity = #{quantity},
+            discharge_quantity = #{dischargeQuantity},
+            <if test="storeProductId != null">
+                store_product_id = #{storeProductId},
+            </if>
+            <if test="storeOrderId != null">
+                store_order_id = #{storeOrderId},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+    <update id="updateShippingIdByAdminProductId">
+        update order_item oi
+        inner join `order` o
+        on oi.order_id = o.id
+        set oi.shipping_id = #{shippingId}
+        where oi.admin_product_id = #{adminProductId}
+        and o.pay_state = '0'
+    </update>
+
+    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.upedge.oms.modules.order.entity.OrderItem"
+            useGeneratedKeys="true">
+        insert into order_item
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            id,
+            order_id,
+            store_order_id,
+            store_order_item_id,
+            store_variant_id,
+            admin_variant_id,
+            admin_product_id,
+            store_variant_name,
+            store_variant_sku,
+            admin_variant_sku,
+            admin_variant_image,
+            store_product_title,
+            usd_price,
+            cny_price,
+            admin_variant_weight,
+            admin_variant_volume,
+            quantity,
+            discharge_quantity,
+            item_type,
+            <if test="storeProductId != null">
+                store_product_id ,
+            </if>
+            shipping_id
+        </trim>
+        values (
+        #{id},
+        #{orderId},
+        #{storeOrderId},
+        #{storeOrderItemId},
+        #{storeVariantId},
+        #{adminVariantId},
+        #{adminProductId},
+        #{storeVariantName},
+        #{storeVariantSku},
+        #{adminVariantSku},
+        #{adminVariantImage},
+        #{storeProductTitle},
+        #{usdPrice},
+        #{cnyPrice},
+        #{adminVariantWeight},
+        #{adminVariantVolume},
+        #{quantity},
+        #{dischargeQuantity},
+        #{itemType},
+        <if test="storeProductId != null">
+            #{storeProductId},
+        </if>
+        #{shippingId}
+
+        )
+    </insert>
+
+    <insert id="insertSelective" keyColumn="id" keyProperty="id"
+            parameterType="com.upedge.oms.modules.order.entity.OrderItem" useGeneratedKeys="true">
+        insert into order_item
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id
+            </if>
+            <if test="orderId != null">
+                order_id
+            </if>
+            <if test="storeOrderItemId != null">
+                store_order_item_id
+            </if>
+            <if test="storeVariantId != null">
+                store_variant_id
+            </if>
+            <if test="adminVariantId != null">
+                admin_variant_id
+            </if>
+            <if test="adminProductId != null">
+                admin_product_id
+            </if>
+            <if test="storeVariantName != null">
+                store_variant_name
+            </if>
+            <if test="storeVariantSku != null">
+                store_variant_sku
+            </if>
+            <if test="adminVariantImage != null">
+                admin_variant_image
+            </if>
+            <if test="storeProductTitle != null">
+                store_product_title
+            </if>
+            <if test="usdPrice != null">
+                usd_price
+            </if>
+            <if test="quantity != null">
+                quantity
+            </if>
+            <if test="dischargeQuantity != null">
+                discharge_quantity
+            </if>
+            <if test="storeProductId != null">
+                store_product_id,
+            </if>
+            <if test="storeOrderId != null">
+                store_order_id,
+            </if>
+
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id}
+            </if>
+            <if test="orderId != null">
+                #{orderId}
+            </if>
+            <if test="storeOrderItemId != null">
+                #{storeOrderItemId}
+            </if>
+            <if test="storeVariantId != null">
+                #{storeVariantId}
+            </if>
+            <if test="adminVariantId != null">
+                #{adminVariantId}
+            </if>
+            <if test="adminProductId != null">
+                #{adminProductId}
+            </if>
+            <if test="storeVariantName != null">
+                #{storeVariantName}
+            </if>
+            <if test="storeVariantSku != null">
+                #{storeVariantSku}
+            </if>
+            <if test="adminVariantImage != null">
+                #{adminVariantImage}
+            </if>
+            <if test="storeProductTitle != null">
+                #{storeProductTitle}
+            </if>
+            <if test="usdPrice != null">
+                #{usdPrice}
+            </if>
+            <if test="quantity != null">
+                #{quantity}
+            </if>
+            <if test="dischargeQuantity != null">
+                #{dischargeQuantity}
+            </if>
+            <if test="storeProductId != null">
+               #{storeProductId},
+            </if>
+            <if test="storeOrderId != null">
+                #{storeOrderId},
+            </if>
+        </trim>
+    </insert>
+
+    <insert id="insertByBatch" parameterType="java.util.List">
+        insert into order_item
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            id,
+            order_id,
+            store_order_id,
+            store_order_item_id,
+            store_variant_id,
+            store_product_id,
+            admin_variant_id,
+            admin_product_id,
+            store_variant_name,
+            store_variant_sku,
+            admin_variant_sku,
+            admin_variant_image,
+            store_product_title,
+            usd_price,
+            cny_price,
+            admin_variant_weight,
+            admin_variant_volume,
+            quantity,
+            discharge_quantity,
+            item_type,
+            shipping_id
+        </trim>
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+                #{item.id},
+                #{item.orderId},
+                #{item.storeOrderId},
+                #{item.storeOrderItemId},
+                #{item.storeVariantId},
+                #{item.storeProductId},
+                #{item.adminVariantId},
+                #{item.adminProductId},
+                #{item.storeVariantName},
+                #{item.storeVariantSku},
+                #{item.adminVariantSku},
+                #{item.adminVariantImage},
+                #{item.storeProductTitle},
+                #{item.usdPrice},
+                #{item.cnyPrice},
+                #{item.adminVariantWeight},
+                #{item.adminVariantVolume},
+                #{item.quantity},
+                #{item.dischargeQuantity},
+                #{item.itemType},
+                #{item.shippingId}
+            </trim>
+        </foreach>
+    </insert>
+
+    <sql id="Query_Condition">
+        <if test="t != null">
+            where
+            <trim prefix=" " suffix=" " suffixOverrides=" and ">
+                1 = 1 and
+                <if test="t.id != null">
+                    id = #{t.id} and
+                </if>
+                <if test="t.orderId != null">
+                    order_id = #{t.orderId} and
+                </if>
+                <if test="t.storeOrderItemId != null">
+                    store_order_item_id = #{t.storeOrderItemId} and
+                </if>
+                <if test="t.storeVariantId != null">
+                    store_variant_id = #{t.storeVariantId} and
+                </if>
+                <if test="t.adminVariantId != null">
+                    admin_variant_id = #{t.adminVariantId} and
+                </if>
+                <if test="t.adminProductId != null">
+                    admin_product_id = #{t.adminProductId} and
+                </if>
+                <if test="t.storeVariantName != null">
+                    store_variant_name = #{t.storeVariantName} and
+                </if>
+                <if test="t.storeVariantSku != null">
+                    store_variant_sku = #{t.storeVariantSku} and
+                </if>
+                <if test="t.adminVariantImage != null">
+                    admin_variant_image = #{t.adminVariantImage} and
+                </if>
+                <if test="t.storeProductTitle != null">
+                    store_product_title = #{t.storeProductTitle} and
+                </if>
+                <if test="t.usdPrice != null">
+                    usd_price = #{t.usdPrice} and
+                </if>
+                <if test="t.quantity != null">
+                    quantity = #{t.quantity} and
+                </if>
+                <if test="t.dischargeQuantity != null">
+                    discharge_quantity = #{t.dischargeQuantity} and
+                </if>
+                <if test="t.itemType != null">
+                    item_type = #{t.itemType} and
+                </if>
+                <if test="t.storeProductId != null">
+                    store_product_id = #{t.storeProductId},
+                </if>
+                <if test="t.storeOrderId != null">
+                    store_order_id = #{t.storeOrderId},
+                </if>
+            </trim>
+        </if>
+    </sql>
+
+    <select id="select" parameterType="com.upedge.common.base.Page" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from order_item
+        <include refid="Query_Condition"/>
+        <if test="orderBy != null">
+            order by ${orderBy}
+        </if>
+        <if test="pageNum != null and pageSize != null">
+            limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+        </if>
+    </select>
+
+    <select id="count" parameterType="com.upedge.common.base.Page" resultType="java.lang.Long">
+        select
+        count(1)
+        from order_item
+        <include refid="Query_Condition"/>
+    </select>
+
+    <select id="listOrderItem" resultType="com.upedge.oms.modules.order.vo.OrderItemVo">
+        select
+        oi.`id` as id,
+        oi.`order_id` as orderId,
+        oi.`store_order_item_id` as storeOrderItemId,
+        oi.`store_variant_id` as storeVariantId,
+        oi.`admin_variant_id` as adminVariantId,
+        oi.`admin_product_id` as adminProductId,
+        oi.`store_variant_name` as storeVariantName,
+        oi.`store_variant_sku` as storeVariantSku,
+        oi.`admin_variant_image` as adminVariantImage,
+        oi.`store_product_title` as storeProductTitle,
+        oi.`usd_price` as usdPrice,
+        oi.`quantity` as quantity,
+        oi.`discharge_quantity` as dischargeQuantity,
+        oi.admin_variant_weight as adminVariantWeight,
+        oi.admin_variant_volume as adminVariantVolume,
+        so.id as storeOrderId,
+        so.plat_order_id as platOrderId,
+        so.plat_order_name as platOrderName,
+        so.store_id as storeId,
+        so.financial_status as financialStatus,
+        so.fulfillment_status as fulfillmentStatus,
+        so.create_time as createTime,
+        so.update_time as updateTime,
+        soi.plat_variant_id as platVariantId,
+        soi.plat_product_id as platProductId,
+        soi.store_product_id as storeProductId,
+        soi.plat_order_item_id as platOrderItemId
+        from order_item oi
+        left join store_order_item soi on oi.store_order_item_id=soi.id
+        left join store_order so  on soi.store_order_id=so.id
+        where order_id = #{orderId}
+    </select>
+
+    <select id="queryOrderItemByIdAndOrderId" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from order_item
+        where id=#{id} and order_id=#{orderId}
+    </select>
+
+    <select id="listSaiheOrderItemByOrderId" resultType="com.upedge.thirdparty.saihe.entity.SaiheOrderItem">
+        select
+		oi.quantity as productNum,
+		oi.usd_price as salePrice,
+		oi.admin_variant_sku as sellerSku,
+		oi.admin_product_id as adminProductId,
+		oi.id as orderItemId,
+		so.plat_order_name as orderName,
+		so.store_id as storeId
+		from order_item oi
+		left join store_order_item soi on soi.id=oi.store_order_item_id
+		left join store_order so on so.id=oi.store_order_id
+		where  oi.order_id=#{orderId}
+    </select>
+    <select id="airwallex" resultType="com.upedge.oms.modules.order.vo.AirwallexVo">
+        	select
+			o.id as orderId,
+			o.pay_time as prderDateTime,
+			oi.quantity * oi.usd_price as  lineTotal,
+			oi.quantity as itemQuantity,
+			oi.usd_price,
+			oi.admin_variant_sku,
+			oi.admin_variant_id
+			from order_item oi
+			left join `order` o on oi.order_id = o.id
+			where o.pay_state > 0 and o.order_status=0
+            <if test="t.orderId != null">
+                o.id = #{t.orderId} and
+            </if>
+            <if test="t.customerId != null">
+                o.customer_id = #{t.customerId} and
+            </if>
+            <if test="t.beginTime != null and t.endTime != null">
+             and   o.pay_time between #{t.beginTime} and #{t.endTime}
+            </if>
+			order by o.pay_time desc
+    </select>
+    <select id="selectOrderItemListByProduct" resultType="com.upedge.oms.modules.order.entity.OrderItem">
+         select DISTINCT oi.order_id from  `order_item` oi  inner join  `order` o on oi.order_id = o.id
+         WHERE  oi.admin_product_id = #{productId}  and  o.pay_state = 0
+    </select>
+    <select id="selectOrderItemListByVariantId" resultType="com.upedge.oms.modules.order.entity.OrderItem">
+        select  DISTINCT oi.order_id from  `order_item` oi  inner join  `order` o on oi.order_id = o.id
+         WHERE oi.admin_variant_id = #{variantId}  and  o.pay_state = 0
+    </select>
+
+</mapper>

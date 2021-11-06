@@ -4,7 +4,7 @@ import com.upedge.common.base.Page;
 import com.upedge.ums.modules.affiliate.entity.Affiliate;
 
 /**
- * @author gx
+ * @author author
  */
 public class AffiliateListRequest extends Page<Affiliate> {
 }

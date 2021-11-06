@@ -1,14 +1,20 @@
 package com.upedge.ums.modules.store.dao;
 
-import com.upedge.ums.modules.store.entity.StoreAttr;
-import org.apache.ibatis.annotations.Mapper;
-import java.util.List;
 import com.upedge.common.base.Page;
+import com.upedge.ums.modules.store.entity.StoreAttr;
+
+import java.util.List;
 
 /**
- * @author gx
+ * @author author
  */
 public interface StoreAttrDao{
+
+    List<StoreAttr> selectStoreAttr(StoreAttr attr);
+
+    List<StoreAttr> selectByStore(Long storeId);
+
+    Long deleteByStoreId(Long storeId);
 
     StoreAttr selectByPrimaryKey(StoreAttr record);
 

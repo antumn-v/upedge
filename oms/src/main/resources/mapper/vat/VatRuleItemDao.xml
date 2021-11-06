@@ -1,0 +1,244 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.upedge.oms.modules.vat.dao.VatRuleItemDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.upedge.oms.modules.vat.entity.VatRuleItem" id="BaseResultMap">
+        <result property="id" column="id"/>
+        <result property="ruleId" column="rule_id"/>
+        <result property="areaId" column="area_id"/>
+        <result property="areaName" column="area_name"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        `id`,`rule_id`,`area_id`,`area_name`,`create_time`,`update_time`
+    </sql>
+
+    <select id="selectByPrimaryKey" parameterType="com.upedge.oms.modules.vat.entity.VatRuleItem" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from vat_rule_item
+        where id = #{id}
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="com.upedge.oms.modules.vat.entity.VatRuleItem">
+        delete from vat_rule_item
+        where id = #{id}
+    </delete>
+
+    <update id="updateByPrimaryKeySelective" parameterType="com.upedge.oms.modules.vat.entity.VatRuleItem">
+        update vat_rule_item
+        <set>
+            <if test="ruleId != null">
+                rule_id = #{ruleId},
+            </if>
+            <if test="areaId != null">
+                area_id = #{areaId},
+            </if>
+            <if test="areaName != null">
+                area_name = #{areaName},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime},
+            </if>
+            <if test="updateTime != null">
+                update_time = #{updateTime},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <update id="updateByPrimaryKey" parameterType="com.upedge.oms.modules.vat.entity.VatRuleItem">
+        update vat_rule_item
+        <set>
+        id = #{id},
+        rule_id = #{ruleId},
+        area_id = #{areaId},
+        area_name = #{areaName},
+        create_time = #{createTime},
+        update_time = #{updateTime},
+        </set>
+        where id = #{id}
+    </update>
+
+    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.upedge.oms.modules.vat.entity.VatRuleItem" useGeneratedKeys="true">
+        insert into vat_rule_item
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            id,
+            rule_id,
+            area_id,
+            area_name,
+            create_time,
+            update_time
+        </trim>
+        values (
+        #{id},
+        #{ruleId},
+        #{areaId},
+        #{areaName},
+        #{createTime},
+        #{updateTime}
+        )
+    </insert>
+
+    <insert id="insertSelective"  keyColumn="id" keyProperty="id"  parameterType="com.upedge.oms.modules.vat.entity.VatRuleItem" useGeneratedKeys="true">
+        insert into vat_rule_item
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null" >
+              id
+            </if>
+            <if test="ruleId != null" >
+              rule_id
+            </if>
+            <if test="areaId != null" >
+              area_id
+            </if>
+            <if test="areaName != null" >
+                area_name
+            </if>
+            <if test="createTime != null" >
+              create_time
+            </if>
+            <if test="updateTime != null" >
+              update_time
+            </if>
+
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null" >
+                #{id}
+            </if>
+            <if test="ruleId != null" >
+                #{ruleId}
+            </if>
+            <if test="areaId != null" >
+                #{areaId}
+            </if>
+            <if test="areaName != null" >
+                #{areaName}
+            </if>
+            <if test="createTime != null" >
+                #{createTime}
+            </if>
+            <if test="updateTime != null" >
+                #{updateTime}
+            </if>
+
+        </trim>
+    </insert>
+
+    <insert id="insertByBatch" parameterType="java.util.List">
+        insert into vat_rule_item
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+           id,
+           rule_id,
+           area_id,
+           area_name,
+           create_time,
+           update_time
+        </trim>
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+               #{item.id},
+               #{item.ruleId},
+               #{item.areaId},
+               #{item.areaName},
+               #{item.createTime},
+               #{item.updateTime}
+            </trim>
+        </foreach>
+    </insert>
+
+    <sql id="Query_Condition">
+        <if test="t != null">
+            where
+            <trim prefix=" " suffix=" " suffixOverrides=" and ">
+                1 = 1 and
+                    <if test="t.id != null">
+                        id = #{t.id} and
+                    </if>
+                    <if test="t.ruleId != null">
+                        rule_id = #{t.ruleId} and
+                    </if>
+                    <if test="t.areaId != null">
+                        area_id = #{t.areaId} and
+                    </if>
+                    <if test="t.areaName != null">
+                        area_name Like CONCAT('%',#{t.areaName},'%')  and
+                    </if>
+                    <if test="t.createTime != null">
+                        create_time = #{t.createTime} and
+                    </if>
+                    <if test="t.updateTime != null">
+                        update_time = #{t.updateTime} and
+                    </if>
+            </trim>
+        </if>
+    </sql>
+
+    <select id="select" parameterType="com.upedge.common.base.Page" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from vat_rule_item
+        <include refid="Query_Condition"/>
+        <if test="orderBy != null">
+            order by ${orderBy}
+        </if>
+        <if test="pageNum != null and pageSize != null">
+            limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+        </if>
+    </select>
+
+    <select id="count" parameterType="com.upedge.common.base.Page" resultType="java.lang.Long">
+        select
+        count(1)
+        from vat_rule_item
+        <include refid="Query_Condition"/>
+    </select>
+
+    <select id="listVatRuleItemByRuleId" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from vat_rule_item
+        where rule_id=#{ruleId}
+    </select>
+
+    <select id="areaIdList" resultType="com.upedge.oms.modules.vat.vo.VatAreaVo">
+        select
+        area_id as areaId,area_name as areaName
+        from vat_rule_item
+        where rule_id=#{ruleId}
+    </select>
+
+    <update id="removeArea">
+        update vat_rule_item set rule_id=0
+		where rule_id=#{ruleId} and area_id=#{areaId}
+    </update>
+
+    <insert id="updateRuleItems" parameterType="java.util.List">
+        insert into vat_rule_item(rule_id,area_id,area_name,create_time,update_time)
+        values
+        <foreach collection="list" item="item" index="index"
+                 separator=",">
+            (#{item.ruleId,jdbcType=BIGINT},
+            #{item.areaId,jdbcType=BIGINT},
+            #{item.areaName,jdbcType=VARCHAR},
+            #{item.createTime,jdbcType=TIMESTAMP},
+            #{item.updateTime,jdbcType=TIMESTAMP})
+        </foreach>
+        ON DUPLICATE KEY UPDATE
+        area_id = VALUES(area_id),
+        rule_id = VALUES(rule_id),
+        area_name = VALUES(area_name),
+        update_time = VALUES(update_time)
+    </insert>
+
+    <select id="countAreaNumByRuleId" resultType="java.lang.Integer">
+        select count(1) from vat_rule_item where rule_id=#{ruleId}
+    </select>
+
+</mapper>

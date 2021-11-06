@@ -3,7 +3,7 @@
 
 <mapper namespace="com.upedge.pms.modules.product.dao.CustomerPrivateProductDao">
 
-	<!-- 可根据自己的需求，是否要使用 -->
+    <!-- 可根据自己的需求，是否要使用 -->
     <resultMap type="com.upedge.pms.modules.product.entity.CustomerPrivateProduct" id="BaseResultMap">
         <result property="id" column="id"/>
         <result property="productId" column="product_id"/>
@@ -14,9 +14,10 @@
         `id`,`product_id`,`customer_id`
     </sql>
 
-    <select id="selectByPrimaryKey" parameterType="com.upedge.pms.modules.product.entity.CustomerPrivateProduct" resultMap="BaseResultMap">
+    <select id="selectByPrimaryKey" parameterType="com.upedge.pms.modules.product.entity.CustomerPrivateProduct"
+            resultMap="BaseResultMap">
         select
-        <include refid="Base_Column_List" />
+        <include refid="Base_Column_List"/>
         from customer_private_product
         where id = #{id}
     </select>
@@ -26,7 +27,8 @@
         where id = #{id}
     </delete>
 
-    <update id="updateByPrimaryKeySelective" parameterType="com.upedge.pms.modules.product.entity.CustomerPrivateProduct">
+    <update id="updateByPrimaryKeySelective"
+            parameterType="com.upedge.pms.modules.product.entity.CustomerPrivateProduct">
         update customer_private_product
         <set>
             <if test="productId != null">
@@ -42,14 +44,15 @@
     <update id="updateByPrimaryKey" parameterType="com.upedge.pms.modules.product.entity.CustomerPrivateProduct">
         update customer_private_product
         <set>
-        id = #{id},
-        product_id = #{productId},
-        customer_id = #{customerId},
+            id = #{id},
+            product_id = #{productId},
+            customer_id = #{customerId},
         </set>
         where id = #{id}
     </update>
 
-    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.upedge.pms.modules.product.entity.CustomerPrivateProduct" useGeneratedKeys="true">
+    <insert id="insert" keyColumn="id" keyProperty="id"
+            parameterType="com.upedge.pms.modules.product.entity.CustomerPrivateProduct" useGeneratedKeys="true">
         insert into customer_private_product
         <trim prefix="(" suffix=")" suffixOverrides=",">
             id,
@@ -63,28 +66,29 @@
         )
     </insert>
 
-    <insert id="insertSelective"  keyColumn="id" keyProperty="id"  parameterType="com.upedge.pms.modules.product.entity.CustomerPrivateProduct" useGeneratedKeys="true">
+    <insert id="insertSelective" keyColumn="id" keyProperty="id"
+            parameterType="com.upedge.pms.modules.product.entity.CustomerPrivateProduct" useGeneratedKeys="true">
         insert into customer_private_product
         <trim prefix="(" suffix=")" suffixOverrides=",">
-            <if test="id != null" >
-              id
+            <if test="id != null">
+                id
             </if>
-            <if test="productId != null" >
-              product_id
+            <if test="productId != null">
+                product_id
             </if>
-            <if test="customerId != null" >
-              customer_id
+            <if test="customerId != null">
+                customer_id
             </if>
 
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
-            <if test="id != null" >
+            <if test="id != null">
                 #{id}
             </if>
-            <if test="productId != null" >
+            <if test="productId != null">
                 #{productId}
             </if>
-            <if test="customerId != null" >
+            <if test="customerId != null">
                 #{customerId}
             </if>
 
@@ -94,16 +98,16 @@
     <insert id="insertByBatch" parameterType="java.util.List">
         insert into customer_private_product
         <trim prefix="(" suffix=")" suffixOverrides=",">
-           id,
-           product_id,
-           customer_id
+            id,
+            product_id,
+            customer_id
         </trim>
         values
         <foreach collection="list" item="item" index="index" separator=",">
             <trim prefix="(" suffix=")" suffixOverrides=",">
-               #{item.id},
-               #{item.productId},
-               #{item.customerId}
+                #{item.id},
+                #{item.productId},
+                #{item.customerId}
             </trim>
         </foreach>
     </insert>
@@ -113,22 +117,22 @@
             where
             <trim prefix=" " suffix=" " suffixOverrides=" and ">
                 1 = 1 and
-                    <if test="t.id != null">
-                        id = #{t.id} and
-                    </if>
-                    <if test="t.productId != null">
-                        product_id = #{t.productId} and
-                    </if>
-                    <if test="t.customerId != null">
-                        customer_id = #{t.customerId} and
-                    </if>
+                <if test="t.id != null">
+                    id = #{t.id} and
+                </if>
+                <if test="t.productId != null">
+                    product_id = #{t.productId} and
+                </if>
+                <if test="t.customerId != null">
+                    customer_id = #{t.customerId} and
+                </if>
             </trim>
         </if>
     </sql>
 
     <select id="select" parameterType="com.upedge.common.base.Page" resultMap="BaseResultMap">
         select
-        <include refid="Base_Column_List" />
+        <include refid="Base_Column_List"/>
         from customer_private_product
         <include refid="Query_Condition"/>
         <if test="orderBy != null">
@@ -144,6 +148,12 @@
         count(1)
         from customer_private_product
         <include refid="Query_Condition"/>
+    </select>
+
+    <select id="countByProductId" resultType="java.lang.Integer">
+        select count(1)
+         from customer_private_product
+         where product_id =  #{productId}
     </select>
 
 

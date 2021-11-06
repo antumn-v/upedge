@@ -44,6 +44,11 @@ public class CategoryServiceImpl implements CategoryService {
         return categoryDao.insert(record);
     }
 
+    @Override
+    public Category selectByCateCode(String cateCode) {
+        return categoryDao.selectByCateCode(cateCode);
+    }
+
     /**
      *
      */

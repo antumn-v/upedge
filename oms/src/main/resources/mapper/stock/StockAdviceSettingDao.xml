@@ -1,0 +1,241 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.upedge.oms.modules.stock.dao.StockAdviceSettingDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.upedge.oms.modules.stock.entity.StockAdviceSetting" id="BaseResultMap">
+        <result property="id" column="id"/>
+        <result property="customerId" column="customer_id"/>
+        <result property="factorA" column="factor_a"/>
+        <result property="factorB" column="factor_b"/>
+        <result property="factorC" column="factor_c"/>
+        <result property="stockDays" column="stock_days"/>
+        <result property="inventoryNotice" column="inventory_notice"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        `id`,`customer_id`,`factor_a`,`factor_b`,`factor_c`,`stock_days`,`inventory_notice`
+    </sql>
+
+    <select id="selectByCustomerId" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from stock_advice_setting
+        where customer_id = #{customerId}
+    </select>
+
+    <update id="updateByCustomerId" parameterType="com.upedge.oms.modules.stock.entity.StockAdviceSetting">
+        update stock_advice_setting
+        <set>
+            factor_a = #{factorA},
+            factor_b = #{factorB},
+            factor_c = #{factorC},
+            stock_days = #{stockDays},
+            inventory_notice = #{inventoryNotice},
+        </set>
+        where customer_id = #{customerId}
+    </update>
+
+    <select id="selectByPrimaryKey" parameterType="com.upedge.oms.modules.stock.entity.StockAdviceSetting" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from stock_advice_setting
+        where id = #{id}
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="com.upedge.oms.modules.stock.entity.StockAdviceSetting">
+        delete from stock_advice_setting
+        where id = #{id}
+    </delete>
+
+    <update id="updateByPrimaryKeySelective" parameterType="com.upedge.oms.modules.stock.entity.StockAdviceSetting">
+        update stock_advice_setting
+        <set>
+            <if test="customerId != null">
+                customer_id = #{customerId},
+            </if>
+            <if test="factorA != null">
+                factor_a = #{factorA},
+            </if>
+            <if test="factorB != null">
+                factor_b = #{factorB},
+            </if>
+            <if test="factorC != null">
+                factor_c = #{factorC},
+            </if>
+            <if test="stockDays != null">
+                stock_days = #{stockDays},
+            </if>
+            <if test="inventoryNotice != null">
+                inventory_notice = #{inventoryNotice},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <update id="updateByPrimaryKey" parameterType="com.upedge.oms.modules.stock.entity.StockAdviceSetting">
+        update stock_advice_setting
+        <set>
+        id = #{id},
+        customer_id = #{customerId},
+        factor_a = #{factorA},
+        factor_b = #{factorB},
+        factor_c = #{factorC},
+        stock_days = #{stockDays},
+        inventory_notice = #{inventoryNotice},
+        </set>
+        where id = #{id}
+    </update>
+
+    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.upedge.oms.modules.stock.entity.StockAdviceSetting" useGeneratedKeys="true">
+        insert into stock_advice_setting
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            id,
+            customer_id,
+            factor_a,
+            factor_b,
+            factor_c,
+            stock_days,
+            inventory_notice
+        </trim>
+        values (
+        #{id},
+        #{customerId},
+        #{factorA},
+        #{factorB},
+        #{factorC},
+        #{stockDays},
+        #{inventoryNotice}
+        )
+    </insert>
+
+    <insert id="insertSelective"  keyColumn="id" keyProperty="id"  parameterType="com.upedge.oms.modules.stock.entity.StockAdviceSetting" useGeneratedKeys="true">
+        insert into stock_advice_setting
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null" >
+              id
+            </if>
+            <if test="customerId != null" >
+              customer_id
+            </if>
+            <if test="factorA != null" >
+              factor_a
+            </if>
+            <if test="factorB != null" >
+              factor_b
+            </if>
+            <if test="factorC != null" >
+              factor_c
+            </if>
+            <if test="stockDays != null" >
+              stock_days
+            </if>
+            <if test="inventoryNotice != null" >
+              inventory_notice
+            </if>
+
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null" >
+                #{id}
+            </if>
+            <if test="customerId != null" >
+                #{customerId}
+            </if>
+            <if test="factorA != null" >
+                #{factorA}
+            </if>
+            <if test="factorB != null" >
+                #{factorB}
+            </if>
+            <if test="factorC != null" >
+                #{factorC}
+            </if>
+            <if test="stockDays != null" >
+                #{stockDays}
+            </if>
+            <if test="inventoryNotice != null" >
+                #{inventoryNotice}
+            </if>
+
+        </trim>
+    </insert>
+
+    <insert id="insertByBatch" parameterType="java.util.List">
+        insert into stock_advice_setting
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+           id,
+           customer_id,
+           factor_a,
+           factor_b,
+           factor_c,
+           stock_days,
+           inventory_notice
+        </trim>
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+               #{item.id},
+               #{item.customerId},
+               #{item.factorA},
+               #{item.factorB},
+               #{item.factorC},
+               #{item.stockDays},
+               #{item.inventoryNotice}
+            </trim>
+        </foreach>
+    </insert>
+
+    <sql id="Query_Condition">
+        <if test="t != null">
+            where
+            <trim prefix=" " suffix=" " suffixOverrides=" and ">
+                1 = 1 and
+                    <if test="t.id != null">
+                        id = #{t.id} and
+                    </if>
+                    <if test="t.customerId != null">
+                        customer_id = #{t.customerId} and
+                    </if>
+                    <if test="t.factorA != null">
+                        factor_a = #{t.factorA} and
+                    </if>
+                    <if test="t.factorB != null">
+                        factor_b = #{t.factorB} and
+                    </if>
+                    <if test="t.factorC != null">
+                        factor_c = #{t.factorC} and
+                    </if>
+                    <if test="t.stockDays != null">
+                        stock_days = #{t.stockDays} and
+                    </if>
+                    <if test="t.inventoryNotice != null">
+                        inventory_notice = #{t.inventoryNotice} and
+                    </if>
+            </trim>
+        </if>
+    </sql>
+
+    <select id="select" parameterType="com.upedge.common.base.Page" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from stock_advice_setting
+        <include refid="Query_Condition"/>
+        <if test="orderBy != null">
+            order by ${orderBy}
+        </if>
+        <if test="pageNum != null and pageSize != null">
+            limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+        </if>
+    </select>
+
+    <select id="count" parameterType="com.upedge.common.base.Page" resultType="java.lang.Long">
+        select
+        count(1)
+        from stock_advice_setting
+        <include refid="Query_Condition"/>
+    </select>
+
+
+</mapper>

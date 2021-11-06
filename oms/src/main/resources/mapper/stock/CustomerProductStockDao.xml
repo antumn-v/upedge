@@ -1,0 +1,401 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.upedge.oms.modules.stock.dao.CustomerProductStockDao">
+
+    <!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.upedge.oms.modules.stock.entity.CustomerProductStock" id="BaseResultMap">
+        <result property="id" column="id"/>
+        <result property="customerId" column="customer_id"/>
+        <result property="productId" column="product_id"/>
+        <result property="variantId" column="variant_id"/>
+        <result property="stock" column="stock"/>
+        <result property="warehouseId" column="warehouse_id"/>
+        <result property="lockStock" column="lock_stock"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="variantImage" column="variant_image"/>
+        <result property="variantSku" column="variant_sku"/>
+        <result property="variantName" column="variant_name"/>
+        <result property="productTitle" column="product_title"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        `id`,`customer_id`,`product_id`,`variant_id`,`stock`,`warehouse_id`,
+        `lock_stock`,`create_time`,`update_time`,`variant_image`,`variant_sku`,`product_title`,`variant_name`
+    </sql>
+
+    <select id="selectVariantStockByCustomer" resultType="java.lang.Integer">
+        select stock
+        from customer_product_stock
+        where customer_id = #{customerId}
+        and variant_id = #{variantId}
+    </select>
+
+    <select id="selectWarehouseVariantIdsByCustomer" resultType="java.lang.Long">
+        select distinct variant_id
+        from customer_product_stock
+        where customer_id = #{customerId}
+        and warehouse_id = #{warehouseId}
+    </select>
+
+    <update id="increaseVariantStock">
+        <foreach collection="stocks" item="s" separator=";">
+            update customer_product_stock
+            set stock = stock + #{s.stock}
+            where customer_id = #{s.customerId}
+            and warehouse_id = #{s.warehouseId}
+            and variant_id = #{s.variantId}
+        </foreach>
+    </update>
+
+
+    <update id="increaseCustomerLockStock">
+        <foreach collection="items" item="item" separator=";">
+            update customer_product_stock
+            set stock = stock - #{item.dischargeQuantity},lock_stock = lock_stock + #{item.dischargeQuantity}
+            where customer_id = #{customerId}
+            and variant_id = #{item.variantId}
+            and stock >= #{item.dischargeQuantity}
+            limit 1
+        </foreach>
+    </update>
+
+    <update id="reduceFromLockStock">
+        <foreach collection="items" item="item" separator=";">
+            update customer_product_stock
+            set lock_stock = lock_stock - #{item.dischargeQuantity}
+            where customer_id = #{customerId}
+            and variant_id = #{item.variantId}
+            and lock_stock >= #{item.dischargeQuantity}
+        </foreach>
+    </update>
+
+    <update id="increaseFromLockStock">
+        <foreach collection="items" item="item" separator=";">
+            update customer_product_stock
+            set stock = stock + #{item.dischargeQuantity},lock_stock = lock_stock - #{item.dischargeQuantity}
+            where customer_id = #{customerId}
+            and variant_id = #{item.variantId}
+            and lock_stock >= #{item.dischargeQuantity}
+            limit 1
+        </foreach>
+    </update>
+
+    <update id="reduceCustomerStockAfterDeduct">
+        <foreach collection="items" item="item" separator=";">
+            update customer_product_stock
+            set stock = stock - #{item.dischargeQuantity}
+            where customer_id = #{customerId}
+            and variant_id = #{item.variantId}
+            and stock >= #{item.dischargeQuantity}
+            limit 1
+        </foreach>
+    </update>
+
+    <select id="selectByPrimaryKey" parameterType="com.upedge.oms.modules.stock.entity.CustomerProductStock"
+            resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from customer_product_stock
+        where id = #{id}
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="com.upedge.oms.modules.stock.entity.CustomerProductStock">
+        delete from customer_product_stock
+        where id = #{id}
+    </delete>
+
+    <update id="updateByPrimaryKeySelective" parameterType="com.upedge.oms.modules.stock.entity.CustomerProductStock">
+        update customer_product_stock
+        <set>
+            <if test="customerId != null">
+                customer_id = #{customerId},
+            </if>
+            <if test="productId != null">
+                product_id = #{productId},
+            </if>
+            <if test="variantId != null">
+                variant_id = #{variantId},
+            </if>
+            <if test="stock != null">
+                stock = #{stock},
+            </if>
+            <if test="warehouseId != null">
+                warehouse_id = #{warehouseId},
+            </if>
+            <if test="lockStock != null">
+                lock_stock = #{lockStock},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime},
+            </if>
+            <if test="updateTime != null">
+                update_time = #{updateTime},
+            </if>
+            <if test="variantImage != null">
+                variant_image = #{variantImage},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <update id="updateByPrimaryKey" parameterType="com.upedge.oms.modules.stock.entity.CustomerProductStock">
+        update customer_product_stock
+        <set>
+            id = #{id},
+            customer_id = #{customerId},
+            product_id = #{productId},
+            variant_id = #{variantId},
+            stock = #{stock},
+            warehouse_id = #{warehouseId},
+            lock_stock = #{lockStock},
+            create_time = #{createTime},
+            update_time = #{updateTime},
+            variant_image = #{variantImage},
+        </set>
+        where id = #{id}
+    </update>
+
+    <insert id="insert" keyColumn="id" keyProperty="id"
+            parameterType="com.upedge.oms.modules.stock.entity.CustomerProductStock" useGeneratedKeys="true">
+        insert into customer_product_stock
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            id,
+            customer_id,
+            product_id,
+            variant_id,
+            stock,
+            warehouse_id,
+            lock_stock,
+            create_time,
+            update_time,
+            variant_image,
+            product_title,
+            variant_name
+        </trim>
+        values (
+        #{id},
+        #{customerId},
+        #{productId},
+        #{variantId},
+        #{stock},
+        #{warehouseId},
+        #{lockStock},
+        #{createTime},
+        #{updateTime},
+        #{variantImage},
+        #{productTitle},
+        #{variantName}
+        )
+    </insert>
+
+    <insert id="insertSelective" keyColumn="id" keyProperty="id"
+            parameterType="com.upedge.oms.modules.stock.entity.CustomerProductStock" useGeneratedKeys="true">
+        insert into customer_product_stock
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id
+            </if>
+            <if test="customerId != null">
+                customer_id
+            </if>
+            <if test="productId != null">
+                product_id
+            </if>
+            <if test="variantId != null">
+                variant_id
+            </if>
+            <if test="stock != null">
+                stock
+            </if>
+            <if test="warehouseId != null">
+                warehouse_id
+            </if>
+            <if test="lockStock != null">
+                lock_stock
+            </if>
+            <if test="createTime != null">
+                create_time
+            </if>
+            <if test="updateTime != null">
+                update_time
+            </if>
+            <if test="variantImage != null">
+                variant_image
+            </if>
+
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id}
+            </if>
+            <if test="customerId != null">
+                #{customerId}
+            </if>
+            <if test="productId != null">
+                #{productId}
+            </if>
+            <if test="variantId != null">
+                #{variantId}
+            </if>
+            <if test="stock != null">
+                #{stock}
+            </if>
+            <if test="warehouseId != null">
+                #{warehouseId}
+            </if>
+            <if test="lockStock != null">
+                #{lockStock}
+            </if>
+            <if test="createTime != null">
+                #{createTime}
+            </if>
+            <if test="updateTime != null">
+                #{updateTime}
+            </if>
+            <if test="variantImage != null">
+                #{variantImage}
+            </if>
+
+        </trim>
+    </insert>
+
+    <insert id="insertByBatch" parameterType="java.util.List">
+        insert into customer_product_stock
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            id,
+            customer_id,
+            product_id,
+            variant_id,
+            stock,
+            warehouse_id,
+            lock_stock,
+            create_time,
+            update_time,
+            variant_image,
+            variant_sku,
+            product_title,
+            variant_name
+        </trim>
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+                #{item.id},
+                #{item.customerId},
+                #{item.productId},
+                #{item.variantId},
+                #{item.stock},
+                #{item.warehouseId},
+                #{item.lockStock},
+                #{item.createTime},
+                #{item.updateTime},
+                #{item.variantImage},
+                #{item.variantSku},
+                #{item.productTitle},
+                #{item.variantName}
+            </trim>
+        </foreach>
+    </insert>
+
+    <sql id="Query_Condition">
+        <if test="t != null">
+            where
+            <trim prefix=" " suffix=" " suffixOverrides=" and ">
+                1 = 1 and
+                <if test="t.id != null">
+                    id = #{t.id} and
+                </if>
+                <if test="t.customerId != null">
+                    customer_id = #{t.customerId} and
+                </if>
+                <if test="t.productId != null">
+                    product_id = #{t.productId} and
+                </if>
+                <if test="t.variantId != null">
+                    variant_id = #{t.variantId} and
+                </if>
+                <if test="t.stock != null">
+                    stock = #{t.stock} and
+                </if>
+                <if test="t.warehouseId != null">
+                    warehouse_id = #{t.warehouseId} and
+                </if>
+                <if test="t.lockStock != null">
+                    lock_stock = #{t.lockStock} and
+                </if>
+                <if test="t.createTime != null">
+                    create_time = #{t.createTime} and
+                </if>
+                <if test="t.updateTime != null">
+                    update_time = #{t.updateTime} and
+                </if>
+                <if test="t.variantImage != null">
+                    variant_image = #{t.variantImage} and
+                </if>
+                <if test="t.variantSku != null and t.variantSku !='' ">
+                    variant_sku  = #{t.variantSku}
+                </if>
+                <if test="t.productTitle != null and t.productTitle !='' ">
+                    product_title  LIKE CONCAT('%',#{t.productTitle},'%')
+                </if>
+                <if test="condition != null">
+                    ${condition} and
+                </if>
+
+            </trim>
+        </if>
+    </sql>
+
+    <select id="select" parameterType="com.upedge.common.base.Page" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from customer_product_stock
+        <include refid="Query_Condition"/>
+        <if test="orderBy != null">
+            order by ${orderBy}
+        </if>
+        <if test="pageNum != null and pageSize != null">
+            limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+        </if>
+    </select>
+
+    <select id="count" parameterType="com.upedge.common.base.Page" resultType="java.lang.Long">
+        select
+        count(1)
+        from customer_product_stock
+        <include refid="Query_Condition"/>
+    </select>
+
+    <select id="queryStockForCustomerProduct" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from customer_product_stock
+        where customer_id=#{customerId}
+        and variant_id=#{variantId} and warehouse_id=#{warehouseId}
+    </select>
+
+    <!-- 根据sku分组获得该sku下的数量 -->
+    <select id="getCustomerStockNum" resultType="com.upedge.common.model.order.vo.CustomerProductStockNumVo">
+            SELECT
+                variant_sku variantSku,
+                sum(stock)  customerStock
+            FROM
+                `customer_product_stock`
+            GROUP BY
+                variant_sku
+    </select>
+    <select id="selectStockByVariantAndCustomerId"
+            resultType="com.upedge.oms.modules.stock.entity.CustomerProductStock">
+        select
+        <include refid="Base_Column_List"/>
+        from customer_product_stock
+        where  customer_id = #{customerId}
+        and  variant_id = #{variantId}
+    </select>
+
+    <update id="subStockForRefund">
+        update customer_product_stock set stock=stock-#{quantity} where id=#{id} and stock>=#{quantity}
+    </update>
+
+</mapper>

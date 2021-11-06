@@ -1,0 +1,491 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.upedge.ums.modules.account.dao.RechargeRequestLogMapper">
+    <resultMap id="BaseResultMap" type="com.upedge.ums.modules.account.entity.RechargeRequestLog">
+        <id column="id" property="id" jdbcType="BIGINT"/>
+        <result column="account_id" property="accountId" jdbcType="BIGINT"/>
+        <result column="account_paymethod_id" property="accountPaymethodId" jdbcType="INTEGER"/>
+        <result column="customer_id" property="customerId" jdbcType="BIGINT"/>
+        <result column="handle_user_id" property="handleUserId" jdbcType="BIGINT"/>
+        <result column="request_user_id" property="requestUserId" jdbcType="BIGINT"/>
+        <result column="amount" property="amount" jdbcType="DECIMAL"/>
+        <result column="customer_money" property="customerMoney" jdbcType="DECIMAL"/>
+        <result column="repayment_amount" property="repaymentAmount" jdbcType="DECIMAL"/>
+        <result column="benefits" property="benefits" jdbcType="DECIMAL"/>
+        <result column="remarks" property="remarks" jdbcType="VARCHAR"/>
+        <result column="transfer_flow" property="transferFlow" jdbcType="VARCHAR"/>
+        <result column="status" property="status" jdbcType="INTEGER"/>
+        <result column="recharge_type" property="rechargeType" jdbcType="INTEGER"/>
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
+        <result column="update_time" property="updateTime" jdbcType="TIMESTAMP"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+    id, account_id, account_paymethod_id, customer_id,handle_user_id,request_user_id,
+     amount,customer_money, benefits,remarks,transfer_flow,recharge_type, status, create_time,
+    update_time,repayment_amount
+  </sql>
+
+    <sql id="Query_Conditions">
+        <where>
+            1 = 1
+            <if test="t != null">
+                <if test="t.id != null">
+                    and id = #{t.id}
+                </if>
+                <if test="t.accountId != null">
+                    and account_id = #{t.accountId}
+                </if>
+                <if test="t.accountPaymethodId != null">
+                    and account_paymethod_id = #{t.accountPaymethodId}
+                </if>
+                <if test="t.customerId != null">
+                    and customer_id = #{t.customerId}
+                </if>
+                <if test="t.status != null">
+                    and status = #{t.status}
+                </if>
+                <if test="t.gteStatus != null">
+                    and status>=#{t.gteStatus}
+                </if>
+                <if test="t.transferFlow != null and t.transferFlow != ''">
+                    and transfer_flow = #{t.transferFlow}
+                </if>
+                <if test="t.rechargeType != null">
+                    and recharge_type = #{t.rechargeType}
+                </if>
+            </if>
+            <if test="beginTime != null and endTime != null">
+                and create_time between #{beginTime} and #{endTime}
+            </if>
+        </where>
+    </sql>
+
+    <select id="selectByRemarks" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from recharge_request_log
+        where remarks = #{remarks}
+    </select>
+
+    <!--    <select id="selectRechargeRequestList" resultMap="BaseResultMap" parameterType="com.upedge.common.base.Page">
+            select
+            <if test="fields != null and fields != ''">
+                ${fields}
+            </if>
+            <if test="fields == null">
+                <include refid="Base_Column_List"/>
+            </if>
+            from recharge_request_log
+            <include refid="Query_Conditions"/>
+            order by create_time desc
+            <if test="pageNum != null and pageSize != null">
+                limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+            </if>
+        </select>-->
+
+
+    <sql id="Base_Column_join_List">
+     r.id,  r.account_id,  r.account_paymethod_id,  r.customer_id, r.handle_user_id, r.request_user_id,
+      r.amount, r.customer_money,  r.benefits, r.remarks, r.transfer_flow, r.recharge_type,  r.status,  r.create_time,
+     r.update_time
+  </sql>
+    <sql id="Query_join_Conditions">
+        <where>
+            1 = 1
+            <if test="t != null">
+                <if test="t.id != null">
+                    and r.id = #{t.id}
+                </if>
+                <if test="t.accountId != null">
+                    and r.account_id = #{t.accountId}
+                </if>
+                <if test="t.amount != null">
+                    and r.amount = #{t.amount}
+                </if>
+                <if test="t.accountPaymethodId != null">
+                    and r.account_paymethod_id = #{t.accountPaymethodId}
+                </if>
+                <if test="t.customerId != null">
+                    and r.customer_id = #{t.customerId}
+                </if>
+                <if test="t.status != null">
+                    and r.status = #{t.status}
+                </if>
+                <if test="t.gteStatus != null">
+                    and r.status>=#{t.gteStatus}
+                </if>
+                <if test="t.transferFlow != null and t.transferFlow != ''">
+                    and r.transfer_flow = #{t.transferFlow}
+                </if>
+                <if test="t.rechargeType != null">
+                    and r.recharge_type = #{t.rechargeType}
+                </if>
+            </if>
+            <if test="beginTime != null and endTime != null">
+                and date(r.create_time) between #{beginTime} and #{endTime}
+            </if>
+        </where>
+    </sql>
+    <select id="selectRechargeRequestList" resultMap="BaseResultMap" parameterType="com.upedge.common.base.Page">
+        select
+        r.id, r.account_id, r.account_paymethod_id, r.customer_id,r.handle_user_id,r.request_user_id,
+        r.amount,r.customer_money, r.benefits,r.remarks,r.transfer_flow,r.recharge_type, r.status, r.create_time,
+        r.update_time,r.repayment_amount
+        from recharge_request_log r
+        left join customer c on r.customer_id = c.id
+        <include refid="Query_join_Conditions"/>
+        <if test="name != null and name != ''">
+            and c.cName like concat('%',#{name},'%')
+        </if>
+        <!--        <if test="t.createTime != null ">-->
+        <!--            and date_format(r.create_time,'%Y-%m-%d') = DATE_FORMAT( #{createTime},'%Y-%m-%d')-->
+        <!--        </if>-->
+        order by update_time desc
+        <if test="pageNum != null and pageSize != null">
+            limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+        </if>
+    </select>
+
+    <select id="getRechargeRequestTotal" resultType="java.lang.Long" parameterType="com.upedge.common.base.Page">
+        select count(id)
+        from recharge_request_log
+        <include refid="Query_Conditions"/>
+        <if test="t.createTime != null ">
+            and date_format(create_time,'%Y-%m-%d') = DATE_FORMAT( #{t.createTime},'%Y-%m-%d')
+        </if>
+    </select>
+
+    <select id="selectUserAccountPendingRequest" resultMap="BaseResultMap"
+            parameterType="com.upedge.ums.modules.account.entity.AccountUser">
+        select
+        <include refid="Base_Column_List"/>
+        from recharge_request_log
+        where account_id = #{accountId}
+        and customer_id = #{customerId}
+        and status = '0'
+    </select>
+
+    <update id="updateRepaymentAmountById">
+        update recharge_request_log
+        set repayment_amount = #{repaymentAmount}
+        where id = #{id}
+        and `status` = '1'
+    </update>
+
+    <!--  *******************************************-->
+
+    <select id="selectByPrimaryKey" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from recharge_request_log
+        where id = #{id,jdbcType=INTEGER}
+    </select>
+    <delete id="deleteByPrimaryKey">
+    delete from recharge_request_log
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+    <insert id="insert" parameterType="com.upedge.ums.modules.account.entity.RechargeRequestLog" useGeneratedKeys="true"
+            keyProperty="id">
+    insert into recharge_request_log (id, account_id, account_paymethod_id, 
+      customer_id,handle_user_id,request_user_id, amount,customer_money,benefits,
+      remarks, status,recharge_type, create_time,
+      update_time)
+    values (#{id,jdbcType=INTEGER}, #{accountId,jdbcType=BIGINT}, #{accountPaymethodId,jdbcType=INTEGER},
+      #{customerId,jdbcType=BIGINT},#{handleUserId},#{requestUserId}, #{amount,jdbcType=DECIMAL}, #{customerMoney,jdbcType=DECIMAL},#{benefits,jdbcType=DECIMAL},
+      #{remarks,jdbcType=VARCHAR}, #{status,jdbcType=INTEGER},#{rechargeType,jdbcType=INTEGER}, #{createTime,jdbcType=TIMESTAMP},
+      #{updateTime,jdbcType=TIMESTAMP})
+  </insert>
+    <insert id="insertSelective" parameterType="com.upedge.ums.modules.account.entity.RechargeRequestLog">
+        insert into recharge_request_log
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="accountId != null">
+                account_id,
+            </if>
+            <if test="accountPaymethodId != null">
+                account_paymethod_id,
+            </if>
+            <if test="customerId != null">
+                customer_id,
+            </if>
+            <if test="amount != null">
+                amount,
+            </if>
+            <if test="benefits != null">
+                benefits,
+            </if>
+            <if test="remarks != null">
+                remarks,
+            </if>
+            <if test="status != null">
+                status,
+            </if>
+            <if test="createTime != null">
+                create_time,
+            </if>
+            <if test="updateTime != null">
+                update_time,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id,jdbcType=INTEGER},
+            </if>
+            <if test="accountId != null">
+                #{accountId,jdbcType=BIGINT},
+            </if>
+            <if test="accountPaymethodId != null">
+                #{accountPaymethodId,jdbcType=INTEGER},
+            </if>
+            <if test="customerId != null">
+                #{customerId,jdbcType=BIGINT},
+            </if>
+            <if test="amount != null">
+                #{amount,jdbcType=DECIMAL},
+            </if>
+            <if test="benefits != null">
+                #{benefits,jdbcType=DECIMAL},
+            </if>
+            <if test="remarks != null">
+                #{remarks,jdbcType=VARCHAR},
+            </if>
+            <if test="status != null">
+                #{status,jdbcType=INTEGER},
+            </if>
+            <if test="createTime != null">
+                #{createTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="updateTime != null">
+                #{updateTime,jdbcType=TIMESTAMP},
+            </if>
+        </trim>
+    </insert>
+    <update id="updateByPrimaryKeySelective" parameterType="com.upedge.ums.modules.account.entity.RechargeRequestLog">
+        update recharge_request_log
+        <set>
+            <if test="accountId != null">
+                account_id = #{accountId,jdbcType=BIGINT},
+            </if>
+            <if test="accountPaymethodId != null">
+                account_paymethod_id = #{accountPaymethodId,jdbcType=INTEGER},
+            </if>
+            <if test="customerId != null">
+                customer_id = #{customerId,jdbcType=BIGINT},
+            </if>
+            <if test="amount != null">
+                amount = #{amount,jdbcType=DECIMAL},
+            </if>
+            <if test="benefits != null">
+                benefits = #{benefits,jdbcType=DECIMAL},
+            </if>
+            <if test="remarks != null">
+                remarks = #{remarks,jdbcType=VARCHAR},
+            </if>
+            <if test="status != null">
+                status = #{status,jdbcType=INTEGER},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="updateTime != null">
+                update_time = #{updateTime,jdbcType=TIMESTAMP},
+            </if>
+        </set>
+        where id = #{id,jdbcType=INTEGER}
+    </update>
+    <update id="updateByPrimaryKey" parameterType="com.upedge.ums.modules.account.entity.RechargeRequestLog">
+    update recharge_request_log
+    set account_id = #{accountId,jdbcType=BIGINT},
+      account_paymethod_id = #{accountPaymethodId,jdbcType=INTEGER},
+      customer_id = #{customerId,jdbcType=BIGINT},
+      amount = #{amount,jdbcType=DECIMAL},
+      benefits = #{benefits,jdbcType=DECIMAL},
+      remarks = #{remarks,jdbcType=VARCHAR},
+      status = #{status,jdbcType=INTEGER},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      update_time = #{updateTime,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+
+    <update id="cancelRechargeRequest">
+    update recharge_request_log
+    set status = #{status},
+      handle_user_id=#{handleUserId},
+      update_time = #{updateTime}
+    where id = #{id} and status=0
+  </update>
+
+    <update id="confirmRechargeRequest">
+    update recharge_request_log
+    set
+    update_time = #{updateTime},
+    handle_user_id=#{handleUserId},
+    status=#{status}
+    where id = #{id} and status=0
+  </update>
+
+    <update id="updateRechargeRequest">
+    update recharge_request_log
+    set
+    update_time = #{updateTime},
+    handle_user_id=#{handleUserId},
+    transfer_flow=#{transferFlow},
+    amount=#{amount}
+    where id = #{id} and status=0
+  </update>
+    <update id="updateZoneByNull">
+        UPDATE `recharge_request_log` set customer_money = 0 where customer_money is null;
+        UPDATE `recharge_request_log` set benefits = 0 where benefits is null;
+        UPDATE `recharge_request_log` set amount = 0 where amount is null;
+    </update>
+
+    <!--近30天充值-->
+    <select id="rechargeAmount30Day" resultType="java.math.BigDecimal">
+        select sum(IFNULL(rrl.amount,0))
+        from recharge_request_log rrl
+        left join customer_manager cai on cai.customer_id=rrl.customer_id
+        where rrl.status=1 and
+        date(rrl.update_time) &lt;=#{todayDate} and date(rrl.update_time)>date_sub(#{todayDate}, INTERVAL 30 DAY)
+        <if test="userManager != null and userManager !=''">
+            and cai.manager_code=#{userManager}
+        </if>
+    </select>
+
+    <select id="dashboardFinanceData" resultType="com.upedge.ums.modules.statistics.dto.RechargeData">
+        select
+        rrl.id as id,
+        rrl.customer_id as customerId,
+        rrl.amount as amount,
+        rrl.recharge_type as rechargeType,
+        rrl.create_time as createTime,
+        rrl.status as status
+        from recharge_request_log rrl
+        left join customer_manager cai on cai.customer_id=rrl.customer_id
+        where rrl.status in(0,3) and rrl.recharge_type in(0,3)
+        <if test="userManager != null and userManager !=''">
+            and cai.manager_code=#{userManager}
+        </if>
+    </select>
+    <select id="rechargeHistoryList" parameterType="com.upedge.ums.modules.account.request.RechargeHistoryListRequest"
+            resultType="com.upedge.ums.modules.account.vo.RechargeHistoryListVo">
+        SELECT
+        r.id,
+        r.account_id,
+        r.account_paymethod_id,
+        r.customer_id,
+        r.handle_user_id,
+        (select userName from user_info where  r.handle_user_id = id) handleUserName,
+        r.request_user_id,
+        r.amount,
+        r.customer_money,
+        r.benefits,
+        r.remarks,
+        r.transfer_flow,
+        r.recharge_type,
+        r.STATUS,
+        r.create_time,
+        r.update_time,
+        r.repayment_amount,
+        rl.recharge_status,
+        c.cname customerName,
+        u.login_name customerLoginName,
+        (SELECT attr_value FROM `recharge_request_attr` where recharge_request_id = r.id and attr_name = 'rejectReason'
+        ) rejectReason ,
+        (SELECT attr_value FROM `recharge_request_attr` where recharge_request_id = r.id and attr_name = 'image' ) image
+        ,
+        <!--(SELECT attr_value FROM `recharge_request_attr` where recharge_request_id = r.id and attr_name = 'paymentId' )
+        paymentId , -->
+        r.id as paymentId,
+        (SELECT attr_value FROM `recharge_request_attr` where recharge_request_id = r.id and attr_name =
+        'receivingAccount' ) receivingAccount
+        FROM
+        recharge_request_log r
+        LEFT JOIN customer c ON r.customer_id = c.id
+        left join recharge_log rl on rl.id = r.id
+        left join `user` u on c.customer_signup_user_id = u.id
+
+        WHERE
+        1 = 1
+        and r.status != 0
+        <if test="t.id != null">
+            and r.id = #{t.id}
+        </if>
+        <if test="t.customerId != null">
+            and r.customer_id = #{t.customerId}
+        </if>
+        <if test="t.customerName != null and t.customerName != ''">
+            and c.cname = #{t.customerName}
+        </if>
+        <if test="t.rechargeStatus != null">
+            and rl.recharge_status = #{t.rechargeStatus}
+        </if>
+        <if test="t.rechargeType != null">
+            and r.recharge_type = #{t.rechargeType}
+        </if>
+        <if test="t.amount != null">
+            and r.amount = #{t.amount}
+        </if>
+        <if test="t.transferFlow != null  and  t.transferFlow!= '' ">
+            and r.transfer_flow = #{t.transferFlow}
+        </if>
+        <if test="t.startDay != null and t.startDay != ''">
+          and  date(r.create_time) >= #{t.startDay}
+        </if>
+        <if test="t.endDay != null and t.endDay != ''">
+          and  date(r.create_time) &lt;= #{t.endDay}
+        </if>
+        order by update_time desc
+        <if test="pageNum != null and pageSize != null">
+            limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+        </if>
+    </select>
+    <select id="rechargeHistoryListCount"
+            parameterType="com.upedge.ums.modules.account.request.RechargeHistoryListRequest"
+            resultType="java.lang.Long">
+        SELECT
+        count(1)
+        FROM
+        recharge_request_log r
+        LEFT JOIN customer c ON r.customer_id = c.id
+        left join  recharge_log rl  on  rl.id = r.id
+        left join  `user` u on c.customer_signup_user_id = u.id
+        WHERE
+        1 = 1
+        and r.status  != 0
+        <if test="t.id != null">
+            and r.id = #{t.id}
+        </if>
+        <if test="t.customerId != null">
+            and r.customer_id = #{t.customerId}
+        </if>
+        <if test="t.customerName != null and t.customerName != ''">
+            and c.cname LIKE   CONCAT('%'#{t.customerName},'%')
+        </if>
+        <if test="t.rechargeStatus != null">
+            and  rl.recharge_status = #{t.rechargeStatus}
+        </if>
+        <if test="t.rechargeType != null">
+            and  r.recharge_type = #{t.rechargeType}
+        </if>
+        <if test="t.amount != null">
+            and  r.amount = #{t.amount}
+        </if>
+        <if test="t.transferFlow != null  and  t.transferFlow!= '' ">
+            and  r.transfer_flow = #{t.transferFlow}
+        </if>
+        <if test="t.startDay != null and t.startDay != ''">
+            date(r.create_time) >= #{t.startDay}  and   date(r.create_time)  &lt;=#{endDay}
+        </if>
+    </select>
+    <select id="selectMaxNewRechargeRequestLog"
+            resultType="com.upedge.ums.modules.account.entity.RechargeRequestLog">
+        SELECT <include refid="Base_Column_List"/> FROM `recharge_request_log`  where customer_id = #{customerId}  order by  create_time desc limit 1
+    </select>
+    <select id="selectRechargeRequestLogByCustomerIdAndTime"
+            resultType="com.upedge.ums.modules.account.entity.RechargeRequestLog">
+        SELECT <include refid="Base_Column_List"/> FROM `recharge_request_log`  where customer_id = #{customerId}  and  create_time =#{time}
+    </select>
+
+</mapper>

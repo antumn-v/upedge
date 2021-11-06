@@ -1,65 +1,67 @@
 package com.upedge.ums.modules.account.request;
 
-import com.upedge.common.base.Page;
+import com.upedge.common.utils.IdGenerate;
 import com.upedge.ums.modules.account.entity.Account;
-import java.util.Date;
+import com.upedge.ums.modules.account.entity.AccountPayMethod;
+import com.upedge.ums.modules.account.entity.PayMethod;
 import lombok.Data;
-import java.math.BigDecimal;
+
+import javax.validation.constraints.NotNull;
+import java.util.Date;
+
 /**
- * @author gx
+ * @author 海桐
  */
 @Data
-public class AccountAddRequest{
+public class AccountAddRequest {
 
-    /**
-    * 名称
-    */
+    @NotNull
+    private int payMethodId;
+
     private String name;
-    /**
-    * 
-    */
-    private Long customerId;
-    /**
-    * 余额
-    */
-    private BigDecimal balance;
-    /**
-    * 返利
-    */
-    private BigDecimal rebate;
-    /**
-    * 已使用的信用额度
-    */
-    private BigDecimal credit;
-    /**
-    * 可使用的信用额度
-    */
-    private BigDecimal creditLimit;
-    /**
-    * 佣金
-    */
-    private BigDecimal commission;
-    /**
-    * 0=禁用，1=正常
-    */
-    private Integer status;
-    /**
-    * 是否为默认账户
-    */
-    private Boolean isDefault;
 
-    public Account toAccount(){
-        Account account=new Account();
+    private String routeName;
+
+    private Integer routeType;
+
+    private String bankNum;
+
+    private int isDefault;
+
+    private int autoPay = 0;
+
+    private int status = 0;
+
+
+    public Account toAccount(Long customerId){
+        Account account = new Account();
         account.setName(name);
         account.setCustomerId(customerId);
-        account.setBalance(balance);
-        account.setRebate(rebate);
-        account.setCredit(credit);
-        account.setCreditLimit(creditLimit);
-        account.setCommission(commission);
-        account.setStatus(status);
-        account.setIsDefault(isDefault);
+        account.setId(IdGenerate.nextId());
+        account.setStatus(1);
         return account;
+    }
+
+    public PayMethod toPayMethod(AccountPayMethod payMethod){
+        PayMethod method = new PayMethod();
+        method.setId(payMethod.getId());
+        method.setRouteName(routeName);
+        method.setRouteType(routeType);
+        return method;
+    }
+
+
+    public AccountPayMethod toAccountPayMethod(Long accountId){
+        AccountPayMethod payMethod = new AccountPayMethod();
+        payMethod.setAccountId(accountId);
+        payMethod.setPaymethodId(payMethodId);
+        payMethod.setAutopay(autoPay);
+        payMethod.setBankNum(bankNum);
+        payMethod.setIsdefault(isDefault);
+        payMethod.setStatus(status);
+        payMethod.setCreateTime(new Date());
+        payMethod.setUpdateTime(new Date());
+        return payMethod;
     }
 
 }

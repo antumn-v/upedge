@@ -1,12 +1,12 @@
 package com.upedge.ums.modules.affiliate.entity;
 
-import java.math.BigDecimal;
-import java.io.Serializable;
-import java.util.Date;
 import lombok.Data;
 
+import java.math.BigDecimal;
+import java.util.Date;
+
 /**
- * @author gx
+ * @author author
  */
 @Data
 public class Affiliate{

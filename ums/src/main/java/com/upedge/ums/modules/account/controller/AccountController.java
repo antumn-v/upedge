@@ -1,89 +1,193 @@
 package com.upedge.ums.modules.account.controller;
 
-import java.util.Arrays;
-import java.util.Map;
-
-import com.upedge.common.constant.ResultCode;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import org.springframework.beans.factory.annotation.Autowired;
-import com.upedge.common.component.annotation.Permission;
-import com.upedge.ums.modules.account.entity.Account;
-import com.upedge.ums.modules.account.service.AccountService;
-import org.springframework.web.bind.annotation.*;
-import java.util.List;
+import com.upedge.common.base.BaseResponse;
 import com.upedge.common.constant.Constant;
-import com.upedge.ums.modules.account.request.AccountAddRequest;
-import com.upedge.ums.modules.account.request.AccountListRequest;
-import com.upedge.ums.modules.account.request.AccountUpdateRequest;
+import com.upedge.common.constant.ResultCode;
+import com.upedge.common.exception.CustomerException;
+import com.upedge.common.model.account.AccountOrderRefundedRequest;
+import com.upedge.common.model.account.AccountPaymentRequest;
+import io.swagger.annotations.ApiOperation;
+import com.upedge.ums.modules.account.entity.AccountPayMethod;
+import com.upedge.ums.modules.account.entity.AccountUser;
+import com.upedge.ums.modules.account.request.*;
+import com.upedge.ums.modules.account.response.*;
+import com.upedge.ums.modules.account.service.AccountService;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.web.bind.annotation.*;
 
-import com.upedge.ums.modules.account.response.AccountAddResponse;
-import com.upedge.ums.modules.account.response.AccountDelResponse;
-import com.upedge.ums.modules.account.response.AccountInfoResponse;
-import com.upedge.ums.modules.account.response.AccountListResponse;
-import com.upedge.ums.modules.account.response.AccountUpdateResponse;
 import javax.validation.Valid;
+import java.math.BigDecimal;
+import java.util.UUID;
 
 /**
- * 账户表
- *
- * @author gx
+ * @author 海桐
  */
-@Api(tags = "账户管理，暂不开发")
 @RestController
-@RequestMapping("/account")
+@RequestMapping("account")
+@Slf4j
 public class AccountController {
+
     @Autowired
-    private AccountService accountService;
+    RedisTemplate<String, Object> redisTemplate;
 
-    @ApiOperation("账户详情")
-    @RequestMapping(value="/info/{id}", method=RequestMethod.GET)
-    @Permission(permission = "account:account:info:id")
-    public AccountInfoResponse info(@PathVariable Long id) {
-        Account result = accountService.selectByPrimaryKey(id);
-        AccountInfoResponse res = new AccountInfoResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS,result,id);
-        return res;
+    @Autowired
+    AccountService accountService;
+
+    String payoneerAuthUrl;
+
+
+
+    /**
+     * 账户列表
+     * @param request
+     * @return
+     */
+    @PostMapping("/list")
+    public AccountListResponse accountList(@RequestBody AccountListRequest request){
+        return accountService.pageAccount(request);
     }
 
-    @ApiOperation("账户列表")
-    @RequestMapping(value="/list", method=RequestMethod.POST)
-    @Permission(permission = "account:account:list")
-    public AccountListResponse list(@RequestBody @Valid AccountListRequest request) {
-        List<Account> results = accountService.select(request);
-        Long total = accountService.count(request);
-        request.setTotal(total);
-        AccountListResponse res = new AccountListResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS,results,request);
-        return res;
+
+
+    /**
+     * 添加账户
+     * @param request
+     * @return
+     */
+    @ApiOperation(value = "添加账户")
+    @PostMapping("/add")
+    public AccountAddResponse addAccount(@RequestBody @Valid AccountAddRequest request){
+        return accountService.addAccount(request);
     }
 
-    @ApiOperation("添加账户")
-    @RequestMapping(value="/add", method=RequestMethod.POST)
-    @Permission(permission = "account:account:add")
-    public AccountAddResponse add(@RequestBody @Valid AccountAddRequest request) {
-        Account entity=request.toAccount();
-        accountService.insertSelective(entity);
-        AccountAddResponse res = new AccountAddResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS,entity,request);
-        return res;
+    /**
+     * 逻辑删除账户
+     * @param accountId
+     * @return
+     */
+    @ApiOperation("禁用账户")
+    @PostMapping("/{accountId}/remove")
+    public AccountRemoveResponse removeAccount(@PathVariable Long accountId){
+        return accountService.removeAccount(accountId);
     }
 
-    @ApiOperation("删除账户")
-    @RequestMapping(value="/del/{id}", method=RequestMethod.POST)
-    @Permission(permission = "account:account:del:id")
-    public AccountDelResponse del(@PathVariable Long id) {
-        accountService.deleteByPrimaryKey(id);
-        AccountDelResponse res = new AccountDelResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS);
-        return res;
+    /**
+     * 账户添加支付方式
+     * @param request
+     * @return
+     */
+    @ApiOperation("账户添加支付方式")
+    @PostMapping("/paymethod/add")
+    public AccountPayMethodAddResponse accountAddPayMethod(@RequestBody AccountPayMethodAddRequest request){
+        return accountService.addAccountPayMethod(request);
     }
 
-    @ApiOperation("修改账户")
-    @RequestMapping(value="/update/{id}", method=RequestMethod.POST)
-    @Permission(permission = "account:account:update")
-    public AccountUpdateResponse update(@PathVariable Long id,@RequestBody @Valid AccountUpdateRequest request) {
-        Account entity=request.toAccount(id);
-        accountService.updateByPrimaryKeySelective(entity);
-        AccountUpdateResponse res = new AccountUpdateResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS);
-        return res;
+    @GetMapping("/paymethod/{accountPaymethodId}/attrs")
+    public AccountPaymethodAttrListResponse listAccountPaymethodAttr(@PathVariable Integer accountPaymethodId){
+        return accountService.accountPaymethodAttrList(accountPaymethodId);
     }
 
+    @ApiOperation("账户添加payoneer")
+    @PostMapping("/paymethod/add/payoneer")
+    public BaseResponse getPayoneerAuthUrl(@RequestBody AccountPayMethodAddRequest request){
+
+        AccountPayMethod payMethod = accountService.selectByAccountBankNum(request.getAccountId(),request.getBankNum());
+
+        if(payMethod != null){
+            return new AccountPayMethodAddResponse(ResultCode.FAIL_CODE,"Cannot add the same payment method");
+        }
+
+        String state = UUID.randomUUID().toString().replace("-","");
+
+        redisTemplate.opsForValue().set(state,request,30 * 60 * 1000);
+
+        String url = payoneerAuthUrl.replace("{state}",state);
+
+        return new BaseResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS,url);
+    }
+
+
+
+
+
+    /**
+     * 使用某账户的用户列表
+     * @param accountId
+     * @return
+     */
+    @GetMapping("/{accountId}/user/list")
+    public AccountUserListResponse accountUserList(@PathVariable Long accountId){
+        return accountService.accountUserList(accountId);
+    }
+
+    /**
+     * 用户账户关联
+     * @param accountUser
+     * @return
+     */
+//    @ApiOperation("账户关联用户")
+//    @PostMapping("/user/link")
+//    public AccountLinkUserResponse userLinkUser(@RequestBody AccountUser accountUser){
+//        return accountService.accountLinkUser(accountUser);
+//    }
+//
+//    /**
+//     * 用户账户解除关联
+//     * @param accountUser
+//     * @return
+//     */
+//    @ApiOperation("账户解除关联用户")
+//    @PostMapping("/user/unlink")
+//    public AccountUnLinkUserResponse userUnlinkUser(@RequestBody AccountUser accountUser){
+//        return accountService.accountUnLinkUser(accountUser);
+//    }
+//
+//    /**
+//     * 更新账户信用额度
+//     * @param id
+//     * @param request
+//     * @return
+//     */
+//    @ApiOperation("更改账户信用额度上限")
+//    @PostMapping("/{id}/credit/update")
+//    public AccountCreditLimitUpdateResponse updateAccountCredit(@PathVariable Long id, @RequestBody AccountCreditLimitUpdateRequest request){
+//        BigDecimal creditLimit=request.getCreditLimit();
+//        return accountService.updateAccountCreditLimit(id, creditLimit);
+//    }
+
+    /**
+     * 账户支付订单
+     * @param request
+     * @return
+     */
+    @ApiOperation("账户支付订单")
+    @PostMapping("/payment")
+    public BaseResponse accountPayment(@RequestBody AccountPaymentRequest request){
+        boolean b = accountService.accountPayment(request);
+        if(b){
+            return BaseResponse.success();
+        }
+        return BaseResponse.failed();
+    }
+
+    /**
+     * 只能内部调用 订单退款账户处理
+     * @param request
+     * @return
+     */
+    @PostMapping("/internal-service/orderRefunded")
+    public BaseResponse accountOrderRefunded(@RequestBody AccountOrderRefundedRequest request) {
+        try {
+            BaseResponse response= accountService.accountOrderRefunded(request);
+            log.debug("response code:{},msg:{}",response.getCode(),response.getMsg());
+            return response;
+        } catch (CustomerException e) {
+            e.printStackTrace();
+            return new BaseResponse(ResultCode.FAIL_CODE, e.getMessage());
+        }
+    }
 
 }

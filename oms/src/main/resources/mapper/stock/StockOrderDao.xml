@@ -1,0 +1,753 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.upedge.oms.modules.stock.dao.StockOrderDao">
+
+    <!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.upedge.oms.modules.stock.entity.StockOrder" id="BaseResultMap">
+        <result property="id" column="id"/>
+        <result property="warehouseId" column="warehouse_id"/>
+        <result property="customerId" column="customer_id"/>
+        <result property="payMethod" column="pay_method"/>
+        <result property="paymentId" column="payment_id"/>
+        <result property="amount" column="amount"/>
+        <result property="paypalFee" column="paypal_fee"/>
+        <result property="payState" column="pay_state"/>
+        <result property="refundState" column="refund_state"/>
+        <result property="payTime" column="pay_time"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="adminState" column="admin_state"/>
+        <result property="managerCode" column="manager_code"/>
+        <result property="saiheCode" column="saihe_code"/>
+    </resultMap>
+
+    <resultMap type="com.upedge.oms.modules.stock.vo.StockOrderVo" id="StockOrderVo">
+        <result property="id" column="id"/>
+        <result property="warehouseId" column="warehouse_id"/>
+        <result property="customerId" column="customer_id"/>
+        <result property="payMethod" column="pay_method"/>
+        <result property="paymentId" column="payment_id"/>
+        <result property="amount" column="amount"/>
+        <result property="paypalFee" column="paypal_fee"/>
+        <result property="payState" column="pay_state"/>
+        <result property="refundState" column="refund_state"/>
+        <result property="payTime" column="pay_time"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+        <collection property="items" ofType="com.upedge.oms.modules.stock.vo.StockOrderItemVo">
+            <result property="id" column="itemId"/>
+            <result property="productId" column="product_id"/>
+            <result property="variantId" column="variant_id"/>
+            <result property="orderId" column="order_id"/>
+            <result property="price" column="price"/>
+            <result property="quantity" column="quantity"/>
+            <result property="productTitle" column="product_title"/>
+            <result property="variantName" column="variant_name"/>
+            <result property="variantSku" column="variant_sku"/>
+            <result property="variantImage" column="variant_image"/>
+        </collection>
+    </resultMap>
+
+    <resultMap type="com.upedge.oms.modules.stock.vo.AdminStockOrderVo" id="AdminStockOrderVo">
+        <result property="id" column="id"/>
+        <result property="warehouseId" column="warehouse_id"/>
+        <result property="customerId" column="customer_id"/>
+        <result property="payMethod" column="pay_method"/>
+        <result property="paymentId" column="payment_id"/>
+        <result property="amount" column="amount"/>
+        <result property="paypalFee" column="paypal_fee"/>
+        <result property="payState" column="pay_state"/>
+        <result property="refundState" column="refund_state"/>
+        <result property="payTime" column="pay_time"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="adminState" column="admin_state"/>
+        <result property="managerCode" column="manager_code"/>
+        <result property="saiheCode" column="saihe_code"/>
+        <collection property="items" ofType="com.upedge.oms.modules.stock.vo.AdminStockOrderItemVo">
+            <result property="id" column="itemId"/>
+            <result property="productId" column="product_id"/>
+            <result property="orderId" column="order_id"/>
+            <result property="price" column="price"/>
+            <result property="quantity" column="quantity"/>
+            <result property="variantName" column="variant_name"/>
+            <result property="variantSku" column="variant_sku"/>
+            <result property="variantImage" column="variant_image"/>
+        </collection>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        `id`,`warehouse_id`,`customer_id`,`pay_method`,`payment_id`,`amount`,`paypal_fee`,`pay_state`,`refund_state`,`pay_time`,`create_time`,`update_time`,`admin_state`,`manager_code`,`saihe_code`
+    </sql>
+
+    <select id="selectTransactionDetailByPaymentId" resultType="com.upedge.common.model.order.TransactionDetail">
+        select id as orderId,'1' as orderType, amount,payment_id as payment_id,pay_time as payTime
+        from stock_order
+        where payment_id = #{paymentId}
+        and pay_state = '1'
+    </select>
+
+    <select id="selectAmountByPaymentId" resultType="java.math.BigDecimal">
+        select sum(amount)
+        from stock_order
+        where payment_id = #{id}
+    </select>
+
+    <select id="selectSumAmountByPaymentId" resultType="com.upedge.common.model.order.PaymentAmount">
+        select sum(amount) as `payAmount`,sum(amount) as `productAmount`,#{paymentId} as `paymentId`
+        from stock_order
+        where payment_id = #{id}
+    </select>
+
+    <update id="updatePayStateByPaymentId">
+        update stock_order
+        set pay_state = #{payState}
+        where payment_id = #{paymentId}
+        and pay_state != '1'
+    </update>
+
+    <update id="updatePaymentIdByIds">
+        update stock_order
+        set payment_id = #{paymentId}
+        where id in
+        <foreach collection="ids" item="id" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+        and pay_state = '0'
+    </update>
+
+    <update id="updateOrderPayState" parameterType="com.upedge.oms.modules.stock.entity.StockOrder">
+        update stock_order
+        set pay_state = #{payState}
+        where id = #{id}
+        and pay_state != '1'
+    </update>
+
+    <update id="updateOrderAmountById">
+        update stock_order o
+        inner join
+        (
+        select sum(quantity * price ) as `orderAmount`,`order_id` as `orderId`
+        from stock_order_item
+        where order_id = #{id}
+        ) item
+        on o.id = item.orderId
+        set o.amount = item.orderAmount
+        where o.id = #{id}
+        and o.pay_state = '0'
+    </update>
+
+    <sql id="OrderListDto">
+        where
+        <trim prefix=" " suffix=" " suffixOverrides=" and ">
+            o.customer_id = #{t.customerId} and
+            <if test="t.orderId != null">
+                o.id = #{t.orderId} and
+            </if>
+            <if test="t.paymentId != null">
+                o.payment_id = #{t.paymentId} and
+            </if>
+            <if test="t.payState != null">
+                o.pay_state = #{t.payState} and
+            </if>
+            <if test="t.refundState != null">
+                <if test="t.refundState == 0">
+                    o.refund_state between '0' and '2' and
+                </if>
+                <if test="t.refundState != 0">
+                    o.refund_state = #{t.refundState} and
+                </if>
+            </if>
+            <if test="t.productTitle != null">
+                item.product_title like CONCAT('%',#{t.productTitle},'%') and
+            </if>
+            <if test="t.variantName != null">
+                item.variant_name = #{t.variantName} and
+            </if>
+            <if test="t.variantSku != null">
+                item.variant_sku = #{t.variantSku} and
+            </if>
+            <if test="t.dateType != null and t.dateBegin != null and t.dateEnd != null">
+                ${t.dateType} between #{t.dateBegin,jdbcType=TIMESTAMP} and #{t.dateEnd,jdbcType=TIMESTAMP} and
+            </if>
+        </trim>
+    </sql>
+
+    <select id="selectOrderById" resultMap="StockOrderVo">
+        select o.id,o.warehouse_id,o.customer_id,o.pay_method,o.payment_id,o.amount,o.paypal_fee,
+        o.pay_state,o.refund_state,o.pay_time,o.create_time,o.update_time,
+        item.id as itemId,item.product_id,item.variant_id,item.order_id,
+        item.price,item.quantity,item.product_title,item.variant_name,
+        item.variant_sku,item.variant_image
+        from stock_order o
+        inner join stock_order_item item
+        on o.id = item.order_id
+        where o.id = #{orderId}
+    </select>
+
+    <select id="selectOrderByIds" resultMap="StockOrderVo">
+        select o.id,o.warehouse_id,o.customer_id,o.pay_method,o.payment_id,o.amount,o.paypal_fee,
+        o.pay_state,o.refund_state,o.pay_time,o.create_time,o.update_time,
+        item.id as itemId,item.product_id,item.variant_id,item.order_id,
+        item.price,item.quantity,item.product_title,item.variant_name,
+        item.variant_sku,item.variant_image
+        from stock_order o
+        inner join stock_order_item item
+        on o.id = item.order_id
+        where o.id in
+        <foreach collection="ids" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+    </select>
+
+    <select id="selectOrderList" resultMap="StockOrderVo" parameterType="com.upedge.common.base.Page">
+        select o.id,o.warehouse_id,o.customer_id,o.pay_method,o.payment_id,o.amount,o.paypal_fee,
+        o.pay_state,o.refund_state,o.pay_time,o.create_time,o.update_time,
+        item.id as itemId,item.product_id,item.variant_id,item.order_id,
+        item.price,item.quantity,item.product_title,item.variant_name,
+        item.variant_sku,item.variant_image
+        from stock_order o
+        inner join stock_order_item item
+        on o.id = item.order_id
+        <include refid="OrderListDto"/>
+        <if test="orderBy != null">
+            order by ${orderBy}
+        </if>
+        <if test="pageNum != null and pageSize != null">
+            limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+        </if>
+    </select>
+
+    <select id="countOrderList" resultType="java.lang.Long" parameterType="com.upedge.common.base.Page">
+        select count(distinct o.id)
+        from stock_order o
+        inner join stock_order_item item
+        <include refid="OrderListDto"/>
+
+    </select>
+
+    <update id="completeOrderTransaction">
+        update stock_order
+        set pay_time = #{detail.payTime},
+        pay_method = #{detail.payMethod},
+        <if test="percentage != 0">
+            paypal_fee = round( (#{percentage}*amount+'0.3')/ ('1' - #{percentage}) ,2),
+        </if>
+        pay_state = '1'
+        where payment_id = #{detail.paymentId}
+        and pay_state = '2'
+    </update>
+
+    <select id="selectByPrimaryKey" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from stock_order
+        where id = #{id}
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="com.upedge.oms.modules.stock.entity.StockOrder">
+        delete from stock_order
+        where id = #{id}
+    </delete>
+
+    <update id="updateByPrimaryKeySelective" parameterType="com.upedge.oms.modules.stock.entity.StockOrder">
+        update stock_order
+        <set>
+            <if test="warehouseId != null">
+                warehouse_id = #{warehouseId},
+            </if>
+            <if test="customerId != null">
+                customer_id = #{customerId},
+            </if>
+            <if test="payMethod != null">
+                pay_method = #{payMethod},
+            </if>
+            <if test="paymentId != null">
+                payment_id = #{paymentId},
+            </if>
+            <if test="amount != null">
+                amount = #{amount},
+            </if>
+            <if test="paypalFee != null">
+                paypal_fee = #{paypalFee},
+            </if>
+            <if test="payState != null">
+                pay_state = #{payState},
+            </if>
+            <if test="refundState != null">
+                refund_state = #{refundState},
+            </if>
+            <if test="payTime != null">
+                pay_time = #{payTime},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime},
+            </if>
+            <if test="updateTime != null">
+                update_time = #{updateTime},
+            </if>
+            <if test="adminState != null">
+                admin_state = #{adminState},
+            </if>
+            <if test="managerCode != null">
+                manager_code = #{managerCode},
+            </if>
+            <if test="saiheCode != null">
+                saihe_code = #{saiheCode},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <update id="updateByPrimaryKey" parameterType="com.upedge.oms.modules.stock.entity.StockOrder">
+        update stock_order
+        <set>
+            id = #{id},
+            warehouse_id = #{warehouseId},
+            customer_id = #{customerId},
+            pay_method = #{payMethod},
+            payment_id = #{paymentId},
+            amount = #{amount},
+            paypal_fee = #{paypalFee},
+            pay_state = #{payState},
+            refund_state = #{refundState},
+            pay_time = #{payTime},
+            create_time = #{createTime},
+            update_time = #{updateTime},
+            admin_state = #{adminState},
+            manager_code = #{managerCode},
+            saihe_code = #{saiheCode},
+        </set>
+        where id = #{id}
+    </update>
+
+    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.upedge.oms.modules.stock.entity.StockOrder"
+            useGeneratedKeys="true">
+        insert into stock_order
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            id,
+            warehouse_id,
+            customer_id,
+            pay_method,
+            payment_id,
+            amount,
+            paypal_fee,
+            pay_state,
+            refund_state,
+            pay_time,
+            create_time,
+            update_time,
+            admin_state,
+            manager_code,
+            saihe_code
+        </trim>
+        values (
+        #{id},
+        #{warehouseId},
+        #{customerId},
+        #{payMethod},
+        #{paymentId},
+        #{amount},
+        #{paypalFee},
+        #{payState},
+        #{refundState},
+        #{payTime},
+        #{createTime},
+        #{createTime},
+        #{adminState},
+        #{managerCode},
+        #{saiheCode}
+        )
+    </insert>
+
+    <insert id="insertSelective" keyColumn="id" keyProperty="id"
+            parameterType="com.upedge.oms.modules.stock.entity.StockOrder" useGeneratedKeys="true">
+        insert into stock_order
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id
+            </if>
+            <if test="warehouseId != null">
+                warehouse_id
+            </if>
+            <if test="customerId != null">
+                customer_id
+            </if>
+            <if test="payMethod != null">
+                pay_method
+            </if>
+            <if test="paymentId != null">
+                payment_id
+            </if>
+            <if test="amount != null">
+                amount
+            </if>
+            <if test="paypalFee != null">
+                paypal_fee
+            </if>
+            <if test="payState != null">
+                pay_state
+            </if>
+            <if test="refundState != null">
+                refund_state
+            </if>
+            <if test="payTime != null">
+                pay_time
+            </if>
+            <if test="createTime != null">
+                create_time
+            </if>
+            <if test="updateTime != null">
+                update_time
+            </if>
+            <if test="adminState != null">
+                admin_state
+            </if>
+            <if test="managerCode != null">
+                manager_code
+            </if>
+            <if test="saiheCode != null">
+                saihe_code
+            </if>
+
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id}
+            </if>
+            <if test="warehouseId != null">
+                #{warehouseId}
+            </if>
+            <if test="customerId != null">
+                #{customerId}
+            </if>
+            <if test="payMethod != null">
+                #{payMethod}
+            </if>
+            <if test="paymentId != null">
+                #{paymentId}
+            </if>
+            <if test="amount != null">
+                #{amount}
+            </if>
+            <if test="paypalFee != null">
+                #{paypalFee}
+            </if>
+            <if test="payState != null">
+                #{payState}
+            </if>
+            <if test="refundState != null">
+                #{refundState}
+            </if>
+            <if test="payTime != null">
+                #{payTime}
+            </if>
+            <if test="createTime != null">
+                #{createTime}
+            </if>
+            <if test="updateTime != null">
+                #{updateTime}
+            </if>
+            <if test="adminState != null">
+                #{adminState}
+            </if>
+            <if test="managerCode != null">
+                #{managerCode}
+            </if>
+            <if test="saiheCode != null">
+                #{saiheCode}
+            </if>
+
+        </trim>
+    </insert>
+
+    <insert id="insertByBatch" parameterType="java.util.List">
+        insert into stock_order
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            id,
+            warehouse_id,
+            customer_id,
+            pay_method,
+            payment_id,
+            amount,
+            paypal_fee,
+            pay_state,
+            refund_state,
+            pay_time,
+            create_time,
+            update_time,
+            admin_state,
+            manager_code,
+            saihe_code
+        </trim>
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+                #{item.id},
+                #{item.warehouseId},
+                #{item.customerId},
+                #{item.payMethod},
+                #{item.paymentId},
+                #{item.amount},
+                #{item.paypalFee},
+                #{item.payState},
+                #{item.refundState},
+                #{item.payTime},
+                #{item.createTime},
+                #{item.updateTime},
+                #{item.adminState},
+                #{item.managerCode},
+                #{item.saiheCode}
+            </trim>
+        </foreach>
+    </insert>
+
+    <sql id="Query_Condition">
+        <if test="t != null">
+            where
+            <trim prefix=" " suffix=" " suffixOverrides=" and ">
+                1 = 1 and
+                <if test="t.id != null">
+                    o.id = #{t.id} and
+                </if>
+                <if test="t.warehouseId != null">
+                    o.warehouse_id = #{t.warehouseId} and
+                </if>
+                <if test="t.customerId != null">
+                    o.customer_id = #{t.customerId} and
+                </if>
+                <if test="t.payMethod != null">
+                    o.pay_method = #{t.payMethod} and
+                </if>
+                <if test="t.paymentId != null">
+                    o.payment_id = #{t.paymentId} and
+                </if>
+                <if test="t.amount != null">
+                    o.amount = #{t.amount} and
+                </if>
+                <if test="t.payState != null">
+                    o.pay_state = #{t.payState} and
+                </if>
+                <if test="t.refundState != null">
+                    o.refund_state = #{t.refundState} and
+                </if>
+                <if test="t.adminState != null">
+                    o.admin_state = #{t.adminState} and
+                </if>
+                <if test="t.managerCode != null">
+                    o.manager_code = #{t.managerCode} and
+                </if>
+                <if test="t.saiheCode != null">
+                    o.saihe_code = #{t.saiheCode} and
+                </if>
+                <if test="variantSku != null and variantSku!=''">
+                    item.variant_sku = #{variantSku} and
+                </if>
+            </trim>
+        </if>
+    </sql>
+
+    <select id="selectAdminStockOrderList" resultMap="AdminStockOrderVo" parameterType="com.upedge.common.base.Page">
+        select
+        DISTINCT o.id,
+        o.warehouse_id,
+        o.customer_id,
+        o.pay_method,
+        o.payment_id,
+        o.amount,
+        o.paypal_fee,
+        o.pay_state,
+        o.refund_state,
+        o.pay_time,
+        o.create_time,
+        o.update_time,
+        o.admin_state,
+        o.manager_code,
+        o.saihe_code,
+        item.id as itemId,
+        item.product_id,
+        item.order_id,
+        item.price,
+        item.quantity,
+        item.variant_name,
+        item.variant_sku,
+        item.variant_image
+        from stock_order o
+        inner join stock_order_item item
+        on o.id = item.order_id
+        <include refid="Query_Condition"/>
+        order by o.update_time desc
+        <if test="pageNum != null and pageSize != null">
+            limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+        </if>
+    </select>
+
+    <select id="countAdminStockOrderList" resultType="java.lang.Long" parameterType="com.upedge.common.base.Page">
+        select count(DISTINCT o.id)
+        from stock_order o
+        inner join stock_order_item item
+        on o.id = item.order_id
+        <include refid="Query_Condition"/>
+        order by o.update_time desc
+    </select>
+
+    <select id="countWithOutSaiheSku" resultType="java.lang.Long">
+       select count(1) from stock_order_item i
+       left join admin_variant_sku v on i.variant_sku=v.variant_sku
+       where v.saihe_sku is null and i.order_id=#{id}
+    </select>
+
+    <update id="markStockOrder">
+        update stock_order set admin_state=1 where id=#{id} and admin_state=0
+    </update>
+
+    <update id="updateOrderStockedSuccess">
+       update stock_order
+       set admin_state=#{adminState},
+       update_time=#{updateTime},
+       saihe_code=#{saiheCode}
+       where id=#{id}
+    </update>
+
+    <select id="listVariantSkuForRefresh" resultType="java.lang.String">
+       select DISTINCT i.variant_sku from stock_order_item i
+       left join admin_variant_sku v on i.variant_sku=v.variant_sku
+       where v.saihe_sku is null and i.order_id=#{id}
+    </select>
+
+    <update id="applyStockOrderRefund">
+        update stock_order set refund_state=1
+        where id=#{id} and refund_state=0
+    </update>
+
+    <update id="restoreStockOrderAsPaid">
+        update stock_order set refund_state=0 where id=#{id} and refund_state=1
+    </update>
+
+    <update id="updateOrderAsRefund">
+        update stock_order set refund_state=#{state} where id=#{id} and refund_state=1
+    </update>
+
+    <select id="orderHandleImportData" resultType="java.lang.Long">
+        <!--select count(1) from stock_order o
+        left join customer_admin_info cai on cai.customer_id=o.customer_id
+        where o.pay_state=1 and o.refund_state=0
+        <if test="userManager != null and userManager !=''" >
+            and cai.manager_code=#{userManager}
+        </if>-->
+        select count(1) from stock_order o
+        where o.pay_state=1 and o.refund_state=0
+        <if test="userManager != null and userManager !=''">
+            and o.manager_code=#{userManager}
+        </if>
+    </select>
+    <select id="selectStockOrderByPaymentId" resultType="com.upedge.oms.modules.stock.entity.StockOrder">
+        select
+        <include refid="Base_Column_List"/>
+        from stock_order where payment_id = #{paymentId}
+    </select>
+    <select id="select" resultType="com.upedge.oms.modules.stock.entity.StockOrder">
+        select
+        <include refid="Base_Column_List"/>
+        from stock_order
+        <include refid="Query_Condition_page"/>
+        <if test="boundary != null and boundary!=''">
+            <if test="t != null">
+                and ${ boundary}
+            </if>
+            <if test="t == null">
+                where ${ boundary}
+            </if>
+        </if>
+        <if test="orderBy != null and orderBy !=''">
+            order by ${orderBy}
+        </if>
+        <if test="pageNum != null and pageSize != null ">
+            <if test="boundary == null or boundary==''">
+                limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+            </if>
+            <if test="boundary != null and boundary!=''">
+                limit #{pageSize,jdbcType=INTEGER}
+            </if>
+        </if>
+    </select>
+    <select id="count" resultType="java.lang.Long">
+        select
+        count(1)
+        from stock_order
+        <include refid="Query_Condition_page"/>
+    </select>
+
+    <sql id="Query_Condition_page">
+        <if test="t != null">
+            where
+            <trim prefix=" " suffix=" " suffixOverrides=" and ">
+                1 = 1 and
+                <if test="t.id != null">
+                    id = #{t.id} and
+                </if>
+                <if test="t.warehouseId != null">
+                    warehouse_id = #{t.warehouseId} and
+                </if>
+                <if test="t.customerId != null">
+                    customer_id = #{t.customerId} and
+                </if>
+                <if test="t.payMethod != null">
+                    pay_method = #{t.payMethod} and
+                </if>
+                <if test="t.paymentId != null">
+                    payment_id = #{t.paymentId} and
+                </if>
+                <if test="t.amount != null">
+                    amount = #{t.amount} and
+                </if>
+                <if test="t.payState != null">
+                    pay_state = #{t.payState} and
+                </if>
+                <if test="t.refundState != null">
+                    refund_state = #{t.refundState} and
+                </if>
+                <if test="t.adminState != null">
+                    admin_state = #{t.adminState} and
+                </if>
+                <if test="t.managerCode != null">
+                    manager_code = #{t.managerCode} and
+                </if>
+                <if test="t.saiheCode != null">
+                    saihe_code = #{t.saiheCode} and
+                </if>
+            </trim>
+        </if>
+    </sql>
+
+
+
+
+    <select id="selectPageByMove" resultType="com.upedge.oms.modules.stock.entity.StockOrder">
+        select
+        `payment_id` ,`pay_time`, `customer_id`
+        from `stock_order`
+        <include refid="Query_Condition"/>
+        <if test="boundary != null and boundary!=''">
+            <if test="t != null">
+                and ${ boundary}
+            </if>
+            <if test="t == null">
+                where ${boundary}
+            </if>
+        </if>
+        group by  `payment_id`,`pay_time`,`customer_id`
+        <if test="orderBy != null and orderBy !=''">
+            order by ${orderBy}
+        </if>
+        <if test="pageNum != null and pageSize != null ">
+            <if test="boundary == null or boundary==''">
+                limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+            </if>
+            <if test="boundary != null and boundary!=''">
+                limit #{pageSize,jdbcType=INTEGER}
+            </if>
+        </if>
+    </select>
+</mapper>

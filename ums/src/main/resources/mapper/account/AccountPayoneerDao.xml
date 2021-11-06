@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.upedge.ums.modules.account.dao.AccountPayoneerDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.upedge.ums.modules.account.entity.AccountPayoneer" id="BaseResultMap">
+        <result property="accountId" column="account_id"/>
+        <result property="payoneerId" column="payoneer_id"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        `account_id`,`payoneer_id`
+    </sql>
+
+    <select id="selectByPrimaryKey" parameterType="com.upedge.ums.modules.account.entity.AccountPayoneer" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from account_payoneer
+        where account_id = #{accountId}
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="com.upedge.ums.modules.account.entity.AccountPayoneer">
+        delete from account_payoneer
+        where account_id = #{accountId}
+    </delete>
+    <delete id="removeAccountPayoneer">
+        delete
+        from account_payoneer
+        where account_id = #{accountId}
+        and payoneer_id = #{payoneerId}
+    </delete>
+
+    <update id="updateByPrimaryKeySelective" parameterType="com.upedge.ums.modules.account.entity.AccountPayoneer">
+        update account_payoneer
+        <set>
+            <if test="payoneerId != null">
+                payoneer_id = #{payoneerId},
+            </if>
+        </set>
+        where account_id = #{accountId}
+    </update>
+
+    <update id="updateByPrimaryKey" parameterType="com.upedge.ums.modules.account.entity.AccountPayoneer">
+        update account_payoneer
+        <set>
+        account_id = #{accountId},
+        payoneer_id = #{payoneerId},
+        </set>
+        where account_id = #{accountId}
+    </update>
+
+    <insert id="insert" keyColumn="account_id" keyProperty="accountId" parameterType="com.upedge.ums.modules.account.entity.AccountPayoneer" useGeneratedKeys="true">
+        insert into account_payoneer
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            account_id,
+            payoneer_id
+        </trim>
+        values (
+        #{accountId},
+        #{payoneerId}
+        )
+    </insert>
+
+    <insert id="insertSelective"  keyColumn="account_id" keyProperty="accountId"  parameterType="com.upedge.ums.modules.account.entity.AccountPayoneer" useGeneratedKeys="true">
+        insert into account_payoneer
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="accountId != null" >
+              account_id
+            </if>
+            <if test="payoneerId != null" >
+              payoneer_id
+            </if>
+
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="accountId != null" >
+                #{accountId}
+            </if>
+            <if test="payoneerId != null" >
+                #{payoneerId}
+            </if>
+
+        </trim>
+    </insert>
+
+    <insert id="insertByBatch" parameterType="java.util.List">
+        insert into account_payoneer
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+           account_id,
+           payoneer_id
+        </trim>
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+               #{item.accountId},
+               #{item.payoneerId}
+            </trim>
+        </foreach>
+    </insert>
+
+    <sql id="Query_Condition">
+        <if test="t != null">
+            where
+            <trim prefix=" " suffix=" " suffixOverrides=" and ">
+                1 = 1 and
+                    <if test="t.accountId != null">
+                        account_id = #{t.accountId} and
+                    </if>
+                    <if test="t.payoneerId != null">
+                        payoneer_id = #{t.payoneerId} and
+                    </if>
+            </trim>
+        </if>
+    </sql>
+
+    <select id="select" parameterType="com.upedge.common.base.Page" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from account_payoneer
+        <include refid="Query_Condition"/>
+        <if test="orderBy != null">
+            order by ${orderBy}
+        </if>
+        <if test="pageNum != null and pageSize != null">
+            limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+        </if>
+    </select>
+
+    <select id="count" parameterType="com.upedge.common.base.Page" resultType="java.lang.Long">
+        select
+        count(1)
+        from account_payoneer
+        <include refid="Query_Condition"/>
+    </select>
+    <select id="selectByAccountIdAndPayoneerId"
+            resultType="com.upedge.ums.modules.account.entity.AccountPayoneer">
+        select <include refid="Base_Column_List"/>
+        from account_payoneer
+        where account_id = #{accountId}
+        and payoneer_id = #{payoneerId}
+    </select>
+
+
+</mapper>

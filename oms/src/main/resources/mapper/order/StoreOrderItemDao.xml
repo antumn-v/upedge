@@ -1,0 +1,572 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.upedge.oms.modules.order.dao.StoreOrderItemDao">
+
+    <!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.upedge.oms.modules.order.entity.StoreOrderItem" id="BaseResultMap">
+        <result property="id" column="id"/>
+        <result property="platOrderId" column="plat_order_id"/>
+        <result property="platOrderItemId" column="plat_order_item_id"/>
+        <result property="platVariantId" column="plat_variant_id"/>
+        <result property="platProductId" column="plat_product_id"/>
+        <result property="storeOrderId" column="store_order_id"/>
+        <result property="storeVariantId" column="store_variant_id"/>
+        <result property="storeProductId" column="store_product_id"/>
+        <result property="quantity" column="quantity"/>
+        <result property="price" column="price"/>
+        <result property="storeVariantName" column="store_variant_name"/>
+        <result property="storeVariantSku" column="store_variant_sku"/>
+        <result property="storeVariantImage" column="store_variant_image"/>
+        <result property="storeProductTitle" column="store_product_title"/>
+        <result property="state" column="state"/>
+        <result property="isRemoved" column="is_removed"/>
+    </resultMap>
+
+    <resultMap id="StoreProductSales" type="com.upedge.common.model.product.StoreProductDailySales">
+        <id property="storeProductId" column="storeProductId"/>
+        <result property="storeId" column="storeId"/>
+        <result property="orgId" column="orgId"/>
+        <result property="customerId" column="customerId"/>
+        <collection property="dailySales" ofType="com.upedge.common.model.product.DailySales">
+            <result property="sales" column="sales"/>
+            <result property="days" column="days"/>
+        </collection>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        `id`,`plat_order_id`,`plat_order_item_id`,`plat_variant_id`,`plat_product_id`,`store_order_id`,`store_variant_id`,`store_product_id`,
+        `quantity`,`price`,`store_variant_name`,`store_variant_sku`,`store_variant_image`,`store_product_title`,`state`,`is_removed`
+    </sql>
+
+    <select id="selectStoreProductSales" resultMap="StoreProductSales">
+        select soi.store_product_id as `storeProductId`,
+        so.customer_id as `customerId`,
+        so.store_id as `storeId`,
+        so.org_id as `orgId`,
+        sum(soi.quantity) as `sales`,'one' as `days`
+        from store_order_item soi
+        inner join `store_order` so
+        on soi.store_order_id = so.id
+        where date_sub(curdate(), INTERVAL 1 DAY) &lt;  date(so.update_time)
+        and soi.store_product_id is not null
+        group by soi.store_product_id,
+        so.customer_id,
+        so.store_id,
+        so.org_id
+        union all
+        select soi.store_product_id as `storeProductId`,
+        so.customer_id as `customerId`,
+        so.store_id as `storeId`,
+        so.org_id as `orgId`,
+        sum(soi.quantity) as `sales`,'seven' as `days`
+        from store_order_item soi
+        inner join `store_order` so
+        on soi.store_order_id = so.id
+        where date_sub(curdate(), INTERVAL 7 DAY) &lt;  date(so.update_time)
+        and soi.store_product_id is not null
+        group by soi.store_product_id,
+        so.customer_id,
+        so.store_id,
+        so.org_id
+        union all
+        select soi.store_product_id as `storeProductId`,
+        so.customer_id as `customerId`,
+        so.store_id as `storeId`,
+        so.org_id as `orgId`,
+        sum(soi.quantity) as `sales`,'fifteen' as `days`
+        from store_order_item soi
+        inner join `store_order` so
+        on soi.store_order_id = so.id
+        where date_sub(curdate(), INTERVAL 15 DAY) &lt;  date(so.update_time)
+        and soi.store_product_id is not null
+        group by soi.store_product_id,
+        so.customer_id,
+        so.store_id,
+        so.org_id
+    </select>
+
+    <select id="selectItemAmountByOrderId" resultType="java.math.BigDecimal">
+        select sum(soi.quantity * soi.price)
+        from order_item oi
+        inner join store_order_item soi
+        on oi.store_order_item_id = soi.id
+        where oi.order_id = #{orderId}
+    </select>
+
+    <select id="selectStoreOrderIdByStoreVariantIdAndState" resultType="java.lang.Long">
+        select store_order_id
+        from store_order_item
+        where store_variant_id = #{storeVariantId}
+        and state = #{state}
+    </select>
+
+    <select id="selectByStoreVariantId" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from store_order_item
+        where store_order_id = #{storeOrderId}
+        and store_variant_id = #{storeVariantId}
+        limit 1
+    </select>
+
+    <update id="updateStateByIds">
+        update store_order_item
+        set state = #{state}
+        where id in
+        <foreach collection="ids" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+        and state != '1'
+    </update>
+
+    <select id="selectByStoreOrderId" resultMap="BaseResultMap">
+        select `id`,`plat_order_id`,`plat_order_item_id`,`plat_variant_id`,`plat_product_id`,
+        `store_order_id`,`store_variant_id`,`store_product_id`, `quantity`,`price`,
+        `store_variant_name`,`store_variant_sku`,`store_variant_image`,`store_product_title`,`state`,`is_removed`
+        from store_order_item
+        where store_order_id = #{storeOrderId}
+        and state = '0'
+        and store_variant_id is not null
+    </select>
+
+    <select id="selectByStoreOrderAndOrder" resultMap="BaseResultMap">
+        select soi.`id`,soi.`plat_order_id`,soi.`plat_order_item_id`,soi.`plat_variant_id`,soi.`plat_product_id`,
+        soi.`store_order_id`,soi.`store_variant_id`,soi.`store_product_id`, soi.`quantity`,soi.`price`,
+        soi.`store_variant_name`,soi.`store_variant_sku`,soi.`store_variant_image`,
+        soi.`store_product_title`,soi.`state`,soi.`is_removed`
+        from store_order_item soi
+        inner join order_item oi
+        on soi.id = oi.store_order_item_id
+        where oi.order_id = #{orderId}
+        and soi.store_order_id = #{storeOrderId}
+    </select>
+
+    <select id="selectIncompleteItems" resultMap="BaseResultMap">
+        select `id`,`plat_order_id`,`plat_order_item_id`,`plat_variant_id`,`plat_product_id`,`store_order_id`
+        from store_order_item
+        where store_order_id = #{storeOrderId}
+        and store_variant_id is null
+        and state = '0'
+    </select>
+
+    <update id="completeItemDetail">
+        <foreach collection="variantVos" item="v" separator=";">
+            update store_order_item
+            set store_variant_id = #{v.storeVariantId},
+            store_product_id = #{v.storeProductId},
+            store_variant_image = #{v.image}
+            where store_order_id = #{storeOrderId}
+            and plat_variant_id = #{v.platVariantId}
+            and plat_product_id = #{v.platProductId}
+            and store_variant_id is null
+            and state = '0'
+        </foreach>
+    </update>
+
+    <update id="updateRemoveState">
+        update store_order_item
+        set is_removed = '1'
+        where store_order_id = #{storeOrderId}
+        and id in
+        <foreach collection="itemIds" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+    </update>
+
+    <update id="updateStateAfterRemoveOrder">
+        update store_order_item soi
+        inner join order_item oi
+        on soi.id = oi.store_order_item_id
+        set soi.state = '0'
+        where oi.order_id in
+        <foreach collection="orderIds" item="orderId" open="(" close=")" separator=",">
+            #{orderId}
+        </foreach>
+    </update>
+
+    <select id="selectPlatItemIdByStoreOrderId" resultType="java.lang.String">
+        select plat_order_item_id
+        from store_order_item
+        where store_order_id = #{storeOrderId}
+    </select>
+
+    <select id="selectByPrimaryKey" parameterType="com.upedge.oms.modules.order.entity.StoreOrderItem"
+            resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from store_order_item
+        where id = #{id}
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="com.upedge.oms.modules.order.entity.StoreOrderItem">
+        delete from store_order_item
+        where id = #{id}
+    </delete>
+
+    <update id="updateByPrimaryKeySelective" parameterType="com.upedge.oms.modules.order.entity.StoreOrderItem">
+        update store_order_item
+        <set>
+            <if test="platOrderId != null">
+                plat_order_id = #{platOrderId},
+            </if>
+            <if test="platOrderItemId != null">
+                plat_order_item_id = #{platOrderItemId},
+            </if>
+            <if test="storeOrderId != null">
+                store_order_id = #{storeOrderId},
+            </if>
+            <if test="storeVariantId != null">
+                store_variant_id = #{storeVariantId},
+            </if>
+            <if test="storeProductId != null">
+                store_product_id = #{storeProductId},
+            </if>
+            <if test="quantity != null">
+                quantity = #{quantity},
+            </if>
+            <if test="price != null">
+                price = #{price},
+            </if>
+            <if test="storeVariantName != null">
+                store_variant_name = #{storeVariantName},
+            </if>
+            <if test="storeVariantSku != null">
+                store_variant_sku = #{storeVariantSku},
+            </if>
+            <if test="storeVariantImage != null">
+                store_variant_image = #{storeVariantImage},
+            </if>
+            <if test="storeProductTitle != null">
+                store_product_title = #{storeProductTitle},
+            </if>
+            <if test="state != null">
+                state = #{state},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <update id="updateByPrimaryKey" parameterType="com.upedge.oms.modules.order.entity.StoreOrderItem">
+        update store_order_item
+        <set>
+            id = #{id},
+            plat_order_id = #{platOrderId},
+            plat_order_item_id = #{platOrderItemId},
+            store_order_id = #{storeOrderId},
+            store_variant_id = #{storeVariantId},
+            store_product_id = #{storeProductId},
+            quantity = #{quantity},
+            price = #{price},
+            store_variant_name = #{storeVariantName},
+            store_variant_sku = #{storeVariantSku},
+            store_variant_image = #{storeVariantImage},
+            store_product_title = #{storeProductTitle},
+            state = #{state},
+        </set>
+        where id = #{id}
+    </update>
+
+    <insert id="insert" keyColumn="id" keyProperty="id"
+            parameterType="com.upedge.oms.modules.order.entity.StoreOrderItem" useGeneratedKeys="true">
+        insert into store_order_item
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            id,
+            plat_order_id,
+            plat_order_item_id,
+            store_order_id,
+            store_variant_id,
+            store_product_id,
+            quantity,
+            price,
+            store_variant_name,
+            store_variant_sku,
+            store_variant_image,
+            store_product_title,
+            state
+        </trim>
+        values (
+        #{id},
+        #{platOrderId},
+        #{platOrderItemId},
+        #{storeOrderId},
+        #{storeVariantId},
+        #{storeProductId},
+        #{quantity},
+        #{price},
+        #{storeVariantName},
+        #{storeVariantSku},
+        #{storeVariantImage},
+        #{storeProductTitle},
+        #{state}
+        )
+    </insert>
+
+    <insert id="insertSelective" keyColumn="id" keyProperty="id"
+            parameterType="com.upedge.oms.modules.order.entity.StoreOrderItem" useGeneratedKeys="true">
+        insert into store_order_item
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id
+            </if>
+            <if test="platOrderId != null">
+                plat_order_id
+            </if>
+            <if test="platOrderItemId != null">
+                plat_order_item_id
+            </if>
+            <if test="storeOrderId != null">
+                store_order_id
+            </if>
+            <if test="storeVariantId != null">
+                store_variant_id
+            </if>
+            <if test="storeProductId != null">
+                store_product_id
+            </if>
+            <if test="quantity != null">
+                quantity
+            </if>
+            <if test="price != null">
+                price
+            </if>
+            <if test="storeVariantName != null">
+                store_variant_name
+            </if>
+            <if test="storeVariantSku != null">
+                store_variant_sku
+            </if>
+            <if test="storeVariantImage != null">
+                store_variant_image
+            </if>
+            <if test="storeProductTitle != null">
+                store_product_title
+            </if>
+            <if test="state != null">
+                state
+            </if>
+
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id}
+            </if>
+            <if test="platOrderId != null">
+                #{platOrderId}
+            </if>
+            <if test="platOrderItemId != null">
+                #{platOrderItemId}
+            </if>
+            <if test="storeOrderId != null">
+                #{storeOrderId}
+            </if>
+            <if test="storeVariantId != null">
+                #{storeVariantId}
+            </if>
+            <if test="storeProductId != null">
+                #{storeProductId}
+            </if>
+            <if test="quantity != null">
+                #{quantity}
+            </if>
+            <if test="price != null">
+                #{price}
+            </if>
+            <if test="storeVariantName != null">
+                #{storeVariantName}
+            </if>
+            <if test="storeVariantSku != null">
+                #{storeVariantSku}
+            </if>
+            <if test="storeVariantImage != null">
+                #{storeVariantImage}
+            </if>
+            <if test="storeProductTitle != null">
+                #{storeProductTitle}
+            </if>
+            <if test="state != null">
+                #{state}
+            </if>
+
+        </trim>
+    </insert>
+
+    <insert id="insertByBatch" parameterType="java.util.List">
+        insert into store_order_item
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            id,
+            plat_order_id,
+            plat_order_item_id,
+            plat_variant_id,
+            plat_product_id,
+            store_order_id,
+            store_variant_id,
+            store_product_id,
+            quantity,
+            price,
+            store_variant_name,
+            store_variant_sku,
+            store_variant_image,
+            store_product_title,
+            state
+        </trim>
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+                #{item.id},
+                #{item.platOrderId},
+                #{item.platOrderItemId},
+                #{item.platVariantId},
+                #{item.platProductId},
+                #{item.storeOrderId},
+                #{item.storeVariantId},
+                #{item.storeProductId},
+                #{item.quantity},
+                #{item.price},
+                #{item.storeVariantName},
+                #{item.storeVariantSku},
+                #{item.storeVariantImage},
+                #{item.storeProductTitle},
+                '0'
+            </trim>
+        </foreach>
+    </insert>
+
+    <sql id="Query_Condition">
+        <if test="t != null">
+            where
+            <trim prefix=" " suffix=" " suffixOverrides=" and ">
+                1 = 1 and
+                <if test="t.id != null">
+                    id = #{t.id} and
+                </if>
+                <if test="t.platOrderId != null">
+                    plat_order_id = #{t.platOrderId} and
+                </if>
+                <if test="t.platOrderItemId != null">
+                    plat_order_item_id = #{t.platOrderItemId} and
+                </if>
+                <if test="t.storeOrderId != null">
+                    store_order_id = #{t.storeOrderId} and
+                </if>
+                <if test="t.storeVariantId != null">
+                    store_variant_id = #{t.storeVariantId} and
+                </if>
+                <if test="t.storeProductId != null">
+                    store_product_id = #{t.storeProductId} and
+                </if>
+                <if test="t.quantity != null">
+                    quantity = #{t.quantity} and
+                </if>
+                <if test="t.price != null">
+                    price = #{t.price} and
+                </if>
+                <if test="t.storeVariantName != null">
+                    store_variant_name = #{t.storeVariantName} and
+                </if>
+                <if test="t.storeVariantSku != null">
+                    store_variant_sku = #{t.storeVariantSku} and
+                </if>
+                <if test="t.storeVariantImage != null">
+                    store_variant_image = #{t.storeVariantImage} and
+                </if>
+                <if test="t.storeProductTitle != null">
+                    store_product_title = #{t.storeProductTitle} and
+                </if>
+                <if test="t.state != null">
+                    state = #{t.state} and
+                </if>
+                <if test="condition != null">
+                        #{condition} and
+                </if>
+            </trim>
+        </if>
+    </sql>
+
+    <select id="select" parameterType="com.upedge.common.base.Page" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from store_order_item
+        <include refid="Query_Condition"/>
+        <if test="orderBy != null">
+            order by ${orderBy}
+        </if>
+        <if test="pageNum != null and pageSize != null">
+            limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+        </if>
+    </select>
+
+    <select id="count" parameterType="com.upedge.common.base.Page" resultType="java.lang.Long">
+        select
+        count(1)
+        from store_order_item
+        <include refid="Query_Condition"/>
+    </select>
+
+    <sql id="Data_Condition">
+        <if test="t != null">
+            where
+            <trim prefix=" " suffix=" " suffixOverrides=" and ">
+                1 = 1 and
+                <if test="t.storeId != null">
+                    so.store_id = #{t.storeId} and
+                </if>
+                <if test="t.customerId != null">
+                    so.customer_id = #{t.customerId} and
+                </if>
+                <if test="t.productId != null">
+                    soi.`store_product_id` = #{t.productId} and
+                </if>
+            </trim>
+        </if>
+    </sql>
+
+    <select id="dataList" parameterType="com.upedge.common.base.Page"
+            resultType="com.upedge.oms.modules.order.vo.StoreOrderVariantData">
+        select
+        soi.`id`,
+        soi.`plat_order_id`,
+        soi.`store_order_id`,
+        soi.`store_product_id` as productId,
+        soi.`quantity` as quantity,
+        soi.`price` as price,
+        soi.`store_product_title` as productTitle,
+        so.total_price as totalPrice,
+        so.store_id as storeId,
+        so.customer_id as customerId,
+        so.financial_status as financialStatus,
+        so.currency_code as currency,
+        so.update_time as processedAt,
+        soa.email as customerEmail,
+        soa.first_name as firstName,
+        soa.last_name as lastName,
+        soa.address1 as address1,
+        soa.address2 as address2,
+        soa.phone as addrPhone,
+        soa.city as city,
+        soa.zip as zip,
+        soa.province as province,
+        soa.country as country,
+        soa.country_code as countryCode
+        from store_order_item soi
+        left join store_order so on so.id=soi.store_order_id
+        left join store_order_address soa on soa.id=so.store_address_id
+        <include refid="Data_Condition"/>
+        <if test="orderBy != null">
+            order by ${orderBy}
+        </if>
+        <if test="pageNum != null and pageSize != null and fields==null">
+            limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+        </if>
+    </select>
+
+    <select id="dataCount" parameterType="com.upedge.common.base.Page" resultType="java.lang.Long">
+        select
+        count(1)
+        from store_order_item soi
+        left join store_order so on so.id=soi.store_order_id
+        left join store_order_address soa on soa.id=so.store_address_id
+        <include refid="Data_Condition"/>
+    </select>
+
+</mapper>

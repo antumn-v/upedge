@@ -3,7 +3,7 @@
 
 <mapper namespace="com.upedge.pms.modules.product.dao.ProductDao">
 
-	<!-- 可根据自己的需求，是否要使用 -->
+    <!-- 可根据自己的需求，是否要使用 -->
     <resultMap type="com.upedge.pms.modules.product.entity.Product" id="BaseResultMap">
         <result property="id" column="id"/>
         <result property="originalId" column="original_id"/>
@@ -28,13 +28,28 @@
         <result property="minPrice" column="min_price"/>
     </resultMap>
 
+
+    <resultMap type="com.upedge.pms.modules.product.vo.AppProductVo" id="WinningProduct">
+        <result property="id" column="id"/>
+        <result property="productTitle" column="product_title"/>
+        <result property="productImage" column="product_image"/>
+        <result property="categoryId" column="category_id"/>
+        <result property="turnover" column="turnover"/>
+        <result property="score" column="score"/>
+        <result property="minPrice" column="min_price"/>
+        <result property="maxPrice" column="max_price"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+    </resultMap>
+
     <sql id="Base_Column_List">
         `id`,`original_id`,`product_sku`,`original_title`,`product_title`,`product_image`,`supplier_id`,`shipping_id`,`category_id`,`state`,`replace_state`,`saihe_state`,`product_source`,`product_type`,`cate_type`,`user_id`,`create_time`,`update_time`,`price_range`,`max_price`,`min_price`
     </sql>
 
-    <select id="selectByPrimaryKey" parameterType="com.upedge.pms.modules.product.entity.Product" resultMap="BaseResultMap">
+    <select id="selectByPrimaryKey" parameterType="com.upedge.pms.modules.product.entity.Product"
+            resultMap="BaseResultMap">
         select
-        <include refid="Base_Column_List" />
+        <include refid="Base_Column_List"/>
         from product
         where id = #{id}
     </select>
@@ -114,32 +129,80 @@
     <update id="updateByPrimaryKey" parameterType="com.upedge.pms.modules.product.entity.Product">
         update product
         <set>
-        id = #{id},
-        original_id = #{originalId},
-        product_sku = #{productSku},
-        original_title = #{originalTitle},
-        product_title = #{productTitle},
-        product_image = #{productImage},
-        supplier_id = #{supplierId},
-        shipping_id = #{shippingId},
-        category_id = #{categoryId},
-        state = #{state},
-        replace_state = #{replaceState},
-        saihe_state = #{saiheState},
-        product_source = #{productSource},
-        product_type = #{productType},
-        cate_type = #{cateType},
-        user_id = #{userId},
-        create_time = #{createTime},
-        update_time = #{updateTime},
-        price_range = #{priceRange},
-        max_price = #{maxPrice},
-        min_price = #{minPrice},
+            id = #{id},
+            original_id = #{originalId},
+            product_sku = #{productSku},
+            original_title = #{originalTitle},
+            product_title = #{productTitle},
+            product_image = #{productImage},
+            supplier_id = #{supplierId},
+            shipping_id = #{shippingId},
+            category_id = #{categoryId},
+            state = #{state},
+            replace_state = #{replaceState},
+            saihe_state = #{saiheState},
+            product_source = #{productSource},
+            product_type = #{productType},
+            cate_type = #{cateType},
+            user_id = #{userId},
+            create_time = #{createTime},
+            update_time = #{updateTime},
+            price_range = #{priceRange},
+            max_price = #{maxPrice},
+            min_price = #{minPrice},
         </set>
         where id = #{id}
     </update>
+    <update id="updateSaiheState">
+        update product set saihe_state=1
+        where id in
+        <foreach collection="ids" index="index" item="item"
+                 separator="," open="(" close=")">
+            #{item}
+        </foreach>
+        limit #{size}
+    </update>
+    <update id="importFavorite">
+        update product
+        set user_id=#{userId},state=1
+        where state=0 and id in
+        <foreach collection="ids" index="index" item="item"
+                 separator="," open="(" close=")">
+            #{item}
+        </foreach>
+    </update>
+    <update id="multiRelease">
+        update product
+        set user_id=#{userId},state=0
+        where state=1 and id in
+        <foreach collection="ids" index="index" item="item"
+                 separator="," open="(" close=")">
+            #{item}
+        </foreach>
+    </update>
+    <update id="abandonProduct">
+         update product
+        set user_id=#{userId},state=-1
+        where state=1 and id=#{id} limit 1
+    </update>
 
-    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.upedge.pms.modules.product.entity.Product" useGeneratedKeys="true">
+    <update id="publicProduct">
+        update product set product_type=0 where id=#{productId}
+    </update>
+
+    <update id="privateProduct">
+		update product set product_type=1 where id=#{productId}
+    </update>
+    <update id="updatePriceRangeById">
+        update product
+        set price_range = #{priceRange},
+            max_price  = #{maxPrice},
+            min_price  = #{minPrice}
+        where id = #{id}
+    </update>
+
+    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.upedge.pms.modules.product.entity.Product"
+            useGeneratedKeys="true">
         insert into product
         <trim prefix="(" suffix=")" suffixOverrides=",">
             id,
@@ -189,136 +252,137 @@
         )
     </insert>
 
-    <insert id="insertSelective"  keyColumn="id" keyProperty="id"  parameterType="com.upedge.pms.modules.product.entity.Product" useGeneratedKeys="true">
+    <insert id="insertSelective" keyColumn="id" keyProperty="id"
+            parameterType="com.upedge.pms.modules.product.entity.Product" useGeneratedKeys="true">
         insert into product
         <trim prefix="(" suffix=")" suffixOverrides=",">
-            <if test="id != null" >
-              id
+            <if test="id != null">
+                id
             </if>
-            <if test="originalId != null" >
-              original_id
+            <if test="originalId != null">
+                original_id
             </if>
-            <if test="productSku != null" >
-              product_sku
+            <if test="productSku != null">
+                product_sku
             </if>
-            <if test="originalTitle != null" >
-              original_title
+            <if test="originalTitle != null">
+                original_title
             </if>
-            <if test="productTitle != null" >
-              product_title
+            <if test="productTitle != null">
+                product_title
             </if>
-            <if test="productImage != null" >
-              product_image
+            <if test="productImage != null">
+                product_image
             </if>
-            <if test="supplierId != null" >
-              supplier_id
+            <if test="supplierId != null">
+                supplier_id
             </if>
-            <if test="shippingId != null" >
-              shipping_id
+            <if test="shippingId != null">
+                shipping_id
             </if>
-            <if test="categoryId != null" >
-              category_id
+            <if test="categoryId != null">
+                category_id
             </if>
-            <if test="state != null" >
-              state
+            <if test="state != null">
+                state
             </if>
-            <if test="replaceState != null" >
-              replace_state
+            <if test="replaceState != null">
+                replace_state
             </if>
-            <if test="saiheState != null" >
-              saihe_state
+            <if test="saiheState != null">
+                saihe_state
             </if>
-            <if test="productSource != null" >
-              product_source
+            <if test="productSource != null">
+                product_source
             </if>
-            <if test="productType != null" >
-              product_type
+            <if test="productType != null">
+                product_type
             </if>
-            <if test="cateType != null" >
-              cate_type
+            <if test="cateType != null">
+                cate_type
             </if>
-            <if test="userId != null" >
-              user_id
+            <if test="userId != null">
+                user_id
             </if>
-            <if test="createTime != null" >
-              create_time
+            <if test="createTime != null">
+                create_time
             </if>
-            <if test="updateTime != null" >
-              update_time
+            <if test="updateTime != null">
+                update_time
             </if>
-            <if test="priceRange != null" >
-              price_range
+            <if test="priceRange != null">
+                price_range
             </if>
-            <if test="maxPrice != null" >
-              max_price
+            <if test="maxPrice != null">
+                max_price
             </if>
-            <if test="minPrice != null" >
-              min_price
+            <if test="minPrice != null">
+                min_price
             </if>
 
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
-            <if test="id != null" >
+            <if test="id != null">
                 #{id}
             </if>
-            <if test="originalId != null" >
+            <if test="originalId != null">
                 #{originalId}
             </if>
-            <if test="productSku != null" >
+            <if test="productSku != null">
                 #{productSku}
             </if>
-            <if test="originalTitle != null" >
+            <if test="originalTitle != null">
                 #{originalTitle}
             </if>
-            <if test="productTitle != null" >
+            <if test="productTitle != null">
                 #{productTitle}
             </if>
-            <if test="productImage != null" >
+            <if test="productImage != null">
                 #{productImage}
             </if>
-            <if test="supplierId != null" >
+            <if test="supplierId != null">
                 #{supplierId}
             </if>
-            <if test="shippingId != null" >
+            <if test="shippingId != null">
                 #{shippingId}
             </if>
-            <if test="categoryId != null" >
+            <if test="categoryId != null">
                 #{categoryId}
             </if>
-            <if test="state != null" >
+            <if test="state != null">
                 #{state}
             </if>
-            <if test="replaceState != null" >
+            <if test="replaceState != null">
                 #{replaceState}
             </if>
-            <if test="saiheState != null" >
+            <if test="saiheState != null">
                 #{saiheState}
             </if>
-            <if test="productSource != null" >
+            <if test="productSource != null">
                 #{productSource}
             </if>
-            <if test="productType != null" >
+            <if test="productType != null">
                 #{productType}
             </if>
-            <if test="cateType != null" >
+            <if test="cateType != null">
                 #{cateType}
             </if>
-            <if test="userId != null" >
+            <if test="userId != null">
                 #{userId}
             </if>
-            <if test="createTime != null" >
+            <if test="createTime != null">
                 #{createTime}
             </if>
-            <if test="updateTime != null" >
+            <if test="updateTime != null">
                 #{updateTime}
             </if>
-            <if test="priceRange != null" >
+            <if test="priceRange != null">
                 #{priceRange}
             </if>
-            <if test="maxPrice != null" >
+            <if test="maxPrice != null">
                 #{maxPrice}
             </if>
-            <if test="minPrice != null" >
+            <if test="minPrice != null">
                 #{minPrice}
             </if>
 
@@ -328,52 +392,52 @@
     <insert id="insertByBatch" parameterType="java.util.List">
         insert into product
         <trim prefix="(" suffix=")" suffixOverrides=",">
-           id,
-           original_id,
-           product_sku,
-           original_title,
-           product_title,
-           product_image,
-           supplier_id,
-           shipping_id,
-           category_id,
-           state,
-           replace_state,
-           saihe_state,
-           product_source,
-           product_type,
-           cate_type,
-           user_id,
-           create_time,
-           update_time,
-           price_range,
-           max_price,
-           min_price
+            id,
+            original_id,
+            product_sku,
+            original_title,
+            product_title,
+            product_image,
+            supplier_id,
+            shipping_id,
+            category_id,
+            state,
+            replace_state,
+            saihe_state,
+            product_source,
+            product_type,
+            cate_type,
+            user_id,
+            create_time,
+            update_time,
+            price_range,
+            max_price,
+            min_price
         </trim>
         values
         <foreach collection="list" item="item" index="index" separator=",">
             <trim prefix="(" suffix=")" suffixOverrides=",">
-               #{item.id},
-               #{item.originalId},
-               #{item.productSku},
-               #{item.originalTitle},
-               #{item.productTitle},
-               #{item.productImage},
-               #{item.supplierId},
-               #{item.shippingId},
-               #{item.categoryId},
-               #{item.state},
-               #{item.replaceState},
-               #{item.saiheState},
-               #{item.productSource},
-               #{item.productType},
-               #{item.cateType},
-               #{item.userId},
-               #{item.createTime},
-               #{item.updateTime},
-               #{item.priceRange},
-               #{item.maxPrice},
-               #{item.minPrice}
+                #{item.id},
+                #{item.originalId},
+                #{item.productSku},
+                #{item.originalTitle},
+                #{item.productTitle},
+                #{item.productImage},
+                #{item.supplierId},
+                #{item.shippingId},
+                #{item.categoryId},
+                #{item.state},
+                #{item.replaceState},
+                #{item.saiheState},
+                #{item.productSource},
+                #{item.productType},
+                #{item.cateType},
+                #{item.userId},
+                #{item.createTime},
+                #{item.updateTime},
+                #{item.priceRange},
+                #{item.maxPrice},
+                #{item.minPrice}
             </trim>
         </foreach>
     </insert>
@@ -383,76 +447,76 @@
             where
             <trim prefix=" " suffix=" " suffixOverrides=" and ">
                 1 = 1 and
-                    <if test="t.id != null">
-                        id = #{t.id} and
-                    </if>
-                    <if test="t.originalId != null">
-                        original_id = #{t.originalId} and
-                    </if>
-                    <if test="t.productSku != null">
-                        product_sku = #{t.productSku} and
-                    </if>
-                    <if test="t.originalTitle != null">
-                        original_title = #{t.originalTitle} and
-                    </if>
-                    <if test="t.productTitle != null">
-                        product_title = #{t.productTitle} and
-                    </if>
-                    <if test="t.productImage != null">
-                        product_image = #{t.productImage} and
-                    </if>
-                    <if test="t.supplierId != null">
-                        supplier_id = #{t.supplierId} and
-                    </if>
-                    <if test="t.shippingId != null">
-                        shipping_id = #{t.shippingId} and
-                    </if>
-                    <if test="t.categoryId != null">
-                        category_id = #{t.categoryId} and
-                    </if>
-                    <if test="t.state != null">
-                        state = #{t.state} and
-                    </if>
-                    <if test="t.replaceState != null">
-                        replace_state = #{t.replaceState} and
-                    </if>
-                    <if test="t.saiheState != null">
-                        saihe_state = #{t.saiheState} and
-                    </if>
-                    <if test="t.productSource != null">
-                        product_source = #{t.productSource} and
-                    </if>
-                    <if test="t.productType != null">
-                        product_type = #{t.productType} and
-                    </if>
-                    <if test="t.cateType != null">
-                        cate_type = #{t.cateType} and
-                    </if>
-                    <if test="t.userId != null">
-                        user_id = #{t.userId} and
-                    </if>
-                    <if test="t.createTime != null">
-                        create_time = #{t.createTime} and
-                    </if>
-                    <if test="t.updateTime != null">
-                        update_time = #{t.updateTime} and
-                    </if>
-                    <if test="t.priceRange != null">
-                        price_range = #{t.priceRange} and
-                    </if>
-                    <if test="t.maxPrice != null">
-                        max_price = #{t.maxPrice} and
-                    </if>
-                    <if test="t.minPrice != null">
-                        min_price = #{t.minPrice} and
-                    </if>
+                <if test="t.id != null">
+                    id = #{t.id} and
+                </if>
+                <if test="t.originalId != null">
+                    original_id = #{t.originalId} and
+                </if>
+                <if test="t.productSku != null and t.productSku != ''">
+                    product_sku = #{t.productSku} and
+                </if>
+                <if test="t.originalTitle != null">
+                    original_title = #{t.originalTitle} and
+                </if>
+                <if test="t.productTitle != null and t.productTitle != ''">
+                    product_title = #{t.productTitle} and
+                </if>
+                <if test="t.productImage != null">
+                    product_image = #{t.productImage} and
+                </if>
+                <if test="t.supplierId != null">
+                    supplier_id = #{t.supplierId} and
+                </if>
+                <if test="t.shippingId != null">
+                    shipping_id = #{t.shippingId} and
+                </if>
+                <if test="t.categoryId != null">
+                    category_id = #{t.categoryId} and
+                </if>
+                <if test="t.state != null">
+                    state = #{t.state} and
+                </if>
+                <if test="t.replaceState != null">
+                    replace_state = #{t.replaceState} and
+                </if>
+                <if test="t.saiheState != null">
+                    saihe_state = #{t.saiheState} and
+                </if>
+                <if test="t.productSource != null">
+                    product_source = #{t.productSource} and
+                </if>
+                <if test="t.productType != null">
+                    product_type = #{t.productType} and
+                </if>
+                <if test="t.cateType != null">
+                    cate_type = #{t.cateType} and
+                </if>
+                <if test="t.userId != null">
+                    user_id = #{t.userId} and
+                </if>
+                <if test="t.createTime != null">
+                    create_time = #{t.createTime} and
+                </if>
+                <if test="t.updateTime != null">
+                    update_time = #{t.updateTime} and
+                </if>
+                <if test="t.priceRange != null">
+                    price_range = #{t.priceRange} and
+                </if>
+                <if test="t.maxPrice != null">
+                    max_price = #{t.maxPrice} and
+                </if>
+                <if test="t.minPrice != null">
+                    min_price = #{t.minPrice} and
+                </if>
             </trim>
         </if>
     </sql>
 
     <select id="select" parameterType="com.upedge.common.base.Page" resultMap="BaseResultMap">
         select
-        <include refid="Base_Column_List" />
+        <include refid="Base_Column_List"/>
         from product
         <include refid="Query_Condition"/>
         <if test="orderBy != null">
@@ -470,8 +534,72 @@
         <include refid="Query_Condition"/>
     </select>
     <select id="selectByProductSku" resultType="com.upedge.pms.modules.product.entity.Product">
-        select <include refid="Base_Column_List"/>
+        select
+        <include refid="Base_Column_List"/>
         from product where product_sku=#{productSku}
+    </select>
+
+
+    <select id="selectWinningProducts"  resultMap="WinningProduct">
+        select
+        p.id,p.price_range priceRange,`product_title`,`product_image`,p.category_id,
+        p.create_time creatTime,p.update_time,
+        a.turnover,a.score,
+        round(p.min_price/6.3*1.2,2) as min_price,
+        round(p.max_price/6.3*1.2,2) as max_price
+        from product p
+        left join product_attribute a
+        on p.id = a.product_id
+        where p.state = '3'
+        and p.cate_type = '0'
+        and p.product_type = '0'
+        <if test="t != null">
+            <trim prefix=" " suffix=" " suffixOverrides=" and ">
+                and
+                <if test="t.id != null">
+                    id = #{t.id} and
+                </if>
+                <if test="t.productTitle != null and t.productTitle != ''">
+                    product_title like concat('%',#{t.productTitle},'%') and
+                </if>
+                <if test="t.categoryId != null">
+                    category_id = #{t.categoryId} and
+                </if>
+            </trim>
+        </if>
+        <if test="orderBy != null">
+            order by ${orderBy} , id desc
+        </if>
+        <if test="orderBy == null">
+            order by  id desc
+        </if>
+        <if test="pageNum != null and pageSize != null">
+            limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+        </if>
+    </select>
+    <select id="countWinningProduct" resultType="java.lang.Long">
+        select
+        count(1)
+        from product p
+        left join product_attribute a
+        on p.id = a.product_id
+        where p.state = '3'
+        and p.cate_type = '0'
+        and p.product_type = '0'
+        <if test="t != null">
+            <trim prefix=" " suffix=" " suffixOverrides=" and ">
+                and
+                <if test="t.id != null">
+                    id = #{t.id} and
+                </if>
+                <if test="t.productTitle != null and t.productTitle != ''">
+                    product_title like concat('%',#{t.productTitle},'%') and
+                </if>
+                <if test="t.categoryId != null">
+                    category_id = #{t.categoryId} and
+                </if>
+            </trim>
+        </if>
     </select>
 
 

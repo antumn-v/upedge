@@ -1,12 +1,14 @@
 package com.upedge.ums.modules.affiliate.entity;
 
-import java.math.BigDecimal;
-import java.io.Serializable;
-import java.util.Date;
+import com.upedge.common.model.user.vo.Session;
+import com.upedge.ums.modules.affiliate.request.AffiliateWithdrawalRequest;
 import lombok.Data;
 
+import java.math.BigDecimal;
+import java.util.Date;
+
 /**
- * @author gx
+ * @author author
  */
 @Data
 public class AffiliateCommissionWithdrawal{
@@ -19,16 +21,17 @@ public class AffiliateCommissionWithdrawal{
 	 * 申请人
 	 */
     private Long customerId;
+
 	/**
 	 * 申请提现账户
 	 */
-    private Long withdrawalAccountId;
+	private Long withdrawalAccountId;
 	/**
 	 * 提现金额
 	 */
     private BigDecimal amount;
 	/**
-	 * 0=SourcinBox,1=PayPal,2=Payoneer
+	 * PayPal,Payoneer,SourcinBox
 	 */
     private Integer path;
 	/**
@@ -54,18 +57,33 @@ public class AffiliateCommissionWithdrawal{
 	/**
 	 * 
 	 */
-    private String adminUserId;
+    private String managerCode;
 	/**
 	 * 收款账户
 	 */
     private String receiveAccount;
 	/**
-	 * 后台付款账号
+	 * 付款账号
 	 */
     private String paymentAccount;
-	/**
-	 * 
-	 */
-    private String managerCode;
+
+	private Integer gteState;
+
+	public AffiliateCommissionWithdrawal() {
+	}
+
+	public AffiliateCommissionWithdrawal getAffiliateCommissionWithdrawal(Session session, AffiliateWithdrawalRequest request){
+		AffiliateCommissionWithdrawal withdrawal = new AffiliateCommissionWithdrawal();
+		withdrawal.setReceiveAccount(request.getAccount());
+		withdrawal.setAmount(request.getMoney());
+		withdrawal.setPath(request.getType());
+		withdrawal.setRemark(request.getRemark());
+		withdrawal.setCustomerId(session.getCustomerId());
+		withdrawal.setWithdrawalAccountId(session.getAccountId());
+		withdrawal.setCreateTime(new Date());
+		withdrawal.setUpdateTime(new Date());
+		withdrawal.setState(0);
+		return withdrawal;
+	}
 
 }

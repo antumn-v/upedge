@@ -10,7 +10,7 @@ import com.upedge.thirdparty.saihe.response.SaiheResponseEntity;
 import com.upedge.thirdparty.saihe.utils.PostUtils;
 import com.upedge.thirdparty.saihe.utils.XmlAndJavaObjectConvert;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.RequestEntity;
+
 
 @Slf4j
 public class SaiheSourceApi {

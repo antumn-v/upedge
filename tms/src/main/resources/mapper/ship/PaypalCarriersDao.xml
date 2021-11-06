@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.upedge.tms.modules.ship.dao.PaypalCarriersDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.upedge.tms.modules.ship.entity.PaypalCarriers" id="BaseResultMap">
+        <result property="carrier" column="carrier"/>
+        <result property="enumeratedValue" column="enumerated_value"/>
+        <result property="countryCode" column="country_code"/>
+        <result property="name" column="name"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        `carrier`,`enumerated_value`,`country_code`,`name`
+    </sql>
+
+    <select id="selectByPrimaryKey" parameterType="com.upedge.tms.modules.ship.entity.PaypalCarriers" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from paypal_carriers
+        where enumerated_value = #{enumeratedValue}
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="com.upedge.tms.modules.ship.entity.PaypalCarriers">
+        delete from paypal_carriers
+        where enumerated_value = #{enumeratedValue}
+    </delete>
+
+    <update id="updateByPrimaryKeySelective" parameterType="com.upedge.tms.modules.ship.entity.PaypalCarriers">
+        update paypal_carriers
+        <set>
+            <if test="carrier != null">
+                carrier = #{carrier},
+            </if>
+            <if test="countryCode != null">
+                country_code = #{countryCode},
+            </if>
+            <if test="name != null">
+                name = #{name},
+            </if>
+        </set>
+        where enumerated_value = #{enumeratedValue}
+    </update>
+
+    <update id="updateByPrimaryKey" parameterType="com.upedge.tms.modules.ship.entity.PaypalCarriers">
+        update paypal_carriers
+        <set>
+        carrier = #{carrier},
+        enumerated_value = #{enumeratedValue},
+        country_code = #{countryCode},
+        name = #{name},
+        </set>
+        where enumerated_value = #{enumeratedValue}
+    </update>
+
+    <insert id="insert" keyColumn="enumerated_value" keyProperty="enumeratedValue" parameterType="com.upedge.tms.modules.ship.entity.PaypalCarriers" useGeneratedKeys="true">
+        insert into paypal_carriers
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            carrier,
+            enumerated_value,
+            country_code,
+            name
+        </trim>
+        values (
+        #{carrier},
+        #{enumeratedValue},
+        #{countryCode},
+        #{name}
+        )
+    </insert>
+
+    <insert id="insertSelective"  keyColumn="enumerated_value" keyProperty="enumeratedValue"  parameterType="com.upedge.tms.modules.ship.entity.PaypalCarriers" useGeneratedKeys="true">
+        insert into paypal_carriers
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="carrier != null" >
+              carrier
+            </if>
+            <if test="enumeratedValue != null" >
+              enumerated_value
+            </if>
+            <if test="countryCode != null" >
+              country_code
+            </if>
+            <if test="name != null" >
+              name
+            </if>
+
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="carrier != null" >
+                #{carrier}
+            </if>
+            <if test="enumeratedValue != null" >
+                #{enumeratedValue}
+            </if>
+            <if test="countryCode != null" >
+                #{countryCode}
+            </if>
+            <if test="name != null" >
+                #{name}
+            </if>
+
+        </trim>
+    </insert>
+
+    <insert id="insertByBatch" parameterType="java.util.List">
+        insert into paypal_carriers
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+           carrier,
+           enumerated_value,
+           country_code,
+           name
+        </trim>
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+               #{item.carrier},
+               #{item.enumeratedValue},
+               #{item.countryCode},
+               #{item.name}
+            </trim>
+        </foreach>
+    </insert>
+
+    <sql id="Query_Condition">
+        <if test="t != null">
+            where
+            <trim prefix=" " suffix=" " suffixOverrides=" and ">
+                1 = 1 and
+                    <if test="t.carrier != null">
+                        carrier LIKE CONCAT('%',#{t.carrier},'%')  and
+                    </if>
+                    <if test="t.enumeratedValue != null">
+                        enumerated_value = #{t.enumeratedValue} and
+                    </if>
+                    <if test="t.countryCode != null">
+                        country_code = #{t.countryCode} and
+                    </if>
+                    <if test="t.name != null">
+                        name = #{t.name} and
+                    </if>
+            </trim>
+        </if>
+    </sql>
+
+    <select id="select" parameterType="com.upedge.common.base.Page" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from paypal_carriers
+        <include refid="Query_Condition"/>
+        <if test="orderBy != null">
+            order by ${orderBy}
+        </if>
+        <if test="pageNum != null and pageSize != null">
+            limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+        </if>
+    </select>
+
+    <select id="count" parameterType="com.upedge.common.base.Page" resultType="java.lang.Long">
+        select
+        count(1)
+        from paypal_carriers
+        <include refid="Query_Condition"/>
+    </select>
+
+    <select id="allPaypalCarriers" resultMap="BaseResultMap">
+        select
+        enumerated_value
+        from paypal_carriers
+    </select>
+
+</mapper>

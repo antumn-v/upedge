@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.upedge.ums.modules.account.dao.AdminAccountAttrDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.upedge.ums.modules.account.entity.AdminAccountAttr" id="BaseResultMap">
+        <result property="accountId" column="account_id"/>
+        <result property="attrKey" column="attr_key"/>
+        <result property="attrValue" column="attr_value"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        `account_id`,`attr_key`,`attr_value`
+    </sql>
+
+    <select id="selectByPrimaryKey" parameterType="com.upedge.ums.modules.account.entity.AdminAccountAttr" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from admin_account_attr
+        where account_id = #{accountId}
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="com.upedge.ums.modules.account.entity.AdminAccountAttr">
+        delete from admin_account_attr
+        where account_id = #{accountId}
+    </delete>
+
+    <update id="updateByPrimaryKeySelective" parameterType="com.upedge.ums.modules.account.entity.AdminAccountAttr">
+        update admin_account_attr
+        <set>
+            <if test="attrKey != null">
+                attr_key = #{attrKey},
+            </if>
+            <if test="attrValue != null">
+                attr_value = #{attrValue},
+            </if>
+        </set>
+        where account_id = #{accountId}
+    </update>
+
+    <update id="updateByPrimaryKey" parameterType="com.upedge.ums.modules.account.entity.AdminAccountAttr">
+        update admin_account_attr
+        <set>
+        account_id = #{accountId},
+        attr_key = #{attrKey},
+        attr_value = #{attrValue},
+        </set>
+        where account_id = #{accountId}
+    </update>
+
+    <insert id="insert" keyColumn="account_id" keyProperty="accountId" parameterType="com.upedge.ums.modules.account.entity.AdminAccountAttr" useGeneratedKeys="true">
+        insert into admin_account_attr
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            account_id,
+            attr_key,
+            attr_value
+        </trim>
+        values (
+        #{accountId},
+        #{attrKey},
+        #{attrValue}
+        )
+    </insert>
+
+    <insert id="insertSelective"  keyColumn="account_id" keyProperty="accountId"  parameterType="com.upedge.ums.modules.account.entity.AdminAccountAttr" useGeneratedKeys="true">
+        insert into admin_account_attr
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="accountId != null" >
+              account_id
+            </if>
+            <if test="attrKey != null" >
+              attr_key
+            </if>
+            <if test="attrValue != null" >
+              attr_value
+            </if>
+
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="accountId != null" >
+                #{accountId}
+            </if>
+            <if test="attrKey != null" >
+                #{attrKey}
+            </if>
+            <if test="attrValue != null" >
+                #{attrValue}
+            </if>
+
+        </trim>
+    </insert>
+
+    <insert id="insertByBatch" parameterType="java.util.List">
+        insert into admin_account_attr
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+           account_id,
+           attr_key,
+           attr_value
+        </trim>
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+               #{item.accountId},
+               #{item.attrKey},
+               #{item.attrValue}
+            </trim>
+        </foreach>
+    </insert>
+
+    <sql id="Query_Condition">
+        <if test="t != null">
+            where
+            <trim prefix=" " suffix=" " suffixOverrides=" and ">
+                1 = 1 and
+                    <if test="t.accountId != null">
+                        account_id = #{t.accountId} and
+                    </if>
+                    <if test="t.attrKey != null">
+                        attr_key = #{t.attrKey} and
+                    </if>
+                    <if test="t.attrValue != null">
+                        attr_value = #{t.attrValue} and
+                    </if>
+            </trim>
+        </if>
+    </sql>
+
+    <select id="select" parameterType="com.upedge.common.base.Page" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from admin_account_attr
+        <include refid="Query_Condition"/>
+        <if test="orderBy != null">
+            order by ${orderBy}
+        </if>
+        <if test="pageNum != null and pageSize != null">
+            limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+        </if>
+    </select>
+
+    <select id="count" parameterType="com.upedge.common.base.Page" resultType="java.lang.Long">
+        select
+        count(1)
+        from admin_account_attr
+        <include refid="Query_Condition"/>
+    </select>
+
+    <select id="listAttrsByAccountId" resultType="com.upedge.ums.modules.account.vo.AdminAccountAttrVo">
+        select
+        a.`account_id` as accountId,
+        a.`attr_key` as attrKey,
+        a.`attr_value` as attrValue,
+        (select t.attr_name from admin_account_type_attr t where t.account_type=#{accountType} and t.attr_key=a.attr_key) as attrName
+        from admin_account_attr a
+        where a.account_id=#{accountId}
+        order by a.attr_key
+    </select>
+
+    <insert id="saveByBatch" parameterType="java.util.List">
+        insert into admin_account_attr(account_id,attr_key,attr_value)
+        values
+        <foreach collection="list" item="item" index="index"
+                 separator=",">
+            (#{item.accountId,jdbcType=BIGINT},
+            #{item.attrKey,jdbcType=VARCHAR},
+            #{item.attrValue,jdbcType=VARCHAR})
+        </foreach>
+        ON DUPLICATE KEY UPDATE
+        attr_value = VALUES(attr_value)
+    </insert>
+
+</mapper>

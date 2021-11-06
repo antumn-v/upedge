@@ -1,11 +1,13 @@
 package com.upedge.ums.modules.affiliate.request;
 
 import com.upedge.ums.modules.affiliate.entity.AffiliateCommissionWithdrawal;
-import java.util.Date;
 import lombok.Data;
+
 import java.math.BigDecimal;
+import java.util.Date;
+
 /**
- * @author gx
+ * @author author
  */
 @Data
 public class AffiliateCommissionWithdrawalUpdateRequest{
@@ -15,15 +17,11 @@ public class AffiliateCommissionWithdrawalUpdateRequest{
      */
     private Long customerId;
     /**
-     * 申请提现账户
-     */
-    private Long withdrawalAccountId;
-    /**
      * 提现金额
      */
     private BigDecimal amount;
     /**
-     * 0=SourcinBox,1=PayPal,2=Payoneer
+     * PayPal,Payoneer,SourcinBox
      */
     private Integer path;
     /**
@@ -49,25 +47,20 @@ public class AffiliateCommissionWithdrawalUpdateRequest{
     /**
      * 
      */
-    private String adminUserId;
+    private String managerCode;
     /**
      * 收款账户
      */
     private String receiveAccount;
     /**
-     * 后台付款账号
+     * 付款账号
      */
     private String paymentAccount;
-    /**
-     * 
-     */
-    private String managerCode;
 
     public AffiliateCommissionWithdrawal toAffiliateCommissionWithdrawal(Long id){
         AffiliateCommissionWithdrawal affiliateCommissionWithdrawal=new AffiliateCommissionWithdrawal();
         affiliateCommissionWithdrawal.setId(id);
         affiliateCommissionWithdrawal.setCustomerId(customerId);
-        affiliateCommissionWithdrawal.setWithdrawalAccountId(withdrawalAccountId);
         affiliateCommissionWithdrawal.setAmount(amount);
         affiliateCommissionWithdrawal.setPath(path);
         affiliateCommissionWithdrawal.setRemark(remark);
@@ -75,10 +68,9 @@ public class AffiliateCommissionWithdrawalUpdateRequest{
         affiliateCommissionWithdrawal.setCreateTime(createTime);
         affiliateCommissionWithdrawal.setUpdateTime(updateTime);
         affiliateCommissionWithdrawal.setReason(reason);
-        affiliateCommissionWithdrawal.setAdminUserId(adminUserId);
+        affiliateCommissionWithdrawal.setManagerCode(managerCode);
         affiliateCommissionWithdrawal.setReceiveAccount(receiveAccount);
         affiliateCommissionWithdrawal.setPaymentAccount(paymentAccount);
-        affiliateCommissionWithdrawal.setManagerCode(managerCode);
         return affiliateCommissionWithdrawal;
     }
 

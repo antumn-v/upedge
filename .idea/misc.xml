@@ -18,6 +18,11 @@
         <option value="$PROJECT_DIR$/thirdparty-service/panda-saihe/pom.xml" />
         <option value="$PROJECT_DIR$/thirdparty-service/panda-1688/pom.xml" />
         <option value="$PROJECT_DIR$/pms/pom.xml" />
+        <option value="$PROJECT_DIR$/thirdparty-service/panda-shoplazza/pom.xml" />
+        <option value="$PROJECT_DIR$/thirdparty-service/panda-woocommerce/pom.xml" />
+        <option value="$PROJECT_DIR$/oms/pom.xml" />
+        <option value="$PROJECT_DIR$/tms/pom.xml" />
+        <option value="$PROJECT_DIR$/thirdparty-service/upedge-trackingmore/pom.xml" />
       </list>
     </option>
     <option name="ignoredFiles">

@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.upedge.oms.modules.order.dao.OrderAttrDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.upedge.oms.modules.order.entity.OrderAttr" id="BaseResultMap">
+        <result property="id" column="id"/>
+        <result property="orderId" column="order_id"/>
+        <result property="attrName" column="attr_name"/>
+        <result property="attrValue" column="attr_value"/>
+        <result property="createTime" column="create_time"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        `id`,`order_id`,`attr_name`,`attr_value`,`create_time`
+    </sql>
+
+    <select id="selectByPrimaryKey" parameterType="com.upedge.oms.modules.order.entity.OrderAttr" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from order_attr
+        where id = #{id}
+    </select>
+
+    <select id="selectByOrderIdAndName" resultMap="BaseResultMap" >
+        select <include refid="Base_Column_List"/>
+        from order_attr
+        where order_id = #{orderId}
+        and attr_name = #{attrName}
+        limit 1
+    </select>
+
+    <delete id="deleteByOrderIdAndName" >
+        delete from order_attr
+        where order_id = #{orderId}
+        and attr_name = #{attrName}
+    </delete>
+
+    <delete id="deleteByPrimaryKey" parameterType="com.upedge.oms.modules.order.entity.OrderAttr">
+        delete from order_attr
+        where id = #{id}
+    </delete>
+
+    <update id="updateByPrimaryKeySelective" parameterType="com.upedge.oms.modules.order.entity.OrderAttr">
+        update order_attr
+        <set>
+            <if test="orderId != null">
+                order_id = #{orderId},
+            </if>
+            <if test="attrName != null">
+                attr_name = #{attrName},
+            </if>
+            <if test="attrValue != null">
+                attr_value = #{attrValue},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <update id="updateByPrimaryKey" parameterType="com.upedge.oms.modules.order.entity.OrderAttr">
+        update order_attr
+        <set>
+        id = #{id},
+        order_id = #{orderId},
+        attr_name = #{attrName},
+        attr_value = #{attrValue},
+        create_time = #{createTime},
+        </set>
+        where id = #{id}
+    </update>
+
+    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.upedge.oms.modules.order.entity.OrderAttr" useGeneratedKeys="true">
+        insert into order_attr
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            id,
+            order_id,
+            attr_name,
+            attr_value,
+            create_time
+        </trim>
+        values (
+        #{id},
+        #{orderId},
+        #{attrName},
+        #{attrValue},
+        #{createTime}
+        )
+    </insert>
+
+    <insert id="insertSelective"  keyColumn="id" keyProperty="id"  parameterType="com.upedge.oms.modules.order.entity.OrderAttr" useGeneratedKeys="true">
+        insert into order_attr
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null" >
+              id
+            </if>
+            <if test="orderId != null" >
+              order_id
+            </if>
+            <if test="attrName != null" >
+              attr_name
+            </if>
+            <if test="attrValue != null" >
+              attr_value
+            </if>
+            <if test="createTime != null" >
+              create_time
+            </if>
+
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null" >
+                #{id}
+            </if>
+            <if test="orderId != null" >
+                #{orderId}
+            </if>
+            <if test="attrName != null" >
+                #{attrName}
+            </if>
+            <if test="attrValue != null" >
+                #{attrValue}
+            </if>
+            <if test="createTime != null" >
+                #{createTime}
+            </if>
+
+        </trim>
+    </insert>
+
+    <insert id="insertByBatch" parameterType="java.util.List">
+        insert into order_attr
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+           id,
+           order_id,
+           attr_name,
+           attr_value,
+           create_time
+        </trim>
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+               #{item.id},
+               #{item.orderId},
+               #{item.attrName},
+               #{item.attrValue},
+               #{item.createTime}
+            </trim>
+        </foreach>
+    </insert>
+
+    <sql id="Query_Condition">
+        <if test="t != null">
+            where
+            <trim prefix=" " suffix=" " suffixOverrides=" and ">
+                1 = 1 and
+                    <if test="t.id != null">
+                        id = #{t.id} and
+                    </if>
+                    <if test="t.orderId != null">
+                        order_id = #{t.orderId} and
+                    </if>
+                    <if test="t.attrName != null">
+                        attr_name = #{t.attrName} and
+                    </if>
+                    <if test="t.attrValue != null">
+                        attr_value = #{t.attrValue} and
+                    </if>
+                    <if test="t.createTime != null">
+                        create_time = #{t.createTime} and
+                    </if>
+            </trim>
+        </if>
+    </sql>
+
+    <select id="select" parameterType="com.upedge.common.base.Page" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from order_attr
+        <include refid="Query_Condition"/>
+        <if test="orderBy != null">
+            order by ${orderBy}
+        </if>
+        <if test="pageNum != null and pageSize != null">
+            limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+        </if>
+    </select>
+
+    <select id="count" parameterType="com.upedge.common.base.Page" resultType="java.lang.Long">
+        select
+        count(1)
+        from order_attr
+        <include refid="Query_Condition"/>
+    </select>
+
+
+</mapper>

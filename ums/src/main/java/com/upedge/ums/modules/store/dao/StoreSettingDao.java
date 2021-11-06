@@ -1,14 +1,18 @@
 package com.upedge.ums.modules.store.dao;
 
-import com.upedge.ums.modules.store.entity.StoreSetting;
-import org.apache.ibatis.annotations.Mapper;
-import java.util.List;
 import com.upedge.common.base.Page;
+import com.upedge.ums.modules.store.entity.StoreSetting;
+
+import java.util.List;
 
 /**
- * @author gx
+ * @author author
  */
 public interface StoreSettingDao{
+
+    List<StoreSetting> selectByStoreId(Long storeId);
+
+    int updateStoreSettingValueByName(StoreSetting storeSetting);
 
     StoreSetting selectByPrimaryKey(StoreSetting record);
 

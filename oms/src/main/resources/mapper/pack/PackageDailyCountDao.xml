@@ -1,0 +1,466 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.upedge.oms.modules.pack.dao.PackageDailyCountDao">
+
+    <!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.upedge.oms.modules.pack.entity.PackageDailyCount" id="BaseResultMap">
+        <result property="id" column="id"/>
+        <result property="dateDay" column="date_day"/>
+        <result property="managerCode" column="manager_code"/>
+        <result property="packageCount" column="package_count"/>
+        <result property="packageOrderCount" column="package_order_count"/>
+        <result property="purchaseCostAmount" column="purchase_cost_amount"/>
+        <result property="shippingFeeAmount" column="shipping_fee_amount"/>
+        <result property="packageOrderAmount" column="package_order_amount"/>
+        <result property="handleTimeAmount" column="handle_time_amount"/>
+        <result property="packageShipDurationAmount" column="package_ship_duration_amount"/>
+        <result property="payPackageDurationAmount" column="pay_package_duration_amount"/>
+        <result property="orderSourceId" column="order_source_id"/>
+        <result property="orderSourceName" column="order_source_name"/>
+        <result property="orderSourceType" column="order_source_type"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        `id`,`date_day`,`manager_code`,`package_count`,`package_order_count`,`purchase_cost_amount`,`shipping_fee_amount`,`package_order_amount`,`handle_time_amount`,`package_ship_duration_amount`,`pay_package_duration_amount`,`order_source_id`,`order_source_name`,`order_source_type`
+    </sql>
+
+    <select id="selectPackageDailyCount" resultType="com.upedge.oms.modules.pack.vo.PackageDailyCountVo"
+            parameterType="com.upedge.oms.modules.pack.request.PackageDailyCountRequest">
+        select package_count as `packageCount`,
+        DATE_FORMAT(date_day,'%Y-%m-%d') as `dateDay`
+        from package_daily_count
+        <include refid="Daily_Condition"/>
+    </select>
+
+    <select id="selectManagerPackageCount" resultType="com.upedge.oms.modules.pack.vo.ManagerPackageCountVo"
+    parameterType="com.upedge.oms.modules.pack.request.PackageDailyCountRequest">
+        select sum(package_count) as `packageCount`,
+        manager_code as `managerCode`
+        from package_daily_count
+        <include refid="Daily_Condition"/>
+        group by manager_code
+    </select>
+
+    <sql id="Daily_Condition">
+        <trim prefix=" " suffix=" " suffixOverrides=" and ">
+            where 1 = 1 and
+            <if test="dateMonth != null and dateMonth != ''">
+                date_day like concat(#{dateMonth},'%') and
+            </if>
+            <if test="beginTime != null and endTime != null">
+                date(date_day) bewteen #{beginTime} and #{endTime} and
+            </if>
+            <if test="managerCode != null">
+                manager_code = #{managerCode} and
+            </if>
+        </trim>
+    </sql>
+
+    <select id="selectManagerPackageStatistics"
+            resultType="com.upedge.common.model.statistics.vo.ManagerPackageStatisticsVo"
+            parameterType="com.upedge.common.model.statistics.request.ManagerPackageStatisticsRequest">
+        select manager_code as managerCode,
+        order_source_id as orderSourceId,
+        order_source_name as orderSourceName,
+        order_source_type as orderSourceType,
+        sum(package_count) as `packageCount`,
+        sum(package_order_count) as `packageOrderCount`,
+        sum(purchase_cost_amount) as `purchaseCostAmount`,
+        sum(shipping_fee_amount) as `shippingFeeAmount`,
+        sum(package_order_amount) as `packageOrderAmount`,
+        sum(handle_time_amount) as `handleTimeAmount`,
+        sum(package_ship_duration_amount) as `packageShipDurationAmount`,
+        sum(pay_package_duration_amount) as `payPackageDurationAmount`
+        from package_daily_count
+        <include refid="Statistics_Condition"/>
+        group by manager_code ,order_source_id,order_source_name,order_source_type
+        order by `packageOrderAmount` desc
+    </select>
+
+    <sql id="Statistics_Condition">
+        <trim prefix=" " suffix=" " suffixOverrides=" and ">
+            where 1 = 1 and
+            <if test="beginTime != null and endTime != null">
+                date(date_day) between #{beginTime} and #{endTime}
+            </if>
+            <if test="managerCode != null">
+                and manager_code = #{managerCode}
+            </if>
+        </trim>
+
+    </sql>
+
+    <select id="selectByPrimaryKey" parameterType="com.upedge.oms.modules.pack.entity.PackageDailyCount"
+            resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from package_daily_count
+        where id = #{id}
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="com.upedge.oms.modules.pack.entity.PackageDailyCount">
+        delete from package_daily_count
+        where id = #{id}
+    </delete>
+
+    <update id="updateByPrimaryKeySelective" parameterType="com.upedge.oms.modules.pack.entity.PackageDailyCount">
+        update package_daily_count
+        <set>
+            <if test="dateDay != null">
+                date_day = #{dateDay},
+            </if>
+            <if test="managerCode != null">
+                manager_code = #{managerCode},
+            </if>
+            <if test="packageCount != null">
+                package_count = #{packageCount},
+            </if>
+            <if test="packageOrderCount != null">
+                package_order_count = #{packageOrderCount},
+            </if>
+            <if test="purchaseCostAmount != null">
+                purchase_cost_amount = #{purchaseCostAmount},
+            </if>
+            <if test="shippingFeeAmount != null">
+                shipping_fee_amount = #{shippingFeeAmount},
+            </if>
+            <if test="packageOrderAmount != null">
+                package_order_amount = #{packageOrderAmount},
+            </if>
+            <if test="handleTimeAmount != null">
+                handle_time_amount = #{handleTimeAmount},
+            </if>
+            <if test="packageShipDurationAmount != null">
+                package_ship_duration_amount = #{packageShipDurationAmount},
+            </if>
+            <if test="payPackageDurationAmount != null">
+                pay_package_duration_amount = #{payPackageDurationAmount},
+            </if>
+            <if test="orderSourceId != null">
+                order_source_id = #{orderSourceId},
+            </if>
+            <if test="orderSourceName != null">
+                order_source_name = #{orderSourceName},
+            </if>
+            <if test="orderSourceType != null">
+                order_source_type = #{orderSourceType},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <update id="updateByPrimaryKey" parameterType="com.upedge.oms.modules.pack.entity.PackageDailyCount">
+        update package_daily_count
+        <set>
+            id = #{id},
+            date_day = #{dateDay},
+            manager_code = #{managerCode},
+            package_count = #{packageCount},
+            package_order_count = #{packageOrderCount},
+            purchase_cost_amount = #{purchaseCostAmount},
+            shipping_fee_amount = #{shippingFeeAmount},
+            package_order_amount = #{packageOrderAmount},
+            handle_time_amount = #{handleTimeAmount},
+            package_ship_duration_amount = #{packageShipDurationAmount},
+            pay_package_duration_amount = #{payPackageDurationAmount},
+            order_source_id = #{orderSourceId},
+            order_source_name = #{orderSourceName},
+            order_source_type = #{orderSourceType},
+        </set>
+        where id = #{id}
+    </update>
+
+    <insert id="insert" keyColumn="id" keyProperty="id"
+            parameterType="com.upedge.oms.modules.pack.entity.PackageDailyCount" useGeneratedKeys="true">
+        insert into package_daily_count
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            id,
+            date_day,
+            manager_code,
+            package_count,
+            package_order_count,
+            purchase_cost_amount,
+            shipping_fee_amount,
+            package_order_amount,
+            handle_time_amount,
+            package_ship_duration_amount,
+            pay_package_duration_amount,
+            order_source_id,
+            order_source_name,
+            order_source_type
+        </trim>
+        values (
+        #{id},
+        #{dateDay},
+        #{managerCode},
+        #{packageCount},
+        #{packageOrderCount},
+        #{purchaseCostAmount},
+        #{shippingFeeAmount},
+        #{packageOrderAmount},
+        #{handleTimeAmount},
+        #{packageShipDurationAmount},
+        #{payPackageDurationAmount},
+        #{orderSourceId},
+        #{orderSourceName},
+        #{orderSourceType}
+        )
+    </insert>
+
+    <insert id="insertSelective" keyColumn="id" keyProperty="id"
+            parameterType="com.upedge.oms.modules.pack.entity.PackageDailyCount" useGeneratedKeys="true">
+        insert into package_daily_count
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id
+            </if>
+            <if test="dateDay != null">
+                date_day
+            </if>
+            <if test="managerCode != null">
+                manager_code
+            </if>
+            <if test="packageCount != null">
+                package_count
+            </if>
+            <if test="packageOrderCount != null">
+                package_order_count
+            </if>
+            <if test="purchaseCostAmount != null">
+                purchase_cost_amount
+            </if>
+            <if test="shippingFeeAmount != null">
+                shipping_fee_amount
+            </if>
+            <if test="packageOrderAmount != null">
+                package_order_amount
+            </if>
+            <if test="handleTimeAmount != null">
+                handle_time_amount
+            </if>
+            <if test="packageShipDurationAmount != null">
+                package_ship_duration_amount
+            </if>
+            <if test="payPackageDurationAmount != null">
+                pay_package_duration_amount
+            </if>
+            <if test="orderSourceId != null">
+                order_source_id
+            </if>
+            <if test="orderSourceName != null">
+                order_source_name
+            </if>
+            <if test="orderSourceType != null">
+                order_source_type
+            </if>
+
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id}
+            </if>
+            <if test="dateDay != null">
+                #{dateDay}
+            </if>
+            <if test="managerCode != null">
+                #{managerCode}
+            </if>
+            <if test="packageCount != null">
+                #{packageCount}
+            </if>
+            <if test="packageOrderCount != null">
+                #{packageOrderCount}
+            </if>
+            <if test="purchaseCostAmount != null">
+                #{purchaseCostAmount}
+            </if>
+            <if test="shippingFeeAmount != null">
+                #{shippingFeeAmount}
+            </if>
+            <if test="packageOrderAmount != null">
+                #{packageOrderAmount}
+            </if>
+            <if test="handleTimeAmount != null">
+                #{handleTimeAmount}
+            </if>
+            <if test="packageShipDurationAmount != null">
+                #{packageShipDurationAmount}
+            </if>
+            <if test="payPackageDurationAmount != null">
+                #{payPackageDurationAmount}
+            </if>
+            <if test="orderSourceId != null">
+                #{orderSourceId}
+            </if>
+            <if test="orderSourceName != null">
+                #{orderSourceName}
+            </if>
+            <if test="orderSourceType != null">
+                #{orderSourceType}
+            </if>
+
+        </trim>
+    </insert>
+
+    <insert id="insertByBatch" parameterType="java.util.List">
+        insert into package_daily_count
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            id,
+            date_day,
+            manager_code,
+            package_count,
+            package_order_count,
+            purchase_cost_amount,
+            shipping_fee_amount,
+            package_order_amount,
+            handle_time_amount,
+            package_ship_duration_amount,
+            pay_package_duration_amount,
+            order_source_id,
+            order_source_name,
+            order_source_type
+        </trim>
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+                #{item.id},
+                #{item.dateDay},
+                #{item.managerCode},
+                #{item.packageCount},
+                #{item.packageOrderCount},
+                #{item.purchaseCostAmount},
+                #{item.shippingFeeAmount},
+                #{item.packageOrderAmount},
+                #{item.handleTimeAmount},
+                #{item.packageShipDurationAmount},
+                #{item.payPackageDurationAmount},
+                #{item.orderSourceId},
+                #{item.orderSourceName},
+                #{item.orderSourceType}
+            </trim>
+        </foreach>
+    </insert>
+
+    <insert id="savePackageDailyCounts" parameterType="java.util.List">
+        insert into package_daily_count
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            id,
+            date_day,
+            manager_code,
+            package_count,
+            package_order_count,
+            purchase_cost_amount,
+            shipping_fee_amount,
+            package_order_amount,
+            handle_time_amount,
+            package_ship_duration_amount,
+            pay_package_duration_amount,
+            order_source_id,
+            order_source_name,
+            order_source_type
+        </trim>
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+                #{item.id},
+                #{item.dateDay},
+                #{item.managerCode},
+                #{item.packageCount},
+                #{item.packageOrderCount},
+                #{item.purchaseCostAmount},
+                #{item.shippingFeeAmount},
+                #{item.packageOrderAmount},
+                #{item.handleTimeAmount},
+                #{item.packageShipDurationAmount},
+                #{item.payPackageDurationAmount},
+                #{item.orderSourceId},
+                #{item.orderSourceName},
+                #{item.orderSourceType}
+            </trim>
+        </foreach>
+        ON DUPLICATE KEY UPDATE
+        manager_code = values(manager_code),
+        package_count = values(package_count),
+        package_order_count = values(package_order_count),
+        purchase_cost_amount = values(purchase_cost_amount),
+        shipping_fee_amount = values(shipping_fee_amount),
+        package_order_amount = values(package_order_amount),
+        handle_time_amount = values(handle_time_amount),
+        package_ship_duration_amount = values(package_ship_duration_amount),
+        pay_package_duration_amount = values(pay_package_duration_amount)
+    </insert>
+
+    <sql id="Query_Condition">
+        <if test="t != null">
+            where
+            <trim prefix=" " suffix=" " suffixOverrides=" and ">
+                1 = 1 and
+                <if test="t.id != null">
+                    id = #{t.id} and
+                </if>
+                <if test="t.dateDay != null">
+                    date_day = #{t.dateDay} and
+                </if>
+                <if test="t.managerCode != null">
+                    manager_code = #{t.managerCode} and
+                </if>
+                <if test="t.packageCount != null">
+                    package_count = #{t.packageCount} and
+                </if>
+                <if test="t.packageOrderCount != null">
+                    package_order_count = #{t.packageOrderCount} and
+                </if>
+                <if test="t.purchaseCostAmount != null">
+                    purchase_cost_amount = #{t.purchaseCostAmount} and
+                </if>
+                <if test="t.shippingFeeAmount != null">
+                    shipping_fee_amount = #{t.shippingFeeAmount} and
+                </if>
+                <if test="t.packageOrderAmount != null">
+                    package_order_amount = #{t.packageOrderAmount} and
+                </if>
+                <if test="t.handleTimeAmount != null">
+                    handle_time_amount = #{t.handleTimeAmount} and
+                </if>
+                <if test="t.packageShipDurationAmount != null">
+                    package_ship_duration_amount = #{t.packageShipDurationAmount} and
+                </if>
+                <if test="t.payPackageDurationAmount != null">
+                    pay_package_duration_amount = #{t.payPackageDurationAmount} and
+                </if>
+                <if test="t.orderSourceId != null">
+                    order_source_id = #{t.orderSourceId} and
+                </if>
+                <if test="t.orderSourceName != null">
+                    order_source_name = #{t.orderSourceName} and
+                </if>
+                <if test="t.orderSourceType != null">
+                    order_source_type = #{t.orderSourceType} and
+                </if>
+            </trim>
+        </if>
+    </sql>
+
+    <select id="select" parameterType="com.upedge.common.base.Page" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from package_daily_count
+        <include refid="Query_Condition"/>
+        <if test="orderBy != null">
+            order by ${orderBy}
+        </if>
+        <if test="pageNum != null and pageSize != null">
+            limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+        </if>
+    </select>
+
+    <select id="count" parameterType="com.upedge.common.base.Page" resultType="java.lang.Long">
+        select
+        count(1)
+        from package_daily_count
+        <include refid="Query_Condition"/>
+    </select>
+
+
+</mapper>

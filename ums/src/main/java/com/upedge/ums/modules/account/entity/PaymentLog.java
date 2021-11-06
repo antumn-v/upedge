@@ -1,12 +1,12 @@
 package com.upedge.ums.modules.account.entity;
 
-import java.math.BigDecimal;
-import java.io.Serializable;
-import java.util.Date;
 import lombok.Data;
 
+import java.math.BigDecimal;
+import java.util.Date;
+
 /**
- * @author gx
+ * @author author
  */
 @Data
 public class PaymentLog{
@@ -24,7 +24,7 @@ public class PaymentLog{
 	 */
     private Long customerId;
 	/**
-	 * 1=备库订单 2=普通订单 3=批发订单
+	 * 0=备库订单 1=普通订单 2=批发订单
 	 */
     private Integer orderType;
 	/**

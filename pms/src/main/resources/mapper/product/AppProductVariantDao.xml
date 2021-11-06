@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.upedge.pms.modules.product.dao.AppProductVariantDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.upedge.pms.modules.product.entity.ProductVariant" id="BaseResultMap">
+        <result property="id" column="id"/>
+        <result property="originalVariantId" column="original_variant_id"/>
+        <result property="productId" column="product_id"/>
+        <result property="variantSku" column="variant_sku"/>
+        <result property="variantImage" column="variant_image"/>
+        <result property="variantPrice" column="variant_price"/>
+        <result property="inventory" column="inventory"/>
+        <result property="weight" column="weight"/>
+        <result property="state" column="state"/>
+        <result property="volumeWeight" column="volume_weight"/>
+        <result property="variantType" column="variant_type"/>
+    </resultMap>
+
+    <resultMap type="com.upedge.pms.modules.product.vo.AppProductVariantVo" id="VariantList">
+        <result property="id" column="id"/>
+        <result property="productId" column="product_id"/>
+        <result property="variantSku" column="variant_sku"/>
+        <result property="variantImage" column="variant_image"/>
+        <result property="variantPrice" column="variant_price"/>
+        <result property="usdPrice" column="usd_price"/>
+        <result property="inventory" column="inventory"/>
+        <result property="weight" column="weight"/>
+        <result property="state" column="state"/>
+        <result property="volumeWeight" column="volume_weight"/>
+        <collection property="attrs" ofType="com.upedge.pms.modules.product.vo.AppProductVariantAttrVo">
+            <result property="id" column="attrId"/>
+            <result property="variantAttrEname" column="variant_attr_ename"/>
+            <result property="variantAttrEvalue" column="variant_attr_evalue"/>
+            <result property="variantId" column="variant_id"/>
+        </collection>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        `id`,`original_variant_id`,`product_id`,`variant_sku`,`variant_image`,`variant_price`,`inventory`,`weight`,`state`,`volume_weight`,`variant_type`
+    </sql>
+
+    <select id="selectProductVariantsByProductId"  resultMap="VariantList">
+        select
+        v.id,`original_variant_id`,v.product_id,`variant_sku`,`variant_image`,
+        `variant_price`,`inventory`,`weight`,`state`,`volume_weight`,
+        a.id as attrId,a.variant_attr_ename,a.variant_attr_evalue,a.variant_id,
+        v.usd_price
+        from product_variant v
+        left join product_variant_attr a
+        on v.id = a.variant_id
+        where v.product_id=#{productId}
+        and v.state = '1'
+    </select>
+
+</mapper>

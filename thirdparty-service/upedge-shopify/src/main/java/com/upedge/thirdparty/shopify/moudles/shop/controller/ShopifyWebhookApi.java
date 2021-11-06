@@ -2,7 +2,7 @@ package com.upedge.thirdparty.shopify.moudles.shop.controller;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.panda.common.utils.OkHttpRequest;
+import com.upedge.common.utils.OkHttpRequest;
 import com.upedge.thirdparty.shopify.config.Shopify;
 import com.upedge.thirdparty.shopify.moudles.shop.entity.ShopifyWebhook;
 import org.springframework.http.HttpMethod;

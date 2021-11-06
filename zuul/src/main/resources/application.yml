@@ -2,21 +2,20 @@ server:
   port: 8611
 spring:
   application:
-    name: spring-cloud-consul-zuul
+    name: zuul
   cloud:
     loadbalancer:
       ribbon:
         enabled: false
-    nacos:
+    consul:
+      host: localhost
+      port: 8500
       discovery:
-        namespace: public
-        group: ${spring.application.name}
-      username: nacos
-      password: nacos
-      server-addr: 192.168.10.13:8848
+        serviceName: ${spring.application.name}    # 注册到consul的服务名称
+        heartbeat: true
   redis:
     database: 0
-    host: 192.168.10.13
+    host: 192.168.10.5
     port: 6379
     password: 123456
     lettuce:
@@ -37,15 +36,26 @@ zuul:
   #  feign:
   #    path: /feign/**
   #    serviceId: subscriber  # 转发到消费者 /feign/
-  routes:
-    ums-service:
-      path: /ums/**
-      service-id: ums
-      url: http://localhost:8000/
-    pms-service:
-      path: /pms/**
-      service-id: pms
-      url: http://localhost:8100/
+#  routes:
+#    ums-service:
+#      path: /ums/**
+#      service-id: ums
+#      url: http://localhost:8000/
+#    pms-service:
+#      path: /pms/**
+#      service-id: pms
+#      url: http://localhost:8100/
+#    oms-service:
+#      path: /oms/**
+#      service-id: oms
+#      url: http://localhost:8200/
+#    tms-service:
+#      path: /tms/**
+#      service-id: tms
+#      url: http://localhost:8400/
+
+
+
 management:
   endpoints:
     web:

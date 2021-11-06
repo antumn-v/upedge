@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.upedge.ums.modules.account.dao.PayMethodMapper" >
+  <resultMap id="BaseResultMap" type="com.upedge.ums.modules.account.entity.PayMethod" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="route_type" property="routeType" jdbcType="INTEGER" />
+    <result column="route_name" property="routeName" jdbcType="VARCHAR" />
+    <result column="status" property="status" jdbcType="INTEGER" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, route_type, route_name,status
+  </sql>
+
+  <sql id="Query_Conditions">
+    <where>
+      <if test="t != null">
+        <if test="t.id != null">
+          and id = #{t.id}
+        </if>
+        <if test="t.routeType != null">
+          and route_type = #{t.routeType}
+        </if>
+        <if test="t.routeName != null">
+          and route_name = #{t.routeName}
+        </if>
+        <if test="t.status != null">
+          and status = #{t.status}
+        </if>
+      </if>
+    </where>
+  </sql>
+
+  <select id="selectByRouteName" resultMap="BaseResultMap">
+    select <include refid="Base_Column_List"/>
+    from paymethod
+    where route_name = #{routeName}
+  </select>
+
+  <select id="listPayMethod" resultType="com.upedge.ums.modules.account.entity.PayMethod" parameterType="com.upedge.common.base.Page">
+    select
+    <if test="fields == null">
+    <include refid="Base_Column_List" />
+    </if>
+    <if test="fields != null">
+      ${fields}
+    </if>
+    from paymethod
+    <include refid="Query_Conditions"/>
+    <if test="pageNum != null and pageSize != null">
+    limit #{fromNum},#{pageSize}
+    </if>
+  </select>
+
+  <select id="countPayMethod" resultType="java.lang.Long" parameterType="com.upedge.common.base.Page">
+    select count(id)
+    from paymethod
+    <include refid="Query_Conditions"/>
+  </select>
+
+  <update id="enablePayMethodById">
+    update paymethod
+    set status = '1'
+    where id = #{id}
+  </update>
+
+  <update id="disablePayMethodById">
+    update paymethod
+    set status = '0'
+    where id = #{id}
+  </update>
+
+<!-- ***************************************** -->
+
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from paymethod
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from paymethod
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.upedge.ums.modules.account.entity.PayMethod" useGeneratedKeys="true" keyProperty="id" >
+    insert into paymethod (id, route_type, route_name,status
+      )
+    values (#{id,jdbcType=INTEGER}, #{routeType,jdbcType=INTEGER}, #{routeName,jdbcType=VARCHAR},'1'
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.upedge.ums.modules.account.entity.PayMethod" >
+    insert into paymethod
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="routeType != null" >
+        route_type,
+      </if>
+      <if test="routeName != null" >
+        route_name,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="routeType != null" >
+        #{routeType,jdbcType=INTEGER},
+      </if>
+      <if test="routeName != null" >
+        #{routeName,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.upedge.ums.modules.account.entity.PayMethod" >
+    update paymethod
+    <set >
+      <if test="routeType != null" >
+        route_type = #{routeType,jdbcType=INTEGER},
+      </if>
+      <if test="routeName != null" >
+        route_name = #{routeName,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null" >
+        status = #{status,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.upedge.ums.modules.account.entity.PayMethod" >
+    update paymethod
+    set route_type = #{routeType,jdbcType=INTEGER},
+      route_name = #{routeName,jdbcType=VARCHAR},
+      status = #{status}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+
+</mapper>

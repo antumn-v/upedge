@@ -3,7 +3,7 @@
 
 <mapper namespace="com.upedge.ums.modules.affiliate.dao.AffiliateCommissionRecordDao">
 
-	<!-- 可根据自己的需求，是否要使用 -->
+    <!-- 可根据自己的需求，是否要使用 -->
     <resultMap type="com.upedge.ums.modules.affiliate.entity.AffiliateCommissionRecord" id="BaseResultMap">
         <result property="id" column="id"/>
         <result property="refereeId" column="referee_id"/>
@@ -20,9 +20,18 @@
         `id`,`referee_id`,`referrer_id`,`order_id`,`order_type`,`commission`,`state`,`create_time`,`update_time`
     </sql>
 
-    <select id="selectByPrimaryKey" parameterType="com.upedge.ums.modules.affiliate.entity.AffiliateCommissionRecord" resultMap="BaseResultMap">
+
+    <select id="searchCommissionByMonth" resultType="com.upedge.ums.modules.affiliate.vo.RefereeMonthCommissionVo">
+        select DATE_FORMAT(record.create_time,"%Y-%m") as `createTime`,sum(record.commission) as `commission`
+        from affiliate_commission_record record
+        where record.referrer_id = #{referrerId}
+        group by createTime
+    </select>
+
+    <select id="selectByPrimaryKey" parameterType="com.upedge.ums.modules.affiliate.entity.AffiliateCommissionRecord"
+            resultMap="BaseResultMap">
         select
-        <include refid="Base_Column_List" />
+        <include refid="Base_Column_List"/>
         from affiliate_commission_record
         where id = #{id}
     </select>
@@ -32,7 +41,8 @@
         where id = #{id}
     </delete>
 
-    <update id="updateByPrimaryKeySelective" parameterType="com.upedge.ums.modules.affiliate.entity.AffiliateCommissionRecord">
+    <update id="updateByPrimaryKeySelective"
+            parameterType="com.upedge.ums.modules.affiliate.entity.AffiliateCommissionRecord">
         update affiliate_commission_record
         <set>
             <if test="refereeId != null">
@@ -66,25 +76,26 @@
     <update id="updateByPrimaryKey" parameterType="com.upedge.ums.modules.affiliate.entity.AffiliateCommissionRecord">
         update affiliate_commission_record
         <set>
-        id = #{id},
-        referee_id = #{refereeId},
-        referrer_id = #{referrerId},
-        order_id = #{orderId},
-        order_type = #{orderType},
-        commission = #{commission},
-        state = #{state},
-        create_time = #{createTime},
-        update_time = #{updateTime},
+            id = #{id},
+            referee_id = #{refereeId},
+            referrer_id = #{referrerId},
+            order_id = #{orderId},
+            order_type = #{orderType},
+            commission = #{commission},
+            state = #{state},
+            create_time = #{createTime},
+            update_time = #{updateTime},
         </set>
         where id = #{id}
     </update>
 
-    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.upedge.ums.modules.affiliate.entity.AffiliateCommissionRecord" useGeneratedKeys="true">
+    <insert id="insert" keyColumn="id" keyProperty="id"
+            parameterType="com.upedge.ums.modules.affiliate.entity.AffiliateCommissionRecord" useGeneratedKeys="true">
         insert into affiliate_commission_record
         <trim prefix="(" suffix=")" suffixOverrides=",">
             id,
             referee_id,
-            referrer_id,
+            referrer_id
             order_id,
             order_type,
             commission,
@@ -105,64 +116,65 @@
         )
     </insert>
 
-    <insert id="insertSelective"  keyColumn="id" keyProperty="id"  parameterType="com.upedge.ums.modules.affiliate.entity.AffiliateCommissionRecord" useGeneratedKeys="true">
+    <insert id="insertSelective" keyColumn="id" keyProperty="id"
+            parameterType="com.upedge.ums.modules.affiliate.entity.AffiliateCommissionRecord" useGeneratedKeys="true">
         insert into affiliate_commission_record
         <trim prefix="(" suffix=")" suffixOverrides=",">
-            <if test="id != null" >
-              id
+            <if test="id != null">
+                id
             </if>
-            <if test="refereeId != null" >
-              referee_id
+            <if test="refereeId != null">
+                referee_id
             </if>
-            <if test="referrerId != null" >
-              referrer_id
+            <if test="referrerId != null">
+                referrer_id
             </if>
-            <if test="orderId != null" >
-              order_id
+            <if test="orderId != null">
+                order_id
             </if>
-            <if test="orderType != null" >
-              order_type
+            <if test="orderType != null">
+                order_type
             </if>
-            <if test="commission != null" >
-              commission
+            <if test="commission != null">
+                commission
             </if>
-            <if test="state != null" >
-              state
+            <if test="state != null">
+                state
             </if>
-            <if test="createTime != null" >
-              create_time
+            <if test="createTime != null">
+                create_time
             </if>
-            <if test="updateTime != null" >
-              update_time
+            <if test="updateTime != null">
+                update_time
             </if>
 
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
-            <if test="id != null" >
+            <if test="id != null">
                 #{id}
             </if>
-            <if test="refereeId != null" >
+            <if test="refereeId != null">
                 #{refereeId}
             </if>
-            <if test="referrerId != null" >
+            <if test="referrerId != null">
                 #{referrerId}
             </if>
-            <if test="orderId != null" >
+            <if test="orderId != null">
                 #{orderId}
             </if>
-            <if test="orderType != null" >
+            <if test="orderType != null">
                 #{orderType}
             </if>
-            <if test="commission != null" >
+            <if test="commission != null">
                 #{commission}
             </if>
-            <if test="state != null" >
+            <if test="state != null">
                 #{state}
             </if>
-            <if test="createTime != null" >
+            <if test="createTime != null">
                 #{createTime}
             </if>
-            <if test="updateTime != null" >
+            <if test="updateTime != null">
                 #{updateTime}
             </if>
 
@@ -170,30 +182,30 @@
     </insert>
 
     <insert id="insertByBatch" parameterType="java.util.List">
-        insert into affiliate_commission_record
+        replace into affiliate_commission_record
         <trim prefix="(" suffix=")" suffixOverrides=",">
-           id,
-           referee_id,
-           referrer_id,
-           order_id,
-           order_type,
-           commission,
-           state,
-           create_time,
-           update_time
+            id,
+            referee_id,
+            referrer_id,
+            order_id,
+            order_type,
+            commission,
+            state,
+            create_time,
+            update_time
         </trim>
         values
         <foreach collection="list" item="item" index="index" separator=",">
             <trim prefix="(" suffix=")" suffixOverrides=",">
-               #{item.id},
-               #{item.refereeId},
-               #{item.referrerId},
-               #{item.orderId},
-               #{item.orderType},
-               #{item.commission},
-               #{item.state},
-               #{item.createTime},
-               #{item.updateTime}
+                #{item.id},
+                #{item.refereeId},
+                #{item.referrerId},
+                #{item.orderId},
+                #{item.orderType},
+                #{item.commission},
+                #{item.state},
+                #{item.createTime},
+                #{item.updateTime}
             </trim>
         </foreach>
     </insert>
@@ -203,40 +215,40 @@
             where
             <trim prefix=" " suffix=" " suffixOverrides=" and ">
                 1 = 1 and
-                    <if test="t.id != null">
-                        id = #{t.id} and
-                    </if>
-                    <if test="t.refereeId != null">
-                        referee_id = #{t.refereeId} and
-                    </if>
-                    <if test="t.referrerId != null">
-                        referrer_id = #{t.referrerId} and
-                    </if>
-                    <if test="t.orderId != null">
-                        order_id = #{t.orderId} and
-                    </if>
-                    <if test="t.orderType != null">
-                        order_type = #{t.orderType} and
-                    </if>
-                    <if test="t.commission != null">
-                        commission = #{t.commission} and
-                    </if>
-                    <if test="t.state != null">
-                        state = #{t.state} and
-                    </if>
-                    <if test="t.createTime != null">
-                        create_time = #{t.createTime} and
-                    </if>
-                    <if test="t.updateTime != null">
-                        update_time = #{t.updateTime} and
-                    </if>
+                <if test="t.id != null">
+                    id = #{t.id} and
+                </if>
+                <if test="t.refereeId != null">
+                    referee_id = #{t.refereeId} and
+                </if>
+                <if test="t.referrerId != null">
+                    referrer_id = #{t.referrerId} and
+                </if>
+                <if test="t.orderId != null">
+                    order_id = #{t.orderId} and
+                </if>
+                <if test="t.orderType != null">
+                    order_type = #{t.orderType} and
+                </if>
+                <if test="t.commission != null">
+                    commission = #{t.commission} and
+                </if>
+                <if test="t.state != null">
+                    state = #{t.state} and
+                </if>
+                <if test="t.createTime != null">
+                    create_time = #{t.createTime} and
+                </if>
+                <if test="t.updateTime != null">
+                    update_time = #{t.updateTime} and
+                </if>
             </trim>
         </if>
     </sql>
 
     <select id="select" parameterType="com.upedge.common.base.Page" resultMap="BaseResultMap">
         select
-        <include refid="Base_Column_List" />
+        <include refid="Base_Column_List"/>
         from affiliate_commission_record
         <include refid="Query_Condition"/>
         <if test="orderBy != null">
@@ -254,5 +266,27 @@
         <include refid="Query_Condition"/>
     </select>
 
+    <select id="queryPayRecordByOrderId" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from affiliate_commission_record
+        where order_id=#{orderId}
+    </select>
+    <select id="getBenefitsList" resultType="com.upedge.common.model.user.vo.OrderBenefitsVo">
+        select
+        a.create_time as dayDate,
+        round((sum(ABS(a.commission)))* #{usdRate},2 ) as benefitsAmount
+        from
+        affiliate_commission_record a
+        left JOIN customer_manager c on a.referrer_id = c.customer_id
+        left JOIN manager_info m on m.manager_code = c.manager_code
+        <where>
+            a.create_time>=#{startDay} and a.create_time &lt;=#{endDay}
+            and a.order_type = #{orderType}
+            <if test="orderSourceId != null and orderSourceId !=-1">and m.order_source_id=#{orderSourceId}</if>
+
+        </where>
+        group by a.create_time
+    </select>
 
 </mapper>

@@ -1,11 +1,12 @@
 package com.upedge.ums.modules.store.service;
 
-import com.upedge.ums.modules.store.entity.StoreAttr;
 import com.upedge.common.base.Page;
+import com.upedge.ums.modules.store.entity.StoreAttr;
+
 import java.util.List;
 
 /**
- * @author gx
+ * @author author
  */
 public interface StoreAttrService{
 

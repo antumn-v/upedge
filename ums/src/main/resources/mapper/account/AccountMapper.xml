@@ -1,0 +1,328 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.upedge.ums.modules.account.dao.AccountMapper">
+    <resultMap id="BaseResultMap" type="com.upedge.ums.modules.account.entity.Account">
+        <id column="id" property="id" jdbcType="BIGINT"/>
+        <result column="name" property="name" jdbcType="VARCHAR"/>
+        <result column="customer_id" property="customerId" jdbcType="BIGINT"/>
+        <result column="balance" property="balance" jdbcType="DECIMAL"/>
+        <result column="rebate" property="rebate" jdbcType="DECIMAL"/>
+        <result column="credit" property="credit" jdbcType="DECIMAL"/>
+        <result column="credit_limit" property="creditLimit" jdbcType="DECIMAL"/>
+        <result column="commission" property="commission" jdbcType="DECIMAL"/>
+        <result column="status" property="status" jdbcType="INTEGER"/>
+        <result column="is_default" property="isDefault"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+    id,`name`, customer_id, balance, rebate, credit,credit_limit, commission,status,is_default
+  </sql>
+
+    <sql id="Query_Condition">
+        <where>
+            <if test="t != null">
+                <if test="t.id != null and t.id != ''">
+                    and id = #{t.id}
+                </if>
+                <if test="t.customerId != null and t.customerId != ''">
+                    and customer_id = #{t.customerId}
+                </if>
+                <if test="t.status != null">
+                    and status = #{t.status}
+                </if>
+                <if test="t.name != null and t.name != ''">
+                    and `name` like CONCAT('%',#{t.name},'%')
+                </if>
+            </if>
+        </where>
+    </sql>
+
+    <update id="updateBalanceByCustomerId">
+        update account
+        set
+          balance = #{balance,jdbcType=DECIMAL},
+          rebate = #{rebate,jdbcType=DECIMAL},
+          credit = #{credit,jdbcType=DECIMAL},
+          credit_limit = #{creditLimit,jdbcType=DECIMAL},
+          commission = #{commission,jdbcType=DECIMAL}
+        where customer_id = #{customerId,jdbcType=BIGINT}
+        and is_default = '1'
+        limit 1
+    </update>
+
+
+    <select id="selectAccountStatusById" resultType="java.lang.Integer">
+    select status
+    from account
+    where id = #{id}
+  </select>
+
+    <select id="getAccountAvailableBalanceById" resultType="java.math.BigDecimal">
+    select (balance + rebate + credit_limit - credit)
+    from account
+    where id = #{id}
+  </select>
+
+    <select id="selectAccountByPage" resultMap="BaseResultMap" parameterType="com.upedge.common.base.Page">
+        select
+        <if test="fields != null">
+            ${fields}
+        </if>
+        <if test="fields == null">
+            <include refid="Base_Column_List"/>
+        </if>
+        from account
+        <include refid="Query_Condition"/>
+        <if test="orderBy != null">
+            order by ${orderBy}
+        </if>
+        <if test="pageNum != null and pageSize != null">
+            limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+        </if>
+    </select>
+
+    <select id="countAccount" parameterType="com.upedge.common.base.Page" resultType="java.lang.Long">
+        select count(id)
+        from account
+        <include refid="Query_Condition"/>
+    </select>
+
+    <update id="increaseAccountCommission">
+        update account
+        set commission = commission + #{commission}
+        where id = #{id}
+        and status = '1'
+    </update>
+
+    <update id="deductAccountCommission">
+        update account
+        set commission = commission - #{commission}
+        where id = #{id}
+        and commission >= #{commission}
+    </update>
+
+    <update id="deductAccountBalance" parameterType="com.upedge.ums.modules.account.entity.RechargeLog">
+    update account
+    set balance = balance - #{amount},
+    rebate = rebate - #{rebate}
+    where id = #{accountId}
+  </update>
+
+    <update id="disableAccount">
+    update account
+    set status = '0'
+    where id = #{id}
+  </update>
+
+    <update id="updateAccountCreditLimit">
+    update account
+    set credit_limit = #{creditLimit}
+    where id = #{id}
+    and status = '1'
+  </update>
+
+    <update id="accountIncreaseBalance">
+    update account
+    set balance = balance + #{balance},
+    rebate = rebate + #{rebate},
+    credit = credit - #{credit}
+    where id = #{id}
+  </update>
+
+    <update id="accountReduceBalance">
+    update account
+    set balance = balance - #{balance},
+    rebate = rebate - #{rebate},
+    credit = credit + #{credit}
+    where id = #{id}
+  </update>
+
+    <update id="accountRepaymentCredit">
+    update account
+    set balance = balance - #{amount},
+    credit = credit - #{amount}
+    where id = #{id}
+    </update>
+
+
+    <!--  *************************************************************-->
+
+
+    <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long">
+        select
+        <include refid="Base_Column_List"/>
+        from account
+        where id = #{id,jdbcType=BIGINT}
+    </select>
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from account
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+    <insert id="insert" parameterType="com.upedge.ums.modules.account.entity.Account">
+    insert into account (id,`name`, customer_id, balance,
+      rebate, credit,credit_limit, commission,status,is_default
+      )
+    values (#{id,jdbcType=BIGINT},#{name}, #{customerId,jdbcType=BIGINT}, '0',
+      '0', '0','0', '0','1',#{isDefault}
+      )
+  </insert>
+    <insert id="insertSelective" parameterType="com.upedge.ums.modules.account.entity.Account">
+        insert into account
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="customerId != null">
+                customer_id,
+            </if>
+            <if test="balance != null">
+                balance,
+            </if>
+            <if test="rebate != null">
+                rebate,
+            </if>
+            <if test="credit != null">
+                credit,
+            </if>
+            <if test="creditLimit != null">
+                credit_limit,
+            </if>
+            <if test="commission != null">
+                commission,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id,jdbcType=BIGINT},
+            </if>
+            <if test="customerId != null">
+                #{customerId,jdbcType=BIGINT},
+            </if>
+            <if test="balance != null">
+                #{balance,jdbcType=DECIMAL},
+            </if>
+            <if test="rebate != null">
+                #{rebate,jdbcType=DECIMAL},
+            </if>
+            <if test="credit != null">
+                #{credit,jdbcType=DECIMAL},
+            </if>
+            <if test="creditLimit != null">
+                #{creditLimit,jdbcType=DECIMAL},
+            </if>
+            <if test="commission != null">
+                #{commission,jdbcType=DECIMAL},
+            </if>
+        </trim>
+    </insert>
+    <update id="updateByPrimaryKeySelective" parameterType="com.upedge.ums.modules.account.entity.Account">
+        update account
+        <set>
+            <if test="customerId != null">
+                customer_id = #{customerId,jdbcType=BIGINT},
+            </if>
+            <if test="balance != null">
+                balance = #{balance,jdbcType=DECIMAL},
+            </if>
+            <if test="rebate != null">
+                rebate = #{rebate,jdbcType=DECIMAL},
+            </if>
+            <if test="credit != null">
+                credit = #{credit,jdbcType=DECIMAL},
+            </if>
+            <if test="creditLimit != null">
+                credit_limit = #{creditLimit},
+            </if>
+            <if test="commission != null">
+                commission = #{commission,jdbcType=DECIMAL},
+            </if>
+        </set>
+        where id = #{id,jdbcType=BIGINT}
+    </update>
+    <update id="updateByPrimaryKey" parameterType="com.upedge.ums.modules.account.entity.Account">
+    update account
+    set customer_id = #{customerId,jdbcType=BIGINT},
+      balance = #{balance,jdbcType=DECIMAL},
+      rebate = #{rebate,jdbcType=DECIMAL},
+      credit = #{credit,jdbcType=DECIMAL},
+      credit_limit = #{creditLimit,jdbcType=DECIMAL},
+      commission = #{commission,jdbcType=DECIMAL}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+
+    <select id="customerAccount" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from account
+        where customer_id=#{customerId}
+        limit 1
+    </select>
+
+    <update id="addBalanceAndBenefits">
+        update account set balance=balance+#{amount},
+        rebate=rebate+#{benefitsAmount}
+        where id=#{id}
+    </update>
+
+    <update id="repaymentCredit">
+        update account set credit=credit-#{totalRepaymentAmount}
+        where id=#{id} and credit>#{totalRepaymentAmount}
+    </update>
+
+    <update id="updateCreditLimit">
+        update account set credit_limit=#{creditLimit} where id=#{id}
+    </update>
+
+    <update id="subAccountCommission">
+        update account set commission=commission-#{commission}
+        where id=#{id}
+    </update>
+
+
+    <!--客户剩余金额-->
+    <select id="userRestBalanceAmount" resultType="java.math.BigDecimal">
+        select sum(IFNULL(a.balance,0)+IFNULL(a.rebate,0))
+        from account a
+        left join customer_manager cai on cai.customer_id=a.customer_id
+        <if test="userManager != null and userManager !=''">
+            where cai.manager_code=#{userManager}
+        </if>
+    </select>
+
+    <!--开放信用额度-->
+    <select id="openCredit" resultType="java.math.BigDecimal">
+        select sum(IFNULL(a.credit_limit,0))
+        from account a
+        left join customer_manager cai on cai.customer_id=a.customer_id
+        <if test="userManager != null and userManager !=''">
+            where cai.manager_code=#{userManager}
+        </if>
+    </select>
+
+    <!--已用信用额度-->
+    <select id="usedCredit" resultType="java.math.BigDecimal">
+        select sum(IFNULL(a.credit,0))
+        from account a
+        left join customer_manager cai on cai.customer_id=a.customer_id
+        <if test="userManager != null and userManager !=''">
+            where cai.manager_code=#{userManager}
+        </if>
+    </select>
+    <select id="selectCustomerDefaultAccount" resultType="com.upedge.ums.modules.account.entity.Account">
+        select <include refid="Base_Column_List"/>
+        from account
+        where customer_id = #{customerId}
+        and is_default = '1'
+        limit 1
+    </select>
+    <select id="selectAccountStatistics" resultType="com.upedge.ums.modules.account.vo.AccountStatisticsVo">
+        select sum(IFNULL(a.balance,0)+IFNULL(a.rebate,0)) as `userRestBalanceAmount`,
+        sum(IFNULL(a.credit_limit,0)) as `openCredit`,
+        sum(IFNULL(a.credit,0)) as `usedCredit`
+        from account a
+        left join customer_manager cai on cai.customer_id=a.customer_id
+        <if test="userManager != null and userManager !=''">
+            where cai.manager_code=#{userManager}
+        </if>
+    </select>
+
+</mapper>

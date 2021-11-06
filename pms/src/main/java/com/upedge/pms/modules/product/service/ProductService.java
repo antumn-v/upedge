@@ -4,6 +4,12 @@ import com.upedge.common.base.BaseResponse;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.pms.modules.product.entity.Product;
 import com.upedge.common.base.Page;
+import com.upedge.pms.modules.product.request.*;
+import com.upedge.pms.modules.product.response.AbandonProductResponse;
+import com.upedge.pms.modules.product.response.ImportFavoriteResponse;
+import com.upedge.pms.modules.product.response.MultiReleaseResponse;
+import com.upedge.pms.modules.product.response.ProductListResponse;
+import com.upedge.pms.modules.product.vo.AddProductVo;
 import com.upedge.pms.modules.product.vo.ProductVo;
 import com.upedge.thirdparty.ali1688.vo.AlibabaProductVo;
 
@@ -14,11 +20,37 @@ import java.util.List;
  */
 public interface ProductService{
 
+    String refreshProductPriceRange(Long productId);
+
+    BaseResponse winningProductList(WinningProductListRequest request, Session session);
+
     ProductVo productDetail(Long id);
 
     BaseResponse importFrom1688(AlibabaProductVo AlibabaProductVo, Session session);
 
     Product selectByProductSku(String productSku);
+
+    BaseResponse putawayProduct(Long id, Session session);
+
+    BaseResponse unshelveProduct(Long id, Session session);
+
+    BaseResponse uploadToSaihe(ProductUoloadToSaiheRequest request);
+
+    BaseResponse publicProduct(Long id);
+
+    BaseResponse privateProduct(Long id);
+
+    BaseResponse addProduct(AddProductVo addProductVo, Session session);
+
+    ProductListResponse selectionList(ProductListRequest request);
+
+    ImportFavoriteResponse importFavorite(ImportFavoriteRequest request, Session session);
+
+    ProductListResponse favoriteList(ProductListRequest request);
+
+    MultiReleaseResponse multiRelease(MultiReleaseRequest request, Session session);
+
+    AbandonProductResponse abandonProduct(Long id, Session session);
 
     Product selectByPrimaryKey(Long id);
 

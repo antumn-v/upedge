@@ -7,18 +7,23 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
+        <module name="upedge-woocommerce" />
         <module name="upedge_ums" />
-        <module name="zuul" />
-        <module name="common-base" />
-        <module name="ums" />
-        <module name="thirdparty-service" />
-        <module name="upedge_generator" />
+        <module name="oms" />
+        <module name="panda-trackingmore" />
         <module name="upedge-shopify" />
-        <module name="common-redis" />
-        <module name="pms" />
-        <module name="common-web" />
+        <module name="zuul" />
+        <module name="thirdparty-service" />
         <module name="upedge-1688" />
+        <module name="common-base" />
+        <module name="pms" />
+        <module name="common-redis" />
+        <module name="tms" />
+        <module name="ums" />
+        <module name="upedge_generator" />
+        <module name="upedge-shoplazza" />
         <module name="upedge-saihe" />
+        <module name="common-web" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
@@ -38,13 +43,18 @@
       <module name="common-base" options="-parameters" />
       <module name="common-redis" options="-parameters" />
       <module name="common-web" options="-parameters" />
+      <module name="oms" options="-parameters" />
+      <module name="panda-trackingmore" options="-parameters" />
       <module name="pms" options="-parameters" />
       <module name="thirdparty-service" options="-parameters" />
+      <module name="tms" options="-parameters" />
       <module name="ums" options="-parameters" />
       <module name="upedge-1688" options="-parameters" />
       <module name="upedge-saihe" options="-parameters" />
       <module name="upedge-shopify" options="-parameters" />
+      <module name="upedge-shoplazza" options="-parameters" />
       <module name="upedge-ums" options="" />
+      <module name="upedge-woocommerce" options="-parameters" />
       <module name="upedge_generator" options="-parameters" />
       <module name="zuul" options="-parameters" />
     </option>

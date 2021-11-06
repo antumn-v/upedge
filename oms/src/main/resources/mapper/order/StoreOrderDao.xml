@@ -1,0 +1,664 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.upedge.oms.modules.order.dao.StoreOrderDao">
+
+    <!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.upedge.oms.modules.order.entity.StoreOrder" id="BaseResultMap">
+        <result property="id" column="id"/>
+        <result property="platOrderId" column="plat_order_id"/>
+        <result property="platOrderName" column="plat_order_name"/>
+        <result property="storeId" column="store_id"/>
+        <result property="orgId" column="org_id"/>
+        <result property="orgPath" column="org_path"/>
+        <result property="storeName" column="store_name"/>
+        <result property="storeAddressId" column="store_address_id"/>
+        <result property="customerId" column="customer_id"/>
+        <result property="currencyCode" column="currency_code"/>
+        <result property="currencyRate" column="currency_rate"/>
+        <result property="totalPrice" column="total_price"/>
+        <result property="totalLineItemsPrice" column="total_line_items_price"/>
+        <result property="freight" column="freight"/>
+        <result property="totalWeight" column="total_weight"/>
+        <result property="financialStatus" column="financial_status"/>
+        <result property="fulfillmentStatus" column="fulfillment_status"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="importTime" column="import_time"/>
+    </resultMap>
+
+    <resultMap type="com.upedge.oms.modules.order.vo.StoreOrderVo" id="StoreOrderVo">
+        <result property="id" column="id"/>
+        <result property="platOrderId" column="plat_order_id"/>
+        <result property="platOrderName" column="plat_order_name"/>
+        <result property="storeId" column="store_id"/>
+        <result property="customerId" column="customer_id"/>
+        <result property="importTime" column="import_time"/>
+        <collection property="items" ofType="com.upedge.oms.modules.order.vo.StoreOrderItemVo">
+            <result property="id" column="itemId"/>
+            <result property="storeVariantId" column="store_variant_id"/>
+            <result property="storeProductId" column="store_product_id"/>
+            <result property="storeVariantName" column="store_variant_name"/>
+            <result property="storeVariantSku" column="store_variant_sku"/>
+            <result property="storeVariantImage" column="store_variant_image"/>
+            <result property="storeProductTitle" column="store_product_title"/>
+        </collection>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        `id`,`plat_order_id`,`plat_order_name`,`store_id`,`store_name`,org_id,`org_path`,
+        `store_address_id`,`customer_id`,`currency_code`,`currency_rate`,`total_price`,`total_line_items_price`,
+        `freight`,`total_weight`,`financial_status`,`fulfillment_status`,`create_time`,`update_time`,`import_time`
+    </sql>
+
+
+
+    <select id="selectUnGeneratedStoreOrder" resultMap="StoreOrderVo"
+            parameterType="com.upedge.oms.modules.order.request.UnrecognizedStoreOrderListRequest">
+        select o.id, o.plat_order_id, o.plat_order_name, o.store_id, o.customer_id, o.import_time, item.id as itemId,
+        item.store_variant_id, item.store_product_id, item.store_variant_name, item.store_variant_sku,
+        item.store_variant_image, item.store_product_title
+        from store_order o
+        inner join store_order_item item
+        on o.id = item.store_order_id
+        <include refid="UnGenerated_Condition"/>
+        order by o.create_time desc
+        <if test="pageNum != null and pageSize != null">
+            limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+        </if>
+    </select>
+
+    <select id="countUnGeneratedStoreOrder" resultType="java.lang.Long"
+            parameterType="com.upedge.oms.modules.order.request.UnrecognizedStoreOrderListRequest">
+        select count(distinct o.id)
+        from store_order o
+        inner join store_order_item item
+        on o.id = item.store_order_id
+        <include refid="UnGenerated_Condition"/>
+    </select>
+
+    <sql id="UnGenerated_Condition">
+        where item.state = '0'
+        <if test="t != null">
+            <trim prefix=" " suffix=" " suffixOverrides=" and ">
+                and
+                <if test="t.orgId != null">
+                    o.org_id = #{t.orgId} and
+                </if>
+                <if test="t.storeProductId != null">
+                    item.store_product_id = #{t.storeProductId} and
+                </if>
+                <if test="t.orderName != null">
+                    o.plat_order_name = #{t.orderName} and
+                </if>
+                <if test="t.orgIds != null">
+                     o.org_id in
+                    <foreach collection="t.orgIds" item="orgId" open="(" separator="," close=")">
+                        #{orgId}
+                    </foreach>
+                    and
+                </if>
+            </trim>
+        </if>
+
+    </sql>
+
+    <select id="selectCustomerStoreOrderSales" resultType="com.upedge.oms.modules.order.vo.StoreOrderSaleVo">
+        <if test="param.rangeType == 0">
+            select date_format(create_time,'%Y/%m/%d') as dates,sum(total_price) as income,count(id) as orderCount
+        </if>
+        <if test="param.rangeType == 1">
+            select date_format(create_time,'%u') as dates,sum(total_price) as income,count(id) as orderCount
+        </if>
+        <if test="param.rangeType == 2">
+            select date_format(create_time,'%Y/%m') as dates,sum(total_price) as income,count(id) as orderCount
+        </if>
+        from store_order
+        where customer_id = #{customerId}
+        <if test="param.orgIds != null and param.orgIds.size > 0">
+            and org_id in
+            <foreach collection="param.orgIds" item="id" open="(" separator="," close=")">
+                #{id}
+            </foreach>
+        </if>
+        <if test="param.startTime != null and param.endTime != null">
+            and create_time between #{param.startTime} and #{param.endTime}
+        </if>
+        <if test="param.startTime == null and param.endTime == null">
+            <if test="param.years != null">
+                and date_format(create_time,'%Y') = #{param.years}
+            </if>
+            <if test="param.years == null and param.days != null">
+                and date_sub(#{param.date},interval ${param.days} day) &lt;= create_time
+            </if>
+        </if>
+        group by dates
+    </select>
+
+    <select id="selectOrderCountByCustomer" resultType="java.lang.Long">
+        select count(id)
+        from store_order
+        where customer_id = #{customerId}
+        <if test="orgIds != null and orgIds.size > 0">
+            and org_id in
+            <foreach collection="orgIds" item="orgId" open="(" close=")" separator=",">
+                #{orgId}
+            </foreach>
+        </if>
+    </select>
+
+    <select id="selectOrderIncomeByCustomer" resultType="java.math.BigDecimal">
+        select sum(total_price)
+        from store_order
+        where customer_id = #{customerId}
+        <if test="orgIds != null and orgIds.size > 0">
+            and org_id in
+            <foreach collection="orgIds" item="orgId" open="(" close=")" separator=",">
+                #{orgId}
+            </foreach>
+        </if>
+    </select>
+
+    <select id="selectByStorePlatId" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from store_order
+        where store_id = #{storeId}
+        and plat_order_id = #{platOrderId}
+    </select>
+
+    <select id="selectByPrimaryKey" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from store_order
+        where id = #{id}
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="com.upedge.oms.modules.order.entity.StoreOrder">
+        delete from store_order
+        where id = #{id}
+    </delete>
+
+    <update id="updateByPrimaryKeySelective" parameterType="com.upedge.oms.modules.order.entity.StoreOrder">
+        update store_order
+        <set>
+            <if test="platOrderId != null">
+                plat_order_id = #{platOrderId},
+            </if>
+            <if test="platOrderName != null">
+                plat_order_name = #{platOrderName},
+            </if>
+            <if test="storeId != null">
+                store_id = #{storeId},
+            </if>
+            <if test="storeName != null">
+                store_name = #{storeName},
+            </if>
+            <if test="storeAddressId != null">
+                store_address_id = #{storeAddressId},
+            </if>
+            <if test="customerId != null">
+                customer_id = #{customerId},
+            </if>
+            <if test="currencyCode != null">
+                currency_code = #{currencyCode},
+            </if>
+            <if test="currencyRate != null">
+                currency_rate = #{currencyRate},
+            </if>
+            <if test="totalPrice != null">
+                total_price = #{totalPrice},
+            </if>
+            <if test="totalLineItemsPrice != null">
+                total_line_items_price = #{totalLineItemsPrice},
+            </if>
+            <if test="freight != null">
+                freight = #{freight},
+            </if>
+            <if test="totalWeight != null">
+                total_weight = #{totalWeight},
+            </if>
+            <if test="financialStatus != null">
+                financial_status = #{financialStatus},
+            </if>
+            <if test="fulfillmentStatus != null">
+                fulfillment_status = #{fulfillmentStatus},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime},
+            </if>
+            <if test="updateTime != null">
+                update_time = #{updateTime},
+            </if>
+            <if test="importTime != null">
+                import_time = #{importTime},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <update id="updateByPrimaryKey" parameterType="com.upedge.oms.modules.order.entity.StoreOrder">
+        update store_order
+        <set>
+            id = #{id},
+            plat_order_id = #{platOrderId},
+            plat_order_name = #{platOrderName},
+            store_id = #{storeId},
+            store_name = #{storeName},
+            store_address_id = #{storeAddressId},
+            customer_id = #{customerId},
+            currency_code = #{currencyCode},
+            currency_rate = #{currencyRate},
+            total_price = #{totalPrice},
+            total_line_items_price = #{totalLineItemsPrice},
+            freight = #{freight},
+            total_weight = #{totalWeight},
+            financial_status = #{financialStatus},
+            fulfillment_status = #{fulfillmentStatus},
+            create_time = #{createTime},
+            update_time = #{updateTime},
+            import_time = #{importTime},
+        </set>
+        where id = #{id}
+    </update>
+
+    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.upedge.oms.modules.order.entity.StoreOrder"
+            useGeneratedKeys="true">
+        insert into store_order
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            id,
+            plat_order_id,
+            plat_order_name,
+            store_id,
+            org_id,
+            org_path,
+            store_name,
+            store_address_id,
+            customer_id,
+            currency_code,
+            currency_rate,
+            total_price,
+            total_line_items_price,
+            freight,
+            total_weight,
+            financial_status,
+            fulfillment_status,
+            create_time,
+            update_time,
+            import_time
+        </trim>
+        values (
+        #{id},
+        #{platOrderId},
+        #{platOrderName},
+        #{storeId},
+        #{orgId},
+        #{orgPath},
+        #{storeName},
+        #{storeAddressId},
+        #{customerId},
+        #{currencyCode},
+        #{currencyRate},
+        #{totalPrice},
+        #{totalLineItemsPrice},
+        #{freight},
+        #{totalWeight},
+        #{financialStatus},
+        #{fulfillmentStatus},
+        #{createTime},
+        #{updateTime},
+        #{importTime}
+        )
+    </insert>
+
+    <insert id="insertSelective" keyColumn="id" keyProperty="id"
+            parameterType="com.upedge.oms.modules.order.entity.StoreOrder" useGeneratedKeys="true">
+        insert into store_order
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id
+            </if>
+            <if test="platOrderId != null">
+                plat_order_id
+            </if>
+            <if test="platOrderName != null">
+                plat_order_name
+            </if>
+            <if test="storeId != null">
+                store_id
+            </if>
+            <if test="storeName != null">
+                store_name
+            </if>
+            <if test="storeAddressId != null">
+                store_address_id
+            </if>
+            <if test="customerId != null">
+                customer_id
+            </if>
+            <if test="currencyCode != null">
+                currency_code
+            </if>
+            <if test="currencyRate != null">
+                currency_rate
+            </if>
+            <if test="totalPrice != null">
+                total_price
+            </if>
+            <if test="totalLineItemsPrice != null">
+                total_line_items_price
+            </if>
+            <if test="freight != null">
+                freight
+            </if>
+            <if test="totalWeight != null">
+                total_weight
+            </if>
+            <if test="financialStatus != null">
+                financial_status
+            </if>
+            <if test="fulfillmentStatus != null">
+                fulfillment_status
+            </if>
+            <if test="createTime != null">
+                create_time
+            </if>
+            <if test="updateTime != null">
+                update_time
+            </if>
+            <if test="importTime != null">
+                import_time
+            </if>
+
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id}
+            </if>
+            <if test="platOrderId != null">
+                #{platOrderId}
+            </if>
+            <if test="platOrderName != null">
+                #{platOrderName}
+            </if>
+            <if test="storeId != null">
+                #{storeId}
+            </if>
+            <if test="storeName != null">
+                #{storeName}
+            </if>
+            <if test="storeAddressId != null">
+                #{storeAddressId}
+            </if>
+            <if test="customerId != null">
+                #{customerId}
+            </if>
+            <if test="currencyCode != null">
+                #{currencyCode}
+            </if>
+            <if test="currencyRate != null">
+                #{currencyRate}
+            </if>
+            <if test="totalPrice != null">
+                #{totalPrice}
+            </if>
+            <if test="totalLineItemsPrice != null">
+                #{totalLineItemsPrice}
+            </if>
+            <if test="freight != null">
+                #{freight}
+            </if>
+            <if test="totalWeight != null">
+                #{totalWeight}
+            </if>
+            <if test="financialStatus != null">
+                #{financialStatus}
+            </if>
+            <if test="fulfillmentStatus != null">
+                #{fulfillmentStatus}
+            </if>
+            <if test="createTime != null">
+                #{createTime}
+            </if>
+            <if test="updateTime != null">
+                #{updateTime}
+            </if>
+            <if test="importTime != null">
+                #{importTime}
+            </if>
+
+        </trim>
+    </insert>
+
+    <insert id="insertByBatch" parameterType="java.util.List">
+        insert into store_order
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            id,
+            plat_order_id,
+            plat_order_name,
+            org_id,
+            org_path,
+            store_id,
+            store_name,
+            store_address_id,
+            customer_id,
+            currency_code,
+            currency_rate,
+            total_price,
+            total_line_items_price,
+            freight,
+            total_weight,
+            financial_status,
+            fulfillment_status,
+            create_time,
+            update_time,
+            import_time
+        </trim>
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+                #{item.id},
+                #{item.platOrderId},
+                #{item.platOrderName},
+                #{item.orgId},
+                #{item.orgPath},
+                #{item.storeId},
+                #{item.storeName},
+                #{item.storeAddressId},
+                #{item.customerId},
+                #{item.currencyCode},
+                #{item.currencyRate},
+                #{item.totalPrice},
+                #{item.totalLineItemsPrice},
+                #{item.freight},
+                #{item.totalWeight},
+                #{item.financialStatus},
+                #{item.fulfillmentStatus},
+                #{item.createTime},
+                #{item.updateTime},
+                #{item.importTime}
+            </trim>
+        </foreach>
+    </insert>
+
+    <sql id="Query_Condition">
+        <if test="t != null">
+            where
+            <trim prefix=" " suffix=" " suffixOverrides=" and ">
+                1 = 1 and
+                <if test="t.id != null">
+                    id = #{t.id} and
+                </if>
+                <if test="t.platOrderId != null">
+                    plat_order_id = #{t.platOrderId} and
+                </if>
+                <if test="t.platOrderName != null">
+                    plat_order_name = #{t.platOrderName} and
+                </if>
+                <if test="t.storeId != null">
+                    store_id = #{t.storeId} and
+                </if>
+                <if test="t.storeName != null">
+                    store_name = #{t.storeName} and
+                </if>
+                <if test="t.storeAddressId != null">
+                    store_address_id = #{t.storeAddressId} and
+                </if>
+                <if test="t.customerId != null">
+                    customer_id = #{t.customerId} and
+                </if>
+                <if test="t.currencyCode != null">
+                    currency_code = #{t.currencyCode} and
+                </if>
+                <if test="t.currencyRate != null">
+                    currency_rate = #{t.currencyRate} and
+                </if>
+                <if test="t.totalPrice != null">
+                    total_price = #{t.totalPrice} and
+                </if>
+                <if test="t.totalLineItemsPrice != null">
+                    total_line_items_price = #{t.totalLineItemsPrice} and
+                </if>
+                <if test="t.freight != null">
+                    freight = #{t.freight} and
+                </if>
+                <if test="t.totalWeight != null">
+                    total_weight = #{t.totalWeight} and
+                </if>
+                <if test="t.financialStatus != null">
+                    financial_status = #{t.financialStatus} and
+                </if>
+                <if test="t.fulfillmentStatus != null">
+                    fulfillment_status = #{t.fulfillmentStatus} and
+                </if>
+                <if test="t.createTime != null">
+                    create_time = #{t.createTime} and
+                </if>
+                <if test="t.updateTime != null">
+                    update_time = #{t.updateTime} and
+                </if>
+                <if test="t.importTime != null">
+                    import_time = #{t.importTime} and
+                </if>
+            </trim>
+        </if>
+    </sql>
+
+    <select id="select" parameterType="com.upedge.common.base.Page" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from store_order
+        <include refid="Query_Condition"/>
+        <if test="orderBy != null">
+            order by ${orderBy}
+        </if>
+        <if test="pageNum != null and pageSize != null">
+            limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+        </if>
+    </select>
+
+    <select id="count" parameterType="com.upedge.common.base.Page" resultType="java.lang.Long">
+        select
+        count(1)
+        from store_order
+        <include refid="Query_Condition"/>
+    </select>
+
+
+    <sql id="DisConnect_Condition">
+        <if test="t != null">
+            where
+            <trim prefix=" " suffix=" " suffixOverrides=" and ">
+                1 = 1 and
+                <if test="t.storeId != null">
+                    o.store_id = #{t.storeId} and
+                </if>
+                <if test="t.customerId != null">
+                    o.customer_id = #{t.customerId} and
+                </if>
+            </trim>
+        </if>
+    </sql>
+
+    <select id="disConnectList" parameterType="com.upedge.common.base.Page" resultMap="StoreOrderVo">
+        select o.id, o.plat_order_id, o.plat_order_name, o.store_id, o.customer_id, o.import_time, item.id as itemId,
+        item.store_variant_id, item.store_product_id, item.store_variant_name, item.store_variant_sku,
+        item.store_variant_image, item.store_product_title
+        from
+        (select o.id, o.plat_order_id, o.plat_order_name,o.store_id,o.customer_id,o.import_time,o.update_time from
+        store_order_item item
+        left join store_order o on o.id = item.store_order_id
+        <include refid="DisConnect_Condition"/>
+        and item.state=0 group by o.id order by o.update_time desc
+        <if test="pageNum != null and pageSize != null">
+            limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+        </if>
+        ) o
+        inner join store_order_item item on o.id = item.store_order_id
+        where item.state=0 order by o.update_time desc
+    </select>
+
+    <select id="disConnectCount" parameterType="com.upedge.common.base.Page" resultType="java.lang.Long">
+        select
+        count(distinct o.id)
+        from store_order o
+        inner join store_order_item item
+        on o.id = item.store_order_id
+        <include refid="DisConnect_Condition"/>
+        and item.state=0
+    </select>
+    <select id="selectOrderListByStoreId" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        Base_Column_List
+        FROM
+        store_order
+        where
+        #{storeId} = store_id and financial_status = 0
+    </select>
+    <select id="listAppUserSortPage" resultType="com.upedge.oms.modules.statistics.vo.AppUserSortVo">
+        select
+        apo.customer_id as customerId,
+        count(1) as orderPaidNum,
+        sum(IFNULL(apo.product_amount,0)+IFNULL(apo.fix_fee,0)+IFNULL(apo.vat_amount,0)+IFNULL(apo.ship_price,0)) as orderAmount
+        from `order` apo
+        where
+				pay_state = 1
+				AND order_type =0
+        <if test="startDay != null and startDay !=''" >and date(pay_time) >= #{startDay}</if>
+        <if test="endDay != null and endDay !=''" > and date(pay_time) &lt;=#{endDay}</if>
+        GROUP BY apo.customer_id
+        order by orderAmount desc
+    </select>
+    <select id="listAppUserSortCount" resultType="java.lang.Long">
+        SELECT
+            count( DISTINCT customer_id )
+        FROM
+            `order`
+        WHERE
+            pay_state = 1
+            AND order_type =0
+        <if test="startDay != null and startDay !=''" >and date(pay_time) >= #{startDay}</if>
+        <if test="endDay != null and endDay !=''" > and date(pay_time) &lt;=#{endDay}</if>
+    </select>
+    <select id="selectIdsByCreateTime" resultType="java.lang.Long">
+        select DISTINCT store_order_id
+        from store_order_item
+        where store_order_id in
+        (
+        select store_order_id from `store_order_relate` where `plat_order_create_time` > '2021-08-17 00:00:00'
+        )
+        and store_variant_id in
+        (
+        select store_variant_id
+        from pms.product_relate
+        )
+        and state = '0'
+    </select>
+
+    <update id="updateFulfillmentStatus">
+        update store_order set fulfillment_status=#{fulfillmentStatus}
+        where id=#{id}
+    </update>
+
+</mapper>

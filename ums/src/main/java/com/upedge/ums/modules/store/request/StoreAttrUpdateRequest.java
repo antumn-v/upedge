@@ -1,10 +1,10 @@
 package com.upedge.ums.modules.store.request;
 
 import com.upedge.ums.modules.store.entity.StoreAttr;
-import java.util.Date;
 import lombok.Data;
+
 /**
- * @author gx
+ * @author author
  */
 @Data
 public class StoreAttrUpdateRequest{

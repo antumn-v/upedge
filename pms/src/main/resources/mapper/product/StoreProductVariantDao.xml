@@ -1,0 +1,468 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.upedge.pms.modules.product.dao.StoreProductVariantDao">
+
+    <!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.upedge.pms.modules.product.entity.StoreProductVariant" id="BaseResultMap">
+        <result property="id" column="id"/>
+        <result property="productId" column="product_id"/>
+        <result property="platVariantId" column="plat_variant_id"/>
+        <result property="platProductId" column="plat_product_id"/>
+        <result property="title" column="title"/>
+        <result property="price" column="price"/>
+        <result property="sku" column="sku"/>
+        <result property="image" column="image"/>
+        <result property="state" column="state"/>
+        <result property="importTime" column="import_time"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        `id`,`product_id`,`plat_variant_id`,`plat_product_id`,`title`,`price`,`sku`,`image`,`state`,`import_time`
+    </sql>
+
+    <!--    <select id="selectByPlatVariantId" resultType="com.upedge.common.model.product.StoreProductVariantVo">-->
+    <!--        select `id` as `storeVariantId`,`product_id` as `storeProductId`,-->
+    <!--        `plat_variant_id` as `paltVariantId`,`plat_product_id` as `platProductId`,-->
+    <!--        `title`,`price`,`sku`,`image`-->
+    <!--        from store_product_variant-->
+    <!--        where store_product_id = #{storeProductId}-->
+    <!--        and plat_variant_id = #{platVariantId}-->
+    <!--        limit 1-->
+    <!--    </select>-->
+
+    <select id="selectStoreVariantRelateDetail" >
+        SELECT
+        spv.id as `storeVariantId`,
+        pv.id as `variantId`,
+        spv.title as `storeVariantName`,
+        spv.image as `storeVariantImage`,
+        spv.sku as `storeVariantSku`,
+        pr.scale,
+        pv.variant_sku as `variantSku`,
+        pv.en_name as `variantName`,
+        pv.variant_image as `variantImage`
+        FROM
+        store_product_variant spv
+        LEFT JOIN product_relate pr ON spv.id = pr.store_variant_id
+        LEFT JOIN product_variant pv ON pr.admin_variant_id = pv.id
+        WHERE
+        spv.product_id = #{storeProductId}
+        UNION
+        SELECT
+        spv.id as `storeVariantId`,
+        pv.id as `variantId`,
+        spv.title as `storeVariantName`,
+        spv.image as `storeVariantImage`,
+        spv.sku as `storeVariantSku`,
+        pr.scale,
+        pv.variant_sku as `variantSku`,
+        pv.en_name as `variantName`,
+        pv.variant_image as `variantImage`
+        FROM
+        store_product_variant spv
+        LEFT JOIN product_relate pr ON spv.id = pr.store_variant_id
+        LEFT JOIN product_group_variant pgv ON pgv.group_variant_id = pr.admin_variant_id
+        LEFT JOIN product_variant pv ON pgv.variant_id = pv.id
+        WHERE
+        spv.product_id = #{storeProductId}
+    </select>
+
+    <select id="selectByPlatVariantId" resultType="com.upedge.common.model.product.StoreProductVariantVo">
+        select v.`id` as `storeVariantId`,v.`product_id` as `storeProductId`,
+        v.`plat_variant_id` as `platVariantId`,v.`plat_product_id` as `platProductId`,
+        v.`title`,v.`price`,v.`sku`,v.`image`
+        from store_product_variant v
+        inner join store_product_attribute a
+        on v.product_id = a.id
+        where a.store_id = #{storeId}
+        and a.plat_product_id = #{platProductId}
+        and v.plat_variant_id = #{platVariantId}
+        limit 1
+    </select>
+
+    <select id="selectUnRelateVariantByProduct" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from store_product_variant
+        where product_id = #{storeProductId}
+        and id not in
+        (
+        select store_variant_id
+        from product_relate
+        where store_product_id = #{storeProductId}
+        )
+    </select>
+
+
+
+    <select id="selectIdByProductId" resultType="java.lang.Long">
+        select id
+        from store_product_variant
+        where product_id = #{productId}
+    </select>
+
+    <select id="selectPlatVariantIdByProductId" resultType="java.lang.Long">
+        select plat_variant_id
+        from store_product_variant
+        where product_id = #{productId}
+    </select>
+
+    <update id="updateByPlatVariantId" parameterType="com.upedge.pms.modules.product.entity.StoreProductVariant">
+        update store_product_variant
+        <set>
+            title = #{title},
+            price = #{price},
+            sku = #{sku},
+            image = #{image},
+            state = #{state}
+        </set>
+        where product_id = #{productId}
+        and plat_variant_id = #{platVariantId}
+    </update>
+
+    <update id="markStoreVariantAsRemovedByPlatId">
+        update store_product_variant
+        set state = '0'
+        where product_id = #{productId}
+        and plat_variant_id not in
+        <foreach collection="platVariantIds" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+    </update>
+
+    <update id="updateVariantImageByShopifyImage">
+        <foreach collection="images" item="image" separator=";">
+            update store_product_variant
+            set image = #{image.src}
+            where product_id = #{productId}
+            and plat_variant_id in
+            <foreach collection="image.variant_ids" item="id" separator="," open="(" close=")">
+                #{id}
+            </foreach>
+        </foreach>
+    </update>
+
+    <select id="selectByPrimaryKey" parameterType="com.upedge.pms.modules.product.entity.StoreProductVariant"
+            resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from store_product_variant
+        where id = #{id}
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="com.upedge.pms.modules.product.entity.StoreProductVariant">
+        delete from store_product_variant
+        where id = #{id}
+    </delete>
+
+    <update id="updateByPrimaryKeySelective" parameterType="com.upedge.pms.modules.product.entity.StoreProductVariant">
+        update store_product_variant
+        <set>
+            <if test="title != null">
+                title = #{title},
+            </if>
+            <if test="price != null">
+                price = #{price},
+            </if>
+            <if test="sku != null">
+                sku = #{sku},
+            </if>
+            <if test="image != null">
+                image = #{image},
+            </if>
+            <if test="state != null">
+                state = #{state},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <update id="updateByBatch" parameterType="java.util.List">
+        <foreach collection="variants" item="v" separator=";">
+            update store_product_variant
+            set title = #{v.title},
+            price = #{v.price},
+            image = #{v.image},
+            sku = #{v.sku},
+            state = #{v.state}
+            where product_id = #{v.productId}
+            and plat_variant_id = #{v.platVariantId}
+        </foreach>
+    </update>
+
+    <update id="updateByPrimaryKey" parameterType="com.upedge.pms.modules.product.entity.StoreProductVariant">
+        update store_product_variant
+        <set>
+            title = #{title},
+            price = #{price},
+            sku = #{sku},
+            image = #{image},
+            state = #{state}
+        </set>
+        where id = #{id}
+    </update>
+
+    <insert id="insert" keyColumn="id" keyProperty="id"
+            parameterType="com.upedge.pms.modules.product.entity.StoreProductVariant" useGeneratedKeys="true">
+        insert into store_product_variant
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            id,
+            product_id,
+            plat_variant_id,
+            plat_product_id,
+            title,
+            price,
+            sku,
+            image,
+            state,
+            import_time
+        </trim>
+        values (
+        #{id},
+        #{productId},
+        #{platVariantId},
+        #{platProductId},
+        #{title},
+        #{price},
+        #{sku},
+        #{image},
+        #{state},
+        #{importTime}
+        )
+    </insert>
+
+    <insert id="insertSelective" keyColumn="id" keyProperty="id"
+            parameterType="com.upedge.pms.modules.product.entity.StoreProductVariant" useGeneratedKeys="true">
+        insert into store_product_variant
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id
+            </if>
+            <if test="productId != null">
+                product_id
+            </if>
+            <if test="platVariantId != null and platVariantId != ''">
+                plat_variant_id
+            </if>
+            <if test="platProductId != null and platProductId != ''">
+                plat_product_id
+            </if>
+            <if test="title != null and  title != ''">
+                title
+            </if>
+            <if test="price != null">
+                price
+            </if>
+            <if test="sku != null  and sku != '' ">
+                sku
+            </if>
+            <if test="image != null  and image != ''">
+                image
+            </if>
+            <if test="adminVariantId != null">
+                admin_variant_id
+            </if>
+            <if test="state != null">
+                state
+            </if>
+            <if test="importTime != null">
+                import_time
+            </if>
+
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id}
+            </if>
+            <if test="productId != null">
+                #{productId}
+            </if>
+            <if test="platVariantId != null and platVariantId != ''">
+                #{platVariantId}
+            </if>
+            <if test="platProductId != null and platProductId != ''">
+                #{platProductId}
+            </if>
+            <if test="title != null and  title != ''">
+                #{title}
+            </if>
+            <if test="price != null">
+                #{price}
+            </if>
+            <if test="sku != null  and sku != '' ">
+                #{sku}
+            </if>
+            <if test="image != null  and image != ''">
+                #{image}
+            </if>
+            <if test="adminVariantId != null">
+                #{adminVariantId}
+            </if>
+            <if test="state != null">
+                #{state}
+            </if>
+            <if test="importTime != null">
+                #{importTime}
+            </if>
+
+        </trim>
+    </insert>
+
+    <insert id="insertByBatch" parameterType="java.util.List">
+        insert into store_product_variant
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            id,
+            product_id,
+            plat_variant_id,
+            plat_product_id,
+            title,
+            price,
+            sku,
+            image,
+            state,
+            import_time
+        </trim>
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+                #{item.id},
+                #{item.productId},
+                #{item.platVariantId},
+                #{item.platProductId},
+                #{item.title},
+                #{item.price},
+                #{item.sku},
+                #{item.image},
+                #{item.state},
+                #{item.importTime}
+            </trim>
+        </foreach>
+    </insert>
+
+    <insert id="insertReplace" keyColumn="id" keyProperty="id"
+            parameterType="com.upedge.pms.modules.product.entity.StoreProductVariant" useGeneratedKeys="true">
+        replace into store_product_variant
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            id,
+            product_id,
+            plat_variant_id,
+            plat_product_id,
+            title,
+            price,
+            sku,
+            image,
+            state,
+            import_time
+        </trim>
+        values (
+        #{id},
+        #{productId},
+        #{platVariantId},
+        #{platProductId},
+        #{title},
+        #{price},
+        #{sku},
+        #{image},
+        #{state},
+        #{importTime}
+        )
+    </insert>
+
+    <sql id="Query_Condition">
+        <if test="t != null">
+            where
+            <trim prefix=" " suffix=" " suffixOverrides=" and ">
+                1 = 1 and
+                <if test="t.id != null">
+                    id = #{t.id} and
+                </if>
+                <if test="t.productId != null">
+                    product_id = #{t.productId} and
+                </if>
+                <if test="t.platVariantId != null">
+                    plat_variant_id = #{t.platVariantId} and
+                </if>
+                <if test="t.platProductId != null">
+                    plat_product_id = #{t.platProductId} and
+                </if>
+                <if test="t.title != null">
+                    title = #{t.title} and
+                </if>
+                <if test="t.price != null">
+                    price = #{t.price} and
+                </if>
+                <if test="t.sku != null">
+                    sku = #{t.sku} and
+                </if>
+                <if test="t.image != null">
+                    image = #{t.image} and
+                </if>
+                <if test="t.state != null">
+                    state = #{t.state} and
+                </if>
+                <if test="t.importTime != null">
+                    import_time = #{t.importTime} and
+                </if>
+            </trim>
+        </if>
+    </sql>
+
+    <select id="select" parameterType="com.upedge.common.base.Page" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from store_product_variant
+        <include refid="Query_Condition"/>
+        <if test="orderBy != null">
+            order by ${orderBy}
+        </if>
+        <if test="pageNum != null and pageSize != null">
+            limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+        </if>
+    </select>
+
+    <select id="count" parameterType="com.upedge.common.base.Page" resultType="java.lang.Long">
+        select
+        count(1)
+        from store_product_variant
+        <include refid="Query_Condition"/>
+    </select>
+
+    <select id="listUseVariantProductId" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from store_product_variant
+        where product_id = #{productId} and state=1
+    </select>
+
+    <select id="listUseVariantRelateInfoProductId"
+            resultType="com.upedge.pms.modules.product.vo.CustomerProductVariantRelateVo">
+        select
+        spv.`id` as id,
+        spv.`plat_variant_id`  as platVariantId,
+        spv.`plat_product_id` as platProductId,
+        spv.`title` as title,
+        spv.`sku` as sku,
+        spv.`image` as image,
+        spv.`state` as state,
+        spv.`import_time` as importTime,
+        pv.variant_sku as adminVariantSku,
+        pv.product_id as adminProductId,
+        pv.id as adminVariantId,
+        pr.variant_type as variantType,
+        pr.`scale` as `scale`
+        from store_product_variant spv
+        left join product_relate pr on pr.store_variant_id=spv.id
+        left join product_variant pv on pv.id=pr.admin_variant_id
+        where spv.product_id = #{productId}
+    </select>
+    <select id="selectByIds" resultType="com.upedge.pms.modules.product.entity.StoreProductVariant">
+        select <include refid="Base_Column_List"/>
+        from store_product_variant
+        where id in
+        <foreach collection="ids" item="id" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+    </select>
+
+</mapper>

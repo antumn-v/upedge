@@ -3,7 +3,7 @@
 
 <mapper namespace="com.upedge.ums.modules.account.dao.AccountLogDao">
 
-	<!-- 可根据自己的需求，是否要使用 -->
+    <!-- 可根据自己的需求，是否要使用 -->
     <resultMap type="com.upedge.ums.modules.account.entity.AccountLog" id="BaseResultMap">
         <result property="id" column="id"/>
         <result property="accountId" column="account_id"/>
@@ -23,9 +23,10 @@
         `id`,`account_id`,`customer_id`,`transaction_type`,`order_type`,`pay_method`,`transaction_id`,`balance`,`rebate`,`credit`,`fix_fee`,`create_time`
     </sql>
 
-    <select id="selectByPrimaryKey" parameterType="com.upedge.ums.modules.account.entity.AccountLog" resultMap="BaseResultMap">
+    <select id="selectByPrimaryKey" parameterType="com.upedge.ums.modules.account.entity.AccountLog"
+            resultMap="BaseResultMap">
         select
-        <include refid="Base_Column_List" />
+        <include refid="Base_Column_List"/>
         from account_log
         where id = #{id}
     </select>
@@ -41,17 +42,8 @@
             <if test="accountId != null">
                 account_id = #{accountId},
             </if>
-            <if test="customerId != null">
-                customer_id = #{customerId},
-            </if>
             <if test="transactionType != null">
                 transaction_type = #{transactionType},
-            </if>
-            <if test="orderType != null">
-                order_type = #{orderType},
-            </if>
-            <if test="payMethod != null">
-                pay_method = #{payMethod},
             </if>
             <if test="transactionId != null">
                 transaction_id = #{transactionId},
@@ -65,9 +57,6 @@
             <if test="credit != null">
                 credit = #{credit},
             </if>
-            <if test="fixFee != null">
-                fix_fee = #{fixFee},
-            </if>
             <if test="createTime != null">
                 create_time = #{createTime},
             </if>
@@ -78,23 +67,20 @@
     <update id="updateByPrimaryKey" parameterType="com.upedge.ums.modules.account.entity.AccountLog">
         update account_log
         <set>
-        id = #{id},
-        account_id = #{accountId},
-        customer_id = #{customerId},
-        transaction_type = #{transactionType},
-        order_type = #{orderType},
-        pay_method = #{payMethod},
-        transaction_id = #{transactionId},
-        balance = #{balance},
-        rebate = #{rebate},
-        credit = #{credit},
-        fix_fee = #{fixFee},
-        create_time = #{createTime},
+            id = #{id},
+            account_id = #{accountId},
+            transaction_type = #{transactionType},
+            transaction_id = #{transactionId},
+            balance = #{balance},
+            rebate = #{rebate},
+            credit = #{credit},
+            create_time = #{createTime}
         </set>
         where id = #{id}
     </update>
 
-    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.upedge.ums.modules.account.entity.AccountLog" useGeneratedKeys="true">
+    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.upedge.ums.modules.account.entity.AccountLog"
+            useGeneratedKeys="true">
         insert into account_log
         <trim prefix="(" suffix=")" suffixOverrides=",">
             id,
@@ -107,7 +93,6 @@
             balance,
             rebate,
             credit,
-            fix_fee,
             create_time
         </trim>
         values (
@@ -121,87 +106,70 @@
         #{balance},
         #{rebate},
         #{credit},
-        #{fixFee},
         #{createTime}
         )
     </insert>
 
-    <insert id="insertSelective"  keyColumn="id" keyProperty="id"  parameterType="com.upedge.ums.modules.account.entity.AccountLog" useGeneratedKeys="true">
+    <insert id="insertSelective" keyColumn="id" keyProperty="id"
+            parameterType="com.upedge.ums.modules.account.entity.AccountLog" useGeneratedKeys="true">
         insert into account_log
         <trim prefix="(" suffix=")" suffixOverrides=",">
-            <if test="id != null" >
-              id
+            <if test="id != null">
+                id
             </if>
-            <if test="accountId != null" >
-              account_id
+            <if test="accountId != null">
+                account_id
             </if>
-            <if test="customerId != null" >
-              customer_id
+            <if test="t.customerId != null">
+                customer_id
             </if>
-            <if test="transactionType != null" >
-              transaction_type
+            <if test="transactionType != null">
+                transaction_type
             </if>
-            <if test="orderType != null" >
-              order_type
+            <if test="transactionId != null">
+                transaction_id
             </if>
-            <if test="payMethod != null" >
-              pay_method
+            <if test="balance != null">
+                balance
             </if>
-            <if test="transactionId != null" >
-              transaction_id
+            <if test="rebate != null">
+                rebate
             </if>
-            <if test="balance != null" >
-              balance
+            <if test="credit != null">
+                credit
             </if>
-            <if test="rebate != null" >
-              rebate
+            <if test="createTime != null">
+                create_time
             </if>
-            <if test="credit != null" >
-              credit
-            </if>
-            <if test="fixFee != null" >
-              fix_fee
-            </if>
-            <if test="createTime != null" >
-              create_time
-            </if>
+
 
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
-            <if test="id != null" >
+            <if test="id != null">
                 #{id}
             </if>
-            <if test="accountId != null" >
+            <if test="accountId != null">
                 #{accountId}
             </if>
-            <if test="customerId != null" >
+            <if test="t.customerId != null">
                 #{customerId}
             </if>
-            <if test="transactionType != null" >
+            <if test="transactionType != null">
                 #{transactionType}
             </if>
-            <if test="orderType != null" >
-                #{orderType}
-            </if>
-            <if test="payMethod != null" >
-                #{payMethod}
-            </if>
-            <if test="transactionId != null" >
+            <if test="transactionId != null">
                 #{transactionId}
             </if>
-            <if test="balance != null" >
+            <if test="balance != null">
                 #{balance}
             </if>
-            <if test="rebate != null" >
+            <if test="rebate != null">
                 #{rebate}
             </if>
-            <if test="credit != null" >
+            <if test="credit != null">
                 #{credit}
             </if>
-            <if test="fixFee != null" >
-                #{fixFee}
-            </if>
-            <if test="createTime != null" >
+            <if test="createTime != null">
                 #{createTime}
             </if>
 
@@ -211,51 +179,52 @@
     <insert id="insertByBatch" parameterType="java.util.List">
         insert into account_log
         <trim prefix="(" suffix=")" suffixOverrides=",">
-           id,
-           account_id,
-           customer_id,
-           transaction_type,
-           order_type,
-           pay_method,
-           transaction_id,
-           balance,
-           rebate,
-           credit,
-           fix_fee,
-           create_time
+            id,
+            account_id,
+            customer_id,
+            transaction_type,
+            order_type,
+            pay_method,
+            transaction_id,
+            balance,
+            rebate,
+            credit,
+            create_time
         </trim>
         values
         <foreach collection="list" item="item" index="index" separator=",">
             <trim prefix="(" suffix=")" suffixOverrides=",">
-               #{item.id},
-               #{item.accountId},
-               #{item.customerId},
-               #{item.transactionType},
-               #{item.orderType},
-               #{item.payMethod},
-               #{item.transactionId},
-               #{item.balance},
-               #{item.rebate},
-               #{item.credit},
-               #{item.fixFee},
-               #{item.createTime}
+                #{item.id},
+                #{item.accountId},
+                #{item.customerId},
+                #{item.transactionType},
+                #{item.orderType},
+                #{item.payMethod},
+                #{item.transactionId},
+                #{item.balance},
+                #{item.rebate},
+                #{item.credit},
+                #{item.createTime}
             </trim>
         </foreach>
     </insert>
 
-    <sql id="Query_Condition">
-        <if test="t != null">
-            where
+    <select id="select" parameterType="com.upedge.common.base.Page" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from account_log
+        <where>
             <trim prefix=" " suffix=" " suffixOverrides=" and ">
                 1 = 1 and
+                <if test="t != null">
                     <if test="t.id != null">
                         id = #{t.id} and
                     </if>
-                    <if test="t.accountId != null">
-                        account_id = #{t.accountId} and
-                    </if>
                     <if test="t.customerId != null">
                         customer_id = #{t.customerId} and
+                    </if>
+                    <if test="t.accountId != null">
+                        account_id = #{t.accountId} and
                     </if>
                     <if test="t.transactionType != null">
                         transaction_type = #{t.transactionType} and
@@ -269,33 +238,19 @@
                     <if test="t.transactionId != null">
                         transaction_id = #{t.transactionId} and
                     </if>
-                    <if test="t.balance != null">
-                        balance = #{t.balance} and
-                    </if>
-                    <if test="t.rebate != null">
-                        rebate = #{t.rebate} and
-                    </if>
-                    <if test="t.credit != null">
-                        credit = #{t.credit} and
-                    </if>
-                    <if test="t.fixFee != null">
-                        fix_fee = #{t.fixFee} and
-                    </if>
                     <if test="t.createTime != null">
                         create_time = #{t.createTime} and
                     </if>
+                </if>
+                <if test="beginTime != null and endTime != null">
+                     create_time between #{beginTime} and #{endTime}
+                </if>
+                <if test="t.shipDateStart != null  and  beginTime == null">
+                    create_time &gt;= #{t.shipDateStart} and  create_time &lt;= #{t.shipDateEnd} and
+                </if>
             </trim>
-        </if>
-    </sql>
-
-    <select id="select" parameterType="com.upedge.common.base.Page" resultMap="BaseResultMap">
-        select
-        <include refid="Base_Column_List" />
-        from account_log
-        <include refid="Query_Condition"/>
-        <if test="orderBy != null">
-            order by ${orderBy}
-        </if>
+        </where>
+        order by create_time desc
         <if test="pageNum != null and pageSize != null">
             limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
         </if>
@@ -305,8 +260,83 @@
         select
         count(1)
         from account_log
-        <include refid="Query_Condition"/>
+        <where>
+            <trim prefix=" " suffix=" " suffixOverrides=" and ">
+                1 = 1 and
+                <if test="t != null">
+                    <if test="t.id != null">
+                        id = #{t.id} and
+                    </if>
+                    <if test="t.customerId != null">
+                        customer_id = #{t.customerId} and
+                    </if>
+                    <if test="t.accountId != null">
+                        account_id = #{t.accountId} and
+                    </if>
+                    <if test="t.transactionType != null">
+                        transaction_type = #{t.transactionType} and
+                    </if>
+                    <if test="t.orderType != null">
+                        order_type = #{t.orderType} and
+                    </if>
+                    <if test="t.payMethod != null">
+                        pay_method = #{t.payMethod} and
+                    </if>
+                    <if test="t.transactionId != null">
+                        transaction_id = #{t.transactionId} and
+                    </if>
+                    <if test="t.createTime != null">
+                        create_time = #{t.createTime} and
+                    </if>
+                </if>
+                <if test="beginTime != null and endTime != null">
+                     create_time between #{beginTime} and #{endTime}
+                </if>
+                <if test="t.shipDateStart != null">
+                    create_time &gt;= #{t.shipDateStart} and  create_time &lt;= #{t.shipDateEnd} and
+                </if>
+            </trim>
+        </where>
     </select>
 
+    <select id="selectPayedAccountLogByTransactionId" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from account_log
+        where transaction_id=#{transactionId} and transaction_type=#{transactionType}
+    </select>
 
+    <select id="listAccountLogByTransactionId" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from account_log
+        where transaction_id=#{transactionId}
+        order by create_time desc
+    </select>
+    <select id="selectAccountLogByOrder" resultType="com.upedge.common.model.user.vo.OrderAccountLogVo">
+        SELECT
+            sum( balance ) as balance,
+            sum( credit ) as  credit,
+            sum( rebate )  as rebate
+        FROM
+            account_log
+        WHERE
+            order_type = #{orderType}
+            AND transaction_id =  #{transactionId}
+        GROUP BY
+            transaction_id
+    </select>
+    <select id="selectDateByCustomerId" resultType="com.upedge.ums.modules.account.entity.Account">
+
+    </select>
+    <select id="selectAccountLog" resultType="java.lang.Integer">
+        select count(1) from  account_log where   transaction_type = 0 and  order_type =#{orderType} and  transaction_id = #{orderId}
+    </select>
+    <select id="selectAccountLogPayInfoByTransactionDetail"
+            resultType="com.upedge.common.model.user.vo.OrderAccountLogVo">
+        select
+        <include refid="Base_Column_List"/>
+        from account_log
+        where transaction_id=#{transactionId} and transaction_type=#{transactionType} and  order_type = #{orderType}
+    </select>
 </mapper>

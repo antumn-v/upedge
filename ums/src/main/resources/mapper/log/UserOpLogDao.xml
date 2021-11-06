@@ -1,0 +1,290 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.upedge.ums.modules.log.dao.UserOpLogDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.upedge.ums.modules.log.entity.UserOpLog" id="BaseResultMap">
+        <result property="id" column="id"/>
+        <result property="opType" column="op_type"/>
+        <result property="opName" column="op_name"/>
+        <result property="customerId" column="customer_id"/>
+        <result property="userId" column="user_id"/>
+        <result property="loginName" column="login_name"/>
+        <result property="url" column="url"/>
+        <result property="opReq" column="op_req"/>
+        <result property="result" column="result"/>
+        <result property="ip" column="ip"/>
+        <result property="createTime" column="create_time"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        `id`,`op_type`,`op_name`,`customer_id`,`user_id`,`login_name`,`url`,`op_req`,`result`,`ip`,`create_time`
+    </sql>
+
+    <select id="selectByPrimaryKey" parameterType="com.upedge.ums.modules.log.entity.UserOpLog" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from user_op_log
+        where id = #{id}
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="com.upedge.ums.modules.log.entity.UserOpLog">
+        delete from user_op_log
+        where id = #{id}
+    </delete>
+
+    <update id="updateByPrimaryKeySelective" parameterType="com.upedge.ums.modules.log.entity.UserOpLog">
+        update user_op_log
+        <set>
+            <if test="opType != null">
+                op_type = #{opType},
+            </if>
+            <if test="opName != null">
+                op_name = #{opName},
+            </if>
+            <if test="customerId != null">
+                customer_id = #{customerId},
+            </if>
+            <if test="userId != null">
+                user_id = #{userId},
+            </if>
+            <if test="loginName != null">
+                login_name = #{loginName},
+            </if>
+            <if test="url != null">
+                url = #{url},
+            </if>
+            <if test="opReq != null">
+                op_req = #{opReq},
+            </if>
+            <if test="result != null">
+                result = #{result},
+            </if>
+            <if test="ip != null">
+                ip = #{ip},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <update id="updateByPrimaryKey" parameterType="com.upedge.ums.modules.log.entity.UserOpLog">
+        update user_op_log
+        <set>
+        id = #{id},
+        op_type = #{opType},
+        op_name = #{opName},
+        customer_id = #{customerId},
+        user_id = #{userId},
+        login_name = #{loginName},
+        url = #{url},
+        op_req = #{opReq},
+        result = #{result},
+        ip = #{ip},
+        create_time = #{createTime},
+        </set>
+        where id = #{id}
+    </update>
+
+    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.upedge.ums.modules.log.entity.UserOpLog" useGeneratedKeys="true">
+        insert into user_op_log
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            id,
+            `module`,
+            op_type,
+            op_name,
+            customer_id,
+            user_id,
+            login_name,
+            url,
+            op_req,
+            result,
+            ip,
+            create_time
+        </trim>
+        values (
+        #{id},
+        #{module},
+        #{opType},
+        #{opName},
+        #{customerId},
+        #{userId},
+        #{loginName},
+        #{url},
+        #{opReq},
+        #{result},
+        #{ip},
+        #{createTime}
+        )
+    </insert>
+
+    <insert id="insertSelective" keyColumn="id" keyProperty="id" parameterType="com.upedge.ums.modules.log.entity.UserOpLog" useGeneratedKeys="true">
+        insert into user_op_log
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null" >
+              id
+            </if>
+            <if test="module != null" >
+              `module`
+            </if>
+            <if test="opType != null" >
+              op_type
+            </if>
+            <if test="opName != null" >
+              op_name
+            </if>
+            <if test="customerId != null" >
+              customer_id
+            </if>
+            <if test="userId != null" >
+              user_id
+            </if>
+            <if test="loginName != null" >
+              login_name
+            </if>
+            <if test="url != null" >
+              url
+            </if>
+            <if test="opReq != null" >
+              op_req
+            </if>
+            <if test="result != null" >
+              result
+            </if>
+            <if test="ip != null" >
+              ip
+            </if>
+            <if test="createTime != null" >
+              create_time
+            </if>
+
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null" >
+                #{id}
+            </if>
+            <if test="module != null" >
+                #{module}
+            </if>
+            <if test="opType != null" >
+                #{opType}
+            </if>
+            <if test="opName != null" >
+                #{opName}
+            </if>
+            <if test="customerId != null" >
+                #{customerId}
+            </if>
+            <if test="userId != null" >
+                #{userId}
+            </if>
+            <if test="loginName != null" >
+                #{loginName}
+            </if>
+            <if test="url != null" >
+                #{url}
+            </if>
+            <if test="opReq != null" >
+                #{opReq}
+            </if>
+            <if test="result != null" >
+                #{result}
+            </if>
+            <if test="ip != null" >
+                #{ip}
+            </if>
+            <if test="createTime != null" >
+                #{createTime}
+            </if>
+
+        </trim>
+    </insert>
+
+    <insert id="insertByBatch" parameterType="java.util.List">
+        insert into user_op_log
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+           id,
+           op_type,
+           op_name,
+           customer_id,
+           user_id,
+           login_name,
+           url,
+           op_req,
+           result,
+           ip,
+           create_time
+        </trim>
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+               #{id},
+               #{opType},
+               #{opName},
+               #{customerId},
+               #{userId},
+               #{loginName},
+               #{url},
+               #{opReq},
+               #{result},
+               #{ip},
+               #{createTime}
+            </trim>
+        </foreach>
+    </insert>
+
+    <sql id="Query_Condition">
+        <if test="t != null">
+            where
+            <trim prefix=" " suffix=" " suffixOverrides=" and ">
+                1 = 1 and
+                <if test="t.id != null and t.id !=''">
+                    id = #{t.id} and
+                </if>
+                <if test="t.opType != null">
+                    op_type = #{t.opType} and
+                </if>
+                <if test="t.opName != null and t.opName !=''">
+                 <!--   op_name = #{t.opName} and -->
+                    op_name LIKE CONCAT('%',#{t.opName},'%')  and
+                </if>
+                <if test="t.customerId != null and t.customerId !=''">
+                    customer_id = #{t.customerId} and
+                </if>
+                <if test="t.userId != null and t.userId !=''">
+                    user_id = #{t.userId} and
+                </if>
+                <if test="t.loginName != null and t.loginName !=''">
+                    <!-- login_name = #{t.loginName} and -->
+                    login_name LIKE CONCAT('%',#{t.loginName},'%') and
+                </if>
+                <if test="t.result != null">
+                    result = #{t.result} and
+                </if>
+            </trim>
+        </if>
+    </sql>
+
+    <select id="select" parameterType="com.upedge.common.base.Page" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from user_op_log
+        <include refid="Query_Condition"/>
+        order by id desc
+        <if test="pageNum != null and pageSize != null">
+            limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+        </if>
+    </select>
+
+    <select id="count" parameterType="com.upedge.common.base.Page" resultType="java.lang.Long">
+        select
+        count(1)
+        from user_op_log
+        <include refid="Query_Condition"/>
+    </select>
+
+
+</mapper>

@@ -1,0 +1,232 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.upedge.pms.modules.product.dao.ImportProductImageDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.upedge.pms.modules.product.entity.ImportProductImage" id="BaseResultMap">
+        <result property="id" column="id"/>
+        <result property="url" column="url"/>
+        <result property="seq" column="seq"/>
+        <result property="productId" column="product_id"/>
+        <result property="state" column="state"/>
+        <result property="name" column="name"/>
+    </resultMap>
+
+    <resultMap id="ShopifyImage" type="com.upedge.thirdparty.shopify.moudles.product.entity.ShopifyImage">
+        <id column="src" property="src" jdbcType="VARCHAR" />
+        <result column="position" property="position" jdbcType="INTEGER" />
+        <collection property="variant_ids" ofType="java.lang.Long">
+            <result column="variant_id" property="variant_id" jdbcType="BIGINT"/>
+        </collection>
+    </resultMap>
+
+    <select id="selectForShopifyImage" resultMap="ShopifyImage">
+        select i.url as src,i.seq as `position`,v.plat_variant_id as variant_id
+        from import_product_image i
+        left join
+        (
+        select image,plat_variant_id
+        from import_product_variant
+        where product_id = #{product_id}
+        and state = '1'
+        ) v
+        on i.url = v.image
+        where i.product_id = #{productId}
+        and i.state = '1'
+    </select>
+
+    <sql id="Base_Column_List">
+        `id`,`url`,`seq`,`product_id`,`state`,`name`
+    </sql>
+
+    <select id="selectByPrimaryKey" parameterType="com.upedge.pms.modules.product.entity.ImportProductImage" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from import_product_image
+        where id = #{id}
+    </select>
+
+    <delete id="deleteImageByProductId">
+        delete from import_product_image
+        where product_id = #{productId}
+    </delete>
+
+    <delete id="deleteByPrimaryKey" parameterType="com.upedge.pms.modules.product.entity.ImportProductImage">
+        delete from import_product_image
+        where id = #{id}
+    </delete>
+
+    <update id="updateByPrimaryKeySelective" parameterType="com.upedge.pms.modules.product.entity.ImportProductImage">
+        update import_product_image
+        <set>
+            <if test="url != null">
+                url = #{url},
+            </if>
+            <if test="seq != null">
+                seq = #{seq},
+            </if>
+            <if test="productId != null">
+                product_id = #{productId},
+            </if>
+            <if test="state != null">
+                state = #{state},
+            </if>
+            <if test="name != null">
+                name = #{name},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <update id="updateByPrimaryKey" parameterType="com.upedge.pms.modules.product.entity.ImportProductImage">
+        update import_product_image
+        <set>
+        id = #{id},
+        url = #{url},
+        seq = #{seq},
+        product_id = #{productId},
+        state = #{state},
+        name = #{name},
+        </set>
+        where id = #{id}
+    </update>
+
+    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.upedge.pms.modules.product.entity.ImportProductImage" useGeneratedKeys="true">
+        insert into import_product_image
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            id,
+            url,
+            seq,
+            product_id,
+            state,
+            name
+        </trim>
+        values (
+        #{id},
+        #{url},
+        #{seq},
+        #{productId},
+        #{state},
+        #{name}
+        )
+    </insert>
+
+    <insert id="insertSelective"  keyColumn="id" keyProperty="id"  parameterType="com.upedge.pms.modules.product.entity.ImportProductImage" useGeneratedKeys="true">
+        insert into import_product_image
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null" >
+              id
+            </if>
+            <if test="url != null" >
+              url
+            </if>
+            <if test="seq != null" >
+              seq
+            </if>
+            <if test="productId != null" >
+              product_id
+            </if>
+            <if test="state != null" >
+              state
+            </if>
+            <if test="name != null" >
+              name
+            </if>
+
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null" >
+                #{id}
+            </if>
+            <if test="url != null" >
+                #{url}
+            </if>
+            <if test="seq != null" >
+                #{seq}
+            </if>
+            <if test="productId != null" >
+                #{productId}
+            </if>
+            <if test="state != null" >
+                #{state}
+            </if>
+            <if test="name != null" >
+                #{name}
+            </if>
+
+        </trim>
+    </insert>
+
+    <insert id="insertByBatch" parameterType="java.util.List">
+        insert into import_product_image
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+           id,
+           url,
+           seq,
+           product_id,
+           state,
+           name
+        </trim>
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+               #{item.id},
+               #{item.url},
+               #{item.seq},
+               #{item.productId},
+               #{item.state},
+               #{item.name}
+            </trim>
+        </foreach>
+    </insert>
+
+    <sql id="Query_Condition">
+        <if test="t != null">
+            where
+            <trim prefix=" " suffix=" " suffixOverrides=" and ">
+                1 = 1 and
+                    <if test="t.id != null">
+                        id = #{t.id} and
+                    </if>
+                    <if test="t.url != null">
+                        url = #{t.url} and
+                    </if>
+                    <if test="t.seq != null">
+                        seq = #{t.seq} and
+                    </if>
+                    <if test="t.productId != null">
+                        product_id = #{t.productId} and
+                    </if>
+                    <if test="t.state != null">
+                        state = #{t.state} and
+                    </if>
+                    <if test="t.name != null">
+                        name = #{t.name} and
+                    </if>
+            </trim>
+        </if>
+    </sql>
+
+    <select id="select" parameterType="com.upedge.common.base.Page" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from import_product_image
+        <include refid="Query_Condition"/>
+        <if test="orderBy != null">
+            order by ${orderBy}
+        </if>
+        <if test="pageNum != null and pageSize != null">
+            limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+        </if>
+    </select>
+
+    <select id="count" parameterType="com.upedge.common.base.Page" resultType="java.lang.Long">
+        select
+        count(1)
+        from import_product_image
+        <include refid="Query_Condition"/>
+    </select>
+
+
+</mapper>

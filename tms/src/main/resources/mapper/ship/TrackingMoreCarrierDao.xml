@@ -1,0 +1,246 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.upedge.tms.modules.ship.dao.TrackingMoreCarrierDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.upedge.tms.modules.ship.entity.TrackingMoreCarrier" id="BaseResultMap">
+        <result property="code" column="code"/>
+        <result property="name" column="name"/>
+        <result property="phone" column="phone"/>
+        <result property="homepage" column="homepage"/>
+        <result property="type" column="type"/>
+        <result property="picture" column="picture"/>
+        <result property="nameCn" column="name_cn"/>
+        <result property="state" column="state"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        `code`,`name`,`phone`,`homepage`,`type`,`picture`,`name_cn`,`state`
+    </sql>
+
+    <select id="selectByPrimaryKey" parameterType="com.upedge.tms.modules.ship.entity.TrackingMoreCarrier" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from tracking_more_carrier
+        where code = #{code}
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="com.upedge.tms.modules.ship.entity.TrackingMoreCarrier">
+        delete from tracking_more_carrier
+        where code = #{code}
+    </delete>
+
+    <update id="updateByPrimaryKeySelective" parameterType="com.upedge.tms.modules.ship.entity.TrackingMoreCarrier">
+        update tracking_more_carrier
+        <set>
+            <if test="name != null">
+                name = #{name},
+            </if>
+            <if test="phone != null">
+                phone = #{phone},
+            </if>
+            <if test="homepage != null">
+                homepage = #{homepage},
+            </if>
+            <if test="type != null">
+                type = #{type},
+            </if>
+            <if test="picture != null">
+                picture = #{picture},
+            </if>
+            <if test="nameCn != null">
+                name_cn = #{nameCn},
+            </if>
+            <if test="state != null">
+                state = #{state},
+            </if>
+        </set>
+        where code = #{code}
+    </update>
+
+    <update id="updateByPrimaryKey" parameterType="com.upedge.tms.modules.ship.entity.TrackingMoreCarrier">
+        update tracking_more_carrier
+        <set>
+        code = #{code},
+        name = #{name},
+        phone = #{phone},
+        homepage = #{homepage},
+        type = #{type},
+        picture = #{picture},
+        name_cn = #{nameCn},
+        state = #{state},
+        </set>
+        where code = #{code}
+    </update>
+
+    <insert id="insert" keyColumn="code" keyProperty="code" parameterType="com.upedge.tms.modules.ship.entity.TrackingMoreCarrier" useGeneratedKeys="true">
+        insert into tracking_more_carrier
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            code,
+            name,
+            phone,
+            homepage,
+            type,
+            picture,
+            name_cn,
+            state
+        </trim>
+        values (
+        #{code},
+        #{name},
+        #{phone},
+        #{homepage},
+        #{type},
+        #{picture},
+        #{nameCn},
+        #{state}
+        )
+    </insert>
+
+    <insert id="insertSelective"  keyColumn="code" keyProperty="code"  parameterType="com.upedge.tms.modules.ship.entity.TrackingMoreCarrier" useGeneratedKeys="true">
+        insert into tracking_more_carrier
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="code != null" >
+              code
+            </if>
+            <if test="name != null" >
+              name
+            </if>
+            <if test="phone != null" >
+              phone
+            </if>
+            <if test="homepage != null" >
+              homepage
+            </if>
+            <if test="type != null" >
+              type
+            </if>
+            <if test="picture != null" >
+              picture
+            </if>
+            <if test="nameCn != null" >
+              name_cn
+            </if>
+            <if test="state != null" >
+              state
+            </if>
+
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="code != null" >
+                #{code}
+            </if>
+            <if test="name != null" >
+                #{name}
+            </if>
+            <if test="phone != null" >
+                #{phone}
+            </if>
+            <if test="homepage != null" >
+                #{homepage}
+            </if>
+            <if test="type != null" >
+                #{type}
+            </if>
+            <if test="picture != null" >
+                #{picture}
+            </if>
+            <if test="nameCn != null" >
+                #{nameCn}
+            </if>
+            <if test="state != null" >
+                #{state}
+            </if>
+
+        </trim>
+    </insert>
+
+    <insert id="insertByBatch" parameterType="java.util.List">
+        insert into tracking_more_carrier
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+           code,
+           name,
+           phone,
+           homepage,
+           type,
+           picture,
+           name_cn,
+           state
+        </trim>
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+               #{item.code},
+               #{item.name},
+               #{item.phone},
+               #{item.homepage},
+               #{item.type},
+               #{item.picture},
+               #{item.nameCn},
+               #{item.state}
+            </trim>
+        </foreach>
+    </insert>
+
+    <sql id="Query_Condition">
+        <if test="t != null">
+            where
+            <trim prefix=" " suffix=" " suffixOverrides=" and ">
+                1 = 1 and
+                    <if test="t.code != null">
+                      <!--  code = #{t.code} and  -->
+                        code LIKE CONCAT('%',#{t.code},'%')  and
+                    </if>
+                    <if test="t.name != null">
+                        name = #{t.name} and
+                    </if>
+                    <if test="t.phone != null">
+                        phone = #{t.phone} and
+                    </if>
+                    <if test="t.homepage != null">
+                        homepage = #{t.homepage} and
+                    </if>
+                    <if test="t.type != null">
+                        type = #{t.type} and
+                    </if>
+                    <if test="t.picture != null">
+                        picture = #{t.picture} and
+                    </if>
+                    <if test="t.nameCn != null">
+                        name_cn = #{t.nameCn} and
+                    </if>
+                    <if test="t.state != null">
+                        state = #{t.state} and
+                    </if>
+            </trim>
+        </if>
+    </sql>
+
+    <select id="select" parameterType="com.upedge.common.base.Page" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from tracking_more_carrier
+        <include refid="Query_Condition"/>
+        <if test="orderBy != null">
+            order by ${orderBy}
+        </if>
+        <if test="pageNum != null and pageSize != null">
+            limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+        </if>
+    </select>
+
+    <select id="count" parameterType="com.upedge.common.base.Page" resultType="java.lang.Long">
+        select
+        count(1)
+        from tracking_more_carrier
+        <include refid="Query_Condition"/>
+    </select>
+
+    <select id="allTrackingMoreCarrier"  resultMap="BaseResultMap">
+        select
+        `code`,`name_cn`
+        from tracking_more_carrier
+    </select>
+
+</mapper>

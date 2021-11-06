@@ -1,12 +1,14 @@
 package com.upedge.ums.modules.account.response;
 
 import com.upedge.common.base.BaseResponse;
-import com.upedge.ums.modules.account.request.AccountUserListRequest;
+
 /**
- * @author gx
+ * @author 海桐
  */
 public class AccountUserListResponse extends BaseResponse {
-    public AccountUserListResponse(int code, String msg, Object data,AccountUserListRequest req) {
-        super(code,msg,data,req);
+    private static final long serialVersionUID = 6221655276801326061L;
+
+    public AccountUserListResponse(int code, Object data) {
+        super(code, data);
     }
 }

@@ -5,10 +5,15 @@
     <file url="file://$PROJECT_DIR$/common-redis/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/common-web/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/common-web/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/oms/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/pms/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/thirdparty-service/upedge-1688/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/thirdparty-service/upedge-saihe/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/thirdparty-service/upedge-shopify/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/thirdparty-service/upedge-shoplazza/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/thirdparty-service/upedge-trackingmore/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/thirdparty-service/upedge-woocommerce/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/tms/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/ums/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/ums/src/main/resources/application.yml" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/upedge_generator/src/main/java" charset="UTF-8" />

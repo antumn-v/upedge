@@ -23,7 +23,15 @@
         `id`,`account_id`,`customer_id`,`order_type`,`amount`,`credit`,`rebate`,`fee`,`pay_status`,`pay_type`,`create_time`,`update_time`
     </sql>
 
-    <select id="selectByPrimaryKey" parameterType="com.upedge.ums.modules.account.entity.PaymentLog" resultMap="BaseResultMap">
+
+    <select id="selectPendingPaymentByAccountId" resultMap="BaseResultMap">
+        select <include refid="Base_Column_List"/>
+        from payment_log
+        where account_id = #{accountId}
+        and pay_status = '0'
+    </select>
+
+    <select id="selectByPrimaryKey"  resultMap="BaseResultMap">
         select
         <include refid="Base_Column_List" />
         from payment_log
@@ -122,7 +130,7 @@
         #{payStatus},
         #{payType},
         #{createTime},
-        #{updateTime}
+        #{createTime}
         )
     </insert>
 

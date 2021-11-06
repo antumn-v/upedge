@@ -1,12 +1,12 @@
 package com.upedge.ums.modules.affiliate.response;
 
 import com.upedge.common.base.BaseResponse;
-import com.upedge.ums.modules.affiliate.request.AffiliateAddRequest;
+
 /**
- * @author gx
+ * @author author
  */
 public class AffiliateAddResponse extends BaseResponse {
-    public AffiliateAddResponse(int code, String msg, Object data, AffiliateAddRequest req) {
-        super(code,msg,data,req);
+    public AffiliateAddResponse(int code, String msg) {
+        super(code,msg);
     }
 }

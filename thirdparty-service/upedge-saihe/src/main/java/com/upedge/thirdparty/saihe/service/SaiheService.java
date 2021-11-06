@@ -6,7 +6,7 @@ import com.upedge.thirdparty.saihe.entity.GetProductInventory.InventoryRequest;
 import com.upedge.thirdparty.saihe.entity.cancelOrderInfo.ApiCancelOrderRequest;
 import com.upedge.thirdparty.saihe.entity.cancelOrderInfo.ApiCancelOrderResponse;
 import com.upedge.thirdparty.saihe.entity.cancelOrderInfo.CancelOrderInfo;
-import com.panda.thirdparty.saihe.entity.createProcurement.*;
+import com.upedge.thirdparty.saihe.entity.createProcurement.*;
 import com.upedge.thirdparty.saihe.entity.createProcurement.*;
 import com.upedge.thirdparty.saihe.entity.getOrderByCode.ApiGetOrderRequest;
 import com.upedge.thirdparty.saihe.entity.getOrderByCode.ApiGetOrderResponse;
@@ -27,7 +27,7 @@ import com.upedge.thirdparty.saihe.entity.getTransportList.TrRequest;
 import com.upedge.thirdparty.saihe.entity.getWareHouseList.ApiGetWareHouseRequest;
 import com.upedge.thirdparty.saihe.entity.getWareHouseList.ApiGetWareHouseResponse;
 import com.upedge.thirdparty.saihe.entity.getWareHouseList.WhRequest;
-import com.panda.thirdparty.saihe.entity.processUpdateProduct.*;
+import com.upedge.thirdparty.saihe.entity.processUpdateProduct.*;
 import com.upedge.thirdparty.saihe.entity.processUpdateProduct.*;
 import com.upedge.thirdparty.saihe.entity.uploadOrder.ApiUploadOrderInfo;
 import com.upedge.thirdparty.saihe.entity.uploadOrder.ApiUploadOrderRequest;
@@ -479,7 +479,7 @@ public class SaiheService {
 
             GetProcurementListRequest apiGetInPurchaseDetailRequest = new GetProcurementListRequest();
             GetProcurementList getProcurementList = new GetProcurementList();
-            getProcurementList.setUserName("PANDADUIJIE");
+            getProcurementList.setUserName("upedgeDUIJIE");
             getProcurementList.setPassword("LSJDKJHASDNBS");
             getProcurementList.setCustomerID(1555);
 //            getProcurementList.setP_Code(P_Code);
@@ -540,7 +540,7 @@ public class SaiheService {
 
             ApiGetProductInventoryRequest apiGetProductInventoryRequest = new ApiGetProductInventoryRequest();
             InventoryRequest inventoryRequest = new InventoryRequest();
-            inventoryRequest.setUserName("PANDADUIJIE");
+            inventoryRequest.setUserName("upedgeDUIJIE");
             inventoryRequest.setPassword("LSJDKJHASDNBS");
             inventoryRequest.setCustomerID(1555);
             inventoryRequest.setWarehouseID(warehouseID);
@@ -574,7 +574,7 @@ public class SaiheService {
 
             ApiGetProductInventoryRequest apiGetProductInventoryRequest = new ApiGetProductInventoryRequest();
             InventoryRequest inventoryRequest = new InventoryRequest();
-            inventoryRequest.setUserName("PANDADUIJIE");
+            inventoryRequest.setUserName("upedgeDUIJIE");
             inventoryRequest.setPassword("LSJDKJHASDNBS");
             inventoryRequest.setCustomerID(1555);
             inventoryRequest.setWarehouseID(warehouseID);
@@ -623,7 +623,7 @@ public class SaiheService {
 
             ApiGetPackagesRequest apiGetPackagesRequest=new ApiGetPackagesRequest();
             PackagesRequest packagesRequest=new PackagesRequest();
-            packagesRequest.setUserName("PANDADUIJIE");
+            packagesRequest.setUserName("upedgeDUIJIE");
             packagesRequest.setPassword("LSJDKJHASDNBS");
             packagesRequest.setCustomerID(1555);
             packagesRequest.setPackageID(packageID);

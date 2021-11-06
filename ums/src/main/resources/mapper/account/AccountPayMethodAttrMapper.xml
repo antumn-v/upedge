@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.upedge.ums.modules.account.dao.AccountPayMethodAttrMapper" >
+  <resultMap id="BaseResultMap" type="com.upedge.ums.modules.account.entity.AccountPayMethodAttr" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="account_paymethod_id" property="accountPaymethodId" jdbcType="INTEGER" />
+    <result column="paymethod_attr_id" property="paymethodAttrId" jdbcType="INTEGER" />
+    <result column="attr_key" property="attrKey" jdbcType="VARCHAR" />
+    <result column="attr_value" property="attrValue" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, account_paymethod_id, paymethod_attr_id, attr_key, attr_value
+  </sql>
+  
+  <select id="selectByAccountPaymethodId" resultMap="BaseResultMap">
+    select a.id, a.account_paymethod_id, a.paymethod_attr_id,
+    a.attr_key, a.attr_value
+    from account_paymethod_attr a
+    inner join paymethod_attr p
+    on a.paymethod_attr_id = p.id
+    where a.account_paymethod_id = #{accountPaymethodId}
+    and p.obtain_type = '0'
+  </select>
+
+  <select id="selectAccountPaymethodAttrValueByKey" resultType="java.lang.String">
+    select attr_value
+    from account_paymethod_attr
+    where account_paymethod_id = #{accountPaymethodId}
+    and attr_key = #{key}
+  </select>
+
+  <insert id="batchInsert" parameterType="java.util.List">
+    insert into account_paymethod_attr (account_paymethod_id, paymethod_attr_id,
+      attr_key, attr_value)
+    values
+    <foreach collection="attrs" item="a" separator=",">
+      ( #{a.accountPaymethodId,jdbcType=INTEGER}, #{a.paymethodAttrId,jdbcType=INTEGER},
+      #{a.attrKey,jdbcType=VARCHAR}, #{a.attrValue,jdbcType=VARCHAR})
+    </foreach>
+  </insert>
+
+  <delete id="deleteByAccountPaymethodId">
+    delete
+    from account_paymethod_attr
+    where account_paymethod_id = #{accountPaymethodId}
+  </delete>
+
+<!--  ********************************-->
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from account_paymethod_attr
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from account_paymethod_attr
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.upedge.ums.modules.account.entity.AccountPayMethodAttr" >
+    insert into account_paymethod_attr (id, account_paymethod_id, paymethod_attr_id, 
+      attr_key, attr_value)
+    values (#{id,jdbcType=INTEGER}, #{accountPaymethodId,jdbcType=INTEGER}, #{paymethodAttrId,jdbcType=INTEGER}, 
+      #{attrKey,jdbcType=VARCHAR}, #{attrValue,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.upedge.ums.modules.account.entity.AccountPayMethodAttr" >
+    insert into account_paymethod_attr
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="accountPaymethodId != null" >
+        account_paymethod_id,
+      </if>
+      <if test="paymethodAttrId != null" >
+        paymethod_attr_id,
+      </if>
+      <if test="attrKey != null" >
+        attr_key,
+      </if>
+      <if test="attrValue != null" >
+        attr_value,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="accountPaymethodId != null" >
+        #{accountPaymethodId,jdbcType=INTEGER},
+      </if>
+      <if test="paymethodAttrId != null" >
+        #{paymethodAttrId,jdbcType=INTEGER},
+      </if>
+      <if test="attrKey != null" >
+        #{attrKey,jdbcType=VARCHAR},
+      </if>
+      <if test="attrValue != null" >
+        #{attrValue,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.upedge.ums.modules.account.entity.AccountPayMethodAttr" >
+    update account_paymethod_attr
+    <set >
+      <if test="accountPaymethodId != null" >
+        account_paymethod_id = #{accountPaymethodId,jdbcType=INTEGER},
+      </if>
+      <if test="paymethodAttrId != null" >
+        paymethod_attr_id = #{paymethodAttrId,jdbcType=INTEGER},
+      </if>
+      <if test="attrKey != null" >
+        attr_key = #{attrKey,jdbcType=VARCHAR},
+      </if>
+      <if test="attrValue != null" >
+        attr_value = #{attrValue,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.upedge.ums.modules.account.entity.AccountPayMethodAttr" >
+    update account_paymethod_attr
+    set account_paymethod_id = #{accountPaymethodId,jdbcType=INTEGER},
+      paymethod_attr_id = #{paymethodAttrId,jdbcType=INTEGER},
+      attr_key = #{attrKey,jdbcType=VARCHAR},
+      attr_value = #{attrValue,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>

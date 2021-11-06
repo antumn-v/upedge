@@ -1,12 +1,14 @@
 package com.upedge.ums.modules.affiliate.request;
 
-import com.upedge.common.base.Page;
 import com.upedge.ums.modules.affiliate.entity.Affiliate;
-import java.util.Date;
 import lombok.Data;
+
+import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
+import java.util.Date;
+
 /**
- * @author gx
+ * @author author
  */
 @Data
 public class AffiliateAddRequest{
@@ -14,36 +16,22 @@ public class AffiliateAddRequest{
     /**
     * 推荐人ID
     */
+    @NotNull
     private Long referrerId;
     /**
     * 被推荐人ID
     */
+    @NotNull
     private Long refereeId;
-    /**
-    * 被推荐人的提成
-    */
-    private BigDecimal refereeCommission;
-    /**
-    * 
-    */
-    private Date createTime;
-    /**
-    * 
-    */
-    private Date updateTime;
-    /**
-    * 来源 0:app 1:admin
-    */
-    private Integer source;
 
     public Affiliate toAffiliate(){
         Affiliate affiliate=new Affiliate();
         affiliate.setReferrerId(referrerId);
         affiliate.setRefereeId(refereeId);
-        affiliate.setRefereeCommission(refereeCommission);
-        affiliate.setCreateTime(createTime);
-        affiliate.setUpdateTime(updateTime);
-        affiliate.setSource(source);
+        affiliate.setRefereeCommission(BigDecimal.ZERO);
+        affiliate.setCreateTime(new Date());
+        affiliate.setUpdateTime(new Date());
+        affiliate.setSource(1);
         return affiliate;
     }
 

@@ -1,0 +1,236 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.upedge.pms.modules.product.dao.ImportPriceCentsDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.upedge.pms.modules.product.entity.ImportPriceCents" id="BaseResultMap">
+        <result property="id" column="id"/>
+        <result property="customerId" column="customer_id"/>
+        <result property="userId" column="user_id"/>
+        <result property="priceCents" column="price_cents"/>
+        <result property="comparePriceCents" column="compare_price_cents"/>
+        <result property="priceRulesOn" column="price_rules_on"/>
+        <result property="comparePriceOn" column="compare_price_on"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        `id`,`customer_id`,`user_id`,`price_cents`,`compare_price_cents`,`price_rules_on`,`compare_price_on`
+    </sql>
+
+
+    <select id="selectByCustomerId" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from import_price_cents
+        where customer_id = #{customerId}
+    </select>
+
+    <delete id="deleteByCustomerId">
+        delete
+        from import_price_cents
+        where customer_id = #{customerId}
+    </delete>
+
+    <select id="selectByPrimaryKey" parameterType="com.upedge.pms.modules.product.entity.ImportPriceCents" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from import_price_cents
+        where id = #{id}
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="com.upedge.pms.modules.product.entity.ImportPriceCents">
+        delete from import_price_cents
+        where id = #{id}
+    </delete>
+
+    <update id="updateByPrimaryKeySelective" parameterType="com.upedge.pms.modules.product.entity.ImportPriceCents">
+        update import_price_cents
+        <set>
+            <if test="customerId != null">
+                customer_id = #{customerId},
+            </if>
+            <if test="userId != null">
+                user_id = #{userId},
+            </if>
+            <if test="priceCents != null">
+                price_cents = #{priceCents},
+            </if>
+            <if test="comparePriceCents != null">
+                compare_price_cents = #{comparePriceCents},
+            </if>
+            <if test="priceRulesOn != null">
+                price_rules_on = #{priceRulesOn},
+            </if>
+            <if test="comparePriceOn != null">
+                compare_price_on = #{comparePriceOn},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <update id="updateByPrimaryKey" parameterType="com.upedge.pms.modules.product.entity.ImportPriceCents">
+        update import_price_cents
+        <set>
+        id = #{id},
+        customer_id = #{customerId},
+        user_id = #{userId},
+        price_cents = #{priceCents},
+        compare_price_cents = #{comparePriceCents},
+        price_rules_on = #{priceRulesOn},
+        compare_price_on = #{comparePriceOn},
+        </set>
+        where id = #{id}
+    </update>
+
+    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.upedge.pms.modules.product.entity.ImportPriceCents" useGeneratedKeys="true">
+        insert into import_price_cents
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            id,
+            customer_id,
+            user_id,
+            price_cents,
+            compare_price_cents,
+            price_rules_on,
+            compare_price_on
+        </trim>
+        values (
+        #{id},
+        #{customerId},
+        #{userId},
+        #{priceCents},
+        #{comparePriceCents},
+        #{priceRulesOn},
+        #{comparePriceOn}
+        )
+    </insert>
+
+    <insert id="insertSelective"  keyColumn="id" keyProperty="id"  parameterType="com.upedge.pms.modules.product.entity.ImportPriceCents" useGeneratedKeys="true">
+        insert into import_price_cents
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null" >
+              id
+            </if>
+            <if test="customerId != null" >
+              customer_id
+            </if>
+            <if test="userId != null" >
+              user_id
+            </if>
+            <if test="priceCents != null" >
+              price_cents
+            </if>
+            <if test="comparePriceCents != null" >
+              compare_price_cents
+            </if>
+            <if test="priceRulesOn != null" >
+              price_rules_on
+            </if>
+            <if test="comparePriceOn != null" >
+              compare_price_on
+            </if>
+
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null" >
+                #{id}
+            </if>
+            <if test="customerId != null" >
+                #{customerId}
+            </if>
+            <if test="userId != null" >
+                #{userId}
+            </if>
+            <if test="priceCents != null" >
+                #{priceCents}
+            </if>
+            <if test="comparePriceCents != null" >
+                #{comparePriceCents}
+            </if>
+            <if test="priceRulesOn != null" >
+                #{priceRulesOn}
+            </if>
+            <if test="comparePriceOn != null" >
+                #{comparePriceOn}
+            </if>
+
+        </trim>
+    </insert>
+
+    <insert id="insertByBatch" parameterType="java.util.List">
+        insert into import_price_cents
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+           id,
+           customer_id,
+           user_id,
+           price_cents,
+           compare_price_cents,
+           price_rules_on,
+           compare_price_on
+        </trim>
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+               #{item.id},
+               #{item.customerId},
+               #{item.userId},
+               #{item.priceCents},
+               #{item.comparePriceCents},
+               #{item.priceRulesOn},
+               #{item.comparePriceOn}
+            </trim>
+        </foreach>
+    </insert>
+
+    <sql id="Query_Condition">
+        <if test="t != null">
+            where
+            <trim prefix=" " suffix=" " suffixOverrides=" and ">
+                1 = 1 and
+                    <if test="t.id != null">
+                        id = #{t.id} and
+                    </if>
+                    <if test="t.customerId != null">
+                        customer_id = #{t.customerId} and
+                    </if>
+                    <if test="t.userId != null">
+                        user_id = #{t.userId} and
+                    </if>
+                    <if test="t.priceCents != null">
+                        price_cents = #{t.priceCents} and
+                    </if>
+                    <if test="t.comparePriceCents != null">
+                        compare_price_cents = #{t.comparePriceCents} and
+                    </if>
+                    <if test="t.priceRulesOn != null">
+                        price_rules_on = #{t.priceRulesOn} and
+                    </if>
+                    <if test="t.comparePriceOn != null">
+                        compare_price_on = #{t.comparePriceOn} and
+                    </if>
+            </trim>
+        </if>
+    </sql>
+
+    <select id="select" parameterType="com.upedge.common.base.Page" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from import_price_cents
+        <include refid="Query_Condition"/>
+        <if test="orderBy != null">
+            order by ${orderBy}
+        </if>
+        <if test="pageNum != null and pageSize != null">
+            limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+        </if>
+    </select>
+
+    <select id="count" parameterType="com.upedge.common.base.Page" resultType="java.lang.Long">
+        select
+        count(1)
+        from import_price_cents
+        <include refid="Query_Condition"/>
+    </select>
+
+
+</mapper>

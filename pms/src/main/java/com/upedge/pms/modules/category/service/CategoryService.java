@@ -9,6 +9,9 @@ import java.util.List;
  */
 public interface CategoryService{
 
+
+    Category selectByCateCode(String cateCode);
+
     Category selectByPrimaryKey(Long id);
 
     int deleteByPrimaryKey(Long id);

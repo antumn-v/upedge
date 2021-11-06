@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.upedge.tms.modules.ship.dao.ShippingAttributeDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.upedge.tms.modules.ship.entity.ShippingAttribute" id="BaseResultMap">
+        <result property="id" column="id"/>
+        <result property="attributeName" column="attribute_name"/>
+        <result property="desc" column="desc"/>
+        <result property="shippingId" column="shipping_id"/>
+        <result property="saiheId" column="saihe_id"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        `id`,`attribute_name`,`desc`,`shipping_id`,`saihe_id`
+    </sql>
+
+    <select id="selectByPrimaryKey" parameterType="com.upedge.tms.modules.ship.entity.ShippingAttribute" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from shipping_attribute
+        where id = #{id}
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="com.upedge.tms.modules.ship.entity.ShippingAttribute">
+        delete from shipping_attribute
+        where id = #{id}
+    </delete>
+
+    <update id="updateByPrimaryKeySelective" parameterType="com.upedge.tms.modules.ship.entity.ShippingAttribute">
+        update shipping_attribute
+        <set>
+            <if test="attributeName != null">
+                attribute_name = #{attributeName},
+            </if>
+            <if test="desc != null">
+                `desc` = #{desc},
+            </if>
+            <if test="shippingId != null">
+                shipping_id = #{shippingId},
+            </if>
+            <if test="saiheId != null">
+                saihe_id = #{saiheId},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <update id="updateByPrimaryKey" parameterType="com.upedge.tms.modules.ship.entity.ShippingAttribute">
+        update shipping_attribute
+        <set>
+        id = #{id},
+        attribute_name = #{attributeName},
+        `desc` = #{desc},
+        shipping_id = #{shippingId},
+        saihe_id = #{saiheId},
+        </set>
+        where id = #{id}
+    </update>
+
+    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.upedge.tms.modules.ship.entity.ShippingAttribute" useGeneratedKeys="true">
+        insert into shipping_attribute
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            id,
+            attribute_name,
+            `desc`,
+            shipping_id,
+            saihe_id
+        </trim>
+        values (
+        #{id},
+        #{attributeName},
+        #{desc},
+        #{shippingId},
+        #{saiheId}
+        )
+    </insert>
+
+    <insert id="insertSelective"  keyColumn="id" keyProperty="id"  parameterType="com.upedge.tms.modules.ship.entity.ShippingAttribute" useGeneratedKeys="true">
+        insert into shipping_attribute
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null" >
+              id
+            </if>
+            <if test="attributeName != null" >
+              attribute_name
+            </if>
+            <if test="desc != null" >
+              `desc`
+            </if>
+            <if test="shippingId != null" >
+              shipping_id
+            </if>
+            <if test="saiheId != null" >
+              saihe_id
+            </if>
+
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null" >
+                #{id}
+            </if>
+            <if test="attributeName != null" >
+                #{attributeName}
+            </if>
+            <if test="desc != null" >
+                #{desc}
+            </if>
+            <if test="shippingId != null" >
+                #{shippingId}
+            </if>
+            <if test="saiheId != null" >
+                #{saiheId}
+            </if>
+
+        </trim>
+    </insert>
+
+    <insert id="insertByBatch" parameterType="java.util.List">
+        insert into shipping_attribute
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+           id,
+           attribute_name,
+           `desc`,
+           shipping_id,
+           saihe_id
+        </trim>
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+               #{item.id},
+               #{item.attributeName},
+               #{item.desc},
+               #{item.shippingId},
+               #{item.saiheId}
+            </trim>
+        </foreach>
+    </insert>
+
+    <sql id="Query_Condition">
+        <if test="t != null">
+            where
+            <trim prefix=" " suffix=" " suffixOverrides=" and ">
+                1 = 1 and
+                    <if test="t.id != null">
+                        id = #{t.id} and
+                    </if>
+                    <if test="t.attributeName != null">
+                        attribute_name = #{t.attributeName} and
+                    </if>
+                    <if test="t.desc != null">
+                        `desc` = #{t.desc} and
+                    </if>
+                    <if test="t.shippingId != null">
+                        shipping_id = #{t.shippingId} and
+                    </if>
+                    <if test="t.saiheId != null">
+                        saihe_id = #{t.saiheId} and
+                    </if>
+            </trim>
+        </if>
+    </sql>
+
+    <select id="select" parameterType="com.upedge.common.base.Page" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from shipping_attribute
+        <include refid="Query_Condition"/>
+        <if test="orderBy != null">
+            order by ${orderBy}
+        </if>
+        <if test="pageNum != null and pageSize != null">
+            limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+        </if>
+    </select>
+
+    <select id="count" parameterType="com.upedge.common.base.Page" resultType="java.lang.Long">
+        select
+        count(1)
+        from shipping_attribute
+        <include refid="Query_Condition"/>
+    </select>
+
+    <select id="allShippingAttribute"  resultMap="BaseResultMap">
+        select
+        id,attribute_name
+        from shipping_attribute
+    </select>
+
+</mapper>

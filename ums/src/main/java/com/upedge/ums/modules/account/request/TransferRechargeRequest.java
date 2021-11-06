@@ -1,35 +1,41 @@
 package com.upedge.ums.modules.account.request;
 
-import com.upedge.common.model.user.vo.Session;
+import com.upedge.common.config.HostConfig;
 import com.upedge.common.utils.FileUtil;
-import com.upedge.ums.modules.account.entity.RechargeRequestLog;
+import com.upedge.ums.modules.account.entity.RechargeRequestAttr;
 import lombok.Data;
 
-import java.math.BigDecimal;
-import java.util.Date;
-
+/**
+ * 银行转账充值申请
+ * @author 海桐
+ */
 @Data
-public class TransferRechargeRequest {
+public class TransferRechargeRequest extends ApplyRechargeRequest {
 
-    String image;
+    private TransferRechargeAttr attr;
 
-    BigDecimal amount;
+    @Data
+    public class TransferRechargeAttr{
+        private String image;
 
-    String remarks;
+        public RechargeRequestAttr toTransferRequestAttrs(Long requestId){
 
-    public RechargeRequestLog toRechargeRequestLog(Session session){
-        RechargeRequestLog log = new RechargeRequestLog();
-        log.setAccountId(session.getAccountId());
-        log.setAmount(amount);
-        log.setBenefits(BigDecimal.ZERO);
-        log.setCreateTime(new Date());
-        log.setCustomerMoney(amount);
-        log.setCustomerId(session.getCustomerId());
-        log.setRechargeType(RechargeRequestLog.TRANSFER_REQUEST_TYPE);
-        log.setRemarks(this.remarks);
-        log.setUpdateTime(new Date());
-        log.setVoucher(FileUtil.uploadImage(image,"http://localhost:8611/image/","E:/developer/files/upedge/"));
-        log.setStatus(RechargeRequestLog.PENDING);
-        return log;
+      //      image = FileUtil.uploadImage(image,"http://192.168.0.80:8686/image/","D:/image/ticket/");
+      //      image = FileUtil.uploadImage(image,"http://192.168.0.80:8686/image/","D:/image/ticket/");
+            image = FileUtil.uploadImage(image, HostConfig.HOST +"/ums/image/transfer/","/root/files/image/transfer/");
+
+            RechargeRequestAttr requestAttr = new RechargeRequestAttr();
+            requestAttr.setAttrName("image");
+            requestAttr.setAttrValue(image);
+            requestAttr.setRechargeRequestId(requestId);
+
+            return requestAttr;
+        }
+
     }
+
+
+
+
+
 }

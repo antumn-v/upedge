@@ -8,19 +8,19 @@ spring:
     date-format: yyyy-MM-dd HH:mm:ss
   #cloud
   cloud:
-    loadbalancer:
-      ribbon:
-        enabled: false
-    nacos:
+    consul:
+      host: localhost
+      port: 8500
       discovery:
-        namespace: public
-        group: ${spring.application.name}
-      username: nacos
-      password: nacos
-      server-addr: 192.168.10.13:8848
+        register: true #是否需要注册
+        instance-id: ${spring.application.name}-1 #实例id(唯一标志)
+        service-name: ${spring.application.name} #服务的名称
+        prefer-ip-address: true #开启ip地址注册
+        ip-address: ${spring.cloud.client.ip-address} #当前服务的请求ip
+        port: ${server.port} #服务的请求端口
   redis:
     database: 0
-    host: 192.168.10.13
+    host: 192.168.10.5
     port: 6379
     password: 123456
     lettuce:
@@ -93,3 +93,35 @@ upedge:
     coreSize: 20
     maxSize: 200
     keepAliveTime: 10
+
+feign:
+  client:
+    config:
+      default:
+        connectTimeout: 5000
+        readTimeout: 50000
+        loggerLevel: basic
+  okhttp:
+    enabled: true
+
+
+
+rocketmq:
+  name-server: 192.168.10.5:9876
+  producer:
+    group: ums
+    sendMsgTimeout: 9000
+
+seata:
+  enabled: true
+  application-id: ${spring.application.name}
+  enable-auto-data-source-proxy: true
+  use-jdk-proxy: false
+  tx-service-group: default
+  service:
+    vgroup-mapping:
+      default: default
+    enable-degrade: false
+    disable-global-transaction: false
+    grouplist:
+      default: 127.0.0.1:8091

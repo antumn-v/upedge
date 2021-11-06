@@ -1,0 +1,226 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.upedge.tms.modules.ship.dao.ShippingTemplateDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.upedge.tms.modules.ship.entity.ShippingTemplate" id="BaseResultMap">
+        <result property="id" column="id"/>
+        <result property="name" column="name"/>
+        <result property="desc" column="desc"/>
+        <result property="state" column="state"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="saiheId" column="saihe_id"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        `id`,`name`,`desc`,`state`,`create_time`,`update_time`,`saihe_id`
+    </sql>
+
+    <select id="selectByPrimaryKey" parameterType="com.upedge.tms.modules.ship.entity.ShippingTemplate" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from shipping_template
+        where id = #{id}
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="com.upedge.tms.modules.ship.entity.ShippingTemplate">
+        delete from shipping_template
+        where id = #{id}
+    </delete>
+
+    <update id="updateByPrimaryKeySelective" parameterType="com.upedge.tms.modules.ship.entity.ShippingTemplate">
+        update shipping_template
+        <set>
+            <if test="name != null">
+                `name` = #{name},
+            </if>
+            <if test="desc != null">
+                `desc` = #{desc},
+            </if>
+            <if test="state != null">
+                state = #{state},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime},
+            </if>
+            <if test="updateTime != null">
+                update_time = #{updateTime},
+            </if>
+            <if test="saiheId != null">
+                saihe_id = #{saiheId},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <update id="updateByPrimaryKey" parameterType="com.upedge.tms.modules.ship.entity.ShippingTemplate">
+        update shipping_template
+        <set>
+        id = #{id},
+        `name` = #{name},
+        `desc` = #{desc},
+        state = #{state},
+        create_time = #{createTime},
+        update_time = #{updateTime},
+        saihe_id = #{saiheId}
+        </set>
+        where id = #{id}
+    </update>
+
+    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.upedge.tms.modules.ship.entity.ShippingTemplate" useGeneratedKeys="true">
+        insert into shipping_template
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            id,
+            `name`,
+            `desc`,
+            state,
+            create_time,
+            update_time,
+            saihe_id
+        </trim>
+        values (
+        #{id},
+        #{name},
+        #{desc},
+        #{state},
+        #{createTime},
+        #{updateTime},
+        #{saiheId}
+        )
+    </insert>
+
+    <insert id="insertSelective"  keyColumn="id" keyProperty="id"  parameterType="com.upedge.tms.modules.ship.entity.ShippingTemplate" useGeneratedKeys="true">
+        insert into shipping_template
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null" >
+              id
+            </if>
+            <if test="name != null" >
+              `name`
+            </if>
+            <if test="desc != null" >
+              `desc`
+            </if>
+            <if test="state != null" >
+              state
+            </if>
+            <if test="createTime != null" >
+              create_time
+            </if>
+            <if test="updateTime != null" >
+              update_time
+            </if>
+            <if test="saiheId != null" >
+              saihe_id
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null" >
+                #{id}
+            </if>
+            <if test="name != null" >
+                #{name}
+            </if>
+            <if test="desc != null" >
+                #{desc}
+            </if>
+            <if test="state != null" >
+                #{state}
+            </if>
+            <if test="createTime != null" >
+                #{createTime}
+            </if>
+            <if test="updateTime != null" >
+                #{updateTime}
+            </if>
+            <if test="saiheId != null" >
+                #{saiheId}
+            </if>
+
+        </trim>
+    </insert>
+
+    <insert id="insertByBatch" parameterType="java.util.List">
+        insert into shipping_template
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+           id,
+           `name`,
+           `desc`,
+           state,
+           create_time,
+           update_time,
+            saihe_id
+        </trim>
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+               #{item.id},
+               #{item.name},
+               #{item.desc},
+               #{item.state},
+               #{item.createTime},
+               #{item.updateTime},
+               #{item.saiheId}
+            </trim>
+        </foreach>
+    </insert>
+
+    <sql id="Query_Condition">
+        <if test="t != null">
+            where
+            <trim prefix=" " suffix=" " suffixOverrides=" and ">
+                1 = 1 and
+                    <if test="t.id != null">
+                        id = #{t.id} and
+                    </if>
+                    <if test="t.name != null">
+                      <!--  `name` = #{t.name} and -->
+                        `name` Like CONCAT('%',#{t.name},'%')  and
+                    </if>
+                    <if test="t.desc != null">
+                        `desc` = #{t.desc} and
+                    </if>
+                    <if test="t.state != null">
+                        state = #{t.state} and
+                    </if>
+                    <if test="t.createTime != null">
+                        create_time = #{t.createTime} and
+                    </if>
+                    <if test="t.updateTime != null">
+                        update_time = #{t.updateTime} and
+                    </if>
+            </trim>
+        </if>
+    </sql>
+
+    <select id="select" parameterType="com.upedge.common.base.Page" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from shipping_template
+        <include refid="Query_Condition"/>
+        order by update_time desc
+        <if test="pageNum != null and pageSize != null">
+            limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+        </if>
+    </select>
+
+    <select id="count" parameterType="com.upedge.common.base.Page" resultType="java.lang.Long">
+        select
+        count(1)
+        from shipping_template
+        <include refid="Query_Condition"/>
+    </select>
+
+    <select id="allUseShippingTemplate"  resultMap="BaseResultMap">
+        select
+        `id`,`name`
+        from shipping_template where state=1
+    </select>
+
+    <update id="updateShippingTemplateState">
+        update shipping_template set state=#{state} where id=#{id}
+    </update>
+
+</mapper>

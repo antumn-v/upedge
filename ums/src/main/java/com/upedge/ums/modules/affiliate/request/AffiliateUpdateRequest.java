@@ -1,11 +1,13 @@
 package com.upedge.ums.modules.affiliate.request;
 
 import com.upedge.ums.modules.affiliate.entity.Affiliate;
-import java.util.Date;
 import lombok.Data;
+
 import java.math.BigDecimal;
+import java.util.Date;
+
 /**
- * @author gx
+ * @author author
  */
 @Data
 public class AffiliateUpdateRequest{

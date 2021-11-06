@@ -1,0 +1,237 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.upedge.pms.modules.product.dao.ImportProductVariantAttrDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.upedge.pms.modules.product.entity.ImportProductVariantAttr" id="BaseResultMap">
+        <result property="id" column="id"/>
+        <result property="variantId" column="variant_id"/>
+        <result property="productId" column="product_id"/>
+        <result property="attrName" column="attr_name"/>
+        <result property="attrValue" column="attr_value"/>
+        <result property="seq" column="seq"/>
+    </resultMap>
+
+    <resultMap id="ShopifyOptions" type="com.upedge.thirdparty.shopify.moudles.product.entity.ShopifyOptions">
+        <id column="name" property="name" jdbcType="VARCHAR" />
+        <collection property="values" ofType="java.lang.String">
+            <id column="value" property="values" jdbcType="VARCHAR" />
+        </collection>
+    </resultMap>
+
+    <resultMap id="WoocProductAttr" type="com.upedge.thirdparty.woocommerce.moudles.product.entity.WoocProductAttr">
+        <id column="name" property="name" jdbcType="VARCHAR" />
+        <collection property="options" ofType="java.lang.String">
+            <id column="option" property="option" jdbcType="VARCHAR" />
+        </collection>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        `id`,`variant_id`,`productId`,`attr_name`,`attr_value`,`seq`
+    </sql>
+
+    <select id="selectForShopifyOption" resultMap="ShopifyOptions">
+        select a.attr_name as 'name',a.attr_value as 'value'
+        from import_product_variant v
+        left join import_product_variant_attr a
+        on v.id = a.variant_id
+        where v.product_id = #{productId}
+        and v.state = '1'
+    </select>
+
+    <select id="selectForWoocAttributeByProduct" resultMap="WoocProductAttr">
+        select a.attr_name as 'name',a.attr_value as 'option'
+        from import_product_variant v
+        left join import_product_variant_attr a
+        on v.id = a.variant_id
+        where v.product_id = #{productId}
+        and v.state = '1'
+    </select>
+
+    <update id="updateShipFromValueByProduct">
+        update import_product_variant_attr v
+        inner join area a
+        on v.attr_value = a.en_name
+        set v.attr_value = a.area_code
+        where v.product_id = #{productId}
+        and v.attr_value = 'Ships From'
+    </update>
+
+    <delete id="deleteByProductId">
+        delete from import_product_variant_attr
+        where product_id = #{productId}
+    </delete>
+
+    <select id="selectByPrimaryKey" parameterType="com.upedge.pms.modules.product.entity.ImportProductVariantAttr" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from import_product_variant_attr
+        where id = #{id}
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="com.upedge.pms.modules.product.entity.ImportProductVariantAttr">
+        delete from import_product_variant_attr
+        where id = #{id}
+    </delete>
+
+    <update id="updateByPrimaryKeySelective" parameterType="com.upedge.pms.modules.product.entity.ImportProductVariantAttr">
+        update import_product_variant_attr
+        <set>
+            <if test="variantId != null">
+                variant_id = #{variantId},
+            </if>
+            <if test="attrName != null">
+                attr_name = #{attrName},
+            </if>
+            <if test="attrValue != null">
+                attr_value = #{attrValue},
+            </if>
+            <if test="seq != null">
+                seq = #{seq},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <update id="updateByPrimaryKey" parameterType="com.upedge.pms.modules.product.entity.ImportProductVariantAttr">
+        update import_product_variant_attr
+        <set>
+        id = #{id},
+        variant_id = #{variantId},
+        attr_name = #{attrName},
+        attr_value = #{attrValue},
+        seq = #{seq},
+        </set>
+        where id = #{id}
+    </update>
+
+    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.upedge.pms.modules.product.entity.ImportProductVariantAttr" useGeneratedKeys="true">
+        insert into import_product_variant_attr
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            id,
+            variant_id,
+            product_id,
+            attr_name,
+            attr_value,
+            seq
+        </trim>
+        values (
+        #{id},
+        #{variantId},
+        #{productId},
+        #{attrName},
+        #{attrValue},
+        #{seq}
+        )
+    </insert>
+
+    <insert id="insertSelective"  keyColumn="id" keyProperty="id"  parameterType="com.upedge.pms.modules.product.entity.ImportProductVariantAttr" useGeneratedKeys="true">
+        insert into import_product_variant_attr
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null" >
+              id
+            </if>
+            <if test="variantId != null" >
+              variant_id
+            </if>
+            <if test="attrName != null" >
+              attr_name
+            </if>
+            <if test="attrValue != null" >
+              attr_value
+            </if>
+            <if test="seq != null" >
+              seq
+            </if>
+
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null" >
+                #{id}
+            </if>
+            <if test="variantId != null" >
+                #{variantId}
+            </if>
+            <if test="attrName != null" >
+                #{attrName}
+            </if>
+            <if test="attrValue != null" >
+                #{attrValue}
+            </if>
+            <if test="seq != null" >
+                #{seq}
+            </if>
+
+        </trim>
+    </insert>
+
+    <insert id="insertByBatch" parameterType="java.util.List">
+        insert into import_product_variant_attr
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+           id,
+           variant_id,
+           product_id,
+           attr_name,
+           attr_value,
+           seq
+        </trim>
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+               #{item.id},
+               #{item.variantId},
+               #{item.productId},
+               #{item.attrName},
+               #{item.attrValue},
+               #{item.seq}
+            </trim>
+        </foreach>
+    </insert>
+
+    <sql id="Query_Condition">
+        <if test="t != null">
+            where
+            <trim prefix=" " suffix=" " suffixOverrides=" and ">
+                1 = 1 and
+                    <if test="t.id != null">
+                        id = #{t.id} and
+                    </if>
+                    <if test="t.variantId != null">
+                        variant_id = #{t.variantId} and
+                    </if>
+                    <if test="t.attrName != null">
+                        attr_name = #{t.attrName} and
+                    </if>
+                    <if test="t.attrValue != null">
+                        attr_value = #{t.attrValue} and
+                    </if>
+                    <if test="t.seq != null">
+                        seq = #{t.seq} and
+                    </if>
+            </trim>
+        </if>
+    </sql>
+
+    <select id="select" parameterType="com.upedge.common.base.Page" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from import_product_variant_attr
+        <include refid="Query_Condition"/>
+        <if test="orderBy != null">
+            order by ${orderBy}
+        </if>
+        <if test="pageNum != null and pageSize != null">
+            limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+        </if>
+    </select>
+
+    <select id="count" parameterType="com.upedge.common.base.Page" resultType="java.lang.Long">
+        select
+        count(1)
+        from import_product_variant_attr
+        <include refid="Query_Condition"/>
+    </select>
+
+
+</mapper>

@@ -1,0 +1,299 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.upedge.oms.modules.tickets.dao.SupportTicketsCountDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.upedge.oms.modules.tickets.entity.SupportTicketsCount" id="BaseResultMap">
+        <result property="id" column="id"/>
+        <result property="messageAll" column="message_all"/>
+        <result property="aNum" column="a_num"/>
+        <result property="bNum" column="b_num"/>
+        <result property="ticketId" column="ticket_id"/>
+        <result property="customerId" column="customer_id"/>
+        <result property="managerCode" column="manager_code"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        `id`,`message_all`,`a_num`,`b_num`,`ticket_id`,`customer_id`,`manager_code`
+    </sql>
+
+    <select id="selectByPrimaryKey" parameterType="com.upedge.oms.modules.tickets.entity.SupportTicketsCount" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from support_tickets_count
+        where id = #{id}
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="com.upedge.oms.modules.tickets.entity.SupportTicketsCount">
+        delete from support_tickets_count
+        where id = #{id}
+    </delete>
+
+    <update id="updateByPrimaryKeySelective" parameterType="com.upedge.oms.modules.tickets.entity.SupportTicketsCount">
+        update support_tickets_count
+        <set>
+            <if test="messageAll != null">
+                message_all = #{messageAll},
+            </if>
+            <if test="aNum != null">
+                a_num = #{aNum},
+            </if>
+            <if test="bNum != null">
+                b_num = #{bNum},
+            </if>
+            <if test="ticketId != null">
+                ticket_id = #{ticketId},
+            </if>
+            <if test="customerId != null">
+                customerId = #{customer_id},
+            </if>
+            <if test="managerCode != null">
+                managerCode = #{managerCode},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <update id="updateByPrimaryKey" parameterType="com.upedge.oms.modules.tickets.entity.SupportTicketsCount">
+        update support_tickets_count
+        <set>
+        id = #{id},
+        message_all = #{messageAll},
+        a_num = #{aNum},
+        b_num = #{bNum},
+        ticket_id = #{ticketId},
+        customerId = #{customer_id},
+            managerCode = #{managerCode},
+        </set>
+        where id = #{id}
+    </update>
+
+    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.upedge.oms.modules.tickets.entity.SupportTicketsCount" useGeneratedKeys="true">
+        insert into support_tickets_count
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            id,
+            message_all,
+            a_num,
+            b_num,
+            ticket_id,
+            customer_id,
+            manager_code
+        </trim>
+        values (
+        #{id},
+        #{messageAll},
+        #{aNum},
+        #{bNum},
+        #{ticketId},
+        #{customerId},
+        #{managerCode}
+        )
+    </insert>
+
+    <insert id="insertSelective"  keyColumn="id" keyProperty="id"  parameterType="com.upedge.oms.modules.tickets.entity.SupportTicketsCount" useGeneratedKeys="true">
+        insert into support_tickets_count
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null" >
+              id
+            </if>
+            <if test="messageAll != null" >
+              message_all
+            </if>
+            <if test="aNum != null" >
+              a_num
+            </if>
+            <if test="bNum != null" >
+              b_num
+            </if>
+            <if test="ticketId != null" >
+              ticket_id
+            </if>
+            <if test="customerId != null" >
+                customer_id
+            </if>
+             <if test="managerCode != null" >
+                 manager_code
+            </if>
+
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null" >
+                #{id}
+            </if>
+            <if test="messageAll != null" >
+                #{messageAll}
+            </if>
+            <if test="aNum != null" >
+                #{aNum}
+            </if>
+            <if test="bNum != null" >
+                #{bNum}
+            </if>
+            <if test="ticketId != null" >
+                #{ticketId}
+            </if>
+            <if test="customerId != null" >
+                #{customerId}
+            </if>
+            <if test="manager_code != null" >
+                #{managerCode}
+             </if>
+
+        </trim>
+    </insert>
+
+    <insert id="insertByBatch" parameterType="java.util.List">
+        insert into support_tickets_count
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+           id,
+           message_all,
+           a_num,
+           b_num,
+           ticket_id,
+            customer_id,
+            manager_code
+        </trim>
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+               #{item.id},
+               #{item.messageAll},
+               #{item.aNum},
+               #{item.bNum},
+               #{item.ticketId},
+               #{item.customerId},
+               #{item.managerCode}
+            </trim>
+        </foreach>
+    </insert>
+    <insert id="addMessageAllByTicketId">
+      update support_tickets_count set  message_all =  message_all + 1
+      <if test="managerCode != null and managerCode != ''">
+          manager_code  = #{managerCodemanagerCode}
+      </if>
+      where ticket_id=#{ticketsId}
+    </insert>
+
+    <sql id="Query_Condition">
+        <if test="t != null">
+            where
+            <trim prefix=" " suffix=" " suffixOverrides=" and ">
+                1 = 1 and
+                    <if test="t.id != null">
+                        id = #{t.id} and
+                    </if>
+                    <if test="t.messageAll != null">
+                        message_all = #{t.messageAll} and
+                    </if>
+                    <if test="t.aNum != null">
+                        a_num = #{t.aNum} and
+                    </if>
+                    <if test="t.bNum != null">
+                        b_num = #{t.bNum} and
+                    </if>
+                    <if test="t.ticketId != null">
+                        ticket_id = #{t.ticketId} and
+                    </if>
+                    <if test="t.customerId != null">
+                        customer_id = #{t.customerId} and
+                    </if>
+                    <if test="t.managerCode != null">
+                        manager_code = #{t.managerCode} and
+                    </if>
+            </trim>
+        </if>
+    </sql>
+
+    <select id="select" parameterType="com.upedge.common.base.Page" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from support_tickets_count
+        <include refid="Query_Condition"/>
+        <if test="orderBy != null">
+            order by ${orderBy}
+        </if>
+        <if test="pageNum != null and pageSize != null">
+            limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+        </if>
+    </select>
+
+    <select id="count" parameterType="com.upedge.common.base.Page" resultType="java.lang.Long">
+        select
+        count(1)
+        from support_tickets_count
+        <include refid="Query_Condition"/>
+    </select>
+    <select id="selectTicketsDataPage" parameterType="com.upedge.oms.modules.tickets.request.TicketsDataRequest" resultType="com.upedge.oms.modules.tickets.vo.TicketsDataVo">
+        select
+		sum(stc.message_all) as messageAll,
+		sum(stc.a_num) as anum,
+		sum(stc.b_num) as bnum,
+		stc.manager_code
+		FROM support_tickets_count stc
+		left join support_tickets st on st.id=stc.ticket_id
+        <where>
+            <if test="startDay != null and startDay !=''" >and date(st.create_time) >=#{startDay}</if>
+            <if test="endDay != null and endDay !=''" >and date(st.create_time) &lt;=#{endDay}</if>
+        </where>
+		group by   	stc.manager_code
+    </select>
+    <select id="selectTicketsDataCount" parameterType="com.upedge.oms.modules.tickets.request.TicketsDataRequest" resultType="java.lang.Long">
+        select
+        count(1)
+        FROM support_tickets_count stc
+        left join support_tickets st on st.id=stc.ticket_id
+        <where>
+            <if test="startDay != null and startDay !=''" >and date(st.create_time) >=#{startDay}</if>
+            <if test="endDay != null and endDay !=''" >and date(st.create_time) &lt;=#{endDay}</if>
+        </where>
+    </select>
+
+    <update id="updateSupportTicketsCount">
+        update support_tickets_count set a_num=#{aNum},b_num=#{bNum}
+        where ticket_id=#{ticketId}
+	</update>
+
+
+    <select id="totalSupportTicketsCount" resultType="java.lang.Long">
+        select
+            COUNT(1)
+        FROM support_tickets_count stc
+        left join support_tickets st on st.id=stc.ticket_id
+        <where>
+            <if test="t.ticketId != null  and t.ticketId!=''" >AND stc.ticket_id = #{t.ticketId}</if>
+            <if test="t.customerId != null and t.customerId!=''" >AND stc.customer_id = #{t.customerId}</if>
+            <if test="t.managerCode != null and t.managerCode!=''" >
+                AND stc.manager_code=#{t.managerCode}
+            </if>
+            <if test="startDay != null and startDay !=''" >and date(st.create_time) >=#{startDay}</if>
+            <if test="endDay != null and endDay !=''" >and date(st.create_time) &lt;=#{endDay}</if>
+        </where>
+    </select>
+    <select id="pageSupportTickets" resultType="com.upedge.oms.modules.tickets.entity.SupportTicketsCount">
+        select
+        stc.id as id,
+        stc.message_all as messageAll,
+        stc.a_num as anum,
+        stc.b_num as bnum,
+        stc.ticket_id as ticketId,
+        stc.customer_id as customerId,
+        stc.manager_code as managerCode,
+        st.create_time as createTime
+        FROM support_tickets_count stc
+        left join support_tickets st on st.id=stc.ticket_id
+        <where>
+            <if test="t.ticketId != null  and t.ticketId!=''" >AND stc.ticket_id = #{t.ticketId}</if>
+            <if test="t.customerId != null and t.customerId!=''" >AND stc.customer_id = #{t.customerId}</if>
+            <if test="t.managerCode != null and t.managerCode!=''" >
+                AND stc.manager_code=#{t.managerCode}
+            </if>
+            <if test="startDay != null and startDay !=''" >and date(st.create_time) >=#{startDay}</if>
+            <if test="endDay != null and endDay !=''" >and date(st.create_time) &lt;=#{endDay}</if>
+        </where>
+        ORDER BY st.create_time desc
+        <if test="pageNum != null and pageSize != null">
+            limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+        </if>
+    </select>
+</mapper>

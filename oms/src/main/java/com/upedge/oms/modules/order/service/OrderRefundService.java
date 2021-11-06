@@ -1,0 +1,48 @@
+package com.upedge.oms.modules.order.service;
+
+import com.upedge.common.base.BaseResponse;
+import com.upedge.common.base.Page;
+import com.upedge.common.exception.CustomerException;
+import com.upedge.common.model.user.vo.Session;
+import com.upedge.oms.modules.order.entity.OrderRefund;
+import com.upedge.oms.modules.order.request.*;
+import com.upedge.oms.modules.order.response.OrderRefundListResponse;
+
+import java.util.List;
+
+/**
+ * @author author
+ */
+public interface OrderRefundService{
+
+    OrderRefund selectByPrimaryKey(Long id);
+
+    BaseResponse appApplyRefund(ApplyOrderRefundRequest request, Session session);
+
+    int deleteByPrimaryKey(Long id);
+
+    int updateByPrimaryKey(OrderRefund record);
+
+    int updateByPrimaryKeySelective(OrderRefund record);
+
+    int insert(OrderRefund record);
+
+    int insertSelective(OrderRefund record);
+
+    List<OrderRefund> select(Page<OrderRefund> record);
+
+    long count(Page<OrderRefund> record);
+
+    BaseResponse applyRefund(ApplyOrderRefundRequest request, Session session)throws CustomerException;
+
+    OrderRefundListResponse refundOrderList(OrderRefundListRequest request);
+
+    BaseResponse updateRemark(OrderRefundUpdateRemarkRequest request);
+
+    BaseResponse rejectRefund(OrderRefundRejectRefundRequest request, Session session) throws CustomerException;
+
+    OrderRefundListResponse refundOrderHistory(OrderRefundListRequest request);
+
+    BaseResponse confirmRefund(ConfirmRefundRequest request, Session session)throws CustomerException;
+}
+

@@ -96,7 +96,7 @@ public class ShopifyShopApi {
 
     public static void main(String[] args) {
 
-        Shop shop = getShopDetail("pandagx.myshopify.com","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");
+        Shop shop = getShopDetail("upedgegx.myshopify.com","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");
         System.out.println(shop);
     }
 

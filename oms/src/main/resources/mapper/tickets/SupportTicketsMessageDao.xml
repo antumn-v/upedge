@@ -1,0 +1,392 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.upedge.oms.modules.tickets.dao.SupportTicketsMessageDao">
+
+    <!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.upedge.oms.modules.tickets.entity.SupportTicketsMessage" id="BaseResultMap">
+        <result property="id" column="id"/>
+        <result property="ticketId" column="ticket_id"/>
+        <result property="message" column="message"/>
+        <result property="senderCustomerId" column="sender_customer_id"/>
+        <result property="receiverCustomerId" column="receiver_customer_id"/>
+        <result property="senderUserId" column="sender_user_id"/>
+        <result property="receiverUserId" column="receiver_user_id"/>
+        <result property="sendTime" column="send_time"/>
+        <result property="readTime" column="read_time"/>
+        <result property="state" column="state"/>
+        <result property="source" column="source"/>
+        <result property="flag" column="flag"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        `id`,`ticket_id`,`message`,`sender_user_id`,`receiver_user_id`,
+        `sender_customer_id`,`receiver_customer_id`,`send_time`,`read_time`,`state`,`source`,`flag`
+    </sql>
+
+    <select id="selectTicketLastUnReceiveMessage" resultMap="BaseResultMap">
+        select <include refid="Base_Column_List"/>
+        from support_tickets_message
+        where ticket_id = #{ticketId}
+        and receiver_customer_id = #{receiverCustomerId}
+        and state = '0'
+        order by send_time desc
+        limit 1
+    </select>
+
+    <select id="selectTicketLastUnReceiveMessageByDate" resultMap="BaseResultMap">
+        select <include refid="Base_Column_List"/>
+        from support_tickets_message
+        where ticket_id = #{ticketId}
+        and receiver_customer_id = #{receiverCustomerId}
+        and state = '0'
+        and send_time >= #{beginTime} and send_time  &lt;=  #{endTime}
+        order by send_time desc
+    </select>
+
+    <update id="updateMessageHaveRead" parameterType="com.upedge.oms.modules.tickets.entity.SupportTicketsMessage">
+        update support_tickets_message
+        set state = '1',read_time = #{readTime},receiver_user_id = #{receiverUserId}
+        where ticket_id = #{ticketId}
+        and receiver_customer_id = #{receiverCustomerId}
+        and state = '0'
+    </update>
+
+    <select id="selectByPrimaryKey" parameterType="com.upedge.oms.modules.tickets.entity.SupportTicketsMessage"
+            resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from support_tickets_message
+        where id = #{id}
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="com.upedge.oms.modules.tickets.entity.SupportTicketsMessage">
+        delete from support_tickets_message
+        where id = #{id}
+    </delete>
+
+    <update id="updateByPrimaryKeySelective" parameterType="com.upedge.oms.modules.tickets.entity.SupportTicketsMessage">
+        update support_tickets_message
+        <set>
+            <if test="ticketId != null">
+                ticket_id = #{ticketId},
+            </if>
+            <if test="message != null">
+                message = #{message},
+            </if>
+            <if test="senderCustomerId != null">
+                sender_customer_id = #{senderCustomerId},
+            </if>
+            <if test="receiverCustomerId != null">
+                receiver_customer_id = #{receiverCustomerId},
+            </if>
+            <if test="sendTime != null">
+                send_time = #{sendTime},
+            </if>
+            <if test="readTime != null">
+                read_time = #{readTime},
+            </if>
+            <if test="state != null">
+                state = #{state},
+            </if>
+            <if test="source != null">
+                source = #{source},
+            </if>
+            <if test="flag != null">
+                flag = #{flag},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <update id="updateByPrimaryKey" parameterType="com.upedge.oms.modules.tickets.entity.SupportTicketsMessage">
+        update support_tickets_message
+        <set>
+            id = #{id},
+            ticket_id = #{ticketId},
+            message = #{message},
+            sender_customer_id = #{senderCustomerId},
+            receiver_customer_id = #{receiverCustomerId},
+            sender_user_id = #{senderUserId},
+            receiver_user_id = #{receiverUserId},
+            send_time = #{sendTime},
+            read_time = #{readTime},
+            state = #{state},
+            source = #{source},
+            flag = #{flag},
+        </set>
+        where id = #{id}
+    </update>
+
+    <insert id="insert" keyColumn="id" keyProperty="id"
+            parameterType="com.upedge.oms.modules.tickets.entity.SupportTicketsMessage" useGeneratedKeys="true">
+        insert into support_tickets_message
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            id,
+            ticket_id,
+            message,
+            sender_customer_id,
+            receiver_customer_id,
+            sender_user_id,
+            receiver_user_id,
+            send_time,
+            read_time,
+            state,
+            source,
+            flag
+        </trim>
+        values (
+        #{id},
+        #{ticketId},
+        #{message},
+        #{senderCustomerId},
+        #{receiverCustomerId},
+        #{senderUserId},
+        #{receiverUserId},
+        #{sendTime},
+        #{readTime},
+        #{state},
+        #{source},
+        #{flag}
+        )
+    </insert>
+
+    <insert id="insertSelective" keyColumn="id" keyProperty="id"
+            parameterType="com.upedge.oms.modules.tickets.entity.SupportTicketsMessage" useGeneratedKeys="true">
+        insert into support_tickets_message
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id
+            </if>
+            <if test="ticketId != null">
+                ticket_id
+            </if>
+            <if test="message != null">
+                message
+            </if>
+            <if test="senderCustomerId != null">
+                sender_customer_id
+            </if>
+            <if test="receiverCustomerId != null">
+                receiver_customer_id
+            </if>
+            <if test="senderUserId != null">
+                sender_user_id
+            </if>
+            <if test="receiverUserId != null">
+                receiver_user_id
+            </if>
+            <if test="sendTime != null">
+                send_time
+            </if>
+            <if test="readTime != null">
+                read_time
+            </if>
+            <if test="state != null">
+                state
+            </if>
+            <if test="source != null">
+                source
+            </if>
+            <if test="flag != null">
+                flag
+            </if>
+
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id}
+            </if>
+            <if test="ticketId != null">
+                #{ticketId}
+            </if>
+            <if test="message != null">
+                #{message}
+            </if>
+            <if test="senderCustomerId != null">
+                #{senderCustomerId}
+            </if>
+            <if test="receiverCustomerId != null">
+                #{receiverCustomerId}
+            </if>
+            <if test="senderUserId != null">
+                #{senderUserId}
+            </if>
+            <if test="receiverUserId != null">
+                #{receiverUserId}
+            </if>
+            <if test="sendTime != null">
+                #{sendTime}
+            </if>
+            <if test="readTime != null">
+                #{readTime}
+            </if>
+            <if test="state != null">
+                #{state}
+            </if>
+            <if test="source != null">
+                #{source}
+            </if>
+            <if test="flag != null">
+                #{flag}
+            </if>
+
+        </trim>
+    </insert>
+
+    <insert id="insertByBatch" parameterType="java.util.List">
+        insert into support_tickets_message
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            id,
+            ticket_id,
+            message,
+            sender_customer_id,
+            receiver_customer_id,
+            sender_user_id,
+            receiver_user_id,
+            send_time,
+            read_time,
+            state,
+            source,
+            flag
+        </trim>
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+                #{item.id},
+                #{item.ticketId},
+                #{item.message},
+                #{item.senderCustomerId},
+                #{item.receiverCustomerId},
+                #{item.senderUserId},
+                #{item.receiverUserId},
+                #{item.sendTime},
+                #{item.readTime},
+                #{item.state},
+                #{item.source},
+                #{item.flag}
+            </trim>
+        </foreach>
+    </insert>
+
+    <sql id="Query_Condition">
+        <if test="t != null">
+            where
+            <trim prefix=" " suffix=" " suffixOverrides=" and ">
+                1 = 1 and
+                <if test="t.id != null">
+                    id = #{t.id} and
+                </if>
+                <if test="t.ticketId != null">
+                    ticket_id = #{t.ticketId} and
+                </if>
+                <if test="t.message != null">
+                    message = #{t.message} and
+                </if>
+                <if test="t.senderCustomerId != null">
+                    sender_customer_id = #{t.senderCustomerId} and
+                </if>
+                <if test="t.receiverCustomerId != null">
+                    receiver_customer_id = #{t.receiverCustomerId} and
+                </if>
+                <if test="t.senderUserId != null">
+                    sender_user_id = #{t.senderUserId} and
+                </if>
+                <if test="t.receiverUserId != null">
+                    receiver_user_id = #{t.receiverUserId} and
+                </if>
+                <if test="t.sendTime != null">
+                    send_time = #{t.sendTime} and
+                </if>
+                <if test="t.readTime != null">
+                    read_time = #{t.readTime} and
+                </if>
+                <if test="t.state != null">
+                    state = #{t.state} and
+                </if>
+                <if test="t.source != null">
+                    source = #{t.source} and
+                </if>
+                <if test="t.flag != null">
+                    flag = #{t.flag} and
+                </if>
+            </trim>
+        </if>
+    </sql>
+
+    <select id="select" parameterType="com.upedge.common.base.Page" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from support_tickets_message
+        <include refid="Query_Condition"/>
+        order by send_time desc
+        <if test="pageNum != null and pageSize != null">
+            limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+        </if>
+    </select>
+
+    <select id="count" parameterType="com.upedge.common.base.Page" resultType="java.lang.Long">
+        select
+        count(1)
+        from support_tickets_message
+        <include refid="Query_Condition"/>
+    </select>
+
+    <select id="queryPrevAdminMsg" resultType="com.upedge.oms.modules.tickets.entity.SupportTicketsMessage">
+        select
+        id as id,
+        ticket_id as ticketId,
+        message as message,
+        sender_customer_id as senderCustomerId,
+        receiver_customer_id as receiverCustomerId,
+        send_time as sendTime
+        from support_tickets_message
+        where ticket_id=#{ticketId} and send_time &lt; #{currDate}
+        and source=2 order by send_time desc limit 1
+    </select>
+
+    <select id="queryNearestUserMsg" resultType="com.upedge.oms.modules.tickets.entity.SupportTicketsMessage">
+        select
+        id as id,
+        ticket_id as ticketId,
+        message as message,
+        sender_customer_id as senderCustomerId,
+        receiver_customer_id as receiverCustomerId,
+        send_time as sendTime
+        from support_tickets_message
+        where
+        ticket_id=#{ticketId}
+        <if test="startDate != null">and send_time>#{startDate}</if>
+        and send_time &lt; #{endDate}
+        and source=1 order by send_time desc
+    </select>
+
+    <update id="markReplyFlag">
+        update support_tickets_message set flag=#{flag} where id=#{id}
+    </update>
+
+    <update id="markReadMsg">
+        update support_tickets_message
+        set state=1,read_time=#{readTime}
+        where ticket_id=#{ticketId} and sender_customer_id=#{senderCustomerId} and state=0
+    </update>
+
+    <select id="listMsgCountByTicketIds" parameterType="java.util.Set"
+            resultType="com.upedge.oms.modules.tickets.vo.SupportTicketsVo">
+        select ticket_id as id,
+        count(1) as msgCount
+        from support_tickets_message
+        where source=1 and state=0 and ticket_id in
+        <foreach collection="ticketIds" index="index" item="item"
+                 separator="," open="(" close=")">
+            #{item}
+        </foreach>
+        group by ticket_id
+    </select>
+    <select id="selectNearestUserMsg" resultType="com.upedge.oms.modules.tickets.entity.SupportTicketsMessage">
+        select  <include refid="Base_Column_List"/>
+        from  support_tickets_message
+        where ticket_id = #{ticketId}
+        and  flag != 0  order by send_time desc
+    </select>
+</mapper>

@@ -55,7 +55,7 @@ public class UserInfoServiceImpl implements UserInfoService {
     public UserInfo selectByPrimaryKey(Long id){
         UserInfo record = new UserInfo();
         record.setId(id);
-        return userInfoDao.selectByPrimaryKey(record);
+        return userInfoDao.selectByPrimaryKey(id);
     }
 
     /**

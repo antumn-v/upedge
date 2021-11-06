@@ -1,0 +1,403 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.upedge.oms.modules.stock.dao.StockOrderRefundDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.upedge.oms.modules.stock.entity.StockOrderRefund" id="BaseResultMap">
+        <result property="id" column="id"/>
+        <result property="stockOrderId" column="stock_order_id"/>
+        <result property="amount" column="amount"/>
+        <result property="state" column="state"/>
+        <result property="reason" column="reason"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="source" column="source"/>
+        <result property="customerId" column="customer_id"/>
+        <result property="managerCode" column="manager_code"/>
+        <result property="warehouseId" column="warehouse_id"/>
+    </resultMap>
+
+    <resultMap type="com.upedge.oms.modules.stock.vo.AdminStockOrderRefundVo" id="AdminStockOrderRefundVo">
+        <result property="id" column="id"/>
+        <result property="stockOrderId" column="stock_order_id"/>
+        <result property="amount" column="amount"/>
+        <result property="state" column="state"/>
+        <result property="reason" column="reason"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="source" column="source"/>
+        <result property="customerId" column="customer_id"/>
+        <result property="managerCode" column="manager_code"/>
+        <result property="warehouseId" column="warehouse_id"/>
+        <collection property="items" ofType="com.upedge.oms.modules.stock.entity.StockOrderRefundItem">
+            <result property="id" column="itemId"/>
+            <result property="stockRefundId" column="stock_refund_id"/>
+            <result property="quantity" column="quantity"/>
+            <result property="price" column="price"/>
+            <result property="stockOrderItemId" column="stock_order_item_id"/>
+            <result property="productId" column="product_id"/>
+            <result property="variantId" column="variant_id"/>
+            <result property="variantSku" column="variant_sku"/>
+            <result property="variantImage" column="variant_image"/>
+            <result property="stock" column="stock"/>
+            <result property="stockId" column="stockId"/>
+        </collection>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        `id`,`stock_order_id`,`amount`,`state`,`reason`,`create_time`,`update_time`,`source`,`customer_id`,`manager_code`,`warehouse_id`
+    </sql>
+
+    <select id="selectByPrimaryKey" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from stock_order_refund
+        where id = #{id}
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="com.upedge.oms.modules.stock.entity.StockOrderRefund">
+        delete from stock_order_refund
+        where id = #{id}
+    </delete>
+
+    <update id="updateByPrimaryKeySelective" parameterType="com.upedge.oms.modules.stock.entity.StockOrderRefund">
+        update stock_order_refund
+        <set>
+            <if test="stockOrderId != null">
+                stock_order_id = #{stockOrderId},
+            </if>
+            <if test="amount != null">
+                amount = #{amount},
+            </if>
+            <if test="state != null">
+                state = #{state},
+            </if>
+            <if test="reason != null">
+                reason = #{reason},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime},
+            </if>
+            <if test="updateTime != null">
+                update_time = #{updateTime},
+            </if>
+            <if test="source != null">
+                source = #{source},
+            </if>
+            <if test="customerId != null">
+                customer_id = #{customerId},
+            </if>
+            <if test="managerCode != null">
+                manager_code = #{managerCode},
+            </if>
+            <if test="warehouseId != null">
+                warehouse_id = #{warehouseId},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <update id="updateByPrimaryKey" parameterType="com.upedge.oms.modules.stock.entity.StockOrderRefund">
+        update stock_order_refund
+        <set>
+        id = #{id},
+        stock_order_id = #{stockOrderId},
+        amount = #{amount},
+        state = #{state},
+        reason = #{reason},
+        create_time = #{createTime},
+        update_time = #{updateTime},
+        source = #{source},
+        customer_id = #{customerId},
+        manager_code = #{managerCode},
+        warehouse_id = #{warehouseId},
+        </set>
+        where id = #{id}
+    </update>
+
+    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.upedge.oms.modules.stock.entity.StockOrderRefund" useGeneratedKeys="true">
+        insert into stock_order_refund
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            id,
+            stock_order_id,
+            amount,
+            state,
+            reason,
+            create_time,
+            update_time,
+            source,
+            customer_id,
+            manager_code,
+            warehouse_id
+        </trim>
+        values (
+        #{id},
+        #{stockOrderId},
+        #{amount},
+        #{state},
+        #{reason},
+        #{createTime},
+        #{updateTime},
+        #{source},
+        #{customerId},
+        #{managerCode},
+        #{warehouseId}
+        )
+    </insert>
+
+    <insert id="insertSelective"  keyColumn="id" keyProperty="id"  parameterType="com.upedge.oms.modules.stock.entity.StockOrderRefund" useGeneratedKeys="true">
+        insert into stock_order_refund
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null" >
+              id
+            </if>
+            <if test="stockOrderId != null" >
+              stock_order_id
+            </if>
+            <if test="amount != null" >
+              amount
+            </if>
+            <if test="state != null" >
+              state
+            </if>
+            <if test="reason != null" >
+              reason
+            </if>
+            <if test="createTime != null" >
+              create_time
+            </if>
+            <if test="updateTime != null" >
+              update_time
+            </if>
+            <if test="source != null" >
+              source
+            </if>
+            <if test="customerId != null" >
+              customer_id
+            </if>
+            <if test="managerCode != null" >
+                manager_code
+            </if>
+            <if test="warehouseId != null" >
+              warehouse_id
+            </if>
+
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null" >
+                #{id}
+            </if>
+            <if test="stockOrderId != null" >
+                #{stockOrderId}
+            </if>
+            <if test="amount != null" >
+                #{amount}
+            </if>
+            <if test="state != null" >
+                #{state}
+            </if>
+            <if test="reason != null" >
+                #{reason}
+            </if>
+            <if test="createTime != null" >
+                #{createTime}
+            </if>
+            <if test="updateTime != null" >
+                #{updateTime}
+            </if>
+            <if test="source != null" >
+                #{source}
+            </if>
+            <if test="customerId != null" >
+                #{customerId}
+            </if>
+            <if test="managerCode != null" >
+                #{managerCode}
+            </if>
+            <if test="warehouseId != null" >
+                #{warehouseId}
+            </if>
+
+        </trim>
+    </insert>
+
+    <insert id="insertByBatch" parameterType="java.util.List">
+        insert into stock_order_refund
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+           id,
+           stock_order_id,
+           amount,
+           state,
+           reason,
+           create_time,
+           update_time,
+           source,
+           customer_id,
+            manager_code,
+           warehouse_id
+        </trim>
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+               #{item.id},
+               #{item.stockOrderId},
+               #{item.amount},
+               #{item.state},
+               #{item.reason},
+               #{item.createTime},
+               #{item.updateTime},
+               #{item.source},
+               #{item.customerId},
+               #{item.managerCode},
+               #{item.warehouseId}
+            </trim>
+        </foreach>
+    </insert>
+
+    <sql id="Query_Condition">
+        <if test="t != null">
+            where
+            <trim prefix=" " suffix=" " suffixOverrides=" and ">
+                1 = 1 and
+                    <if test="t.id != null">
+                        o.id = #{t.id} and
+                    </if>
+                    <if test="t.stockOrderId != null">
+                        stock_order_id = #{t.stockOrderId} and
+                    </if>
+                    <if test="t.amount != null">
+                        amount = #{t.amount} and
+                    </if>
+                    <if test="t.state != null">
+                        state = #{t.state} and
+                    </if>
+                    <if test="t.gteState != null">
+                        state>=#{t.gteState} and
+                    </if>
+                    <if test="t.reason != null">
+                        reason = #{t.reason} and
+                    </if>
+                    <if test="t.createTime != null">
+                        create_time = #{t.createTime} and
+                    </if>
+                    <if test="t.updateTime != null">
+                        update_time = #{t.updateTime} and
+                    </if>
+                    <if test="t.source != null">
+                        source = #{t.source} and
+                    </if>
+                    <if test="t.customerId != null">
+                        customer_id = #{t.customerId} and
+                    </if>
+                    <if test="t.managerCode != null">
+                        manager_code = #{t.managerCode} and
+                    </if>
+                    <if test="t.warehouseId != null">
+                        warehouse_id = #{t.warehouseId} and
+                    </if>
+            </trim>
+        </if>
+    </sql>
+
+    <select id="select" parameterType="com.upedge.common.base.Page" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from stock_order_refund
+        <include refid="Query_Condition"/>
+        <if test="boundary != null and boundary!=''">
+            <if test="t != null">
+                and ${ boundary}
+            </if>
+            <if test="t == null">
+                where ${ boundary}
+            </if>
+        </if>
+        <if test="orderBy != null and orderBy !=''">
+            order by ${orderBy}
+        </if>
+        <if test="pageNum != null and pageSize != null ">
+            <if test="boundary == null or boundary==''">
+                limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+            </if>
+            <if test="boundary != null and boundary!=''">
+                limit #{pageSize,jdbcType=INTEGER}
+            </if>
+        </if>
+    </select>
+
+    <select id="count" parameterType="com.upedge.common.base.Page" resultType="java.lang.Long">
+        select
+        count(1)
+        from stock_order_refund
+        <include refid="Query_Condition"/>
+    </select>
+
+
+    <select id="selectAdminStockOrderRefundList" resultMap="AdminStockOrderRefundVo" parameterType="com.upedge.common.base.Page">
+        select
+        o.id,
+        o.stock_order_id,
+        o.amount,
+        o.state,
+        o.reason,
+        o.amount,
+        o.create_time,
+        o.update_time,
+        o.source,
+        o.customer_id,
+        o.manager_code,
+        item.id as itemId,
+        item.stock_refund_id,
+        item.quantity,
+        item.price,
+        item.stock_order_item_id,
+        item.product_id,
+        item.variant_id,
+        item.variant_sku,
+        item.variant_image,
+        cps.stock,
+        cps.id as stockId
+        from stock_order_refund o
+        inner join stock_order_refund_item item
+        on o.id = item.stock_refund_id
+        left join customer_product_stock cps
+        on cps.customer_id=o.customer_id and cps.product_id=item.product_id
+        and cps.variant_id=item.variant_id and cps.warehouse_id=o.warehouse_id
+        <include refid="Query_Condition"/>
+        order by o.update_time desc
+        <if test="pageNum != null and pageSize != null">
+            limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+        </if>
+    </select>
+
+    <select id="countAdminStockOrderRefundList" resultType="java.lang.Long" parameterType="com.upedge.common.base.Page">
+        select count(distinct o.id)
+        from stock_order_refund o
+        inner join stock_order_refund_item item
+        <include refid="Query_Condition"/>
+    </select>
+
+    <update id="rejectApply">
+       update stock_order_refund set state=#{state},
+       manager_code=#{managerCode},
+       update_time=#{updateTime}
+       where state=0 AND  id = #{id}
+    </update>
+
+    <update id="updateConfirmRefund">
+       update stock_order_refund set state=#{state},
+       manager_code=#{managerCode},
+       update_time=#{updateTime}
+       where state=0 and id=#{id} limit 1
+    </update>
+
+    <select id="stockHandleRefundData" resultType="java.lang.Long">
+        select count(1) from stock_order_refund o
+        where o.state=0
+        <if test="userManager != null and userManager !=''" >
+            and o.manager_code=#{userManager}
+        </if>
+    </select>
+
+</mapper>

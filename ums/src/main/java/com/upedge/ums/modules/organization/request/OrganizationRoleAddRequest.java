@@ -10,6 +10,8 @@ import lombok.Data;
 @Data
 public class OrganizationRoleAddRequest{
 
+    Long orgId;
+
     /**
     * 
     */
@@ -21,6 +23,7 @@ public class OrganizationRoleAddRequest{
 
     public OrganizationRole toOrganizationRole(){
         OrganizationRole organizationRole=new OrganizationRole();
+        organizationRole.setOrgId(orgId);
         organizationRole.setRoleId(roleId);
         organizationRole.setDataType(dataType);
         return organizationRole;

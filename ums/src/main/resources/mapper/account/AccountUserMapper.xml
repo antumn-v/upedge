@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.upedge.ums.modules.account.dao.AccountUserMapper" >
+  <resultMap id="BaseResultMap" type="com.upedge.ums.modules.account.entity.AccountUser" >
+    <result column="user_id" property="userId" jdbcType="BIGINT" />
+    <result column="account_id" property="accountId" jdbcType="BIGINT" />
+  </resultMap>
+
+  <resultMap id="User" type="com.upedge.ums.modules.user.entity.User" >
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="customer_id" property="customerId" jdbcType="BIGINT" />
+    <result column="login_name" property="loginName" jdbcType="VARCHAR" />
+    <result column="user_type" property="userType" jdbcType="INTEGER" />
+    <result column="status" property="status" jdbcType="INTEGER" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="update_time" property="updateTime" jdbcType="TIMESTAMP" />
+  </resultMap>
+
+  <resultMap id="Account" type="com.upedge.ums.modules.account.entity.Account">
+    <id column="id" property="id" jdbcType="BIGINT"/>
+    <result column="name" property="name" jdbcType="VARCHAR"/>
+    <result column="customer_id" property="customerId" jdbcType="BIGINT"/>
+    <result column="balance" property="balance" jdbcType="DECIMAL"/>
+    <result column="rebate" property="rebate" jdbcType="DECIMAL"/>
+    <result column="credit" property="credit" jdbcType="DECIMAL"/>
+    <result column="credit_limit" property="creditLimit" jdbcType="DECIMAL"/>
+    <result column="commission" property="commission" jdbcType="DECIMAL"/>
+    <result column="status" property="status" jdbcType="INTEGER"/>
+  </resultMap>
+
+  <sql id="UserColumn" >
+    id, customer_id, login_name, login_pass, user_type, status, create_time, update_time
+  </sql>
+
+  <sql id="AccountColumn">
+    id,`name`, customer_id, balance, rebate, credit,credit_limit, commission,status
+  </sql>
+
+  <select id="selectUserByAccount" resultMap="User">
+    select <include refid="UserColumn"/>
+    from user u
+    inner join account_user a
+    on u.id = a.user_id
+    where a.account_id = #{accountId}
+  </select>
+
+  <select id="selectAccountByUser" resultMap="Account">
+	  select
+    a.id,`name`, a.customer_id, balance, rebate, credit,credit_limit, commission,a.status
+    from `user` u
+    inner join account_user au
+    on u.id = au.user_id
+		left join account  a
+		on a.id = au.account_id
+		where u.id = #{userId}
+	  limit 1
+  </select>
+
+
+  <select id="selectUserIdByAccountId" resultType="java.lang.Long">
+    select user_id
+    from account_user
+    where account_id = #{accountId}
+  </select>
+
+
+  <delete id="unLinkAccountUser" parameterType="com.upedge.ums.modules.account.entity.AccountUser">
+    delete
+    from account_user
+    where account_id = #{accountId}
+    and userId = #{userId}
+  </delete>
+
+  <delete id="removeByAccountId">
+    delete
+    from account_user
+    where account_id = #{accountId}
+  </delete>
+
+  <insert id="insert" parameterType="com.upedge.ums.modules.account.entity.AccountUser" >
+    insert into account_user (user_id, account_id)
+    values (#{userId,jdbcType=BIGINT}, #{accountId,jdbcType=BIGINT})
+  </insert>
+  <insert id="insertSelective" parameterType="com.upedge.ums.modules.account.entity.AccountUser" >
+    insert into account_user
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="userId != null" >
+        user_id,
+      </if>
+      <if test="accountId != null" >
+        account_id,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="userId != null" >
+        #{userId,jdbcType=BIGINT},
+      </if>
+      <if test="accountId != null" >
+        #{accountId,jdbcType=BIGINT},
+      </if>
+    </trim>
+  </insert>
+</mapper>

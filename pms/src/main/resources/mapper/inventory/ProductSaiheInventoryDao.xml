@@ -1,0 +1,422 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.upedge.pms.modules.inventory.dao.ProductSaiheInventoryDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.upedge.pms.modules.inventory.entity.ProductSaiheInventory" id="BaseResultMap">
+        <result property="variantSku" column="variant_sku"/>
+        <result property="goodNum" column="good_num"/>
+        <result property="lockNum" column="lock_num"/>
+        <result property="warehouseId" column="warehouse_id"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="activeDays" column="active_days"/>
+        <result property="activeTime" column="active_time"/>
+        <result property="positionCode" column="position_code"/>
+        <result property="processingNum" column="processing_num"/>
+        <result property="historyInNum" column="history_in_num"/>
+        <result property="historyOutNum" column="history_out_num"/>
+        <result property="customerStock" column="customer_stock"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        `variant_sku`,`good_num`,`lock_num`,`warehouse_id`,`update_time`,`active_days`,`active_time`,`position_code`,`processing_num`,`history_in_num`,`history_out_num`,`customer_stock`
+    </sql>
+
+    <select id="selectByPrimaryKey" parameterType="com.upedge.pms.modules.inventory.entity.ProductSaiheInventory" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from product_saihe_inventory
+        where variant_sku = #{variantSku}
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="com.upedge.pms.modules.inventory.entity.ProductSaiheInventory">
+        delete from product_saihe_inventory
+        where variant_sku = #{variantSku}
+    </delete>
+
+    <update id="updateByPrimaryKeySelective" parameterType="com.upedge.pms.modules.inventory.entity.ProductSaiheInventory">
+        update product_saihe_inventory
+        <set>
+            <if test="goodNum != null">
+                good_num = #{goodNum},
+            </if>
+            <if test="lockNum != null">
+                lock_num = #{lockNum},
+            </if>
+            <if test="warehouseId != null">
+                warehouse_id = #{warehouseId},
+            </if>
+            <if test="updateTime != null">
+                update_time = #{updateTime},
+            </if>
+            <if test="activeDays != null">
+                active_days = #{activeDays},
+            </if>
+            <if test="activeTime != null">
+                active_time = #{activeTime},
+            </if>
+            <if test="positionCode != null">
+                position_code = #{positionCode},
+            </if>
+            <if test="processingNum != null">
+                processing_num = #{processingNum},
+            </if>
+            <if test="historyInNum != null">
+                history_in_num = #{historyInNum},
+            </if>
+            <if test="historyOutNum != null">
+                history_out_num = #{historyOutNum},
+            </if>
+            <if test="customerStock != null">
+                customer_stock = #{customerStock},
+            </if>
+        </set>
+        where variant_sku = #{variantSku}
+    </update>
+
+    <update id="updateByPrimaryKey" parameterType="com.upedge.pms.modules.inventory.entity.ProductSaiheInventory">
+        update product_saihe_inventory
+        <set>
+        variant_sku = #{variantSku},
+        good_num = #{goodNum},
+        lock_num = #{lockNum},
+        warehouse_id = #{warehouseId},
+        update_time = #{updateTime},
+        active_days = #{activeDays},
+        active_time = #{activeTime},
+        position_code = #{positionCode},
+        processing_num = #{processingNum},
+        history_in_num = #{historyInNum},
+        history_out_num = #{historyOutNum},
+            customer_stock = #{customerStock},
+        </set>
+        where variant_sku = #{variantSku}
+    </update>
+
+
+    <update id="updateCustomerStock" parameterType="com.upedge.common.model.order.vo.CustomerProductStockNumVo">
+        <foreach collection="list" item="item" index="index">
+            update product_saihe_inventory
+            set customer_stock=#{item.customerStock}
+            where variant_sku=#{item.variantSku};
+        </foreach>
+    </update>
+
+
+    <insert id="insert" keyColumn="variant_sku" keyProperty="variantSku" parameterType="com.upedge.pms.modules.inventory.entity.ProductSaiheInventory" useGeneratedKeys="true">
+        insert into product_saihe_inventory
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            variant_sku,
+            good_num,
+            lock_num,
+            warehouse_id,
+            update_time,
+            active_days,
+            active_time,
+            position_code,
+            processing_num,
+            history_in_num,
+            history_out_num,
+            customer_stock
+        </trim>
+        values (
+        #{variantSku},
+        #{goodNum},
+        #{lockNum},
+        #{warehouseId},
+        #{updateTime},
+        #{activeDays},
+        #{activeTime},
+        #{positionCode},
+        #{processingNum},
+        #{historyInNum},
+        #{historyOutNum},
+        #{customerStock}
+        )
+    </insert>
+
+    <insert id="insertSelective"  keyColumn="variant_sku" keyProperty="variantSku"  parameterType="com.upedge.pms.modules.inventory.entity.ProductSaiheInventory" useGeneratedKeys="true">
+        insert into product_saihe_inventory
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="variantSku != null" >
+              variant_sku
+            </if>
+            <if test="goodNum != null" >
+              good_num
+            </if>
+            <if test="lockNum != null" >
+              lock_num
+            </if>
+            <if test="warehouseId != null" >
+              warehouse_id
+            </if>
+            <if test="updateTime != null" >
+              update_time
+            </if>
+            <if test="activeDays != null" >
+              active_days
+            </if>
+            <if test="activeTime != null" >
+              active_time
+            </if>
+            <if test="positionCode != null" >
+              position_code
+            </if>
+            <if test="processingNum != null" >
+              processing_num
+            </if>
+            <if test="historyInNum != null" >
+              history_in_num
+            </if>
+            <if test="historyOutNum != null" >
+              history_out_num
+            </if>
+            <if test="customerStock != null" >
+                customer_stock
+            </if>
+
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="variantSku != null" >
+                #{variantSku}
+            </if>
+            <if test="goodNum != null" >
+                #{goodNum}
+            </if>
+            <if test="lockNum != null" >
+                #{lockNum}
+            </if>
+            <if test="warehouseId != null" >
+                #{warehouseId}
+            </if>
+            <if test="updateTime != null" >
+                #{updateTime}
+            </if>
+            <if test="activeDays != null" >
+                #{activeDays}
+            </if>
+            <if test="activeTime != null" >
+                #{activeTime}
+            </if>
+            <if test="positionCode != null" >
+                #{positionCode}
+            </if>
+            <if test="processingNum != null" >
+                #{processingNum}
+            </if>
+            <if test="historyInNum != null" >
+                #{historyInNum}
+            </if>
+            <if test="historyOutNum != null" >
+                #{historyOutNum}
+            </if>
+            <if test="customerStock != null" >
+                #{customerStock}
+            </if>
+
+        </trim>
+    </insert>
+
+    <insert id="insertByBatch" parameterType="java.util.List">
+        insert into product_saihe_inventory
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+           variant_sku,
+           good_num,
+           lock_num,
+           warehouse_id,
+           update_time,
+           active_days,
+           active_time,
+           position_code,
+           processing_num,
+           history_in_num,
+           history_out_num,
+            customer_stock
+        </trim>
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+               #{item.variantSku},
+               #{item.goodNum},
+               #{item.lockNum},
+               #{item.warehouseId},
+               #{item.updateTime},
+               #{item.activeDays},
+               #{item.activeTime},
+               #{item.positionCode},
+               #{item.processingNum},
+               #{item.historyInNum},
+               #{item.historyOutNum},
+               #{item.customerStock}
+            </trim>
+        </foreach>
+    </insert>
+    <insert id="saveProductSaiheInventory" parameterType="java.util.List">
+        insert into product_saihe_inventory(variant_sku,good_num,lock_num,
+        warehouse_id,update_time,active_days,
+        active_time,position_code,processing_num,
+        history_in_num,history_out_num)
+        values
+        <foreach collection="list" item="item" index="index"
+                 separator=",">
+            (#{item.variantSku,jdbcType=VARCHAR},
+            #{item.goodNum,jdbcType=INTEGER},
+            #{item.lockNum,jdbcType=INTEGER},
+            #{item.warehouseId,jdbcType=INTEGER},
+            #{item.updateTime,jdbcType=TIMESTAMP},
+            #{item.activeDays,jdbcType=INTEGER},
+            #{item.activeTime,jdbcType=TIMESTAMP},
+            #{item.positionCode,jdbcType=VARCHAR},
+            #{item.processingNum,jdbcType=INTEGER},
+            #{item.historyInNum,jdbcType=INTEGER},
+            #{item.historyOutNum,jdbcType=INTEGER})
+        </foreach>
+        ON DUPLICATE KEY UPDATE
+        good_num = VALUES(good_num),
+        lock_num = VALUES(lock_num),
+        update_time = VALUES(update_time),
+        active_days = VALUES(active_days),
+        active_time = VALUES(active_time),
+        position_code = VALUES(position_code),
+        processing_num=VALUES(processing_num),
+        history_in_num = VALUES(history_in_num),
+        history_out_num = VALUES(history_out_num)
+    </insert>
+    <insert id="insertProductSaiheInventory" parameterType="com.upedge.common.model.product.ProductSaiheInventoryVo">
+        insert into product_saihe_inventory(variant_sku,warehouse_id,good_num,lock_num,update_time)
+		values(#{variantSku},#{warehouseId},#{goodNum},#{lockNum},#{updateTime})
+		ON DUPLICATE KEY UPDATE
+        good_num = VALUES(good_num),
+        lock_num = VALUES(lock_num),
+        update_time = VALUES(update_time)
+    </insert>
+
+    <sql id="Query_Condition">
+        <if test="t != null">
+            where
+            <trim prefix=" " suffix=" " suffixOverrides=" and ">
+                1 = 1 and
+                    <if test="t.variantSku != null">
+                        variant_sku = #{t.variantSku} and
+                    </if>
+                    <if test="t.goodNum != null">
+                        good_num = #{t.goodNum} and
+                    </if>
+                    <if test="t.lockNum != null">
+                        lock_num = #{t.lockNum} and
+                    </if>
+                    <if test="t.warehouseId != null">
+                        warehouse_id = #{t.warehouseId} and
+                    </if>
+                    <if test="t.updateTime != null">
+                        update_time = #{t.updateTime} and
+                    </if>
+                    <if test="t.activeDays != null">
+                        active_days = #{t.activeDays} and
+                    </if>
+                    <if test="t.activeTime != null">
+                        active_time = #{t.activeTime} and
+                    </if>
+                    <if test="t.positionCode != null">
+                        position_code = #{t.positionCode} and
+                    </if>
+                    <if test="t.processingNum != null">
+                        processing_num = #{t.processingNum} and
+                    </if>
+                    <if test="t.historyInNum != null">
+                        history_in_num = #{t.historyInNum} and
+                    </if>
+                    <if test="t.historyOutNum != null">
+                        history_out_num = #{t.historyOutNum} and
+                    </if>
+                    <if test="t.customerStock != null">
+                        customer_stock = #{t.customerStock} and
+                    </if>
+            </trim>
+        </if>
+    </sql>
+
+    <select id="select" parameterType="com.upedge.common.base.Page" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from product_saihe_inventory
+        <include refid="Query_Condition"/>
+        <if test="orderBy != null">
+            order by ${orderBy}
+        </if>
+        <if test="pageNum != null and pageSize != null">
+            limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+        </if>
+    </select>
+
+    <select id="count" parameterType="com.upedge.common.base.Page" resultType="java.lang.Long">
+        select
+        count(1)
+        from product_saihe_inventory
+        <include refid="Query_Condition"/>
+    </select>
+
+
+    <select id="queryProductSaiheInventory"  resultType="com.upedge.common.model.product.ProductSaiheInventoryVo">
+        select
+        <include refid="Base_Column_List" />
+        from product_saihe_inventory
+        <include refid="Query_Condition"/>
+    </select>
+
+    <select id="selectSSPage"
+            resultType="com.upedge.pms.modules.inventory.vo.SaiheInvebtoryVo">
+        select
+        asi.variant_sku as variantSku,asi.good_num as goodNum,
+        asi.lock_num as lockNum,asi.warehouse_id as warehouseId,
+        asi.update_time as updateTime,asi.active_days as activeDays,
+        asi.active_time as activeTime,asi.position_code as positionCode,
+        asi.processing_num as processingNum,asi.history_in_num as historyInNum,
+        asi.history_out_num as historyOutNum,IFNULL(asi.customer_stock,0) as upedgeNum,
+        apv.product_id as productId,
+        apv.id as variantId,
+        IFNULL(apv.variant_price,0)*IFNULL(asi.customer_stock,0) as upedgeSkuAmount,
+        apv.variant_price as variantPrice
+        from product_saihe_inventory asi
+        left join product_variant apv on apv.variant_sku=asi.variant_sku
+        <where>
+            <if test="t.variantSku != null and t.variantSku!=''" >and asi.variant_sku=#{t.variantSku}</if>
+            <if test="t.productId != null and t.productId!=''" >and apv.product_id=#{t.productId}</if>
+            <if test="t.option1 != null and t.option1==1" >and asi.good_num>0</if>
+            <if test="t.option2 != null and t.option2==1" >and asi.good_num &lt; asi.customer_stock</if>
+            <if test="t.option3 != null and t.option3==1" >and asi.customer_stock>0</if>
+        </where>
+        order by asi.update_time desc
+        <if test="pageNum != null and pageSize != null">
+            limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+        </if>
+    </select>
+    <select id="pageSSCount"  resultType="java.lang.Long">
+        select
+        count(1)
+        from product_saihe_inventory asi
+        left join product_variant apv on apv.variant_sku=asi.variant_sku
+        <where>
+            <if test="t.variantSku != null and t.variantSku!=''" >and asi.variant_sku=#{t.variantSku}</if>
+            <if test="t.productId != null and t.productId!=''" >and apv.product_id=#{t.productId}</if>
+            <if test="t.option1 != null and t.option1==1" >and asi.good_num>0</if>
+            <if test="t.option2 != null and t.option2==1" >and asi.good_num &lt; asi.customer_stock</if>
+            <if test="t.option3 != null and t.option3==1" >and asi.customer_stock>0</if>
+        </where>
+    </select>
+    <select id="selectSumMoney" parameterType="com.upedge.pms.modules.inventory.request.SaiheInvebtoryRequest" resultType="java.math.BigDecimal">
+        select
+        sum(IFNULL(apv.variant_price,0)*IFNULL(asi.customer_stock,0)) as sumPandaSkuAmount
+        from product_saihe_inventory asi
+        left join product_variant apv on apv.variant_sku=asi.variant_sku
+        <where>
+            <if test="t.variantSku != null and t.variantSku!=''" >and asi.variant_sku=#{t.variantSku}</if>
+            <if test="t.productId != null and t.productId!=''" >and apv.product_id=#{t.productId}</if>
+            <if test="t.option1 != null and t.option1==1" >and asi.good_num>0</if>
+            <if test="t.option2 != null and t.option2==1" >and asi.good_num &lt; asi.customer_stock</if>
+            <if test="t.option3 != null and t.option3==1" >and asi.customer_stock>0</if>
+        </where>
+    </select>
+
+</mapper>

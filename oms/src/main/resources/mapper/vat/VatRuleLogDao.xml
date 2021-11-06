@@ -1,0 +1,294 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.upedge.oms.modules.vat.dao.VatRuleLogDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.upedge.oms.modules.vat.entity.VatRuleLog" id="BaseResultMap">
+        <result property="id" column="id"/>
+        <result property="ruleId" column="rule_id"/>
+        <result property="areaId" column="area_id"/>
+        <result property="areaName" column="area_name"/>
+        <result property="minAmount" column="min_amount"/>
+        <result property="maxAmount" column="max_amount"/>
+        <result property="methodType" column="method_type"/>
+        <result property="ratio" column="ratio"/>
+        <result property="currency" column="currency"/>
+        <result property="createTime" column="create_time"/>
+        <result property="adminUser" column="admin_user"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        `id`,`rule_id`,`area_id`,`area_name`,`min_amount`,`max_amount`,`method_type`,`ratio`,`currency`,`create_time`,`admin_user`
+    </sql>
+
+    <select id="selectByPrimaryKey" parameterType="com.upedge.oms.modules.vat.entity.VatRuleLog" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from vat_rule_log
+        where id = #{id}
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="com.upedge.oms.modules.vat.entity.VatRuleLog">
+        delete from vat_rule_log
+        where id = #{id}
+    </delete>
+
+    <update id="updateByPrimaryKeySelective" parameterType="com.upedge.oms.modules.vat.entity.VatRuleLog">
+        update vat_rule_log
+        <set>
+            <if test="ruleId != null">
+                rule_id = #{ruleId},
+            </if>
+            <if test="areaId != null">
+                area_id = #{areaId},
+            </if>
+            <if test="areaName != null">
+                area_name = #{areaName},
+            </if>
+            <if test="minAmount != null">
+                min_amount = #{minAmount},
+            </if>
+            <if test="maxAmount != null">
+                max_amount = #{maxAmount},
+            </if>
+            <if test="methodType != null">
+                method_type = #{methodType},
+            </if>
+            <if test="ratio != null">
+                ratio = #{ratio},
+            </if>
+            <if test="currency != null">
+                currency = #{currency},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime},
+            </if>
+            <if test="adminUser != null">
+                admin_user = #{adminUser},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <update id="updateByPrimaryKey" parameterType="com.upedge.oms.modules.vat.entity.VatRuleLog">
+        update vat_rule_log
+        <set>
+        id = #{id},
+        rule_id = #{ruleId},
+        area_id = #{areaId},
+        area_name = #{areaName},
+        min_amount = #{minAmount},
+        max_amount = #{maxAmount},
+        method_type = #{methodType},
+        ratio = #{ratio},
+        currency = #{currency},
+        create_time = #{createTime},
+        admin_user = #{adminUser},
+        </set>
+        where id = #{id}
+    </update>
+
+    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.upedge.oms.modules.vat.entity.VatRuleLog" useGeneratedKeys="true">
+        insert into vat_rule_log
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            id,
+            rule_id,
+            area_id,
+            area_name,
+            min_amount,
+            max_amount,
+            method_type,
+            ratio,
+            currency,
+            create_time,
+            admin_user
+        </trim>
+        values (
+        #{id},
+        #{ruleId},
+        #{areaId},
+        #{areaName},
+        #{minAmount},
+        #{maxAmount},
+        #{methodType},
+        #{ratio},
+        #{currency},
+        #{createTime},
+        #{adminUser}
+        )
+    </insert>
+
+    <insert id="insertSelective"  keyColumn="id" keyProperty="id"  parameterType="com.upedge.oms.modules.vat.entity.VatRuleLog" useGeneratedKeys="true">
+        insert into vat_rule_log
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null" >
+              id
+            </if>
+            <if test="ruleId != null" >
+              rule_id
+            </if>
+            <if test="areaId != null" >
+              area_id
+            </if>
+            <if test="areaName != null" >
+                area_name
+            </if>
+            <if test="minAmount != null" >
+              min_amount
+            </if>
+            <if test="maxAmount != null" >
+              max_amount
+            </if>
+            <if test="methodType != null" >
+              method_type
+            </if>
+            <if test="ratio != null" >
+              ratio
+            </if>
+            <if test="currency != null" >
+              currency
+            </if>
+            <if test="createTime != null" >
+              create_time
+            </if>
+            <if test="adminUser != null" >
+              admin_user
+            </if>
+
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null" >
+                #{id}
+            </if>
+            <if test="ruleId != null" >
+                #{ruleId}
+            </if>
+            <if test="areaId != null" >
+                #{areaId}
+            </if>
+            <if test="areaName != null" >
+                #{areaName}
+            </if>
+            <if test="minAmount != null" >
+                #{minAmount}
+            </if>
+            <if test="maxAmount != null" >
+                #{maxAmount}
+            </if>
+            <if test="methodType != null" >
+                #{methodType}
+            </if>
+            <if test="ratio != null" >
+                #{ratio}
+            </if>
+            <if test="currency != null" >
+                #{currency}
+            </if>
+            <if test="createTime != null" >
+                #{createTime}
+            </if>
+            <if test="adminUser != null" >
+                #{adminUser}
+            </if>
+
+        </trim>
+    </insert>
+
+    <insert id="insertByBatch" parameterType="java.util.List">
+        insert into vat_rule_log
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+           id,
+           rule_id,
+           area_id,
+           area_name,
+           min_amount,
+           max_amount,
+           method_type,
+           ratio,
+           currency,
+           create_time,
+           admin_user
+        </trim>
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+               #{item.id},
+               #{item.ruleId},
+               #{item.areaId},
+               #{item.areaName},
+               #{item.minAmount},
+               #{item.maxAmount},
+               #{item.methodType},
+               #{item.ratio},
+               #{item.currency},
+               #{item.createTime},
+               #{item.adminUser}
+            </trim>
+        </foreach>
+    </insert>
+
+    <sql id="Query_Condition">
+        <if test="t != null">
+            where
+            <trim prefix=" " suffix=" " suffixOverrides=" and ">
+                1 = 1 and
+                    <if test="t.id != null">
+                        id = #{t.id} and
+                    </if>
+                    <if test="t.ruleId != null">
+                        rule_id = #{t.ruleId} and
+                    </if>
+                    <if test="t.areaId != null">
+                        area_id = #{t.areaId} and
+                    </if>
+                    <if test="t.areaName != null and t.areaName != ''">
+                        area_name = #{t.areaName} and
+                    </if>
+                    <if test="t.minAmount != null">
+                        min_amount = #{t.minAmount} and
+                    </if>
+                    <if test="t.maxAmount != null">
+                        max_amount = #{t.maxAmount} and
+                    </if>
+                    <if test="t.methodType != null">
+                        method_type = #{t.methodType} and
+                    </if>
+                    <if test="t.ratio != null">
+                        ratio = #{t.ratio} and
+                    </if>
+                    <if test="t.currency != null">
+                        currency = #{t.currency} and
+                    </if>
+                    <if test="t.createTime != null">
+                        create_time = #{t.createTime} and
+                    </if>
+                    <if test="t.adminUser != null">
+                        admin_user = #{t.adminUser} and
+                    </if>
+            </trim>
+        </if>
+    </sql>
+
+    <select id="select" parameterType="com.upedge.common.base.Page" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from vat_rule_log
+        <include refid="Query_Condition"/>
+        <if test="orderBy != null">
+            order by ${orderBy}
+        </if>
+        <if test="pageNum != null and pageSize != null">
+            limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+        </if>
+    </select>
+
+    <select id="count" parameterType="com.upedge.common.base.Page" resultType="java.lang.Long">
+        select
+        count(1)
+        from vat_rule_log
+        <include refid="Query_Condition"/>
+    </select>
+
+
+</mapper>

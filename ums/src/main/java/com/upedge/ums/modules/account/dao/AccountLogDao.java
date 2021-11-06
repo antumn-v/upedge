@@ -1,12 +1,14 @@
 package com.upedge.ums.modules.account.dao;
 
-import com.upedge.ums.modules.account.entity.AccountLog;
-import org.apache.ibatis.annotations.Mapper;
-import java.util.List;
 import com.upedge.common.base.Page;
+import com.upedge.common.model.user.vo.OrderAccountLogVo;
+import com.upedge.ums.modules.account.entity.AccountLog;
+import org.apache.ibatis.annotations.Param;
+
+import java.util.List;
 
 /**
- * @author gx
+ * @author author
  */
 public interface AccountLogDao{
 
@@ -28,4 +30,13 @@ public interface AccountLogDao{
 
     long count(Page<AccountLog> record);
 
+    AccountLog selectPayedAccountLogByTransactionId(@Param("transactionId") Long transactionId, @Param("transactionType") Integer transactionType);
+    List<AccountLog> listAccountLogByTransactionId(@Param("transactionId") Long transactionId);
+
+
+    OrderAccountLogVo selectAccountLogByOrder(@Param("orderType") Integer orderType, @Param("transactionId") Long transactionId);
+
+    Integer selectAccountLog(@Param("orderId") Long orderId, @Param("orderType") Integer orderType);
+
+    OrderAccountLogVo selectAccountLogPayInfoByTransactionDetail(@Param("transactionId") Long orderId, @Param("orderType") Integer orderType, @Param("transactionType") Integer transactionType);
 }

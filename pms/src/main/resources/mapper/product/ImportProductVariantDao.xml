@@ -1,0 +1,502 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.upedge.pms.modules.product.dao.ImportProductVariantDao">
+
+    <!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.upedge.pms.modules.product.entity.ImportProductVariant" id="BaseResultMap">
+        <result property="id" column="id"/>
+        <result property="sourceVariantId" column="source_variant_id"/>
+        <result property="productId" column="product_id"/>
+        <result property="platVariantId" column="plat_variant_id"/>
+        <result property="platProductId" column="plat_product_id"/>
+        <result property="sku" column="sku"/>
+        <result property="image" column="image"/>
+        <result property="cost" column="cost"/>
+        <result property="price" column="price"/>
+        <result property="comparePrice" column="compare_price"/>
+        <result property="inventory" column="inventory"/>
+        <result property="weight" column="weight"/>
+        <result property="state" column="state"/>
+    </resultMap>
+
+    <resultMap type="com.upedge.pms.modules.product.vo.ImportVariantVo" id="VariantVo">
+        <result property="id" column="id"/>
+        <result property="productId" column="product_id"/>
+        <result property="sourceVariantId" column="source_variant_id"/>
+        <result property="sku" column="sku"/>
+        <result property="image" column="image"/>
+        <result property="cost" column="cost"/>
+        <result property="price" column="price"/>
+        <result property="comparePrice" column="compare_price"/>
+        <result property="inventory" column="inventory"/>
+        <result property="weight" column="weight"/>
+        <result property="state" column="state"/>
+        <collection property="attrs" ofType="com.upedge.pms.modules.product.entity.ImportProductVariantAttr">
+            <result property="id" column="attrId"/>
+            <result property="variantId" column="variant_id"/>
+            <result property="attrName" column="attr_name"/>
+            <result property="attrValue" column="attr_value"/>
+        </collection>
+    </resultMap>
+
+
+
+    <sql id="Base_Column_List">
+        `id`,`source_variant_id`,`product_id`,`plat_variant_id`,`plat_product_id`,`sku`,`image`,`cost`,`price`,`compare_price`,`inventory`,`weight`,`state`
+    </sql>
+
+    <select id="selectByProduct" resultMap="VariantVo"
+            parameterType="com.upedge.pms.modules.product.entity.ImportProductVariant">
+        select v.id,v.product_id,v.sku,v.image,v.cost,v.price,v.compare_price,
+        v.inventory,v.weight,v.state,v.source_variant_id,
+        a.id as attrId,a.attr_name,a.attr_value,a.variant_id
+        from import_product_variant v
+        left join import_product_variant_attr a
+        on v.id = a.variant_id
+        where v.product_id = #{productId}
+    </select>
+
+<!--    <select id="selectRelateIdByProductId" resultType="com.upedge.pms.modules.relate.entity.ProductRelate">
+        select s.id,s.plat_variant_id,s.product_id,i.admin_variant_id
+from store_product_variant s
+inner join
+(
+select admin_variant_id,plat_variant_id
+from import_product_variant
+where product_id = ''
+and plat_variant_id is not null
+) i
+on s.plat_variant_id = i.plat_variant_id
+where s.product_id = ''
+
+    </select>-->
+
+    <select id="selectForUploadStore" resultMap="VariantVo"
+            parameterType="com.upedge.pms.modules.product.entity.ImportProductVariant">
+        select v.id,v.product_id,v.sku,v.image,v.cost,v.price,v.compare_price,
+        v.inventory,v.weight,v.state,
+        a.id as attrId,a.attr_name,a.attr_value,a.variant_id
+        from import_product_variant v
+        left join import_product_variant_attr a
+        on v.id = a.variant_id
+        where v.product_id = #{productId}
+        and v.state = '1'
+    </select>
+
+    <update id="updatePlatIdBySku">
+        <foreach collection="variants" item="v" separator=";">
+            update import_product_variant
+            set plat_variant_id = #{v.id},
+            plat_product_id = #{v.product_id}
+            where product_id = #{productId}
+            and sku = #{v.sku}
+        </foreach>
+    </update>
+
+    <update id="updatePlatIdByWoocVariantDesc">
+        <foreach collection="variants" item="v" separator=";">
+            update import_product_variant
+            set plat_variant_id = #{v.id},
+            plat_product_id = #{platProductId}
+            where product_id = #{productId}
+            and sku = #{v.description}
+        </foreach>
+    </update>
+
+    <update id="updateVariantPriceByProduct"
+            parameterType="com.upedge.pms.modules.product.request.ImportVariantBatchUpdateRequest">
+        update import_product_variant
+        <if test="type == 0">
+            set ${field} = #{value}
+        </if>
+        <if test="type == 1">
+            set ${field} = (${field} * #{value})
+        </if>
+        where product_id = #{productId}
+    </update>
+
+    <update id="updateStateByIds">
+        update import_product_variant
+        set state = #{state}
+        where id in
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </update>
+
+    <delete id="deleteVariantByProductId">
+        delete from import_product_variant
+        where product_id = #{productId}
+        and plat_variant_id is null
+    </delete>
+
+    <select id="selectByPrimaryKey" parameterType="com.upedge.pms.modules.product.entity.ImportProductVariant"
+            resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from import_product_variant
+        where id = #{id}
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="com.upedge.pms.modules.product.entity.ImportProductVariant">
+        delete from import_product_variant
+        where id = #{id}
+    </delete>
+
+    <update id="updateByPrimaryKeySelective" parameterType="com.upedge.pms.modules.product.entity.ImportProductVariant">
+        update import_product_variant
+        <set>
+            <if test="sourceVariantId != null">
+                source_variant_id = #{sourceVariantId},
+            </if>
+            <if test="productId != null">
+                product_id = #{productId},
+            </if>
+            <if test="platVariantId != null">
+                plat_variant_id = #{platVariantId},
+            </if>
+            <if test="platProductId != null">
+                plat_product_id = #{platProductId},
+            </if>
+            <if test="sku != null">
+                sku = #{sku},
+            </if>
+            <if test="image != null">
+                image = #{image},
+            </if>
+            <if test="cost != null">
+                cost = #{cost},
+            </if>
+            <if test="price != null">
+                price = #{price},
+            </if>
+            <if test="comparePrice != null">
+                compare_price = #{comparePrice},
+            </if>
+            <if test="inventory != null">
+                inventory = #{inventory},
+            </if>
+            <if test="weight != null">
+                weight = #{weight},
+            </if>
+            <if test="state != null">
+                state = #{state},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <update id="updateByPrimaryKey" parameterType="com.upedge.pms.modules.product.entity.ImportProductVariant">
+        update import_product_variant
+        <set>
+            id = #{id},
+            source_variant_id = #{sourceVariantId},
+            product_id = #{productId},
+            plat_variant_id = #{platVariantId},
+            plat_product_id = #{platProductId},
+            sku = #{sku},
+            image = #{image},
+            cost = #{cost},
+            price = #{price},
+            compare_price = #{comparePrice},
+            inventory = #{inventory},
+            weight = #{weight},
+            state = #{state},
+        </set>
+        where id = #{id}
+    </update>
+
+    <insert id="insert" keyColumn="id" keyProperty="id"
+            parameterType="com.upedge.pms.modules.product.entity.ImportProductVariant" useGeneratedKeys="true">
+        insert into import_product_variant
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            id,
+            source_variant_id,
+            product_id,
+            plat_variant_id,
+            plat_product_id,
+            sku,
+            image,
+            cost,
+            price,
+            compare_price,
+            inventory,
+            weight,
+            state
+        </trim>
+        values (
+        #{id},
+        #{sourceVariantId},
+        #{productId},
+        #{platVariantId},
+        #{platProductId},
+        #{sku},
+        #{image},
+        #{cost},
+        #{price},
+        #{comparePrice},
+        #{inventory},
+        #{weight},
+        #{state}
+        )
+    </insert>
+
+    <insert id="insertSelective" keyColumn="id" keyProperty="id"
+            parameterType="com.upedge.pms.modules.product.entity.ImportProductVariant" useGeneratedKeys="true">
+        insert into import_product_variant
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id
+            </if>
+            <if test="sourceVariantId != null">
+                source_variant_id
+            </if>
+            <if test="productId != null">
+                product_id
+            </if>
+            <if test="platVariantId != null">
+                plat_variant_id
+            </if>
+            <if test="platProductId != null">
+                plat_product_id
+            </if>
+            <if test="sku != null">
+                sku
+            </if>
+            <if test="image != null">
+                image
+            </if>
+            <if test="cost != null">
+                cost
+            </if>
+            <if test="price != null">
+                price
+            </if>
+            <if test="comparePrice != null">
+                compare_price
+            </if>
+            <if test="inventory != null">
+                inventory
+            </if>
+            <if test="weight != null">
+                weight
+            </if>
+            <if test="state != null">
+                state
+            </if>
+
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id}
+            </if>
+            <if test="sourceVariantId != null">
+                #{sourceVariantId}
+            </if>
+            <if test="productId != null">
+                #{productId}
+            </if>
+            <if test="platVariantId != null">
+                #{platVariantId}
+            </if>
+            <if test="platProductId != null">
+                #{platProductId}
+            </if>
+            <if test="sku != null">
+                #{sku}
+            </if>
+            <if test="image != null">
+                #{image}
+            </if>
+            <if test="cost != null">
+                #{cost}
+            </if>
+            <if test="price != null">
+                #{price}
+            </if>
+            <if test="comparePrice != null">
+                #{comparePrice}
+            </if>
+            <if test="inventory != null">
+                #{inventory}
+            </if>
+            <if test="weight != null">
+                #{weight}
+            </if>
+            <if test="state != null">
+                #{state}
+            </if>
+
+        </trim>
+    </insert>
+
+    <insert id="insertByBatch" parameterType="java.util.List">
+        insert into import_product_variant
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            id,
+            source_variant_id,
+            product_id,
+            plat_variant_id,
+            plat_product_id,
+            sku,
+            image,
+            cost,
+            price,
+            compare_price,
+            inventory,
+            weight,
+            state
+        </trim>
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+                #{item.id},
+                #{item.sourceVariantId},
+                #{item.productId},
+                #{item.platVariantId},
+                #{item.platProductId},
+                #{item.sku},
+                #{item.image},
+                #{item.cost},
+                #{item.price},
+                #{item.comparePrice},
+                #{item.inventory},
+                #{item.weight},
+                #{item.state}
+            </trim>
+        </foreach>
+    </insert>
+
+    <sql id="Query_Condition">
+        <if test="t != null">
+            where
+            <trim prefix=" " suffix=" " suffixOverrides=" and ">
+                1 = 1 and
+                <if test="t.id != null">
+                    id = #{t.id} and
+                </if>
+                <if test="t.sourceVariantId != null">
+                    source_variant_id = #{t.sourceVariantId} and
+                </if>
+                <if test="t.productId != null">
+                    product_id = #{t.productId} and
+                </if>
+                <if test="t.platVariantId != null">
+                    plat_variant_id = #{t.platVariantId} and
+                </if>
+                <if test="t.platProductId != null">
+                    plat_product_id = #{t.platProductId} and
+                </if>
+                <if test="t.sku != null">
+                    sku = #{t.sku} and
+                </if>
+                <if test="t.image != null">
+                    image = #{t.image} and
+                </if>
+                <if test="t.cost != null">
+                    cost = #{t.cost} and
+                </if>
+                <if test="t.price != null">
+                    price = #{t.price} and
+                </if>
+                <if test="t.comparePrice != null">
+                    compare_price = #{t.comparePrice} and
+                </if>
+                <if test="t.inventory != null">
+                    inventory = #{t.inventory} and
+                </if>
+                <if test="t.weight != null">
+                    weight = #{t.weight} and
+                </if>
+                <if test="t.state != null">
+                    state = #{t.state} and
+                </if>
+            </trim>
+        </if>
+    </sql>
+
+    <sql id="Variant_Entity">
+        where
+        <trim prefix=" " suffix=" " suffixOverrides=" and ">
+            1 = 1 and
+            <if test="id != null">
+                id = #{t.id} and
+            </if>
+            <if test="sourceVariantId != null">
+                source_variant_id = #{t.sourceVariantId} and
+            </if>
+            <if test="productId != null">
+                product_id = #{t.productId} and
+            </if>
+            <if test="platVariantId != null">
+                plat_variant_id = #{t.platVariantId} and
+            </if>
+            <if test="platProductId != null">
+                plat_product_id = #{t.platProductId} and
+            </if>
+            <if test="sku != null">
+                sku = #{t.sku} and
+            </if>
+            <if test="image != null">
+                image = #{t.image} and
+            </if>
+            <if test="cost != null">
+                cost = #{t.cost} and
+            </if>
+            <if test="price != null">
+                price = #{t.price} and
+            </if>
+            <if test="comparePrice != null">
+                compare_price = #{t.comparePrice} and
+            </if>
+            <if test="inventory != null">
+                inventory = #{t.inventory} and
+            </if>
+            <if test="weight != null">
+                weight = #{t.weight} and
+            </if>
+            <if test="state != null">
+                state = #{t.state} and
+            </if>
+        </trim>
+
+    </sql>
+
+    <select id="selectByEntity" resultMap="BaseResultMap"
+            parameterType="com.upedge.pms.modules.product.entity.ImportProductVariant">
+        select
+        <include refid="Base_Column_List"/>
+        from import_product_variant
+        <include refid="Variant_Entity"/>
+    </select>
+
+    <select id="countByEntity" parameterType="com.upedge.pms.modules.product.entity.ImportProductVariant" resultType="java.lang.Long">
+        select
+        count(1)
+        from import_product_variant
+        <include refid="Variant_Entity"/>
+    </select>
+
+    <select id="select" parameterType="com.upedge.common.base.Page" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from import_product_variant
+        <include refid="Query_Condition"/>
+        <if test="orderBy != null">
+            order by ${orderBy}
+        </if>
+        <if test="pageNum != null and pageSize != null">
+            limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+        </if>
+    </select>
+
+    <select id="count" parameterType="com.upedge.common.base.Page" resultType="java.lang.Long">
+        select
+        count(1)
+        from import_product_variant
+        <include refid="Query_Condition"/>
+    </select>
+
+
+</mapper>

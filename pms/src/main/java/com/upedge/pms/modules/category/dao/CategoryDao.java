@@ -10,6 +10,8 @@ import com.upedge.common.base.Page;
  */
 public interface CategoryDao{
 
+    Category selectByCateCode(String cateCode);
+
     Category selectByPrimaryKey(Category record);
 
     int deleteByPrimaryKey(Category record);

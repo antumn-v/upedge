@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.upedge.oms.modules.pack.dao.PackageOrderDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.upedge.oms.modules.pack.entity.PackageOrder" id="BaseResultMap">
+        <result property="clientOrderCode" column="client_order_code"/>
+        <result property="shipDate" column="ship_date"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        `client_order_code`,`ship_date`
+    </sql>
+
+    <select id="selectByPrimaryKey" parameterType="com.upedge.oms.modules.pack.entity.PackageOrder" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from package_order
+        where client_order_code = #{clientOrderCode}
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="com.upedge.oms.modules.pack.entity.PackageOrder">
+        delete from package_order
+        where client_order_code = #{clientOrderCode}
+    </delete>
+
+    <update id="updateByPrimaryKeySelective" parameterType="com.upedge.oms.modules.pack.entity.PackageOrder">
+        update package_order
+        <set>
+            <if test="shipDate != null">
+                ship_date = #{shipDate},
+            </if>
+        </set>
+        where client_order_code = #{clientOrderCode}
+    </update>
+
+    <update id="updateByPrimaryKey" parameterType="com.upedge.oms.modules.pack.entity.PackageOrder">
+        update package_order
+        <set>
+        client_order_code = #{clientOrderCode},
+        ship_date = #{shipDate},
+        </set>
+        where client_order_code = #{clientOrderCode}
+    </update>
+
+    <insert id="insert" keyColumn="client_order_code" keyProperty="clientOrderCode" parameterType="com.upedge.oms.modules.pack.entity.PackageOrder" useGeneratedKeys="true">
+        insert into package_order
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            client_order_code,
+            ship_date
+        </trim>
+        values (
+        #{clientOrderCode},
+        #{shipDate}
+        )
+    </insert>
+
+    <insert id="insertSelective"  keyColumn="client_order_code" keyProperty="clientOrderCode"  parameterType="com.upedge.oms.modules.pack.entity.PackageOrder" useGeneratedKeys="true">
+        insert into package_order
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="clientOrderCode != null" >
+              client_order_code
+            </if>
+            <if test="shipDate != null" >
+              ship_date
+            </if>
+
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="clientOrderCode != null" >
+                #{clientOrderCode}
+            </if>
+            <if test="shipDate != null" >
+                #{shipDate}
+            </if>
+
+        </trim>
+    </insert>
+
+    <insert id="insertByBatch" parameterType="java.util.List">
+        insert into package_order
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+           client_order_code,
+           ship_date
+        </trim>
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+               #{item.clientOrderCode},
+               #{item.shipDate}
+            </trim>
+        </foreach>
+    </insert>
+
+    <sql id="Query_Condition">
+        <if test="t != null">
+            where
+            <trim prefix=" " suffix=" " suffixOverrides=" and ">
+                1 = 1 and
+                    <if test="t.clientOrderCode != null">
+                        client_order_code = #{t.clientOrderCode} and
+                    </if>
+                    <if test="t.shipDate != null">
+                        ship_date = #{t.shipDate} and
+                    </if>
+            </trim>
+        </if>
+    </sql>
+
+    <select id="select" parameterType="com.upedge.common.base.Page" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from package_order
+        <include refid="Query_Condition"/>
+        <if test="orderBy != null">
+            order by ${orderBy}
+        </if>
+        <if test="pageNum != null and pageSize != null">
+            limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+        </if>
+    </select>
+
+    <select id="count" parameterType="com.upedge.common.base.Page" resultType="java.lang.Long">
+        select
+        count(1)
+        from package_order
+        <include refid="Query_Condition"/>
+    </select>
+
+    <!--更新月包裹美元汇率-->
+    <insert id="savePackageOrder" parameterType="java.util.List">
+        insert into package_order(client_order_code,ship_date)
+        values
+        <foreach collection="list" item="item" index="index"
+                 separator=",">
+            (#{item.clientOrderCode,jdbcType=VARCHAR},
+            #{item.shipDate,jdbcType=DATE})
+        </foreach>
+        ON DUPLICATE KEY UPDATE
+        ship_date = VALUES(ship_date)
+    </insert>
+
+</mapper>

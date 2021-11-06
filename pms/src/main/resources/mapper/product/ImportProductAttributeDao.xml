@@ -1,0 +1,411 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.upedge.pms.modules.product.dao.ImportProductAttributeDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.upedge.pms.modules.product.entity.ImportProductAttribute" id="BaseResultMap">
+        <result property="id" column="id"/>
+        <result property="sourceProductId" column="source_product_id"/>
+        <result property="title" column="title"/>
+        <result property="type" column="type"/>
+        <result property="image" column="image"/>
+        <result property="state" column="state"/>
+        <result property="tags" column="tags"/>
+        <result property="platProductId" column="plat_product_id"/>
+        <result property="collectId" column="collect_id"/>
+        <result property="source" column="source"/>
+        <result property="originalTitle" column="original_title"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="customerId" column="customer_id"/>
+        <result property="storeId" column="store_id"/>
+        <result property="customerId" column="customer_id"/>
+    </resultMap>
+
+
+    <sql id="Base_Column_List">
+        `id`,`source_product_id`,`title`,supplier_name,`type`,`image`,`state`,`tags`,`plat_product_id`,`collect_id`,`source`,`original_title`,`create_time`,`update_time`,`customer_id`,`store_id`,customer_id
+    </sql>
+
+    <select id="selectImportedSourceProductIds" resultType="java.lang.String">
+        select source_product_id
+        from import_product_attribute
+        where customer_id = #{customerId}
+        and state = '0'
+    </select>
+
+    <select id="selectByPlatId" resultMap="BaseResultMap">
+        select <include refid="Base_Column_List"/>
+        from import_product_attribute
+        where store_id = #{storeId}
+        and plat_product_id = #{platProductId}
+    </select>
+
+
+    <update id="updateStateByIds">
+        update import_product_attribute
+        set state = #{state}
+        where id in
+        <foreach collection="ids" item="id" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+        and state != '1'
+    </update>
+
+    <delete id="deleteProductById">
+        delete
+        from import_product_attribute
+        where id = #{id}
+        and state = '0'
+    </delete>
+
+    <select id="selectByPrimaryKey" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from import_product_attribute
+        where id = #{id}
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="com.upedge.pms.modules.product.entity.ImportProductAttribute">
+        delete from import_product_attribute
+        where id = #{id}
+    </delete>
+
+    <update id="updateByPrimaryKeySelective" parameterType="com.upedge.pms.modules.product.entity.ImportProductAttribute">
+        update import_product_attribute
+        <set>
+            <if test="sourceProductId != null">
+                source_product_id = #{sourceProductId},
+            </if>
+            <if test="title != null">
+                title = #{title},
+            </if>
+            <if test="type != null">
+                type = #{type},
+            </if>
+            <if test="image != null">
+                image = #{image},
+            </if>
+            <if test="state != null">
+                state = #{state},
+            </if>
+            <if test="tags != null">
+                tags = #{tags},
+            </if>
+            <if test="platProductId != null">
+                plat_product_id = #{platProductId},
+            </if>
+            <if test="collectId != null">
+                collect_id = #{collectId},
+            </if>
+            <if test="source != null">
+                source = #{source},
+            </if>
+            <if test="originalTitle != null">
+                original_title = #{originalTitle},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime},
+            </if>
+            <if test="updateTime != null">
+                update_time = #{updateTime},
+            </if>
+            <if test="customerId != null">
+                customer_id = #{customerId},
+            </if>
+            <if test="storeId != null">
+                store_id = #{storeId},
+            </if>
+        </set>
+        where id = #{id}
+        and state != '1'
+    </update>
+
+    <update id="updateByPrimaryKey" parameterType="com.upedge.pms.modules.product.entity.ImportProductAttribute">
+        update import_product_attribute
+        <set>
+        id = #{id},
+        source_product_id = #{sourceProductId},
+        title = #{title},
+        type = #{type},
+        image = #{image},
+        state = #{state},
+        tags = #{tags},
+        plat_product_id = #{platProductId},
+        collect_id = #{collectId},
+        source = #{source},
+        original_title = #{originalTitle},
+        create_time = #{createTime},
+        update_time = #{updateTime},
+        customer_id = #{customerId},
+        store_id = #{storeId},
+        </set>
+        where id = #{id}
+        and state != '1'
+    </update>
+    <update id="updateStateByProductId">
+        update import_product_attribute
+        set state = #{state}
+        where customer_id = #{customerId}
+        and source_product_id = #{productId}
+        and state != '1'
+    </update>
+
+    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.upedge.pms.modules.product.entity.ImportProductAttribute" useGeneratedKeys="true">
+        insert into import_product_attribute
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            id,
+            source_product_id,
+            title,
+            supplier_name,
+            type,
+            image,
+            state,
+            tags,
+            plat_product_id,
+            collect_id,
+            source,
+            original_title,
+            create_time,
+            update_time,
+            store_id,
+            customer_id
+        </trim>
+        values (
+        #{id},
+        #{sourceProductId},
+        #{title},
+        #{supplierName},
+        #{type},
+        #{image},
+        #{state},
+        #{tags},
+        #{platProductId},
+        #{collectId},
+        #{source},
+        #{title},
+        #{createTime},
+        #{createTime},
+        #{storeId},
+        #{customerId}
+        )
+    </insert>
+
+    <insert id="insertSelective"  keyColumn="id" keyProperty="id"  parameterType="com.upedge.pms.modules.product.entity.ImportProductAttribute" useGeneratedKeys="true">
+        insert into import_product_attribute
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null" >
+              id
+            </if>
+            <if test="sourceProductId != null" >
+              source_product_id
+            </if>
+            <if test="title != null" >
+              title
+            </if>
+            <if test="type != null" >
+              type
+            </if>
+            <if test="image != null" >
+              image
+            </if>
+            <if test="state != null" >
+              state
+            </if>
+            <if test="tags != null" >
+              tags
+            </if>
+            <if test="platProductId != null" >
+              plat_product_id
+            </if>
+            <if test="collectId != null" >
+              collect_id
+            </if>
+            <if test="source != null" >
+              source
+            </if>
+            <if test="originalTitle != null" >
+              original_title
+            </if>
+            <if test="createTime != null" >
+              create_time
+            </if>
+            <if test="updateTime != null" >
+              update_time
+            </if>
+            <if test="customerId != null" >
+              customer_id
+            </if>
+            <if test="storeId != null" >
+              store_id
+            </if>
+
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null" >
+                #{id}
+            </if>
+            <if test="sourceProductId != null" >
+                #{sourceProductId}
+            </if>
+            <if test="title != null" >
+                #{title}
+            </if>
+            <if test="type != null" >
+                #{type}
+            </if>
+            <if test="image != null" >
+                #{image}
+            </if>
+            <if test="state != null" >
+                #{state}
+            </if>
+            <if test="tags != null" >
+                #{tags}
+            </if>
+            <if test="platProductId != null" >
+                #{platProductId}
+            </if>
+            <if test="collectId != null" >
+                #{collectId}
+            </if>
+            <if test="source != null" >
+                #{source}
+            </if>
+            <if test="originalTitle != null" >
+                #{originalTitle}
+            </if>
+            <if test="createTime != null" >
+                #{createTime}
+            </if>
+            <if test="updateTime != null" >
+                #{updateTime}
+            </if>
+            <if test="customerId != null" >
+                #{customerId}
+            </if>
+            <if test="storeId != null" >
+                #{storeId}
+            </if>
+
+        </trim>
+    </insert>
+
+    <insert id="insertByBatch" parameterType="java.util.List">
+        insert into import_product_attribute
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+           id,
+           source_product_id,
+           title,
+           type,
+           image,
+           state,
+           tags,
+           plat_product_id,
+           collect_id,
+           source,
+           original_title,
+           create_time,
+           update_time,
+           customer_id,
+           store_id
+        </trim>
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+               #{item.id},
+               #{item.sourceProductId},
+               #{item.title},
+               #{item.type},
+               #{item.image},
+               #{item.state},
+               #{item.tags},
+               #{item.platProductId},
+               #{item.collectId},
+               #{item.source},
+               #{item.originalTitle},
+               #{item.createTime},
+               #{item.updateTime},
+               #{item.customerId},
+               #{item.storeId}
+            </trim>
+        </foreach>
+    </insert>
+
+    <sql id="Query_Condition">
+        <if test="t != null">
+            where
+            <trim prefix=" " suffix=" " suffixOverrides=" and ">
+                1 = 1 and
+                    <if test="t.id != null">
+                        id = #{t.id} and
+                    </if>
+                    <if test="t.sourceProductId != null">
+                        source_product_id = #{t.sourceProductId} and
+                    </if>
+                    <if test="t.title != null">
+                        title like CONCAT('%',#{t.title},'%') and
+                    </if>
+                    <if test="t.type != null">
+                        type = #{t.type} and
+                    </if>
+                    <if test="t.image != null">
+                        image = #{t.image} and
+                    </if>
+                    <if test="t.state != null">
+                        state = #{t.state} and
+                    </if>
+                    <if test="t.tags != null">
+                        tags = #{t.tags} and
+                    </if>
+                    <if test="t.platProductId != null">
+                        plat_product_id = #{t.platProductId} and
+                    </if>
+                    <if test="t.collectId != null">
+                        collect_id = #{t.collectId} and
+                    </if>
+                    <if test="t.source != null">
+                        source = #{t.source} and
+                    </if>
+                    <if test="t.originalTitle != null">
+                        original_title = #{t.originalTitle} and
+                    </if>
+                    <if test="t.createTime != null">
+                        create_time = #{t.createTime} and
+                    </if>
+                    <if test="t.updateTime != null">
+                        update_time = #{t.updateTime} and
+                    </if>
+                    <if test="t.customerId != null">
+                        customer_id = #{t.customerId} and
+                    </if>
+                    <if test="t.storeId != null">
+                        store_id = #{t.storeId} and
+                    </if>
+            </trim>
+        </if>
+    </sql>
+
+    <select id="select" parameterType="com.upedge.common.base.Page" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from import_product_attribute
+        <include refid="Query_Condition"/>
+        <if test="orderBy != null">
+            order by ${orderBy}
+        </if>
+        <if test="pageNum != null and pageSize != null">
+            limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+        </if>
+    </select>
+
+    <select id="count" parameterType="com.upedge.common.base.Page" resultType="java.lang.Long">
+        select
+        count(1)
+        from import_product_attribute
+        <include refid="Query_Condition"/>
+    </select>
+
+
+</mapper>

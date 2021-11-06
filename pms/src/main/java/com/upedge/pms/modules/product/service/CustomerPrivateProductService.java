@@ -9,6 +9,9 @@ import java.util.List;
  */
 public interface CustomerPrivateProductService{
 
+
+    int countByProductId(Long productId);
+
     CustomerPrivateProduct selectByPrimaryKey(Long id);
 
     int deleteByPrimaryKey(Long id);

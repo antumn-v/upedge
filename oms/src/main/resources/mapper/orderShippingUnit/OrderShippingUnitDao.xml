@@ -1,0 +1,503 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.upedge.oms.modules.orderShippingUnit.dao.OrderShippingUnitDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.upedge.oms.modules.orderShippingUnit.entity.OrderShippingUnit" id="BaseResultMap">
+        <result property="id" column="id"/>
+        <result property="methodId" column="method_id"/>
+        <result property="methodName" column="method_name"/>
+        <result property="fromAreaId" column="from_area_id"/>
+        <result property="toAreaId" column="to_area_id"/>
+        <result property="startWeight" column="start_weight"/>
+        <result property="endWeight" column="end_weight"/>
+        <result property="fixedFee" column="fixed_fee"/>
+        <result property="weightCharge" column="weight_charge"/>
+        <result property="deliveryMinDay" column="delivery_min_day"/>
+        <result property="deliveryMaxDay" column="delivery_max_day"/>
+        <result property="discount" column="discount"/>
+        <result property="remarks" column="remarks"/>
+        <result property="createTime" column="create_time"/>
+        <result property="state" column="state"/>
+        <result property="orderId" column="order_id"/>
+        <result property="orderType" column="order_type"/>
+        <result property="shipUnitId" column="ship_unit_id"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        `id`,`method_id`,`method_name`,`from_area_id`,`to_area_id`,`start_weight`,`end_weight`,`fixed_fee`,`weight_charge`,`delivery_min_day`,`delivery_max_day`,`discount`,`remarks`,`create_time`,`state`,`order_id`,`order_type`,`ship_unit_id`
+    </sql>
+
+
+    <select id="selectByPrimaryKey" parameterType="com.upedge.oms.modules.orderShippingUnit.entity.OrderShippingUnit" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from order_shipping_unit
+        where id = #{id}
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="com.upedge.oms.modules.orderShippingUnit.entity.OrderShippingUnit">
+        delete from order_shipping_unit
+        where id = #{id}
+    </delete>
+
+    <update id="updateByPrimaryKeySelective" parameterType="com.upedge.oms.modules.orderShippingUnit.entity.OrderShippingUnit">
+        update order_shipping_unit
+        <set>
+            <if test="methodId != null">
+                method_id = #{methodId},
+            </if>
+            <if test="methodName != null">
+                method_name = #{methodName},
+            </if>
+            <if test="fromAreaId != null">
+                from_area_id = #{fromAreaId},
+            </if>
+            <if test="toAreaId != null">
+                to_area_id = #{toAreaId},
+            </if>
+            <if test="startWeight != null">
+                start_weight = #{startWeight},
+            </if>
+            <if test="endWeight != null">
+                end_weight = #{endWeight},
+            </if>
+            <if test="fixedFee != null">
+                fixed_fee = #{fixedFee},
+            </if>
+            <if test="weightCharge != null">
+                weight_charge = #{weightCharge},
+            </if>
+            <if test="deliveryMinDay != null">
+                delivery_min_day = #{deliveryMinDay},
+            </if>
+            <if test="deliveryMaxDay != null">
+                delivery_max_day = #{deliveryMaxDay},
+            </if>
+            <if test="discount != null">
+                discount = #{discount},
+            </if>
+            <if test="remarks != null">
+                remarks = #{remarks},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime},
+            </if>
+            <if test="state != null">
+                state = #{state},
+            </if>
+            <if test="orderId != null">
+                order_id = #{orderId},
+            </if>
+            <if test="orderType != null">
+                order_type = #{orderType},
+            </if>
+            <if test="`shipUnitId` != null">
+                `ship_unit_id` = #{shipUnitId},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <update id="updateByPrimaryKey" parameterType="com.upedge.oms.modules.orderShippingUnit.entity.OrderShippingUnit">
+        update order_shipping_unit
+        <set>
+        id = #{id},
+        method_id = #{methodId},
+        method_name = #{methodName},
+        from_area_id = #{fromAreaId},
+        to_area_id = #{toAreaId},
+        start_weight = #{startWeight},
+        end_weight = #{endWeight},
+        fixed_fee = #{fixedFee},
+        weight_charge = #{weightCharge},
+        delivery_min_day = #{deliveryMinDay},
+        delivery_max_day = #{deliveryMaxDay},
+        discount = #{discount},
+        remarks = #{remarks},
+        create_time = #{createTime},
+        state = #{state},
+        order_id = #{orderId},
+        order_type = #{orderType},
+            ship_unit_id = #{`shipUnitId`},
+        </set>
+        where id = #{id}
+    </update>
+
+    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.upedge.oms.modules.orderShippingUnit.entity.OrderShippingUnit" useGeneratedKeys="true">
+        insert into order_shipping_unit
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            id,
+            method_id,
+            method_name,
+            from_area_id,
+            to_area_id,
+            start_weight,
+            end_weight,
+            fixed_fee,
+            weight_charge,
+            delivery_min_day,
+            delivery_max_day,
+            discount,
+            remarks,
+            create_time,
+            state,
+            order_id,
+            order_type,
+            ship_unit_id
+        </trim>
+        values (
+        #{id},
+        #{methodId},
+        #{methodName},
+        #{fromAreaId},
+        #{toAreaId},
+        #{startWeight},
+        #{endWeight},
+        #{fixedFee},
+        #{weightCharge},
+        #{deliveryMinDay},
+        #{deliveryMaxDay},
+        #{discount},
+        #{remarks},
+        #{createTime},
+        #{state},
+        #{orderId},
+        #{orderType},
+        #{shipUnitId}
+        )
+    </insert>
+
+    <insert id="insertSelective"  keyColumn="id" keyProperty="id"  parameterType="com.upedge.oms.modules.orderShippingUnit.entity.OrderShippingUnit" useGeneratedKeys="true">
+        insert into order_shipping_unit
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null" >
+              id
+            </if>
+            <if test="methodId != null" >
+              method_id
+            </if>
+            <if test="methodName != null" >
+              method_name
+            </if>
+            <if test="fromAreaId != null" >
+              from_area_id
+            </if>
+            <if test="toAreaId != null" >
+              to_area_id
+            </if>
+            <if test="startWeight != null" >
+              start_weight
+            </if>
+            <if test="endWeight != null" >
+              end_weight
+            </if>
+            <if test="fixedFee != null" >
+              fixed_fee
+            </if>
+            <if test="weightCharge != null" >
+              weight_charge
+            </if>
+            <if test="deliveryMinDay != null" >
+              delivery_min_day
+            </if>
+            <if test="deliveryMaxDay != null" >
+              delivery_max_day
+            </if>
+            <if test="discount != null" >
+              discount
+            </if>
+            <if test="remarks != null" >
+              remarks
+            </if>
+            <if test="createTime != null" >
+              create_time
+            </if>
+            <if test="state != null" >
+              state
+            </if>
+            <if test="orderId != null" >
+              order_id
+            </if>
+            <if test="orderType != null" >
+              order_type
+            </if>
+             <if test="shipUnitId != null" >
+                 ship_unit_id
+            </if>
+
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null" >
+                #{id}
+            </if>
+            <if test="methodId != null" >
+                #{methodId}
+            </if>
+            <if test="methodName != null" >
+                #{methodName}
+            </if>
+            <if test="fromAreaId != null" >
+                #{fromAreaId}
+            </if>
+            <if test="toAreaId != null" >
+                #{toAreaId}
+            </if>
+            <if test="startWeight != null" >
+                #{startWeight}
+            </if>
+            <if test="endWeight != null" >
+                #{endWeight}
+            </if>
+            <if test="fixedFee != null" >
+                #{fixedFee}
+            </if>
+            <if test="weightCharge != null" >
+                #{weightCharge}
+            </if>
+            <if test="deliveryMinDay != null" >
+                #{deliveryMinDay}
+            </if>
+            <if test="deliveryMaxDay != null" >
+                #{deliveryMaxDay}
+            </if>
+            <if test="discount != null" >
+                #{discount}
+            </if>
+            <if test="remarks != null" >
+                #{remarks}
+            </if>
+            <if test="createTime != null" >
+                #{createTime}
+            </if>
+            <if test="state != null" >
+                #{state}
+            </if>
+            <if test="orderId != null" >
+                #{orderId}
+            </if>
+            <if test="orderType != null" >
+                #{orderType}
+            </if>
+            <if test="shipUnitId != null" >
+                #{shipUnitId}
+            </if>
+
+        </trim>
+    </insert>
+
+    <insert id="insertByBatch" parameterType="java.util.List">
+        insert into order_shipping_unit
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+           id,
+           method_id,
+           method_name,
+           from_area_id,
+           to_area_id,
+           start_weight,
+           end_weight,
+           fixed_fee,
+           weight_charge,
+           delivery_min_day,
+           delivery_max_day,
+           discount,
+           remarks,
+           create_time,
+           state,
+           order_id,
+           order_type,
+            ship_unit_id
+        </trim>
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+               #{item.id},
+               #{item.methodId},
+               #{item.methodName},
+               #{item.fromAreaId},
+               #{item.toAreaId},
+               #{item.startWeight},
+               #{item.endWeight},
+               #{item.fixedFee},
+               #{item.weightCharge},
+               #{item.deliveryMinDay},
+               #{item.deliveryMaxDay},
+               #{item.discount},
+               #{item.remarks},
+               #{item.createTime},
+               #{item.state},
+               #{item.orderId},
+               #{item.orderType}
+               #{item.shipUnitId}
+            </trim>
+        </foreach>
+    </insert>
+
+    <sql id="Query_Condition">
+        <if test="t != null">
+            where
+            <trim prefix=" " suffix=" " suffixOverrides=" and ">
+                1 = 1 and
+                    <if test="t.id != null">
+                        id = #{t.id} and
+                    </if>
+                    <if test="t.methodId != null">
+                        method_id = #{t.methodId} and
+                    </if>
+                    <if test="t.methodName != null">
+                        method_name = #{t.methodName} and
+                    </if>
+                    <if test="t.fromAreaId != null">
+                        from_area_id = #{t.fromAreaId} and
+                    </if>
+                    <if test="t.toAreaId != null">
+                        to_area_id = #{t.toAreaId} and
+                    </if>
+                    <if test="t.startWeight != null">
+                        start_weight = #{t.startWeight} and
+                    </if>
+                    <if test="t.endWeight != null">
+                        end_weight = #{t.endWeight} and
+                    </if>
+                    <if test="t.fixedFee != null">
+                        fixed_fee = #{t.fixedFee} and
+                    </if>
+                    <if test="t.weightCharge != null">
+                        weight_charge = #{t.weightCharge} and
+                    </if>
+                    <if test="t.deliveryMinDay != null">
+                        delivery_min_day = #{t.deliveryMinDay} and
+                    </if>
+                    <if test="t.deliveryMaxDay != null">
+                        delivery_max_day = #{t.deliveryMaxDay} and
+                    </if>
+                    <if test="t.discount != null">
+                        discount = #{t.discount} and
+                    </if>
+                    <if test="t.remarks != null">
+                        remarks = #{t.remarks} and
+                    </if>
+                    <if test="t.createTime != null">
+                        create_time = #{t.createTime} and
+                    </if>
+                    <if test="t.state != null">
+                        state = #{t.state} and
+                    </if>
+                    <if test="t.orderId != null">
+                        order_id = #{t.orderId} and
+                    </if>
+                    <if test="t.orderType != null">
+                        order_type = #{t.orderType} and
+                    </if>
+                     <if test="t.shipUnitId != null">
+                         ship_unit_id = #{t.shipUnitId} and
+                    </if>
+            </trim>
+        </if>
+    </sql>
+
+    <select id="select" parameterType="com.upedge.common.base.Page" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from order_shipping_unit
+        <include refid="Query_Condition"/>
+        <if test="orderBy != null">
+            order by ${orderBy}
+        </if>
+        <if test="pageNum != null and pageSize != null">
+            limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+        </if>
+    </select>
+
+    <select id="count" parameterType="com.upedge.common.base.Page" resultType="java.lang.Long">
+        select
+        count(1)
+        from order_shipping_unit
+        <include refid="Query_Condition"/>
+    </select>
+    <select id="selectByOrderId" resultType="com.upedge.oms.modules.orderShippingUnit.vo.OrderShippingUnitVo">
+    SELECT
+	     osu.`id`,osu.`ship_unit_id`,osu.`method_id`,osu.`method_name`,osu.`from_area_id`,osu.`to_area_id`,
+	     osu.`start_weight`,osu.`end_weight`,osu.`fixed_fee`,osu.`weight_charge`,osu.`delivery_min_day`,
+	     osu.`delivery_max_day`,osu.`discount`,osu.`remarks`,osu.`create_time`,osu.`state`,osu.`order_id`,osu.`order_type`,
+	     o.pay_state  as orderPayState
+    FROM
+	order_shipping_unit osu
+	<if test="orderType == 2">
+        LEFT JOIN
+        `order` o
+        ON osu.order_id = o.id
+    </if>
+    <if test="orderType == 3">
+        LEFT JOIN
+        `wholesale_order` o
+        ON osu.order_id = o.id
+    </if>
+    where o.id = #{orderId}
+    </select>
+    <select id="selectListByOrderId"
+            resultType="com.upedge.oms.modules.orderShippingUnit.entity.OrderShippingUnit">
+        select
+         <include refid="Base_Column_List" />
+        from order_shipping_unit
+        where ship_unit_id = #{shipUnitId}
+    </select>
+
+    <select id="selectOrderIdByOrderPaymentId" resultType="java.lang.Long">
+        select o.id
+        from order_shipping_unit osu
+        <if test="orderType == 2">
+            inner join `order` o
+        </if>
+        <if test="orderType == 3">
+            inner join wholesale_order o
+        </if>
+        on osu.order_id = o.id
+        where o.payment_id = #{paymentId}
+        and osu.order_type = #{orderType}
+    </select>
+
+
+    <delete id="deleteOrderShippingUnit">
+         delete from order_shipping_unit
+         where id = #{id} and (
+            select o.pay_state from
+        <if test="orderType == 2">
+            `order` o
+        </if>
+        <if test="orderType == 3">
+            `wholesale_order` o
+        </if>
+        where o.id = #{orderId}
+         ) = 0
+    </delete>
+    <delete id="delete">
+        delete from order_shipping_unit
+        where
+            order_id  = #{record.orderId}
+        and
+            order_type = #{record.orderType}
+    </delete>
+    <delete id="delByProductId">
+     delete os from  `order_shipping_unit` os INNER JOIN
+        <if test="orderType == 2">
+            `order_item` oi   on  oi.order_id = os.order_id       inner  join   `order` o   on  o.id =   oi.order_id
+        </if>
+        <if test="orderType == 3">
+            `wholesale_order_item` oi  on  oi.order_id = os.order_id       inner  join   `wholesale_order` o   on  o.id =   oi.order_id
+        </if>
+         WHERE   admin_product_id = #{productId}  and  o.pay_state = 0
+    </delete>
+    <delete id="delByVariantId">
+    delete os from  `order_shipping_unit` os INNER JOIN
+        <if test="orderType == 2">
+            `order_item` oi   on  oi.order_id = os.order_id       inner  join   `order` o   on  o.id =   oi.order_id
+        </if>
+        <if test="orderType == 3">
+            `wholesale_order_item` oi  on  oi.order_id = os.order_id       inner  join   `wholesale_order` o   on  o.id =   oi.order_id
+        </if>
+         WHERE  oi.admin_variant_id = #{variantId}  and  o.pay_state = 0
+    </delete>
+
+</mapper>

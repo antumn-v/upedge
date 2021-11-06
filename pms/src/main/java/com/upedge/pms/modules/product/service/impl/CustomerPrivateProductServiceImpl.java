@@ -44,6 +44,11 @@ public class CustomerPrivateProductServiceImpl implements CustomerPrivateProduct
         return customerPrivateProductDao.insert(record);
     }
 
+    @Override
+    public int countByProductId(Long productId) {
+        return customerPrivateProductDao.countByProductId(productId);
+    }
+
     /**
      *
      */

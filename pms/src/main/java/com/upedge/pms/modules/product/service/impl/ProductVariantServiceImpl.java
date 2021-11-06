@@ -1,12 +1,15 @@
 package com.upedge.pms.modules.product.service.impl;
 
+import com.upedge.common.utils.ListUtils;
 import com.upedge.pms.modules.product.entity.ProductVariantAttr;
 import com.upedge.pms.modules.product.service.ProductVariantAttrService;
+import com.upedge.pms.modules.product.vo.SaiheSkuVo;
 import com.upedge.pms.modules.product.vo.VariantAttrVo;
 import com.upedge.pms.modules.product.vo.VariantValVo;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.*;
 
 import com.upedge.common.base.Page;
@@ -51,6 +54,23 @@ public class ProductVariantServiceImpl implements ProductVariantService {
     @Transactional
     public int insertSelective(ProductVariant record) {
         return productVariantDao.insert(record);
+    }
+
+    @Override
+    public Map<String, BigDecimal> selectVariantPriceRange(Long productId) {
+
+        if (productId != null){
+            return productVariantDao.selectVariantPriceRange(productId);
+        }
+        return null;
+    }
+
+    @Override
+    public List<SaiheSkuVo> listSaiheSkuVo(List<Long> ids) {
+        if (ListUtils.isNotEmpty(ids)){
+            return productVariantDao.listSaiheSkuVo(ids);
+        }
+        return null;
     }
 
     @Override

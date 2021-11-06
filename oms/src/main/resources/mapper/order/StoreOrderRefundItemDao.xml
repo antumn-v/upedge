@@ -1,0 +1,197 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.upedge.oms.modules.order.dao.StoreOrderRefundItemDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.upedge.oms.modules.order.entity.StoreOrderRefundItem" id="BaseResultMap">
+        <result property="id" column="id"/>
+        <result property="storeOrderRefundId" column="store_order_refund_id"/>
+        <result property="storeOrderItemId" column="store_order_item_id"/>
+        <result property="platOrderItemId" column="plat_order_item_id"/>
+        <result property="refundQuantity" column="refund_quantity"/>
+        <result property="refundAmount" column="refund_amount"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        `id`,`store_order_refund_id`,`store_order_item_id`,`plat_order_item_id`,`store_order_id`,`refund_quantity`,`refund_amount`
+    </sql>
+
+    <update id="updateStoreOrderItemId">
+        update store_order_refund_item r
+        inner join store_order_item i
+        on r.plat_order_item_id = i.plat_order_item_id
+        set r.store_order_item_id = i.id
+        where r.store_order_refund_id = #{storeOrderRefundId}
+        and i.store_order_id = #{storeOrderId}
+        and r.store_order_item_id is null
+    </update>
+
+    <select id="selectByPrimaryKey" parameterType="com.upedge.oms.modules.order.entity.StoreOrderRefundItem" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from store_order_refund_item
+        where id = #{id}
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="com.upedge.oms.modules.order.entity.StoreOrderRefundItem">
+        delete from store_order_refund_item
+        where id = #{id}
+    </delete>
+
+    <update id="updateByPrimaryKeySelective" parameterType="com.upedge.oms.modules.order.entity.StoreOrderRefundItem">
+        update store_order_refund_item
+        <set>
+            <if test="storeOrderRefundId != null">
+                store_order_refund_id = #{storeOrderRefundId},
+            </if>
+            <if test="storeOrderItemId != null">
+                store_order_item_id = #{storeOrderItemId},
+            </if>
+            <if test="refundQuantity != null">
+                refund_quantity = #{refundQuantity},
+            </if>
+            <if test="refundAmount != null">
+                refund_amount = #{refundAmount},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <update id="updateByPrimaryKey" parameterType="com.upedge.oms.modules.order.entity.StoreOrderRefundItem">
+        update store_order_refund_item
+        <set>
+        id = #{id},
+        store_order_refund_id = #{storeOrderRefundId},
+        store_order_item_id = #{storeOrderItemId},
+        refund_quantity = #{refundQuantity},
+        refund_amount = #{refundAmount}
+        </set>
+        where id = #{id}
+    </update>
+
+    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.upedge.oms.modules.order.entity.StoreOrderRefundItem" useGeneratedKeys="true">
+        insert into store_order_refund_item
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            id,
+            store_order_refund_id,
+            store_order_item_id,
+            refund_quantity,
+            refund_amount
+        </trim>
+        values (
+        #{id},
+        #{storeOrderRefundId},
+        #{storeOrderItemId},
+        #{refundQuantity},
+        #{refundAmount}
+        )
+    </insert>
+
+    <insert id="insertSelective"  keyColumn="id" keyProperty="id"  parameterType="com.upedge.oms.modules.order.entity.StoreOrderRefundItem" useGeneratedKeys="true">
+        insert into store_order_refund_item
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null" >
+              id
+            </if>
+            <if test="storeOrderRefundId != null" >
+              store_order_refund_id
+            </if>
+            <if test="storeOrderItemId != null" >
+              store_order_item_id
+            </if>
+            <if test="refundQuantity != null" >
+              refund_quantity
+            </if>
+            <if test="refundAmount != null" >
+              refund_amount
+            </if>
+
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null" >
+                #{id}
+            </if>
+            <if test="storeOrderRefundId != null" >
+                #{storeOrderRefundId}
+            </if>
+            <if test="storeOrderItemId != null" >
+                #{storeOrderItemId}
+            </if>
+            <if test="refundQuantity != null" >
+                #{refundQuantity}
+            </if>
+            <if test="refundAmount != null" >
+                #{refundAmount}
+            </if>
+
+        </trim>
+    </insert>
+
+    <insert id="insertByBatch" parameterType="java.util.List">
+        insert into store_order_refund_item
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+           id,
+           store_order_refund_id,
+           store_order_item_id,
+           refund_quantity,
+           refund_amount
+        </trim>
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+               #{item.id},
+               #{item.storeOrderRefundId},
+               #{item.storeOrderItemId},
+               #{item.refundQuantity},
+               #{item.refundAmount}
+            </trim>
+        </foreach>
+    </insert>
+
+    <sql id="Query_Condition">
+        <if test="t != null">
+            where
+            <trim prefix=" " suffix=" " suffixOverrides=" and ">
+                1 = 1 and
+                    <if test="t.id != null">
+                        id = #{t.id} and
+                    </if>
+                    <if test="t.storeOrderRefundId != null">
+                        store_order_refund_id = #{t.storeOrderRefundId} and
+                    </if>
+                    <if test="t.storeOrderItemId != null">
+                        store_order_item_id = #{t.storeOrderItemId} and
+                    </if>
+                    <if test="t.refundQuantity != null">
+                        refund_quantity = #{t.refundQuantity} and
+                    </if>
+                    <if test="t.refundAmount != null">
+                        refund_amount = #{t.refundAmount} and
+                    </if>
+            </trim>
+        </if>
+    </sql>
+
+    <select id="select" parameterType="com.upedge.common.base.Page" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from store_order_refund_item
+        <include refid="Query_Condition"/>
+        <if test="orderBy != null">
+            order by ${orderBy}
+        </if>
+        <if test="pageNum != null and pageSize != null">
+            limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+        </if>
+    </select>
+
+    <select id="count" parameterType="com.upedge.common.base.Page" resultType="java.lang.Long">
+        select
+        count(1)
+        from store_order_refund_item
+        <include refid="Query_Condition"/>
+    </select>
+
+
+</mapper>

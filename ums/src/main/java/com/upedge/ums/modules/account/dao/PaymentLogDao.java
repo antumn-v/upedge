@@ -1,16 +1,18 @@
 package com.upedge.ums.modules.account.dao;
 
-import com.upedge.ums.modules.account.entity.PaymentLog;
-import org.apache.ibatis.annotations.Mapper;
-import java.util.List;
 import com.upedge.common.base.Page;
+import com.upedge.ums.modules.account.entity.PaymentLog;
+
+import java.util.List;
 
 /**
- * @author gx
+ * @author author
  */
 public interface PaymentLogDao{
 
-    PaymentLog selectByPrimaryKey(PaymentLog record);
+    List<PaymentLog> selectPendingPaymentByAccountId(Long accountId);
+
+    PaymentLog selectByPrimaryKey(Long id);
 
     int deleteByPrimaryKey(PaymentLog record);
 

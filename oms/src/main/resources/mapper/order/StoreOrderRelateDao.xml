@@ -1,0 +1,329 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.upedge.oms.modules.order.dao.StoreOrderRelateDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.upedge.oms.modules.order.entity.StoreOrderRelate" id="BaseResultMap">
+        <result property="id" column="id"/>
+        <result property="storeOrderId" column="store_order_id"/>
+        <result property="orderId" column="order_id"/>
+        <result property="platOrderName" column="plat_order_name"/>
+        <result property="financialStatus" column="financial_status"/>
+        <result property="fulfillmentStatus" column="fulfillment_status"/>
+        <result property="platOrderCreateTime" column="plat_order_create_time"/>
+        <result property="orderCreateTime" column="order_create_time"/>
+        <result property="store_name" column="storeName"/>
+        <result property="order_customer_name" column="orderCustomerName"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        `id`,`store_order_id`,`order_id`,`plat_order_name`,`financial_status`,`fulfillment_status`,
+        `plat_order_create_time`,`order_create_time`,`store_name`,order_customer_name
+    </sql>
+
+    <select id="selectUnPaidByStoreOrderId" resultMap="BaseResultMap">
+        select sor.order_id,sor.`store_order_id`,sor.`plat_order_name`,
+        sor.`financial_status`,sor.`fulfillment_status`,
+        sor.`plat_order_create_time`,sor.`order_create_time`,sor.`store_name`
+        from store_order_relate sor
+        inner join `order` o
+        on sor.order_id = o.id
+        where sor.store_order_id in
+        <foreach collection="storeOrderIds" item="storeOrderId" open="(" close=")" separator=",">
+            #{storeOrderId}
+        </foreach>
+        and o.pay_state = '0'
+        and o.order_type != '1'
+    </select>
+
+    <select id="selectByOrderId" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from store_order_relate
+        where order_id = #{orderId}
+    </select>
+
+    <select id="selectByStoreOrderId" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from store_order_relate
+        where store_order_id = #{orderId}
+    </select>
+
+    <update id="updateOrderId">
+        update store_order_relate
+        set order_id = #{orderId}
+        where order_id in
+        <foreach collection="orderIds" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </update>
+
+    <delete id="deleteByOrderId">
+        delete from store_order_relate
+        where order_id in
+        <foreach collection="orderIds" item="orderId" open="(" separator="," close=")">
+            #{orderId}
+        </foreach>
+    </delete>
+
+    <delete id="deleteByOrderAndStoreOrder">
+        delete
+        from store_order_relate
+        where order_id = #{orderId}
+        and store_order_id = #{storeOrderId}
+    </delete>
+
+    <select id="selectByPrimaryKey" parameterType="com.upedge.oms.modules.order.entity.StoreOrderRelate" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from store_order_relate
+        where id = #{id}
+    </select>
+
+    <delete id="deleteByPrimaryKey" >
+        delete from store_order_relate
+        where id = #{id}
+    </delete>
+
+    <update id="updateByPrimaryKeySelective" parameterType="com.upedge.oms.modules.order.entity.StoreOrderRelate">
+        update store_order_relate
+        <set>
+            <if test="storeOrderId != null">
+                store_order_id = #{storeOrderId},
+            </if>
+            <if test="orderId != null">
+                order_id = #{orderId},
+            </if>
+            <if test="platOrderName != null">
+                plat_order_name = #{platOrderName},
+            </if>
+            <if test="financialStatus != null">
+                financial_status = #{financialStatus},
+            </if>
+            <if test="fulfillmentStatus != null">
+                fulfillment_status = #{fulfillmentStatus},
+            </if>
+            <if test="platOrderCreateTime != null">
+                plat_order_create_time = #{platOrderCreateTime},
+            </if>
+            <if test="orderCreateTime != null">
+                order_create_time = #{orderCreateTime},
+            </if>
+            <if test="storeName != null">
+                store_name = #{storeName},
+            </if>
+            <if test="orderCustomerName != null">
+                order_customer_name = #{orderCustomerName},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <update id="updateByPrimaryKey" parameterType="com.upedge.oms.modules.order.entity.StoreOrderRelate">
+        update store_order_relate
+        <set>
+        id = #{id},
+        store_order_id = #{storeOrderId},
+        order_id = #{orderId},
+        plat_order_name = #{platOrderName},
+        financial_status = #{financialStatus},
+        fulfillment_status = #{fulfillmentStatus},
+        plat_order_create_time = #{platOrderCreateTime},
+        order_create_time = #{orderCreateTime},
+        store_name = #{storeName},
+            order_customer_name = #{orderCustomerName}
+        </set>
+        where id = #{id}
+    </update>
+
+    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.upedge.oms.modules.order.entity.StoreOrderRelate" useGeneratedKeys="true">
+        insert into store_order_relate
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            id,
+            store_order_id,
+            order_id,
+            plat_order_name,
+            financial_status,
+            fulfillment_status,
+            plat_order_create_time,
+            order_create_time,
+            store_name,
+            order_customer_name
+        </trim>
+        values (
+        #{id},
+        #{storeOrderId},
+        #{orderId},
+        #{platOrderName},
+        #{financialStatus},
+        #{fulfillmentStatus},
+        #{platOrderCreateTime},
+        #{orderCreateTime},
+        #{storeName},
+        #{orderCustomerName}
+        )
+    </insert>
+
+    <insert id="insertSelective"  keyColumn="id" keyProperty="id"  parameterType="com.upedge.oms.modules.order.entity.StoreOrderRelate" useGeneratedKeys="true">
+        insert into store_order_relate
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null" >
+              id
+            </if>
+            <if test="storeOrderId != null" >
+              store_order_id
+            </if>
+            <if test="orderId != null" >
+              order_id
+            </if>
+            <if test="platOrderName != null" >
+              plat_order_name
+            </if>
+            <if test="financialStatus != null" >
+              financial_status
+            </if>
+            <if test="fulfillmentStatus != null" >
+              fulfillment_status
+            </if>
+            <if test="platOrderCreateTime != null" >
+              plat_order_create_time
+            </if>
+            <if test="orderCreateTime != null" >
+              order_create_time
+            </if>
+            <if test="storeName != null">
+                store_name,
+            </if>
+
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null" >
+                #{id}
+            </if>
+            <if test="storeOrderId != null" >
+                #{storeOrderId}
+            </if>
+            <if test="orderId != null" >
+                #{orderId}
+            </if>
+            <if test="platOrderName != null" >
+                #{platOrderName}
+            </if>
+            <if test="financialStatus != null" >
+                #{financialStatus}
+            </if>
+            <if test="fulfillmentStatus != null" >
+                #{fulfillmentStatus}
+            </if>
+            <if test="platOrderCreateTime != null" >
+                #{platOrderCreateTime}
+            </if>
+            <if test="orderCreateTime != null" >
+                #{orderCreateTime}
+            </if>
+            <if test="storeName != null">
+                #{storeName}
+            </if>
+
+        </trim>
+    </insert>
+
+    <insert id="insertByBatch" parameterType="java.util.List">
+        insert into store_order_relate
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+           id,
+           store_order_id,
+           order_id,
+           plat_order_name,
+           financial_status,
+           fulfillment_status,
+           plat_order_create_time,
+           order_create_time,
+           store_name
+        </trim>
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+               #{item.id},
+               #{item.storeOrderId},
+               #{item.orderId},
+               #{item.platOrderName},
+               #{item.financialStatus},
+               #{item.fulfillmentStatus},
+               #{item.platOrderCreateTime},
+               #{item.orderCreateTime},
+               #{item.storeName}
+            </trim>
+        </foreach>
+    </insert>
+
+    <sql id="Query_Condition">
+        <if test="t != null">
+            where
+            <trim prefix=" " suffix=" " suffixOverrides=" and ">
+                1 = 1 and
+                    <if test="t.id != null">
+                        id = #{t.id} and
+                    </if>
+                    <if test="t.storeOrderId != null">
+                        store_order_id = #{t.storeOrderId} and
+                    </if>
+                    <if test="t.orderId != null">
+                        order_id = #{t.orderId} and
+                    </if>
+                    <if test="t.platOrderName != null">
+                        plat_order_name = #{t.platOrderName} and
+                    </if>
+                    <if test="t.financialStatus != null">
+                        financial_status = #{t.financialStatus} and
+                    </if>
+                    <if test="t.fulfillmentStatus != null">
+                        fulfillment_status = #{t.fulfillmentStatus} and
+                    </if>
+                    <if test="t.platOrderCreateTime != null">
+                        plat_order_create_time = #{t.platOrderCreateTime} and
+                    </if>
+                    <if test="t.orderCreateTime != null">
+                        order_create_time = #{t.orderCreateTime} and
+                    </if>
+                <if test="t.storeName != null">
+                    store_name = #{t.storeName} and
+                </if>
+            </trim>
+        </if>
+    </sql>
+
+    <select id="select" parameterType="com.upedge.common.base.Page" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from store_order_relate
+        <include refid="Query_Condition"/>
+        <if test="orderBy != null">
+            order by ${orderBy}
+        </if>
+        <if test="pageNum != null and pageSize != null">
+            limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+        </if>
+    </select>
+
+    <select id="count" parameterType="com.upedge.common.base.Page" resultType="java.lang.Long">
+        select
+        count(1)
+        from store_order_relate
+        <include refid="Query_Condition"/>
+    </select>
+
+    <select id="listStoreOrderRelateByOrderIds" parameterType="java.util.Set" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from store_order_relate
+        where order_id in
+        <foreach collection="orderIds" index="index" item="item"
+                 separator="," open="(" close=")">
+            #{item}
+        </foreach>
+    </select>
+
+</mapper>

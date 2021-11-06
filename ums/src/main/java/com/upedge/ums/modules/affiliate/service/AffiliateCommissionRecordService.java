@@ -1,11 +1,14 @@
 package com.upedge.ums.modules.affiliate.service;
 
-import com.upedge.ums.modules.affiliate.entity.AffiliateCommissionRecord;
+import com.upedge.common.base.BaseResponse;
 import com.upedge.common.base.Page;
+import com.upedge.common.model.user.request.OrderBenefitsRequest;
+import com.upedge.ums.modules.affiliate.entity.AffiliateCommissionRecord;
+
 import java.util.List;
 
 /**
- * @author gx
+ * @author author
  */
 public interface AffiliateCommissionRecordService{
 
@@ -24,5 +27,9 @@ public interface AffiliateCommissionRecordService{
     List<AffiliateCommissionRecord> select(Page<AffiliateCommissionRecord> record);
 
     long count(Page<AffiliateCommissionRecord> record);
+
+    BaseResponse packageMonthOrderBenefitsListAmount(OrderBenefitsRequest orderBenefitsRequest);
+
+    BaseResponse packageMonthWholeSaleOrderBenefitsListAmount(OrderBenefitsRequest orderBenefitsRequest);
 }
 

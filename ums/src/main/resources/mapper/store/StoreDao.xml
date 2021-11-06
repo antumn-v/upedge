@@ -3,7 +3,7 @@
 
 <mapper namespace="com.upedge.ums.modules.store.dao.StoreDao">
 
-	<!-- 可根据自己的需求，是否要使用 -->
+    <!-- 可根据自己的需求，是否要使用 -->
     <resultMap type="com.upedge.ums.modules.store.entity.Store" id="BaseResultMap">
         <result property="id" column="id"/>
         <result property="storeName" column="store_name"/>
@@ -15,8 +15,8 @@
         <result property="currency" column="currency"/>
         <result property="usdRate" column="usd_rate"/>
         <result property="customerUsdRate" column="customer_usd_rate"/>
-        <result property="apiToken" column="api_token"/>
         <result property="status" column="status"/>
+        <result property="apiToken" column="api_token"/>
         <result property="storeType" column="store_type"/>
         <result property="timezone" column="timezone"/>
         <result property="createTime" column="create_time"/>
@@ -24,18 +24,86 @@
     </resultMap>
 
     <sql id="Base_Column_List">
-        `id`,`store_name`,`store_url`,`user_id`,`customer_id`,`org_id`,`org_path`,`currency`,`usd_rate`,`customer_usd_rate`,`api_token`,`status`,`store_type`,`timezone`,`create_time`,`update_time`
+        `id`
+        ,`store_name`,`store_url`,`user_id`,`customer_id`,`org_id`,org_path,`currency`,`usd_rate`,`customer_usd_rate`,
+        `status`,`store_type`,`timezone`,`create_time`,`update_time`,`api_token`
     </sql>
+
+    <select id="selectByCustomerOrgIds" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/> ,
+        (case when  customer_usd_rate = usd_rate  THEN   FALSE  when  customer_usd_rate is null  THEN FALSE ELSE  TRUE END )   rateCustomized
+        from store
+        where customer_id = #{customerId}
+        and org_id in
+        <foreach collection="orgIds" item="orgId" open="(" close=")" separator=",">
+            #{orgId}
+        </foreach>
+    </select>
+
+    <select id="selectAllStoreCurrency" resultType="java.lang.String">
+        select distinct currency
+        from store
+    </select>
+
+    <update id="updateUsdRate">
+        update store s
+            inner join currency cc
+        on s.currency = cc.currency_code
+            set s.usd_rate = cc.usd_rate
+    </update>
+
+    <update id="updateUsdRateById">
+        update store s
+            inner join currency cc
+        on s.currency = cc.currency_code
+            set s.usd_rate = cc.usd_rate
+        where s.id = #{id}
+    </update>
+
+    <select id="selectStoreByCustomer" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from store
+        where customer_id = #{customerId}
+    </select>
+
+    <sql id="PrimaryKey">
+        where
+        <trim prefix=" " suffix=" " suffixOverrides=" and ">
+            <if test="id != null">
+                id = #{id} and
+            </if>
+            <if test="storeName != null">
+                store_name = #{storeName} and
+            </if>
+            <if test="storeUrl != null">
+                store_url = #{storeUrl} and
+            </if>
+            <if test="orgId != null">
+                org_id = #{orgId} and
+            </if>
+        </trim>
+    </sql>
+
+
+    <select id="selectByStoreUrl" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from store
+        where store_url = #{storeUrl}
+    </select>
 
     <select id="selectByPrimaryKey" parameterType="com.upedge.ums.modules.store.entity.Store" resultMap="BaseResultMap">
         select
-        <include refid="Base_Column_List" />
+        <include refid="Base_Column_List"/>
         from store
-        where id = #{id}
+        <include refid="PrimaryKey"/>
     </select>
 
     <delete id="deleteByPrimaryKey" parameterType="com.upedge.ums.modules.store.entity.Store">
-        delete from store
+        delete
+        from store
         where id = #{id}
     </delete>
 
@@ -57,20 +125,8 @@
             <if test="orgId != null">
                 org_id = #{orgId},
             </if>
-            <if test="orgPath != null">
-                org_path = #{orgPath},
-            </if>
             <if test="currency != null">
                 currency = #{currency},
-            </if>
-            <if test="usdRate != null">
-                usd_rate = #{usdRate},
-            </if>
-            <if test="customerUsdRate != null">
-                customer_usd_rate = #{customerUsdRate},
-            </if>
-            <if test="apiToken != null">
-                api_token = #{apiToken},
             </if>
             <if test="status != null">
                 status = #{status},
@@ -80,6 +136,9 @@
             </if>
             <if test="timezone != null">
                 timezone = #{timezone},
+            </if>
+            <if test="apiToken != null">
+                api_token = #{apiToken},
             </if>
             <if test="createTime != null">
                 create_time = #{createTime},
@@ -94,27 +153,66 @@
     <update id="updateByPrimaryKey" parameterType="com.upedge.ums.modules.store.entity.Store">
         update store
         <set>
-        id = #{id},
-        store_name = #{storeName},
-        store_url = #{storeUrl},
-        user_id = #{userId},
-        customer_id = #{customerId},
-        org_id = #{orgId},
-        org_path = #{orgPath},
-        currency = #{currency},
-        usd_rate = #{usdRate},
-        customer_usd_rate = #{customerUsdRate},
-        api_token = #{apiToken},
-        status = #{status},
-        store_type = #{storeType},
-        timezone = #{timezone},
-        create_time = #{createTime},
-        update_time = #{updateTime},
+            store_name = #{storeName},
+            store_url = #{storeUrl},
+            currency = #{currency},
+            status = #{status},
+            store_type = #{storeType},
+            timezone = #{timezone},
+            api_token = #{apiToken},
+            create_time = #{createTime},
+            update_time = #{updateTime},
+            usd_rate = #{usdRate},
+            customer_usd_rate = #{customerUsdRate},
+        </set>
+        where id = #{id}
+    </update>
+    <update id="updateStoreByPrimaryKey">
+        update store
+        <set>
+            <if test="storeName != null">
+                store_name = #{storeName},
+            </if>
+            <if test="storeUrl != null">
+                store_url = #{storeUrl},
+            </if>
+            <if test="userId != null">
+                user_id = #{userId},
+            </if>
+            <if test="customerId != null">
+                customer_id = #{customerId},
+            </if>
+            <if test="orgId != null">
+                org_id = #{orgId},
+            </if>
+            <if test="currency != null">
+                currency = #{currency},
+            </if>
+            <if test="status != null">
+                status = #{status},
+            </if>
+            <if test="storeType != null">
+                store_type = #{storeType},
+            </if>
+            <if test="timezone != null">
+                timezone = #{timezone},
+            </if>
+            <if test="apiToken != null">
+                api_token = #{apiToken},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime},
+            </if>
+            <if test="updateTime != null">
+                update_time = #{updateTime},
+            </if>
+            customer_usd_rate = #{customerUsdRate},<!--此处是为了删除自定义汇率时将其设置为null 实体属性需要设置@TableField(strategy = FieldStrategy.IGNORED) -->
         </set>
         where id = #{id}
     </update>
 
-    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.upedge.ums.modules.store.entity.Store" useGeneratedKeys="true">
+    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.upedge.ums.modules.store.entity.Store"
+            useGeneratedKeys="true">
         insert into store
         <trim prefix="(" suffix=")" suffixOverrides=",">
             id,
@@ -127,10 +225,10 @@
             currency,
             usd_rate,
             customer_usd_rate,
-            api_token,
             status,
             store_type,
             timezone,
+            api_token,
             create_time,
             update_time
         </trim>
@@ -144,116 +242,99 @@
         #{orgPath},
         #{currency},
         #{usdRate},
-        #{customerUsdRate},
-        #{apiToken},
+        #{usdRate},
         #{status},
         #{storeType},
         #{timezone},
-        #{createTime},
+        #{apiToken},
+        #{updateTime},
         #{updateTime}
         )
     </insert>
 
-    <insert id="insertSelective"  keyColumn="id" keyProperty="id"  parameterType="com.upedge.ums.modules.store.entity.Store" useGeneratedKeys="true">
+    <insert id="insertSelective" keyColumn="id" keyProperty="id"
+            parameterType="com.upedge.ums.modules.store.entity.Store" useGeneratedKeys="true">
         insert into store
         <trim prefix="(" suffix=")" suffixOverrides=",">
-            <if test="id != null" >
-              id
+            <if test="id != null">
+                id
             </if>
-            <if test="storeName != null" >
-              store_name
+            <if test="storeName != null">
+                store_name
             </if>
-            <if test="storeUrl != null" >
-              store_url
+            <if test="storeUrl != null">
+                store_url
             </if>
-            <if test="userId != null" >
-              user_id
+            <if test="userId != null">
+                user_id
             </if>
-            <if test="customerId != null" >
-              customer_id
+            <if test="customerId != null">
+                customer_id
             </if>
-            <if test="orgId != null" >
-              org_id
+            <if test="orgId != null">
+                org_id
             </if>
-            <if test="orgPath != null" >
-              org_path
+            <if test="currency != null">
+                currency
             </if>
-            <if test="currency != null" >
-              currency
+            <if test="status != null">
+                status
             </if>
-            <if test="usdRate != null" >
-              usd_rate
+            <if test="storeType != null">
+                store_type
             </if>
-            <if test="customerUsdRate != null" >
-              customer_usd_rate
+            <if test="timezone != null">
+                timezone
             </if>
-            <if test="apiToken != null" >
-              api_token
+            <if test="apiToken != null">
+                api_token
             </if>
-            <if test="status != null" >
-              status
+            <if test="createTime != null">
+                create_time
             </if>
-            <if test="storeType != null" >
-              store_type
-            </if>
-            <if test="timezone != null" >
-              timezone
-            </if>
-            <if test="createTime != null" >
-              create_time
-            </if>
-            <if test="updateTime != null" >
-              update_time
+            <if test="updateTime != null">
+                update_time
             </if>
 
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
-            <if test="id != null" >
+            <if test="id != null">
                 #{id}
             </if>
-            <if test="storeName != null" >
+            <if test="storeName != null">
                 #{storeName}
             </if>
-            <if test="storeUrl != null" >
+            <if test="storeUrl != null">
                 #{storeUrl}
             </if>
-            <if test="userId != null" >
+            <if test="userId != null">
                 #{userId}
             </if>
-            <if test="customerId != null" >
+            <if test="customerId != null">
                 #{customerId}
             </if>
-            <if test="orgId != null" >
+            <if test="orgId != null">
                 #{orgId}
             </if>
-            <if test="orgPath != null" >
-                #{orgPath}
-            </if>
-            <if test="currency != null" >
+            <if test="currency != null">
                 #{currency}
             </if>
-            <if test="usdRate != null" >
-                #{usdRate}
-            </if>
-            <if test="customerUsdRate != null" >
-                #{customerUsdRate}
-            </if>
-            <if test="apiToken != null" >
-                #{apiToken}
-            </if>
-            <if test="status != null" >
+            <if test="status != null">
                 #{status}
             </if>
-            <if test="storeType != null" >
+            <if test="storeType != null">
                 #{storeType}
             </if>
-            <if test="timezone != null" >
+            <if test="timezone != null">
                 #{timezone}
             </if>
-            <if test="createTime != null" >
+            <if test="apiToken != null">
+                #{apiToken}
+            </if>
+            <if test="createTime != null">
                 #{createTime}
             </if>
-            <if test="updateTime != null" >
+            <if test="updateTime != null">
                 #{updateTime}
             </if>
 
@@ -263,42 +344,38 @@
     <insert id="insertByBatch" parameterType="java.util.List">
         insert into store
         <trim prefix="(" suffix=")" suffixOverrides=",">
-           id,
-           store_name,
-           store_url,
-           user_id,
-           customer_id,
-           org_id,
-           org_path,
-           currency,
-           usd_rate,
-           customer_usd_rate,
-           api_token,
-           status,
-           store_type,
-           timezone,
-           create_time,
-           update_time
+            id,
+            store_name,
+            store_url,
+            user_id,
+            customer_id,
+            org_id,
+            org_path,
+            currency,
+            status,
+            store_type,
+            timezone,
+            api_token,
+            create_time,
+            update_time
         </trim>
         values
         <foreach collection="list" item="item" index="index" separator=",">
             <trim prefix="(" suffix=")" suffixOverrides=",">
-               #{item.id},
-               #{item.storeName},
-               #{item.storeUrl},
-               #{item.userId},
-               #{item.customerId},
-               #{item.orgId},
-               #{item.orgPath},
-               #{item.currency},
-               #{item.usdRate},
-               #{item.customerUsdRate},
-               #{item.apiToken},
-               #{item.status},
-               #{item.storeType},
-               #{item.timezone},
-               #{item.createTime},
-               #{item.updateTime}
+                #{id},
+                #{storeName},
+                #{storeUrl},
+                #{userId},
+                #{customerId},
+                #{orgId},
+                #{orgPath},
+                #{currency},
+                #{status},
+                #{storeType},
+                #{timezone},
+                #{apiToken},
+                #{createTime},
+                #{updateTime}
             </trim>
         </foreach>
     </insert>
@@ -308,61 +385,53 @@
             where
             <trim prefix=" " suffix=" " suffixOverrides=" and ">
                 1 = 1 and
-                    <if test="t.id != null">
-                        id = #{t.id} and
-                    </if>
-                    <if test="t.storeName != null">
-                        store_name = #{t.storeName} and
-                    </if>
-                    <if test="t.storeUrl != null">
-                        store_url = #{t.storeUrl} and
-                    </if>
-                    <if test="t.userId != null">
-                        user_id = #{t.userId} and
-                    </if>
-                    <if test="t.customerId != null">
-                        customer_id = #{t.customerId} and
-                    </if>
-                    <if test="t.orgId != null">
-                        org_id = #{t.orgId} and
-                    </if>
-                    <if test="t.orgPath != null">
-                        org_path = #{t.orgPath} and
-                    </if>
-                    <if test="t.currency != null">
-                        currency = #{t.currency} and
-                    </if>
-                    <if test="t.usdRate != null">
-                        usd_rate = #{t.usdRate} and
-                    </if>
-                    <if test="t.customerUsdRate != null">
-                        customer_usd_rate = #{t.customerUsdRate} and
-                    </if>
-                    <if test="t.apiToken != null">
-                        api_token = #{t.apiToken} and
-                    </if>
-                    <if test="t.status != null">
-                        status = #{t.status} and
-                    </if>
-                    <if test="t.storeType != null">
-                        store_type = #{t.storeType} and
-                    </if>
-                    <if test="t.timezone != null">
-                        timezone = #{t.timezone} and
-                    </if>
-                    <if test="t.createTime != null">
-                        create_time = #{t.createTime} and
-                    </if>
-                    <if test="t.updateTime != null">
-                        update_time = #{t.updateTime} and
-                    </if>
+                <if test="t.id != null">
+                    id = #{t.id} and
+                </if>
+                <if test="t.storeName != null">
+                    store_name = #{t.storeName} and
+                </if>
+                <if test="t.storeUrl != null">
+                    store_url = #{t.storeUrl} and
+                </if>
+                <if test="t.userId != null">
+                    user_id = #{t.userId} and
+                </if>
+                <if test="t.customerId != null">
+                    customer_id = #{t.customerId} and
+                </if>
+                <if test="t.orgId != null">
+                    org_id = #{t.orgId} and
+                </if>
+                <if test="t.orgPath != null">
+                    org_id = #{t.orgPath} and
+                </if>
+                <if test="t.currency != null">
+                    currency = #{t.currency} and
+                </if>
+                <if test="t.status != null">
+                    status = #{t.status} and
+                </if>
+                <if test="t.storeType != null">
+                    store_type = #{t.storeType} and
+                </if>
+                <if test="t.timezone != null">
+                    timezone = #{t.timezone} and
+                </if>
+                <if test="t.createTime != null">
+                    create_time = #{t.createTime} and
+                </if>
+                <if test="t.updateTime != null">
+                    update_time = #{t.updateTime} and
+                </if>
             </trim>
         </if>
     </sql>
 
     <select id="select" parameterType="com.upedge.common.base.Page" resultMap="BaseResultMap">
         select
-        <include refid="Base_Column_List" />
+        <include refid="Base_Column_List"/>,
+        (case when  customer_usd_rate = usd_rate  THEN   FALSE  when  customer_usd_rate is null  THEN FALSE ELSE  TRUE END )   rateCustomized
         from store
         <include refid="Query_Condition"/>
         <if test="orderBy != null">
@@ -380,5 +449,49 @@
         <include refid="Query_Condition"/>
     </select>
 
+    <!--<select id="customerStoreList" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from store where customer_id=#{customerId}
+    </select> -->
+    <select id="customerStoreList"
+            resultType="com.upedge.ums.modules.user.vo.CustomerStoreListVo">
+        SELECT s.id,
+               s.store_name,
+               s.store_url,
+               s.status,
+               s.store_type,
+               s.create_time
+        FROM store s
+        WHERE s.customer_id = #{customerId}
+    </select>
+
+    <select id="authorizationUserNum" resultType="java.lang.Integer">
+        select count(distinct s.customer_id)
+        from store s
+        left join customer_manager cai on cai.customer_id=s.customer_id
+        <if test="userManager != null and userManager !=''">
+            where cai.manager_code=#{userManager}
+        </if>
+    </select>
+
+    <select id="registerStoreCount" resultType="com.upedge.ums.modules.statistics.dto.CustomerCharts">
+        select count(1) as num, date(create_time) as day
+        from `store`
+         where date (create_time)>=#{startDay}
+          and date (create_time) &lt;=#{endDay}
+        GROUP BY date(create_time)
+    </select>
+    <select id="selectStoreNameByGroupuserId" resultType="com.upedge.common.model.old.ums.StoreNameAndUserVo">
+        SELECT
+            customer_id customerId,
+            GROUP_CONCAT( store_name )  as  nameStr
+        FROM
+            store
+        GROUP BY
+            customer_id
+        ORDER BY
+            customer_id  desc
+    </select>
 
 </mapper>

@@ -4,8 +4,8 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 
-import com.panda.common.utils.ListUtils;
-import com.panda.common.utils.OkHttpRequest;
+import com.upedge.common.utils.ListUtils;
+import com.upedge.common.utils.OkHttpRequest;
 import com.upedge.thirdparty.shopify.config.Shopify;
 import com.upedge.thirdparty.shopify.entity.Response;
 import com.upedge.thirdparty.shopify.moudles.order.entity.ShopifyFulfillment;
@@ -25,7 +25,7 @@ public class ShopifyOrderApi {
     public static JSONObject getStoreOrder(String shop,String token,Object body,String nextUrl,String param){
         String url = null;
         if (StringUtils.isBlank(nextUrl)){
-            url = "https://" + shop + "/admin/api/" + Shopify.version + "/orders.json";
+            url = "https://" + shop + ".myshopify.com/admin/api/" + Shopify.version + "/orders.json";
         } else {
             url = nextUrl;
         }
@@ -52,7 +52,7 @@ public class ShopifyOrderApi {
     }
 
     public static JSONObject getOrderDetailById(@PathVariable String id,String shop,String token){
-        String url = "https://" + shop + "/admin/api/" + Shopify.version + "/orders/"+id+".json";
+        String url = "https://" + shop + ".myshopify.com/admin/api/" + Shopify.version + "/orders/"+id+".json";
 
         ResponseEntity<JSONObject> entity = RequestUtils.sendRequest(url,token,null,HttpMethod.GET,null);
         if (entity == null){
@@ -67,7 +67,7 @@ public class ShopifyOrderApi {
     }
 
     public static ShopifyFulfillment orderFulfillment(String orderId,String shop,String token,Object body){
-        String url = "https://" + shop + "/admin/api/" + Shopify.version + "/orders/"+orderId+"/fulfillments.json";
+        String url = "https://" + shop + ".myshopify.com/admin/api/" + Shopify.version + "/orders/"+orderId+"/fulfillments.json";
         ResponseEntity<JSONObject> entity =
                 RequestUtils.sendRequest( url, token, null, HttpMethod.POST, body);
         if(null != entity){
@@ -82,7 +82,7 @@ public class ShopifyOrderApi {
 
     public static JSONObject getOrderRefundList(String id,String shop,String token){
 
-        String url = "https://" + shop + "/admin/api/" + Shopify.version + "/orders/"+id+"/refunds.json";
+        String url = "https://" + shop + ".myshopify.com/admin/api/" + Shopify.version + "/orders/"+id+"/refunds.json";
 
         String result = OkHttpRequest.shopifyRequest(url,null,token,HttpMethod.GET);
         if(StringUtils.isNotBlank(result)){
@@ -93,7 +93,7 @@ public class ShopifyOrderApi {
     }
 
     public static ShopifyFulfillment orderFulfillmentUpdate(Object body,String token,String shop, String orderId,String fulfillmentId){
-        String url = "https://" + shop + "/admin/api/"+Shopify.version+"/orders/"+orderId+"/fulfillments/"+fulfillmentId+".json";
+        String url = "https://" + shop + ".myshopify.com/admin/api/"+Shopify.version+"/orders/"+orderId+"/fulfillments/"+fulfillmentId+".json";
         JSONObject jsonObject =
                 RequestUtils.putRequest(JSON.toJSONString(body), token,url);
         if(null != jsonObject){
@@ -110,7 +110,7 @@ public class ShopifyOrderApi {
             return response.failed("null data");
         ShopifyRequestParam param = jsonObject.getJSONObject("param").toJavaObject(ShopifyRequestParam.class);
         jsonObject.remove("param");
-        String url = "https://" + param.getShopName() + "/admin/api/" + param.getApiVersion() + "/orders/"+orderId+"/transactions.json";
+        String url = "https://" + param.getShopName() + ".myshopify.com/admin/api/" + param.getApiVersion() + "/orders/"+orderId+"/transactions.json";
         ResponseEntity<JSONObject> entity =
                 RequestUtils.sendRequest( url, param.getToken(), null, HttpMethod.GET, null);
         jsonObject = entity.getBody();

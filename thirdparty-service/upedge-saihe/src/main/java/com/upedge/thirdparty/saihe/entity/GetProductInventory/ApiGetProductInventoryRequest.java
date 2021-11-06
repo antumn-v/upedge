@@ -30,7 +30,7 @@ public class ApiGetProductInventoryRequest {
 
         ApiGetProductInventoryRequest apiGetProductInventoryRequest=new ApiGetProductInventoryRequest();
         InventoryRequest inventoryRequest=new InventoryRequest();
-        inventoryRequest.setUserName("PANDADUIJIE");
+        inventoryRequest.setUserName("upedgeDUIJIE");
         inventoryRequest.setPassword("LSJDKJHASDNBS");
         inventoryRequest.setCustomerID(1555);
         inventoryRequest.setWarehouseID(162);

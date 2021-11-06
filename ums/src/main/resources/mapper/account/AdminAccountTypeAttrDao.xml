@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.upedge.ums.modules.account.dao.AdminAccountTypeAttrDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.upedge.ums.modules.account.entity.AdminAccountTypeAttr" id="BaseResultMap">
+        <result property="id" column="id"/>
+        <result property="accountType" column="account_type"/>
+        <result property="attrName" column="attr_name"/>
+        <result property="attrKey" column="attr_key"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        `id`,`account_type`,`attr_name`,`attr_key`
+    </sql>
+
+    <select id="selectByPrimaryKey" parameterType="com.upedge.ums.modules.account.entity.AdminAccountTypeAttr" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from admin_account_type_attr
+        where id = #{id}
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="com.upedge.ums.modules.account.entity.AdminAccountTypeAttr">
+        delete from admin_account_type_attr
+        where id = #{id}
+    </delete>
+
+    <update id="updateByPrimaryKeySelective" parameterType="com.upedge.ums.modules.account.entity.AdminAccountTypeAttr">
+        update admin_account_type_attr
+        <set>
+            <if test="accountType != null">
+                account_type = #{accountType},
+            </if>
+            <if test="attrName != null">
+                attr_name = #{attrName},
+            </if>
+            <if test="attrKey != null">
+                attr_key = #{attrKey},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <update id="updateByPrimaryKey" parameterType="com.upedge.ums.modules.account.entity.AdminAccountTypeAttr">
+        update admin_account_type_attr
+        <set>
+        id = #{id},
+        account_type = #{accountType},
+        attr_name = #{attrName},
+        attr_key = #{attrKey},
+        </set>
+        where id = #{id}
+    </update>
+
+    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.upedge.ums.modules.account.entity.AdminAccountTypeAttr" useGeneratedKeys="true">
+        insert into admin_account_type_attr
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            id,
+            account_type,
+            attr_name,
+            attr_key
+        </trim>
+        values (
+        #{id},
+        #{accountType},
+        #{attrName},
+        #{attrKey}
+        )
+    </insert>
+
+    <insert id="insertSelective"  keyColumn="id" keyProperty="id"  parameterType="com.upedge.ums.modules.account.entity.AdminAccountTypeAttr" useGeneratedKeys="true">
+        insert into admin_account_type_attr
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null" >
+              id
+            </if>
+            <if test="accountType != null" >
+              account_type
+            </if>
+            <if test="attrName != null" >
+              attr_name
+            </if>
+            <if test="attrKey != null" >
+              attr_key
+            </if>
+
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null" >
+                #{id}
+            </if>
+            <if test="accountType != null" >
+                #{accountType}
+            </if>
+            <if test="attrName != null" >
+                #{attrName}
+            </if>
+            <if test="attrKey != null" >
+                #{attrKey}
+            </if>
+
+        </trim>
+    </insert>
+
+    <insert id="insertByBatch" parameterType="java.util.List">
+        insert into admin_account_type_attr
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+           id,
+           account_type,
+           attr_name,
+           attr_key
+        </trim>
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+               #{item.id},
+               #{item.accountType},
+               #{item.attrName},
+               #{item.attrKey}
+            </trim>
+        </foreach>
+    </insert>
+
+    <sql id="Query_Condition">
+        <if test="t != null">
+            where
+            <trim prefix=" " suffix=" " suffixOverrides=" and ">
+                1 = 1 and
+                    <if test="t.id != null">
+                        id = #{t.id} and
+                    </if>
+                    <if test="t.accountType != null">
+                        account_type = #{t.accountType} and
+                    </if>
+                    <if test="t.attrName != null">
+                        attr_name = #{t.attrName} and
+                    </if>
+                    <if test="t.attrKey != null">
+                        attr_key = #{t.attrKey} and
+                    </if>
+            </trim>
+        </if>
+    </sql>
+
+    <select id="select" parameterType="com.upedge.common.base.Page" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from admin_account_type_attr
+        <include refid="Query_Condition"/>
+        order by id
+        <if test="pageNum != null and pageSize != null">
+            limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+        </if>
+    </select>
+
+    <select id="count" parameterType="com.upedge.common.base.Page" resultType="java.lang.Long">
+        select
+        count(1)
+        from admin_account_type_attr
+        <include refid="Query_Condition"/>
+    </select>
+
+    <select id="listByAccountType" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from admin_account_type_attr
+        where account_type=#{accountType}
+    </select>
+
+</mapper>

@@ -1,12 +1,13 @@
 package com.upedge.ums.modules.account.dao;
 
-import com.upedge.ums.modules.account.entity.RefundRecord;
-import org.apache.ibatis.annotations.Mapper;
-import java.util.List;
 import com.upedge.common.base.Page;
+import com.upedge.ums.modules.account.entity.RefundRecord;
+import com.upedge.ums.modules.account.vo.RecordVo;
+
+import java.util.List;
 
 /**
- * @author gx
+ * @author author
  */
 public interface RefundRecordDao{
 
@@ -28,4 +29,5 @@ public interface RefundRecordDao{
 
     long count(Page<RefundRecord> record);
 
+    List<RecordVo> listRefundRecordByOrderId(Long orderId);
 }

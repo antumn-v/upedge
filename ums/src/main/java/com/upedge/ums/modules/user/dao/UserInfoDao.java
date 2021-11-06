@@ -12,7 +12,7 @@ public interface UserInfoDao{
 
     UserInfo selectByEmail(String email);
 
-    UserInfo selectByPrimaryKey(UserInfo record);
+    UserInfo selectByPrimaryKey(Long id);
 
     int deleteByPrimaryKey(UserInfo record);
 

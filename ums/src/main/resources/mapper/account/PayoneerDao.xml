@@ -1,0 +1,310 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.upedge.ums.modules.account.dao.PayoneerDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.upedge.ums.modules.account.entity.Payoneer" id="BaseResultMap">
+        <result property="id" column="id"/>
+        <result property="accessToken" column="access_token"/>
+        <result property="expiresIn" column="expires_in"/>
+        <result property="consentedOn" column="consented_on"/>
+        <result property="scope" column="scope"/>
+        <result property="refreshToken" column="refresh_token"/>
+        <result property="refreshTokenExpiresIn" column="refresh_token_expires_in"/>
+        <result property="idToken" column="id_token"/>
+        <result property="payonneerAccountId" column="payoneer_account_id"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        `id`,`access_token`,`expires_in`,`consented_on`,`scope`,`refresh_token`,`refresh_token_expires_in`,`id_token`,`payoneer_account_id`,`create_time`,`update_time`
+    </sql>
+
+    <select id="selectByPrimaryKey" parameterType="com.upedge.ums.modules.account.entity.Payoneer" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from payoneer
+        where id = #{id}
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="com.upedge.ums.modules.account.entity.Payoneer">
+        delete from payoneer
+        where id = #{id}
+    </delete>
+
+    <update id="updateByPrimaryKeySelective" parameterType="com.upedge.ums.modules.account.entity.Payoneer">
+        update payoneer
+        <set>
+            <if test="accessToken != null">
+                access_token = #{accessToken},
+            </if>
+            <if test="expiresIn != null">
+                expires_in = #{expiresIn},
+            </if>
+            <if test="consentedOn != null">
+                consented_on = #{consentedOn},
+            </if>
+            <if test="scope != null">
+                scope = #{scope},
+            </if>
+            <if test="refreshToken != null">
+                refresh_token = #{refreshToken},
+            </if>
+            <if test="refreshTokenExpiresIn != null">
+                refresh_token_expires_in = #{refreshTokenExpiresIn},
+            </if>
+            <if test="idToken != null">
+                id_token = #{idToken},
+            </if>
+            <if test="payonneerAccountId != null">
+                payoneer_account_id = #{payonneerAccountId},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime},
+            </if>
+            <if test="updateTime != null">
+                update_time = #{updateTime},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <update id="updateByPrimaryKey" parameterType="com.upedge.ums.modules.account.entity.Payoneer">
+        update payoneer
+        <set>
+        id = #{id},
+        access_token = #{accessToken},
+        expires_in = #{expiresIn},
+        consented_on = #{consentedOn},
+        scope = #{scope},
+        refresh_token = #{refreshToken},
+        refresh_token_expires_in = #{refreshTokenExpiresIn},
+        id_token = #{idToken},
+        payoneer_account_id = #{payonneerAccountId},
+        create_time = #{createTime},
+        update_time = #{updateTime},
+        </set>
+        where id = #{id}
+    </update>
+
+    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.upedge.ums.modules.account.entity.Payoneer" useGeneratedKeys="true">
+        insert into payoneer
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            id,
+            access_token,
+            expires_in,
+            consented_on,
+            scope,
+            refresh_token,
+            refresh_token_expires_in,
+            id_token,
+            payoneer_account_id,
+            create_time,
+            update_time
+        </trim>
+        values (
+        #{id},
+        #{accessToken},
+        #{expiresIn},
+        #{consentedOn},
+        #{scope},
+        #{refreshToken},
+        #{refreshTokenExpiresIn},
+        #{idToken},
+        #{payonneerAccountId},
+        #{createTime},
+        #{updateTime}
+        )
+    </insert>
+
+    <insert id="insertSelective"  keyColumn="id" keyProperty="id"  parameterType="com.upedge.ums.modules.account.entity.Payoneer" useGeneratedKeys="true">
+        insert into payoneer
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null" >
+              id
+            </if>
+            <if test="accessToken != null" >
+              access_token
+            </if>
+            <if test="expiresIn != null" >
+              expires_in
+            </if>
+            <if test="consentedOn != null" >
+              consented_on
+            </if>
+            <if test="scope != null" >
+              scope
+            </if>
+            <if test="refreshToken != null" >
+              refresh_token
+            </if>
+            <if test="refreshTokenExpiresIn != null" >
+              refresh_token_expires_in
+            </if>
+            <if test="idToken != null" >
+              id_token
+            </if>
+            <if test="payonneerAccountId != null" >
+              payoneer_account_id
+            </if>
+            <if test="createTime != null" >
+              create_time
+            </if>
+            <if test="updateTime != null" >
+              update_time
+            </if>
+
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null" >
+                #{id}
+            </if>
+            <if test="accessToken != null" >
+                #{accessToken}
+            </if>
+            <if test="expiresIn != null" >
+                #{expiresIn}
+            </if>
+            <if test="consentedOn != null" >
+                #{consentedOn}
+            </if>
+            <if test="scope != null" >
+                #{scope}
+            </if>
+            <if test="refreshToken != null" >
+                #{refreshToken}
+            </if>
+            <if test="refreshTokenExpiresIn != null" >
+                #{refreshTokenExpiresIn}
+            </if>
+            <if test="idToken != null" >
+                #{idToken}
+            </if>
+            <if test="payonneerAccountId != null" >
+                #{payonneerAccountId}
+            </if>
+            <if test="createTime != null" >
+                #{createTime}
+            </if>
+            <if test="updateTime != null" >
+                #{updateTime}
+            </if>
+
+        </trim>
+    </insert>
+
+    <insert id="insertByBatch" parameterType="java.util.List">
+        insert into payoneer
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+           id,
+           access_token,
+           expires_in,
+           consented_on,
+           scope,
+           refresh_token,
+           refresh_token_expires_in,
+           id_token,
+           payoneer_account_id,
+           create_time,
+           update_time
+        </trim>
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+               #{item.id},
+               #{item.accessToken},
+               #{item.expiresIn},
+               #{item.consentedOn},
+               #{item.scope},
+               #{item.refreshToken},
+               #{item.refreshTokenExpiresIn},
+               #{item.idToken},
+               #{item.payonneerAccountId},
+               #{item.createTime},
+               #{item.updateTime}
+            </trim>
+        </foreach>
+    </insert>
+
+    <sql id="Query_Condition">
+        <if test="t != null">
+            where
+            <trim prefix=" " suffix=" " suffixOverrides=" and ">
+                1 = 1 and
+                    <if test="t.id != null">
+                        id = #{t.id} and
+                    </if>
+                    <if test="t.accessToken != null">
+                        access_token = #{t.accessToken} and
+                    </if>
+                    <if test="t.expiresIn != null">
+                        expires_in = #{t.expiresIn} and
+                    </if>
+                    <if test="t.consentedOn != null">
+                        consented_on = #{t.consentedOn} and
+                    </if>
+                    <if test="t.scope != null">
+                        scope = #{t.scope} and
+                    </if>
+                    <if test="t.refreshToken != null">
+                        refresh_token = #{t.refreshToken} and
+                    </if>
+                    <if test="t.refreshTokenExpiresIn != null">
+                        refresh_token_expires_in = #{t.refreshTokenExpiresIn} and
+                    </if>
+                    <if test="t.idToken != null">
+                        id_token = #{t.idToken} and
+                    </if>
+                    <if test="t.payonneerAccountId != null">
+                        payoneer_account_id = #{t.payonneerAccountId} and
+                    </if>
+                    <if test="t.createTime != null">
+                        create_time = #{t.createTime} and
+                    </if>
+                    <if test="t.updateTime != null">
+                        update_time = #{t.updateTime} and
+                    </if>
+            </trim>
+        </if>
+    </sql>
+
+    <select id="select" parameterType="com.upedge.common.base.Page" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from payoneer
+        <include refid="Query_Condition"/>
+        <if test="orderBy != null">
+            order by ${orderBy}
+        </if>
+        <if test="pageNum != null and pageSize != null">
+            limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+        </if>
+    </select>
+
+    <select id="count" parameterType="com.upedge.common.base.Page" resultType="java.lang.Long">
+        select
+        count(1)
+        from payoneer
+        <include refid="Query_Condition"/>
+    </select>
+    <select id="selectByPayoneerAccountId" resultType="com.upedge.ums.modules.account.entity.Payoneer">
+        select
+        <include refid="Base_Column_List" />
+        from payoneer
+        where payoneer_account_id = #{payoneerAccountId}
+    </select>
+    <select id="selectAccountPayoneers" resultMap="BaseResultMap">
+        select p.`id`,p.`access_token`,p.`expires_in`,p.`consented_on`,
+        p.`scope`,p.`refresh_token`,
+        p.`refresh_token_expires_in`,p.`id_token`,
+        p.`payoneer_account_id`,p.`create_time`,p.`update_time`
+        from account_payoneer ap
+        inner join payoneer p
+        on ap.payoneer_id = p.id
+        where ap.account_id = #{accountId}
+    </select>
+
+
+</mapper>

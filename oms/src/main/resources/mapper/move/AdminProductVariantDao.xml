@@ -1,0 +1,546 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.upedge.oms.modules.move.dao.AdminProductVariantDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.upedge.common.model.old.pms.AdminProductVariant" id="BaseResultMap">
+        <result property="id" column="id"/>
+        <result property="originalVariantId" column="original_variant_id"/>
+        <result property="productId" column="product_id"/>
+        <result property="variantSku" column="variant_sku"/>
+        <result property="variantAttrACname" column="variant_attr_a_cname"/>
+        <result property="variantAttrAName" column="variant_attr_a_name"/>
+        <result property="originalACvalue" column="original_a_cvalue"/>
+        <result property="variantAttrACvalue" column="variant_attr_a_cvalue"/>
+        <result property="variantAttrAValue" column="variant_attr_a_value"/>
+        <result property="variantAttrBCname" column="variant_attr_b_cname"/>
+        <result property="variantAttrBName" column="variant_attr_b_name"/>
+        <result property="originalBCvalue" column="original_b_cvalue"/>
+        <result property="variantAttrBCvalue" column="variant_attr_b_cvalue"/>
+        <result property="variantAttrBValue" column="variant_attr_b_value"/>
+        <result property="variantAttrCName" column="variant_attr_c_name"/>
+        <result property="variantAttrCValue" column="variant_attr_c_value"/>
+        <result property="variantImage" column="variant_image"/>
+        <result property="variantPrice" column="variant_price"/>
+        <result property="inventory" column="inventory"/>
+        <result property="variantName" column="variant_name"/>
+        <result property="variantCname" column="variant_cname"/>
+        <result property="weight" column="weight"/>
+        <result property="state" column="state"/>
+        <result property="volumeWeight" column="volume_weight"/>
+        <result property="variantType" column="variant_type"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        `id`,`original_variant_id`,`product_id`,`variant_sku`,`variant_attr_a_cname`,`variant_attr_a_name`,`original_a_cvalue`,`variant_attr_a_cvalue`,`variant_attr_a_value`,`variant_attr_b_cname`,`variant_attr_b_name`,`original_b_cvalue`,`variant_attr_b_cvalue`,`variant_attr_b_value`,`variant_attr_c_name`,`variant_attr_c_value`,`variant_image`,`variant_price`,`inventory`,`variant_name`,`variant_cname`,`weight`,`state`,`volume_weight`,`variant_type`
+    </sql>
+
+    <select id="selectByPrimaryKey" parameterType="com.upedge.common.model.old.pms.AdminProductVariant" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from admin_product_variant
+        where id = #{id}
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="com.upedge.common.model.old.pms.AdminProductVariant">
+        delete from admin_product_variant
+        where id = #{id}
+    </delete>
+
+    <update id="updateByPrimaryKeySelective" parameterType="com.upedge.common.model.old.pms.AdminProductVariant">
+        update admin_product_variant
+        <set>
+            <if test="originalVariantId != null">
+                original_variant_id = #{originalVariantId},
+            </if>
+            <if test="productId != null">
+                product_id = #{productId},
+            </if>
+            <if test="variantSku != null">
+                variant_sku = #{variantSku},
+            </if>
+            <if test="variantAttrACname != null">
+                variant_attr_a_cname = #{variantAttrACname},
+            </if>
+            <if test="variantAttrAName != null">
+                variant_attr_a_name = #{variantAttrAName},
+            </if>
+            <if test="originalACvalue != null">
+                original_a_cvalue = #{originalACvalue},
+            </if>
+            <if test="variantAttrACvalue != null">
+                variant_attr_a_cvalue = #{variantAttrACvalue},
+            </if>
+            <if test="variantAttrAValue != null">
+                variant_attr_a_value = #{variantAttrAValue},
+            </if>
+            <if test="variantAttrBCname != null">
+                variant_attr_b_cname = #{variantAttrBCname},
+            </if>
+            <if test="variantAttrBName != null">
+                variant_attr_b_name = #{variantAttrBName},
+            </if>
+            <if test="originalBCvalue != null">
+                original_b_cvalue = #{originalBCvalue},
+            </if>
+            <if test="variantAttrBCvalue != null">
+                variant_attr_b_cvalue = #{variantAttrBCvalue},
+            </if>
+            <if test="variantAttrBValue != null">
+                variant_attr_b_value = #{variantAttrBValue},
+            </if>
+            <if test="variantAttrCName != null">
+                variant_attr_c_name = #{variantAttrCName},
+            </if>
+            <if test="variantAttrCValue != null">
+                variant_attr_c_value = #{variantAttrCValue},
+            </if>
+            <if test="variantImage != null">
+                variant_image = #{variantImage},
+            </if>
+            <if test="variantPrice != null">
+                variant_price = #{variantPrice},
+            </if>
+            <if test="inventory != null">
+                inventory = #{inventory},
+            </if>
+            <if test="variantName != null">
+                variant_name = #{variantName},
+            </if>
+            <if test="variantCname != null">
+                variant_cname = #{variantCname},
+            </if>
+            <if test="weight != null">
+                weight = #{weight},
+            </if>
+            <if test="state != null">
+                state = #{state},
+            </if>
+            <if test="volumeWeight != null">
+                volume_weight = #{volumeWeight},
+            </if>
+            <if test="variantType != null">
+                variant_type = #{variantType},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <update id="updateByPrimaryKey" parameterType="com.upedge.common.model.old.pms.AdminProductVariant">
+        update admin_product_variant
+        <set>
+        id = #{id},
+        original_variant_id = #{originalVariantId},
+        product_id = #{productId},
+        variant_sku = #{variantSku},
+        variant_attr_a_cname = #{variantAttrACname},
+        variant_attr_a_name = #{variantAttrAName},
+        original_a_cvalue = #{originalACvalue},
+        variant_attr_a_cvalue = #{variantAttrACvalue},
+        variant_attr_a_value = #{variantAttrAValue},
+        variant_attr_b_cname = #{variantAttrBCname},
+        variant_attr_b_name = #{variantAttrBName},
+        original_b_cvalue = #{originalBCvalue},
+        variant_attr_b_cvalue = #{variantAttrBCvalue},
+        variant_attr_b_value = #{variantAttrBValue},
+        variant_attr_c_name = #{variantAttrCName},
+        variant_attr_c_value = #{variantAttrCValue},
+        variant_image = #{variantImage},
+        variant_price = #{variantPrice},
+        inventory = #{inventory},
+        variant_name = #{variantName},
+        variant_cname = #{variantCname},
+        weight = #{weight},
+        state = #{state},
+        volume_weight = #{volumeWeight},
+        variant_type = #{variantType},
+        </set>
+        where id = #{id}
+    </update>
+
+    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.upedge.common.model.old.pms.AdminProductVariant" useGeneratedKeys="true">
+        insert into admin_product_variant
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            id,
+            original_variant_id,
+            product_id,
+            variant_sku,
+            variant_attr_a_cname,
+            variant_attr_a_name,
+            original_a_cvalue,
+            variant_attr_a_cvalue,
+            variant_attr_a_value,
+            variant_attr_b_cname,
+            variant_attr_b_name,
+            original_b_cvalue,
+            variant_attr_b_cvalue,
+            variant_attr_b_value,
+            variant_attr_c_name,
+            variant_attr_c_value,
+            variant_image,
+            variant_price,
+            inventory,
+            variant_name,
+            variant_cname,
+            weight,
+            state,
+            volume_weight,
+            variant_type
+        </trim>
+        values (
+        #{id},
+        #{originalVariantId},
+        #{productId},
+        #{variantSku},
+        #{variantAttrACname},
+        #{variantAttrAName},
+        #{originalACvalue},
+        #{variantAttrACvalue},
+        #{variantAttrAValue},
+        #{variantAttrBCname},
+        #{variantAttrBName},
+        #{originalBCvalue},
+        #{variantAttrBCvalue},
+        #{variantAttrBValue},
+        #{variantAttrCName},
+        #{variantAttrCValue},
+        #{variantImage},
+        #{variantPrice},
+        #{inventory},
+        #{variantName},
+        #{variantCname},
+        #{weight},
+        #{state},
+        #{volumeWeight},
+        #{variantType}
+        )
+    </insert>
+
+    <insert id="insertSelective"  keyColumn="id" keyProperty="id"  parameterType="com.upedge.common.model.old.pms.AdminProductVariant" useGeneratedKeys="true">
+        insert into admin_product_variant
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null" >
+              id
+            </if>
+            <if test="originalVariantId != null" >
+              original_variant_id
+            </if>
+            <if test="productId != null" >
+              product_id
+            </if>
+            <if test="variantSku != null" >
+              variant_sku
+            </if>
+            <if test="variantAttrACname != null" >
+              variant_attr_a_cname
+            </if>
+            <if test="variantAttrAName != null" >
+              variant_attr_a_name
+            </if>
+            <if test="originalACvalue != null" >
+              original_a_cvalue
+            </if>
+            <if test="variantAttrACvalue != null" >
+              variant_attr_a_cvalue
+            </if>
+            <if test="variantAttrAValue != null" >
+              variant_attr_a_value
+            </if>
+            <if test="variantAttrBCname != null" >
+              variant_attr_b_cname
+            </if>
+            <if test="variantAttrBName != null" >
+              variant_attr_b_name
+            </if>
+            <if test="originalBCvalue != null" >
+              original_b_cvalue
+            </if>
+            <if test="variantAttrBCvalue != null" >
+              variant_attr_b_cvalue
+            </if>
+            <if test="variantAttrBValue != null" >
+              variant_attr_b_value
+            </if>
+            <if test="variantAttrCName != null" >
+              variant_attr_c_name
+            </if>
+            <if test="variantAttrCValue != null" >
+              variant_attr_c_value
+            </if>
+            <if test="variantImage != null" >
+              variant_image
+            </if>
+            <if test="variantPrice != null" >
+              variant_price
+            </if>
+            <if test="inventory != null" >
+              inventory
+            </if>
+            <if test="variantName != null" >
+              variant_name
+            </if>
+            <if test="variantCname != null" >
+              variant_cname
+            </if>
+            <if test="weight != null" >
+              weight
+            </if>
+            <if test="state != null" >
+              state
+            </if>
+            <if test="volumeWeight != null" >
+              volume_weight
+            </if>
+            <if test="variantType != null" >
+              variant_type
+            </if>
+
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null" >
+                #{id}
+            </if>
+            <if test="originalVariantId != null" >
+                #{originalVariantId}
+            </if>
+            <if test="productId != null" >
+                #{productId}
+            </if>
+            <if test="variantSku != null" >
+                #{variantSku}
+            </if>
+            <if test="variantAttrACname != null" >
+                #{variantAttrACname}
+            </if>
+            <if test="variantAttrAName != null" >
+                #{variantAttrAName}
+            </if>
+            <if test="originalACvalue != null" >
+                #{originalACvalue}
+            </if>
+            <if test="variantAttrACvalue != null" >
+                #{variantAttrACvalue}
+            </if>
+            <if test="variantAttrAValue != null" >
+                #{variantAttrAValue}
+            </if>
+            <if test="variantAttrBCname != null" >
+                #{variantAttrBCname}
+            </if>
+            <if test="variantAttrBName != null" >
+                #{variantAttrBName}
+            </if>
+            <if test="originalBCvalue != null" >
+                #{originalBCvalue}
+            </if>
+            <if test="variantAttrBCvalue != null" >
+                #{variantAttrBCvalue}
+            </if>
+            <if test="variantAttrBValue != null" >
+                #{variantAttrBValue}
+            </if>
+            <if test="variantAttrCName != null" >
+                #{variantAttrCName}
+            </if>
+            <if test="variantAttrCValue != null" >
+                #{variantAttrCValue}
+            </if>
+            <if test="variantImage != null" >
+                #{variantImage}
+            </if>
+            <if test="variantPrice != null" >
+                #{variantPrice}
+            </if>
+            <if test="inventory != null" >
+                #{inventory}
+            </if>
+            <if test="variantName != null" >
+                #{variantName}
+            </if>
+            <if test="variantCname != null" >
+                #{variantCname}
+            </if>
+            <if test="weight != null" >
+                #{weight}
+            </if>
+            <if test="state != null" >
+                #{state}
+            </if>
+            <if test="volumeWeight != null" >
+                #{volumeWeight}
+            </if>
+            <if test="variantType != null" >
+                #{variantType}
+            </if>
+
+        </trim>
+    </insert>
+
+    <insert id="insertByBatch" parameterType="java.util.List">
+        insert into admin_product_variant
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+           id,
+           original_variant_id,
+           product_id,
+           variant_sku,
+           variant_attr_a_cname,
+           variant_attr_a_name,
+           original_a_cvalue,
+           variant_attr_a_cvalue,
+           variant_attr_a_value,
+           variant_attr_b_cname,
+           variant_attr_b_name,
+           original_b_cvalue,
+           variant_attr_b_cvalue,
+           variant_attr_b_value,
+           variant_attr_c_name,
+           variant_attr_c_value,
+           variant_image,
+           variant_price,
+           inventory,
+           variant_name,
+           variant_cname,
+           weight,
+           state,
+           volume_weight,
+           variant_type
+        </trim>
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+               #{item.id},
+               #{item.originalVariantId},
+               #{item.productId},
+               #{item.variantSku},
+               #{item.variantAttrACname},
+               #{item.variantAttrAName},
+               #{item.originalACvalue},
+               #{item.variantAttrACvalue},
+               #{item.variantAttrAValue},
+               #{item.variantAttrBCname},
+               #{item.variantAttrBName},
+               #{item.originalBCvalue},
+               #{item.variantAttrBCvalue},
+               #{item.variantAttrBValue},
+               #{item.variantAttrCName},
+               #{item.variantAttrCValue},
+               #{item.variantImage},
+               #{item.variantPrice},
+               #{item.inventory},
+               #{item.variantName},
+               #{item.variantCname},
+               #{item.weight},
+               #{item.state},
+               #{item.volumeWeight},
+               #{item.variantType}
+            </trim>
+        </foreach>
+    </insert>
+
+    <sql id="Query_Condition">
+        <if test="t != null">
+            where
+            <trim prefix=" " suffix=" " suffixOverrides=" and ">
+                1 = 1 and
+                    <if test="t.id != null">
+                        id = #{t.id} and
+                    </if>
+                    <if test="t.originalVariantId != null">
+                        original_variant_id = #{t.originalVariantId} and
+                    </if>
+                    <if test="t.productId != null">
+                        product_id = #{t.productId} and
+                    </if>
+                    <if test="t.variantSku != null">
+                        variant_sku = #{t.variantSku} and
+                    </if>
+                    <if test="t.variantAttrACname != null">
+                        variant_attr_a_cname = #{t.variantAttrACname} and
+                    </if>
+                    <if test="t.variantAttrAName != null">
+                        variant_attr_a_name = #{t.variantAttrAName} and
+                    </if>
+                    <if test="t.originalACvalue != null">
+                        original_a_cvalue = #{t.originalACvalue} and
+                    </if>
+                    <if test="t.variantAttrACvalue != null">
+                        variant_attr_a_cvalue = #{t.variantAttrACvalue} and
+                    </if>
+                    <if test="t.variantAttrAValue != null">
+                        variant_attr_a_value = #{t.variantAttrAValue} and
+                    </if>
+                    <if test="t.variantAttrBCname != null">
+                        variant_attr_b_cname = #{t.variantAttrBCname} and
+                    </if>
+                    <if test="t.variantAttrBName != null">
+                        variant_attr_b_name = #{t.variantAttrBName} and
+                    </if>
+                    <if test="t.originalBCvalue != null">
+                        original_b_cvalue = #{t.originalBCvalue} and
+                    </if>
+                    <if test="t.variantAttrBCvalue != null">
+                        variant_attr_b_cvalue = #{t.variantAttrBCvalue} and
+                    </if>
+                    <if test="t.variantAttrBValue != null">
+                        variant_attr_b_value = #{t.variantAttrBValue} and
+                    </if>
+                    <if test="t.variantAttrCName != null">
+                        variant_attr_c_name = #{t.variantAttrCName} and
+                    </if>
+                    <if test="t.variantAttrCValue != null">
+                        variant_attr_c_value = #{t.variantAttrCValue} and
+                    </if>
+                    <if test="t.variantImage != null">
+                        variant_image = #{t.variantImage} and
+                    </if>
+                    <if test="t.variantPrice != null">
+                        variant_price = #{t.variantPrice} and
+                    </if>
+                    <if test="t.inventory != null">
+                        inventory = #{t.inventory} and
+                    </if>
+                    <if test="t.variantName != null">
+                        variant_name = #{t.variantName} and
+                    </if>
+                    <if test="t.variantCname != null">
+                        variant_cname = #{t.variantCname} and
+                    </if>
+                    <if test="t.weight != null">
+                        weight = #{t.weight} and
+                    </if>
+                    <if test="t.state != null">
+                        state = #{t.state} and
+                    </if>
+                    <if test="t.volumeWeight != null">
+                        volume_weight = #{t.volumeWeight} and
+                    </if>
+                    <if test="t.variantType != null">
+                        variant_type = #{t.variantType} and
+                    </if>
+            </trim>
+        </if>
+    </sql>
+
+    <select id="select" parameterType="com.upedge.common.base.Page" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from admin_product_variant
+        <include refid="Query_Condition"/>
+        <if test="orderBy != null">
+            order by ${orderBy}
+        </if>
+        <if test="pageNum != null and pageSize != null">
+            limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+        </if>
+    </select>
+
+    <select id="count" parameterType="com.upedge.common.base.Page" resultType="java.lang.Long">
+        select
+        count(1)
+        from admin_product_variant
+        <include refid="Query_Condition"/>
+    </select>
+
+
+</mapper>

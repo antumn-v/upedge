@@ -1,0 +1,258 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.upedge.oms.modules.statistics.dao.InvoiceExportRequestDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.upedge.oms.modules.statistics.entity.InvoiceExportRequest" id="BaseResultMap">
+        <result property="id" column="id"/>
+        <result property="customerId" column="customer_id"/>
+        <result property="rangeBegin" column="range_begin"/>
+        <result property="rangeEnd" column="range_end"/>
+        <result property="excelName" column="excel_name"/>
+        <result property="excelUrl" column="excel_url"/>
+        <result property="state" column="state"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        `id`,`customer_id`,`range_begin`,`range_end`,`excel_name`,`excel_url`,`state`,`create_time`,`update_time`
+    </sql>
+
+    <select id="selectByPrimaryKey" parameterType="com.upedge.oms.modules.statistics.entity.InvoiceExportRequest" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from invoice_export_request
+        where id = #{id}
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="com.upedge.oms.modules.statistics.entity.InvoiceExportRequest">
+        delete from invoice_export_request
+        where id = #{id}
+    </delete>
+
+    <update id="updateByPrimaryKeySelective" parameterType="com.upedge.oms.modules.statistics.entity.InvoiceExportRequest">
+        update invoice_export_request
+        <set>
+            <if test="customerId != null">
+                customer_id = #{customerId},
+            </if>
+            <if test="rangeBegin != null">
+                range_begin = #{rangeBegin},
+            </if>
+            <if test="rangeEnd != null">
+                range_end = #{rangeEnd},
+            </if>
+            <if test="excelName != null">
+                excel_name = #{excelName},
+            </if>
+            <if test="excelUrl != null">
+                excel_url = #{excelUrl},
+            </if>
+            <if test="state != null">
+                state = #{state},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime},
+            </if>
+            <if test="updateTime != null">
+                update_time = #{updateTime},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <update id="updateByPrimaryKey" parameterType="com.upedge.oms.modules.statistics.entity.InvoiceExportRequest">
+        update invoice_export_request
+        <set>
+        id = #{id},
+        customer_id = #{customerId},
+        range_begin = #{rangeBegin},
+        range_end = #{rangeEnd},
+        excel_name = #{excelName},
+        excel_url = #{excelUrl},
+        state = #{state},
+        create_time = #{createTime},
+        update_time = #{updateTime},
+        </set>
+        where id = #{id}
+    </update>
+
+    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.upedge.oms.modules.statistics.entity.InvoiceExportRequest" useGeneratedKeys="true">
+        insert into invoice_export_request
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            id,
+            customer_id,
+            range_begin,
+            range_end,
+            excel_name,
+            excel_url,
+            state,
+            create_time,
+            update_time
+        </trim>
+        values (
+        #{id},
+        #{customerId},
+        #{rangeBegin},
+        #{rangeEnd},
+        #{excelName},
+        #{excelUrl},
+        #{state},
+        #{createTime},
+        #{updateTime}
+        )
+    </insert>
+
+    <insert id="insertSelective"  keyColumn="id" keyProperty="id"  parameterType="com.upedge.oms.modules.statistics.entity.InvoiceExportRequest" useGeneratedKeys="true">
+        insert into invoice_export_request
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null" >
+              id
+            </if>
+            <if test="customerId != null" >
+              customer_id
+            </if>
+            <if test="rangeBegin != null" >
+              range_begin
+            </if>
+            <if test="rangeEnd != null" >
+              range_end
+            </if>
+            <if test="excelName != null" >
+              excel_name
+            </if>
+            <if test="excelUrl != null" >
+              excel_url
+            </if>
+            <if test="state != null" >
+              state
+            </if>
+            <if test="createTime != null" >
+              create_time
+            </if>
+            <if test="updateTime != null" >
+              update_time
+            </if>
+
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null" >
+                #{id}
+            </if>
+            <if test="customerId != null" >
+                #{customerId}
+            </if>
+            <if test="rangeBegin != null" >
+                #{rangeBegin}
+            </if>
+            <if test="rangeEnd != null" >
+                #{rangeEnd}
+            </if>
+            <if test="excelName != null" >
+                #{excelName}
+            </if>
+            <if test="excelUrl != null" >
+                #{excelUrl}
+            </if>
+            <if test="state != null" >
+                #{state}
+            </if>
+            <if test="createTime != null" >
+                #{createTime}
+            </if>
+            <if test="updateTime != null" >
+                #{updateTime}
+            </if>
+
+        </trim>
+    </insert>
+
+    <insert id="insertByBatch" parameterType="java.util.List">
+        insert into invoice_export_request
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+           id,
+           customer_id,
+           range_begin,
+           range_end,
+           excel_name,
+           excel_url,
+           state,
+           create_time,
+           update_time
+        </trim>
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+               #{item.id},
+               #{item.customerId},
+               #{item.rangeBegin},
+               #{item.rangeEnd},
+               #{item.excelName},
+               #{item.excelUrl},
+               #{item.state},
+               #{item.createTime},
+               #{item.updateTime}
+            </trim>
+        </foreach>
+    </insert>
+
+    <sql id="Query_Condition">
+        <if test="t != null">
+            where
+            <trim prefix=" " suffix=" " suffixOverrides=" and ">
+                1 = 1 and
+                    <if test="t.id != null">
+                        id = #{t.id} and
+                    </if>
+                    <if test="t.customerId != null">
+                        customer_id = #{t.customerId} and
+                    </if>
+                    <if test="t.rangeBegin != null">
+                        range_begin = #{t.rangeBegin} and
+                    </if>
+                    <if test="t.rangeEnd != null">
+                        range_end = #{t.rangeEnd} and
+                    </if>
+                    <if test="t.excelName != null">
+                        excel_name = #{t.excelName} and
+                    </if>
+                    <if test="t.excelUrl != null">
+                        excel_url = #{t.excelUrl} and
+                    </if>
+                    <if test="t.state != null">
+                        state = #{t.state} and
+                    </if>
+                    <if test="t.createTime != null">
+                        create_time = #{t.createTime} and
+                    </if>
+                    <if test="t.updateTime != null">
+                        update_time = #{t.updateTime} and
+                    </if>
+            </trim>
+        </if>
+    </sql>
+
+    <select id="select" parameterType="com.upedge.common.base.Page" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from invoice_export_request
+        <include refid="Query_Condition"/>
+        <if test="orderBy != null">
+            order by ${orderBy}
+        </if>
+        <if test="pageNum != null and pageSize != null">
+            limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+        </if>
+    </select>
+
+    <select id="count" parameterType="com.upedge.common.base.Page" resultType="java.lang.Long">
+        select
+        count(1)
+        from invoice_export_request
+        <include refid="Query_Condition"/>
+    </select>
+
+
+</mapper>

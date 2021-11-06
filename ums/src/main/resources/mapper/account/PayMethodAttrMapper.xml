@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.upedge.ums.modules.account.dao.PayMethodAttrMapper">
+    <resultMap id="BaseResultMap" type="com.upedge.ums.modules.account.entity.PayMethodAttr">
+        <id column="id" property="id" jdbcType="INTEGER"/>
+        <result column="paymethod_id" property="paymethodId" jdbcType="INTEGER"/>
+        <result column="attr_name" property="attrName" jdbcType="VARCHAR"/>
+        <result column="attr_key" property="attrKey" jdbcType="VARCHAR"/>
+        <result column="obtain_type" property="obtainType" jdbcType="INTEGER"/>
+        <result column="needed" property="needed" jdbcType="INTEGER"/>
+        <result column="remarks" property="remarks" jdbcType="VARCHAR"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+    id, paymethod_id, attr_name, attr_key, needed,obtain_type, remarks
+  </sql>
+
+    <sql id="Query_Conditions">
+        <where>
+            <if test="t != null">
+                <if test="t.id != null">
+                    and id = #{t.id}
+                </if>
+                <if test="t.paymethodId != null">
+                    and paymethod_id = #{t.paymethodId}
+                </if>
+                <if test="t.obtainType != null">
+                    and obtain_type = #{t.obtainType}
+                </if>
+                <if test="t.needed != null">
+                    and needed = #{t.needed}
+                </if>
+                <if test="t.remarks != null">
+                    and remarks like '%'${t.remarks}'%'
+                </if>
+            </if>
+        </where>
+    </sql>
+
+    <select id="selectPayMethodAttrsNeedEntered" resultMap="BaseResultMap">
+        select <include refid="Base_Column_List"/>
+        from paymethod_attr
+        where paymethod_id = #{paymethodId}
+        and obtain_type = '0'
+    </select>
+
+    <select id="selectPayMethodAttrs" parameterType="com.upedge.common.base.Page" resultMap="BaseResultMap">
+        select
+        <if test="fields == null or fields == ''">
+            <include refid="Base_Column_List"/>
+        </if>
+        <if test="fields != null">
+            ${fields}
+        </if>
+        from paymethod_attr
+        <include refid="Query_Conditions"/>
+    </select>
+
+    <select id="countPayMethodAttrs" parameterType="com.upedge.common.base.Page" resultType="java.lang.Long">
+      select count(id)
+      from paymethod_attr
+      <include refid="Query_Conditions"/>
+    </select>
+
+    <insert id="batchInsert" parameterType="java.util.List">
+        insert into paymethod_attr (id, paymethod_id, attr_name,
+        attr_key,obtain_type, needed, remarks
+        )
+        values
+        <foreach collection="attrs" item="a" separator=",">
+            (#{a.id,jdbcType=INTEGER}, #{a.paymethodId,jdbcType=INTEGER}, #{a.attrName,jdbcType=VARCHAR},
+            #{a.attrKey,jdbcType=VARCHAR},#{a.obtainType}, #{a.needed,jdbcType=INTEGER},
+            #{a.remarks,jdbcType=VARCHAR})
+        </foreach>
+    </insert>
+
+    <delete id="deleteByPayMethodId">
+    delete
+    from paymethod_attr
+    where paymethod_id = #{payMethodId}
+  </delete>
+
+    <!--  ******************************************-->
+
+    <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer">
+        select
+        <include refid="Base_Column_List"/>
+        from paymethod_attr
+        where id = #{id,jdbcType=INTEGER}
+    </select>
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from paymethod_attr
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+
+    <insert id="insert" parameterType="com.upedge.ums.modules.account.entity.PayMethodAttr">
+    insert into paymethod_attr (id, paymethod_id, attr_name, 
+      attr_key,obtain_type, needed, remarks
+      )
+    values (#{id,jdbcType=INTEGER}, #{paymethodId,jdbcType=INTEGER}, #{attrName,jdbcType=VARCHAR}, 
+      #{attrKey,jdbcType=VARCHAR}, #{needed,jdbcType=INTEGER},
+      #{obtainType},#{remarks,jdbcType=VARCHAR}
+      )
+  </insert>
+    <insert id="insertSelective" parameterType="com.upedge.ums.modules.account.entity.PayMethodAttr">
+        insert into paymethod_attr
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="paymethodId != null">
+                paymethod_id,
+            </if>
+            <if test="attrName != null">
+                attr_name,
+            </if>
+            <if test="attrKey != null">
+                attr_key,
+            </if>
+            <if test="needed != null">
+                needed,
+            </if>
+            <if test="remarks != null">
+                remarks,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id,jdbcType=INTEGER},
+            </if>
+            <if test="paymethodId != null">
+                #{paymethodId,jdbcType=INTEGER},
+            </if>
+            <if test="attrName != null">
+                #{attr_name,jdbcType=VARCHAR},
+            </if>
+            <if test="attrKey != null">
+                #{attrKey,jdbcType=VARCHAR},
+            </if>
+            <if test="needed != null">
+                #{needed,jdbcType=INTEGER},
+            </if>
+            <if test="remarks != null">
+                #{remarks,jdbcType=VARCHAR},
+            </if>
+        </trim>
+    </insert>
+    <update id="updateByPrimaryKeySelective" parameterType="com.upedge.ums.modules.account.entity.PayMethodAttr">
+        update paymethod_attr
+        <set>
+            <if test="paymethodId != null">
+                paymethod_id = #{paymethodId,jdbcType=INTEGER},
+            </if>
+            <if test="attrName != null">
+                attr_name = #{attrName,jdbcType=VARCHAR},
+            </if>
+            <if test="attrKey != null">
+                attr_key = #{attrKey,jdbcType=VARCHAR},
+            </if>
+            <if test="needed != null">
+                needed = #{needed,jdbcType=INTEGER},
+            </if>
+            <if test="obtain_type != null">
+                obtain_type = #{obtainType},
+            </if>
+            <if test="remarks != null">
+                remarks = #{remarks,jdbcType=VARCHAR},
+            </if>
+        </set>
+        where id = #{id,jdbcType=INTEGER}
+    </update>
+    <update id="updateByPrimaryKey" parameterType="com.upedge.ums.modules.account.entity.PayMethodAttr">
+    update paymethod_attr
+    set paymethod_id = #{paymethodId,jdbcType=INTEGER},
+      attr_name = #{attrName,jdbcType=VARCHAR},
+      attr_key = #{attrKey,jdbcType=VARCHAR},
+      needed = #{needed,jdbcType=INTEGER},
+      obtain_type = #{obtainType},
+      remarks = #{remarks,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>

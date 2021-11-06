@@ -1,0 +1,377 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.upedge.ums.modules.account.dao.CurrencyDao">
+
+    <!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.upedge.ums.modules.account.entity.Currency" id="BaseResultMap">
+        <result property="id" column="id"/>
+        <result property="currencyCode" column="currency_code"/>
+        <result property="cnyRate" column="cny_rate"/>
+        <result property="usdRate" column="usd_rate"/>
+        <result property="bankno" column="bankno"/>
+        <result property="seSell" column="se_sell"/>
+        <result property="seBuy" column="se_buy"/>
+        <result property="cnSell" column="cn_sell"/>
+        <result property="cnBuy" column="cn_buy"/>
+        <result property="middle" column="middle"/>
+        <result property="createTime" column="create_time"/>
+        <result property="apiUpdateTime" column="api_update_time"/>
+        <result property="appUpdateTime" column="app_update_time"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        `id`,`currency_code`,`cny_rate`,`usd_rate`,`bankno`,`se_sell`,`se_buy`,`cn_sell`,`cn_buy`,`middle`,`create_time`,`api_update_time`,`app_update_time`
+    </sql>
+
+    <select id="selectByCurrencyCode" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from currency
+        where currency_code = #{code}
+    </select>
+
+    <select id="selectCnyRateByCode" resultType="java.math.BigDecimal">
+        select cny_rate
+        from currency
+        where currency_code = #{code}
+    </select>
+
+    <select id="selectByPrimaryKey" parameterType="com.upedge.ums.modules.account.entity.Currency"
+            resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from currency
+        where id = #{id}
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="com.upedge.ums.modules.account.entity.Currency">
+        delete from currency
+        where id = #{id}
+    </delete>
+
+    <update id="updateByPrimaryKeySelective" parameterType="com.upedge.ums.modules.account.entity.Currency">
+        update currency
+        <set>
+            <if test="currencyCode != null">
+                currency_code = #{currencyCode},
+            </if>
+            <if test="cnyRate != null">
+                cny_rate = #{cnyRate},
+            </if>
+            <if test="bankno != null">
+                bankno = #{bankno},
+            </if>
+            <if test="seSell != null">
+                se_sell = #{seSell},
+            </if>
+            <if test="seBuy != null">
+                se_buy = #{seBuy},
+            </if>
+            <if test="cnSell != null">
+                cn_sell = #{cnSell},
+            </if>
+            <if test="cnBuy != null">
+                cn_buy = #{cnBuy},
+            </if>
+            <if test="middle != null">
+                middle = #{middle},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime},
+            </if>
+            <if test="apiUpdateTime != null">
+                api_update_time = #{apiUpdateTime},
+            </if>
+            <if test="appUpdateTime != null">
+                app_update_time = #{appUpdateTime},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <update id="updateByCurrencyCodeSelective" parameterType="com.upedge.ums.modules.account.entity.Currency">
+        update currency
+        <set>
+            <if test="cnyRate != null">
+                cny_rate = #{cnyRate},
+            </if>
+            <if test="usdRate != null">
+                usd_rate = #{usdRate},
+            </if>
+            <if test="bankno != null">
+                bankno = #{bankno},
+            </if>
+            <if test="seSell != null">
+                se_sell = #{seSell},
+            </if>
+            <if test="seBuy != null">
+                se_buy = #{seBuy},
+            </if>
+            <if test="cnSell != null">
+                cn_sell = #{cnSell},
+            </if>
+            <if test="cnBuy != null">
+                cn_buy = #{cnBuy},
+            </if>
+            <if test="middle != null">
+                middle = #{middle},
+            </if>
+            <if test="apiUpdateTime != null">
+                api_update_time = #{apiUpdateTime},
+            </if>
+            <if test="appUpdateTime != null">
+                app_update_time = #{appUpdateTime},
+            </if>
+        </set>
+        where currency_code = #{currencyCode}
+    </update>
+
+    <update id="updateByPrimaryKey" parameterType="com.upedge.ums.modules.account.entity.Currency">
+        update currency
+        <set>
+            id = #{id},
+            currency_code = #{currencyCode},
+            cny_rate = #{cnyRate},
+            usd_rate = #{usdRate},
+            bankno = #{bankno},
+            se_sell = #{seSell},
+            se_buy = #{seBuy},
+            cn_sell = #{cnSell},
+            cn_buy = #{cnBuy},
+            middle = #{middle},
+            create_time = #{createTime},
+            api_update_time = #{apiUpdateTime},
+            app_update_time = #{appUpdateTime},
+        </set>
+        where id = #{id}
+    </update>
+
+    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.upedge.ums.modules.account.entity.Currency"
+            useGeneratedKeys="true">
+        insert into currency
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            id,
+            currency_code,
+            cny_rate,
+            usd_rate,
+            bankno,
+            se_sell,
+            se_buy,
+            cn_sell,
+            cn_buy,
+            middle,
+            create_time,
+            api_update_time,
+            app_update_time
+        </trim>
+        values (
+        #{id},
+        #{currencyCode},
+        #{cnyRate},
+        #{usdRate},
+        #{bankno},
+        #{seSell},
+        #{seBuy},
+        #{cnSell},
+        #{cnBuy},
+        #{middle},
+        #{createTime},
+        #{apiUpdateTime},
+        #{appUpdateTime}
+        )
+    </insert>
+
+    <insert id="insertSelective" keyColumn="id" keyProperty="id"
+            parameterType="com.upedge.ums.modules.account.entity.Currency" useGeneratedKeys="true">
+        insert into currency
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id
+            </if>
+            <if test="currencyCode != null">
+                currency_code
+            </if>
+            <if test="cnyRate != null">
+                cny_rate
+            </if>
+            <if test="usdRate != null">
+                usd_rate
+            </if>
+            <if test="bankno != null">
+                bankno
+            </if>
+            <if test="seSell != null">
+                se_sell
+            </if>
+            <if test="seBuy != null">
+                se_buy
+            </if>
+            <if test="cnSell != null">
+                cn_sell
+            </if>
+            <if test="cnBuy != null">
+                cn_buy
+            </if>
+            <if test="middle != null">
+                middle
+            </if>
+            <if test="createTime != null">
+                create_time
+            </if>
+            <if test="apiUpdateTime != null">
+                api_update_time
+            </if>
+            <if test="appUpdateTime != null">
+                app_update_time
+            </if>
+
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id}
+            </if>
+            <if test="currencyCode != null">
+                #{currencyCode}
+            </if>
+            <if test="cnyRate != null">
+                #{cnyRate}
+            </if>
+            <if test="usdRate != null">
+                #{usdRate}
+            </if>
+            <if test="bankno != null">
+                #{bankno}
+            </if>
+            <if test="seSell != null">
+                #{seSell}
+            </if>
+            <if test="seBuy != null">
+                #{seBuy}
+            </if>
+            <if test="cnSell != null">
+                #{cnSell}
+            </if>
+            <if test="cnBuy != null">
+                #{cnBuy}
+            </if>
+            <if test="middle != null">
+                #{middle}
+            </if>
+            <if test="createTime != null">
+                #{createTime}
+            </if>
+            <if test="apiUpdateTime != null">
+                #{apiUpdateTime}
+            </if>
+            <if test="appUpdateTime != null">
+                #{appUpdateTime}
+            </if>
+
+        </trim>
+    </insert>
+
+    <insert id="insertByBatch" parameterType="java.util.List">
+        insert into currency
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            id,
+            currency_code,
+            cny_rate,
+            usd_rate,
+            bankno,
+            se_sell,
+            se_buy,
+            cn_sell,
+            cn_buy,
+            middle,
+            create_time,
+            api_update_time,
+            app_update_time
+        </trim>
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+                #{item.id},
+                #{item.currencyCode},
+                #{item.cnyRate},
+                #{item.usdRate},
+                #{item.bankno},
+                #{item.seSell},
+                #{item.seBuy},
+                #{item.cnSell},
+                #{item.cnBuy},
+                #{item.middle},
+                #{item.createTime},
+                #{item.apiUpdateTime},
+                #{item.appUpdateTime}
+            </trim>
+        </foreach>
+    </insert>
+
+    <sql id="Query_Condition">
+        <if test="t != null">
+            where
+            <trim prefix=" " suffix=" " suffixOverrides=" and ">
+                1 = 1 and
+                <if test="t.id != null">
+                    id = #{t.id} and
+                </if>
+                <if test="t.currencyCode != null">
+                    currency_code = #{t.currencyCode} and
+                </if>
+                <if test="t.cnyRate != null">
+                    cny_rate = #{t.cnyRate} and
+                </if>
+                <if test="t.bankno != null">
+                    bankno = #{t.bankno} and
+                </if>
+                <if test="t.seSell != null">
+                    se_sell = #{t.seSell} and
+                </if>
+                <if test="t.seBuy != null">
+                    se_buy = #{t.seBuy} and
+                </if>
+                <if test="t.cnSell != null">
+                    cn_sell = #{t.cnSell} and
+                </if>
+                <if test="t.cnBuy != null">
+                    cn_buy = #{t.cnBuy} and
+                </if>
+                <if test="t.middle != null">
+                    middle = #{t.middle} and
+                </if>
+                <if test="t.createTime != null">
+                    create_time = #{t.createTime} and
+                </if>
+                <if test="t.apiUpdateTime != null">
+                    api_update_time = #{t.apiUpdateTime} and
+                </if>
+                <if test="t.appUpdateTime != null">
+                    app_update_time = #{t.appUpdateTime} and
+                </if>
+            </trim>
+        </if>
+    </sql>
+
+    <select id="select" parameterType="com.upedge.common.base.Page" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from currency
+        <include refid="Query_Condition"/>
+        <if test="orderBy != null">
+            order by ${orderBy}
+        </if>
+        <if test="pageNum != null and pageSize != null">
+            limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+        </if>
+    </select>
+
+    <select id="count" parameterType="com.upedge.common.base.Page" resultType="java.lang.Long">
+        select
+        count(1)
+        from currency
+        <include refid="Query_Condition"/>
+    </select>
+
+
+</mapper>

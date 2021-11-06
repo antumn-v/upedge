@@ -1,0 +1,294 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.upedge.oms.modules.fulfillment.dao.StoreOrderFulfillmentDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.upedge.oms.modules.fulfillment.entity.StoreOrderFulfillment" id="BaseResultMap">
+        <result property="id" column="id"/>
+        <result property="orderId" column="order_id"/>
+        <result property="storeOrderId" column="store_order_id"/>
+        <result property="platOrderId" column="plat_order_id"/>
+        <result property="platFulfillmentId" column="plat_fulfillment_id"/>
+        <result property="platFulfillmentStatus" column="plat_fulfillment_status"/>
+        <result property="storeId" column="store_id"/>
+        <result property="orgId" column="org_id"/>
+        <result property="fulfillmentType" column="fulfillment_type"/>
+        <result property="customerId" column="customer_id"/>
+        <result property="createTime" column="create_time"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        `id`,`order_id`,`store_order_id`,`plat_order_id`,`plat_fulfillment_id`,`plat_fulfillment_status`,`store_id`,`org_id`,`fulfillment_type`,`customer_id`,`create_time`
+    </sql>
+
+    <select id="selectByPrimaryKey" parameterType="com.upedge.oms.modules.fulfillment.entity.StoreOrderFulfillment" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from store_order_fulfillment
+        where id = #{id}
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="com.upedge.oms.modules.fulfillment.entity.StoreOrderFulfillment">
+        delete from store_order_fulfillment
+        where id = #{id}
+    </delete>
+
+    <update id="updateByPrimaryKeySelective" parameterType="com.upedge.oms.modules.fulfillment.entity.StoreOrderFulfillment">
+        update store_order_fulfillment
+        <set>
+            <if test="orderId != null">
+                order_id = #{orderId},
+            </if>
+            <if test="storeOrderId != null">
+                store_order_id = #{storeOrderId},
+            </if>
+            <if test="platOrderId != null">
+                plat_order_id = #{platOrderId},
+            </if>
+            <if test="platFulfillmentId != null">
+                plat_fulfillment_id = #{platFulfillmentId},
+            </if>
+            <if test="platFulfillmentStatus != null">
+                plat_fulfillment_status = #{platFulfillmentStatus},
+            </if>
+            <if test="storeId != null">
+                store_id = #{storeId},
+            </if>
+            <if test="orgId != null">
+                org_id = #{orgId},
+            </if>
+            <if test="fulfillmentType != null">
+                fulfillment_type = #{fulfillmentType},
+            </if>
+            <if test="customerId != null">
+                customer_id = #{customerId},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <update id="updateByPrimaryKey" parameterType="com.upedge.oms.modules.fulfillment.entity.StoreOrderFulfillment">
+        update store_order_fulfillment
+        <set>
+        id = #{id},
+        order_id = #{orderId},
+        store_order_id = #{storeOrderId},
+        plat_order_id = #{platOrderId},
+        plat_fulfillment_id = #{platFulfillmentId},
+        plat_fulfillment_status = #{platFulfillmentStatus},
+        store_id = #{storeId},
+        org_id = #{orgId},
+        fulfillment_type = #{fulfillmentType},
+        customer_id = #{customerId},
+        create_time = #{createTime},
+        </set>
+        where id = #{id}
+    </update>
+
+    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.upedge.oms.modules.fulfillment.entity.StoreOrderFulfillment" useGeneratedKeys="true">
+        insert into store_order_fulfillment
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            id,
+            order_id,
+            store_order_id,
+            plat_order_id,
+            plat_fulfillment_id,
+            plat_fulfillment_status,
+            store_id,
+            org_id,
+            fulfillment_type,
+            customer_id,
+            create_time
+        </trim>
+        values (
+        #{id},
+        #{orderId},
+        #{storeOrderId},
+        #{platOrderId},
+        #{platFulfillmentId},
+        #{platFulfillmentStatus},
+        #{storeId},
+        #{orgId},
+        #{fulfillmentType},
+        #{customerId},
+        #{createTime}
+        )
+    </insert>
+
+    <insert id="insertSelective"  keyColumn="id" keyProperty="id"  parameterType="com.upedge.oms.modules.fulfillment.entity.StoreOrderFulfillment" useGeneratedKeys="true">
+        insert into store_order_fulfillment
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null" >
+              id
+            </if>
+            <if test="orderId != null" >
+              order_id
+            </if>
+            <if test="storeOrderId != null" >
+              store_order_id
+            </if>
+            <if test="platOrderId != null" >
+              plat_order_id
+            </if>
+            <if test="platFulfillmentId != null" >
+              plat_fulfillment_id
+            </if>
+            <if test="platFulfillmentStatus != null" >
+              plat_fulfillment_status
+            </if>
+            <if test="storeId != null" >
+              store_id
+            </if>
+            <if test="orgId != null" >
+              org_id
+            </if>
+            <if test="fulfillmentType != null" >
+              fulfillment_type
+            </if>
+            <if test="customerId != null" >
+              customer_id
+            </if>
+            <if test="createTime != null" >
+              create_time
+            </if>
+
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null" >
+                #{id}
+            </if>
+            <if test="orderId != null" >
+                #{orderId}
+            </if>
+            <if test="storeOrderId != null" >
+                #{storeOrderId}
+            </if>
+            <if test="platOrderId != null" >
+                #{platOrderId}
+            </if>
+            <if test="platFulfillmentId != null" >
+                #{platFulfillmentId}
+            </if>
+            <if test="platFulfillmentStatus != null" >
+                #{platFulfillmentStatus}
+            </if>
+            <if test="storeId != null" >
+                #{storeId}
+            </if>
+            <if test="orgId != null" >
+                #{orgId}
+            </if>
+            <if test="fulfillmentType != null" >
+                #{fulfillmentType}
+            </if>
+            <if test="customerId != null" >
+                #{customerId}
+            </if>
+            <if test="createTime != null" >
+                #{createTime}
+            </if>
+
+        </trim>
+    </insert>
+
+    <insert id="insertByBatch" parameterType="java.util.List">
+        insert into store_order_fulfillment
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+           id,
+           order_id,
+           store_order_id,
+           plat_order_id,
+           plat_fulfillment_id,
+           plat_fulfillment_status,
+           store_id,
+           org_id,
+           fulfillment_type,
+           customer_id,
+           create_time
+        </trim>
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+               #{item.id},
+               #{item.orderId},
+               #{item.storeOrderId},
+               #{item.platOrderId},
+               #{item.platFulfillmentId},
+               #{item.platFulfillmentStatus},
+               #{item.storeId},
+               #{item.orgId},
+               #{item.fulfillmentType},
+               #{item.customerId},
+               #{item.createTime}
+            </trim>
+        </foreach>
+    </insert>
+
+    <sql id="Query_Condition">
+        <if test="t != null">
+            where
+            <trim prefix=" " suffix=" " suffixOverrides=" and ">
+                1 = 1 and
+                    <if test="t.id != null">
+                        id = #{t.id} and
+                    </if>
+                    <if test="t.orderId != null">
+                        order_id = #{t.orderId} and
+                    </if>
+                    <if test="t.storeOrderId != null">
+                        store_order_id = #{t.storeOrderId} and
+                    </if>
+                    <if test="t.platOrderId != null">
+                        plat_order_id = #{t.platOrderId} and
+                    </if>
+                    <if test="t.platFulfillmentId != null">
+                        plat_fulfillment_id = #{t.platFulfillmentId} and
+                    </if>
+                    <if test="t.platFulfillmentStatus != null">
+                        plat_fulfillment_status = #{t.platFulfillmentStatus} and
+                    </if>
+                    <if test="t.storeId != null">
+                        store_id = #{t.storeId} and
+                    </if>
+                    <if test="t.orgId != null">
+                        org_id = #{t.orgId} and
+                    </if>
+                    <if test="t.fulfillmentType != null">
+                        fulfillment_type = #{t.fulfillmentType} and
+                    </if>
+                    <if test="t.customerId != null">
+                        customer_id = #{t.customerId} and
+                    </if>
+                    <if test="t.createTime != null">
+                        create_time = #{t.createTime} and
+                    </if>
+            </trim>
+        </if>
+    </sql>
+
+    <select id="select" parameterType="com.upedge.common.base.Page" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from store_order_fulfillment
+        <include refid="Query_Condition"/>
+        <if test="orderBy != null">
+            order by ${orderBy}
+        </if>
+        <if test="pageNum != null and pageSize != null">
+            limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+        </if>
+    </select>
+
+    <select id="count" parameterType="com.upedge.common.base.Page" resultType="java.lang.Long">
+        select
+        count(1)
+        from store_order_fulfillment
+        <include refid="Query_Condition"/>
+    </select>
+
+
+</mapper>

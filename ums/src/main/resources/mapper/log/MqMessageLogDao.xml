@@ -1,0 +1,327 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.upedge.ums.modules.log.dao.MqMessageLogDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.upedge.common.model.log.MqMessageLog" id="BaseResultMap">
+        <result property="id" column="id"/>
+        <result property="msgKey" column="msg_key"/>
+        <result property="tags" column="tags"/>
+        <result property="topic" column="topic"/>
+        <result property="body" column="body"/>
+        <result property="delay" column="delay"/>
+        <result property="transactionId" column="transaction_id"/>
+        <result property="isSendSuccess" column="is_send_success"/>
+        <result property="isConsumeSuccess" column="is_consume_success"/>
+        <result property="consumeCount" column="consume_count"/>
+        <result property="sendTime" column="send_time"/>
+        <result property="consumeTime" column="consume_time"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        `id`,`msg_key`,`tags`,`topic`,`body`,`delay`,`transaction_id`,`is_send_success`,`is_consume_success`,`consume_count`,`send_time`,`consume_time`
+    </sql>
+
+    <select id="selectByTopicAndKey" resultMap="BaseResultMap" parameterType="com.upedge.common.model.log.MqMessageLog">
+        select
+        <include refid="Base_Column_List" />
+        from mq_message_log
+        where topic = #{topic}
+        and `msg_key` = #{msgKey}
+    </select>
+
+    <select id="selectByMsgKey" resultMap="BaseResultMap" >
+        select
+        <include refid="Base_Column_List" />
+        from mq_message_log
+        where `msg_key` = #{msgKey}
+    </select>
+
+    <select id="selectByPrimaryKey" parameterType="com.upedge.common.model.log.MqMessageLog" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from mq_message_log
+        where id = #{id}
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="com.upedge.common.model.log.MqMessageLog">
+        delete from mq_message_log
+        where id = #{id}
+    </delete>
+
+    <update id="updateByPrimaryKeySelective" parameterType="com.upedge.common.model.log.MqMessageLog">
+        update mq_message_log
+        <set>
+            <if test="msgKey != null">
+                msg_key = #{msgKey},
+            </if>
+            <if test="tags != null">
+                tags = #{tags},
+            </if>
+            <if test="topic != null">
+                topic = #{topic},
+            </if>
+            <if test="body != null">
+                body = #{body},
+            </if>
+            <if test="delay != null">
+                delay = #{delay},
+            </if>
+            <if test="transactionId != null">
+                transaction_id = #{transactionId},
+            </if>
+            <if test="isSendSuccess != null">
+                is_send_success = #{isSendSuccess},
+            </if>
+            <if test="isConsumeSuccess != null">
+                is_consume_success = #{isConsumeSuccess},
+            </if>
+            <if test="consumeCount != null">
+                consume_count = #{consumeCount},
+            </if>
+            <if test="sendTime != null">
+                send_time = #{sendTime},
+            </if>
+            <if test="consumeTime != null">
+                consume_time = #{consumeTime},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <update id="updateByPrimaryKey" parameterType="com.upedge.common.model.log.MqMessageLog">
+        update mq_message_log
+        <set>
+        id = #{id},
+        msg_key = #{msgKey},
+        tags = #{tags},
+        topic = #{topic},
+        body = #{body},
+        delay = #{delay},
+        transaction_id = #{transactionId},
+        is_send_success = #{isSendSuccess},
+        is_consume_success = #{isConsumeSuccess},
+        consume_count = #{consumeCount},
+        send_time = #{sendTime},
+        consume_time = #{consumeTime},
+        </set>
+        where id = #{id}
+    </update>
+
+    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.upedge.common.model.log.MqMessageLog" useGeneratedKeys="true">
+        insert into mq_message_log
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            id,
+            msg_key,
+            tags,
+            topic,
+            body,
+            delay,
+            transaction_id,
+            is_send_success,
+            is_consume_success,
+            consume_count,
+            send_time,
+            consume_time
+        </trim>
+        values (
+        #{id},
+        #{msgKey},
+        #{tags},
+        #{topic},
+        #{body},
+        #{delay},
+        #{transactionId},
+        #{isSendSuccess},
+        #{isConsumeSuccess},
+        #{consumeCount},
+        #{sendTime},
+        #{consumeTime}
+        )
+    </insert>
+
+    <insert id="insertSelective" keyColumn="id" keyProperty="id" parameterType="com.upedge.common.model.log.MqMessageLog" useGeneratedKeys="true">
+        insert into mq_message_log
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null" >
+              id
+            </if>
+            <if test="msgKey != null" >
+              msg_key
+            </if>
+            <if test="tags != null" >
+              tags
+            </if>
+            <if test="topic != null" >
+              topic
+            </if>
+            <if test="body != null" >
+              body
+            </if>
+            <if test="delay != null" >
+              delay
+            </if>
+            <if test="transactionId != null" >
+              transaction_id
+            </if>
+            <if test="isSendSuccess != null" >
+              is_send_success
+            </if>
+            <if test="isConsumeSuccess != null" >
+              is_consume_success
+            </if>
+            <if test="consumeCount != null" >
+              consume_count
+            </if>
+            <if test="sendTime != null" >
+              send_time
+            </if>
+            <if test="consumeTime != null" >
+              consume_time
+            </if>
+
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null" >
+                #{id}
+            </if>
+            <if test="msgKey != null" >
+                #{msgKey}
+            </if>
+            <if test="tags != null" >
+                #{tags}
+            </if>
+            <if test="topic != null" >
+                #{topic}
+            </if>
+            <if test="body != null" >
+                #{body}
+            </if>
+            <if test="delay != null" >
+                #{delay}
+            </if>
+            <if test="transactionId != null" >
+                #{transactionId}
+            </if>
+            <if test="isSendSuccess != null" >
+                #{isSendSuccess}
+            </if>
+            <if test="isConsumeSuccess != null" >
+                #{isConsumeSuccess}
+            </if>
+            <if test="consumeCount != null" >
+                #{consumeCount}
+            </if>
+            <if test="sendTime != null" >
+                #{sendTime}
+            </if>
+            <if test="consumeTime != null" >
+                #{consumeTime}
+            </if>
+
+        </trim>
+    </insert>
+
+    <insert id="insertByBatch" parameterType="java.util.List">
+        insert into mq_message_log
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+           id,
+           msg_key,
+           tags,
+           topic,
+           body,
+           delay,
+           transaction_id,
+           is_send_success,
+           is_consume_success,
+           consume_count,
+           send_time,
+           consume_time
+        </trim>
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+               #{item.id},
+               #{item.msgKey},
+               #{item.tags},
+               #{item.topic},
+               #{item.body},
+               #{item.delay},
+               #{item.transactionId},
+               #{item.isSendSuccess},
+               #{item.isConsumeSuccess},
+               #{item.consumeCount},
+               #{item.sendTime},
+               #{item.consumeTime}
+            </trim>
+        </foreach>
+    </insert>
+
+    <sql id="Query_Condition">
+        <if test="t != null">
+            where
+            <trim prefix=" " suffix=" " suffixOverrides=" and ">
+                1 = 1 and
+                    <if test="t.id != null">
+                        id = #{t.id} and
+                    </if>
+                    <if test="t.msgKey != null">
+                        msg_key = #{t.msgKey} and
+                    </if>
+                    <if test="t.tags != null">
+                        tags = #{t.tags} and
+                    </if>
+                    <if test="t.topic != null">
+                        topic = #{t.topic} and
+                    </if>
+                    <if test="t.body != null">
+                        body = #{t.body} and
+                    </if>
+                    <if test="t.delay != null">
+                        delay = #{t.delay} and
+                    </if>
+                    <if test="t.transactionId != null">
+                        transaction_id = #{t.transactionId} and
+                    </if>
+                    <if test="t.isSendSuccess != null">
+                        is_send_success = #{t.isSendSuccess} and
+                    </if>
+                    <if test="t.isConsumeSuccess != null">
+                        is_consume_success = #{t.isConsumeSuccess} and
+                    </if>
+                    <if test="t.consumeCount != null">
+                        consume_count = #{t.consumeCount} and
+                    </if>
+                    <if test="t.sendTime != null">
+                        send_time = #{t.sendTime} and
+                    </if>
+                    <if test="t.consumeTime != null">
+                        consume_time = #{t.consumeTime} and
+                    </if>
+            </trim>
+        </if>
+    </sql>
+
+    <select id="select" parameterType="com.upedge.common.base.Page" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from mq_message_log
+        <include refid="Query_Condition"/>
+        <if test="orderBy != null">
+            order by ${orderBy}
+        </if>
+        <if test="pageNum != null and pageSize != null">
+            limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+        </if>
+    </select>
+
+    <select id="count" parameterType="com.upedge.common.base.Page" resultType="java.lang.Long">
+        select
+        count(1)
+        from mq_message_log
+        <include refid="Query_Condition"/>
+    </select>
+
+
+</mapper>

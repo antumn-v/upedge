@@ -1,0 +1,290 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.upedge.oms.modules.order.dao.StoreOrderRefundDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.upedge.oms.modules.order.entity.StoreOrderRefund" id="BaseResultMap">
+        <result property="id" column="id"/>
+        <result property="platOrderRefundId" column="plat_order_refund_id"/>
+        <result property="platOrderId" column="plat_order_id"/>
+        <result property="storeOrderId" column="store_order_id"/>
+        <result property="refundAmount" column="refund_amount"/>
+        <result property="usdAmount" column="usd_amount"/>
+        <result property="otherFee" column="other_fee"/>
+        <result property="usdRate" column="usd_rate"/>
+        <result property="cnyRate" column="cny_rate"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="createTime" column="create_time"/>
+        <collection property="refundItems" ofType="com.upedge.oms.modules.order.entity.StoreOrderRefundItem">
+            <result property="refundItemId" column="id"/>
+            <result property="storeOrderRefundId" column="store_order_refund_id"/>
+            <result property="storeOrderItemId" column="store_order_item_id"/>
+            <result property="platOrderItemId" column="plat_order_item_id"/>
+            <result property="refundQuantity" column="refund_quantity"/>
+            <result property="refundAmount" column="refund_amount"/>
+        </collection>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        `id`,`plat_order_refund_id`,`plat_order_id`,`store_order_id`,`refund_amount`,`usd_amount`,`other_fee`,cny_rate,`usd_rate`,`created_at`,`create_time`
+    </sql>
+
+    <select id="selectByStoreOrderId" resultMap="BaseResultMap">
+        select
+        sor.`id`,sor.`plat_order_refund_id`,sor.`plat_order_id`,sor.`store_order_id`,sor.`refund_amount`,
+        sor.`usd_amount`,sor.`other_fee`,sor.`usd_rate`,sor.`create_time`,sor.`create_time`,sor.cny_rate,
+        sori.`id` as `refundItemId`,sori.`store_order_refund_id`,sori.`store_order_item_id`,
+        sori.`plat_order_item_id`,sori.`store_order_refund_id`,sori.`refund_quantity`,sori.`refund_amount`
+        from store_order_refund sor
+        left join store_order_refund_item sori
+        on sor.id = sori.store_order_refund_id
+        where sor.store_order_id = #{storeOrderId}
+    </select>
+
+    <select id="selectByPrimaryKey" parameterType="com.upedge.oms.modules.order.entity.StoreOrderRefund" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from store_order_refund
+        where id = #{id}
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="com.upedge.oms.modules.order.entity.StoreOrderRefund">
+        delete from store_order_refund
+        where id = #{id}
+    </delete>
+
+    <update id="updateByPrimaryKeySelective" parameterType="com.upedge.oms.modules.order.entity.StoreOrderRefund">
+        update store_order_refund
+        <set>
+            <if test="platOrderRefundId != null">
+                plat_order_refund_id = #{platOrderRefundId},
+            </if>
+            <if test="platOrderId != null">
+                plat_order_id = #{platOrderId},
+            </if>
+            <if test="storeOrderId != null">
+                store_order_id = #{storeOrderId},
+            </if>
+            <if test="refundAmount != null">
+                refund_amount = #{refundAmount},
+            </if>
+            <if test="usdAmount != null">
+                usd_amount = #{usdAmount},
+            </if>
+            <if test="otherFee != null">
+                other_fee = #{otherFee},
+            </if>
+            <if test="usdRate != null">
+                usd_rate = #{usdRate},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <update id="updateByPrimaryKey" parameterType="com.upedge.oms.modules.order.entity.StoreOrderRefund">
+        update store_order_refund
+        <set>
+        id = #{id},
+        plat_order_refund_id = #{platOrderRefundId},
+        plat_order_id = #{platOrderId},
+        store_order_id = #{storeOrderId},
+        refund_amount = #{refundAmount},
+        usd_amount = #{usdAmount},
+        other_fee = #{otherFee},
+        usd_rate = #{usdRate},
+        create_time = #{createTime},
+        </set>
+        where id = #{id}
+    </update>
+
+    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.upedge.oms.modules.order.entity.StoreOrderRefund" useGeneratedKeys="true">
+        insert into store_order_refund
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            id,
+            plat_order_refund_id,
+            plat_order_id,
+            store_order_id,
+            refund_amount,
+            usd_amount,
+            other_fee,
+            usd_rate,
+            cny_rate,
+            create_time
+        </trim>
+        values (
+        #{id},
+        #{platOrderRefundId},
+        #{platOrderId},
+        #{storeOrderId},
+        #{refundAmount},
+        #{usdAmount},
+        #{otherFee},
+        #{usdRate},
+        #{cnyRate},
+        #{createTime}
+        )
+    </insert>
+
+    <insert id="insertSelective"  keyColumn="id" keyProperty="id"  parameterType="com.upedge.oms.modules.order.entity.StoreOrderRefund" useGeneratedKeys="true">
+        insert into store_order_refund
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null" >
+              id
+            </if>
+            <if test="platOrderRefundId != null" >
+              plat_order_refund_id
+            </if>
+            <if test="platOrderId != null" >
+              plat_order_id
+            </if>
+            <if test="storeOrderId != null" >
+              store_order_id
+            </if>
+            <if test="refundAmount != null" >
+              refund_amount
+            </if>
+            <if test="usdAmount != null" >
+              usd_amount
+            </if>
+            <if test="otherFee != null" >
+              other_fee
+            </if>
+            <if test="usdRate != null" >
+              usd_rate
+            </if>
+            <if test="cnyRate != null" >
+              cny_rate
+            </if>
+            <if test="createTime != null" >
+              create_time
+            </if>
+
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null" >
+                #{id}
+            </if>
+            <if test="platOrderRefundId != null" >
+                #{platOrderRefundId}
+            </if>
+            <if test="platOrderId != null" >
+                #{platOrderId}
+            </if>
+            <if test="storeOrderId != null" >
+                #{storeOrderId}
+            </if>
+            <if test="refundAmount != null" >
+                #{refundAmount}
+            </if>
+            <if test="usdAmount != null" >
+                #{usdAmount}
+            </if>
+            <if test="otherFee != null" >
+                #{otherFee}
+            </if>
+            <if test="usdRate != null" >
+                #{usdRate}
+            </if>
+            <if test="cnyRate != null" >
+                #{cnyRate}
+            </if>
+            <if test="createTime != null" >
+                #{createTime}
+            </if>
+
+        </trim>
+    </insert>
+
+    <insert id="insertByBatch" parameterType="java.util.List">
+        insert into store_order_refund
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+           id,
+           plat_order_refund_id,
+           plat_order_id,
+           store_order_id,
+           refund_amount,
+           usd_amount,
+           other_fee,
+           usd_rate,
+           cny_rate,
+           create_time
+        </trim>
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+               #{item.id},
+               #{item.platOrderRefundId},
+               #{item.platOrderId},
+               #{item.storeOrderId},
+               #{item.refundAmount},
+               #{item.usdAmount},
+               #{item.otherFee},
+               #{item.usdRate},
+               #{item.cnyRate},
+               #{item.createTime}
+            </trim>
+        </foreach>
+    </insert>
+
+    <sql id="Query_Condition">
+        <if test="t != null">
+            where
+            <trim prefix=" " suffix=" " suffixOverrides=" and ">
+                1 = 1 and
+                    <if test="t.id != null">
+                        id = #{t.id} and
+                    </if>
+                    <if test="t.platOrderRefundId != null">
+                        plat_order_refund_id = #{t.platOrderRefundId} and
+                    </if>
+                    <if test="t.platOrderId != null">
+                        plat_order_id = #{t.platOrderId} and
+                    </if>
+                    <if test="t.storeOrderId != null">
+                        store_order_id = #{t.storeOrderId} and
+                    </if>
+                    <if test="t.refundAmount != null">
+                        refund_amount = #{t.refundAmount} and
+                    </if>
+                    <if test="t.usdAmount != null">
+                        usd_amount = #{t.usdAmount} and
+                    </if>
+                    <if test="t.otherFee != null">
+                        other_fee = #{t.otherFee} and
+                    </if>
+                    <if test="t.usdRate != null">
+                        usd_rate = #{t.usdRate} and
+                    </if>
+                    <if test="t.createTime != null">
+                        create_time = #{t.createTime} and
+                    </if>
+            </trim>
+        </if>
+    </sql>
+
+    <select id="select" parameterType="com.upedge.common.base.Page" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from store_order_refund
+        <include refid="Query_Condition"/>
+        <if test="orderBy != null">
+            order by ${orderBy}
+        </if>
+        <if test="pageNum != null and pageSize != null">
+            limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+        </if>
+    </select>
+
+    <select id="count" parameterType="com.upedge.common.base.Page" resultType="java.lang.Long">
+        select
+        count(1)
+        from store_order_refund
+        <include refid="Query_Condition"/>
+    </select>
+
+
+</mapper>

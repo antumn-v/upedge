@@ -1,0 +1,409 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.upedge.pms.modules.quote.dao.QuoteApplyDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.upedge.pms.modules.quote.entity.QuoteApply" id="BaseResultMap">
+        <result property="id" column="id"/>
+        <result property="applyUserId" column="apply_user_id"/>
+        <result property="customerId" column="customer_id"/>
+        <result property="handleUserId" column="handle_user_id"/>
+        <result property="relateOrderId" column="relate_order_id"/>
+        <result property="quoteState" column="quote_state"/>
+        <result property="quoteType" column="quote_type"/>
+        <result property="remark" column="remark"/>
+        <result property="feedback" column="feedback"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+    </resultMap>
+    <resultMap type="com.upedge.pms.modules.quote.vo.QuoteApplyVo" id="QuoteApplyVo">
+        <result property="id" column="id"/>
+        <result property="applyUserId" column="apply_user_id"/>
+        <result property="customerId" column="customer_id"/>
+        <result property="handleUserId" column="handle_user_id"/>
+        <result property="relateOrderId" column="relate_order_id"/>
+        <result property="quoteState" column="quote_state"/>
+        <result property="quoteType" column="quote_type"/>
+        <result property="remark" column="remark"/>
+        <result property="feedback" column="feedback"/>
+        <result property="createTime" column="create_time"/>
+        <collection property="quoteApplyItems" ofType="com.upedge.pms.modules.quote.entity.QuoteApplyItem">
+            <result property="id" column="id"/>
+            <result property="productId" column="product_id"/>
+            <result property="variantId" column="variant_id"/>
+            <result property="storeProductId" column="store_product_id"/>
+            <result property="storeVariantId" column="store_variant_id"/>
+            <result property="storeVariantName" column="store_variant_name"/>
+            <result property="storeProductTitle" column="store_product_title"/>
+            <result property="storeProductSku" column="store_product_sku"/>
+            <result property="storeVariantImage" column="store_variant_image"/>
+            <result property="productTitle" column="product_title"/>
+            <result property="variantName" column="variant_name"/>
+            <result property="variantSku" column="variant_sku"/>
+            <result property="variantImage" column="variant_image"/>
+            <result property="quotePrice" column="quote_price"/>
+            <result property="quoteApplyId" column="quote_apply_id"/>
+        </collection>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        `id`,`apply_user_id`,`customer_id`,`handle_user_id`,`relate_order_id`,`quote_state`,`quote_type`,`remark`,`feedback`,`create_time`,`update_time`
+    </sql>
+
+    <select id="selectByPrimaryKey" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from quote_apply
+        where id = #{id}
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="com.upedge.pms.modules.quote.entity.QuoteApply">
+        delete from quote_apply
+        where id = #{id}
+    </delete>
+
+    <update id="updateByPrimaryKeySelective" parameterType="com.upedge.pms.modules.quote.entity.QuoteApply">
+        update quote_apply
+        <set>
+            <if test="applyUserId != null">
+                apply_user_id = #{applyUserId},
+            </if>
+            <if test="customerId != null">
+                customer_id = #{customerId},
+            </if>
+            <if test="handleUserId != null">
+                handle_user_id = #{handleUserId},
+            </if>
+            <if test="relateOrderId != null">
+                relate_order_id = #{relateOrderId},
+            </if>
+            <if test="quoteState != null">
+                quote_state = #{quoteState},
+            </if>
+            <if test="quoteType != null">
+                quote_type = #{quoteType},
+            </if>
+            <if test="remark != null">
+                remark = #{remark},
+            </if>
+            <if test="feedback != null">
+                feedback = #{feedback},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime},
+            </if>
+            <if test="updateTime != null">
+                update_time = #{updateTime},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <update id="updateByPrimaryKey" parameterType="com.upedge.pms.modules.quote.entity.QuoteApply">
+        update quote_apply
+        <set>
+        id = #{id},
+        apply_user_id = #{applyUserId},
+        customer_id = #{customerId},
+        handle_user_id = #{handleUserId},
+        relate_order_id = #{relateOrderId},
+        quote_state = #{quoteState},
+        quote_type = #{quoteType},
+        remark = #{remark},
+        feedback = #{feedback},
+        create_time = #{createTime},
+        update_time = #{updateTime},
+        </set>
+        where id = #{id}
+    </update>
+
+    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.upedge.pms.modules.quote.entity.QuoteApply" useGeneratedKeys="true">
+        insert into quote_apply
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            id,
+            apply_user_id,
+            customer_id,
+            handle_user_id,
+            relate_order_id,
+            quote_state,
+            quote_type,
+            remark,
+            feedback,
+            create_time,
+            update_time
+        </trim>
+        values (
+        #{id},
+        #{applyUserId},
+        #{customerId},
+        #{handleUserId},
+        #{relateOrderId},
+        #{quoteState},
+        #{quoteType},
+        #{remark},
+        #{feedback},
+        #{createTime},
+        #{updateTime}
+        )
+    </insert>
+
+    <insert id="insertSelective"  keyColumn="id" keyProperty="id"  parameterType="com.upedge.pms.modules.quote.entity.QuoteApply" useGeneratedKeys="true">
+        insert into quote_apply
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null" >
+              id
+            </if>
+            <if test="applyUserId != null" >
+              apply_user_id
+            </if>
+            <if test="customerId != null" >
+              customer_id
+            </if>
+            <if test="handleUserId != null" >
+              handle_user_id
+            </if>
+            <if test="relateOrderId != null" >
+              relate_order_id
+            </if>
+            <if test="quoteState != null" >
+              quote_state
+            </if>
+            <if test="quoteType != null" >
+              quote_type
+            </if>
+            <if test="remark != null" >
+              remark
+            </if>
+            <if test="feedback != null" >
+              feedback
+            </if>
+            <if test="createTime != null" >
+              create_time
+            </if>
+            <if test="updateTime != null" >
+              update_time
+            </if>
+
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null" >
+                #{id}
+            </if>
+            <if test="applyUserId != null" >
+                #{applyUserId}
+            </if>
+            <if test="customerId != null" >
+                #{customerId}
+            </if>
+            <if test="handleUserId != null" >
+                #{handleUserId}
+            </if>
+            <if test="relateOrderId != null" >
+                #{relateOrderId}
+            </if>
+            <if test="quoteState != null" >
+                #{quoteState}
+            </if>
+            <if test="quoteType != null" >
+                #{quoteType}
+            </if>
+            <if test="remark != null" >
+                #{remark}
+            </if>
+            <if test="feedback != null" >
+                #{feedback}
+            </if>
+            <if test="createTime != null" >
+                #{createTime}
+            </if>
+            <if test="updateTime != null" >
+                #{updateTime}
+            </if>
+
+        </trim>
+    </insert>
+
+    <insert id="insertByBatch" parameterType="java.util.List">
+        insert into quote_apply
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+           id,
+           apply_user_id,
+           customer_id,
+           handle_user_id,
+           relate_order_id,
+           quote_state,
+           quote_type,
+           remark,
+           feedback,
+           create_time,
+           update_time
+        </trim>
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+               #{item.id},
+               #{item.applyUserId},
+               #{item.customerId},
+               #{item.handleUserId},
+               #{item.relateOrderId},
+               #{item.quoteState},
+               #{item.quoteType},
+               #{item.remark},
+               #{item.feedback},
+               #{item.createTime},
+               #{item.updateTime}
+            </trim>
+        </foreach>
+    </insert>
+
+    <sql id="Query_Condition">
+        <if test="t != null">
+            where
+            <trim prefix=" " suffix=" " suffixOverrides=" and ">
+                1 = 1 and
+                    <if test="t.id != null">
+                        id = #{t.id} and
+                    </if>
+                    <if test="t.applyUserId != null">
+                        apply_user_id = #{t.applyUserId} and
+                    </if>
+                    <if test="t.customerId != null">
+                        customer_id = #{t.customerId} and
+                    </if>
+                    <if test="t.handleUserId != null">
+                        handle_user_id = #{t.handleUserId} and
+                    </if>
+                    <if test="t.relateOrderId != null">
+                        relate_order_id = #{t.relateOrderId} and
+                    </if>
+                    <if test="t.quoteState != null">
+                        quote_state = #{t.quoteState} and
+                    </if>
+                    <if test="t.quoteType != null">
+                        quote_type = #{t.quoteType} and
+                    </if>
+                    <if test="t.remark != null">
+                        remark = #{t.remark} and
+                    </if>
+                    <if test="t.feedback != null">
+                        feedback = #{t.feedback} and
+                    </if>
+                    <if test="t.createTime != null">
+                        create_time = #{t.createTime} and
+                    </if>
+                    <if test="t.updateTime != null">
+                        update_time = #{t.updateTime} and
+                    </if>
+            </trim>
+        </if>
+    </sql>
+
+    <select id="select" parameterType="com.upedge.common.base.Page" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from quote_apply
+        <include refid="Query_Condition"/>
+        <if test="orderBy != null">
+            order by ${orderBy}
+        </if>
+        <if test="pageNum != null and pageSize != null">
+            limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+        </if>
+    </select>
+
+    <select id="count" parameterType="com.upedge.common.base.Page" resultType="java.lang.Long">
+        select
+        count(1)
+        from quote_apply
+        <include refid="Query_Condition"/>
+    </select>
+
+    <select id="selectQuoteApplies" resultMap="QuoteApplyVo">
+        select qa.*,qai.*
+        from quote_apply qa
+        left join quote_apply_item qai
+        on qa.id = qai.quote_apply_id
+        <if test="t != null">
+            where
+            <trim prefix=" " suffix=" " suffixOverrides=" and ">
+                1 = 1 and
+                <if test="t.id != null">
+                    qa.id = #{t.id} and
+                </if>
+                <if test="t.applyUserId != null">
+                    qa.apply_user_id = #{t.applyUserId} and
+                </if>
+                <if test="t.customerId != null">
+                    qa.customer_id = #{t.customerId} and
+                </if>
+                <if test="t.handleUserId != null">
+                    qa.handle_user_id = #{t.handleUserId} and
+                </if>
+                <if test="t.relateOrderId != null">
+                    qa.relate_order_id = #{t.relateOrderId} and
+                </if>
+                <if test="t.quoteState != null">
+                    qa.quote_state = #{t.quoteState} and
+                </if>
+                <if test="t.quoteType != null">
+                    qa.quote_type = #{t.quoteType} and
+                </if>
+                <if test="t.storeProductId != null">
+                    qai.store_product_id = #{t.storeProductId} and
+                </if>
+                <if test="t.storeVariantSku != null">
+                    qai.store_variant_sku = #{t.storeVariantSku} and
+                </if>
+            </trim>
+        </if>
+        <if test="orderBy != null">
+            order by ${orderBy}
+        </if>
+        <if test="pageNum != null and pageSize != null">
+            limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+        </if>
+    </select>
+
+    <select id="countQuoteApplies" resultMap="QuoteApplyVo">
+        select qa.*,qai.*
+        from quote_apply qa
+        left join quote_apply_item qai
+        on qa.id = qai.quote_apply_id
+        <if test="t != null">
+            where
+            <trim prefix=" " suffix=" " suffixOverrides=" and ">
+                1 = 1 and
+                <if test="t.id != null">
+                    qa.id = #{t.id} and
+                </if>
+                <if test="t.applyUserId != null">
+                    qa.apply_user_id = #{t.applyUserId} and
+                </if>
+                <if test="t.customerId != null">
+                    qa.customer_id = #{t.customerId} and
+                </if>
+                <if test="t.handleUserId != null">
+                    qa.handle_user_id = #{t.handleUserId} and
+                </if>
+                <if test="t.relateOrderId != null">
+                    qa.relate_order_id = #{t.relateOrderId} and
+                </if>
+                <if test="t.quoteState != null">
+                    qa.quote_state = #{t.quoteState} and
+                </if>
+                <if test="t.quoteType != null">
+                    qa.quote_type = #{t.quoteType} and
+                </if>
+                <if test="t.storeProductId != null">
+                    qai.store_product_id = #{t.storeProductId} and
+                </if>
+                <if test="t.storeVariantSku != null">
+                    qai.store_variant_sku = #{t.storeVariantSku} and
+                </if>
+            </trim>
+        </if>
+    </select>
+
+
+</mapper>

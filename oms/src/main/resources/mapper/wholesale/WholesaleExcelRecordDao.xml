@@ -1,0 +1,218 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.upedge.oms.modules.wholesale.dao.WholesaleExcelRecordDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.upedge.oms.modules.wholesale.entity.WholesaleExcelRecord" id="BaseResultMap">
+        <result property="id" column="id"/>
+        <result property="customerId" column="customer_id"/>
+        <result property="storeName" column="store_name"/>
+        <result property="customerOrderNumber" column="customer_order_number"/>
+        <result property="wholesaleOrderId" column="wholesale_order_id"/>
+        <result property="createTime" column="create_time"/>
+    </resultMap>
+
+    <resultMap type="com.upedge.oms.modules.wholesale.vo.WholesaleNameNumber" id="NameNumbers">
+        <id property="storeName" column="store_name"/>
+        <collection property="numbers" ofType="java.lang.String">
+            <result property="customerOrderNumber" column="customer_order_number"/>
+        </collection>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        `id`,`customer_id`,`store_name`,`customer_order_number`,`wholesale_order_id`,`create_time`
+    </sql>
+
+    <select id="selectNameNumbersByCustomer" resultMap="NameNumbers">
+        select
+        `store_name`,`customer_order_number`
+        from wholesale_excel_record
+        where customer_id = #{customerId}
+    </select>
+
+    <select id="selectByPrimaryKey" parameterType="com.upedge.oms.modules.wholesale.entity.WholesaleExcelRecord" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from wholesale_excel_record
+        where id = #{id}
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="com.upedge.oms.modules.wholesale.entity.WholesaleExcelRecord">
+        delete from wholesale_excel_record
+        where id = #{id}
+    </delete>
+
+    <update id="updateByPrimaryKeySelective" parameterType="com.upedge.oms.modules.wholesale.entity.WholesaleExcelRecord">
+        update wholesale_excel_record
+        <set>
+            <if test="customerId != null">
+                customer_id = #{customerId},
+            </if>
+            <if test="storeName != null">
+                store_name = #{storeName},
+            </if>
+            <if test="customerOrderNumber != null">
+                customer_order_number = #{customerOrderNumber},
+            </if>
+            <if test="wholesaleOrderId != null">
+                wholesale_order_id = #{wholesaleOrderId},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <update id="updateByPrimaryKey" parameterType="com.upedge.oms.modules.wholesale.entity.WholesaleExcelRecord">
+        update wholesale_excel_record
+        <set>
+        id = #{id},
+        customer_id = #{customerId},
+        store_name = #{storeName},
+        customer_order_number = #{customerOrderNumber},
+        wholesale_order_id = #{wholesaleOrderId},
+        create_time = #{createTime},
+        </set>
+        where id = #{id}
+    </update>
+
+    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.upedge.oms.modules.wholesale.entity.WholesaleExcelRecord" useGeneratedKeys="true">
+        insert into wholesale_excel_record
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            id,
+            customer_id,
+            store_name,
+            customer_order_number,
+            wholesale_order_id,
+            create_time
+        </trim>
+        values (
+        #{id},
+        #{customerId},
+        #{storeName},
+        #{customerOrderNumber},
+        #{wholesaleOrderId},
+        #{createTime}
+        )
+    </insert>
+
+    <insert id="insertSelective"  keyColumn="id" keyProperty="id"  parameterType="com.upedge.oms.modules.wholesale.entity.WholesaleExcelRecord" useGeneratedKeys="true">
+        insert into wholesale_excel_record
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null" >
+              id
+            </if>
+            <if test="customerId != null" >
+              customer_id
+            </if>
+            <if test="storeName != null" >
+              store_name
+            </if>
+            <if test="customerOrderNumber != null" >
+              customer_order_number
+            </if>
+            <if test="wholesaleOrderId != null" >
+              wholesale_order_id
+            </if>
+            <if test="createTime != null" >
+              create_time
+            </if>
+
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null" >
+                #{id}
+            </if>
+            <if test="customerId != null" >
+                #{customerId}
+            </if>
+            <if test="storeName != null" >
+                #{storeName}
+            </if>
+            <if test="customerOrderNumber != null" >
+                #{customerOrderNumber}
+            </if>
+            <if test="wholesaleOrderId != null" >
+                #{wholesaleOrderId}
+            </if>
+            <if test="createTime != null" >
+                #{createTime}
+            </if>
+
+        </trim>
+    </insert>
+
+    <insert id="insertByBatch" parameterType="java.util.List">
+        insert into wholesale_excel_record
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+           id,
+           customer_id,
+           store_name,
+           customer_order_number,
+           wholesale_order_id,
+           create_time
+        </trim>
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+               #{item.id},
+               #{item.customerId},
+               #{item.storeName},
+               #{item.customerOrderNumber},
+               #{item.wholesaleOrderId},
+               #{item.createTime}
+            </trim>
+        </foreach>
+    </insert>
+
+    <sql id="Query_Condition">
+        <if test="t != null">
+            where
+            <trim prefix=" " suffix=" " suffixOverrides=" and ">
+                1 = 1 and
+                    <if test="t.id != null">
+                        id = #{t.id} and
+                    </if>
+                    <if test="t.customerId != null">
+                        customer_id = #{t.customerId} and
+                    </if>
+                    <if test="t.storeName != null">
+                        store_name = #{t.storeName} and
+                    </if>
+                    <if test="t.customerOrderNumber != null">
+                        customer_order_number = #{t.customerOrderNumber} and
+                    </if>
+                    <if test="t.wholesaleOrderId != null">
+                        wholesale_order_id = #{t.wholesaleOrderId} and
+                    </if>
+                    <if test="t.createTime != null">
+                        create_time = #{t.createTime} and
+                    </if>
+            </trim>
+        </if>
+    </sql>
+
+    <select id="select" parameterType="com.upedge.common.base.Page" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from wholesale_excel_record
+        <include refid="Query_Condition"/>
+        <if test="orderBy != null">
+            order by ${orderBy}
+        </if>
+        <if test="pageNum != null and pageSize != null">
+            limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+        </if>
+    </select>
+
+    <select id="count" parameterType="com.upedge.common.base.Page" resultType="java.lang.Long">
+        select
+        count(1)
+        from wholesale_excel_record
+        <include refid="Query_Condition"/>
+    </select>
+
+
+</mapper>

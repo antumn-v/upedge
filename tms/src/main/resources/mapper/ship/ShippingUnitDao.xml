@@ -1,0 +1,482 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.upedge.tms.modules.ship.dao.ShippingUnitDao">
+
+    <!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.upedge.tms.modules.ship.entity.ShippingUnit" id="BaseResultMap">
+        <result property="id" column="id"/>
+        <result property="methodId" column="method_id"/>
+        <result property="methodName" column="method_name"/>
+        <result property="fromAreaId" column="from_area_id"/>
+        <result property="toAreaId" column="to_area_id"/>
+        <result property="startWeight" column="start_weight"/>
+        <result property="endWeight" column="end_weight"/>
+        <result property="fixedFee" column="fixed_fee"/>
+        <result property="weightCharge" column="weight_charge"/>
+        <result property="deliveryMinDay" column="delivery_min_day"/>
+        <result property="deliveryMaxDay" column="delivery_max_day"/>
+        <result property="discount" column="discount"/>
+        <result property="remarks" column="remarks"/>
+        <result property="createTime" column="create_time"/>
+        <result property="state" column="state"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        `id`,`method_id`,`method_name`,`from_area_id`,`to_area_id`,`start_weight`,`end_weight`,`fixed_fee`,`weight_charge`,`delivery_min_day`,`delivery_max_day`,`discount`,`remarks`,`create_time`,`state`
+    </sql>
+
+
+    <select id="selectShipNameByToAreaId" resultType="com.upedge.common.model.ship.vo.ShipMethodNameVo">
+        select method_id as `shipMethodId`,method_name as `shipMethodName`
+        from shipping_unit
+        where to_area_id = #{areaId}
+        group by method_id, method_name
+    </select>
+
+
+    <select id="selectByCondition" resultType="com.upedge.common.model.ship.vo.ShipDetail">
+        select method_id as `methodId`,method_name as `methodName`,
+        concat(delivery_min_day,"-",delivery_max_day) as days,
+    round((fixed_fee+weight_charge*#{weight})*discount/6.3,2) as price,
+    #{weight} as weight, id as shippingUtilId
+        from shipping_unit
+        where method_id = #{methodId}
+        and to_area_id = #{toAreaId}
+        and state = '1'
+        and #{weight} between start_weight and end_weight
+        limit 1
+    </select>
+
+    <select id="selectByMethodIdsAndWeight" resultType="com.upedge.common.model.ship.vo.ShipDetail">
+        select m.*
+        from
+        (
+        select su.method_id as `methodId`,su.method_name as `methodName`,
+        concat(su.delivery_min_day,"-",su.delivery_max_day) as days,
+        round((su.fixed_fee+su.weight_charge*#{weight})*su.discount/6.3,2) as price,
+        #{weight} as weight , su.id as shippingUtilId
+        from shipping_unit su
+        inner join shipping_method sm
+        on su.method_id = sm.id
+        where su.method_id in
+        <foreach collection="methodIds" item="methodId" open="(" close=")" separator=",">
+            #{methodId}
+        </foreach>
+        and su.to_area_id = #{toAreaId}
+        and su.state = '1'
+        and sm.state = '1'
+        and #{weight} between su.start_weight and su.end_weight
+        and sm.weight_type = '0'
+        union
+        select su.method_id as `methodId`,su.method_name as `methodName`,
+        concat(su.delivery_min_day,"-",su.delivery_max_day) as days,
+        round((su.fixed_fee+su.weight_charge*#{volumn})*su.discount/6.3,2) as price,
+        #{weight} as weight , su.id as shippingUtilId
+        from shipping_unit su
+        inner join shipping_method sm
+        on su.method_id = sm.id
+        where su.method_id in
+        <foreach collection="methodIds" item="methodId" open="(" close=")" separator=",">
+            #{methodId}
+        </foreach>
+        and su.to_area_id = #{toAreaId}
+        and su.state = '1'
+        and sm.state = '1'
+        and #{volumn} between su.start_weight and su.end_weight
+        and sm.weight_type = '1'
+        ) m
+        order by m.price asc
+
+    </select>
+
+    <select id="selectByPrimaryKey" parameterType="com.upedge.tms.modules.ship.entity.ShippingUnit"
+            resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from shipping_unit
+        where id = #{id}
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="com.upedge.tms.modules.ship.entity.ShippingUnit">
+        delete from shipping_unit
+        where id = #{id}
+    </delete>
+
+    <update id="updateByPrimaryKeySelective" parameterType="com.upedge.tms.modules.ship.entity.ShippingUnit">
+        update shipping_unit
+        <set>
+            <if test="methodId != null">
+                method_id = #{methodId},
+            </if>
+            <if test="methodName != null">
+                method_name = #{methodName},
+            </if>
+            <if test="fromAreaId != null">
+                from_area_id = #{fromAreaId},
+            </if>
+            <if test="toAreaId != null">
+                to_area_id = #{toAreaId},
+            </if>
+            <if test="startWeight != null">
+                start_weight = #{startWeight},
+            </if>
+            <if test="endWeight != null">
+                end_weight = #{endWeight},
+            </if>
+            <if test="fixedFee != null">
+                fixed_fee = #{fixedFee},
+            </if>
+            <if test="weightCharge != null">
+                weight_charge = #{weightCharge},
+            </if>
+            <if test="deliveryMinDay != null">
+                delivery_min_day = #{deliveryMinDay},
+            </if>
+            <if test="deliveryMaxDay != null">
+                delivery_max_day = #{deliveryMaxDay},
+            </if>
+            <if test="discount != null">
+                discount = #{discount},
+            </if>
+            <if test="remarks != null">
+                remarks = #{remarks},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime},
+            </if>
+            <if test="state != null">
+                state = #{state},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <update id="updateByPrimaryKey" parameterType="com.upedge.tms.modules.ship.entity.ShippingUnit">
+        update shipping_unit
+        <set>
+            id = #{id},
+            method_id = #{methodId},
+            method_name = #{methodName},
+            from_area_id = #{fromAreaId},
+            to_area_id = #{toAreaId},
+            start_weight = #{startWeight},
+            end_weight = #{endWeight},
+            fixed_fee = #{fixedFee},
+            weight_charge = #{weightCharge},
+            delivery_min_day = #{deliveryMinDay},
+            delivery_max_day = #{deliveryMaxDay},
+            discount = #{discount},
+            remarks = #{remarks},
+            create_time = #{createTime},
+            state = #{state},
+        </set>
+        where id = #{id}
+    </update>
+
+    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.upedge.tms.modules.ship.entity.ShippingUnit"
+            useGeneratedKeys="true">
+        insert into shipping_unit
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            id,
+            method_id,
+            method_name,
+            from_area_id,
+            to_area_id,
+            start_weight,
+            end_weight,
+            fixed_fee,
+            weight_charge,
+            delivery_min_day,
+            delivery_max_day,
+            discount,
+            remarks,
+            create_time,
+            state
+        </trim>
+        values (
+        #{id},
+        #{methodId},
+        #{methodName},
+        #{fromAreaId},
+        #{toAreaId},
+        #{startWeight},
+        #{endWeight},
+        #{fixedFee},
+        #{weightCharge},
+        #{deliveryMinDay},
+        #{deliveryMaxDay},
+        #{discount},
+        #{remarks},
+        #{createTime},
+        #{state}
+        )
+    </insert>
+
+    <insert id="insertSelective" keyColumn="id" keyProperty="id"
+            parameterType="com.upedge.tms.modules.ship.entity.ShippingUnit" useGeneratedKeys="true">
+        insert into shipping_unit
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id
+            </if>
+            <if test="methodId != null">
+                method_id
+            </if>
+            <if test="methodName != null">
+                method_name
+            </if>
+            <if test="fromAreaId != null">
+                from_area_id
+            </if>
+            <if test="toAreaId != null">
+                to_area_id
+            </if>
+            <if test="startWeight != null">
+                start_weight
+            </if>
+            <if test="endWeight != null">
+                end_weight
+            </if>
+            <if test="fixedFee != null">
+                fixed_fee
+            </if>
+            <if test="weightCharge != null">
+                weight_charge
+            </if>
+            <if test="deliveryMinDay != null">
+                delivery_min_day
+            </if>
+            <if test="deliveryMaxDay != null">
+                delivery_max_day
+            </if>
+            <if test="discount != null">
+                discount
+            </if>
+            <if test="remarks != null">
+                remarks
+            </if>
+            <if test="createTime != null">
+                create_time
+            </if>
+            <if test="state != null">
+                state
+            </if>
+
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id}
+            </if>
+            <if test="methodId != null">
+                #{methodId}
+            </if>
+            <if test="methodName != null">
+                #{methodName}
+            </if>
+            <if test="fromAreaId != null">
+                #{fromAreaId}
+            </if>
+            <if test="toAreaId != null">
+                #{toAreaId}
+            </if>
+            <if test="startWeight != null">
+                #{startWeight}
+            </if>
+            <if test="endWeight != null">
+                #{endWeight}
+            </if>
+            <if test="fixedFee != null">
+                #{fixedFee}
+            </if>
+            <if test="weightCharge != null">
+                #{weightCharge}
+            </if>
+            <if test="deliveryMinDay != null">
+                #{deliveryMinDay}
+            </if>
+            <if test="deliveryMaxDay != null">
+                #{deliveryMaxDay}
+            </if>
+            <if test="discount != null">
+                #{discount}
+            </if>
+            <if test="remarks != null">
+                #{remarks}
+            </if>
+            <if test="createTime != null">
+                #{createTime}
+            </if>
+            <if test="state != null">
+                #{state}
+            </if>
+
+        </trim>
+    </insert>
+
+    <insert id="insertByBatch" parameterType="java.util.List">
+        insert into shipping_unit
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            id,
+            method_id,
+            method_name,
+            from_area_id,
+            to_area_id,
+            start_weight,
+            end_weight,
+            fixed_fee,
+            weight_charge,
+            delivery_min_day,
+            delivery_max_day,
+            discount,
+            remarks,
+            create_time,
+            state
+        </trim>
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+                #{item.id},
+                #{item.methodId},
+                #{item.methodName},
+                #{item.fromAreaId},
+                #{item.toAreaId},
+                #{item.startWeight},
+                #{item.endWeight},
+                #{item.fixedFee},
+                #{item.weightCharge},
+                #{item.deliveryMinDay},
+                #{item.deliveryMaxDay},
+                #{item.discount},
+                #{item.remarks},
+                #{item.createTime},
+                #{item.state}
+            </trim>
+        </foreach>
+    </insert>
+
+    <sql id="Query_Condition">
+        <if test="t != null">
+            where
+            <trim prefix=" " suffix=" " suffixOverrides=" and ">
+                1 = 1 and
+                <if test="t.id != null">
+                    id = #{t.id} and
+                </if>
+                <if test="t.methodId != null">
+                    method_id = #{t.methodId} and
+                </if>
+                <if test="t.methodName != null">
+                    method_name LIKE CONCAT('%',#{t.methodName},'%')  and
+                </if>
+                <if test="t.fromAreaId != null">
+                    from_area_id = #{t.fromAreaId} and
+                </if>
+                <if test="t.toAreaId != null">
+                    to_area_id = #{t.toAreaId} and
+                </if>
+                <if test="t.startWeight != null">
+                    start_weight = #{t.startWeight} and
+                </if>
+                <if test="t.endWeight != null">
+                    end_weight = #{t.endWeight} and
+                </if>
+                <if test="t.fixedFee != null">
+                    fixed_fee = #{t.fixedFee} and
+                </if>
+                <if test="t.weightCharge != null">
+                    weight_charge = #{t.weightCharge} and
+                </if>
+                <if test="t.deliveryMinDay != null">
+                    delivery_min_day = #{t.deliveryMinDay} and
+                </if>
+                <if test="t.deliveryMaxDay != null">
+                    delivery_max_day = #{t.deliveryMaxDay} and
+                </if>
+                <if test="t.discount != null">
+                    discount = #{t.discount} and
+                </if>
+                <if test="t.remarks != null">
+                    remarks = #{t.remarks} and
+                </if>
+                <if test="t.createTime != null">
+                    create_time = #{t.createTime} and
+                </if>
+                <if test="t.state != null">
+                    state = #{t.state} and
+                </if>
+            </trim>
+        </if>
+    </sql>
+
+    <select id="select" parameterType="com.upedge.common.base.Page" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from shipping_unit
+        <include refid="Query_Condition"/>
+        <if test="orderBy != null">
+            order by ${orderBy}
+        </if>
+        <if test="pageNum != null and pageSize != null">
+            limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+        </if>
+    </select>
+
+    <select id="count" parameterType="com.upedge.common.base.Page" resultType="java.lang.Long">
+        select
+        count(1)
+        from shipping_unit
+        <include refid="Query_Condition"/>
+    </select>
+
+    <select id="getShippingUnitByOption" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from shipping_unit
+        where method_id=#{methodId} and from_area_id=#{fromAreaId} and to_area_id=#{toAreaId} and
+        start_weight=#{startWeight} and end_weight=#{endWeight}
+    </select>
+
+    <delete id="removeAllUseless">
+		delete from shipping_unit where state=0
+    </delete>
+
+    <update id="useImportAll">
+         update shipping_unit su
+         left join area a on a.id=su.to_area_id
+         set su.state=1
+         where su.state=0 and a.id is not NULL
+    </update>
+
+    <select id="multiExportShippingUnits" resultType="com.upedge.tms.modules.ship.entity.ShippingUnit">
+         select
+         sm.name as methodName,
+         fa.name as fromAreaId,
+		 IFNULL(ta.name,su.to_area_id) as toAreaId,
+         su.discount as discount,
+         su.start_weight as startWeight,
+         su.end_weight as endWeight,
+         su.fixed_fee as fixedFee,
+         su.weight_charge as weightCharge,
+         su.delivery_min_day as deliveryMinDay,
+         su.delivery_max_day as deliveryMaxDay,
+         su.remarks as remarks
+         from shipping_unit su
+         left join area ta on ta.id=su.to_area_id
+         left join area fa on fa.id=su.from_area_id
+         left join shipping_method sm on sm.id=su.method_id
+         where su.state=0
+    </select>
+
+    <select id="countUnit" resultType="java.lang.Integer">
+         select count(1) from shipping_unit
+         where method_id=#{methodId}
+    </select>
+    <select id="selectListByShippingMethodId" resultType="com.upedge.tms.modules.ship.entity.ShippingUnit">
+         select
+        <include refid="Base_Column_List"/>
+        from shipping_unit
+        where method_id=#{shippingMethodId} and  state = 1
+    </select>
+
+</mapper>

@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.upedge.pms.modules.product.dao.ImportProductDescriptionDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.upedge.pms.modules.product.entity.ImportProductDescription" id="BaseResultMap">
+        <result property="id" column="id"/>
+        <result property="productId" column="product_id"/>
+        <result property="description" column="description"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        `id`,`product_id`,`description`
+    </sql>
+
+    <select id="selectByProductId" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from import_product_description
+        where product_id = #{productId}
+    </select>
+
+    <select id="selectByPrimaryKey" parameterType="com.upedge.pms.modules.product.entity.ImportProductDescription" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from import_product_description
+        where id = #{id}
+    </select>
+
+    <delete id="deleteDescByProductId">
+        delete from import_product_description
+        where product_id = #{productId}
+    </delete>
+
+    <delete id="deleteByPrimaryKey" parameterType="com.upedge.pms.modules.product.entity.ImportProductDescription">
+        delete from import_product_description
+        where id = #{id}
+    </delete>
+
+    <update id="updateByPrimaryKeySelective" parameterType="com.upedge.pms.modules.product.entity.ImportProductDescription">
+        update import_product_description
+        <set>
+            <if test="productId != null">
+                product_id = #{productId},
+            </if>
+            <if test="description != null">
+                description = #{description},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <update id="updateByPrimaryKey" parameterType="com.upedge.pms.modules.product.entity.ImportProductDescription">
+        update import_product_description
+        <set>
+        id = #{id},
+        product_id = #{productId},
+        description = #{description},
+        </set>
+        where id = #{id}
+    </update>
+
+    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.upedge.pms.modules.product.entity.ImportProductDescription" useGeneratedKeys="true">
+        insert into import_product_description
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            id,
+            product_id,
+            description
+        </trim>
+        values (
+        #{id},
+        #{productId},
+        #{description}
+        )
+    </insert>
+
+    <insert id="insertSelective"  keyColumn="id" keyProperty="id"  parameterType="com.upedge.pms.modules.product.entity.ImportProductDescription" useGeneratedKeys="true">
+        insert into import_product_description
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null" >
+              id
+            </if>
+            <if test="productId != null" >
+              product_id
+            </if>
+            <if test="description != null" >
+              description
+            </if>
+
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null" >
+                #{id}
+            </if>
+            <if test="productId != null" >
+                #{productId}
+            </if>
+            <if test="description != null" >
+                #{description}
+            </if>
+
+        </trim>
+    </insert>
+
+    <insert id="insertByBatch" parameterType="java.util.List">
+        insert into import_product_description
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+           id,
+           product_id,
+           description
+        </trim>
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+               #{item.id},
+               #{item.productId},
+               #{item.description}
+            </trim>
+        </foreach>
+    </insert>
+
+    <sql id="Query_Condition">
+        <if test="t != null">
+            where
+            <trim prefix=" " suffix=" " suffixOverrides=" and ">
+                1 = 1 and
+                    <if test="t.id != null">
+                        id = #{t.id} and
+                    </if>
+                    <if test="t.productId != null">
+                        product_id = #{t.productId} and
+                    </if>
+                    <if test="t.description != null">
+                        description = #{t.description} and
+                    </if>
+            </trim>
+        </if>
+    </sql>
+
+    <select id="select" parameterType="com.upedge.common.base.Page" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from import_product_description
+        <include refid="Query_Condition"/>
+        <if test="orderBy != null">
+            order by ${orderBy}
+        </if>
+        <if test="pageNum != null and pageSize != null">
+            limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+        </if>
+    </select>
+
+    <select id="count" parameterType="com.upedge.common.base.Page" resultType="java.lang.Long">
+        select
+        count(1)
+        from import_product_description
+        <include refid="Query_Condition"/>
+    </select>
+
+
+</mapper>

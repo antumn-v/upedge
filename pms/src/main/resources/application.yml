@@ -11,16 +11,15 @@ spring:
     loadbalancer:
       ribbon:
         enabled: false
-    nacos:
+    consul:
+      host: localhost
+      port: 8500
       discovery:
-        namespace: public
-        group: ${spring.application.name}
-      username: nacos
-      password: nacos
-      server-addr: 192.168.10.13:8848
+        serviceName: ${spring.application.name}    # 注册到consul的服务名称
+        heartbeat: true
   redis:
     database: 0
-    host: 192.168.10.13
+    host: 192.168.10.5
     port: 6379
     password: 123456
     lettuce:
@@ -61,6 +60,16 @@ spring:
             multi-statement-allow: true
 
 
+feign:
+  client:
+    config:
+      default:
+        connectTimeout: 5000
+        readTimeout: 50000
+        loggerLevel: basic
+  okhttp:
+    enabled: true
+
 #mybatis
 mybatis-plus:
   mapper-locations: classpath*:/mapper/**/*.xml
@@ -79,7 +88,7 @@ mybatis-plus:
 logging:
   level:
     root: WARN
-    com.upedge.ums: DEBUG
+    com.upedge.pms: DEBUG
     com.upedge.test: DEBUG
 
 files:

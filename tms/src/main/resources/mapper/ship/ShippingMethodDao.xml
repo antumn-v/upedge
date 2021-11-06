@@ -1,0 +1,352 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.upedge.tms.modules.ship.dao.ShippingMethodDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.upedge.tms.modules.ship.entity.ShippingMethod" id="BaseResultMap">
+        <result property="id" column="id"/>
+        <result property="name" column="name"/>
+        <result property="desc" column="desc"/>
+        <result property="saiheTransportId" column="saihe_transport_id"/>
+        <result property="saiheTransportName" column="saihe_transport_name"/>
+        <result property="trackingUrl" column="tracking_url"/>
+        <result property="weightType" column="weight_type"/>
+        <result property="trackType" column="track_type"/>
+        <result property="paypalCarrierEnum" column="paypal_carrier_enum"/>
+        <result property="state" column="state"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        `id`,`name`,`desc`,`saihe_transport_id`,`saihe_transport_name`,`tracking_url`,`weight_type`,`track_type`,`paypal_carrier_enum`,`state`,`create_time`,`update_time`
+    </sql>
+
+    <select id="selectByPrimaryKey" parameterType="com.upedge.tms.modules.ship.entity.ShippingMethod" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from shipping_method
+        where id = #{id}
+    </select>
+
+    <select id="allShippingMethod" resultMap="BaseResultMap">
+        select
+        `id`,`name`,`weight_type`
+        from shipping_method where state=1
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="com.upedge.tms.modules.ship.entity.ShippingMethod">
+        delete from shipping_method
+        where id = #{id}
+    </delete>
+
+    <update id="updateBySaiheTransport">
+        update shipping_method set   saihe_transport_name = #{transportName} where  saihe_transport_id = #{saiheTransportId}
+    </update>
+
+    <update id="updateByPrimaryKeySelective" parameterType="com.upedge.tms.modules.ship.entity.ShippingMethod">
+        update shipping_method
+        <set>
+            <if test="name != null">
+                `name` = #{name},
+            </if>
+            <if test="desc != null">
+                `desc` = #{desc},
+            </if>
+            <if test="saiheTransportId != null">
+                saihe_transport_id = #{saiheTransportId},
+            </if>
+            <if test="saiheTransportName != null">
+                saihe_transport_name = #{saiheTransportName},
+            </if>
+            <if test="trackingUrl != null">
+                tracking_url = #{trackingUrl},
+            </if>
+            <if test="weightType != null">
+                weight_type = #{weightType},
+            </if>
+            <if test="trackType != null">
+                track_type = #{trackType},
+            </if>
+            <if test="paypalCarrierEnum != null">
+                paypal_carrier_enum = #{paypalCarrierEnum},
+            </if>
+            <if test="state != null">
+                state = #{state},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime},
+            </if>
+            <if test="updateTime != null">
+                update_time = #{updateTime},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <update id="updateByPrimaryKey" parameterType="com.upedge.tms.modules.ship.entity.ShippingMethod">
+        update shipping_method
+        <set>
+        id = #{id},
+        `name` = #{name},
+        `desc` = #{desc},
+        saihe_transport_id = #{saiheTransportId},
+        saihe_transport_name = #{saiheTransportName},
+        tracking_url = #{trackingUrl},
+        weight_type = #{weightType},
+        track_type = #{trackType},
+        paypal_carrier_enum = #{paypalCarrierEnum},
+        state = #{state},
+        create_time = #{createTime},
+        update_time = #{updateTime}
+        </set>
+        where id = #{id}
+    </update>
+
+    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.upedge.tms.modules.ship.entity.ShippingMethod" useGeneratedKeys="true">
+        insert into shipping_method
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            id,
+            `name`,
+            `desc`,
+            saihe_transport_id,
+            saihe_transport_name,
+            tracking_url,
+            weight_type,
+            track_type,
+            paypal_carrier_enum,
+            state,
+            create_time,
+            update_time
+        </trim>
+        values (
+        #{id},
+        #{name},
+        #{desc},
+        #{saiheTransportId},
+        #{saiheTransportName},
+        #{trackingUrl},
+        #{weightType},
+        #{trackType},
+        #{paypalCarrierEnum},
+        #{state},
+        #{createTime},
+        #{updateTime}
+        )
+    </insert>
+
+    <insert id="insertSelective"  keyColumn="id" keyProperty="id"  parameterType="com.upedge.tms.modules.ship.entity.ShippingMethod" useGeneratedKeys="true">
+        insert into shipping_method
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null" >
+              id
+            </if>
+            <if test="name != null" >
+              `name`
+            </if>
+            <if test="desc != null" >
+              `desc`
+            </if>
+            <if test="saiheTransportId != null" >
+              saihe_transport_id
+            </if>
+            <if test="saiheTransportName != null" >
+              saihe_transport_name
+            </if>
+            <if test="trackingUrl != null" >
+              tracking_url
+            </if>
+            <if test="weightType != null" >
+              weight_type
+            </if>
+            <if test="trackType != null" >
+              track_type
+            </if>
+            <if test="paypalCarrierEnum != null" >
+              paypal_carrier_enum
+            </if>
+            <if test="state != null" >
+              state
+            </if>
+            <if test="createTime != null" >
+              create_time
+            </if>
+            <if test="updateTime != null" >
+              update_time
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null" >
+                #{id}
+            </if>
+            <if test="name != null" >
+                #{name}
+            </if>
+            <if test="desc != null" >
+                #{desc}
+            </if>
+            <if test="saiheTransportId != null" >
+                #{saiheTransportId}
+            </if>
+            <if test="saiheTransportName != null" >
+                #{saiheTransportName}
+            </if>
+            <if test="trackingUrl != null" >
+                #{trackingUrl}
+            </if>
+            <if test="weightType != null" >
+                #{weightType}
+            </if>
+            <if test="trackType != null" >
+                #{trackType}
+            </if>
+            <if test="paypalCarrierEnum != null" >
+                #{paypalCarrierEnum}
+            </if>
+            <if test="state != null" >
+                #{state}
+            </if>
+            <if test="createTime != null" >
+                #{createTime}
+            </if>
+            <if test="updateTime != null" >
+                #{updateTime}
+            </if>
+        </trim>
+    </insert>
+
+    <insert id="insertByBatch" parameterType="java.util.List">
+        insert into shipping_method
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+           id,
+           `name`,
+           `desc`,
+           saihe_transport_id,
+           saihe_transport_name,
+           tracking_url,
+           weight_type,
+           track_type,
+           paypal_carrier_enum,
+           state,
+           create_time,
+           update_time
+        </trim>
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+               #{item.id},
+               #{item.name},
+               #{item.desc},
+               #{item.saiheTransportId},
+               #{item.saiheTransportName},
+               #{item.trackingUrl},
+               #{item.weightType},
+               #{item.trackType},
+               #{item.paypalCarrierEnum},
+               #{item.state},
+               #{item.createTime},
+               #{item.updateTime}
+            </trim>
+        </foreach>
+    </insert>
+
+    <sql id="Query_Condition">
+        <if test="t != null">
+            where
+            <trim prefix=" " suffix=" " suffixOverrides=" and ">
+                1 = 1 and
+                    <if test="t.id != null">
+                        id = #{t.id} and
+                    </if>
+                    <if test="t.name != null">
+                      <!--  `name` = #{t.name} and -->
+                        `name` LIKE CONCAT('%',#{t.name},'%')  and
+                    </if>
+                    <if test="t.desc != null">
+                        `desc` = #{t.desc} and
+                    </if>
+                    <if test="t.saiheTransportId != null">
+                        saihe_transport_id = #{t.saiheTransportId} and
+                    </if>
+                    <if test="t.saiheTransportName != null">
+                        saihe_transport_name = #{t.saiheTransportName} and
+                    </if>
+                    <if test="t.trackingUrl != null">
+                        tracking_url = #{t.trackingUrl} and
+                    </if>
+                    <if test="t.weightType != null">
+                        weight_type = #{t.weightType} and
+                    </if>
+                    <if test="t.trackType != null">
+                        track_type = #{t.trackType} and
+                    </if>
+                    <if test="t.paypalCarrierEnum != null">
+                        paypal_carrier_enum = #{t.paypalCarrierEnum} and
+                    </if>
+                    <if test="t.state != null">
+                        state = #{t.state} and
+                    </if>
+                    <if test="t.createTime != null">
+                        create_time = #{t.createTime} and
+                    </if>
+                    <if test="t.updateTime != null">
+                        update_time = #{t.updateTime} and
+                    </if>
+            </trim>
+        </if>
+    </sql>
+
+    <select id="select" parameterType="com.upedge.common.base.Page" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from shipping_method
+        <include refid="Query_Condition"/>
+        <if test="orderBy != null">
+            order by ${orderBy}
+        </if>
+        <if test="pageNum != null and pageSize != null">
+            limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+        </if>
+    </select>
+
+    <select id="count" parameterType="com.upedge.common.base.Page" resultType="java.lang.Long">
+        select
+        count(1)
+        from shipping_method
+        <include refid="Query_Condition"/>
+    </select>
+
+    <update id="updateShippingMethodState">
+        update shipping_method set state=#{state} where id=#{id}
+    </update>
+
+
+    <select id="listUseAllShippingMethodName" resultType="java.lang.String">
+        select `name` from shipping_method where state=1
+    </select>
+
+    <select id="getShippingMethodByName" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from shipping_method where `name`=#{methodName}
+    </select>
+
+    <select id="listShippingMethod" resultMap="BaseResultMap">
+        select
+        `id`,`name`,`saihe_transport_id`,`saihe_transport_name`,`weight_type`
+        from shipping_method
+        where id in
+        <foreach collection="ids" index="index" item="item"
+                 separator="," open="(" close=")">
+            #{item}
+        </foreach>
+    </select>
+
+    <select id="getShippingMethodByTransportId" resultMap="BaseResultMap">
+        select
+        `id`,`name`,`saihe_transport_id`,`saihe_transport_name`,track_type
+        from shipping_method
+        where saihe_transport_id=#{transportId} limit 1
+    </select>
+</mapper>

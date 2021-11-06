@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.upedge.oms.modules.pack.dao.PackageUsdRateDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.upedge.oms.modules.pack.entity.PackageUsdRate" id="BaseResultMap">
+        <result property="monthDate" column="month_date"/>
+        <result property="usdRate" column="usd_rate"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        `month_date`,`usd_rate`
+    </sql>
+
+    <select id="selectUsdRateByMonth" resultType="java.math.BigDecimal">
+        select usd_rate
+        from package_usd_rate
+        where month_date = #{monthDate}
+    </select>
+
+    <select id="selectByPrimaryKey" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from package_usd_rate
+        where month_date = #{monthDate}
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="com.upedge.oms.modules.pack.entity.PackageUsdRate">
+        delete from package_usd_rate
+        where month_date = #{monthDate}
+    </delete>
+
+    <update id="updateByPrimaryKeySelective" parameterType="com.upedge.oms.modules.pack.entity.PackageUsdRate">
+        update package_usd_rate
+        <set>
+            <if test="usdRate != null">
+                usd_rate = #{usdRate},
+            </if>
+        </set>
+        where month_date = #{monthDate}
+    </update>
+
+    <update id="updateByPrimaryKey" parameterType="com.upedge.oms.modules.pack.entity.PackageUsdRate">
+        update package_usd_rate
+        <set>
+        month_date = #{monthDate},
+        usd_rate = #{usdRate},
+        </set>
+        where month_date = #{monthDate}
+    </update>
+
+    <insert id="insert" keyColumn="month_date" keyProperty="monthDate" parameterType="com.upedge.oms.modules.pack.entity.PackageUsdRate" useGeneratedKeys="true">
+        insert into package_usd_rate
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            month_date,
+            usd_rate
+        </trim>
+        values (
+        #{monthDate},
+        #{usdRate}
+        )
+    </insert>
+
+    <insert id="insertSelective"  keyColumn="month_date" keyProperty="monthDate"  parameterType="com.upedge.oms.modules.pack.entity.PackageUsdRate" useGeneratedKeys="true">
+        insert into package_usd_rate
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="monthDate != null" >
+              month_date
+            </if>
+            <if test="usdRate != null" >
+              usd_rate
+            </if>
+
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="monthDate != null" >
+                #{monthDate}
+            </if>
+            <if test="usdRate != null" >
+                #{usdRate}
+            </if>
+
+        </trim>
+    </insert>
+
+    <insert id="insertByBatch" parameterType="java.util.List">
+        insert into package_usd_rate
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+           month_date,
+           usd_rate
+        </trim>
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+               #{item.monthDate},
+               #{item.usdRate}
+            </trim>
+        </foreach>
+    </insert>
+
+    <sql id="Query_Condition">
+        <if test="t != null">
+            where
+            <trim prefix=" " suffix=" " suffixOverrides=" and ">
+                1 = 1 and
+                    <if test="t.monthDate != null">
+                        month_date = #{t.monthDate} and
+                    </if>
+                    <if test="t.usdRate != null">
+                        usd_rate = #{t.usdRate} and
+                    </if>
+            </trim>
+        </if>
+    </sql>
+
+    <select id="select" parameterType="com.upedge.common.base.Page" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from package_usd_rate
+        <include refid="Query_Condition"/>
+        <if test="orderBy != null">
+            order by ${orderBy}
+        </if>
+        <if test="pageNum != null and pageSize != null">
+            limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+        </if>
+    </select>
+
+    <select id="count" parameterType="com.upedge.common.base.Page" resultType="java.lang.Long">
+        select
+        count(1)
+        from package_usd_rate
+        <include refid="Query_Condition"/>
+    </select>
+
+    <select id="queryPackageUsdRate" resultType="com.upedge.oms.modules.pack.entity.PackageUsdRate">
+        select month_date as monthDate,
+        usd_rate as usdRate
+        from package_usd_rate where month_date=#{monthDate}
+    </select>
+
+    <insert id="updatePackageUsdRate">
+        insert into package_usd_rate(month_date,usd_rate)
+        values
+        (#{monthDate,jdbcType=VARCHAR},
+         #{usdRate,jdbcType=DECIMAL})
+        ON DUPLICATE KEY UPDATE
+        usd_rate = VALUES(usd_rate)
+    </insert>
+
+</mapper>

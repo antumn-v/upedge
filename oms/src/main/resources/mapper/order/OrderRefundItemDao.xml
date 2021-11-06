@@ -1,0 +1,247 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.upedge.oms.modules.order.dao.OrderRefundItemDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.upedge.oms.modules.order.entity.OrderRefundItem" id="BaseResultMap">
+        <result property="id" column="id"/>
+        <result property="orderId" column="order_id"/>
+        <result property="quantity" column="quantity"/>
+        <result property="price" column="price"/>
+        <result property="refundId" column="refund_id"/>
+        <result property="orderItemId" column="order_item_id"/>
+        <result property="variantSku" column="variant_sku"/>
+        <result property="variantImage" column="variant_image"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        `id`,`order_id`,`quantity`,`price`,`refund_id`,`order_item_id`,`variant_sku`,`variant_image`
+    </sql>
+
+    <select id="selectByPrimaryKey" parameterType="com.upedge.oms.modules.order.entity.OrderRefundItem" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from order_refund_item
+        where id = #{id}
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="com.upedge.oms.modules.order.entity.OrderRefundItem">
+        delete from order_refund_item
+        where id = #{id}
+    </delete>
+
+    <update id="updateByPrimaryKeySelective" parameterType="com.upedge.oms.modules.order.entity.OrderRefundItem">
+        update order_refund_item
+        <set>
+            <if test="orderId != null">
+                order_id = #{orderId},
+            </if>
+            <if test="quantity != null">
+                quantity = #{quantity},
+            </if>
+            <if test="price != null">
+                price = #{price},
+            </if>
+            <if test="refundId != null">
+                refund_id = #{refundId},
+            </if>
+            <if test="orderItemId != null">
+                order_item_id = #{orderItemId},
+            </if>
+            <if test="variantSku != null">
+                variant_sku = #{variantSku},
+            </if>
+            <if test="variantImage != null">
+                variant_image = #{variantImage},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <update id="updateByPrimaryKey" parameterType="com.upedge.oms.modules.order.entity.OrderRefundItem">
+        update order_refund_item
+        <set>
+        id = #{id},
+        order_id = #{orderId},
+        quantity = #{quantity},
+        price = #{price},
+        refund_id = #{refundId},
+        order_item_id = #{orderItemId},
+        variant_sku = #{variantSku},
+        variant_image = #{variantImage},
+        </set>
+        where id = #{id}
+    </update>
+
+    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.upedge.oms.modules.order.entity.OrderRefundItem" useGeneratedKeys="true">
+        insert into order_refund_item
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            id,
+            order_id,
+            quantity,
+            price,
+            refund_id,
+            order_item_id,
+            variant_sku,
+            variant_image
+        </trim>
+        values (
+        #{id},
+        #{orderId},
+        #{quantity},
+        #{price},
+        #{refundId},
+        #{orderItemId},
+        #{variantSku},
+        #{variantImage}
+        )
+    </insert>
+
+    <insert id="insertSelective"  keyColumn="id" keyProperty="id"  parameterType="com.upedge.oms.modules.order.entity.OrderRefundItem" useGeneratedKeys="true">
+        insert into order_refund_item
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null" >
+              id
+            </if>
+            <if test="orderId != null" >
+              order_id
+            </if>
+            <if test="quantity != null" >
+              quantity
+            </if>
+            <if test="price != null" >
+              price
+            </if>
+            <if test="refundId != null" >
+              refund_id
+            </if>
+            <if test="orderItemId != null" >
+              order_item_id
+            </if>
+            <if test="variantSku != null" >
+              variant_sku
+            </if>
+            <if test="variantImage != null" >
+              variant_image
+            </if>
+
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null" >
+                #{id}
+            </if>
+            <if test="orderId != null" >
+                #{orderId}
+            </if>
+            <if test="quantity != null" >
+                #{quantity}
+            </if>
+            <if test="price != null" >
+                #{price}
+            </if>
+            <if test="refundId != null" >
+                #{refundId}
+            </if>
+            <if test="orderItemId != null" >
+                #{orderItemId}
+            </if>
+            <if test="variantSku != null" >
+                #{variantSku}
+            </if>
+            <if test="variantImage != null" >
+                #{variantImage}
+            </if>
+
+        </trim>
+    </insert>
+
+    <insert id="insertByBatch" parameterType="java.util.List">
+        insert into order_refund_item
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+           id,
+           order_id,
+           quantity,
+           price,
+           refund_id,
+           order_item_id,
+           variant_sku,
+           variant_image
+        </trim>
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+               #{item.id},
+               #{item.orderId},
+               #{item.quantity},
+               #{item.price},
+               #{item.refundId},
+               #{item.orderItemId},
+               #{item.variantSku},
+               #{item.variantImage}
+            </trim>
+        </foreach>
+    </insert>
+
+    <sql id="Query_Condition">
+        <if test="t != null">
+            where
+            <trim prefix=" " suffix=" " suffixOverrides=" and ">
+                1 = 1 and
+                    <if test="t.id != null">
+                        id = #{t.id} and
+                    </if>
+                    <if test="t.orderId != null">
+                        order_id = #{t.orderId} and
+                    </if>
+                    <if test="t.quantity != null">
+                        quantity = #{t.quantity} and
+                    </if>
+                    <if test="t.price != null">
+                        price = #{t.price} and
+                    </if>
+                    <if test="t.refundId != null">
+                        refund_id = #{t.refundId} and
+                    </if>
+                    <if test="t.orderItemId != null">
+                        order_item_id = #{t.orderItemId} and
+                    </if>
+                    <if test="t.variantSku != null">
+                        variant_sku = #{t.variantSku} and
+                    </if>
+                    <if test="t.variantImage != null">
+                        variant_image = #{t.variantImage} and
+                    </if>
+            </trim>
+        </if>
+    </sql>
+
+    <select id="select" parameterType="com.upedge.common.base.Page" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from order_refund_item
+        <include refid="Query_Condition"/>
+        <if test="orderBy != null">
+            order by ${orderBy}
+        </if>
+        <if test="pageNum != null and pageSize != null">
+            limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+        </if>
+    </select>
+
+    <select id="count" parameterType="com.upedge.common.base.Page" resultType="java.lang.Long">
+        select
+        count(1)
+        from order_refund_item
+        <include refid="Query_Condition"/>
+    </select>
+    <select id="selectOrderRefundItemListbByRefundId"
+            resultType="com.upedge.oms.modules.order.entity.OrderRefundItem">
+        select
+        <include refid="Base_Column_List" />
+        from order_refund_item
+        where refund_id  = #{refundId}
+    </select>
+
+
+</mapper>

@@ -15,6 +15,46 @@
         `id`,`store_id`,`attr_key`,`attr_value`
     </sql>
 
+
+    <sql id="Store_Attr">
+
+            <trim prefix=" " suffix=" " suffixOverrides=" and ">
+                and
+                <if test="id != null">
+                    id = #{id} and
+                </if>
+                <if test="attrKey != null">
+                    attr_key = #{attrKey} and
+                </if>
+                <if test="attrValue != null">
+                    attr_value = #{attrValue} and
+                </if>
+            </trim>
+
+    </sql>
+
+    <select id="selectStoreAttr" parameterType="com.upedge.ums.modules.store.entity.StoreAttr" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from store_attr
+        where store_id = #{storeId}
+        <include refid="Store_Attr"/>
+    </select>
+
+    <select id="selectByStore" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from store_attr
+        where store_id = #{storeId}
+    </select>
+
+    <delete id="deleteByStoreId">
+        delete
+        from store_attr
+        where store_id = #{storeId}
+    </delete>
+
+
     <select id="selectByPrimaryKey" parameterType="com.upedge.ums.modules.store.entity.StoreAttr" resultMap="BaseResultMap">
         select
         <include refid="Base_Column_List" />
@@ -70,7 +110,7 @@
         )
     </insert>
 
-    <insert id="insertSelective"  keyColumn="id" keyProperty="id"  parameterType="com.upedge.ums.modules.store.entity.StoreAttr" useGeneratedKeys="true">
+    <insert id="insertSelective" keyColumn="id" keyProperty="id" parameterType="com.upedge.ums.modules.store.entity.StoreAttr" useGeneratedKeys="true">
         insert into store_attr
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="id != null" >
@@ -143,6 +183,8 @@
             </trim>
         </if>
     </sql>
+
+
 
     <select id="select" parameterType="com.upedge.common.base.Page" resultMap="BaseResultMap">
         select

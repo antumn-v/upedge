@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.upedge.ums.modules.account.dao.RechargeRequestAttrMapper" >
+  <resultMap id="BaseResultMap" type="com.upedge.ums.modules.account.entity.RechargeRequestAttr" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="recharge_request_id" property="rechargeRequestId" jdbcType="INTEGER" />
+    <result column="attr_name" property="attrName" jdbcType="VARCHAR" />
+    <result column="attr_value" property="attrValue" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, recharge_request_id, attr_name, attr_value
+  </sql>
+
+  <select id="selectByValueAndName" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from recharge_request_attr
+    where attr_name = #{name}
+    and attr_value = #{value}
+    limit 1
+  </select>
+
+  <insert id="batchInsert" parameterType="java.util.List">
+    insert into recharge_request_attr ( recharge_request_id, attr_name,
+      attr_value)
+    values
+     <foreach collection="attrs" item="a" separator=",">
+     ( #{a.rechargeRequestId,jdbcType=INTEGER}, #{a.attrName,jdbcType=VARCHAR},
+      #{a.attrValue,jdbcType=VARCHAR})
+     </foreach>
+  </insert>
+
+<!--  ***********************************-->
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from recharge_request_attr
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from recharge_request_attr
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+    <delete id="deleteByRechargeId">
+      delete from recharge_request_attr
+        where recharge_request_id = #{id,jdbcType=INTEGER}
+    </delete>
+    <insert id="insert" parameterType="com.upedge.ums.modules.account.entity.RechargeRequestAttr" >
+    insert into recharge_request_attr (id, recharge_request_id, attr_name, 
+      attr_value)
+    values (#{id,jdbcType=INTEGER}, #{rechargeRequestId,jdbcType=INTEGER}, #{attrName,jdbcType=VARCHAR}, 
+      #{attrValue,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.upedge.ums.modules.account.entity.RechargeRequestAttr" >
+    insert into recharge_request_attr
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="rechargeRequestId != null" >
+        recharge_request_id,
+      </if>
+      <if test="attrName != null" >
+        attr_name,
+      </if>
+      <if test="attrValue != null" >
+        attr_value,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="rechargeRequestId != null" >
+        #{rechargeRequestId,jdbcType=INTEGER},
+      </if>
+      <if test="attrName != null" >
+        #{attrName,jdbcType=VARCHAR},
+      </if>
+      <if test="attrValue != null" >
+        #{attrValue,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.upedge.ums.modules.account.entity.RechargeRequestAttr" >
+    update recharge_request_attr
+    <set >
+      <if test="rechargeRequestId != null" >
+        recharge_request_id = #{rechargeRequestId,jdbcType=INTEGER},
+      </if>
+      <if test="attrName != null" >
+        attr_name = #{attrName,jdbcType=VARCHAR},
+      </if>
+      <if test="attrValue != null" >
+        attr_value = #{attrValue,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.upedge.ums.modules.account.entity.RechargeRequestAttr" >
+    update recharge_request_attr
+    set recharge_request_id = #{rechargeRequestId,jdbcType=INTEGER},
+      attr_name = #{attrName,jdbcType=VARCHAR},
+      attr_value = #{attrValue,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+
+  <select id="listAttrByRechargeRequestId" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from recharge_request_attr
+    where recharge_request_id=#{rechargeRequestId}
+  </select>
+
+  <insert id="updateRequestAttr">
+    insert into recharge_request_attr(recharge_request_id,attr_name,attr_value)
+    values (#{requestId},
+      #{attrName},
+      #{attrValue})
+    ON DUPLICATE KEY UPDATE
+    attr_value = VALUES(attr_value)
+  </insert>
+</mapper>

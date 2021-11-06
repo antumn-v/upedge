@@ -1,0 +1,323 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.upedge.oms.modules.statistics.dao.InvoiceDao">
+
+
+    <select id="selectCustomerInvoiceList" resultType="com.upedge.oms.modules.statistics.vo.InvoiceVo"
+            parameterType="com.upedge.oms.modules.statistics.request.InvoiceListRequest">
+        select invoices.*
+        from
+        (
+        select upedge.payment_id,
+        upedge.pay_time, sum(upedge.ship_price + upedge.product_amount) as amount,
+        '2' as 'type','0' as 'status'
+        from `order` upedge
+        left join store_order_relate sor
+        on upedge.id = sor.order_id
+        where upedge.customer_id = #{t.customerId}
+        <if test="t.orderId != null">
+            and upedge.id = #{t.orderId}
+        </if>
+        <if test="t.platOrderName != null">
+            and sor.plat_order_name = #{t.platOrderName}
+        </if>
+        and upedge.pay_state > '0'
+        and upedge.order_type != '1'
+        and upedge.order_status = '0'
+        group by payment_id,pay_time
+        union
+        select payment_id,pay_time,sum(amount) as amount,'1' as 'type','0' as 'status'
+        from stock_order
+        where customer_id = #{t.customerId}
+        <if test="t.orderId != null">
+            and id = #{t.orderId}
+        </if>
+        and pay_state > '0'
+        group by payment_id,pay_time
+        union
+        select payment_id,pay_time,sum(product_amount + ship_price) as amount,'3' as 'type','0' as 'status'
+        from wholesale_order
+        where customer_id = #{t.customerId}
+        <if test="t.orderId != null">
+            and id = #{t.orderId}
+        </if>
+        and pay_state > '0'
+        group by payment_id,pay_time
+        ) invoices
+        where invoices.pay_time
+        between #{t.beginTime}
+        and #{t.endTime}
+        <if test="t.orderType != null">
+            and invoices.type = #{t.orderType}
+        </if>
+        <if test="t.paymentId != null">
+            and invoices.payment_id = #{t.paymentId}
+        </if>
+        order by invoices.pay_time desc
+        <if test="fromNum != null and pageSize != null">
+            limit #{fromNum},#{pageSize}
+        </if>
+    </select>
+
+    <select id="selectCustomerInvoiceCount" resultType="java.lang.Long"
+            parameterType="com.upedge.oms.modules.statistics.request.InvoiceListRequest">
+        select count(invoices.payment_id)
+        from
+        (
+        select upedge.payment_id,
+        upedge.pay_time, sum(upedge.ship_price + upedge.product_amount) as amount,
+        '0' as 'type','0' as 'status'
+        from `order` upedge
+        left join store_order_relate sor
+        on upedge.id = sor.order_id
+        where upedge.customer_id = #{t.customerId}
+        <if test="t.orderId != null">
+            and upedge.id = #{t.orderId}
+        </if>
+        <if test="t.platOrderName != null">
+            and sor.plat_order_name = #{t.platOrderName}
+        </if>
+        and upedge.pay_state > '0'
+        and upedge.order_type != '1'
+        and upedge.order_status = '0'
+        group by payment_id,pay_time
+        union
+        select payment_id,pay_time,sum(amount) as amount,'1' as 'type','0' as 'status'
+        from stock_order
+        where customer_id = #{t.customerId}
+        <if test="t.orderId != null">
+            and id = #{t.orderId}
+        </if>
+        and pay_state > '0'
+        group by payment_id,pay_time
+        union
+        select payment_id,pay_time,sum(product_amount + ship_price) as amount,'2' as 'type','0' as 'status'
+        from wholesale_order
+        where customer_id = #{t.customerId}
+        <if test="t.orderId != null">
+            and id = #{t.orderId}
+        </if>
+        and pay_state > '0'
+        group by payment_id,pay_time
+        ) invoices
+        where invoices.pay_time
+        between #{t.beginTime}
+        and #{t.endTime}
+        <if test="t.orderType != null">
+            and invoices.type = #{t.orderType}
+        </if>
+        <if test="t.paymentId != null">
+            and invoices.payment_id = #{t.paymentId}
+        </if>
+        order by invoices.pay_time desc
+    </select>
+
+    <select id="selectOrderInvoiceDetailByPaymentId" resultType="com.upedge.oms.modules.statistics.vo.InvoiceDetailVo"
+    parameterType="com.upedge.oms.modules.statistics.request.InvoiceDetailRequest">
+        select
+            payment_id AS `paymentId`,
+            pay_time AS `payTime`,
+            IFNULL(sum( product_discharge_amount ), 0 )  AS `dischargeAmount`,
+            IFNULL(sum( ship_price ), 0 )  AS `shipPrice`,
+            IFNULL(sum( product_amount ), 0 )  AS `productAmount`,
+            IFNULL(sum( vat_amount ), 0 )  AS vatAmount,
+            IFNULL(sum( pay_amount + vat_amount + fix_fee ), 0 )  AS payAmount,
+            IFNULL(sum( fix_fee ), 0 )  AS `fixFee`
+        from `order`
+        where payment_id = #{paymentId}
+        and pay_state > '0'
+        and order_type !='1'
+        group by payment_id,pay_time
+    </select>
+
+    <select id="selectOrderInvoiceDetailByTime" resultType="com.upedge.oms.modules.statistics.vo.InvoiceDetailVo"
+    parameterType="com.upedge.oms.modules.statistics.request.InvoiceSearchRequest">
+        select
+        sum(product_discharge_amount) as `dischargeAmount`,
+        sum(ship_price) as `shipPrice`,
+        sum(product_amount) as `productAmount`,
+        sum(vat_amount) as vatAmount,
+        sum(pay_amount + vat_amount + fix_fee) as payAmount,
+        sum(fix_fee) as `fixFee`
+        from `order`
+        where customer_id = #{customerId}
+        and pay_time
+        between #{beginTime} and #{endTime}
+        and pay_state > '0'
+        and order_type !='1'
+    </select>
+
+    <select id="selectOrderInvoiceProductByPaymentId" resultType="com.upedge.oms.modules.statistics.vo.InvoiceProductVo"
+            parameterType="com.upedge.oms.modules.statistics.request.InvoiceDetailRequest">
+        select oi.store_product_title as `title`,ifnull(oi.store_variant_name,'Default Title') as `variantTitle`,
+        sum(oi.quantity) as `quantity`,
+        oi.store_variant_sku as `sku`,
+        oi.cny_price as `price`,
+        oi.admin_variant_image as `image`,
+        sum(oi.quantity * oi.cny_price) as `total`
+        from `order` o
+        inner join order_item oi
+        on o.id = oi.order_id
+        where o.payment_id = #{paymentId}
+        and o.pay_state > '0'
+        and o.order_type != '1'
+        group by oi.store_variant_sku,oi.cny_price,oi.store_product_title,oi.store_variant_name,oi.admin_variant_image
+    </select>
+
+    <select id="selectOrderInvoiceProductByTime" resultType="com.upedge.oms.modules.statistics.vo.InvoiceProductVo"
+            parameterType="com.upedge.oms.modules.statistics.request.InvoiceSearchRequest">
+        select oi.store_product_title as `title`,ifnull(oi.store_variant_name,'Default Title') as `variantTitle`,
+        sum(oi.quantity) as `quantity`,
+        oi.store_variant_sku as `sku`,
+        oi.cny_price as `price`,
+        oi.admin_variant_image as `image`,
+        sum(oi.quantity * oi.cny_price) as `total`
+        from `order` o
+        inner join order_item oi
+        on o.id = oi.order_id
+        where o.customer_id = #{customerId}
+        and o.pay_time
+        between #{beginTime} and #{endTime}
+        and o.pay_state > '0'
+        and o.order_type != '1'
+        group by oi.store_variant_sku,oi.cny_price ,oi.store_product_title,oi.store_variant_name,oi.admin_variant_image
+    </select>
+
+    <select id="selectWholesaleInvoiceDetailByPaymentId" resultType="com.upedge.oms.modules.statistics.vo.InvoiceDetailVo"
+            parameterType="com.upedge.oms.modules.statistics.request.InvoiceDetailRequest">
+        select
+            payment_id AS `paymentId`,
+            pay_time AS `payTime`,
+            IFNULL(sum( product_discharge_amount ), 0 )  AS `dischargeAmount`,
+            IFNULL(sum( ship_price ), 0 )  AS `shipPrice`,
+            IFNULL(sum( product_amount ), 0 )  AS `productAmount`,
+            IFNULL(sum( vat_amount ), 0 )  AS vatAmount,
+            IFNULL(sum( pay_amount + vat_amount + fix_fee ), 0 )  AS payAmount,
+            IFNULL(sum( fix_fee ), 0 )  AS `fixFee`
+        from wholesale_order
+        where payment_id = #{paymentId}
+        and pay_state > '0'
+        and order_type !='1'
+        group by payment_id,pay_time
+    </select>
+
+    <select id="selectWholesaleInvoiceDetailByTime" resultType="com.upedge.oms.modules.statistics.vo.InvoiceDetailVo"
+            parameterType="com.upedge.oms.modules.statistics.request.InvoiceSearchRequest">
+        select
+        sum(product_discharge_amount) as `dischargeAmount`,
+        sum(ship_price) as `shipPrice`,
+        sum(product_amount) as `productAmount`,sum(vat_amount) as vatAmount,
+        sum(pay_amount + vat_amount + fix_fee) as payAmount,
+        sum(fix_fee) as `fixFee`
+        from wholesale_order
+        where customer_id = #{customerId}
+        and pay_time
+        between #{beginTime} and #{endTime}
+        and pay_state > '0'
+        and order_type !='1'
+    </select>
+
+    <select id="selectWholesaleInvoiceProductByPaymentId" resultType="com.upedge.oms.modules.statistics.vo.InvoiceProductVo"
+            parameterType="com.upedge.oms.modules.statistics.request.InvoiceDetailRequest">
+        select oi.admin_product_title as `title`,ifnull(oi.admin_variant_name,'Default Title') as `variantTitle`,
+        sum(oi.quantity) as `quantity`,
+        oi.admin_variant_sku as `sku`,
+        oi.cny_price as `price`,
+        oi.admin_variant_image as `image`,
+        sum(oi.quantity * oi.cny_price) as `total`
+        from wholesale_order o
+        inner join wholesale_order_item oi
+        on o.id = oi.order_id
+        where o.payment_id = #{paymentId}
+        and o.pay_state > '0'
+        and o.order_type != '1'
+        group by oi.admin_variant_sku,oi.cny_price,oi.admin_product_title,oi.admin_variant_name,oi.admin_variant_image
+    </select>
+
+    <select id="selectWholesaleInvoiceProductByTime" resultType="com.upedge.oms.modules.statistics.vo.InvoiceProductVo"
+            parameterType="com.upedge.oms.modules.statistics.request.InvoiceSearchRequest">
+        select oi.admin_product_title as `title`,ifnull(oi.admin_variant_name,'Default Title') as `variantTitle`,
+        sum(oi.quantity) as `quantity`,
+        oi.admin_variant_sku as `sku`,
+        oi.cny_price as `price`,
+        oi.admin_variant_image as `image`,
+        sum(oi.quantity * oi.cny_price) as `total`
+        from wholesale_order o
+        inner join wholesale_order_item oi
+        on o.id = oi.order_id
+        where o.customer_id = #{customerId}
+        and o.pay_time
+        between #{beginTime} and #{endTime}
+        and o.pay_state > '0'
+        and o.order_type != '1'
+        group by oi.admin_variant_sku,oi.cny_price,oi.admin_product_title,oi.admin_variant_name,oi.admin_variant_image
+    </select>
+
+    <select id="selectStockInvoiceDetailByPaymentId" resultType="com.upedge.oms.modules.statistics.vo.InvoiceDetailVo"
+            parameterType="com.upedge.oms.modules.statistics.request.InvoiceDetailRequest">
+        select
+            payment_id AS `paymentId`,
+            pay_time AS `payTime`,
+            '0' AS `dischargeAmount`,
+            '0' AS `shipPrice`,
+            IFNULL( sum( amount ), 0 ) AS `productAmount`,
+            '0' AS vatAmount,
+            IFNULL( sum( amount + paypal_fee + amount ), 0 ) AS payAmount,
+            IFNULL( sum( paypal_fee ), 0 ) AS `fixFee`
+        from stock_order
+        where payment_id = #{paymentId}
+        and pay_state > '0'
+        group by payment_id ,  pay_time
+    </select>
+
+    <select id="selectStockInvoiceDetailByTime" resultType="com.upedge.oms.modules.statistics.vo.InvoiceDetailVo"
+            parameterType="com.upedge.oms.modules.statistics.request.InvoiceSearchRequest">
+        select
+        '0' as `dischargeAmount`,
+        '0' as `shipPrice`,
+        sum(amount) as `productAmount`,'0' as vatAmount,
+        sum(amount +  paypal_fee) as payAmount,
+        sum(paypal_fee) as `fixFee`
+        from stock_order
+        where customer_id = #{customerId}
+        and pay_time
+        between #{beginTime} and #{endTime}
+        and pay_state > '0'
+
+    </select>
+
+    <select id="selectStockInvoiceProductByPaymentId" resultType="com.upedge.oms.modules.statistics.vo.InvoiceProductVo"
+            parameterType="com.upedge.oms.modules.statistics.request.InvoiceDetailRequest">
+        select oi.product_title as `title`,ifnull(oi.variant_name,'Default Title') as `variantTitle`,
+        sum(oi.quantity) as `quantity`,
+        oi.variant_sku as `sku`,
+        oi.price as `price`,
+        oi.variant_image as `image`,
+        sum(oi.quantity * oi.price) as `total`
+        from stock_order o
+        inner join stock_order_item oi
+        on o.id = oi.order_id
+        where o.payment_id = #{paymentId}
+        and o.pay_state > '0'
+        group by oi.variant_sku,oi.price,oi.product_title,oi.variant_name,oi.variant_image
+    </select>
+
+    <select id="selectStockInvoiceProductByTime" resultType="com.upedge.oms.modules.statistics.vo.InvoiceProductVo"
+            parameterType="com.upedge.oms.modules.statistics.request.InvoiceSearchRequest">
+        select oi.product_title as `title`,ifnull(oi.variant_name,'Default Title') as `variantTitle`,
+        sum(oi.quantity) as `quantity`,
+        oi.variant_sku as `sku`,
+        oi.price as `price`,
+        oi.variant_image as `image`,
+        sum(oi.quantity * oi.price) as `total`
+        from stock_order o
+        inner join stock_order_item oi
+        on o.id = oi.order_id
+        where o.customer_id = #{customerId}
+        and o.pay_time
+        between #{beginTime} and #{endTime}
+        and o.pay_state > '0'
+        group by oi.variant_sku,oi.price,oi.product_title,oi.variant_name,oi.variant_image
+    </select>
+</mapper>

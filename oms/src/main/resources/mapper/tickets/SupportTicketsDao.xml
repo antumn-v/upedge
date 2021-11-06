@@ -1,0 +1,409 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.upedge.oms.modules.tickets.dao.SupportTicketsDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.upedge.oms.modules.tickets.entity.SupportTickets" id="BaseResultMap">
+        <result property="id" column="id"/>
+        <result property="orderId" column="order_id"/>
+        <result property="customerId" column="customer_id"/>
+        <result property="customerName" column="customer_name"/>
+        <result property="state" column="state"/>
+        <result property="result" column="result"/>
+        <result property="describes" column="describes"/>
+        <result property="createTime" column="create_time"/>
+        <result property="finishTime" column="finish_time"/>
+        <result property="managerName" column="manager_name"/>
+        <result property="managerCustomerId" column="manager_customer_id"/>
+        <result property="timesCount" column="times_count"/>
+        <result property="lastSource" column="last_source"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        `id`,`order_id`,`customer_id`,`customer_name`,`state`,`result`,`describes`,`create_time`,`finish_time`,
+        `manager_name`,`times_count`,`last_source`,manager_customer_id
+    </sql>
+
+    <select id="selectCustomerTicketList" resultType="com.upedge.oms.modules.tickets.vo.CustomerTicketVo" parameterType="com.upedge.oms.modules.tickets.request.CustomerTicketListRequest">
+        select st.state,st.result,st.create_time,st.manager_name as `managerName`,
+        st.customer_name as `customerName`,
+        st.create_time as `createTime`, st.id,st.order_id as `orderId`,st.describes,
+        sor.plat_order_name as `orderNumber`,sor.store_name as `storeName`
+        from support_tickets st
+        left join store_order_relate sor
+        on st.order_id = sor.order_id
+        where st.customer_id = #{t.customerId}
+        <if test="t.state != null">
+            and st.state = #{t.state}
+        </if>
+        <if test="t.orderNumber != null">
+            and sor.plat_order_name = #{t.orderNumber}
+        </if>
+        <if test="t.storeName != null">
+            and sor.store_name = #{t.storeName}
+        </if>
+        order by st.state asc,st.create_time desc
+        <if test="pageNum != null and pageSize != null">
+            limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+        </if>
+    </select>
+
+    <select id="selectCustomerTicketCount" resultType="java.lang.Long" parameterType="com.upedge.oms.modules.tickets.request.CustomerTicketListRequest">
+        select count(st.id)
+        from support_tickets st
+        left join store_order_relate sor
+        on st.order_id = sor.order_id
+        where st.customer_id = #{t.customerId}
+        <if test="t.state != null">
+            and st.state = #{t.state}
+        </if>
+        <if test="t.orderNumber != null">
+            and sor.plat_order_name = #{t.orderNumber}
+        </if>
+        <if test="t.storeName != null">
+            and sor.store_name = #{t.storeName}
+        </if>
+    </select>
+
+    <select id="selectOpenTicketByOrderId" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from support_tickets
+        where order_id = #{orderId}
+        and state = '0'
+        limit 1
+    </select>
+
+    <select id="selectByPrimaryKey" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from support_tickets
+        where id = #{id}
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="com.upedge.oms.modules.tickets.entity.SupportTickets">
+        delete from support_tickets
+        where id = #{id}
+    </delete>
+
+    <update id="updateByPrimaryKeySelective" parameterType="com.upedge.oms.modules.tickets.entity.SupportTickets">
+        update support_tickets
+        <set>
+            <if test="orderId != null">
+                order_id = #{orderId},
+            </if>
+            <if test="customerId != null">
+                customer_id = #{customerId},
+            </if>
+            <if test="customerName != null">
+                customer_name = #{customerName},
+            </if>
+            <if test="state != null">
+                state = #{state},
+            </if>
+            <if test="result != null">
+                result = #{result},
+            </if>
+            <if test="describes != null">
+                describes = #{describes},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime},
+            </if>
+            <if test="finishTime != null">
+                finish_time = #{finishTime},
+            </if>
+            <if test="timesCount != null">
+                times_count = #{timesCount},
+            </if>
+            <if test="lastSource != null">
+                last_source = #{lastSource},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <update id="updateByPrimaryKey" parameterType="com.upedge.oms.modules.tickets.entity.SupportTickets">
+        update support_tickets
+        <set>
+        id = #{id},
+        order_id = #{orderId},
+        customer_id = #{customerId},
+        customer_name = #{customerName},
+        state = #{state},
+        result = #{result},
+        describes = #{describes},
+        create_time = #{createTime},
+        finish_time = #{finishTime},
+        times_count = #{timesCount},
+        last_source = #{lastSource},
+        </set>
+        where id = #{id}
+    </update>
+
+    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.upedge.oms.modules.tickets.entity.SupportTickets" useGeneratedKeys="true">
+        insert into support_tickets
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            id,
+            order_id,
+            customer_id,
+            customer_name,
+            state,
+            result,
+            describes,
+            create_time,
+            finish_time,
+            manager_customer_id,
+            manager_name,
+            times_count,
+            last_source,
+            manager_code
+        </trim>
+        values (
+        #{id},
+        #{orderId},
+        #{customerId},
+        #{customerName},
+        #{state},
+        #{result},
+        #{describes},
+        #{createTime},
+        #{finishTime},
+        #{managerCustomerId},
+        #{managerName},
+        #{timesCount},
+        #{lastSource},
+        #{managerCode}
+        )
+    </insert>
+
+    <insert id="insertSelective"  keyColumn="id" keyProperty="id"  parameterType="com.upedge.oms.modules.tickets.entity.SupportTickets" useGeneratedKeys="true">
+        insert into support_tickets
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null" >
+              id
+            </if>
+            <if test="orderId != null" >
+              order_id
+            </if>
+            <if test="customerId != null" >
+              customer_id
+            </if>
+            <if test="customerName != null" >
+              customer_name
+            </if>
+            <if test="state != null" >
+              state
+            </if>
+            <if test="result != null" >
+              result
+            </if>
+            <if test="describes != null" >
+              describes
+            </if>
+            <if test="createTime != null" >
+              create_time
+            </if>
+            <if test="finishTime != null" >
+              finish_time
+            </if>
+            <if test="timesCount != null" >
+              times_count
+            </if>
+            <if test="lastSource != null" >
+              last_source
+            </if>
+
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null" >
+                #{id}
+            </if>
+            <if test="orderId != null" >
+                #{orderId}
+            </if>
+            <if test="customerId != null" >
+                #{customerId}
+            </if>
+            <if test="customerName != null" >
+                #{customerName}
+            </if>
+            <if test="state != null" >
+                #{state}
+            </if>
+            <if test="result != null" >
+                #{result}
+            </if>
+            <if test="describes != null" >
+                #{describes}
+            </if>
+            <if test="createTime != null" >
+                #{createTime}
+            </if>
+            <if test="finishTime != null" >
+                #{finishTime}
+            </if>
+            <if test="timesCount != null" >
+                #{timesCount}
+            </if>
+            <if test="lastSource != null" >
+                #{lastSource}
+            </if>
+
+        </trim>
+    </insert>
+
+    <insert id="insertByBatch" parameterType="java.util.List">
+        insert into support_tickets
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+           id,
+           order_id,
+           customer_id,
+           customer_name,
+           state,
+           result,
+           describes,
+           create_time,
+           finish_time,
+           manager_customer_id,
+           manager_code,
+           manager_name,
+           times_count,
+           last_source
+        </trim>
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+               #{item.id},
+               #{item.orderId},
+               #{item.customerId},
+               #{item.customerName},
+               #{item.state},
+               #{item.result},
+               #{item.describes},
+               #{item.createTime},
+               #{item.finishTime},
+               #{item.managerCustomerId},
+               #{item.managerCode},
+               #{item.managerName},
+               #{item.timesCount},
+               #{item.lastSource}
+            </trim>
+        </foreach>
+    </insert>
+
+    <sql id="Query_Condition">
+        <if test="t != null">
+            where
+            <trim prefix=" " suffix=" " suffixOverrides=" and ">
+                1 = 1 and
+                    <if test="t.id != null">
+                        id = #{t.id} and
+                    </if>
+                    <if test="t.orderId != null">
+                        order_id = #{t.orderId} and
+                    </if>
+                    <if test="t.customerId != null">
+                        customer_id = #{t.customerId} and
+                    </if>
+                    <if test="t.customerName != null  and t.customerName != ''">
+                        customer_name = #{t.customerName} and
+                    </if>
+                    <if test="t.managerCode != null and t.managerCode !=''">
+                        manager_code = #{t.managerCode} and
+                    </if>
+                    <if test="t.managerName != null and t.managerName != ''">
+                        manager_name = #{t.managerName} and
+                    </if>
+                    <if test="t.managerCustomerId != null">
+                        manager_customer_id = #{t.managerCustomerId} and
+                    </if>
+                    <if test="t.state != null">
+                        state = #{t.state} and
+                    </if>
+                    <if test="t.result != null">
+                        result = #{t.result} and
+                    </if>
+                    <if test="t.describes != null">
+                        describes = #{t.describes} and
+                    </if>
+                    <if test="t.createTime != null">
+                        create_time = #{t.createTime} and
+                    </if>
+                    <if test="t.finishTime != null">
+                        finish_time = #{t.finishTime} and
+                    </if>
+                    <if test="t.timesCount != null">
+                        times_count = #{t.timesCount} and
+                    </if>
+                    <if test="t.lastSource != null">
+                        last_source = #{t.lastSource}
+                    </if>
+            </trim>
+        </if>
+    </sql>
+
+    <select id="select" parameterType="com.upedge.common.base.Page" resultMap="BaseResultMap">
+        select
+        distinct  id,order_id,customer_id,customer_name,state,result,describes,
+        create_time,finish_time,
+        manager_name,times_count,last_source,manager_customer_id
+        from support_tickets
+        <include refid="Query_Condition"/>
+        <if test="readState != null and readState == 1">
+            and id  in (select  distinct  stm.ticket_id from   support_tickets_message  stm where stm.state = 1)
+        </if>
+        <if test="readState != null and readState == 0">
+            and id  NOT  in (select  distinct  stm.ticket_id from   support_tickets_message  stm where stm.state = 1 )
+        </if>
+        <if test="orderBy != null">
+            order by ${orderBy}
+        </if>
+        <if test="pageNum != null and pageSize != null">
+            limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+        </if>
+    </select>
+
+    <select id="count" parameterType="com.upedge.common.base.Page" resultType="java.lang.Long">
+        select
+        count(distinct  id)
+        from support_tickets
+        <include refid="Query_Condition"/>
+        <if test="readState != null and readState == 1">
+            and id  in (select  distinct  stm.ticket_id from   support_tickets_message  stm where stm.state = 1 )
+        </if>
+        <if test="readState != null and readState == 0">
+            and id  NOT  in (select  distinct  stm.ticket_id from   support_tickets_message  stm where stm.state = 1 )
+        </if>
+    </select>
+
+    <select id="existTicketByOrderId" resultType="java.lang.Integer">
+    select count(1) from support_tickets
+    where order_id=#{orderId} and state=0
+    </select>
+
+    <select id="countTicketByOrderId" resultType="java.lang.Integer">
+    select count(1) from support_tickets
+    where order_id=#{orderId}
+    </select>
+
+    <select id="unreadMsgNum" resultType="java.lang.Long">
+        select count(1) from support_tickets_message stm
+        left join support_tickets st on st.id=stm.ticket_id
+        where stm.sender_customer_id=st.customer_id and stm.state=0
+        <if test="userManager != null and userManager !=''" >
+            and st.manager_code=#{userManager}
+        </if>
+    </select>
+
+    <!--待处理tickets-->
+    <select id="handleTicketNum" resultType="java.lang.Long">
+        select count(1) from support_tickets st
+        where st.state=0
+        <if test="userManager != null and userManager !=''" >
+            and st.manager_code=#{userManager}
+        </if>
+    </select>
+
+</mapper>

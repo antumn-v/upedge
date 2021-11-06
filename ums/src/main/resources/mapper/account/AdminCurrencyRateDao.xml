@@ -1,0 +1,264 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.upedge.ums.modules.account.dao.AdminCurrencyRateDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.upedge.ums.modules.account.entity.AdminCurrencyRate" id="BaseResultMap">
+        <result property="id" column="id"/>
+        <result property="currencyCode" column="currency_code"/>
+        <result property="currencyName" column="currency_name"/>
+        <result property="cnyRate" column="cny_rate"/>
+        <result property="usdRate" column="usd_rate"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="adminUser" column="admin_user"/>
+        <result property="accountId" column="account_id"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        `id`,`currency_code`,`currency_name`,`cny_rate`,`usd_rate`,`create_time`,`update_time`,`admin_user`,`account_id`
+    </sql>
+
+    <select id="selectByPrimaryKey" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from admin_currency_rate
+        where id = #{id}
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="com.upedge.ums.modules.account.entity.AdminCurrencyRate">
+        delete from admin_currency_rate
+        where id = #{id}
+    </delete>
+
+    <update id="updateByPrimaryKeySelective" parameterType="com.upedge.ums.modules.account.entity.AdminCurrencyRate">
+        update admin_currency_rate
+        <set>
+            <if test="currencyCode != null">
+                currency_code = #{currencyCode},
+            </if>
+            <if test="currencyName != null">
+                currency_name = #{currencyName},
+            </if>
+            <if test="cnyRate != null">
+                cny_rate = #{cnyRate},
+            </if>
+            <if test="usdRate != null">
+                usd_rate = #{usdRate},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime},
+            </if>
+            <if test="updateTime != null">
+                update_time = #{updateTime},
+            </if>
+            <if test="adminUser != null">
+                admin_user = #{adminUser},
+            </if>
+            <if test="accountId != null">
+                account_id = #{accountId},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <update id="updateByPrimaryKey" parameterType="com.upedge.ums.modules.account.entity.AdminCurrencyRate">
+        update admin_currency_rate
+        <set>
+        id = #{id},
+        currency_code = #{currencyCode},
+        currency_name = #{currencyName},
+        cny_rate = #{cnyRate},
+        usd_rate = #{usdRate},
+        create_time = #{createTime},
+        update_time = #{updateTime},
+        admin_user = #{adminUser},
+        account_id = #{accountId},
+        </set>
+        where id = #{id}
+    </update>
+
+    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.upedge.ums.modules.account.entity.AdminCurrencyRate" useGeneratedKeys="true">
+        insert into admin_currency_rate
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            id,
+            currency_code,
+            currency_name,
+            cny_rate,
+            usd_rate,
+            create_time,
+            update_time,
+            admin_user,
+            account_id
+        </trim>
+        values (
+        #{id},
+        #{currencyCode},
+        #{currencyName},
+        #{cnyRate},
+        #{usdRate},
+        #{createTime},
+        #{updateTime},
+        #{adminUser},
+        #{accountId}
+        )
+    </insert>
+
+    <insert id="insertSelective"  keyColumn="id" keyProperty="id"  parameterType="com.upedge.ums.modules.account.entity.AdminCurrencyRate" useGeneratedKeys="true">
+        insert into admin_currency_rate
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null" >
+              id
+            </if>
+            <if test="currencyCode != null" >
+              currency_code
+            </if>
+            <if test="currencyName != null" >
+              currency_name
+            </if>
+            <if test="cnyRate != null" >
+              cny_rate
+            </if>
+            <if test="usdRate != null" >
+              usd_rate
+            </if>
+            <if test="createTime != null" >
+              create_time
+            </if>
+            <if test="updateTime != null" >
+              update_time
+            </if>
+            <if test="adminUser != null" >
+              admin_user
+            </if>
+            <if test="accountId != null" >
+              account_id
+            </if>
+
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null" >
+                #{id}
+            </if>
+            <if test="currencyCode != null" >
+                #{currencyCode}
+            </if>
+            <if test="currencyName != null" >
+                #{currencyName}
+            </if>
+            <if test="cnyRate != null" >
+                #{cnyRate}
+            </if>
+            <if test="usdRate != null" >
+                #{usdRate}
+            </if>
+            <if test="createTime != null" >
+                #{createTime}
+            </if>
+            <if test="updateTime != null" >
+                #{updateTime}
+            </if>
+            <if test="adminUser != null" >
+                #{adminUser}
+            </if>
+            <if test="accountId != null" >
+                #{accountId}
+            </if>
+
+        </trim>
+    </insert>
+
+    <insert id="insertByBatch" parameterType="java.util.List">
+        insert into admin_currency_rate
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+           id,
+           currency_code,
+           currency_name,
+           cny_rate,
+           usd_rate,
+           create_time,
+           update_time,
+           admin_user,
+           account_id
+        </trim>
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+               #{item.id},
+               #{item.currencyCode},
+               #{item.currencyName},
+               #{item.cnyRate},
+               #{item.usdRate},
+               #{item.createTime},
+               #{item.updateTime},
+               #{item.adminUser},
+               #{item.accountId}
+            </trim>
+        </foreach>
+    </insert>
+
+    <sql id="Query_Condition">
+        <if test="t != null">
+            where
+            <trim prefix=" " suffix=" " suffixOverrides=" and ">
+                1 = 1 and
+                    <if test="t.id != null">
+                        id = #{t.id} and
+                    </if>
+                    <if test="t.currencyCode != null">
+                        currency_code = #{t.currencyCode} and
+                    </if>
+                    <if test="t.currencyName != null">
+                        currency_name = #{t.currencyName} and
+                    </if>
+                    <if test="t.cnyRate != null">
+                        cny_rate = #{t.cnyRate} and
+                    </if>
+                    <if test="t.usdRate != null">
+                        usd_rate = #{t.usdRate} and
+                    </if>
+                    <if test="t.createTime != null">
+                        create_time = #{t.createTime} and
+                    </if>
+                    <if test="t.updateTime != null">
+                        update_time = #{t.updateTime} and
+                    </if>
+                    <if test="t.adminUser != null">
+                        admin_user = #{t.adminUser} and
+                    </if>
+                    <if test="t.accountId != null">
+                        account_id = #{t.accountId} and
+                    </if>
+            </trim>
+        </if>
+    </sql>
+
+    <select id="select" parameterType="com.upedge.common.base.Page" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from admin_currency_rate
+        <include refid="Query_Condition"/>
+        <if test="orderBy != null">
+            order by ${orderBy}
+        </if>
+        <if test="pageNum != null and pageSize != null">
+            limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+        </if>
+    </select>
+
+    <select id="count" parameterType="com.upedge.common.base.Page" resultType="java.lang.Long">
+        select
+        count(1)
+        from admin_currency_rate
+        <include refid="Query_Condition"/>
+    </select>
+
+    <select id="queryEntityByCurrency" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from admin_currency_rate
+        where currency_code=#{currencyCode}
+    </select>
+
+</mapper>
