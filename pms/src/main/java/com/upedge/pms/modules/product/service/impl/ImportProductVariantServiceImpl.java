@@ -4,6 +4,7 @@ import com.upedge.common.base.Page;
 import com.upedge.pms.modules.product.dao.ImportProductVariantDao;
 import com.upedge.pms.modules.product.entity.ImportProductVariant;
 import com.upedge.pms.modules.product.service.ImportProductVariantService;
+import com.upedge.pms.modules.product.vo.ImportVariantVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -46,6 +47,11 @@ public class ImportProductVariantServiceImpl implements ImportProductVariantServ
     @Override
     public int insertSelective(ImportProductVariant record) {
         return importProductVariantDao.insert(record);
+    }
+
+    @Override
+    public List<ImportVariantVo> selectByProductId(Long productId) {
+        return importProductVariantDao.selectByProduct(productId);
     }
 
     /**

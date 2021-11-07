@@ -10,6 +10,8 @@ import java.util.List;
  */
 public interface ImportProductDescriptionService{
 
+    ImportProductDescription selectByProductId(Long productId);
+
     ImportProductDescription selectByPrimaryKey(Long id);
 
     int deleteByPrimaryKey(Long id);

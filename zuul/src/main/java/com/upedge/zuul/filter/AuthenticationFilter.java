@@ -61,25 +61,6 @@ public class AuthenticationFilter extends ZuulFilter {
         	return null;
         }
 
-//		if(null != path && path.startsWith("/ums/user/signup")) {
-//			log.warn("FREE|"+RequestUtil.getIpAddress(request)+"|"+path+"| access path login free ");
-//			return null;
-//		}
-//
-//		if(null != path && path.startsWith("/ums/user/info/select")) {
-//			log.warn("FREE|"+RequestUtil.getIpAddress(request)+"|"+path+"| access path login free ");
-//			return null;
-//		}
-//
-//		if(null != path && path.startsWith("/cms/web")) {
-//			log.warn("FREE|"+RequestUtil.getIpAddress(request)+"|"+path+"| access path web free ");
-//			return null;
-//		}
-//
-//		if(null != path && path.startsWith("/auth")) {
-//			log.warn("FREE|"+RequestUtil.getIpAddress(request)+"|"+path+"| access path login free ");
-//			return null;
-//		}
         // 不拦截
         if(null != path) {
         	if(path.contains("xxxcccds")

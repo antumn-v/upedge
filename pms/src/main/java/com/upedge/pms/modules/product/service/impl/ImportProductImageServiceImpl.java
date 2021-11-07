@@ -45,6 +45,15 @@ public class ImportProductImageServiceImpl implements ImportProductImageService 
         return importProductImageDao.insert(record);
     }
 
+    @Override
+    public List<ImportProductImage> selectByProductId(Long productId) {
+        Page<ImportProductImage> page = new Page<>();
+        page.setT(new ImportProductImage());
+        page.getT().setProductId(productId);
+        page.setPageSize(-1);
+        return importProductImageDao.select(page);
+    }
+
     /**
      *
      */

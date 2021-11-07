@@ -45,6 +45,12 @@ public class ImportProductDescriptionServiceImpl implements ImportProductDescrip
         return importProductDescriptionDao.insert(record);
     }
 
+    @Override
+    public ImportProductDescription selectByProductId(Long productId) {
+
+        return importProductDescriptionDao.selectByProductId(productId);
+    }
+
     /**
      *
      */

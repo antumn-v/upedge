@@ -2,6 +2,7 @@ package com.upedge.pms.modules.product.service;
 
 import com.upedge.common.base.Page;
 import com.upedge.pms.modules.product.entity.ImportProductVariant;
+import com.upedge.pms.modules.product.vo.ImportVariantVo;
 
 import java.util.List;
 
@@ -9,6 +10,8 @@ import java.util.List;
  * @author author
  */
 public interface ImportProductVariantService{
+
+    List<ImportVariantVo> selectByProductId(Long productId);
 
     ImportProductVariant selectByPrimaryKey(Long id);
 

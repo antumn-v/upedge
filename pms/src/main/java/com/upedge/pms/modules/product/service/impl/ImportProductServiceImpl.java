@@ -132,9 +132,10 @@ public class ImportProductServiceImpl implements ImportProductService {
                 variant.setPrice(priceMap.get(cost));
                 variant.setComparePrice(comparePriceMap.get(cost));
             } else {
-                BigDecimal price = importPriceRuleService.resetPrice(customerId, cost);
-                BigDecimal comparePrice = importPriceRuleService.resetComparePrice(customerId, cost);
-
+//                BigDecimal price = importPriceRuleService.resetPrice(customerId, cost);
+//                BigDecimal comparePrice = importPriceRuleService.resetComparePrice(customerId, cost);
+                BigDecimal price = cost.multiply(new BigDecimal("2"));
+                BigDecimal comparePrice = cost.multiply(new BigDecimal("2"));
                 variant.setPrice(price);
                 variant.setComparePrice(comparePrice);
 

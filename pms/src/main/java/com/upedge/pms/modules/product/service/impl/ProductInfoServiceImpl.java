@@ -46,7 +46,7 @@ public class ProductInfoServiceImpl implements ProductInfoService {
 
     @Override
     public ProductInfo selectByProductId(Long id) {
-        return null;
+        return productInfoDao.selectByProductId(id);
     }
 
     /**

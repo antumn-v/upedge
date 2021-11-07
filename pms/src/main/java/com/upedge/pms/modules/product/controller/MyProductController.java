@@ -7,12 +7,18 @@ import com.upedge.common.constant.ResultCode;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.web.util.UserUtil;
 import com.upedge.pms.modules.product.entity.ImportProductAttribute;
+import com.upedge.pms.modules.product.entity.ImportProductDescription;
+import com.upedge.pms.modules.product.entity.ImportProductImage;
+import com.upedge.pms.modules.product.entity.ImportProductVariant;
 import com.upedge.pms.modules.product.request.ImportAddAppProductRequest;
 import com.upedge.pms.modules.product.request.ImportProductAttributeListRequest;
 import com.upedge.pms.modules.product.response.ImportProductAttributeListResponse;
 import com.upedge.pms.modules.product.service.*;
+import com.upedge.pms.modules.product.vo.ImportVariantVo;
+import com.upedge.pms.modules.product.vo.MyProductVo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.*;
@@ -68,8 +74,20 @@ public class MyProductController {
     }
 
 
-//    @GetMapping("/{id}/detail")
-//    public BaseResponse myProductDetail(@PathVariable Long id){
-//
-//    }
+    @GetMapping("/{id}/detail")
+    public BaseResponse myProductDetail(@PathVariable Long id){
+        ImportProductAttribute importProductAttribute = importProductAttributeService.selectByPrimaryKey(id);
+        if (null == importProductAttribute){
+            return BaseResponse.failed();
+        }
+        ImportProductDescription importProductDescription = importProductDescriptionService.selectByProductId(id);
+        List<ImportVariantVo> variants = importProductVariantService.selectByProductId(id);
+        List<ImportProductImage> images = importProductImageService.selectByProductId(id);
+        MyProductVo myProductVo = new MyProductVo();
+        BeanUtils.copyProperties(importProductAttribute,myProductVo);
+        myProductVo.setDescription(importProductDescription.getDescription());
+        myProductVo.setImages(images);
+        myProductVo.setVariants(variants);
+        return BaseResponse.success(myProductVo);
+    }
 }

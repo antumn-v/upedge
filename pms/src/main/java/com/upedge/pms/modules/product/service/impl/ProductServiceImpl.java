@@ -536,6 +536,7 @@ public class ProductServiceImpl implements ProductService {
                 productVariant.setId(variantId);
                 //0:正常产品 1:捆绑产品
                 productVariant.setVariantType(0);
+                productVariant.setState(1);
 //                if (StringUtils.isBlank(productVariant.getVariantImage())){
 //                    productVariant.setVariantImage(mainImage);
 //                }
@@ -543,6 +544,7 @@ public class ProductServiceImpl implements ProductService {
                 List<String> enNameList=productVariantVo.getVariantAttrVoList().stream().map(ProductVariantAttrVo::getVariantAttrEvalue).collect(Collectors.toList());
                 productVariant.setCnName(cnNameList.toString());
                 productVariant.setEnName(enNameList.toString());
+                productVariant.setUsdPrice(productVariant.getVariantPrice().divide(new BigDecimal("6.3")));
                 productVariantList.add(productVariant);
                 productVariantVo.getVariantAttrVoList().forEach(productVariantAttrVo -> {
                     ProductVariantAttr productVariantAttr=new ProductVariantAttr();
