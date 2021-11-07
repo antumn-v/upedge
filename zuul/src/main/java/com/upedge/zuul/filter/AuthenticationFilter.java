@@ -35,6 +35,7 @@ public class AuthenticationFilter extends ZuulFilter {
 		freePaths.add("/ums/user/sendEmail/verifyCode");//邮箱验证码
 		freePaths.add("/ums/user/recoverPassword");//找回密码
 		freePaths.add("/ums/store/connect/shopify");//shopify授权
+		freePaths.add("/ums/store/shopifyAuth");//shopify授权
 		freePaths.add("/cms/web");
 
 	}

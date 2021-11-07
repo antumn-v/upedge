@@ -178,6 +178,7 @@ public class StoreServiceImpl implements StoreService {
     @Transactional
     @Override
     public Store updateShopifyStore(String storeUrl, String token, Session session) {
+        storeUrl = storeUrl.replace(".myshopify.com","");
         Shop shopDetail = ShopifyShopApi.getShopDetail(storeUrl, token);
         if (null == shopDetail) {
             return null;
@@ -599,8 +600,8 @@ public class StoreServiceImpl implements StoreService {
     }
 
     public void saveDefaultRole(Organization organization, Session session) {
-        Role role = new Role();
-        roleDao.insertSelective(role);
+        Role role = organization.createDefaultRole(session.getApplicationId(), session.getCustomerId());
+        roleDao.insert(role);
 
         OrganizationRole organizationRole = new OrganizationRole();
         organizationRole.setDataType(0);

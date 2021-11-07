@@ -84,7 +84,7 @@ public class StoreController {
     @ApiOperation("请求授权shopify店铺")
     @PostMapping("/shopifyConnect")
     public ShopifyAuthResponse shopifyAuthRequest(@RequestBody ShopifyAuthRequest request){
-        return storeService.shopifyAuthRequest(verifyStoreAddress(request.getShopName()));
+        return storeService.shopifyAuthRequest(request.getShopName());
     }
 
     @ApiOperation("授权回调地址")
