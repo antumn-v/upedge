@@ -12,20 +12,17 @@
         <result property="image" column="image"/>
         <result property="state" column="state"/>
         <result property="tags" column="tags"/>
-        <result property="platProductId" column="plat_product_id"/>
-        <result property="collectId" column="collect_id"/>
         <result property="source" column="source"/>
         <result property="originalTitle" column="original_title"/>
         <result property="createTime" column="create_time"/>
         <result property="updateTime" column="update_time"/>
         <result property="customerId" column="customer_id"/>
-        <result property="storeId" column="store_id"/>
         <result property="customerId" column="customer_id"/>
     </resultMap>
 
 
     <sql id="Base_Column_List">
-        `id`,`source_product_id`,`title`,supplier_name,`type`,`image`,`state`,`tags`,`plat_product_id`,`collect_id`,`source`,`original_title`,`create_time`,`update_time`,`customer_id`,`store_id`,customer_id
+        `id`,`source_product_id`,`title`,supplier_name,`type`,`image`,`state`,`tags`,`source`,`original_title`,`create_time`,`update_time`,`customer_id`,customer_id
     </sql>
 
     <select id="selectImportedSourceProductIds" resultType="java.lang.String">
@@ -36,10 +33,12 @@
     </select>
 
     <select id="selectByPlatId" resultMap="BaseResultMap">
-        select <include refid="Base_Column_List"/>
-        from import_product_attribute
-        where store_id = #{storeId}
-        and plat_product_id = #{platProductId}
+        select ipa.*
+        from import_product_attribute ipa
+        left join import_published_record ipr
+        on ipa.id = ipr.import_product_id
+        where ipr.store_id = #{storeId}
+        and ipr.plat_product_id = #{platProductId}
     </select>
 
 
@@ -93,12 +92,7 @@
             <if test="tags != null">
                 tags = #{tags},
             </if>
-            <if test="platProductId != null">
-                plat_product_id = #{platProductId},
-            </if>
-            <if test="collectId != null">
-                collect_id = #{collectId},
-            </if>
+
             <if test="source != null">
                 source = #{source},
             </if>
@@ -113,9 +107,6 @@
             </if>
             <if test="customerId != null">
                 customer_id = #{customerId},
-            </if>
-            <if test="storeId != null">
-                store_id = #{storeId},
             </if>
         </set>
         where id = #{id}
@@ -132,14 +123,11 @@
         image = #{image},
         state = #{state},
         tags = #{tags},
-        plat_product_id = #{platProductId},
-        collect_id = #{collectId},
         source = #{source},
         original_title = #{originalTitle},
         create_time = #{createTime},
         update_time = #{updateTime},
         customer_id = #{customerId},
-        store_id = #{storeId},
         </set>
         where id = #{id}
         and state != '1'
@@ -163,13 +151,10 @@
             image,
             state,
             tags,
-            plat_product_id,
-            collect_id,
             source,
             original_title,
             create_time,
             update_time,
-            store_id,
             customer_id
         </trim>
         values (
@@ -181,13 +166,10 @@
         #{image},
         #{state},
         #{tags},
-        #{platProductId},
-        #{collectId},
         #{source},
         #{title},
         #{createTime},
         #{createTime},
-        #{storeId},
         #{customerId}
         )
     </insert>
@@ -216,12 +198,6 @@
             <if test="tags != null" >
               tags
             </if>
-            <if test="platProductId != null" >
-              plat_product_id
-            </if>
-            <if test="collectId != null" >
-              collect_id
-            </if>
             <if test="source != null" >
               source
             </if>
@@ -236,9 +212,6 @@
             </if>
             <if test="customerId != null" >
               customer_id
-            </if>
-            <if test="storeId != null" >
-              store_id
             </if>
 
         </trim>
@@ -264,12 +237,6 @@
             <if test="tags != null" >
                 #{tags}
             </if>
-            <if test="platProductId != null" >
-                #{platProductId}
-            </if>
-            <if test="collectId != null" >
-                #{collectId}
-            </if>
             <if test="source != null" >
                 #{source}
             </if>
@@ -285,9 +252,6 @@
             <if test="customerId != null" >
                 #{customerId}
             </if>
-            <if test="storeId != null" >
-                #{storeId}
-            </if>
 
         </trim>
     </insert>
@@ -302,14 +266,11 @@
            image,
            state,
            tags,
-           plat_product_id,
-           collect_id,
            source,
            original_title,
            create_time,
            update_time,
-           customer_id,
-           store_id
+           customer_id
         </trim>
         values
         <foreach collection="list" item="item" index="index" separator=",">
@@ -321,14 +282,11 @@
                #{item.image},
                #{item.state},
                #{item.tags},
-               #{item.platProductId},
-               #{item.collectId},
                #{item.source},
                #{item.originalTitle},
                #{item.createTime},
                #{item.updateTime},
                #{item.customerId},
-               #{item.storeId}
             </trim>
         </foreach>
     </insert>
@@ -359,12 +317,6 @@
                     <if test="t.tags != null">
                         tags = #{t.tags} and
                     </if>
-                    <if test="t.platProductId != null">
-                        plat_product_id = #{t.platProductId} and
-                    </if>
-                    <if test="t.collectId != null">
-                        collect_id = #{t.collectId} and
-                    </if>
                     <if test="t.source != null">
                         source = #{t.source} and
                     </if>
@@ -379,9 +331,6 @@
                     </if>
                     <if test="t.customerId != null">
                         customer_id = #{t.customerId} and
-                    </if>
-                    <if test="t.storeId != null">
-                        store_id = #{t.storeId} and
                     </if>
             </trim>
         </if>

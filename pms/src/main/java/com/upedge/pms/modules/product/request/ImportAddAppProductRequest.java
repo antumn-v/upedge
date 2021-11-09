@@ -15,7 +15,7 @@ import java.util.Date;
 public class ImportAddAppProductRequest {
 
     @NotNull
-    Long productId;
+    String productId;
 
 
     public ImportProductAttribute toImportAttr(Product product){

@@ -80,7 +80,7 @@ public class StoreProductAttributeUpdateRequest{
         storeProductAttribute.setImage(image);
         storeProductAttribute.setVendor(vendor);
         storeProductAttribute.setStoreId(storeId);
-        storeProductAttribute.setAdminProductId(adminProductId);
+        storeProductAttribute.setAdminProductId(adminProductId.toString());
         storeProductAttribute.setSource(source);
         storeProductAttribute.setRelateState(relateState);
         storeProductAttribute.setStoreName(storeName);

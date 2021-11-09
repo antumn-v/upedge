@@ -5,8 +5,8 @@ import com.upedge.common.base.BaseResponse;
 /**
  * @author gx
  */
-public class ImportProductAttributeUpdateResponse extends BaseResponse {
-    public ImportProductAttributeUpdateResponse(int code, String msg) {
+public class ImportPublishedRecordDelResponse extends BaseResponse {
+    public ImportPublishedRecordDelResponse(int code, String msg) {
         super(code,msg);
     }
 }

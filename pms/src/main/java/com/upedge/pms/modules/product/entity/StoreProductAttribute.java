@@ -41,7 +41,7 @@ public class StoreProductAttribute {
     /**
      *
      */
-    private Long adminProductId;
+    private String adminProductId;
     /**
      * 0:SIB ,1:Ali, 2:其他
      */

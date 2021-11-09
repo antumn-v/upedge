@@ -134,7 +134,7 @@ public class AppProductController {
     }
 
     @GetMapping("/{id}/import/check")
-    public BaseResponse checkProductImported(@PathVariable Long id){
+    public BaseResponse checkProductImported(@PathVariable String id){
         Session session = UserUtil.getSession(redisTemplate);
         ImportProductAttribute attribute = new ImportProductAttribute();
         attribute.setSourceProductId(id);

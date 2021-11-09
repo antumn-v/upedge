@@ -88,6 +88,9 @@ public class ImportProductServiceImpl implements ImportProductService {
     @Autowired
     AppProductService appProductService;
 
+    @Autowired
+    ImportPublishedRecordService importPublishedRecordService;
+
 
     @Override
     public ImportAeProductResponse importAeProduct(String url, Session session, String aeToken) {
@@ -102,7 +105,7 @@ public class ImportProductServiceImpl implements ImportProductService {
 
         Long customerId = session.getCustomerId();
 
-        Long productId = request.getProductId();
+        Long productId = Long.parseLong(request.getProductId());
 
         Product product = productService.selectByPrimaryKey(productId);
 
@@ -246,7 +249,7 @@ public class ImportProductServiceImpl implements ImportProductService {
     @Override
     public boolean uploadProductToShopify(StoreVo storeVo, Long productId) {
         ImportProductAttribute attribute = importProductAttributeDao.selectByPrimaryKey(productId);
-        if (2 != attribute.getState()) {
+        if (0 != attribute.getState()) {
             return false;
         }
         List<ImportVariantVo> variantVos = importProductVariantDao.selectForUploadStore(productId);
@@ -334,9 +337,15 @@ public class ImportProductServiceImpl implements ImportProductService {
             attribute.setId(productId);
             if (null != jsonObject) {
                 attribute.setState(1);
-                attribute.setPlatProductId(platProductId);
-                attribute.setStoreId(storeVo.getId());
                 importProductAttributeDao.updateByPrimaryKeySelective(attribute);
+
+                ImportPublishedRecord importPublishedRecord = new ImportPublishedRecord();
+                importPublishedRecord.setImportProductId(productId);
+                importPublishedRecord.setPlatProductId(platProductId);
+                importPublishedRecord.setStroreId(storeVo.getId());
+                importPublishedRecord.setPublishTime(new Date());
+                importPublishedRecordService.insert(importPublishedRecord);
+
                 variants.forEach(shopifyVariant -> {
                     InventoryItem inventoryItem = new InventoryItem();
                     inventoryItem.setId(shopifyVariant.getInventory_item_id());

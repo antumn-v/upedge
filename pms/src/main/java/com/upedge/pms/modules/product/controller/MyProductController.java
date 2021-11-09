@@ -4,6 +4,8 @@ package com.upedge.pms.modules.product.controller;
 import com.upedge.common.base.BaseResponse;
 import com.upedge.common.constant.Constant;
 import com.upedge.common.constant.ResultCode;
+import com.upedge.common.constant.key.RedisKey;
+import com.upedge.common.model.store.StoreVo;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.web.util.UserUtil;
 import com.upedge.pms.modules.product.entity.ImportProductAttribute;
@@ -12,6 +14,7 @@ import com.upedge.pms.modules.product.entity.ImportProductImage;
 import com.upedge.pms.modules.product.entity.ImportProductVariant;
 import com.upedge.pms.modules.product.request.ImportAddAppProductRequest;
 import com.upedge.pms.modules.product.request.ImportProductAttributeListRequest;
+import com.upedge.pms.modules.product.request.ImportProductPublishRequest;
 import com.upedge.pms.modules.product.response.ImportProductAttributeListResponse;
 import com.upedge.pms.modules.product.service.*;
 import com.upedge.pms.modules.product.vo.ImportVariantVo;
@@ -89,5 +92,16 @@ public class MyProductController {
         myProductVo.setImages(images);
         myProductVo.setVariants(variants);
         return BaseResponse.success(myProductVo);
+    }
+
+
+    @PostMapping("/publish")
+    public BaseResponse publishToStore(@RequestBody@Valid ImportProductPublishRequest request){
+        StoreVo storeVo = (StoreVo) redisTemplate.opsForValue().get(RedisKey.STRING_STORE + request.getStoreId());
+        List<Long> productIds = request.getProductIds();
+        for (Long productId : productIds) {
+            importProductService.uploadProductToShopify(storeVo,productId);
+        }
+        return BaseResponse.success();
     }
 }

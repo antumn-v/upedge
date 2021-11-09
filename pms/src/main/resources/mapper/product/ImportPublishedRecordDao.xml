@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.upedge.pms.modules.product.dao.ImportPublishedRecordDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.upedge.pms.modules.product.entity.ImportPublishedRecord" id="BaseResultMap">
+        <result property="importProductId" column="import_product_id"/>
+        <result property="stroreId" column="strore_id"/>
+        <result property="platProductId" column="plat_product_id"/>
+        <result property="publishTime" column="publish_time"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        `import_product_id`,`strore_id`,`plat_product_id`,`publish_time`
+    </sql>
+
+    <select id="selectByPrimaryKey" parameterType="com.upedge.pms.modules.product.entity.ImportPublishedRecord" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from import_published_record
+        where import_product_id = #{importProductId}
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="com.upedge.pms.modules.product.entity.ImportPublishedRecord">
+        delete from import_published_record
+        where import_product_id = #{importProductId}
+    </delete>
+
+    <update id="updateByPrimaryKeySelective" parameterType="com.upedge.pms.modules.product.entity.ImportPublishedRecord">
+        update import_published_record
+        <set>
+            <if test="stroreId != null">
+                strore_id = #{stroreId},
+            </if>
+            <if test="platProductId != null">
+                plat_product_id = #{platProductId},
+            </if>
+            <if test="publishTime != null">
+                publish_time = #{publishTime},
+            </if>
+        </set>
+        where import_product_id = #{importProductId}
+    </update>
+
+    <update id="updateByPrimaryKey" parameterType="com.upedge.pms.modules.product.entity.ImportPublishedRecord">
+        update import_published_record
+        <set>
+        import_product_id = #{importProductId},
+        strore_id = #{stroreId},
+        plat_product_id = #{platProductId},
+        publish_time = #{publishTime},
+        </set>
+        where import_product_id = #{importProductId}
+    </update>
+
+    <insert id="insert" keyColumn="import_product_id" keyProperty="importProductId" parameterType="com.upedge.pms.modules.product.entity.ImportPublishedRecord" useGeneratedKeys="true">
+        insert into import_published_record
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            import_product_id,
+            strore_id,
+            plat_product_id,
+            publish_time
+        </trim>
+        values (
+        #{importProductId},
+        #{stroreId},
+        #{platProductId},
+        #{publishTime}
+        )
+    </insert>
+
+    <insert id="insertSelective"  keyColumn="import_product_id" keyProperty="importProductId"  parameterType="com.upedge.pms.modules.product.entity.ImportPublishedRecord" useGeneratedKeys="true">
+        insert into import_published_record
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="importProductId != null" >
+              import_product_id
+            </if>
+            <if test="stroreId != null" >
+              strore_id
+            </if>
+            <if test="platProductId != null" >
+              plat_product_id
+            </if>
+            <if test="publishTime != null" >
+              publish_time
+            </if>
+
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="importProductId != null" >
+                #{importProductId}
+            </if>
+            <if test="stroreId != null" >
+                #{stroreId}
+            </if>
+            <if test="platProductId != null" >
+                #{platProductId}
+            </if>
+            <if test="publishTime != null" >
+                #{publishTime}
+            </if>
+
+        </trim>
+    </insert>
+
+    <insert id="insertByBatch" parameterType="java.util.List">
+        insert into import_published_record
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+           import_product_id,
+           strore_id,
+           plat_product_id,
+           publish_time
+        </trim>
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+               #{item.importProductId},
+               #{item.stroreId},
+               #{item.platProductId},
+               #{item.publishTime}
+            </trim>
+        </foreach>
+    </insert>
+
+    <sql id="Query_Condition">
+        <if test="t != null">
+            where
+            <trim prefix=" " suffix=" " suffixOverrides=" and ">
+                1 = 1 and
+                    <if test="t.importProductId != null">
+                        import_product_id = #{t.importProductId} and
+                    </if>
+                    <if test="t.stroreId != null">
+                        strore_id = #{t.stroreId} and
+                    </if>
+                    <if test="t.platProductId != null">
+                        plat_product_id = #{t.platProductId} and
+                    </if>
+                    <if test="t.publishTime != null">
+                        publish_time = #{t.publishTime} and
+                    </if>
+            </trim>
+        </if>
+    </sql>
+
+    <select id="select" parameterType="com.upedge.common.base.Page" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from import_published_record
+        <include refid="Query_Condition"/>
+        <if test="orderBy != null">
+            order by ${orderBy}
+        </if>
+        <if test="pageNum != null and pageSize != null">
+            limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+        </if>
+    </select>
+
+    <select id="count" parameterType="com.upedge.common.base.Page" resultType="java.lang.Long">
+        select
+        count(1)
+        from import_published_record
+        <include refid="Query_Condition"/>
+    </select>
+
+
+</mapper>
