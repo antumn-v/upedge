@@ -1,8 +1,12 @@
 package com.upedge.pms.modules.quote.service.impl;
 
 import com.upedge.common.utils.ListUtils;
+import com.upedge.pms.modules.quote.request.CustomerProductQuoteSearchRequest;
+import com.upedge.pms.modules.quote.vo.CustomerProductQuoteVo;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.ArrayList;
 import java.util.List;
 import com.upedge.common.base.Page;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,6 +47,14 @@ public class CustomerProductQuoteServiceImpl implements CustomerProductQuoteServ
     @Transactional
     public int insertSelective(CustomerProductQuote record) {
         return customerProductQuoteDao.insert(record);
+    }
+
+    @Override
+    public List<CustomerProductQuoteVo> selectQuoteDetail(CustomerProductQuoteSearchRequest request) {
+        if (request != null){
+            return new ArrayList<>();
+        }
+        return customerProductQuoteDao.selectQuoteDetail(request);
     }
 
     @Override

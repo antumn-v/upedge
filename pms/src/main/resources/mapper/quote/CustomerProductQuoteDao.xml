@@ -378,6 +378,41 @@
         and store_variant_id = #{storeVariantId}
     </select>
 
-
-
+    <select id="selectQuoteDetail"
+            resultType="com.upedge.pms.modules.quote.vo.CustomerProductQuoteVo"
+            parameterType="com.upedge.pms.modules.quote.request.CustomerProductQuoteSearchRequest">
+        select cpq.store_vairant_id,cpq.store_product_id,cpq.quote_apply_id,
+        pv.id as variantId,pv.variant_name as variantName,pv.variant_sku,
+        pv.variant_image,pv.variant_price as `price`,pv.usd_price,
+        pv.weight,pv.volume_weight as `volume`
+            from customer_product_quote cpq
+        left join product_variant pv
+        on cpq.variant_id = pv.id
+        left join product p
+        on p.id = pv.product_id
+        <where>
+            1 = 1
+            <if test="quoteApplyId != null">
+                and cpq.quote_apply_id = #{quoteApplyId}
+            </if>
+            <if test="storeVariantId != null">
+                and cpq.store_variant_id = #{storeVariantId}
+            </if>
+            <if test="storeProductId != null">
+                and cpq.store_product_id = #{storeProductId}
+            </if>
+            <if test="storeProductVariantIds != null and storeProductVariantIds.size > 0">
+                and cpq.store_variant_id in
+                <foreach collection="storeProductVariantIds" item="variantId" open="(" separator="," close=")">
+                    #{variantId}
+                </foreach>
+            </if>
+            <if test="storeProductProductIds != null and storeProductProductIds.size > 0">
+                and cpq.store_product_id in
+                <foreach collection="storeProductProductIds" item="productId" open="(" separator="," close=")">
+                    #{productId}
+                </foreach>
+            </if>
+        </where>
+    </select>
 </mapper>
