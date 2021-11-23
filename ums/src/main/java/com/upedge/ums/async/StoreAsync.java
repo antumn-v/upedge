@@ -51,7 +51,7 @@ public class StoreAsync {
     //获取店铺数据
     @Async
     public void getStoreData(Store store) {
-        createStoreWebhook(store);
+//        createStoreWebhook(store);
         switch (store.getStoreType()) {
             case 0:
                 getShopifyStoreData(store);
@@ -258,8 +258,9 @@ public class StoreAsync {
                 StoreApiRequest storeApiRequest = new StoreApiRequest();
                 storeApiRequest.setId(order.getString("id"));
                 storeApiRequest.setStoreVo(storeVo);
-                redisTemplate.opsForList().leftPush(RedisKey.LIST_SHOPIFY_ORDER_WEBHOOK, storeApiRequest);
-//                omsFeignClient.updateShopifyOrder(storeApiRequest);
+                storeApiRequest.setJsonObject(order);
+//                redisTemplate.opsForList().leftPush(RedisKey.LIST_SHOPIFY_ORDER_WEBHOOK, storeApiRequest);
+                omsFeignClient.updateShopifyOrder(storeApiRequest);
             }
             String nextUrl = null;
             if (jsonObject.containsKey("nextUrl")) {
@@ -289,6 +290,7 @@ public class StoreAsync {
                 StoreApiRequest storeApiRequest = new StoreApiRequest();
                 storeApiRequest.setId(product.getString("id"));
                 storeApiRequest.setStoreVo(storeVo);
+                storeApiRequest.setJsonObject(product);
                 pmsFeignClient.updateShopifyProduct(storeApiRequest);
             }
             String nextUrl = null;

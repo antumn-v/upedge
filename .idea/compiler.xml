@@ -7,23 +7,24 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
+        <module name="upedge-shopify" />
+        <module name="upedge-trackingmore" />
+        <module name="zuul" />
+        <module name="upedge_generator" />
+        <module name="common-redis" />
+        <module name="upedge-saihe" />
+        <module name="common-base" />
         <module name="upedge-woocommerce" />
         <module name="upedge_ums" />
-        <module name="oms" />
-        <module name="panda-trackingmore" />
-        <module name="upedge-shopify" />
-        <module name="zuul" />
-        <module name="thirdparty-service" />
         <module name="upedge-1688" />
-        <module name="common-base" />
+        <module name="oms" />
         <module name="pms" />
-        <module name="common-redis" />
-        <module name="tms" />
+        <module name="panda-trackingmore" />
         <module name="ums" />
-        <module name="upedge_generator" />
-        <module name="upedge-shoplazza" />
-        <module name="upedge-saihe" />
         <module name="common-web" />
+        <module name="tms" />
+        <module name="thirdparty-service" />
+        <module name="upedge-shoplazza" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
@@ -53,6 +54,7 @@
       <module name="upedge-saihe" options="-parameters" />
       <module name="upedge-shopify" options="-parameters" />
       <module name="upedge-shoplazza" options="-parameters" />
+      <module name="upedge-trackingmore" options="-parameters" />
       <module name="upedge-ums" options="" />
       <module name="upedge-woocommerce" options="-parameters" />
       <module name="upedge_generator" options="-parameters" />

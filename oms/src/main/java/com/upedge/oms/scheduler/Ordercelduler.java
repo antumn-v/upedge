@@ -19,7 +19,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.ThreadPoolExecutor;
 
 @Slf4j
-@Component
+//@Component
 public class Ordercelduler {
 
     @Autowired

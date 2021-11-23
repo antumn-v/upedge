@@ -100,7 +100,7 @@ public class CartController {
         return res;
     }
 
-    @ApiOperation("购物车添加产品，看产品模块/pms   /product/importCart接口")
+    @ApiOperation("购物车添加产品，看产品模块/pms/product/importCart接口")
     @PostMapping("/add")
     public BaseResponse cartAdd(@RequestBody @Valid CartAddRequest request){
 

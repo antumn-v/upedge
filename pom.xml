@@ -15,6 +15,7 @@
         <module>thirdparty-service</module>
         <module>pms</module>
         <module>oms</module>
+        <module>tms</module>
     </modules>
 
 

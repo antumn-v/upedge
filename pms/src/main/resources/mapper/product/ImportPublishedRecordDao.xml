@@ -6,13 +6,13 @@
 	<!-- 可根据自己的需求，是否要使用 -->
     <resultMap type="com.upedge.pms.modules.product.entity.ImportPublishedRecord" id="BaseResultMap">
         <result property="importProductId" column="import_product_id"/>
-        <result property="stroreId" column="strore_id"/>
+        <result property="stroreId" column="store_id"/>
         <result property="platProductId" column="plat_product_id"/>
         <result property="publishTime" column="publish_time"/>
     </resultMap>
 
     <sql id="Base_Column_List">
-        `import_product_id`,`strore_id`,`plat_product_id`,`publish_time`
+        `import_product_id`,`store_id`,`plat_product_id`,`publish_time`
     </sql>
 
     <select id="selectByPrimaryKey" parameterType="com.upedge.pms.modules.product.entity.ImportPublishedRecord" resultMap="BaseResultMap">
@@ -31,7 +31,7 @@
         update import_published_record
         <set>
             <if test="stroreId != null">
-                strore_id = #{stroreId},
+                store_id = #{stroreId},
             </if>
             <if test="platProductId != null">
                 plat_product_id = #{platProductId},
@@ -47,7 +47,7 @@
         update import_published_record
         <set>
         import_product_id = #{importProductId},
-        strore_id = #{stroreId},
+        store_id = #{stroreId},
         plat_product_id = #{platProductId},
         publish_time = #{publishTime},
         </set>
@@ -58,7 +58,7 @@
         insert into import_published_record
         <trim prefix="(" suffix=")" suffixOverrides=",">
             import_product_id,
-            strore_id,
+            store_id,
             plat_product_id,
             publish_time
         </trim>
@@ -77,7 +77,7 @@
               import_product_id
             </if>
             <if test="stroreId != null" >
-              strore_id
+              store_id
             </if>
             <if test="platProductId != null" >
               plat_product_id
@@ -108,7 +108,7 @@
         insert into import_published_record
         <trim prefix="(" suffix=")" suffixOverrides=",">
            import_product_id,
-           strore_id,
+           store_id,
            plat_product_id,
            publish_time
         </trim>
@@ -132,7 +132,7 @@
                         import_product_id = #{t.importProductId} and
                     </if>
                     <if test="t.stroreId != null">
-                        strore_id = #{t.stroreId} and
+                        store_id = #{t.stroreId} and
                     </if>
                     <if test="t.platProductId != null">
                         plat_product_id = #{t.platProductId} and

@@ -503,16 +503,8 @@ public class OrderServiceImpl implements OrderService {
         storeOrderItems.forEach(item -> {
             storeVariantIds.add(item.getStoreVariantId());
         });
+        //查询产品报价
 
-        RelateDetailSearchRequest request = new RelateDetailSearchRequest();
-        request.setStoreVariantIds(storeVariantIds);
-
-        BaseResponse response = pmsFeignClient.searchRelateDetail(request);
-        if (response.getCode() == ResultCode.FAIL_CODE) {
-            RedisUtil.unLock(redisTemplate, key);
-            return null;
-        }
-        List<RelateDetailVo> relateDetailVos = JSONArray.parseArray(JSON.toJSON(response.getData()).toString()).toJavaList(RelateDetailVo.class);
 
         Long orderId = IdGenerate.nextId();
 
@@ -553,36 +545,35 @@ public class OrderServiceImpl implements OrderService {
         Collection<String> strings = new ArrayList<>();
 
         for (StoreOrderItem item : storeOrderItems) {
-            for (RelateDetailVo detail : relateDetailVos) {
-                while (detail.getStoreVariantId().equals(item.getStoreVariantId())) {
-                    storeOrderItemIds.add(item.getId());
-                    List<RelateVariantVo> variantVos = detail.getRelateVariantVos();
-                    for (RelateVariantVo variantVo : variantVos) {
-                        Integer quantity = (item.getQuantity() * detail.getScale());
-                        BigDecimal itemQuantity = new BigDecimal(quantity);
-                        OrderItem orderItem = new OrderItem(variantVo);
-                        BeanUtils.copyProperties(item, orderItem);
-                        orderItem.setOrderId(orderId);
-                        orderItem.setStoreOrderItemId(item.getId());
-                        orderItem.setQuantity(quantity);
-                        orderItem.setDischargeQuantity(0);
-                        orderItem.setItemType(0);
-                        orderItem.setShippingId(detail.getShippingId());
-                        orderItem.setId(IdGenerate.nextId());
-                        strings.add(RedisKey.SHIPPING_METHODS + orderItem.getShippingId());
-                        items.add(orderItem);
-                        try {
-                            cnyProductAmount = cnyProductAmount.add(orderItem.getCnyPrice().multiply(itemQuantity));
-                        } catch (Exception e) {
-                            continue;
-                        }
-                        productAmount = productAmount.add(orderItem.getUsdPrice().multiply(itemQuantity));
-                        totalWeight = totalWeight.add(variantVo.getWeight().multiply(itemQuantity));
-                        volume = volume.add(variantVo.getVolume().multiply(itemQuantity));
-                    }
-                    break;
-                }
-            }
+            OrderItem orderItem = new OrderItem();
+            BeanUtils.copyProperties(item, orderItem);
+            orderItem.setOrderId(orderId);
+            orderItem.setStoreOrderItemId(item.getId());
+            orderItem.setDischargeQuantity(0);
+            orderItem.setItemType(0);
+            orderItem.setId(IdGenerate.nextId());
+            strings.add(RedisKey.SHIPPING_METHODS + orderItem.getShippingId());
+            items.add(orderItem);
+//            for (RelateDetailVo detail : relateDetailVos) {
+//                while (detail.getStoreVariantId().equals(item.getStoreVariantId())) {
+//                    storeOrderItemIds.add(item.getId());
+//                    List<RelateVariantVo> variantVos = detail.getRelateVariantVos();
+//                    for (RelateVariantVo variantVo : variantVos) {
+//                        Integer quantity = (item.getQuantity() * detail.getScale());
+//                        BigDecimal itemQuantity = new BigDecimal(quantity);
+//
+//                        try {
+//                            cnyProductAmount = cnyProductAmount.add(orderItem.getCnyPrice().multiply(itemQuantity));
+//                        } catch (Exception e) {
+//                            continue;
+//                        }
+//                        productAmount = productAmount.add(orderItem.getUsdPrice().multiply(itemQuantity));
+//                        totalWeight = totalWeight.add(variantVo.getWeight().multiply(itemQuantity));
+//                        volume = volume.add(variantVo.getVolume().multiply(itemQuantity));
+//                    }
+//                    break;
+//                }
+//            }
         }
         order.setCnyProductAmount(cnyProductAmount);
         order.setProductAmount(productAmount);
@@ -592,7 +583,9 @@ public class OrderServiceImpl implements OrderService {
 
         orderItemDao.insertByBatch(items);
         orderAddressDao.insert(address);
-        storeOrderItemDao.updateStateByIds(storeOrderItemIds, 1);
+        if (ListUtils.isNotEmpty(storeOrderItemIds)){
+            storeOrderItemDao.updateStateByIds(storeOrderItemIds, 1);
+        }
 
         StoreOrderRelate storeOrderRelate = new StoreOrderRelate(storeOrder);
         storeOrderRelate.setOrderId(orderId);
@@ -603,7 +596,7 @@ public class OrderServiceImpl implements OrderService {
         }
         storeOrderRelateDao.insert(storeOrderRelate);
         RedisUtil.unLock(redisTemplate, key);
-        orderInitShipDetail(orderId);
+//        orderInitShipDetail(orderId);
         return order;
     }
 

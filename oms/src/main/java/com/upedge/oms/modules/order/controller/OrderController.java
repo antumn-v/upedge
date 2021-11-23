@@ -88,7 +88,7 @@ public class OrderController {
             @ApiImplicitParam(name = "productTitle", value = "店铺产品标题"),
             @ApiImplicitParam(name = "sku", value = "店铺变体SKU")
     })
-    @PostMapping("/app/list")
+    @PostMapping("/list")
     public BaseResponse appOrderList(@RequestBody AppOrderListRequest request) {
         Session session = UserUtil.getSession(redisTemplate);
         AppOrderListDto appOrderListDto = request.getT();
@@ -174,7 +174,7 @@ public class OrderController {
     }*/
 
     @ApiOperation("订单数量,参数同订单列表")
-    @PostMapping("/app/count")
+    @PostMapping("/count")
     public BaseResponse appOrderCount(@RequestBody AppOrderListRequest appOrderListRequest) {
 
         Session session = UserUtil.getSession(redisTemplate);
@@ -248,7 +248,7 @@ public class OrderController {
     }
 
     @ApiOperation("订单所有数量")
-    @PostMapping("/app/allCount")
+    @PostMapping("/allCount")
     public BaseResponse appOrderAllCount(@RequestBody AppOrderListRequest request) {
         Session session = UserUtil.getSession(redisTemplate);
         AppOrderListDto appOrderListDto = new AppOrderListDto();
@@ -292,7 +292,7 @@ public class OrderController {
     }
 
     @ApiOperation("app订单详情")
-    @GetMapping("/{id}/app/detail")
+    @GetMapping("/{id}/detail")
     public BaseResponse appOrderDetail(@PathVariable Long id) {
         AppOrderVo appOrderVo = orderService.appOrderDetail(id);
         return new BaseResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS, appOrderVo);

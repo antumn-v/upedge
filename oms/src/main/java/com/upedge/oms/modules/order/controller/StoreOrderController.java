@@ -60,10 +60,7 @@ public class StoreOrderController {
                 continue;
             }
             storeOrderService.completeStoreOrderItemDetail(storeOrder.getId());
-            Order order =  orderService.createOrderByStoreOrder(storeOrder.getId());
-            if(order != null){
-                orderService.orderInitShipDetail(order.getId());
-            }
+            orderService.createOrderByStoreOrder(storeOrder.getId());
         }
         return BaseResponse.success();
     }
@@ -92,10 +89,8 @@ public class StoreOrderController {
             return BaseResponse.success();
         }
         storeOrderService.completeStoreOrderItemDetail(storeOrder.getId());
-        Order order =  orderService.createOrderByStoreOrder(storeOrder.getId());
-        if(order != null){
-            orderService.orderInitShipDetail(order.getId());
-        }
+        orderService.createOrderByStoreOrder(storeOrder.getId());
+
         return BaseResponse.success();
     }
 

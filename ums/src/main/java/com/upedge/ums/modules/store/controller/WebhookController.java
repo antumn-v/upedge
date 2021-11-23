@@ -134,7 +134,6 @@ public class WebhookController {
         BeanUtils.copyProperties(store, storeVo);
         JSONObject jsonObject = JSONObject.parseObject(body);
         StoreApiRequest apiRequest = new StoreApiRequest();
-        apiRequest.setJsonObject(jsonObject);
         apiRequest.setStoreVo(storeVo);
         switch (topic) {
             case "products/create":
@@ -181,7 +180,6 @@ public class WebhookController {
         CompletableFuture<Void> webhook = CompletableFuture.runAsync(() -> {
             JSONObject jsonObject = JSONObject.parseObject(body);
             StoreApiRequest apiRequest = new StoreApiRequest();
-            apiRequest.setJsonObject(jsonObject);
             apiRequest.setStoreVo(storeVo);
             switch (topic) {
                 case "products/create":

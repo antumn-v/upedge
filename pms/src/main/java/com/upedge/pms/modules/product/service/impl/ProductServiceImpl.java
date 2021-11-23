@@ -190,10 +190,10 @@ public class ProductServiceImpl implements ProductService {
         ProductVo adminProductVo=new ProductVo()
                 ;
         BeanUtils.copyProperties(product,adminProductVo);
-        Category category=categoryService.selectByPrimaryKey(product.getCategoryId());
-        if(category!=null) {
-            adminProductVo.setCategoryId(Long.parseLong(category.getCateCode()));
-        }
+//        Category category=categoryService.selectByPrimaryKey(product.getCategoryId());
+//        if(category!=null) {
+//            adminProductVo.setCategoryId(Long.parseLong(category.getCateCode()));
+//        }
         //开启异步任务 获取属性
         CompletableFuture<Void> productAttributeFuture = CompletableFuture.runAsync(() -> {
             ProductAttribute productAttribute=productAttributeService.selectByProductId(id);

@@ -319,18 +319,12 @@ public class StoreController {
     }
 
     @PostMapping("/getStoreData")
-    public BaseResponse testUpdateWoocommerceOrder() {
+    public BaseResponse getStoreData() {
         Page<Store> storePage = new Page<>();
         storePage.setPageSize(-1);
         List<Store> stores = storeService.select(storePage);
         for (Store store1 : stores) {
-            try {
-                storeAsync.getStoreProductAndOrder(store1);
-                Thread.sleep(10000L);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-
+            storeAsync.getStoreData(store1);
         }
         return BaseResponse.success();
     }
