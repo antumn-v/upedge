@@ -17,6 +17,7 @@ import com.upedge.oms.modules.stock.response.CustomerProductStockListResponse;
 import com.upedge.oms.modules.stock.service.CustomerProductStockService;
 import com.upedge.oms.modules.stock.service.CustomerStockRecordService;
 import com.upedge.oms.modules.stock.vo.CustomerStockRecordDetailVo;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -30,6 +31,7 @@ import org.springframework.web.bind.annotation.*;
  *
  * @author author
  */
+@ApiOperation("客户库存")
 @RestController
 @RequestMapping("/customer/stock")
 public class CustomerProductStockController {
@@ -42,7 +44,7 @@ public class CustomerProductStockController {
     @Autowired
     RedisTemplate<String, Object> redisTemplate;
 
-
+    @ApiOperation("使用记录")
     @RequestMapping(value="/{id}/record", method=RequestMethod.POST)
     @Permission(permission = "stock:customerproductstock:info:id")
     public CustomerProductStockInfoResponse info(@PathVariable Long id, @RequestBody CustomerStockRecordListRequest recordListRequest) {
@@ -74,6 +76,7 @@ public class CustomerProductStockController {
         return res;
     }
 
+    @ApiOperation("库存列表")
     @RequestMapping(value="/list", method=RequestMethod.POST)
     @Permission(permission = "stock:customerproductstock:list")
     public CustomerProductStockListResponse list(@RequestBody @Valid CustomerProductStockListRequest request) {
@@ -105,7 +108,8 @@ public class CustomerProductStockController {
      * @param id
      * @return
      */
-    @PostMapping(value = "/refreshSaiheInventory/{id}")
+//    @ApiOperation("同步赛盒库存")
+//    @PostMapping(value = "/refreshSaiheInventory/{id}")
     public BaseResponse refreshSaiheInventory(@PathVariable Long id) throws CustomerException {
         return   customerProductStockService.refreshSaiheInventory(id);
     }

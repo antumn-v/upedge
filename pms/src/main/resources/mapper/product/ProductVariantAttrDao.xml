@@ -263,6 +263,17 @@
             #{item}
         </foreach>
     </select>
+    <select id="selectByProductId" resultType="com.upedge.pms.modules.product.entity.ProductVariantAttr">
+        select <include refid="Base_Column_List"/>
+        form product_variant_attr
+        where product_id = #{productId}
+
+    </select>
+    <select id="selectByVariantId" resultType="com.upedge.pms.modules.product.entity.ProductVariantAttr">
+        select <include refid="Base_Column_List"/>
+        form product_variant_attr
+        where variant_id = #{variantId}
+    </select>
 
 
 </mapper>

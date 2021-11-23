@@ -23,8 +23,8 @@ import org.springframework.data.redis.core.RedisTemplate;
 import javax.validation.Valid;
 import java.util.Set;
 import org.springframework.web.bind.annotation.*;
-@RestController
-@RequestMapping("/stock/advice")
+//@RestController
+//@RequestMapping("/stock/advice")
 public class StockAdviceController {
 
     @Autowired

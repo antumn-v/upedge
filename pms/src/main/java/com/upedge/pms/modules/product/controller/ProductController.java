@@ -8,19 +8,25 @@ import com.upedge.common.base.Page;
 import com.upedge.common.constant.ProductConstant;
 import com.upedge.common.constant.ResultCode;
 import com.upedge.common.exception.CustomerException;
+import com.upedge.common.feign.OmsFeignClient;
+import com.upedge.common.model.cart.request.CartAddRequest;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.utils.UploadImgUtil;
 import com.upedge.common.utils.UrlUtils;
 import com.upedge.common.web.util.UserUtil;
+import com.upedge.pms.modules.product.entity.ProductVariant;
 import com.upedge.pms.modules.product.request.*;
 import com.upedge.pms.modules.product.response.*;
 import com.upedge.pms.modules.product.service.AppProductService;
+import com.upedge.pms.modules.product.service.ProductVariantService;
 import com.upedge.pms.modules.product.vo.AddProductVo;
 import com.upedge.pms.modules.product.vo.ProductVo;
 import com.upedge.thirdparty.ali1688.service.Ali1688Service;
 import com.upedge.thirdparty.ali1688.vo.AlibabaProductVo;
 import com.upedge.thirdparty.saihe.config.SaiheConfig;
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,6 +57,12 @@ public class ProductController {
 
     @Autowired
     AppProductService appProductService;
+
+    @Autowired
+    ProductVariantService productVariantService;
+
+    @Autowired
+    OmsFeignClient omsFeignClient;
 
     @Autowired
     RedisTemplate redisTemplate;
@@ -235,6 +247,35 @@ public class ProductController {
         }
         Session session = UserUtil.getSession(redisTemplate);
         return productService.uploadToSaihe(request);
+    }
+
+    @ApiOperation("产品导入购物车")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "cateType",value = "备库=0，批发=1",required = true)
+    })
+    @PostMapping("/importCart")
+    public BaseResponse productImportCart(@RequestBody @Valid ProductImportCartRequest request){
+        Session session = UserUtil.getSession(redisTemplate);
+
+        Product product = productService.selectByPrimaryKey(request.getProductId());
+        ProductVariant variant = productVariantService.selectByPrimaryKey(request.getVariantId());
+
+        CartAddRequest cartAddRequest = new CartAddRequest();
+        cartAddRequest.setCartType(request.getCartType());
+        cartAddRequest.setCustomerId(session.getCustomerId());
+        cartAddRequest.setQuantity(request.getQuantity());
+        cartAddRequest.setVariantId(variant.getId());
+        cartAddRequest.setPrice(variant.getUsdPrice());
+        cartAddRequest.setVariantImage(variant.getVariantImage());
+        cartAddRequest.setVariantName(variant.getEnName());
+        cartAddRequest.setVariantSku(variant.getVariantSku());
+        cartAddRequest.setProductId(product.getId());
+        cartAddRequest.setProductTitle(product.getProductTitle());
+        cartAddRequest.setWeight(variant.getWeight());
+        cartAddRequest.setVolume(variant.getVolumeWeight());
+
+        return omsFeignClient.cartAdd(cartAddRequest);
+
     }
 
     @RequestMapping(value="/info/{id}", method=RequestMethod.GET)

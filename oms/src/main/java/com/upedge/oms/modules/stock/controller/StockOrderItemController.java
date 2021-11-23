@@ -19,8 +19,8 @@ import org.springframework.web.bind.annotation.*;
  *
  * @author author
  */
-@RestController
-@RequestMapping("/stockOrderItem")
+//@RestController
+//@RequestMapping("/stockOrderItem")
 public class StockOrderItemController {
     @Autowired
     private StockOrderItemService stockOrderItemService;

@@ -32,19 +32,13 @@ public class PermissionAspect {
 	@Before("@annotation(permission)")
 	public void beforeMethod(JoinPoint point, Permission permission) throws CustomerException {
 		String perStr = permission.permission();
-		System.out.println("=============================>>>>");
-		System.out.println(perStr);
 		Session session = UserUtil.getSession(redisTemplate);
 		if(session.getUserType()== BaseCode.USER_ROLE_ADMIN||
 				session.getUserType()==BaseCode.USER_ROLE_SUPERADMIN){
 			return;
 		}
 		List<String> userPermission = session.getPermissions();
-		if(userPermission.contains(perStr)) {
-			System.out.println("================have==permission====================>>>>");
-		}
-		else {
-			System.out.println("=================no===permission====================>>>>");
+		if(!userPermission.contains(perStr)) {
 			throw new CustomerException(ResultCode.FAIL_CODE,"no permission");
 		}
 		

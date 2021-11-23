@@ -11,6 +11,9 @@ import javax.validation.constraints.NotNull;
 public class ProductImportCartRequest {
 
     @NotNull
+    private  Long productId;
+
+    @NotNull
     private Long variantId;
 
     @NotNull

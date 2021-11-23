@@ -8,8 +8,8 @@ import org.springframework.web.bind.annotation.*;
  *
  * @author author
  */
-@RestController
-@RequestMapping("/stock/advice/setting")
+//@RestController
+//@RequestMapping("/stock/advice/setting")
 public class StockAdviceSettingController {
 
 

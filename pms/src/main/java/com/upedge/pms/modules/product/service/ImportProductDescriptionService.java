@@ -14,6 +14,8 @@ public interface ImportProductDescriptionService{
 
     ImportProductDescription selectByPrimaryKey(Long id);
 
+    int updateByProductId(ImportProductDescription importProductDescription);
+
     int deleteByPrimaryKey(Long id);
 
     int updateByPrimaryKey(ImportProductDescription record);

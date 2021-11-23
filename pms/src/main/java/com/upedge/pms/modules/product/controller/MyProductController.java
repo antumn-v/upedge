@@ -2,6 +2,7 @@ package com.upedge.pms.modules.product.controller;
 
 
 import com.upedge.common.base.BaseResponse;
+import com.upedge.common.component.annotation.Permission;
 import com.upedge.common.constant.Constant;
 import com.upedge.common.constant.ResultCode;
 import com.upedge.common.constant.key.RedisKey;
@@ -12,14 +13,14 @@ import com.upedge.pms.modules.product.entity.ImportProductAttribute;
 import com.upedge.pms.modules.product.entity.ImportProductDescription;
 import com.upedge.pms.modules.product.entity.ImportProductImage;
 import com.upedge.pms.modules.product.entity.ImportProductVariant;
-import com.upedge.pms.modules.product.request.ImportAddAppProductRequest;
-import com.upedge.pms.modules.product.request.ImportProductAttributeListRequest;
-import com.upedge.pms.modules.product.request.ImportProductPublishRequest;
-import com.upedge.pms.modules.product.response.ImportProductAttributeListResponse;
+import com.upedge.pms.modules.product.request.*;
+import com.upedge.pms.modules.product.response.*;
 import com.upedge.pms.modules.product.service.*;
 import com.upedge.pms.modules.product.vo.ImportVariantVo;
 import com.upedge.pms.modules.product.vo.MyProductVo;
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -94,7 +95,7 @@ public class MyProductController {
         return BaseResponse.success(myProductVo);
     }
 
-
+    @ApiOperation("产品上架店铺")
     @PostMapping("/publish")
     public BaseResponse publishToStore(@RequestBody@Valid ImportProductPublishRequest request){
         StoreVo storeVo = (StoreVo) redisTemplate.opsForValue().get(RedisKey.STRING_STORE + request.getStoreId());
@@ -103,5 +104,74 @@ public class MyProductController {
             importProductService.uploadProductToShopify(storeVo,productId);
         }
         return BaseResponse.success();
+    }
+
+
+    @ApiOperation("批量修改变体价格")
+    @PostMapping("/variant/updatePrice")
+    public ImportVariantBatchUpdateResponse batchUpdateVariantPrice(@RequestBody @Valid ImportVariantBatchUpdateRequest request){
+        return importProductService.batchUpdateVariantPrice(request);
+    }
+
+    @ApiOperation("批量修改变体state")
+    @PostMapping("/variant/updateState")
+    public VariantUpdateStateResponse variantUpdateState(@RequestBody @Valid ImportVariantUpdateStateRequest request){
+        return importProductService.updateVariantState(request);
+    }
+
+    @RequestMapping(value="/update/{id}", method=RequestMethod.POST)
+    @Permission(permission = "app:importproductattribute:update")
+    public ImportProductAttributeUpdateResponse productUpdate(@PathVariable Long id, @RequestBody @Valid ImportProductAttributeUpdateRequest request) {
+        ImportProductAttribute entity=request.toImportProductAttribute(id);
+        importProductAttributeService.updateByPrimaryKeySelective(entity);
+        ImportProductAttributeUpdateResponse res = new ImportProductAttributeUpdateResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS);
+        return res;
+    }
+
+    @ApiOperation("importList删除产品")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "id",value = "id",required = false,paramType = "body"),
+            @ApiImplicitParam(name = "productId", value = "产品ID",required = false,paramType = "body"),
+            @ApiImplicitParam(name = "ids",value = "id集合",required = false,paramType = "body")
+    })
+    @RequestMapping(value="/remove", method=RequestMethod.POST)
+    @Permission(permission = "app:importproductattribute:del:id")
+    public ImportProductAttributeDelResponse del(@RequestBody ImportListRemoveRequest request) {
+        importProductService.importProductRemove(request);
+        ImportProductAttributeDelResponse res = new ImportProductAttributeDelResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS);
+        return res;
+    }
+
+
+    @ApiOperation("变体修改")
+    @RequestMapping(value="/variant/{id}/update", method=RequestMethod.POST)
+    @Permission(permission = "app:importproductvariant:update")
+    public ImportProductVariantUpdateResponse update(@PathVariable Long id, @RequestBody @Valid ImportProductVariantUpdateRequest request) {
+        ImportProductVariant entity=request.toImportProductVariant(id);
+        importProductVariantService.updateByPrimaryKeySelective(entity);
+        ImportProductVariantUpdateResponse res = new ImportProductVariantUpdateResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS);
+        return res;
+    }
+
+    @ApiOperation("图片修改")
+    @RequestMapping(value="/image/{id}/update", method=RequestMethod.POST)
+    @Permission(permission = "app:importproductimage:update")
+    public ImportProductImageUpdateResponse update(@PathVariable Long id, @RequestBody @Valid ImportProductImageUpdateRequest request) {
+        ImportProductImage entity=request.toImportProductImage(id);
+        importProductImageService.updateByPrimaryKeySelective(entity);
+        ImportProductImageUpdateResponse res = new ImportProductImageUpdateResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS);
+        return res;
+    }
+
+    @ApiOperation("产品描述修改")
+    @RequestMapping(value="/description/{id}/update", method=RequestMethod.POST)
+    @Permission(permission = "app:importproductdescription:update")
+    public ImportProductDescriptionUpdateResponse update(@PathVariable Long id, @RequestBody @Valid ImportProductDescriptionUpdateRequest request) {
+        ImportProductDescription entity= new ImportProductDescription();
+        entity.setProductId(id);
+        entity.setDescription(request.getDesc());
+        importProductDescriptionService.updateByProductId(entity);
+        ImportProductDescriptionUpdateResponse res = new ImportProductDescriptionUpdateResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS);
+        return res;
     }
 }

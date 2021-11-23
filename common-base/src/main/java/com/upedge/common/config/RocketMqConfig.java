@@ -4,7 +4,7 @@ public class RocketMqConfig {
 
 //    public final static String NAME_SERVER = "172.29.239.96:9876";
 //    public final static String NAME_SERVER = "172.29.239.85:9876";
-    public final static String NAME_SERVER = "192.168.1.82:9876";
+    public final static String NAME_SERVER = "192.168.10.3:9876";
 
 
     public final static String TOPIC_ORDER_TRANSACTION = "order_transaction";

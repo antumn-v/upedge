@@ -5,17 +5,16 @@ import com.upedge.common.constant.Constant;
 import com.upedge.common.constant.ResultCode;
 
 
+import com.upedge.common.model.cart.request.CartAddRequest;
 import com.upedge.common.model.product.request.ProductVariantShipsRequest;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.utils.ListUtils;
 import com.upedge.common.utils.PriceUtils;
 import com.upedge.common.web.util.UserUtil;
-import com.upedge.pms.modules.product.entity.Product;
-import com.upedge.pms.modules.product.entity.ProductInfo;
+import com.upedge.pms.modules.product.entity.*;
 import com.upedge.pms.modules.product.response.ProductImgListResponse;
 import com.upedge.pms.modules.product.service.ProductService;
 import com.upedge.pms.modules.product.service.ProductVariantService;
-import com.upedge.pms.modules.product.entity.ImportProductAttribute;
 import com.upedge.pms.modules.product.request.*;
 import com.upedge.pms.modules.product.response.AppVariantShipsResponse;
 import com.upedge.pms.modules.product.response.MarketPlaceListResponse;
@@ -25,6 +24,9 @@ import com.upedge.pms.modules.product.service.ImportProductService;
 import com.upedge.pms.modules.product.vo.AppProductVariantAttrVo;
 import com.upedge.pms.modules.product.vo.AppProductVariantVo;
 import com.upedge.pms.modules.product.vo.AppProductVo;
+import com.upedge.pms.modules.product.vo.VariantAttributeVo;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -120,6 +122,36 @@ public class AppProductController {
         return new BaseResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS,map);
     }
 
+
+    List<VariantAttributeVo> getVariantAttributeVos(Long id){
+        List<VariantAttributeVo> VariantAttributeVos = new ArrayList<>();
+        List<AppProductVariantVo> variantVos = appProductService.productVariants(id);
+        Map<String, Set<String>> attributeMap = new HashMap<>();
+        for (AppProductVariantVo variantVo : variantVos) {
+            List<AppProductVariantAttrVo> attrs = variantVo.getAttrs();
+            attrs.forEach(appProductVariantAttrVo -> {
+                if (!attributeMap.containsKey(appProductVariantAttrVo.getVariantAttrEname())){
+                    attributeMap.put(appProductVariantAttrVo.getVariantAttrEname(),new HashSet<>());
+                }
+                attributeMap.get(appProductVariantAttrVo.getVariantAttrEname()).add(appProductVariantAttrVo.getVariantAttrEvalue());
+            });
+            if (variantVo.getUsdPrice() != null){
+                variantVo.setVariantPrice(variantVo.getUsdPrice());
+            }else {
+                BigDecimal price = PriceUtils.cnyToUsdByDefaultRate(variantVo.getVariantPrice());
+                variantVo.setVariantPrice(price);
+            }
+        }
+        for (String name: attributeMap.keySet()){
+            Set<String> values = attributeMap.get(name);
+            VariantAttributeVo VariantAttributeVo = new VariantAttributeVo();
+            VariantAttributeVo.setProductId(id);
+
+            VariantAttributeVos.add(VariantAttributeVo);
+        }
+        return VariantAttributeVos;
+    }
+
     @GetMapping("/{id}/info")
     public BaseResponse productInfo(@PathVariable Long id){
 
@@ -172,34 +204,7 @@ public class AppProductController {
         return appProductService.variantShips(request,session);
     }
 
-//    @ApiOperation("产品导入购物车")
-//    @ApiImplicitParams({
-//            @ApiImplicitParam(name = "cateType",value = "备库=0，批发=1",required = true)
-//    })
-//    @PostMapping("/{productId}/import/cart")
-//    public BaseResponse productImportCart(@RequestBody @Valid ProductImportCartRequest request,@PathVariable Long productId){
-//        Session session = UserUtil.getSession(redisTemplate);
-//
-//        Product product = productService.selectByPrimaryKey(productId);
-//        ProductVariant variant = productVariantService.selectByPrimaryKey(request.getVariantId());
-//
-//        CartAddRequest cartAddRequest = new CartAddRequest();
-//        cartAddRequest.setCartType(request.getCartType());
-//        cartAddRequest.setCustomerId(session.getCustomerId());
-//        cartAddRequest.setQuantity(request.getQuantity());
-//        cartAddRequest.setVariantId(variant.getId());
-//        cartAddRequest.setPrice(variant.getUsdPrice());
-//        cartAddRequest.setVariantImage(variant.getVariantImage());
-//        cartAddRequest.setVariantName(variant.getEnName());
-//        cartAddRequest.setVariantSku(variant.getVariantSku());
-//        cartAddRequest.setProductId(product.getId());
-//        cartAddRequest.setProductTitle(product.getProductTitle());
-//        cartAddRequest.setWeight(variant.getWeight());
-//        cartAddRequest.setVolume(variant.getVolumeWeight());
-//
-//        return omsFeignClient.cartAdd(cartAddRequest);
-//
-//    }
+
 
     @PostMapping("/search/ships")
     public BaseResponse productSearchShips(@RequestBody ProductVariantShipsRequest request){

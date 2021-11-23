@@ -66,13 +66,14 @@ public class StockOrderController {
         return res;
     }
 
-    @ApiOperation("创建备库订单")
-    @PostMapping("/create")
+//    @ApiOperation("创建备库订单")
+//    @PostMapping("/create")
     public BaseResponse excelImportStockOrder(@RequestBody List<VariantQuantity> variantQuantities) {
         Session session = UserUtil.getSession(redisTemplate);
         return stockOrderService.excelImportStockOrders(session, variantQuantities);
     }
 
+    @ApiOperation("备库订单列表")
     @RequestMapping(value = "/list", method = RequestMethod.POST)
     @Permission(permission = "stock:order:list")
     public StockOrderListResponse list(@RequestBody @Valid StockOrderListRequest request) {
@@ -98,7 +99,7 @@ public class StockOrderController {
         return res;
     }
 
-    @PostMapping("/count")
+//    @PostMapping("/count")
     public StockOrderListResponse count(@RequestBody @Valid StockOrderListRequest request) {
         Session session = UserUtil.getSession(redisTemplate);
 
@@ -122,6 +123,7 @@ public class StockOrderController {
         return res;
     }
 
+    @ApiOperation("取消订单")
     @PostMapping("/{orderId}/cancel")
     public BaseResponse cancelOrder(@PathVariable Long orderId) {
         StockOrder order = new StockOrder();
@@ -131,6 +133,7 @@ public class StockOrderController {
         return BaseResponse.success();
     }
 
+    @ApiOperation("恢复订单")
     @PostMapping("/{orderId}/restore")
     public BaseResponse restoreOrder(@PathVariable Long orderId) {
         StockOrder order = new StockOrder();
@@ -140,6 +143,7 @@ public class StockOrderController {
         return BaseResponse.success();
     }
 
+    @ApiOperation("支付列表")
     @PostMapping("/pay/list")
     public BaseResponse stockOrderPayList(@RequestBody List<Long> orderIds) throws InterruptedException {
         List<StockOrderVo> stockOrderVos = new ArrayList<>();
@@ -153,7 +157,7 @@ public class StockOrderController {
         return new BaseResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS, stockOrderVos);
     }
 
-    @PostMapping("/pay/paypal")
+//    @PostMapping("/pay/paypal")
     public BaseResponse payByPaypal(@RequestBody List<Long> orderIds) {
 
         Session session = UserUtil.getSession(redisTemplate);
@@ -181,6 +185,7 @@ public class StockOrderController {
         return BaseResponse.failed();
     }
 
+    @ApiOperation("余额支付订单")
     @PostMapping("/pay/balance")
     public BaseResponse payByBalance(@RequestBody List<Long> orderIds) {
         Session session = UserUtil.getSession(redisTemplate);
@@ -212,7 +217,7 @@ public class StockOrderController {
         return BaseResponse.failed();
     }
 
-    @GetMapping("/pay/paypal/execute")
+//    @GetMapping("/pay/paypal/execute")
     public BaseResponse paypalSuccess(String paymentId, String PayerID, @RequestParam("token") String token) throws IOException {
         String tokenKey = RedisKey.HASH_PAYPAL_TOKEN + token;
         PaypalOrder order = (PaypalOrder) redisTemplate.opsForHash().get(tokenKey, "order");
@@ -255,7 +260,7 @@ public class StockOrderController {
 
     }
 
-    @GetMapping("/pay/paypal/cancel")
+//    @GetMapping("/pay/paypal/cancel")
     public void paypalCancel(@RequestParam("token") String token) {
         PaypalOrder order = (PaypalOrder) redisTemplate.opsForHash().get(token, "order");
         if (null != order) {
@@ -266,7 +271,7 @@ public class StockOrderController {
         }
     }
 
-    @PostMapping("/pay/paypal/completed")
+//    @PostMapping("/pay/paypal/completed")
     public BaseResponse stockPaypalCompleted(@RequestBody @Valid PaypalPayment paypalPayment) {
         switch (paypalPayment.getState()) {
             case "pending":

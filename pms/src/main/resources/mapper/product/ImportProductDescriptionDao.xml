@@ -60,6 +60,13 @@
         </set>
         where id = #{id}
     </update>
+    <update id="updateByProductId">
+        update import_product_description
+        <set>
+            description = #{description}
+        </set>
+        where product_id = #{productId}
+    </update>
 
     <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.upedge.pms.modules.product.entity.ImportProductDescription" useGeneratedKeys="true">
         insert into import_product_description

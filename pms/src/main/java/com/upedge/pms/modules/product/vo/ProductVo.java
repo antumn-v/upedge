@@ -98,8 +98,8 @@ public class ProductVo {
 
 	private List<ProductVariant> productVariantList;
 
-	private List<ProductAttr> productAttrList;
-
 	private List<VariantAttrVo> variantAttrVos;
+
+	private List<VariantAttributeVo> VariantAttributeVos;
 
 }

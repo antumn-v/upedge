@@ -15,7 +15,7 @@ import java.net.UnknownHostException;
 @Configuration
 public class RedisConfig {
 
-    private String host = "192.168.10.5";
+    private String host = "192.168.10.4";
 //    private String host = "172.29.239.85";
 //    private String host = "192.168.56.101";
 

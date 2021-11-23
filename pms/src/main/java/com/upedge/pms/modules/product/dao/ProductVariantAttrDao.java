@@ -11,6 +11,9 @@ import org.apache.ibatis.annotations.Param;
  */
 public interface ProductVariantAttrDao{
 
+    List<ProductVariantAttr> selectByProductId(Long productId);
+    List<ProductVariantAttr> selectByVariantId(Long variantId);
+
     List<ProductVariantAttr> selectByVariantIds(@Param("variantIds") List<Long> variantIds);
 
     ProductVariantAttr selectByPrimaryKey(ProductVariantAttr record);

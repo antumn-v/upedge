@@ -19,7 +19,7 @@ spring:
         heartbeat: true
   redis:
     database: 0
-    host: 192.168.10.5
+    host: 192.168.10.4
     port: 6379
     password: 123456
     lettuce:
@@ -59,6 +59,26 @@ spring:
           config:
             multi-statement-allow: true
 
+seata:
+  enabled: true
+  application-id: ${spring.application.name}
+  enable-auto-data-source-proxy: true
+  use-jdk-proxy: false
+  tx-service-group: default
+  service:
+    vgroupMapping:
+      default: default
+    enable-degrade: false
+    disable-global-transaction: false
+    grouplist:
+      default: 192.168.10.3:8091
+
+
+rocketmq:
+  name-server: 192.168.10.3:9876
+  producer:
+    group: oms
+    sendMsgTimeout: 9000
 
 feign:
   client:

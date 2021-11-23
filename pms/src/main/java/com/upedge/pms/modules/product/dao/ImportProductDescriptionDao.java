@@ -10,6 +10,8 @@ import java.util.List;
  */
 public interface ImportProductDescriptionDao{
 
+    int updateByProductId(ImportProductDescription importProductDescription);
+
     ImportProductDescription selectByProductId(Long productId);
 
     ImportProductDescription selectByPrimaryKey(ImportProductDescription record);

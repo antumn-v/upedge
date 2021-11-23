@@ -20,7 +20,7 @@ spring:
         port: ${server.port} #服务的请求端口
   redis:
     database: 0
-    host: 192.168.10.5
+    host: 192.168.10.4
     port: 6379
     password: 123456
     lettuce:
@@ -107,7 +107,7 @@ feign:
 
 
 rocketmq:
-  name-server: 192.168.10.5:9876
+  name-server: 192.168.10.3:9876
   producer:
     group: ums
     sendMsgTimeout: 9000

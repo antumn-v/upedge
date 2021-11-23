@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import com.upedge.pms.modules.product.vo.VariantAttributeVo;
 import lombok.Data;
 
 /**
@@ -84,4 +85,6 @@ public class ProductVariant{
     private BigDecimal height;
 
 	private List<ProductVariantAttr> productVariantAttrList=new ArrayList<>();
+
+	private List<VariantAttributeVo> variantAttributeVos;
 }

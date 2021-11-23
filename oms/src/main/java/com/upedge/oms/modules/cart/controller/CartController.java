@@ -14,6 +14,7 @@ import com.upedge.oms.modules.cart.request.*;
 import com.upedge.oms.modules.cart.response.*;
 import com.upedge.oms.modules.cart.service.CartService;
 import com.upedge.oms.modules.stock.controller.StockOrderController;
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
@@ -32,6 +33,7 @@ import java.util.List;
  *
  * @author author
  */
+@Api(tags = "购物车")
 @RestController
 @RequestMapping("/cart")
 public class CartController {
@@ -98,7 +100,7 @@ public class CartController {
         return res;
     }
 
-    @ApiOperation("添加，看产品模块/app/product/import/cart接口")
+    @ApiOperation("购物车添加产品，看产品模块/pms   /product/importCart接口")
     @PostMapping("/add")
     public BaseResponse cartAdd(@RequestBody @Valid CartAddRequest request){
 

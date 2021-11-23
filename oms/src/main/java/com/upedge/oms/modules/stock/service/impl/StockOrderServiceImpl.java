@@ -265,7 +265,7 @@ public class StockOrderServiceImpl implements StockOrderService {
         detail.setOrderType(OrderType.STOCK);
         detail.setPayTime(payTime);
         stockOrderDao.completeOrderTransaction(detail, Constant.PAYPAL_FEE_PERCENTAGE);
-        orderPaidByPaymentId(paymentId, customerId);
+//        orderPaidByPaymentId(paymentId, customerId);
         return detail;
     }
 
@@ -315,7 +315,7 @@ public class StockOrderServiceImpl implements StockOrderService {
             return null;
         }
         stockOrderDao.completeOrderTransaction(detail, BigDecimal.ZERO);
-        orderPaidByPaymentId(paymentId, session.getCustomerId());
+//        orderPaidByPaymentId(paymentId, session.getCustomerId());
 
         return detail;
     }
@@ -362,7 +362,6 @@ public class StockOrderServiceImpl implements StockOrderService {
             });
         });
 
-        System.err.println("paymentId===>"+paymentId);
         List<StockOrderItem> variantQuantities = stockOrderItemDao.countVariantQuantityByOrderPaymentId(paymentId);
 
         List<Long> variantIds = customerProductStockDao.selectWarehouseVariantIdsByCustomer(customerId, 162L);

@@ -60,6 +60,11 @@ public class ImportProductDescriptionServiceImpl implements ImportProductDescrip
         return importProductDescriptionDao.selectByPrimaryKey(record);
     }
 
+    @Override
+    public int updateByProductId(ImportProductDescription importProductDescription) {
+        return importProductDescriptionDao.updateByProductId(importProductDescription);
+    }
+
     /**
     *
     */

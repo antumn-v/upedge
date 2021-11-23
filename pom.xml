@@ -31,7 +31,7 @@
         <project.version>1.0.0</project.version>
         <java.version>1.8</java.version>
         <spring-cloud.version>Hoxton.SR4</spring-cloud.version>
-        <upedge.version>1.0-SNAPSHOT</upedge.version>
+        <panda.version>1.0-SNAPSHOT</panda.version>
     </properties>
 
     <dependencies>
