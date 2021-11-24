@@ -2,6 +2,7 @@ package com.upedge.ums;
 
 import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 
+import io.seata.spring.annotation.datasource.EnableAutoDataSourceProxy;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -18,6 +19,7 @@ import org.springframework.scheduling.annotation.EnableAsync;
 @EnableFeignClients(basePackages = "com.upedge.common.feign")
 @EnableDiscoveryClient
 @SpringBootApplication(exclude = DataSourceAutoConfiguration.class)
+@EnableAutoDataSourceProxy
 @ComponentScan(basePackages = {"com.upedge.ums.*","com.upedge.redis.*","com.upedge.common.*"})
 @MapperScan( "com.upedge.ums.modules.*.dao")
 public class UmsApplication {

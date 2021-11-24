@@ -28,11 +28,13 @@ import com.upedge.oms.modules.stock.dao.CustomerProductStockDao;
 import com.upedge.oms.modules.stock.dao.CustomerStockRecordDao;
 import com.upedge.oms.modules.stock.dao.StockOrderDao;
 import com.upedge.oms.modules.stock.dao.StockOrderItemDao;
+import com.upedge.oms.modules.stock.dto.StockOrderItemPurchaseNoDto;
 import com.upedge.oms.modules.stock.dto.StockOrderListDto;
 import com.upedge.oms.modules.stock.entity.CustomerProductStock;
 import com.upedge.oms.modules.stock.entity.CustomerStockRecord;
 import com.upedge.oms.modules.stock.entity.StockOrder;
 import com.upedge.oms.modules.stock.entity.StockOrderItem;
+import com.upedge.oms.modules.stock.request.StockOrderItemUpdatePurchaseNoRequest;
 import com.upedge.oms.modules.stock.request.StockOrderListRequest;
 import com.upedge.oms.modules.stock.service.StockOrderService;
 import com.upedge.oms.modules.stock.vo.StockOrderItemVo;
@@ -211,6 +213,29 @@ public class StockOrderServiceImpl implements StockOrderService {
         return stockOrderDao.selectOrderById(orderId);
     }
 
+    @Transactional
+    @Override
+    public BaseResponse updateOrderItemPurchaseNo(StockOrderItemUpdatePurchaseNoRequest request) {
+        StockOrder stockOrder = stockOrderDao.selectByPrimaryKey(request.getOrderId());
+        if (null == stockOrder
+        || OrderConstant.PAY_STATE_PAID != stockOrder.getPayState()
+        || OrderConstant.NO_REFUND != stockOrder.getPayState()
+        || stockOrder.PURCHASING != stockOrder.getPurchaseState()){
+            return BaseResponse.failed("订单状态异常");
+        }
+        List<StockOrderItemPurchaseNoDto> stockOrderItemPurchaseNoDtos = request.getItemPurchaseNos();
+        if (ListUtils.isEmpty(stockOrderItemPurchaseNoDtos)){
+            return BaseResponse.failed();
+        }
+        for (StockOrderItemPurchaseNoDto stockOrderItemPurchaseNoDto : stockOrderItemPurchaseNoDtos) {
+            StockOrderItem stockOrderItem = new StockOrderItem();
+            stockOrderItem.setId(stockOrderItemPurchaseNoDto.getItemId());
+            stockOrderItem.setPurchaseNo(stockOrderItemPurchaseNoDto.getPurchaseNo());
+            stockOrderItemDao.updateByPrimaryKeySelective(stockOrderItem);
+        }
+        return BaseResponse.success();
+    }
+
     @Transactional(rollbackFor = Exception.class)
     @Override
     public boolean refreshOrderDetail(Long orderId) {
@@ -283,6 +308,7 @@ public class StockOrderServiceImpl implements StockOrderService {
     }
 
     @GlobalTransactional
+    @Transactional
     @Override
     public PaymentDetail payOrderByBalance(List<Long> ids, Session session) {
         Date payTime = new Date();

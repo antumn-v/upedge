@@ -56,5 +56,13 @@ public class StockOrderItem{
     private String variantImage;
 
     private String saiheSku;
+	/**
+	 * 已入库数量
+	 */
+	private Integer inboundQuantity;
+	/**
+	 * 采购单号
+	 */
+	private String purchaseNo;
 
 }

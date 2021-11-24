@@ -7,6 +7,7 @@ import com.upedge.common.model.product.VariantDetail;
 import com.upedge.common.model.product.VariantQuantity;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.oms.modules.stock.entity.StockOrder;
+import com.upedge.oms.modules.stock.request.StockOrderItemUpdatePurchaseNoRequest;
 import com.upedge.oms.modules.stock.request.StockOrderListRequest;
 import com.upedge.oms.modules.stock.vo.StockOrderVo;
 
@@ -24,6 +25,8 @@ public interface StockOrderService{
     List<StockOrderVo> selectOrderByIds(List<Long> ids);
 
     StockOrderVo selectOrderById(Long orderId);
+
+    BaseResponse updateOrderItemPurchaseNo(StockOrderItemUpdatePurchaseNoRequest request);
 
     boolean refreshOrderDetail(Long orderId);
 

@@ -17,9 +17,10 @@
         <result property="payTime" column="pay_time"/>
         <result property="createTime" column="create_time"/>
         <result property="updateTime" column="update_time"/>
-        <result property="adminState" column="admin_state"/>
-        <result property="managerCode" column="manager_code"/>
+        <result property="saiheState" column="saihe_state"/>
         <result property="saiheCode" column="saihe_code"/>
+        <result property="managerCode" column="manager_code"/>
+        <result property="purchaseState" column="purchase_state"/>
     </resultMap>
 
     <resultMap type="com.upedge.oms.modules.stock.vo.StockOrderVo" id="StockOrderVo">
@@ -78,7 +79,7 @@
     </resultMap>
 
     <sql id="Base_Column_List">
-        `id`,`warehouse_id`,`customer_id`,`pay_method`,`payment_id`,`amount`,`paypal_fee`,`pay_state`,`refund_state`,`pay_time`,`create_time`,`update_time`,`admin_state`,`manager_code`,`saihe_code`
+        `id`,`warehouse_id`,`customer_id`,`pay_method`,`payment_id`,`amount`,`paypal_fee`,`pay_state`,`refund_state`,`pay_time`,`create_time`,`update_time`,`saihe_state`,`saihe_code`,`manager_code`,`org_path`,`purchase_state`
     </sql>
 
     <select id="selectTransactionDetailByPaymentId" resultType="com.upedge.common.model.order.TransactionDetail">
@@ -239,9 +240,9 @@
         and pay_state = '2'
     </update>
 
-    <select id="selectByPrimaryKey" resultMap="BaseResultMap">
+    <select id="selectByPrimaryKey" parameterType="com.upedge.oms.modules.stock.entity.StockOrder" resultMap="BaseResultMap">
         select
-        <include refid="Base_Column_List"/>
+        <include refid="Base_Column_List" />
         from stock_order
         where id = #{id}
     </select>
@@ -287,14 +288,20 @@
             <if test="updateTime != null">
                 update_time = #{updateTime},
             </if>
-            <if test="adminState != null">
-                admin_state = #{adminState},
+            <if test="saiheState != null">
+                saihe_state = #{saiheState},
+            </if>
+            <if test="saiheCode != null">
+                saihe_code = #{saiheCode},
             </if>
             <if test="managerCode != null">
                 manager_code = #{managerCode},
             </if>
-            <if test="saiheCode != null">
-                saihe_code = #{saiheCode},
+            <if test="orgPath != null">
+                org_path = #{orgPath},
+            </if>
+            <if test="purchaseState != null">
+                purchase_state = #{purchaseState},
             </if>
         </set>
         where id = #{id}
@@ -315,15 +322,16 @@
             pay_time = #{payTime},
             create_time = #{createTime},
             update_time = #{updateTime},
-            admin_state = #{adminState},
-            manager_code = #{managerCode},
+            saihe_state = #{saiheState},
             saihe_code = #{saiheCode},
+            manager_code = #{managerCode},
+            org_path = #{orgPath},
+            purchase_state = #{purchaseState},
         </set>
         where id = #{id}
     </update>
 
-    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.upedge.oms.modules.stock.entity.StockOrder"
-            useGeneratedKeys="true">
+    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.upedge.oms.modules.stock.entity.StockOrder" useGeneratedKeys="true">
         insert into stock_order
         <trim prefix="(" suffix=")" suffixOverrides=",">
             id,
@@ -338,9 +346,11 @@
             pay_time,
             create_time,
             update_time,
-            admin_state,
+            saihe_state,
+            saihe_code,
             manager_code,
-            saihe_code
+            org_path,
+            purchase_state
         </trim>
         values (
         #{id},
@@ -354,109 +364,122 @@
         #{refundState},
         #{payTime},
         #{createTime},
-        #{createTime},
-        #{adminState},
+        #{updateTime},
+        #{saiheState},
+        #{saiheCode},
         #{managerCode},
-        #{saiheCode}
+        #{orgPath},
+        #{purchaseState}
         )
     </insert>
 
-    <insert id="insertSelective" keyColumn="id" keyProperty="id"
-            parameterType="com.upedge.oms.modules.stock.entity.StockOrder" useGeneratedKeys="true">
+    <insert id="insertSelective"  keyColumn="id" keyProperty="id"  parameterType="com.upedge.oms.modules.stock.entity.StockOrder" useGeneratedKeys="true">
         insert into stock_order
         <trim prefix="(" suffix=")" suffixOverrides=",">
-            <if test="id != null">
+            <if test="id != null" >
                 id
             </if>
-            <if test="warehouseId != null">
+            <if test="warehouseId != null" >
                 warehouse_id
             </if>
-            <if test="customerId != null">
+            <if test="customerId != null" >
                 customer_id
             </if>
-            <if test="payMethod != null">
+            <if test="payMethod != null" >
                 pay_method
             </if>
-            <if test="paymentId != null">
+            <if test="paymentId != null" >
                 payment_id
             </if>
-            <if test="amount != null">
+            <if test="amount != null" >
                 amount
             </if>
-            <if test="paypalFee != null">
+            <if test="paypalFee != null" >
                 paypal_fee
             </if>
-            <if test="payState != null">
+            <if test="payState != null" >
                 pay_state
             </if>
-            <if test="refundState != null">
+            <if test="refundState != null" >
                 refund_state
             </if>
-            <if test="payTime != null">
+            <if test="payTime != null" >
                 pay_time
             </if>
-            <if test="createTime != null">
+            <if test="createTime != null" >
                 create_time
             </if>
-            <if test="updateTime != null">
+            <if test="updateTime != null" >
                 update_time
             </if>
-            <if test="adminState != null">
-                admin_state
+            <if test="saiheState != null" >
+                saihe_state
             </if>
-            <if test="managerCode != null">
+            <if test="saiheCode != null" >
+                saihe_code
+            </if>
+            <if test="managerCode != null" >
                 manager_code
             </if>
-            <if test="saiheCode != null">
-                saihe_code
+            <if test="orgPath != null" >
+                org_path
+            </if>
+            <if test="purchaseState != null" >
+                purchase_state
             </if>
 
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
-            <if test="id != null">
+            <if test="id != null" >
                 #{id}
             </if>
-            <if test="warehouseId != null">
+            <if test="warehouseId != null" >
                 #{warehouseId}
             </if>
-            <if test="customerId != null">
+            <if test="customerId != null" >
                 #{customerId}
             </if>
-            <if test="payMethod != null">
+            <if test="payMethod != null" >
                 #{payMethod}
             </if>
-            <if test="paymentId != null">
+            <if test="paymentId != null" >
                 #{paymentId}
             </if>
-            <if test="amount != null">
+            <if test="amount != null" >
                 #{amount}
             </if>
-            <if test="paypalFee != null">
+            <if test="paypalFee != null" >
                 #{paypalFee}
             </if>
-            <if test="payState != null">
+            <if test="payState != null" >
                 #{payState}
             </if>
-            <if test="refundState != null">
+            <if test="refundState != null" >
                 #{refundState}
             </if>
-            <if test="payTime != null">
+            <if test="payTime != null" >
                 #{payTime}
             </if>
-            <if test="createTime != null">
+            <if test="createTime != null" >
                 #{createTime}
             </if>
-            <if test="updateTime != null">
+            <if test="updateTime != null" >
                 #{updateTime}
             </if>
-            <if test="adminState != null">
-                #{adminState}
+            <if test="saiheState != null" >
+                #{saiheState}
             </if>
-            <if test="managerCode != null">
+            <if test="saiheCode != null" >
+                #{saiheCode}
+            </if>
+            <if test="managerCode != null" >
                 #{managerCode}
             </if>
-            <if test="saiheCode != null">
-                #{saiheCode}
+            <if test="orgPath != null" >
+                #{orgPath}
+            </if>
+            <if test="purchaseState != null" >
+                #{purchaseState}
             </if>
 
         </trim>
@@ -477,9 +500,11 @@
             pay_time,
             create_time,
             update_time,
-            admin_state,
+            saihe_state,
+            saihe_code,
             manager_code,
-            saihe_code
+            org_path,
+            purchase_state
         </trim>
         values
         <foreach collection="list" item="item" index="index" separator=",">
@@ -496,9 +521,11 @@
                 #{item.payTime},
                 #{item.createTime},
                 #{item.updateTime},
-                #{item.adminState},
+                #{item.saiheState},
+                #{item.saiheCode},
                 #{item.managerCode},
-                #{item.saiheCode}
+                #{item.orgPath},
+                #{item.purchaseState}
             </trim>
         </foreach>
     </insert>
@@ -509,44 +536,60 @@
             <trim prefix=" " suffix=" " suffixOverrides=" and ">
                 1 = 1 and
                 <if test="t.id != null">
-                    o.id = #{t.id} and
+                    id = #{t.id} and
                 </if>
                 <if test="t.warehouseId != null">
-                    o.warehouse_id = #{t.warehouseId} and
+                    warehouse_id = #{t.warehouseId} and
                 </if>
                 <if test="t.customerId != null">
-                    o.customer_id = #{t.customerId} and
+                    customer_id = #{t.customerId} and
                 </if>
                 <if test="t.payMethod != null">
-                    o.pay_method = #{t.payMethod} and
+                    pay_method = #{t.payMethod} and
                 </if>
                 <if test="t.paymentId != null">
-                    o.payment_id = #{t.paymentId} and
+                    payment_id = #{t.paymentId} and
                 </if>
                 <if test="t.amount != null">
-                    o.amount = #{t.amount} and
+                    amount = #{t.amount} and
+                </if>
+                <if test="t.paypalFee != null">
+                    paypal_fee = #{t.paypalFee} and
                 </if>
                 <if test="t.payState != null">
-                    o.pay_state = #{t.payState} and
+                    pay_state = #{t.payState} and
                 </if>
                 <if test="t.refundState != null">
-                    o.refund_state = #{t.refundState} and
+                    refund_state = #{t.refundState} and
                 </if>
-                <if test="t.adminState != null">
-                    o.admin_state = #{t.adminState} and
+                <if test="t.payTime != null">
+                    pay_time = #{t.payTime} and
                 </if>
-                <if test="t.managerCode != null">
-                    o.manager_code = #{t.managerCode} and
+                <if test="t.createTime != null">
+                    create_time = #{t.createTime} and
+                </if>
+                <if test="t.updateTime != null">
+                    update_time = #{t.updateTime} and
+                </if>
+                <if test="t.saiheState != null">
+                    saihe_state = #{t.saiheState} and
                 </if>
                 <if test="t.saiheCode != null">
-                    o.saihe_code = #{t.saiheCode} and
+                    saihe_code = #{t.saiheCode} and
                 </if>
-                <if test="variantSku != null and variantSku!=''">
-                    item.variant_sku = #{variantSku} and
+                <if test="t.managerCode != null">
+                    manager_code = #{t.managerCode} and
+                </if>
+                <if test="t.orgPath != null">
+                    org_path = #{t.orgPath} and
+                </if>
+                <if test="t.purchaseState != null">
+                    purchase_state = #{t.purchaseState} and
                 </if>
             </trim>
         </if>
     </sql>
+
 
     <select id="selectAdminStockOrderList" resultMap="AdminStockOrderVo" parameterType="com.upedge.common.base.Page">
         select

@@ -1,6 +1,8 @@
 package com.upedge.thirdparty.saihe.response;
 
 import com.upedge.thirdparty.saihe.entity.GetProductInventory.ApiGetProductInventoryRequest;
+import com.upedge.thirdparty.saihe.entity.GetPurchasePutInLogList.ApiGetInPurchaseDetailRequest;
+import com.upedge.thirdparty.saihe.entity.GetPurchasePutInLogList.ApiGetInPurchaseDetailResponse;
 import com.upedge.thirdparty.saihe.entity.getPackages.ApiGetPackagesRequest;
 import com.upedge.thirdparty.saihe.entity.getPackages.ApiGetPackagesResponse;
 import com.upedge.thirdparty.saihe.entity.getProcurementList.GetProcurementListRequest;
@@ -43,4 +45,11 @@ public class RequestBody1 {
     ApiGetProductInventoryRequest apiGetProductInventoryRequest;
     @XmlElement(name="GetProductInventoryResponse")
     GetProductInventoryResponse getProductInventoryResponse;
+
+    //查询采购入库记录
+    @XmlElement(name="GetPurchasePutInLogList")
+    ApiGetInPurchaseDetailRequest apiGetInPurchaseDetailRequest;
+    @XmlElement(name="GetPurchasePutInLogListResponse")
+    ApiGetInPurchaseDetailResponse apiGetInPurchaseDetailResponse;
+
 }

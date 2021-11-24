@@ -1,10 +1,6 @@
 package com.upedge.oms.modules.cart.service.impl;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONArray;
-import com.upedge.common.base.BaseResponse;
 import com.upedge.common.base.Page;
-import com.upedge.common.constant.ResultCode;
 import com.upedge.common.constant.key.RedisKey;
 import com.upedge.common.feign.PmsFeignClient;
 import com.upedge.common.feign.TmsFeignClient;
@@ -198,56 +194,7 @@ public class CartServiceImpl implements CartService {
         BeanUtils.copyProperties(addressVo, orderAddress);
         orderAddress.setOrderId(orderId);
         orderAddress.setId(IdGenerate.nextId());
-//        AreaSelectRequest areaSelectRequest = new AreaSelectRequest();
-//        areaSelectRequest.setEnName(addressVo.getCountry());
-//        BaseResponse baseResponse = tmsFeignClient.areaSelect(areaSelectRequest);
-//        Long shippingUnitId = null;
-//        if (null != baseResponse.getData()) {
-//            AreaVo areaVo = JSONObject.parseObject(JSON.toJSON(baseResponse.getData()).toString()).toJavaObject(AreaVo.class);
-//            order.setToAreaId(areaVo.getId());
-//        }
-//            Set<Object> shipMethodIds = redisTemplate.opsForSet().union(strings);
-//            if (ListUtils.isNotEmpty(shipMethodIds)) {
-//                Set<Long> methodIds = new HashSet<>();
-//                shipMethodIds.forEach(shipMethodId -> {
-//                    methodIds.add((Long) shipMethodId);
-//                });
-//                ShipMethodSearchRequest searchRequest = new ShipMethodSearchRequest();
-//                searchRequest.setToAreaId(areaVo.getId());
-//                searchRequest.setWeight(weight);
-//                searchRequest.setVolumeWeight(volume);
-//                searchRequest.setMethodIds(methodIds);
-//                ShipMethodSearchResponse searchResponse = tmsFeignClient.shipSearch(searchRequest);
-//
-//                if (searchResponse.getCode() == ResultCode.SUCCESS_CODE) {
-//                    List<ShipDetail> shipDetails = JSONArray.parseArray(JSON.toJSONString(searchResponse.getData())).toJavaList(ShipDetail.class);
-//                    if (ListUtils.isNotEmpty(shipDetails)) {
-//                        ShipDetail shipDetail = shipDetails.get(0);
-//                        order.setShipMethodId(shipDetail.getMethodId());
-//                        order.setShipPrice(shipDetail.getPrice());
-//                        order.setTotalWeight(shipDetail.getWeight());
-//                        shippingUnitId = shipDetails.get(0).getShippingUtilId();
-//                    }
-//                }
-//            }
-//        }
-//        if (shippingUnitId != null){
-//            // 删除原来的unit  并插入新的冗余
-//            //OrderShippingUnitVo OrderShippingUnitVo = orderShippingUnitService.selectByOrderId(id,OrderType.NORMAL);
-//            orderShippingUnitService.delByOrderId(order.getId(), OrderType.WHOLESALE);
-//            BaseResponse shippingUnitResponse = tmsFeignClient.unitInfo(shippingUnitId);
-//            if (shippingUnitResponse.getCode() == ResultCode.SUCCESS_CODE && shippingUnitResponse.getData() != null){
-//                ShippingUnit shippingUnit = JSON.parseObject(JSON.toJSONString(shippingUnitResponse.getData()), ShippingUnit.class);
-//                OrderShippingUnit orderShippingUnit = new OrderShippingUnit();
-//                BeanUtils.copyProperties(shippingUnit,orderShippingUnit);
-//                orderShippingUnit.setOrderId(order.getId());
-//                orderShippingUnit.setOrderType(OrderType.WHOLESALE);
-//                orderShippingUnit.setId(IdGenerate.nextId());
-//                orderShippingUnit.setShipUnitId(shippingUnit.getId());
-//                orderShippingUnit.setCreateTime(new Date());
-//                orderShippingUnitService.insert(orderShippingUnit);
-//            }
-//        }
+
         wholesaleOrderItemDao.insertByBatch(orderItems);
         wholesaleOrderAddressDao.insert(orderAddress);
         if (ListUtils.isNotEmpty(cartIds)) {

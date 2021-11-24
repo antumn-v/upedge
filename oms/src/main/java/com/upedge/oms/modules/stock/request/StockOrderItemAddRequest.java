@@ -1,12 +1,12 @@
 package com.upedge.oms.modules.stock.request;
 
+import com.upedge.common.base.Page;
 import com.upedge.oms.modules.stock.entity.StockOrderItem;
+import java.util.Date;
 import lombok.Data;
-
 import java.math.BigDecimal;
-
 /**
- * @author author
+ * @author gx
  */
 @Data
 public class StockOrderItemAddRequest{
@@ -51,6 +51,14 @@ public class StockOrderItemAddRequest{
     * 
     */
     private String variantImage;
+    /**
+    * 已入库数量
+    */
+    private Integer inboundQuantity;
+    /**
+    * 采购单号
+    */
+    private String purchaseNo;
 
     public StockOrderItem toStockOrderItem(){
         StockOrderItem stockOrderItem=new StockOrderItem();
@@ -64,6 +72,8 @@ public class StockOrderItemAddRequest{
         stockOrderItem.setVariantName(variantName);
         stockOrderItem.setVariantSku(variantSku);
         stockOrderItem.setVariantImage(variantImage);
+        stockOrderItem.setInboundQuantity(inboundQuantity);
+        stockOrderItem.setPurchaseNo(purchaseNo);
         return stockOrderItem;
     }
 

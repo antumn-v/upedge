@@ -28,6 +28,7 @@ import com.upedge.ums.modules.affiliate.entity.Affiliate;
 import com.upedge.ums.modules.affiliate.entity.AffiliateCommissionRecord;
 import com.upedge.ums.modules.user.dao.UserDao;
 import com.upedge.ums.modules.user.entity.User;
+import io.seata.spring.annotation.GlobalTransactional;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -306,6 +307,8 @@ public class AccountServiceImpl implements AccountService {
         return new AccountCreditLimitUpdateResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS);
     }
 
+    @GlobalTransactional
+    @Transactional
     @Override
     public boolean accountPayment(AccountPaymentRequest request) {
         Long accountId = request.getAccountId();

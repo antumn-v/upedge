@@ -67,6 +67,7 @@
          </if>
         and state = '0'
         and cart_type = #{cartType};
+        and customer_id = #{customerId}
     </select>
 
     <update id="updateStateByIds">

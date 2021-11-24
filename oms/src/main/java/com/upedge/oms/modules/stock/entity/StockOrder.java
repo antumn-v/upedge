@@ -11,6 +11,11 @@ import java.util.Date;
 @Data
 public class StockOrder{
 
+	public Integer UN_PURCHASE = 0;
+	public Integer PURCHASING = 1;
+	public Integer PART_PURCHASE = 2;
+	public Integer PURCHASED = 3;
+
 	/**
 	 * 
 	 */
@@ -62,15 +67,23 @@ public class StockOrder{
 	/**
 	 * 后台状态 0:未导入赛盒 1:已导入赛盒
 	 */
-    private Integer adminState;
+	private Integer saiheState;
 	/**
 	 * 赛盒备库订单号
 	 */
-    private String saiheCode;
+	private String saiheCode;
 	/**
-	 * 客户经理ID
+	 * 客户经理
 	 */
-    private String managerCode;
+	private String managerCode;
+	/**
+	 * 组织路径
+	 */
+	private String orgPath;
+	/**
+	 * 采购状态，0=未采购，1=采购中，2=部分采购，3=采购完成
+	 */
+	private Integer purchaseState;
 
 
 

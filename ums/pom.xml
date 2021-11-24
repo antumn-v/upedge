@@ -56,7 +56,25 @@
             <version>1.14.0</version>
         </dependency>
 
+        <!-- https://mvnrepository.com/artifact/io.seata/seata-all -->
+        <dependency>
+            <groupId>io.seata</groupId>
+            <artifactId>seata-all</artifactId>
+            <version>1.4.2</version>
+        </dependency>
 
+        <!-- https://mvnrepository.com/artifact/com.alibaba.cloud/spring-cloud-starter-alibaba-seata -->
+        <dependency>
+            <groupId>com.alibaba.cloud</groupId>
+            <artifactId>spring-cloud-starter-alibaba-seata</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>io.seata</groupId>
+                    <artifactId>seata-all</artifactId>
+                </exclusion>
+            </exclusions>
+            <version>2.2.6.RELEASE</version>
+        </dependency>
 
 
         <dependency>

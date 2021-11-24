@@ -3,10 +3,12 @@ package com.upedge.thirdparty.saihe.service;
 import com.upedge.thirdparty.saihe.config.SaiheConfig;
 import com.upedge.thirdparty.saihe.entity.GetProductInventory.ApiGetProductInventoryRequest;
 import com.upedge.thirdparty.saihe.entity.GetProductInventory.InventoryRequest;
+import com.upedge.thirdparty.saihe.entity.GetPurchasePutInLogList.ApiGetInPurchaseDetailRequest;
+import com.upedge.thirdparty.saihe.entity.GetPurchasePutInLogList.ApiGetInPurchaseDetailResponse;
+import com.upedge.thirdparty.saihe.entity.GetPurchasePutInLogList.PurchaseDetailRequest;
 import com.upedge.thirdparty.saihe.entity.cancelOrderInfo.ApiCancelOrderRequest;
 import com.upedge.thirdparty.saihe.entity.cancelOrderInfo.ApiCancelOrderResponse;
 import com.upedge.thirdparty.saihe.entity.cancelOrderInfo.CancelOrderInfo;
-import com.upedge.thirdparty.saihe.entity.createProcurement.*;
 import com.upedge.thirdparty.saihe.entity.createProcurement.*;
 import com.upedge.thirdparty.saihe.entity.getOrderByCode.ApiGetOrderRequest;
 import com.upedge.thirdparty.saihe.entity.getOrderByCode.ApiGetOrderResponse;
@@ -28,7 +30,6 @@ import com.upedge.thirdparty.saihe.entity.getWareHouseList.ApiGetWareHouseReques
 import com.upedge.thirdparty.saihe.entity.getWareHouseList.ApiGetWareHouseResponse;
 import com.upedge.thirdparty.saihe.entity.getWareHouseList.WhRequest;
 import com.upedge.thirdparty.saihe.entity.processUpdateProduct.*;
-import com.upedge.thirdparty.saihe.entity.processUpdateProduct.*;
 import com.upedge.thirdparty.saihe.entity.uploadOrder.ApiUploadOrderInfo;
 import com.upedge.thirdparty.saihe.entity.uploadOrder.ApiUploadOrderRequest;
 import com.upedge.thirdparty.saihe.entity.uploadOrder.Request;
@@ -45,6 +46,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -522,6 +524,52 @@ public class SaiheService {
                 listP(response.getGetProcurementListResult().getNextToken());
             }
         }
+    }
+
+
+    //查询采购入库记录
+    public static ApiGetInPurchaseDetailResponse getInPurchaseDetailRequest(String P_Code, String ClientSKU){
+
+        ApiGetInPurchaseDetailResponse getInPurchaseDetailResponse=new ApiGetInPurchaseDetailResponse("Error");
+        try {
+
+            RequestEntity1 requestEntity = new RequestEntity1();
+            RequestBody1 requestBody = new RequestBody1();
+
+            ApiGetInPurchaseDetailRequest apiGetInPurchaseDetailRequest = new ApiGetInPurchaseDetailRequest();
+            PurchaseDetailRequest purchaseDetailRequest = new PurchaseDetailRequest();
+            purchaseDetailRequest.setUserName("PANDADUIJIE");
+            purchaseDetailRequest.setPassword("LSJDKJHASDNBS");
+            purchaseDetailRequest.setCustomerID(1555);
+            purchaseDetailRequest.setWareHouseID(0);
+            purchaseDetailRequest.setP_Code(P_Code);
+            purchaseDetailRequest.setClientSKU(ClientSKU);
+
+
+            purchaseDetailRequest.setStartTime("2019-01-01 00:00:00");//选填	请求更新开始时间
+
+            SimpleDateFormat format=new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            Calendar calendar=Calendar.getInstance();
+            calendar.setTime(new Date());
+            System.out.println(format.format(calendar.getTime()));
+            calendar.add(Calendar.DAY_OF_MONTH,1);
+            purchaseDetailRequest.setEndTime(format.format(calendar.getTime()));//选填	请求更新结束时间
+
+            apiGetInPurchaseDetailRequest.setPurchaseDetailRequest(purchaseDetailRequest);
+            requestBody.setApiGetInPurchaseDetailRequest(apiGetInPurchaseDetailRequest);
+            requestEntity.setBody(requestBody);
+
+            String xmlStr2 = XmlAndJavaObjectConvert.convertToXml(requestEntity);
+//            System.out.println(xmlStr2);
+            String result = PostUtils.sendPost1("http://senbo.irobotbox.com/Api/API_Irobotbox_Orders.asmx", "http://tempuri.org/GetPurchasePutInLogList", xmlStr2);
+//            System.out.println(result);
+            RequestEntity1 responseEntity1= (RequestEntity1) XmlAndJavaObjectConvert.convertXmlStrToObject(RequestEntity1.class, result);
+            return  responseEntity1.getBody().getApiGetInPurchaseDetailResponse();
+
+        }catch (Exception e){
+            return getInPurchaseDetailResponse;
+        }
+
     }
 
     /**
