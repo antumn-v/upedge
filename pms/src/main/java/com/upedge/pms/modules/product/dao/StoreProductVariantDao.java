@@ -2,10 +2,9 @@ package com.upedge.pms.modules.product.dao;
 
 import com.upedge.common.base.Page;
 import com.upedge.common.model.product.StoreProductVariantVo;
-import com.upedge.pms.modules.product.vo.CustomerProductVariantRelateVo;
 import com.upedge.pms.modules.product.entity.StoreProductVariant;
+import com.upedge.pms.modules.product.vo.CustomerProductVariantRelateVo;
 import com.upedge.pms.modules.product.vo.StoreProductRelateVo;
-
 import com.upedge.thirdparty.shopify.moudles.product.entity.ShopifyImage;
 import org.apache.ibatis.annotations.Param;
 
@@ -14,14 +13,19 @@ import java.util.List;
 /**
  * @author author
  */
-public interface StoreProductVariantDao{
+public interface StoreProductVariantDao {
+
+    boolean updateAdminVariantIdByImportId(@Param("importProductId") Long importProductId, @Param("storeProductId") Long storeProductId);
 
     /**
      * 店铺产品关联详情
+     *
      * @param storeProductId
      * @return
      */
     List<StoreProductRelateVo> selectStoreVariantRelateDetail(Long storeProductId);
+
+//    List<CustomerProductQuoteVo> selectQuoteDetailByIds(@Param("ids") List<Long> ids);
 
     StoreProductVariantVo selectByPlatVariantId(@Param("storeId") Long storeId,
                                                 @Param("platVariantId") String platVariantId,
@@ -42,6 +46,7 @@ public interface StoreProductVariantDao{
 
     /**
      * 店铺变体标记为已删除
+     *
      * @param productId
      * @param platVariantIds
      * @return
@@ -51,6 +56,7 @@ public interface StoreProductVariantDao{
 
     /**
      * 修改shopify变体图片
+     *
      * @param productId
      * @param image
      * @return

@@ -31,7 +31,7 @@
     <!--        limit 1-->
     <!--    </select>-->
 
-    <select id="selectStoreVariantRelateDetail" >
+    <select id="selectStoreVariantRelateDetail" resultType="com.upedge.pms.modules.product.vo.StoreProductRelateVo">
         SELECT
         spv.id as `storeVariantId`,
         pv.id as `variantId`,

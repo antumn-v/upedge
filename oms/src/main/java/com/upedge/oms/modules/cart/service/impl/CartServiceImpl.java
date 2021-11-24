@@ -112,7 +112,7 @@ public class CartServiceImpl implements CartService {
         order.setCreateTime(new Date());
         order.setPayState(0);
         order.setRefundState(0);
-        order.setAdminState(0);
+        order.setSaiheState(0);
         order.setWarehouseId(request.getWarehouseId());
         order.setCustomerId(session.getCustomerId());
         order.setManagerCode(managerCode);

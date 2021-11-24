@@ -10,7 +10,6 @@ import com.upedge.common.exception.CustomerException;
 import com.upedge.common.feign.PmsFeignClient;
 import com.upedge.common.feign.UmsFeignClient;
 import com.upedge.common.model.account.AccountOrderRefundedRequest;
-import com.upedge.common.model.manager.vo.ManagerInfoVo;
 import com.upedge.common.model.product.ProductSaiheInventoryVo;
 import com.upedge.common.model.user.vo.CustomerVo;
 import com.upedge.common.model.user.vo.Session;
@@ -139,7 +138,7 @@ public class AdminStockServiceImpl implements AdminStockService {
         if(stockOrder.getPayState()!=1&&stockOrder.getRefundState()!=0){
             return new BaseResponse(ResultCode.FAIL_CODE,"状态异常!");
         }
-        if(stockOrder.getAdminState()!=0){
+        if(stockOrder.getSaiheCode()!=null){
             return new BaseResponse(ResultCode.FAIL_CODE,"已导入赛盒!");
         }
         long num=stockOrderDao.countWithOutSaiheSku(request.getId());
@@ -168,7 +167,7 @@ public class AdminStockServiceImpl implements AdminStockService {
             log.debug("潘达备库订单id:{},saiheCode:{}",stockOrder.getId(),saiheCode);
             if(!StringUtils.isBlank(saiheCode)){
                 stockOrder.setUpdateTime(new Date());
-                stockOrder.setAdminState(1);
+                stockOrder.setSaiheState(1);
                 //处理人
                 Session session=UserUtil.getSession(redisTemplate);
                 stockOrder.setSaiheCode(saiheCode);

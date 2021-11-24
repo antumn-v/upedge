@@ -2,41 +2,41 @@ package com.upedge.oms.enums;
 
 public enum  StockOrderTagEnum {
 
+    All(null,null),
+
     To_Order(0,0),
 
     Paid(1,0),
 
-    Partial_Refund(1,3),
-
-    Full_Refund(1,4),
+    Refund(1,1),
 
     Canceled(-1,0);
-    ;
 
-    int payState;
 
-    int refundState;
+    Integer payState;
 
-    StockOrderTagEnum(int payState, int refundState) {
+    Integer refundState;
+
+    StockOrderTagEnum(Integer payState, Integer refundState) {
         this.payState = payState;
         this.refundState = refundState;
     }
 
 
 
-    public int getPayState() {
+    public Integer getPayState() {
         return payState;
     }
 
-    public void setPayState(int payState) {
+    public void setPayState(Integer payState) {
         this.payState = payState;
     }
 
-    public int getRefundState() {
+    public Integer getRefundState() {
         return refundState;
     }
 
-    public void setRefundState(int refundState) {
+    public void setRefundState(Integer refundState) {
         this.refundState = refundState;
     }
 }

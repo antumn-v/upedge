@@ -2,37 +2,31 @@ package com.upedge.pms.modules.product.service.impl;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.upedge.common.base.Page;
 import com.upedge.common.constant.Constant;
 import com.upedge.common.constant.ResultCode;
-
 import com.upedge.common.model.store.StoreVo;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.utils.IdGenerate;
 import com.upedge.common.utils.ListUtils;
 import com.upedge.common.web.util.UserUtil;
-
 import com.upedge.pms.modules.product.dao.*;
-import com.upedge.pms.modules.product.entity.Product;
-import com.upedge.pms.modules.product.entity.ProductImg;
-import com.upedge.pms.modules.product.entity.ProductInfo;
-
 import com.upedge.pms.modules.product.entity.*;
-import com.upedge.pms.modules.product.request.*;
+import com.upedge.pms.modules.product.request.ImportAddAppProductRequest;
+import com.upedge.pms.modules.product.request.ImportListRemoveRequest;
+import com.upedge.pms.modules.product.request.ImportVariantBatchUpdateRequest;
+import com.upedge.pms.modules.product.request.ImportVariantUpdateStateRequest;
 import com.upedge.pms.modules.product.response.*;
 import com.upedge.pms.modules.product.service.*;
 import com.upedge.pms.modules.product.vo.AppProductVariantAttrVo;
 import com.upedge.pms.modules.product.vo.AppProductVariantVo;
 import com.upedge.pms.modules.product.vo.ImportVariantVo;
-
 import com.upedge.thirdparty.shopify.moudles.inventory.api.ShopifyInventoryApi;
 import com.upedge.thirdparty.shopify.moudles.inventory.entity.InventoryItem;
 import com.upedge.thirdparty.shopify.moudles.product.controller.ShopifyProductApi;
-import com.upedge.thirdparty.shopify.moudles.product.entity.*;
-
-
+import com.upedge.thirdparty.shopify.moudles.product.entity.ShopifyImage;
+import com.upedge.thirdparty.shopify.moudles.product.entity.ShopifyProduct;
+import com.upedge.thirdparty.shopify.moudles.product.entity.ShopifyVariant;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;

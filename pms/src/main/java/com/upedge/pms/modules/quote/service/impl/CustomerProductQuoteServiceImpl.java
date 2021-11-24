@@ -1,18 +1,18 @@
 package com.upedge.pms.modules.quote.service.impl;
 
-import com.upedge.common.utils.ListUtils;
-import com.upedge.common.model.pms.request.CustomerProductQuoteSearchRequest;
+import com.upedge.common.base.Page;
 import com.upedge.common.model.pms.quote.CustomerProductQuoteVo;
+import com.upedge.common.model.pms.request.CustomerProductQuoteSearchRequest;
+import com.upedge.common.utils.ListUtils;
+import com.upedge.pms.modules.quote.dao.CustomerProductQuoteDao;
+import com.upedge.pms.modules.quote.entity.CustomerProductQuote;
+import com.upedge.pms.modules.quote.service.CustomerProductQuoteService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
-import com.upedge.common.base.Page;
-import org.springframework.beans.factory.annotation.Autowired;
-import com.upedge.pms.modules.quote.dao.CustomerProductQuoteDao;
-import com.upedge.pms.modules.quote.entity.CustomerProductQuote;
-import com.upedge.pms.modules.quote.service.CustomerProductQuoteService;
 
 
 @Service
@@ -54,7 +54,18 @@ public class CustomerProductQuoteServiceImpl implements CustomerProductQuoteServ
         if (request != null){
             return new ArrayList<>();
         }
-        return customerProductQuoteDao.selectQuoteDetail(request);
+        List<Long> storeVariantIds = new ArrayList<>();
+        List<CustomerProductQuoteVo> customerProductQuoteVos = customerProductQuoteDao.selectQuoteDetail(request);
+        if (ListUtils.isNotEmpty(customerProductQuoteVos) && ListUtils.isNotEmpty(request.getStoreVariantIds())) {
+            for (CustomerProductQuoteVo customerProductQuoteVo : customerProductQuoteVos) {
+                storeVariantIds.add(customerProductQuoteVo.getStoreVariantId());
+            }
+            request.getStoreVariantIds().removeAll(storeVariantIds);
+            if (ListUtils.isNotEmpty(request.getStoreVariantIds())){
+                storeVariantIds = request.getStoreVariantIds();
+            }
+        }
+        return customerProductQuoteVos;
     }
 
     @Override

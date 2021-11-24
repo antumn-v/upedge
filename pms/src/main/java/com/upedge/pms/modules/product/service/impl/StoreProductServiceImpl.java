@@ -1,7 +1,6 @@
 package com.upedge.pms.modules.product.service.impl;
 
 
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.upedge.common.base.BaseResponse;
@@ -9,7 +8,6 @@ import com.upedge.common.constant.BaseCode;
 import com.upedge.common.constant.Constant;
 import com.upedge.common.constant.ResultCode;
 import com.upedge.common.constant.key.RedisKey;
-
 import com.upedge.common.model.product.StoreProductVariantVo;
 import com.upedge.common.model.product.request.PlatIdSelectStoreVariantRequest;
 import com.upedge.common.model.store.StoreType;
@@ -25,13 +23,15 @@ import com.upedge.pms.modules.product.dao.StoreProductAttributeDao;
 import com.upedge.pms.modules.product.dao.StoreProductVariantDao;
 import com.upedge.pms.modules.product.dto.StoreProductDto;
 import com.upedge.pms.modules.product.entity.ImportProductAttribute;
+import com.upedge.pms.modules.product.entity.ImportProductVariant;
 import com.upedge.pms.modules.product.entity.StoreProductAttribute;
 import com.upedge.pms.modules.product.entity.StoreProductVariant;
 import com.upedge.pms.modules.product.request.StoreProductListRequest;
 import com.upedge.pms.modules.product.response.StoreProductListResponse;
+import com.upedge.pms.modules.product.service.ImportProductVariantService;
 import com.upedge.pms.modules.product.service.StoreProductService;
+import com.upedge.pms.modules.product.vo.ImportVariantVo;
 import com.upedge.pms.modules.product.vo.StoreProductRelateVo;
-
 import com.upedge.thirdparty.shopify.moudles.product.controller.ShopifyProductApi;
 import com.upedge.thirdparty.shopify.moudles.product.entity.ShopifyImage;
 import com.upedge.thirdparty.shopify.moudles.product.entity.ShopifyProduct;
@@ -62,6 +62,9 @@ public class StoreProductServiceImpl implements StoreProductService {
 
     @Autowired
     ImportProductAttributeDao importProductAttributeDao;
+
+    @Autowired
+    ImportProductVariantService importProductVariantService;
 
     @Autowired
     StoreProductAttributeDao storeProductAttributeDao;
@@ -273,6 +276,11 @@ public class StoreProductServiceImpl implements StoreProductService {
 
             List<StoreProductVariant> updateVariants = new ArrayList<>();
 
+            List<ImportProductVariant> importProductVariants = new ArrayList<>();
+            if (importAttribute != null){
+                List<ImportVariantVo> importVariantVos = importProductVariantService.selectByProductId(importAttribute.getId());
+            }
+
             variants.forEach(variant -> {
 
                 variantPrices.add(variant.getPrice());
@@ -301,6 +309,9 @@ public class StoreProductServiceImpl implements StoreProductService {
 
             if (updateVariants.size() > 0) {
                 storeProductVariantDao.updateByBatch(updateVariants);
+            }
+            if (importAttribute != null){
+
             }
 
             storeProductVariantDao.markStoreVariantAsRemovedByPlatId(storeProductId, platVariantIds);

@@ -14,7 +14,6 @@ import com.upedge.common.exception.CustomerException;
 import com.upedge.common.feign.PmsFeignClient;
 import com.upedge.common.feign.TmsFeignClient;
 import com.upedge.common.feign.UmsFeignClient;
-
 import com.upedge.common.model.mq.ChangeManagerVo;
 import com.upedge.common.model.order.PaymentDetail;
 import com.upedge.common.model.order.request.ManagerActualRequest;
@@ -24,9 +23,10 @@ import com.upedge.common.model.order.vo.ManagerActualVo;
 import com.upedge.common.model.pms.quote.CustomerProductQuoteVo;
 import com.upedge.common.model.pms.request.CustomerProductQuoteSearchRequest;
 import com.upedge.common.model.pms.response.CustomerProductQuoteSearchResponse;
-import com.upedge.common.model.product.*;
+import com.upedge.common.model.product.ListVariantsRequest;
+import com.upedge.common.model.product.ProductVariantTo;
+import com.upedge.common.model.product.VariantDetail;
 import com.upedge.common.model.product.request.ProductVariantShipsRequest;
-import com.upedge.common.model.product.request.RelateDetailSearchRequest;
 import com.upedge.common.model.ship.request.ShipMethodSearchRequest;
 import com.upedge.common.model.ship.request.ShippingMethodsRequest;
 import com.upedge.common.model.ship.response.ShipMethodSearchResponse;
@@ -42,7 +42,6 @@ import com.upedge.common.utils.DateTools;
 import com.upedge.common.utils.IdGenerate;
 import com.upedge.common.utils.ListUtils;
 import com.upedge.common.web.util.RedisUtil;
-import com.upedge.common.web.util.UserUtil;
 import com.upedge.oms.enums.OrderAttrEnum;
 import com.upedge.oms.modules.common.service.OrderCommonService;
 import com.upedge.oms.modules.fulfillment.service.OrderFulfillmentService;
@@ -515,7 +514,11 @@ public class OrderServiceImpl implements OrderService {
         if (ListUtils.isNotEmpty(customerProductQuoteVos)){
             for (CustomerProductQuoteVo customerProductQuoteVo : customerProductQuoteVos) {
                 map.put(customerProductQuoteVo.getStoreVariantId(),customerProductQuoteVo);
+                storeVariantIds.remove(customerProductQuoteVo.getStoreVariantId());
             }
+        }
+        if (ListUtils.isNotEmpty(storeVariantIds)){
+
         }
 
         Long orderId = IdGenerate.nextId();

@@ -13,7 +13,7 @@ public class CustomerProductQuoteSearchRequest {
 
     private Long storeProductId;
 
-    private List<Long> storeProductVariantIds;
+    private List<Long> storeVariantIds;
 
-    private List<Long> storeProductProductIds;
+    private List<Long> storeProductIds;
 }
