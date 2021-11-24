@@ -84,7 +84,6 @@ public class CartServiceImpl implements CartService {
     @Override
     public Long cartSubmitStockOrder(CartSubmitOrderRequest request, Session session) {
         List<Cart> carts = request.getCarts();
-
         if (ListUtils.isEmpty(carts)) {
             return null;
         }

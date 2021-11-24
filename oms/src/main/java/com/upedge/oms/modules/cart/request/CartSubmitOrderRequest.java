@@ -10,10 +10,9 @@ import java.util.List;
  * @author 海桐
  */
 @Data
-public class CartSubmitOrderRequest  extends CartSubmitListRequest{
+public class CartSubmitOrderRequest {
 
-    @NotNull
-    private Long warehouseId;
+    private Long warehouseId = 0L;
 
     private Integer payMethod = null;
 
@@ -21,5 +20,8 @@ public class CartSubmitOrderRequest  extends CartSubmitListRequest{
     private Integer cartType;
 
     @NotNull
+    private List<Long> ids;
+
     private List<Cart> carts;
+
 }

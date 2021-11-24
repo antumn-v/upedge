@@ -24,6 +24,7 @@ import com.upedge.oms.modules.stock.response.StockOrderInfoResponse;
 import com.upedge.oms.modules.stock.response.StockOrderListResponse;
 import com.upedge.oms.modules.stock.service.StockOrderService;
 import com.upedge.oms.modules.stock.vo.StockOrderVo;
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -41,6 +42,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * @author author
  */
+@Api(tags = "备库订单")
 @Slf4j
 @RestController
 @RequestMapping("/stock/order")
