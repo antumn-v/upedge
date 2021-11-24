@@ -1,6 +1,7 @@
 package com.upedge.oms.modules.order.entity;
 
 import com.upedge.common.model.old.oms.AppOrderVariant;
+import com.upedge.common.model.pms.quote.CustomerProductQuoteVo;
 import com.upedge.common.model.product.RelateVariantVo;
 import com.upedge.common.utils.IdGenerate;
 import lombok.Data;
@@ -103,6 +104,19 @@ public class OrderItem{
 		this.adminVariantWeight = variantVo.getWeight();
 		this.adminVariantImage = variantVo.getImage();
 		this.adminVariantSku = variantVo.getSku();
+		this.usdRate = new BigDecimal("6.3");
+	}
+
+	public OrderItem(CustomerProductQuoteVo variantVo){
+		this.adminVariantId = variantVo.getVariantId();
+		this.adminProductId = variantVo.getProductId();
+		this.shippingId = variantVo.getProductShippingId();
+		this.cnyPrice = variantVo.getPrice();
+		this.usdPrice = variantVo.getUsdPrice();
+		this.adminVariantVolume = variantVo.getVolume();
+		this.adminVariantWeight = variantVo.getWeight();
+		this.adminVariantImage = variantVo.getVariantImage();
+		this.adminVariantSku = variantVo.getVariantSku();
 		this.usdRate = new BigDecimal("6.3");
 	}
 

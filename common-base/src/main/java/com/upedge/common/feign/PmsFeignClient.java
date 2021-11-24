@@ -3,6 +3,8 @@ package com.upedge.common.feign;
 import com.upedge.common.base.BaseResponse;
 import com.upedge.common.constant.ServiceNameConstants;
 import com.upedge.common.feign.fallback.PmsFeignClientFallbackFactory;
+import com.upedge.common.model.pms.request.CustomerProductQuoteSearchRequest;
+import com.upedge.common.model.pms.response.CustomerProductQuoteSearchResponse;
 import com.upedge.common.model.product.ListVariantsRequest;
 import com.upedge.common.model.product.ProductSaiheInventoryVo;
 import com.upedge.common.model.product.request.PlatIdSelectStoreVariantRequest;
@@ -64,5 +66,8 @@ public interface PmsFeignClient {
 
     @RequestMapping(value = "/productSaiheInventory/insertProductSaiheInventory" , method = RequestMethod.POST)
     BaseResponse insertProductSaiheInventory(@RequestBody ProductSaiheInventoryVo productSaiheInventory);
+
+    @PostMapping("/search")
+    CustomerProductQuoteSearchResponse searchCustomerProductQuote(@RequestBody CustomerProductQuoteSearchRequest request);
 
 }

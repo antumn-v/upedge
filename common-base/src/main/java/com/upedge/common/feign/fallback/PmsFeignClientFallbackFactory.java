@@ -3,6 +3,8 @@ package com.upedge.common.feign.fallback;
 import com.upedge.common.base.BaseResponse;
 import com.upedge.common.constant.ResultCode;
 import com.upedge.common.feign.PmsFeignClient;
+import com.upedge.common.model.pms.request.CustomerProductQuoteSearchRequest;
+import com.upedge.common.model.pms.response.CustomerProductQuoteSearchResponse;
 import com.upedge.common.model.product.ListVariantsRequest;
 import com.upedge.common.model.product.ProductSaiheInventoryVo;
 import com.upedge.common.model.product.request.PlatIdSelectStoreVariantRequest;
@@ -94,6 +96,11 @@ public class PmsFeignClientFallbackFactory implements FallbackFactory<PmsFeignCl
             @Override
             public BaseResponse insertProductSaiheInventory(ProductSaiheInventoryVo productSaiheInventory) {
                 return BaseResponse.failed();
+            }
+
+            @Override
+            public CustomerProductQuoteSearchResponse searchCustomerProductQuote(CustomerProductQuoteSearchRequest request) {
+                return CustomerProductQuoteSearchResponse.failed();
             }
         };
     }

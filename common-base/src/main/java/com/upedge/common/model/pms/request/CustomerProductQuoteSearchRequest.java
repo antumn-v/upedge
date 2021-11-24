@@ -1,4 +1,4 @@
-package com.upedge.pms.modules.quote.request;
+package com.upedge.common.model.pms.request;
 
 import lombok.Data;
 

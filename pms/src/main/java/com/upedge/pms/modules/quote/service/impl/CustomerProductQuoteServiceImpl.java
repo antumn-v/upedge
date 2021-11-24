@@ -1,8 +1,8 @@
 package com.upedge.pms.modules.quote.service.impl;
 
 import com.upedge.common.utils.ListUtils;
-import com.upedge.pms.modules.quote.request.CustomerProductQuoteSearchRequest;
-import com.upedge.pms.modules.quote.vo.CustomerProductQuoteVo;
+import com.upedge.common.model.pms.request.CustomerProductQuoteSearchRequest;
+import com.upedge.common.model.pms.quote.CustomerProductQuoteVo;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

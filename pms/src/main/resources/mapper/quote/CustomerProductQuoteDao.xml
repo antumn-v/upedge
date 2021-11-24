@@ -379,8 +379,8 @@
     </select>
 
     <select id="selectQuoteDetail"
-            resultType="com.upedge.pms.modules.quote.vo.CustomerProductQuoteVo"
-            parameterType="com.upedge.pms.modules.quote.request.CustomerProductQuoteSearchRequest">
+            resultType="com.upedge.common.model.pms.quote.CustomerProductQuoteVo"
+            parameterType="com.upedge.common.model.pms.request.CustomerProductQuoteSearchRequest">
         select cpq.store_vairant_id,cpq.store_product_id,cpq.quote_apply_id,
         pv.id as variantId,pv.variant_name as variantName,pv.variant_sku,
         pv.variant_image,pv.variant_price as `price`,pv.usd_price,

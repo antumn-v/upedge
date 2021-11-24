@@ -21,6 +21,9 @@ import com.upedge.common.model.order.request.ManagerActualRequest;
 import com.upedge.common.model.order.vo.AllOrderAmountVo;
 import com.upedge.common.model.order.vo.CustomerOrderStatisticalVo;
 import com.upedge.common.model.order.vo.ManagerActualVo;
+import com.upedge.common.model.pms.quote.CustomerProductQuoteVo;
+import com.upedge.common.model.pms.request.CustomerProductQuoteSearchRequest;
+import com.upedge.common.model.pms.response.CustomerProductQuoteSearchResponse;
 import com.upedge.common.model.product.*;
 import com.upedge.common.model.product.request.ProductVariantShipsRequest;
 import com.upedge.common.model.product.request.RelateDetailSearchRequest;
@@ -504,7 +507,16 @@ public class OrderServiceImpl implements OrderService {
             storeVariantIds.add(item.getStoreVariantId());
         });
         //查询产品报价
-
+        CustomerProductQuoteSearchRequest customerProductQuoteSearchRequest = new CustomerProductQuoteSearchRequest();
+        customerProductQuoteSearchRequest.setStoreProductVariantIds(storeVariantIds);
+        CustomerProductQuoteSearchResponse customerProductQuoteSearchResponse = pmsFeignClient.searchCustomerProductQuote(customerProductQuoteSearchRequest);
+        List<CustomerProductQuoteVo> customerProductQuoteVos = customerProductQuoteSearchResponse.getData();
+        Map<Long,CustomerProductQuoteVo> map = new HashMap<>();
+        if (ListUtils.isNotEmpty(customerProductQuoteVos)){
+            for (CustomerProductQuoteVo customerProductQuoteVo : customerProductQuoteVos) {
+                map.put(customerProductQuoteVo.getStoreVariantId(),customerProductQuoteVo);
+            }
+        }
 
         Long orderId = IdGenerate.nextId();
 
@@ -545,7 +557,22 @@ public class OrderServiceImpl implements OrderService {
         Collection<String> strings = new ArrayList<>();
 
         for (StoreOrderItem item : storeOrderItems) {
-            OrderItem orderItem = new OrderItem();
+            OrderItem orderItem = null;
+            BigDecimal itemQuantity = new BigDecimal(item.getQuantity());
+            if (map.containsKey(item.getStoreVariantId())){
+                CustomerProductQuoteVo customerProductQuoteVo = map.get(item.getStoreVariantId());
+                orderItem = new OrderItem(customerProductQuoteVo);
+                try {
+                    cnyProductAmount = cnyProductAmount.add(orderItem.getCnyPrice().multiply(itemQuantity));
+                } catch (Exception e) {
+                    continue;
+                }
+                productAmount = productAmount.add(orderItem.getUsdPrice().multiply(itemQuantity));
+                totalWeight = totalWeight.add(customerProductQuoteVo.getWeight().multiply(itemQuantity));
+                volume = volume.add(customerProductQuoteVo.getVolume().multiply(itemQuantity));
+            }else {
+                orderItem = new OrderItem();
+            }
             BeanUtils.copyProperties(item, orderItem);
             orderItem.setOrderId(orderId);
             orderItem.setStoreOrderItemId(item.getId());
@@ -554,26 +581,6 @@ public class OrderServiceImpl implements OrderService {
             orderItem.setId(IdGenerate.nextId());
             strings.add(RedisKey.SHIPPING_METHODS + orderItem.getShippingId());
             items.add(orderItem);
-//            for (RelateDetailVo detail : relateDetailVos) {
-//                while (detail.getStoreVariantId().equals(item.getStoreVariantId())) {
-//                    storeOrderItemIds.add(item.getId());
-//                    List<RelateVariantVo> variantVos = detail.getRelateVariantVos();
-//                    for (RelateVariantVo variantVo : variantVos) {
-//                        Integer quantity = (item.getQuantity() * detail.getScale());
-//                        BigDecimal itemQuantity = new BigDecimal(quantity);
-//
-//                        try {
-//                            cnyProductAmount = cnyProductAmount.add(orderItem.getCnyPrice().multiply(itemQuantity));
-//                        } catch (Exception e) {
-//                            continue;
-//                        }
-//                        productAmount = productAmount.add(orderItem.getUsdPrice().multiply(itemQuantity));
-//                        totalWeight = totalWeight.add(variantVo.getWeight().multiply(itemQuantity));
-//                        volume = volume.add(variantVo.getVolume().multiply(itemQuantity));
-//                    }
-//                    break;
-//                }
-//            }
         }
         order.setCnyProductAmount(cnyProductAmount);
         order.setProductAmount(productAmount);
@@ -596,7 +603,7 @@ public class OrderServiceImpl implements OrderService {
         }
         storeOrderRelateDao.insert(storeOrderRelate);
         RedisUtil.unLock(redisTemplate, key);
-//        orderInitShipDetail(orderId);
+        orderInitShipDetail(orderId);
         return order;
     }
 

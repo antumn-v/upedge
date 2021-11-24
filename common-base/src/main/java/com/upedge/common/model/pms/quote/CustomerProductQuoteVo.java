@@ -1,10 +1,11 @@
 package com.upedge.common.model.pms.quote;
 
+import com.upedge.common.model.product.VariantDetail;
 import lombok.Data;
 
 import java.math.BigDecimal;
 @Data
-public class CustomerProductQuoteVo {
+public class CustomerProductQuoteVo extends VariantDetail {
 
 
     private Long customerId;

@@ -2,9 +2,8 @@ package com.upedge.pms.modules.quote.service;
 
 import com.upedge.pms.modules.quote.entity.CustomerProductQuote;
 import com.upedge.common.base.Page;
-import com.upedge.pms.modules.quote.request.CustomerProductQuoteSearchRequest;
-import com.upedge.pms.modules.quote.vo.CustomerProductQuoteVo;
-import org.apache.ibatis.annotations.Param;
+import com.upedge.common.model.pms.request.CustomerProductQuoteSearchRequest;
+import com.upedge.common.model.pms.quote.CustomerProductQuoteVo;
 
 import java.util.List;
 
