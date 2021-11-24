@@ -404,7 +404,7 @@ public class UserServiceImpl implements UserService {
         List<String> permissions = rolePermissionService.selectPermissionByRole(role.getId());
         session.setPermissions(permissions);
 
-        Account account = accountService.selectCustomerDefaultAccount(userId);
+        Account account = accountService.selectCustomerDefaultAccount(session.getCustomerId());
         if (null != account) {
             session.setAccountId(account.getId());
         }

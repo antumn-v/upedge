@@ -108,7 +108,7 @@ mybatis-plus:
 logging:
   level:
     root: WARN
-    com.upedge.ums: DEBUG
+    com.upedge.oms: DEBUG
     com.upedge.test: DEBUG
 
 files:

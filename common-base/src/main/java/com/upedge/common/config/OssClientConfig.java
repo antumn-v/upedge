@@ -10,16 +10,16 @@ public interface OssClientConfig {
 
     //  外网访问（IPv4）
     String ENDPOINT = "oss-us-west-1.aliyuncs.com";
-    String BUCKETNAME = "sourcinbox-app";
+    String BUCKETNAME = "upedge-app";
 
 
     //  ECS 的经典网络访问（内网）
     //String  ENDPOINT = "oss-us-west-1-internal.aliyuncs.com";
-    //String  BUCKETNAME = "sourcinbox-app";
+    //String  BUCKETNAME = "upedge-app";
 
     //  ECS 的 VPC 网络访问（内网）
     //String  ENDPOINT = "oss-us-west-1-internal.aliyuncs.com";
-    //String  BUCKETNAME = "sourcinbox-app";
+    //String  BUCKETNAME = "upedge-app";
 
 
 

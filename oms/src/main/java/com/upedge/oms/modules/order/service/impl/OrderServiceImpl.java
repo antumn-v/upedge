@@ -507,7 +507,7 @@ public class OrderServiceImpl implements OrderService {
         });
         //查询产品报价
         CustomerProductQuoteSearchRequest customerProductQuoteSearchRequest = new CustomerProductQuoteSearchRequest();
-        customerProductQuoteSearchRequest.setStoreProductVariantIds(storeVariantIds);
+        customerProductQuoteSearchRequest.setStoreVariantIds(storeVariantIds);
         CustomerProductQuoteSearchResponse customerProductQuoteSearchResponse = pmsFeignClient.searchCustomerProductQuote(customerProductQuoteSearchRequest);
         List<CustomerProductQuoteVo> customerProductQuoteVos = customerProductQuoteSearchResponse.getData();
         Map<Long,CustomerProductQuoteVo> map = new HashMap<>();

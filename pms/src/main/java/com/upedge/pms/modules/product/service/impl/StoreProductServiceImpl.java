@@ -4,6 +4,7 @@ package com.upedge.pms.modules.product.service.impl;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.upedge.common.base.BaseResponse;
+import com.upedge.common.base.Page;
 import com.upedge.common.constant.BaseCode;
 import com.upedge.common.constant.Constant;
 import com.upedge.common.constant.ResultCode;
@@ -19,6 +20,7 @@ import com.upedge.common.utils.ListUtils;
 import com.upedge.common.web.util.RedisUtil;
 import com.upedge.common.web.util.UserUtil;
 import com.upedge.pms.modules.product.dao.ImportProductAttributeDao;
+import com.upedge.pms.modules.product.dao.ImportProductVariantDao;
 import com.upedge.pms.modules.product.dao.StoreProductAttributeDao;
 import com.upedge.pms.modules.product.dao.StoreProductVariantDao;
 import com.upedge.pms.modules.product.dto.StoreProductDto;
@@ -64,7 +66,7 @@ public class StoreProductServiceImpl implements StoreProductService {
     ImportProductAttributeDao importProductAttributeDao;
 
     @Autowired
-    ImportProductVariantService importProductVariantService;
+    ImportProductVariantDao importProductVariantDao;
 
     @Autowired
     StoreProductAttributeDao storeProductAttributeDao;
@@ -276,9 +278,8 @@ public class StoreProductServiceImpl implements StoreProductService {
 
             List<StoreProductVariant> updateVariants = new ArrayList<>();
 
-            List<ImportProductVariant> importProductVariants = new ArrayList<>();
             if (importAttribute != null){
-                List<ImportVariantVo> importVariantVos = importProductVariantService.selectByProductId(importAttribute.getId());
+
             }
 
             variants.forEach(variant -> {
@@ -311,7 +312,7 @@ public class StoreProductServiceImpl implements StoreProductService {
                 storeProductVariantDao.updateByBatch(updateVariants);
             }
             if (importAttribute != null){
-
+                storeProductVariantDao.updateAdminVariantIdByImportId(importAttribute.getId(),storeProductId);
             }
 
             storeProductVariantDao.markStoreVariantAsRemovedByPlatId(storeProductId, platVariantIds);

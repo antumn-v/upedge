@@ -13,17 +13,17 @@ public class StoreWebhook {
 
     public static Set<String> shoplazzaTopics=new HashSet();
 
-    public static String W_PRODUCT_URL = "https://app.sourcinbox.com/webHook/woocommerce";
+    public static String W_PRODUCT_URL = "https://app.upedge.com/webHook/woocommerce";
 
-    public static String W_ORDER_URL = "https://app.sourcinbox.com/webHook/woocommerce";
+    public static String W_ORDER_URL = "https://app.upedge.com/webHook/woocommerce";
 
-    public static String S_PRODUCT_URL = "https://app.sourcinbox.com/webHook/webhook"
+    public static String S_PRODUCT_URL = "https://app.upedge.com/webHook/webhook"
             ;
-    public static String S_ORDER_URL = "https://app.sourcinbox.com/webHook/webhook";
+    public static String S_ORDER_URL = "https://app.upedge.com/webHook/webhook";
 
-    public static String S_SHOP_URL = "https://app.sourcinbox.com/webHook/webhook";
+    public static String S_SHOP_URL = "https://app.upedge.com/webHook/webhook";
 
-    public static String SHOPLAZZA_WEBHOOK_URL = "https://app.sourcinbox.com/webHook/shoplazza";
+    public static String SHOPLAZZA_WEBHOOK_URL = "https://app.upedge.com/webHook/shoplazza";
     static {
         woocTopics.put("order.created","SourcinBox Order Create");
         woocTopics.put("order.updated","SourcinBox Order Updated");

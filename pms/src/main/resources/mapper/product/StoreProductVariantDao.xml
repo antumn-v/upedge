@@ -202,6 +202,15 @@
         </set>
         where id = #{id}
     </update>
+    <update id="updateAdminVariantIdByImportId">
+        update store_product_variant spv
+        left join import_product_variant ipv
+        on spv.plat_variant_id = ipv.plat_variant_id
+        set spv.admin_variant_id = ipv.source_variant_id
+        where spv.product_id = #{storeProductId}
+        and ipv.importProductId = #{importProductId}
+        and spv.admin_variant_id is null
+    </update>
 
     <insert id="insert" keyColumn="id" keyProperty="id"
             parameterType="com.upedge.pms.modules.product.entity.StoreProductVariant" useGeneratedKeys="true">

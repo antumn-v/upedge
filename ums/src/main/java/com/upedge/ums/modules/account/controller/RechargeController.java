@@ -15,6 +15,7 @@ import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.utils.IdGenerate;
 import com.upedge.common.web.util.RequestUtil;
 import com.upedge.common.web.util.UserUtil;
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import com.upedge.ums.modules.account.entity.RechargeRequestLog;
 import com.upedge.ums.modules.account.entity.payoneer.PayoneerPayment;
@@ -34,6 +35,7 @@ import javax.validation.Valid;
 /**
  * @author 海桐
  */
+@Api("账户充值")
 @RestController
 @RequestMapping("/recharge")
 public class RechargeController {
@@ -115,11 +117,11 @@ public class RechargeController {
      * @param request
      * @return
      */
-    @ApiOperation("提交充值申请")
-    @PostMapping("/request/create")
-    public ApplyRechargeResponse createRechargeRequest(@RequestBody @Valid ApplyRechargeRequest request) {
-        return rechargeService.addRechargeRequest(request);
-    }
+//    @ApiOperation("提交充值申请")
+//    @PostMapping("/request/create")
+//    public ApplyRechargeResponse createRechargeRequest(@RequestBody @Valid ApplyRechargeRequest request) {
+//        return rechargeService.addRechargeRequest(request);
+//    }
 
     @ApiOperation("银行转帐充值申请")
     @PostMapping("/request/transfer")
