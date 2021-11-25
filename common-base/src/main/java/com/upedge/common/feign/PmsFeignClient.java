@@ -5,6 +5,7 @@ import com.upedge.common.constant.ServiceNameConstants;
 import com.upedge.common.feign.fallback.PmsFeignClientFallbackFactory;
 import com.upedge.common.model.pms.quote.CustomerProductQuoteVo;
 import com.upedge.common.model.pms.request.CustomerProductQuoteSearchRequest;
+import com.upedge.common.model.pms.request.OrderQuoteApplyRequest;
 import com.upedge.common.model.product.ListVariantsRequest;
 import com.upedge.common.model.product.ProductSaiheInventoryVo;
 import com.upedge.common.model.product.request.PlatIdSelectStoreVariantRequest;
@@ -71,4 +72,7 @@ public interface PmsFeignClient {
     @PostMapping("/customerProductQuote/search")
     List<CustomerProductQuoteVo> searchCustomerProductQuote(@RequestBody CustomerProductQuoteSearchRequest request);
 
+
+    @PostMapping("/quoteApply/order")
+    public BaseResponse orderQuoteApply(@RequestBody OrderQuoteApplyRequest request);
 }

@@ -179,7 +179,6 @@ public class OrderController {
 
         Session session = UserUtil.getSession(redisTemplate);
 
-
         if (session.getUserType() == BaseCode.USER_ROLE_NORMAL) {
             List<Long> orgIds = session.getOrgIds();
             if (ListUtils.isEmpty(orgIds)) {

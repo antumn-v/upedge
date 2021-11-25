@@ -15,6 +15,8 @@ public class AppOrderItemVo {
 
     private Long storeOrderId;
 
+    private Long storeVariantId;
+
     private Long storeProductId;
     /**
      *

@@ -18,12 +18,12 @@
         <result property="variantName" column="variant_name"/>
         <result property="variantSku" column="variant_sku"/>
         <result property="variantImage" column="variant_image"/>
-        <result property="quotePrice" column="quote_qrice"/>
+        <result property="quotePrice" column="quote_price"/>
         <result property="quoteApplyId" column="quote_apply_id"/>
     </resultMap>
 
     <sql id="Base_Column_List">
-        `customer_id`,`store_variant_id`,`store_product_id`,`product_id`,`variant_id`,`store_variant_name`,`store_product_title`,`store_product_sku`,`store_variant_image`,`product_title`,`variant_name`,`variant_sku`,`variant_image`,`quote_qrice`,`quote_apply_id`
+        `customer_id`,`store_variant_id`,`store_product_id`,`product_id`,`variant_id`,`store_variant_name`,`store_product_title`,`store_product_sku`,`store_variant_image`,`product_title`,`variant_name`,`variant_sku`,`variant_image`,`quote_price`,`quote_apply_id`
     </sql>
 
     <select id="selectByPrimaryKey" parameterType="com.upedge.pms.modules.quote.entity.CustomerProductQuote" resultMap="BaseResultMap">
@@ -75,7 +75,7 @@
                 variant_image = #{variantImage},
             </if>
             <if test="quotePrice != null">
-                quote_qrice = #{quotePrice},
+                quote_price = #{quotePrice},
             </if>
             <if test="quoteApplyId != null">
                 quote_apply_id = #{quoteApplyId},
@@ -100,7 +100,7 @@
         variant_name = #{variantName},
         variant_sku = #{variantSku},
         variant_image = #{variantImage},
-        quote_qrice = #{quotePrice},
+        quote_price = #{quotePrice},
         quote_apply_id = #{quoteApplyId},
         </set>
         where customer_id = #{customerId}
@@ -123,7 +123,7 @@
             variant_name,
             variant_sku,
             variant_image,
-            quote_qrice,
+            quote_price,
             quote_apply_id
         </trim>
         values (
@@ -188,7 +188,7 @@
               variant_image
             </if>
             <if test="quotePrice != null" >
-              quote_qrice
+              quote_price
             </if>
             <if test="quoteApplyId != null" >
               quote_apply_id
@@ -261,7 +261,7 @@
            variant_name,
            variant_sku,
            variant_image,
-           quote_qrice,
+           quote_price,
            quote_apply_id
         </trim>
         values
@@ -331,7 +331,7 @@
                         variant_image = #{t.variantImage} and
                     </if>
                     <if test="t.quotePrice != null">
-                        quote_qrice = #{t.quotePrice} and
+                        quote_price = #{t.quotePrice} and
                     </if>
                     <if test="t.quoteApplyId != null">
                         quote_apply_id = #{t.quoteApplyId} and
