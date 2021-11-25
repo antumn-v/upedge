@@ -4,7 +4,6 @@ package com.upedge.pms.modules.product.service.impl;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.upedge.common.base.BaseResponse;
-import com.upedge.common.base.Page;
 import com.upedge.common.constant.BaseCode;
 import com.upedge.common.constant.Constant;
 import com.upedge.common.constant.ResultCode;
@@ -25,14 +24,11 @@ import com.upedge.pms.modules.product.dao.StoreProductAttributeDao;
 import com.upedge.pms.modules.product.dao.StoreProductVariantDao;
 import com.upedge.pms.modules.product.dto.StoreProductDto;
 import com.upedge.pms.modules.product.entity.ImportProductAttribute;
-import com.upedge.pms.modules.product.entity.ImportProductVariant;
 import com.upedge.pms.modules.product.entity.StoreProductAttribute;
 import com.upedge.pms.modules.product.entity.StoreProductVariant;
 import com.upedge.pms.modules.product.request.StoreProductListRequest;
 import com.upedge.pms.modules.product.response.StoreProductListResponse;
-import com.upedge.pms.modules.product.service.ImportProductVariantService;
 import com.upedge.pms.modules.product.service.StoreProductService;
-import com.upedge.pms.modules.product.vo.ImportVariantVo;
 import com.upedge.pms.modules.product.vo.StoreProductRelateVo;
 import com.upedge.thirdparty.shopify.moudles.product.controller.ShopifyProductApi;
 import com.upedge.thirdparty.shopify.moudles.product.entity.ShopifyImage;
@@ -164,7 +160,7 @@ public class StoreProductServiceImpl implements StoreProductService {
 
         List<String> platVariantIds = product.getVariations();
 
-        List<Long> variantPlatIds = storeProductVariantDao.selectPlatVariantIdByProductId(storeProductId);
+        List<String> variantPlatIds = storeProductVariantDao.selectPlatVariantIdByProductId(storeProductId);
 
         if (null != platVariantIds && 0 < platVariantIds.size()) {
             JSONArray array = WoocommerceProductApi.getProductAllVariants(storeVo.getApiToken(), storeVo.getStoreUrl(), platProductId);
@@ -244,7 +240,7 @@ public class StoreProductServiceImpl implements StoreProductService {
         StoreProductAttribute attribute = saveShopifyProductAttribute(product, storeVo, importAttribute);
         Long storeProductId = attribute.getId();
         //已保存的店铺变体
-        List<Long> variantPlatIds = storeProductVariantDao.selectPlatVariantIdByProductId(storeProductId);
+        List<String> variantPlatIds = storeProductVariantDao.selectPlatVariantIdByProductId(storeProductId);
 
         List<ShopifyVariant> variants = product.getVariants();
 
@@ -261,7 +257,7 @@ public class StoreProductServiceImpl implements StoreProductService {
         Date date = new Date();
         TreeSet<BigDecimal> variantPrices = new TreeSet<>();
 
-        if (null == variantPlatIds || 0 == variantPlatIds.size()) {
+        if (ListUtils.isEmpty(variantPlatIds)) {
             variants.forEach(variant -> {
                 Long storeVariantId = IdGenerate.nextId();
                 StoreProductVariant storeVariant = shopifyVariantToStoreVariant(variant, date, storeProductId, platProductId);
@@ -277,10 +273,6 @@ public class StoreProductServiceImpl implements StoreProductService {
             List<String> platVariantIds = new ArrayList<>();
 
             List<StoreProductVariant> updateVariants = new ArrayList<>();
-
-            if (importAttribute != null){
-
-            }
 
             variants.forEach(variant -> {
 
@@ -346,7 +338,7 @@ public class StoreProductServiceImpl implements StoreProductService {
         StoreProductAttribute attribute = saveShoplazzaProductAttribute(product, storeVo, importAttribute);
         Long storeProductId = attribute.getId();
         //已保存的店铺变体
-        List<Long> variantPlatIds = storeProductVariantDao.selectPlatVariantIdByProductId(storeProductId);
+        List<String> variantPlatIds = storeProductVariantDao.selectPlatVariantIdByProductId(storeProductId);
         List<ShoplazzaVariant> variants = product.getVariants();
         List<StoreProductVariant> insertVariants = new ArrayList<>();
         Date date = new Date();

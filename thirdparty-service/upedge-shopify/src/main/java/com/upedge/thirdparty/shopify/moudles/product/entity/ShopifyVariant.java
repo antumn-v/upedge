@@ -3,7 +3,6 @@ package com.upedge.thirdparty.shopify.moudles.product.entity;
 import lombok.Data;
 
 import java.math.BigDecimal;
-import java.util.List;
 
 @Data
 public class ShopifyVariant {
@@ -26,7 +25,7 @@ public class ShopifyVariant {
     private Boolean taxable;
     private String barcode;
     private Integer grams;
-    private Long image_id;
+    private String image_id;
     private BigDecimal weight;
     private String weight_unit = "g";
     private Long inventory_item_id;

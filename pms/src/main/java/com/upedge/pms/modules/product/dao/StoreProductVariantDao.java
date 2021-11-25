@@ -40,7 +40,7 @@ public interface StoreProductVariantDao {
 
     int updateByPlatVariantId(StoreProductVariant variant);
 
-    List<Long> selectPlatVariantIdByProductId(Long productId);
+    List<String> selectPlatVariantIdByProductId(Long productId);
 
     StoreProductVariant selectByPrimaryKey(StoreProductVariant record);
 

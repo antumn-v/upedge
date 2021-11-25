@@ -102,7 +102,7 @@
         where product_id = #{productId}
     </select>
 
-    <select id="selectPlatVariantIdByProductId" resultType="java.lang.Long">
+    <select id="selectPlatVariantIdByProductId" resultType="java.lang.String">
         select plat_variant_id
         from store_product_variant
         where product_id = #{productId}
@@ -208,7 +208,7 @@
         on spv.plat_variant_id = ipv.plat_variant_id
         set spv.admin_variant_id = ipv.source_variant_id
         where spv.product_id = #{storeProductId}
-        and ipv.importProductId = #{importProductId}
+        and ipv.product_id = #{importProductId}
         and spv.admin_variant_id is null
     </update>
 
