@@ -2,7 +2,6 @@ package com.upedge.pms.modules.quote.controller;
 
 import com.upedge.common.model.pms.quote.CustomerProductQuoteVo;
 import com.upedge.common.model.pms.request.CustomerProductQuoteSearchRequest;
-import com.upedge.common.model.pms.response.CustomerProductQuoteSearchResponse;
 import com.upedge.pms.modules.quote.service.CustomerProductQuoteService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -24,9 +23,9 @@ public class CustomerProductQuoteController {
     private CustomerProductQuoteService customerProductQuoteService;
 
     @PostMapping("/search")
-    public CustomerProductQuoteSearchResponse searchCustomerProductQuote(@RequestBody CustomerProductQuoteSearchRequest request){
+    public List<CustomerProductQuoteVo> searchCustomerProductQuote(@RequestBody CustomerProductQuoteSearchRequest request){
         List<CustomerProductQuoteVo> customerProductQuoteVos = customerProductQuoteService.selectQuoteDetail(request);
-        return CustomerProductQuoteSearchResponse.success(customerProductQuoteVos);
+        return customerProductQuoteVos;
     }
 
 

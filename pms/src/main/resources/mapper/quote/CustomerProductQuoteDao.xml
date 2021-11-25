@@ -381,10 +381,11 @@
     <select id="selectQuoteDetail"
             resultType="com.upedge.common.model.pms.quote.CustomerProductQuoteVo"
             parameterType="com.upedge.common.model.pms.request.CustomerProductQuoteSearchRequest">
-        select cpq.store_vairant_id,cpq.store_product_id,cpq.quote_apply_id,
-        pv.id as variantId,pv.variant_name as variantName,pv.variant_sku,
+        select cpq.store_variant_id,cpq.store_product_id,cpq.quote_apply_id,
+        pv.id as variantId,pv.en_name as variantName,pv.variant_sku,
         pv.variant_image,pv.variant_price as `price`,pv.usd_price,
-        pv.weight,pv.volume_weight as `volume`
+        pv.weight,pv.volume_weight as `volume`,
+               p.shipping_id as productShippingId,p.id as productId
             from customer_product_quote cpq
         left join product_variant pv
         on cpq.variant_id = pv.id

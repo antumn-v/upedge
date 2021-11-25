@@ -4,6 +4,7 @@ import com.upedge.common.base.Page;
 import com.upedge.common.model.pms.quote.CustomerProductQuoteVo;
 import com.upedge.common.model.pms.request.CustomerProductQuoteSearchRequest;
 import com.upedge.common.utils.ListUtils;
+import com.upedge.pms.modules.product.dao.StoreProductVariantDao;
 import com.upedge.pms.modules.quote.dao.CustomerProductQuoteDao;
 import com.upedge.pms.modules.quote.entity.CustomerProductQuote;
 import com.upedge.pms.modules.quote.service.CustomerProductQuoteService;
@@ -20,6 +21,9 @@ public class CustomerProductQuoteServiceImpl implements CustomerProductQuoteServ
 
     @Autowired
     private CustomerProductQuoteDao customerProductQuoteDao;
+
+    @Autowired
+    StoreProductVariantDao storeProductVariantDao;
 
 
 
@@ -51,18 +55,20 @@ public class CustomerProductQuoteServiceImpl implements CustomerProductQuoteServ
 
     @Override
     public List<CustomerProductQuoteVo> selectQuoteDetail(CustomerProductQuoteSearchRequest request) {
-        if (request != null){
+        if (request == null){
             return new ArrayList<>();
         }
         List<Long> storeVariantIds = new ArrayList<>();
         List<CustomerProductQuoteVo> customerProductQuoteVos = customerProductQuoteDao.selectQuoteDetail(request);
-        if (ListUtils.isNotEmpty(customerProductQuoteVos) && ListUtils.isNotEmpty(request.getStoreVariantIds())) {
+        if (ListUtils.isEmpty(customerProductQuoteVos) && ListUtils.isNotEmpty(request.getStoreVariantIds())) {
             for (CustomerProductQuoteVo customerProductQuoteVo : customerProductQuoteVos) {
                 storeVariantIds.add(customerProductQuoteVo.getStoreVariantId());
             }
             request.getStoreVariantIds().removeAll(storeVariantIds);
             if (ListUtils.isNotEmpty(request.getStoreVariantIds())){
                 storeVariantIds = request.getStoreVariantIds();
+                List<CustomerProductQuoteVo> customerProductQuoteVoList = storeProductVariantDao.selectQuoteDetailByIds(storeVariantIds);
+                customerProductQuoteVos.addAll(customerProductQuoteVoList);
             }
         }
         return customerProductQuoteVos;

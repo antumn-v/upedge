@@ -3,8 +3,8 @@ package com.upedge.common.feign;
 import com.upedge.common.base.BaseResponse;
 import com.upedge.common.constant.ServiceNameConstants;
 import com.upedge.common.feign.fallback.PmsFeignClientFallbackFactory;
+import com.upedge.common.model.pms.quote.CustomerProductQuoteVo;
 import com.upedge.common.model.pms.request.CustomerProductQuoteSearchRequest;
-import com.upedge.common.model.pms.response.CustomerProductQuoteSearchResponse;
 import com.upedge.common.model.product.ListVariantsRequest;
 import com.upedge.common.model.product.ProductSaiheInventoryVo;
 import com.upedge.common.model.product.request.PlatIdSelectStoreVariantRequest;
@@ -15,6 +15,7 @@ import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.List;
 
 /**
  * @author 海桐
@@ -67,7 +68,7 @@ public interface PmsFeignClient {
     @RequestMapping(value = "/productSaiheInventory/insertProductSaiheInventory" , method = RequestMethod.POST)
     BaseResponse insertProductSaiheInventory(@RequestBody ProductSaiheInventoryVo productSaiheInventory);
 
-    @PostMapping("/search")
-    CustomerProductQuoteSearchResponse searchCustomerProductQuote(@RequestBody CustomerProductQuoteSearchRequest request);
+    @PostMapping("/customerProductQuote/search")
+    List<CustomerProductQuoteVo> searchCustomerProductQuote(@RequestBody CustomerProductQuoteSearchRequest request);
 
 }

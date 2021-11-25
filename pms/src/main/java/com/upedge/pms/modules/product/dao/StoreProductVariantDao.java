@@ -1,6 +1,7 @@
 package com.upedge.pms.modules.product.dao;
 
 import com.upedge.common.base.Page;
+import com.upedge.common.model.pms.quote.CustomerProductQuoteVo;
 import com.upedge.common.model.product.StoreProductVariantVo;
 import com.upedge.pms.modules.product.entity.StoreProductVariant;
 import com.upedge.pms.modules.product.vo.CustomerProductVariantRelateVo;
@@ -25,7 +26,7 @@ public interface StoreProductVariantDao {
      */
     List<StoreProductRelateVo> selectStoreVariantRelateDetail(Long storeProductId);
 
-//    List<CustomerProductQuoteVo> selectQuoteDetailByIds(@Param("ids") List<Long> ids);
+    List<CustomerProductQuoteVo> selectQuoteDetailByIds(@Param("ids") List<Long> ids);
 
     StoreProductVariantVo selectByPlatVariantId(@Param("storeId") Long storeId,
                                                 @Param("platVariantId") String platVariantId,

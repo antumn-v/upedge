@@ -227,11 +227,8 @@ public class StoreProductServiceImpl implements StoreProductService {
     @Transactional(rollbackFor = Exception.class)
     @Override
     public Long saveShopifyProduct(ShopifyProduct product, StoreVo storeVo) {
-
         String platProductId = product.getId();
-
         String key = RedisKey.STRING_STORE_PLAT_PRODUCT + storeVo.getId() + ":" + platProductId;
-
         boolean b = RedisUtil.lock(redisTemplate, key, 5L, 20 * 1000L);
         if (!b) {
             return null;
@@ -295,23 +292,18 @@ public class StoreProductServiceImpl implements StoreProductService {
                 }
                 platVariantIds.add(variant.getId());
             });
-
             if (insertVariants.size() > 0) {
                 storeProductVariantDao.insertByBatch(insertVariants);
             }
-
             if (updateVariants.size() > 0) {
                 storeProductVariantDao.updateByBatch(updateVariants);
             }
             if (importAttribute != null){
                 storeProductVariantDao.updateAdminVariantIdByImportId(importAttribute.getId(),storeProductId);
             }
-
             storeProductVariantDao.markStoreVariantAsRemovedByPlatId(storeProductId, platVariantIds);
         }
-
         saveProductRelate(attribute, importAttribute);
-
         attribute = new StoreProductAttribute();
         attribute.setId(storeProductId);
         if (variantPrices.size() > 1) {

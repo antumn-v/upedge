@@ -18,7 +18,8 @@
     </resultMap>
 
     <sql id="Base_Column_List">
-        `id`,`product_id`,`plat_variant_id`,`plat_product_id`,`title`,`price`,`sku`,`image`,`state`,`import_time`
+        `id`
+        ,`product_id`,`plat_variant_id`,`plat_product_id`,`title`,`price`,`sku`,`image`,`state`,`import_time`
     </sql>
 
     <!--    <select id="selectByPlatVariantId" resultType="com.upedge.common.model.product.StoreProductVariantVo">-->
@@ -32,53 +33,51 @@
     <!--    </select>-->
 
     <select id="selectStoreVariantRelateDetail" resultType="com.upedge.pms.modules.product.vo.StoreProductRelateVo">
-        SELECT
-        spv.id as `storeVariantId`,
-        pv.id as `variantId`,
-        spv.title as `storeVariantName`,
-        spv.image as `storeVariantImage`,
-        spv.sku as `storeVariantSku`,
-        pr.scale,
-        pv.variant_sku as `variantSku`,
-        pv.en_name as `variantName`,
-        pv.variant_image as `variantImage`
-        FROM
-        store_product_variant spv
-        LEFT JOIN product_relate pr ON spv.id = pr.store_variant_id
-        LEFT JOIN product_variant pv ON pr.admin_variant_id = pv.id
-        WHERE
-        spv.product_id = #{storeProductId}
+        SELECT spv.id           as `storeVariantId`,
+               pv.id            as `variantId`,
+               spv.title        as `storeVariantName`,
+               spv.image        as `storeVariantImage`,
+               spv.sku          as `storeVariantSku`,
+               pr.scale,
+               pv.variant_sku   as `variantSku`,
+               pv.en_name       as `variantName`,
+               pv.variant_image as `variantImage`
+        FROM store_product_variant spv
+                 LEFT JOIN product_relate pr ON spv.id = pr.store_variant_id
+                 LEFT JOIN product_variant pv ON pr.admin_variant_id = pv.id
+        WHERE spv.product_id = #{storeProductId}
         UNION
-        SELECT
-        spv.id as `storeVariantId`,
-        pv.id as `variantId`,
-        spv.title as `storeVariantName`,
-        spv.image as `storeVariantImage`,
-        spv.sku as `storeVariantSku`,
-        pr.scale,
-        pv.variant_sku as `variantSku`,
-        pv.en_name as `variantName`,
-        pv.variant_image as `variantImage`
-        FROM
-        store_product_variant spv
-        LEFT JOIN product_relate pr ON spv.id = pr.store_variant_id
-        LEFT JOIN product_group_variant pgv ON pgv.group_variant_id = pr.admin_variant_id
-        LEFT JOIN product_variant pv ON pgv.variant_id = pv.id
-        WHERE
-        spv.product_id = #{storeProductId}
+        SELECT spv.id           as `storeVariantId`,
+               pv.id            as `variantId`,
+               spv.title        as `storeVariantName`,
+               spv.image        as `storeVariantImage`,
+               spv.sku          as `storeVariantSku`,
+               pr.scale,
+               pv.variant_sku   as `variantSku`,
+               pv.en_name       as `variantName`,
+               pv.variant_image as `variantImage`
+        FROM store_product_variant spv
+                 LEFT JOIN product_relate pr ON spv.id = pr.store_variant_id
+                 LEFT JOIN product_group_variant pgv ON pgv.group_variant_id = pr.admin_variant_id
+                 LEFT JOIN product_variant pv ON pgv.variant_id = pv.id
+        WHERE spv.product_id = #{storeProductId}
     </select>
 
     <select id="selectByPlatVariantId" resultType="com.upedge.common.model.product.StoreProductVariantVo">
-        select v.`id` as `storeVariantId`,v.`product_id` as `storeProductId`,
-        v.`plat_variant_id` as `platVariantId`,v.`plat_product_id` as `platProductId`,
-        v.`title`,v.`price`,v.`sku`,v.`image`
+        select v.`id`              as `storeVariantId`,
+               v.`product_id`      as `storeProductId`,
+               v.`plat_variant_id` as `platVariantId`,
+               v.`plat_product_id` as `platProductId`,
+               v.`title`,
+               v.`price`,
+               v.`sku`,
+               v.`image`
         from store_product_variant v
-        inner join store_product_attribute a
-        on v.product_id = a.id
+                 inner join store_product_attribute a
+                            on v.product_id = a.id
         where a.store_id = #{storeId}
-        and a.plat_product_id = #{platProductId}
-        and v.plat_variant_id = #{platVariantId}
-        limit 1
+          and a.plat_product_id = #{platProductId}
+          and v.plat_variant_id = #{platVariantId} limit 1
     </select>
 
     <select id="selectUnRelateVariantByProduct" resultMap="BaseResultMap">
@@ -93,7 +92,6 @@
         where store_product_id = #{storeProductId}
         )
     </select>
-
 
 
     <select id="selectIdByProductId" resultType="java.lang.Long">
@@ -152,7 +150,8 @@
     </select>
 
     <delete id="deleteByPrimaryKey" parameterType="com.upedge.pms.modules.product.entity.StoreProductVariant">
-        delete from store_product_variant
+        delete
+        from store_product_variant
         where id = #{id}
     </delete>
 
@@ -204,12 +203,12 @@
     </update>
     <update id="updateAdminVariantIdByImportId">
         update store_product_variant spv
-        left join import_product_variant ipv
+            left join import_product_variant ipv
         on spv.plat_variant_id = ipv.plat_variant_id
-        set spv.admin_variant_id = ipv.source_variant_id
+            set spv.admin_variant_id = ipv.source_variant_id
         where spv.product_id = #{storeProductId}
-        and ipv.product_id = #{importProductId}
-        and spv.admin_variant_id is null
+          and ipv.product_id = #{importProductId}
+          and spv.admin_variant_id is null
     </update>
 
     <insert id="insert" keyColumn="id" keyProperty="id"
@@ -446,32 +445,51 @@
 
     <select id="listUseVariantRelateInfoProductId"
             resultType="com.upedge.pms.modules.product.vo.CustomerProductVariantRelateVo">
-        select
-        spv.`id` as id,
-        spv.`plat_variant_id`  as platVariantId,
-        spv.`plat_product_id` as platProductId,
-        spv.`title` as title,
-        spv.`sku` as sku,
-        spv.`image` as image,
-        spv.`state` as state,
-        spv.`import_time` as importTime,
-        pv.variant_sku as adminVariantSku,
-        pv.product_id as adminProductId,
-        pv.id as adminVariantId,
-        pr.variant_type as variantType,
-        pr.`scale` as `scale`
+        select spv.`id`              as id,
+               spv.`plat_variant_id` as platVariantId,
+               spv.`plat_product_id` as platProductId,
+               spv.`title`           as title,
+               spv.`sku`             as sku,
+               spv.`image`           as image,
+               spv.`state`           as state,
+               spv.`import_time`     as importTime,
+               pv.variant_sku        as adminVariantSku,
+               pv.product_id         as adminProductId,
+               pv.id                 as adminVariantId,
+               pr.variant_type       as variantType,
+               pr.`scale`            as `scale`
         from store_product_variant spv
-        left join product_relate pr on pr.store_variant_id=spv.id
-        left join product_variant pv on pv.id=pr.admin_variant_id
+                 left join product_relate pr on pr.store_variant_id = spv.id
+                 left join product_variant pv on pv.id = pr.admin_variant_id
         where spv.product_id = #{productId}
     </select>
     <select id="selectByIds" resultType="com.upedge.pms.modules.product.entity.StoreProductVariant">
-        select <include refid="Base_Column_List"/>
+        select
+        <include refid="Base_Column_List"/>
         from store_product_variant
         where id in
         <foreach collection="ids" item="id" open="(" close=")" separator=",">
             #{id}
         </foreach>
+    </select>
+
+    <select id="selectQuoteDetailByIds" resultType="com.upedge.common.model.pms.quote.CustomerProductQuoteVo">
+        select spv.id as storeVariantId,spv.product_id as storeProductId,
+        '0' as quoteApplyId,title as `storeVariantName`,
+        pv.id as variantId,pv.en_name as variantName,pv.variant_sku,
+        pv.variant_image,pv.variant_price as `price`,pv.usd_price,
+        pv.weight,pv.volume_weight as `volume`,
+        p.shipping_id as productShippingId,p.id as productId
+        from store_product_variant spv
+        inner join product_variant pv
+        on spv.admin_variant_id = pv.id
+        left join product p
+        on p.id = pv.product_id
+        where spv.id  in
+        <foreach collection="ids" item="id" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+
     </select>
 
 </mapper>

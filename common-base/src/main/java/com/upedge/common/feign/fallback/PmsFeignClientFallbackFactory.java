@@ -3,8 +3,8 @@ package com.upedge.common.feign.fallback;
 import com.upedge.common.base.BaseResponse;
 import com.upedge.common.constant.ResultCode;
 import com.upedge.common.feign.PmsFeignClient;
+import com.upedge.common.model.pms.quote.CustomerProductQuoteVo;
 import com.upedge.common.model.pms.request.CustomerProductQuoteSearchRequest;
-import com.upedge.common.model.pms.response.CustomerProductQuoteSearchResponse;
 import com.upedge.common.model.product.ListVariantsRequest;
 import com.upedge.common.model.product.ProductSaiheInventoryVo;
 import com.upedge.common.model.product.request.PlatIdSelectStoreVariantRequest;
@@ -16,6 +16,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import javax.validation.Valid;
+import java.util.ArrayList;
+import java.util.List;
 
 @Slf4j
 @Component
@@ -99,8 +101,8 @@ public class PmsFeignClientFallbackFactory implements FallbackFactory<PmsFeignCl
             }
 
             @Override
-            public CustomerProductQuoteSearchResponse searchCustomerProductQuote(CustomerProductQuoteSearchRequest request) {
-                return CustomerProductQuoteSearchResponse.failed();
+            public List<CustomerProductQuoteVo> searchCustomerProductQuote(CustomerProductQuoteSearchRequest request) {
+                return new ArrayList<>();
             }
         };
     }
