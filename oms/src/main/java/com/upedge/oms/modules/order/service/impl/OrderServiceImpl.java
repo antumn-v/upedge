@@ -22,7 +22,6 @@ import com.upedge.common.model.order.vo.CustomerOrderStatisticalVo;
 import com.upedge.common.model.order.vo.ManagerActualVo;
 import com.upedge.common.model.pms.quote.CustomerProductQuoteVo;
 import com.upedge.common.model.pms.request.CustomerProductQuoteSearchRequest;
-import com.upedge.common.model.pms.response.CustomerProductQuoteSearchResponse;
 import com.upedge.common.model.product.ListVariantsRequest;
 import com.upedge.common.model.product.ProductVariantTo;
 import com.upedge.common.model.product.VariantDetail;
@@ -413,6 +412,12 @@ public class OrderServiceImpl implements OrderService {
             BigDecimal volumn = BigDecimal.ZERO;
             List<String> strings = new ArrayList<>();
             for (OrderItem item : items) {
+                if (null == item.getAdminVariantWeight()
+                || null == item.getAdminVariantVolume()
+                || BigDecimal.ZERO.compareTo(item.getAdminVariantWeight()) == 0
+                || BigDecimal.ZERO.compareTo(item.getAdminVariantVolume()) == 0){
+                    return null;
+                }
                 weight = weight.add(item.getAdminVariantWeight().multiply(new BigDecimal(item.getQuantity())));
                 volumn = volumn.add(item.getAdminVariantVolume().multiply(new BigDecimal(item.getQuantity())));
                 strings.add(RedisKey.SHIPPING_METHODS + item.getShippingId());
@@ -508,8 +513,8 @@ public class OrderServiceImpl implements OrderService {
         //查询产品报价
         CustomerProductQuoteSearchRequest customerProductQuoteSearchRequest = new CustomerProductQuoteSearchRequest();
         customerProductQuoteSearchRequest.setStoreVariantIds(storeVariantIds);
-        CustomerProductQuoteSearchResponse customerProductQuoteSearchResponse = pmsFeignClient.searchCustomerProductQuote(customerProductQuoteSearchRequest);
-        List<CustomerProductQuoteVo> customerProductQuoteVos = customerProductQuoteSearchResponse.getData();
+        List<CustomerProductQuoteVo> customerProductQuoteVos  = pmsFeignClient.searchCustomerProductQuote(customerProductQuoteSearchRequest);
+
         Map<Long,CustomerProductQuoteVo> map = new HashMap<>();
         if (ListUtils.isNotEmpty(customerProductQuoteVos)){
             for (CustomerProductQuoteVo customerProductQuoteVo : customerProductQuoteVos) {
@@ -517,10 +522,6 @@ public class OrderServiceImpl implements OrderService {
                 storeVariantIds.remove(customerProductQuoteVo.getStoreVariantId());
             }
         }
-        if (ListUtils.isNotEmpty(storeVariantIds)){
-
-        }
-
         Long orderId = IdGenerate.nextId();
 
         StoreOrderAddress storeOrderAddress = storeOrderAddressDao.selectByStoreOrderId(storeOrderId);
@@ -540,7 +541,9 @@ public class OrderServiceImpl implements OrderService {
         order.setStoreId(storeOrder.getStoreId());
         order.setOrderType(0);
         order.setOrderStatus(0);
-        order.setQuoteState(0);
+        order.setPayState(0);
+        order.setRefundState(0);
+        order.setShipState(0);
         if (address.getCountry() != null) {
             order.setToAreaId((Long) redisTemplate.opsForHash().get(RedisKey.HASH_COUNTRY_AREA_ID, address.getCountry()));
         }
@@ -558,13 +561,15 @@ public class OrderServiceImpl implements OrderService {
         List<Long> storeOrderItemIds = new ArrayList<>();
 
         Collection<String> strings = new ArrayList<>();
-
+        Integer quoteState = 0;
         for (StoreOrderItem item : storeOrderItems) {
             OrderItem orderItem = null;
             BigDecimal itemQuantity = new BigDecimal(item.getQuantity());
             if (map.containsKey(item.getStoreVariantId())){
                 CustomerProductQuoteVo customerProductQuoteVo = map.get(item.getStoreVariantId());
                 orderItem = new OrderItem(customerProductQuoteVo);
+                orderItem.setQuoteState(1);
+                quoteState++;
                 try {
                     cnyProductAmount = cnyProductAmount.add(orderItem.getCnyPrice().multiply(itemQuantity));
                 } catch (Exception e) {
@@ -575,6 +580,7 @@ public class OrderServiceImpl implements OrderService {
                 volume = volume.add(customerProductQuoteVo.getVolume().multiply(itemQuantity));
             }else {
                 orderItem = new OrderItem();
+                orderItem.setQuoteState(0);
             }
             BeanUtils.copyProperties(item, orderItem);
             orderItem.setOrderId(orderId);
@@ -585,18 +591,23 @@ public class OrderServiceImpl implements OrderService {
             strings.add(RedisKey.SHIPPING_METHODS + orderItem.getShippingId());
             items.add(orderItem);
         }
+        if (quoteState  > 0 && quoteState == items.size()){
+            order.setQuoteState(3);
+        }else if (quoteState == 0){
+            order.setQuoteState(0);
+        }else {
+            order.setQuoteState(2);
+        }
         order.setCnyProductAmount(cnyProductAmount);
         order.setProductAmount(productAmount);
         order.setTotalWeight(totalWeight);
 
         orderDao.insert(order);
-
         orderItemDao.insertByBatch(items);
         orderAddressDao.insert(address);
         if (ListUtils.isNotEmpty(storeOrderItemIds)){
             storeOrderItemDao.updateStateByIds(storeOrderItemIds, 1);
         }
-
         StoreOrderRelate storeOrderRelate = new StoreOrderRelate(storeOrder);
         storeOrderRelate.setOrderId(orderId);
         storeOrderRelate.setOrderCreateTime(date);

@@ -1,9 +1,7 @@
 package com.upedge.oms.modules.order.entity;
 
-import com.upedge.common.model.old.oms.AppOrderVariant;
 import com.upedge.common.model.pms.quote.CustomerProductQuoteVo;
 import com.upedge.common.model.product.RelateVariantVo;
-import com.upedge.common.utils.IdGenerate;
 import lombok.Data;
 
 import java.math.BigDecimal;
@@ -83,6 +81,8 @@ public class OrderItem{
     private Integer itemType;
 
     private Long shippingId;
+
+	private Integer quoteState;
 
 
 	public OrderItem(StoreOrderItem storeOrderItem) {

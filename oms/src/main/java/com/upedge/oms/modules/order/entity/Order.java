@@ -1,6 +1,5 @@
 package com.upedge.oms.modules.order.entity;
 
-import com.upedge.common.model.store.StoreVo;
 import lombok.Data;
 
 import java.math.BigDecimal;
@@ -77,17 +76,18 @@ public class Order{
 	/**
 	 * 
 	 */
-    private Integer payState = 0;
+    private Integer payState;
 	/**
 	 * 
 	 */
-    private Integer refundState = 0;
+    private Integer refundState;
 	/**
 	 * 
 	 */
-    private Integer shipState = 0;
-
-
+    private Integer shipState;
+	/**
+	 * 0:未报价，1=报价中，2=部分报价，3=全部报价
+	 */
     private Integer quoteState;
 	/**
 	 * 订单类型  正常订单=0 补发订单=1 拆分订单=2 合并订单=3

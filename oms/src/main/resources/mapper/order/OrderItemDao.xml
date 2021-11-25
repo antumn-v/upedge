@@ -7,25 +7,27 @@
     <resultMap type="com.upedge.oms.modules.order.entity.OrderItem" id="BaseResultMap">
         <result property="id" column="id"/>
         <result property="orderId" column="order_id"/>
-        <result property="storeOrderItemId" column="store_order_item_id"/>
         <result property="storeOrderId" column="store_order_id"/>
-        <result property="storeProductId" column="store_product_id"/>
+        <result property="storeOrderItemId" column="store_order_item_id"/>
         <result property="storeVariantId" column="store_variant_id"/>
         <result property="adminVariantId" column="admin_variant_id"/>
+        <result property="storeProductId" column="store_product_id"/>
         <result property="adminProductId" column="admin_product_id"/>
         <result property="storeVariantName" column="store_variant_name"/>
         <result property="storeVariantSku" column="store_variant_sku"/>
-        <result property="adminVariantImage" column="admin_variant_image"/>
         <result property="storeProductTitle" column="store_product_title"/>
+        <result property="adminVariantImage" column="admin_variant_image"/>
         <result property="adminVariantSku" column="admin_variant_sku"/>
         <result property="usdPrice" column="usd_price"/>
+        <result property="usdRate" column="usd_rate"/>
         <result property="cnyPrice" column="cny_price"/>
-        <result property="adminVariantWeight" column="admin_variant_weight"/>
-        <result property="adminVariantVolume" column="admin_variant_volume"/>
         <result property="quantity" column="quantity"/>
         <result property="dischargeQuantity" column="discharge_quantity"/>
+        <result property="adminVariantWeight" column="admin_variant_weight"/>
+        <result property="adminVariantVolume" column="admin_variant_volume"/>
         <result property="itemType" column="item_type"/>
         <result property="shippingId" column="shipping_id"/>
+        <result property="quoteState" column="quote_state"/>
     </resultMap>
 
     <resultMap type="com.upedge.oms.modules.order.vo.AppOrderItemVo" id="AppOrderItemVo">
@@ -302,6 +304,9 @@
             <if test="orderId != null">
                 order_id = #{orderId},
             </if>
+            <if test="storeOrderId != null">
+                store_order_id = #{storeOrderId},
+            </if>
             <if test="storeOrderItemId != null">
                 store_order_item_id = #{storeOrderItemId},
             </if>
@@ -310,6 +315,9 @@
             </if>
             <if test="adminVariantId != null">
                 admin_variant_id = #{adminVariantId},
+            </if>
+            <if test="storeProductId != null">
+                store_product_id = #{storeProductId},
             </if>
             <if test="adminProductId != null">
                 admin_product_id = #{adminProductId},
@@ -320,14 +328,23 @@
             <if test="storeVariantSku != null">
                 store_variant_sku = #{storeVariantSku},
             </if>
-            <if test="adminVariantImage != null">
-                admin_variant_image = #{adminVariantImage},
-            </if>
             <if test="storeProductTitle != null">
                 store_product_title = #{storeProductTitle},
             </if>
+            <if test="adminVariantImage != null">
+                admin_variant_image = #{adminVariantImage},
+            </if>
+            <if test="adminVariantSku != null">
+                admin_variant_sku = #{adminVariantSku},
+            </if>
             <if test="usdPrice != null">
                 usd_price = #{usdPrice},
+            </if>
+            <if test="usdRate != null">
+                usd_rate = #{usdRate},
+            </if>
+            <if test="cnyPrice != null">
+                cny_price = #{cnyPrice},
             </if>
             <if test="quantity != null">
                 quantity = #{quantity},
@@ -335,11 +352,20 @@
             <if test="dischargeQuantity != null">
                 discharge_quantity = #{dischargeQuantity},
             </if>
-            <if test="storeProductId != null">
-                store_product_id = #{storeProductId},
+            <if test="adminVariantWeight != null">
+                admin_variant_weight = #{adminVariantWeight},
             </if>
-            <if test="storeOrderId != null">
-                store_order_id = #{storeOrderId},
+            <if test="adminVariantVolume != null">
+                admin_variant_volume = #{adminVariantVolume},
+            </if>
+            <if test="itemType != null">
+                item_type = #{itemType},
+            </if>
+            <if test="shippingId != null">
+                shipping_id = #{shippingId},
+            </if>
+            <if test="quoteState != null">
+                quote_state = #{quoteState},
             </if>
         </set>
         where id = #{id}
@@ -350,39 +376,32 @@
         <set>
             id = #{id},
             order_id = #{orderId},
+            store_order_id = #{storeOrderId},
             store_order_item_id = #{storeOrderItemId},
             store_variant_id = #{storeVariantId},
             admin_variant_id = #{adminVariantId},
+            store_product_id = #{storeProductId},
             admin_product_id = #{adminProductId},
             store_variant_name = #{storeVariantName},
             store_variant_sku = #{storeVariantSku},
-            admin_variant_image = #{adminVariantImage},
             store_product_title = #{storeProductTitle},
+            admin_variant_image = #{adminVariantImage},
+            admin_variant_sku = #{adminVariantSku},
             usd_price = #{usdPrice},
-            admin_variant_weight = #{adminVariantWeight},
-            admin_variant_volume = #{adminVariantVolume},
+            usd_rate = #{usdRate},
+            cny_price = #{cnyPrice},
             quantity = #{quantity},
             discharge_quantity = #{dischargeQuantity},
-            <if test="storeProductId != null">
-                store_product_id = #{storeProductId},
-            </if>
-            <if test="storeOrderId != null">
-                store_order_id = #{storeOrderId},
-            </if>
+            admin_variant_weight = #{adminVariantWeight},
+            admin_variant_volume = #{adminVariantVolume},
+            item_type = #{itemType},
+            shipping_id = #{shippingId},
+            quote_state = #{quoteState},
         </set>
         where id = #{id}
     </update>
-    <update id="updateShippingIdByAdminProductId">
-        update order_item oi
-        inner join `order` o
-        on oi.order_id = o.id
-        set oi.shipping_id = #{shippingId}
-        where oi.admin_product_id = #{adminProductId}
-        and o.pay_state = '0'
-    </update>
 
-    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.upedge.oms.modules.order.entity.OrderItem"
-            useGeneratedKeys="true">
+    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.upedge.oms.modules.order.entity.OrderItem" useGeneratedKeys="true">
         insert into order_item
         <trim prefix="(" suffix=")" suffixOverrides=",">
             id,
@@ -391,23 +410,23 @@
             store_order_item_id,
             store_variant_id,
             admin_variant_id,
+            store_product_id,
             admin_product_id,
             store_variant_name,
             store_variant_sku,
-            admin_variant_sku,
-            admin_variant_image,
             store_product_title,
+            admin_variant_image,
+            admin_variant_sku,
             usd_price,
+            usd_rate,
             cny_price,
-            admin_variant_weight,
-            admin_variant_volume,
             quantity,
             discharge_quantity,
+            admin_variant_weight,
+            admin_variant_volume,
             item_type,
-            <if test="storeProductId != null">
-                store_product_id ,
-            </if>
-            shipping_id
+            shipping_id,
+            quote_state
         </trim>
         values (
         #{id},
@@ -416,124 +435,171 @@
         #{storeOrderItemId},
         #{storeVariantId},
         #{adminVariantId},
+        #{storeProductId},
         #{adminProductId},
         #{storeVariantName},
         #{storeVariantSku},
-        #{adminVariantSku},
-        #{adminVariantImage},
         #{storeProductTitle},
+        #{adminVariantImage},
+        #{adminVariantSku},
         #{usdPrice},
+        #{usdRate},
         #{cnyPrice},
-        #{adminVariantWeight},
-        #{adminVariantVolume},
         #{quantity},
         #{dischargeQuantity},
+        #{adminVariantWeight},
+        #{adminVariantVolume},
         #{itemType},
-        <if test="storeProductId != null">
-            #{storeProductId},
-        </if>
-        #{shippingId}
-
+        #{shippingId},
+        #{quoteState}
         )
     </insert>
 
-    <insert id="insertSelective" keyColumn="id" keyProperty="id"
-            parameterType="com.upedge.oms.modules.order.entity.OrderItem" useGeneratedKeys="true">
+    <insert id="insertSelective"  keyColumn="id" keyProperty="id"  parameterType="com.upedge.oms.modules.order.entity.OrderItem" useGeneratedKeys="true">
         insert into order_item
         <trim prefix="(" suffix=")" suffixOverrides=",">
-            <if test="id != null">
+            <if test="id != null" >
                 id
             </if>
-            <if test="orderId != null">
+            <if test="orderId != null" >
                 order_id
             </if>
-            <if test="storeOrderItemId != null">
+            <if test="storeOrderId != null" >
+                store_order_id
+            </if>
+            <if test="storeOrderItemId != null" >
                 store_order_item_id
             </if>
-            <if test="storeVariantId != null">
+            <if test="storeVariantId != null" >
                 store_variant_id
             </if>
-            <if test="adminVariantId != null">
+            <if test="adminVariantId != null" >
                 admin_variant_id
             </if>
-            <if test="adminProductId != null">
+            <if test="storeProductId != null" >
+                store_product_id
+            </if>
+            <if test="adminProductId != null" >
                 admin_product_id
             </if>
-            <if test="storeVariantName != null">
+            <if test="storeVariantName != null" >
                 store_variant_name
             </if>
-            <if test="storeVariantSku != null">
+            <if test="storeVariantSku != null" >
                 store_variant_sku
             </if>
-            <if test="adminVariantImage != null">
-                admin_variant_image
-            </if>
-            <if test="storeProductTitle != null">
+            <if test="storeProductTitle != null" >
                 store_product_title
             </if>
-            <if test="usdPrice != null">
+            <if test="adminVariantImage != null" >
+                admin_variant_image
+            </if>
+            <if test="adminVariantSku != null" >
+                admin_variant_sku
+            </if>
+            <if test="usdPrice != null" >
                 usd_price
             </if>
-            <if test="quantity != null">
+            <if test="usdRate != null" >
+                usd_rate
+            </if>
+            <if test="cnyPrice != null" >
+                cny_price
+            </if>
+            <if test="quantity != null" >
                 quantity
             </if>
-            <if test="dischargeQuantity != null">
+            <if test="dischargeQuantity != null" >
                 discharge_quantity
             </if>
-            <if test="storeProductId != null">
-                store_product_id,
+            <if test="adminVariantWeight != null" >
+                admin_variant_weight
             </if>
-            <if test="storeOrderId != null">
-                store_order_id,
+            <if test="adminVariantVolume != null" >
+                admin_variant_volume
+            </if>
+            <if test="itemType != null" >
+                item_type
+            </if>
+            <if test="shippingId != null" >
+                shipping_id
+            </if>
+            <if test="quoteState != null" >
+                quote_state
             </if>
 
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
-            <if test="id != null">
+            <if test="id != null" >
                 #{id}
             </if>
-            <if test="orderId != null">
+            <if test="orderId != null" >
                 #{orderId}
             </if>
-            <if test="storeOrderItemId != null">
+            <if test="storeOrderId != null" >
+                #{storeOrderId}
+            </if>
+            <if test="storeOrderItemId != null" >
                 #{storeOrderItemId}
             </if>
-            <if test="storeVariantId != null">
+            <if test="storeVariantId != null" >
                 #{storeVariantId}
             </if>
-            <if test="adminVariantId != null">
+            <if test="adminVariantId != null" >
                 #{adminVariantId}
             </if>
-            <if test="adminProductId != null">
+            <if test="storeProductId != null" >
+                #{storeProductId}
+            </if>
+            <if test="adminProductId != null" >
                 #{adminProductId}
             </if>
-            <if test="storeVariantName != null">
+            <if test="storeVariantName != null" >
                 #{storeVariantName}
             </if>
-            <if test="storeVariantSku != null">
+            <if test="storeVariantSku != null" >
                 #{storeVariantSku}
             </if>
-            <if test="adminVariantImage != null">
-                #{adminVariantImage}
-            </if>
-            <if test="storeProductTitle != null">
+            <if test="storeProductTitle != null" >
                 #{storeProductTitle}
             </if>
-            <if test="usdPrice != null">
+            <if test="adminVariantImage != null" >
+                #{adminVariantImage}
+            </if>
+            <if test="adminVariantSku != null" >
+                #{adminVariantSku}
+            </if>
+            <if test="usdPrice != null" >
                 #{usdPrice}
             </if>
-            <if test="quantity != null">
+            <if test="usdRate != null" >
+                #{usdRate}
+            </if>
+            <if test="cnyPrice != null" >
+                #{cnyPrice}
+            </if>
+            <if test="quantity != null" >
                 #{quantity}
             </if>
-            <if test="dischargeQuantity != null">
+            <if test="dischargeQuantity != null" >
                 #{dischargeQuantity}
             </if>
-            <if test="storeProductId != null">
-               #{storeProductId},
+            <if test="adminVariantWeight != null" >
+                #{adminVariantWeight}
             </if>
-            <if test="storeOrderId != null">
-                #{storeOrderId},
+            <if test="adminVariantVolume != null" >
+                #{adminVariantVolume}
             </if>
+            <if test="itemType != null" >
+                #{itemType}
+            </if>
+            <if test="shippingId != null" >
+                #{shippingId}
+            </if>
+            <if test="quoteState != null" >
+                #{quoteState}
+            </if>
+
         </trim>
     </insert>
 
@@ -545,22 +611,24 @@
             store_order_id,
             store_order_item_id,
             store_variant_id,
-            store_product_id,
             admin_variant_id,
+            store_product_id,
             admin_product_id,
             store_variant_name,
             store_variant_sku,
-            admin_variant_sku,
-            admin_variant_image,
             store_product_title,
+            admin_variant_image,
+            admin_variant_sku,
             usd_price,
+            usd_rate,
             cny_price,
-            admin_variant_weight,
-            admin_variant_volume,
             quantity,
             discharge_quantity,
+            admin_variant_weight,
+            admin_variant_volume,
             item_type,
-            shipping_id
+            shipping_id,
+            quote_state
         </trim>
         values
         <foreach collection="list" item="item" index="index" separator=",">
@@ -570,22 +638,24 @@
                 #{item.storeOrderId},
                 #{item.storeOrderItemId},
                 #{item.storeVariantId},
-                #{item.storeProductId},
                 #{item.adminVariantId},
+                #{item.storeProductId},
                 #{item.adminProductId},
                 #{item.storeVariantName},
                 #{item.storeVariantSku},
-                #{item.adminVariantSku},
-                #{item.adminVariantImage},
                 #{item.storeProductTitle},
+                #{item.adminVariantImage},
+                #{item.adminVariantSku},
                 #{item.usdPrice},
+                #{item.usdRate},
                 #{item.cnyPrice},
-                #{item.adminVariantWeight},
-                #{item.adminVariantVolume},
                 #{item.quantity},
                 #{item.dischargeQuantity},
+                #{item.adminVariantWeight},
+                #{item.adminVariantVolume},
                 #{item.itemType},
-                #{item.shippingId}
+                #{item.shippingId},
+                #{item.quoteState}
             </trim>
         </foreach>
     </insert>
@@ -601,6 +671,9 @@
                 <if test="t.orderId != null">
                     order_id = #{t.orderId} and
                 </if>
+                <if test="t.storeOrderId != null">
+                    store_order_id = #{t.storeOrderId} and
+                </if>
                 <if test="t.storeOrderItemId != null">
                     store_order_item_id = #{t.storeOrderItemId} and
                 </if>
@@ -609,6 +682,9 @@
                 </if>
                 <if test="t.adminVariantId != null">
                     admin_variant_id = #{t.adminVariantId} and
+                </if>
+                <if test="t.storeProductId != null">
+                    store_product_id = #{t.storeProductId} and
                 </if>
                 <if test="t.adminProductId != null">
                     admin_product_id = #{t.adminProductId} and
@@ -619,14 +695,23 @@
                 <if test="t.storeVariantSku != null">
                     store_variant_sku = #{t.storeVariantSku} and
                 </if>
-                <if test="t.adminVariantImage != null">
-                    admin_variant_image = #{t.adminVariantImage} and
-                </if>
                 <if test="t.storeProductTitle != null">
                     store_product_title = #{t.storeProductTitle} and
                 </if>
+                <if test="t.adminVariantImage != null">
+                    admin_variant_image = #{t.adminVariantImage} and
+                </if>
+                <if test="t.adminVariantSku != null">
+                    admin_variant_sku = #{t.adminVariantSku} and
+                </if>
                 <if test="t.usdPrice != null">
                     usd_price = #{t.usdPrice} and
+                </if>
+                <if test="t.usdRate != null">
+                    usd_rate = #{t.usdRate} and
+                </if>
+                <if test="t.cnyPrice != null">
+                    cny_price = #{t.cnyPrice} and
                 </if>
                 <if test="t.quantity != null">
                     quantity = #{t.quantity} and
@@ -634,14 +719,20 @@
                 <if test="t.dischargeQuantity != null">
                     discharge_quantity = #{t.dischargeQuantity} and
                 </if>
+                <if test="t.adminVariantWeight != null">
+                    admin_variant_weight = #{t.adminVariantWeight} and
+                </if>
+                <if test="t.adminVariantVolume != null">
+                    admin_variant_volume = #{t.adminVariantVolume} and
+                </if>
                 <if test="t.itemType != null">
                     item_type = #{t.itemType} and
                 </if>
-                <if test="t.storeProductId != null">
-                    store_product_id = #{t.storeProductId},
+                <if test="t.shippingId != null">
+                    shipping_id = #{t.shippingId} and
                 </if>
-                <if test="t.storeOrderId != null">
-                    store_order_id = #{t.storeOrderId},
+                <if test="t.quoteState != null">
+                    quote_state = #{t.quoteState} and
                 </if>
             </trim>
         </if>
@@ -649,7 +740,7 @@
 
     <select id="select" parameterType="com.upedge.common.base.Page" resultMap="BaseResultMap">
         select
-        <include refid="Base_Column_List"/>
+        <include refid="Base_Column_List" />
         from order_item
         <include refid="Query_Condition"/>
         <if test="orderBy != null">
@@ -666,6 +757,15 @@
         from order_item
         <include refid="Query_Condition"/>
     </select>
+
+    <update id="updateShippingIdByAdminProductId">
+        update order_item oi
+            inner join `order` o
+        on oi.order_id = o.id
+            set oi.shipping_id = #{shippingId}
+        where oi.admin_product_id = #{adminProductId}
+          and o.pay_state = '0'
+    </update>
 
     <select id="listOrderItem" resultType="com.upedge.oms.modules.order.vo.OrderItemVo">
         select
