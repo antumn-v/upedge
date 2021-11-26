@@ -22,13 +22,15 @@ import com.upedge.oms.modules.order.dto.PandaOrderListDto;
 import com.upedge.oms.modules.order.entity.Order;
 import com.upedge.oms.modules.order.entity.OrderAddress;
 import com.upedge.oms.modules.order.request.*;
-import com.upedge.oms.modules.order.response.*;
+import com.upedge.oms.modules.order.response.OrderListResponse;
+import com.upedge.oms.modules.order.response.OrderUpdateResponse;
 import com.upedge.oms.modules.order.service.OrderProfitService;
 import com.upedge.oms.modules.order.service.OrderService;
 import com.upedge.oms.modules.order.vo.*;
 import com.upedge.oms.modules.orderShippingUnit.service.OrderShippingUnitService;
 import com.upedge.oms.modules.orderShippingUnit.vo.OrderShippingUnitVo;
 import com.upedge.thirdparty.saihe.config.SaiheConfig;
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
@@ -54,6 +56,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 /**
  * @author author
  */
+@Api(tags = "订单管理")
 @Slf4j
 @RestController
 @RequestMapping("/order")
@@ -96,7 +99,7 @@ public class OrderController {
             appOrderListDto = new AppOrderListDto();
         } else {
             appOrderListDto.initOrderState();
-            appOrderListDto.initDateRange();
+//            appOrderListDto.initDateRange();
         }
         if (session.getUserType() == BaseCode.USER_ROLE_NORMAL) {
             List<Long> orgIds = session.getOrgIds();
@@ -113,7 +116,7 @@ public class OrderController {
             request.initFromNum();
         }
 
-        if (appOrderListDto.getTags().equals("IN_PROCESSING")) {
+        if (appOrderListDto.getTags().equals("PAID")) {
             appOrderListDto.setPayState(null);
             request.setCondition("o.pay_state > 0");
         }
@@ -204,7 +207,7 @@ public class OrderController {
                         } else {
                             appOrderListDto.setTags(tag.name());
                             appOrderListDto.initOrderState();
-                            appOrderListDto.initDateRange();
+//                            appOrderListDto.initDateRange();
                         }
 
                         if (session.getUserType() == BaseCode.USER_ROLE_NORMAL) {
@@ -246,8 +249,8 @@ public class OrderController {
         return new OrderListResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS, map, appOrderListRequest);
     }
 
-    @ApiOperation("订单所有数量")
-    @PostMapping("/allCount")
+//    @ApiOperation("订单所有数量")
+//    @PostMapping("/allCount")
     public BaseResponse appOrderAllCount(@RequestBody AppOrderListRequest request) {
         Session session = UserUtil.getSession(redisTemplate);
         AppOrderListDto appOrderListDto = new AppOrderListDto();
@@ -272,16 +275,16 @@ public class OrderController {
 
 
 
-    @ApiOperation("未支付订单统计")
-    @GetMapping("/upPaid/count")
+//    @ApiOperation("未支付订单统计")
+//    @GetMapping("/upPaid/count")
     public BaseResponse customerOrderUnPaidCount() {
         Session session = UserUtil.getSession(redisTemplate);
         List<UnPaidOrderCountVo> unPaidOrderCountVos = orderService.countCustomerUnPaidOrder(session);
         return new BaseResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS, unPaidOrderCountVos);
     }
 
-    @ApiOperation("订单产品列表")
-    @GetMapping("/{orderId}/app/items")
+//    @ApiOperation("订单产品列表")
+//    @GetMapping("/{orderId}/app/items")
     public BaseResponse getAppOrderItems(@PathVariable Long orderId) {
         List<AppOrderItemVo> appOrderItemVos = orderService.selectAppOrderItemByOrderId(orderId);
         if (ListUtils.isEmpty(appOrderItemVos)) {
@@ -310,16 +313,16 @@ public class OrderController {
      * @param id
      * @return
      */
-    @ApiOperation("订单匹配运输规则")
-    @PostMapping("/{id}/shipRule/match")
+//    @ApiOperation("订单匹配运输规则")
+//    @PostMapping("/{id}/shipRule/match")
     public BaseResponse orderMatchShipRule(@PathVariable Long id) {
         OrderShipRuleDetail detail = orderService.matchShipRule(id);
         return new BaseResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS, detail);
 
     }
 
-    @ApiOperation("订单利润")
-    @GetMapping("/{id}/profit")
+//    @ApiOperation("订单利润")
+//    @GetMapping("/{id}/profit")
     public BaseResponse orderProfit(@PathVariable Long id) {
         OrderProfitVo profit = orderProfitService.selectByPrimaryKey(id);
         return new BaseResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS, profit);
@@ -350,8 +353,8 @@ public class OrderController {
         return BaseResponse.failed();
     }
 
-    @ApiOperation("订单能否发货判断")
-    @PostMapping("/ship/verify")
+//    @ApiOperation("订单能否发货判断")
+//    @PostMapping("/ship/verify")
     public BaseResponse orderShipVerify(@RequestBody List<Long> ids) {
         List<Long> idList = new ArrayList<>();
         for (Long id : ids) {
@@ -367,8 +370,8 @@ public class OrderController {
         return new BaseResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS, idList);
     }
 
-    @ApiOperation("修改订单备注")
-    @PostMapping("/note/update")
+//    @ApiOperation("修改订单备注")
+//    @PostMapping("/note/update")
     public BaseResponse updateOrderNote(@RequestBody @Valid OrderNoteVo orderNoteVo) {
         String key = RedisKey.STRING_ORDER_NOTE + orderNoteVo.getOrderId();
         if (StringUtils.isBlank(orderNoteVo.getNote())) {

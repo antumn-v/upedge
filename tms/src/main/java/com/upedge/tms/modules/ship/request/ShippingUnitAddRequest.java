@@ -5,9 +5,8 @@ import lombok.Data;
 
 import java.math.BigDecimal;
 import java.util.Date;
-
 /**
- * @author author
+ * @author gx
  */
 @Data
 public class ShippingUnitAddRequest{
@@ -20,10 +19,6 @@ public class ShippingUnitAddRequest{
     * 
     */
     private String methodName;
-    /**
-    * 始发地id
-    */
-    private String fromAreaId;
     /**
     * 目的地id
     */
@@ -41,9 +36,21 @@ public class ShippingUnitAddRequest{
     */
     private BigDecimal fixedFee;
     /**
-    * 各重费
+    * 首重
     */
-    private BigDecimal weightCharge;
+    private BigDecimal firstWeight;
+    /**
+    * 首重运费
+    */
+    private BigDecimal firstFreight;
+    /**
+    * 续重单位重量
+    */
+    private BigDecimal continueUnitWeight;
+    /**
+    * 续重单价
+    */
+    private BigDecimal continueUnitPrice;
     /**
     * 预计到达时间
     */
@@ -60,22 +67,33 @@ public class ShippingUnitAddRequest{
     * 
     */
     private String remarks;
+    /**
+    * 创建时间
+    */
+    private Date createTime;
+    /**
+    * 0:禁用 1:启用
+    */
+    private Integer state;
 
     public ShippingUnit toShippingUnit(){
         ShippingUnit shippingUnit=new ShippingUnit();
         shippingUnit.setMethodId(methodId);
-        shippingUnit.setFromAreaId(fromAreaId);
+        shippingUnit.setMethodName(methodName);
         shippingUnit.setToAreaId(toAreaId);
         shippingUnit.setStartWeight(startWeight);
         shippingUnit.setEndWeight(endWeight);
         shippingUnit.setFixedFee(fixedFee);
-        shippingUnit.setWeightCharge(weightCharge);
+        shippingUnit.setFirstWeight(firstWeight);
+        shippingUnit.setFirstFreight(firstFreight);
+        shippingUnit.setContinueUnitWeight(continueUnitWeight);
+        shippingUnit.setContinueUnitPrice(continueUnitPrice);
         shippingUnit.setDeliveryMinDay(deliveryMinDay);
         shippingUnit.setDeliveryMaxDay(deliveryMaxDay);
         shippingUnit.setDiscount(discount);
         shippingUnit.setRemarks(remarks);
-        shippingUnit.setCreateTime(new Date());
-        shippingUnit.setState(1);
+        shippingUnit.setCreateTime(createTime);
+        shippingUnit.setState(state);
         return shippingUnit;
     }
 

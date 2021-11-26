@@ -1,13 +1,11 @@
 package com.upedge.tms.modules.ship.request;
 
 import com.upedge.tms.modules.ship.entity.ShippingUnit;
-import lombok.Data;
-
-import java.math.BigDecimal;
 import java.util.Date;
-
+import lombok.Data;
+import java.math.BigDecimal;
 /**
- * @author author
+ * @author gx
  */
 @Data
 public class ShippingUnitUpdateRequest{
@@ -41,9 +39,21 @@ public class ShippingUnitUpdateRequest{
      */
     private BigDecimal fixedFee;
     /**
-     * 各重费
+     * 首重
      */
-    private BigDecimal weightCharge;
+    private BigDecimal firstWeight;
+    /**
+     * 首重运费
+     */
+    private BigDecimal firstFreight;
+    /**
+     * 续重单位重量
+     */
+    private BigDecimal continueUnitWeight;
+    /**
+     * 续重单价
+     */
+    private BigDecimal continueUnitPrice;
     /**
      * 预计到达时间
      */
@@ -65,7 +75,7 @@ public class ShippingUnitUpdateRequest{
      */
     private Date createTime;
     /**
-     * 
+     * 0:禁用 1:启用
      */
     private Integer state;
 
@@ -79,7 +89,10 @@ public class ShippingUnitUpdateRequest{
         shippingUnit.setStartWeight(startWeight);
         shippingUnit.setEndWeight(endWeight);
         shippingUnit.setFixedFee(fixedFee);
-        shippingUnit.setWeightCharge(weightCharge);
+        shippingUnit.setFirstWeight(firstWeight);
+        shippingUnit.setFirstFreight(firstFreight);
+        shippingUnit.setContinueUnitWeight(continueUnitWeight);
+        shippingUnit.setContinueUnitPrice(continueUnitPrice);
         shippingUnit.setDeliveryMinDay(deliveryMinDay);
         shippingUnit.setDeliveryMaxDay(deliveryMaxDay);
         shippingUnit.setDiscount(discount);

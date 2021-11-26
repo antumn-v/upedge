@@ -58,6 +58,13 @@ public class ShippingUnitController {
     @Autowired
     RedisTemplate<String, Object> redisTemplate;
 
+
+//    @PostMapping("/add")
+//    public BaseResponse addShipUnit(@RequestBody ShippingUnitAddRequest request) {
+//        ShippingUnit shippingUnit = request.toShippingUnit();
+//        shippingUnitService.insert(shippingUnit);
+//        return BaseResponse.success();
+//    }
     /**
      * 运输导入列表
      * @param request
@@ -314,11 +321,10 @@ public class ShippingUnitController {
      * @param request
      * @return
      */
+    @ApiOperation("新增运输单元")
     @RequestMapping(value="/unit/add", method=RequestMethod.POST)
     public ShippingUnitAddResponse add(@RequestBody @Valid ShippingUnitAddRequest request) {
         ShippingUnit entity=request.toShippingUnit();
-        ShippingMethod shippingMethod=shippingMethodService.selectByPrimaryKey(entity.getMethodId());
-        entity.setMethodName(shippingMethod.getName());
         shippingUnitService.insertSelective(entity);
         ShippingUnitAddResponse res = new ShippingUnitAddResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS,entity,request);
         return res;
@@ -336,8 +342,8 @@ public class ShippingUnitController {
 //        ShippingUnitDelResponse res = new ShippingUnitDelResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS);
 //        return res;
 //    }
-
-    @RequestMapping(value="/unit/update/{id}", method=RequestMethod.POST)
+    @ApiOperation("修改运输单元")
+    @RequestMapping(value="/update/{id}", method=RequestMethod.POST)
     public ShippingUnitUpdateResponse update(@PathVariable Long id, @RequestBody @Valid ShippingUnitUpdateRequest request) {
         ShippingUnit entity=request.toShippingUnit(id);
         shippingUnitService.updateByPrimaryKeySelective(entity);
@@ -352,7 +358,8 @@ public class ShippingUnitController {
      * @param id
      * @return
      */
-    @RequestMapping(value="/unit/del/{id}", method=RequestMethod.DELETE)
+    @ApiOperation("删除运输单元")
+    @RequestMapping(value="/del/{id}", method=RequestMethod.DELETE)
     public ShippingUnitUpdateResponse del(@PathVariable Long id) {
         shippingUnitService.deleteByPrimaryKey(id);
         ShippingUnitUpdateResponse res = new ShippingUnitUpdateResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS);
@@ -363,8 +370,8 @@ public class ShippingUnitController {
     /**
      * 运输单元开启
      */
-    @ApiOperation("运输单元开启")
-    @RequestMapping(value="/unit/open/{id}", method=RequestMethod.POST)
+    @ApiOperation("启用")
+    @RequestMapping(value="/open/{id}", method=RequestMethod.POST)
     public BaseResponse open(@PathVariable Long id) {
         ShippingUnit shippingUnit = shippingUnitService.selectByPrimaryKey(id);
         shippingUnit.setState(1);
@@ -377,8 +384,8 @@ public class ShippingUnitController {
     /**
      * 运输单元关闭
      */
-    @ApiOperation("运输单元关闭")
-    @RequestMapping(value="/unit/close/{id}", method=RequestMethod.POST)
+    @ApiOperation("禁用")
+    @RequestMapping(value="/close/{id}", method=RequestMethod.POST)
     public BaseResponse close(@PathVariable Long id) {
         ShippingUnit shippingUnit = shippingUnitService.selectByPrimaryKey(id);
         shippingUnit.setState(0);

@@ -80,8 +80,8 @@ public class OrderItemController {
         return pmsFeignClient.orderQuoteApply(orderQuoteApplyRequest);
     }
 
-    @ApiOperation("airwallex导出")
-    @PostMapping("/airwallex")
+//    @ApiOperation("airwallex导出")
+//    @PostMapping("/airwallex")
     public BaseResponse airwallex(@RequestBody AirwallexRequest airwallexRequest) throws CustomerException {
         if (airwallexRequest == null || airwallexRequest.getBeginTime() == null || airwallexRequest.getEndTime() == null){
             throw new CustomerException(CustomerExceptionEnum.TIME_CANNOT_BE_EMPTY);

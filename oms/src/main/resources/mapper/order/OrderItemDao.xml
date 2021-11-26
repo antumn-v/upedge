@@ -190,6 +190,7 @@
         <foreach collection="orders" item="o" open="(" close=")" separator=",">
             #{o.id}
         </foreach>
+        and oi.quote_state != '3'
     </select>
 
     <select id="selectAdminVariantDetailByOrder" resultType="com.upedge.common.model.product.VariantDetail">

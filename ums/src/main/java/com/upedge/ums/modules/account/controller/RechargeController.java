@@ -15,8 +15,6 @@ import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.utils.IdGenerate;
 import com.upedge.common.web.util.RequestUtil;
 import com.upedge.common.web.util.UserUtil;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
 import com.upedge.ums.modules.account.entity.RechargeRequestLog;
 import com.upedge.ums.modules.account.entity.payoneer.PayoneerPayment;
 import com.upedge.ums.modules.account.request.*;
@@ -24,13 +22,15 @@ import com.upedge.ums.modules.account.response.*;
 import com.upedge.ums.modules.account.service.PayoneerService;
 import com.upedge.ums.modules.account.service.PaypalService;
 import com.upedge.ums.modules.account.service.RechargeService;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.math.BigDecimal;
 
 /**
  * @author 海桐
@@ -125,7 +125,12 @@ public class RechargeController {
 
     @ApiOperation("银行转帐充值申请")
     @PostMapping("/request/transfer")
-    public ApplyRechargeResponse transferRechargeRequest(@RequestBody @Valid TransferRechargeRequest request) {
+    public BaseResponse transferRechargeRequest(@RequestBody @Valid TransferRechargeRequest request) {
+        String image = request.getAttr().getImage();
+        if (StringUtils.isBlank(image) ||
+                request.getAmount().compareTo(new BigDecimal("100")) == -1){
+            return BaseResponse.failed();
+        }
         return rechargeService.createTransferRequest(request);
     }
 

@@ -1,7 +1,6 @@
 package com.upedge.tms.modules.ship.dao;
 
 import com.upedge.common.base.Page;
-import com.upedge.common.model.ship.vo.ShipDetail;
 import com.upedge.common.model.ship.vo.ShipMethodNameVo;
 import com.upedge.tms.modules.ship.entity.ShippingUnit;
 import org.apache.ibatis.annotations.Param;
@@ -15,14 +14,14 @@ import java.util.Set;
  */
 public interface ShippingUnitDao{
 
-    List<ShipDetail> selectByMethodIdsAndWeight(@Param("methodIds") Set<Long> methodIds,
+    List<ShippingUnit> selectByMethodIdsAndWeight(@Param("methodIds") Set<Long> methodIds,
                                                 @Param("toAreaId") Long toAreaId,
                                                 @Param("weight") BigDecimal weight,
-                                                @Param("volumn") BigDecimal volunmn);
+                                                @Param("weightType") Integer weightType);
 
     List<ShipMethodNameVo> selectShipNameByToAreaId(Long areaId);
 
-    ShipDetail selectByCondition(@Param("methodId") Long methodId,
+    ShippingUnit selectByCondition(@Param("methodId") Long methodId,
                                  @Param("toAreaId") Long toAreaId,
                                  @Param("weight") BigDecimal weight);
 

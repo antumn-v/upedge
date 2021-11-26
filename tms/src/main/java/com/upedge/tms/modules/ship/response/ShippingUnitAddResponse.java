@@ -2,9 +2,8 @@ package com.upedge.tms.modules.ship.response;
 
 import com.upedge.common.base.BaseResponse;
 import com.upedge.tms.modules.ship.request.ShippingUnitAddRequest;
-
 /**
- * @author author
+ * @author gx
  */
 public class ShippingUnitAddResponse extends BaseResponse {
     public ShippingUnitAddResponse(int code, String msg, Object data, ShippingUnitAddRequest req) {

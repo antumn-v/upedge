@@ -29,6 +29,7 @@ import com.upedge.tms.modules.ship.response.ShippingMethodDisableResponse;
 import com.upedge.tms.modules.ship.response.ShippingMethodEnableResponse;
 import com.upedge.tms.modules.ship.response.ShippingMethodListResponse;
 import com.upedge.tms.modules.ship.service.ShippingMethodService;
+import com.upedge.tms.modules.ship.service.ShippingUnitService;
 import com.upedge.tms.mq.TmsProcuderService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,6 +57,9 @@ public class ShippingMethodServiceImpl implements ShippingMethodService {
     private ShippingMethodDao shippingMethodDao;
     @Autowired
     private ShippingUnitDao shippingUnitDao;
+
+    @Autowired
+    ShippingUnitService shippingUnitService;
 
     @Autowired
     ShippingMethodTemplateDao shippingMethodTemplateDao;
@@ -147,7 +151,8 @@ public class ShippingMethodServiceImpl implements ShippingMethodService {
         }
         List<ShipDetail> shipDetails = new ArrayList<>();
         if (ListUtils.isNotEmpty(request.getMethodIds())) {
-            shipDetails = shippingUnitDao.selectByMethodIdsAndWeight(request.getMethodIds(), request.getToAreaId(), weight, volumn);
+            shipDetails.addAll(shippingUnitService.selectByMethodIdsAndWeight(request.getMethodIds(), request.getToAreaId(), weight, 0));
+            shipDetails.addAll(shippingUnitService.selectByMethodIdsAndWeight(request.getMethodIds(), request.getToAreaId(), volumn, 1));
         } else {
             List<Long> templateIds = request.getTemplateIds();
             List<ShippingMethod> methods = new ArrayList<>();
@@ -165,9 +170,9 @@ public class ShippingMethodServiceImpl implements ShippingMethodService {
             for (ShippingMethod shippingMethod : methods) {
                 ShipDetail shipDetail = null;
                 if (0 == shippingMethod.getWeightType()) {
-                    shipDetail = shippingUnitDao.selectByCondition(shippingMethod.getId(), request.getToAreaId(), request.getWeight());
+                    shipDetail = shippingUnitService.selectByCondition(shippingMethod.getId(), request.getToAreaId(), request.getWeight());
                 } else if (1 == shippingMethod.getWeightType()) {
-                    shipDetail = shippingUnitDao.selectByCondition(shippingMethod.getId(), request.getToAreaId(), request.getVolumeWeight());
+                    shipDetail = shippingUnitService.selectByCondition(shippingMethod.getId(), request.getToAreaId(), request.getVolumeWeight());
                 }
                 if (null != shipDetail) {
                     shipDetail.setWeightType(shippingMethod.getWeightType());
@@ -235,9 +240,9 @@ public class ShippingMethodServiceImpl implements ShippingMethodService {
             if (shippingMethod.getId().equals(request.getShipMethodId())) {
                 ShipDetail shipDetail = null;
                 if (0 == shippingMethod.getWeightType()) {
-                    shipDetail = shippingUnitDao.selectByCondition(shippingMethod.getId(), request.getToAreaId(), request.getWeight());
+                    shipDetail = shippingUnitService.selectByCondition(shippingMethod.getId(), request.getToAreaId(), request.getWeight());
                 } else if (1 == shippingMethod.getWeightType()) {
-                    shipDetail = shippingUnitDao.selectByCondition(shippingMethod.getId(), request.getToAreaId(), request.getVolumeWeight());
+                    shipDetail = shippingUnitService.selectByCondition(shippingMethod.getId(), request.getToAreaId(), request.getVolumeWeight());
                 }
                 if (null != shipDetail) {
                     shipDetail.setWeightType(shippingMethod.getWeightType());

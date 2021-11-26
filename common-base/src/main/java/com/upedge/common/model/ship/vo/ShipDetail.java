@@ -1,5 +1,6 @@
 package com.upedge.common.model.ship.vo;
 
+import com.upedge.common.model.old.tms.ShippingUnit;
 import lombok.Data;
 
 import javax.validation.constraints.NotNull;
@@ -42,4 +43,6 @@ public class ShipDetail {
     public int hashCode() {
         return Objects.hash(methodId, price, weight);
     }
+
+
 }

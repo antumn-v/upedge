@@ -212,6 +212,9 @@
                 <if test="t.orderId != null">
                     o.id = #{t.orderId} and
                 </if>
+                <if test="t.storeId != null">
+                    o.store_id = #{t.storeId} and
+                </if>
                 <if test="t.orgId != null">
                     o.org_id = #{t.orgId} and
                 </if>
@@ -233,6 +236,9 @@
                 </if>
                 <if test="t.shipState != null">
                     o.ship_state = #{t.shipState} and
+                </if>
+                <if test="t.quoteState != null">
+                    o.quote_state = #{t.quoteState} and
                 </if>
                 <if test="t.orderType != null">
                     o.order_type = #{t.orderType} and

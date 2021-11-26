@@ -1,6 +1,7 @@
 package com.upedge.ums.modules.account.service.impl;
 
 import com.upedge.common.base.BaseResponse;
+import com.upedge.common.config.HostConfig;
 import com.upedge.common.constant.Constant;
 import com.upedge.common.constant.PayOrderMethod;
 import com.upedge.common.constant.ResultCode;
@@ -9,6 +10,7 @@ import com.upedge.common.exception.CustomerException;
 import com.upedge.common.model.account.PaypalOrder;
 import com.upedge.common.model.account.PaypalPayment;
 import com.upedge.common.model.user.vo.Session;
+import com.upedge.common.utils.FileUtil;
 import com.upedge.common.utils.IdGenerate;
 import com.upedge.common.web.util.UserUtil;
 import com.upedge.ums.modules.account.dao.*;
@@ -21,6 +23,7 @@ import com.upedge.ums.modules.account.vo.RechargeHistoryListVo;
 import com.upedge.ums.modules.account.vo.RechargeRequestLogVo;
 import com.upedge.ums.modules.user.dao.UserInfoDao;
 import com.upedge.ums.modules.user.dto.UserInfoDto;
+import jodd.util.StringUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -154,12 +157,6 @@ public class RechargeServiceImpl implements RechargeService {
         if (request.getAttr() == null) {
             throw new NullPointerException("image can't be null!");
         }
-        TransferRechargeRequest.TransferRechargeAttr transferRechargeAttr = request.getAttr();
-
-        RechargeRequestAttr requestAttr = transferRechargeAttr.toTransferRequestAttrs(requestLog.getId());
-
-        rechargeRequestAttrMapper.insert(requestAttr);
-
         return new ApplyRechargeResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS);
     }
 
@@ -339,13 +336,17 @@ public class RechargeServiceImpl implements RechargeService {
     }
 
 
-    public RechargeRequestLog saveRequestLog(ApplyRechargeRequest request) {
-        Session session = UserUtil.getSession(redisTemplate);
+    public RechargeRequestLog saveRequestLog(TransferRechargeRequest request) {
 
+        Session session = UserUtil.getSession(redisTemplate);
         Long applicationId = UserUtil.getSession(redisTemplate).getApplicationId();
 
         RechargeRequestLog requestLog = request.toRechargeRequest(session);
-
+        String image = request.getAttr().getImage();
+        if (StringUtil.isBlank(image)){
+            image = FileUtil.uploadImage(image, HostConfig.HOST +"/image/transfer/","/root/files/image/transfer/");
+            requestLog.setTransferFlow(image);
+        }
         BigDecimal benefits = rechargeBenefitsMapper.selectBenefitsByAppAndAmount(applicationId, requestLog.getAmount());
 
         if (null == benefits) {

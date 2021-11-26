@@ -240,7 +240,7 @@ public class OrderServiceImpl implements OrderService {
                 }
             }
             completeOrderStoreUrl(orderVo);
-            orderVo.setNote((String) redisTemplate.opsForValue().get(RedisKey.STRING_ORDER_NOTE + orderVo.getId()));
+//            orderVo.setNote((String) redisTemplate.opsForValue().get(RedisKey.STRING_ORDER_NOTE + orderVo.getId()));
         }
         return appOrderVos;
     }

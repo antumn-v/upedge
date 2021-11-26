@@ -4,7 +4,9 @@ import com.upedge.common.base.BaseResponse;
 import com.upedge.common.base.Page;
 import com.upedge.common.constant.Constant;
 import com.upedge.common.constant.ResultCode;
+import com.upedge.common.model.ship.vo.ShipDetail;
 import com.upedge.common.utils.IdGenerate;
+import com.upedge.common.utils.ListUtils;
 import com.upedge.tms.modules.ship.dao.ShippingUnitDao;
 import com.upedge.tms.modules.ship.entity.ShippingUnit;
 import com.upedge.tms.modules.ship.service.ShippingUnitService;
@@ -17,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 
 @Service
@@ -96,6 +99,27 @@ public class ShippingUnitServiceImpl implements ShippingUnitService {
     }
 
     @Override
+    public ShipDetail selectByCondition(Long methodId, Long toAreaId, BigDecimal weight) {
+        ShippingUnit shippingUnit = shippingUnitDao.selectByCondition(methodId, toAreaId, weight);
+        if (shippingUnit != null){
+            return shipUnitToDetail(shippingUnit,weight);
+        }
+        return null;
+    }
+
+    @Override
+    public List<ShipDetail> selectByMethodIdsAndWeight(Set<Long> methodIds, Long toAreaId, BigDecimal weight, Integer weightType) {
+        List<ShippingUnit> shippingUnits = shippingUnitDao.selectByMethodIdsAndWeight(methodIds, toAreaId, weight, weightType);
+        List<ShipDetail> shipDetails = new ArrayList<>();
+        if (ListUtils.isNotEmpty(shippingUnits)){
+            for (ShippingUnit shippingUnit : shippingUnits) {
+                shipDetails.add(shipUnitToDetail(shippingUnit,weight));
+            }
+        }
+        return shipDetails;
+    }
+
+    @Override
     public ShippingUnit getShippingUnitByOption(Long methodId, String fromAreaId, String toAreaId, BigDecimal startWeight, BigDecimal endWeight) {
         return shippingUnitDao.getShippingUnitByOption(methodId,fromAreaId,toAreaId,startWeight,endWeight);
     }
@@ -135,5 +159,26 @@ public class ShippingUnitServiceImpl implements ShippingUnitService {
         ArrayList<Long> list = new ArrayList<>();
         list.add(id);
         tmsProcuder.sendMessage(list);
+    }
+
+    public ShipDetail shipUnitToDetail(ShippingUnit shippingUnit, BigDecimal weight) {
+        ShipDetail shipDetail = new ShipDetail();
+        shipDetail.setShippingUtilId(shippingUnit.getId());
+        shipDetail.setMethodId(shippingUnit.getMethodId());
+        shipDetail.setMethodName(shippingUnit.getMethodName());
+        shipDetail.setDays(shippingUnit.getDeliveryMinDay() + "~" + shippingUnit.getDeliveryMaxDay());
+        shipDetail.setWeight(weight);
+        BigDecimal price = BigDecimal.ZERO;
+        if (weight.compareTo(shippingUnit.getFirstWeight()) < 1){
+            price = shippingUnit.getFirstFreight().add(shippingUnit.getFixedFee()).setScale(2,BigDecimal.ROUND_UP);
+        }else {
+            price = weight.subtract(shippingUnit.getFirstWeight())
+                    .divide(shippingUnit.getContinueUnitWeight(),2,BigDecimal.ROUND_UP)
+                    .multiply(shippingUnit.getContinueUnitPrice())
+                    .add(shippingUnit.getFirstFreight())
+                    .add(shippingUnit.getFixedFee());
+        }
+        shipDetail.setPrice(price);
+        return shipDetail;
     }
 }

@@ -5,37 +5,43 @@ public enum  OrderTagEnum {
     /**
      * 查所有
      */
-    ALL(null,null,null),
+    ALL(null,null,null,null),
+
+    UNQUOTED(0,0,0,0),
+
+    QUOTING(0,0,0,1),
+
+    PART_QUOTED(0,0,0,2),
 
     /**
      * 未付款
      */
-    TO_ORDER(0,0,0),
+    QUOTED(0,0,0,3),
 
     /**
      * 已付款未发货
      */
-    IN_PROCESSING(1,0,0),
+    PAID(1,0,null,null),
 
     /**
      * 已发货
      */
-    SHIPPED(1,0,1),
+    SHIPPED(1,0,1,null),
 
     /**
      * 取消订单
      */
-    CANCELED(-1,0,0),
+    CANCELED(-1,0,0,null),
 
     /**
      * 退款：包括退款申请中 部分退款  全部退款
      */
-    REFUNDS(1,1,null),
+    REFUNDS(1,1,null,null),
 
     /**
      * 补发
      */
-    RESHIPPED(1,0,1);
+    RESHIPPED(1,0,1,null);
 
 
 
@@ -45,11 +51,14 @@ public enum  OrderTagEnum {
 
     Integer refundState;
 
+    Integer quoteState;
 
-    OrderTagEnum(Integer payState, Integer refundState, Integer shipState) {
+
+    OrderTagEnum(Integer payState, Integer refundState, Integer shipState,Integer quoteState) {
         this.payState = payState;
         this.refundState = refundState;
         this.shipState = shipState;
+        this.quoteState = quoteState;
     }
 
     public Integer getPayState() {
@@ -76,5 +85,11 @@ public enum  OrderTagEnum {
         this.refundState = refundState;
     }
 
+    public Integer getQuoteState() {
+        return quoteState;
+    }
 
+    public void setQuoteState(Integer quoteState) {
+        this.quoteState = quoteState;
+    }
 }
