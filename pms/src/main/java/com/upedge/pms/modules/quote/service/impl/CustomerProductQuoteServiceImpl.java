@@ -1,6 +1,8 @@
 package com.upedge.pms.modules.quote.service.impl;
 
+import com.alibaba.fastjson.JSON;
 import com.upedge.common.base.Page;
+import com.upedge.common.config.RocketMqConfig;
 import com.upedge.common.model.pms.quote.CustomerProductQuoteVo;
 import com.upedge.common.model.pms.request.CustomerProductQuoteSearchRequest;
 import com.upedge.common.utils.ListUtils;
@@ -8,12 +10,15 @@ import com.upedge.pms.modules.product.dao.StoreProductVariantDao;
 import com.upedge.pms.modules.quote.dao.CustomerProductQuoteDao;
 import com.upedge.pms.modules.quote.entity.CustomerProductQuote;
 import com.upedge.pms.modules.quote.service.CustomerProductQuoteService;
+import com.upedge.pms.mq.producer.ProductMqProducer;
+import org.apache.rocketmq.common.message.Message;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 
 @Service
@@ -24,6 +29,9 @@ public class CustomerProductQuoteServiceImpl implements CustomerProductQuoteServ
 
     @Autowired
     StoreProductVariantDao storeProductVariantDao;
+
+    @Autowired
+    ProductMqProducer productMqProducer;
 
 
 
@@ -89,6 +97,17 @@ public class CustomerProductQuoteServiceImpl implements CustomerProductQuoteServ
         CustomerProductQuote record = new CustomerProductQuote();
         record.setCustomerId(customerId);
         return customerProductQuoteDao.selectByPrimaryKey(record);
+    }
+
+    @Override
+    public boolean sendCustomerProductQuoteUpdateMessage(List<Long> storeVariantIds) {
+        CustomerProductQuoteSearchRequest request = new CustomerProductQuoteSearchRequest();
+        request.setStoreVariantIds(storeVariantIds);
+        List<CustomerProductQuoteVo> customerProductQuoteVos = selectQuoteDetail(request);
+        String tag = "quote";
+        String key = UUID.randomUUID().toString();
+        Message message = new Message(RocketMqConfig.TOPIC_CUSTOMER_PRODUCT_QUOTE_UPDATE,tag,key, JSON.toJSONBytes(customerProductQuoteVos));
+        return productMqProducer.sendMessage(message);
     }
 
     /**

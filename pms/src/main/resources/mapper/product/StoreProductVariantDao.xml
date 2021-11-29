@@ -477,7 +477,8 @@
         select spv.id as storeVariantId,spv.product_id as storeProductId,
         '0' as quoteApplyId,title as `storeVariantName`,
         pv.id as variantId,pv.en_name as variantName,pv.variant_sku,
-        pv.variant_image,pv.variant_price as `price`,pv.usd_price,
+        pv.variant_image,pv.variant_price as `cnyPrice`,pv.usd_price,
+        pv.usd_price as `quotePrice`,
         pv.weight,pv.volume_weight as `volume`,
         p.shipping_id as productShippingId,p.id as productId
         from store_product_variant spv
@@ -489,7 +490,6 @@
         <foreach collection="ids" item="id" open="(" close=")" separator=",">
             #{id}
         </foreach>
-
     </select>
 
 </mapper>

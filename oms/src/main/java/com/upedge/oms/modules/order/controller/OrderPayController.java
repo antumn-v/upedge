@@ -28,6 +28,8 @@ import com.upedge.oms.modules.stock.service.CustomerProductStockService;
 import com.upedge.oms.modules.stock.service.StockOrderService;
 import com.upedge.oms.modules.wholesale.service.WholesaleOrderItemService;
 import com.upedge.oms.modules.wholesale.service.WholesaleOrderPayService;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,6 +43,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+@Api(tags = "普通订单支付")
 @RestController
 @RequestMapping("/order/pay")
 public class OrderPayController {
@@ -88,6 +91,7 @@ public class OrderPayController {
         return BaseResponse.failed("order error");
     }
 
+    @ApiOperation("余额支付订单")
     @PostMapping("/balance")
     public OrderPayResponse payOrderByBalance(@RequestBody @Valid OrderPayRequest request) {
         Session session = UserUtil.getSession(redisTemplate);
@@ -108,16 +112,12 @@ public class OrderPayController {
         if (i == orderIds.size()) {
             //库存检查
             List<ItemDischargeQuantityVo> dischargeQuantityVos = orderItemService.selectDischargeQuantityByPaymentId(paymentId);
-
             OrderPayCheckResultVo   orderPayCheckResultVo = orderPayService.orderPayCheck(paymentId, amount, dischargeQuantityVos, session.getCustomerId(),"balance");
-
             if (orderPayCheckResultVo.getPayMessage().equals("success")) {
-
                     orderPayService.payOrderByBalance(session, amount, paymentId, dischargeQuantityVos);
                     orderPayService.payOrderAsync(session.getId(),session.getCustomerId(),paymentId);
                     OrderPayResponse.PayResponse payResponse = new OrderPayResponse.PayResponse(paymentId,amount, TransactionConstant.PayMethod.ACCOUNT.getCode(),new Date(),orderPayCheckResultVo.getTradingDataVo());
                     return new OrderPayResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS,payResponse);
-
             }
             orderPayService.orderPayRollback(paymentId, session.getCustomerId(), dischargeQuantityVos);
         }

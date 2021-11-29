@@ -79,7 +79,7 @@ public class WholesaleOrderItemServiceImpl implements WholesaleOrderItemService 
         switch (tag) {
             case "price":
                 name = "cny_price";
-                value = variantDetail.getPrice();
+                value = variantDetail.getCnyPrice();
                 break;
             case "weight":
                 name = "admin_variant_weight";

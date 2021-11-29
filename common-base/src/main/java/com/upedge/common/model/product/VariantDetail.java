@@ -40,7 +40,7 @@ public class VariantDetail {
     /**
      * 单价
      */
-    private BigDecimal price;
+    private BigDecimal cnyPrice;
 
     private BigDecimal usdPrice;
 

@@ -1,10 +1,9 @@
 package com.upedge.pms.modules.quote.controller;
 
-import java.util.Arrays;
-import java.util.Map;
-
 import com.upedge.common.base.BaseResponse;
 import com.upedge.common.base.Page;
+import com.upedge.common.component.annotation.Permission;
+import com.upedge.common.constant.Constant;
 import com.upedge.common.constant.ResultCode;
 import com.upedge.common.model.pms.request.OrderQuoteApplyRequest;
 import com.upedge.common.model.user.vo.Session;
@@ -13,27 +12,20 @@ import com.upedge.common.web.util.UserUtil;
 import com.upedge.pms.modules.product.request.ClaimQuoteApplyRequest;
 import com.upedge.pms.modules.product.request.QuoteApplyProcessRequest;
 import com.upedge.pms.modules.quote.dto.QuoteApplyListDto;
+import com.upedge.pms.modules.quote.entity.CustomerProductQuote;
+import com.upedge.pms.modules.quote.response.QuoteApplyInfoResponse;
+import com.upedge.pms.modules.quote.service.CustomerProductQuoteService;
+import com.upedge.pms.modules.quote.service.QuoteApplyService;
 import com.upedge.pms.modules.quote.vo.QuoteApplyVo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
-import com.upedge.common.component.annotation.Permission;
-import com.upedge.pms.modules.quote.entity.QuoteApply;
-import com.upedge.pms.modules.quote.service.QuoteApplyService;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.*;
-import java.util.List;
-import com.upedge.common.constant.Constant;
-import com.upedge.pms.modules.quote.request.QuoteApplyAddRequest;
-import com.upedge.pms.modules.quote.request.QuoteApplyListRequest;
-import com.upedge.pms.modules.quote.request.QuoteApplyUpdateRequest;
 
-import com.upedge.pms.modules.quote.response.QuoteApplyAddResponse;
-import com.upedge.pms.modules.quote.response.QuoteApplyDelResponse;
-import com.upedge.pms.modules.quote.response.QuoteApplyInfoResponse;
-import com.upedge.pms.modules.quote.response.QuoteApplyListResponse;
-import com.upedge.pms.modules.quote.response.QuoteApplyUpdateResponse;
 import javax.validation.Valid;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * 
@@ -46,6 +38,9 @@ import javax.validation.Valid;
 public class QuoteApplyController {
     @Autowired
     private QuoteApplyService quoteApplyService;
+
+    @Autowired
+    CustomerProductQuoteService customerProductQuoteService;
 
     @Autowired
     RedisTemplate redisTemplate;
@@ -62,7 +57,19 @@ public class QuoteApplyController {
     @PostMapping("/{quoteApplyId}/process")
     public BaseResponse processQuoteApply(@RequestBody QuoteApplyProcessRequest request,@PathVariable Long quoteApplyId){
         Session session = UserUtil.getSession(redisTemplate);
-        return quoteApplyService.processQuoteApply(request,quoteApplyId,session);
+        List<CustomerProductQuote> customerProductQuotes =  quoteApplyService.processQuoteApply(request,quoteApplyId,session);
+        if (ListUtils.isEmpty(customerProductQuotes)){
+            return BaseResponse.failed("数据异常");
+        }
+        List<Long> storeVariantIds = new ArrayList<>();
+        for (CustomerProductQuote customerProductQuote : customerProductQuotes) {
+            storeVariantIds.add(customerProductQuote.getStoreVariantId());
+        }
+        boolean b = customerProductQuoteService.sendCustomerProductQuoteUpdateMessage(storeVariantIds);
+        if (!b){
+            return BaseResponse.failed("消息队列异常，请重新提交");
+        }
+        return BaseResponse.success();
     }
 
     @ApiOperation("完结报价申请")

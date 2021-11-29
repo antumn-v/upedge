@@ -11,6 +11,8 @@ public class RocketMqConfig {
 
     public final static String TOPIC_PAYPAL_VERIFICATION = "paypal_verification";
 
+    public final static String TOPIC_CUSTOMER_PRODUCT_QUOTE_UPDATE = "customer_product_quote_update";
+
     public final static String TOPIC_TRANSACTION_RECORD = "transaction_record";
 
     public final static String TOPIC_VARIANT_UPDATE = "variant_update";

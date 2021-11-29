@@ -1,6 +1,7 @@
 package com.upedge.pms.modules.product.service;
 
 import com.upedge.common.base.Page;
+import com.upedge.common.model.pms.quote.CustomerProductQuoteVo;
 import com.upedge.pms.modules.product.entity.StoreProductVariant;
 
 import java.util.List;
@@ -9,6 +10,8 @@ import java.util.List;
  * @author author
  */
 public interface StoreProductVariantService{
+
+    List<CustomerProductQuoteVo> selectQuoteDetailByIds(List<Long> ids);
 
     StoreProductVariant selectByPrimaryKey(Long id);
 

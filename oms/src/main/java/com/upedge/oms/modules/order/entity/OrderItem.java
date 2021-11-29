@@ -113,8 +113,8 @@ public class OrderItem{
 		this.adminVariantId = variantVo.getVariantId();
 		this.adminProductId = variantVo.getProductId();
 		this.shippingId = variantVo.getProductShippingId();
-		this.cnyPrice = variantVo.getPrice();
-		this.usdPrice = variantVo.getUsdPrice();
+		this.cnyPrice = variantVo.getCnyPrice();
+		this.usdPrice = variantVo.getQuotePrice();
 		this.adminVariantVolume = variantVo.getVolume();
 		this.adminVariantWeight = variantVo.getWeight();
 		this.adminVariantImage = variantVo.getVariantImage();

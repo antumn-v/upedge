@@ -524,10 +524,11 @@ public class OrderPayServiceImpl implements OrderPayService {
         orderTransactionDto.setPayTime(payTime);
         orderTransactionDto.setPayMethod(PayOrderMethod.RECHARGE);
         //获取人民币汇率
-        BigDecimal cnyRate = (BigDecimal) redisTemplate.opsForHash().get("currency:rate:USD", "cnyRate");
-        if (null == cnyRate) {
-            cnyRate = new BigDecimal((Double) umsFeignClient.getCurrencyRate("USD").getData());
-        }
+        BigDecimal cnyRate = new BigDecimal("6.3");
+//        BigDecimal cnyRate = (BigDecimal) redisTemplate.opsForHash().get("currency:rate:USD", "cnyRate");
+//        if (null == cnyRate) {
+//            cnyRate = new BigDecimal((Double) umsFeignClient.getCurrencyRate("USD").getData());
+//        }
         orderTransactionDto.setCnyRate(cnyRate);
         //余额支付订单
         BaseResponse response = umsFeignClient.accountPayment(request);

@@ -1,6 +1,7 @@
 package com.upedge.pms.modules.product.service.impl;
 
 import com.upedge.common.base.Page;
+import com.upedge.common.model.pms.quote.CustomerProductQuoteVo;
 import com.upedge.pms.modules.product.dao.StoreProductVariantDao;
 import com.upedge.pms.modules.product.entity.StoreProductVariant;
 import com.upedge.pms.modules.product.service.StoreProductVariantService;
@@ -43,6 +44,11 @@ public class StoreProductVariantServiceImpl implements StoreProductVariantServic
     @Transactional
     public int insertSelective(StoreProductVariant record) {
         return storeProductVariantDao.insert(record);
+    }
+
+    @Override
+    public List<CustomerProductQuoteVo> selectQuoteDetailByIds(List<Long> ids) {
+        return storeProductVariantDao.selectQuoteDetailByIds(ids);
     }
 
     /**

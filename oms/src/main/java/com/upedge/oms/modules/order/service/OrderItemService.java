@@ -1,6 +1,7 @@
 package com.upedge.oms.modules.order.service;
 
 import com.upedge.common.base.Page;
+import com.upedge.common.model.pms.quote.CustomerProductQuoteVo;
 import com.upedge.common.model.product.RelateDetailVo;
 import com.upedge.common.model.product.RelateVariantVo;
 import com.upedge.common.model.product.VariantDetail;
@@ -16,6 +17,8 @@ import java.util.List;
  * @author author
  */
 public interface OrderItemService{
+
+    void updateItemQuoteDetail(CustomerProductQuoteVo customerProductQuoteVo);
 
     List<ItemDischargeQuantityVo> selectDischargeQuantityByPaymentId(Long paymentId);
 

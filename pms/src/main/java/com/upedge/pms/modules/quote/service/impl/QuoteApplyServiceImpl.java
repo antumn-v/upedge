@@ -1,38 +1,35 @@
 package com.upedge.pms.modules.quote.service.impl;
 
 import com.upedge.common.base.BaseResponse;
-import com.upedge.common.model.pms.quote.CustomerProductQuoteVo;
+import com.upedge.common.base.Page;
 import com.upedge.common.model.pms.request.OrderQuoteApplyRequest;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.utils.IdGenerate;
 import com.upedge.common.utils.ListUtils;
 import com.upedge.pms.modules.product.dao.ProductVariantDao;
 import com.upedge.pms.modules.product.dao.StoreProductVariantDao;
+import com.upedge.pms.modules.product.entity.Product;
 import com.upedge.pms.modules.product.entity.ProductVariant;
 import com.upedge.pms.modules.product.entity.StoreProductVariant;
 import com.upedge.pms.modules.product.request.ClaimQuoteApplyRequest;
 import com.upedge.pms.modules.product.request.QuoteApplyProcessRequest;
-import com.upedge.pms.modules.product.request.QuoteApplyProcessRequest.*;
+import com.upedge.pms.modules.product.service.ProductService;
 import com.upedge.pms.modules.quote.dao.CustomerProductQuoteDao;
+import com.upedge.pms.modules.quote.dao.QuoteApplyDao;
 import com.upedge.pms.modules.quote.dao.QuoteApplyItemDao;
 import com.upedge.pms.modules.quote.dto.QuoteApplyListDto;
 import com.upedge.pms.modules.quote.dto.QuoteApplyProcessItem;
 import com.upedge.pms.modules.quote.entity.CustomerProductQuote;
+import com.upedge.pms.modules.quote.entity.QuoteApply;
 import com.upedge.pms.modules.quote.entity.QuoteApplyItem;
-import com.upedge.pms.modules.quote.request.QuoteApplyListRequest;
+import com.upedge.pms.modules.quote.service.QuoteApplyService;
 import com.upedge.pms.modules.quote.vo.QuoteApplyVo;
 import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import com.upedge.common.base.Page;
-import org.springframework.beans.factory.annotation.Autowired;
-import com.upedge.pms.modules.quote.dao.QuoteApplyDao;
-import com.upedge.pms.modules.quote.entity.QuoteApply;
-import com.upedge.pms.modules.quote.service.QuoteApplyService;
+import java.util.*;
 
 
 @Service
@@ -43,6 +40,9 @@ public class QuoteApplyServiceImpl implements QuoteApplyService {
 
     @Autowired
     QuoteApplyItemDao quoteApplyItemDao;
+
+    @Autowired
+    ProductService productService;
 
     @Autowired
     CustomerProductQuoteDao customerProductQuoteDao;
@@ -119,14 +119,15 @@ public class QuoteApplyServiceImpl implements QuoteApplyService {
 
     @Transactional
     @Override
-    public BaseResponse processQuoteApply(QuoteApplyProcessRequest request, Long quoteApplyId, Session session) {
+    public List<CustomerProductQuote> processQuoteApply(QuoteApplyProcessRequest request, Long quoteApplyId, Session session) {
         QuoteApply quoteApply = quoteApplyDao.selectByPrimaryKey(quoteApplyId);
         if (!quoteApply.getHandleUserId().equals(session.getId()) || quoteApply.getQuoteState() != QuoteApply.STATE_PROCESSING){
-            return BaseResponse.failed("无处理权限");
+            return new ArrayList<>();
         }
         List<QuoteApplyProcessItem> quoteApplyProcessItems = request.getItems();
         List<QuoteApplyItem> quoteApplyItems = quoteApplyItemDao.selectByQuoteApplyId(quoteApplyId);
         List<CustomerProductQuote> customerProductQuotes = new ArrayList<>();
+        Map<Long, Product> map = new HashMap<>();
         for (QuoteApplyProcessItem quoteApplyProcessItem : quoteApplyProcessItems) {
             ProductVariant productVariant = productVariantDao.selectBySku(quoteApplyProcessItem.getVariantSku());
             if (null != productVariant){
@@ -143,7 +144,17 @@ public class QuoteApplyServiceImpl implements QuoteApplyService {
                         CustomerProductQuote customerProductQuote = new CustomerProductQuote();
                         BeanUtils.copyProperties(quoteApplyItem,customerProductQuote);
                         customerProductQuote.setCustomerId(quoteApply.getCustomerId());
+                        Product product = map.get(productVariant.getProductId());
+                        if (product == null){
+                            product = productService.selectByPrimaryKey(productVariant.getProductId());
+                            if (product == null){
+                                continue;
+                            }
+                            map.put(product.getId(),product);
+                        }
+                        customerProductQuote.setProductTitle(product.getProductTitle());
                         customerProductQuotes.add(customerProductQuote);
+
                     }
                 }
             }
@@ -151,7 +162,7 @@ public class QuoteApplyServiceImpl implements QuoteApplyService {
         if (ListUtils.isNotEmpty(customerProductQuotes)){
             customerProductQuoteDao.insertByBatch(customerProductQuotes);
         }
-        return BaseResponse.success();
+        return customerProductQuotes;
     }
 
     @Override

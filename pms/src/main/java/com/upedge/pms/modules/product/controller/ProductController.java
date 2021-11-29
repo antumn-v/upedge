@@ -1,23 +1,22 @@
 package com.upedge.pms.modules.product.controller;
 
-import java.util.Arrays;
-import java.util.Map;
-
 import com.upedge.common.base.BaseResponse;
 import com.upedge.common.base.Page;
-import com.upedge.common.constant.ProductConstant;
+import com.upedge.common.component.annotation.Permission;
+import com.upedge.common.constant.Constant;
 import com.upedge.common.constant.ResultCode;
-import com.upedge.common.exception.CustomerException;
 import com.upedge.common.feign.OmsFeignClient;
 import com.upedge.common.model.cart.request.CartAddRequest;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.utils.UploadImgUtil;
 import com.upedge.common.utils.UrlUtils;
 import com.upedge.common.web.util.UserUtil;
+import com.upedge.pms.modules.product.entity.Product;
 import com.upedge.pms.modules.product.entity.ProductVariant;
 import com.upedge.pms.modules.product.request.*;
 import com.upedge.pms.modules.product.response.*;
 import com.upedge.pms.modules.product.service.AppProductService;
+import com.upedge.pms.modules.product.service.ProductService;
 import com.upedge.pms.modules.product.service.ProductVariantService;
 import com.upedge.pms.modules.product.vo.AddProductVo;
 import com.upedge.pms.modules.product.vo.ProductVo;
@@ -30,18 +29,12 @@ import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import com.upedge.common.component.annotation.Permission;
-import com.upedge.pms.modules.product.entity.Product;
-import com.upedge.pms.modules.product.service.ProductService;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.*;
-import java.util.List;
-import java.util.StringJoiner;
-
-import com.upedge.common.constant.Constant;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
+import java.util.List;
 
 /**
  * 商品信息
@@ -265,7 +258,7 @@ public class ProductController {
         cartAddRequest.setCustomerId(session.getCustomerId());
         cartAddRequest.setQuantity(request.getQuantity());
         cartAddRequest.setVariantId(variant.getId());
-        cartAddRequest.setPrice(variant.getUsdPrice());
+        cartAddRequest.setUsdPrice(variant.getUsdPrice());
         cartAddRequest.setVariantImage(variant.getVariantImage());
         cartAddRequest.setVariantName(variant.getEnName());
         cartAddRequest.setVariantSku(variant.getVariantSku());

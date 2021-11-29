@@ -111,7 +111,7 @@ public class VariantUpdateCusomer {
                     }else {
                         for (VariantDetail variantDetail: variantDetailList) {
                             if(tag.equals("price")){
-                                if (null == variantDetail.getPrice()){
+                                if (null == variantDetail.getUsdPrice()){
                                     continue;
                                 }
                                 cartService.updatePriceByVariantId(variantDetail);

@@ -1,6 +1,7 @@
 package com.upedge.oms.modules.order.dao;
 
 import com.upedge.common.base.Page;
+import com.upedge.common.model.pms.quote.CustomerProductQuoteVo;
 import com.upedge.common.model.product.RelateVariantVo;
 import com.upedge.common.model.product.VariantDetail;
 import com.upedge.oms.modules.order.entity.OrderItem;
@@ -23,6 +24,8 @@ public interface OrderItemDao{
 
     List<CustomerStockRecord> selectStockRecordByPaymentId(@Param("paymentId") Long paymentId,
                                                            @Param("customerId") Long customerId);
+
+    void updateItemQuoteDetail(CustomerProductQuoteVo customerProductQuoteVo);
 
     Long selectStoreOrderIdById(Long id);
 

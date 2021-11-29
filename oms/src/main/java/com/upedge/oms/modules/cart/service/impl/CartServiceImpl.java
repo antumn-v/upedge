@@ -215,8 +215,8 @@ public class CartServiceImpl implements CartService {
     public void updateCartByVariant(VariantDetail variantDetail, String tag) {
         switch (tag) {
             case "price":
-                if (null != variantDetail.getPrice()) {
-                    cartDao.updatePriceByVariantId(variantDetail.getVariantId(), variantDetail.getPrice());
+                if (null != variantDetail.getUsdPrice()) {
+                    cartDao.updatePriceByVariantId(variantDetail.getVariantId(), variantDetail.getUsdPrice());
                 }
                 break;
             case "weight":
@@ -283,7 +283,7 @@ public class CartServiceImpl implements CartService {
 
     @Override
     public void updatePriceByVariantId(VariantDetail variantDetail) {
-        if(null != variantDetail.getPrice()) {
+        if(null != variantDetail.getUsdPrice()) {
             cartDao.updatePriceByVariantId(variantDetail.getVariantId(), variantDetail.getUsdPrice());
         }
     }
@@ -350,7 +350,7 @@ public class CartServiceImpl implements CartService {
         cart.setVariantName(request.getVariantName());
         cart.setVariantSku(request.getVariantSku());
         cart.setVariantImage(request.getVariantImage());
-        cart.setPrice(request.getPrice());
+        cart.setPrice(request.getUsdPrice());
         cart.setVariantWeight(request.getWeight());
         cart.setVariantVolume(request.getVolume());
         cart.setQuantity(request.getQuantity());

@@ -54,6 +54,7 @@
         <result property="payState" column="pay_state"/>
         <result property="refundState" column="refund_state"/>
         <result property="shipState" column="ship_state"/>
+        <result property="quoteState" column="quote_state"/>
         <result property="orderType" column="order_type"/>
         <result property="toAreaId" column="to_area_id"/>
         <result property="vatAmount" column="vat_amount"/>
@@ -397,7 +398,7 @@
         select distinctrow o.customer_id,o.id,o.store_id,o.pay_amount,o.ship_method_id,o.ship_price,
         o.total_weight,o.product_amount,o.product_discharge_amount,o.fix_fee,o.pay_method,
         o.pay_time,o.payment_id,o.pay_state,o.refund_state,o.ship_state,o.order_type,o.to_area_id,
-        o.vat_amount,o.create_time,o.store_id,r.plat_order_create_time
+        o.vat_amount,o.create_time,o.store_id,r.plat_order_create_time,o.quote_state
         from `order` o
         inner join store_order_relate r
         on o.id = r.order_id

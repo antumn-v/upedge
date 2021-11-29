@@ -256,7 +256,7 @@ public class StockOrderServiceImpl implements StockOrderService {
 
     @Override
     public void updatePriceByVariantId(VariantDetail variantDetail) {
-        if (null != variantDetail.getPrice()){
+        if (null != variantDetail.getUsdPrice()){
             stockOrderItemDao.updatePriceByVariantId(variantDetail.getVariantId(), variantDetail.getUsdPrice());
         }
     }

@@ -790,6 +790,23 @@
         where oi.admin_product_id = #{adminProductId}
           and o.pay_state = '0'
     </update>
+    <update id="updateItemQuoteDetail" parameterType="com.upedge.common.model.pms.quote.CustomerProductQuoteVo">
+        update order_item  oi
+        inner join `order` o
+        on oi.order_id = o.id
+        set oi.admin_product_id = #{productId},
+        oi.admin_variant_id = #{variantId},
+        oi.admin_variant_sku = #{variantSku},
+        oi.admin_variant_image = #{variantImage},
+        oi.admin_variant_volume = #{volume},
+        oi.admin_variant_weight = #{weight},
+        oi.shipping_id = #{productShippingId},
+        oi.usd_price = #{quotePrice},
+        oi.cny_price = #{cnyPrice},
+        oi.discharge_quantity = '0'
+        where oi.store_variant_id = ''
+        and o.pay_state &lt; '1'
+    </update>
 
     <select id="listOrderItem" resultType="com.upedge.oms.modules.order.vo.OrderItemVo">
         select

@@ -520,7 +520,7 @@ public class WholesaleOrderServiceImpl implements WholesaleOrderService {
                         item.setOrderId(orderId);
                         item.setAdminProductId(productId);
                         item.setShippingId(variant.getProductShippingId());
-                        item.setUsdPrice(PriceUtils.cnyToUsdByDefaultRate(variant.getPrice()));
+                        item.setUsdPrice(PriceUtils.cnyToUsdByDefaultRate(variant.getCnyPrice()));
                         item.setAdminVariantId(variant.getVariantId());
                         item.setAdminVariantWeight(variant.getWeight());
                         item.setAdminVariantVolume(variant.getVolume());

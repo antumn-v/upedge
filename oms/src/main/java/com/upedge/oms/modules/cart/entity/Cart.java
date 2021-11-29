@@ -82,7 +82,7 @@ public class Cart{
 		cart.setVariantName(detail.getVariantName());
 		cart.setVariantSku(detail.getVariantSku());
 		cart.setVariantImage(detail.getVariantImage());
-		cart.setPrice(detail.getPrice());
+		cart.setPrice(detail.getUsdPrice());
 		cart.setVariantWeight(detail.getWeight());
 		cart.setVariantVolume(detail.getVolume());
 		cart.setCreateTime(date);
@@ -98,7 +98,7 @@ public class Cart{
 		this.variantName = detail.getVariantName();
 		this.variantSku = detail.getVariantSku();
 		this.variantImage = detail.getVariantImage();
-		this.price = detail.getPrice();
+		this.price = detail.getUsdPrice();
 		this.variantWeight = detail.getWeight();
 		this.variantVolume = detail.getVolume();
 		this.createTime = date;

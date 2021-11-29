@@ -2,6 +2,7 @@ package com.upedge.oms.modules.order.service.impl;
 
 import com.upedge.common.base.Page;
 import com.upedge.common.constant.OrderType;
+import com.upedge.common.model.pms.quote.CustomerProductQuoteVo;
 import com.upedge.common.model.product.RelateDetailVo;
 import com.upedge.common.model.product.RelateVariantVo;
 import com.upedge.common.model.product.VariantDetail;
@@ -74,6 +75,11 @@ public class OrderItemServiceImpl implements OrderItemService {
     }
 
     @Override
+    public void updateItemQuoteDetail(CustomerProductQuoteVo customerProductQuoteVo) {
+        orderItemDao.updateItemQuoteDetail(customerProductQuoteVo);
+    }
+
+    @Override
     public List<ItemDischargeQuantityVo> selectDischargeQuantityByPaymentId(Long paymentId) {
         return orderItemDao.selectDischargeQuantityByPaymentId(paymentId);
     }
@@ -121,7 +127,7 @@ public class OrderItemServiceImpl implements OrderItemService {
         switch (tag){
             case "price":
                 name = "cny_price";
-                value = variantDetail.getPrice();
+                value = variantDetail.getCnyPrice();
                 break;
             case "weight":
                 name = "admin_variant_weight";//重量

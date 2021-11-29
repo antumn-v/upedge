@@ -78,6 +78,8 @@ public class AppOrderVo {
      *
      */
     private Integer shipState;
+
+    private Integer quoteState;
     /**
      * 订单类型  正常订单=0 补发订单=1 拆分订单=2 合并订单=3
      */
