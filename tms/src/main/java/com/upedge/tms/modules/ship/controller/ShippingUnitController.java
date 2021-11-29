@@ -5,6 +5,7 @@ import com.upedge.common.constant.Constant;
 import com.upedge.common.constant.ResultCode;
 import com.upedge.common.model.tms.ShippingUnitInfoResponse;
 import com.upedge.common.model.tms.ShippingUnitVo;
+import com.upedge.common.utils.ListUtils;
 import com.upedge.common.utils.excel.ExcelExport;
 import com.upedge.common.utils.excel.ExcelField;
 import com.upedge.common.web.util.RedisUtil;
@@ -65,37 +66,40 @@ public class ShippingUnitController {
 //        shippingUnitService.insert(shippingUnit);
 //        return BaseResponse.success();
 //    }
+
     /**
      * 运输导入列表
+     *
      * @param request
      * @return
      */
-    @RequestMapping(value="/import/list", method=RequestMethod.POST)
+    @RequestMapping(value = "/import/list", method = RequestMethod.POST)
     public ShippingUnitListResponse importList(@RequestBody @Valid ShippingUnitListRequest request) {
-        if(request.getT()==null){
+        if (request.getT() == null) {
             request.setT(new ShippingUnit());
         }
-        ShippingUnit shippingUnit=request.getT();
+        ShippingUnit shippingUnit = request.getT();
         shippingUnit.setState(0);
         List<ShippingUnit> results = shippingUnitService.select(request);
         Long total = shippingUnitService.count(request);
         request.setTotal(total);
-        ShippingUnitListResponse res = new ShippingUnitListResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS,results,request);
+        ShippingUnitListResponse res = new ShippingUnitListResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS, results, request);
         return res;
     }
 
     /**
      * 运输方式导入模板
+     *
      * @param response
      * @return
      */
-    @RequestMapping(value = "/import/template",method = RequestMethod.GET)
+    @RequestMapping(value = "/import/template", method = RequestMethod.GET)
     public BaseResponse importFileTemplate(HttpServletResponse response) {
         try {
             String fileName = "import_template.xls";
-            List<ShippingUnit> list =new ArrayList<>();
+            List<ShippingUnit> list = new ArrayList<>();
             //产品库详情 XSSFWorkbook
-            ExcelExport excelExport=new ExcelExport(new HSSFWorkbook(),"运输方式数据",null,
+            ExcelExport excelExport = new ExcelExport(new HSSFWorkbook(), "运输方式数据", null,
                     ShippingUnit.class, ExcelField.Type.EXPORT, new String[0]);
 
             //创建一个样式
@@ -108,11 +112,11 @@ public class ShippingUnitController {
             oneSheet.setDefaultColumnStyle(6, cellStyle);
             oneSheet.autoSizeColumn(1, true);
 
-            List<String> methodNameList=shippingMethodService.listUseAllShippingMethodName();
+            List<String> methodNameList = shippingMethodService.listUseAllShippingMethodName();
 
             Sheet hidden = excelExport.getWorkbook().createSheet("hidden");
             Cell cell = null;
-            for (int i = 0, length= methodNameList.size(); i < length; i++) {
+            for (int i = 0, length = methodNameList.size(); i < length; i++) {
                 String name = methodNameList.get(i);
                 Row row = hidden.createRow(i);
                 cell = row.createCell(0);
@@ -124,7 +128,7 @@ public class ShippingUnitController {
             //加载数据,将名称为hidden的
             DVConstraint constraint = DVConstraint.createFormulaListConstraint("hidden");
             // 设置数据有效性加载在哪个单元格上,四个参数分别是：起始行、终止行、起始列、终止列
-            CellRangeAddressList addressList = new CellRangeAddressList(1,50000, 0, 0);
+            CellRangeAddressList addressList = new CellRangeAddressList(1, 50000, 0, 0);
             HSSFDataValidation validation = new HSSFDataValidation(addressList, constraint);
             //将第二个sheet设置为隐藏
             excelExport.getWorkbook().setSheetHidden(1, true);
@@ -135,41 +139,41 @@ public class ShippingUnitController {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return new BaseResponse(ResultCode.FAIL_CODE,Constant.MESSAGE_FAIL);
+        return new BaseResponse(ResultCode.FAIL_CODE, Constant.MESSAGE_FAIL);
     }
 
     /**
      * 导入Excel数据
      */
     @LocalLock(key = "shippingUnitImport")
-    @RequestMapping(value = "/import", method= RequestMethod.POST)
+    @RequestMapping(value = "/import", method = RequestMethod.POST)
     public BaseResponse importFile(@RequestBody List<ShippingUnit> list) {
-        String key= RedisUtil.KEY_SHIP_UNIT_IMPORT;
-        boolean flag= RedisUtil.lock(redisTemplate,key,2L,1000L*10*60);
-        Integer insertNumber =0;
+        String key = RedisUtil.KEY_SHIP_UNIT_IMPORT;
+        boolean flag = RedisUtil.lock(redisTemplate, key, 2L, 1000L * 10 * 60);
+        Integer insertNumber = 0;
         //获取锁成功
-        if(!flag){
-            log.debug("获取锁失败:{}",key);
-            return new BaseResponse(ResultCode.FAIL_CODE,"操作中...");
+        if (!flag) {
+            log.debug("获取锁失败:{}", key);
+            return new BaseResponse(ResultCode.FAIL_CODE, "操作中...");
         }
-        log.debug("获取锁:{}",key);
+        log.debug("获取锁:{}", key);
         try {
 //            ImportExcelUtil ei=new ImportExcelUtil(file,1,0);
 //            List<ShippingUnit> list = ei.getDataList(ShippingUnit.class);
-            List<ShippingUnit> newList=new ArrayList<>();
-            for (ShippingUnit shippingUnit : list){
-                try{
-                    if(!StringUtils.isBlank(shippingUnit.getMethodName())&&
-                            !StringUtils.isBlank(shippingUnit.getFromAreaId())&&!StringUtils.isBlank(shippingUnit.getToAreaId())) {
-                        if(shippingUnit.getMethodName().equals("methodName")){
+            List<ShippingUnit> newList = new ArrayList<>();
+            for (ShippingUnit shippingUnit : list) {
+                try {
+                    if (!StringUtils.isBlank(shippingUnit.getMethodName()) &&
+                            !StringUtils.isBlank(shippingUnit.getFromAreaId()) && !StringUtils.isBlank(shippingUnit.getToAreaId())) {
+                        if (shippingUnit.getMethodName().equals("methodName")) {
                             continue;
                         }
-                        ShippingMethod shippingMethod=shippingMethodService.
+                        ShippingMethod shippingMethod = shippingMethodService.
                                 getShippingMethodByName(shippingUnit.getMethodName());
                         //运输方式能对应上，则匹配转换id
-                        if(shippingMethod!=null){
+                        if (shippingMethod != null) {
                             shippingUnit.setMethodId(shippingMethod.getId());
-                        }else {
+                        } else {
                             continue;
                         }
                         shippingUnit.setCreateTime(new Date());
@@ -177,52 +181,52 @@ public class ShippingUnitController {
                         shippingUnit.setState(0);
 
                         //传入的时国家名称 系统有匹配则转换id,没有匹配则传名字
-                        Area fromRegion=areaService.getRegionByName(shippingUnit.getFromAreaId());
-                        initRegion(fromRegion,shippingUnit,1);
+                        Area fromRegion = areaService.getRegionByName(shippingUnit.getFromAreaId());
+                        initRegion(fromRegion, shippingUnit, 1);
                         //传入的时国家名称 系统有匹配则转换id,没有匹配则传名字
-                        Area toRegion=areaService.getRegionByName(shippingUnit.getToAreaId());
-                        initRegion(toRegion,shippingUnit,2);
+                        Area toRegion = areaService.getRegionByName(shippingUnit.getToAreaId());
+                        initRegion(toRegion, shippingUnit, 2);
 
                         //检查运输方式 起始地 起始重量是否有相同的记录
-                        ShippingUnit exist=shippingUnitService.getShippingUnitByOption(shippingUnit.getMethodId(),
-                                shippingUnit.getFromAreaId(),shippingUnit.getToAreaId(),
-                                shippingUnit.getStartWeight(),shippingUnit.getEndWeight());
-                        if(exist!=null){
+                        ShippingUnit exist = shippingUnitService.getShippingUnitByOption(shippingUnit.getMethodId(),
+                                shippingUnit.getFromAreaId(), shippingUnit.getToAreaId(),
+                                shippingUnit.getStartWeight(), shippingUnit.getEndWeight());
+                        if (exist != null) {
                             continue;
                         }
                         newList.add(shippingUnit);
                     }
-                }catch (Exception ex) {
-                   ex.printStackTrace();
+                } catch (Exception ex) {
+                    ex.printStackTrace();
                 }
             }
-            if(newList.size()>0){
-                 insertNumber = shippingUnitService.insertBatch(newList);
+            if (newList.size() > 0) {
+                insertNumber = shippingUnitService.insertBatch(newList);
             }
         } catch (Exception e) {
             e.printStackTrace();
-        }finally {
-            RedisUtil.unLock(redisTemplate,key);
-            log.debug("释放锁:{}",key);
+        } finally {
+            RedisUtil.unLock(redisTemplate, key);
+            log.debug("释放锁:{}", key);
         }
-        if (insertNumber >0){
-            return new BaseResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS);
+        if (insertNumber > 0) {
+            return new BaseResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS);
         }
-                                                                                  return new BaseResponse(ResultCode.FAIL_CODE,Constant.MESSAGE_FAIL);
+        return new BaseResponse(ResultCode.FAIL_CODE, Constant.MESSAGE_FAIL);
     }
 
-    public void initRegion(Area region, ShippingUnit shippingUnit, int flag){
-        if(region!=null){
-            if(flag==1) {
+    public void initRegion(Area region, ShippingUnit shippingUnit, int flag) {
+        if (region != null) {
+            if (flag == 1) {
                 shippingUnit.setFromAreaId(String.valueOf(region.getId()));
-            }else {
+            } else {
                 shippingUnit.setToAreaId(String.valueOf(region.getId()));
             }
-        }else {
-            if(flag==1) {
-                shippingUnit.setFromAreaId("未匹配-"+shippingUnit.getFromAreaId());
-            }else {
-                shippingUnit.setToAreaId("未匹配-"+shippingUnit.getToAreaId());
+        } else {
+            if (flag == 1) {
+                shippingUnit.setFromAreaId("未匹配-" + shippingUnit.getFromAreaId());
+            } else {
+                shippingUnit.setToAreaId("未匹配-" + shippingUnit.getToAreaId());
             }
         }
     }
@@ -234,7 +238,7 @@ public class ShippingUnitController {
     }
 
     //移除所有待使用的运输单元
-    @RequestMapping(value = "/import/removeAll",method = RequestMethod.POST)
+    @RequestMapping(value = "/import/removeAll", method = RequestMethod.POST)
     public BaseResponse removeAll() {
         return shippingUnitService.removeAllUseless();
     }
@@ -273,10 +277,10 @@ public class ShippingUnitController {
 
 
     //导出所有待启用的运输单元list
-    @RequestMapping(value = "/import/multiExport",method = RequestMethod.GET)
+    @RequestMapping(value = "/import/multiExport", method = RequestMethod.GET)
     public BaseResponse multiExport() {
         List<ShippingUnit> list = shippingUnitService.multiExportShippingUnits();
-        return new BaseResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS,list);
+        return new BaseResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS, list);
     }
 
 
@@ -284,53 +288,56 @@ public class ShippingUnitController {
 
     /**
      * 运输单元列表
+     *
      * @param request
      * @return
      */
-    @RequestMapping(value="/unit/infoList", method=RequestMethod.POST)
+    @RequestMapping(value = "/unit/infoList", method = RequestMethod.POST)
     public ShippingUnitListResponse infoList(@RequestBody @Valid ShippingUnitListRequest request) {
-        if(request.getT()==null){
+        if (request.getT() == null) {
             request.setT(new ShippingUnit());
         }
-        ShippingUnit shippingUnit=request.getT();
+        ShippingUnit shippingUnit = request.getT();
         shippingUnit.setState(1);
         List<ShippingUnit> results = shippingUnitService.select(request);
         Long total = shippingUnitService.count(request);
         request.setTotal(total);
-        ShippingUnitListResponse res = new ShippingUnitListResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS,results,request);
+        ShippingUnitListResponse res = new ShippingUnitListResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS, results, request);
         return res;
     }
 
 
     /**
      * 单个运输单元查询
+     *
      * @param id
      * @return
      */
-    @RequestMapping(value="/unit/info/{id}", method=RequestMethod.POST)
+    @RequestMapping(value = "/unit/info/{id}", method = RequestMethod.POST)
     public ShippingUnitInfoResponse info(@PathVariable Long id) {
         ShippingUnit result = shippingUnitService.selectByPrimaryKey(id);
         ShippingUnitVo shippingUnitVo = new ShippingUnitVo();
-        BeanUtils.copyProperties(result,shippingUnitVo);
-        ShippingUnitInfoResponse res = new ShippingUnitInfoResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS,shippingUnitVo,id);
+        BeanUtils.copyProperties(result, shippingUnitVo);
+        ShippingUnitInfoResponse res = new ShippingUnitInfoResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS, shippingUnitVo, id);
         return res;
     }
 
     /**
-     *新增运输单元
-     * @param request
+     * 新增运输单元
+     *
+     * @param shippingUnits
      * @return
      */
     @ApiOperation("新增运输单元")
-    @RequestMapping(value="/unit/add", method=RequestMethod.POST)
-    public ShippingUnitAddResponse add(@RequestBody @Valid ShippingUnitAddRequest request) {
-        ShippingUnit entity=request.toShippingUnit();
-        shippingUnitService.insertSelective(entity);
-        ShippingUnitAddResponse res = new ShippingUnitAddResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS,entity,request);
-        return res;
+    @RequestMapping(value = "/unit/add", method = RequestMethod.POST)
+    public BaseResponse add(@RequestBody @Valid List<ShippingUnit> shippingUnits) {
+        if (ListUtils.isNotEmpty(shippingUnits) && shippingUnits.size() > 0) {
+            shippingUnitService.insertBatch(shippingUnits);
+        }
+        return BaseResponse.success();
     }
 
-//    /**
+    //    /**
 //     *
 //     * @param id
 //     * @return
@@ -343,26 +350,29 @@ public class ShippingUnitController {
 //        return res;
 //    }
     @ApiOperation("修改运输单元")
-    @RequestMapping(value="/update/{id}", method=RequestMethod.POST)
+    @RequestMapping(value = "/update/{id}", method = RequestMethod.POST)
     public ShippingUnitUpdateResponse update(@PathVariable Long id, @RequestBody @Valid ShippingUnitUpdateRequest request) {
-        ShippingUnit entity=request.toShippingUnit(id);
+        ShippingUnit entity = request.toShippingUnit(id);
         shippingUnitService.updateByPrimaryKeySelective(entity);
         // mq
         shippingUnitService.senMq(id);
-        ShippingUnitUpdateResponse res = new ShippingUnitUpdateResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS);
+        ShippingUnitUpdateResponse res = new ShippingUnitUpdateResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS);
         return res;
     }
 
     /**
      * 运输导入列表删除 ，运输单元删除
-     * @param id
+     *
+     * @param ids
      * @return
      */
     @ApiOperation("删除运输单元")
-    @RequestMapping(value="/del/{id}", method=RequestMethod.DELETE)
-    public ShippingUnitUpdateResponse del(@PathVariable Long id) {
-        shippingUnitService.deleteByPrimaryKey(id);
-        ShippingUnitUpdateResponse res = new ShippingUnitUpdateResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS);
+    @RequestMapping(value = "/del", method = RequestMethod.DELETE)
+    public ShippingUnitUpdateResponse del(@RequestBody List<Long> ids) {
+        for (Long id : ids) {
+            shippingUnitService.deleteByPrimaryKey(id);
+        }
+        ShippingUnitUpdateResponse res = new ShippingUnitUpdateResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS);
         return res;
     }
 
@@ -371,7 +381,7 @@ public class ShippingUnitController {
      * 运输单元开启
      */
     @ApiOperation("启用")
-    @RequestMapping(value="/open/{id}", method=RequestMethod.POST)
+    @RequestMapping(value = "/open/{id}", method = RequestMethod.POST)
     public BaseResponse open(@PathVariable Long id) {
         ShippingUnit shippingUnit = shippingUnitService.selectByPrimaryKey(id);
         shippingUnit.setState(1);
@@ -385,7 +395,7 @@ public class ShippingUnitController {
      * 运输单元关闭
      */
     @ApiOperation("禁用")
-    @RequestMapping(value="/close/{id}", method=RequestMethod.POST)
+    @RequestMapping(value = "/close/{id}", method = RequestMethod.POST)
     public BaseResponse close(@PathVariable Long id) {
         ShippingUnit shippingUnit = shippingUnitService.selectByPrimaryKey(id);
         shippingUnit.setState(0);

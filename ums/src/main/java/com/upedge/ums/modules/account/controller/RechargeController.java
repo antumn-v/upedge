@@ -78,6 +78,7 @@ public class RechargeController {
      * @param request
      * @return
      */
+    @ApiOperation("充值申请列表")
     @PostMapping("/request/list")
     public ApplyRechargeListResponse rechargeRequestList(@RequestBody ApplyRechargeListRequest request) {
         Session session = UserUtil.getSession(redisTemplate);
@@ -106,6 +107,7 @@ public class RechargeController {
      * @param request
      * @return
      */
+    @ApiOperation("admin历史充值列表")
     @PostMapping("/request/history")
     public ApplyRechargeListResponse rechargeRequestHistory(@RequestBody ApplyRechargeListRequest request) {
         return rechargeService.rechargeRequestHistory(request);
@@ -209,6 +211,7 @@ public class RechargeController {
      * @param request
      * @return
      */
+    @ApiOperation("admin充值审核前更新到账金额")
     @PostMapping("/request/{requestId}/update")
     public ApplyRechargeUpdateResponse updateRechargeRequest(@PathVariable Long requestId, @RequestBody @Valid ApplyRechargeUpdateRequest request) {
         Session session = UserUtil.getSession(redisTemplate);

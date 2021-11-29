@@ -95,10 +95,27 @@ public class QuoteApplyController {
         return res;
     }
 
-    @ApiOperation("报价列表")
+    @ApiOperation("报价申请列表")
     @RequestMapping(value="/list", method=RequestMethod.POST)
     @Permission(permission = "quote:quoteapply:list")
     public BaseResponse list(@RequestBody @Valid Page<QuoteApplyListDto> request) {
+        List<QuoteApplyVo> results = quoteApplyService.quoteApplyList(request);
+        Long total = quoteApplyService.quoteApplyCount(request);
+        request.setTotal(total);
+        BaseResponse res = new BaseResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS,results,request);
+        return res;
+    }
+
+
+    @ApiOperation("报价进度")
+    @PostMapping("/schedule")
+    public BaseResponse quoteSchedule(@RequestBody @Valid Page<QuoteApplyListDto> request){
+        Session session = UserUtil.getSession(redisTemplate);
+        if (null == request.getT()){
+            request.setT(new QuoteApplyListDto());
+        }
+        request.getT().setQuoteState(1);
+        request.getT().setHandleUserId(session.getId());
         List<QuoteApplyVo> results = quoteApplyService.quoteApplyList(request);
         Long total = quoteApplyService.quoteApplyCount(request);
         request.setTotal(total);

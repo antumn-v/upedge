@@ -29,7 +29,7 @@
         <result property="feedback" column="feedback"/>
         <result property="createTime" column="create_time"/>
         <collection property="quoteApplyItems" ofType="com.upedge.pms.modules.quote.entity.QuoteApplyItem">
-            <result property="id" column="id"/>
+            <result property="id" column="itemId"/>
             <result property="productId" column="product_id"/>
             <result property="variantId" column="variant_id"/>
             <result property="storeProductId" column="store_product_id"/>
@@ -320,7 +320,9 @@
     </select>
 
     <select id="selectQuoteApplies" resultMap="QuoteApplyVo">
-        select qa.*,qai.*
+        select qa.*,qai.`id` as `itemId`,qai.`product_id`,qai.`variant_id`,qai.`store_product_id`,
+        qai.`store_variant_id`,qai.`store_variant_name`,qai.`store_product_title`,qai.`store_product_sku`,qai.`store_variant_image`,
+        qai.`product_title`,qai.`variant_name`,qai.`variant_sku`,qai.`variant_image`,qai.`quote_price`,qai.`quote_apply_id`
         from quote_apply qa
         left join quote_apply_item qai
         on qa.id = qai.quote_apply_id
@@ -365,8 +367,8 @@
         </if>
     </select>
 
-    <select id="countQuoteApplies" resultMap="QuoteApplyVo">
-        select qa.*,qai.*
+    <select id="countQuoteApplies" resultType="java.lang.Long">
+        select count(distinct  qa.id)
         from quote_apply qa
         left join quote_apply_item qai
         on qa.id = qai.quote_apply_id

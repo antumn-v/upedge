@@ -36,7 +36,7 @@ import java.util.List;
  * @author author
  */
 @RestController
-@RequestMapping("/account/log")
+@RequestMapping("/accountLog")
 public class AccountLogController {
     @Autowired
     private AccountLogService accountLogService;
