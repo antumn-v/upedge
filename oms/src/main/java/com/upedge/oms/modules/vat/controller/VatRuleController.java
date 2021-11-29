@@ -13,6 +13,8 @@ import com.upedge.oms.modules.vat.response.VatRuleInfoResponse;
 import com.upedge.oms.modules.vat.response.VatRuleListResponse;
 import com.upedge.oms.modules.vat.response.VatRuleUpdateResponse;
 import com.upedge.oms.modules.vat.service.VatRuleService;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 
@@ -24,6 +26,7 @@ import org.springframework.web.bind.annotation.*;
  *
  * @author author
  */
+@Api("vat管理")
 @RestController
 @RequestMapping("/vatRule")
 public class VatRuleController {
@@ -40,7 +43,8 @@ public class VatRuleController {
      * @param request
      * @return
      */
-    @RequestMapping(value="/admin/add", method=RequestMethod.POST)
+    @ApiOperation("添加VAT规则")
+    @RequestMapping(value="/add", method=RequestMethod.POST)
     public VatRuleAddResponse addVatRule(@RequestBody @Valid VatRuleAddRequest request) {
         Session session= UserUtil.getSession(redisTemplate);
         return vatRuleService.addVatRule(request,session);
@@ -51,7 +55,8 @@ public class VatRuleController {
      * @param id
      * @return
      */
-    @RequestMapping(value="/admin/info/{id}", method=RequestMethod.POST)
+    @ApiOperation("查询VAT规则")
+    @RequestMapping(value="/info/{id}", method=RequestMethod.POST)
     public VatRuleInfoResponse adminInfo(@PathVariable Long id) {
         VatRule result = vatRuleService.selectByPrimaryKey(id);
         BigDecimal ratio=result.getRatio().multiply(new BigDecimal(100));
@@ -65,7 +70,8 @@ public class VatRuleController {
      * @param request
      * @return
      */
-    @RequestMapping(value="/admin/list", method=RequestMethod.POST)
+    @ApiOperation("VAT规则列表")
+    @RequestMapping(value="/list", method=RequestMethod.POST)
     public VatRuleListResponse adminList(@RequestBody @Valid VatRuleListRequest request) {
         return vatRuleService.adminList(request);
     }
@@ -76,7 +82,8 @@ public class VatRuleController {
      * @param request
      * @return
      */
-    @RequestMapping(value="/admin/update/{id}", method=RequestMethod.POST)
+    @ApiOperation("更新VAT规则")
+    @RequestMapping(value="/update/{id}", method=RequestMethod.POST)
     public VatRuleUpdateResponse adminUpdate(@PathVariable Long id, @RequestBody @Valid VatRuleUpdateRequest request) {
         Session session= UserUtil.getSession(redisTemplate);
         return vatRuleService.adminUpdate(id,request,session);

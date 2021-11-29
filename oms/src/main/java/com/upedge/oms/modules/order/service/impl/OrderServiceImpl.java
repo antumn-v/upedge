@@ -1278,7 +1278,7 @@ public class OrderServiceImpl implements OrderService {
      * @return
      */
     @Override
-    public OrderListResponse historyList(OrderHistoryListRequest request, Session session) {
+    public OrderListResponse manageList(OrderManageListRequest request, Session session) {
         request.initFromNum();
 
         List<Order> results = orderDao.historySelect(request);

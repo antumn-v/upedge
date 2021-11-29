@@ -420,7 +420,8 @@ public class OrderController {
     /**
      * 普通订单详情页
      */
-    @RequestMapping(value = "/admin/orderDetails/{id}", method = RequestMethod.POST)
+    @ApiOperation("普通订单详情页")
+    @RequestMapping(value = "/orderDetails/{id}", method = RequestMethod.POST)
     public BaseResponse orderDetails(@PathVariable Long id) {
         Session session = UserUtil.getSession(redisTemplate);
         return orderService.orderDetails(id);
@@ -444,7 +445,8 @@ public class OrderController {
      * @param request
      * @return
      */
-    @RequestMapping(value = "/admin/applyReshipOrder", method = RequestMethod.POST)
+    @ApiOperation("补发订单申请")
+    @RequestMapping(value = "/applyReshipOrder", method = RequestMethod.POST)
     public BaseResponse applyReshipOrder(@RequestBody @Valid ApplyReshipOrderRequest request) {
         String key = RedisUtil.KEY_ORDER_APPLY_RESHIP + request.getOriginalOrderId();
         boolean flag = RedisUtil.lock(redisTemplate, key, 2L, 1000L * 2 * 60);
@@ -472,7 +474,8 @@ public class OrderController {
      * @param request
      * @return
      */
-    @RequestMapping(value = "/admin/confirmPendingOrder", method = RequestMethod.POST)
+    @ApiOperation("补发订单申请通过")
+    @RequestMapping(value = "/confirmReshipOrder", method = RequestMethod.POST)
     public OrderUpdateResponse confirmPendingOrder(@RequestBody @Valid UpdatePendingOrderRequest request) {
         Session session = UserUtil.getSession(redisTemplate);
         return orderService.confirmPendingOrder(request, session);
@@ -484,7 +487,8 @@ public class OrderController {
      * @param request
      * @return
      */
-    @RequestMapping(value = "/admin/cancelPendingOrder", method = RequestMethod.POST)
+    @ApiOperation("补发订单申请驳回")
+    @RequestMapping(value = "/cancelReshipOrder", method = RequestMethod.POST)
     public OrderUpdateResponse cancelPendingOrder(@RequestBody @Valid UpdatePendingOrderRequest request) {
         Session session = UserUtil.getSession(redisTemplate);
         return orderService.cancelPendingOrder(request, session);
@@ -496,10 +500,11 @@ public class OrderController {
      * @param request
      * @return
      */
-    @RequestMapping(value = "/admin/historyList", method = RequestMethod.POST)
-    public OrderListResponse historyList(@RequestBody @Valid OrderHistoryListRequest request) {
+    @ApiOperation("订单管理列表")
+    @RequestMapping(value = "/manageList", method = RequestMethod.POST)
+    public OrderListResponse historyList(@RequestBody @Valid OrderManageListRequest request) {
         Session session = UserUtil.getSession(redisTemplate);
-        return orderService.historyList(request, session);
+        return orderService.manageList(request, session);
     }
 
     /**
@@ -507,7 +512,8 @@ public class OrderController {
      *
      * @return
      */
-    @RequestMapping(value = "/admin/importOrderToSaihe", method = RequestMethod.POST)
+    @ApiOperation("订单导入赛盒")
+    @RequestMapping(value = "/uploadSaihe", method = RequestMethod.POST)
     public BaseResponse importOrderToSaihe(@RequestBody OrderImportSaiheRequest request) {
         if (!SaiheConfig.SAIHE_ORDER_SWITCH) {
             return new BaseResponse(ResultCode.FAIL_CODE, "未开启");
@@ -538,7 +544,8 @@ public class OrderController {
      * @param request
      * @return
      */
-    @RequestMapping(value = "/admin/fromSaiheTracking", method = RequestMethod.POST)
+    @ApiOperation("从赛盒获取物流")
+    @RequestMapping(value = "/getTracking", method = RequestMethod.POST)
     public BaseResponse fromSaiheTracking(@RequestBody OrderSaiheTrackingRequest request) {
      /*   if (!SaiheConfig.SAIHE_ORDER_SWITCH) {
             return new BaseResponse(ResultCode.FAIL_CODE, "未开启");
@@ -634,13 +641,13 @@ public class OrderController {
      * @param allOrderAmountVo
      * @return
      */
-    @ApiOperation("获取客户经理订单销售额")
+//    @ApiOperation("获取客户经理订单销售额")
     @PostMapping("/amountByManagerCodeSet")
     public BaseResponse getNormalOrderAmountByManagerCodeSet(@RequestBody AllOrderAmountVo allOrderAmountVo){
         return orderService.getNormalOrderAmountByManagerCodeSet(allOrderAmountVo);
     };
 
-    @ApiOperation("获取某月普通订单下单客户数量  根据 set<managerCode> select")
+//    @ApiOperation("获取某月普通订单下单客户数量  根据 set<managerCode> select")
     @PostMapping("/normalOrderCount")
     public BaseResponse getNormalOrderCount(@RequestBody AllOrderAmountVo allOrderAmountVo){
         return orderService.getNormalOrderCount(allOrderAmountVo);

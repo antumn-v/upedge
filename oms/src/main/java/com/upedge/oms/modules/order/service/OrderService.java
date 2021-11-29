@@ -122,7 +122,7 @@ public interface OrderService{
 
     BaseResponse orderDetails(Long id);
 
-    OrderListResponse historyList(OrderHistoryListRequest request, Session session);
+    OrderListResponse manageList(OrderManageListRequest request, Session session);
 
     OrderListResponse pendingList(OrderListQueryRequest request, Session session);
 

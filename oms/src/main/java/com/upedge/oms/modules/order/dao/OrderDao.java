@@ -121,8 +121,8 @@ public interface OrderDao{
     long count(Page<Order> record);
 
 
-    List<Order> historySelect(Page<OrderHistoryQuery> record);
-    long historyCount(Page<OrderHistoryQuery> record);
+    List<Order> historySelect(Page<OrderManageQuery> record);
+    long historyCount(Page<OrderManageQuery> record);
 
     int updatePendingOrderStatus(@Param("ids") List<Long> ids,
                                  @Param("orderStatus") int orderStatus,

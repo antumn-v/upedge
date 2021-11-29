@@ -10,6 +10,8 @@ import com.upedge.oms.modules.vat.request.VatRuleItemRemoveRequest;
 import com.upedge.oms.modules.vat.request.VatRuleItemUpdateRequest;
 import com.upedge.oms.modules.vat.response.*;
 import com.upedge.oms.modules.vat.service.VatRuleItemService;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 
@@ -21,6 +23,7 @@ import org.springframework.web.bind.annotation.*;
  *
  * @author author
  */
+@Api(tags = "vat地区规则")
 @RestController
 @RequestMapping("/vatRuleItem")
 public class VatRuleItemController {
@@ -37,6 +40,7 @@ public class VatRuleItemController {
      * @param ruleId
      * @return
      */
+    @ApiOperation("VAT规则地区列表")
     @RequestMapping(value="/admin/list/{ruleId}", method=RequestMethod.POST)
     public VatRuleItemListResponse list(@PathVariable Long ruleId, @RequestBody VatRuleItemListRequest request) {
         if (request.getT() == null){
@@ -59,6 +63,7 @@ public class VatRuleItemController {
      * @param request
      * @return
      */
+    @ApiOperation("更新规则配置项")
     @RequestMapping(value="/admin/updateRuleItems", method=RequestMethod.POST)
     public VatRuleItemUpdateResponse updateRuleItems(@RequestBody @Valid VatRuleItemUpdateRequest request) {
         Session session= UserUtil.getSession(redisTemplate);
@@ -69,6 +74,7 @@ public class VatRuleItemController {
      * 移除地区配置
      * @return
      */
+    @ApiOperation("移除地区配置")
     @RequestMapping(value="/admin/remove", method=RequestMethod.POST)
     public VatRuleItemRemoveResponse removeItem(@RequestBody @Valid VatRuleItemRemoveRequest request) {
         Session session= UserUtil.getSession(redisTemplate);
@@ -80,6 +86,7 @@ public class VatRuleItemController {
      * @param ruleId
      * @return
      */
+    @ApiOperation("已配置的规则地区列表")
     @RequestMapping(value="/admin/areaSelect/{ruleId}", method=RequestMethod.POST)
     public VatRuleItemListResponse areaSelect(@PathVariable Long ruleId) {
         return vatRuleItemService.areaSelect(ruleId);
