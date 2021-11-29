@@ -24,6 +24,7 @@
         <result property="payState" column="pay_state"/>
         <result property="refundState" column="refund_state"/>
         <result property="shipState" column="ship_state"/>
+        <result property="quoteState" column="quote_state"/>
         <result property="orderType" column="order_type"/>
         <result property="toAreaId" column="to_area_id"/>
         <result property="cnyRate" column="cny_rate"/>
@@ -1304,7 +1305,7 @@
         o.total_weight,o.product_amount,o.product_discharge_amount,o.fix_fee,o.fix_fee_percentage,
         o.pay_method,o.pay_time,o.payment_id,o.pay_state,o.refund_state,o.ship_state,o.order_type,
         o.to_area_id,o.cny_rate,o.create_time,o.update_time,o.saihe_order_code,o.vat_amount,
-        o.order_status,o.manager_code
+        o.order_status,o.manager_code,o.quote_state
 
         from `order` o
         <!--    left join store_order s

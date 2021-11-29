@@ -17,6 +17,8 @@ public class OrderManageQuery {
      *
      */
     private Integer shipState;
+
+    private Integer quoteState;
     /**
      *
      */
@@ -66,11 +68,6 @@ public class OrderManageQuery {
     private Integer trackState;
 
     /**
-     * 客户经理id
-     */
-    private String managerCode;
-
-    /**
      * 店铺状态
      */
     private Integer financialStatus;
@@ -92,5 +89,7 @@ public class OrderManageQuery {
      * 0=未发货 1=部分发货 2=全部发货
      */
     private Integer fulfillmentStatus;
+
+    private String managerCode;
 
 }
