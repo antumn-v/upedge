@@ -32,6 +32,8 @@ public class AppOrderItemVo {
      *
      */
     private String storeVariantSku;
+
+    private String storeVariantImage;
     /**
      *
      */
@@ -58,5 +60,7 @@ public class AppOrderItemVo {
     private Integer dischargeQuantity;
 
     private Integer itemType;
+
+    private Integer quoteState;
 
 }

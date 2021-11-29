@@ -48,6 +48,8 @@ public class OrderItem{
 	 * 
 	 */
     private String storeVariantSku;
+
+	private String storeVariantImage;
 	/**
 	 * 
 	 */
@@ -91,7 +93,7 @@ public class OrderItem{
 		this.quantity = storeOrderItem.getQuantity();
 		this.storeVariantSku = storeOrderItem.getStoreVariantSku();
 		this.storeVariantName = storeOrderItem.getStoreVariantName();
-		this.adminVariantImage = storeOrderItem.getStoreVariantImage();
+		this.storeVariantImage = storeOrderItem.getStoreVariantImage();
 		this.storeOrderItemId = storeOrderItem.getId();
 	}
 

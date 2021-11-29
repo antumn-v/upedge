@@ -1,26 +1,24 @@
 package com.upedge.oms.modules.order.controller;
 
 import com.upedge.common.base.BaseResponse;
-import com.upedge.common.constant.BaseCode;
 import com.upedge.common.constant.Constant;
 import com.upedge.common.constant.ResultCode;
-import com.upedge.common.constant.key.RedisKey;
 import com.upedge.common.model.store.StoreVo;
 import com.upedge.common.model.store.request.StoreApiRequest;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.web.util.UserUtil;
 import com.upedge.oms.modules.order.entity.Order;
 import com.upedge.oms.modules.order.entity.StoreOrder;
-import com.upedge.oms.modules.order.request.*;
+import com.upedge.oms.modules.order.request.StoreDataListRequest;
+import com.upedge.oms.modules.order.request.StoreOrderListRequest;
+import com.upedge.oms.modules.order.request.UnrecognizedStoreOrderListRequest;
 import com.upedge.oms.modules.order.response.StoreOrderListResponse;
 import com.upedge.oms.modules.order.service.OrderService;
 import com.upedge.oms.modules.order.service.StoreOrderService;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -74,10 +72,7 @@ public class StoreOrderController {
                 continue;
             }
             storeOrderService.completeStoreOrderItemDetail(storeOrder.getId());
-            Order order =  orderService.createOrderByStoreOrder(storeOrder.getId());
-            if(order != null){
-                orderService.orderInitShipDetail(order.getId());
-            }
+            orderService.createOrderByStoreOrder(storeOrder.getId());
         }
         return BaseResponse.success();
     }

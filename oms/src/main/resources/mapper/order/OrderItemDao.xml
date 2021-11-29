@@ -3,7 +3,6 @@
 
 <mapper namespace="com.upedge.oms.modules.order.dao.OrderItemDao">
 
-    <!-- 可根据自己的需求，是否要使用 -->
     <resultMap type="com.upedge.oms.modules.order.entity.OrderItem" id="BaseResultMap">
         <result property="id" column="id"/>
         <result property="orderId" column="order_id"/>
@@ -16,6 +15,7 @@
         <result property="storeVariantName" column="store_variant_name"/>
         <result property="storeVariantSku" column="store_variant_sku"/>
         <result property="storeProductTitle" column="store_product_title"/>
+        <result property="storeVariantImage" column="store_variant_image"/>
         <result property="adminVariantImage" column="admin_variant_image"/>
         <result property="adminVariantSku" column="admin_variant_sku"/>
         <result property="usdPrice" column="usd_price"/>
@@ -29,6 +29,8 @@
         <result property="shippingId" column="shipping_id"/>
         <result property="quoteState" column="quote_state"/>
     </resultMap>
+
+
 
     <resultMap type="com.upedge.oms.modules.order.vo.AppOrderItemVo" id="AppOrderItemVo">
         <result property="id" column="id"/>
@@ -103,6 +105,7 @@
             <result property="adminVariantId" column="admin_variant_id"/>
             <result property="storeVariantName" column="store_variant_name"/>
             <result property="storeVariantSku" column="store_variant_sku"/>
+            <result property="storeVariantImage" column="store_variant_image"/>
             <result property="adminVariantImage" column="admin_variant_image"/>
             <result property="storeProductTitle" column="store_product_title"/>
             <result property="price" column="usd_price"/>
@@ -111,15 +114,17 @@
             <result property="quantity" column="quantity"/>
             <result property="dischargeQuantity" column="discharge_quantity"/>
             <result property="itemType" column="item_type"/>
+            <result property="quoteState" column="quote_state"/>
         </collection>
     </resultMap>
 
 
     <sql id="Base_Column_List">
-        `id`,`order_id`,`store_order_id`,`store_product_id`,
-        `store_order_item_id`,`store_variant_id`,`admin_variant_id`,`admin_product_id`,`store_variant_name`,
-        `store_variant_sku`,`admin_variant_image`,`store_product_title`,`usd_price`,`quantity`,`discharge_quantity`,
-        `admin_variant_weight`,`admin_variant_volume`,`item_type`,`shipping_id`,`admin_variant_sku`,`cny_price`
+        `id`,`order_id`,`store_order_id`,`store_order_item_id`,`store_variant_id`,
+        `admin_variant_id`,`store_product_id`,`admin_product_id`,
+        `store_variant_name`,`store_variant_sku`,`store_product_title`,`store_variant_image`,
+        `admin_variant_image`,`admin_variant_sku`,`usd_price`,`usd_rate`,`cny_price`,
+        `quantity`,`discharge_quantity`,`admin_variant_weight`,`admin_variant_volume`,`item_type`,`shipping_id`,`quote_state`
     </sql>
 
     <select id="selectItemByPaymentId" resultMap="BaseResultMap">
@@ -175,7 +180,8 @@
         select DISTINCTROW oi.order_id as `orderId`,oi.store_order_id,store_product_id,
         oi.id as itemId,oi.order_id,`admin_product_id`,`store_variant_name`,
         `store_variant_sku`,`admin_variant_image`,`store_product_title`,`usd_price`,`quantity`,
-        `discharge_quantity`,`admin_variant_weight`,`admin_variant_volume`,
+        `discharge_quantity`,`admin_variant_weight`,`admin_variant_volume`,store_variant_image,
+        oi.quote_state,
         sor.store_name,
         sor.financial_status,
         sor.fulfillment_status,
@@ -299,7 +305,6 @@
         delete from order_item
         where id = #{id}
     </delete>
-
     <update id="updateByPrimaryKeySelective" parameterType="com.upedge.oms.modules.order.entity.OrderItem">
         update order_item
         <set>
@@ -332,6 +337,9 @@
             </if>
             <if test="storeProductTitle != null">
                 store_product_title = #{storeProductTitle},
+            </if>
+            <if test="storeVariantImage != null">
+                store_variant_image = #{storeVariantImage},
             </if>
             <if test="adminVariantImage != null">
                 admin_variant_image = #{adminVariantImage},
@@ -387,6 +395,7 @@
             store_variant_name = #{storeVariantName},
             store_variant_sku = #{storeVariantSku},
             store_product_title = #{storeProductTitle},
+            store_variant_image = #{storeVariantImage},
             admin_variant_image = #{adminVariantImage},
             admin_variant_sku = #{adminVariantSku},
             usd_price = #{usdPrice},
@@ -417,6 +426,7 @@
             store_variant_name,
             store_variant_sku,
             store_product_title,
+            store_variant_image,
             admin_variant_image,
             admin_variant_sku,
             usd_price,
@@ -442,6 +452,7 @@
         #{storeVariantName},
         #{storeVariantSku},
         #{storeProductTitle},
+        #{storeVariantImage},
         #{adminVariantImage},
         #{adminVariantSku},
         #{usdPrice},
@@ -492,6 +503,9 @@
             </if>
             <if test="storeProductTitle != null" >
                 store_product_title
+            </if>
+            <if test="storeVariantImage != null" >
+                store_variant_image
             </if>
             <if test="adminVariantImage != null" >
                 admin_variant_image
@@ -565,6 +579,9 @@
             <if test="storeProductTitle != null" >
                 #{storeProductTitle}
             </if>
+            <if test="storeVariantImage != null" >
+                #{storeVariantImage}
+            </if>
             <if test="adminVariantImage != null" >
                 #{adminVariantImage}
             </if>
@@ -619,6 +636,7 @@
             store_variant_name,
             store_variant_sku,
             store_product_title,
+            store_variant_image,
             admin_variant_image,
             admin_variant_sku,
             usd_price,
@@ -646,6 +664,7 @@
                 #{item.storeVariantName},
                 #{item.storeVariantSku},
                 #{item.storeProductTitle},
+                #{item.storeVariantImage},
                 #{item.adminVariantImage},
                 #{item.adminVariantSku},
                 #{item.usdPrice},
@@ -699,6 +718,9 @@
                 </if>
                 <if test="t.storeProductTitle != null">
                     store_product_title = #{t.storeProductTitle} and
+                </if>
+                <if test="t.storeVariantImage != null">
+                    store_variant_image = #{t.storeVariantImage} and
                 </if>
                 <if test="t.adminVariantImage != null">
                     admin_variant_image = #{t.adminVariantImage} and
