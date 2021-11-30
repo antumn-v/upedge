@@ -1,16 +1,23 @@
 package com.upedge.pms.modules.quote.service.impl;
 
 import com.alibaba.fastjson.JSON;
+import com.upedge.common.base.BaseResponse;
 import com.upedge.common.base.Page;
 import com.upedge.common.config.RocketMqConfig;
 import com.upedge.common.model.pms.quote.CustomerProductQuoteVo;
 import com.upedge.common.model.pms.request.CustomerProductQuoteSearchRequest;
 import com.upedge.common.utils.ListUtils;
+import com.upedge.pms.modules.product.dao.ProductVariantDao;
 import com.upedge.pms.modules.product.dao.StoreProductVariantDao;
+import com.upedge.pms.modules.product.entity.Product;
+import com.upedge.pms.modules.product.entity.ProductVariant;
+import com.upedge.pms.modules.product.service.ProductService;
 import com.upedge.pms.modules.quote.dao.CustomerProductQuoteDao;
 import com.upedge.pms.modules.quote.entity.CustomerProductQuote;
+import com.upedge.pms.modules.quote.request.CustomerProductQuoteUpdateRequest;
 import com.upedge.pms.modules.quote.service.CustomerProductQuoteService;
 import com.upedge.pms.mq.producer.ProductMqProducer;
+import jodd.util.StringUtil;
 import org.apache.rocketmq.common.message.Message;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -32,6 +39,12 @@ public class CustomerProductQuoteServiceImpl implements CustomerProductQuoteServ
 
     @Autowired
     ProductMqProducer productMqProducer;
+
+    @Autowired
+    ProductVariantDao productVariantDao;
+
+    @Autowired
+    ProductService productService;
 
 
 
@@ -59,6 +72,33 @@ public class CustomerProductQuoteServiceImpl implements CustomerProductQuoteServ
     @Transactional
     public int insertSelective(CustomerProductQuote record) {
         return customerProductQuoteDao.insert(record);
+    }
+
+    @Override
+    public BaseResponse updateCustomerProductQuote(CustomerProductQuoteUpdateRequest request) {
+        Long storeVariantId = request.getStoreVariantId();
+        if (null == storeVariantId
+        || StringUtil.isEmpty(request.getVariantSku())
+        || null == request.getQuotePrice()){
+            return BaseResponse.failed();
+        }
+        CustomerProductQuote customerProductQuote = customerProductQuoteDao.selectByStoreVariantId(storeVariantId);
+        if (null == customerProductQuote){
+            return BaseResponse.failed("该产品未报价");
+        }
+        ProductVariant productVariant = productVariantDao.selectBySku(request.getVariantSku());
+        if (null == productVariant){
+            return BaseResponse.failed("sku不存在");
+        }
+        Product product = productService.selectByPrimaryKey(productVariant.getProductId());
+        customerProductQuote.setProductId(productVariant.getProductId());
+        customerProductQuote.setProductTitle(product.getProductTitle());
+        customerProductQuote.setVariantId(productVariant.getId());
+        customerProductQuote.setVariantImage(productVariant.getVariantImage());
+        customerProductQuote.setVariantName(productVariant.getEnName());
+        customerProductQuote.setVariantSku(productVariant.getVariantSku());
+        customerProductQuoteDao.updateByPrimaryKeySelective(customerProductQuote);
+        return BaseResponse.success();
     }
 
     @Override

@@ -1,12 +1,12 @@
 package com.upedge.pms.modules.quote.dao;
 
-import com.upedge.pms.modules.quote.entity.CustomerProductQuote;
-import com.upedge.common.model.pms.request.CustomerProductQuoteSearchRequest;
+import com.upedge.common.base.Page;
 import com.upedge.common.model.pms.quote.CustomerProductQuoteVo;
+import com.upedge.common.model.pms.request.CustomerProductQuoteSearchRequest;
+import com.upedge.pms.modules.quote.entity.CustomerProductQuote;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
-import com.upedge.common.base.Page;
-import org.apache.ibatis.annotations.Param;
 
 /**
  * @author gx
@@ -16,8 +16,7 @@ public interface CustomerProductQuoteDao{
 
     List<CustomerProductQuoteVo> selectQuoteDetail(CustomerProductQuoteSearchRequest request);
 
-    CustomerProductQuote selectByCustomerIdAndStoreVairantId(@Param("customerId") Long customerId,
-                                                             @Param("storeVariantId")Long storeVariantId);
+    CustomerProductQuote selectByStoreVariantId(@Param("storeVariantId")Long storeVariantId);
 
     List<CustomerProductQuote> selectByCustomerAndStoreVariantIds(@Param("customerId")Long customerId,
                                                                   @Param("storeVariantIds") List<Long> storeVariantIds);

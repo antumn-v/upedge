@@ -9,6 +9,8 @@ import com.upedge.common.constant.ResultCode;
 import com.upedge.common.feign.UmsFeignClient;
 import com.upedge.common.model.log.MqMessageLog;
 import com.upedge.common.model.pms.quote.CustomerProductQuoteVo;
+import com.upedge.common.utils.ListUtils;
+import com.upedge.oms.modules.order.service.OrderItemService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.rocketmq.client.consumer.DefaultMQPushConsumer;
 import org.apache.rocketmq.client.consumer.listener.ConsumeConcurrentlyStatus;
@@ -31,6 +33,9 @@ public class CustomerProductQuoteUpdateCustomer {
     @Autowired
     UmsFeignClient umsFeignClient;
 
+    @Autowired
+    OrderItemService orderItemService;
+
     public CustomerProductQuoteUpdateCustomer() throws MQClientException {
         consumer = new DefaultMQPushConsumer("quote_update");
         consumer.setNamesrvAddr(RocketMqConfig.NAME_SERVER);
@@ -51,7 +56,7 @@ public class CustomerProductQuoteUpdateCustomer {
 
                     String key = message.getKeys();
                     MqMessageLog mqMessageLog = new MqMessageLog();
-                    mqMessageLog.setTopic(RocketMqConfig.TOPIC_AII_ORDER_UPLOAD_ORDER_SHIPPING_UNIT);
+                    mqMessageLog.setTopic(message.getTopic());
                     mqMessageLog.setMsgKey(key);
                     BaseResponse baseResponse = umsFeignClient.selectMqLog(mqMessageLog);
                     if (baseResponse.getCode() != ResultCode.SUCCESS_CODE || baseResponse.getData() == null) {
@@ -63,6 +68,11 @@ public class CustomerProductQuoteUpdateCustomer {
                     }
                     String body = new String(message.getBody());
                     List<CustomerProductQuoteVo> customerProductQuoteVos = JSONArray.parseArray(body, CustomerProductQuoteVo.class);
+                    if (ListUtils.isNotEmpty(customerProductQuoteVos)){
+                        for (CustomerProductQuoteVo customerProductQuoteVo : customerProductQuoteVos) {
+                            orderItemService.updateItemQuoteDetail(customerProductQuoteVo);
+                        }
+                    }
 
                     // 删除order_shipping_unit 并 清0运费 删除shipMethodId  目前只删除
 //                    orderShippingUnitService.delOrderShipUnitAndShipMethod(longs);

@@ -248,6 +248,7 @@
         where store_variant_id = #{storeVariantId}
         and o.pay_state = '0'
         and o.order_type != '1'
+        and admin_variant_id is not null;
     </update>
 
 
@@ -804,7 +805,7 @@
         oi.usd_price = #{quotePrice},
         oi.cny_price = #{cnyPrice},
         oi.discharge_quantity = '0'
-        where oi.store_variant_id = ''
+        where oi.store_variant_id = #{storeVariantId}
         and o.pay_state &lt; '1'
     </update>
 

@@ -25,7 +25,7 @@ public class ProductMqProducer {
         String key = message.getKeys();
 
         MqMessageLog messageLog = MqMessageLog.toMqMessageLog(message,null);
-
+        boolean b = false;
         String status = "failed";
         int i = 1;
         while (i < 4 && !status.equals(SendStatus.SEND_OK.name())){
@@ -39,14 +39,13 @@ public class ProductMqProducer {
         }
         if(status.equals(SendStatus.SEND_OK.name())){
             messageLog.setIsSendSuccess(1);
-            umsFeignClient.saveMqLog(messageLog);
             log.warn("topic:{},发送消息，key:{},发送成功,发送次数:{}",message.getTopic(),key,i);
-            return true;
+            b = true;
         }else {
             messageLog.setIsSendSuccess(0);
-            umsFeignClient.saveMqLog(messageLog);
             log.warn("topic:{},发送消息，key:{},发送失败,发送次数:{}",message.getTopic(),key,i);
-            return false;
         }
+        umsFeignClient.saveMqLog(messageLog);
+        return b;
     }
 }

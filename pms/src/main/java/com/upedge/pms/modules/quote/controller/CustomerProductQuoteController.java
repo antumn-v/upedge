@@ -1,10 +1,12 @@
 package com.upedge.pms.modules.quote.controller;
 
 import com.upedge.common.base.BaseResponse;
+import com.upedge.common.constant.ResultCode;
 import com.upedge.common.model.pms.quote.CustomerProductQuoteVo;
 import com.upedge.common.model.pms.request.CustomerProductQuoteSearchRequest;
 import com.upedge.pms.modules.quote.entity.CustomerProductQuote;
 import com.upedge.pms.modules.quote.request.CustomerProductQuoteListRequest;
+import com.upedge.pms.modules.quote.request.CustomerProductQuoteUpdateRequest;
 import com.upedge.pms.modules.quote.service.CustomerProductQuoteService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -14,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -36,6 +39,18 @@ public class CustomerProductQuoteController {
         Long total = customerProductQuoteService.count(request);
         request.setTotal(total);
         return BaseResponse.success(customerProductQuotes,request);
+    }
+
+    @ApiOperation("修改客户报价")
+    @PostMapping("/update")
+    public BaseResponse updateCustomerProductQuote(@RequestBody CustomerProductQuoteUpdateRequest request){
+        BaseResponse baseResponse = customerProductQuoteService.updateCustomerProductQuote(request);
+        if (baseResponse.getCode() == ResultCode.SUCCESS_CODE){
+            List<Long> storeVariantIds = new ArrayList<>();
+            storeVariantIds.add(request.getStoreVariantId());
+            customerProductQuoteService.sendCustomerProductQuoteUpdateMessage(storeVariantIds);
+        }
+        return baseResponse;
     }
 
     @PostMapping("/search")

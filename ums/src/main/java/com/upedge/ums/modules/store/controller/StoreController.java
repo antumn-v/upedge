@@ -83,7 +83,7 @@ public class StoreController {
 
     @ApiOperation("请求授权shopify店铺")
     @PostMapping("/shopifyConnect")
-    public ShopifyAuthResponse shopifyAuthRequest(@RequestBody ShopifyAuthRequest request){
+    public ShopifyAuthResponse shopifyAuthRequest(@RequestBody @Valid ShopifyAuthRequest request){
         return storeService.shopifyAuthRequest(request.getShopName());
     }
 

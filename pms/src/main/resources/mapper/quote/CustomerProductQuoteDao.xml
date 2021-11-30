@@ -83,8 +83,7 @@
                 quote_apply_id = #{quoteApplyId},
             </if>
         </set>
-        where customer_id = #{customerId}
-        and store_variant_id = #{storeVariantId}
+        where store_variant_id = #{storeVariantId}
     </update>
 
     <update id="updateByPrimaryKey" parameterType="com.upedge.pms.modules.quote.entity.CustomerProductQuote">
@@ -373,12 +372,11 @@
             #{storeVariantId}
         </foreach>
     </select>
-    <select id="selectByCustomerIdAndStoreVairantId"
+    <select id="selectByStoreVariantId"
             resultType="com.upedge.pms.modules.quote.entity.CustomerProductQuote">
         select
         <include refid="Base_Column_List"/>
-        from where customer_id = #{customerId}
-        and store_variant_id = #{storeVariantId}
+        from where  store_variant_id = #{storeVariantId}
     </select>
 
     <select id="selectQuoteDetail"
