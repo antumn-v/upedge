@@ -1,20 +1,20 @@
 package com.upedge.pms.modules.product.dao;
 
+import com.upedge.common.base.Page;
 import com.upedge.pms.modules.product.entity.ProductVariant;
 import com.upedge.pms.modules.product.vo.SaiheSkuVo;
-import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 
-import com.upedge.common.base.Page;
-import org.apache.ibatis.annotations.Param;
-
 /**
  * @author gx
  */
 public interface ProductVariantDao{
+
+    List<ProductVariant> listProductVariantByIds(@Param("ids") List<Long> ids);
 
     ProductVariant selectBySku(String sku);
 

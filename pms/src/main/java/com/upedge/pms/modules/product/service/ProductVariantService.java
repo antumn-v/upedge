@@ -1,7 +1,8 @@
 package com.upedge.pms.modules.product.service;
 
-import com.upedge.pms.modules.product.entity.ProductVariant;
 import com.upedge.common.base.Page;
+import com.upedge.pms.modules.product.entity.ProductVariant;
+import com.upedge.pms.modules.product.response.ProductVariantsResponse;
 import com.upedge.pms.modules.product.vo.SaiheSkuVo;
 import com.upedge.pms.modules.product.vo.VariantAttrVo;
 import org.apache.ibatis.annotations.Param;
@@ -15,6 +16,8 @@ import java.util.Set;
  * @author gx
  */
 public interface ProductVariantService{
+
+    ProductVariantsResponse listVariantByIds(List<Long> variantIds);
 
     Map<String, BigDecimal> selectVariantPriceRange(Long productId);
 

@@ -1,22 +1,24 @@
 package com.upedge.pms.modules.product.service.impl;
 
+import com.upedge.common.base.Page;
+import com.upedge.common.constant.Constant;
+import com.upedge.common.constant.ResultCode;
 import com.upedge.common.utils.ListUtils;
+import com.upedge.pms.modules.product.dao.ProductVariantDao;
+import com.upedge.pms.modules.product.entity.ProductVariant;
 import com.upedge.pms.modules.product.entity.ProductVariantAttr;
+import com.upedge.pms.modules.product.response.ProductVariantsResponse;
 import com.upedge.pms.modules.product.service.ProductVariantAttrService;
+import com.upedge.pms.modules.product.service.ProductVariantService;
 import com.upedge.pms.modules.product.vo.SaiheSkuVo;
 import com.upedge.pms.modules.product.vo.VariantAttrVo;
 import com.upedge.pms.modules.product.vo.VariantValVo;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.*;
-
-import com.upedge.common.base.Page;
-import org.springframework.beans.factory.annotation.Autowired;
-import com.upedge.pms.modules.product.dao.ProductVariantDao;
-import com.upedge.pms.modules.product.entity.ProductVariant;
-import com.upedge.pms.modules.product.service.ProductVariantService;
 
 
 @Service
@@ -54,6 +56,13 @@ public class ProductVariantServiceImpl implements ProductVariantService {
     @Transactional
     public int insertSelective(ProductVariant record) {
         return productVariantDao.insert(record);
+    }
+
+    @Override
+    public ProductVariantsResponse listVariantByIds(List<Long> variantIds) {
+        List<ProductVariant> productVariantList = productVariantDao.listProductVariantByIds(variantIds);
+        ProductVariantsResponse res = new ProductVariantsResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS, productVariantList);
+        return res;
     }
 
     @Override

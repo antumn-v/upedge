@@ -496,6 +496,14 @@
         from product_variant
         where variant_sku = #{sku}
     </select>
-
-
+    <select id="listProductVariantByIds" resultType="com.upedge.pms.modules.product.entity.ProductVariant">
+        select
+        <include refid="Base_Column_List"/>
+        from product_variant
+        where id in
+        <foreach collection="ids" index="index" item="item"
+                 separator="," open="(" close=")">
+            #{item}
+        </foreach>
+    </select>
 </mapper>

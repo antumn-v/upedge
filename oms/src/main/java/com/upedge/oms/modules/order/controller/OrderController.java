@@ -411,11 +411,11 @@ public class OrderController {
      * @param request
      * @return
      */
-    @RequestMapping(value = "/admin/orderList", method = RequestMethod.POST)
-    public OrderListResponse orderList(@RequestBody @Valid OrderListRequest request) {
-        Session session = UserUtil.getSession(redisTemplate);
-        return orderService.orderList(request, session);
-    }
+//    @RequestMapping(value = "/orderList", method = RequestMethod.POST)
+//    public OrderListResponse orderList(@RequestBody @Valid OrderListRequest request) {
+//        Session session = UserUtil.getSession(redisTemplate);
+//        return orderService.orderList(request, session);
+//    }
 
     /**
      * 普通订单详情页
@@ -433,7 +433,7 @@ public class OrderController {
      * @param request
      * @return
      */
-    @RequestMapping(value = "/admin/pendingList", method = RequestMethod.POST)
+    @RequestMapping(value = "/pendingList", method = RequestMethod.POST)
     public OrderListResponse pendingList(@RequestBody @Valid OrderListQueryRequest request) {
         Session session = UserUtil.getSession(redisTemplate);
         return orderService.pendingList(request, session);
@@ -576,7 +576,7 @@ public class OrderController {
      * @param request
      * @return
      */
-    @RequestMapping(value = "/upedgeOrder", method = RequestMethod.POST)
+    @RequestMapping(value = "/pageOrder", method = RequestMethod.POST)
     public BaseResponse upedgeOrderPage(@RequestBody PandaOrderListRequest request) {
 
         List<PandaOrderListVo> result = orderService.upedgeOrderPage(request);

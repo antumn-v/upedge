@@ -1,26 +1,20 @@
 package com.upedge.pms.modules.product.controller;
 
-import java.util.Arrays;
-import java.util.Map;
-
-import com.upedge.common.constant.ResultCode;
-import org.springframework.beans.factory.annotation.Autowired;
 import com.upedge.common.component.annotation.Permission;
-import com.upedge.pms.modules.product.entity.ProductVariant;
-import com.upedge.pms.modules.product.service.ProductVariantService;
-import org.springframework.web.bind.annotation.*;
-import java.util.List;
 import com.upedge.common.constant.Constant;
+import com.upedge.common.constant.ResultCode;
+import com.upedge.common.model.product.ListVariantsRequest;
+import com.upedge.pms.modules.product.entity.ProductVariant;
 import com.upedge.pms.modules.product.request.ProductVariantAddRequest;
 import com.upedge.pms.modules.product.request.ProductVariantListRequest;
 import com.upedge.pms.modules.product.request.ProductVariantUpdateRequest;
+import com.upedge.pms.modules.product.response.*;
+import com.upedge.pms.modules.product.service.ProductVariantService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
 
-import com.upedge.pms.modules.product.response.ProductVariantAddResponse;
-import com.upedge.pms.modules.product.response.ProductVariantDelResponse;
-import com.upedge.pms.modules.product.response.ProductVariantInfoResponse;
-import com.upedge.pms.modules.product.response.ProductVariantListResponse;
-import com.upedge.pms.modules.product.response.ProductVariantUpdateResponse;
 import javax.validation.Valid;
+import java.util.List;
 
 /**
  * 商品变体表
@@ -33,6 +27,11 @@ public class ProductVariantController {
     @Autowired
     private ProductVariantService productVariantService;
 
+
+    @RequestMapping(value="/listVariantByIds", method=RequestMethod.POST)
+    public ProductVariantsResponse listVariantByIds(@RequestBody ListVariantsRequest request) {
+        return productVariantService.listVariantByIds(request.getVariantIds());
+    }
 
     @RequestMapping(value="/info/{id}", method=RequestMethod.GET)
     @Permission(permission = "product:productvariant:info:id")
