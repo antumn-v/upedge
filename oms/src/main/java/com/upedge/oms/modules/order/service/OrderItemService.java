@@ -1,12 +1,15 @@
 package com.upedge.oms.modules.order.service;
 
+import com.upedge.common.base.BaseResponse;
 import com.upedge.common.base.Page;
 import com.upedge.common.model.pms.quote.CustomerProductQuoteVo;
 import com.upedge.common.model.product.RelateDetailVo;
 import com.upedge.common.model.product.RelateVariantVo;
 import com.upedge.common.model.product.VariantDetail;
+import com.upedge.common.model.user.vo.Session;
 import com.upedge.oms.modules.order.entity.OrderItem;
 import com.upedge.oms.modules.order.request.AirwallexRequest;
+import com.upedge.oms.modules.order.request.OrderItemQuoteRequest;
 import com.upedge.oms.modules.order.request.OrderItemUpdateQuantityRequest;
 import com.upedge.oms.modules.order.vo.AirwallexVo;
 import com.upedge.oms.modules.order.vo.ItemDischargeQuantityVo;
@@ -17,6 +20,8 @@ import java.util.List;
  * @author author
  */
 public interface OrderItemService{
+
+    BaseResponse orderItemApplyQuote(OrderItemQuoteRequest request, Session session);
 
     void updateItemQuoteDetail(CustomerProductQuoteVo customerProductQuoteVo);
 

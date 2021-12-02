@@ -16,4 +16,9 @@ public class OrderConstant {
     public static Integer SHIP_STATE_UNSHIPPED = 0;
     public static Integer SHIP_STATE_SHIPPED = 1;
 
+    public static Integer QUOTE_STATE_UNQUOTED = 0;
+    public static Integer QUOTE_STATE_QUOTING = 1;
+    public static Integer QUOTE_STATE_PART_UNQUOTED = 2;
+    public static Integer QUOTE_STATE_QUOTED = 3;
+
 }

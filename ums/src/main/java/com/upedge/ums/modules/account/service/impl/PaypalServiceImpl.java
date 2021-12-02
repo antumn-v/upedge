@@ -120,7 +120,6 @@ public class PaypalServiceImpl implements PaypalService {
 
                     redisTemplate.opsForHash().put(key, "paymentId",payment.getId());
                     redisTemplate.opsForHash().put(key, "order",paypalOrder);
-                    System.out.println(redisTemplate.opsForHash().get(key,"order"));
                     Message message = new Message();
                     message.setDelayTimeLevel(RocketMqDelayLevelEnum.TEN_MINUTE.getLevel());
                     message.setBody(JSON.toJSONBytes(payment.getId()));

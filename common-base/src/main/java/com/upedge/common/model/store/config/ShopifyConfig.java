@@ -5,8 +5,8 @@ public class ShopifyConfig {
 
 
     public static final String api_key = "d05274a065a8b4ebd2342d17eb28d768";//退休
-    public static final String api_select_key = "e4c7f6bb4148ee27bbd9c302611c0fe3";//退休
-    public static final String redirect_url = "http://guoxing.gz2vip.idcfengye.com/ums/store/shopifyAuth";
+    public static final String api_select_key = "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";//退休
+    public static final String redirect_url = "http://guoxing.gz2vip.idcfengye.com/stores/storeblank";
 
 
 

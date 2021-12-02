@@ -20,6 +20,7 @@ import com.upedge.oms.scheduler.PackageScheduler;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.math.BigDecimal;
@@ -28,7 +29,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ThreadPoolExecutor;
-import org.springframework.web.bind.annotation.*;
 /**
  * 
  *
@@ -148,7 +148,7 @@ public class PackageInfoController {
 
     @GetMapping("/pullTracking")
     public BaseResponse pullTracking(){
-        packageScheduler.pullNormalTracking();
+//        packageScheduler.pullNormalTracking();
         return BaseResponse.success();
     }
 

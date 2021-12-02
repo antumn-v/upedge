@@ -1,15 +1,11 @@
 package com.upedge.oms.modules.order.controller;
 
 import com.upedge.common.base.BaseResponse;
-import com.upedge.common.base.Page;
 import com.upedge.common.enums.CustomerExceptionEnum;
 import com.upedge.common.exception.CustomerException;
 import com.upedge.common.feign.PmsFeignClient;
-import com.upedge.common.model.pms.request.OrderQuoteApplyRequest;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.web.util.UserUtil;
-import com.upedge.oms.modules.order.entity.Order;
-import com.upedge.oms.modules.order.entity.OrderItem;
 import com.upedge.oms.modules.order.request.AirwallexRequest;
 import com.upedge.oms.modules.order.request.OrderItemQuoteRequest;
 import com.upedge.oms.modules.order.request.OrderItemUpdateQuantityRequest;
@@ -22,8 +18,6 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * 
@@ -60,24 +54,7 @@ public class OrderItemController {
     @PostMapping("/quoteApply")
     public BaseResponse itemQuoteApply(@RequestBody OrderItemQuoteRequest request){
         Session session = UserUtil.getSession(redisTemplate);
-        Order order = orderService.selectByPrimaryKey(request.getOrderId());
-        Page<OrderItem> orderItemPage = new Page<>();
-        OrderItem orderItem = new OrderItem();
-        orderItem.setOrderId(request.getOrderId());
-        orderItemPage.setPageSize(-1);
-        List<OrderItem> orderItems = orderItemService.select(orderItemPage);
-
-        List<Long> storeVariantIds = new ArrayList<>();
-        for (OrderItem item : orderItems) {
-            storeVariantIds.add(item.getStoreVariantId());
-        }
-        OrderQuoteApplyRequest orderQuoteApplyRequest = new OrderQuoteApplyRequest();
-        orderQuoteApplyRequest.setOrderId(request.getOrderId());
-        orderQuoteApplyRequest.setStoreId(order.getStoreId());
-        orderQuoteApplyRequest.setCustomerId(session.getCustomerId());
-        orderQuoteApplyRequest.setUserId(session.getId());
-        orderQuoteApplyRequest.setStoreVariantId(storeVariantIds);
-        return pmsFeignClient.orderQuoteApply(orderQuoteApplyRequest);
+        return orderItemService.orderItemApplyQuote(request,session);
     }
 
 //    @ApiOperation("airwallex导出")

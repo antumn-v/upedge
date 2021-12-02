@@ -163,7 +163,7 @@ public class RechargeController {
     @ApiOperation("paypal充值")
     @PostMapping("/request/createPaypal")
     public ApplyRechargeResponse paypalRechargeRequest(@RequestBody ApplyRechargeRequest request) {
-        String origin = RequestUtil.getRequest().getHeader("Origin") + "/handle/payPalRecharge";
+        String origin = RequestUtil.getRequest().getHeader("Origin") + "/board/financeblank";
         Session session = UserUtil.getSession(redisTemplate);
         if (null == request.getAccountId()) {
             request.setAccountId(session.getAccountId());
@@ -238,7 +238,7 @@ public class RechargeController {
      * @param token
      * @return
      */
-    @GetMapping("/request/paypal/execute")
+    @GetMapping("/paypalExecute")
     public ApplyRechargeResponse paypalExecute(@RequestParam("paymentId") String paymentId, @RequestParam("PayerID") String payerId, @RequestParam("token") String token) {
         String key = RedisKey.HASH_PAYPAL_TOKEN + token;
         PaypalOrder order = (PaypalOrder) redisTemplate.opsForHash().get(key, "order");

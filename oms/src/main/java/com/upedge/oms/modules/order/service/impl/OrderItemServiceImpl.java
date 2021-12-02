@@ -1,11 +1,17 @@
 package com.upedge.oms.modules.order.service.impl;
 
+import com.upedge.common.base.BaseResponse;
 import com.upedge.common.base.Page;
+import com.upedge.common.constant.OrderConstant;
 import com.upedge.common.constant.OrderType;
+import com.upedge.common.constant.ResultCode;
+import com.upedge.common.feign.PmsFeignClient;
 import com.upedge.common.model.pms.quote.CustomerProductQuoteVo;
+import com.upedge.common.model.pms.request.OrderQuoteApplyRequest;
 import com.upedge.common.model.product.RelateDetailVo;
 import com.upedge.common.model.product.RelateVariantVo;
 import com.upedge.common.model.product.VariantDetail;
+import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.utils.IdGenerate;
 import com.upedge.oms.modules.order.dao.OrderDao;
 import com.upedge.oms.modules.order.dao.OrderItemDao;
@@ -14,6 +20,7 @@ import com.upedge.oms.modules.order.entity.Order;
 import com.upedge.oms.modules.order.entity.OrderItem;
 import com.upedge.oms.modules.order.entity.StoreOrderItem;
 import com.upedge.oms.modules.order.request.AirwallexRequest;
+import com.upedge.oms.modules.order.request.OrderItemQuoteRequest;
 import com.upedge.oms.modules.order.request.OrderItemUpdateQuantityRequest;
 import com.upedge.oms.modules.order.service.OrderItemService;
 import com.upedge.oms.modules.order.service.OrderService;
@@ -25,6 +32,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 
@@ -42,6 +51,9 @@ public class OrderItemServiceImpl implements OrderItemService {
 
     @Autowired
     private OrderService orderService;
+
+    @Autowired
+    PmsFeignClient pmsFeignClient;
 
     @Autowired
     private OrderShippingUnitService orderShippingUnitService;
@@ -72,6 +84,46 @@ public class OrderItemServiceImpl implements OrderItemService {
     @Transactional
     public int insertSelective(OrderItem record) {
         return orderItemDao.insert(record);
+    }
+
+    @Transactional
+    @Override
+    public BaseResponse orderItemApplyQuote(OrderItemQuoteRequest request, Session session) {
+        Order order = orderService.selectByPrimaryKey(request.getOrderId());
+        if (order.getPayState() != OrderConstant.PAY_STATE_UNPAID
+        || order.getQuoteState() == OrderConstant.QUOTE_STATE_QUOTED){
+            return BaseResponse.failed("order error");
+        }
+        Page<OrderItem> orderItemPage = new Page<>();
+        OrderItem orderItem = new OrderItem();
+        orderItem.setOrderId(request.getOrderId());
+        orderItemPage.setPageSize(-1);
+        List<OrderItem> orderItems = select(orderItemPage);
+        List<Long> itemIds = request.getItemIds();
+        List<Long> storeVariantIds = new ArrayList<>();
+        for (OrderItem item : orderItems) {
+            if (!itemIds.contains(item.getId())
+            || item.getQuoteState() != 0){
+                return BaseResponse.failed("item error");
+            }
+            storeVariantIds.add(item.getStoreVariantId());
+        }
+        OrderQuoteApplyRequest orderQuoteApplyRequest = new OrderQuoteApplyRequest();
+        orderQuoteApplyRequest.setOrderId(request.getOrderId());
+        orderQuoteApplyRequest.setStoreId(order.getStoreId());
+        orderQuoteApplyRequest.setCustomerId(session.getCustomerId());
+        orderQuoteApplyRequest.setUserId(session.getId());
+        orderQuoteApplyRequest.setStoreVariantId(storeVariantIds);
+        BaseResponse response = pmsFeignClient.orderQuoteApply(orderQuoteApplyRequest);
+        if (response.getCode() == ResultCode.SUCCESS_CODE){
+            order = new Order();
+            order.setId(request.getOrderId());
+            order.setQuoteState(OrderConstant.QUOTE_STATE_QUOTING);
+            order.setUpdateTime(new Date());
+            orderService.updateByPrimaryKeySelective(order);
+            orderItemDao.updateQuoteStateByIds(itemIds,5);
+        }
+        return response;
     }
 
     @Override
