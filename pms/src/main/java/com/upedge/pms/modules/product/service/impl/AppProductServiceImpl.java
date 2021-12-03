@@ -5,43 +5,34 @@ import com.upedge.common.constant.Constant;
 import com.upedge.common.constant.ResultCode;
 import com.upedge.common.constant.key.RedisKey;
 import com.upedge.common.enums.CustomerSettingEnum;
-
-import com.upedge.common.model.product.VariantDetail;
+import com.upedge.common.feign.TmsFeignClient;
 import com.upedge.common.model.product.request.ProductVariantShipsRequest;
-import com.upedge.common.model.ship.request.ShipMethodPriceRequest;
 import com.upedge.common.model.ship.request.ShipMethodSearchRequest;
 import com.upedge.common.model.ship.response.ShipMethodSearchResponse;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.utils.ListUtils;
 import com.upedge.common.utils.RedisKeyUtils;
-import com.upedge.pms.modules.product.dao.ProductDao;
-import com.upedge.pms.modules.product.dao.ProductImgDao;
-import com.upedge.pms.modules.product.dao.ProductInfoDao;
-import com.upedge.pms.modules.product.dao.ProductVariantDao;
+import com.upedge.pms.modules.product.dao.*;
 import com.upedge.pms.modules.product.entity.Product;
-import com.upedge.pms.modules.product.entity.ProductImg;
 import com.upedge.pms.modules.product.entity.ProductInfo;
 import com.upedge.pms.modules.product.entity.ProductVariant;
-import com.upedge.pms.modules.product.response.ProductImgListResponse;
-import com.upedge.pms.modules.product.service.ProductService;
-import com.upedge.pms.modules.product.dao.AppProductVariantDao;
-import com.upedge.pms.modules.product.dao.ImportProductAttributeDao;
 import com.upedge.pms.modules.product.request.AppVariantShipsRequest;
 import com.upedge.pms.modules.product.request.MarketPlaceListRequest;
 import com.upedge.pms.modules.product.request.PrivateProductListRequest;
 import com.upedge.pms.modules.product.response.AppVariantShipsResponse;
 import com.upedge.pms.modules.product.response.MarketPlaceListResponse;
+import com.upedge.pms.modules.product.response.ProductImgListResponse;
 import com.upedge.pms.modules.product.service.AppProductService;
+import com.upedge.pms.modules.product.service.ProductService;
 import com.upedge.pms.modules.product.vo.AppProductVariantVo;
-import com.upedge.pms.modules.product.vo.AppProductVo;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
-import java.util.*;
-import java.util.concurrent.TimeUnit;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * @author 海桐
@@ -70,6 +61,8 @@ public class AppProductServiceImpl implements AppProductService {
     @Autowired
     ProductService productService;
 
+    @Autowired
+    TmsFeignClient tmsFeignClient;
 
     @Autowired
     RedisTemplate<String, Object> redisTemplate;
@@ -178,7 +171,7 @@ public class AppProductServiceImpl implements AppProductService {
         searchRequest.setWeight(variant.getWeight().multiply(request.getQuantity()));
         searchRequest.setVolumeWeight(variant.getVolumeWeight().multiply(request.getQuantity()));
 
-//        ShipMethodSearchResponse searchResponse = tmsFeignClient.shipSearch(searchRequest);
+        ShipMethodSearchResponse searchResponse = tmsFeignClient.shipSearch(searchRequest);
 
         return null;
     }

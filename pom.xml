@@ -12,10 +12,13 @@
         <module>upedge_generator</module>
         <module>ums</module>
         <module>common-redis</module>
+        <module>common-base</module>
+        <module>common-web</module>
         <module>thirdparty-service</module>
         <module>pms</module>
         <module>oms</module>
         <module>tms</module>
+        <module>zuul</module>
     </modules>
 
 

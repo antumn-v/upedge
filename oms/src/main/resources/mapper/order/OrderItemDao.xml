@@ -804,7 +804,8 @@
         oi.shipping_id = #{productShippingId},
         oi.usd_price = #{quotePrice},
         oi.cny_price = #{cnyPrice},
-        oi.discharge_quantity = '0'
+        oi.discharge_quantity = '0',
+        oi.quote_sate = '1'
         where oi.store_variant_id = #{storeVariantId}
         and o.pay_state &lt; '1'
     </update>
@@ -906,4 +907,23 @@
             </foreach>
         and quote_state = '0'
     </update>
+
+    <select id="selectUnpaidOrderIdByStoreVariantId" resultType="java.lang.Long">
+        select distinct o.id
+        from `order` o
+            left join order_item oi
+            on o.id = oi.order_id
+        where oi.store_variant_id = #{storeVariantId}
+        and o.pay_state &lt; 1
+    </select>
+
+    <select id="selectUnQuoteItemOrderIdByOrderIds" resultType="java.lang.Long">
+        select distinct order_id
+        from order_item
+        where quote_state != '1'
+        and order_id in
+        <foreach collection="orderIds" item="orderId" open="(" close=")" separator=",">
+            #{orderId}
+        </foreach>
+    </select>
 </mapper>

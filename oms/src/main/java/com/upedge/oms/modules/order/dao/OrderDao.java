@@ -37,6 +37,9 @@ import java.util.Set;
  */
 public interface OrderDao{
 
+    int updateQuoteStateByIds(@Param("ids") List<Long> ids,
+                              @Param("quoteState") Integer quoteState);
+
     List<OrderProductAmountVo> selectOrderItemAmountByPaymentId(Long paymentId);
 
 

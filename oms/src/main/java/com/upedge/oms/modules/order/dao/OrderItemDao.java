@@ -20,6 +20,10 @@ import java.util.Map;
  */
 public interface OrderItemDao{
 
+    List<Long> selectUnQuoteItemOrderIdByOrderIds(@Param("orderIds")List<Long> orderIds);
+
+    List<Long> selectUnpaidOrderIdByStoreVariantId(Long storeVariantId);
+
     int updateQuoteStateByIds(@Param("ids") List<Long> ids,
                               @Param("quoteState") Integer quoteState);
 

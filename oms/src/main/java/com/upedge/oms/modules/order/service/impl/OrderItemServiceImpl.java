@@ -13,6 +13,7 @@ import com.upedge.common.model.product.RelateVariantVo;
 import com.upedge.common.model.product.VariantDetail;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.utils.IdGenerate;
+import com.upedge.common.utils.ListUtils;
 import com.upedge.oms.modules.order.dao.OrderDao;
 import com.upedge.oms.modules.order.dao.OrderItemDao;
 import com.upedge.oms.modules.order.dao.StoreOrderItemDao;
@@ -126,9 +127,18 @@ public class OrderItemServiceImpl implements OrderItemService {
         return response;
     }
 
+    @Transactional
     @Override
     public void updateItemQuoteDetail(CustomerProductQuoteVo customerProductQuoteVo) {
         orderItemDao.updateItemQuoteDetail(customerProductQuoteVo);
+        Long storeVariantId = customerProductQuoteVo.getStoreVariantId();
+        List<Long> orderIds = orderItemDao.selectUnpaidOrderIdByStoreVariantId(storeVariantId);
+        if (ListUtils.isNotEmpty(orderIds)){
+            orderIds = orderItemDao.selectUnQuoteItemOrderIdByOrderIds(orderIds);
+            if (ListUtils.isNotEmpty(orderIds)){
+                orderDao.updateQuoteStateByIds(orderIds,OrderConstant.QUOTE_STATE_PART_UNQUOTED);
+            }
+        }
     }
 
     @Override

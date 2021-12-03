@@ -23,7 +23,6 @@
         <module name="ums" />
         <module name="common-web" />
         <module name="tms" />
-        <module name="thirdparty-service" />
         <module name="upedge-shoplazza" />
       </profile>
     </annotationProcessing>

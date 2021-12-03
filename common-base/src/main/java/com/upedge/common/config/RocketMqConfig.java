@@ -2,9 +2,8 @@ package com.upedge.common.config;
 
 public class RocketMqConfig {
 
-//    public final static String NAME_SERVER = "172.29.239.96:9876";
-//    public final static String NAME_SERVER = "172.29.239.85:9876";
     public final static String NAME_SERVER = "localhost:9876";
+//    public final static String NAME_SERVER = "172.23.127.10:9876";
 
 
     public final static String TOPIC_ORDER_TRANSACTION = "order_transaction";
