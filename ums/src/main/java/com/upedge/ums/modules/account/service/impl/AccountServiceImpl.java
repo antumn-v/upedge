@@ -104,6 +104,20 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
+    public Account selectSessionAccount(Session session) {
+        Account account = accountUserMapper.selectAccountByUser(session.getId());
+        if (account.getStatus() != 1){
+            return null;
+        }
+        return account;
+    }
+
+    @Override
+    public Account selectById(Long id) {
+        return accountMapper.selectByPrimaryKey(id);
+    }
+
+    @Override
     public AccountPayMethod selectByAccountBankNum(Long accountId, String bankNum) {
         return accountPayMethodMapper.selectByAccountIdAndBankNum(accountId, bankNum);
     }
@@ -308,7 +322,6 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @GlobalTransactional
-    @Transactional
     @Override
     public boolean accountPayment(AccountPaymentRequest request) {
         Long accountId = request.getAccountId();

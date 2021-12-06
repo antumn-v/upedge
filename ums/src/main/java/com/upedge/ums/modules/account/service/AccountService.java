@@ -5,6 +5,7 @@ import com.upedge.common.exception.CustomerException;
 import com.upedge.common.model.account.AccountOrderRefundedRequest;
 import com.upedge.common.model.account.AccountPaymentRequest;
 import com.upedge.common.model.order.PaymentDetail;
+import com.upedge.common.model.user.vo.Session;
 import com.upedge.ums.modules.account.entity.Account;
 import com.upedge.ums.modules.account.entity.AccountLog;
 import com.upedge.ums.modules.account.entity.AccountPayMethod;
@@ -25,6 +26,10 @@ public interface AccountService {
      * @return
      */
     Account selectCustomerDefaultAccount(Long customerId);
+
+    Account selectSessionAccount(Session session);
+
+    Account selectById(Long id);
 
 
     AccountPayMethod selectByAccountBankNum(Long accountId, String bankNum);

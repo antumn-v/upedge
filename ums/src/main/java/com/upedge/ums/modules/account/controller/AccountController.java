@@ -6,20 +6,22 @@ import com.upedge.common.constant.ResultCode;
 import com.upedge.common.exception.CustomerException;
 import com.upedge.common.model.account.AccountOrderRefundedRequest;
 import com.upedge.common.model.account.AccountPaymentRequest;
-import io.swagger.annotations.ApiOperation;
+import com.upedge.common.model.user.vo.Session;
+import com.upedge.common.web.util.UserUtil;
+import com.upedge.ums.modules.account.entity.Account;
 import com.upedge.ums.modules.account.entity.AccountPayMethod;
-import com.upedge.ums.modules.account.entity.AccountUser;
-import com.upedge.ums.modules.account.request.*;
+import com.upedge.ums.modules.account.request.AccountAddRequest;
+import com.upedge.ums.modules.account.request.AccountListRequest;
+import com.upedge.ums.modules.account.request.AccountPayMethodAddRequest;
 import com.upedge.ums.modules.account.response.*;
 import com.upedge.ums.modules.account.service.AccountService;
+import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.math.BigDecimal;
 import java.util.UUID;
 
 /**
@@ -48,6 +50,17 @@ public class AccountController {
     @PostMapping("/list")
     public AccountListResponse accountList(@RequestBody AccountListRequest request){
         return accountService.pageAccount(request);
+    }
+
+    @ApiOperation("账户详情")
+    @GetMapping("/sessionDetail")
+    public BaseResponse accountDetail(){
+        Session session = UserUtil.getSession(redisTemplate);
+        Account account = accountService.selectSessionAccount(session);
+        if (null == account){
+            return BaseResponse.failed();
+        }
+        return BaseResponse.success(account);
     }
 
 
