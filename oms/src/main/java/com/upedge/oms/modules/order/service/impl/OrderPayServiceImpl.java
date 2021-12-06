@@ -46,6 +46,7 @@ import com.upedge.oms.modules.stock.service.CustomerProductStockService;
 import com.upedge.oms.modules.stock.service.CustomerStockRecordService;
 import com.upedge.oms.modules.vat.service.VatRuleService;
 
+import io.seata.spring.annotation.GlobalTransactional;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
@@ -504,6 +505,7 @@ public class OrderPayServiceImpl implements OrderPayService {
         return true;
     }
 
+    @GlobalTransactional
     //余额支付订单
     @Override
     public String payOrderByBalance(Session session, BigDecimal amount, Long paymentId, List<ItemDischargeQuantityVo> dischargeQuantityVos) {
@@ -575,7 +577,7 @@ public class OrderPayServiceImpl implements OrderPayService {
                     }
                 }
                 // 订单上传赛盒 放在 sendSaveTransactionRecordMessage的消費端
-       //         mqOnSaiheService.uploadPaymentIdOnMq(paymentId, OrderType.NORMAL);
+                mqOnSaiheService.uploadPaymentIdOnMq(paymentId, OrderType.NORMAL);
                 sendSaveTransactionRecordMessage(paymentId, customerId, userId, PayOrderMethod.RECHARGE);
             }
         });
@@ -607,7 +609,7 @@ public class OrderPayServiceImpl implements OrderPayService {
 
         detail.setOrderTransactions(transactionDetails);
 
-        Message message = new Message(RocketMqConfig.TOPIC_ORDER_TRANSACTION, "normal_order", "normal:order:transaction:" + paymentId, JSON.toJSONBytes(detail));
+        Message message = new Message(RocketMqConfig.TOPIC_SAVE_ORDER_TRANSACTION, "normal_order", "normal:order:transaction:" + paymentId, JSON.toJSONBytes(detail));
         message.setDelayTimeLevel(1);
         umsFeignClient.sendMessage(message);
 
@@ -766,7 +768,7 @@ public class OrderPayServiceImpl implements OrderPayService {
                         && order.getShipState() == 0) {
                     Message message = new Message();
                     message.setTags(OrderType.NORMAL + "");
-                    message.setTopic(RocketMqConfig.TOPIC_AII_ORDER_UPLOAD_SAIHE);
+                    message.setTopic(RocketMqConfig.TOPIC_ORDER_UPLOAD_SAIHE);
                     message.setKeys(String.valueOf(order.getId()));
                     message.setBody(new byte[0]);
                     messages.add(message);

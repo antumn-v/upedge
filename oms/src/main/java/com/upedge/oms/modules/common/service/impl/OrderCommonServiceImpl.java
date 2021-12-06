@@ -685,7 +685,7 @@ public class OrderCommonServiceImpl implements OrderCommonService {
 
     public void sendSaveTransactionRecordMessage(PaymentDetail detail) {
 
-        Message message = new Message(RocketMqConfig.TOPIC_ORDER_TRANSACTION, "order_order", "order:order:transaction:" + detail.getPaymentId(), JSON.toJSONBytes(detail));
+        Message message = new Message(RocketMqConfig.TOPIC_SAVE_ORDER_TRANSACTION, "order_order", "order:order:transaction:" + detail.getPaymentId(), JSON.toJSONBytes(detail));
 
         BaseResponse baseResponse = umsFeignClient.customerInfo(detail.getCustomerId());
         if (baseResponse.getCode() == ResultCode.SUCCESS_CODE && baseResponse.getData() != null){
@@ -705,7 +705,7 @@ public class OrderCommonServiceImpl implements OrderCommonService {
             }
             detail.setPayAmount(payAmount);
             detail.setOrderTransactions(transactionDetails);
-            message = new Message(RocketMqConfig.TOPIC_ORDER_TRANSACTION, "normal_order", "normal:order:transaction:" + detail.getPaymentId(), JSON.toJSONBytes(detail));
+            message = new Message(RocketMqConfig.TOPIC_SAVE_ORDER_TRANSACTION, "normal_order", "normal:order:transaction:" + detail.getPaymentId(), JSON.toJSONBytes(detail));
         }
 
         if (detail.getOrderType() == OrderType.WHOLESALE){

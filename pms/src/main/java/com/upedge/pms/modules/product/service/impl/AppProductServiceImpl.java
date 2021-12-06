@@ -14,6 +14,7 @@ import com.upedge.common.utils.ListUtils;
 import com.upedge.common.utils.RedisKeyUtils;
 import com.upedge.pms.modules.product.dao.*;
 import com.upedge.pms.modules.product.entity.Product;
+import com.upedge.pms.modules.product.entity.ProductImg;
 import com.upedge.pms.modules.product.entity.ProductInfo;
 import com.upedge.pms.modules.product.entity.ProductVariant;
 import com.upedge.pms.modules.product.request.AppVariantShipsRequest;
@@ -133,7 +134,8 @@ public class AppProductServiceImpl implements AppProductService {
 
     @Override
     public ProductImgListResponse selectProductImages(Long productId) {
-        return null;
+        List<ProductImg> productImgs = productImgDao.selectByProductId(productId);
+        return new ProductImgListResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS,productImgs,null);
     }
 
     @Override

@@ -86,7 +86,7 @@ public class MqOnSaiHeServiceImpl implements MqOnSaiheService {
         if (CollectionUtils.isEmpty(longs)){
             log.info("RocketMQ生产者发送消息订单为空===>订单上传赛盒，orderType:{},paymentId:{}",orderType,paymentId);
         }
-        Message message = new Message(RocketMqConfig.TOPIC_AII_ORDER_UPLOAD_SAIHE, orderType.toString(), IdGenerate.nextId().toString(), JSON.toJSONBytes(longs));
+        Message message = new Message(RocketMqConfig.TOPIC_ORDER_UPLOAD_SAIHE, orderType.toString(), IdGenerate.nextId().toString(), JSON.toJSONBytes(longs));
 
         uploadPaymentIdOnMq(message);
     }

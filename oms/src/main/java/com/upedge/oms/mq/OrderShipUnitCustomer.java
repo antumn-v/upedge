@@ -40,7 +40,7 @@ public class OrderShipUnitCustomer {
         //消费模式:一个新的订阅组第一次启动从队列的最后位置开始消费 后续再启动接着上次消费的进度开始消费
         consumer.setConsumeFromWhere(ConsumeFromWhere.CONSUME_FROM_LAST_OFFSET);
         //订阅主题和 标签（ * 代表所有标签)下信息
-        consumer.subscribe(RocketMqConfig.TOPIC_AII_ORDER_UPLOAD_ORDER_SHIPPING_UNIT, "*");
+        consumer.subscribe(RocketMqConfig.TOPIC_SHIP_UNIT_UPDATE, "*");
         // //注册消费的监听 并在此监听中消费信息，并返回消费的状态信息
         consumer.registerMessageListener((MessageListenerConcurrently) (msgs, context) -> {
             // msgs中只收集同一个topic，同一个tag，并且key相同的message
@@ -54,7 +54,7 @@ public class OrderShipUnitCustomer {
 
                     String key = message.getKeys();
                     MqMessageLog mqMessageLog = new MqMessageLog();
-                    mqMessageLog.setTopic(RocketMqConfig.TOPIC_AII_ORDER_UPLOAD_ORDER_SHIPPING_UNIT);
+                    mqMessageLog.setTopic(RocketMqConfig.TOPIC_SHIP_UNIT_UPDATE);
                     mqMessageLog.setMsgKey(key);
                     BaseResponse baseResponse = umsFeignClient.selectMqLog(mqMessageLog);
                     if (baseResponse.getCode() != ResultCode.SUCCESS_CODE || baseResponse.getData() == null) {
@@ -92,6 +92,6 @@ public class OrderShipUnitCustomer {
         });
 
         consumer.start();
-        System.out.println(RocketMqConfig.TOPIC_AII_ORDER_UPLOAD_ORDER_SHIPPING_UNIT + "-->消费者 启动成功=======");
+        System.out.println(RocketMqConfig.TOPIC_SHIP_UNIT_UPDATE + "-->消费者 启动成功=======");
     }
 }

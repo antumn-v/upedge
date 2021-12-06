@@ -10,6 +10,7 @@ import com.upedge.pms.modules.product.response.ImportFavoriteResponse;
 import com.upedge.pms.modules.product.response.MultiReleaseResponse;
 import com.upedge.pms.modules.product.response.ProductListResponse;
 import com.upedge.pms.modules.product.vo.AddProductVo;
+import com.upedge.pms.modules.product.vo.AppProductVo;
 import com.upedge.pms.modules.product.vo.ProductVo;
 import com.upedge.thirdparty.ali1688.vo.AlibabaProductVo;
 
@@ -19,6 +20,8 @@ import java.util.List;
  * @author gx
  */
 public interface ProductService{
+
+    AppProductVo showCustomerProductDetail(Long productId);
 
     String refreshProductPriceRange(Long productId);
 

@@ -14,7 +14,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.concurrent.Future;
 import java.util.concurrent.ThreadPoolExecutor;
 
 
@@ -52,7 +51,7 @@ public class TmsProcuderImpl implements TmsProcuderService {
 
     private void send(List<Long> shipUnitIds) {
         log.info("运输单元修改id为：{}",shipUnitIds.toString());
-        Message message = new Message(RocketMqConfig.TOPIC_AII_ORDER_UPLOAD_ORDER_SHIPPING_UNIT,"shipUnit",IdGenerate.nextId().toString() ,JSON.toJSONBytes(shipUnitIds));
+        Message message = new Message(RocketMqConfig.TOPIC_SHIP_UNIT_UPDATE,"shipUnit",IdGenerate.nextId().toString() ,JSON.toJSONBytes(shipUnitIds));
         if (message == null){
             return;
         }

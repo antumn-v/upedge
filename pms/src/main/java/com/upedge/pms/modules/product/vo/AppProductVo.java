@@ -1,9 +1,14 @@
 package com.upedge.pms.modules.product.vo;
 
+import com.upedge.pms.modules.product.entity.ProductImg;
+import com.upedge.pms.modules.product.entity.ProductInfo;
 import lombok.Data;
 
 import java.math.BigDecimal;
 import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 @Data
 public class AppProductVo {
@@ -42,6 +47,14 @@ public class AppProductVo {
     private Date createTime;
 
     private Date updateTime;
+
+    List<AppProductVariantVo> variantVos;
+
+    Map<String, Set<String>> attributeMap;
+
+    ProductInfo productInfo;
+
+    List<ProductImg> productImgs;
 
 
     public void initPriceRange(){

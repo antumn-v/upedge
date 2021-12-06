@@ -19,6 +19,7 @@ import com.upedge.pms.modules.product.service.AppProductService;
 import com.upedge.pms.modules.product.service.ProductService;
 import com.upedge.pms.modules.product.service.ProductVariantService;
 import com.upedge.pms.modules.product.vo.AddProductVo;
+import com.upedge.pms.modules.product.vo.AppProductVo;
 import com.upedge.pms.modules.product.vo.ProductVo;
 import com.upedge.thirdparty.ali1688.service.Ali1688Service;
 import com.upedge.thirdparty.ali1688.vo.AlibabaProductVo;
@@ -84,6 +85,13 @@ public class ProductController {
         } catch (Exception e) {
             return new BaseResponse(ResultCode.FAIL_CODE,e.getMessage());
         }
+    }
+
+    @ApiOperation("产品展示详情")
+    @GetMapping("/showDetail/{id}")
+    public BaseResponse productShowDetail(@PathVariable Long id){
+        AppProductVo appProductVo = productService.showCustomerProductDetail(id);
+        return BaseResponse.success(appProductVo);
     }
 
 
