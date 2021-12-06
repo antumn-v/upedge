@@ -90,6 +90,16 @@
         where id = #{id}
     </update>
 
+    <update id="updateByBatch">
+        <foreach collection="list" item="item" index="index" open="" close="" separator=";">
+            update product_variant_attr
+            set variant_attr_ename=#{item.variantAttrEname},
+            variant_attr_cvalue=#{item.variantAttrCvalue},
+            variant_attr_evalue=#{item.variantAttrEvalue}
+            where id=#{item.id}
+        </foreach>
+    </update>
+
     <insert id="insert" keyColumn="id" keyProperty="id"
             parameterType="com.upedge.pms.modules.product.entity.ProductVariantAttr" useGeneratedKeys="true">
         insert into product_variant_attr

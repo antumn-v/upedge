@@ -545,8 +545,8 @@
         p.id,p.price_range priceRange,`product_title`,`product_image`,p.category_id,
         p.create_time creatTime,p.update_time,
         a.turnover,a.score,
-        round(p.min_price/6.3*1.2,2) as min_price,
-        round(p.max_price/6.3*1.2,2) as max_price
+        p.min_price,
+        p.max_price
         from product p
         left join product_attribute a
         on p.id = a.product_id

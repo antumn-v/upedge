@@ -262,6 +262,14 @@
             #{item}
         </foreach>
     </update>
+    <update id="updateByBatch">
+        <foreach collection="list" item="item" index="index" open="" close="" separator=";">
+            update product_variant
+            set cn_name=#{item.cnName},
+            en_name=#{item.enName}
+            where id=#{item.id}
+        </foreach>
+    </update>
 
 
     <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.upedge.pms.modules.product.entity.ProductVariant" useGeneratedKeys="true">

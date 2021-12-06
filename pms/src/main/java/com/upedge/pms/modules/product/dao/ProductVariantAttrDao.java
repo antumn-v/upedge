@@ -12,6 +12,8 @@ import java.util.List;
  */
 public interface ProductVariantAttrDao{
 
+    void updateByBatch(@Param("list")List<ProductVariantAttr> productVariantAttrList);
+
     /**
      * 根据产品ID查找启用变体的属性集合
      * @param productId

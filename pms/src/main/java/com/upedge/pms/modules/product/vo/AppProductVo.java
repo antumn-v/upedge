@@ -7,6 +7,8 @@ import lombok.Data;
 import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 @Data
 public class AppProductVo {
@@ -54,13 +56,20 @@ public class AppProductVo {
 
     List<ProductImg> productImgs;
 
+    Map<String, Set<String>> attributeMap;
 
-    public void initPriceRange(){
+
+    public void initUsdPriceRange(){
+        BigDecimal usdRate = new BigDecimal("6.3");
         if (this.minPrice == null){
             this.minPrice = BigDecimal.ZERO;
+        }else{
+            this.minPrice = this.minPrice.divide(usdRate,2,BigDecimal.ROUND_UP);
         }
         if (this.maxPrice == null){
             this.maxPrice = BigDecimal.ZERO;
+        }else {
+            this.maxPrice = this.maxPrice.divide(usdRate,2,BigDecimal.ROUND_UP);
         }
         int i = this.minPrice.compareTo(this.maxPrice);
         switch (i){

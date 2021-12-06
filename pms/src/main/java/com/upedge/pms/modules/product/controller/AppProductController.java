@@ -3,35 +3,34 @@ package com.upedge.pms.modules.product.controller;
 import com.upedge.common.base.BaseResponse;
 import com.upedge.common.constant.Constant;
 import com.upedge.common.constant.ResultCode;
-
-
-import com.upedge.common.model.cart.request.CartAddRequest;
 import com.upedge.common.model.product.request.ProductVariantShipsRequest;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.utils.ListUtils;
 import com.upedge.common.utils.PriceUtils;
 import com.upedge.common.web.util.UserUtil;
-import com.upedge.pms.modules.product.entity.*;
-import com.upedge.pms.modules.product.response.ProductImgListResponse;
-import com.upedge.pms.modules.product.service.ProductService;
-import com.upedge.pms.modules.product.service.ProductVariantService;
-import com.upedge.pms.modules.product.request.*;
+import com.upedge.pms.modules.product.entity.ImportProductAttribute;
+import com.upedge.pms.modules.product.entity.Product;
+import com.upedge.pms.modules.product.entity.ProductInfo;
+import com.upedge.pms.modules.product.request.AppVariantShipsRequest;
+import com.upedge.pms.modules.product.request.ImportProductAttributeListRequest;
+import com.upedge.pms.modules.product.request.MarketPlaceListRequest;
+import com.upedge.pms.modules.product.request.PrivateProductListRequest;
 import com.upedge.pms.modules.product.response.AppVariantShipsResponse;
 import com.upedge.pms.modules.product.response.MarketPlaceListResponse;
-import com.upedge.pms.modules.product.service.AppProductService;
-import com.upedge.pms.modules.product.service.ImportProductAttributeService;
-import com.upedge.pms.modules.product.service.ImportProductService;
+import com.upedge.pms.modules.product.response.ProductImgListResponse;
+import com.upedge.pms.modules.product.service.*;
 import com.upedge.pms.modules.product.vo.AppProductVariantAttrVo;
 import com.upedge.pms.modules.product.vo.AppProductVariantVo;
 import com.upedge.pms.modules.product.vo.AppProductVo;
 import com.upedge.pms.modules.product.vo.VariantAttributeVo;
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 
 import javax.validation.Valid;
 import java.math.BigDecimal;
@@ -90,7 +89,7 @@ public class AppProductController {
         AppProductVo appProductVo=  new AppProductVo();
         if (product != null){
             BeanUtils.copyProperties(product,appProductVo);
-            appProductVo.initPriceRange();
+            appProductVo.initUsdPriceRange();
         }
 
         return new BaseResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS,product);

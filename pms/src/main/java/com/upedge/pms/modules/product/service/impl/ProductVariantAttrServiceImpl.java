@@ -48,6 +48,16 @@ public class ProductVariantAttrServiceImpl implements ProductVariantAttrService 
     }
 
     @Override
+    public void updateByBatch(List<ProductVariantAttr> productVariantAttrList) {
+        productVariantAttrDao.updateByBatch(productVariantAttrList);
+    }
+
+    @Override
+    public List<ProductVariantAttr> selectByProductId(Long productId) {
+        return productVariantAttrDao.selectByProductId(productId);
+    }
+
+    @Override
     public List<VariantNameVo> selectNameValueByProductId(Long productId) {
         return productVariantAttrDao.selectNameValueByProductId(productId);
     }

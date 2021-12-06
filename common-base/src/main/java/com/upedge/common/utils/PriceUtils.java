@@ -11,14 +11,12 @@ public class PriceUtils {
     public static BigDecimal cnyToUsd(BigDecimal cnyPrice, BigDecimal usdRate){
         return cnyPrice
                 .divide(usdRate,2, BigDecimal.ROUND_HALF_UP)
-                .multiply(defaultProfitMargin)
                 .setScale(2, BigDecimal.ROUND_HALF_UP);
     }
 
     public static BigDecimal cnyToUsdByDefaultRate(BigDecimal cnyPrice){
         return cnyPrice
-                .divide(defaultUsdRate,2, BigDecimal.ROUND_HALF_UP)
-                .multiply(defaultProfitMargin)
-                .setScale(2, BigDecimal.ROUND_HALF_UP);
+                .divide(defaultUsdRate,2, BigDecimal.ROUND_UP)
+                .setScale(2, BigDecimal.ROUND_UP);
     }
 }

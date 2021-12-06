@@ -3,6 +3,7 @@ package com.upedge.pms.modules.product.service.impl;
 import com.upedge.common.base.Page;
 import com.upedge.common.constant.Constant;
 import com.upedge.common.constant.ResultCode;
+import com.upedge.common.model.product.VariantDetail;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.utils.IdGenerate;
 import com.upedge.common.utils.ListUtils;
@@ -13,17 +14,20 @@ import com.upedge.pms.modules.product.entity.ProductVariant;
 import com.upedge.pms.modules.product.entity.ProductVariantAttr;
 import com.upedge.pms.modules.product.request.*;
 import com.upedge.pms.modules.product.response.*;
+import com.upedge.pms.modules.product.service.ProductService;
 import com.upedge.pms.modules.product.service.ProductVariantAttrService;
 import com.upedge.pms.modules.product.service.ProductVariantService;
 import com.upedge.pms.modules.product.vo.SaiheSkuVo;
 import com.upedge.pms.modules.product.vo.VariantAttrVo;
 import com.upedge.pms.modules.product.vo.VariantValVo;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.*;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -34,6 +38,9 @@ public class ProductVariantServiceImpl implements ProductVariantService {
 
     @Autowired
     ProductVariantAttrService productVariantAttrService;
+
+    @Autowired
+    ProductService productService;
 
     @Autowired
     ProductLogDao productLogDao;
@@ -66,7 +73,82 @@ public class ProductVariantServiceImpl implements ProductVariantService {
         return productVariantDao.insert(record);
     }
 
+    /**
+     * 更新变体属性
+     *
+     * @param request
+     * @return
+     */
+    @Transactional
     @Override
+    public ProductVariantUpdateAttrResponse updateAttr(ProductVariantUpdateAttrRequest request) {
+        Map<String, Map<String, VariantValVo>> valMap = new HashMap<>();
+        Map<String, String> nameMap = new HashMap<>();
+        for (VariantAttrVo variantAttrVo : request.getVariantAttrVoList()) {
+            if (StringUtils.isBlank(variantAttrVo.getEname())
+                    || StringUtils.isBlank(variantAttrVo.getCname())) {
+                return new ProductVariantUpdateAttrResponse(ResultCode.FAIL_CODE, "属性名称不能为空!");
+            }
+            nameMap.put(variantAttrVo.getCname(), variantAttrVo.getEname());
+            Map<String, VariantValVo> map = valMap.get(variantAttrVo.getCname());
+            if (map == null) {
+                map = new HashMap<>();
+                valMap.put(variantAttrVo.getCname(), map);
+            }
+            for (VariantValVo variantValVo : variantAttrVo.getVariantValVoList()) {
+                if (StringUtils.isBlank(variantValVo.getCvalue())
+                        || StringUtils.isBlank(variantValVo.getOriginalCvalue())
+                        || StringUtils.isBlank(variantValVo.getEvalue())) {
+                    return new ProductVariantUpdateAttrResponse(ResultCode.FAIL_CODE, "属性值不能为空!");
+                }
+                map.put(variantValVo.getOriginalCvalue(), variantValVo);
+            }
+        }
+        //获取产品属性
+        List<ProductVariantAttr> productVariantAttrList = productVariantAttrService.selectByProductId(request.getProductId());
+        Map<Long, List<ProductVariantAttr>> listMap = new HashMap<>();
+        for (ProductVariantAttr productVariantAttr : productVariantAttrList) {
+            String cname = productVariantAttr.getVariantAttrCname();
+            String originalValue = productVariantAttr.getOriginalAttrCvalue();
+            String ename = nameMap.get(cname);
+            //更新英文名称
+            productVariantAttr.setVariantAttrEname(ename);
+            Map<String, VariantValVo> m = valMap.get(cname);
+            VariantValVo attrVo = m.get(originalValue);
+            productVariantAttr.setVariantAttrCvalue(attrVo.getCvalue());
+            productVariantAttr.setVariantAttrEvalue(attrVo.getEvalue());
+            List<ProductVariantAttr> attrList = listMap.get(productVariantAttr.getVariantId());
+            if (attrList == null) {
+                attrList = new ArrayList<>();
+                listMap.put(productVariantAttr.getVariantId(), attrList);
+            }
+            attrList.add(productVariantAttr);
+        }
+        List<ProductVariant> productVariantList = new ArrayList<>();
+        for (Map.Entry<Long, List<ProductVariantAttr>> entry : listMap.entrySet()) {
+            ProductVariant productVariant = new ProductVariant();
+            List<ProductVariantAttr> attrList = entry.getValue();
+            List<String> cnNameList = attrList.stream().map(ProductVariantAttr::getVariantAttrCvalue).collect(Collectors.toList());
+            List<String> enNameList = attrList.stream().map(ProductVariantAttr::getVariantAttrEvalue).collect(Collectors.toList());
+            productVariant.setId(entry.getKey());
+            productVariant.setCnName(cnNameList.toString());
+            productVariant.setEnName(enNameList.toString());
+            productVariantList.add(productVariant);
+        }
+        productVariantDao.updateByBatch(productVariantList);
+        productVariantAttrService.updateByBatch(productVariantAttrList);
+        return new ProductVariantUpdateAttrResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS);
+    }
+
+    /**
+     * 更新变体实重
+     *
+     * @param request
+     * @param session
+     * @return
+     */
+    @Override
+    @Transactional(rollbackFor = Exception.class)
     public ProductVariantUpdateWeightResponse updateWeight(ProductVariantUpdateWeightRequest request, Session session) {
         List<ProductVariant> productVariantList = productVariantDao.listProductVariantByIds(request.getIds());
         List<ProductLog> productLogList = new ArrayList<>();
@@ -92,34 +174,125 @@ public class ProductVariantServiceImpl implements ProductVariantService {
         return new ProductVariantUpdateWeightResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS);
     }
 
+    /**
+     * 更新体积重
+     *
+     * @param request
+     * @param session
+     * @return
+     */
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public ProductVariantUpdateVolumeWeightResponse updateVolumeWeight(ProductVariantUpdateVolumeWeightRequest request, Session session) {
-        return null;
+        List<ProductVariant> productVariantList = productVariantDao.listProductVariantByIds(request.getIds());
+        List<ProductLog> productLogList = new ArrayList<>();
+
+        List<VariantDetail> variantDetails = new ArrayList<>();
+        for (ProductVariant productVariant : productVariantList) {
+            if (productVariant.getWeight().compareTo(request.getVolumeWeight()) != 0) {
+                ProductLog productLog = new ProductLog();
+                productLog.setId(IdGenerate.nextId());
+                productLog.setAdminUser(String.valueOf(session.getId()));
+                productLog.setCreateTime(new Date());
+                productLog.setProductId(productVariant.getProductId());
+                productLog.setSku(productVariant.getVariantSku());
+                //操作类型 1:修改实重 2:修改体积重 3:修改运输模板 4:修改价格
+                productLog.setOptType(2);
+                productLog.setOldInfo(String.valueOf(productVariant.getWeight()));
+                productLog.setNewInfo(String.valueOf(request.getVolumeWeight()));
+                productLogList.add(productLog);
+
+                VariantDetail variantDetail = new VariantDetail();
+                variantDetail.setVolume(productVariant.getVolumeWeight());
+                variantDetail.setVariantId(productVariant.getId());
+                variantDetails.add(variantDetail);
+            }
+        }
+        productVariantDao.updateVolumeWeight(request.getIds(), request.getVolumeWeight());
+        if (productLogList.size() > 0) {
+            productLogDao.insertByBatch(productLogList);
+        }
+
+        productService.sendUpdateVariantMessage(variantDetails,"volume");
+        return new ProductVariantUpdateVolumeWeightResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS);
     }
 
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public ProductVariantUpdatePriceResponse updatePrice(ProductVariantUpdatePriceRequest request, Session session) {
+        if (request.getPrice().compareTo(BigDecimal.ZERO) <= 0) {
+            return new ProductVariantUpdatePriceResponse(ResultCode.FAIL_CODE, Constant.MESSAGE_FAIL);
+        }
+        productVariantDao.updatePrice(request.getIds(), request.getPrice());
+        List<ProductVariant> productVariantList = productVariantDao.listProductVariantByIds(request.getIds());
+        productService.refreshProductPriceRange(productVariantList.get(0).getProductId());
+        List<ProductLog> productLogList = new ArrayList<>();
+
+        List<VariantDetail> variantDetails = new ArrayList<>();
+
+        for (ProductVariant productVariant : productVariantList) {
+            if (productVariant.getWeight().compareTo(request.getPrice()) != 0) {
+                ProductLog productLog = new ProductLog();
+                productLog.setId(IdGenerate.nextId());
+                productLog.setAdminUser(String.valueOf(session.getId()));
+                productLog.setCreateTime(new Date());
+                productLog.setProductId(productVariant.getProductId());
+                productLog.setSku(productVariant.getVariantSku());
+                //操作类型 1:修改实重 2:修改体积重 3:修改运输模板 4:修改价格
+                productLog.setOptType(4);
+                productLog.setOldInfo(String.valueOf(productVariant.getWeight()));
+                productLog.setNewInfo(String.valueOf(request.getPrice()));
+                productLogList.add(productLog);
+
+                VariantDetail variantDetail = new VariantDetail();
+                variantDetail.setCnyPrice(productVariant.getVariantPrice());
+                variantDetail.setUsdPrice(productVariant.getUsdPrice());
+                variantDetail.setVariantId(productVariant.getId());
+                variantDetails.add(variantDetail);
+            }
+        }
+        if (productLogList.size() > 0) {
+            productLogDao.insertByBatch(productLogList);
+        }
+        productService.sendUpdateVariantMessage(variantDetails,"price");
+        return new ProductVariantUpdatePriceResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS);
+    }
+
+    /**
+     * 更新变体图片
+     *
+     * @param request
+     * @param session
+     * @return
+     */
     @Override
     public ProductVariantUpdateVariantImageResponse updateVariantImage(ProductVariantUpdateVariantImageRequest request, Session session) {
-        return null;
+        productVariantDao.updateVariantImage(request.getIds(), request.getVariantImage());
+        return new ProductVariantUpdateVariantImageResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS);
     }
 
+    /**
+     * 启用变体
+     *
+     * @param request
+     * @return
+     */
     @Override
     public ProductVariantEnableResponse enableVariant(ProductVariantEnableRequest request) {
-        return null;
+        productVariantDao.enableVariant(request.getIds());
+        return new ProductVariantEnableResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS);
     }
 
+    /**
+     * 禁用变体
+     *
+     * @param request
+     * @return
+     */
     @Override
     public ProductVariantDisableResponse disableVariant(ProductVariantDisableRequest request) {
-        return null;
-    }
-
-    @Override
-    public ProductVariantUpdateAttrResponse updateAttr(ProductVariantUpdateAttrRequest request) {
-        return null;
-    }
-
-    @Override
-    public ProductVariantUpdatePriceResponse updatePrice(ProductVariantUpdatePriceRequest request, Session session) {
-        return null;
+        productVariantDao.disableVariant(request.getIds());
+        return new ProductVariantDisableResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS);
     }
 
     @Override

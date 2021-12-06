@@ -14,6 +14,8 @@ import java.util.Map;
  */
 public interface ProductVariantDao{
 
+    void updateByBatch(List<ProductVariant> list);
+
     void updateWeight(@Param("ids") List<Long> ids,@Param("weight") BigDecimal weight);
 
     void updateVolumeWeight(@Param("ids") List<Long> ids,@Param("volumeWeight") BigDecimal volumeWeight);

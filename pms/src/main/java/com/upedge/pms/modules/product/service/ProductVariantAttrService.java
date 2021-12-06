@@ -3,6 +3,7 @@ package com.upedge.pms.modules.product.service;
 import com.upedge.pms.modules.product.entity.ProductVariantAttr;
 import com.upedge.common.base.Page;
 import com.upedge.pms.modules.product.vo.VariantNameVo;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -10,6 +11,10 @@ import java.util.List;
  * @author gx
  */
 public interface ProductVariantAttrService{
+
+    void updateByBatch(@Param("list")List<ProductVariantAttr> productVariantAttrList);
+
+    List<ProductVariantAttr> selectByProductId(Long productId);
 
     List<VariantNameVo> selectNameValueByProductId(Long productId);
 

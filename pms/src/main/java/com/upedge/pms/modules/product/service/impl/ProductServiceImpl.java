@@ -220,10 +220,9 @@ public class ProductServiceImpl implements ProductService {
         AppProductVo appProductVo=  new AppProductVo();
         if (product != null){
             BeanUtils.copyProperties(product,appProductVo);
-            appProductVo.initPriceRange();
+            appProductVo.initUsdPriceRange();
         }
 
-        Map<String, Object> map = new HashMap<>();
         List<AppProductVariantVo> variantVos = appProductVariantDao.selectProductVariantsByProductId(productId);
         Map<String, Set<String>> attributeMap = new HashMap<>();
         for (AppProductVariantVo variantVo : variantVos) {
@@ -242,6 +241,7 @@ public class ProductServiceImpl implements ProductService {
             }
         }
         appProductVo.setVariantVos(variantVos);
+        appProductVo.setAttributeMap(attributeMap);
 
         List<VariantNameVo> variantNameVos = productVariantAttrService.selectNameValueByProductId(productId);
         appProductVo.setVariantNameValues(variantNameVos);
@@ -281,12 +281,10 @@ public class ProductServiceImpl implements ProductService {
         List<AppProductVo> productVos = productDao.selectWinningProducts(request);
 
         if (ListUtils.isNotEmpty(productVos)) {
-            List<String> sourceProductIds = importProductAttributeDao.selectImportedSourceProductIds(session.getCustomerId(), productVos);
+            List<String> sourceProductIds = importProductAttributeDao.selectImportedSourceProductIds(session.getCustomerId());
             boolean b = ListUtils.isNotEmpty(sourceProductIds);
             productVos.forEach(appProductVo -> {
-                if (StringUtils.isBlank(appProductVo.getPriceRange())) {
-                    appProductVo.setPriceRange(refreshProductPriceRange(appProductVo.getId()));
-                }
+                appProductVo.initUsdPriceRange();
                 if (b) {
                     if (sourceProductIds.contains(String.valueOf(appProductVo.getId()))) {
                         appProductVo.setImportState(1);
@@ -655,15 +653,16 @@ public class ProductServiceImpl implements ProductService {
             //0:正常产品 1:捆绑产品
             productVariant.setVariantType(0);
             productVariant.setState(1);
-//                if (StringUtils.isBlank(productVariant.getVariantImage())){
-//                    productVariant.setVariantImage(mainImage);
-//                }
+            if (StringUtils.isBlank(productVariant.getVariantImage())){
+                productVariant.setVariantImage(mainImage);
+            }
             List<String> cnNameList = productVariantVo.getVariantAttrVoList().stream().map(ProductVariantAttrVo::getVariantAttrCvalue).collect(Collectors.toList());
             List<String> enNameList = productVariantVo.getVariantAttrVoList().stream().map(ProductVariantAttrVo::getVariantAttrEvalue).collect(Collectors.toList());
             productVariant.setCnName(cnNameList.toString());
             productVariant.setEnName(enNameList.toString());
+            //变体价格
             productVariant.setVariantPrice(productVariantVo.getVariantPrice());
-            productVariant.setUsdPrice(productVariant.getVariantPrice().divide(new BigDecimal("6.3"), 2, BigDecimal.ROUND_UP));
+            productVariant.setUsdPrice(PriceUtils.cnyToUsdByDefaultRate(productVariant.getVariantPrice()));
             productVariantList.add(productVariant);
             productVariantVo.getVariantAttrVoList().forEach(productVariantAttrVo -> {
                 ProductVariantAttr productVariantAttr = new ProductVariantAttr();

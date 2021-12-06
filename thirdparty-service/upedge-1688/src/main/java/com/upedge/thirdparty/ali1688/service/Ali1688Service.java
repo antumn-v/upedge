@@ -2,19 +2,16 @@ package com.upedge.thirdparty.ali1688.service;
 
 import com.alibaba.ocean.rawsdk.ApiExecutor;
 import com.alibaba.ocean.rawsdk.common.SDKResult;
-
 import com.upedge.common.utils.GetImgUrlList;
+import com.upedge.thirdparty.ali1688.config.AlibabaConfig;
 import com.upedge.thirdparty.ali1688.entity.listPushed.AlibabaCrossSyncProductListPushedParam;
 import com.upedge.thirdparty.ali1688.entity.listPushed.AlibabaCrossSyncProductListPushedResult;
-
+import com.upedge.thirdparty.ali1688.entity.listPushed.CommonResult;
 import com.upedge.thirdparty.ali1688.entity.product.*;
 import com.upedge.thirdparty.ali1688.entity.supplier.AlibabaAccountAgentCrossBasicParam;
+import com.upedge.thirdparty.ali1688.entity.supplier.AlibabaAccountAgentCrossBasicResult;
 import com.upedge.thirdparty.ali1688.entity.supplier.SimpleAccountInfo;
 import com.upedge.thirdparty.ali1688.entity.translate.TranslateResult;
-
-import com.upedge.thirdparty.ali1688.config.AlibabaConfig;
-import com.upedge.thirdparty.ali1688.entity.listPushed.CommonResult;
-import com.upedge.thirdparty.ali1688.entity.supplier.AlibabaAccountAgentCrossBasicResult;
 import com.upedge.thirdparty.ali1688.vo.*;
 import org.apache.commons.lang3.StringUtils;
 
@@ -102,8 +99,14 @@ public class Ali1688Service {
             List<Attribute> attributeList=skuInfos.getAttributes();
             ProductShippingInfo shippingInfo=productInfo.getShippingInfo();
             if(shippingInfo!=null){
-                productVariantVo.setWeight(new BigDecimal(shippingInfo.getUnitWeight()).multiply(new BigDecimal("1000")));
-                productVariantVo.setVolumeWeight(new BigDecimal(shippingInfo.getVolume()));
+                if (shippingInfo.getUnitWeight() != null){
+                    productVariantVo.setWeight(new BigDecimal(shippingInfo.getUnitWeight()).multiply(new BigDecimal("1000")));
+                    productVariantVo.setVolumeWeight(productVariantVo.getWeight());
+                }
+                if (shippingInfo.getVolume() != null){
+                    productVariantVo.setVolumeWeight(new BigDecimal(shippingInfo.getVolume()));
+                }
+
             }
             productVariantVo.setOriginalVariantId(Long.parseLong(skuInfos.getSkuId()));
             productVariantVo.setVariantSku(skuInfos.getSkuId());

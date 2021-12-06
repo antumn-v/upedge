@@ -2,7 +2,6 @@ package com.upedge.pms.modules.product.dao;
 
 import com.upedge.common.base.Page;
 import com.upedge.pms.modules.product.entity.ImportProductAttribute;
-import com.upedge.pms.modules.product.vo.AppProductVo;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
@@ -12,8 +11,7 @@ import java.util.List;
  */
 public interface ImportProductAttributeDao{
 
-    List<String> selectImportedSourceProductIds(@Param("customerId") Long customerId,
-                                                @Param("products") List<AppProductVo> products);
+    List<String> selectImportedSourceProductIds(@Param("customerId") Long customerId);
 
     int updateStateByIds(@Param("ids") List<Long> ids, @Param("state") Integer state);
 

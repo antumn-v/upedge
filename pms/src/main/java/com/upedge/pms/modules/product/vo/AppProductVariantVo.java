@@ -45,6 +45,8 @@ public class AppProductVariantVo {
      */
     private BigDecimal volumeWeight;
 
+    private String enName;
+
     private List<AppProductVariantAttrVo> attrs;
 
 

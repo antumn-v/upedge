@@ -29,6 +29,7 @@
         <result property="weight" column="weight"/>
         <result property="state" column="state"/>
         <result property="volumeWeight" column="volume_weight"/>
+        <result property="enName" column="en_name"/>
         <collection property="attrs" ofType="com.upedge.pms.modules.product.vo.AppProductVariantAttrVo">
             <result property="id" column="attrId"/>
             <result property="variantAttrEname" column="variant_attr_ename"/>
