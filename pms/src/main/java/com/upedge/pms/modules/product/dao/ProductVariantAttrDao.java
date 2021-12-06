@@ -1,15 +1,23 @@
 package com.upedge.pms.modules.product.dao;
 
-import com.upedge.pms.modules.product.entity.ProductVariantAttr;
-import org.apache.ibatis.annotations.Mapper;
-import java.util.List;
 import com.upedge.common.base.Page;
+import com.upedge.pms.modules.product.entity.ProductVariantAttr;
+import com.upedge.pms.modules.product.vo.VariantNameVo;
 import org.apache.ibatis.annotations.Param;
+
+import java.util.List;
 
 /**
  * @author gx
  */
 public interface ProductVariantAttrDao{
+
+    /**
+     * 根据产品ID查找启用变体的属性集合
+     * @param productId
+     * @return
+     */
+    List<VariantNameVo> selectNameValueByProductId(Long productId);
 
     List<ProductVariantAttr> selectByProductId(Long productId);
     List<ProductVariantAttr> selectByVariantId(Long variantId);

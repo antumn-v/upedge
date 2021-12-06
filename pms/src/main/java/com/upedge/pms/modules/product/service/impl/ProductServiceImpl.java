@@ -157,7 +157,9 @@ public class ProductServiceImpl implements ProductService {
             }
         }
         appProductVo.setVariantVos(variantVos);
-        appProductVo.setAttributeMap(attributeMap);
+
+        List<VariantNameVo> variantNameVos = productVariantAttrService.selectNameValueByProductId(productId);
+        appProductVo.setVariantNameValues(variantNameVos);
         ProductInfo productInfo = productInfoService.selectByProductId(productId);
         appProductVo.setProductInfo(productInfo);
         List<ProductImg> productImgs = productImgService.selectByProductId(productId);

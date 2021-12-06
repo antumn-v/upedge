@@ -2,12 +2,16 @@ package com.upedge.pms.modules.product.service;
 
 import com.upedge.pms.modules.product.entity.ProductVariantAttr;
 import com.upedge.common.base.Page;
+import com.upedge.pms.modules.product.vo.VariantNameVo;
+
 import java.util.List;
 
 /**
  * @author gx
  */
 public interface ProductVariantAttrService{
+
+    List<VariantNameVo> selectNameValueByProductId(Long productId);
 
     List<ProductVariantAttr> selectByVariantIds(List<Long> variantIds);
 

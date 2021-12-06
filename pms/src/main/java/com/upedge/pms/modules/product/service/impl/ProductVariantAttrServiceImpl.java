@@ -1,14 +1,16 @@
 package com.upedge.pms.modules.product.service.impl;
 
-import com.upedge.common.utils.ListUtils;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import java.util.List;
 import com.upedge.common.base.Page;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.upedge.common.utils.ListUtils;
 import com.upedge.pms.modules.product.dao.ProductVariantAttrDao;
 import com.upedge.pms.modules.product.entity.ProductVariantAttr;
 import com.upedge.pms.modules.product.service.ProductVariantAttrService;
+import com.upedge.pms.modules.product.vo.VariantNameVo;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 
 @Service
@@ -43,6 +45,11 @@ public class ProductVariantAttrServiceImpl implements ProductVariantAttrService 
     @Transactional
     public int insertSelective(ProductVariantAttr record) {
         return productVariantAttrDao.insert(record);
+    }
+
+    @Override
+    public List<VariantNameVo> selectNameValueByProductId(Long productId) {
+        return productVariantAttrDao.selectNameValueByProductId(productId);
     }
 
     @Override

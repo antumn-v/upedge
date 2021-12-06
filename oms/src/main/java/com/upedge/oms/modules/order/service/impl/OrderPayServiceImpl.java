@@ -341,14 +341,9 @@ public class OrderPayServiceImpl implements OrderPayService {
         if (!a) {
             return creatOrderPayCheckResultVo(new ArrayList<>(), paymentId, "stock error");
         }
-//        orderDao.updateProductAmountByPaymentId(paymentId);
+        orderDao.updateProductAmountByPaymentId(paymentId);
 
         List<AppOrderVo> orders = orderDao.selectPayOrderListByPaymentId(paymentId);
-
-//        a = checkOrderShipUnit(orders);
-//        if (!a) {
-//            return creatOrderPayCheckResultVo(new ArrayList<>(), paymentId, "ship error");
-//        }
 
         List<Long> orderIds = orderShippingUnitService.selectOrderIdByOrderPaymentId(paymentId,OrderType.NORMAL);
         for (AppOrderVo order : orders) {
