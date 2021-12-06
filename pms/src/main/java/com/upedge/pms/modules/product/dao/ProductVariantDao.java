@@ -14,6 +14,19 @@ import java.util.Map;
  */
 public interface ProductVariantDao{
 
+    void updateWeight(@Param("ids") List<Long> ids,@Param("weight") BigDecimal weight);
+
+    void updateVolumeWeight(@Param("ids") List<Long> ids,@Param("volumeWeight") BigDecimal volumeWeight);
+
+    void updateVariantImage(@Param("ids") List<Long> ids,@Param("variantImage") String variantImage);
+
+    void disableVariant(@Param("ids") List<Long> ids);
+
+    void enableVariant(@Param("ids")List<Long> ids);
+
+    void updatePrice(@Param("ids")List<Long> ids,
+                     @Param("price")BigDecimal price);
+
     List<ProductVariant> listProductVariantByIds(@Param("ids") List<Long> ids);
 
     ProductVariant selectBySku(String sku);

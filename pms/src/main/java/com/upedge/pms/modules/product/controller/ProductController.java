@@ -208,6 +208,23 @@ public class ProductController {
         return productService.putawayProduct(id,session);
     }
 
+    @ApiOperation("修改产品信息")
+    @RequestMapping(value = "/updateInfo/{id}",method = RequestMethod.POST)
+    public BaseResponse updateInfo(@PathVariable Long id,@RequestBody @Valid UpdateInfoProductRequest request){
+        Session session = UserUtil.getSession(redisTemplate);
+        BaseResponse response = null;
+        try {
+            response = productService.updateInfo(id,request,session);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return BaseResponse.failed(e.getMessage());
+        }
+        if (response.getCode() == ResultCode.SUCCESS_CODE && null != request.getShippingId()){
+
+        }
+        return response;
+    }
+
     /**
      *产品下架
      */

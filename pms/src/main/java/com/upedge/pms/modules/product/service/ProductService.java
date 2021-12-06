@@ -1,9 +1,10 @@
 package com.upedge.pms.modules.product.service;
 
 import com.upedge.common.base.BaseResponse;
+import com.upedge.common.base.Page;
+import com.upedge.common.model.product.VariantDetail;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.pms.modules.product.entity.Product;
-import com.upedge.common.base.Page;
 import com.upedge.pms.modules.product.request.*;
 import com.upedge.pms.modules.product.response.AbandonProductResponse;
 import com.upedge.pms.modules.product.response.ImportFavoriteResponse;
@@ -20,6 +21,10 @@ import java.util.List;
  * @author gx
  */
 public interface ProductService{
+
+    boolean sendUpdateVariantMessage(List<VariantDetail> variantDetails, String tag);
+
+    BaseResponse updateInfo(Long id,UpdateInfoProductRequest request, Session session) throws Exception;
 
     AppProductVo showCustomerProductDetail(Long productId);
 

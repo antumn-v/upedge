@@ -34,7 +34,6 @@ public class Ali1688Service {
         long s=System.currentTimeMillis();
         ProductInfo productInfo=getAlibabaProductDetail(alibabaProductId);
         long e=System.currentTimeMillis();
-        System.out.println("1688获取:"+(e-s));;
         if(productInfo==null){
             return null;
         }
@@ -76,10 +75,7 @@ public class Ali1688Service {
 
         //产品重量
         Double weight=0.0;
-        ProductShippingInfo shippingInfo=productInfo.getShippingInfo();
-        if(shippingInfo!=null&&shippingInfo.getUnitWeight()!=null){
-            weight=shippingInfo.getUnitWeight();
-        }
+
 
         //图片
         Map<String,Integer> imgMap=new HashMap<String,Integer>();
@@ -104,13 +100,16 @@ public class Ali1688Service {
             ProductVariantVo productVariantVo=new ProductVariantVo();
             List<ProductVariantAttrVo> productVariantAttrVoList=new ArrayList<>();
             List<Attribute> attributeList=skuInfos.getAttributes();
-
+            ProductShippingInfo shippingInfo=productInfo.getShippingInfo();
+            if(shippingInfo!=null){
+                productVariantVo.setWeight(new BigDecimal(shippingInfo.getUnitWeight()).multiply(new BigDecimal("1000")));
+                productVariantVo.setVolumeWeight(new BigDecimal(shippingInfo.getVolume()));
+            }
             productVariantVo.setOriginalVariantId(Long.parseLong(skuInfos.getSkuId()));
             productVariantVo.setVariantSku(skuInfos.getSkuId());
             productVariantVo.setVariantPrice(skuInfos.getPrice()==null?new BigDecimal(price):new BigDecimal(skuInfos.getPrice()));
             productVariantVo.setInventory(Integer.toUnsignedLong(skuInfos.getAmountOnSale()));
-            productVariantVo.setWeight(new BigDecimal(weight));
-            productVariantVo.setVolumeWeight(new BigDecimal(weight));
+
             productVariantVo.setState(1);
             if(productVariantVo.getInventory()<=0
                     ||productVariantVo.getVolumeWeight().compareTo(BigDecimal.ZERO)<=0

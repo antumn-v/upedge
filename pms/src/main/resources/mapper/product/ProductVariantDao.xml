@@ -201,6 +201,69 @@
         where id = #{id}
     </update>
 
+
+    <update id="updateWeight">
+        update product_variant
+        set weight=#{weight}
+        where id in
+        <foreach collection="ids" index="index" item="item"
+                 separator="," open="(" close=")">
+            #{item}
+        </foreach>
+    </update>
+
+    <update id="updateVolumeWeight">
+        update product_variant
+        set volume_weight=#{volumeWeight}
+        where id in
+        <foreach collection="ids" index="index" item="item"
+                 separator="," open="(" close=")">
+            #{item}
+        </foreach>
+    </update>
+
+    <update id="updatePrice">
+        update product_variant
+        set variant_price=#{price},usd_price = round(#{price}/6.3*1.2,2)
+        where id in
+        <foreach collection="ids" index="index" item="item"
+                 separator="," open="(" close=")">
+            #{item}
+        </foreach>
+    </update>
+
+    <update id="updateVariantImage">
+        update product_variant
+        set variant_image=#{variantImage}
+        where id in
+        <foreach collection="ids" index="index" item="item"
+                 separator="," open="(" close=")">
+            #{item}
+        </foreach>
+    </update>
+
+    <update id="disableVariant">
+        update product_variant
+        set state=0
+        where id in
+        <foreach collection="ids" index="index" item="item"
+                 separator="," open="(" close=")">
+            #{item}
+        </foreach>
+    </update>
+
+    <update id="enableVariant">
+        update product_variant
+        set state=1
+        where weight>0 and volume_weight>0 and variant_price>0
+        and id in
+        <foreach collection="ids" index="index" item="item"
+                 separator="," open="(" close=")">
+            #{item}
+        </foreach>
+    </update>
+
+
     <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.upedge.pms.modules.product.entity.ProductVariant" useGeneratedKeys="true">
         insert into product_variant
         <trim prefix="(" suffix=")" suffixOverrides=",">

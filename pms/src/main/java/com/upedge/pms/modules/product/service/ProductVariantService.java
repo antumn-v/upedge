@@ -1,8 +1,10 @@
 package com.upedge.pms.modules.product.service;
 
 import com.upedge.common.base.Page;
+import com.upedge.common.model.user.vo.Session;
 import com.upedge.pms.modules.product.entity.ProductVariant;
-import com.upedge.pms.modules.product.response.ProductVariantsResponse;
+import com.upedge.pms.modules.product.request.*;
+import com.upedge.pms.modules.product.response.*;
 import com.upedge.pms.modules.product.vo.SaiheSkuVo;
 import com.upedge.pms.modules.product.vo.VariantAttrVo;
 import org.apache.ibatis.annotations.Param;
@@ -16,6 +18,20 @@ import java.util.Set;
  * @author gx
  */
 public interface ProductVariantService{
+
+    ProductVariantUpdateWeightResponse updateWeight(ProductVariantUpdateWeightRequest request, Session session);
+
+    ProductVariantUpdateVolumeWeightResponse updateVolumeWeight(ProductVariantUpdateVolumeWeightRequest request, Session session);
+
+    ProductVariantUpdateVariantImageResponse updateVariantImage(ProductVariantUpdateVariantImageRequest request, Session session);
+
+    ProductVariantEnableResponse enableVariant(ProductVariantEnableRequest request);
+
+    ProductVariantDisableResponse disableVariant(ProductVariantDisableRequest request);
+
+    ProductVariantUpdateAttrResponse updateAttr(ProductVariantUpdateAttrRequest request);
+
+    ProductVariantUpdatePriceResponse updatePrice(ProductVariantUpdatePriceRequest request, Session session);
 
     ProductVariantsResponse listVariantByIds(List<Long> variantIds);
 

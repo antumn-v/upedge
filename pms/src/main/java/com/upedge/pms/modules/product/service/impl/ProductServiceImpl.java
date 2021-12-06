@@ -1,11 +1,16 @@
 package com.upedge.pms.modules.product.service.impl;
 
+import com.alibaba.fastjson.JSON;
 import com.upedge.common.base.BaseResponse;
 import com.upedge.common.base.Page;
+import com.upedge.common.config.RocketMqConfig;
 import com.upedge.common.constant.Constant;
 import com.upedge.common.constant.ProductConstant;
 import com.upedge.common.constant.ResultCode;
 import com.upedge.common.constant.key.RedisKey;
+import com.upedge.common.feign.UmsFeignClient;
+import com.upedge.common.model.log.MqMessageLog;
+import com.upedge.common.model.product.VariantDetail;
 import com.upedge.common.model.ship.vo.ShippingTemplateRedis;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.model.user.vo.UserInfoVo;
@@ -36,8 +41,12 @@ import com.upedge.thirdparty.ali1688.vo.ProductVariantAttrVo;
 import com.upedge.thirdparty.saihe.config.SaiheConfig;
 import com.upedge.thirdparty.saihe.entity.processUpdateProduct.*;
 import com.upedge.thirdparty.saihe.service.SaiheService;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.rocketmq.client.producer.DefaultMQProducer;
+import org.apache.rocketmq.client.producer.SendStatus;
+import org.apache.rocketmq.common.message.Message;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -50,9 +59,15 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.stream.Collectors;
 
-
+@Slf4j
 @Service
 public class ProductServiceImpl implements ProductService {
+
+    @Autowired
+    UmsFeignClient umsFeignClient;
+
+    @Autowired
+    DefaultMQProducer defaultMQProducer;
 
     @Autowired
     ImportProductAttributeDao importProductAttributeDao;
@@ -99,6 +114,9 @@ public class ProductServiceImpl implements ProductService {
     @Autowired
     AppProductVariantDao appProductVariantDao;
 
+    @Autowired
+    ProductLogService productLogService;
+
 
     /**
      *
@@ -127,6 +145,73 @@ public class ProductServiceImpl implements ProductService {
     @Transactional
     public int insertSelective(Product record) {
         return productDao.insert(record);
+    }
+
+    @Transactional
+    @Override
+    public BaseResponse updateInfo(Long id, UpdateInfoProductRequest request, Session session) throws Exception {
+        ProductAttribute productAttribute=productAttributeService.selectByProductId(id);
+        if(productAttribute==null){
+            return new BaseResponse(ResultCode.FAIL_CODE,Constant.MESSAGE_FAIL);
+        }
+        Product product = productDao.selectByPrimaryKey(id);
+        Long shippingId = product.getShippingId();
+        if(!StringUtils.isBlank(request.getProductTitle())||!StringUtils.isBlank(request.getCategoryCode())
+                ||request.getCateType()!=null||request.getShippingId()!=null){
+            product=new Product();
+            product.setId(id);
+            product.setProductTitle(request.getProductTitle());
+            Category category=categoryService.selectByCateCode(request.getCategoryCode());
+            if (category != null){
+                product.setCategoryId(category.getId());
+            }
+            product.setCateType(request.getCateType());
+            product.setShippingId(request.getShippingId());
+            if(request.getShippingId()!=null){
+                Product old=productDao.selectByPrimaryKey(id);
+                //个人产品池 修改运输模板记录日志
+                if(old.getState()!=ProductConstant.State.EDITING.getCode()&&!old.getShippingId().equals(request.getShippingId())){
+                    ProductLog productLog=new ProductLog();
+                    productLog.setId(IdGenerate.nextId());
+                    productLog.setAdminUser(String.valueOf(session.getId()));
+                    productLog.setCreateTime(new Date());
+                    productLog.setProductId(id);
+                    productLog.setSku(old.getProductSku());
+                    //操作类型 1:修改实重 2:修改体积重 3:修改运输模板 4:修改价格
+                    productLog.setOptType(3);
+                    productLog.setOldInfo(String.valueOf(old.getShippingId()));
+                    productLog.setNewInfo(String.valueOf(request.getShippingId()));
+                    productLogService.insert(productLog);
+                }
+
+            }
+            productDao.updateByPrimaryKeySelective(product);
+        }
+        if(!StringUtils.isBlank(request.getEntryCname())||!StringUtils.isBlank(request.getEntryCname())
+                ||request.getWarehouseId()!=null){
+            ProductAttribute attribute=new ProductAttribute();
+            attribute.setId(productAttribute.getId());
+            attribute.setEntryCname(request.getEntryCname());
+            attribute.setEntryEname(request.getEntryEname());
+            attribute.setWarehouseId(request.getWarehouseId());
+//            attribute.setShippingAttributeId(request.getShippingAttributeId());
+            productAttributeService.updateByPrimaryKeySelective(attribute);
+        }
+
+        if ( request.getShippingId() != null
+        && !request.getShippingId().equals(shippingId)){
+            List<VariantDetail> variantDetails = new ArrayList<>();
+            VariantDetail variantDetail = new VariantDetail();
+            variantDetail.setProductId(id);
+            variantDetail.setProductShippingId(request.getShippingId());
+            variantDetails.add(variantDetail);
+            boolean b = sendUpdateVariantMessage(variantDetails,"shippingId");
+            if (!b){
+                throw new Exception("消息队列异常，请重新提交或联系IT！");
+            }
+        }
+
+        return new BaseResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS);
     }
 
     @Override
@@ -958,6 +1043,42 @@ public class ProductServiceImpl implements ProductService {
         apiImportProductInfo.setImagesList(imagesList);
 
         return apiImportProductInfo;
+    }
+
+
+    @Override
+    public boolean sendUpdateVariantMessage(List<VariantDetail> variantDetails, String tag) {
+        if(ListUtils.isEmpty(variantDetails)){
+            return false;
+        }
+        String key = UUID.randomUUID().toString();
+        log.debug("变体更新发送消息，key:{},tag:{},数据:{}",key,tag, JSON.toJSON(variantDetails));
+        Message message = new Message(RocketMqConfig.TOPIC_VARIANT_UPDATE,tag,key, JSON.toJSONBytes(variantDetails));
+        message.setDelayTimeLevel(1);
+        MqMessageLog messageLog = MqMessageLog.toMqMessageLog(message,variantDetails.toString());
+        boolean b = false;
+        String status = "failed";
+        int i = 1;
+        while (i < 4 && !status.equals(SendStatus.SEND_OK.name())){
+            try {
+                status =  defaultMQProducer.send(message).getSendStatus().name();
+            } catch (Exception e) {
+                e.printStackTrace();
+                log.warn("变体更新发送消息，key:{},交易信息发送失败,失败次数:{}",key,i);
+            }finally {
+                i += 1;
+            }
+        }
+        if(status.equals(SendStatus.SEND_OK.name())){
+            b = true;
+            messageLog.setIsSendSuccess(1);
+            log.warn("变体更新发送消息，key:{},交易信息发送成功",key);
+        }else {
+            messageLog.setIsSendSuccess(0);
+            log.warn("变体更新发送消息，key:{}",key);
+        }
+        umsFeignClient.saveMqLog(messageLog);
+        return b;
     }
 
 }
