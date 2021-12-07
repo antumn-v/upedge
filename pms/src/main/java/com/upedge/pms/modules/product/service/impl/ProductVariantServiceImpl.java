@@ -1,5 +1,6 @@
 package com.upedge.pms.modules.product.service.impl;
 
+import com.upedge.common.base.BaseResponse;
 import com.upedge.common.base.Page;
 import com.upedge.common.constant.Constant;
 import com.upedge.common.constant.ResultCode;
@@ -279,7 +280,10 @@ public class ProductVariantServiceImpl implements ProductVariantService {
      */
     @Override
     public ProductVariantEnableResponse enableVariant(ProductVariantEnableRequest request) {
-        productVariantDao.enableVariant(request.getIds());
+        int i = productVariantDao.enableVariant(request.getIds());
+        if (request.getIds().size() != i){
+            new ProductVariantEnableResponse(ResultCode.FAIL_CODE, "启用变体前需完善变体重量，体积，价格");
+        }
         return new ProductVariantEnableResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS);
     }
 

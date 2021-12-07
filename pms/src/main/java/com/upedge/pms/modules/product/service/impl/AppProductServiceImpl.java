@@ -143,9 +143,9 @@ public class AppProductServiceImpl implements AppProductService {
 
         String key = RedisKeyUtils.getCustomerSettingKey(session.getCustomerId());
 
-        String value = (String) redisTemplate.opsForHash().get(key, CustomerSettingEnum.ship_method_sort_type.name());
+//        String value = (String) redisTemplate.opsForHash().get(key, CustomerSettingEnum.ship_method_sort_type.name());
 
-        Integer shipMethodSortType = Integer.valueOf(value);
+        Integer shipMethodSortType = 1;
 
         ProductVariant variant = new ProductVariant();
         variant.setId(request.getVariantId());
@@ -175,7 +175,7 @@ public class AppProductServiceImpl implements AppProductService {
 
         ShipMethodSearchResponse searchResponse = tmsFeignClient.shipSearch(searchRequest);
 
-        return null;
+        return new AppVariantShipsResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS, searchResponse.getData(), request);
     }
 
     @Override
