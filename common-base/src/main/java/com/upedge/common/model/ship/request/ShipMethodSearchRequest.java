@@ -11,7 +11,7 @@ public class ShipMethodSearchRequest extends ShipMethodSelectDto {
 
 
 
-    Integer shipMethodSortType;
+    Integer shipMethodSortType = 1;
 
 
 

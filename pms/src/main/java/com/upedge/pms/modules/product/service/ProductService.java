@@ -66,7 +66,7 @@ public interface ProductService{
 
     int updateByPrimaryKey(Product record);
 
-    int updateByPrimaryKeySelective(Product record);
+    int updateByPrimaryKeySelective(Product record) throws Exception;
 
     int insert(Product record);
 

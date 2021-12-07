@@ -4,7 +4,6 @@ import com.upedge.common.base.BaseResponse;
 import com.upedge.common.constant.Constant;
 import com.upedge.common.constant.ResultCode;
 import com.upedge.common.constant.key.RedisKey;
-import com.upedge.common.enums.CustomerSettingEnum;
 import com.upedge.common.feign.TmsFeignClient;
 import com.upedge.common.model.product.request.ProductVariantShipsRequest;
 import com.upedge.common.model.ship.request.ShipMethodSearchRequest;
@@ -142,11 +141,6 @@ public class AppProductServiceImpl implements AppProductService {
     public AppVariantShipsResponse variantShips(AppVariantShipsRequest request, Session session) {
 
         String key = RedisKeyUtils.getCustomerSettingKey(session.getCustomerId());
-
-        String value = (String) redisTemplate.opsForHash().get(key, CustomerSettingEnum.ship_method_sort_type.name());
-
-        Integer shipMethodSortType = Integer.valueOf(value);
-
         ProductVariant variant = new ProductVariant();
         variant.setId(request.getVariantId());
         variant = productVariantDao.selectByPrimaryKey(variant);
@@ -166,7 +160,6 @@ public class AppProductServiceImpl implements AppProductService {
         }
 
         ShipMethodSearchRequest searchRequest = new ShipMethodSearchRequest();
-        searchRequest.setShipMethodSortType(shipMethodSortType);
         searchRequest.getTemplateIds().add(product.getShippingId());
         searchRequest.setToAreaId(request.getToAreaId());
         searchRequest.setMethodIds(methodIds);
@@ -174,18 +167,18 @@ public class AppProductServiceImpl implements AppProductService {
         searchRequest.setVolumeWeight(variant.getVolumeWeight().multiply(request.getQuantity()));
 
         ShipMethodSearchResponse searchResponse = tmsFeignClient.shipSearch(searchRequest);
+        if (null == searchResponse
+        || null == searchResponse.getData()){
+            return new AppVariantShipsResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS, new ArrayList<>());
+        }
 
-        return null;
+        return new AppVariantShipsResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS,searchResponse.getData());
     }
 
     @Override
     public BaseResponse productVariantsShipList(ProductVariantShipsRequest request) {
         return null;
 //        String key = RedisKeyUtils.getCustomerSettingKey(request.getCustomerId());
-//
-//        String s = (String) redisTemplate.opsForHash().get(key, CustomerSettingEnum.ship_method_sort_type.name());
-//
-//        Integer shipMethodSortType = Integer.valueOf(s);
 //
 //        BigDecimal weight = BigDecimal.ZERO;
 //        BigDecimal volume = BigDecimal.ZERO;

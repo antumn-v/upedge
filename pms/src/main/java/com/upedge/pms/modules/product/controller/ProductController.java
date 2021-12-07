@@ -318,10 +318,15 @@ public class ProductController {
 
     @RequestMapping(value="/update/{id}", method=RequestMethod.POST)
     @Permission(permission = "product:product:update")
-    public ProductUpdateResponse update(@PathVariable Long id,@RequestBody @Valid ProductUpdateRequest request) {
+    public BaseResponse update(@PathVariable Long id,@RequestBody @Valid ProductUpdateRequest request) {
         Product entity=request.toProduct(id);
-        productService.updateByPrimaryKeySelective(entity);
-        ProductUpdateResponse res = new ProductUpdateResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS);
+        try {
+            productService.updateByPrimaryKeySelective(entity);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return BaseResponse.failed(e.getMessage());
+        }
+        BaseResponse res = new ProductUpdateResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS);
         return res;
     }
 

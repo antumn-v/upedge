@@ -930,8 +930,25 @@ public class ProductServiceImpl implements ProductService {
      *
      */
     @Transactional
-    public int updateByPrimaryKeySelective(Product record) {
-        return productDao.updateByPrimaryKeySelective(record);
+    public int updateByPrimaryKeySelective(Product record) throws Exception {
+        Product product = productDao.selectByPrimaryKey(record.getId());
+        Long shippingId = product.getShippingId();
+        int i = productDao.updateByPrimaryKeySelective(record);
+        if (i == 1){
+            if ( record.getShippingId() != null
+                    && !record.getShippingId().equals(shippingId)){
+                List<VariantDetail> variantDetails = new ArrayList<>();
+                VariantDetail variantDetail = new VariantDetail();
+                variantDetail.setProductId(record.getId());
+                variantDetail.setProductShippingId(record.getShippingId());
+                variantDetails.add(variantDetail);
+                boolean b = sendUpdateVariantMessage(variantDetails,"shippingId");
+                if (!b){
+                    throw new Exception("消息队列异常，请重新提交或联系IT！");
+                }
+            }
+        }
+        return i;
     }
 
     /**
