@@ -1,7 +1,6 @@
 package com.upedge.ums.modules.account.service.impl;
 
 import com.upedge.common.base.BaseResponse;
-import com.upedge.common.config.HostConfig;
 import com.upedge.common.constant.Constant;
 import com.upedge.common.constant.PayOrderMethod;
 import com.upedge.common.constant.ResultCode;
@@ -27,6 +26,7 @@ import jodd.util.StringUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -73,6 +73,12 @@ public class RechargeServiceImpl implements RechargeService {
 
     @Autowired
     UserInfoDao UserInfoDao;
+
+
+    @Value("${files.image.transfer.local}")
+    private String transferLocalPath;
+    @Value("${files.image.transfer.prefix}")
+    private String transferImageUrlPrefix;
 
     @Transactional
     @Override
@@ -343,12 +349,11 @@ public class RechargeServiceImpl implements RechargeService {
 
         RechargeRequestLog requestLog = request.toRechargeRequest(session);
         String image = request.getAttr().getImage();
-        if (StringUtil.isBlank(image)){
-            image = FileUtil.uploadImage(image, HostConfig.HOST +"/image/transfer/","/root/files/image/transfer/");
+        if (StringUtil.isNotBlank(image)){
+            image = FileUtil.uploadImage(image, transferImageUrlPrefix,transferLocalPath);
             requestLog.setTransferFlow(image);
         }
         BigDecimal benefits = rechargeBenefitsMapper.selectBenefitsByAppAndAmount(applicationId, requestLog.getAmount());
-
         if (null == benefits) {
             benefits = BigDecimal.ZERO;
         }

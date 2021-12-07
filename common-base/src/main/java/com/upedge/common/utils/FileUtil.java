@@ -58,7 +58,6 @@ public class FileUtil {
 			String dateName = df.format(calendar.getTime());
 			String tempFileName = urlPrefix + dateName + suffix;
 			String localPath = imgPath + dateName + suffix;
-			System.err.println(localPath);
 			//因为BASE64Decoder的jar问题，此处使用spring框架提供的工具包
 			byte[] bs = Base64Utils.decodeFromString(data);
 			try {

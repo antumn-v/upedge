@@ -19,6 +19,8 @@ import com.upedge.ums.modules.account.request.AccountLogListRequest;
 import com.upedge.ums.modules.account.response.AccountLogListResponse;
 import com.upedge.ums.modules.account.service.AccountLogService;
 import com.upedge.ums.modules.account.vo.AccountLogVo;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -35,6 +37,7 @@ import java.util.List;
  *
  * @author author
  */
+@Api(tags = "账单记录")
 @RestController
 @RequestMapping("/accountLog")
 public class AccountLogController {
@@ -49,6 +52,7 @@ public class AccountLogController {
      * @param request
      * @return
      */
+    @ApiOperation("列表")
     @RequestMapping(value="/list", method=RequestMethod.POST)
     @Permission(permission = "account.log.list")
     public AccountLogListResponse list(@RequestBody @Valid AccountLogListRequest request) {

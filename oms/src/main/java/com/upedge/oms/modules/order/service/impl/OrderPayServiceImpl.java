@@ -368,6 +368,7 @@ public class OrderPayServiceImpl implements OrderPayService {
             }
             BigDecimal vatAmount = vatRuleService.getOrderVatAmount(order.getProductAmount(), order.getShipPrice(), order.getToAreaId());
             if (vatAmount.compareTo(order.getVatAmount()) != 0) {
+                orderDao.updateOrderVatAmountById(order.getId(),vatAmount);
                 return creatOrderPayCheckResultVo(new ArrayList<>(), paymentId, "vat error");
             }
         }

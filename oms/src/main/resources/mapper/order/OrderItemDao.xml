@@ -791,6 +791,7 @@
         where oi.admin_product_id = #{adminProductId}
           and o.pay_state = '0'
     </update>
+
     <update id="updateItemQuoteDetail" parameterType="com.upedge.common.model.pms.quote.CustomerProductQuoteVo">
         update order_item  oi
         inner join `order` o

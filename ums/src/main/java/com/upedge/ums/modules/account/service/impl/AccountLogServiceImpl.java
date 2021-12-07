@@ -188,7 +188,7 @@ public class AccountLogServiceImpl implements AccountLogService {
             orderAccountLogVo.setCredit(orderAccountLogVo.getCredit().add(date.getCredit()));
             orderAccountLogVo.setRebate(orderAccountLogVo.getRebate().add(date.getRebate()));
         }
-        return   orderAccountLogVo;
+        return orderAccountLogVo;
     }
 
     @Override
