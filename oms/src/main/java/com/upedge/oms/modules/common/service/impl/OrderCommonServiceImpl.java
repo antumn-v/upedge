@@ -11,7 +11,6 @@ import com.upedge.common.exception.CustomerException;
 import com.upedge.common.feign.PmsFeignClient;
 import com.upedge.common.feign.TmsFeignClient;
 import com.upedge.common.feign.UmsFeignClient;
-import com.upedge.common.model.manager.vo.ManagerInfoVo;
 import com.upedge.common.model.mq.ChangeManagerVo;
 import com.upedge.common.model.order.PaymentDetail;
 import com.upedge.common.model.order.TransactionDetail;
@@ -117,7 +116,7 @@ public class OrderCommonServiceImpl implements OrderCommonService {
     private OrderTrackingService orderTrackingService;
 
     @Autowired
-    private  WholesaleOrderService wholesaleOrderService;
+    private WholesaleOrderService wholesaleOrderService;
 
     @Autowired
     private OrderService orderService;
@@ -152,17 +151,17 @@ public class OrderCommonServiceImpl implements OrderCommonService {
         //获取客户订单->对应客户经理的订单来源渠道
         //saiheOrder.getCustomerId();
 
-        ManagerInfoVo managerInfoVo = omsRedisService.getCustomerManager(saiheOrder.getManagerCode(), saiheOrder.getCustomerId());
-        saiheOrder.setManagerCode(managerInfoVo.getManagerCode());
-        saiheOrder.setManagerCode(managerInfoVo.getManagerCode());
+//        ManagerInfoVo managerInfoVo = omsRedisService.getCustomerManager(saiheOrder.getManagerCode(), saiheOrder.getCustomerId());
+//        saiheOrder.setManagerCode(managerInfoVo.getManagerCode());
+//        saiheOrder.setManagerCode(managerInfoVo.getManagerCode());
         //默认订单来源渠道
         Integer orderSourceId = SaiheConfig.SOURCINBOX_DEFAULT_ORDER_SOURCE_ID;
-        if (managerInfoVo != null && managerInfoVo.getOrderSourceId() != null) {
-            orderSourceId = managerInfoVo.getOrderSourceId();
-        }
+//        if (managerInfoVo != null && managerInfoVo.getOrderSourceId() != null) {
+//            orderSourceId = managerInfoVo.getOrderSourceId();
+//        }
         saiheOrder.setOrderSourceID(orderSourceId);
         SaiheOrderRecord saiheOrderRecord = new SaiheOrderRecord();
-        BeanUtils.copyProperties(saiheOrder,saiheOrderRecord);
+        BeanUtils.copyProperties(saiheOrder, saiheOrderRecord);
         saiheOrderRecord.setId(IdGenerate.nextId());
         //客户id是（测试账号）不上传
         if (saiheOrder.getCustomerId().equals(SaiheConfig.DEFAULT_ACCOUNT)) {
@@ -238,10 +237,10 @@ public class OrderCommonServiceImpl implements OrderCommonService {
                 if (!StringUtils.isBlank(orderCode) && !StringUtils.isBlank(clientOrderCode)) {
                     if (clientOrderCode.equals(orderId)) {
                         //更新赛盒单号
-                        if(orderType == OrderType.NORMAL){
-                            orderDao.updateSaiheOrderCode(orderId,orderCode);
+                        if (orderType == OrderType.NORMAL) {
+                            orderDao.updateSaiheOrderCode(orderId, orderCode);
                         }
-                        if(orderType == OrderType.WHOLESALE){
+                        if (orderType == OrderType.WHOLESALE) {
 
                             wholesaleOrderDao.updateSaiheOrderCode(orderId, orderCode);
                         }
@@ -263,22 +262,22 @@ public class OrderCommonServiceImpl implements OrderCommonService {
     @Override
     public Boolean upLoadOrderToSaiHe(SaiheOrder saiheOrder, Integer orderType) {
         SaiheOrderRecord record = saiheOrderRecordDao.selectByClientOrderCode(saiheOrder.getClientOrderCode());
-        if (null != record && 1 == record.getState()){
+        if (null != record && 1 == record.getState()) {
             return true;
         }
 
         SaiheOrderRecord saiheOrderRecord = importOrderToSaihe(saiheOrder);
         saiheOrderRecord.setImportTime(new Date());
-        if (record != null){
+        if (record != null) {
             saiheOrderRecord.setId(record.getId());
             saiheOrderRecordDao.updateByPrimaryKey(saiheOrderRecord);
-        } else{
+        } else {
             saiheOrderRecord.setId(IdGenerate.nextId());
         }
-        if (saiheOrderRecord.getState() == 0){
-            if (record != null){
+        if (saiheOrderRecord.getState() == 0) {
+            if (record != null) {
                 saiheOrderRecordDao.updateByPrimaryKey(saiheOrderRecord);
-            } else{
+            } else {
                 saiheOrderRecordDao.insert(saiheOrderRecord);
             }
             return false;
@@ -305,27 +304,8 @@ public class OrderCommonServiceImpl implements OrderCommonService {
         apiUploadOrderInfo.setTotalPrice(saiheOrder.getTotalPrice());
 
         //订单优惠金额 DiscountAmount 使用了返点支付
-      //  BaseResponse response = umsFeignClient.accountLogPayInfo(saiheOrder.getClientOrderCode());
-        TransactionDetail transactionDetail = new TransactionDetail();
-        transactionDetail.setOrderId(Long.parseLong(saiheOrder.getClientOrderCode()));
-        transactionDetail.setOrderType(orderType);
-        BaseResponse response = umsFeignClient.accountLogPayInfoByTransactionDetail(transactionDetail);
-        if (response.getCode() != 1 || response.getData() == null) {
-            return false;
-        }
-
-        LinkedHashMap linkedHashMap = (LinkedHashMap) response.getData();
-        if (linkedHashMap != null){
-            Double d = (Double) linkedHashMap.get("rebate");
-            BigDecimal rebate = new BigDecimal(d.toString());
-            //使用了返点支付
-            if (rebate != null
-                    && rebate.abs().
-
-                    compareTo(BigDecimal.ZERO) > 0) {
-                apiUploadOrderInfo.setPromotionDiscountAmount(rebate.abs());
-            }
-        }
+        //  BaseResponse response = umsFeignClient.accountLogPayInfo(saiheOrder.getClientOrderCode());
+        apiUploadOrderInfo.setPromotionDiscountAmount(BigDecimal.ZERO);
 
         //运费收入 TransportPay+vat税费
         BigDecimal vatAmount = saiheOrder.getVatAmount() == null ? BigDecimal.ZERO : saiheOrder.getVatAmount();
@@ -338,20 +318,20 @@ public class OrderCommonServiceImpl implements OrderCommonService {
         //买家留言 OrderDescription
         String appUserId = saiheOrder.getCustomerId() == null ? "" : String.valueOf(saiheOrder.getCustomerId());
         String orderInfo = "";
-        if(orderType == OrderType.WHOLESALE){
+        if (orderType == OrderType.WHOLESALE) {
             orderInfo = " 批发订单";
         }
         //补发订单
         String againInfo = "";
         if (saiheOrder.getOrderType() == 1) {
             OrderCommonReshipInfoVo orderReshipInfo = new OrderCommonReshipInfoVo();
-            if(orderType == OrderType.NORMAL){
-                OrderReshipInfo reshipInfo= orderReshipInfoDao.selectByPrimaryKey(Long.parseLong(saiheOrder.getClientOrderCode()));
-                BeanUtils.copyProperties(reshipInfo,orderReshipInfo);
+            if (orderType == OrderType.NORMAL) {
+                OrderReshipInfo reshipInfo = orderReshipInfoDao.selectByPrimaryKey(Long.parseLong(saiheOrder.getClientOrderCode()));
+                BeanUtils.copyProperties(reshipInfo, orderReshipInfo);
             }
-            if(orderType == OrderType.WHOLESALE){
+            if (orderType == OrderType.WHOLESALE) {
                 WholesaleReshipInfo reshipInfo = wholesaleReshipInfoDao.selectByPrimaryKey(Long.parseLong(saiheOrder.getClientOrderCode()));
-                BeanUtils.copyProperties(reshipInfo,orderReshipInfo);
+                BeanUtils.copyProperties(reshipInfo, orderReshipInfo);
             }
             if (orderReshipInfo != null && orderReshipInfo.getReshipTimes() > 0) {
                 againInfo = againInfo + " " + orderReshipInfo.getOriginalOrderId() + "-" + orderReshipInfo.getReshipTimes();
@@ -421,13 +401,13 @@ public class OrderCommonServiceImpl implements OrderCommonService {
         OrderItemList orderItemList = new OrderItemList();
         orderItemList.setOrderItemList(list);
         apiUploadOrderInfo.setOrderItemList(list);
-        if(orderType == OrderType.NORMAL){
+        if (orderType == OrderType.NORMAL) {
             //存放备注信息
-            for(Map.Entry<String, Set<String>> entry:mapSet.entrySet()){
-                String storeId=entry.getKey();
-                Set<String> nameSet=entry.getValue();
-                orderInfo=orderInfo+storeId+nameSet.toString();
-                orderInfo=orderInfo+" ";
+            for (Map.Entry<String, Set<String>> entry : mapSet.entrySet()) {
+                String storeId = entry.getKey();
+                Set<String> nameSet = entry.getValue();
+                orderInfo = orderInfo + storeId + nameSet.toString();
+                orderInfo = orderInfo + " ";
             }
         }
         apiUploadOrderInfo.setOrderDescription(orderInfo + againInfo + vatInfo);
@@ -436,33 +416,32 @@ public class OrderCommonServiceImpl implements OrderCommonService {
         apiUploadOrderInfo.setWareHouseID(SaiheConfig.SOURCINBOX_DEFAULT_WAREHOURSE_ID);
 
         //运输方式ID ShippingService
-        apiUploadOrderInfo.setTransportID(saiheOrder.getTransportID());
+        apiUploadOrderInfo.setTransportID(4);
 
         //是否执行订单策略(默认为:true；如果为false，则必须传入WareHouseID和TransportID参数)
         apiUploadOrderInfo.setIsOperateMatch(false);
 //        log.error("订单上传赛盒:{}",apiUploadOrderInfo);
         //回传
         UpLoadOrderV2Response upLoadOrderV2Response = SaiheService.upLoadOrderV2(apiUploadOrderInfo);
-        log.error("订单上传赛盒：{}",saiheOrder);
-        if(upLoadOrderV2Response.getUpLoadOrderV2Result().getStatus().equals("OK")){
-            String orderCode=upLoadOrderV2Response.getUpLoadOrderV2Result().getOrderCode();
+        if (upLoadOrderV2Response.getUpLoadOrderV2Result().getStatus().equals("OK")) {
+            String orderCode = upLoadOrderV2Response.getUpLoadOrderV2Result().getOrderCode();
             //回传成功 保存赛盒code
-            if(orderType == OrderType.NORMAL){
-                orderDao.updateSaiheOrderCode(saiheOrder.getClientOrderCode(),orderCode);
+            if (orderType == OrderType.NORMAL) {
+                orderDao.updateSaiheOrderCode(saiheOrder.getClientOrderCode(), orderCode);
             }
-            if(orderType == OrderType.WHOLESALE){
-                wholesaleOrderDao.updateSaiheOrderCode(saiheOrder.getClientOrderCode(),orderCode);
+            if (orderType == OrderType.WHOLESALE) {
+                wholesaleOrderDao.updateSaiheOrderCode(saiheOrder.getClientOrderCode(), orderCode);
             }
             saiheOrderRecord.setSaiheOrderCode(orderCode);
             saiheOrderRecordDao.insert(saiheOrderRecord);
             return true;
         }
         saiheOrderRecord.setState(0);
-        if(!StringUtils.isBlank(upLoadOrderV2Response.getUpLoadOrderV2Result().getMsg())){
-            String orderId=saiheOrder.getClientOrderCode()==null?"":saiheOrder.getClientOrderCode();
-            log.debug("error orderId:{}, msg:{}",orderId,upLoadOrderV2Response.getUpLoadOrderV2Result().getMsg());
+        if (!StringUtils.isBlank(upLoadOrderV2Response.getUpLoadOrderV2Result().getMsg())) {
+            String orderId = saiheOrder.getClientOrderCode() == null ? "" : saiheOrder.getClientOrderCode();
+            log.debug("error orderId:{}, msg:{}", orderId, upLoadOrderV2Response.getUpLoadOrderV2Result().getMsg());
             saiheOrderRecord.setFailReason(upLoadOrderV2Response.getUpLoadOrderV2Result().getMsg());
-        }else {
+        } else {
             saiheOrderRecord.setFailReason("赛盒异常");
         }
         saiheOrderRecordDao.insert(saiheOrderRecord);
@@ -471,6 +450,7 @@ public class OrderCommonServiceImpl implements OrderCommonService {
 
     /**
      * 刷新赛盒发货状态
+     *
      * @param id
      * @param orderType
      * @return
@@ -478,59 +458,61 @@ public class OrderCommonServiceImpl implements OrderCommonService {
      */
     @Override
     public boolean synRefundTrackingState(String id, Integer orderType) throws CustomerException {
-            RefundVo refund = null;
-            if(orderType == OrderType.NORMAL){
-                refund = orderDao.queryConfirmAppRefundById(id);
-            }else if(orderType == OrderType.WHOLESALE){
-                refund = wholesaleOrderDao.queryConfirmAppRefundById(id);
-            }else {
-                return false;
-            }
-            if (refund == null || refund.getSaiheOrderCode() == null){
-                throw new CustomerException(CustomerExceptionEnum.DATA_OF_THE_EXCEPTION);
-            }
+        RefundVo refund = null;
+        if (orderType == OrderType.NORMAL) {
+            refund = orderDao.queryConfirmAppRefundById(id);
+        } else if (orderType == OrderType.WHOLESALE) {
+            refund = wholesaleOrderDao.queryConfirmAppRefundById(id);
+        } else {
+            return false;
+        }
+        if (refund == null || refund.getSaiheOrderCode() == null) {
+            throw new CustomerException(CustomerExceptionEnum.DATA_OF_THE_EXCEPTION);
+        }
 
         try {
-            this.updateConfirmAppRefundTrackingState(refund,orderType);
+            this.updateConfirmAppRefundTrackingState(refund, orderType);
         } catch (Exception e) {
             return false;
         }
         return true;
     }
+
     //更新赛盒状态
     private void updateConfirmAppRefundTrackingState(RefundVo appRefund, Integer orderType) {
         //获取订单的赛盒code
         if (appRefund != null && !StringUtils.isBlank(appRefund.getSaiheOrderCode())) {
-            ApiGetOrderResponse apiGetOrderResponse = SaiheService.getOrderByCode( appRefund.getSaiheOrderCode());
+            ApiGetOrderResponse apiGetOrderResponse = SaiheService.getOrderByCode(appRefund.getSaiheOrderCode());
             if (apiGetOrderResponse.getGetOrdersResult().getStatus().equals("OK")) {
                 List<ApiOrderInfo> list = apiGetOrderResponse.getGetOrdersResult().getOrderInfoList().getOrderInfoList();
                 if (list != null && list.size() > 0) {
                     if (list != null && list.size() > 0) {
                         //赛盒发货状态  订单发货状态(未发货 = 0,部分发货 = 1,全部发货 = 2,妥投 = 3)
                         Integer orderState = list.get(0).getOrderState();
-                        Integer orderSourceId=list.get(0).getOrderSourceID();
-                        if (orderState > 0){
+                        Integer orderSourceId = list.get(0).getOrderSourceID();
+                        if (orderState > 0) {
                             orderState = 1;
-                        }else {
+                        } else {
                             orderState = 0;
                         }
-                        if(orderType == OrderType.NORMAL){
-                            orderRefundDao.updateRefundTrackingState(appRefund.getId(), orderState,orderSourceId);
+                        if (orderType == OrderType.NORMAL) {
+                            orderRefundDao.updateRefundTrackingState(appRefund.getId(), orderState, orderSourceId);
                         }
-                        if(orderType == OrderType.WHOLESALE){
-                            wholesaleRefundDao.updateRefundTrackingState(appRefund.getId(), orderState,orderSourceId);
-                        }
+                        if (orderType == OrderType.WHOLESALE) {
+                            wholesaleRefundDao.updateRefundTrackingState(appRefund.getId(), orderState, orderSourceId);
                         }
                     }
                 }
             }
         }
+    }
 
 
     /**
      * 获取/更新赛盒物流信息 标记订单已发货
      * 现将普通订单  批发订单的信息都放入order_tracking表
      * 后期同步数据时要注意  order_tracking_type  2 普通订单  3 批发订单
+     *
      * @param id
      * @return
      */
@@ -538,53 +520,53 @@ public class OrderCommonServiceImpl implements OrderCommonService {
     public boolean getTrackingFromSaihe(Long id, Integer orderType) {
         OrderTrackingCommerVo a = new OrderTrackingCommerVo();
 
-        if(orderType == OrderType.NORMAL){
-            Order order=orderService.selectByPrimaryKey(id);
-            a = a.NormalOrderTrackingCommerVo(order,a);
+        if (orderType == OrderType.NORMAL) {
+            Order order = orderService.selectByPrimaryKey(id);
+            a = a.NormalOrderTrackingCommerVo(order, a);
         }
-        if(orderType == OrderType.WHOLESALE){
-            WholesaleOrder wholesaleOrder= wholesaleOrderService.selectByPrimaryKey(id);
-            a = a.wholesaleOrderTrackingCommerVo(wholesaleOrder,a);
+        if (orderType == OrderType.WHOLESALE) {
+            WholesaleOrder wholesaleOrder = wholesaleOrderService.selectByPrimaryKey(id);
+            a = a.wholesaleOrderTrackingCommerVo(wholesaleOrder, a);
 
-            if(a.getShipPrice()==null||a.getShipState()!=0){
+            if (a.getShipPrice() == null || a.getShipState() != 0) {
                 return false;
             }
         }
 
-        if(a==null||a.getSaiheOrderCode()==null||a.getShipMethodId()==null){
+        if (a == null || a.getSaiheOrderCode() == null || a.getShipMethodId() == null) {
             return false;
         }
-        if(a.getPayState()==null||a.getPayState()!=1){
+        if (a.getPayState() == null || a.getPayState() != 1) {
             return false;
         }
 
         //从赛盒获取订单号
-        ApiGetOrderResponse apiGetOrderResponse=  SaiheService.getOrderByCode(a.getSaiheOrderCode());
-        if(apiGetOrderResponse.getGetOrdersResult().getStatus().equals("OK")){
-            List<ApiOrderInfo> l=apiGetOrderResponse.getGetOrdersResult().getOrderInfoList().getOrderInfoList();
-            if(l!=null&&l.size()>0){
-                String trackNumbers=l.get(0).getTrackNumbers();
-                String orderCode=l.get(0).getOrderCode();
-                String logisticsOrderNo=l.get(0).getLogisticsOrderNo();
-                Integer transportId=l.get(0).getTransportID();//获取运输id
+        ApiGetOrderResponse apiGetOrderResponse = SaiheService.getOrderByCode(a.getSaiheOrderCode());
+        if (apiGetOrderResponse.getGetOrdersResult().getStatus().equals("OK")) {
+            List<ApiOrderInfo> l = apiGetOrderResponse.getGetOrdersResult().getOrderInfoList().getOrderInfoList();
+            if (l != null && l.size() > 0) {
+                String trackNumbers = l.get(0).getTrackNumbers();
+                String orderCode = l.get(0).getOrderCode();
+                String logisticsOrderNo = l.get(0).getLogisticsOrderNo();
+                Integer transportId = l.get(0).getTransportID();//获取运输id
                 //logger.debug("orderCode:{},trackNumbers:{},logisticsOrderNo:{}",orderCode,trackNumbers,logisticsOrderNo);
                 Long shippingMethodId = a.getShipMethodId();
-                ShippingMethodVo shippingMethod=null;
+                ShippingMethodVo shippingMethod = null;
                 //优先根据赛盒运输id查询Admin运输方式
-                ShippingMethodVo paramVo=new ShippingMethodVo();
+                ShippingMethodVo paramVo = new ShippingMethodVo();
                 paramVo.setId(shippingMethodId);
                 paramVo.setSaiheTransportId(transportId);
-                BaseResponse response=tmsFeignClient.getShippingMethodByTransportId(paramVo);
-                if(response.getCode()== ResultCode.SUCCESS_CODE&&response.getData()!=null){
-                     shippingMethod = JSON.parseObject(JSON.toJSONString(response.getData()), ShippingMethodVo.class);
+                BaseResponse response = tmsFeignClient.getShippingMethodByTransportId(paramVo);
+                if (response.getCode() == ResultCode.SUCCESS_CODE && response.getData() != null) {
+                    shippingMethod = JSON.parseObject(JSON.toJSONString(response.getData()), ShippingMethodVo.class);
                 }
                 //获取admin的运输方式
                 String shippingMethodName = "";
-                if(shippingMethod!=null&&shippingMethod.getTrackType()!=null
-                        &&!StringUtils.isBlank(orderCode)&&orderCode.equals(a.getSaiheOrderCode())){
+                if (shippingMethod != null && shippingMethod.getTrackType() != null
+                        && !StringUtils.isBlank(orderCode) && orderCode.equals(a.getSaiheOrderCode())) {
                     shippingMethodName = shippingMethod.getName();
                     //有运输商单号或真实追踪号
-                    if(!StringUtils.isBlank(logisticsOrderNo)||!StringUtils.isBlank(trackNumbers)){
+                    if (!StringUtils.isBlank(logisticsOrderNo) || !StringUtils.isBlank(trackNumbers)) {
                         OrderTracking orderTracking = new OrderTracking();
                         orderTracking.setOrderId(a.getId());
                         orderTracking.setUpdateTime(new Date());
@@ -595,12 +577,12 @@ public class OrderCommonServiceImpl implements OrderCommonService {
                         orderTracking.setTrackType(shippingMethod.getTrackType());
                         orderTracking.setTrackingCode(logisticsOrderNo);
                         // 根据orderId和 order_tracking_type查询订单
-                        OrderTracking old=orderTrackingService.queryOrderTrackingByOrderId(a.getId(),orderType);
-                        if(orderType == OrderType.NORMAL){
+                        OrderTracking old = orderTrackingService.queryOrderTrackingByOrderId(a.getId(), orderType);
+                        if (orderType == OrderType.NORMAL) {
                             //标记该记录为普通订单
                             orderTracking.setOrderTrackingType(0);
 
-                            if(old==null){
+                            if (old == null) {
                                 orderTracking.setState(0);
                                 orderTracking.setId(IdGenerate.nextId());
                                 orderTracking.setCreateTime(new Date());
@@ -609,26 +591,25 @@ public class OrderCommonServiceImpl implements OrderCommonService {
                                 orderTrackingService.insert(orderTracking);
                                 //处于待回传状态，继续更新运输信息
                                 orderFulfillmentService.orderFulfillment(id);
-                            }else {
+                            } else {
                                 orderTrackingService.updateOrderTracking(orderTracking);
                             }
                         }
-                        if(orderType == OrderType.WHOLESALE){
+                        if (orderType == OrderType.WHOLESALE) {
                             //标记该记录为批发订单
                             orderTracking.setOrderTrackingType(1);
-                            if (old == null){
+                            if (old == null) {
                                 orderTracking.setCreateTime(new Date());
                                 //标记订单为发货
                                 wholesaleOrderDao.updateOrderAsTracked(id);
                                 orderTrackingService.insert(orderTracking);
-                            }else {
+                            } else {
                                 //处于待回传状态，继续更新运输信息
                                 orderTrackingService.updateOrderTracking(orderTracking);
 
                             }
 
                         }
-
 
 
                         return true;
@@ -642,12 +623,13 @@ public class OrderCommonServiceImpl implements OrderCommonService {
 
     /**
      * 修改订单模块业务数据的客户经理Code
+     *
      * @param changeManagerVos
      * @return
      */
     @SneakyThrows
     @Override
-    public void updateOmsManagerCodeByChanagerManager(List<ChangeManagerVo> changeManagerVos)  {
+    public void updateOmsManagerCodeByChanagerManager(List<ChangeManagerVo> changeManagerVos) {
         for (ChangeManagerVo changeManagerVo : changeManagerVos) {
             updateOmsManagerCode(changeManagerVo);
         }
@@ -657,13 +639,13 @@ public class OrderCommonServiceImpl implements OrderCommonService {
     // 处理 order  wholesale order 没有赛盒订单号的订单
     @Override
     public void uploadSaiheAndUms() {
-        List<PaymentDetail> resultList  =  orderService.selectUploadSaiheAndUms(OrderType.NORMAL);
+        List<PaymentDetail> resultList = orderService.selectUploadSaiheAndUms(OrderType.NORMAL);
 
         for (PaymentDetail paymentDetail : resultList) {
             paymentDetail.setOrderType(OrderType.NORMAL);
             sendSaveTransactionRecordMessage(paymentDetail);
         }
-        List<PaymentDetail> resultList1   =  wholesaleOrderService.selectUploadSaiheAndUms(OrderType.WHOLESALE);
+        List<PaymentDetail> resultList1 = wholesaleOrderService.selectUploadSaiheAndUms(OrderType.WHOLESALE);
 
         for (PaymentDetail paymentDetail : resultList1) {
             paymentDetail.setOrderType(OrderType.WHOLESALE);
@@ -673,11 +655,11 @@ public class OrderCommonServiceImpl implements OrderCommonService {
 
     @Override
     public void sendOneSaveTransactionRecordMessage(PaymentDetail detail) {
-        if (detail.getOrderType() == OrderType.NORMAL){
-            detail  =  orderService.selectUploadSaiheAndUmsOne(detail.getPaymentId());
+        if (detail.getOrderType() == OrderType.NORMAL) {
+            detail = orderService.selectUploadSaiheAndUmsOne(detail.getPaymentId());
         }
 
-        if (detail.getOrderType() == OrderType.WHOLESALE){
+        if (detail.getOrderType() == OrderType.WHOLESALE) {
             detail = wholesaleOrderService.selectUploadSaiheAndUmsOne(detail.getPaymentId());
         }
         sendSaveTransactionRecordMessage(detail);
@@ -688,17 +670,17 @@ public class OrderCommonServiceImpl implements OrderCommonService {
         Message message = new Message(RocketMqConfig.TOPIC_SAVE_ORDER_TRANSACTION, "order_order", "order:order:transaction:" + detail.getPaymentId(), JSON.toJSONBytes(detail));
 
         BaseResponse baseResponse = umsFeignClient.customerInfo(detail.getCustomerId());
-        if (baseResponse.getCode() == ResultCode.SUCCESS_CODE && baseResponse.getData() != null){
-            CustomerVo customerVo =   JSON.parseObject(JSON.toJSONString( baseResponse.getData()),CustomerVo.class);
-            if (customerVo == null){
-                log.error("selectUploadSaiheAndUms==>:{}",detail);
+        if (baseResponse.getCode() == ResultCode.SUCCESS_CODE && baseResponse.getData() != null) {
+            CustomerVo customerVo = JSON.parseObject(JSON.toJSONString(baseResponse.getData()), CustomerVo.class);
+            if (customerVo == null) {
+                log.error("selectUploadSaiheAndUms==>:{}", detail);
                 return;
             }
             detail.setUserId(customerVo.getId());
         }
 
-        if (detail.getOrderType() == OrderType.NORMAL){
-            BigDecimal payAmount  = orderDao.selectPayAmountByPaymentId(detail.getPaymentId());
+        if (detail.getOrderType() == OrderType.NORMAL) {
+            BigDecimal payAmount = orderDao.selectPayAmountByPaymentId(detail.getPaymentId());
             List<TransactionDetail> transactionDetails = orderDao.selectTransactionDetailByPaymentId(detail.getPaymentId());
             if (ListUtils.isEmpty(transactionDetails)) {
                 return;
@@ -708,8 +690,8 @@ public class OrderCommonServiceImpl implements OrderCommonService {
             message = new Message(RocketMqConfig.TOPIC_SAVE_ORDER_TRANSACTION, "normal_order", "normal:order:transaction:" + detail.getPaymentId(), JSON.toJSONBytes(detail));
         }
 
-        if (detail.getOrderType() == OrderType.WHOLESALE){
-            BigDecimal payAmount  = wholesaleOrderDao.selectPayAmountByPaymentId(detail.getPaymentId());
+        if (detail.getOrderType() == OrderType.WHOLESALE) {
+            BigDecimal payAmount = wholesaleOrderDao.selectPayAmountByPaymentId(detail.getPaymentId());
             List<TransactionDetail> transactionDetails = wholesaleOrderDao.selectTransactionDetailByPaymentId(detail.getPaymentId());
             if (ListUtils.isEmpty(transactionDetails)) {
                 return;
@@ -725,6 +707,7 @@ public class OrderCommonServiceImpl implements OrderCommonService {
 
     /**
      * 通过枚举修改各表的managerCode
+     *
      * @param changeManagerVo
      * @return
      */
@@ -732,9 +715,9 @@ public class OrderCommonServiceImpl implements OrderCommonService {
     public Boolean updateOmsManagerCode(ChangeManagerVo changeManagerVo) {
 
         for (UpdateOmsManagerEnum value : UpdateOmsManagerEnum.values()) {
-            orderService.updateManagerCode(changeManagerVo,value.getTableName());
+            orderService.updateManagerCode(changeManagerVo, value.getTableName());
         }
-        log.info("给客户分配客户经理，该客户CustomerId为：{}，该客户原经理为：{}，该客户现经理为：{}",changeManagerVo.getCustomerId(),changeManagerVo.getOldManager(),changeManagerVo.getNewManager());
+        log.info("给客户分配客户经理，该客户CustomerId为：{}，该客户原经理为：{}，该客户现经理为：{}", changeManagerVo.getCustomerId(), changeManagerVo.getOldManager(), changeManagerVo.getNewManager());
         return true;
     }
 

@@ -133,13 +133,13 @@ public class StoreProductServiceImpl implements StoreProductService {
             request.setT(new StoreProductDto());
         }
         request.getT().setCustomerId(session.getCustomerId());
-        if (session.getUserType() == BaseCode.USER_ROLE_NORMAL) {
-            List<Long> orgIds = session.getOrgIds();
-            if (ListUtils.isEmpty(orgIds)) {
-                return new StoreProductListResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS, new ArrayList<>(), request);
-            }
-            request.getT().setOrgIds(orgIds);
-        }
+//        if (session.getUserType() == BaseCode.USER_ROLE_NORMAL) {
+//            List<Long> orgIds = session.getOrgIds();
+//            if (ListUtils.isEmpty(orgIds)) {
+//                return new StoreProductListResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS, new ArrayList<>(), request);
+//            }
+//            request.getT().setOrgIds(orgIds);
+//        }
         List<StoreProductAttribute> attributes = storeProductAttributeDao.selectStoreProduct(request);
         Long total = storeProductAttributeDao.countStoreProduct(request);
         request.setTotal(total);

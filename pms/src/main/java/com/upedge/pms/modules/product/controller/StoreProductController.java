@@ -7,6 +7,7 @@ import com.upedge.pms.modules.product.request.StoreProductListRequest;
 import com.upedge.pms.modules.product.response.StoreProductListResponse;
 import com.upedge.pms.modules.product.service.StoreProductService;
 import com.upedge.pms.modules.product.vo.StoreProductRelateVo;
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -16,6 +17,7 @@ import java.util.List;
 /**
  * @author 海桐
  */
+@Api("店铺产品")
 @RestController
 @RequestMapping("/store/product")
 public class StoreProductController {

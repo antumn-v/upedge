@@ -13,7 +13,6 @@ import com.upedge.common.model.log.MqMessageLog;
 import com.upedge.common.model.product.VariantDetail;
 import com.upedge.common.model.ship.vo.ShippingTemplateRedis;
 import com.upedge.common.model.user.vo.Session;
-import com.upedge.common.model.user.vo.UserInfoVo;
 import com.upedge.common.utils.IdGenerate;
 import com.upedge.common.utils.ListUtils;
 import com.upedge.common.utils.PriceUtils;
@@ -769,32 +768,19 @@ public class ProductServiceImpl implements ProductService {
         }
         List<ApiImportProductInfo> ImportProductList = new ArrayList<>();
         for (SaiheSkuVo saiheSkuVo : list) {
-            /**
-             *              p.shipping_id as shippingId,
-             * 				p.user_id as userId,
-             *
-             * user_info
-             * --         jsu.username as developUser,
-             * --         jsu.username as chargeUser,
-             * --         jsu.username as editorUser,
-             * --         jsu.username as imageHandleUser,
-             * --         jsu.username as purchaseUser,
-             *
-             * shipping_template
-             *  --     t.saihe_id as shippingAttribute,
-             */
+
             ShippingTemplateRedis shippingTemplateRedis = (ShippingTemplateRedis) redisTemplate.opsForHash()
                     .get(RedisKey.SHIPPING_TEMPLATE, String.valueOf(saiheSkuVo.getShippingId()));
             if (null != shippingTemplateRedis && shippingTemplateRedis.getSaiheId() != null) {
                 saiheSkuVo.setShippingAttribute(shippingTemplateRedis.getSaiheId());
             }
 
-            UserInfoVo userInfoVo = (UserInfoVo) redisTemplate.opsForHash().get("user:info:vo", saiheSkuVo.getUserId());
-            saiheSkuVo.setDevelopUser(userInfoVo.getUsername());
-            saiheSkuVo.setChargeUser(userInfoVo.getUsername());
-            saiheSkuVo.setEditorUser(userInfoVo.getUsername());
-            saiheSkuVo.setImageHandleUser(userInfoVo.getUsername());
-            saiheSkuVo.setPurchaseUser(userInfoVo.getUsername());
+//            UserInfoVo userInfoVo = (UserInfoVo) redisTemplate.opsForHash().get("user:info:vo", saiheSkuVo.getUserId());
+            saiheSkuVo.setDevelopUser("system");
+            saiheSkuVo.setChargeUser("system");
+            saiheSkuVo.setEditorUser("system");
+            saiheSkuVo.setImageHandleUser("system");
+            saiheSkuVo.setPurchaseUser("system");
 
             //报关中文名
             StringJoiner joinerName = new StringJoiner("  ");

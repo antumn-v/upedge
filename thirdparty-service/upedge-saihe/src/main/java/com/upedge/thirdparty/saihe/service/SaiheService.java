@@ -247,9 +247,7 @@ public class SaiheService {
             requestBody.setApiUploadProductsRequest(apiUploadProductsRequest);
             requestEntity.setBody(requestBody);
             String xmlStr = XmlAndJavaObjectConvert.convertToXml(requestEntity);
-            log.debug("xmlStr:{}",xmlStr);
             String result = PostUtils.sendPostV(SaiheConfig.PRODUCT_URL,xmlStr);
-            log.debug("result:{}",result);
             SaiheResponseEntity responseEntity= (SaiheResponseEntity) XmlAndJavaObjectConvert.convertXmlStrToObject(SaiheResponseEntity.class, result);
             return  responseEntity.getBody().getApiUploadProductsResponse();
         }catch (Exception e){
