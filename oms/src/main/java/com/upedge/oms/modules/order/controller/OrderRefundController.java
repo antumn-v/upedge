@@ -15,6 +15,7 @@ import com.upedge.oms.modules.order.response.OrderRefundInfoResponse;
 import com.upedge.oms.modules.order.response.OrderRefundListResponse;
 import com.upedge.oms.modules.order.response.OrderRefundUpdateResponse;
 import com.upedge.oms.modules.order.service.OrderRefundService;
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +30,7 @@ import java.util.List;
  *
  * @author author
  */
+@Api(tags = "订单退款")
 @Slf4j
 @RestController
 @RequestMapping("/orderRefund")
@@ -101,7 +103,8 @@ public class OrderRefundController {
      * @param request
      * @return
      */
-    @RequestMapping(value="/admin/refundOrderList", method=RequestMethod.POST)
+    @ApiOperation("退款申请列表")
+    @RequestMapping(value="/applyList", method=RequestMethod.POST)
     public OrderRefundListResponse refundOrderList(@RequestBody @Valid OrderRefundListRequest request) {
         return orderRefundService.refundOrderList(request);
     }
@@ -111,7 +114,8 @@ public class OrderRefundController {
      * @param request
      * @return
      */
-    @RequestMapping(value = "/admin/applyRefund", method=RequestMethod.POST)
+    @ApiOperation("普通订单申请退款,admin操作")
+    @RequestMapping(value = "/applyRefund", method=RequestMethod.POST)
     public BaseResponse applyRefundOrder(@RequestBody ApplyOrderRefundRequest request) {
         String key= RedisUtil.KEY_ORDER_APPLY_REFUND+request.getOrderId();
         boolean flag= RedisUtil.lock(redisTemplate,key,2L,1000L*2*60);
@@ -134,7 +138,8 @@ public class OrderRefundController {
      * @param request
      * @return
      */
-    @RequestMapping(value = "/admin/updateRemark",method = RequestMethod.POST)
+    @ApiOperation("退款申请更新退款备注")
+    @RequestMapping(value = "/updateRemark",method = RequestMethod.POST)
     public BaseResponse updateRemark(@RequestBody @Valid OrderRefundUpdateRemarkRequest request) {
         return orderRefundService.updateRemark(request);
     }
@@ -142,7 +147,8 @@ public class OrderRefundController {
     /**
      *驳回退款  填写驳回理由
      */
-    @RequestMapping(value = "/admin/rejectRefund",method = RequestMethod.POST)
+    @ApiOperation("退款申请更新退款备注")
+    @RequestMapping(value = "/reject",method = RequestMethod.POST)
     public BaseResponse rejectRefund(@RequestBody @Valid OrderRefundRejectRefundRequest request){
         Session session = UserUtil.getSession(redisTemplate);
         try {
@@ -156,7 +162,8 @@ public class OrderRefundController {
     /**
      * 确认退款
      */
-    @RequestMapping(value = "/admin/confirmRefund",method = RequestMethod.POST)
+    @ApiOperation("确认退款")
+    @RequestMapping(value = "/confirm",method = RequestMethod.POST)
     public BaseResponse confirmRefund(@RequestBody @Valid ConfirmRefundRequest request){
         String key= RedisUtil.KEY_ORDER_PROCESS_REFUND+request.getId();
         boolean flag= RedisUtil.lock(redisTemplate,key,2L,1000L*5*60);
@@ -179,7 +186,8 @@ public class OrderRefundController {
      * @param request
      * @return
      */
-    @RequestMapping(value="/admin/refundOrderHistory", method=RequestMethod.POST)
+    @ApiOperation("历史退款列表")
+    @RequestMapping(value="/history", method=RequestMethod.POST)
     public OrderRefundListResponse refundOrderHistory(@RequestBody @Valid OrderRefundListRequest request) {
         return orderRefundService.refundOrderHistory(request);
     }
