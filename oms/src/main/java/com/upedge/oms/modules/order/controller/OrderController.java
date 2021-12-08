@@ -338,19 +338,21 @@ public class OrderController {
     @GetMapping("/{id}/ship/list")
     public BaseResponse orderShipList(@PathVariable Long id) {
         List<ShipDetail> shipDetails = orderService.orderShipList(id);
+        for (ShipDetail shipDetail : shipDetails) {
+            BigDecimal serviceFee = shipDetail.getPrice()
+                    .multiply(new BigDecimal("0.08"))
+                    .add(new BigDecimal("0.2"))
+                    .setScale(2,BigDecimal.ROUND_UP);
+            shipDetail.setPrice(shipDetail.getPrice().add(serviceFee));
+        }
         return new BaseResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS, shipDetails, id);
     }
 
     @ApiOperation("订单修改运输方式")
     @PostMapping("/{id}/ship/update")
     public BaseResponse orderUpdateShipDetail(@PathVariable Long id, @RequestBody ShipDetail shipDetail)  {
-        BigDecimal vat = orderService.updateShipDetail(id, shipDetail);
-        if (null != vat) {
-            Map<String, Object> map = new HashMap<>();
-            map.put("vatAmount", vat);
-            return new BaseResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS, map);
-        }
-        return BaseResponse.failed();
+        shipDetail = orderService.updateShipDetail(id, shipDetail);
+        return BaseResponse.success(shipDetail);
     }
 
 //    @ApiOperation("订单能否发货判断")

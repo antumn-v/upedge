@@ -170,13 +170,16 @@ public class ShippingUnitServiceImpl implements ShippingUnitService {
         shipDetail.setWeight(weight);
         BigDecimal price = BigDecimal.ZERO;
         if (weight.compareTo(shippingUnit.getFirstWeight()) < 1){
-            price = shippingUnit.getFirstFreight().add(shippingUnit.getFixedFee()).setScale(2,BigDecimal.ROUND_UP);
+            price = shippingUnit.getFirstFreight()
+                    .add(shippingUnit.getFixedFee())
+                    .divide(new BigDecimal("6.3"),2,BigDecimal.ROUND_UP);
         }else {
             price = weight.subtract(shippingUnit.getFirstWeight())
                     .divide(shippingUnit.getContinueUnitWeight(),2,BigDecimal.ROUND_UP)
                     .multiply(shippingUnit.getContinueUnitPrice())
                     .add(shippingUnit.getFirstFreight())
-                    .add(shippingUnit.getFixedFee());
+                    .add(shippingUnit.getFixedFee())
+                    .divide(new BigDecimal("6.3"),2,BigDecimal.ROUND_UP);
         }
         shipDetail.setPrice(price);
         return shipDetail;

@@ -19,7 +19,6 @@ import com.upedge.oms.modules.order.response.OrderUpdateResponse;
 import com.upedge.oms.modules.order.vo.*;
 import com.upedge.thirdparty.saihe.entity.SaiheOrder;
 
-import java.math.BigDecimal;
 import java.text.ParseException;
 import java.util.HashMap;
 import java.util.List;
@@ -35,6 +34,7 @@ public interface OrderService{
 
     void updateSaiheOrderCode(String id,
                               String saiheOrderCode);
+
 
     /**
      * 初始化订单运输方式
@@ -87,7 +87,7 @@ public interface OrderService{
      * @param shipDetail
      * @return vat
      */
-    BigDecimal updateShipDetail(Long id, ShipDetail shipDetail);
+    ShipDetail updateShipDetail(Long id, ShipDetail shipDetail);
 
     int updateOrderAttr(OrderAttr orderAttr);
 

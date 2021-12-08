@@ -1,6 +1,7 @@
 package com.upedge.ums.modules.account.request;
 
 import com.upedge.common.base.Page;
+import com.upedge.ums.modules.account.entity.RechargeRequestLog;
 import lombok.Data;
 
 import java.math.BigDecimal;
@@ -10,7 +11,7 @@ import java.math.BigDecimal;
  * admin  充值记录 Query
  */
 @Data
-public class RechargeHistoryListRequest extends Page {
+public class RechargeHistoryListRequest extends Page<RechargeRequestLog> {
 
     /**
      * 充值id

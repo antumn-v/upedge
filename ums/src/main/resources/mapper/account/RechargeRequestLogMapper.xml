@@ -586,6 +586,7 @@
             and cai.manager_code=#{userManager}
         </if>
     </select>
+
     <select id="rechargeHistoryList" parameterType="com.upedge.ums.modules.account.request.RechargeHistoryListRequest"
             resultType="com.upedge.ums.modules.account.vo.RechargeHistoryListVo">
         SELECT

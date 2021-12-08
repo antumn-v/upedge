@@ -1,6 +1,5 @@
 package com.upedge.common.model.ship.vo;
 
-import com.upedge.common.model.old.tms.ShippingUnit;
 import lombok.Data;
 
 import javax.validation.constraints.NotNull;
@@ -30,6 +29,10 @@ public class ShipDetail {
      * 物流單元id
      */
     private Long shippingUtilId;
+
+    private BigDecimal vatAmount;
+
+    private BigDecimal serviceFee;
 
     @Override
     public boolean equals(Object o) {

@@ -189,6 +189,7 @@ public class OrderServiceImpl implements OrderService {
         return vatAmount;
     }
 
+
     @Override
     public AppOrderVo appOrderDetail(Long id) {
         AppOrderVo appOrderVo = orderDao.selectAppOrderById(id);
@@ -229,7 +230,6 @@ public class OrderServiceImpl implements OrderService {
         for (AppOrderVo orderVo : appOrderVos) {
             if (1 == orderVo.getPayState()) {
                 String shipMethodName = (String) redisTemplate.opsForHash().get(RedisKey.HASH_SHIP_METHOD + orderVo.getShipMethodId(), "name");
-                ;
                 orderVo.setShipMethodName(shipMethodName);
             }
             orderVo.setStoreOrderVos(new ArrayList<>());
@@ -240,7 +240,6 @@ public class OrderServiceImpl implements OrderService {
                 }
             }
             completeOrderStoreUrl(orderVo);
-//            orderVo.setNote((String) redisTemplate.opsForValue().get(RedisKey.STRING_ORDER_NOTE + orderVo.getId()));
         }
         return appOrderVos;
     }
@@ -283,32 +282,12 @@ public class OrderServiceImpl implements OrderService {
 
     @Transactional
     @Override
-    public BigDecimal updateShipDetail(Long id, ShipDetail shipDetail) {
+    public ShipDetail updateShipDetail(Long id, ShipDetail shipDetail) {
 
         List<ShipDetail> shipDetails = orderShipList(id);
         for (ShipDetail detail : shipDetails) {
             if (detail.getMethodId().equals(shipDetail.getMethodId())) {
-
-                orderDao.updateShipDetailById(shipDetail, id);
-                orderAttrDao.deleteByOrderIdAndName(id, OrderAttrEnum.SHIP_RULE_ID.name());
-                Order order = orderDao.selectByPrimaryKey(id);
-                // 删除原来的unit  并插入新的冗余
-                //OrderShippingUnitVo OrderShippingUnitVo = orderShippingUnitService.selectByOrderId(id,OrderType.NORMAL);
-                orderShippingUnitService.delByOrderId(id, OrderType.NORMAL);
-                BaseResponse response = tmsFeignClient.unitInfo(detail.getShippingUtilId());
-                if (response.getCode() == ResultCode.SUCCESS_CODE && response.getData() != null) {
-                    ShippingUnitVo shippingUnit = JSON.parseObject(JSON.toJSONString(response.getData()), ShippingUnitVo.class);
-                    OrderShippingUnit orderShippingUnit = new OrderShippingUnit();
-                    BeanUtils.copyProperties(shippingUnit, orderShippingUnit);
-                    orderShippingUnit.setOrderId(id);
-                    orderShippingUnit.setOrderType(OrderType.NORMAL);
-                    orderShippingUnit.setId(IdGenerate.nextId());
-                    orderShippingUnit.setShipUnitId(shippingUnit.getId());
-                    orderShippingUnit.setCreateTime(new Date());
-                    orderShippingUnitService.insert(orderShippingUnit);
-                }
-
-                return updateOrderVatAmount(id, order.getShipPrice(), order.getProductAmount(), order.getToAreaId());
+                return updateShipDetailById(id, detail);
             }
         }
         return null;
@@ -375,9 +354,8 @@ public class OrderServiceImpl implements OrderService {
                         order.setShipPrice(ship.getPrice());
                         order.setTotalWeight(ship.getWeight());
                         order.setShipMethodId(ship.getMethodId());
-                        orderDao.updateShipDetailById(ship, id);
 
-                        updateOrderShipUnit(id, ship.getShippingUtilId());
+                        ship = updateShipDetailById(id, ship);
 
                         OrderAttr orderAttr = new OrderAttr();
                         orderAttr.setOrderId(id);
@@ -392,7 +370,6 @@ public class OrderServiceImpl implements OrderService {
                         detail.setShipRuleId(rule.getId());
                         detail.setShipRuleName(rule.getTitle());
                         detail.setShipDetail(ship);
-                        detail.setVatAmount(updateOrderVatAmount(id, order.getShipPrice(), order.getProductAmount(), order.getToAreaId()));
                         return detail;
                     }
                 }
@@ -413,9 +390,9 @@ public class OrderServiceImpl implements OrderService {
             List<String> strings = new ArrayList<>();
             for (OrderItem item : items) {
                 if (null == item.getAdminVariantWeight()
-                || null == item.getAdminVariantVolume()
-                || BigDecimal.ZERO.compareTo(item.getAdminVariantWeight()) == 0
-                || BigDecimal.ZERO.compareTo(item.getAdminVariantVolume()) == 0){
+                        || null == item.getAdminVariantVolume()
+                        || BigDecimal.ZERO.compareTo(item.getAdminVariantWeight()) == 0
+                        || BigDecimal.ZERO.compareTo(item.getAdminVariantVolume()) == 0) {
                     return null;
                 }
                 weight = weight.add(item.getAdminVariantWeight().multiply(new BigDecimal(item.getQuantity())));
@@ -513,12 +490,12 @@ public class OrderServiceImpl implements OrderService {
         //查询产品报价
         CustomerProductQuoteSearchRequest customerProductQuoteSearchRequest = new CustomerProductQuoteSearchRequest();
         customerProductQuoteSearchRequest.setStoreVariantIds(storeVariantIds);
-        List<CustomerProductQuoteVo> customerProductQuoteVos  = pmsFeignClient.searchCustomerProductQuote(customerProductQuoteSearchRequest);
+        List<CustomerProductQuoteVo> customerProductQuoteVos = pmsFeignClient.searchCustomerProductQuote(customerProductQuoteSearchRequest);
 
-        Map<Long,CustomerProductQuoteVo> map = new HashMap<>();
-        if (ListUtils.isNotEmpty(customerProductQuoteVos)){
+        Map<Long, CustomerProductQuoteVo> map = new HashMap<>();
+        if (ListUtils.isNotEmpty(customerProductQuoteVos)) {
             for (CustomerProductQuoteVo customerProductQuoteVo : customerProductQuoteVos) {
-                map.put(customerProductQuoteVo.getStoreVariantId(),customerProductQuoteVo);
+                map.put(customerProductQuoteVo.getStoreVariantId(), customerProductQuoteVo);
                 storeVariantIds.remove(customerProductQuoteVo.getStoreVariantId());
             }
         }
@@ -540,6 +517,7 @@ public class OrderServiceImpl implements OrderService {
         order.setUpdateTime(date);
         order.setStoreId(storeOrder.getStoreId());
         order.setOrderType(0);
+        order.setServiceFee(BigDecimal.ZERO);
         order.setOrderStatus(0);
         order.setPayState(0);
         order.setRefundState(0);
@@ -565,7 +543,7 @@ public class OrderServiceImpl implements OrderService {
         for (StoreOrderItem item : storeOrderItems) {
             OrderItem orderItem = null;
             BigDecimal itemQuantity = new BigDecimal(item.getQuantity());
-            if (map.containsKey(item.getStoreVariantId())){
+            if (map.containsKey(item.getStoreVariantId())) {
                 CustomerProductQuoteVo customerProductQuoteVo = map.get(item.getStoreVariantId());
                 orderItem = new OrderItem(customerProductQuoteVo);
                 orderItem.setQuoteState(1);
@@ -578,7 +556,7 @@ public class OrderServiceImpl implements OrderService {
                 productAmount = productAmount.add(orderItem.getUsdPrice().multiply(itemQuantity));
                 totalWeight = totalWeight.add(customerProductQuoteVo.getWeight().multiply(itemQuantity));
                 volume = volume.add(customerProductQuoteVo.getVolume().multiply(itemQuantity));
-            }else {
+            } else {
                 orderItem = new OrderItem();
                 orderItem.setQuoteState(0);
             }
@@ -591,11 +569,11 @@ public class OrderServiceImpl implements OrderService {
             strings.add(RedisKey.SHIPPING_METHODS + orderItem.getShippingId());
             items.add(orderItem);
         }
-        if (quoteState  > 0 && quoteState == items.size()){
+        if (quoteState > 0 && quoteState == items.size()) {
             order.setQuoteState(3);
-        }else if (quoteState == 0){
+        } else if (quoteState == 0) {
             order.setQuoteState(0);
-        }else {
+        } else {
             order.setQuoteState(2);
         }
         order.setCnyProductAmount(cnyProductAmount);
@@ -605,7 +583,7 @@ public class OrderServiceImpl implements OrderService {
         orderDao.insert(order);
         orderItemDao.insertByBatch(items);
         orderAddressDao.insert(address);
-        if (ListUtils.isNotEmpty(storeOrderItemIds)){
+        if (ListUtils.isNotEmpty(storeOrderItemIds)) {
             storeOrderItemDao.updateStateByIds(storeOrderItemIds, 1);
         }
         StoreOrderRelate storeOrderRelate = new StoreOrderRelate(storeOrder);
@@ -632,6 +610,35 @@ public class OrderServiceImpl implements OrderService {
         orderDao.updateSaiheOrderCode(id, saiheOrderCode);
     }
 
+    public ShipDetail updateShipDetailById(Long id, ShipDetail shipDetail) {
+        orderAttrDao.deleteByOrderIdAndName(id, OrderAttrEnum.SHIP_RULE_ID.name());
+        Order order = orderDao.selectByPrimaryKey(id);
+        // 删除原来的unit  并插入新的冗余
+        orderShippingUnitService.delByOrderId(id, OrderType.NORMAL);
+        BaseResponse response = tmsFeignClient.unitInfo(shipDetail.getShippingUtilId());
+        if (response.getCode() == ResultCode.SUCCESS_CODE && response.getData() != null) {
+            ShippingUnitVo shippingUnit = JSON.parseObject(JSON.toJSONString(response.getData()), ShippingUnitVo.class);
+            OrderShippingUnit orderShippingUnit = new OrderShippingUnit();
+            BeanUtils.copyProperties(shippingUnit, orderShippingUnit);
+            orderShippingUnit.setOrderId(id);
+            orderShippingUnit.setOrderType(OrderType.NORMAL);
+            orderShippingUnit.setId(IdGenerate.nextId());
+            orderShippingUnit.setShipUnitId(shippingUnit.getId());
+            orderShippingUnit.setCreateTime(new Date());
+            orderShippingUnitService.insert(orderShippingUnit);
+        }
+        BigDecimal serviceFee = shipDetail.getPrice().multiply(new BigDecimal("0.08")).add(new BigDecimal("0.2")).setScale(2,BigDecimal.ROUND_UP);
+        BigDecimal vatAmount = vatRuleService.getOrderVatAmount(order.getProductAmount(), order.getShipPrice(), order.getToAreaId());
+        shipDetail.setServiceFee(serviceFee);
+        shipDetail.setVatAmount(vatAmount);
+        orderDao.updateShipDetailById(shipDetail,id);
+//        orderDao.updateOrderVatAmountById(id, vatAmount);
+        shipDetail.setPrice(shipDetail.getPrice().add(serviceFee));
+        return shipDetail;
+
+    }
+
+    @Transactional
     @Override
     public ShipDetail orderInitShipDetail(Long orderId) {
         Order order = orderDao.selectByPrimaryKey(orderId);
@@ -655,8 +662,8 @@ public class OrderServiceImpl implements OrderService {
             List<ShipDetail> shipDetails = orderShipMethods(order.getId(), order.getToAreaId());
             if (ListUtils.isNotEmpty(shipDetails)) {
                 ShipDetail shipDetail = shipDetails.get(0);
-                orderDao.updateShipDetailById(shipDetail, orderId);
-                updateOrderShipUnit(orderId, shipDetail.getShippingUtilId());
+                shipDetail = updateShipDetailById(orderId, shipDetail);
+//                updateOrderShipUnit(orderId, shipDetail.getShippingUtilId());
                 return shipDetail;
             }
         } else {

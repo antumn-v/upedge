@@ -39,6 +39,8 @@ public class Order{
 	 * 
 	 */
     private BigDecimal shipPrice;
+
+	private BigDecimal serviceFee;
 	/**
 	 * 
 	 */
