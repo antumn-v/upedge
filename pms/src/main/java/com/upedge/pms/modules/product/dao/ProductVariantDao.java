@@ -22,9 +22,9 @@ public interface ProductVariantDao{
 
     void updateVariantImage(@Param("ids") List<Long> ids,@Param("variantImage") String variantImage);
 
-    void disableVariant(@Param("ids") List<Long> ids);
+    int disableVariant(@Param("ids") List<Long> ids);
 
-    void enableVariant(@Param("ids")List<Long> ids);
+    int enableVariant(@Param("ids")List<Long> ids);
 
     void updatePrice(@Param("ids")List<Long> ids,
                      @Param("price")BigDecimal price);

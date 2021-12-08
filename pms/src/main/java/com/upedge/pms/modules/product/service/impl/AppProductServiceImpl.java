@@ -4,6 +4,7 @@ import com.upedge.common.base.BaseResponse;
 import com.upedge.common.constant.Constant;
 import com.upedge.common.constant.ResultCode;
 import com.upedge.common.constant.key.RedisKey;
+import com.upedge.common.enums.CustomerSettingEnum;
 import com.upedge.common.feign.TmsFeignClient;
 import com.upedge.common.model.product.request.ProductVariantShipsRequest;
 import com.upedge.common.model.ship.request.ShipMethodSearchRequest;
@@ -179,6 +180,10 @@ public class AppProductServiceImpl implements AppProductService {
     public BaseResponse productVariantsShipList(ProductVariantShipsRequest request) {
         return null;
 //        String key = RedisKeyUtils.getCustomerSettingKey(request.getCustomerId());
+//
+//        String s = (String) redisTemplate.opsForHash().get(key, CustomerSettingEnum.ship_method_sort_type.name());
+//
+//        Integer shipMethodSortType = Integer.valueOf(s);
 //
 //        BigDecimal weight = BigDecimal.ZERO;
 //        BigDecimal volume = BigDecimal.ZERO;
