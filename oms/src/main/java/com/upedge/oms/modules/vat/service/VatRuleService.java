@@ -20,7 +20,7 @@ public interface VatRuleService{
 
     List<VatRule> selectAllAreaVatRule();
 
-    BigDecimal getOrderVatAmount(BigDecimal productAmount, BigDecimal shipPrice, Long areaId);
+    BigDecimal getOrderVatAmount(BigDecimal productAmount, BigDecimal shipPrice, Long areaId,Long customerId);
 
     VatRule selectByPrimaryKey(Long id);
 

@@ -211,7 +211,7 @@ public class OrderPayServiceImpl implements OrderPayService {
                 orderVo.setShipPrice(shipDetail.getPrice());
                 orderVo.setTotalWeight(shipDetail.getWeight());
             }
-            BigDecimal vatAmount = vatRuleService.getOrderVatAmount(orderVo.getProductAmount(), orderVo.getShipPrice(), orderVo.getToAreaId());
+            BigDecimal vatAmount = vatRuleService.getOrderVatAmount(orderVo.getProductAmount(), orderVo.getShipPrice(), orderVo.getToAreaId(),orderVo.getCustomerId());
             if (null == orderVo.getVatAmount() || vatAmount.compareTo(orderVo.getVatAmount()) != 0) {
                 orderVo.setVatAmount(vatAmount);
                 vatAmountMap.put(orderVo.getId(), vatAmount);
@@ -366,7 +366,7 @@ public class OrderPayServiceImpl implements OrderPayService {
                     || orderProductAmountVo.getProductAmount().compareTo(order.getProductAmount()) != 0) {
                 return creatOrderPayCheckResultVo(new ArrayList<>(), paymentId, "product amount error");
             }
-            BigDecimal vatAmount = vatRuleService.getOrderVatAmount(order.getProductAmount(), order.getShipPrice(), order.getToAreaId());
+            BigDecimal vatAmount = vatRuleService.getOrderVatAmount(order.getProductAmount(), order.getShipPrice(), order.getToAreaId(),order.getCustomerId());
             if (vatAmount.compareTo(order.getVatAmount()) != 0) {
                 orderDao.updateOrderVatAmountById(order.getId(),vatAmount);
                 return creatOrderPayCheckResultVo(new ArrayList<>(), paymentId, "vat error");

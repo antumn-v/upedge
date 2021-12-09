@@ -159,7 +159,7 @@ public class WholesaleOrderPayServiceImpl implements WholesaleOrderPayService {
                 wholesaleOrderDao.updateOrderProductAmount(orderProductAmountVo.getId(),orderProductAmountVo.getProductAmount(),orderProductAmountVo.getCnyProductAmount());
                 return creatOrderPayCheckResultVo(new ArrayList<>(), paymentId, "product error");
             }
-            BigDecimal vatAmount = vatRuleService.getOrderVatAmount(order.getProductAmount(), order.getShipPrice(), order.getToAreaId());
+            BigDecimal vatAmount = vatRuleService.getOrderVatAmount(order.getProductAmount(), order.getShipPrice(), order.getToAreaId(),order.getCustomerId());
             if (vatAmount.compareTo(order.getVatAmount()) != 0) {
                 return creatOrderPayCheckResultVo(new ArrayList<>(), paymentId, "vat error");
             }
@@ -361,7 +361,7 @@ public class WholesaleOrderPayServiceImpl implements WholesaleOrderPayService {
                 orderVo.setShipPrice(shipDetail.getPrice());
                 orderVo.setTotalWeight(shipDetail.getWeight());
             }
-            BigDecimal vatAmount = vatRuleService.getOrderVatAmount(orderVo.getProductAmount(), orderVo.getShipPrice(), orderVo.getToAreaId());
+            BigDecimal vatAmount = vatRuleService.getOrderVatAmount(orderVo.getProductAmount(), orderVo.getShipPrice(), orderVo.getToAreaId(),orderVo.getCustomerId());
 
             if (null == orderVo.getVatAmount() || vatAmount.compareTo(orderVo.getVatAmount()) != 0) {
                 orderVo.setVatAmount(vatAmount);

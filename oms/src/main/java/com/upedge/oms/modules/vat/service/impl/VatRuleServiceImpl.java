@@ -4,6 +4,7 @@ import com.upedge.common.base.Page;
 import com.upedge.common.constant.Constant;
 import com.upedge.common.constant.ResultCode;
 import com.upedge.common.constant.key.RedisKey;
+import com.upedge.common.model.user.vo.CustomerIossVo;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.utils.IdGenerate;
 import com.upedge.oms.constant.VatRuleType;
@@ -21,6 +22,7 @@ import com.upedge.oms.modules.vat.response.VatRuleListResponse;
 import com.upedge.oms.modules.vat.response.VatRuleUpdateResponse;
 import com.upedge.oms.modules.vat.service.VatRuleService;
 import com.upedge.oms.modules.vat.vo.VatRuleVo;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -79,7 +81,13 @@ public class VatRuleServiceImpl implements VatRuleService {
     }
 
     @Override
-    public BigDecimal getOrderVatAmount(BigDecimal productAmount, BigDecimal shipPrice, Long areaId) {
+    public BigDecimal getOrderVatAmount(BigDecimal productAmount, BigDecimal shipPrice, Long areaId,Long customerId) {
+        CustomerIossVo customerIossVo = (CustomerIossVo) redisTemplate.opsForValue().get(RedisKey.STRING_CUSTOMER_IOSS + customerId);
+        if (null != customerIossVo
+        && StringUtils.isNotBlank(customerIossVo.getIossNum())){
+            return BigDecimal.ZERO;
+        }
+
         String key = RedisKey.STRING_AREA_VAT_RULE + areaId;
         VatRule rule = (VatRule) redisTemplate.opsForValue().get(key);
 
