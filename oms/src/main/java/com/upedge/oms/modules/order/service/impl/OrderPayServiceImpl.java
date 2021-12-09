@@ -351,10 +351,7 @@ public class OrderPayServiceImpl implements OrderPayService {
                 return creatOrderPayCheckResultVo(new ArrayList<>(), paymentId, "ship error");
             }
         }
-//        a = orderShipPriceCheck(orders);
-//        if (!a) {
-//            return "ship error";
-//        }
+
         List<OrderProductAmountVo> orderProductAmountVos = orderDao.selectOrderItemAmountByPaymentId(paymentId);
         Map<Long, OrderProductAmountVo> orderProductAmountVoMap = new HashMap<>();
         orderProductAmountVos.forEach(orderProductAmountVo -> {

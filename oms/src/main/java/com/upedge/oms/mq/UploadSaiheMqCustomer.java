@@ -4,9 +4,9 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.upedge.common.base.BaseResponse;
-import com.upedge.common.constant.key.RocketMqConfig;
 import com.upedge.common.constant.OrderType;
 import com.upedge.common.constant.ResultCode;
+import com.upedge.common.constant.key.RocketMqConfig;
 import com.upedge.common.feign.UmsFeignClient;
 import com.upedge.common.model.log.MqMessageLog;
 import com.upedge.oms.modules.order.service.OrderService;
@@ -23,12 +23,13 @@ import org.apache.rocketmq.common.consumer.ConsumeFromWhere;
 import org.apache.rocketmq.common.message.Message;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.stereotype.Component;
 
 import java.util.Date;
 import java.util.List;
 
 @Slf4j
-//@Component
+@Component
 public class UploadSaiheMqCustomer {
     DefaultMQPushConsumer consumer;
 

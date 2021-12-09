@@ -103,7 +103,6 @@ public class MqOnSaiHeServiceImpl implements MqOnSaiheService {
          if( message == null){
              return;
          }
-        log.debug("支付订单发送消息，Message:{},tag:{},数据:{}",  JSON.toJSON(message));
         message.setDelayTimeLevel(1);
         MqMessageLog messageLog = MqMessageLog.toMqMessageLog(message,"");
 
@@ -114,17 +113,17 @@ public class MqOnSaiHeServiceImpl implements MqOnSaiheService {
                 status = defaultMQProducer.send(message).getSendStatus().name();
             } catch (Exception e) {
                 e.printStackTrace();
-                log.warn("支付订单发送消息，key:{},交易信息发送失败,失败次数:{}",message.getKeys());
+                log.warn("订单上传赛盒发送消息，key:{},交易信息发送失败,失败次数:{}",message.getKeys());
             } finally {
                 i += 1;
             }
         }
         if (status.equals(SendStatus.SEND_OK.name())) {
             messageLog.setIsSendSuccess(1);
-            log.warn("支付订单发送消息，key:{},交易信息发送成功", message.getKeys());
+            log.warn("订单上传赛盒发送消息，key:{},发送成功", message.getKeys());
         } else {
             messageLog.setIsSendSuccess(0);
-            log.warn("支付订单发送消息，key:{}", message.getKeys());
+            log.warn("订单上传赛盒发送消息，key:{}", message.getKeys());
         }
         umsFeignClient.saveMqLog(messageLog);
     }

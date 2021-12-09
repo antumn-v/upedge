@@ -292,10 +292,10 @@
 
     <select id="selectCustomerOrderCogs" resultType="com.upedge.oms.modules.order.vo.OrderCogsVo">
         <if test="param.rangeType == 0">
-            select date_format(pay_time,'%Y/%m/%d') as dates,sum(product_amount + ship_price) as cogs
+            select date_format(pay_time,'%Y/%m/%d') as dates,sum(product_amount + ship_price + service_fee) as cogs
         </if>
         <if test="param.rangeType == 1">
-            select date_format(pay_time,'%u') as dates,sum(product_amount + ship_price) as cogs
+            select date_format(pay_time,'%u') as dates,sum(product_amount + ship_price + service_fee) as cogs
         </if>
         <if test="param.rangeType == 2">
             select date_format(pay_time,'%Y/%m') as dates,sum(product_amount + ship_price) as cogs
@@ -331,7 +331,7 @@
     </select>
 
     <select id="selectPayAmountByPaymentId" resultType="java.math.BigDecimal">
-        select sum(product_amount + ship_price + vat_amount - product_discharge_amount)
+        select sum(product_amount + ship_price + vat_amount + service_fee - product_discharge_amount)
         from `order`
         where payment_id = #{paymentId};
     </select>
