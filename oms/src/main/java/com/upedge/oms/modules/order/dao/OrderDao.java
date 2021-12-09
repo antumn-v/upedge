@@ -40,6 +40,8 @@ public interface OrderDao{
     int updateQuoteStateByIds(@Param("ids") List<Long> ids,
                               @Param("quoteState") Integer quoteState);
 
+    int initVatAmountByCustomerId(Long customerId);
+
     List<OrderProductAmountVo> selectOrderItemAmountByPaymentId(Long paymentId);
 
 

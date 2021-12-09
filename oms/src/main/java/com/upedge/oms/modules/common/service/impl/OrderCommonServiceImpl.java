@@ -2,7 +2,7 @@ package com.upedge.oms.modules.common.service.impl;
 
 import com.alibaba.fastjson.JSON;
 import com.upedge.common.base.BaseResponse;
-import com.upedge.common.config.RocketMqConfig;
+import com.upedge.common.constant.key.RocketMqConfig;
 import com.upedge.common.constant.OrderType;
 import com.upedge.common.constant.ResultCode;
 import com.upedge.common.constant.key.RedisKey;

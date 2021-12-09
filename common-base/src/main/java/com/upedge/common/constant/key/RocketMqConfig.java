@@ -1,4 +1,4 @@
-package com.upedge.common.config;
+package com.upedge.common.constant.key;
 
 public class RocketMqConfig {
 
@@ -37,6 +37,10 @@ public class RocketMqConfig {
      * Ship Unit信息修改
      */
     public final static String TOPIC_SHIP_UNIT_UPDATE = "ship_unit_update";
+    /**
+     * 客户IOSS信息修改
+     */
+    public final static String TOPIC_CUSTOMER_IOSS_UPDATE = "customer_ioss_update";
 
 
 

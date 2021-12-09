@@ -1,7 +1,7 @@
 package com.upedge.tms.mq.impl;
 
 import com.alibaba.fastjson.JSON;
-import com.upedge.common.config.RocketMqConfig;
+import com.upedge.common.constant.key.RocketMqConfig;
 import com.upedge.common.feign.UmsFeignClient;
 import com.upedge.common.model.log.MqMessageLog;
 import com.upedge.common.utils.IdGenerate;

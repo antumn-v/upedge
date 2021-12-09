@@ -4,13 +4,12 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.upedge.common.base.BaseResponse;
-import com.upedge.common.config.RocketMqConfig;
 import com.upedge.common.constant.ResultCode;
+import com.upedge.common.constant.key.RocketMqConfig;
 import com.upedge.common.feign.UmsFeignClient;
 import com.upedge.common.model.log.MqMessageLog;
 import com.upedge.common.model.mq.ChangeManagerVo;
 import com.upedge.oms.modules.common.service.OrderCommonService;
-import com.upedge.oms.modules.orderShippingUnit.service.OrderShippingUnitService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.rocketmq.client.consumer.DefaultMQPushConsumer;
 import org.apache.rocketmq.client.consumer.listener.ConsumeConcurrentlyStatus;
@@ -36,8 +35,6 @@ public class ChangeOmsManagerCustomer {
     @Autowired
     private OrderCommonService orderCommonService;
 
-    @Autowired
-    private OrderShippingUnitService orderShippingUnitService;
 
     public ChangeOmsManagerCustomer() throws MQClientException {
         consumer = new DefaultMQPushConsumer("Change_OmsManager_Customer");

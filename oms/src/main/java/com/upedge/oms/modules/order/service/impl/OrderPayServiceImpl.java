@@ -3,7 +3,7 @@ package com.upedge.oms.modules.order.service.impl;
 import com.alibaba.fastjson.JSON;
 import com.upedge.common.base.BaseResponse;
 import com.upedge.common.base.Page;
-import com.upedge.common.config.RocketMqConfig;
+import com.upedge.common.constant.key.RocketMqConfig;
 import com.upedge.common.constant.Constant;
 import com.upedge.common.constant.OrderType;
 import com.upedge.common.constant.PayOrderMethod;
@@ -574,7 +574,6 @@ public class OrderPayServiceImpl implements OrderPayService {
                 }
                 // 订单上传赛盒 放在 sendSaveTransactionRecordMessage的消費端
                 mqOnSaiheService.uploadPaymentIdOnMq(paymentId, OrderType.NORMAL);
-                sendSaveTransactionRecordMessage(paymentId, customerId, userId, PayOrderMethod.RECHARGE);
             }
         });
         try {

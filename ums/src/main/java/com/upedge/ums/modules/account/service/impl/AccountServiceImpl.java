@@ -11,7 +11,6 @@ import com.upedge.common.model.account.AccountOrderRefundedRequest;
 import com.upedge.common.model.account.AccountPaymentRequest;
 import com.upedge.common.model.order.PaymentDetail;
 import com.upedge.common.model.order.TransactionDetail;
-import com.upedge.common.model.order.request.CustomerOrderDailyCountUpdateRequest;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.model.user.vo.UserVo;
 import com.upedge.common.utils.ListUtils;
@@ -433,7 +432,6 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public  boolean accountPayOrders(PaymentDetail paymentDetail) {
 
-
         Iterator<TransactionDetail> iterator = paymentDetail.getOrderTransactions().iterator();
         while (iterator.hasNext()){
             TransactionDetail next = iterator.next();
@@ -654,16 +652,16 @@ public class AccountServiceImpl implements AccountService {
         /**
          * 隊列計算   客户每日支付订单数据
          */
-        CustomerOrderDailyCountUpdateRequest customerOrderDailyCountUpdateRequest = new CustomerOrderDailyCountUpdateRequest();
-        customerOrderDailyCountUpdateRequest.setBalance(balance);
-        customerOrderDailyCountUpdateRequest.setRebate(rebate);
-        customerOrderDailyCountUpdateRequest.setCredit(credit);
-        customerOrderDailyCountUpdateRequest.setCustomerId(paymentDetail.getCustomerId());
-        customerOrderDailyCountUpdateRequest.setPaymentId(paymentDetail.getPaymentId());
-        customerOrderDailyCountUpdateRequest.setOrderType(orderType);
-        customerOrderDailyCountUpdateRequest.setPayTime(paymentDetail.getPayTime());
+//        CustomerOrderDailyCountUpdateRequest customerOrderDailyCountUpdateRequest = new CustomerOrderDailyCountUpdateRequest();
+//        customerOrderDailyCountUpdateRequest.setBalance(balance);
+//        customerOrderDailyCountUpdateRequest.setRebate(rebate);
+//        customerOrderDailyCountUpdateRequest.setCredit(credit);
+//        customerOrderDailyCountUpdateRequest.setCustomerId(paymentDetail.getCustomerId());
+//        customerOrderDailyCountUpdateRequest.setPaymentId(paymentDetail.getPaymentId());
+//        customerOrderDailyCountUpdateRequest.setOrderType(orderType);
+//        customerOrderDailyCountUpdateRequest.setPayTime(paymentDetail.getPayTime());
         accountLogDao.insertByBatch(accountLogs);
-        redisTemplate.opsForList().leftPush(RedisKey.LIST_CUSTOMER_ORDER_DAILY_COUNT_UPDATE,customerOrderDailyCountUpdateRequest);
+//        redisTemplate.opsForList().leftPush(RedisKey.LIST_CUSTOMER_ORDER_DAILY_COUNT_UPDATE,customerOrderDailyCountUpdateRequest);
         return true;
     }
 

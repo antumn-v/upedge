@@ -2054,4 +2054,11 @@
             </foreach>
         and pay_state &lt; 1
     </update>
+
+    <update id="initVatAmountByCustomerId">
+        update `order`
+            set vat_amount = '0'
+        where customer_id = #{customerId}
+        and pay_state &lt; 1
+    </update>
 </mapper>

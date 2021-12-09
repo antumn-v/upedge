@@ -30,6 +30,9 @@ import java.util.Set;
  */
 public interface OrderService{
 
+
+    int initVatAmountByCustomerId(Long customerId);
+
     SaiheOrder querySaiheOrder(Long id);
 
     void updateSaiheOrderCode(String id,

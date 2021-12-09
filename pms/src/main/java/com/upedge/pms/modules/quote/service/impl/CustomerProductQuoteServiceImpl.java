@@ -3,7 +3,7 @@ package com.upedge.pms.modules.quote.service.impl;
 import com.alibaba.fastjson.JSON;
 import com.upedge.common.base.BaseResponse;
 import com.upedge.common.base.Page;
-import com.upedge.common.config.RocketMqConfig;
+import com.upedge.common.constant.key.RocketMqConfig;
 import com.upedge.common.model.pms.quote.CustomerProductQuoteVo;
 import com.upedge.common.model.pms.request.CustomerProductQuoteSearchRequest;
 import com.upedge.common.utils.ListUtils;

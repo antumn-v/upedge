@@ -1,7 +1,7 @@
 package com.upedge.ums.modules.account.service.impl;
 
 import com.alibaba.fastjson.JSON;
-import com.upedge.common.config.RocketMqConfig;
+import com.upedge.common.constant.key.RocketMqConfig;
 import com.upedge.common.constant.Constant;
 import com.upedge.common.constant.PayOrderMethod;
 import com.upedge.common.constant.key.RedisKey;

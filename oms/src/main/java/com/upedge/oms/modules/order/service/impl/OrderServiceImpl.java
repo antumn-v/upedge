@@ -35,6 +35,7 @@ import com.upedge.common.model.ship.vo.ShippingMethodVo;
 import com.upedge.common.model.store.StoreVo;
 import com.upedge.common.model.tms.ArearedisVo;
 import com.upedge.common.model.tms.ShippingUnitVo;
+import com.upedge.common.model.user.vo.CustomerIossVo;
 import com.upedge.common.model.user.vo.CustomerVo;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.utils.DateTools;
@@ -601,6 +602,11 @@ public class OrderServiceImpl implements OrderService {
 
 
     @Override
+    public int initVatAmountByCustomerId(Long customerId) {
+        return orderDao.initVatAmountByCustomerId(customerId);
+    }
+
+    @Override
     public SaiheOrder querySaiheOrder(Long id) {
         return orderDao.querySaiheOrder(id);
     }
@@ -627,10 +633,17 @@ public class OrderServiceImpl implements OrderService {
             orderShippingUnit.setCreateTime(new Date());
             orderShippingUnitService.insert(orderShippingUnit);
         }
+        //服务费
         BigDecimal serviceFee = shipDetail.getPrice().multiply(new BigDecimal("0.08")).add(new BigDecimal("0.2")).setScale(2,BigDecimal.ROUND_UP);
-        BigDecimal vatAmount = vatRuleService.getOrderVatAmount(order.getProductAmount(), order.getShipPrice(), order.getToAreaId());
         shipDetail.setServiceFee(serviceFee);
-        shipDetail.setVatAmount(vatAmount);
+        //vat
+        CustomerIossVo customerIossVo = (CustomerIossVo) redisTemplate.opsForValue().get(RedisKey.STRING_CUSTOMER_IOSS + order.getCustomerId());
+        if (null != customerIossVo && StringUtils.isNotBlank(customerIossVo.getIossNum())){
+            shipDetail.setVatAmount(BigDecimal.ZERO);
+        }else {
+            BigDecimal vatAmount = vatRuleService.getOrderVatAmount(order.getProductAmount(), order.getShipPrice(), order.getToAreaId());
+            shipDetail.setVatAmount(vatAmount);
+        }
         orderDao.updateShipDetailById(shipDetail,id);
 //        orderDao.updateOrderVatAmountById(id, vatAmount);
         shipDetail.setPrice(shipDetail.getPrice().add(serviceFee));

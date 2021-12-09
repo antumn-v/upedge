@@ -4,6 +4,7 @@ public class RedisKey {
 
     public static final String KEY_RECHARGE_REQUEST_PROCESS = "key:recharge:request:process:";
 
+    public static final String STRING_CUSTOMER_IOSS = "customer:ioss:";
 
     //待处理的woocommerce订单
     public static final String LIST_WOOCOMMERCE_ORDER_WEBHOOK = "webhook:woocommerce:order";
