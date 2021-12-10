@@ -1,10 +1,13 @@
 package com.upedge.ums.modules.account.service.impl;
 
 import com.alibaba.fastjson.JSON;
-import com.upedge.common.constant.key.RocketMqConfig;
+import com.paypal.api.payments.*;
+import com.paypal.base.rest.APIContext;
+import com.paypal.base.rest.PayPalRESTException;
 import com.upedge.common.constant.Constant;
 import com.upedge.common.constant.PayOrderMethod;
 import com.upedge.common.constant.key.RedisKey;
+import com.upedge.common.constant.key.RocketMqConfig;
 import com.upedge.common.enums.RocketMqDelayLevelEnum;
 import com.upedge.common.enums.TransactionType;
 import com.upedge.common.model.account.PaypalOrder;
@@ -13,19 +16,17 @@ import com.upedge.common.model.account.PaypalPayment;
 import com.upedge.common.model.account.request.PaypalExecuteRequest;
 import com.upedge.common.model.order.PaymentDetail;
 import com.upedge.common.model.order.TransactionDetail;
-import com.upedge.common.model.order.request.CustomerOrderDailyCountUpdateRequest;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.utils.ListUtils;
 import com.upedge.ums.async.MqAsync;
 import com.upedge.ums.enums.PaypalPaymentIntent;
 import com.upedge.ums.enums.PaypalPaymentMethod;
 import com.upedge.ums.modules.account.dao.*;
-import com.upedge.ums.modules.account.entity.*;
+import com.upedge.ums.modules.account.entity.AccountLog;
+import com.upedge.ums.modules.account.entity.PaymentLog;
+import com.upedge.ums.modules.account.entity.RechargeRecord;
 import com.upedge.ums.modules.account.service.PaypalService;
 import com.upedge.ums.modules.log.dao.MqMessageLogDao;
-import com.paypal.api.payments.*;
-import com.paypal.base.rest.APIContext;
-import com.paypal.base.rest.PayPalRESTException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.rocketmq.common.message.Message;
@@ -259,13 +260,12 @@ public class PaypalServiceImpl implements PaypalService {
         /**
          * 隊列計算   客户每日支付订单数据
          */
-        CustomerOrderDailyCountUpdateRequest customerOrderDailyCountUpdateRequest = new CustomerOrderDailyCountUpdateRequest();
-        customerOrderDailyCountUpdateRequest.setCustomerId(paymentDetail.getCustomerId());
-        customerOrderDailyCountUpdateRequest.setPaymentId(paymentDetail.getPaymentId());
-        customerOrderDailyCountUpdateRequest.setOrderType(orderType);
-        customerOrderDailyCountUpdateRequest.setPayTime(paymentDetail.getPayTime());
-        accountLogDao.insertByBatch(accountLogs);
-        redisTemplate.opsForList().leftPush(RedisKey.LIST_CUSTOMER_ORDER_DAILY_COUNT_UPDATE,customerOrderDailyCountUpdateRequest);
+//        CustomerOrderDailyCountUpdateRequest customerOrderDailyCountUpdateRequest = new CustomerOrderDailyCountUpdateRequest();
+//        customerOrderDailyCountUpdateRequest.setCustomerId(paymentDetail.getCustomerId());
+//        customerOrderDailyCountUpdateRequest.setPaymentId(paymentDetail.getPaymentId());
+//        customerOrderDailyCountUpdateRequest.setOrderType(orderType);
+//        customerOrderDailyCountUpdateRequest.setPayTime(paymentDetail.getPayTime());
+//        redisTemplate.opsForList().leftPush(RedisKey.LIST_CUSTOMER_ORDER_DAILY_COUNT_UPDATE,customerOrderDailyCountUpdateRequest);
 
         return true;
     }

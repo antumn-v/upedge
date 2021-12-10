@@ -10,13 +10,11 @@ import com.upedge.common.constant.key.RedisKey;
 import com.upedge.common.exception.CustomerException;
 import com.upedge.common.feign.UmsFeignClient;
 import com.upedge.common.model.account.AccountOrderRefundedRequest;
-import com.upedge.common.model.manager.vo.ManagerInfoVo;
 import com.upedge.common.model.user.vo.CustomerAffiliateVo;
 import com.upedge.common.model.user.vo.CustomerVo;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.utils.IdGenerate;
 import com.upedge.common.utils.ListUtils;
-import com.upedge.common.web.util.UserUtil;
 import com.upedge.oms.modules.order.dao.OrderDao;
 import com.upedge.oms.modules.order.dao.OrderItemDao;
 import com.upedge.oms.modules.order.dao.OrderRefundDao;
@@ -31,7 +29,6 @@ import com.upedge.oms.modules.order.service.OrderRefundItemService;
 import com.upedge.oms.modules.order.service.OrderRefundService;
 import com.upedge.oms.modules.order.vo.AppOrderItemVo;
 import com.upedge.oms.modules.order.vo.OrderRefundVo;
-import com.upedge.oms.modules.statistics.request.OrderRefundDailyCountRequest;
 import com.upedge.thirdparty.saihe.entity.cancelOrderInfo.ApiCancelOrderResponse;
 import com.upedge.thirdparty.saihe.entity.getOrderByCode.ApiGetOrderResponse;
 import com.upedge.thirdparty.saihe.entity.getOrderByCode.ApiOrderInfo;
@@ -113,7 +110,7 @@ public class OrderRefundServiceImpl implements OrderRefundService {
         if (0 == order.getPayState() || 0 != order.getRefundState()) {
             return BaseResponse.failed();
         }
-        if (request.getShippingPrice().compareTo(order.getShipPrice()) > 0
+        if (request.getShippingPrice().compareTo(order.getShipPrice().add(order.getServiceFee())) > 0
                 || request.getVatAmount().compareTo(order.getVatAmount()) > 0) {
             return BaseResponse.failed("The refund amount cannot be greater than the actual payment amount");
         }
@@ -141,7 +138,7 @@ public class OrderRefundServiceImpl implements OrderRefundService {
             }
         }
         refundAmount = refundAmount.add(request.getShippingPrice()).add(request.getVatAmount()).add(refundProductAmount);
-        BigDecimal payAmount = order.getShipPrice().add(order.getProductAmount()).add(order.getVatAmount());
+        BigDecimal payAmount = order.getPayAmount();
         if (refundAmount.compareTo(payAmount) > 0) {
             return BaseResponse.failed("The refund amount cannot be greater than the actual payment amount");
         }
@@ -512,7 +509,7 @@ public class OrderRefundServiceImpl implements OrderRefundService {
         }
 
         //检查申请退款金额  不能大于支付总金额  支付商品总金额/USD+运费/USD+VAT税费
-        BigDecimal shippingPrice = order.getShipPrice() == null ? BigDecimal.ZERO : order.getShipPrice();
+        BigDecimal shippingPrice = order.getShipPrice() == null ? BigDecimal.ZERO : order.getShipPrice().add(order.getServiceFee());
         BigDecimal vatAmount = order.getVatAmount() == null ? BigDecimal.ZERO : order.getVatAmount();
         BigDecimal productAmount = order.getProductAmount() == null ? BigDecimal.ZERO : order.getProductAmount();
         BigDecimal totalAmount = shippingPrice.add(vatAmount).add(productAmount);
@@ -567,15 +564,14 @@ public class OrderRefundServiceImpl implements OrderRefundService {
         }
 
 
-        //作废赛盒订单，并同步赛盒发货状态
-        cancelSaiheOrderAndSynState(orderRefund.getId(), order.getSaiheOrderCode());
+
 
         // 统计退款信息
-        OrderRefundDailyCountRequest orderRefundDailyCountRequest = new OrderRefundDailyCountRequest();
-        orderRefundDailyCountRequest.setRefundId(request.getId());
-        orderRefundDailyCountRequest.setOrderType(OrderType.NORMAL);
-        orderRefundDailyCountRequest.setRefundTime(new Date());
-        redisTemplate.opsForList().leftPush(RedisKey.LIST_CUSTOMER_ORDER_DAILY_REFUND_COUNT_UPDATE, orderRefundDailyCountRequest);
+//        OrderRefundDailyCountRequest orderRefundDailyCountRequest = new OrderRefundDailyCountRequest();
+//        orderRefundDailyCountRequest.setRefundId(request.getId());
+//        orderRefundDailyCountRequest.setOrderType(OrderType.NORMAL);
+//        orderRefundDailyCountRequest.setRefundTime(new Date());
+//        redisTemplate.opsForList().leftPush(RedisKey.LIST_CUSTOMER_ORDER_DAILY_REFUND_COUNT_UPDATE, orderRefundDailyCountRequest);
 
 
         AccountOrderRefundedRequest accountOrderRefundedRequest = new AccountOrderRefundedRequest();
@@ -591,7 +587,8 @@ public class OrderRefundServiceImpl implements OrderRefundService {
         if (response.getCode() != 1) {
             throw new CustomerException(ResultCode.FAIL_CODE, response.getMsg());
         }
-
+        //作废赛盒订单，并同步赛盒发货状态
+        cancelSaiheOrderAndSynState(orderRefund.getId(), order.getSaiheOrderCode());
         return new BaseResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS);
     }
 

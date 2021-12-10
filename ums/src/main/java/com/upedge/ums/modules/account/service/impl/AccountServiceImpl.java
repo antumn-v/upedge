@@ -442,10 +442,9 @@ public class AccountServiceImpl implements AccountService {
             }
         }
 
+        Account account = accountUserMapper.selectAccountByUser(paymentDetail.getUserId());
 
-        Account account = new Account();
-
-        Long customerId = account.getCustomerId();
+        Long customerId = paymentDetail.getCustomerId();
 
         PaymentLog paymentLog = paymentLogDao.selectByPrimaryKey(paymentDetail.getPaymentId());
 
@@ -507,7 +506,6 @@ public class AccountServiceImpl implements AccountService {
         }
         //------------------------------------------
         //-------记录被修改的充值记录----------------
-        List<RechargeLog> rechargeLogList = new ArrayList<>();
         Map<Long, RechargeLog> rechargeLogMap = new HashMap<>();
         List<AccountLog> accountLogs = new ArrayList<>();
 
@@ -644,7 +642,7 @@ public class AccountServiceImpl implements AccountService {
             return false;
         }
         rechargeRecordDao.insertByBatch(records);
-
+        accountLogDao.insertByBatch(accountLogs);
         if (MapUtils.isNotEmpty(rechargeLogMap)) {
             rechargeLogMapper.updateByMap(rechargeLogMap);
         }
@@ -660,7 +658,6 @@ public class AccountServiceImpl implements AccountService {
 //        customerOrderDailyCountUpdateRequest.setPaymentId(paymentDetail.getPaymentId());
 //        customerOrderDailyCountUpdateRequest.setOrderType(orderType);
 //        customerOrderDailyCountUpdateRequest.setPayTime(paymentDetail.getPayTime());
-        accountLogDao.insertByBatch(accountLogs);
 //        redisTemplate.opsForList().leftPush(RedisKey.LIST_CUSTOMER_ORDER_DAILY_COUNT_UPDATE,customerOrderDailyCountUpdateRequest);
         return true;
     }
@@ -671,7 +668,7 @@ public class AccountServiceImpl implements AccountService {
      *
      * @return
      */
-
+    @GlobalTransactional
     @Override
     public BaseResponse accountOrderRefunded(AccountOrderRefundedRequest request) throws CustomerException{
 

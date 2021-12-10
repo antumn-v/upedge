@@ -176,6 +176,8 @@ public class OrderController {
         return new OrderListResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS, map, request);
     }*/
 
+
+
     @ApiOperation("订单数量,参数同订单列表")
     @PostMapping("/count")
     public BaseResponse appOrderCount(@RequestBody AppOrderListRequest appOrderListRequest) {
@@ -198,7 +200,6 @@ public class OrderController {
                     AppOrderListRequest request = new AppOrderListRequest();
                     BeanUtils.copyProperties(appOrderListRequest,request);
                     try {
-                        log.info("OrderTagEnum.value:",tag);
                         AppOrderListDto appOrderList = request.getT();
                         AppOrderListDto appOrderListDto = new AppOrderListDto();
                         BeanUtils.copyProperties(appOrderList,appOrderListDto);

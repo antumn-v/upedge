@@ -554,7 +554,7 @@ public class OrderPayServiceImpl implements OrderPayService {
     }
 
     @Override
-    public void payOrderAsync(Long userId, Long customerId, Long paymentId) {
+    public void payOrderAsync(Long userId, Long customerId, Long paymentId,Integer payMethod) {
 
         Future<?> submit = threadPoolExecutor.submit(new Runnable() {
             @Override
@@ -569,6 +569,7 @@ public class OrderPayServiceImpl implements OrderPayService {
                         }
                     }
                 }
+                sendSaveTransactionRecordMessage(paymentId,customerId,userId,payMethod);
                 // 订单上传赛盒 放在 sendSaveTransactionRecordMessage的消費端
                 mqOnSaiheService.uploadPaymentIdOnMq(paymentId, OrderType.NORMAL);
             }

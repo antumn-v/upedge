@@ -36,5 +36,5 @@ public interface OrderPayService {
 
     PaymentDetail payOrderByPaypal(Long userId, Long customerId, Long paymentId);
 
-    void payOrderAsync(Long userId, Long customerId, Long paymentId);
+    void payOrderAsync(Long userId, Long customerId, Long paymentId,Integer payMethod);
 }

@@ -115,7 +115,7 @@ public class OrderPayController {
             OrderPayCheckResultVo   orderPayCheckResultVo = orderPayService.orderPayCheck(paymentId, amount, dischargeQuantityVos, session.getCustomerId(),"balance");
             if (orderPayCheckResultVo.getPayMessage().equals("success")) {
                     orderPayService.payOrderByBalance(session, amount, paymentId, dischargeQuantityVos);
-                    orderPayService.payOrderAsync(session.getId(),session.getCustomerId(),paymentId);
+                    orderPayService.payOrderAsync(session.getId(),session.getCustomerId(),paymentId, TransactionConstant.PayMethod.ACCOUNT.getCode());
                     OrderPayResponse.PayResponse payResponse = new OrderPayResponse.PayResponse(paymentId,amount, TransactionConstant.PayMethod.ACCOUNT.getCode(),new Date(),orderPayCheckResultVo.getTradingDataVo());
                     return new OrderPayResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS,payResponse);
             }
@@ -189,7 +189,7 @@ public class OrderPayController {
                 state = linkedHashMap.get("state");
                 if (state.equals("completed")) {
                     orderPayService.payOrderByPaypal(session.getId(), session.getCustomerId(), order.getId());
-                    orderPayService.payOrderAsync(session.getId(),session.getCustomerId(),order.getId());
+                    orderPayService.payOrderAsync(session.getId(),session.getCustomerId(),order.getId(),TransactionConstant.PayMethod.PAYPAL.getCode());
                 }
                 RedisUtil.unLock(redisTemplate, key);
                 OrderPayCheckResultVo  orderPayCheckResultVo = creatOrderPayCheckResultVo(order);
@@ -211,7 +211,7 @@ public class OrderPayController {
                 break;
             case "completed":
                 orderPayService.payOrderByPaypal(paypalPayment.getUserId(),paypalPayment.getCustomerId(),paypalPayment.getId());
-                orderPayService.payOrderAsync(paypalPayment.getUserId(),paypalPayment.getCustomerId(),paypalPayment.getId());
+                orderPayService.payOrderAsync(paypalPayment.getUserId(),paypalPayment.getCustomerId(),paypalPayment.getId(),TransactionConstant.PayMethod.PAYPAL.getCode());
                 break;
             default:
                 List<ItemDischargeQuantityVo> dischargeQuantityVos = orderItemService.selectDischargeQuantityByPaymentId(paypalPayment.getId());
