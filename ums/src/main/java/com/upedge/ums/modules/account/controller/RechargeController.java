@@ -239,20 +239,26 @@ public class RechargeController {
      * @return
      */
     @GetMapping("/paypalExecute")
-    public ApplyRechargeResponse paypalExecute(@RequestParam("paymentId") String paymentId, @RequestParam("PayerID") String payerId, @RequestParam("token") String token) {
+    public ApplyRechargeResponse paypalExecute( String paymentId, @RequestParam("PayerID") String payerId, @RequestParam("token") String token) {
         String key = RedisKey.HASH_PAYPAL_TOKEN + token;
         PaypalOrder order = (PaypalOrder) redisTemplate.opsForHash().get(key, "order");
         redisTemplate.delete(key);
+        if (StringUtils.isBlank(paymentId)){
+            return new ApplyRechargeResponse(ResultCode.FAIL_CODE, Constant.MESSAGE_FAIL);
+        }
         if (null == order) {
             return new ApplyRechargeResponse(ResultCode.FAIL_CODE, Constant.MESSAGE_FAIL);
         }
         PaypalExecuteRequest request = new PaypalExecuteRequest(paymentId, payerId, token, order);
         PaypalPayment payment = paypalService.executePayment(request);
+        if (payment == null){
+            return new ApplyRechargeResponse(ResultCode.FAIL_CODE, Constant.MESSAGE_FAIL);
+        }
         rechargeService.savePaypalRechargeRequest(order);
         if (payment.getState().equals("completed")) {
             rechargeService.paypalRecharge(payment);
         }
-        return new ApplyRechargeResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS, payment.getAmount());
+        return new ApplyRechargeResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS, order.getAmount());
     }
 
     /**

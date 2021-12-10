@@ -31,6 +31,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.rocketmq.common.message.Message;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -78,16 +79,18 @@ public class PaypalServiceImpl implements PaypalService {
     @Autowired
     MqAsync mqAsync;
 
-
-    public static String clientId = "AbhXmp75BILbqaOawMwjpa2K327_ca8sUUKmKEhgJue7pG1fc-Ef1zs24Sym65mdLLC-py2R6EfB9HAI";
-    public static String clientSecret = "EO_MqAw4vx0tNdocO1grgItr8Kjo_dsGZJGFv576HGb2cMqIyDneohJyOYVOkmhtmTyHBMCskrKt5OSJ";
-    public static String mode = "live";
-    public static String url = "https://api.paypal.com";
+    @Value("${paypal.key}")
+    public  String clientId;
+    @Value("${paypal.secret}")
+    public  String clientSecret;
+    @Value("${paypal.mode}")
+    public  String mode;
+    @Value("${paypal.url}")
+    public  String url;
 
 
     @Override
     public String getPaypalOrderUrl(PaypalOrder paypalOrder) {
-        log.warn("开始：{}", System.currentTimeMillis());
         if (null == paypalOrder.getId()
         || null == paypalOrder.getOrderType()
         || null == paypalOrder.getSession()
@@ -101,7 +104,6 @@ public class PaypalServiceImpl implements PaypalService {
         BigDecimal fixfee = paypalPaymentDao.selectFixFeeByAmount(amount, Constant.PAYPAL_FEE_PERCENTAGE);
 
         try {
-            log.warn("创建paypal订单,start：{}", System.currentTimeMillis());
             Payment payment = createPayment(
                     amount.add(fixfee).doubleValue(),
                     fixfee,
@@ -109,7 +111,6 @@ public class PaypalServiceImpl implements PaypalService {
                     PaypalPaymentMethod.paypal,
                     PaypalPaymentIntent.sale,
                     paypalOrder);
-            log.warn("创建paypal结束,end：{}", System.currentTimeMillis());
             for (Links links : payment.getLinks()) {
                 if (links.getRel().equals("approval_url")) {
                     String url = links.getHref();
@@ -128,7 +129,6 @@ public class PaypalServiceImpl implements PaypalService {
                     message.setTags(String.valueOf(paypalOrder.getOrderType()));
                     message.setTopic(RocketMqConfig.TOPIC_PAYPAL_VERIFICATION);
                     mqAsync.sendMessage(message);
-                    log.warn("结束：{}", System.currentTimeMillis());
                     return url;
                 }
             }
@@ -283,7 +283,7 @@ public class PaypalServiceImpl implements PaypalService {
         return null;
     }
 
-    public static Payment createPayment(
+    public  Payment createPayment(
             Double total,
             BigDecimal fixFee,
             String currency,
@@ -374,7 +374,7 @@ public class PaypalServiceImpl implements PaypalService {
         return appPaypalPayment;
     }
 
-    public static String getPaypalOrderDescrption(Integer type, Long id, BigDecimal amount, BigDecimal fixfee) {
+    public String getPaypalOrderDescrption(Integer type, Long id, BigDecimal amount, BigDecimal fixfee) {
         String orderType = null;
         switch (type) {
             case 0:
@@ -395,13 +395,6 @@ public class PaypalServiceImpl implements PaypalService {
         return description;
     }
 
-    public static void main(String[] args) {
-        APIContext apiContext = new APIContext(clientId, clientSecret, mode);
-        try {
-            System.out.println(Payment.get(apiContext, "PAYID-MAEOK2I78M86278K61986229"));
-        } catch (PayPalRESTException e) {
-            e.printStackTrace();
-        }
-    }
+
 
 }

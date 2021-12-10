@@ -71,6 +71,6 @@ public class Constant {
 
 	public static final Long ADMIN_APPLICATION_ID=2L;
 
-	public static final BigDecimal PAYPAL_FEE_PERCENTAGE = new BigDecimal("0.039");
+	public static final BigDecimal PAYPAL_FEE_PERCENTAGE = new BigDecimal("0.044");
 
 }
