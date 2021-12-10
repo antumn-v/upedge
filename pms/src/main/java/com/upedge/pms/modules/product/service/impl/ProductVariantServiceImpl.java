@@ -1,13 +1,14 @@
 package com.upedge.pms.modules.product.service.impl;
 
-import com.upedge.common.base.BaseResponse;
 import com.upedge.common.base.Page;
 import com.upedge.common.constant.Constant;
 import com.upedge.common.constant.ResultCode;
+import com.upedge.common.exception.CustomerException;
 import com.upedge.common.model.product.VariantDetail;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.utils.IdGenerate;
 import com.upedge.common.utils.ListUtils;
+import com.upedge.common.utils.PriceUtils;
 import com.upedge.pms.modules.product.dao.ProductLogDao;
 import com.upedge.pms.modules.product.dao.ProductVariantDao;
 import com.upedge.pms.modules.product.entity.ProductLog;
@@ -150,9 +151,10 @@ public class ProductVariantServiceImpl implements ProductVariantService {
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public ProductVariantUpdateWeightResponse updateWeight(ProductVariantUpdateWeightRequest request, Session session) {
+    public ProductVariantUpdateWeightResponse updateWeight(ProductVariantUpdateWeightRequest request, Session session) throws CustomerException {
         List<ProductVariant> productVariantList = productVariantDao.listProductVariantByIds(request.getIds());
         List<ProductLog> productLogList = new ArrayList<>();
+        List<VariantDetail> variantDetails = new ArrayList<>();
         for (ProductVariant productVariant : productVariantList) {
             if (productVariant.getWeight().compareTo(request.getWeight()) != 0) {
                 ProductLog productLog = new ProductLog();
@@ -166,11 +168,20 @@ public class ProductVariantServiceImpl implements ProductVariantService {
                 productLog.setOldInfo(String.valueOf(productVariant.getWeight()));
                 productLog.setNewInfo(String.valueOf(request.getWeight()));
                 productLogList.add(productLog);
+
+                VariantDetail variantDetail = new VariantDetail();
+                variantDetail.setVolume(productVariant.getVolumeWeight());
+                variantDetail.setVariantId(productVariant.getId());
+                variantDetails.add(variantDetail);
             }
         }
         productVariantDao.updateWeight(request.getIds(), request.getWeight());
         if (productLogList.size() > 0) {
             productLogDao.insertByBatch(productLogList);
+        }
+        boolean b = productService.sendUpdateVariantMessage(variantDetails,"volume");
+        if (!b){
+            throw new CustomerException("mq异常，请重新提交或联系IT!");
         }
         return new ProductVariantUpdateWeightResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS);
     }
@@ -184,7 +195,7 @@ public class ProductVariantServiceImpl implements ProductVariantService {
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public ProductVariantUpdateVolumeWeightResponse updateVolumeWeight(ProductVariantUpdateVolumeWeightRequest request, Session session) {
+    public ProductVariantUpdateVolumeWeightResponse updateVolumeWeight(ProductVariantUpdateVolumeWeightRequest request, Session session) throws CustomerException {
         List<ProductVariant> productVariantList = productVariantDao.listProductVariantByIds(request.getIds());
         List<ProductLog> productLogList = new ArrayList<>();
 
@@ -214,17 +225,21 @@ public class ProductVariantServiceImpl implements ProductVariantService {
             productLogDao.insertByBatch(productLogList);
         }
 
-        productService.sendUpdateVariantMessage(variantDetails,"volume");
+        boolean b = productService.sendUpdateVariantMessage(variantDetails,"volume");
+        if (!b){
+            throw new CustomerException("mq异常，请重新提交或联系IT!");
+        }
         return new ProductVariantUpdateVolumeWeightResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS);
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public ProductVariantUpdatePriceResponse updatePrice(ProductVariantUpdatePriceRequest request, Session session) {
+    public ProductVariantUpdatePriceResponse updatePrice(ProductVariantUpdatePriceRequest request, Session session) throws CustomerException {
         if (request.getPrice().compareTo(BigDecimal.ZERO) <= 0) {
             return new ProductVariantUpdatePriceResponse(ResultCode.FAIL_CODE, Constant.MESSAGE_FAIL);
         }
-        productVariantDao.updatePrice(request.getIds(), request.getPrice());
+        BigDecimal usdPrice = PriceUtils.cnyToUsdByDefaultRate(request.getPrice());
+        productVariantDao.updatePrice(request.getIds(), request.getPrice(),usdPrice);
         List<ProductVariant> productVariantList = productVariantDao.listProductVariantByIds(request.getIds());
         productService.refreshProductPriceRange(productVariantList.get(0).getProductId());
         List<ProductLog> productLogList = new ArrayList<>();
@@ -232,7 +247,7 @@ public class ProductVariantServiceImpl implements ProductVariantService {
         List<VariantDetail> variantDetails = new ArrayList<>();
 
         for (ProductVariant productVariant : productVariantList) {
-            if (productVariant.getWeight().compareTo(request.getPrice()) != 0) {
+            if (productVariant.getVariantPrice().compareTo(request.getPrice()) != 0) {
                 ProductLog productLog = new ProductLog();
                 productLog.setId(IdGenerate.nextId());
                 productLog.setAdminUser(String.valueOf(session.getId()));
@@ -255,7 +270,10 @@ public class ProductVariantServiceImpl implements ProductVariantService {
         if (productLogList.size() > 0) {
             productLogDao.insertByBatch(productLogList);
         }
-        productService.sendUpdateVariantMessage(variantDetails,"price");
+        boolean b =productService.sendUpdateVariantMessage(variantDetails,"price");
+        if (!b){
+            throw new CustomerException("mq异常，请重新提交或联系IT!");
+        }
         return new ProductVariantUpdatePriceResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS);
     }
 

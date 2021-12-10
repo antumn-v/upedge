@@ -3,8 +3,8 @@ package com.upedge.pms.modules.product.controller;
 import com.upedge.common.component.annotation.Permission;
 import com.upedge.common.constant.Constant;
 import com.upedge.common.constant.ResultCode;
+import com.upedge.common.exception.CustomerException;
 import com.upedge.common.model.product.ListVariantsRequest;
-import com.upedge.common.model.product.VariantDetail;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.web.util.UserUtil;
 import com.upedge.pms.modules.product.entity.ProductVariant;
@@ -19,7 +19,6 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ThreadPoolExecutor;
 
@@ -71,19 +70,14 @@ public class ProductVariantController {
     @RequestMapping(value="/updateWeight", method=RequestMethod.POST)
     public ProductVariantUpdateWeightResponse updateWeight(@RequestBody @Valid ProductVariantUpdateWeightRequest request) {
         Session session = UserUtil.getSession(redisTemplate);
-        ProductVariantUpdateWeightResponse response = productVariantService.updateWeight(request,session);
-        if (response.getCode() == ResultCode.SUCCESS_CODE){
-            threadPoolExecutor.submit(() -> {
-                List<VariantDetail> variantDetails = new ArrayList<>();
-                for (Long id : request.getIds()) {
-                    VariantDetail variantDetail = new VariantDetail();
-                    variantDetail.setWeight(request.getWeight());
-                    variantDetail.setVariantId(id);
-                    variantDetails.add(variantDetail);
-                }
-                productService.sendUpdateVariantMessage(variantDetails,"weight");
-            });
+        ProductVariantUpdateWeightResponse response = null;
+        try {
+            response = productVariantService.updateWeight(request,session);
+        } catch (CustomerException e) {
+            e.printStackTrace();
+            return new ProductVariantUpdateWeightResponse(ResultCode.FAIL_CODE,e.getMessage());
         }
+
         return response;
     }
 
@@ -96,19 +90,14 @@ public class ProductVariantController {
     @RequestMapping(value="/updateVolume", method=RequestMethod.POST)
     public ProductVariantUpdateVolumeWeightResponse updateVolumeWeight(@RequestBody @Valid ProductVariantUpdateVolumeWeightRequest request) {
         Session session = UserUtil.getSession(redisTemplate);
-        ProductVariantUpdateVolumeWeightResponse response = productVariantService.updateVolumeWeight(request,session);
-        if (response.getCode() == ResultCode.SUCCESS_CODE){
-            threadPoolExecutor.submit(() -> {
-                List<VariantDetail> variantDetails = new ArrayList<>();
-                for (Long id : request.getIds()) {
-                    VariantDetail variantDetail = new VariantDetail();
-                    variantDetail.setVolume(request.getVolumeWeight());
-                    variantDetail.setVariantId(id);
-                    variantDetails.add(variantDetail);
-                }
-                productService.sendUpdateVariantMessage(variantDetails,"volume");
-            });
+        ProductVariantUpdateVolumeWeightResponse response = null;
+        try {
+            response = productVariantService.updateVolumeWeight(request,session);
+        } catch (CustomerException e) {
+            e.printStackTrace();
+            return new ProductVariantUpdateVolumeWeightResponse(ResultCode.FAIL_CODE,e.getMessage());
         }
+
         return response;
     }
 
@@ -119,7 +108,13 @@ public class ProductVariantController {
     @RequestMapping(value="/updatePrice", method=RequestMethod.POST)
     public ProductVariantUpdatePriceResponse updatePrice(@RequestBody @Valid ProductVariantUpdatePriceRequest request) {
         Session session = UserUtil.getSession(redisTemplate);
-        ProductVariantUpdatePriceResponse response = productVariantService.updatePrice(request,session);
+        ProductVariantUpdatePriceResponse response = null;
+        try {
+            response = productVariantService.updatePrice(request,session);
+        } catch (CustomerException e) {
+            e.printStackTrace();
+            return new ProductVariantUpdatePriceResponse(ResultCode.FAIL_CODE,e.getMessage());
+        }
         return response;
     }
 

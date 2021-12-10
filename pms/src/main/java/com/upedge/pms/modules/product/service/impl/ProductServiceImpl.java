@@ -975,10 +975,10 @@ public class ProductServiceImpl implements ProductService {
             apiImportProductInfo.setProductClassNameEN("upedgepackaging");//产品英文类别名
             //定制包装 潘达物流包材
             //商品类别是“定制包装”的产品，传到赛盒产品类别字段的"潘达物流包材"，普通商品传“潘达”，产品编辑页面，新增商品类别选项，默认普通商品
-            apiImportProductInfo.setProductClassNameCN("潘达物流包材");
+            apiImportProductInfo.setProductClassNameCN("戎安物流包材");
         } else {
             apiImportProductInfo.setProductClassNameEN("upedge");//产品英文类别名
-            apiImportProductInfo.setProductClassNameCN("潘达产品");//产品中文类别名
+            apiImportProductInfo.setProductClassNameCN("戎安产品");//产品中文类别名
         }
         apiImportProductInfo.setProductName(saiheSkuVo.getProductName());//产品中文名
         apiImportProductInfo.setProductNameCN(saiheSkuVo.getProductName());//产品中文名

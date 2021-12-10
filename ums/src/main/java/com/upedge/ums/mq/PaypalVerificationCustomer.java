@@ -57,15 +57,11 @@ public class PaypalVerificationCustomer {
                         log.warn("消息内容有误：{}",message);
                         continue;
                     }
-
                     MqMessageLog mqMessageLog = mqMessageLogService.selectByMsgKey(message.getKeys());
-
                     if(mqMessageLog != null && mqMessageLog.getIsConsumeSuccess() == 1){
                         return ConsumeConcurrentlyStatus.CONSUME_SUCCESS;
                     }
-
                     String key = message.getKeys();
-
                     PaypalOrder paypalOrder = (PaypalOrder) redisTemplate.opsForHash().get(key,"order");
                     if(null != paypalOrder){
                         BaseResponse response = omsFeignClient.orderByRollback(paypalOrder);
@@ -73,9 +69,7 @@ public class PaypalVerificationCustomer {
                             return ConsumeConcurrentlyStatus.RECONSUME_LATER;
                         }
                     }
-
                     redisTemplate.delete(key);
-
                     if(null == mqMessageLog){
                         mqMessageLog = MqMessageLog.toMqMessageLog(message,String.valueOf(System.currentTimeMillis()));
                         mqMessageLog.setConsumeCount(1);
@@ -84,8 +78,6 @@ public class PaypalVerificationCustomer {
                     }else if(mqMessageLog.getIsConsumeSuccess() == 0) {
                         mqMessageLog.setConsumeCount(mqMessageLog.getConsumeCount() + 1);
                     }
-
-
                     mqMessageLog.setIsConsumeSuccess(1);
                     mqMessageLog.setConsumeTime(new Date());
                     mqMessageLogService.updateByPrimaryKeySelective(mqMessageLog);
@@ -99,6 +91,6 @@ public class PaypalVerificationCustomer {
         });
 
         consumer.start();
-        System.out.println("消费者 启动成功=======");
+        System.out.println(RocketMqConfig.TOPIC_PAYPAL_VERIFICATION + "消费者 启动成功=======");
     }
 }

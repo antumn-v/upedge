@@ -1,6 +1,7 @@
 package com.upedge.pms.modules.product.service;
 
 import com.upedge.common.base.Page;
+import com.upedge.common.exception.CustomerException;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.pms.modules.product.entity.ProductVariant;
 import com.upedge.pms.modules.product.request.*;
@@ -19,9 +20,9 @@ import java.util.Set;
  */
 public interface ProductVariantService{
 
-    ProductVariantUpdateWeightResponse updateWeight(ProductVariantUpdateWeightRequest request, Session session);
+    ProductVariantUpdateWeightResponse updateWeight(ProductVariantUpdateWeightRequest request, Session session) throws CustomerException;
 
-    ProductVariantUpdateVolumeWeightResponse updateVolumeWeight(ProductVariantUpdateVolumeWeightRequest request, Session session);
+    ProductVariantUpdateVolumeWeightResponse updateVolumeWeight(ProductVariantUpdateVolumeWeightRequest request, Session session) throws CustomerException;
 
     ProductVariantUpdateVariantImageResponse updateVariantImage(ProductVariantUpdateVariantImageRequest request, Session session);
 
@@ -31,7 +32,7 @@ public interface ProductVariantService{
 
     ProductVariantUpdateAttrResponse updateAttr(ProductVariantUpdateAttrRequest request);
 
-    ProductVariantUpdatePriceResponse updatePrice(ProductVariantUpdatePriceRequest request, Session session);
+    ProductVariantUpdatePriceResponse updatePrice(ProductVariantUpdatePriceRequest request, Session session) throws CustomerException;
 
     ProductVariantsResponse listVariantByIds(List<Long> variantIds);
 

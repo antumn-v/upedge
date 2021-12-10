@@ -387,7 +387,8 @@
         pv.id as variantId,pv.en_name as variantName,pv.variant_sku,
         pv.variant_image,pv.variant_price as `cny_price`,pv.usd_price,
         pv.weight,pv.volume_weight as `volume`,
-        p.shipping_id as productShippingId,p.id as productId
+        p.shipping_id as productShippingId,p.id as productId,
+        '1' as quoteType
         from customer_product_quote cpq
         left join product_variant pv
         on cpq.variant_id = pv.id

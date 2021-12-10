@@ -27,7 +27,8 @@ public interface ProductVariantDao{
     int enableVariant(@Param("ids")List<Long> ids);
 
     void updatePrice(@Param("ids")List<Long> ids,
-                     @Param("price")BigDecimal price);
+                     @Param("price")BigDecimal price,
+                     @Param("usdPrice")BigDecimal usdPrice);
 
     List<ProductVariant> listProductVariantByIds(@Param("ids") List<Long> ids);
 

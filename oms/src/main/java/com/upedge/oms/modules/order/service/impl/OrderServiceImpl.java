@@ -536,7 +536,7 @@ public class OrderServiceImpl implements OrderService {
             if (map.containsKey(item.getStoreVariantId())) {
                 CustomerProductQuoteVo customerProductQuoteVo = map.get(item.getStoreVariantId());
                 orderItem = new OrderItem(customerProductQuoteVo);
-                orderItem.setQuoteState(1);
+                orderItem.setQuoteState(customerProductQuoteVo.getQuoteType());
                 quoteState++;
                 try {
                     cnyProductAmount = cnyProductAmount.add(orderItem.getCnyPrice().multiply(itemQuantity));
@@ -629,7 +629,6 @@ public class OrderServiceImpl implements OrderService {
         BigDecimal vatAmount = vatRuleService.getOrderVatAmount(order.getProductAmount(), order.getShipPrice(), order.getToAreaId(),order.getCustomerId());
         shipDetail.setVatAmount(vatAmount);
         orderDao.updateShipDetailById(shipDetail,id);
-//        orderDao.updateOrderVatAmountById(id, vatAmount);
         shipDetail.setPrice(shipDetail.getPrice().add(serviceFee));
         return shipDetail;
 
@@ -660,7 +659,6 @@ public class OrderServiceImpl implements OrderService {
             if (ListUtils.isNotEmpty(shipDetails)) {
                 ShipDetail shipDetail = shipDetails.get(0);
                 shipDetail = updateShipDetailById(orderId, shipDetail);
-//                updateOrderShipUnit(orderId, shipDetail.getShippingUtilId());
                 return shipDetail;
             }
         } else {

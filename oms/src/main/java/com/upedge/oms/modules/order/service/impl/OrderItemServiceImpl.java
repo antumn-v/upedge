@@ -60,7 +60,6 @@ public class OrderItemServiceImpl implements OrderItemService {
     private OrderShippingUnitService orderShippingUnitService;
 
 
-
     /**
      *
      */
@@ -92,7 +91,7 @@ public class OrderItemServiceImpl implements OrderItemService {
     public BaseResponse orderItemApplyQuote(OrderItemQuoteRequest request, Session session) {
         Order order = orderService.selectByPrimaryKey(request.getOrderId());
         if (order.getPayState() != OrderConstant.PAY_STATE_UNPAID
-        || order.getQuoteState() == OrderConstant.QUOTE_STATE_QUOTED){
+                || order.getQuoteState() == OrderConstant.QUOTE_STATE_QUOTED) {
             return BaseResponse.failed("order error");
         }
         Page<OrderItem> orderItemPage = new Page<>();
@@ -104,7 +103,7 @@ public class OrderItemServiceImpl implements OrderItemService {
         List<Long> storeVariantIds = new ArrayList<>();
         for (OrderItem item : orderItems) {
             if (!itemIds.contains(item.getId())
-            || item.getQuoteState() != 0){
+                    || item.getQuoteState() != 0) {
                 return BaseResponse.failed("item error");
             }
             storeVariantIds.add(item.getStoreVariantId());
@@ -116,13 +115,13 @@ public class OrderItemServiceImpl implements OrderItemService {
         orderQuoteApplyRequest.setUserId(session.getId());
         orderQuoteApplyRequest.setStoreVariantId(storeVariantIds);
         BaseResponse response = pmsFeignClient.orderQuoteApply(orderQuoteApplyRequest);
-        if (response.getCode() == ResultCode.SUCCESS_CODE){
+        if (response.getCode() == ResultCode.SUCCESS_CODE) {
             order = new Order();
             order.setId(request.getOrderId());
             order.setQuoteState(OrderConstant.QUOTE_STATE_QUOTING);
             order.setUpdateTime(new Date());
             orderService.updateByPrimaryKeySelective(order);
-            orderItemDao.updateQuoteStateByIds(itemIds,5);
+            orderItemDao.updateQuoteStateByIds(itemIds, 5);
         }
         return response;
     }
@@ -133,10 +132,10 @@ public class OrderItemServiceImpl implements OrderItemService {
         orderItemDao.updateItemQuoteDetail(customerProductQuoteVo);
         Long storeVariantId = customerProductQuoteVo.getStoreVariantId();
         List<Long> orderIds = orderItemDao.selectUnpaidOrderIdByStoreVariantId(storeVariantId);
-        if (ListUtils.isNotEmpty(orderIds)){
+        if (ListUtils.isNotEmpty(orderIds)) {
             orderIds = orderItemDao.selectUnQuoteItemOrderIdByOrderIds(orderIds);
-            if (ListUtils.isNotEmpty(orderIds)){
-                orderDao.updateQuoteStateByIds(orderIds,OrderConstant.QUOTE_STATE_PART_UNQUOTED);
+            if (ListUtils.isNotEmpty(orderIds)) {
+                orderDao.updateQuoteStateByIds(orderIds, OrderConstant.QUOTE_STATE_PART_UNQUOTED);
             }
         }
     }
@@ -150,7 +149,7 @@ public class OrderItemServiceImpl implements OrderItemService {
     @Override
     public boolean addOrderItemFromStoreOrder(Long orderId, Long storeOrderId, RelateDetailVo relateDetailVo) {
         Order order = orderDao.selectByPrimaryKey(orderId);
-        if (order.getPayState() > 0 || order.getOrderType() == 1){
+        if (order.getPayState() > 0 || order.getOrderType() == 1) {
             return false;
         }
         List<RelateVariantVo> newVariantVos = relateDetailVo.getRelateVariantVos();
@@ -159,11 +158,11 @@ public class OrderItemServiceImpl implements OrderItemService {
         Long storeVariantId = relateDetailVo.getStoreVariantId();
         for (RelateVariantVo variantVo : newVariantVos) {
             OrderItem orderItem = new OrderItem(variantVo);
-            StoreOrderItem storeOrderItem = storeOrderItemDao.selectByStoreVariantId(storeOrderId,storeVariantId);
-            if(null == storeOrderItem || storeOrderItem.getState() ==1){
+            StoreOrderItem storeOrderItem = storeOrderItemDao.selectByStoreVariantId(storeOrderId, storeVariantId);
+            if (null == storeOrderItem || storeOrderItem.getState() == 1) {
                 continue;
             }
-            BeanUtils.copyProperties(storeOrderItem,orderItem);
+            BeanUtils.copyProperties(storeOrderItem, orderItem);
             orderItem.setOrderId(orderId);
             orderItem.setStoreOrderItemId(storeOrderItem.getId());
             orderItem.setQuantity(scale * storeOrderItem.getQuantity());
@@ -186,7 +185,7 @@ public class OrderItemServiceImpl implements OrderItemService {
         String name = null;
         Object value = null;
         List<OrderItem> list = null;
-        switch (tag){
+        switch (tag) {
             case "price":
                 name = "cny_price";
                 value = variantDetail.getCnyPrice();
@@ -202,12 +201,12 @@ public class OrderItemServiceImpl implements OrderItemService {
             case "shippingId"://运输模板
                 if (null != variantDetail.getProductId() && null != variantDetail.getProductShippingId()) {
                     // 修改订单item
-                    orderItemDao.updateShippingIdByAdminProductId(variantDetail.getProductShippingId(),variantDetail.getProductId());
+                    orderItemDao.updateShippingIdByAdminProductId(variantDetail.getProductShippingId(), variantDetail.getProductId());
 /*                     删除订单表运输信息
                     orderService.delOrderShipInfoByProductId(variantDetail.getProductId());*/
 
                     orderShippingUnitService.delByProductId(variantDetail.getProductId(), OrderType.NORMAL);
-                    list =  orderItemDao.selectOrderItemListByProduct(variantDetail.getProductId());
+                    list = orderItemDao.selectOrderItemListByProduct(variantDetail.getProductId());
                     /*for (OrderItem orderItem : list) {
                         orderShippingUnitService.delByOrderId(orderItem.getOrderId(),OrderType.NORMAL);
                     }*/
@@ -219,16 +218,16 @@ public class OrderItemServiceImpl implements OrderItemService {
             default:
                 return;
         }
-        if(null == value){
+        if (null == value) {
             return;
         }
-        orderItemDao.updateAdminVariantDetailByVariantId(name,value,variantDetail.getVariantId());
-        if (tag.equals("price")){
-            orderItemDao.updateUsdPriceByAdminVariantId(variantDetail.getVariantId(),variantDetail.getUsdPrice());
-        }else {
+        orderItemDao.updateAdminVariantDetailByVariantId(name, value, variantDetail.getVariantId());
+        if (tag.equals("price")) {
+            orderItemDao.updateUsdPriceByAdminVariantId(variantDetail.getVariantId(), variantDetail.getUsdPrice());
+        } else {
 //    orderService.delOrderShipInfoByVariantId(variantDetail.getVariantId());
-            orderShippingUnitService.delByVariantId(variantDetail.getVariantId(),OrderType.NORMAL);
-            list =  orderItemDao.selectOrderItemListByVariantId(variantDetail.getVariantId());
+            orderShippingUnitService.delByVariantId(variantDetail.getVariantId(), OrderType.NORMAL);
+            list = orderItemDao.selectOrderItemListByVariantId(variantDetail.getVariantId());
     /*    for (OrderItem orderItem : list) {
             orderShippingUnitService.delByOrderId(orderItem.getOrderId(),OrderType.NORMAL);
         }*/
@@ -243,18 +242,18 @@ public class OrderItemServiceImpl implements OrderItemService {
         OrderItem orderItem = orderItemDao.selectByPrimaryKey(id);
         Order order = orderDao.selectByPrimaryKey(orderItem.getOrderId());
 
-        if(order.getPayState() != 0){
+        if (order.getPayState() != 0) {
             return 0;
         }
 
-        if(quantity == 0){
+        if (quantity == 0) {
             Integer totalQuantity = orderItemDao.selectCountQuantityByOrderId(orderItem.getOrderId());
-            if(totalQuantity - orderItem.getQuantity() <= 0){
+            if (totalQuantity - orderItem.getQuantity() <= 0) {
                 quantity = 1;
             }
         }
 
-        if (quantity.equals(orderItem.getQuantity())){
+        if (quantity.equals(orderItem.getQuantity())) {
             return 1;
         }
         orderItem = new OrderItem();
@@ -277,44 +276,44 @@ public class OrderItemServiceImpl implements OrderItemService {
     /**
      *
      */
-    public OrderItem selectByPrimaryKey(Long id){
+    public OrderItem selectByPrimaryKey(Long id) {
         return orderItemDao.selectByPrimaryKey(id);
     }
 
     /**
-    *
-    */
+     *
+     */
     @Transactional
     public int updateByPrimaryKeySelective(OrderItem record) {
         return orderItemDao.updateByPrimaryKeySelective(record);
     }
 
     /**
-    *
-    */
+     *
+     */
     @Transactional
     public int updateByPrimaryKey(OrderItem record) {
         return orderItemDao.updateByPrimaryKey(record);
     }
 
     /**
-    *
-    */
-    public List<OrderItem> select(Page<OrderItem> record){
+     *
+     */
+    public List<OrderItem> select(Page<OrderItem> record) {
         record.initFromNum();
         return orderItemDao.select(record);
     }
 
     /**
-    *
-    */
-    public long count(Page<OrderItem> record){
+     *
+     */
+    public long count(Page<OrderItem> record) {
         return orderItemDao.count(record);
     }
 
     @Override
     public List<AirwallexVo> airwallex(AirwallexRequest airwallexRequest) {
-        return  orderItemDao.airwallex(airwallexRequest);
+        return orderItemDao.airwallex(airwallexRequest);
 
     }
 

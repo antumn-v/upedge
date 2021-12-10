@@ -224,7 +224,7 @@
 
     <update id="updatePrice">
         update product_variant
-        set variant_price=#{price},usd_price = round(#{price}/6.3*1.2,2)
+        set variant_price=#{price},usd_price = #{usdPrice}
         where id in
         <foreach collection="ids" index="index" item="item"
                  separator="," open="(" close=")">

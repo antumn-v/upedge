@@ -480,7 +480,8 @@
         pv.variant_image,pv.variant_price as `cnyPrice`,pv.usd_price,
         pv.usd_price as `quotePrice`,
         pv.weight,pv.volume_weight as `volume`,
-        p.shipping_id as productShippingId,p.id as productId
+        p.shipping_id as productShippingId,p.id as productId,
+        '6' as quoteType
         from store_product_variant spv
         inner join product_variant pv
         on spv.admin_variant_id = pv.id

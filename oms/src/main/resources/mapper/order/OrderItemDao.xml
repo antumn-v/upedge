@@ -268,6 +268,7 @@
         set oi.usd_price = #{usdPrice}
         where oi.admin_variant_id = #{adminVariantId}
         and o.pay_state = '0'
+        and oi.quote_state = '6'
     </update>
 
     <update id="updateOrderIdByOrderIds">
@@ -896,7 +897,7 @@
     </select>
     <select id="selectOrderItemListByVariantId" resultType="com.upedge.oms.modules.order.entity.OrderItem">
         select  DISTINCT oi.order_id from  `order_item` oi  inner join  `order` o on oi.order_id = o.id
-         WHERE oi.admin_variant_id = #{variantId}  and  o.pay_state = 0
+         WHERE oi.admin_variant_id = #{variantId}  and  o.pay_state = 0 and o.quote_state = '3'
     </select>
 
     <update id="updateQuoteStateByIds">
