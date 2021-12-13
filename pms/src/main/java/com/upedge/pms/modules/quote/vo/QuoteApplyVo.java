@@ -1,6 +1,5 @@
 package com.upedge.pms.modules.quote.vo;
 
-import com.upedge.pms.modules.quote.entity.QuoteApplyItem;
 import lombok.Data;
 
 import java.util.Date;
@@ -48,5 +47,5 @@ public class QuoteApplyVo {
      */
     private Date createTime;
 
-    List<QuoteApplyItem> quoteApplyItems;
+    List<QuoteApplyItemVo> quoteApplyItems;
 }

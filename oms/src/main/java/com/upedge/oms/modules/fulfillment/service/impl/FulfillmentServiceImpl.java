@@ -30,7 +30,6 @@ import com.upedge.thirdparty.shopify.moudles.order.entity.ShopifyLineItem;
 import com.upedge.thirdparty.shopify.moudles.order.entity.ShopifyOrder;
 import com.upedge.thirdparty.shoplazza.moudles.order.api.ShoplazzaOrderApi;
 import com.upedge.thirdparty.shoplazza.moudles.order.entity.ShoplazzaFulfilliment;
-import com.upedge.thirdparty.shoplazza.moudles.order.entity.ShoplazzaOrder.*;
 import com.upedge.thirdparty.woocommerce.moudles.order.entity.WoocommerceOrder;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -124,7 +123,7 @@ public class FulfillmentServiceImpl implements FulfillmentService {
             //先post一次
             postFulfillment(itemList,orderTracking, storeVo,platOrderId);
 
-            String str = GetResponse.sendGet("https://" + storeVo.getStoreUrl() + ".myshopify.com/admin/api/"+Shopify.version+"/orders/" + platOrderId + ".json", storeVo.getApiToken());
+            String str = GetResponse.sendGet("https://" + storeVo.getStoreName() + ".myshopify.com/admin/api/"+Shopify.version+"/orders/" + platOrderId + ".json", storeVo.getApiToken());
             if (!StringUtils.isBlank(str)) {
                 EntityOrder entityOrder = JSON.parseObject(str, EntityOrder.class);
                 ShopifyOrder orders = entityOrder.getOrder();
@@ -136,7 +135,7 @@ public class FulfillmentServiceImpl implements FulfillmentService {
                             updateFulfillment(storeVo,fulfillment,orderTracking,platOrderId);
                         } else {
                             if (fulfillment != null && fulfillment.getStatus() != null && fulfillment.getStatus().equals("pending")) {
-                                String resul = PostRequest.sendPost("https://" + storeVo.getStoreUrl()+ ".myshopify.com/admin/api/"+Shopify.version+"/orders/"+platOrderId+"/fulfillments/" + fulfillment.getId() + "/complete.json",storeVo.getApiToken(), null);
+                                String resul = PostRequest.sendPost("https://" + storeVo.getStoreName()+ ".myshopify.com/admin/api/"+Shopify.version+"/orders/"+platOrderId+"/fulfillments/" + fulfillment.getId() + "/complete.json",storeVo.getApiToken(), null);
                                 if (!resul.equals("error")) {
                                     //设置回传状态修改成功
                                     orderTracking.setState(2);
@@ -187,7 +186,7 @@ public class FulfillmentServiceImpl implements FulfillmentService {
                 }
                 //shopify回传物流
                 if (storeVo.getStoreType() == 0) {
-                    String str = GetResponse.sendGet("https://" + storeVo.getStoreUrl() + ".myshopify.com/admin/api/" + Shopify.version + "/orders/" + platOrderId + ".json", storeVo.getApiToken());
+                    String str = GetResponse.sendGet("https://" + storeVo.getStoreName() + ".myshopify.com/admin/api/" + Shopify.version + "/orders/" + platOrderId + ".json", storeVo.getApiToken());
                     if (!StringUtils.isBlank(str)) {
                         EntityOrder entityOrder = JSON.parseObject(str, EntityOrder.class);
                         ShopifyOrder orders = entityOrder.getOrder();
@@ -259,7 +258,7 @@ public class FulfillmentServiceImpl implements FulfillmentService {
                 String result = "error";
                 for (Long locationId : locationIds) {
                     fulfillment.setLocation_id(locationId);
-                    result = PostRequest.sendPost("https://" + storeVo.getStoreUrl() + ".myshopify.com/admin/api/" + Shopify.version + "/orders/" + itemVo.getPlatOrderId() + "/fulfillments.json", storeVo.getApiToken(), JSONObject.toJSON(entityObject));
+                    result = PostRequest.sendPost("https://" + storeVo.getStoreName() + ".myshopify.com/admin/api/" + Shopify.version + "/orders/" + itemVo.getPlatOrderId() + "/fulfillments.json", storeVo.getApiToken(), JSONObject.toJSON(entityObject));
                     if (!result.equals("error")) {
                         System.out.println("====================fulfillment=====================");
                         break;
@@ -287,14 +286,14 @@ public class FulfillmentServiceImpl implements FulfillmentService {
                 updateSplitTrack(itemList,platOrderId,storeVo,orderTracking);
             }
 
-            String strRes = GetResponse.sendGet("https://" + storeVo.getStoreUrl() + ".myshopify.com/admin/api/" + Shopify.version + "/orders/" + platOrderId + ".json", storeVo.getApiToken());
+            String strRes = GetResponse.sendGet("https://" + storeVo.getStoreName() + ".myshopify.com/admin/api/" + Shopify.version + "/orders/" + platOrderId + ".json", storeVo.getApiToken());
             if (!StringUtils.isBlank(strRes)) {
                 EntityOrder entityOrder = JSON.parseObject(strRes, EntityOrder.class);
                 if (entityOrder != null) {
                     ShopifyOrder orders = entityOrder.getOrder();
                     String fulfillmentStatus = orders.getFulfillment_status();
                     //fulfilled
-                    String fulfillmentsRes = GetResponse.sendGet("https://" + storeVo.getStoreUrl() + ".myshopify.com/admin/api/" + Shopify.version + "/orders/" + platOrderId + "/fulfillments.json", storeVo.getApiToken());
+                    String fulfillmentsRes = GetResponse.sendGet("https://" + storeVo.getStoreName() + ".myshopify.com/admin/api/" + Shopify.version + "/orders/" + platOrderId + "/fulfillments.json", storeVo.getApiToken());
                     EntityObject entityObject = JSON.parseObject(fulfillmentsRes, EntityObject.class);
                     List<ShopifyFulfillment> fulfillments = entityObject.getFulfillments();
                     if (fulfillments != null && fulfillments.size() > 0) {
@@ -320,7 +319,7 @@ public class FulfillmentServiceImpl implements FulfillmentService {
      * @param storeVo
      */
     public void updateSplitTrack(List<OrderItemVo> itemList, String platOrderId, StoreVo storeVo, OrderTracking orderTracking){
-        String str = GetResponse.sendGet("https://" + storeVo.getStoreUrl() + ".myshopify.com/admin/api/" + Shopify.version + "/orders/" + platOrderId + ".json", storeVo.getApiToken());
+        String str = GetResponse.sendGet("https://" + storeVo.getStoreName() + ".myshopify.com/admin/api/" + Shopify.version + "/orders/" + platOrderId + ".json", storeVo.getApiToken());
         if (!StringUtils.isBlank(str)) {
             EntityOrder entityOrder = JSON.parseObject(str, EntityOrder.class);
             ShopifyOrder orders = entityOrder.getOrder();
@@ -378,7 +377,7 @@ public class FulfillmentServiceImpl implements FulfillmentService {
                             System.out.println(json4);
                             EntityObject entityObject = new EntityObject();
                             entityObject.setFulfillment(fulfillment);
-                            String s4 = PutRequest.httpUrlConnectionPut("https://" + storeVo.getStoreUrl()+ ".myshopify.com/admin/api/" + Shopify.version +  "orders/" + platOrderId + "/fulfillments/" + fulfillmentId + ".json", storeVo.getApiToken(), JSONObject.toJSON(entityObject));
+                            String s4 = PutRequest.httpUrlConnectionPut("https://" + storeVo.getStoreName()+ ".myshopify.com/admin/api/" + Shopify.version +  "orders/" + platOrderId + "/fulfillments/" + fulfillmentId + ".json", storeVo.getApiToken(), JSONObject.toJSON(entityObject));
                             System.out.println(s4);
                         }
                     }
@@ -394,7 +393,7 @@ public class FulfillmentServiceImpl implements FulfillmentService {
      */
     public List<Long> getLocations(StoreVo storeVo){
         List<Long> locationIds = new ArrayList<>();
-        String ss = GetResponse.sendGet("https://" + storeVo.getStoreUrl() + ".myshopify.com/admin/api/"+Shopify.version+ "/locations.json",storeVo.getApiToken());
+        String ss = GetResponse.sendGet("https://" + storeVo.getStoreName() + ".myshopify.com/admin/api/"+Shopify.version+ "/locations.json",storeVo.getApiToken());
         if(!ss.equals("error")) {
             EntityLocations entityLocations = JSON.parseObject(ss, EntityLocations.class);
             List<Locations> locations = entityLocations.getLocations();
@@ -586,7 +585,7 @@ public class FulfillmentServiceImpl implements FulfillmentService {
 
         for (Long locationId : locationIds) {
             fulfillment.setLocation_id(locationId);
-            result = PostRequest.sendPost("https://" + storeVo.getStoreUrl() +".myshopify.com/admin/api/"+Shopify.version+"/orders/" + platOrderId + "/fulfillments.json",storeVo.getApiToken(), JSONObject.toJSON(entityObject));
+            result = PostRequest.sendPost("https://" + storeVo.getStoreName() +".myshopify.com/admin/api/"+Shopify.version+"/orders/" + platOrderId + "/fulfillments.json",storeVo.getApiToken(), JSONObject.toJSON(entityObject));
             if (!result.equals("error")) {
                 System.out.println("====================fulfillment=====================");
                 EntityFulfillment fulfillmentRes = JSON.parseObject(result, EntityFulfillment.class);
@@ -594,7 +593,7 @@ public class FulfillmentServiceImpl implements FulfillmentService {
 
                 ShopifyFulfillment f = fulfillmentRes.getFulfillment();
                 if (f != null && f.getStatus() != null && f.getStatus().equals("pending")) {
-                    String resul = PostRequest.sendPost("https://" + storeVo.getStoreUrl() +".myshopify.com/admin/api/"+Shopify.version+"/orders/" + platOrderId + "/fulfillments/" + f.getId() + "/complete.json", storeVo.getApiToken(), null);
+                    String resul = PostRequest.sendPost("https://" + storeVo.getStoreName() +".myshopify.com/admin/api/"+Shopify.version+"/orders/" + platOrderId + "/fulfillments/" + f.getId() + "/complete.json", storeVo.getApiToken(), null);
                     if (!resul.equals("error")) {
                         //设置回传状态成功
                         orderTracking.setState(1);
@@ -626,12 +625,12 @@ public class FulfillmentServiceImpl implements FulfillmentService {
         fulfillment.setNotify_customer(storeVo.isEmailPrompt());
         EntityObject entityObject = new EntityObject();
         entityObject.setFulfillment(fulfillment);
-        String s = PutRequest.httpUrlConnectionPut("https://" + storeVo.getStoreUrl() + ".myshopify.com/admin/api/" + Shopify.version + "/orders/" +platOrderId+ "/fulfillments/" + fulfillment.getId() + ".json", storeVo.getApiToken(), JSONObject.toJSON(entityObject));
+        String s = PutRequest.httpUrlConnectionPut("https://" + storeVo.getStoreName() + ".myshopify.com/admin/api/" + Shopify.version + "/orders/" +platOrderId+ "/fulfillments/" + fulfillment.getId() + ".json", storeVo.getApiToken(), JSONObject.toJSON(entityObject));
         if (!s.equals("error")) {
             EntityObject entity = JSON.parseObject(s, EntityObject.class);
             ShopifyFulfillment f = entity.getFulfillment();
             if (f != null && f.getStatus() != null && f.getStatus().equals("pending")) {
-                String resul = PostRequest.sendPost("https://" + storeVo.getStoreUrl() + ".myshopify.com/admin/api/" + Shopify.version + "/orders/" + platOrderId + "/fulfillments/" + f.getId() + "/complete.json", storeVo.getApiToken(), null);
+                String resul = PostRequest.sendPost("https://" + storeVo.getStoreName() + ".myshopify.com/admin/api/" + Shopify.version + "/orders/" + platOrderId + "/fulfillments/" + f.getId() + "/complete.json", storeVo.getApiToken(), null);
                 if (!resul.equals("error")) {
                     //设置回传状态修改成功
                     orderTracking.setState(2);
@@ -695,7 +694,7 @@ public class FulfillmentServiceImpl implements FulfillmentService {
                 }
                 //shopify回传物流
                 if (storeVo.getStoreType() == 0) {
-                    String str = GetResponse.sendGet("https://" + storeVo.getStoreUrl() + ".myshopify.com/admin/api/" + Shopify.version +"/orders/" + platOrderId + ".json", storeVo.getApiToken());
+                    String str = GetResponse.sendGet("https://" + storeVo.getStoreName() + ".myshopify.com/admin/api/" + Shopify.version +"/orders/" + platOrderId + ".json", storeVo.getApiToken());
                     if (!StringUtils.isBlank(str)) {
                         EntityOrder entityOrder = JSON.parseObject(str, EntityOrder.class);
                         ShopifyOrder orders = entityOrder.getOrder();
@@ -741,7 +740,7 @@ public class FulfillmentServiceImpl implements FulfillmentService {
                                         fulfillment.setNotify_customer(storeVo.isEmailPrompt());
                                         EntityObject entityObject = new EntityObject();
                                         entityObject.setFulfillment(fulfillment);
-                                        String s4 = PutRequest.httpUrlConnectionPut("https://" + storeVo.getStoreUrl() + ".myshopify.com/admin/api/" + Shopify.version + "/orders/" + platOrderId + "/fulfillments/" + fulfillmentId + ".json", storeVo.getApiToken(), JSON.toJSON(entityObject));
+                                        String s4 = PutRequest.httpUrlConnectionPut("https://" + storeVo.getStoreName() + ".myshopify.com/admin/api/" + Shopify.version + "/orders/" + platOrderId + "/fulfillments/" + fulfillmentId + ".json", storeVo.getApiToken(), JSON.toJSON(entityObject));
                                         System.out.println(s4);
                                     }
                                 }
@@ -750,14 +749,14 @@ public class FulfillmentServiceImpl implements FulfillmentService {
                     }
 
                     //是否修改成功
-                    String strRes = GetResponse.sendGet("https://" + storeVo.getStoreUrl() + ".myshopify.com/admin/api/" + Shopify.version + "/orders/" + platOrderId + ".json", storeVo.getApiToken());
+                    String strRes = GetResponse.sendGet("https://" + storeVo.getStoreName() + ".myshopify.com/admin/api/" + Shopify.version + "/orders/" + platOrderId + ".json", storeVo.getApiToken());
                     if (!StringUtils.isBlank(strRes)) {
                         EntityOrder entityOrder = JSON.parseObject(str, EntityOrder.class);
                         if (entityOrder != null) {
                             ShopifyOrder orders = entityOrder.getOrder();
                             String fulfillmentStatus = orders.getFulfillment_status();
                             System.out.println(fulfillmentStatus);
-                            String fulfillmentsRes = GetResponse.sendGet("https://" + storeVo.getStoreUrl()+ ".myshopify.com/admin/api/" + Shopify.version + "/orders/" + platOrderId + "/fulfillments.json",storeVo.getApiToken());
+                            String fulfillmentsRes = GetResponse.sendGet("https://" + storeVo.getStoreName()+ ".myshopify.com/admin/api/" + Shopify.version + "/orders/" + platOrderId + "/fulfillments.json",storeVo.getApiToken());
                             EntityObject entityObject = JSON.parseObject(fulfillmentsRes, EntityObject.class);
                             List<ShopifyFulfillment> fulfillments = entityObject.getFulfillments();
                             if (fulfillments != null && fulfillments.size() > 0) {

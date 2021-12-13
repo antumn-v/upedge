@@ -509,6 +509,7 @@ public class OrderServiceImpl implements OrderService {
         order.setOrderType(0);
         order.setServiceFee(BigDecimal.ZERO);
         order.setOrderStatus(0);
+        order.setShipPrice(BigDecimal.ZERO);
         order.setPayState(0);
         order.setRefundState(0);
         order.setShipState(0);
@@ -535,17 +536,22 @@ public class OrderServiceImpl implements OrderService {
             BigDecimal itemQuantity = new BigDecimal(item.getQuantity());
             if (map.containsKey(item.getStoreVariantId())) {
                 CustomerProductQuoteVo customerProductQuoteVo = map.get(item.getStoreVariantId());
-                orderItem = new OrderItem(customerProductQuoteVo);
-                orderItem.setQuoteState(customerProductQuoteVo.getQuoteType());
-                quoteState++;
-                try {
-                    cnyProductAmount = cnyProductAmount.add(orderItem.getCnyPrice().multiply(itemQuantity));
-                } catch (Exception e) {
-                    continue;
+                if (customerProductQuoteVo.getQuoteType() == 5){
+                    orderItem = new OrderItem();
+                    orderItem.setQuoteState(5);
+                }else {
+                    orderItem = new OrderItem(customerProductQuoteVo);
+                    orderItem.setQuoteState(customerProductQuoteVo.getQuoteType());
+                    quoteState++;
+                    try {
+                        cnyProductAmount = cnyProductAmount.add(orderItem.getCnyPrice().multiply(itemQuantity));
+                    } catch (Exception e) {
+                        continue;
+                    }
+                    productAmount = productAmount.add(orderItem.getUsdPrice().multiply(itemQuantity));
+                    totalWeight = totalWeight.add(customerProductQuoteVo.getWeight().multiply(itemQuantity));
+                    volume = volume.add(customerProductQuoteVo.getVolume().multiply(itemQuantity));
                 }
-                productAmount = productAmount.add(orderItem.getUsdPrice().multiply(itemQuantity));
-                totalWeight = totalWeight.add(customerProductQuoteVo.getWeight().multiply(itemQuantity));
-                volume = volume.add(customerProductQuoteVo.getVolume().multiply(itemQuantity));
             } else {
                 orderItem = new OrderItem();
                 orderItem.setQuoteState(0);
@@ -569,6 +575,7 @@ public class OrderServiceImpl implements OrderService {
         order.setCnyProductAmount(cnyProductAmount);
         order.setProductAmount(productAmount);
         order.setTotalWeight(totalWeight);
+
 
         orderDao.insert(order);
         orderItemDao.insertByBatch(items);
@@ -603,6 +610,11 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public void updateSaiheOrderCode(String id, String saiheOrderCode) {
         orderDao.updateSaiheOrderCode(id, saiheOrderCode);
+    }
+
+    @Override
+    public boolean initOrderProductAmount(Long orderId) {
+        return false;
     }
 
     public ShipDetail updateShipDetailById(Long id, ShipDetail shipDetail) {
@@ -1683,7 +1695,12 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public void matchingShipInfoByVariantId(List<OrderItem> list) {
+        List<Long> orderIds = new ArrayList<>();
         for (OrderItem orderItem : list) {
+            if (orderIds.contains(orderItem.getOrderId())){
+                continue;
+            }
+            orderIds.add(orderItem.getOrderId());
             orderInitShipDetail(orderItem.getOrderId());
         }
     }

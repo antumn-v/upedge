@@ -14,6 +14,7 @@ import com.upedge.common.model.product.VariantDetail;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.utils.IdGenerate;
 import com.upedge.common.utils.ListUtils;
+import com.upedge.common.utils.PriceUtils;
 import com.upedge.oms.modules.order.dao.OrderDao;
 import com.upedge.oms.modules.order.dao.OrderItemDao;
 import com.upedge.oms.modules.order.dao.StoreOrderItemDao;
@@ -33,8 +34,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 
@@ -98,15 +99,19 @@ public class OrderItemServiceImpl implements OrderItemService {
         OrderItem orderItem = new OrderItem();
         orderItem.setOrderId(request.getOrderId());
         orderItemPage.setPageSize(-1);
+        orderItemPage.setT(orderItem);
         List<OrderItem> orderItems = select(orderItemPage);
         List<Long> itemIds = request.getItemIds();
         List<Long> storeVariantIds = new ArrayList<>();
-        for (OrderItem item : orderItems) {
-            if (!itemIds.contains(item.getId())
-                    || item.getQuoteState() != 0) {
-                return BaseResponse.failed("item error");
+        for (Long itemId : itemIds) {
+            for (OrderItem item : orderItems) {
+                if (itemId.equals(item.getId())){
+                    storeVariantIds.add(item.getStoreVariantId());
+                }
             }
-            storeVariantIds.add(item.getStoreVariantId());
+        }
+        if (ListUtils.isEmpty(storeVariantIds)){
+            return BaseResponse.failed("item error");
         }
         OrderQuoteApplyRequest orderQuoteApplyRequest = new OrderQuoteApplyRequest();
         orderQuoteApplyRequest.setOrderId(request.getOrderId());
@@ -116,12 +121,8 @@ public class OrderItemServiceImpl implements OrderItemService {
         orderQuoteApplyRequest.setStoreVariantId(storeVariantIds);
         BaseResponse response = pmsFeignClient.orderQuoteApply(orderQuoteApplyRequest);
         if (response.getCode() == ResultCode.SUCCESS_CODE) {
-            order = new Order();
-            order.setId(request.getOrderId());
-            order.setQuoteState(OrderConstant.QUOTE_STATE_QUOTING);
-            order.setUpdateTime(new Date());
-            orderService.updateByPrimaryKeySelective(order);
-            orderItemDao.updateQuoteStateByIds(itemIds, 5);
+            orderItemDao.updateOrderAsQuotingByStoreVariantIds(storeVariantIds);
+//            orderItemDao.updateQuoteStateByIds(itemIds, 5);
         }
         return response;
     }
@@ -129,14 +130,24 @@ public class OrderItemServiceImpl implements OrderItemService {
     @Transactional
     @Override
     public void updateItemQuoteDetail(CustomerProductQuoteVo customerProductQuoteVo) {
+        if (null == customerProductQuoteVo.getQuotePrice()){
+            return;
+        }
+        BigDecimal usdPrice = PriceUtils.cnyToUsdByDefaultRate(customerProductQuoteVo.getQuotePrice());
+        customerProductQuoteVo.setUsdPrice(usdPrice);
         orderItemDao.updateItemQuoteDetail(customerProductQuoteVo);
         Long storeVariantId = customerProductQuoteVo.getStoreVariantId();
         List<Long> orderIds = orderItemDao.selectUnpaidOrderIdByStoreVariantId(storeVariantId);
         if (ListUtils.isNotEmpty(orderIds)) {
-            orderIds = orderItemDao.selectUnQuoteItemOrderIdByOrderIds(orderIds);
-            if (ListUtils.isNotEmpty(orderIds)) {
-                orderDao.updateQuoteStateByIds(orderIds, OrderConstant.QUOTE_STATE_PART_UNQUOTED);
+            List<Long> partQuoteOrderIds = orderItemDao.selectUnQuoteItemOrderIdByOrderIds(orderIds);
+            if (ListUtils.isNotEmpty(partQuoteOrderIds)) {
+                orderDao.updateQuoteStateByIds(partQuoteOrderIds, OrderConstant.QUOTE_STATE_PART_UNQUOTED);
             }
+            orderIds.removeAll(partQuoteOrderIds);
+            if (ListUtils.isNotEmpty(orderIds)){
+                orderDao.updateQuoteStateByIds(orderIds, OrderConstant.QUOTE_STATE_QUOTED);
+            }
+            orderDao.initProductAmountById(orderIds);
         }
     }
 

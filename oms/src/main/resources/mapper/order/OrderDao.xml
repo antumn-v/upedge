@@ -2,7 +2,6 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="com.upedge.oms.modules.order.dao.OrderDao">
-
     <!-- 可根据自己的需求，是否要使用 -->
     <resultMap type="com.upedge.oms.modules.order.entity.Order" id="BaseResultMap">
         <result property="id" column="id"/>
@@ -117,11 +116,11 @@
                 <result property="itemType" column="item_type"/>
             </collection>
         </collection>
-
     </resultMap>
 
     <sql id="Base_Column_List">
-        `id`,`customer_id`,`org_id`,`org_path`,`store_id`,`pay_amount`,`ship_method_id`,`ship_price`,
+        `id`
+                ,`customer_id`,`org_id`,`org_path`,`store_id`,`pay_amount`,`ship_method_id`,`ship_price`,
         `total_weight`,`product_amount`,`product_discharge_amount`,`fix_fee`,`fix_fee_percentage`,`service_fee`,
         `pay_method`,`pay_time`,`payment_id`,`pay_state`,`refund_state`,`ship_state`,`order_type`,quote_state,
         `to_area_id`,`cny_rate`,`create_time`,`update_time`,`saihe_order_code`,`vat_amount`,`order_status`,`manager_code`
@@ -324,10 +323,10 @@
     </select>
 
     <select id="selectTransactionDetailByPaymentId" resultType="com.upedge.common.model.order.TransactionDetail">
-        select id as orderId,'2' as orderType, pay_amount as `amount`,payment_id as payment_id,pay_time as payTime
+        select id as orderId, '2' as orderType, pay_amount as `amount`, payment_id as payment_id, pay_time as payTime
         from `order`
         where payment_id = #{paymentId}
-        and pay_state = '1'
+          and pay_state = '1'
     </select>
 
     <select id="selectPayAmountByPaymentId" resultType="java.math.BigDecimal">
@@ -363,34 +362,74 @@
     </select>
 
     <select id="selectPayOrderListByPaymentId" resultMap="AppOrderPayList">
-        select o.customer_id,o.id,o.store_id,o.pay_amount,
-        o.ship_method_id,o.ship_price,
-        o.total_weight,o.product_amount,o.product_discharge_amount,
-        o.fix_fee,o.pay_method,
-        o.pay_time,o.payment_id,o.pay_state,o.refund_state,
-        o.ship_state,o.order_type,o.to_area_id,
-        o.vat_amount,
-        sor.plat_order_name,sor.plat_order_create_time,sor.`order_customer_name`,
-        sor.store_order_id,
-        oi.id as `itemId`,oi.order_id,`admin_product_id`,`store_variant_name`,
-        `store_variant_sku`,`admin_variant_image`,`store_product_title`,`usd_price`,`quantity`,
-        `discharge_quantity`,`admin_variant_weight`,`admin_variant_volume`,oi.admin_variant_id
+        select o.customer_id,
+               o.id,
+               o.store_id,
+               o.pay_amount,
+               o.ship_method_id,
+               o.ship_price,
+               o.total_weight,
+               o.product_amount,
+               o.product_discharge_amount,
+               o.fix_fee,
+               o.pay_method,
+               o.pay_time,
+               o.payment_id,
+               o.pay_state,
+               o.refund_state,
+               o.ship_state,
+               o.order_type,
+               o.to_area_id,
+               o.vat_amount,
+               sor.plat_order_name,
+               sor.plat_order_create_time,
+               sor.`order_customer_name`,
+               sor.store_order_id,
+               oi.id as `itemId`,
+               oi.order_id,
+               `admin_product_id`,
+               `store_variant_name`,
+               `store_variant_sku`,
+               `admin_variant_image`,
+               `store_product_title`,
+               `usd_price`,
+               `quantity`,
+               `discharge_quantity`,
+               `admin_variant_weight`,
+               `admin_variant_volume`,
+               oi.admin_variant_id
         from `order` o
-        inner join order_item oi
-        on o.id = oi.order_id
-        inner join store_order_relate sor
-        on oi.order_id = sor.order_id
+                     inner join order_item oi
+                on o.id = oi.order_id
+                     inner join store_order_relate sor
+                on oi.order_id = sor.order_id
         where o.payment_id = #{paymentId}
-        and o.order_type != '1'
+          and o.order_type != '1'
         and o.order_status = '0'
         order by sor.plat_order_create_time desc
     </select>
 
     <select id="selectAppOrderById" resultMap="AppOrderVo">
-        select o.customer_id,o.id,o.store_id,o.pay_amount,o.ship_method_id,o.ship_price,
-        o.total_weight,o.product_amount,o.product_discharge_amount,o.fix_fee,o.pay_method,
-        o.pay_time,o.payment_id,o.pay_state,o.refund_state,o.ship_state,o.order_type,o.to_area_id,
-        o.vat_amount,o.create_time
+        select o.customer_id,
+               o.id,
+               o.store_id,
+               o.pay_amount,
+               o.ship_method_id,
+               o.ship_price,
+               o.total_weight,
+               o.product_amount,
+               o.product_discharge_amount,
+               o.fix_fee,
+               o.pay_method,
+               o.pay_time,
+               o.payment_id,
+               o.pay_state,
+               o.refund_state,
+               o.ship_state,
+               o.order_type,
+               o.to_area_id,
+               o.vat_amount,
+               o.create_time
         from `order` o
         where o.id = #{id}
     </select>
@@ -440,45 +479,45 @@
 
     <update id="updateProductAmountByPaymentId">
         update `order` o
-        inner join
-        (
-        select oo.id as `orderId`,
-        sum(quantity * usd_price) as `productAmount`,
-        sum(quantity * cny_price) as `cnyProductAmount`,
-        sum(discharge_quantity * usd_price) as `dischargeAmount`
-        from order_item oi
-        inner join `order` oo
-        on oi.order_id = oo.id
-        where oo.payment_id = #{paymentId}
-        and oo.pay_state = '0'
-        group by oi.order_id
-        ) ooo
+                inner join
+                (
+                select oo.id as `orderId`,
+                sum (quantity * ifnull(usd_price,'0')) as `productAmount`,
+                sum (quantity * ifnull(cny_price,'0')) as `cnyProductAmount`,
+                sum (discharge_quantity * ifnull(usd_price,'0')) as `dischargeAmount`
+                from order_item oi
+                inner join `order` oo
+                on oi.order_id = oo.id
+                where oo.payment_id = #{paymentId}
+                and oo.pay_state = '0'
+                group by oi.order_id
+                ) ooo
         on o.id = ooo.orderId
-        set o.product_amount = ooo.productAmount,
-        o.product_discharge_amount = ooo.dischargeAmount,
-        o.cny_product_amount = ooo.cnyProductAmount
+                set o.product_amount = ooo.productAmount,
+                        o.product_discharge_amount = ooo.dischargeAmount,
+                        o.cny_product_amount = ooo.cnyProductAmount
         where o.payment_id = #{paymentId}
-        and o.pay_state = '0'
-        and o.order_type != '1'
-        and o.order_status = '0'
+          and o.pay_state = '0'
+          and o.order_type != '1'
+          and o.order_status = '0'
     </update>
 
     <update id="updateOrderVatAmountById">
         update `order`
         set vat_amount = #{vatAmount}
         where id = #{id}
-        and pay_state = '0'
+          and pay_state = '0'
     </update>
 
     <update id="updateShipDetailById">
         update `order`
-        set ship_price = #{ship.price},
-        vat_amount = #{ship.vatAmount},
-        service_fee = #{ship.serviceFee},
-        total_weight = #{ship.weight},
-        ship_method_id = #{ship.methodId}
+        set ship_price     = #{ship.price},
+            vat_amount     = #{ship.vatAmount},
+            service_fee    = #{ship.serviceFee},
+            total_weight   = #{ship.weight},
+            ship_method_id = #{ship.methodId}
         where id = #{id}
-        and pay_state = '0'
+          and pay_state = '0'
     </update>
 
     <update id="updateShipDetailByMap">
@@ -526,7 +565,7 @@
         update `order`
         set pay_state = #{payState}
         where payment_id = #{paymentId}
-        and pay_state != '1'
+          and pay_state != '1'
         and order_type != '1'
         and order_status = '0'
     </update>
@@ -535,23 +574,23 @@
         update `order`
         set pay_state = '2'
         where payment_id = #{paymentId}
-        and pay_state = '0'
-        and order_type != '1'
+          and pay_state = '0'
+          and order_type != '1'
         and order_status = '0'
     </update>
 
     <update id="updateOrderAsPaid" parameterType="com.upedge.oms.modules.order.dto.OrderTransactionDto">
         update `order`
-        set pay_state = '1',
-        pay_time = #{payTime},
-        pay_method = #{payMethod},
-        pay_amount = (product_amount + ship_price + vat_amount + service_fee - product_discharge_amount),
-        fix_fee = round( (#{fixFeePercentage}*pay_amount+'0.3')/ ('1' - #{fixFeePercentage}) ,2),
-        fix_fee_percentage = #{fixFeePercentage},
-        cny_rate = #{cnyRate}
+        set pay_state          = '1',
+            pay_time           = #{payTime},
+            pay_method         = #{payMethod},
+            pay_amount         = (product_amount + ship_price + vat_amount + service_fee - product_discharge_amount),
+            fix_fee            = round((#{fixFeePercentage} * pay_amount + '0.3') / ('1' - #{fixFeePercentage}), 2),
+            fix_fee_percentage = #{fixFeePercentage},
+            cny_rate           = #{cnyRate}
         where payment_id = #{paymentId}
-        and pay_state = '2'
-        and order_type != '1'
+          and pay_state = '2'
+          and order_type != '1'
         and order_status = '0'
     </update>
 
@@ -589,21 +628,21 @@
 
     <update id="delOrderShipInfoByProductId">
         update `order` o
-        inner join order_item oi
+                inner join order_item oi
         on o.id = oi.order_id
-        set ship_method_id = null  ,
-        ship_price = 0
-        where oi.admin_product_id = #{productId}  and  o.pay_state = 0;
+                set ship_method_id = null,
+                        ship_price = 0
+        where oi.admin_product_id = #{productId} and o.pay_state = 0;
     </update>
 
     <update id="delOrderShipInfoByVariantId">
         update `order` o
-        inner join order_item oi
+                inner join order_item oi
         on o.id = oi.order_id
-        set ship_method_id = null,
-        ship_price = 0
+                set ship_method_id = null,
+                        ship_price = 0
         where oi.admin_variant_id = #{variantId}
-        and  o.pay_state = 0;
+          and o.pay_state = 0;
     </update>
 
     <update id="updateByPrimaryKeySelective" parameterType="com.upedge.oms.modules.order.entity.Order">
@@ -741,8 +780,9 @@
         where id = #{id}
     </update>
 
-    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.upedge.oms.modules.order.entity.Order" useGeneratedKeys="true">
-        insert into order
+    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.upedge.oms.modules.order.entity.Order"
+            useGeneratedKeys="true">
+        insert into `order`
         <trim prefix="(" suffix=")" suffixOverrides=",">
             id,
             customer_id,
@@ -811,199 +851,198 @@
         )
     </insert>
 
-    <insert id="insertSelective"  keyColumn="id" keyProperty="id"  parameterType="com.upedge.oms.modules.order.entity.Order" useGeneratedKeys="true">
+    <insert id="insertSelective" keyColumn="id" keyProperty="id"
+            parameterType="com.upedge.oms.modules.order.entity.Order" useGeneratedKeys="true">
         insert into order
         <trim prefix="(" suffix=")" suffixOverrides=",">
-            <if test="id != null" >
+            <if test="id != null">
                 id
             </if>
-            <if test="customerId != null" >
+            <if test="customerId != null">
                 customer_id
             </if>
-            <if test="storeId != null" >
+            <if test="storeId != null">
                 store_id
             </if>
-            <if test="orgId != null" >
+            <if test="orgId != null">
                 org_id
             </if>
-            <if test="orgPath != null" >
+            <if test="orgPath != null">
                 org_path
             </if>
-            <if test="payAmount != null" >
+            <if test="payAmount != null">
                 pay_amount
             </if>
-            <if test="serviceFee != null" >
+            <if test="serviceFee != null">
                 service_fee
             </if>
-            <if test="shipMethodId != null" >
+            <if test="shipMethodId != null">
                 ship_method_id
             </if>
-            <if test="shipPrice != null" >
+            <if test="shipPrice != null">
                 ship_price
             </if>
-            <if test="totalWeight != null" >
+            <if test="totalWeight != null">
                 total_weight
             </if>
-            <if test="cnyProductAmount != null" >
+            <if test="cnyProductAmount != null">
                 cny_product_amount
             </if>
-            <if test="productAmount != null" >
+            <if test="productAmount != null">
                 product_amount
             </if>
-            <if test="productDischargeAmount != null" >
+            <if test="productDischargeAmount != null">
                 product_discharge_amount
             </if>
-            <if test="fixFee != null" >
+            <if test="fixFee != null">
                 fix_fee
             </if>
-            <if test="fixFeePercentage != null" >
+            <if test="fixFeePercentage != null">
                 fix_fee_percentage
             </if>
-            <if test="payMethod != null" >
+            <if test="payMethod != null">
                 pay_method
             </if>
-            <if test="payTime != null" >
+            <if test="payTime != null">
                 pay_time
             </if>
-            <if test="paymentId != null" >
+            <if test="paymentId != null">
                 payment_id
             </if>
-            <if test="payState != null" >
+            <if test="payState != null">
                 pay_state
             </if>
-            <if test="refundState != null" >
+            <if test="refundState != null">
                 refund_state
             </if>
-            <if test="shipState != null" >
+            <if test="shipState != null">
                 ship_state
             </if>
-            <if test="quoteState != null" >
+            <if test="quoteState != null">
                 quote_state
             </if>
-            <if test="orderType != null" >
+            <if test="orderType != null">
                 order_type
             </if>
-            <if test="toAreaId != null" >
+            <if test="toAreaId != null">
                 to_area_id
             </if>
-            <if test="cnyRate != null" >
+            <if test="cnyRate != null">
                 cny_rate
             </if>
-            <if test="createTime != null" >
+            <if test="createTime != null">
                 create_time
             </if>
-            <if test="updateTime != null" >
+            <if test="updateTime != null">
                 update_time
             </if>
-            <if test="saiheOrderCode != null" >
+            <if test="saiheOrderCode != null">
                 saihe_order_code
             </if>
-            <if test="vatAmount != null" >
+            <if test="vatAmount != null">
                 vat_amount
             </if>
-            <if test="orderStatus != null" >
+            <if test="orderStatus != null">
                 order_status
             </if>
-            <if test="managerCode != null" >
+            <if test="managerCode != null">
                 manager_code
             </if>
-
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
-            <if test="id != null" >
+            <if test="id != null">
                 #{id}
             </if>
-            <if test="customerId != null" >
+            <if test="customerId != null">
                 #{customerId}
             </if>
-            <if test="storeId != null" >
+            <if test="storeId != null">
                 #{storeId}
             </if>
-            <if test="orgId != null" >
+            <if test="orgId != null">
                 #{orgId}
             </if>
-            <if test="orgPath != null" >
+            <if test="orgPath != null">
                 #{orgPath}
             </if>
-            <if test="payAmount != null" >
+            <if test="payAmount != null">
                 #{payAmount}
             </if>
-            <if test="serviceFee != null" >
+            <if test="serviceFee != null">
                 #{serviceFee}
             </if>
-            <if test="shipMethodId != null" >
+            <if test="shipMethodId != null">
                 #{shipMethodId}
             </if>
-            <if test="shipPrice != null" >
+            <if test="shipPrice != null">
                 #{shipPrice}
             </if>
-            <if test="totalWeight != null" >
+            <if test="totalWeight != null">
                 #{totalWeight}
             </if>
-            <if test="cnyProductAmount != null" >
+            <if test="cnyProductAmount != null">
                 #{cnyProductAmount}
             </if>
-            <if test="productAmount != null" >
+            <if test="productAmount != null">
                 #{productAmount}
             </if>
-            <if test="productDischargeAmount != null" >
+            <if test="productDischargeAmount != null">
                 #{productDischargeAmount}
             </if>
-            <if test="fixFee != null" >
+            <if test="fixFee != null">
                 #{fixFee}
             </if>
-            <if test="fixFeePercentage != null" >
+            <if test="fixFeePercentage != null">
                 #{fixFeePercentage}
             </if>
-            <if test="payMethod != null" >
+            <if test="payMethod != null">
                 #{payMethod}
             </if>
-            <if test="payTime != null" >
+            <if test="payTime != null">
                 #{payTime}
             </if>
-            <if test="paymentId != null" >
+            <if test="paymentId != null">
                 #{paymentId}
             </if>
-            <if test="payState != null" >
+            <if test="payState != null">
                 #{payState}
             </if>
-            <if test="refundState != null" >
+            <if test="refundState != null">
                 #{refundState}
             </if>
-            <if test="shipState != null" >
+            <if test="shipState != null">
                 #{shipState}
             </if>
-            <if test="quoteState != null" >
+            <if test="quoteState != null">
                 #{quoteState}
             </if>
-            <if test="orderType != null" >
+            <if test="orderType != null">
                 #{orderType}
             </if>
-            <if test="toAreaId != null" >
+            <if test="toAreaId != null">
                 #{toAreaId}
             </if>
-            <if test="cnyRate != null" >
+            <if test="cnyRate != null">
                 #{cnyRate}
             </if>
-            <if test="createTime != null" >
+            <if test="createTime != null">
                 #{createTime}
             </if>
-            <if test="updateTime != null" >
+            <if test="updateTime != null">
                 #{updateTime}
             </if>
-            <if test="saiheOrderCode != null" >
+            <if test="saiheOrderCode != null">
                 #{saiheOrderCode}
             </if>
-            <if test="vatAmount != null" >
+            <if test="vatAmount != null">
                 #{vatAmount}
             </if>
-            <if test="orderStatus != null" >
+            <if test="orderStatus != null">
                 #{orderStatus}
             </if>
-            <if test="managerCode != null" >
+            <if test="managerCode != null">
                 #{managerCode}
             </if>
-
         </trim>
     </insert>
 
@@ -1322,7 +1361,6 @@
                     where s.plat_order_name=#{t.orderNumber}
                     )
                 </if>
-
             </trim>
         </if>
     </sql>
@@ -1365,82 +1403,104 @@
     </update>
 
     <select id="existPendingOrderByOriginal" resultType="java.lang.Integer">
-      select count(1) from `order` o
-      left join order_reship_info ori on ori.order_id=o.id
-      where ori.original_order_id=#{originalOrderId} and o.order_status=1 and o.order_type=1
-	</select>
+        select count(1)
+        from `order` o
+                     left join order_reship_info ori on ori.order_id = o.id
+        where ori.original_order_id = #{originalOrderId}
+          and o.order_status = 1
+          and o.order_type = 1
+    </select>
 
     <select id="existReshipOrderWaitTrackByOriginal" resultType="java.lang.Integer">
-      select count(1) from `order` o
-      left join order_reship_info ori on ori.order_id=o.id
-      where ori.original_order_id=#{originalOrderId}
-      and o.order_status=0 and o.order_type=1 and o.ship_state=0
+        select count(1)
+        from `order` o
+                     left join order_reship_info ori on ori.order_id = o.id
+        where ori.original_order_id = #{originalOrderId}
+          and o.order_status = 0
+          and o.order_type = 1
+          and o.ship_state = 0
     </select>
 
     <select id="reshipOrderTimesByOriginal" resultType="java.lang.Integer">
-      select count(1) from `order` o
-      left join order_reship_info ori on ori.order_id=o.id
-      where ori.original_order_id=#{originalOrderId} and o.order_status=0 and o.order_type=1
+        select count(1)
+        from `order` o
+                     left join order_reship_info ori on ori.order_id = o.id
+        where ori.original_order_id = #{originalOrderId}
+          and o.order_status = 0
+          and o.order_type = 1
     </select>
 
     <update id="updateOrderAsRefunding">
-        update `order` set refund_state=1
-        where id=#{id} and refund_state=0 limit 1
+        update `order`
+        set refund_state=1
+        where id = #{id}
+          and refund_state = 0 limit 1
     </update>
 
     <update id="restoreOrderRefundState">
-        update `order` set refund_state=0
-        where id=#{id} and refund_state=1 limit 1
+        update `order`
+        set refund_state=0
+        where id = #{id}
+          and refund_state = 1 limit 1
     </update>
 
     <update id="updateOrderAsRefund">
-        update `order` set refund_state=#{state} where id=#{id} and refund_state=1
+        update `order`
+        set refund_state=#{state}
+        where id = #{id}
+          and refund_state = 1
     </update>
 
     <select id="querySaiheOrder" resultType="com.upedge.thirdparty.saihe.entity.SaiheOrder">
-        select
-        o.order_type as orderType,
-        o.id as clientOrderCode,
-        o.pay_time as payTime,
-        o.customer_id as customerId,
-        o.ship_price as transportPay,
-        o.vat_amount as vatAmount,
-        IFNULL(o.product_amount,0)+IFNULL(o.ship_price,0)+IFNULL(o.vat_amount,0) as totalPrice,
-        o.payment_id as transactionId,
-        od.city as city,
-        od.address1 as address1,
-        od.address2 as address2,
-        od.country as country,
-        od.country_code as countryCode,
-        od.first_name as firstName,
-        od.last_name as lastName,
-        od.email as email,
-        od.phone as phone,
-        od.province as province,
-        od.province_code as provinceCode,
-        od.zip as postalCode,
-        o.ship_method_id as shipMethodId,
-        manager_code  as `managerCode`
+        select o.order_type                                                                    as orderType,
+               o.id                                                                            as clientOrderCode,
+               o.pay_time                                                                      as payTime,
+               o.customer_id                                                                   as customerId,
+               o.ship_price                                                                    as transportPay,
+               o.vat_amount                                                                    as vatAmount,
+               IFNULL(o.product_amount, 0) + IFNULL(o.ship_price, 0) + IFNULL(o.vat_amount, 0) as totalPrice,
+               o.payment_id                                                                    as transactionId,
+               od.city                                                                         as city,
+               od.address1                                                                     as address1,
+               od.address2                                                                     as address2,
+               od.country                                                                      as country,
+               od.country_code                                                                 as countryCode,
+               od.first_name                                                                   as firstName,
+               od.last_name                                                                    as lastName,
+               od.email                                                                        as email,
+               od.phone                                                                        as phone,
+               od.province                                                                     as province,
+               od.province_code                                                                as provinceCode,
+               od.zip                                                                          as postalCode,
+               o.ship_method_id                                                                as shipMethodId,
+               manager_code                                                                    as `managerCode`
         from `order` o
-        left join order_address od on o.id=od.order_id
-        where o.pay_state=1 and o.ship_state=0 and o.refund_state=0
-        and o.order_status=0
-        and o.saihe_order_code is NULL
-        and o.id=#{id}
+                     left join order_address od on o.id = od.order_id
+        where o.pay_state = 1
+          and o.ship_state = 0
+          and o.refund_state = 0
+          and o.order_status = 0
+          and o.saihe_order_code is NULL
+          and o.id = #{id}
     </select>
 
     <update id="updateSaiheOrderCode">
-        update `order` set saihe_order_code=#{saiheOrderCode}
-        where id=#{id} limit 1
-	</update>
+        update `order`
+        set saihe_order_code=#{saiheOrderCode}
+        where id = #{id} limit 1
+    </update>
 
     <update id="updateOrderAsTracked">
-        update `order` set ship_state=1
-        where id=#{id} and ship_state=0 limit 1
+        update `order`
+        set ship_state=1
+        where id = #{id}
+          and ship_state = 0 limit 1
     </update>
     <update id="updateOrderShipMethod">
-         update `order` set ship_method_id = null  ,  ship_price = 0
-         where id=#{id}
+        update `order`
+        set ship_method_id = null,
+            ship_price     = 0
+        where id = #{id}
     </update>
     <update id="updateOrderType">
         update `order`
@@ -1455,18 +1515,18 @@
 
     <update id="updateOrderProductAmount">
         update `order`
-        set product_amount = #{productAmount},
-        cny_product_amount = #{cnyProductAmount}
+        set product_amount     = #{productAmount},
+            cny_product_amount = #{cnyProductAmount}
         where id = #{id}
-        and pay_state = '0'
-        and order_type != '1'
+          and pay_state = '0'
+          and order_type != '1'
     </update>
     <update id="updateToAreaIdById">
         update `order`
         set to_area_id = #{toAreaId}
         where id = #{id}
-        and pay_state &lt; '1'
-        and order_type != '1'
+          and pay_state &lt; '1'
+          and order_type != '1'
     </update>
 
     <select id="orderHandleImportData" resultType="java.lang.Long">
@@ -1515,51 +1575,71 @@
         from order_item oi
         left join `order` o on oi.order_id=o.id
         where o.pay_state=0 and o.customer_id=#{customerId}
-        GROUP BY oi.admin_variant_sku,oi.admin_variant_id,oi.store_variant_sku,oi.store_variant_name,oi.admin_variant_image
+        GROUP BY
+        oi.admin_variant_sku,oi.admin_variant_id,oi.store_variant_sku,oi.store_variant_name,oi.admin_variant_image
         <if test="pageNum != null and pageSize != null">
             limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
         </if>
     </select>
 
     <select id="countToOrderSkuData" parameterType="com.upedge.common.base.Page" resultType="java.lang.Long">
-        select count(1) from (
-        select
-        count(1)
-        from order_item oi
-        left join `order` o on oi.order_id=o.id
-        where o.pay_state=0 and o.customer_id=#{customerId}
-        GROUP BY oi.admin_variant_sku
-        ) c
+        select count(1)
+        from (
+                     select count(1)
+                     from order_item oi
+                                  left join `order` o on oi.order_id = o.id
+                     where o.pay_state = 0
+                       and o.customer_id = #{customerId}
+                     GROUP BY oi.admin_variant_sku
+                     ) c
     </select>
 
     <select id="normalOrderPaidTotalNum" resultType="java.lang.Long">
-        select count(1) from `order` o
-        where pay_state=1 and refund_state=0 and customer_id=#{customerId}
+        select count(1)
+        from `order` o
+        where pay_state = 1
+          and refund_state = 0
+          and customer_id = #{customerId}
     </select>
 
     <select id="normalOrderPaidShipYesNum" resultType="java.lang.Long">
-        select count(1) from `order` o
-        where pay_state=1 and refund_state=0 and ship_state=1 and customer_id=#{customerId}
+        select count(1)
+        from `order` o
+        where pay_state = 1
+          and refund_state = 0
+          and ship_state = 1
+          and customer_id = #{customerId}
     </select>
 
     <select id="normalOrderPaidShipNoNum" resultType="java.lang.Long">
-        select count(1) from `order` o
-        where pay_state=1 and refund_state=0 and ship_state=0 and customer_id=#{customerId}
+        select count(1)
+        from `order` o
+        where pay_state = 1
+          and refund_state = 0
+          and ship_state = 0
+          and customer_id = #{customerId}
     </select>
 
     <select id="normalOrderToPayNum" resultType="java.lang.Long">
-        select count(1) from `order` o
-        where pay_state=0 and customer_id=#{customerId}
+        select count(1)
+        from `order` o
+        where pay_state = 0
+          and customer_id = #{customerId}
     </select>
 
     <select id="normalOrderCancelNum" resultType="java.lang.Long">
-        select count(1) from `order` o
-        where pay_state=-1 and customer_id=#{customerId}
+        select count(1)
+        from `order` o
+        where pay_state = -1
+          and customer_id = #{customerId}
     </select>
 
     <select id="normalOrderPaidAmount" resultType="java.math.BigDecimal">
-        select sum(pay_amount) from `order` o
-        where pay_state=1 and refund_state=0 and customer_id=#{customerId}
+        select sum(pay_amount)
+        from `order` o
+        where pay_state = 1
+          and refund_state = 0
+          and customer_id = #{customerId}
     </select>
 
     <select id="todayPaidOrderNum" resultType="java.lang.Integer">
@@ -1677,10 +1757,13 @@
 
     <!--未发货订单分析(客户经理 订单数)-->
     <select id="waitTrackOrderData" resultType="com.upedge.oms.modules.statistics.dto.WaitTrackOrderData">
-        select IFNULL(o.manager_code,0) as managerCode,count(1) as orderNum
+        select IFNULL(o.manager_code, 0) as managerCode, count(1) as orderNum
         from `order` o
-        where o.pay_state=1 and o.ship_state=0 and o.order_status =0 and o.refund_state=0
-        and date_sub(#{currDate}, INTERVAL #{dayNum} DAY) >= date (o.pay_time)
+        where o.pay_state = 1
+          and o.ship_state = 0
+          and o.order_status = 0
+          and o.refund_state = 0
+          and date_sub(#{currDate}, INTERVAL #{dayNum} DAY) >= date (o.pay_time)
         group by o.manager_code
     </select>
 
@@ -1692,8 +1775,12 @@
         <where>
             o.pay_state=1 and o.ship_state=0 and o.order_status =0 and o.refund_state=0
             and date_sub(#{currDate}, INTERVAL #{dayNum} DAY) >= date (o.pay_time)
-            <if test='adminUserId !="0"'>and o.manager_code=#{adminUserId}</if>
-            <if test='adminUserId =="0"'>and o.manager_code is null</if>
+            <if test='adminUserId !="0"'>
+                and o.manager_code=#{adminUserId}
+            </if>
+            <if test='adminUserId =="0"'>
+                and o.manager_code is null
+            </if>
         </where>
         group by o.customer_id
     </select>
@@ -1825,7 +1912,6 @@
     </select>
 
     <select id="orderDistributionByTime" resultType="com.upedge.oms.modules.order.vo.EchartsPieVo">
-
         select o.to_area_id as name,count(1) as `value` from `order` o
         where
         o.pay_state=1
@@ -1840,17 +1926,19 @@
             and date(o.pay_time) &lt;=#{query.endTime}
         </if>
         group by o.to_area_id
-
     </select>
     <select id="appOrderWithDate" resultType="com.upedge.oms.modules.order.vo.AppOrderDataVo">
         select
-        date(pay_time) as dayDate,
-        count(1) as orderNum,
-        sum(IFNULL(product_amount,0)+IFNULL(ship_price,0)+IFNULL(vat_amount,0)) as orderAmount
+                date (pay_time) as dayDate,
+                count (1) as orderNum,
+                sum (IFNULL(product_amount, 0)+IFNULL(ship_price, 0)+IFNULL(vat_amount, 0)) as orderAmount
         from `order`
-        where pay_state=1 and refund_state = 0 and customer_id=#{customerId}
-        and date(pay_time) &lt;=#{endDay} and date(pay_time) >= #{startDay}
-        group by date(pay_time)
+        where pay_state=1
+          and refund_state = 0
+          and customer_id=#{customerId}
+          and date (pay_time) &lt;=#{endDay}
+          and date (pay_time) >= #{startDay}
+        group by date (pay_time)
     </select>
     <select id="getOrderList" resultType="com.upedge.oms.modules.order.entity.Order">
         select
@@ -1878,42 +1966,37 @@
     </select>
 
     <select id="getManagerActual" resultType="com.upedge.common.model.order.vo.ManagerActualVo">
-        select
-            manager_code,
-            (sum(credit_amount) - sum(refund_amount)) actualSalesAmount,
-            count(1)  actualNum
-        FROM
-            order_daily_pay_count
-        where
-            manager_code = #{t.managerCode}
-        and
-            pay_time  &lt;=#{t.endTime} and pay_time >= #{t.startTime}
-        GROUP BY customer_id,manager_code HAVING count(1)
+        select manager_code,
+               (sum(credit_amount) - sum(refund_amount)) actualSalesAmount,
+               count(1)                                  actualNum
+        FROM order_daily_pay_count
+        where manager_code = #{t.managerCode}
+          and pay_time &lt;= #{t.endTime}
+          and pay_time >= #{t.startTime}
+        GROUP BY customer_id, manager_code
+        HAVING count(1)
     </select>
     <select id="queryConfirmAppRefundById" resultType="com.upedge.oms.modules.common.vo.RefundVo">
-            SELECT
-                ar.id AS id,
-                apo.saihe_order_code AS saiheOrderCode
-            FROM
-                order_refund ar
-                LEFT JOIN `order` apo ON apo.id = ar.order_id
-            WHERE
-                ar.state = 1
-                AND ar.id = #{id}
+        SELECT ar.id                AS id,
+               apo.saihe_order_code AS saiheOrderCode
+        FROM order_refund ar
+                     LEFT JOIN `order` apo ON apo.id = ar.order_id
+        WHERE ar.state = 1
+          AND ar.id = #{id}
     </select>
     <select id="getNormalOrderAmountByManagerCode" resultType="java.math.BigDecimal">
-        select
-        ifnull(sum(
-        IFNULL(product_amount,0)
-        +IFNULL(ship_price,0)
-        +IFNULL(vat_amount,0)
-        +IFNULL(fix_fee,0)
-        ),0)
+        select ifnull(sum(
+                              IFNULL(product_amount, 0)
+                                      + IFNULL(ship_price, 0)
+                                      + IFNULL(vat_amount, 0)
+                                      + IFNULL(fix_fee, 0)
+                              ), 0)
         from `order`
-        where pay_state=1
-        and order_status =0
-        and date(pay_time) >=#{t.startDay} and date(pay_time) &lt;=#{t.endDay}
-        and manager_code = #{t.managerCode}
+        where pay_state = 1
+          and order_status = 0
+          and date (pay_time) >=#{t.startDay}
+          and date (pay_time) &lt;=#{t.endDay}
+          and manager_code = #{t.managerCode}
     </select>
     <select id="getNormalOrderCount" resultType="java.lang.String">
         select
@@ -1928,48 +2011,52 @@
         </foreach>
     </select>
     <select id="OrderTotalAmount" resultType="com.upedge.common.model.order.vo.CustomerOrderStatisticalVo">
-                SELECT
-            ifnull(sum( IFNULL( product_amount, 0 ) + IFNULL( ship_price, 0 ) + IFNULL( fix_fee, 0 ) ),0) AS totalOrderMoney,
-            ifnull(count(1),0) AS totalPandaPaidOrderNum
-        FROM
-            `order`
-        WHERE
-            pay_state = 1
-            AND order_status = 0
-            and  customer_id = #{customerId}
-        GROUP BY
-            customer_id
-
+        SELECT ifnull(sum(IFNULL(product_amount, 0) + IFNULL(ship_price, 0) + IFNULL(fix_fee, 0)),
+                      0)           AS totalOrderMoney,
+               ifnull(count(1), 0) AS totalPandaPaidOrderNum
+        FROM `order`
+        WHERE pay_state = 1
+          AND order_status = 0
+          and customer_id = #{customerId}
+        GROUP BY customer_id
     </select>
     <select id="getCancelOrderCount" resultType="java.lang.Integer">
-        select ifnull(count(1),0) from `order`
-		where pay_state= -1
-		and order_status =0
-		and  customer_id = #{customerId}
+        select ifnull(count(1), 0)
+        from `order`
+        where pay_state = -1
+          and order_status = 0
+          and customer_id = #{customerId}
     </select>
     <select id="getPayAndShipOrderCount" resultType="java.lang.Integer">
-		select ifnull(count(1),0) from `order`
-		where pay_state=1 and ship_state =1
-		and order_status =0
-		and  customer_id = #{customerId}
+        select ifnull(count(1), 0)
+        from `order`
+        where pay_state = 1
+          and ship_state = 1
+          and order_status = 0
+          and customer_id = #{customerId}
     </select>
     <select id="getPayButNoShipOrderCount" resultType="java.lang.Integer">
-        select ifnull(count(1),0) from `order`
-		where pay_state=1 and ship_state=0
-		and order_status =0
-		and  customer_id = #{customerId}
+        select ifnull(count(1), 0)
+        from `order`
+        where pay_state = 1
+          and ship_state = 0
+          and order_status = 0
+          and customer_id = #{customerId}
     </select>
     <select id="getCompleteOrderCount" resultType="java.lang.Integer">
-	    select ifnull(count(1),0) from `order`
-		where pay_state=1 and ship_state=2
-		and order_status =0
-		and  customer_id = #{customerId}
+        select ifnull(count(1), 0)
+        from `order`
+        where pay_state = 1
+          and ship_state = 2
+          and order_status = 0
+          and customer_id = #{customerId}
     </select>
     <select id="getNoPayOrderCount" resultType="java.lang.Integer">
-        select ifnull(count(1),0) from `order`
-		where pay_state=0
-		and order_status =0
-		and  customer_id = #{customerId}
+        select ifnull(count(1), 0)
+        from `order`
+        where pay_state = 0
+          and order_status = 0
+          and customer_id = #{customerId}
     </select>
     <select id="selectPage" resultType="com.upedge.oms.modules.order.entity.Order">
         select
@@ -1999,15 +2086,15 @@
     <select id="selectOrderItemAmountByPaymentId"
             resultType="com.upedge.oms.modules.order.vo.OrderProductAmountVo">
         select o.id,
-        sum(quantity * usd_price) as `productAmount`,
-        sum(quantity * cny_price) as `cnyProductAmount`
+               sum(quantity * usd_price) as `productAmount`,
+               sum(quantity * cny_price) as `cnyProductAmount`
         from order_item oi
-        inner join `order` o
-        on oi.order_id = o.id
+                     inner join `order` o
+                on oi.order_id = o.id
         where o.payment_id = #{paymentId}
-        and o.pay_state = '0'
-        and o.order_status = '0'
-        and o.order_type != '1'
+          and o.pay_state = '0'
+          and o.order_status = '0'
+          and o.order_type != '1'
         group by oi.order_id
     </select>
     <select id="selectPageBymove" resultType="com.upedge.oms.modules.order.entity.Order">
@@ -2023,7 +2110,7 @@
                 where ${ boundary}
             </if>
         </if>
-        group by  `payment_id`,`pay_time`,`customer_id`
+        group by `payment_id`,`pay_time`,`customer_id`
         <if test="orderBy != null and orderBy !=''">
             order by ${orderBy}
         </if>
@@ -2037,28 +2124,64 @@
         </if>
     </select>
     <select id="selectUploadSaiheAndUms" resultType="com.upedge.common.model.order.PaymentDetail">
-      select  payment_id   paymentId,  pay_time  payTime ,customer_id  customerId, pay_method  payMethod
-      from `order`   where   pay_state = 1 and  saihe_order_code is null  and   pay_time > '2021-08-17 08:50:00'  GROUP BY  payment_id , pay_time  ,  customer_id, pay_method
+        select payment_id paymentId, pay_time payTime, customer_id customerId, pay_method payMethod
+        from `order`
+        where pay_state = 1
+          and saihe_order_code is null
+          and pay_time > '2021-08-17 08:50:00'
+        GROUP BY payment_id, pay_time, customer_id, pay_method
     </select>
     <select id="selectUploadSaiheAndUmsOne" resultType="com.upedge.common.model.order.PaymentDetail">
-         select  payment_id   paymentId,  pay_time  payTime ,customer_id  customerId, pay_method  payMethod
-      from `order`   where payment_id = #{paymentId}  and  pay_state = 1 and  saihe_order_code is null  and   pay_time > '2021-08-17 08:50:00'  GROUP BY  payment_id , pay_time  ,  customer_id, pay_method
+        select payment_id paymentId, pay_time payTime, customer_id customerId, pay_method payMethod
+        from `order`
+        where payment_id = #{paymentId}
+          and pay_state = 1
+          and saihe_order_code is null
+          and pay_time > '2021-08-17 08:50:00'
+        GROUP BY payment_id, pay_time, customer_id, pay_method
     </select>
 
     <update id="updateQuoteStateByIds">
         update `order`
-            set quote_state = #{quoteState}
+        set quote_state = #{quoteState}
         where id in
-            <foreach collection="ids" item="id" open="(" close=")" separator=",">
-                #{id}
-            </foreach>
+        <foreach collection="ids" item="id" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
         and pay_state &lt; 1
     </update>
 
     <update id="initVatAmountByCustomerId">
         update `order`
-            set vat_amount = '0'
+        set vat_amount = '0'
         where customer_id = #{customerId}
-        and pay_state &lt; 1
+          and pay_state &lt; 1
+    </update>
+    <update id="initProductAmountById">
+        update `order` o
+                inner join
+                (
+                select order_id as `orderId`,
+                sum(quantity * ifnull(usd_price,'0')) as `productAmount`,
+                sum(quantity * ifnull(cny_price,'0')) as `cnyProductAmount`,
+                sum(discharge_quantity * ifnull(usd_price,'0')) as `dischargeAmount`
+                from order_item
+                where order_id in
+            <foreach collection="orderIds" item="orderId" open="(" separator="," close=")">
+                #{orderId}
+            </foreach>
+                group by order_id
+                ) ooo
+        on o.id = ooo.orderId
+                set o.product_amount = ooo.productAmount,
+                        o.product_discharge_amount = ooo.dischargeAmount,
+                        o.cny_product_amount = ooo.cnyProductAmount
+        where o.id in
+        <foreach collection="orderIds" item="orderId" open="(" separator="," close=")">
+            #{orderId}
+        </foreach>
+          and o.pay_state = '0'
+          and o.order_type != '1'
+          and o.order_status = '0'
     </update>
 </mapper>

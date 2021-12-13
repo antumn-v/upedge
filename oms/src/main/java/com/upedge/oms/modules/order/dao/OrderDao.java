@@ -42,6 +42,8 @@ public interface OrderDao{
 
     int initVatAmountByCustomerId(Long customerId);
 
+    int initProductAmountById(@Param("orderIds") List<Long> orderIds);
+
     List<OrderProductAmountVo> selectOrderItemAmountByPaymentId(Long paymentId);
 
 

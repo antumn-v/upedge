@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -43,7 +44,7 @@ public class CustomerProductQuoteController {
 
     @ApiOperation("修改客户报价")
     @PostMapping("/update")
-    public BaseResponse updateCustomerProductQuote(@RequestBody CustomerProductQuoteUpdateRequest request){
+    public BaseResponse updateCustomerProductQuote(@RequestBody@Valid CustomerProductQuoteUpdateRequest request){
         BaseResponse baseResponse = customerProductQuoteService.updateCustomerProductQuote(request);
         if (baseResponse.getCode() == ResultCode.SUCCESS_CODE){
             List<Long> storeVariantIds = new ArrayList<>();

@@ -159,6 +159,16 @@ public class QuoteApplyServiceImpl implements QuoteApplyService {
                 }
             }
         }
+        List<QuoteApplyItem> unQuoteItems = quoteApplyItemDao.selectUnQuoteItemByApplyId(quoteApplyId);
+        quoteApply = new QuoteApply();
+        quoteApply.setId(quoteApplyId);
+        quoteApply.setUpdateTime(new Date());
+        if (ListUtils.isNotEmpty(unQuoteItems)){
+            quoteApply.setQuoteType(QuoteApply.PART_QUOTED);
+        }else {
+            quoteApply.setQuoteType(QuoteApply.ALL_QUOTED);
+        }
+        quoteApplyDao.updateByPrimaryKeySelective(quoteApply);
         if (ListUtils.isNotEmpty(customerProductQuotes)){
             customerProductQuoteDao.insertByBatch(customerProductQuotes);
         }
@@ -198,6 +208,13 @@ public class QuoteApplyServiceImpl implements QuoteApplyService {
                     storeVariantIds.remove(customerProductQuote.getStoreVariantId());
                 }
             }
+        }
+        if (ListUtils.isEmpty(storeVariantIds)){
+            return BaseResponse.failed();
+        }
+        List<Long> quotingStoreVariantIds = quoteApplyItemDao.selectQuotingStoreVariantIds(storeVariantIds);
+        if (ListUtils.isNotEmpty(quotingStoreVariantIds)){
+            storeVariantIds.removeAll(quotingStoreVariantIds);
         }
         if (ListUtils.isEmpty(storeVariantIds)){
             return BaseResponse.failed();

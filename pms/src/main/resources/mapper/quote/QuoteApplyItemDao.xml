@@ -373,6 +373,20 @@
         from quote_apply_item
         where quote_apply_id = #{quoteApplyId}
     </select>
-
-
+    <select id="selectQuotingStoreVariantIds" resultType="java.lang.Long">
+        select distinct qai.store_variant_id
+            from  quote_apply_item qai
+        where qai.store_variant_id in
+            <foreach collection="storeVariantIds" item="storeVariantId" open="(" close=")" separator=",">
+                #{storeVariantId}
+            </foreach>
+        and quote_price is null
+    </select>
+    <select id="selectUnQuoteItemByApplyId" resultType="com.upedge.pms.modules.quote.entity.QuoteApplyItem">
+        select
+        <include refid="Base_Column_List"/>
+        from quote_apply_item
+        where quote_apply_id = #{applyId}
+        and quote_price is null
+    </select>
 </mapper>

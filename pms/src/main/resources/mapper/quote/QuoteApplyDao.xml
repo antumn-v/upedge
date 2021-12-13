@@ -28,7 +28,7 @@
         <result property="remark" column="remark"/>
         <result property="feedback" column="feedback"/>
         <result property="createTime" column="create_time"/>
-        <collection property="quoteApplyItems" ofType="com.upedge.pms.modules.quote.entity.QuoteApplyItem">
+        <collection property="quoteApplyItems" ofType="com.upedge.pms.modules.quote.vo.QuoteApplyItemVo">
             <result property="id" column="itemId"/>
             <result property="productId" column="product_id"/>
             <result property="variantId" column="variant_id"/>
@@ -36,6 +36,7 @@
             <result property="storeVariantId" column="store_variant_id"/>
             <result property="storeVariantName" column="store_variant_name"/>
             <result property="storeProductTitle" column="store_product_title"/>
+            <result property="storeProductHandle" column="handle"/>
             <result property="storeProductSku" column="store_product_sku"/>
             <result property="storeVariantImage" column="store_variant_image"/>
             <result property="productTitle" column="product_title"/>
@@ -322,10 +323,13 @@
     <select id="selectQuoteApplies" resultMap="QuoteApplyVo">
         select qa.*,qai.`id` as `itemId`,qai.`product_id`,qai.`variant_id`,qai.`store_product_id`,
         qai.`store_variant_id`,qai.`store_variant_name`,qai.`store_product_title`,qai.`store_product_sku`,qai.`store_variant_image`,
-        qai.`product_title`,qai.`variant_name`,qai.`variant_sku`,qai.`variant_image`,qai.`quote_price`,qai.`quote_apply_id`
+        qai.`product_title`,qai.`variant_name`,qai.`variant_sku`,qai.`variant_image`,qai.`quote_price`,qai.`quote_apply_id`,
+        spa.handle
         from quote_apply qa
         left join quote_apply_item qai
         on qa.id = qai.quote_apply_id
+        left join store_product_attribute spa
+        on qai.store_product_id = spa.id
         <if test="t != null">
             where
             <trim prefix=" " suffix=" " suffixOverrides=" and ">

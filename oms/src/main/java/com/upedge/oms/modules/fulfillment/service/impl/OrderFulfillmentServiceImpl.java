@@ -155,7 +155,7 @@ public class OrderFulfillmentServiceImpl implements OrderFulfillmentService {
         storeOrderItems.forEach(storeOrderItem -> {
             platOrderItemIds.add(storeOrderItem.getPlatOrderItemId());
         });
-        JSONObject jsonObject = ShopifyOrderApi.getOrderDetailById(platOrderId, storeVo.getStoreUrl(), storeVo.getApiToken());
+        JSONObject jsonObject = ShopifyOrderApi.getOrderDetailById(platOrderId, storeVo.getStoreName(), storeVo.getApiToken());
         if (jsonObject == null) {
             return false;
         }
@@ -184,7 +184,7 @@ public class OrderFulfillmentServiceImpl implements OrderFulfillmentService {
         String storeLocationKey = RedisKey.STRING_STORE_SHOPIFY_LOCATIONS + storeVo.getId();
         List<ShopifyLocation> locations = (List<ShopifyLocation>) redisTemplate.opsForValue().get(storeLocationKey);
         if (ListUtils.isEmpty(locations)) {
-            locations = ShopifyShopApi.getShopifyLocations(storeVo.getStoreUrl(), storeVo.getApiToken());
+            locations = ShopifyShopApi.getShopifyLocations(storeVo.getStoreName(), storeVo.getApiToken());
             redisTemplate.opsForValue().set(storeLocationKey, locations);
         }
         Map<String, Object> map = new HashMap<>();
@@ -194,7 +194,7 @@ public class OrderFulfillmentServiceImpl implements OrderFulfillmentService {
         map.put("line_items", lineItems);
         for (ShopifyLocation location : locations) {
             map.put("location_id", location.getId());
-            ShopifyFulfillment fulfillment = ShopifyOrderApi.orderFulfillment(platOrderId, storeVo.getStoreUrl(), storeVo.getApiToken(), map);
+            ShopifyFulfillment fulfillment = ShopifyOrderApi.orderFulfillment(platOrderId, storeVo.getStoreName(), storeVo.getApiToken(), map);
             saveStoreOrderFulfillment(fulfillment,storeVo,orderTracking,platOrderId,fulfillment_post,storeOrderId);
             if (null != fulfillment && fulfillment.getStatus().equals("success")) {
                 return true;
@@ -221,7 +221,7 @@ public class OrderFulfillmentServiceImpl implements OrderFulfillmentService {
                 map.put("tracking_company", orderTracking.getShippingMethodName());
                 map.put("notify_customer", storeVo.isEmailPrompt());
                 fulfillment.put("fulfillment", map);
-                ShopifyFulfillment updateShopFulfillment = ShopifyOrderApi.orderFulfillmentUpdate(fulfillment, storeVo.getApiToken(), storeVo.getStoreUrl(), platOrderId, shopifyFulfillment.getId());
+                ShopifyFulfillment updateShopFulfillment = ShopifyOrderApi.orderFulfillmentUpdate(fulfillment, storeVo.getApiToken(), storeVo.getStoreName(), platOrderId, shopifyFulfillment.getId());
                 saveStoreOrderFulfillment(fulfillment,storeVo,orderTracking,platOrderId,fulfillment_post,storeOrderId);
 
             }

@@ -105,7 +105,7 @@ public class StoreProductServiceImpl implements StoreProductService {
 
                 JSONObject jsonObject = null;
                 if (storeVo.getStoreType() == StoreType.SHOPIFY) {
-                    jsonObject = ShopifyProductApi.getProduct(variantVo.getPlatProductId(), storeVo.getApiToken(), storeVo.getStoreUrl());
+                    jsonObject = ShopifyProductApi.getProduct(variantVo.getPlatProductId(), storeVo.getApiToken(), storeVo.getStoreName());
                     if (null == jsonObject) {
                         break;
                     }

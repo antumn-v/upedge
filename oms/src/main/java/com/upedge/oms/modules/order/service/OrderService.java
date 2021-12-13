@@ -38,6 +38,8 @@ public interface OrderService{
     void updateSaiheOrderCode(String id,
                               String saiheOrderCode);
 
+    boolean initOrderProductAmount(Long orderId);
+
 
     /**
      * 初始化订单运输方式

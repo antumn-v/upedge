@@ -208,7 +208,7 @@ public class StockOrderController {
         }
         if (ListUtils.isNotEmpty(orderIds)) {
             PaymentDetail detail = stockOrderService.payOrderByBalance(orderIds, session);
-            stockOrderService.payOrderAsync(detail);
+//            stockOrderService.payOrderAsync(detail);
             if (null != detail) {
                 CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
                     stockOrderService.sendSavePaymentDetailMessage(detail);

@@ -69,7 +69,7 @@ public class StoreOrderRefundServiceImpl implements StoreOrderRefundService {
         List<StoreOrderRefund> storeOrderRefunds = new ArrayList<>();
         switch (storeVo.getStoreType()) {
             case 0:
-                JSONObject jsonObject = ShopifyOrderApi.getOrderRefundList(storeOrder.getPlatOrderId(), storeVo.getStoreUrl(), storeVo.getApiToken());
+                JSONObject jsonObject = ShopifyOrderApi.getOrderRefundList(storeOrder.getPlatOrderId(), storeVo.getStoreName(), storeVo.getApiToken());
                 if (null == jsonObject) {
                     break;
                 }

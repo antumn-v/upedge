@@ -257,7 +257,7 @@ public class ImportProductServiceImpl implements ImportProductService {
             variantVos = variantVos.subList(0, 100);
         }
 
-        String storeUrl = storeVo.getStoreUrl();
+        String storeUrl = storeVo.getStoreName();
         String token = storeVo.getApiToken();
 
         JSONObject jsonObject = new JSONObject();
@@ -301,7 +301,7 @@ public class ImportProductServiceImpl implements ImportProductService {
 
         jsonObject.put("product", JSON.toJSON(product));
 
-        jsonObject = ShopifyProductApi.postProduct(jsonObject, token, storeVo.getStoreUrl());
+        jsonObject = ShopifyProductApi.postProduct(jsonObject, token, storeVo.getStoreName());
 
         if (null != jsonObject) {
             product = jsonObject.getJSONObject("product").toJavaObject(ShopifyProduct.class);

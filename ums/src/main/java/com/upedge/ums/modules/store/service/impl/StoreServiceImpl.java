@@ -209,9 +209,6 @@ public class StoreServiceImpl implements StoreService {
             }
             result = userServiceImpl.userSignIn(user, 1L);
             session = (Session) redisTemplate.opsForValue().get(TokenUtil.getTokenKey(result.get("token")));
-        }else {
-            user = userServiceImpl.selectByPrimaryKey(session.getId());
-            result = userServiceImpl.userSignIn(user, 1L);
         }
 
         boolean b = false;
@@ -231,7 +228,7 @@ public class StoreServiceImpl implements StoreService {
         store.setId(storeId);
         store.setOrgId(orgId);
         store.setStoreName(storeUrl);
-        store.setStoreUrl(storeUrl);
+        store.setStoreUrl(shopDetail.getDomain());
         store.setUserId(session.getId());
         store.setCustomerId(session.getCustomerId());
         store.setStatus(1);
@@ -278,7 +275,7 @@ public class StoreServiceImpl implements StoreService {
         StoreVo storeVo = new StoreVo();
         BeanUtils.copyProperties(store,storeVo);
         redisTemplate.opsForValue().set(RedisKey.STRING_STORE + store.getId(),storeVo);
-
+        storeAsync.getStoreData(store);
         return store;
     }
 

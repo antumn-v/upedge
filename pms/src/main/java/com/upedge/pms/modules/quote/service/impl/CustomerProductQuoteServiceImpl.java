@@ -13,6 +13,7 @@ import com.upedge.pms.modules.product.entity.Product;
 import com.upedge.pms.modules.product.entity.ProductVariant;
 import com.upedge.pms.modules.product.service.ProductService;
 import com.upedge.pms.modules.quote.dao.CustomerProductQuoteDao;
+import com.upedge.pms.modules.quote.dao.QuoteApplyItemDao;
 import com.upedge.pms.modules.quote.entity.CustomerProductQuote;
 import com.upedge.pms.modules.quote.request.CustomerProductQuoteUpdateRequest;
 import com.upedge.pms.modules.quote.service.CustomerProductQuoteService;
@@ -36,6 +37,9 @@ public class CustomerProductQuoteServiceImpl implements CustomerProductQuoteServ
 
     @Autowired
     StoreProductVariantDao storeProductVariantDao;
+
+    @Autowired
+    QuoteApplyItemDao quoteApplyItemDao;
 
     @Autowired
     ProductMqProducer productMqProducer;
@@ -98,6 +102,10 @@ public class CustomerProductQuoteServiceImpl implements CustomerProductQuoteServ
         customerProductQuote.setVariantName(productVariant.getEnName());
         customerProductQuote.setVariantSku(productVariant.getVariantSku());
         customerProductQuoteDao.updateByPrimaryKeySelective(customerProductQuote);
+
+        List<Long> storeVariantIds = new ArrayList<>();
+        storeVariantIds.add(request.getStoreVariantId());
+        sendCustomerProductQuoteUpdateMessage(storeVariantIds);
         return BaseResponse.success();
     }
 
@@ -106,7 +114,20 @@ public class CustomerProductQuoteServiceImpl implements CustomerProductQuoteServ
         if (request == null){
             return new ArrayList<>();
         }
-        List<Long> storeVariantIds = new ArrayList<>();
+        List<CustomerProductQuoteVo> quotingVariants = new ArrayList<>();
+        List<Long> storeVariantIds = quoteApplyItemDao.selectQuotingStoreVariantIds(request.getStoreVariantIds());
+        if (ListUtils.isNotEmpty(storeVariantIds)){
+            for (Long storeVariantId : storeVariantIds) {
+                CustomerProductQuoteVo customerProductQuoteVo = new CustomerProductQuoteVo();
+                customerProductQuoteVo.setStoreVariantId(storeVariantId);
+                customerProductQuoteVo.setQuoteType(5);
+                quotingVariants.add(customerProductQuoteVo);
+            }
+            request.getStoreVariantIds().removeAll(storeVariantIds);
+            if (ListUtils.isEmpty(request.getStoreVariantIds())){
+                return quotingVariants;
+            }
+        }
         List<CustomerProductQuoteVo> customerProductQuoteVos = customerProductQuoteDao.selectQuoteDetail(request);
         if (ListUtils.isEmpty(customerProductQuoteVos) && ListUtils.isNotEmpty(request.getStoreVariantIds())) {
             for (CustomerProductQuoteVo customerProductQuoteVo : customerProductQuoteVos) {
@@ -119,6 +140,7 @@ public class CustomerProductQuoteServiceImpl implements CustomerProductQuoteServ
                 customerProductQuoteVos.addAll(customerProductQuoteVoList);
             }
         }
+        customerProductQuoteVos.addAll(quotingVariants);
         return customerProductQuoteVos;
     }
 

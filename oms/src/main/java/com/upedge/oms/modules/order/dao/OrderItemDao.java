@@ -27,6 +27,8 @@ public interface OrderItemDao{
     int updateQuoteStateByIds(@Param("ids") List<Long> ids,
                               @Param("quoteState") Integer quoteState);
 
+    int updateOrderAsQuotingByStoreVariantIds(@Param("storeVariantIds") List<Long> storeVariantIds);
+
     List<OrderItem> selectItemByPaymentId(Long paymentId);
 
     List<CustomerStockRecord> selectStockRecordByPaymentId(@Param("paymentId") Long paymentId,

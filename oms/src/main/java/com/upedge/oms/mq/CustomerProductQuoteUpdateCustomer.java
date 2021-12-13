@@ -11,6 +11,7 @@ import com.upedge.common.model.log.MqMessageLog;
 import com.upedge.common.model.pms.quote.CustomerProductQuoteVo;
 import com.upedge.common.utils.ListUtils;
 import com.upedge.oms.modules.order.service.OrderItemService;
+import com.upedge.oms.modules.orderShippingUnit.service.OrderShippingUnitService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.rocketmq.client.consumer.DefaultMQPushConsumer;
 import org.apache.rocketmq.client.consumer.listener.ConsumeConcurrentlyStatus;
@@ -36,13 +37,16 @@ public class CustomerProductQuoteUpdateCustomer {
     @Autowired
     OrderItemService orderItemService;
 
+    @Autowired
+    OrderShippingUnitService orderShippingUnitService;
+
     public CustomerProductQuoteUpdateCustomer() throws MQClientException {
         consumer = new DefaultMQPushConsumer("quote_update");
         consumer.setNamesrvAddr(RocketMqConfig.NAME_SERVER);
         //消费模式:一个新的订阅组第一次启动从队列的最后位置开始消费 后续再启动接着上次消费的进度开始消费
         consumer.setConsumeFromWhere(ConsumeFromWhere.CONSUME_FROM_LAST_OFFSET);
         //订阅主题和 标签（ * 代表所有标签)下信息
-        consumer.subscribe(RocketMqConfig.TOPIC_SHIP_UNIT_UPDATE, "*");
+        consumer.subscribe(RocketMqConfig.TOPIC_CUSTOMER_PRODUCT_QUOTE_UPDATE, "*");
         // //注册消费的监听 并在此监听中消费信息，并返回消费的状态信息
         consumer.registerMessageListener((MessageListenerConcurrently) (msgs, context) -> {
             // msgs中只收集同一个topic，同一个tag，并且key相同的message
@@ -74,7 +78,7 @@ public class CustomerProductQuoteUpdateCustomer {
                         }
                     }
 
-                    // 删除order_shipping_unit 并 清0运费 删除shipMethodId  目前只删除
+//                     删除order_shipping_unit 并 清0运费 删除shipMethodId  目前只删除
 //                    orderShippingUnitService.delOrderShipUnitAndShipMethod(longs);
 
                     if (null == mqMessageLog) {
@@ -98,6 +102,6 @@ public class CustomerProductQuoteUpdateCustomer {
             return ConsumeConcurrentlyStatus.CONSUME_SUCCESS;
         });
         consumer.start();
-        System.out.println(RocketMqConfig.TOPIC_SHIP_UNIT_UPDATE + "-->消费者 启动成功=======");
+        System.out.println(RocketMqConfig.TOPIC_CUSTOMER_PRODUCT_QUOTE_UPDATE + "-->消费者 启动成功=======");
     }
 }

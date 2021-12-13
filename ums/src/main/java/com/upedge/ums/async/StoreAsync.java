@@ -4,7 +4,6 @@ package com.upedge.ums.async;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.upedge.common.constant.key.RedisKey;
 import com.upedge.common.feign.OmsFeignClient;
 import com.upedge.common.feign.PmsFeignClient;
 import com.upedge.common.model.store.StoreVo;
@@ -51,7 +50,7 @@ public class StoreAsync {
     //获取店铺数据
     @Async
     public void getStoreData(Store store) {
-//        createStoreWebhook(store);
+        createStoreWebhook(store);
         switch (store.getStoreType()) {
             case 0:
                 getShopifyStoreData(store);
@@ -82,7 +81,7 @@ public class StoreAsync {
     }
     //店铺创建webhook
     public void createStoreWebhook(Store store) {
-        String shop = store.getStoreUrl();
+        String shop = store.getStoreName();
         String token = store.getApiToken();
         switch (store.getStoreType()) {
             case 0:

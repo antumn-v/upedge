@@ -804,10 +804,10 @@
         oi.admin_variant_volume = #{volume},
         oi.admin_variant_weight = #{weight},
         oi.shipping_id = #{productShippingId},
-        oi.usd_price = #{quotePrice},
+        oi.usd_price = #{usdPrice},
         oi.cny_price = #{cnyPrice},
         oi.discharge_quantity = '0',
-        oi.quote_sate = '1'
+        oi.quote_state = '1'
         where oi.store_variant_id = #{storeVariantId}
         and o.pay_state &lt; '1'
     </update>
@@ -908,6 +908,17 @@
                 #{id}
             </foreach>
         and quote_state = '0'
+    </update>
+    <update id="updateOrderAsQuotingByStoreVariantIds">
+        update `order` o
+            left join order_item oi
+        on o.id = oi.order_id
+        set o.quote_state = '1',oi.quote_state = '5'
+        where oi.store_variant_id in
+        <foreach collection="storeVariantIds" item="storeVariantId" open="(" separator="," close=")">
+            #{storeVariantId}
+        </foreach>
+        and o.pay_state &lt; 1
     </update>
 
     <select id="selectUnpaidOrderIdByStoreVariantId" resultType="java.lang.Long">
