@@ -167,6 +167,7 @@ public class QuoteApplyServiceImpl implements QuoteApplyService {
             quoteApply.setQuoteType(QuoteApply.PART_QUOTED);
         }else {
             quoteApply.setQuoteType(QuoteApply.ALL_QUOTED);
+            quoteApply.setQuoteState(QuoteApply.STATE_FINISHED);
         }
         quoteApplyDao.updateByPrimaryKeySelective(quoteApply);
         if (ListUtils.isNotEmpty(customerProductQuotes)){
