@@ -635,36 +635,6 @@ public class OrderCommonServiceImpl implements OrderCommonService {
         }
     }
 
-
-    // 处理 order  wholesale order 没有赛盒订单号的订单
-    @Override
-    public void uploadSaiheAndUms() {
-        List<PaymentDetail> resultList = orderService.selectUploadSaiheAndUms(OrderType.NORMAL);
-
-        for (PaymentDetail paymentDetail : resultList) {
-            paymentDetail.setOrderType(OrderType.NORMAL);
-            sendSaveTransactionRecordMessage(paymentDetail);
-        }
-        List<PaymentDetail> resultList1 = wholesaleOrderService.selectUploadSaiheAndUms(OrderType.WHOLESALE);
-
-        for (PaymentDetail paymentDetail : resultList1) {
-            paymentDetail.setOrderType(OrderType.WHOLESALE);
-            sendSaveTransactionRecordMessage(paymentDetail);
-        }
-    }
-
-    @Override
-    public void sendOneSaveTransactionRecordMessage(PaymentDetail detail) {
-        if (detail.getOrderType() == OrderType.NORMAL) {
-            detail = orderService.selectUploadSaiheAndUmsOne(detail.getPaymentId());
-        }
-
-        if (detail.getOrderType() == OrderType.WHOLESALE) {
-            detail = wholesaleOrderService.selectUploadSaiheAndUmsOne(detail.getPaymentId());
-        }
-        sendSaveTransactionRecordMessage(detail);
-    }
-
     public void sendSaveTransactionRecordMessage(PaymentDetail detail) {
 
         Message message = new Message(RocketMqConfig.TOPIC_SAVE_ORDER_TRANSACTION, "order_order", "order:order:transaction:" + detail.getPaymentId(), JSON.toJSONBytes(detail));

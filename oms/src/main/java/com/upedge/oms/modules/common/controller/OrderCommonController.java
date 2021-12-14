@@ -3,7 +3,6 @@ package com.upedge.oms.modules.common.controller;
 
 import com.upedge.common.base.BaseResponse;
 import com.upedge.common.exception.CustomerException;
-import com.upedge.common.model.order.PaymentDetail;
 import com.upedge.common.model.order.vo.UplodaSaiheOnMqVo;
 import com.upedge.oms.modules.common.service.MqOnSaiheService;
 import com.upedge.oms.modules.common.service.OrderCommonService;
@@ -49,11 +48,6 @@ public class OrderCommonController {
         mqOnSaiheService.uploadPaymentIdOnMq(uplodaSaiheOnMq.getPaymentId(), uplodaSaiheOnMq.getOrderType());
     }
 
-    @GetMapping("/uploadSaiheAndUms")
-    public void  uploadSaiheAndUms(){
-        orderCommonService.uploadSaiheAndUms();
-    }
-
     @PostMapping("/testUpload")
     public BaseResponse testUpload(@RequestBody List<Long> ids){
         for (Long id : ids) {
@@ -69,11 +63,7 @@ public class OrderCommonController {
         return BaseResponse.success();
     }
 
-    @PostMapping("/uploadOneSaiheAndUms")
-    public void  uploadOneSaiheAndUms(@RequestBody PaymentDetail paymentDetail){
-        orderCommonService. sendOneSaveTransactionRecordMessage(paymentDetail);
 
-    }
 
 
 }

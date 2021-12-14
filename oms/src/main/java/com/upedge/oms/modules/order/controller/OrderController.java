@@ -442,6 +442,12 @@ public class OrderController {
         return orderService.pendingList(request, session);
     }
 
+
+    @ApiOperation("创建补发订单")
+    @PostMapping("/createReshipOrder/{id}")
+    public BaseResponse createReshipOrder(@PathVariable Long id){
+        return orderService.createReshipOrder(id);
+    }
     /**
      * 补发订单申请
      *

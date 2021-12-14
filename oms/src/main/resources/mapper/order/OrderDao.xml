@@ -404,8 +404,7 @@
                      inner join store_order_relate sor
                 on oi.order_id = sor.order_id
         where o.payment_id = #{paymentId}
-          and o.order_type != '1'
-        and o.order_status = '0'
+          and o.order_status = '0'
         order by sor.plat_order_create_time desc
     </select>
 
@@ -415,7 +414,7 @@
                o.store_id,
                o.pay_amount,
                o.ship_method_id,
-               o.ship_price,
+               (o.ship_price + service_fee) as `ship_price`,
                o.total_weight,
                o.product_amount,
                o.product_discharge_amount,
@@ -482,9 +481,9 @@
                 inner join
                 (
                 select oo.id as `orderId`,
-                sum (quantity * ifnull(usd_price,'0')) as `productAmount`,
-                sum (quantity * ifnull(cny_price,'0')) as `cnyProductAmount`,
-                sum (discharge_quantity * ifnull(usd_price,'0')) as `dischargeAmount`
+                sum(quantity * ifnull(usd_price,'0')) as `productAmount`,
+                sum(quantity * ifnull(cny_price,'0')) as `cnyProductAmount`,
+                sum(discharge_quantity * ifnull(usd_price,'0')) as `dischargeAmount`
                 from order_item oi
                 inner join `order` oo
                 on oi.order_id = oo.id
@@ -498,7 +497,6 @@
                         o.cny_product_amount = ooo.cnyProductAmount
         where o.payment_id = #{paymentId}
           and o.pay_state = '0'
-          and o.order_type != '1'
           and o.order_status = '0'
     </update>
 
@@ -566,7 +564,6 @@
         set pay_state = #{payState}
         where payment_id = #{paymentId}
           and pay_state != '1'
-        and order_type != '1'
         and order_status = '0'
     </update>
 
@@ -575,8 +572,7 @@
         set pay_state = '2'
         where payment_id = #{paymentId}
           and pay_state = '0'
-          and order_type != '1'
-        and order_status = '0'
+          and order_status = '0'
     </update>
 
     <update id="updateOrderAsPaid" parameterType="com.upedge.oms.modules.order.dto.OrderTransactionDto">
@@ -590,7 +586,6 @@
             cny_rate           = #{cnyRate}
         where payment_id = #{paymentId}
           and pay_state = '2'
-          and order_type != '1'
         and order_status = '0'
     </update>
 
@@ -606,7 +601,6 @@
             #{id}
         </foreach>
         and o.pay_state = '0'
-        and o.order_type != '1'
     </delete>
 
     <delete id="deleteOrderByIds">
@@ -616,7 +610,6 @@
             #{id}
         </foreach>
         and pay_state = '0'
-        and order_type != '1'
     </delete>
 
     <select id="selectByPrimaryKey" resultMap="BaseResultMap">
@@ -1519,14 +1512,12 @@
             cny_product_amount = #{cnyProductAmount}
         where id = #{id}
           and pay_state = '0'
-          and order_type != '1'
     </update>
     <update id="updateToAreaIdById">
         update `order`
         set to_area_id = #{toAreaId}
         where id = #{id}
           and pay_state &lt; '1'
-          and order_type != '1'
     </update>
 
     <select id="orderHandleImportData" resultType="java.lang.Long">
@@ -1931,7 +1922,7 @@
         select
                 date (pay_time) as dayDate,
                 count (1) as orderNum,
-                sum (IFNULL(product_amount, 0)+IFNULL(ship_price, 0)+IFNULL(vat_amount, 0)) as orderAmount
+                sum(IFNULL(product_amount, 0)+IFNULL(ship_price, 0)+IFNULL(vat_amount, 0)) as orderAmount
         from `order`
         where pay_state=1
           and refund_state = 0
@@ -2094,7 +2085,6 @@
         where o.payment_id = #{paymentId}
           and o.pay_state = '0'
           and o.order_status = '0'
-          and o.order_type != '1'
         group by oi.order_id
     </select>
     <select id="selectPageBymove" resultType="com.upedge.oms.modules.order.entity.Order">
@@ -2123,23 +2113,7 @@
             </if>
         </if>
     </select>
-    <select id="selectUploadSaiheAndUms" resultType="com.upedge.common.model.order.PaymentDetail">
-        select payment_id paymentId, pay_time payTime, customer_id customerId, pay_method payMethod
-        from `order`
-        where pay_state = 1
-          and saihe_order_code is null
-          and pay_time > '2021-08-17 08:50:00'
-        GROUP BY payment_id, pay_time, customer_id, pay_method
-    </select>
-    <select id="selectUploadSaiheAndUmsOne" resultType="com.upedge.common.model.order.PaymentDetail">
-        select payment_id paymentId, pay_time payTime, customer_id customerId, pay_method payMethod
-        from `order`
-        where payment_id = #{paymentId}
-          and pay_state = 1
-          and saihe_order_code is null
-          and pay_time > '2021-08-17 08:50:00'
-        GROUP BY payment_id, pay_time, customer_id, pay_method
-    </select>
+
 
     <update id="updateQuoteStateByIds">
         update `order`
@@ -2159,29 +2133,28 @@
     </update>
     <update id="initProductAmountById">
         update `order` o
-                inner join
-                (
-                select order_id as `orderId`,
-                sum(quantity * ifnull(usd_price,'0')) as `productAmount`,
-                sum(quantity * ifnull(cny_price,'0')) as `cnyProductAmount`,
-                sum(discharge_quantity * ifnull(usd_price,'0')) as `dischargeAmount`
-                from order_item
-                where order_id in
-            <foreach collection="orderIds" item="orderId" open="(" separator="," close=")">
-                #{orderId}
-            </foreach>
-                group by order_id
-                ) ooo
+        inner join
+        (
+        select order_id as `orderId`,
+        sum(quantity * ifnull(usd_price,'0')) as `productAmount`,
+        sum(quantity * ifnull(cny_price,'0')) as `cnyProductAmount`,
+        sum(discharge_quantity * ifnull(usd_price,'0')) as `dischargeAmount`
+        from order_item
+        where order_id in
+        <foreach collection="orderIds" item="orderId" open="(" separator="," close=")">
+            #{orderId}
+        </foreach>
+        group by order_id
+        ) ooo
         on o.id = ooo.orderId
-                set o.product_amount = ooo.productAmount,
-                        o.product_discharge_amount = ooo.dischargeAmount,
-                        o.cny_product_amount = ooo.cnyProductAmount
+        set o.product_amount = ooo.productAmount,
+        o.product_discharge_amount = ooo.dischargeAmount,
+        o.cny_product_amount = ooo.cnyProductAmount
         where o.id in
         <foreach collection="orderIds" item="orderId" open="(" separator="," close=")">
             #{orderId}
         </foreach>
-          and o.pay_state = '0'
-          and o.order_type != '1'
-          and o.order_status = '0'
+        and o.pay_state = '0'
+        and o.order_status = '0'
     </update>
 </mapper>

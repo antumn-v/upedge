@@ -4,7 +4,6 @@ import com.upedge.common.base.BaseResponse;
 import com.upedge.common.base.Page;
 import com.upedge.common.exception.CustomerException;
 import com.upedge.common.model.mq.ChangeManagerVo;
-import com.upedge.common.model.order.PaymentDetail;
 import com.upedge.common.model.order.request.ManagerActualRequest;
 import com.upedge.common.model.order.vo.AllOrderAmountVo;
 import com.upedge.common.model.order.vo.ManagerActualVo;
@@ -29,6 +28,8 @@ import java.util.Set;
  * @author author
  */
 public interface OrderService{
+
+    BaseResponse createReshipOrder(Long id);
 
 
     int initVatAmountByCustomerId(Long customerId);
@@ -224,8 +225,5 @@ public interface OrderService{
 
     void matchingShipInfoByVariantId(List<OrderItem> list);
 
-    List<PaymentDetail> selectUploadSaiheAndUms(int normal);
-
-    PaymentDetail selectUploadSaiheAndUmsOne(Long paymentId);
 }
 

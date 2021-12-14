@@ -122,6 +122,18 @@ public class OrderItem{
 		this.usdRate = new BigDecimal("6.3");
 	}
 
+	public void initItemQuoteDetail(CustomerProductQuoteVo variantVo){
+		this.adminVariantId = variantVo.getVariantId();
+		this.adminProductId = variantVo.getProductId();
+		this.shippingId = variantVo.getProductShippingId();
+		this.cnyPrice = variantVo.getCnyPrice();
+		this.usdPrice = variantVo.getQuotePrice();
+		this.adminVariantVolume = variantVo.getVolume();
+		this.adminVariantWeight = variantVo.getWeight();
+		this.adminVariantImage = variantVo.getVariantImage();
+		this.adminVariantSku = variantVo.getVariantSku();
+		this.usdRate = new BigDecimal("6.3");
+	}
 
 
 	public OrderItem() {

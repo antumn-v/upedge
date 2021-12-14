@@ -54,11 +54,11 @@ public class Order{
 	/**
 	 * 
 	 */
-    private BigDecimal productDischargeAmount = BigDecimal.ZERO;
+    private BigDecimal productDischargeAmount;
 	/**
 	 * 
 	 */
-    private BigDecimal fixFee = BigDecimal.ZERO;
+    private BigDecimal fixFee;
 	/**
 	 * 手续费百分比
 	 */
@@ -121,5 +121,19 @@ public class Order{
 
 
 	public Order() {
+	}
+
+	public void initOrder(){
+		this.payState = 0;
+		this.shipState = 0;
+		this.refundState = 0;
+		this.payAmount = BigDecimal.ZERO;
+		this.shipPrice = BigDecimal.ZERO;
+		this.serviceFee = BigDecimal.ZERO;
+		this.productDischargeAmount = BigDecimal.ZERO;
+		this.cnyProductAmount = BigDecimal.ZERO;
+		this.vatAmount = BigDecimal.ZERO;
+		this.orderStatus = 0;
+		this.fixFee = BigDecimal.ZERO;
 	}
 }

@@ -644,14 +644,14 @@ public class SaiheService {
     }
 
     public static void main(String[] args) throws ParseException {
-        ApiGetOrderResponse apiGetOrderResponse =  getOrderByClientOrderCode("1427899953854398464");
-        System.out.println(apiGetOrderResponse);
+//        ApiGetOrderResponse apiGetOrderResponse =  getOrderByClientOrderCode("1427899953854398464");
+//        System.out.println(apiGetOrderResponse);
 //        ApiGetProductResponse apiGetProductResponse = getProductsByClientSKUs("613372243815,cj4lGkH8IM4Q,4600031153606",null);
 //        System.out.println(apiGetProductResponse);
 
 
-//        ApiGetOrderResponse apiGetOrderResponse =  getOrderByCode("2021286236168695298");
-//        System.out.println(apiGetOrderResponse);
+        ApiGetOrderResponse apiGetOrderResponse =  getOrderByCode("2021120816282");
+        System.out.println(apiGetOrderResponse);
     }
 
 

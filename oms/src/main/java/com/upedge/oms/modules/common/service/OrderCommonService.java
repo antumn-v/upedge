@@ -2,7 +2,6 @@ package com.upedge.oms.modules.common.service;
 
 import com.upedge.common.exception.CustomerException;
 import com.upedge.common.model.mq.ChangeManagerVo;
-import com.upedge.common.model.order.PaymentDetail;
 import com.upedge.oms.modules.common.entity.SaiheOrderRecord;
 import com.upedge.thirdparty.saihe.entity.SaiheOrder;
 
@@ -62,7 +61,5 @@ public interface OrderCommonService {
      */
     void updateOmsManagerCodeByChanagerManager(List<ChangeManagerVo> changeManagerVos) throws ExecutionException, InterruptedException;
 
-    void uploadSaiheAndUms();
 
-    void sendOneSaveTransactionRecordMessage(PaymentDetail paymentDetail);
 }

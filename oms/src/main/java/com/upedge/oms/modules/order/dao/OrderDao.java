@@ -2,7 +2,6 @@ package com.upedge.oms.modules.order.dao;
 
 import com.upedge.common.base.Page;
 import com.upedge.common.model.mq.ChangeManagerVo;
-import com.upedge.common.model.order.PaymentDetail;
 import com.upedge.common.model.order.TransactionDetail;
 import com.upedge.common.model.order.request.ManagerActualRequest;
 import com.upedge.common.model.order.vo.AllOrderAmountVo;
@@ -328,7 +327,5 @@ public interface OrderDao{
 
     List<Order> selectPageBymove(Page<Order> page);
 
-    List<PaymentDetail> selectUploadSaiheAndUms(@Param("normal") int normal);
 
-    PaymentDetail selectUploadSaiheAndUmsOne(@Param("paymentId") Long paymentId);
 }

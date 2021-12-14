@@ -1,5 +1,6 @@
 package com.upedge.oms.modules.order.vo;
 
+import com.upedge.oms.modules.order.entity.OrderAddress;
 import com.upedge.oms.modules.order.entity.OrderTracking;
 import lombok.Data;
 
@@ -98,5 +99,7 @@ public class AppOrderVo {
     private List<AppStoreOrderVo> storeOrderVos;
 
     private OrderTracking orderTracking;
+
+    private OrderAddress orderAddress;
 
 }

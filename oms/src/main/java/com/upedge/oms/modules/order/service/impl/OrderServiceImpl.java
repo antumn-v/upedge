@@ -15,7 +15,6 @@ import com.upedge.common.feign.PmsFeignClient;
 import com.upedge.common.feign.TmsFeignClient;
 import com.upedge.common.feign.UmsFeignClient;
 import com.upedge.common.model.mq.ChangeManagerVo;
-import com.upedge.common.model.order.PaymentDetail;
 import com.upedge.common.model.order.request.ManagerActualRequest;
 import com.upedge.common.model.order.vo.AllOrderAmountVo;
 import com.upedge.common.model.order.vo.CustomerOrderStatisticalVo;
@@ -199,7 +198,16 @@ public class OrderServiceImpl implements OrderService {
             appOrderVo.getStoreOrderVos().add(appStoreOrderVo);
         }
         appOrderVo.setOrderTracking(orderTrackingService.queryOrderTrackingByOrderId(id, OrderType.NORMAL));
-        appOrderVo.setNote((String) redisTemplate.opsForValue().get(RedisKey.STRING_ORDER_NOTE + appOrderVo.getId()));
+        OrderAddress orderAddress = orderAddressDao.selectByOrderId(id);
+        appOrderVo.setOrderAddress(orderAddress);
+        if (null != appOrderVo.getShipMethodId()){
+            ShippingMethodRedis shippingMethodRedis = (ShippingMethodRedis) redisTemplate.opsForHash().get(RedisKey.HASH_SHIP_METHOD, appOrderVo.getShipMethodId().toString());
+            if (null != shippingMethodRedis){
+                appOrderVo.setShipMethodName(shippingMethodRedis.getName());
+            }
+        }
+        completeOrderStoreUrl(appOrderVo);
+//        appOrderVo.setNote((String) redisTemplate.opsForValue().get(RedisKey.STRING_ORDER_NOTE + appOrderVo.getId()));
         return appOrderVo;
     }
 
@@ -596,6 +604,104 @@ public class OrderServiceImpl implements OrderService {
         return order;
     }
 
+
+    @Transactional
+    @Override
+    public BaseResponse createReshipOrder(Long id) {
+        Order order = orderDao.selectByPrimaryKey(id);
+        if (order == null){
+            return BaseResponse.failed("Order does not exist");
+        }
+        List<OrderItem> orderItems = orderItemDao.selectItemByOrderId(id);
+        Long reshipOrderId = IdGenerate.nextId();
+        Order reshipOrder = new Order();
+        BeanUtils.copyProperties(order,reshipOrder);
+        reshipOrder.initOrder();
+        reshipOrder.setQuoteState(order.getQuoteState());
+        reshipOrder.setId(reshipOrderId);
+
+        List<Long> storeVariantIds = new ArrayList<>();
+        orderItems.forEach(item -> {
+            storeVariantIds.add(item.getStoreVariantId());
+        });
+        //查询产品报价
+        CustomerProductQuoteSearchRequest customerProductQuoteSearchRequest = new CustomerProductQuoteSearchRequest();
+        customerProductQuoteSearchRequest.setStoreVariantIds(storeVariantIds);
+        List<CustomerProductQuoteVo> customerProductQuoteVos = pmsFeignClient.searchCustomerProductQuote(customerProductQuoteSearchRequest);
+
+        Map<Long, CustomerProductQuoteVo> map = new HashMap<>();
+        if (ListUtils.isNotEmpty(customerProductQuoteVos)) {
+            for (CustomerProductQuoteVo customerProductQuoteVo : customerProductQuoteVos) {
+                map.put(customerProductQuoteVo.getStoreVariantId(), customerProductQuoteVo);
+                storeVariantIds.remove(customerProductQuoteVo.getStoreVariantId());
+            }
+        }
+
+        BigDecimal productAmount = BigDecimal.ZERO;
+        BigDecimal cnyProductAmount = BigDecimal.ZERO;
+        BigDecimal totalWeight = BigDecimal.ZERO;
+        BigDecimal volume = BigDecimal.ZERO;
+        Integer quoteState = 0;
+        List<OrderItem> reshipOrderItems = new ArrayList<>();
+        for (OrderItem orderItem : orderItems) {
+            OrderItem reshipOrderItem = new OrderItem();
+            BeanUtils.copyProperties(orderItem,reshipOrderItem);
+            reshipOrderItem.setDischargeQuantity(0);
+            reshipOrderItem.setOrderId(reshipOrderId);
+            reshipOrderItem.setId(IdGenerate.nextId());
+            BigDecimal itemQuantity = new BigDecimal(orderItem.getQuantity());
+            CustomerProductQuoteVo customerProductQuoteVo = map.get(orderItem.getStoreVariantId());
+            if (null == customerProductQuoteVo){
+                reshipOrderItem.setQuoteState(0);
+                reshipOrderItems.add(reshipOrderItem);
+                continue;
+            }
+            if (customerProductQuoteVo.getQuoteType() == 5){
+                reshipOrderItem.setQuoteState(5);
+            }else {
+                reshipOrderItem.initItemQuoteDetail(customerProductQuoteVo);
+                reshipOrderItem.setQuoteState(customerProductQuoteVo.getQuoteType());
+                quoteState++;
+                try {
+                    cnyProductAmount = cnyProductAmount.add(orderItem.getCnyPrice().multiply(itemQuantity));
+                } catch (Exception e) {
+                    continue;
+                }
+                productAmount = productAmount.add(orderItem.getUsdPrice().multiply(itemQuantity));
+                totalWeight = totalWeight.add(customerProductQuoteVo.getWeight().multiply(itemQuantity));
+                volume = volume.add(customerProductQuoteVo.getVolume().multiply(itemQuantity));
+            }
+
+            reshipOrderItems.add(reshipOrderItem);
+        }
+        if (quoteState > 0 && quoteState == reshipOrderItems.size()) {
+            order.setQuoteState(3);
+        } else if (quoteState == 0) {
+            order.setQuoteState(0);
+        } else {
+            order.setQuoteState(2);
+        }
+        reshipOrder.setCnyProductAmount(cnyProductAmount);
+        reshipOrder.setProductAmount(productAmount);
+        reshipOrder.setTotalWeight(totalWeight);
+
+
+        orderDao.insert(reshipOrder);
+        orderItemDao.insertByBatch(reshipOrderItems);
+
+        OrderAddress orderAddress = orderAddressDao.selectByOrderId(id);
+        orderAddress.setOrderId(reshipOrderId);
+        orderAddress.setId(IdGenerate.nextId());
+        orderAddressDao.insert(orderAddress);
+
+        List<StoreOrderRelate> storeOrderRelates = storeOrderRelateDao.selectByOrderId(id);
+        StoreOrderRelate storeOrderRelate = storeOrderRelates.get(0);
+        storeOrderRelate.setOrderId(reshipOrderId);
+        storeOrderRelate.setOrderCreateTime(new Date());
+        storeOrderRelate.setId(null);
+        storeOrderRelateDao.insert(storeOrderRelate);
+        return BaseResponse.success();
+    }
 
     @Override
     public int initVatAmountByCustomerId(Long customerId) {
@@ -1705,14 +1811,5 @@ public class OrderServiceImpl implements OrderService {
         }
     }
 
-    @Override
-    public List<PaymentDetail> selectUploadSaiheAndUms(int normal) {
-        List<PaymentDetail> resultList = orderDao.selectUploadSaiheAndUms(normal);
-        return resultList;
-    }
 
-    @Override
-    public PaymentDetail selectUploadSaiheAndUmsOne(Long paymentId) {
-        return orderDao.selectUploadSaiheAndUmsOne(paymentId);
-    }
 }

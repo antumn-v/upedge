@@ -20,6 +20,8 @@ import java.util.Map;
  */
 public interface OrderItemDao{
 
+    List<OrderItem> selectItemByOrderId(Long orderId);
+
     List<Long> selectUnQuoteItemOrderIdByOrderIds(@Param("orderIds")List<Long> orderIds);
 
     List<Long> selectUnpaidOrderIdByStoreVariantId(Long storeVariantId);
