@@ -683,7 +683,7 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public Product selectByProductSku(String productSku) {
-        return null;
+        return productDao.selectByProductSku(productSku);
     }
 
     @Override

@@ -4,7 +4,6 @@ import com.alibaba.fastjson.JSON;
 import com.upedge.common.base.BaseResponse;
 import com.upedge.common.base.Page;
 import com.upedge.common.constant.ResultCode;
-import com.upedge.common.constant.key.RedisKey;
 import com.upedge.common.feign.UmsFeignClient;
 import com.upedge.common.model.order.request.CustomerOrderDailyCountUpdateRequest;
 import com.upedge.common.model.order.request.OrderDailyCountRequest;
@@ -28,7 +27,6 @@ import com.upedge.oms.modules.stock.entity.StockOrder;
 import com.upedge.oms.modules.wholesale.dao.WholesaleOrderDao;
 import com.upedge.oms.modules.wholesale.entity.WholesaleOrder;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -126,11 +124,11 @@ public class OrderDailyPayCountServiceImpl implements OrderDailyPayCountService 
             return;
         }
         orderDailyPayCount.setBenefitPayAmount(customerOrderDailyCountUpdateRequest.getRebate());
-        String managerCode = (String) redisTemplate.opsForHash().get(RedisKey.HASH_CUSTOMER_MANAGER_RELATE, String.valueOf(orderDailyPayCount.getCustomerId()));
-        if (StringUtils.isBlank(managerCode)){
-            managerCode = "system";
-        }
-        orderDailyPayCount.setManagerCode(managerCode);
+//        String managerCode = (String) redisTemplate.opsForHash().get(RedisKey.HASH_CUSTOMER_MANAGER_RELATE, String.valueOf(orderDailyPayCount.getCustomerId()));
+//        if (StringUtils.isBlank(managerCode)){
+//            managerCode = "system";
+//        }
+//        orderDailyPayCount.setManagerCode(managerCode);
         OrderDailyPayCount dailyPayCount = orderDailyPayCountDao.selectByCustomerOrderTypeAndDate(customerId,payTime,orderType);
         if(null != dailyPayCount){
             orderDailyPayCount.setId(dailyPayCount.getId());

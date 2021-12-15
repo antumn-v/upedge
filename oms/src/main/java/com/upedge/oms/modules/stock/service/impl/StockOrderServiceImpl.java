@@ -5,14 +5,16 @@ import com.alibaba.fastjson.JSONArray;
 import com.upedge.common.base.BaseResponse;
 import com.upedge.common.base.Page;
 import com.upedge.common.constant.*;
+import com.upedge.common.enums.TransactionConstant;
 import com.upedge.common.feign.PmsFeignClient;
 import com.upedge.common.feign.UmsFeignClient;
 import com.upedge.common.model.account.AccountPaymentRequest;
 import com.upedge.common.model.account.PaypalOrder;
-import com.upedge.common.model.account.PaypalOrder.*;
+import com.upedge.common.model.account.PaypalOrder.PaypalOrderItem;
 import com.upedge.common.model.log.MqMessageLog;
 import com.upedge.common.model.order.PaymentDetail;
 import com.upedge.common.model.order.TransactionDetail;
+import com.upedge.common.model.order.request.CustomerOrderDailyCountUpdateRequest;
 import com.upedge.common.model.product.ListVariantsRequest;
 import com.upedge.common.model.product.VariantDetail;
 import com.upedge.common.model.product.VariantQuantity;
@@ -24,6 +26,7 @@ import com.upedge.oms.constant.StockOrderState;
 import com.upedge.oms.modules.cart.dao.CartDao;
 import com.upedge.oms.modules.cart.entity.Cart;
 import com.upedge.oms.modules.common.service.MqOnSaiheService;
+import com.upedge.oms.modules.statistics.service.OrderDailyPayCountService;
 import com.upedge.oms.modules.stock.dao.CustomerProductStockDao;
 import com.upedge.oms.modules.stock.dao.CustomerStockRecordDao;
 import com.upedge.oms.modules.stock.dao.StockOrderDao;
@@ -90,6 +93,9 @@ public class StockOrderServiceImpl implements StockOrderService {
 
     @Autowired
     private MqOnSaiheService mqOnSaiheService;
+
+    @Autowired
+    OrderDailyPayCountService orderDailyPayCountService;
     /**
      *
      */
@@ -342,7 +348,12 @@ public class StockOrderServiceImpl implements StockOrderService {
         }
         stockOrderDao.completeOrderTransaction(detail, BigDecimal.ZERO);
 //        orderPaidByPaymentId(paymentId, session.getCustomerId());
-
+        CustomerOrderDailyCountUpdateRequest customerOrderDailyCountUpdateRequest = new CustomerOrderDailyCountUpdateRequest();
+        customerOrderDailyCountUpdateRequest.setCustomerId(session.getCustomerId());
+        customerOrderDailyCountUpdateRequest.setOrderType(TransactionConstant.OrderType.STOCK_ORDER.getCode());
+        customerOrderDailyCountUpdateRequest.setPaymentId(paymentId);
+        customerOrderDailyCountUpdateRequest.setPayTime(payTime);
+        orderDailyPayCountService.updateCustomerOrderDailyCount(customerOrderDailyCountUpdateRequest);
         return detail;
     }
     /**

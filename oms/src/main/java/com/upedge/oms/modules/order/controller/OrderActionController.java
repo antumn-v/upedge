@@ -14,6 +14,7 @@ import com.upedge.oms.modules.order.request.SplitNormalOrderRequest;
 import com.upedge.oms.modules.order.service.OrderActionService;
 import com.upedge.oms.modules.order.service.OrderService;
 import com.upedge.oms.modules.order.vo.SameAddressOrderVo;
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
@@ -25,6 +26,7 @@ import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.List;
 
+@Api(tags = "订单操作")
 @RestController
 @RequestMapping("/order")
 public class OrderActionController {

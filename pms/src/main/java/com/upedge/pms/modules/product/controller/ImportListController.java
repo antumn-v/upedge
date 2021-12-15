@@ -1,7 +1,6 @@
 package com.upedge.pms.modules.product.controller;
 
 
-import com.upedge.common.base.BaseResponse;
 import com.upedge.common.component.annotation.Permission;
 import com.upedge.common.constant.Constant;
 import com.upedge.common.constant.ResultCode;
@@ -59,18 +58,15 @@ public class ImportListController {
     @Autowired
     private ThreadPoolExecutor threadPoolExecutor;
 
-//    @ApiOperation("导入速卖通产品")
-//    @PostMapping("/add/ae")
-//    public ImportAeProductResponse importAeProduct(@RequestBody @Valid ImportAeProductRequest request) {
-//        String url = request.getUrl();
-//        Session session = UserUtil.getSession(redisTemplate);
-//        BaseResponse baseResponse = umsFeignClient.getCustomerAe(session.getCustomerId());
-//        if(ResultCode.FAIL_CODE == baseResponse.getCode()){
-//            return new ImportAeProductResponse(ResultCode.FAIL_CODE, "Please re-authorize AliExpress first!");
-//        }
-//
-//        return importProductService.importAeProduct(url, session, (String) baseResponse.getData());
-//    }
+    @ApiOperation("导入速卖通产品")
+    @PostMapping("/add/ae")
+    public ImportAeProductResponse importAeProduct(@RequestBody @Valid ImportAeProductRequest request) {
+        String url = request.getUrl();
+        Session session = UserUtil.getSession(redisTemplate);
+
+
+        return importProductService.importAeProduct(url, session, null);
+    }
 
     @ApiOperation("导入Winning Product产品")
     @PostMapping("/add/app")

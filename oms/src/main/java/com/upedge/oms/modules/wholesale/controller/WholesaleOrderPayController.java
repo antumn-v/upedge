@@ -9,7 +9,6 @@ import com.upedge.common.feign.UmsFeignClient;
 import com.upedge.common.model.account.PaypalOrder;
 import com.upedge.common.model.account.PaypalPayment;
 import com.upedge.common.model.account.request.PaypalExecuteRequest;
-import com.upedge.common.model.order.request.CustomerOrderDailyCountUpdateRequest;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.utils.IdGenerate;
 import com.upedge.common.web.util.RedisUtil;
@@ -28,11 +27,11 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
-import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/wholesaleOrder/pay")
 public class WholesaleOrderPayController {
@@ -204,15 +203,6 @@ public class WholesaleOrderPayController {
         return BaseResponse.success();
     }
 
-    @GetMapping("/test")
-    public void test(){
-        CustomerOrderDailyCountUpdateRequest customerOrderDailyCountUpdateRequest = new CustomerOrderDailyCountUpdateRequest();
-        customerOrderDailyCountUpdateRequest.setCustomerId(1390137594893606912L);
-        customerOrderDailyCountUpdateRequest.setOrderType(TransactionConstant.OrderType.WHOLESALE_ORDER.getCode());
-        customerOrderDailyCountUpdateRequest.setPaymentId(1392788841755525120L);
-        customerOrderDailyCountUpdateRequest.setPayTime(new Date());
-        redisTemplate.opsForList().leftPush(RedisKey.LIST_CUSTOMER_ORDER_DAILY_COUNT_UPDATE,customerOrderDailyCountUpdateRequest);
-    }
 
     private OrderPayCheckResultVo creatOrderPayCheckResultVo(PaypalOrder order) {
         OrderPayCheckResultVo orderPayCheckResultVo = new OrderPayCheckResultVo();

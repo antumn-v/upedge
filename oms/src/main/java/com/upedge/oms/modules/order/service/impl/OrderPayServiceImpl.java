@@ -3,12 +3,13 @@ package com.upedge.oms.modules.order.service.impl;
 import com.alibaba.fastjson.JSON;
 import com.upedge.common.base.BaseResponse;
 import com.upedge.common.base.Page;
-import com.upedge.common.constant.key.RocketMqConfig;
 import com.upedge.common.constant.Constant;
 import com.upedge.common.constant.OrderType;
 import com.upedge.common.constant.PayOrderMethod;
 import com.upedge.common.constant.ResultCode;
 import com.upedge.common.constant.key.RedisKey;
+import com.upedge.common.constant.key.RocketMqConfig;
+import com.upedge.common.enums.TransactionConstant;
 import com.upedge.common.feign.TmsFeignClient;
 import com.upedge.common.feign.UmsFeignClient;
 import com.upedge.common.model.account.AccountPaymentRequest;
@@ -16,6 +17,7 @@ import com.upedge.common.model.account.PaypalOrder;
 import com.upedge.common.model.account.PaypalOrder.PaypalOrderItem;
 import com.upedge.common.model.order.PaymentDetail;
 import com.upedge.common.model.order.TransactionDetail;
+import com.upedge.common.model.order.request.CustomerOrderDailyCountUpdateRequest;
 import com.upedge.common.model.ship.dto.ShipMethodSelectDto;
 import com.upedge.common.model.ship.request.ShipMethodBatchSearchRequest;
 import com.upedge.common.model.ship.request.ShipMethodBatchSearchRequest.BatchShipMethodSelectDto;
@@ -40,12 +42,12 @@ import com.upedge.oms.modules.order.vo.*;
 import com.upedge.oms.modules.orderShippingUnit.service.OrderShippingUnitService;
 import com.upedge.oms.modules.orderShippingUnit.vo.OrderShippingUnitVo;
 import com.upedge.oms.modules.sales.service.CustomerProductSalesLogService;
+import com.upedge.oms.modules.statistics.service.OrderDailyPayCountService;
 import com.upedge.oms.modules.stock.dao.CustomerProductStockDao;
 import com.upedge.oms.modules.stock.entity.CustomerProductStock;
 import com.upedge.oms.modules.stock.service.CustomerProductStockService;
 import com.upedge.oms.modules.stock.service.CustomerStockRecordService;
 import com.upedge.oms.modules.vat.service.VatRuleService;
-
 import io.seata.spring.annotation.GlobalTransactional;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
@@ -111,6 +113,9 @@ public class OrderPayServiceImpl implements OrderPayService {
 
     @Autowired
     DefaultMQProducer defaultMQProducer;
+
+    @Autowired
+    OrderDailyPayCountService orderDailyPayCountService;
 
     @Autowired
     private MqOnSaiheService mqOnSaiheService;
@@ -536,16 +541,17 @@ public class OrderPayServiceImpl implements OrderPayService {
         if (ListUtils.isNotEmpty(dischargeQuantityVos)) {
             customerProductStockDao.reduceFromLockStock(customerId, dischargeQuantityVos);
         }
-
-//        throw new NullPointerException("手动异常");
-        return "success";
-
-      /*  //队列计算客户每日支付订单数据
         CustomerOrderDailyCountUpdateRequest customerOrderDailyCountUpdateRequest = new CustomerOrderDailyCountUpdateRequest();
         customerOrderDailyCountUpdateRequest.setCustomerId(customerId);
         customerOrderDailyCountUpdateRequest.setOrderType(TransactionConstant.OrderType.NORMAL_ORDER.getCode());
         customerOrderDailyCountUpdateRequest.setPaymentId(paymentId);
         customerOrderDailyCountUpdateRequest.setPayTime(payTime);
+        orderDailyPayCountService.updateCustomerOrderDailyCount(customerOrderDailyCountUpdateRequest);
+//        throw new NullPointerException("手动异常");
+        return "success";
+
+      /*  //队列计算客户每日支付订单数据
+
         redisTemplate.opsForList().leftPush(RedisKey.LIST_CUSTOMER_ORDER_DAILY_COUNT_UPDATE,customerOrderDailyCountUpdateRequest);
 */
 
