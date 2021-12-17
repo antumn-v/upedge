@@ -481,9 +481,9 @@
                 inner join
                 (
                 select oo.id as `orderId`,
-                sum (quantity * ifnull(usd_price,'0')) as `productAmount`,
-                sum (quantity * ifnull(cny_price,'0')) as `cnyProductAmount`,
-                sum (discharge_quantity * ifnull(usd_price,'0')) as `dischargeAmount`
+                sum(quantity * ifnull(usd_price,'0')) as `productAmount`,
+                sum(quantity * ifnull(cny_price,'0')) as `cnyProductAmount`,
+                sum(discharge_quantity * ifnull(usd_price,'0')) as `dischargeAmount`
                 from order_item oi
                 inner join `order` oo
                 on oi.order_id = oo.id
@@ -1927,7 +1927,7 @@
         select
                 date (pay_time) as dayDate,
                 count (1) as orderNum,
-                sum (IFNULL(product_amount, 0)+IFNULL(ship_price, 0)+IFNULL(vat_amount, 0)) as orderAmount
+                sum(IFNULL(product_amount, 0)+IFNULL(ship_price, 0)+IFNULL(vat_amount, 0)) as orderAmount
         from `order`
         where pay_state=1
           and refund_state = 0

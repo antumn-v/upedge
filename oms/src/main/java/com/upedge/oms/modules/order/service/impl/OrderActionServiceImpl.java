@@ -24,6 +24,7 @@ import com.upedge.oms.modules.order.service.OrderService;
 import com.upedge.oms.modules.order.vo.AppOrderItemVo;
 import com.upedge.oms.modules.order.vo.AppOrderVo;
 import com.upedge.oms.modules.order.vo.SameAddressOrderVo;
+import com.upedge.oms.modules.vat.service.VatRuleService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -60,6 +61,9 @@ public class OrderActionServiceImpl implements OrderActionService {
 
     @Autowired
     OrderService orderService;
+
+    @Autowired
+    VatRuleService vatRuleService;
 
     @Autowired
     PmsFeignClient pmsFeignClient;
@@ -368,7 +372,13 @@ public class OrderActionServiceImpl implements OrderActionService {
         orderActionLogDao.insertByBatch(actionLogs);
 
         orderDao.updateOrderType(orderId,3);
+        orderIds.clear();
+        orderIds.add(orderId);
+        orderDao.initProductAmountById(orderIds);
         shipDetail.setPrice(shipDetail.getPrice().subtract(shipDetail.getServiceFee()));
+        Order order = orderDao.selectByPrimaryKey(orderId);
+        BigDecimal vatAmount = vatRuleService.getOrderVatAmount(order.getProductAmount(),shipDetail.getPrice(),order.getToAreaId(),order.getCustomerId());
+        shipDetail.setVatAmount(vatAmount);
         orderDao.updateShipDetailById(shipDetail,orderId);
         return "success";
     }
