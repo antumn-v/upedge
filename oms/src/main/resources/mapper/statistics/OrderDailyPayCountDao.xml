@@ -14,6 +14,7 @@
         <result property="productAmount" column="product_amount"/>
         <result property="productDischargeAmount" column="product_discharge_amount"/>
         <result property="fixFee" column="fix_fee"/>
+        <result property="serviceFee" column="service_fee"/>
         <result property="vatAmount" column="vat_amount"/>
         <result property="payAmount" column="pay_amount"/>
         <result property="creditAmount" column="credit_amount"/>
@@ -28,7 +29,9 @@
     </resultMap>
 
     <sql id="Base_Column_List">
-        `id`,`customer_id`,`manager_code`,`order_type`,`order_pay_count`,`ship_price`,`product_amount`,`product_discharge_amount`,`fix_fee`,`vat_amount`,`pay_amount`,`credit_amount`,`benefit_pay_amount`,`pay_time`,`refund_count`,`refund_amount`,`shipped_refund_count`,`shipped_refund_amount`,`un_shipped_refund_count`,`un_shipped_refund_amount`
+        `id`,`customer_id`,`manager_code`,`order_type`,`order_pay_count`,`ship_price`,service_fee,`product_amount`,`product_discharge_amount`,
+        `fix_fee`,`vat_amount`,`pay_amount`,`credit_amount`,`benefit_pay_amount`,`pay_time`,`refund_count`,`refund_amount`,`shipped_refund_count`,
+        `shipped_refund_amount`,`un_shipped_refund_count`,`un_shipped_refund_amount`
     </sql>
 
     <select id="selectCustomerOrderStatistics" resultType="com.upedge.common.model.statistics.vo.CustomerOrderStatisticsVo"
@@ -115,6 +118,7 @@
             product_amount = product_amount + #{productAmount},
             product_discharge_amount = product_discharge_amount + #{productDischargeAmount},
             fix_fee = fix_fee + #{fixFee},
+            service_fee = service_fee + #{serviceFee},
             vat_amount = vat_amount + #{vatAmount},
             pay_amount = pay_amount + #{payAmount},
             credit_amount = credit_amount + #{creditAmount},
@@ -259,6 +263,7 @@
             product_amount,
             product_discharge_amount,
             fix_fee,
+            service_fee,
             vat_amount,
             pay_amount,
             credit_amount,
@@ -281,6 +286,7 @@
         #{productAmount},
         #{productDischargeAmount},
         #{fixFee},
+        #{serviceFee},
         #{vatAmount},
         #{payAmount},
         #{creditAmount},

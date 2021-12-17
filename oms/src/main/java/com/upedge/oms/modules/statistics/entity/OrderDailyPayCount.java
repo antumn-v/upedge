@@ -34,6 +34,10 @@ public class OrderDailyPayCount{
 	 */
     private BigDecimal shipPrice = BigDecimal.ZERO;
 	/**
+	 * 服务费
+	 */
+	private BigDecimal serviceFee = BigDecimal.ZERO;
+	/**
 	 * 产品费
 	 */
     private BigDecimal productAmount = BigDecimal.ZERO;
@@ -79,13 +83,14 @@ public class OrderDailyPayCount{
 	public OrderDailyPayCount() {
 	}
 
-	public OrderDailyPayCount(BigDecimal productAmount, BigDecimal fixFee, BigDecimal shipPrice, BigDecimal vatAmount, BigDecimal dischargeAmount, Date payTime, Long customerId, Integer orderType ) {
+	public OrderDailyPayCount(BigDecimal productAmount, BigDecimal fixFee, BigDecimal shipPrice,BigDecimal serviceFee, BigDecimal vatAmount, BigDecimal dischargeAmount, Date payTime, Long customerId, Integer orderType ) {
 		this.productAmount = productAmount;
 		this.fixFee = fixFee;
 //		this.payAmount = productAmount.add(fixFee).add(shipPrice).add(vatAmount).subtract(dischargeAmount);
 		this.payAmount = productAmount.add(shipPrice).add(vatAmount).subtract(dischargeAmount);
 		this.creditAmount = productAmount.add(shipPrice).add(vatAmount);
 		this.shipPrice = shipPrice;
+		this.serviceFee = serviceFee;
 		this.productDischargeAmount = dischargeAmount;
 		this.vatAmount = vatAmount;
 		this.customerId = customerId;

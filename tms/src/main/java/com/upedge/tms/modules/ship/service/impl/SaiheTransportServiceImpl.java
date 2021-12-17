@@ -126,7 +126,7 @@ public class SaiheTransportServiceImpl implements SaiheTransportService {
     public SaiheTransportUpdateResponse refreshSaihe() {
         //获取运输方式列表
         List<SaiheTransport> saiheTransportList=new ArrayList<>();
-        ApiGetTransportResponse apiGetTransportResponse= SaiheService.getTransportList(SaiheConfig.SOURCINBOX_DEFAULT_WAREHOURSE_ID);
+        ApiGetTransportResponse apiGetTransportResponse= SaiheService.getTransportList(SaiheConfig.UPEDGE_DEFAULT_WAREHOURSE_ID);
         if(apiGetTransportResponse.getGetTransportListResult().getStatus().equals("OK")){
             List<ApiTransport> transportList=apiGetTransportResponse.getGetTransportListResult().
                     getTransportList().getApiTransport();

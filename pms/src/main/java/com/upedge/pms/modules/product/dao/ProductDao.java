@@ -1,19 +1,21 @@
 package com.upedge.pms.modules.product.dao;
 
+import com.upedge.common.base.Page;
 import com.upedge.pms.modules.product.entity.Product;
 import com.upedge.pms.modules.product.request.WinningProductListRequest;
 import com.upedge.pms.modules.product.vo.AppProductVo;
-import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 import java.math.BigDecimal;
 import java.util.List;
-import com.upedge.common.base.Page;
-import org.apache.ibatis.annotations.Param;
+import java.util.Set;
 
 /**
  * @author gx
  */
 public interface ProductDao{
+
+    List<Long> selectShippingIdByIds(@Param("ids") Set<Long> ids);
 
     List<AppProductVo> selectWinningProducts(WinningProductListRequest request);
 

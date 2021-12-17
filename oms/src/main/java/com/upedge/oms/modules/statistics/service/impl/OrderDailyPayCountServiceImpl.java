@@ -155,6 +155,7 @@ public class OrderDailyPayCountServiceImpl implements OrderDailyPayCountService 
         BigDecimal fixFee = BigDecimal.ZERO;
         BigDecimal shipPrice = BigDecimal.ZERO;
         BigDecimal vatAmount = BigDecimal.ZERO;
+        BigDecimal serviceFee = BigDecimal.ZERO;
         BigDecimal dischargeAmount = BigDecimal.ZERO;
         for (WholesaleOrder order : wholesaleOrders) {
             productAmount = productAmount.add(order.getProductAmount());
@@ -162,8 +163,9 @@ public class OrderDailyPayCountServiceImpl implements OrderDailyPayCountService 
             shipPrice = shipPrice.add(order.getShipPrice());
             vatAmount = vatAmount.add(order.getVatAmount());
             dischargeAmount = dischargeAmount.add(order.getProductDischargeAmount());
+            serviceFee = serviceFee.add(order.getServiceFee());
         }
-        OrderDailyPayCount orderDailyPayCount = new OrderDailyPayCount(productAmount,fixFee,shipPrice,vatAmount,dischargeAmount,payTime,customerId,3);
+        OrderDailyPayCount orderDailyPayCount = new OrderDailyPayCount(productAmount,fixFee,shipPrice,serviceFee,vatAmount,dischargeAmount,payTime,customerId,3);
         orderDailyPayCount.setOrderPayCount(wholesaleOrders.size());
         return orderDailyPayCount;
 
@@ -185,17 +187,19 @@ public class OrderDailyPayCountServiceImpl implements OrderDailyPayCountService 
         }
         BigDecimal productAmount = BigDecimal.ZERO;
         BigDecimal fixFee = BigDecimal.ZERO;
+        BigDecimal serviceFee = BigDecimal.ZERO;
         BigDecimal shipPrice = BigDecimal.ZERO;
         BigDecimal vatAmount = BigDecimal.ZERO;
         BigDecimal dischargeAmount = BigDecimal.ZERO;
         for (Order o : orders) {
+            serviceFee = serviceFee.add(o.getServiceFee());
             productAmount = productAmount.add(o.getProductAmount());
             fixFee = fixFee.add(o.getFixFee());
             shipPrice = shipPrice.add(o.getShipPrice());
             vatAmount = vatAmount.add(o.getVatAmount());
             dischargeAmount = dischargeAmount.add(o.getProductDischargeAmount());
         }
-        OrderDailyPayCount orderDailyPayCount = new OrderDailyPayCount(productAmount,fixFee,shipPrice,vatAmount,dischargeAmount,payTime,customerId,2);
+        OrderDailyPayCount orderDailyPayCount = new OrderDailyPayCount(productAmount,fixFee,shipPrice,serviceFee,vatAmount,dischargeAmount,payTime,customerId,2);
         orderDailyPayCount.setOrderPayCount(orders.size());
         return orderDailyPayCount;
     }

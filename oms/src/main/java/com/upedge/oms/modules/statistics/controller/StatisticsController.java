@@ -8,17 +8,20 @@ import com.upedge.common.utils.ListUtils;
 import com.upedge.common.web.util.UserUtil;
 import com.upedge.oms.modules.statistics.request.*;
 import com.upedge.oms.modules.statistics.service.StatisticsService;
+import com.upedge.oms.modules.statistics.vo.OrderStateCountVo;
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.text.ParseException;
 import java.util.HashMap;
-import org.springframework.web.bind.annotation.*;
 
 @Slf4j
+@Api(tags = "订单统计")
 @RestController
 @RequestMapping("/statistics")
 public class StatisticsController {
@@ -27,6 +30,19 @@ public class StatisticsController {
     RedisTemplate<String, Object> redisTemplate;
     @Autowired
     StatisticsService statisticsService;
+
+
+    @PostMapping("/orderStateCount")
+    public BaseResponse orderStateCount(){
+        Session session = UserUtil.getSession(redisTemplate);
+        OrderStateCountVo orderStateCountVo = statisticsService.countOrderState(session);
+        return BaseResponse.success(orderStateCountVo);
+    }
+
+//    @PostMapping("/customerOrderCost")
+//    public BaseResponse customerOrderCost(){
+//
+//    }
 
     /**
      * 仪表盘 仪表盘底部处理数据统计

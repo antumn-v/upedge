@@ -25,12 +25,12 @@ public class StoreWebhook {
 
     public static String SHOPLAZZA_WEBHOOK_URL = "https://app.upedge.cn/webHook/shoplazza";
     static {
-        woocTopics.put("order.created","SourcinBox Order Create");
-        woocTopics.put("order.updated","SourcinBox Order Updated");
-        woocTopics.put("order.deleted","SourcinBox Order Deleted");
-        woocTopics.put("product.updated","SourcinBox Product Updated");
-        woocTopics.put("product.created","SourcinBox Product Created");
-        woocTopics.put("product.deleted","SourcinBox Product Deleted");
+        woocTopics.put("order.created","UPEDGE Order Create");
+        woocTopics.put("order.updated","UPEDGE Order Updated");
+        woocTopics.put("order.deleted","UPEDGE Order Deleted");
+        woocTopics.put("product.updated","UPEDGE Product Updated");
+        woocTopics.put("product.created","UPEDGE Product Created");
+        woocTopics.put("product.deleted","UPEDGE Product Deleted");
 
         shopifyTopics.add("app/uninstalled");
         shopifyTopics.add("orders/cancelled");

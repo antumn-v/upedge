@@ -28,7 +28,7 @@ public class AppWithdrawal{
 	 */
     private BigDecimal amount;
 	/**
-	 * PayPal,Payoneer,SourcinBox
+	 * PayPal,Payoneer,UPEDGE
 	 */
     private String path;
 	/**

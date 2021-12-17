@@ -138,7 +138,9 @@ public class OrderItemServiceImpl implements OrderItemService {
         orderItemDao.updateItemQuoteDetail(customerProductQuoteVo);
         Long storeVariantId = customerProductQuoteVo.getStoreVariantId();
         List<Long> orderIds = orderItemDao.selectUnpaidOrderIdByStoreVariantId(storeVariantId);
+
         if (ListUtils.isNotEmpty(orderIds)) {
+            orderDao.initProductAmountById(orderIds);
             List<Long> partQuoteOrderIds = orderItemDao.selectUnQuoteItemOrderIdByOrderIds(orderIds);
             if (ListUtils.isNotEmpty(partQuoteOrderIds)) {
                 orderDao.updateQuoteStateByIds(partQuoteOrderIds, OrderConstant.QUOTE_STATE_PART_UNQUOTED);
@@ -147,7 +149,6 @@ public class OrderItemServiceImpl implements OrderItemService {
             if (ListUtils.isNotEmpty(orderIds)){
                 orderDao.updateQuoteStateByIds(orderIds, OrderConstant.QUOTE_STATE_QUOTED);
             }
-            orderDao.initProductAmountById(orderIds);
         }
     }
 

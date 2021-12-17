@@ -27,10 +27,7 @@ import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.math.BigDecimal;
@@ -40,8 +37,8 @@ import java.util.*;
  * market place
  * @author 海桐
  */
-//@RestController
-//@RequestMapping("/app/product")
+@RestController
+@RequestMapping("/app/product")
 public class AppProductController {
 
     @Autowired

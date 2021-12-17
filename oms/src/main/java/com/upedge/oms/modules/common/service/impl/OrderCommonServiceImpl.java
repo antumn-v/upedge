@@ -1,16 +1,18 @@
 package com.upedge.oms.modules.common.service.impl;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.upedge.common.base.BaseResponse;
-import com.upedge.common.constant.key.RocketMqConfig;
 import com.upedge.common.constant.OrderType;
 import com.upedge.common.constant.ResultCode;
 import com.upedge.common.constant.key.RedisKey;
+import com.upedge.common.constant.key.RocketMqConfig;
 import com.upedge.common.enums.CustomerExceptionEnum;
 import com.upedge.common.exception.CustomerException;
 import com.upedge.common.feign.PmsFeignClient;
 import com.upedge.common.feign.TmsFeignClient;
 import com.upedge.common.feign.UmsFeignClient;
+import com.upedge.common.model.log.MqMessageLog;
 import com.upedge.common.model.mq.ChangeManagerVo;
 import com.upedge.common.model.order.PaymentDetail;
 import com.upedge.common.model.order.TransactionDetail;
@@ -32,20 +34,15 @@ import com.upedge.oms.modules.order.dao.OrderReshipInfoDao;
 import com.upedge.oms.modules.order.entity.Order;
 import com.upedge.oms.modules.order.entity.OrderReshipInfo;
 import com.upedge.oms.modules.order.entity.OrderTracking;
-import com.upedge.oms.modules.order.service.OrderRefundService;
 import com.upedge.oms.modules.order.service.OrderService;
 import com.upedge.oms.modules.order.service.OrderTrackingService;
 import com.upedge.oms.modules.redis.OmsRedisService;
-import com.upedge.oms.modules.stock.service.StockOrderRefundService;
-import com.upedge.oms.modules.stock.service.StockOrderService;
-import com.upedge.oms.modules.tickets.service.SupportTicketsService;
 import com.upedge.oms.modules.wholesale.dao.WholesaleOrderDao;
 import com.upedge.oms.modules.wholesale.dao.WholesaleRefundDao;
 import com.upedge.oms.modules.wholesale.dao.WholesaleReshipInfoDao;
 import com.upedge.oms.modules.wholesale.entity.WholesaleOrder;
 import com.upedge.oms.modules.wholesale.entity.WholesaleReshipInfo;
 import com.upedge.oms.modules.wholesale.service.WholesaleOrderService;
-import com.upedge.oms.modules.wholesale.service.WholesaleRefundService;
 import com.upedge.thirdparty.saihe.config.SaiheConfig;
 import com.upedge.thirdparty.saihe.entity.SaiheOrder;
 import com.upedge.thirdparty.saihe.entity.SaiheOrderItem;
@@ -61,6 +58,8 @@ import com.upedge.thirdparty.saihe.service.SaiheService;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.rocketmq.client.producer.DefaultMQProducer;
+import org.apache.rocketmq.client.producer.SendStatus;
 import org.apache.rocketmq.common.message.Message;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -70,7 +69,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.*;
-import java.util.concurrent.ThreadPoolExecutor;
 
 @Slf4j
 @Service
@@ -122,22 +120,7 @@ public class OrderCommonServiceImpl implements OrderCommonService {
     private OrderService orderService;
 
     @Autowired
-    private OrderRefundService orderRefundService;
-
-    @Autowired
-    private StockOrderService stockOrderService;
-
-    @Autowired
-    private StockOrderRefundService stockOrderRefundService;
-
-    @Autowired
-    private SupportTicketsService supportTicketsService;
-
-    @Autowired
-    private WholesaleRefundService wholesaleRefundService;
-
-    @Autowired
-    private ThreadPoolExecutor threadPoolExecutor;
+    DefaultMQProducer defaultMQProducer;
 
     @Autowired
     OrderFulfillmentService orderFulfillmentService;
@@ -155,7 +138,7 @@ public class OrderCommonServiceImpl implements OrderCommonService {
 //        saiheOrder.setManagerCode(managerInfoVo.getManagerCode());
 //        saiheOrder.setManagerCode(managerInfoVo.getManagerCode());
         //默认订单来源渠道
-        Integer orderSourceId = SaiheConfig.SOURCINBOX_DEFAULT_ORDER_SOURCE_ID;
+        Integer orderSourceId = SaiheConfig.UPEDGE_DEFAULT_ORDER_SOURCE_ID;
 //        if (managerInfoVo != null && managerInfoVo.getOrderSourceId() != null) {
 //            orderSourceId = managerInfoVo.getOrderSourceId();
 //        }
@@ -194,6 +177,43 @@ public class OrderCommonServiceImpl implements OrderCommonService {
         }
         saiheOrderRecord.setState(1);
         return saiheOrderRecord;
+    }
+
+    @Override
+    public boolean sendMqMessage(Message message) {
+        if( message == null){
+            return false;
+        }
+        boolean b = false;
+        MqMessageLog messageLog = MqMessageLog.toMqMessageLog(message,"");
+
+        String status = "failed";
+        int i = 1;
+        while (i < 4 && !status.equals(SendStatus.SEND_OK.name())) {
+            try {
+                status = defaultMQProducer.send(message).getSendStatus().name();
+            } catch (Exception e) {
+                e.printStackTrace();
+                log.warn("订单上传赛盒发送消息，key:{},交易信息发送失败,失败次数:{}",message.getKeys());
+            } finally {
+                i += 1;
+            }
+        }
+        if (status.equals(SendStatus.SEND_OK.name())) {
+            messageLog.setIsSendSuccess(1);
+            b = true;
+            log.warn("订单上传赛盒发送消息，key:{},发送成功", message.getKeys());
+        } else {
+            messageLog.setIsSendSuccess(0);
+            log.warn("订单上传赛盒发送消息，key:{}", message.getKeys());
+        }
+        umsFeignClient.saveMqLog(messageLog);
+        return b;
+    }
+
+    @Override
+    public boolean sendMqMessage(List<Message> messages) {
+        return false;
     }
 
 
@@ -286,7 +306,7 @@ public class OrderCommonServiceImpl implements OrderCommonService {
         apiUploadOrderInfo.setCustomerID(SaiheConfig.CUSTOMER_ID);
 
         //获取客户经理的渠道ID 默认128
-        Integer orderSourceId = saiheOrder.getOrderSourceID() == null ? SaiheConfig.SOURCINBOX_DEFAULT_ORDER_SOURCE_ID : saiheOrder.getOrderSourceID();
+        Integer orderSourceId = saiheOrder.getOrderSourceID() == null ? SaiheConfig.UPEDGE_DEFAULT_ORDER_SOURCE_ID : saiheOrder.getOrderSourceID();
         //来源渠道ID(需在ERP系统中创建)
         apiUploadOrderInfo.setOrderSourceID(orderSourceId);
         //支付时间 payTime
@@ -413,7 +433,7 @@ public class OrderCommonServiceImpl implements OrderCommonService {
         apiUploadOrderInfo.setOrderDescription(orderInfo + againInfo + vatInfo);
 
         //发货仓库ID 默认仓库
-        apiUploadOrderInfo.setWareHouseID(SaiheConfig.SOURCINBOX_DEFAULT_WAREHOURSE_ID);
+        apiUploadOrderInfo.setWareHouseID(SaiheConfig.UPEDGE_DEFAULT_WAREHOURSE_ID);
 
         //运输方式ID ShippingService
         apiUploadOrderInfo.setTransportID(4);
@@ -516,6 +536,7 @@ public class OrderCommonServiceImpl implements OrderCommonService {
      * @param id
      * @return
      */
+    @Transactional
     @Override
     public boolean getTrackingFromSaihe(Long id, Integer orderType) {
         OrderTrackingCommerVo a = new OrderTrackingCommerVo();
@@ -562,9 +583,11 @@ public class OrderCommonServiceImpl implements OrderCommonService {
                 }
                 //获取admin的运输方式
                 String shippingMethodName = "";
+
                 if (shippingMethod != null && shippingMethod.getTrackType() != null
                         && !StringUtils.isBlank(orderCode) && orderCode.equals(a.getSaiheOrderCode())) {
                     shippingMethodName = shippingMethod.getName();
+                    String trackNum = null;
                     //有运输商单号或真实追踪号
                     if (!StringUtils.isBlank(logisticsOrderNo) || !StringUtils.isBlank(trackNumbers)) {
                         OrderTracking orderTracking = new OrderTracking();
@@ -576,21 +599,29 @@ public class OrderCommonServiceImpl implements OrderCommonService {
                         orderTracking.setLogisticsOrderNo(logisticsOrderNo);
                         orderTracking.setTrackType(shippingMethod.getTrackType());
                         orderTracking.setTrackingCode(logisticsOrderNo);
+                        if (shippingMethod.getTrackType() == 0){
+                            trackNum = orderTracking.getTrackNumbers();
+                        }
+                        if (shippingMethod.getTrackType() == 1){
+                            trackNum = orderTracking.getLogisticsOrderNo();
+                        }
+                        if (StringUtils.isBlank(trackNum)){
+                            return false;
+                        }
                         // 根据orderId和 order_tracking_type查询订单
                         OrderTracking old = orderTrackingService.queryOrderTrackingByOrderId(a.getId(), orderType);
                         if (orderType == OrderType.NORMAL) {
                             //标记该记录为普通订单
                             orderTracking.setOrderTrackingType(0);
-
                             if (old == null) {
                                 orderTracking.setState(0);
                                 orderTracking.setId(IdGenerate.nextId());
                                 orderTracking.setCreateTime(new Date());
                                 //标记订单为发货
-                                orderDao.updateOrderAsTracked(id);
+                                orderDao.updateOrderAsTracked(id,trackNum);
                                 orderTrackingService.insert(orderTracking);
                                 //处于待回传状态，继续更新运输信息
-                                orderFulfillmentService.orderFulfillment(id);
+                                sendMqMessage(new Message(RocketMqConfig.TOPIC_ORDER_FULFILLMENT, JSONObject.toJSONBytes(id)));
                             } else {
                                 orderTrackingService.updateOrderTracking(orderTracking);
                             }
@@ -606,12 +637,8 @@ public class OrderCommonServiceImpl implements OrderCommonService {
                             } else {
                                 //处于待回传状态，继续更新运输信息
                                 orderTrackingService.updateOrderTracking(orderTracking);
-
                             }
-
                         }
-
-
                         return true;
                     }
                 }
@@ -620,6 +647,7 @@ public class OrderCommonServiceImpl implements OrderCommonService {
         }
         return false;
     }
+
 
     /**
      * 修改订单模块业务数据的客户经理Code

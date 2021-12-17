@@ -2,8 +2,9 @@ package com.upedge.oms.modules.statistics.service.impl;
 
 import com.alibaba.fastjson.JSON;
 import com.upedge.common.base.BaseResponse;
-import com.upedge.common.constant.BaseCode;
+import com.upedge.common.base.Page;
 import com.upedge.common.constant.Constant;
+import com.upedge.common.constant.OrderConstant;
 import com.upedge.common.constant.OrderType;
 import com.upedge.common.constant.ResultCode;
 import com.upedge.common.constant.key.RedisKey;
@@ -21,10 +22,10 @@ import com.upedge.common.model.user.vo.CustomerVo;
 import com.upedge.common.model.user.vo.OrderBenefitsVo;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.utils.DateTools;
-import com.upedge.common.web.util.UserUtil;
 import com.upedge.oms.modules.order.dao.OrderDao;
 import com.upedge.oms.modules.order.dao.OrderRefundDao;
 import com.upedge.oms.modules.order.dao.StoreOrderDao;
+import com.upedge.oms.modules.order.entity.Order;
 import com.upedge.oms.modules.order.service.StoreOrderService;
 import com.upedge.oms.modules.pack.entity.PackageUsdRate;
 import com.upedge.oms.modules.pack.service.PackageInfoService;
@@ -94,6 +95,31 @@ public class StatisticsServiceImpl implements StatisticsService {
     @Autowired
     private OrderDailyPayCountService orderDailyPayCountService;
 
+
+    @Override
+    public List<CustomerOrderCostVo> selectCustomerOrderCost(Session session) {
+        return null;
+    }
+
+    @Override
+    public OrderStateCountVo countOrderState(Session session) {
+        OrderStateCountVo orderStateCountVo = new OrderStateCountVo();
+
+        Page<Order> page = new Page<>();
+        Order order = new Order();
+        order.setCustomerId(session.getCustomerId());
+        order.setPayState(OrderConstant.PAY_STATE_PAID);
+        page.setT(order);
+        long paidOrderCount = orderDao.count(page);
+
+        order.setPayState(null);
+        page.setCondition("refund_state > 1");
+        long refundOrderCount = orderDao.count(page);
+
+        orderStateCountVo.setPaidOrderCount(paidOrderCount);
+        orderStateCountVo.setRefundOrderCount(refundOrderCount);
+        return orderStateCountVo;
+    }
 
     /**
      * 订单导出页 订单相关数据统计
@@ -1124,7 +1150,7 @@ public class StatisticsServiceImpl implements StatisticsService {
     public List<ApiOrderSource> managerOrderSourceList(){
         List<ApiOrderSource> orderSourceList=new ArrayList<>();
         ApiGetOrderSourceResponse apiGetOrderSourceResponse=
-                SaiheSourceApi.getOrderSourceList(SaiheConfig.SOURCINBOX_ORDER_SOURCE_TYPE);
+                SaiheSourceApi.getOrderSourceList(SaiheConfig.UPEDGE_ORDER_SOURCE_TYPE);
         if(apiGetOrderSourceResponse!=null&&
                 apiGetOrderSourceResponse.getGetOrderSourceListResult()!=null&&
                 apiGetOrderSourceResponse.getGetOrderSourceListResult().getOrderSourceList()!=null){

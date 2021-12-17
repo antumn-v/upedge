@@ -163,7 +163,8 @@ public interface OrderDao{
      * @param id
      * @return
      */
-    int updateOrderAsTracked(Long id);
+    int updateOrderAsTracked(@Param("id") Long id,
+                             @Param("trackNum")String trackNum);
 
     /**
      * 普通订单未导入赛盒

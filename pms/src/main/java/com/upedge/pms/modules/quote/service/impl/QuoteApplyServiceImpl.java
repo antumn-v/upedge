@@ -29,6 +29,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.*;
 
 
@@ -129,6 +130,10 @@ public class QuoteApplyServiceImpl implements QuoteApplyService {
         List<CustomerProductQuote> customerProductQuotes = new ArrayList<>();
         Map<Long, Product> map = new HashMap<>();
         for (QuoteApplyProcessItem quoteApplyProcessItem : quoteApplyProcessItems) {
+            if (null == quoteApplyProcessItem.getPrice()
+            || 0 == quoteApplyProcessItem.getPrice().compareTo(BigDecimal.ZERO)){
+                return new ArrayList<>();
+            }
             ProductVariant productVariant = productVariantDao.selectBySku(quoteApplyProcessItem.getVariantSku());
             if (null != productVariant){
                 for (QuoteApplyItem quoteApplyItem : quoteApplyItems) {

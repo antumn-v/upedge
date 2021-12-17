@@ -243,7 +243,7 @@ public class OrderFulfillmentServiceImpl implements OrderFulfillmentService {
 
         String note = "Shipping Method: " + orderTracking.getShippingMethodName() + " ; Tracking Number: " + orderTracking.getTrackingCode();
         WoocommerceOrderNote woocommerceOrderNote = new WoocommerceOrderNote();
-        woocommerceOrderNote.setAuthor("SourcinBox");
+        woocommerceOrderNote.setAuthor("UPEDGE");
         woocommerceOrderNote.setNote(note);
         woocommerceOrderNote.setCustomer_note(storeVo.isEmailPrompt());
         woocommerceOrderNote = WoocommerceOrderApi.postOrderNote(platOrderId, storeVo.getStoreUrl(), storeVo.getApiToken(), woocommerceOrderNote);

@@ -4,13 +4,20 @@ import com.upedge.common.base.BaseResponse;
 import com.upedge.common.exception.CustomerException;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.oms.modules.statistics.request.*;
+import com.upedge.oms.modules.statistics.vo.CustomerOrderCostVo;
 import com.upedge.oms.modules.statistics.vo.OrderSaleVo;
+import com.upedge.oms.modules.statistics.vo.OrderStateCountVo;
 
 import java.text.ParseException;
 import java.util.HashMap;
 import java.util.List;
 
 public interface StatisticsService {
+
+
+    List<CustomerOrderCostVo> selectCustomerOrderCost(Session session);
+
+    OrderStateCountVo countOrderState(Session session);
 
     /**
      * 订单导出页 订单相关数据统计

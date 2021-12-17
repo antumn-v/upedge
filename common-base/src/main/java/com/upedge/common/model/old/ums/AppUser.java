@@ -108,7 +108,7 @@ public class AppUser{
 	 */
     private Integer loginState;
 	/**
-	 * 注册来源，SourcinBox或Shopify
+	 * 注册来源，UPEDGE或Shopify
 	 */
     private String source;
 	/**

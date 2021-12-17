@@ -51,8 +51,6 @@ import java.util.regex.Pattern;
 import static com.upedge.ums.modules.store.service.impl.StoreServiceImpl.getShopifyAuthUrl;
 
 /**
- * 
- *
  * @author author
  */
 @RestController
@@ -83,17 +81,17 @@ public class StoreController {
 
     @ApiOperation("请求授权shopify店铺")
     @PostMapping("/shopifyConnect")
-    public ShopifyAuthResponse shopifyAuthRequest(@RequestBody @Valid ShopifyAuthRequest request){
+    public ShopifyAuthResponse shopifyAuthRequest(@RequestBody @Valid ShopifyAuthRequest request) {
         return storeService.shopifyAuthRequest(request.getShopName());
     }
 
     @ApiOperation("授权回调地址")
     @GetMapping("/shopifyAuth")
     public BaseResponse shopifyAuth(@RequestParam("code") String code,
-                             @RequestParam("hmac") String hmac,
-                             @RequestParam("shop") String shop,
-                             @RequestParam("state") String state,
-                             @RequestParam("timestamp") String timestamp) throws IOException {
+                                    @RequestParam("hmac") String hmac,
+                                    @RequestParam("shop") String shop,
+                                    @RequestParam("state") String state,
+                                    @RequestParam("timestamp") String timestamp) throws IOException {
         Session session = (Session) redisTemplate.opsForValue().get(state);
         HttpServletRequest request = RequestUtil.getRequest();
         String string = request.getQueryString();
@@ -118,7 +116,7 @@ public class StoreController {
             }
             String token = jsonObject.getJSONObject("data").getString("token");
             Store store = storeService.updateShopifyStore(shop, token, session);
-            if (store != null){
+            if (store != null) {
                 try {
                     storeAsync.getStoreData(store);
                 } catch (Exception e) {
@@ -135,10 +133,10 @@ public class StoreController {
 
     @GetMapping("/connect/shopify")
     public BaseResponse shopifyConnectRequest(@RequestParam("hmac") String hmac,
-                                              @RequestParam("shop") String shop){
+                                              @RequestParam("shop") String shop) {
         Map<String, String> result = new HashMap<>();
-        result.put("url",null);
-        result.put("token",null);
+        result.put("url", null);
+        result.put("token", null);
         HttpServletRequest request = RequestUtil.getRequest();
         String string = request.getQueryString();
         String[] params = string.split("&");
@@ -150,22 +148,22 @@ public class StoreController {
             }
         }
         boolean verify = HMACValidation.Valicate(hmac, args, ShopifyConfig.api_select_key);
-        if(verify){
+        if (verify) {
             Store store = new Store();
             store.setStoreName(shop);
             store = storeService.selectByPrimaryKey(store);
-            if(store == null || store.getStatus() != 1){
+            if (store == null || store.getStatus() != 1) {
                 Session session = null;
                 String nonce = System.currentTimeMillis() + "";
                 String url = getShopifyAuthUrl(shop, nonce);
                 redisTemplate.opsForValue().set(nonce, session);
-                result.put("url",url);
+                result.put("url", url);
                 return new ShopifyAuthResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS, url);
-            }else {
+            } else {
                 Customer customer = customerService.selectByPrimaryKey(store.getCustomerId());
                 User user = userService.selectByPrimaryKey(customer.getCustomerSignupUserId());
                 result = userServiceImpl.userSignIn(user, 1L);
-                result.put("url",null);
+                result.put("url", null);
                 return new BaseResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS, result);
             }
         }
@@ -173,16 +171,16 @@ public class StoreController {
     }
 
     @PostMapping("/addShopifyStore/manual")
-    public ShopifyAuthResponse manualAddShopifyStore(@RequestBody ShopifyStoreManualAddRequest request){
+    public ShopifyAuthResponse manualAddShopifyStore(@RequestBody ShopifyStoreManualAddRequest request) {
         Session session = UserUtil.getSession(redisTemplate);
         String shop = request.getShop();
         String token = request.getToken();
         storeService.updateShopifyStore(shop, token, session);
-        return new ShopifyAuthResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS);
+        return new ShopifyAuthResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS);
     }
 
     public static String verifyStoreAddress(String storeAddress) {
-        if (StringUtils.isBlank(storeAddress)){
+        if (StringUtils.isBlank(storeAddress)) {
             return null;
         }
         String pattern = "[\\w\\-]+\\.myshopify.com";
@@ -197,33 +195,33 @@ public class StoreController {
         }
     }
 
-//    @ApiOperation("请求授权woocommerce店铺")
+    //    @ApiOperation("请求授权woocommerce店铺")
 //    @PostMapping("/auth/woocommerce")
-    public WoocommerceAuthResponse woocommerceAuth(@RequestBody @Valid WoocommerceAuthRequest request){
+    public WoocommerceAuthResponse woocommerceAuth(@RequestBody @Valid WoocommerceAuthRequest request) {
         return storeService.woocommerceAuth(request);
     }
 
-//    @ApiOperation("请求授权shoplazza店铺")
+    //    @ApiOperation("请求授权shoplazza店铺")
 //    @PostMapping("/auth/shoplazza")
-    public BaseResponse shoplazzaAuth(@RequestBody @Valid ShoplazzaAuthRequest request){
+    public BaseResponse shoplazzaAuth(@RequestBody @Valid ShoplazzaAuthRequest request) {
         Session session = UserUtil.getSession(redisTemplate);
-        return storeService.shoplazzaAuth(request,session);
+        return storeService.shoplazzaAuth(request, session);
     }
 
-    @RequestMapping(value="/info/{id}", method=RequestMethod.GET)
+    @RequestMapping(value = "/info/{id}", method = RequestMethod.GET)
     public StoreInfoResponse info(@PathVariable Long id) {
         Store store = new Store();
         store.setId(id);
         store = storeService.selectByPrimaryKey(store);
-        StoreInfoResponse res = new StoreInfoResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS,store,id);
+        StoreInfoResponse res = new StoreInfoResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS, store, id);
         return res;
     }
 
-    @RequestMapping(value="/list", method=RequestMethod.POST)
+    @RequestMapping(value = "/list", method = RequestMethod.POST)
     @Permission(permission = "store:store:list")
     public StoreListResponse list(@RequestBody @Valid StoreListRequest request) {
 
-        if(null == request.getT()){
+        if (null == request.getT()) {
             request.setT(new Store());
         }
         Session session = UserUtil.getSession(redisTemplate);
@@ -241,7 +239,7 @@ public class StoreController {
                 i = results.size();
             }
             request.setTotal(Long.parseLong(i + ""));
-        }else {
+        } else {
             request.getT().setCustomerId(session.getCustomerId());
 
             results = storeService.select(request);
@@ -262,6 +260,7 @@ public class StoreController {
 
     /**
      * 查询当前店铺设置信息
+     *
      * @param storeId
      * @return
      */
@@ -278,17 +277,17 @@ public class StoreController {
 
     /**
      * 批量保存电偶设置
+     *
      * @param list
      * @return
      */
     @PostMapping("/settingList/update")
-     public BaseResponse updateStoreSettingList(@RequestBody @Valid List<StoreSetting> list) {
+    public BaseResponse updateStoreSettingList(@RequestBody @Valid List<StoreSetting> list) {
         return storeService.storeSettingListUpdate(list);
     }
 
 
     /**
-     *
      * @param id
      * @param request
      * @return
@@ -309,7 +308,7 @@ public class StoreController {
         BeanUtils.copyProperties(request, store);
         store = storeService.selectByPrimaryKey(store);
         if (null != store) {
-            StoreVo storeVo=storeService.queryStoreSetting(store.getId());
+            StoreVo storeVo = storeService.queryStoreSetting(store.getId());
             BeanUtils.copyProperties(store, storeVo);
             redisTemplate.opsForValue().set(RedisKey.STRING_STORE + store.getId(), storeVo);
             return new BaseResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS, storeVo);
@@ -319,19 +318,30 @@ public class StoreController {
     }
 
     @PostMapping("/getStoreData")
-    public BaseResponse getStoreData() {
-        Page<Store> storePage = new Page<>();
-        storePage.setPageSize(-1);
-        List<Store> stores = storeService.select(storePage);
-        for (Store store1 : stores) {
-            storeAsync.getStoreData(store1);
+    public BaseResponse getStoreData(String storeName) {
+        if (StringUtils.isNotBlank(storeName)) {
+            Store store = new Store();
+            store.setStoreName(storeName);
+            store = storeService.selectByPrimaryKey(store);
+            if (store != null) {
+                storeAsync.getStoreData(store);
+            }
+        } else {
+            Page<Store> storePage = new Page<>();
+            storePage.setPageSize(-1);
+            List<Store> stores = storeService.select(storePage);
+            for (Store store1 : stores) {
+                storeAsync.getStoreData(store1);
+            }
         }
+
         return BaseResponse.success();
     }
 
 
     /**
      * 店铺货币及汇率修改
+     *
      * @param id
      * @param request
      * @return
@@ -341,7 +351,7 @@ public class StoreController {
     public BaseResponse updateStore(@PathVariable Long id, @RequestBody @Valid Store request) {
         request.setId(id);
         int i = storeService.updateStoreByPrimaryKey(request);
-        if (i==1){
+        if (i == 1) {
             return BaseResponse.success();
         }
         return BaseResponse.failed();

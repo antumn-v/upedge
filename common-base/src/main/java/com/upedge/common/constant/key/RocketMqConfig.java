@@ -41,6 +41,10 @@ public class RocketMqConfig {
      * 客户IOSS信息修改
      */
     public final static String TOPIC_CUSTOMER_IOSS_UPDATE = "customer_ioss_update";
+    /**
+     * 订单物流回传店铺
+     */
+    public final static String TOPIC_ORDER_FULFILLMENT = "order_fulfillment";
 
 
 

@@ -4,6 +4,7 @@ import com.upedge.common.exception.CustomerException;
 import com.upedge.common.model.mq.ChangeManagerVo;
 import com.upedge.oms.modules.common.entity.SaiheOrderRecord;
 import com.upedge.thirdparty.saihe.entity.SaiheOrder;
+import org.apache.rocketmq.common.message.Message;
 
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -19,6 +20,12 @@ public interface OrderCommonService {
      */
     SaiheOrderRecord importOrderToSaihe(SaiheOrder saiheOrder);
 
+    /**
+     * 发送mq消息
+     */
+    boolean sendMqMessage(Message message);
+
+    boolean sendMqMessage(List<Message> messages);
 
     /**
      * 该订单是否在赛盒已经上传了，不用再回传

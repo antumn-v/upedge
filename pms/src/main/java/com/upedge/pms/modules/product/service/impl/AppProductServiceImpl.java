@@ -4,9 +4,10 @@ import com.upedge.common.base.BaseResponse;
 import com.upedge.common.constant.Constant;
 import com.upedge.common.constant.ResultCode;
 import com.upedge.common.constant.key.RedisKey;
-import com.upedge.common.enums.CustomerSettingEnum;
 import com.upedge.common.feign.TmsFeignClient;
+import com.upedge.common.model.product.VariantDetail;
 import com.upedge.common.model.product.request.ProductVariantShipsRequest;
+import com.upedge.common.model.ship.request.ShipMethodPriceRequest;
 import com.upedge.common.model.ship.request.ShipMethodSearchRequest;
 import com.upedge.common.model.ship.response.ShipMethodSearchResponse;
 import com.upedge.common.model.user.vo.Session;
@@ -26,14 +27,13 @@ import com.upedge.pms.modules.product.response.ProductImgListResponse;
 import com.upedge.pms.modules.product.service.AppProductService;
 import com.upedge.pms.modules.product.service.ProductService;
 import com.upedge.pms.modules.product.vo.AppProductVariantVo;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.math.BigDecimal;
+import java.util.*;
 
 /**
  * @author 海桐
@@ -178,62 +178,51 @@ public class AppProductServiceImpl implements AppProductService {
 
     @Override
     public BaseResponse productVariantsShipList(ProductVariantShipsRequest request) {
-        return null;
-//        String key = RedisKeyUtils.getCustomerSettingKey(request.getCustomerId());
-//
-//        String s = (String) redisTemplate.opsForHash().get(key, CustomerSettingEnum.ship_method_sort_type.name());
-//
-//        Integer shipMethodSortType = Integer.valueOf(s);
-//
-//        BigDecimal weight = BigDecimal.ZERO;
-//        BigDecimal volume = BigDecimal.ZERO;
-//        List<Long> productIds = new ArrayList<>();
-//        List<Long> shipTemplateIds = null;
-//        List<VariantDetail> variants = request.getVariantDetails();
-//        for (VariantDetail variant : variants) {
-//            weight = weight.add(variant.getWeight());
-//            volume = volume.add(variant.getVolume());
-//            productIds.add(variant.getProductId());
-//        }
-//        shipTemplateIds = productDao.selectShippingIdByIds(productIds);
-//        if (ListUtils.isEmpty(shipTemplateIds)) {
-//            return BaseResponse.failed();
-//        }
-//
-//        Collection<String> strings = new ArrayList<>();
-//        for (int i = 0; i < shipTemplateIds.size(); i++) {
-//            strings.add(RedisKey.SHIPPING_METHODS + shipTemplateIds.get(i));
-//        }
-//
-//        Set<Object> shipMethodIds = redisTemplate.opsForSet().union(strings);
-//        if (ListUtils.isEmpty(shipMethodIds)) {
-//            return BaseResponse.failed();
-//        }
-//        Set<Long> methodIds = new HashSet<>();
-//        shipMethodIds.forEach(shipMethodId -> {
-//            methodIds.add((Long) shipMethodId);
-//        });
-//
-//        ShipMethodSearchRequest searchRequest = new ShipMethodSearchRequest();
-//        searchRequest.setShipMethodSortType(shipMethodSortType);
-//        searchRequest.setTemplateIds(shipTemplateIds);
-//        searchRequest.setToAreaId(request.getAreaId());
-//        searchRequest.setWeight(weight);
-//        searchRequest.setVolumeWeight(volume);
-//        searchRequest.setMethodIds(methodIds);
-//        if (null != request.getShipMethodId()) {
-//            ShipMethodPriceRequest shipMethodPriceRequest = new ShipMethodPriceRequest();
-//            BeanUtils.copyProperties(searchRequest, shipMethodPriceRequest);
-//            shipMethodPriceRequest.setShipMethodId(request.getShipMethodId());
-//            return tmsFeignClient.shipMethodPrice(shipMethodPriceRequest);
-//        } else {
-//            ShipMethodSearchResponse searchResponse = (ShipMethodSearchResponse) redisTemplate.opsForValue().get(searchRequest.toString());
-//            if (null == searchResponse) {
-//                searchResponse = tmsFeignClient.shipSearch(searchRequest);
-//                redisTemplate.opsForValue().set(searchRequest.toString(), searchResponse, 10, TimeUnit.SECONDS);
-//            }
-//            return new BaseResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS, searchResponse.getData(), request);
-//        }
+        BigDecimal weight = BigDecimal.ZERO;
+        BigDecimal volume = BigDecimal.ZERO;
+        Set<Long> productIds = new HashSet<>();
+        List<Long> shipTemplateIds = null;
+        List<VariantDetail> variants = request.getVariantDetails();
+        for (VariantDetail variant : variants) {
+            weight = weight.add(variant.getWeight());
+            volume = volume.add(variant.getVolume());
+            productIds.add(variant.getProductId());
+        }
+        shipTemplateIds = productDao.selectShippingIdByIds(productIds);
+        if (ListUtils.isEmpty(shipTemplateIds)) {
+            return BaseResponse.failed();
+        }
+
+        Collection<String> strings = new ArrayList<>();
+        for (int i = 0; i < shipTemplateIds.size(); i++) {
+            strings.add(RedisKey.SHIPPING_METHODS + shipTemplateIds.get(i));
+        }
+
+        Set<Object> shipMethodIds = redisTemplate.opsForSet().union(strings);
+        if (ListUtils.isEmpty(shipMethodIds)) {
+            return BaseResponse.failed();
+        }
+        Set<Long> methodIds = new HashSet<>();
+        shipMethodIds.forEach(shipMethodId -> {
+            methodIds.add((Long) shipMethodId);
+        });
+
+        ShipMethodSearchRequest searchRequest = new ShipMethodSearchRequest();
+        searchRequest.setTemplateIds(shipTemplateIds);
+        searchRequest.setToAreaId(request.getAreaId());
+        searchRequest.setWeight(weight);
+        searchRequest.setVolumeWeight(volume);
+        searchRequest.setMethodIds(methodIds);
+        if (null != request.getShipMethodId()) {
+            ShipMethodPriceRequest shipMethodPriceRequest = new ShipMethodPriceRequest();
+            BeanUtils.copyProperties(searchRequest, shipMethodPriceRequest);
+            shipMethodPriceRequest.setShipMethodId(request.getShipMethodId());
+            return tmsFeignClient.shipMethodPrice(shipMethodPriceRequest);
+        } else {
+            ShipMethodSearchResponse searchResponse = tmsFeignClient.shipSearch(searchRequest);
+
+            return new BaseResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS, searchResponse.getData(), request);
+        }
 
     }
 }

@@ -44,9 +44,9 @@
         on oa.order_id = o.id
         where o.customer_id = #{customerId}
         and o.pay_state = '0'
+        and o.quote_state ='3'
         and o.order_type = '0'
         and oa.country is not null
-
     </select>
 
     <select id="selectSameAddressByOrderIds" resultMap="SameAddressOrderVo">

@@ -16,7 +16,6 @@ import com.upedge.thirdparty.saihe.entity.getOrderByCode.OrderRequest;
 import com.upedge.thirdparty.saihe.entity.getPackages.ApiGetPackagesRequest;
 import com.upedge.thirdparty.saihe.entity.getPackages.ApiGetPackagesResponse;
 import com.upedge.thirdparty.saihe.entity.getPackages.PackagesRequest;
-import com.upedge.thirdparty.saihe.entity.getProcurementList.ApiProcurementInfo;
 import com.upedge.thirdparty.saihe.entity.getProcurementList.GetProcurementList;
 import com.upedge.thirdparty.saihe.entity.getProcurementList.GetProcurementListRequest;
 import com.upedge.thirdparty.saihe.entity.getProcurementList.GetProcurementListResponse;
@@ -212,9 +211,7 @@ public class SaiheService {
             requestBody.setApiGetWareHouseRequest(apiGetWareHouseRequest);
             requestEntity.setBody(requestBody);
             String xmlStr = XmlAndJavaObjectConvert.convertToXml(requestEntity);
-            log.debug("xmlStr:{}",xmlStr);
             String result = PostUtils.sendPostV(SaiheConfig.ORDER_URL, xmlStr);
-            log.debug("result:{}",result);
             SaiheResponseEntity responseEntity= (SaiheResponseEntity) XmlAndJavaObjectConvert.convertXmlStrToObject(SaiheResponseEntity.class,result);
             return responseEntity.getBody().getApiGetWareHouseResponse();
         }catch (Exception e){
@@ -270,7 +267,7 @@ public class SaiheService {
             procurementRequest.setUserName(SaiheConfig.USERNAME);
             procurementRequest.setPassword(SaiheConfig.PASSWORD);
             procurementRequest.setCustomerID(SaiheConfig.CUSTOMER_ID);
-            procurementRequest.setWareHouseID(SaiheConfig.SOURCINBOX_DEFAULT_WAREHOURSE_ID);
+            procurementRequest.setWareHouseID(SaiheConfig.UPEDGE_DEFAULT_WAREHOURSE_ID);
             procurementRequest.setRemark("");
             ProductList productList=new ProductList();
             productList.setProductList(procurementProductList);
@@ -282,9 +279,7 @@ public class SaiheService {
             requestBody.setApiCreateProcurementRequest(apiCreateProcurementRequest);
             requestEntity.setBody(requestBody);
             String xmlStr = XmlAndJavaObjectConvert.convertToXml(requestEntity);
-            log.debug("xmlStr:{}",xmlStr);
             String result = PostUtils.sendPostV(SaiheConfig.ORDER_URL, xmlStr);
-            log.debug("result:{}",result);
             SaiheResponseEntity responseEntity= (SaiheResponseEntity) XmlAndJavaObjectConvert.convertXmlStrToObject(SaiheResponseEntity.class, result);
             return  responseEntity.getBody().getApiCreateProcurementResponse();
         }catch (Exception e){
@@ -321,9 +316,7 @@ public class SaiheService {
             requestBody.setApiGetOrderRequest(apiGetOrderRequest);
             requestEntity.setBody(requestBody);
             String xmlStr = XmlAndJavaObjectConvert.convertToXml(requestEntity);
-            log.debug("xmlStr:{}",xmlStr);
             String result = PostUtils.sendPostV(SaiheConfig.ORDER_URL, xmlStr);
-            log.debug("result:{}",result);
             SaiheResponseEntity responseEntity = (SaiheResponseEntity) XmlAndJavaObjectConvert.convertXmlStrToObject(SaiheResponseEntity.class, result);
             return  responseEntity.getBody().getApiGetOrderResponse();
         }catch (Exception e){
@@ -353,9 +346,7 @@ public class SaiheService {
             requestBody.setApiCancelOrderRequest(apiCancelOrderRequest);
             requestEntity.setBody(requestBody);
             String xmlStr = XmlAndJavaObjectConvert.convertToXml(requestEntity);
-            log.debug("xmlStr:{}",xmlStr);
             String result = PostUtils.sendPostV(SaiheConfig.ORDER_URL,xmlStr);
-            log.debug("result:{}",result);
             SaiheResponseEntity responseEntity= (SaiheResponseEntity) XmlAndJavaObjectConvert.convertXmlStrToObject(SaiheResponseEntity.class, result);
             return  responseEntity.getBody().getApiCancelOrderResponse();
         }catch (Exception e){
@@ -389,9 +380,7 @@ public class SaiheService {
             requestBody.setApiGetOrderRequest(apiGetOrderRequest);
             requestEntity.setBody(requestBody);
             String xmlStr = XmlAndJavaObjectConvert.convertToXml(requestEntity);
-            log.debug("xmlStr:{}",xmlStr);
             String result = PostUtils.sendPostV(SaiheConfig.ORDER_URL, xmlStr);
-            log.debug("result:{}",result);
             SaiheResponseEntity responseEntity = (SaiheResponseEntity) XmlAndJavaObjectConvert.convertXmlStrToObject(SaiheResponseEntity.class, result);
             return  responseEntity.getBody().getApiGetOrderResponse();
         }catch (Exception e){
@@ -418,9 +407,7 @@ public class SaiheService {
             requestBody.setApiUploadOrderRequest(apiUploadOrderRequest);
             requestEntity.setBody(requestBody);
             String xmlStr = XmlAndJavaObjectConvert.convertToXml(requestEntity);
-            log.debug("xmlStr:{}",xmlStr);
             String result = PostUtils.sendPostV(SaiheConfig.ORDER_URL, xmlStr);
-            log.debug("result:{}",result);
             SaiheResponseEntity responseEntity = (SaiheResponseEntity) XmlAndJavaObjectConvert.convertXmlStrToObject(SaiheResponseEntity.class, result);
             upLoadOrderV2Response = responseEntity.getBody().getUpLoadOrderV2Response();
             return upLoadOrderV2Response;
@@ -448,7 +435,7 @@ public class SaiheService {
             packagesRequest.setCustomerID(SaiheConfig.CUSTOMER_ID);
             packagesRequest.setShipTimeBegin(ShipTimeBegin);
             packagesRequest.setShipTimeEnd(ShipTimeEnd);
-            packagesRequest.setOrderSourceType(SaiheConfig.SOURCINBOX_ORDER_SOURCE_TYPE);
+            packagesRequest.setOrderSourceType(SaiheConfig.UPEDGE_ORDER_SOURCE_TYPE);
             packagesRequest.setNextToken(NextToken);
             apiGetPackagesRequest.setRequest(packagesRequest);
             requestBody.setApiGetPackagesRequest(apiGetPackagesRequest);
@@ -479,9 +466,9 @@ public class SaiheService {
 
             GetProcurementListRequest apiGetInPurchaseDetailRequest = new GetProcurementListRequest();
             GetProcurementList getProcurementList = new GetProcurementList();
-            getProcurementList.setUserName("upedgeDUIJIE");
-            getProcurementList.setPassword("LSJDKJHASDNBS");
-            getProcurementList.setCustomerID(1555);
+            getProcurementList.setUserName(SaiheConfig.USERNAME);
+            getProcurementList.setPassword(SaiheConfig.PASSWORD);
+            getProcurementList.setCustomerID(SaiheConfig.CUSTOMER_ID);
 //            getProcurementList.setP_Code(P_Code);
             getProcurementList.setStartTime(startTime);
             getProcurementList.setEndTime(endTime);
@@ -508,15 +495,7 @@ public class SaiheService {
         String endTime="2021-03-08 16:00:00";
         GetProcurementListResponse response=SaiheService.getProcurementListRequest(format.parse(startTime),format.parse(endTime),nextToken);
         if(response.getGetProcurementListResult().getStatus().equals("OK")){
-            List<ApiProcurementInfo> list=response.getGetProcurementListResult().getProcurementList().getProductInventoryList();
-            System.out.println(list.size());
-            System.out.println(response.getGetProcurementListResult().getNextToken());
-            System.out.println();
-            for(ApiProcurementInfo apiProcurementInfo:list){
-                if(apiProcurementInfo.getBuyerName().contains("zhaotianyi")){
-                    System.out.println(apiProcurementInfo.getBuyerName()+" "+apiProcurementInfo.getProcurementListState());
-                }
-            }
+
             if(response.getGetProcurementListResult().getNextToken()!=null
                     &&response.getGetProcurementListResult().getNextToken()!=-1){
                 listP(response.getGetProcurementListResult().getNextToken());
@@ -536,9 +515,9 @@ public class SaiheService {
 
             ApiGetInPurchaseDetailRequest apiGetInPurchaseDetailRequest = new ApiGetInPurchaseDetailRequest();
             PurchaseDetailRequest purchaseDetailRequest = new PurchaseDetailRequest();
-            purchaseDetailRequest.setUserName("PANDADUIJIE");
-            purchaseDetailRequest.setPassword("LSJDKJHASDNBS");
-            purchaseDetailRequest.setCustomerID(1555);
+            purchaseDetailRequest.setUserName(SaiheConfig.USERNAME);
+            purchaseDetailRequest.setPassword(SaiheConfig.PASSWORD);
+            purchaseDetailRequest.setCustomerID(SaiheConfig.CUSTOMER_ID);
             purchaseDetailRequest.setWareHouseID(0);
             purchaseDetailRequest.setP_Code(P_Code);
             purchaseDetailRequest.setClientSKU(ClientSKU);
@@ -549,7 +528,6 @@ public class SaiheService {
             SimpleDateFormat format=new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             Calendar calendar=Calendar.getInstance();
             calendar.setTime(new Date());
-            System.out.println(format.format(calendar.getTime()));
             calendar.add(Calendar.DAY_OF_MONTH,1);
             purchaseDetailRequest.setEndTime(format.format(calendar.getTime()));//选填	请求更新结束时间
 
@@ -559,7 +537,7 @@ public class SaiheService {
 
             String xmlStr2 = XmlAndJavaObjectConvert.convertToXml(requestEntity);
 //            System.out.println(xmlStr2);
-            String result = PostUtils.sendPost1("http://senbo.irobotbox.com/Api/API_Irobotbox_Orders.asmx", "http://tempuri.org/GetPurchasePutInLogList", xmlStr2);
+            String result = PostUtils.sendPost1(SaiheConfig.ORDER_URL, "http://tempuri.org/GetPurchasePutInLogList", xmlStr2);
 //            System.out.println(result);
             RequestEntity1 responseEntity1= (RequestEntity1) XmlAndJavaObjectConvert.convertXmlStrToObject(RequestEntity1.class, result);
             return  responseEntity1.getBody().getApiGetInPurchaseDetailResponse();
@@ -586,9 +564,9 @@ public class SaiheService {
 
             ApiGetProductInventoryRequest apiGetProductInventoryRequest = new ApiGetProductInventoryRequest();
             InventoryRequest inventoryRequest = new InventoryRequest();
-            inventoryRequest.setUserName("upedgeDUIJIE");
-            inventoryRequest.setPassword("LSJDKJHASDNBS");
-            inventoryRequest.setCustomerID(1555);
+            inventoryRequest.setUserName(SaiheConfig.USERNAME);
+            inventoryRequest.setPassword(SaiheConfig.PASSWORD);
+            inventoryRequest.setCustomerID(SaiheConfig.CUSTOMER_ID);
             inventoryRequest.setWarehouseID(warehouseID);
             inventoryRequest.setNextToken(nextToken);
 
@@ -598,7 +576,7 @@ public class SaiheService {
 
             String xmlStr2 = XmlAndJavaObjectConvert.convertToXml(requestEntity);
 //            System.out.println(xmlStr2);
-            String result = PostUtils.sendPost1("http://senbo.irobotbox.com/Api/API_ProductInfoManage.asmx", "http://tempuri.org/GetProductInventory", xmlStr2);
+            String result = PostUtils.sendPost1(SaiheConfig.PRODUCT_URL, "http://tempuri.org/GetProductInventory", xmlStr2);
 //            System.out.println(result);
             RequestEntity1 responseEntity1= (RequestEntity1) XmlAndJavaObjectConvert.convertXmlStrToObject(RequestEntity1.class, result);
             return  responseEntity1.getBody().getGetProductInventoryResponse();
@@ -620,9 +598,9 @@ public class SaiheService {
 
             ApiGetProductInventoryRequest apiGetProductInventoryRequest = new ApiGetProductInventoryRequest();
             InventoryRequest inventoryRequest = new InventoryRequest();
-            inventoryRequest.setUserName("upedgeDUIJIE");
-            inventoryRequest.setPassword("LSJDKJHASDNBS");
-            inventoryRequest.setCustomerID(1555);
+            inventoryRequest.setUserName(SaiheConfig.USERNAME);
+            inventoryRequest.setPassword(SaiheConfig.PASSWORD);
+            inventoryRequest.setCustomerID(SaiheConfig.CUSTOMER_ID);
             inventoryRequest.setWarehouseID(warehouseID);
             inventoryRequest.setClientSKU(ClientSKU);
 
@@ -632,7 +610,7 @@ public class SaiheService {
 
             String xmlStr2 = XmlAndJavaObjectConvert.convertToXml(requestEntity);
 //            System.out.println(xmlStr2);
-            String result = PostUtils.sendPost1("http://senbo.irobotbox.com/Api/API_ProductInfoManage.asmx", "http://tempuri.org/GetProductInventory", xmlStr2);
+            String result = PostUtils.sendPost1(SaiheConfig.PRODUCT_URL, "http://tempuri.org/GetProductInventory", xmlStr2);
 //            System.out.println(result);
             RequestEntity1 responseEntity1= (RequestEntity1) XmlAndJavaObjectConvert.convertXmlStrToObject(RequestEntity1.class, result);
             return  responseEntity1.getBody().getGetProductInventoryResponse();
@@ -669,9 +647,9 @@ public class SaiheService {
 
             ApiGetPackagesRequest apiGetPackagesRequest=new ApiGetPackagesRequest();
             PackagesRequest packagesRequest=new PackagesRequest();
-            packagesRequest.setUserName("upedgeDUIJIE");
-            packagesRequest.setPassword("LSJDKJHASDNBS");
-            packagesRequest.setCustomerID(1555);
+            packagesRequest.setUserName(SaiheConfig.USERNAME);
+            packagesRequest.setPassword(SaiheConfig.PASSWORD);
+            packagesRequest.setCustomerID(SaiheConfig.CUSTOMER_ID);
             packagesRequest.setPackageID(packageID);
             packagesRequest.setOrderSourceType(4);
 
@@ -683,7 +661,7 @@ public class SaiheService {
             String xmlStr2 = XmlAndJavaObjectConvert.convertToXml(requestEntity);
 //            System.out.println(xmlStr2);
 
-            String result = PostUtils.sendPost1("http://senbo.irobotbox.com/Api/API_Irobotbox_Orders.asmx", "http://tempuri.org/GetPackages", xmlStr2);
+            String result = PostUtils.sendPost1(SaiheConfig.ORDER_URL, "http://tempuri.org/GetPackages", xmlStr2);
 //            System.out.println(result);
 
             RequestEntity1 responseEntity1= (RequestEntity1) XmlAndJavaObjectConvert.convertXmlStrToObject(RequestEntity1.class, result);

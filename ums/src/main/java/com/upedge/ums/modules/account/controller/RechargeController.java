@@ -163,7 +163,7 @@ public class RechargeController {
     @ApiOperation("paypal充值")
     @PostMapping("/request/createPaypal")
     public ApplyRechargeResponse paypalRechargeRequest(@RequestBody ApplyRechargeRequest request) {
-        String origin = RequestUtil.getRequest().getHeader("Origin") + "/board/financeblank";
+        String origin = RequestUtil.getRequest().getHeader("Origin") + "/wallet/financeblank";
         Session session = UserUtil.getSession(redisTemplate);
         if (null == request.getAccountId()) {
             request.setAccountId(session.getAccountId());

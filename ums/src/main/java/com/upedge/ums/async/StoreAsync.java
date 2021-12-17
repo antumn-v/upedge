@@ -50,7 +50,7 @@ public class StoreAsync {
     //获取店铺数据
     @Async
     public void getStoreData(Store store) {
-        createStoreWebhook(store);
+//        createStoreWebhook(store);
         switch (store.getStoreType()) {
             case 0:
                 getShopifyStoreData(store);

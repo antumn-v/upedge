@@ -454,7 +454,7 @@ public class FulfillmentServiceImpl implements FulfillmentService {
                     //未没有回传
                     if(!flag){
                         WoocommerceTrackingNote woocommerceTrackingNote = new WoocommerceTrackingNote();
-                        woocommerceTrackingNote.setAuthor("SourcinBox");
+                        woocommerceTrackingNote.setAuthor("UPEDGE");
                         woocommerceTrackingNote.setNote("Shipping Method: " + methodName + " ; Tracking Number: " + trackingCode);
                         String result = PostRequest.sendPost("https://" + storeVo.getStoreUrl() + "/index.php/wp-json/wc/v3/orders/" + orderName + "/notes",
                                 storeVo.getApiToken(), JSONObject.toJSON(woocommerceTrackingNote));

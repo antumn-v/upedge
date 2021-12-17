@@ -164,7 +164,7 @@ public class ProductSaiheInventoryServiceImpl implements ProductSaiheInventorySe
     public void batchRefreshInventory(Integer token) {
 
         GetProductInventoryResponse getProductInventoryResponse=
-                SaiheService.listProductInventory(SaiheConfig.SOURCINBOX_DEFAULT_WAREHOURSE_ID,token);
+                SaiheService.listProductInventory(SaiheConfig.UPEDGE_DEFAULT_WAREHOURSE_ID,token);
         if (getProductInventoryResponse.getGetProductInventoryResult().getStatus().equals("OK")) {
             ProductInventoryList productInventoryList=getProductInventoryResponse.
                     getGetProductInventoryResult().getProductInventoryList();
@@ -181,7 +181,7 @@ public class ProductSaiheInventoryServiceImpl implements ProductSaiheInventorySe
                     productSaiheInventory.setVariantSku(a.getClientSKU());
                     productSaiheInventory.setGoodNum(a.getGoodNum());
                     productSaiheInventory.setLockNum(a.getLockNum());
-                    productSaiheInventory.setWarehouseId(SaiheConfig.SOURCINBOX_DEFAULT_WAREHOURSE_ID);
+                    productSaiheInventory.setWarehouseId(SaiheConfig.UPEDGE_DEFAULT_WAREHOURSE_ID);
                     productSaiheInventory.setUpdateTime(a.getUpdateTime());
                     productSaiheInventory.setActiveDays(a.getActiveDays());
                     productSaiheInventory.setActiveTime(a.getActiveTime());

@@ -113,7 +113,7 @@ public class Order{
 
     private String saiheOrderCode;
 
-    private BigDecimal vatAmount = BigDecimal.ZERO;
+    private BigDecimal vatAmount;
 
     private Integer orderStatus;
 

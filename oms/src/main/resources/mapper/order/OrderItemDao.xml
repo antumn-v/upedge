@@ -215,6 +215,7 @@
         <foreach collection="orderIds" item="orderId" open="(" close=")" separator=",">
             #{orderId}
         </foreach>
+        and admin_variant_id is not null
     </select>
 
     <select id="selectDischargeQuantityByPaymentId" resultType="com.upedge.oms.modules.order.vo.ItemDischargeQuantityVo">
@@ -933,11 +934,12 @@
     <select id="selectUnQuoteItemOrderIdByOrderIds" resultType="java.lang.Long">
         select distinct order_id
         from order_item
-        where quote_state != '1'
-        and order_id in
+        where order_id in
         <foreach collection="orderIds" item="orderId" open="(" close=")" separator=",">
             #{orderId}
         </foreach>
+        and quote_state in
+        ('0','5')
     </select>
 
     <select id="selectItemByOrderId" resultMap="BaseResultMap">

@@ -183,7 +183,7 @@ public class EmailTemplate {
             "<!--<![endif]-->\n" +
             "<div align=\"left\" class=\"img-container left fixedwidth\" style=\"padding-right: 5px;padding-left: 5px;\">\n" +
             "<!--[if mso]><table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\"><tr style=\"line-height:0px\"><td style=\"padding-right: 5px;padding-left: 5px;\" align=\"left\"><![endif]-->\n" +
-            "<div style=\"font-size:1px;line-height:5px\"> </div><a href=\"https://www.upedge.com/\" tabindex=\"-1\" target=\"_blank\"> <img alt=\"SourcinBox Dropshipping&amp;Wholesaling expert\" border=\"0\" class=\"left fixedwidth\" src=\"https://app.upedge.cn/image/email/login-logo3.png\" style=\"text-decoration: none; -ms-interpolation-mode: bicubic; height: auto; border: none; width: 100%; max-width: 160px; display: block;\" title=\"SourcinBox Dropshipping&amp;Wholesaling expert\" width=\"160\"/></a>\n" +
+            "<div style=\"font-size:1px;line-height:5px\"> </div><a href=\"https://www.upedge.com/\" tabindex=\"-1\" target=\"_blank\"> <img alt=\"UPEDGE Dropshipping&amp;Wholesaling expert\" border=\"0\" class=\"left fixedwidth\" src=\"https://app.upedge.cn/image/email/login-logo3.png\" style=\"text-decoration: none; -ms-interpolation-mode: bicubic; height: auto; border: none; width: 100%; max-width: 160px; display: block;\" title=\"UPEDGE Dropshipping&amp;Wholesaling expert\" width=\"160\"/></a>\n" +
             "<div style=\"font-size:1px;line-height:5px\"> </div>\n" +
             "<!--[if mso]></td></tr></table><![endif]-->\n" +
             "</div>\n" +
@@ -211,7 +211,7 @@ public class EmailTemplate {
             "<!--[if mso]></td></tr></table><![endif]-->\n" +
             "<div align=\"center\" class=\"button-container\" style=\"padding-top:10px;padding-right:10px;padding-bottom:10px;padding-left:10px;\">\n" +
             "<!--[if mso]><table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"border-spacing: 0; border-collapse: collapse; mso-table-lspace:0pt; mso-table-rspace:0pt;\"><tr><td style=\"padding-top: 10px; padding-right: 10px; padding-bottom: 10px; padding-left: 10px\" align=\"center\"><v:roundrect xmlns:v=\"urn:schemas-microsoft-com:vml\" xmlns:w=\"urn:schemas-microsoft-com:office:word\" href=\"https://app.upedge.cn/dashboard\" style=\"height:31.5pt; width:221.25pt; v-text-anchor:middle;\" arcsize=\"120%\" stroke=\"false\" fillcolor=\"#27b7d7\"><w:anchorlock/><v:textbox inset=\"0,0,0,0\"><center style=\"color:#ffffff; font-family:Arial, sans-serif; font-size:16px\"><![endif]--><a href=\"https://app.upedge.cn/dashboard\" style=\"-webkit-text-size-adjust: none; text-decoration: none; display: inline-block; color: #ffffff; background-color: #27b7d7; border-radius: 50px; -webkit-border-radius: 50px; -moz-border-radius: 50px; width: auto; width: auto; border-top: 1px solid #27b7d7; border-right: 1px solid #27b7d7; border-bottom: 1px solid #27b7d7; border-left: 1px solid #27b7d7; padding-top: 5px; padding-bottom: 5px; font-family: 'Open Sans', Helvetica, Arial, sans-serif; text-align: center; mso-border-alt: none; word-break: keep-all;\" target=\"_blank\"><span style=\"padding-left:50px;padding-right:50px;font-size:16px;display:inline-block;\">\n" +
-            "<span style=\"font-size: 16px; line-height: 2; mso-line-height-alt: 32px;\"><strong>GO TO SOURCINBOX APP</strong></span>\n" +
+            "<span style=\"font-size: 16px; line-height: 2; mso-line-height-alt: 32px;\"><strong>GO TO UPEDGE APP</strong></span>\n" +
             "</span></a>\n" +
             "<!--[if mso]></center></v:textbox></v:roundrect></td></tr></table><![endif]-->\n" +
             "</div>\n" +
@@ -288,7 +288,7 @@ public class EmailTemplate {
             "<!--[if mso]><table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\"><tr><td style=\"padding-right: 10px; padding-left: 10px; padding-top: 10px; padding-bottom: 10px; font-family: Arial, sans-serif\"><![endif]-->\n" +
             "<div style=\"color:#6B6B6B;font-family:'Open Sans', Helvetica, Arial, sans-serif;line-height:1.2;padding-top:10px;padding-right:10px;padding-bottom:10px;padding-left:10px;\">\n" +
             "<div style=\"font-family: 'Open Sans', Helvetica, Arial, sans-serif; font-size: 12px; line-height: 1.2; color: #6B6B6B; mso-line-height-alt: 14px;\">\n" +
-            "<p style=\"font-size: 12px; line-height: 1.2; mso-line-height-alt: 14px; margin: 0;\">©2015-2019 SourcinBox, all rights reserved</p>\n" +
+            "<p style=\"font-size: 12px; line-height: 1.2; mso-line-height-alt: 14px; margin: 0;\">©2015-2019 UPEDGE, all rights reserved</p>\n" +
             "</div>\n" +
             "</div>\n" +
             "<!--[if mso]></td></tr></table><![endif]-->\n" +
@@ -537,7 +537,7 @@ public class EmailTemplate {
             "<!--<![endif]-->\n" +
             "<div align=\"left\" class=\"img-container left fixedwidth\" style=\"padding-right: 5px;padding-left: 5px;\">\n" +
             "<!--[if mso]><table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\"><tr style=\"line-height:0px\"><td style=\"padding-right: 5px;padding-left: 5px;\" align=\"left\"><![endif]-->\n" +
-            "<div style=\"font-size:1px;line-height:5px\"> </div><a href=\"https://www.upedge.com/\" tabindex=\"-1\" target=\"_blank\"> <img alt=\"SourcinBox Dropshipping&amp;Wholesaling expert\" border=\"0\" class=\"left fixedwidth\" src=\"https://app.upedge.cn/image/email/login-logo3.png\" style=\"text-decoration: none; -ms-interpolation-mode: bicubic; height: auto; border: none; width: 100%; max-width: 160px; display: block;\" title=\"SourcinBox Dropshipping&amp;Wholesaling expert\" width=\"160\"/></a>\n" +
+            "<div style=\"font-size:1px;line-height:5px\"> </div><a href=\"https://www.upedge.com/\" tabindex=\"-1\" target=\"_blank\"> <img alt=\"UPEDGE Dropshipping&amp;Wholesaling expert\" border=\"0\" class=\"left fixedwidth\" src=\"https://app.upedge.cn/image/email/login-logo3.png\" style=\"text-decoration: none; -ms-interpolation-mode: bicubic; height: auto; border: none; width: 100%; max-width: 160px; display: block;\" title=\"UPEDGE Dropshipping&amp;Wholesaling expert\" width=\"160\"/></a>\n" +
             "<div style=\"font-size:1px;line-height:5px\"> </div>\n" +
             "<!--[if mso]></td></tr></table><![endif]-->\n" +
             "</div>\n" +
@@ -571,7 +571,7 @@ public class EmailTemplate {
             "<!--[if mso]></td></tr></table><![endif]-->\n" +
             "<div align=\"center\" class=\"button-container\" style=\"padding-top:10px;padding-right:10px;padding-bottom:10px;padding-left:10px;\">\n" +
             "<!--[if mso]><table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"border-spacing: 0; border-collapse: collapse; mso-table-lspace:0pt; mso-table-rspace:0pt;\"><tr><td style=\"padding-top: 10px; padding-right: 10px; padding-bottom: 10px; padding-left: 10px\" align=\"center\"><v:roundrect xmlns:v=\"urn:schemas-microsoft-com:vml\" xmlns:w=\"urn:schemas-microsoft-com:office:word\" href=\"https://app.upedge.cn/dashboard\" style=\"height:31.5pt; width:221.25pt; v-text-anchor:middle;\" arcsize=\"120%\" stroke=\"false\" fillcolor=\"#27b7d7\"><w:anchorlock/><v:textbox inset=\"0,0,0,0\"><center style=\"color:#ffffff; font-family:Arial, sans-serif; font-size:16px\"><![endif]--><a href=\"https://app.upedge.cn/dashboard\" style=\"-webkit-text-size-adjust: none; text-decoration: none; display: inline-block; color: #ffffff; background-color: #27b7d7; border-radius: 50px; -webkit-border-radius: 50px; -moz-border-radius: 50px; width: auto; width: auto; border-top: 1px solid #27b7d7; border-right: 1px solid #27b7d7; border-bottom: 1px solid #27b7d7; border-left: 1px solid #27b7d7; padding-top: 5px; padding-bottom: 5px; font-family: 'Open Sans', Helvetica, Arial, sans-serif; text-align: center; mso-border-alt: none; word-break: keep-all;\" target=\"_blank\"><span style=\"padding-left:50px;padding-right:50px;font-size:16px;display:inline-block;\">\n" +
-            "<span style=\"font-size: 16px; line-height: 2; mso-line-height-alt: 32px;\"><strong>GO TO SOURCINBOX APP</strong></span>\n" +
+            "<span style=\"font-size: 16px; line-height: 2; mso-line-height-alt: 32px;\"><strong>GO TO UPEDGE APP</strong></span>\n" +
             "</span></a>\n" +
             "<!--[if mso]></center></v:textbox></v:roundrect></td></tr></table><![endif]-->\n" +
             "</div>\n" +
@@ -648,7 +648,7 @@ public class EmailTemplate {
             "<!--[if mso]><table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\"><tr><td style=\"padding-right: 10px; padding-left: 10px; padding-top: 10px; padding-bottom: 10px; font-family: Arial, sans-serif\"><![endif]-->\n" +
             "<div style=\"color:#6B6B6B;font-family:'Open Sans', Helvetica, Arial, sans-serif;line-height:1.2;padding-top:10px;padding-right:10px;padding-bottom:10px;padding-left:10px;\">\n" +
             "<div style=\"font-family: 'Open Sans', Helvetica, Arial, sans-serif; font-size: 12px; line-height: 1.2; color: #6B6B6B; mso-line-height-alt: 14px;\">\n" +
-            "<p style=\"font-size: 12px; line-height: 1.2; mso-line-height-alt: 14px; margin: 0;\">©2015-2019 SourcinBox, all rights reserved</p>\n" +
+            "<p style=\"font-size: 12px; line-height: 1.2; mso-line-height-alt: 14px; margin: 0;\">©2015-2019 UPEDGE, all rights reserved</p>\n" +
             "</div>\n" +
             "</div>\n" +
             "<!--[if mso]></td></tr></table><![endif]-->\n" +

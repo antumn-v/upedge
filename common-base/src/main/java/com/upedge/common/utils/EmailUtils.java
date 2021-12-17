@@ -24,7 +24,7 @@ public class EmailUtils {
         try {
             //request.setVersion("2017-06-22");// 如果是除杭州region外的其它region（如新加坡region）,必须指定为2017-06-22
             request.setAccountName("no-reply@support.upedge.com");
-            request.setFromAlias("SourcinBox");
+            request.setFromAlias("UPEDGE");
             request.setAddressType(1);
 //			request.setTagName("控制台创建的标签");
             request.setReplyToAddress(true);

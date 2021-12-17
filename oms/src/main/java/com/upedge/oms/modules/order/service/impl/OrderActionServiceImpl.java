@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.upedge.common.base.BaseResponse;
 import com.upedge.common.base.Page;
+import com.upedge.common.constant.Constant;
 import com.upedge.common.constant.ResultCode;
 import com.upedge.common.feign.PmsFeignClient;
 import com.upedge.common.model.product.VariantDetail;
@@ -93,6 +94,11 @@ public class OrderActionServiceImpl implements OrderActionService {
     @Transactional(rollbackFor = Exception.class)
     @Override
     public String splitNormalOrder(Long orderId, SplitNormalOrderRequest request) {
+        List<OrderSplitModule> orderSplitModules = request.getOrderSplitModules();
+        if (ListUtils.isEmpty(orderSplitModules)
+        || orderSplitModules.size() < 2){
+            return Constant.MESSAGE_FAIL;
+        }
 
         Order order = orderDao.selectByPrimaryKey(orderId);
 
@@ -108,7 +114,7 @@ public class OrderActionServiceImpl implements OrderActionService {
 
         StoreOrderRelate storeOrderRelate = storeOrderRelateDao.selectByOrderId(orderId).get(0);
 
-        List<OrderSplitModule> orderSplitModules = request.getOrderSplitModules();
+
 
         Map<Long, OrderItem> itemMap = new HashMap<>();
 
@@ -151,10 +157,10 @@ public class OrderActionServiceImpl implements OrderActionService {
                 newItem.setStoreVariantSku(itemMap.get(itemId).getStoreVariantSku());
                 newItem.setAdminVariantId(itemMap.get(itemId).getAdminVariantId());
                 newItem.setItemType(itemMap.get(itemId).getItemType());
-
                 orderItems.add(newItem);
-                productAmount = productAmount.add(new BigDecimal(newItem.getQuantity()).multiply(orderItem.getUsdPrice()));
-
+                if(null != orderItem.getUsdPrice()){
+                    productAmount = productAmount.add(new BigDecimal(newItem.getQuantity()).multiply(orderItem.getUsdPrice()));
+                }
                 OrderActionLog actionLog = new OrderActionLog();
                 actionLog.setActionType(OrderActionType.SPLIT_NORMAL_ORDER);
                 actionLog.setCreateTime(date);
@@ -362,7 +368,7 @@ public class OrderActionServiceImpl implements OrderActionService {
         orderActionLogDao.insertByBatch(actionLogs);
 
         orderDao.updateOrderType(orderId,3);
-
+        shipDetail.setPrice(shipDetail.getPrice().subtract(shipDetail.getServiceFee()));
         orderDao.updateShipDetailById(shipDetail,orderId);
         return "success";
     }

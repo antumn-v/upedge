@@ -1,10 +1,7 @@
 package com.upedge.thirdparty.shopify.moudles.order.controller;
 
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-
-import com.upedge.common.utils.ListUtils;
 import com.upedge.common.utils.OkHttpRequest;
 import com.upedge.thirdparty.shopify.config.Shopify;
 import com.upedge.thirdparty.shopify.entity.Response;
@@ -63,7 +60,7 @@ public class ShopifyOrderApi {
     }
 
     public static void main(String[] args) {
-        System.out.println(getOrderDetailById("3935044173939","technigadget.myshopify.com","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"));
+        System.out.println(getOrderDetailById("3932806054062","coloox","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"));
     }
 
     public static ShopifyFulfillment orderFulfillment(String orderId,String shop,String token,Object body){
@@ -117,4 +114,6 @@ public class ShopifyOrderApi {
         response.addData("transactions", jsonObject.getJSONObject("transactions"));
         return response.success();
     }
+
+
 }

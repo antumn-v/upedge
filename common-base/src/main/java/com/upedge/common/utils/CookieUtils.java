@@ -47,7 +47,7 @@ public class CookieUtils {
     }
 
     public static boolean firstLoginVerify(HttpServletRequest request, HttpServletResponse response, Long userId){
-        String referrerToken = EncryptUtil.XORencode("SourcinBox", String.valueOf(userId));
+        String referrerToken = EncryptUtil.XORencode("UPEDGE", String.valueOf(userId));
         Cookie[] cookies =  request.getCookies();
         if(cookies != null){
             for(Cookie cookie : cookies){

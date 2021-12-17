@@ -10,12 +10,12 @@ public class WoocWebHookApi {
 
 //    private static Map<String,String> topics = new HashMap();
 //    static {
-//        topics.put("order.created","SourcinBox Order Create");
-//        topics.put("order.updated","SourcinBox Order Updated");
-//        topics.put("order.deleted","SourcinBox Order Deleted");
-//        topics.put("product.updated","SourcinBox Product Updated");
-//        topics.put("product.created","SourcinBox Product Created");
-//        topics.put("product.deleted","SourcinBox Product Deleted");
+//        topics.put("order.created","UPEDGE Order Create");
+//        topics.put("order.updated","UPEDGE Order Updated");
+//        topics.put("order.deleted","UPEDGE Order Deleted");
+//        topics.put("product.updated","UPEDGE Product Updated");
+//        topics.put("product.created","UPEDGE Product Created");
+//        topics.put("product.deleted","UPEDGE Product Deleted");
 //    }
 
 //    public JSONObject batchCreateWebhook(String token,String delivery_url,String shop){

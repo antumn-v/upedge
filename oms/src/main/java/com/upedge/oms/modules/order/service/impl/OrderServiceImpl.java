@@ -515,12 +515,7 @@ public class OrderServiceImpl implements OrderService {
         order.setUpdateTime(date);
         order.setStoreId(storeOrder.getStoreId());
         order.setOrderType(0);
-        order.setServiceFee(BigDecimal.ZERO);
-        order.setOrderStatus(0);
-        order.setShipPrice(BigDecimal.ZERO);
-        order.setPayState(0);
-        order.setRefundState(0);
-        order.setShipState(0);
+        order.initOrder();
         if (address.getCountry() != null) {
             order.setToAreaId((Long) redisTemplate.opsForHash().get(RedisKey.HASH_COUNTRY_AREA_ID, address.getCountry()));
         }

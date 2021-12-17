@@ -481,9 +481,9 @@
                 inner join
                 (
                 select oo.id as `orderId`,
-                sum(quantity * ifnull(usd_price,'0')) as `productAmount`,
-                sum(quantity * ifnull(cny_price,'0')) as `cnyProductAmount`,
-                sum(discharge_quantity * ifnull(usd_price,'0')) as `dischargeAmount`
+                sum (quantity * ifnull(usd_price,'0')) as `productAmount`,
+                sum (quantity * ifnull(cny_price,'0')) as `cnyProductAmount`,
+                sum (discharge_quantity * ifnull(usd_price,'0')) as `dischargeAmount`
                 from order_item oi
                 inner join `order` oo
                 on oi.order_id = oo.id
@@ -586,7 +586,7 @@
             cny_rate           = #{cnyRate}
         where payment_id = #{paymentId}
           and pay_state = '2'
-        and order_status = '0'
+          and order_status = '0'
     </update>
 
     <delete id="deleteByIds">
@@ -639,7 +639,7 @@
     </update>
 
     <update id="updateByPrimaryKeySelective" parameterType="com.upedge.oms.modules.order.entity.Order">
-        update order
+        update `order`
         <set>
             <if test="customerId != null">
                 customer_id = #{customerId},
@@ -736,7 +736,7 @@
     </update>
 
     <update id="updateByPrimaryKey" parameterType="com.upedge.oms.modules.order.entity.Order">
-        update order
+        update `order`
         <set>
             id = #{id},
             customer_id = #{customerId},
@@ -846,7 +846,7 @@
 
     <insert id="insertSelective" keyColumn="id" keyProperty="id"
             parameterType="com.upedge.oms.modules.order.entity.Order" useGeneratedKeys="true">
-        insert into order
+        insert into `order`
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="id != null">
                 id
@@ -1040,7 +1040,7 @@
     </insert>
 
     <insert id="insertByBatch" parameterType="java.util.List">
-        insert into order
+        insert into `order`
         <trim prefix="(" suffix=")" suffixOverrides=",">
             id,
             customer_id,
@@ -1113,102 +1113,106 @@
     </insert>
 
     <sql id="Query_Condition">
-        <if test="t != null">
-            where
+        <where>
             <trim prefix=" " suffix=" " suffixOverrides=" and ">
-                1 = 1 and
-                <if test="t.id != null">
-                    id = #{t.id} and
+                <if test="t != null">
+                    1 = 1 and
+                    <if test="t.id != null">
+                        id = #{t.id} and
+                    </if>
+                    <if test="t.customerId != null">
+                        customer_id = #{t.customerId} and
+                    </if>
+                    <if test="t.storeId != null">
+                        store_id = #{t.storeId} and
+                    </if>
+                    <if test="t.orgId != null">
+                        org_id = #{t.orgId} and
+                    </if>
+                    <if test="t.orgPath != null">
+                        org_path = #{t.orgPath} and
+                    </if>
+                    <if test="t.payAmount != null">
+                        pay_amount = #{t.payAmount} and
+                    </if>
+                    <if test="t.shipMethodId != null">
+                        ship_method_id = #{t.shipMethodId} and
+                    </if>
+                    <if test="t.shipPrice != null">
+                        ship_price = #{t.shipPrice} and
+                    </if>
+                    <if test="t.totalWeight != null">
+                        total_weight = #{t.totalWeight} and
+                    </if>
+                    <if test="t.cnyProductAmount != null">
+                        cny_product_amount = #{t.cnyProductAmount} and
+                    </if>
+                    <if test="t.productAmount != null">
+                        product_amount = #{t.productAmount} and
+                    </if>
+                    <if test="t.productDischargeAmount != null">
+                        product_discharge_amount = #{t.productDischargeAmount} and
+                    </if>
+                    <if test="t.fixFee != null">
+                        fix_fee = #{t.fixFee} and
+                    </if>
+                    <if test="t.fixFeePercentage != null">
+                        fix_fee_percentage = #{t.fixFeePercentage} and
+                    </if>
+                    <if test="t.payMethod != null">
+                        pay_method = #{t.payMethod} and
+                    </if>
+                    <if test="t.payTime != null">
+                        pay_time = #{t.payTime} and
+                    </if>
+                    <if test="t.paymentId != null">
+                        payment_id = #{t.paymentId} and
+                    </if>
+                    <if test="t.payState != null">
+                        pay_state = #{t.payState} and
+                    </if>
+                    <if test="t.refundState != null">
+                        refund_state = #{t.refundState} and
+                    </if>
+                    <if test="t.shipState != null">
+                        ship_state = #{t.shipState} and
+                    </if>
+                    <if test="t.quoteState != null">
+                        quote_state = #{t.quoteState} and
+                    </if>
+                    <if test="t.orderType != null">
+                        order_type = #{t.orderType} and
+                    </if>
+                    <if test="t.toAreaId != null">
+                        to_area_id = #{t.toAreaId} and
+                    </if>
+                    <if test="t.cnyRate != null">
+                        cny_rate = #{t.cnyRate} and
+                    </if>
+                    <if test="t.createTime != null">
+                        create_time = #{t.createTime} and
+                    </if>
+                    <if test="t.updateTime != null">
+                        update_time = #{t.updateTime} and
+                    </if>
+                    <if test="t.saiheOrderCode != null">
+                        saihe_order_code = #{t.saiheOrderCode} and
+                    </if>
+                    <if test="t.vatAmount != null">
+                        vat_amount = #{t.vatAmount} and
+                    </if>
+                    <if test="t.orderStatus != null">
+                        order_status = #{t.orderStatus} and
+                    </if>
+                    <if test="t.managerCode != null">
+                        manager_code = #{t.managerCode} and
+                    </if>
                 </if>
-                <if test="t.customerId != null">
-                    customer_id = #{t.customerId} and
-                </if>
-                <if test="t.storeId != null">
-                    store_id = #{t.storeId} and
-                </if>
-                <if test="t.orgId != null">
-                    org_id = #{t.orgId} and
-                </if>
-                <if test="t.orgPath != null">
-                    org_path = #{t.orgPath} and
-                </if>
-                <if test="t.payAmount != null">
-                    pay_amount = #{t.payAmount} and
-                </if>
-                <if test="t.shipMethodId != null">
-                    ship_method_id = #{t.shipMethodId} and
-                </if>
-                <if test="t.shipPrice != null">
-                    ship_price = #{t.shipPrice} and
-                </if>
-                <if test="t.totalWeight != null">
-                    total_weight = #{t.totalWeight} and
-                </if>
-                <if test="t.cnyProductAmount != null">
-                    cny_product_amount = #{t.cnyProductAmount} and
-                </if>
-                <if test="t.productAmount != null">
-                    product_amount = #{t.productAmount} and
-                </if>
-                <if test="t.productDischargeAmount != null">
-                    product_discharge_amount = #{t.productDischargeAmount} and
-                </if>
-                <if test="t.fixFee != null">
-                    fix_fee = #{t.fixFee} and
-                </if>
-                <if test="t.fixFeePercentage != null">
-                    fix_fee_percentage = #{t.fixFeePercentage} and
-                </if>
-                <if test="t.payMethod != null">
-                    pay_method = #{t.payMethod} and
-                </if>
-                <if test="t.payTime != null">
-                    pay_time = #{t.payTime} and
-                </if>
-                <if test="t.paymentId != null">
-                    payment_id = #{t.paymentId} and
-                </if>
-                <if test="t.payState != null">
-                    pay_state = #{t.payState} and
-                </if>
-                <if test="t.refundState != null">
-                    refund_state = #{t.refundState} and
-                </if>
-                <if test="t.shipState != null">
-                    ship_state = #{t.shipState} and
-                </if>
-                <if test="t.quoteState != null">
-                    quote_state = #{t.quoteState} and
-                </if>
-                <if test="t.orderType != null">
-                    order_type = #{t.orderType} and
-                </if>
-                <if test="t.toAreaId != null">
-                    to_area_id = #{t.toAreaId} and
-                </if>
-                <if test="t.cnyRate != null">
-                    cny_rate = #{t.cnyRate} and
-                </if>
-                <if test="t.createTime != null">
-                    create_time = #{t.createTime} and
-                </if>
-                <if test="t.updateTime != null">
-                    update_time = #{t.updateTime} and
-                </if>
-                <if test="t.saiheOrderCode != null">
-                    saihe_order_code = #{t.saiheOrderCode} and
-                </if>
-                <if test="t.vatAmount != null">
-                    vat_amount = #{t.vatAmount} and
-                </if>
-                <if test="t.orderStatus != null">
-                    order_status = #{t.orderStatus} and
-                </if>
-                <if test="t.managerCode != null">
-                    manager_code = #{t.managerCode} and
+                <if test="condition != null">
+                    ${condition} and
                 </if>
             </trim>
-        </if>
+        </where>
     </sql>
 
 
@@ -1238,124 +1242,125 @@
 
 
     <sql id="History_Condition">
-        <if test="t != null">
-            where
-            <trim prefix=" " suffix=" " suffixOverrides=" and ">
-                1 = 1 and
-                <if test="t.id != null">
-                    o.id = #{t.id} and
-                </if>
-                <if test="t.customerId != null">
-                    o.customer_id = #{t.customerId} and
-                </if>
-                <if test="t.storeId != null">
-                    o. store_id = #{t.storeId} and
-                </if>
-                <if test="t.paymentId != null">
-                    o. payment_id = #{t.paymentId} and
-                </if>
-                <if test="t.payState != null">
-                    o. pay_state = #{t.payState} and
-                </if>
-                <if test="t.refundState != null">
-                    o.refund_state = #{t.refundState} and
-                </if>
-                <if test="t.shipState != null">
-                    o.ship_state = #{t.shipState} and
-                </if>
-                <if test="t.quoteState != null">
-                    o.quote_state = #{t.quoteState} and
-                </if>
-                <if test="t.orderType != null">
-                    o. order_type = #{t.orderType} and
-                </if>
-                <if test="t.orderStatus != null">
-                    o.order_status = #{t.orderStatus} and
-                </if>
-                <if test="t.managerCode != null and t.managerCode != ''">
-                    o.manager_code = #{t.managerCode} and
-                </if>
-                <if test="t.saiheOrderCode != null and t.saiheOrderCode != ''">
-                    o. saihe_order_code = #{t.saiheOrderCode} and
-                </if>
-                <if test="t.originalOrderId != null">
-                    o. org_id = #{t.originalOrderId} and
-                </if>
-                <if test="t.fulfillmentStatus != null ">
-                    o.id in (
-                    select DISTINCT s.order_id
-                    from store_order_relate s
-                    where s.fulfillment_status = #{t.fulfillmentStatus}
-                    )
-                    and
-                </if>
-                <if test="t.financialStatus != null ">
-                    o.id in (
-                    select DISTINCT s.order_id
-                    from
-                    store_order_relate s
-                    where s.financial_status = #{t.financialStatus}
-                    )
-                    and
-                </if>
-                <if test="t.trackingCode != null and t.trackingCode != ''">
-                    o.id in(
-                    select DISTINCT t.order_id from order_tracking t
-                    where t.tracking_code = #{t.trackingCode}
-                    and t.order_tracking_type = '2'
-                    )
-                    and
-                </if>
-                <!--                <if test="t.storeState != null ">-->
-                <!--                    id in(-->
-                <!--                    select  o.id    from   `order` o left join  order_tracking t-->
-                <!--                    on o.id = t.order_id-->
-                <!--                    where  t.tracking_code = #{t.trackingCode} and  o.id is not null-->
-                <!--                    )-->
-                <!--                    and-->
-                <!--                </if>-->
-                <if test="t.source != null and t.source != ''">
-                    o.id in(
-                    select ord.id from `order` ord left join order_reship_info t
-                    on ord.id = t.order_id
-                    where t.original_order_id = #{t.source} and ord.id is not null
-                    )
-                    and
-                </if>
-                <if test="t.saiheTrackState != null and  t.saiheTrackState == 0">
-                    o.id in(
-                    select DISTINCT t.order_id from order_tracking t
-                    where t.track_type != 0
-                    and t.order_tracking_type =2
-                    )
-                    and
-                </if>
-                <if test="t.saiheTrackState != null and  t.saiheTrackState == 1">
-                    o.id in(
-                    select DISTINCT t.order_id
-                    from order_tracking t
-                    where t.track_type = 0
-                    )
-                    and
-                </if>
-                <if test="t.trackState != null ">
-                    o.id in(
-                    select DISTINCT t.order_id
-                    from order_tracking t
-                    where t.state = #{t.trackState}
-                    and t.order_tracking_type =2
-                    )
-                    and
-                </if>
-                <if test="t.orderNumber != null and t.orderNumber != '' ">
-                    o.id in (
-                    select DISTINCT s.order_id
-                    from store_order_relate s
-                    where s.plat_order_name=#{t.orderNumber}
-                    )
-                </if>
-            </trim>
-        </if>
+        <where>
+            <if test="t != null">
+                <trim prefix=" " suffix=" " suffixOverrides=" and ">
+                    1 = 1 and
+                    <if test="t.id != null">
+                        o.id = #{t.id} and
+                    </if>
+                    <if test="t.customerId != null">
+                        o.customer_id = #{t.customerId} and
+                    </if>
+                    <if test="t.storeId != null">
+                        o. store_id = #{t.storeId} and
+                    </if>
+                    <if test="t.paymentId != null">
+                        o. payment_id = #{t.paymentId} and
+                    </if>
+                    <if test="t.payState != null">
+                        o. pay_state = #{t.payState} and
+                    </if>
+                    <if test="t.refundState != null">
+                        o.refund_state = #{t.refundState} and
+                    </if>
+                    <if test="t.shipState != null">
+                        o.ship_state = #{t.shipState} and
+                    </if>
+                    <if test="t.quoteState != null">
+                        o.quote_state = #{t.quoteState} and
+                    </if>
+                    <if test="t.orderType != null">
+                        o. order_type = #{t.orderType} and
+                    </if>
+                    <if test="t.orderStatus != null">
+                        o.order_status = #{t.orderStatus} and
+                    </if>
+                    <if test="t.managerCode != null and t.managerCode != ''">
+                        o.manager_code = #{t.managerCode} and
+                    </if>
+                    <if test="t.saiheOrderCode != null and t.saiheOrderCode != ''">
+                        o. saihe_order_code = #{t.saiheOrderCode} and
+                    </if>
+                    <if test="t.originalOrderId != null">
+                        o. org_id = #{t.originalOrderId} and
+                    </if>
+                    <if test="t.fulfillmentStatus != null ">
+                        o.id in (
+                        select DISTINCT s.order_id
+                        from store_order_relate s
+                        where s.fulfillment_status = #{t.fulfillmentStatus}
+                        )
+                        and
+                    </if>
+                    <if test="t.financialStatus != null ">
+                        o.id in (
+                        select DISTINCT s.order_id
+                        from
+                        store_order_relate s
+                        where s.financial_status = #{t.financialStatus}
+                        )
+                        and
+                    </if>
+                    <if test="t.trackingCode != null and t.trackingCode != ''">
+                        o.id in(
+                        select DISTINCT t.order_id from order_tracking t
+                        where t.tracking_code = #{t.trackingCode}
+                        and t.order_tracking_type = '2'
+                        )
+                        and
+                    </if>
+                    <!--                <if test="t.storeState != null ">-->
+                    <!--                    id in(-->
+                    <!--                    select  o.id    from   `order` o left join  order_tracking t-->
+                    <!--                    on o.id = t.order_id-->
+                    <!--                    where  t.tracking_code = #{t.trackingCode} and  o.id is not null-->
+                    <!--                    )-->
+                    <!--                    and-->
+                    <!--                </if>-->
+                    <if test="t.source != null and t.source != ''">
+                        o.id in(
+                        select ord.id from `order` ord left join order_reship_info t
+                        on ord.id = t.order_id
+                        where t.original_order_id = #{t.source} and ord.id is not null
+                        )
+                        and
+                    </if>
+                    <if test="t.saiheTrackState != null and  t.saiheTrackState == 0">
+                        o.id in(
+                        select DISTINCT t.order_id from order_tracking t
+                        where t.track_type != 0
+                        and t.order_tracking_type =2
+                        )
+                        and
+                    </if>
+                    <if test="t.saiheTrackState != null and  t.saiheTrackState == 1">
+                        o.id in(
+                        select DISTINCT t.order_id
+                        from order_tracking t
+                        where t.track_type = 0
+                        )
+                        and
+                    </if>
+                    <if test="t.trackState != null ">
+                        o.id in(
+                        select DISTINCT t.order_id
+                        from order_tracking t
+                        where t.state = #{t.trackState}
+                        and t.order_tracking_type =2
+                        )
+                        and
+                    </if>
+                    <if test="t.orderNumber != null and t.orderNumber != '' ">
+                        o.id in (
+                        select DISTINCT s.order_id
+                        from store_order_relate s
+                        where s.plat_order_name=#{t.orderNumber}
+                        )
+                    </if>
+                </trim>
+            </if>
+        </where>
     </sql>
 
     <select id="historySelect" parameterType="com.upedge.common.base.Page" resultMap="BaseResultMap">
@@ -1487,7 +1492,7 @@
         update `order`
         set ship_state=1
         where id = #{id}
-          and ship_state = 0 limit 1
+        and ship_state = 0 limit 1
     </update>
     <update id="updateOrderShipMethod">
         update `order`
@@ -1922,7 +1927,7 @@
         select
                 date (pay_time) as dayDate,
                 count (1) as orderNum,
-                sum(IFNULL(product_amount, 0)+IFNULL(ship_price, 0)+IFNULL(vat_amount, 0)) as orderAmount
+                sum (IFNULL(product_amount, 0)+IFNULL(ship_price, 0)+IFNULL(vat_amount, 0)) as orderAmount
         from `order`
         where pay_state=1
           and refund_state = 0
@@ -2054,14 +2059,7 @@
         <include refid="Base_Column_List"/>
         from `order`
         <include refid="Query_Condition"/>
-        <if test="boundary != null and boundary!=''">
-            <if test="t != null">
-                and ${ boundary}
-            </if>
-            <if test="t == null">
-                where ${ boundary}
-            </if>
-        </if>
+
         <if test="orderBy != null and orderBy !=''">
             order by ${orderBy}
         </if>

@@ -18,7 +18,7 @@ public class AffiliateCommissionWithdrawalAddRequest{
     */
     private BigDecimal amount;
     /**
-    * PayPal,Payoneer,SourcinBox
+    * PayPal,Payoneer,UPEDGE
     */
     private Integer path;
     /**

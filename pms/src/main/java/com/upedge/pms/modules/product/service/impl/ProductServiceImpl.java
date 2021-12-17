@@ -1020,7 +1020,7 @@ public class ProductServiceImpl implements ProductService {
         apiImportProductInfo.setProductAdmin(apiImportProductAdmin);
 
         //赛盒仓库 默认仓库
-        Integer warehouseId = saiheSkuVo.getWareHouseId() == null ? SaiheConfig.SOURCINBOX_DEFAULT_WAREHOURSE_ID : saiheSkuVo.getWareHouseId();
+        Integer warehouseId = saiheSkuVo.getWareHouseId() == null ? SaiheConfig.UPEDGE_DEFAULT_WAREHOURSE_ID : saiheSkuVo.getWareHouseId();
         apiImportProductInfo.setDefaultLocalWarehouse(warehouseId);//默认本地发货仓库
 
         ApiImportProductSupplier ProductSuppiler = new ApiImportProductSupplier();//产品供应商

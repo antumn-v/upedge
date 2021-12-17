@@ -22,7 +22,7 @@ public class OrderSourceController {
     public BaseResponse orderSourceList() {
         List<ApiOrderSource> orderSourceList=new ArrayList<>();
         ApiGetOrderSourceResponse apiGetOrderSourceResponse=
-                SaiheSourceApi.getOrderSourceList(SaiheConfig.SOURCINBOX_ORDER_SOURCE_TYPE);
+                SaiheSourceApi.getOrderSourceList(SaiheConfig.UPEDGE_ORDER_SOURCE_TYPE);
         if(apiGetOrderSourceResponse!=null&&
                 apiGetOrderSourceResponse.getGetOrderSourceListResult()!=null&&
                 apiGetOrderSourceResponse.getGetOrderSourceListResult().getOrderSourceList()!=null){

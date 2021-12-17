@@ -390,7 +390,7 @@ public class PaypalServiceImpl implements PaypalService {
                 orderType = "wholesale";
                 break;
         }
-        String description = "Pay SourcinBox " + orderType + " order amount: " + amount + ", PayPal Fee: " + fixfee +
+        String description = "Pay UPEDGE " + orderType + " order amount: " + amount + ", PayPal Fee: " + fixfee +
                 ", Transaction ID: " + id;
         return description;
     }

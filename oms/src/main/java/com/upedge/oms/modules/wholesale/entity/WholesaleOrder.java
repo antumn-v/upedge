@@ -32,6 +32,8 @@ public class WholesaleOrder{
 	 * 
 	 */
     private BigDecimal shipPrice;// = BigDecimal.ZERO;
+
+	private BigDecimal serviceFee;
 	/**
 	 * 
 	 */

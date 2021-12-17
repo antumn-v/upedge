@@ -21,7 +21,7 @@ public class AdminHistoryWithdrawalVo {
      */
     private BigDecimal amount;
     /**
-     * PayPal,Payoneer,SourcinBox
+     * PayPal,Payoneer,UPEDGE
      */
     private String path;
     /**

@@ -15,5 +15,5 @@ public class ShopifyConfig {
             "read_shipping,write_shipping,read_translations,write_translations,read_shopify_payments_payouts,read_shopify_payments_disputes,read_checkouts,write_checkouts," +
             "read_assigned_fulfillment_orders,write_assigned_fulfillment_orders,read_analytics,read_price_rules,write_price_rules," +
             "read_discounts,write_discounts,read_marketing_events,write_marketing_events,read_resource_feedbacks,write_resource_feedbacks," +
-            "read_locales,write_locales,write_locales,read_product_listings";
+            "read_locales,write_locales,write_locales,read_product_listings,read_all_orders";
 }

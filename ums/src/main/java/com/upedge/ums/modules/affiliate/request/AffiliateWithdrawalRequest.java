@@ -14,7 +14,7 @@ public class AffiliateWithdrawalRequest {
     @NotNull
     private String account;
 
-    //0 = SourcinBox,1=Paypal,2=Payoneer
+    //0 = UPEDGE,1=Paypal,2=Payoneer
     @NotNull
     private Integer type;
 

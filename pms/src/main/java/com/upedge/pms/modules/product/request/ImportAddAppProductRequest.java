@@ -24,7 +24,7 @@ public class ImportAddAppProductRequest {
         attribute.setId(IdGenerate.nextId());
         attribute.setSource(0);
         attribute.setState(0);
-        attribute.setSupplierName("SourcinBox");
+        attribute.setSupplierName("UPEDGE");
         attribute.setImage(product.getProductImage());
         attribute.setTitle(product.getProductTitle());
         attribute.setCreateTime(new Date());

@@ -29,6 +29,8 @@ import com.upedge.oms.modules.order.service.OrderRefundItemService;
 import com.upedge.oms.modules.order.service.OrderRefundService;
 import com.upedge.oms.modules.order.vo.AppOrderItemVo;
 import com.upedge.oms.modules.order.vo.OrderRefundVo;
+import com.upedge.oms.modules.statistics.request.OrderRefundDailyCountRequest;
+import com.upedge.oms.modules.statistics.service.OrderDailyRefundCountService;
 import com.upedge.thirdparty.saihe.entity.cancelOrderInfo.ApiCancelOrderResponse;
 import com.upedge.thirdparty.saihe.entity.getOrderByCode.ApiGetOrderResponse;
 import com.upedge.thirdparty.saihe.entity.getOrderByCode.ApiOrderInfo;
@@ -68,6 +70,9 @@ public class OrderRefundServiceImpl implements OrderRefundService {
     private OrderRefundItemService orderRefundItemService;
     @Autowired
     private ThreadPoolExecutor threadPoolExecutor;
+
+    @Autowired
+    OrderDailyRefundCountService orderDailyRefundCountService;
 
     /**
      *
@@ -567,11 +572,11 @@ public class OrderRefundServiceImpl implements OrderRefundService {
 
 
         // 统计退款信息
-//        OrderRefundDailyCountRequest orderRefundDailyCountRequest = new OrderRefundDailyCountRequest();
-//        orderRefundDailyCountRequest.setRefundId(request.getId());
-//        orderRefundDailyCountRequest.setOrderType(OrderType.NORMAL);
-//        orderRefundDailyCountRequest.setRefundTime(new Date());
-//        redisTemplate.opsForList().leftPush(RedisKey.LIST_CUSTOMER_ORDER_DAILY_REFUND_COUNT_UPDATE, orderRefundDailyCountRequest);
+        OrderRefundDailyCountRequest orderRefundDailyCountRequest = new OrderRefundDailyCountRequest();
+        orderRefundDailyCountRequest.setRefundId(request.getId());
+        orderRefundDailyCountRequest.setOrderType(OrderType.NORMAL);
+        orderRefundDailyCountRequest.setRefundTime(new Date());
+        orderDailyRefundCountService.OrderDailyRefundCount(orderRefundDailyCountRequest);
 
 
         AccountOrderRefundedRequest accountOrderRefundedRequest = new AccountOrderRefundedRequest();
