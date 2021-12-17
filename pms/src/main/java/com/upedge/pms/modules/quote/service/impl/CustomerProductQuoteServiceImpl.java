@@ -24,6 +24,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -83,7 +84,8 @@ public class CustomerProductQuoteServiceImpl implements CustomerProductQuoteServ
         Long storeVariantId = request.getStoreVariantId();
         if (null == storeVariantId
         || StringUtil.isEmpty(request.getVariantSku())
-        || null == request.getQuotePrice()){
+        || null == request.getQuotePrice()
+        || 1 != request.getQuotePrice().compareTo(BigDecimal.ZERO)){
             return BaseResponse.failed();
         }
         CustomerProductQuote customerProductQuote = customerProductQuoteDao.selectByStoreVariantId(storeVariantId);
@@ -101,6 +103,7 @@ public class CustomerProductQuoteServiceImpl implements CustomerProductQuoteServ
         customerProductQuote.setVariantImage(productVariant.getVariantImage());
         customerProductQuote.setVariantName(productVariant.getEnName());
         customerProductQuote.setVariantSku(productVariant.getVariantSku());
+        customerProductQuote.setQuotePrice(request.getQuotePrice());
         customerProductQuoteDao.updateByPrimaryKeySelective(customerProductQuote);
 
         List<Long> storeVariantIds = new ArrayList<>();

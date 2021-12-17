@@ -376,7 +376,8 @@
             resultType="com.upedge.pms.modules.quote.entity.CustomerProductQuote">
         select
         <include refid="Base_Column_List"/>
-        from where  store_variant_id = #{storeVariantId}
+        from customer_product_quote
+        where  store_variant_id = #{storeVariantId}
     </select>
 
     <select id="selectQuoteDetail"
