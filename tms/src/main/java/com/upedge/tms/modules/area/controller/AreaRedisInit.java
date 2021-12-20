@@ -42,7 +42,6 @@ public class AreaRedisInit {
             map.put(String.valueOf(area.getId()),arearedisVo);
             countryAreaId.put(area.getEnName(),area.getId());
         }
-
         redisTemplate.opsForHash().putAll(RedisKey.AREA,map);
         redisTemplate.opsForHash().putAll(RedisKey.HASH_COUNTRY_AREA_ID,countryAreaId);
         log.info("国家地区表初始化完成");

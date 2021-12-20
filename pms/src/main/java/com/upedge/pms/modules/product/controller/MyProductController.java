@@ -71,6 +71,7 @@ public class MyProductController {
         Session session = UserUtil.getSession(redisTemplate);
         request.getT().setCustomerId(session.getCustomerId());
         request.setOrderBy("create_time desc");
+        request.getT().setState(0);
         List<ImportProductAttribute> results = importProductAttributeService.select(request);
         Long total = importProductAttributeService.count(request);
         request.setTotal(total);

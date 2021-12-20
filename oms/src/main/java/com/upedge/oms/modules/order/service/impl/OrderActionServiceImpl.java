@@ -138,6 +138,7 @@ public class OrderActionServiceImpl implements OrderActionService {
             Order newOrder = new Order();
             Long newOrderId = IdGenerate.nextId();
             BigDecimal productAmount = BigDecimal.ZERO;
+            BigDecimal cnyProductAmount = BigDecimal.ZERO;
             List<ItemQuantity> itemQuantities = module.getItemQuantities();
             for (ItemQuantity itemQuantity : itemQuantities) {
                 Long itemId = itemQuantity.getItemId();
@@ -165,6 +166,9 @@ public class OrderActionServiceImpl implements OrderActionService {
                 if(null != orderItem.getUsdPrice()){
                     productAmount = productAmount.add(new BigDecimal(newItem.getQuantity()).multiply(orderItem.getUsdPrice()));
                 }
+                if (null != orderItem.getCnyPrice()){
+                    cnyProductAmount = cnyProductAmount.add(new BigDecimal(newItem.getQuantity()).multiply(orderItem.getCnyPrice()));
+                }
                 OrderActionLog actionLog = new OrderActionLog();
                 actionLog.setActionType(OrderActionType.SPLIT_NORMAL_ORDER);
                 actionLog.setCreateTime(date);
@@ -184,6 +188,7 @@ public class OrderActionServiceImpl implements OrderActionService {
             newOrder.setProductAmount(productAmount);
             newOrder.setOrgId(order.getOrgId());
             newOrder.setOrgPath(order.getOrgPath());
+            newOrder.setCnyProductAmount(cnyProductAmount);
             orders.add(newOrder);
 
             OrderAddress newAddress = new OrderAddress();

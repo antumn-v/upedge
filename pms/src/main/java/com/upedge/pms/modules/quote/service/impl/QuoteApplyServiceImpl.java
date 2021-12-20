@@ -258,8 +258,6 @@ public class QuoteApplyServiceImpl implements QuoteApplyService {
             quoteApplyItems.add(quoteApplyItem);
         }
         quoteApplyItemDao.insertByBatch(quoteApplyItems);
-
-
         QuoteApply quoteApply = new QuoteApply();
         quoteApply.setId(applyId);
         quoteApply.setApplyUserId(request.getUserId());

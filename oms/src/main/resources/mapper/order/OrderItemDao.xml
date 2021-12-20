@@ -920,6 +920,7 @@
             #{storeVariantId}
         </foreach>
         and o.pay_state &lt; 1
+        and o.quote_state != '3'
     </update>
 
     <select id="selectUnpaidOrderIdByStoreVariantId" resultType="java.lang.Long">
@@ -947,5 +948,15 @@
         <include refid="Base_Column_List"/>
         from order_item
         where order_id = #{orderId}
+    </select>
+
+    <select id="selectStoreVariantIdsByOrderIds" resultType="java.lang.Long">
+        select distinct store_variant_id
+            from order_item
+        where order_id in
+            <foreach collection="orderIds" item="orderId" open="(" close=")" separator=",">
+                #{orderId}
+            </foreach>
+        and quote_state = '0'
     </select>
 </mapper>

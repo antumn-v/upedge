@@ -306,19 +306,19 @@
                         title like CONCAT('%',#{t.title},'%') and
                     </if>
                     <if test="t.type != null">
-                        type = #{t.type} and
+                        `type` = #{t.type} and
                     </if>
                     <if test="t.image != null">
                         image = #{t.image} and
                     </if>
                     <if test="t.state != null">
-                        state = #{t.state} and
+                        `state` = #{t.state} and
                     </if>
                     <if test="t.tags != null">
                         tags = #{t.tags} and
                     </if>
                     <if test="t.source != null">
-                        source = #{t.source} and
+                        `source` = #{t.source} and
                     </if>
                     <if test="t.originalTitle != null">
                         original_title = #{t.originalTitle} and

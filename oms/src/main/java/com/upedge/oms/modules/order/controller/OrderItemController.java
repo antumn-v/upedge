@@ -52,7 +52,7 @@ public class OrderItemController {
 
     @ApiOperation("提交报价申请")
     @PostMapping("/quoteApply")
-    public BaseResponse itemQuoteApply(@RequestBody OrderItemQuoteRequest request){
+    public BaseResponse itemQuoteApply(@RequestBody@Valid OrderItemQuoteRequest request){
         Session session = UserUtil.getSession(redisTemplate);
         return orderItemService.orderItemApplyQuote(request,session);
     }

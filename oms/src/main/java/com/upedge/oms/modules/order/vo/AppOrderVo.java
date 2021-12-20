@@ -90,6 +90,8 @@ public class AppOrderVo {
 
     private Long toAreaId;
 
+    private String country;
+
     private String note;
 
     private Date createTime;

@@ -35,7 +35,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.List;
 
 
@@ -90,41 +89,60 @@ public class OrderItemServiceImpl implements OrderItemService {
     @Transactional
     @Override
     public BaseResponse orderItemApplyQuote(OrderItemQuoteRequest request, Session session) {
-        Order order = orderService.selectByPrimaryKey(request.getOrderId());
-        if (order.getPayState() != OrderConstant.PAY_STATE_UNPAID
-                || order.getQuoteState() == OrderConstant.QUOTE_STATE_QUOTED) {
-            return BaseResponse.failed("order error");
+
+        List<Long> orderIds = request.getOrderIds();
+        if (ListUtils.isEmpty(orderIds)){
+            return BaseResponse.failed();
         }
-        Page<OrderItem> orderItemPage = new Page<>();
-        OrderItem orderItem = new OrderItem();
-        orderItem.setOrderId(request.getOrderId());
-        orderItemPage.setPageSize(-1);
-        orderItemPage.setT(orderItem);
-        List<OrderItem> orderItems = select(orderItemPage);
-        List<Long> itemIds = request.getItemIds();
-        List<Long> storeVariantIds = new ArrayList<>();
-        for (Long itemId : itemIds) {
-            for (OrderItem item : orderItems) {
-                if (itemId.equals(item.getId())){
-                    storeVariantIds.add(item.getStoreVariantId());
-                }
-            }
-        }
+        List<Long> storeVariantIds = orderItemDao.selectStoreVariantIdsByOrderIds(orderIds);
         if (ListUtils.isEmpty(storeVariantIds)){
             return BaseResponse.failed("item error");
         }
         OrderQuoteApplyRequest orderQuoteApplyRequest = new OrderQuoteApplyRequest();
-        orderQuoteApplyRequest.setOrderId(request.getOrderId());
-        orderQuoteApplyRequest.setStoreId(order.getStoreId());
+//        orderQuoteApplyRequest.setOrderId(request.getOrderId());
         orderQuoteApplyRequest.setCustomerId(session.getCustomerId());
         orderQuoteApplyRequest.setUserId(session.getId());
         orderQuoteApplyRequest.setStoreVariantId(storeVariantIds);
         BaseResponse response = pmsFeignClient.orderQuoteApply(orderQuoteApplyRequest);
         if (response.getCode() == ResultCode.SUCCESS_CODE) {
             orderItemDao.updateOrderAsQuotingByStoreVariantIds(storeVariantIds);
-//            orderItemDao.updateQuoteStateByIds(itemIds, 5);
         }
         return response;
+//        Order order = orderService.selectByPrimaryKey(request.getOrderId());
+//        if (order.getPayState() != OrderConstant.PAY_STATE_UNPAID
+//                || order.getQuoteState() == OrderConstant.QUOTE_STATE_QUOTED) {
+//            return BaseResponse.failed("order error");
+//        }
+//        Page<OrderItem> orderItemPage = new Page<>();
+//        OrderItem orderItem = new OrderItem();
+//        orderItem.setOrderId(request.getOrderId());
+//        orderItemPage.setPageSize(-1);
+//        orderItemPage.setT(orderItem);
+//        List<OrderItem> orderItems = select(orderItemPage);
+//        List<Long> itemIds = request.getItemIds();
+//        List<Long> storeVariantIds = new ArrayList<>();
+//        for (Long itemId : itemIds) {
+//            for (OrderItem item : orderItems) {
+//                if (itemId.equals(item.getId())){
+//                    storeVariantIds.add(item.getStoreVariantId());
+//                }
+//            }
+//        }
+//        if (ListUtils.isEmpty(storeVariantIds)){
+//            return BaseResponse.failed("item error");
+//        }
+//        OrderQuoteApplyRequest orderQuoteApplyRequest = new OrderQuoteApplyRequest();
+//        orderQuoteApplyRequest.setOrderId(request.getOrderId());
+//        orderQuoteApplyRequest.setStoreId(order.getStoreId());
+//        orderQuoteApplyRequest.setCustomerId(session.getCustomerId());
+//        orderQuoteApplyRequest.setUserId(session.getId());
+//        orderQuoteApplyRequest.setStoreVariantId(storeVariantIds);
+//        BaseResponse response = pmsFeignClient.orderQuoteApply(orderQuoteApplyRequest);
+//        if (response.getCode() == ResultCode.SUCCESS_CODE) {
+//            orderItemDao.updateOrderAsQuotingByStoreVariantIds(storeVariantIds);
+////            orderItemDao.updateQuoteStateByIds(itemIds, 5);
+//        }
+//        return response;
     }
 
     @Transactional
