@@ -347,7 +347,7 @@
         o.total_weight,o.product_amount,o.product_discharge_amount,o.fix_fee,o.pay_method,
         o.pay_time,o.payment_id,o.pay_state,o.refund_state,o.ship_state,o.order_type,o.to_area_id,
         o.vat_amount,sor.plat_order_name,sor.plat_order_create_time,sor.`order_customer_name`,
-        oi.id as `itemId`,oi.order_id,`admin_product_id`,`store_variant_name`,
+        oi.id as `itemId`,oi.order_id,`admin_product_id`,`store_variant_name`,oi.store_variant_image,
         `store_variant_sku`,`admin_variant_image`,`store_product_title`,`usd_price`,`quantity`,
         `discharge_quantity`,`admin_variant_weight`,`admin_variant_volume`,oi.admin_variant_id
         from `order` o

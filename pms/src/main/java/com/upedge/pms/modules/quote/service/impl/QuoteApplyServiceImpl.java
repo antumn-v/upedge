@@ -2,6 +2,7 @@ package com.upedge.pms.modules.quote.service.impl;
 
 import com.upedge.common.base.BaseResponse;
 import com.upedge.common.base.Page;
+import com.upedge.common.exception.CustomerException;
 import com.upedge.common.model.pms.request.OrderQuoteApplyRequest;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.utils.IdGenerate;
@@ -22,6 +23,7 @@ import com.upedge.pms.modules.quote.dto.QuoteApplyProcessItem;
 import com.upedge.pms.modules.quote.entity.CustomerProductQuote;
 import com.upedge.pms.modules.quote.entity.QuoteApply;
 import com.upedge.pms.modules.quote.entity.QuoteApplyItem;
+import com.upedge.pms.modules.quote.service.CustomerProductQuoteService;
 import com.upedge.pms.modules.quote.service.QuoteApplyService;
 import com.upedge.pms.modules.quote.vo.QuoteApplyVo;
 import org.springframework.beans.BeanUtils;
@@ -51,7 +53,8 @@ public class QuoteApplyServiceImpl implements QuoteApplyService {
     @Autowired
     StoreProductVariantDao storeProductVariantDao;
 
-
+    @Autowired
+    CustomerProductQuoteService customerProductQuoteService;
 
     @Autowired
     ProductVariantDao productVariantDao;
@@ -120,22 +123,30 @@ public class QuoteApplyServiceImpl implements QuoteApplyService {
 
     @Transactional
     @Override
-    public List<CustomerProductQuote> processQuoteApply(QuoteApplyProcessRequest request, Long quoteApplyId, Session session) {
+    public BaseResponse processQuoteApply(QuoteApplyProcessRequest request, Long quoteApplyId, Session session) throws CustomerException {
         QuoteApply quoteApply = quoteApplyDao.selectByPrimaryKey(quoteApplyId);
         if (!quoteApply.getHandleUserId().equals(session.getId()) || quoteApply.getQuoteState() != QuoteApply.STATE_PROCESSING){
-            return new ArrayList<>();
+            return BaseResponse.failed("权限不足");
         }
         List<QuoteApplyProcessItem> quoteApplyProcessItems = request.getItems();
         List<QuoteApplyItem> quoteApplyItems = quoteApplyItemDao.selectByQuoteApplyId(quoteApplyId);
         List<CustomerProductQuote> customerProductQuotes = new ArrayList<>();
         Map<Long, Product> map = new HashMap<>();
+        List<Long> storeVariantIds = new ArrayList<>();
         for (QuoteApplyProcessItem quoteApplyProcessItem : quoteApplyProcessItems) {
             if (null == quoteApplyProcessItem.getPrice()
             || 0 == quoteApplyProcessItem.getPrice().compareTo(BigDecimal.ZERO)){
-                return new ArrayList<>();
+                return BaseResponse.failed("产品报价不能为0");
             }
             ProductVariant productVariant = productVariantDao.selectBySku(quoteApplyProcessItem.getVariantSku());
-            if (null != productVariant){
+            if (null == productVariant
+                    || null == productVariant.getWeight()
+                    || null == productVariant.getVolumeWeight()
+                    || 0 == BigDecimal.ZERO.compareTo(productVariant.getVolumeWeight())
+                    || 0 == BigDecimal.ZERO.compareTo(productVariant.getWeight())) {
+                return BaseResponse.failed(quoteApplyProcessItem.getVariantSku() + " 变体未编辑完成");
+            }else {
+
                 for (QuoteApplyItem quoteApplyItem : quoteApplyItems) {
                     if (quoteApplyItem.getId().equals(quoteApplyProcessItem.getQuoteApplyItemId())){
                         quoteApplyItem.setVariantId(productVariant.getId());
@@ -152,14 +163,15 @@ public class QuoteApplyServiceImpl implements QuoteApplyService {
                         Product product = map.get(productVariant.getProductId());
                         if (product == null){
                             product = productService.selectByPrimaryKey(productVariant.getProductId());
-                            if (product == null){
-                                continue;
+                            if (product == null
+                            || product.getShippingId() == null){
+                                return BaseResponse.failed("产品不存在或产品未配置运输模板");
                             }
                             map.put(product.getId(),product);
                         }
                         customerProductQuote.setProductTitle(product.getProductTitle());
                         customerProductQuotes.add(customerProductQuote);
-
+                        storeVariantIds.add(quoteApplyItem.getStoreVariantId());
                     }
                 }
             }
@@ -178,7 +190,12 @@ public class QuoteApplyServiceImpl implements QuoteApplyService {
         if (ListUtils.isNotEmpty(customerProductQuotes)){
             customerProductQuoteDao.insertByBatch(customerProductQuotes);
         }
-        return customerProductQuotes;
+        boolean b = customerProductQuoteService.sendCustomerProductQuoteUpdateMessage(storeVariantIds);
+        if (!b){
+            throw new CustomerException("消息队列异常，请重新提交");
+
+        }
+        return BaseResponse.success();
     }
 
     @Override

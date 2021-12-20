@@ -5,6 +5,7 @@ import com.upedge.common.base.Page;
 import com.upedge.common.component.annotation.Permission;
 import com.upedge.common.constant.Constant;
 import com.upedge.common.constant.ResultCode;
+import com.upedge.common.exception.CustomerException;
 import com.upedge.common.model.pms.request.OrderQuoteApplyRequest;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.utils.ListUtils;
@@ -24,7 +25,6 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -57,19 +57,12 @@ public class QuoteApplyController {
     @PostMapping("/{quoteApplyId}/process")
     public BaseResponse processQuoteApply(@RequestBody QuoteApplyProcessRequest request,@PathVariable Long quoteApplyId){
         Session session = UserUtil.getSession(redisTemplate);
-        List<CustomerProductQuote> customerProductQuotes =  quoteApplyService.processQuoteApply(request,quoteApplyId,session);
-        if (ListUtils.isEmpty(customerProductQuotes)){
-            return BaseResponse.failed("数据异常");
+        try {
+            return quoteApplyService.processQuoteApply(request,quoteApplyId,session);
+        } catch (CustomerException e) {
+            e.printStackTrace();
+            return BaseResponse.failed(e.getMessage());
         }
-        List<Long> storeVariantIds = new ArrayList<>();
-        for (CustomerProductQuote customerProductQuote : customerProductQuotes) {
-            storeVariantIds.add(customerProductQuote.getStoreVariantId());
-        }
-        boolean b = customerProductQuoteService.sendCustomerProductQuoteUpdateMessage(storeVariantIds);
-        if (!b){
-            return BaseResponse.failed("消息队列异常，请重新提交");
-        }
-        return BaseResponse.success();
     }
 
     @ApiOperation("完结报价申请")

@@ -93,10 +93,17 @@ public class CustomerProductQuoteServiceImpl implements CustomerProductQuoteServ
             return BaseResponse.failed("该产品未报价");
         }
         ProductVariant productVariant = productVariantDao.selectBySku(request.getVariantSku());
-        if (null == productVariant){
-            return BaseResponse.failed("sku不存在");
+        if (null == productVariant
+        || null == productVariant.getWeight()
+        || null == productVariant.getVolumeWeight()
+        || 0 == BigDecimal.ZERO.compareTo(productVariant.getVolumeWeight())
+        || 0 == BigDecimal.ZERO.compareTo(productVariant.getWeight())){
+            return BaseResponse.failed("sku不存在或变体重量体积未编辑");
         }
         Product product = productService.selectByPrimaryKey(productVariant.getProductId());
+        if(null == product.getShippingId()){
+            return BaseResponse.failed("产品运输属性不能为空！");
+        }
         customerProductQuote.setProductId(productVariant.getProductId());
         customerProductQuote.setProductTitle(product.getProductTitle());
         customerProductQuote.setVariantId(productVariant.getId());

@@ -2,12 +2,12 @@ package com.upedge.pms.modules.quote.service;
 
 import com.upedge.common.base.BaseResponse;
 import com.upedge.common.base.Page;
+import com.upedge.common.exception.CustomerException;
 import com.upedge.common.model.pms.request.OrderQuoteApplyRequest;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.pms.modules.product.request.ClaimQuoteApplyRequest;
 import com.upedge.pms.modules.product.request.QuoteApplyProcessRequest;
 import com.upedge.pms.modules.quote.dto.QuoteApplyListDto;
-import com.upedge.pms.modules.quote.entity.CustomerProductQuote;
 import com.upedge.pms.modules.quote.entity.QuoteApply;
 import com.upedge.pms.modules.quote.vo.QuoteApplyVo;
 
@@ -25,7 +25,7 @@ public interface QuoteApplyService{
 
     BaseResponse finishQuoteApply(Long quoteApplyId,Session session);
 
-    List<CustomerProductQuote> processQuoteApply(QuoteApplyProcessRequest request, Long quoteApplyId, Session session);
+    BaseResponse processQuoteApply(QuoteApplyProcessRequest request, Long quoteApplyId, Session session) throws CustomerException;
 
 
     BaseResponse claimQuoteApply(ClaimQuoteApplyRequest request, Session session);

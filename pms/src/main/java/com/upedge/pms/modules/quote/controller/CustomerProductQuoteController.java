@@ -46,11 +46,11 @@ public class CustomerProductQuoteController {
     @PostMapping("/update")
     public BaseResponse updateCustomerProductQuote(@RequestBody@Valid CustomerProductQuoteUpdateRequest request){
         BaseResponse baseResponse = customerProductQuoteService.updateCustomerProductQuote(request);
-        if (baseResponse.getCode() == ResultCode.SUCCESS_CODE){
-            List<Long> storeVariantIds = new ArrayList<>();
-            storeVariantIds.add(request.getStoreVariantId());
-            customerProductQuoteService.sendCustomerProductQuoteUpdateMessage(storeVariantIds);
-        }
+//        if (baseResponse.getCode() == ResultCode.SUCCESS_CODE){
+//            List<Long> storeVariantIds = new ArrayList<>();
+//            storeVariantIds.add(request.getStoreVariantId());
+//            customerProductQuoteService.sendCustomerProductQuoteUpdateMessage(storeVariantIds);
+//        }
         return baseResponse;
     }
 
