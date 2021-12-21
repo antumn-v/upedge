@@ -1,0 +1,9 @@
+package com.upedge.cms.modules.website.vo;
+
+import lombok.Data;
+
+@Data
+public class WebSiteSearch {
+
+    String info;
+}

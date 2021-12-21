@@ -1,0 +1,207 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.upedge.cms.modules.website.dao.WebsiteEmailDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.upedge.cms.modules.website.entity.WebsiteEmail" id="BaseResultMap">
+        <result property="id" column="id"/>
+        <result property="email" column="email"/>
+        <result property="createTime" column="create_time"/>
+        <result property="remoteAddr" column="remote_addr"/>
+        <result property="deviceName" column="device_name"/>
+        <result property="state" column="state"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        `id`,`email`,`create_time`,`remote_addr`,`device_name`,`state`
+    </sql>
+
+    <select id="selectByPrimaryKey" parameterType="com.upedge.cms.modules.website.entity.WebsiteEmail" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from website_email
+        where id = #{id}
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="com.upedge.cms.modules.website.entity.WebsiteEmail">
+        delete from website_email
+        where id = #{id}
+    </delete>
+
+    <update id="updateByPrimaryKeySelective" parameterType="com.upedge.cms.modules.website.entity.WebsiteEmail">
+        update website_email
+        <set>
+            <if test="email != null">
+                email = #{email},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime},
+            </if>
+            <if test="remoteAddr != null">
+                remote_addr = #{remoteAddr},
+            </if>
+            <if test="deviceName != null">
+                device_name = #{deviceName},
+            </if>
+            <if test="state != null">
+                state = #{state},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <update id="updateByPrimaryKey" parameterType="com.upedge.cms.modules.website.entity.WebsiteEmail">
+        update website_email
+        <set>
+        id = #{id},
+        email = #{email},
+        create_time = #{createTime},
+        remote_addr = #{remoteAddr},
+        device_name = #{deviceName},
+        state = #{state},
+        </set>
+        where id = #{id}
+    </update>
+
+    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.upedge.cms.modules.website.entity.WebsiteEmail" useGeneratedKeys="true">
+        insert into website_email
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            id,
+            email,
+            create_time,
+            remote_addr,
+            device_name,
+            state
+        </trim>
+        values (
+        #{id},
+        #{email},
+        #{createTime},
+        #{remoteAddr},
+        #{deviceName},
+        #{state}
+        )
+    </insert>
+
+    <insert id="insertSelective"  keyColumn="id" keyProperty="id"  parameterType="com.upedge.cms.modules.website.entity.WebsiteEmail" useGeneratedKeys="true">
+        insert into website_email
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null" >
+              id
+            </if>
+            <if test="email != null" >
+              email
+            </if>
+            <if test="createTime != null" >
+              create_time
+            </if>
+            <if test="remoteAddr != null" >
+              remote_addr
+            </if>
+            <if test="deviceName != null" >
+              device_name
+            </if>
+            <if test="state != null" >
+              state
+            </if>
+
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null" >
+                #{id}
+            </if>
+            <if test="email != null" >
+                #{email}
+            </if>
+            <if test="createTime != null" >
+                #{createTime}
+            </if>
+            <if test="remoteAddr != null" >
+                #{remoteAddr}
+            </if>
+            <if test="deviceName != null" >
+                #{deviceName}
+            </if>
+            <if test="state != null" >
+                #{state}
+            </if>
+
+        </trim>
+    </insert>
+
+    <insert id="insertByBatch" parameterType="java.util.List">
+        insert into website_email
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+           id,
+           email,
+           create_time,
+           remote_addr,
+           device_name,
+           state
+        </trim>
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+               #{item.id},
+               #{item.email},
+               #{item.createTime},
+               #{item.remoteAddr},
+               #{item.deviceName},
+               #{item.state}
+            </trim>
+        </foreach>
+    </insert>
+
+    <sql id="Query_Condition">
+        <if test="t != null">
+            where
+            <trim prefix=" " suffix=" " suffixOverrides=" and ">
+                1 = 1 and
+                    <if test="t.id != null">
+                        id = #{t.id} and
+                    </if>
+                    <if test="t.email != null">
+                        email = #{t.email} and
+                    </if>
+                    <if test="t.createTime != null">
+                        create_time = #{t.createTime} and
+                    </if>
+                    <if test="t.remoteAddr != null">
+                        remote_addr = #{t.remoteAddr} and
+                    </if>
+                    <if test="t.deviceName != null">
+                        device_name = #{t.deviceName} and
+                    </if>
+                    <if test="t.state != null">
+                        state = #{t.state} and
+                    </if>
+            </trim>
+        </if>
+    </sql>
+
+    <select id="select" parameterType="com.upedge.common.base.Page" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from website_email
+        <include refid="Query_Condition"/>
+        <if test="orderBy != null">
+            order by ${orderBy}
+        </if>
+        <if test="pageNum != null and pageSize != null">
+            limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+        </if>
+    </select>
+
+    <select id="count" parameterType="com.upedge.common.base.Page" resultType="java.lang.Long">
+        select
+        count(1)
+        from website_email
+        <include refid="Query_Condition"/>
+    </select>
+
+    <update id="updateState">
+		update website_email set state=0 where id=#{id}
+	</update>
+
+</mapper>

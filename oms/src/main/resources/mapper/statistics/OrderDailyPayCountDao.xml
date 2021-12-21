@@ -37,12 +37,13 @@
     <select id="selectCustomerOrderStatistics" resultType="com.upedge.common.model.statistics.vo.CustomerOrderStatisticsVo"
             parameterType="com.upedge.common.model.statistics.request.OrderStatisticsRequest">
         select customer_id as `customerId`,
-        `manager_code` as `managerCode`,
         sum(credit_amount) as `creditAmount`,
         sum(pay_amount) as `payAmount`,
         sum(order_pay_count) as `orderPayCount`,
         sum(refund_amount) as `refundAmount`,
         sum(refund_count) as `refundCount`,
+        sum(product_amount) as `productAmount`,
+        sum(ship_price + service_fee) as `shipPrice`,
         sum(shipped_refund_count) as `shippedRefundCount`,
         sum(shipped_refund_amount) as `shippedRefundAmount`,
         sum(un_shipped_refund_count) as `unShippedRefundCount`,
@@ -690,6 +691,23 @@
         </if>
         GROUP BY o.order_type
     </select>
-
-
+    <select id="selectCustomerOrderStatisticsByDate"
+            resultType="com.upedge.common.model.statistics.vo.OrderStatisticsVo">
+        select
+        pay_time as `payTime`,
+        sum(credit_amount) as `creditAmount`,
+        sum(pay_amount) as `payAmount`,
+        sum(order_pay_count) as `orderPayCount`,
+        sum(refund_amount) as `refundAmount`,
+        sum(refund_count) as `refundCount`,
+        sum(product_amount) as `productAmount`,
+        sum(ship_price + service_fee) as `shipPrice`,
+        sum(shipped_refund_count) as `shippedRefundCount`,
+        sum(shipped_refund_amount) as `shippedRefundAmount`,
+        sum(un_shipped_refund_count) as `unShippedRefundCount`,
+        sum(un_shipped_refund_amount) as `unShippedRefundAmount`
+        from order_daily_pay_count
+        <include refid="Statistics_Condition"/>
+        group by pay_time
+    </select>
 </mapper>

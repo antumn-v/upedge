@@ -96,7 +96,7 @@ public class OrderItemServiceImpl implements OrderItemService {
         }
         List<Long> storeVariantIds = orderItemDao.selectStoreVariantIdsByOrderIds(orderIds);
         if (ListUtils.isEmpty(storeVariantIds)){
-            return BaseResponse.failed("item error");
+            return BaseResponse.failed();
         }
         OrderQuoteApplyRequest orderQuoteApplyRequest = new OrderQuoteApplyRequest();
 //        orderQuoteApplyRequest.setOrderId(request.getOrderId());

@@ -19,6 +19,7 @@
         <module>oms</module>
         <module>tms</module>
         <module>zuul</module>
+        <module>cms</module>
     </modules>
 
 

@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.upedge.cms.modules.notice.dao.AppNoticeDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.upedge.cms.modules.notice.entity.AppNotice" id="BaseResultMap">
+        <result property="id" column="id"/>
+        <result property="type" column="type"/>
+        <result property="title" column="title"/>
+        <result property="content" column="content"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="createTime" column="create_time"/>
+        <result property="viewCount" column="view_count"/>
+        <result property="state" column="state"/>
+        <result property="adminUserId" column="admin_user_id"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        `id`,`type`,`title`,`content`,`update_time`,`create_time`,`view_count`,`state`,`admin_user_id`
+    </sql>
+
+    <select id="selectRecentlyNotice" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from app_notice
+        order by create_time desc
+        limit 1
+    </select>
+
+    <update id="addViewCountById">
+        update app_notice
+        set view_count = view_count + '1'
+        where id = #{id}
+    </update>
+
+    <select id="selectByPrimaryKey" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from app_notice
+        where id = #{id}
+    </select>
+
+    <update id="updateByPrimaryKeySelective" parameterType="com.upedge.cms.modules.notice.entity.AppNotice">
+        update app_notice
+        <set>
+            <if test="type != null">
+                `type` = #{type},
+            </if>
+            <if test="title != null">
+                title = #{title},
+            </if>
+            <if test="content != null">
+                content = #{content},
+            </if>
+            <if test="updateTime != null">
+                update_time = #{updateTime},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime},
+            </if>
+            <if test="viewCount != null">
+                view_count = #{viewCount},
+            </if>
+            <if test="state != null">
+                state = #{state},
+            </if>
+            <if test="adminUserId != null">
+                admin_user_id = #{adminUserId},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <update id="updateByPrimaryKey" parameterType="com.upedge.cms.modules.notice.entity.AppNotice">
+        update app_notice
+        <set>
+        id = #{id},
+        `type` = #{type},
+        title = #{title},
+        content = #{content},
+        update_time = #{updateTime},
+        create_time = #{createTime},
+        view_count = #{viewCount},
+        state = #{state},
+        admin_user_id = #{adminUserId},
+        </set>
+        where id = #{id}
+    </update>
+
+    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.upedge.cms.modules.notice.entity.AppNotice" useGeneratedKeys="true">
+        insert into app_notice
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            id,
+            `type`,
+            title,
+            content,
+            update_time,
+            create_time,
+            view_count,
+            state,
+            admin_user_id
+        </trim>
+        values (
+        #{id},
+        #{type},
+        #{title},
+        #{content},
+        #{updateTime},
+        #{createTime},
+        #{viewCount},
+        #{state},
+        #{adminUserId}
+        )
+    </insert>
+
+
+    <sql id="Query_Condition">
+        <if test="t != null">
+            where
+            <trim prefix=" " suffix=" " suffixOverrides=" and ">
+                1 = 1 and
+                    <if test="t.id != null">
+                        id = #{t.id} and
+                    </if>
+                    <if test="t.type != null">
+                        `type` = #{t.type} and
+                    </if>
+                    <if test="t.title != null">
+                        title = #{t.title} and
+                    </if>
+                    <if test="t.state != null">
+                        state = #{t.state} and
+                    </if>
+                    <if test="t.adminUserId != null">
+                        admin_user_id = #{t.adminUserId} and
+                    </if>
+            </trim>
+        </if>
+    </sql>
+
+    <select id="select" parameterType="com.upedge.common.base.Page" resultMap="BaseResultMap">
+        select
+        `id`,
+        `type`,
+        `title`,
+        `update_time`,
+        `create_time`,
+        `view_count`,
+        `state`,
+        `admin_user_id`
+        from app_notice
+        <include refid="Query_Condition"/>
+        order by update_time desc
+        <if test="pageNum != null and pageSize != null">
+            limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+        </if>
+    </select>
+
+    <select id="count" parameterType="com.upedge.common.base.Page" resultType="java.lang.Long">
+        select
+        count(1)
+        from app_notice
+        <include refid="Query_Condition"/>
+    </select>
+
+    <update id="updateState">
+        update app_notice set state=#{state},
+        update_time=#{updateTime},
+        admin_user_id=#{adminUserId}
+        where id=#{id}
+    </update>
+
+</mapper>

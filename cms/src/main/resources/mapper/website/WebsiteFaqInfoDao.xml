@@ -1,0 +1,256 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.upedge.cms.modules.website.dao.WebsiteFaqInfoDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.upedge.cms.modules.website.entity.WebsiteFaqInfo" id="BaseResultMap">
+        <result property="id" column="id"/>
+        <result property="askTitle" column="ask_title"/>
+        <result property="answerInfo" column="answer_info"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="adminUser" column="admin_user"/>
+        <result property="cateId" column="cate_id"/>
+        <result property="state" column="state"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        `id`,`ask_title`,`answer_info`,`create_time`,`update_time`,`admin_user`,`cate_id`,`state`
+    </sql>
+
+    <select id="selectByPrimaryKey" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from website_faq_info
+        where id = #{id}
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="com.upedge.cms.modules.website.entity.WebsiteFaqInfo">
+        delete from website_faq_info
+        where id = #{id}
+    </delete>
+
+    <update id="updateByPrimaryKeySelective" parameterType="com.upedge.cms.modules.website.entity.WebsiteFaqInfo">
+        update website_faq_info
+        <set>
+            <if test="askTitle != null">
+                ask_title = #{askTitle},
+            </if>
+            <if test="answerInfo != null">
+                answer_info = #{answerInfo},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime},
+            </if>
+            <if test="updateTime != null">
+                update_time = #{updateTime},
+            </if>
+            <if test="adminUser != null">
+                admin_user = #{adminUser},
+            </if>
+            <if test="cateId != null">
+                cate_id = #{cateId},
+            </if>
+            <if test="state != null">
+                state = #{state},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <update id="updateByPrimaryKey" parameterType="com.upedge.cms.modules.website.entity.WebsiteFaqInfo">
+        update website_faq_info
+        <set>
+        id = #{id},
+        ask_title = #{askTitle},
+        answer_info = #{answerInfo},
+        create_time = #{createTime},
+        update_time = #{updateTime},
+        admin_user = #{adminUser},
+        cate_id = #{cateId},
+        state = #{state},
+        </set>
+        where id = #{id}
+    </update>
+
+    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.upedge.cms.modules.website.entity.WebsiteFaqInfo" useGeneratedKeys="true">
+        insert into website_faq_info
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            id,
+            ask_title,
+            answer_info,
+            create_time,
+            update_time,
+            admin_user,
+            cate_id,
+            state
+        </trim>
+        values (
+        #{id},
+        #{askTitle},
+        #{answerInfo},
+        #{createTime},
+        #{updateTime},
+        #{adminUser},
+        #{cateId},
+        #{state}
+        )
+    </insert>
+
+    <insert id="insertSelective"  keyColumn="id" keyProperty="id"  parameterType="com.upedge.cms.modules.website.entity.WebsiteFaqInfo" useGeneratedKeys="true">
+        insert into website_faq_info
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null" >
+              id
+            </if>
+            <if test="askTitle != null" >
+              ask_title
+            </if>
+            <if test="answerInfo != null" >
+              answer_info
+            </if>
+            <if test="createTime != null" >
+              create_time
+            </if>
+            <if test="updateTime != null" >
+              update_time
+            </if>
+            <if test="adminUser != null" >
+              admin_user
+            </if>
+            <if test="cateId != null" >
+              cate_id
+            </if>
+            <if test="state != null" >
+              state
+            </if>
+
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null" >
+                #{id}
+            </if>
+            <if test="askTitle != null" >
+                #{askTitle}
+            </if>
+            <if test="answerInfo != null" >
+                #{answerInfo}
+            </if>
+            <if test="createTime != null" >
+                #{createTime}
+            </if>
+            <if test="updateTime != null" >
+                #{updateTime}
+            </if>
+            <if test="adminUser != null" >
+                #{adminUser}
+            </if>
+            <if test="cateId != null" >
+                #{cateId}
+            </if>
+            <if test="state != null" >
+                #{state}
+            </if>
+
+        </trim>
+    </insert>
+
+    <insert id="insertByBatch" parameterType="java.util.List">
+        insert into website_faq_info
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+           id,
+           ask_title,
+           answer_info,
+           create_time,
+           update_time,
+           admin_user,
+           cate_id,
+           state
+        </trim>
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+               #{item.id},
+               #{item.askTitle},
+               #{item.answerInfo},
+               #{item.createTime},
+               #{item.updateTime},
+               #{item.adminUser},
+               #{item.cateId},
+               #{item.state}
+            </trim>
+        </foreach>
+    </insert>
+
+    <sql id="Query_Condition">
+        <if test="t != null">
+            where
+            <trim prefix=" " suffix=" " suffixOverrides=" and ">
+                1 = 1 and
+                    <if test="t.id != null">
+                        w.id = #{t.id} and
+                    </if>
+                    <if test="t.askTitle != null">
+                        w.ask_title = #{t.askTitle} and
+                    </if>
+                    <if test="t.adminUser != null">
+                        w.admin_user = #{t.adminUser} and
+                    </if>
+                    <if test="t.cateId != null">
+                        w.cate_id = #{t.cateId} and
+                    </if>
+                    <if test="t.state != null">
+                        w.state = #{t.state} and
+                    </if>
+            </trim>
+        </if>
+    </sql>
+
+    <select id="select" parameterType="com.upedge.common.base.Page" resultType="com.upedge.cms.modules.website.entity.WebsiteFaqInfo">
+        select
+        w.`id` as id,
+        w.`ask_title` as askTitle,
+        w.`answer_info` as answerInfo,
+        w.`create_time` as createTime,
+        w.`update_time` as updateTime,
+        w.`admin_user` as adminUser,
+        w.`cate_id` as cateId,
+        w.`state` as state,
+        c.`name` as cateName
+        from website_faq_info w
+        left join website_faq_cate c on c.id=w.cate_id
+        <include refid="Query_Condition"/>
+        <if test="orderBy != null">
+            order by w.update_time desc
+        </if>
+        <if test="pageNum != null and pageSize != null">
+            limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+        </if>
+    </select>
+
+    <select id="count" parameterType="com.upedge.common.base.Page" resultType="java.lang.Long">
+        select
+        count(1)
+        from website_faq_info w
+        left join website_faq_cate c on c.id=w.cate_id
+        <include refid="Query_Condition"/>
+    </select>
+
+    <update id="updateState">
+        update website_faq_info set state=#{state} where id=#{id}
+    </update>
+
+    <select id="listFaqInfo" resultType="com.upedge.cms.modules.website.entity.WebsiteFaqInfo">
+       select ask_title as askTitle,answer_info as answerInfo
+       from website_faq_info where state=1 and cate_id=#{cateId}
+       order by update_time desc
+	</select>
+
+    <select id="searchFaqInfo" resultType="com.upedge.cms.modules.website.entity.WebsiteFaqInfo">
+        select ask_title as askTitle,answer_info as answerInfo
+       from website_faq_info where state=1 and ask_title like concat('%',#{info},'%')
+       order by update_time desc
+    </select>
+
+</mapper>

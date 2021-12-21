@@ -73,7 +73,7 @@ public class ProductController {
         }
         Product p=productService.selectByProductSku(request.getOriginalProductId());
         if(p!=null){
-            return BaseResponse.success();
+            return BaseResponse.failed("产品不可重复导入");
         }
         AlibabaProductVo AlibabaProductVo= Ali1688Service.getProduct(request.getOriginalProductId());
         Session session = UserUtil.getSession(redisTemplate);
@@ -167,7 +167,7 @@ public class ProductController {
      *释放产品到选品池
      */
     @ApiOperation("释放产品到选品池")
-    @RequestMapping(value="/multiRelease", method=RequestMethod.POST)
+//    @RequestMapping(value="/multiRelease", method=RequestMethod.POST)
     public MultiReleaseResponse multiRelease(@RequestBody @Valid MultiReleaseRequest request) {
         Session session = UserUtil.getSession(redisTemplate);
         return productService.multiRelease(request,session);
@@ -177,7 +177,7 @@ public class ProductController {
      * 废弃产品
      */
     @ApiOperation("废弃产品")
-    @RequestMapping(value="/abandonProduct/{id}", method=RequestMethod.POST)
+//    @RequestMapping(value="/abandonProduct/{id}", method=RequestMethod.POST)
     public AbandonProductResponse abandonProduct(@PathVariable Long id) {
         Session session = UserUtil.getSession(redisTemplate);
         return productService.abandonProduct(id,session);

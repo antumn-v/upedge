@@ -7,6 +7,8 @@ import java.math.BigDecimal;
 @Data
 public class OrderStatisticsVo {
 
+    String payTime;
+
     BigDecimal creditAmount;
 
     BigDecimal payAmount;
@@ -15,16 +17,20 @@ public class OrderStatisticsVo {
 
     BigDecimal refundAmount;
 
+    BigDecimal shipPrice;
+
+    BigDecimal productAmount;
+
     Integer refundCount;
 
-    private Integer shippedRefundCount = 0;
+    private Integer shippedRefundCount;
 
-    private BigDecimal shippedRefundAmount = BigDecimal.ZERO;
+    private BigDecimal shippedRefundAmount;
 
-    private Integer unShippedRefundCount = 0;
+    private Integer unShippedRefundCount;
 
-    private BigDecimal unShippedRefundAmount = BigDecimal.ZERO;
+    private BigDecimal unShippedRefundAmount;
 
-    private BigDecimal benefitPayAmount = BigDecimal.ZERO;
+    private BigDecimal benefitPayAmount;
 
 }

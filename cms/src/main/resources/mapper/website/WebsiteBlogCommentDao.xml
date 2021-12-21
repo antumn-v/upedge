@@ -1,0 +1,281 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.upedge.cms.modules.website.dao.WebsiteBlogCommentDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.upedge.cms.modules.website.entity.WebsiteBlogComment" id="BaseResultMap">
+        <result property="id" column="id"/>
+        <result property="blogId" column="blog_id"/>
+        <result property="appUserId" column="app_user_id"/>
+        <result property="comment" column="comment"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="state" column="state"/>
+        <result property="followNum" column="follow_num"/>
+        <result property="userName" column="user_name"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        `id`,`blog_id`,`app_user_id`,`comment`,`create_time`,`update_time`,`state`,`follow_num`,`user_name`
+    </sql>
+
+    <select id="selectByPrimaryKey" parameterType="com.upedge.cms.modules.website.entity.WebsiteBlogComment" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from website_blog_comment
+        where id = #{id}
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="com.upedge.cms.modules.website.entity.WebsiteBlogComment">
+        delete from website_blog_comment
+        where id = #{id}
+    </delete>
+
+    <update id="updateByPrimaryKeySelective" parameterType="com.upedge.cms.modules.website.entity.WebsiteBlogComment">
+        update website_blog_comment
+        <set>
+            <if test="blogId != null">
+                blog_id = #{blogId},
+            </if>
+            <if test="appUserId != null">
+                app_user_id = #{appUserId},
+            </if>
+            <if test="comment != null">
+                comment = #{comment},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime},
+            </if>
+            <if test="updateTime != null">
+                update_time = #{updateTime},
+            </if>
+            <if test="state != null">
+                state = #{state},
+            </if>
+            <if test="followNum != null">
+                follow_num = #{followNum},
+            </if>
+            <if test="userName != null">
+                 user_name = #{userName},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <update id="updateByPrimaryKey" parameterType="com.upedge.cms.modules.website.entity.WebsiteBlogComment">
+        update website_blog_comment
+        <set>
+        id = #{id},
+        blog_id = #{blogId},
+        app_user_id = #{appUserId},
+        comment = #{comment},
+        create_time = #{createTime},
+        update_time = #{updateTime},
+        state = #{state},
+        follow_num = #{followNum},
+        user_name = #{userName}
+        </set>
+        where id = #{id}
+    </update>
+
+    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.upedge.cms.modules.website.entity.WebsiteBlogComment" useGeneratedKeys="true">
+        insert into website_blog_comment
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            id,
+            blog_id,
+            app_user_id,
+            comment,
+            create_time,
+            update_time,
+            state,
+            follow_num,
+            user_name
+        </trim>
+        values (
+        #{id},
+        #{blogId},
+        #{appUserId},
+        #{comment},
+        #{createTime},
+        #{updateTime},
+        #{state},
+        #{followNum},
+        #{userName}
+        )
+    </insert>
+
+    <insert id="insertSelective"  keyColumn="id" keyProperty="id"  parameterType="com.upedge.cms.modules.website.entity.WebsiteBlogComment" useGeneratedKeys="true">
+        insert into website_blog_comment
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null" >
+              id
+            </if>
+            <if test="blogId != null" >
+              blog_id
+            </if>
+            <if test="appUserId != null" >
+              app_user_id
+            </if>
+            <if test="comment != null" >
+              comment
+            </if>
+            <if test="createTime != null" >
+              create_time
+            </if>
+            <if test="updateTime != null" >
+              update_time
+            </if>
+            <if test="state != null" >
+              state
+            </if>
+            <if test="followNum != null" >
+              follow_num
+            </if>
+            <if test="userName != null" >
+              user_name
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null" >
+                #{id}
+            </if>
+            <if test="blogId != null" >
+                #{blogId}
+            </if>
+            <if test="appUserId != null" >
+                #{appUserId}
+            </if>
+            <if test="comment != null" >
+                #{comment}
+            </if>
+            <if test="createTime != null" >
+                #{createTime}
+            </if>
+            <if test="updateTime != null" >
+                #{updateTime}
+            </if>
+            <if test="state != null" >
+                #{state}
+            </if>
+            <if test="followNum != null" >
+                #{followNum}
+            </if>
+            <if test="userName != null" >
+                #{userName}
+            </if>
+        </trim>
+    </insert>
+
+    <insert id="insertByBatch" parameterType="java.util.List">
+        insert into website_blog_comment
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+           id,
+           blog_id,
+           app_user_id,
+           comment,
+           create_time,
+           update_time,
+           state,
+           follow_num,
+           user_name
+        </trim>
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+               #{item.id},
+               #{item.blogId},
+               #{item.appUserId},
+               #{item.comment},
+               #{item.createTime},
+               #{item.updateTime},
+               #{item.state},
+               #{item.followNum},
+               #{item.userName}
+            </trim>
+        </foreach>
+    </insert>
+
+    <sql id="Query_Condition">
+        <if test="t != null">
+            where
+            <trim prefix=" " suffix=" " suffixOverrides=" and ">
+                1 = 1 and
+                    <if test="t.id != null">
+                        id = #{t.id} and
+                    </if>
+                    <if test="t.blogId != null">
+                        blog_id = #{t.blogId} and
+                    </if>
+                    <if test="t.appUserId != null">
+                        app_user_id = #{t.appUserId} and
+                    </if>
+                    <if test="t.comment != null">
+                        comment = #{t.comment} and
+                    </if>
+                    <if test="t.createTime != null">
+                        create_time = #{t.createTime} and
+                    </if>
+                    <if test="t.updateTime != null">
+                        update_time = #{t.updateTime} and
+                    </if>
+                    <if test="t.state != null">
+                        state = #{t.state} and
+                    </if>
+                    <if test="t.followNum != null">
+                        follow_num = #{t.followNum} and
+                    </if>
+                    <if test="t.userName != null">
+                        user_name = #{t.userName} and
+                    </if>
+            </trim>
+        </if>
+    </sql>
+
+    <select id="select" parameterType="com.upedge.common.base.Page" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from website_blog_comment
+        <include refid="Query_Condition"/>
+        <if test="orderBy != null">
+            order by ${orderBy}
+        </if>
+        <if test="pageNum != null and pageSize != null">
+            limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+        </if>
+    </select>
+
+    <select id="count" parameterType="com.upedge.common.base.Page" resultType="java.lang.Long">
+        select
+        count(1)
+        from website_blog_comment
+        <include refid="Query_Condition"/>
+    </select>
+
+    <update id="updateState">
+        update website_blog_comment set state=#{state}
+        where id=#{id}
+    </update>
+
+    <update id="followComment">
+		update website_blog_comment set follow_num=follow_num+1 where id=#{id}
+	</update>
+
+    <select id="countWebsiteRemarkByBlogId" resultType="java.lang.Long">
+       select count(1) from  website_blog_comment where blog_id=#{blogId} and state=1
+	</select>
+
+    <select id="listComment" resultType="com.upedge.cms.modules.website.entity.WebsiteBlogComment">
+		select
+		wbc.id as id,
+		wbc.comment as comment,
+		wbc.follow_num as followNum,
+		wbc.update_time as updateTime,
+		wbc.app_user_id as appUserId,
+		wbc.user_name as userName
+		from website_blog_comment wbc
+		where blog_id=#{blogId} and wbc.state=1
+		order by update_time desc limit 100
+	</select>
+
+</mapper>

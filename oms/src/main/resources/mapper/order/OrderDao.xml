@@ -200,10 +200,6 @@
         order By `date` desc
     </select>
 
-    <select id="countCustomerPayByUserCodeAndDate">
-        select
-        from `order`
-    </select>
 
     <sql id="App_Order_Condition">
         <if test="t != null">

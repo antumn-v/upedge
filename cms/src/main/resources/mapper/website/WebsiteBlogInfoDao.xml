@@ -1,0 +1,420 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.upedge.cms.modules.website.dao.WebsiteBlogInfoDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.upedge.cms.modules.website.entity.WebsiteBlogInfo" id="BaseResultMap">
+        <result property="id" column="id"/>
+        <result property="title" column="title"/>
+        <result property="urlSuf" column="url_suf"/>
+        <result property="seoImg" column="seo_img"/>
+        <result property="img" column="img"/>
+        <result property="shortInfo" column="short_info"/>
+        <result property="content" column="content"/>
+        <result property="adminUser" column="admin_user"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="viewNum" column="view_num"/>
+        <result property="followNum" column="follow_num"/>
+        <result property="keywords" column="keywords"/>
+        <result property="description" column="description"/>
+        <result property="state" column="state"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        `id`,`title`,`url_suf`,`seo_img`,`img`,`short_info`,`content`,`admin_user`,`create_time`,`update_time`,`view_num`,`follow_num`,`keywords`,`description`,`state`
+    </sql>
+
+    <select id="selectByPrimaryKey" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from website_blog_info
+        where id = #{id}
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="com.upedge.cms.modules.website.entity.WebsiteBlogInfo">
+        delete from website_blog_info
+        where id = #{id}
+    </delete>
+
+    <update id="updateByPrimaryKeySelective" parameterType="com.upedge.cms.modules.website.entity.WebsiteBlogInfo">
+        update website_blog_info
+        <set>
+            <if test="title != null">
+                title = #{title},
+            </if>
+            <if test="urlSuf != null">
+                url_suf = #{urlSuf},
+            </if>
+            <if test="seoImg != null">
+                seo_img = #{seoImg},
+            </if>
+            <if test="img != null">
+                img = #{img},
+            </if>
+            <if test="shortInfo != null">
+                short_info = #{shortInfo},
+            </if>
+            <if test="content != null">
+                content = #{content},
+            </if>
+            <if test="adminUser != null">
+                admin_user = #{adminUser},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime},
+            </if>
+            <if test="updateTime != null">
+                update_time = #{updateTime},
+            </if>
+            <if test="viewNum != null">
+                view_num = #{viewNum},
+            </if>
+            <if test="followNum != null">
+                follow_num = #{followNum},
+            </if>
+            <if test="keywords != null">
+                keywords = #{keywords},
+            </if>
+            <if test="description != null">
+                description = #{description},
+            </if>
+            <if test="state != null">
+                state = #{state},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <update id="updateByPrimaryKey" parameterType="com.upedge.cms.modules.website.entity.WebsiteBlogInfo">
+        update website_blog_info
+        <set>
+        id = #{id},
+        title = #{title},
+        url_suf = #{urlSuf},
+        seo_img = #{seoImg},
+        img = #{img},
+        short_info = #{shortInfo},
+        content = #{content},
+        admin_user = #{adminUser},
+        create_time = #{createTime},
+        update_time = #{updateTime},
+        view_num = #{viewNum},
+        follow_num = #{followNum},
+        keywords = #{keywords},
+        description = #{description},
+        state = #{state},
+        </set>
+        where id = #{id}
+    </update>
+
+    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.upedge.cms.modules.website.entity.WebsiteBlogInfo" useGeneratedKeys="true">
+        insert into website_blog_info
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            id,
+            title,
+            url_suf,
+            seo_img,
+            img,
+            short_info,
+            content,
+            admin_user,
+            create_time,
+            update_time,
+            view_num,
+            follow_num,
+            keywords,
+            description,
+            state
+        </trim>
+        values (
+        #{id},
+        #{title},
+        #{urlSuf},
+        #{seoImg},
+        #{img},
+        #{shortInfo},
+        #{content},
+        #{adminUser},
+        #{createTime},
+        #{updateTime},
+        #{viewNum},
+        #{followNum},
+        #{keywords},
+        #{description},
+        #{state}
+        )
+    </insert>
+
+    <insert id="insertSelective"  keyColumn="id" keyProperty="id"  parameterType="com.upedge.cms.modules.website.entity.WebsiteBlogInfo" useGeneratedKeys="true">
+        insert into website_blog_info
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null" >
+              id
+            </if>
+            <if test="title != null" >
+              title
+            </if>
+            <if test="urlSuf != null" >
+              url_suf
+            </if>
+            <if test="seoImg != null" >
+              seo_img
+            </if>
+            <if test="img != null" >
+              img
+            </if>
+            <if test="shortInfo != null" >
+              short_info
+            </if>
+            <if test="content != null" >
+              content
+            </if>
+            <if test="adminUser != null" >
+              admin_user
+            </if>
+            <if test="createTime != null" >
+              create_time
+            </if>
+            <if test="updateTime != null" >
+              update_time
+            </if>
+            <if test="viewNum != null" >
+              view_num
+            </if>
+            <if test="followNum != null" >
+              follow_num
+            </if>
+            <if test="keywords != null" >
+              keywords
+            </if>
+            <if test="description != null" >
+              description
+            </if>
+            <if test="state != null" >
+              state
+            </if>
+
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null" >
+                #{id}
+            </if>
+            <if test="title != null" >
+                #{title}
+            </if>
+            <if test="urlSuf != null" >
+                #{urlSuf}
+            </if>
+            <if test="seoImg != null" >
+                #{seoImg}
+            </if>
+            <if test="img != null" >
+                #{img}
+            </if>
+            <if test="shortInfo != null" >
+                #{shortInfo}
+            </if>
+            <if test="content != null" >
+                #{content}
+            </if>
+            <if test="adminUser != null" >
+                #{adminUser}
+            </if>
+            <if test="createTime != null" >
+                #{createTime}
+            </if>
+            <if test="updateTime != null" >
+                #{updateTime}
+            </if>
+            <if test="viewNum != null" >
+                #{viewNum}
+            </if>
+            <if test="followNum != null" >
+                #{followNum}
+            </if>
+            <if test="keywords != null" >
+                #{keywords}
+            </if>
+            <if test="description != null" >
+                #{description}
+            </if>
+            <if test="state != null" >
+                #{state}
+            </if>
+
+        </trim>
+    </insert>
+
+    <insert id="insertByBatch" parameterType="java.util.List">
+        insert into website_blog_info
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+           id,
+           title,
+           url_suf,
+           seo_img,
+           img,
+           short_info,
+           content,
+           admin_user,
+           create_time,
+           update_time,
+           view_num,
+           follow_num,
+           keywords,
+           description,
+           state
+        </trim>
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+               #{item.id},
+               #{item.title},
+               #{item.urlSuf},
+               #{item.seoImg},
+               #{item.img},
+               #{item.shortInfo},
+               #{item.content},
+               #{item.adminUser},
+               #{item.createTime},
+               #{item.updateTime},
+               #{item.viewNum},
+               #{item.followNum},
+               #{item.keywords},
+               #{item.description},
+               #{item.state}
+            </trim>
+        </foreach>
+    </insert>
+
+    <sql id="Query_Condition">
+        <if test="t != null">
+            where
+            <trim prefix=" " suffix=" " suffixOverrides=" and ">
+                1 = 1 and
+                    <if test="t.id != null">
+                        id = #{t.id} and
+                    </if>
+                    <if test="t.title != null">
+                     <!--   title = #{t.title} and -->
+                        title LIKE CONCAT('%',#{t.title},'%')  and
+                    </if>
+                    <if test="t.urlSuf != null">
+                        url_suf = #{t.urlSuf} and
+                    </if>
+                    <if test="t.seoImg != null">
+                        seo_img = #{t.seoImg} and
+                    </if>
+                    <if test="t.img != null">
+                        img = #{t.img} and
+                    </if>
+                    <if test="t.shortInfo != null">
+                        short_info = #{t.shortInfo} and
+                    </if>
+                    <if test="t.content != null">
+                        content = #{t.content} and
+                    </if>
+                    <if test="t.adminUser != null">
+                        admin_user = #{t.adminUser} and
+                    </if>
+                    <if test="t.createTime != null">
+                        create_time = #{t.createTime} and
+                    </if>
+                    <if test="t.updateTime != null">
+                        update_time = #{t.updateTime} and
+                    </if>
+                    <if test="t.viewNum != null">
+                        view_num = #{t.viewNum} and
+                    </if>
+                    <if test="t.followNum != null">
+                        follow_num = #{t.followNum} and
+                    </if>
+                    <if test="t.keywords != null">
+                        keywords = #{t.keywords} and
+                    </if>
+                    <if test="t.description != null">
+                        description = #{t.description} and
+                    </if>
+                    <if test="t.state != null">
+                        state = #{t.state} and
+                    </if>
+            </trim>
+        </if>
+    </sql>
+
+    <select id="select" parameterType="com.upedge.common.base.Page" resultMap="BaseResultMap">
+        select
+        <if test="fields == null">
+            <include refid="Base_Column_List" />
+        </if>
+        <if test="fields != null">
+            ${fields}
+        </if>
+        from website_blog_info
+        <include refid="Query_Condition"/>
+        <if test="orderBy != null">
+            order by ${orderBy}
+        </if>
+        <if test="pageNum != null and pageSize != null">
+            limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+        </if>
+    </select>
+
+    <select id="count" parameterType="com.upedge.common.base.Page" resultType="java.lang.Long">
+        select
+        count(1)
+        from website_blog_info
+        <include refid="Query_Condition"/>
+    </select>
+
+    <update id="updateState">
+        update website_blog_info set state=#{state} where id=#{id}
+    </update>
+
+    <select id="listRouters" resultType="java.lang.String">
+        select CONCAT('/post/',url_suf)
+        from website_blog_info where state=1
+	</select>
+
+    <select id="listBlog" resultType="com.upedge.cms.modules.website.entity.WebsiteBlogInfo">
+       select id as id,title as title,short_info as shortInfo,img as img,url_suf as urlSuf,
+       admin_user as adminUser,create_time as createTime,
+       update_time as updateTime,view_num as viewNum,keywords as keywords,description as description,
+       follow_num as followNum from website_blog_info where state=1
+       order by update_time desc
+	</select>
+
+    <update id="followBlog">
+		update website_blog_info set follow_num=follow_num+1 where id=#{id}
+	</update>
+
+    <update id="cancelBlog">
+		update website_blog_info set follow_num=follow_num-1 where id=#{id}
+	</update>
+
+    <select id="blogSearch" resultType="com.upedge.cms.modules.website.entity.WebsiteBlogInfo">
+		select id as id,title as title,short_info as shortInfo,img as img,url_suf as urlSuf,
+		admin_user as adminUser,create_time as createTime,
+		update_time as updateTime,view_num as viewNum,
+		follow_num as followNum from website_blog_info where state=1 and title like concat('%',#{info},'%')
+		order by update_time desc
+	</select>
+
+
+    <select id="queryBlogByUrlSuf"  resultType="com.upedge.cms.modules.website.entity.WebsiteBlogInfo">
+		select
+        <include refid="Base_Column_List" />
+        from website_blog_info
+        where state=1 and url_suf=#{urlSuf}
+	</select>
+
+    <select id="queryBlog" resultType="com.upedge.cms.modules.website.entity.WebsiteBlogInfo">
+      select id as id,title as title,view_num as viewNum
+      from website_blog_info where id=#{id}
+	</select>
+
+    <update id="viewBlog">
+		update website_blog_info set view_num=view_num+1 where id=#{id}
+	</update>
+</mapper>

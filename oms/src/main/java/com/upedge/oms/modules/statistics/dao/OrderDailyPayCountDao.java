@@ -6,6 +6,7 @@ import com.upedge.common.model.order.vo.OrderDailyCountVo;
 import com.upedge.common.model.statistics.request.OrderStatisticsRequest;
 import com.upedge.common.model.statistics.vo.CustomerOrderStatisticsVo;
 import com.upedge.common.model.statistics.vo.ManagerOrderStatisticsVo;
+import com.upedge.common.model.statistics.vo.OrderStatisticsVo;
 import com.upedge.oms.modules.statistics.dto.DashboardOrderDto;
 import com.upedge.oms.modules.statistics.entity.OrderDailyPayCount;
 import com.upedge.oms.modules.statistics.entity.OrderDailyRefundCount;
@@ -19,6 +20,8 @@ import java.util.List;
  * @author author
  */
 public interface OrderDailyPayCountDao{
+
+    List<OrderStatisticsVo> selectCustomerOrderStatisticsByDate(OrderStatisticsRequest request);
 
     List<ManagerOrderStatisticsVo> selectManagerOrderStatistics(OrderStatisticsRequest request);
 

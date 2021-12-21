@@ -87,7 +87,7 @@ public class OrderDailyPayCount{
 		this.productAmount = productAmount;
 		this.fixFee = fixFee;
 //		this.payAmount = productAmount.add(fixFee).add(shipPrice).add(vatAmount).subtract(dischargeAmount);
-		this.payAmount = productAmount.add(shipPrice).add(vatAmount).subtract(dischargeAmount);
+		this.payAmount = productAmount.add(shipPrice).add(vatAmount).add(serviceFee).subtract(dischargeAmount);
 		this.creditAmount = productAmount.add(shipPrice).add(vatAmount);
 		this.shipPrice = shipPrice;
 		this.serviceFee = serviceFee;

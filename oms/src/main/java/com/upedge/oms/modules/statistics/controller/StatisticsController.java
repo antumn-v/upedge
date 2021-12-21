@@ -31,7 +31,7 @@ public class StatisticsController {
     @Autowired
     StatisticsService statisticsService;
 
-
+    @ApiOperation("订单状态统计")
     @PostMapping("/orderStateCount")
     public BaseResponse orderStateCount(){
         Session session = UserUtil.getSession(redisTemplate);

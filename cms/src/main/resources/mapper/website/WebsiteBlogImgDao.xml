@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.upedge.cms.modules.website.dao.WebsiteBlogImgDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.upedge.cms.modules.website.entity.WebsiteBlogImg" id="BaseResultMap">
+        <result property="id" column="id"/>
+        <result property="img" column="img"/>
+        <result property="blogId" column="blog_id"/>
+        <result property="state" column="state"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        `id`,`img`,`blog_id`,`state`
+    </sql>
+
+    <select id="selectByPrimaryKey" parameterType="com.upedge.cms.modules.website.entity.WebsiteBlogImg" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from website_blog_img
+        where id = #{id}
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="com.upedge.cms.modules.website.entity.WebsiteBlogImg">
+        delete from website_blog_img
+        where id = #{id}
+    </delete>
+
+    <update id="updateByPrimaryKeySelective" parameterType="com.upedge.cms.modules.website.entity.WebsiteBlogImg">
+        update website_blog_img
+        <set>
+            <if test="img != null">
+                img = #{img},
+            </if>
+            <if test="blogId != null">
+                blog_id = #{blogId},
+            </if>
+            <if test="state != null">
+                state = #{state},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <update id="updateByPrimaryKey" parameterType="com.upedge.cms.modules.website.entity.WebsiteBlogImg">
+        update website_blog_img
+        <set>
+        id = #{id},
+        img = #{img},
+        blog_id = #{blogId},
+        state = #{state},
+        </set>
+        where id = #{id}
+    </update>
+
+    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.upedge.cms.modules.website.entity.WebsiteBlogImg" useGeneratedKeys="true">
+        insert into website_blog_img
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            id,
+            img,
+            blog_id,
+            state
+        </trim>
+        values (
+        #{id},
+        #{img},
+        #{blogId},
+        #{state}
+        )
+    </insert>
+
+    <insert id="insertSelective"  keyColumn="id" keyProperty="id"  parameterType="com.upedge.cms.modules.website.entity.WebsiteBlogImg" useGeneratedKeys="true">
+        insert into website_blog_img
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null" >
+              id
+            </if>
+            <if test="img != null" >
+              img
+            </if>
+            <if test="blogId != null" >
+              blog_id
+            </if>
+            <if test="state != null" >
+              state
+            </if>
+
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null" >
+                #{id}
+            </if>
+            <if test="img != null" >
+                #{img}
+            </if>
+            <if test="blogId != null" >
+                #{blogId}
+            </if>
+            <if test="state != null" >
+                #{state}
+            </if>
+
+        </trim>
+    </insert>
+
+    <insert id="insertByBatch" parameterType="java.util.List">
+        insert into website_blog_img
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+           id,
+           img,
+           blog_id,
+           state
+        </trim>
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+               #{item.id},
+               #{item.img},
+               #{item.blogId},
+               #{item.state}
+            </trim>
+        </foreach>
+    </insert>
+
+    <sql id="Query_Condition">
+        <if test="t != null">
+            where
+            <trim prefix=" " suffix=" " suffixOverrides=" and ">
+                1 = 1 and
+                    <if test="t.id != null">
+                        id = #{t.id} and
+                    </if>
+                    <if test="t.img != null">
+                        img = #{t.img} and
+                    </if>
+                    <if test="t.blogId != null">
+                        blog_id = #{t.blogId} and
+                    </if>
+                    <if test="t.state != null">
+                        state = #{t.state} and
+                    </if>
+            </trim>
+        </if>
+    </sql>
+
+    <select id="select" parameterType="com.upedge.common.base.Page" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from website_blog_img
+        <include refid="Query_Condition"/>
+        <if test="orderBy != null">
+            order by ${orderBy}
+        </if>
+        <if test="pageNum != null and pageSize != null">
+            limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+        </if>
+    </select>
+
+    <select id="count" parameterType="com.upedge.common.base.Page" resultType="java.lang.Long">
+        select
+        count(1)
+        from website_blog_img
+        <include refid="Query_Condition"/>
+    </select>
+
+
+</mapper>

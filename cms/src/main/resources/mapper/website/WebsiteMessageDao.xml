@@ -1,0 +1,342 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.upedge.cms.modules.website.dao.WebsiteMessageDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.upedge.cms.modules.website.entity.WebsiteMessage" id="BaseResultMap">
+        <result property="id" column="id"/>
+        <result property="name" column="name"/>
+        <result property="email" column="email"/>
+        <result property="whatsapp" column="whatsapp"/>
+        <result property="facebook" column="facebook"/>
+        <result property="skype" column="skype"/>
+        <result property="message" column="message"/>
+        <result property="createTime" column="create_time"/>
+        <result property="adminUser" column="admin_user"/>
+        <result property="remark" column="remark"/>
+        <result property="remoteAddr" column="remote_addr"/>
+        <result property="deviceName" column="device_name"/>
+        <result property="state" column="state"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        `id`,`name`,`email`,`whatsapp`,`facebook`,`skype`,`message`,`create_time`,`admin_user`,`remark`,`remote_addr`,`device_name`,`state`
+    </sql>
+
+    <select id="selectByPrimaryKey" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from website_message
+        where id = #{id}
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="com.upedge.cms.modules.website.entity.WebsiteMessage">
+        delete from website_message
+        where id = #{id}
+    </delete>
+
+    <update id="updateByPrimaryKeySelective" parameterType="com.upedge.cms.modules.website.entity.WebsiteMessage">
+        update website_message
+        <set>
+            <if test="name != null">
+                name = #{name},
+            </if>
+            <if test="email != null">
+                email = #{email},
+            </if>
+            <if test="whatsapp != null">
+                whatsapp = #{whatsapp},
+            </if>
+            <if test="facebook != null">
+                facebook = #{facebook},
+            </if>
+            <if test="skype != null">
+                skype = #{skype},
+            </if>
+            <if test="message != null">
+                message = #{message},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime},
+            </if>
+            <if test="adminUser != null">
+                admin_user = #{adminUser},
+            </if>
+            <if test="remark != null">
+                remark = #{remark},
+            </if>
+            <if test="remoteAddr != null">
+                remote_addr = #{remoteAddr},
+            </if>
+            <if test="deviceName != null">
+                device_name = #{deviceName},
+            </if>
+            <if test="state != null">
+                state = #{state},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <update id="updateByPrimaryKey" parameterType="com.upedge.cms.modules.website.entity.WebsiteMessage">
+        update website_message
+        <set>
+        id = #{id},
+        name = #{name},
+        email = #{email},
+        whatsapp = #{whatsapp},
+        facebook = #{facebook},
+        skype = #{skype},
+        message = #{message},
+        create_time = #{createTime},
+        admin_user = #{adminUser},
+        remark = #{remark},
+        remote_addr = #{remoteAddr},
+        device_name = #{deviceName},
+        state = #{state},
+        </set>
+        where id = #{id}
+    </update>
+
+    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.upedge.cms.modules.website.entity.WebsiteMessage" useGeneratedKeys="true">
+        insert into website_message
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            id,
+            name,
+            email,
+            whatsapp,
+            facebook,
+            skype,
+            message,
+            create_time,
+            admin_user,
+            remark,
+            remote_addr,
+            device_name,
+            state
+        </trim>
+        values (
+        #{id},
+        #{name},
+        #{email},
+        #{whatsapp},
+        #{facebook},
+        #{skype},
+        #{message},
+        #{createTime},
+        #{adminUser},
+        #{remark},
+        #{remoteAddr},
+        #{deviceName},
+        #{state}
+        )
+    </insert>
+
+    <insert id="insertSelective"  keyColumn="id" keyProperty="id"  parameterType="com.upedge.cms.modules.website.entity.WebsiteMessage" useGeneratedKeys="true">
+        insert into website_message
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null" >
+              id
+            </if>
+            <if test="name != null" >
+              name
+            </if>
+            <if test="email != null" >
+              email
+            </if>
+            <if test="whatsapp != null" >
+              whatsapp
+            </if>
+            <if test="facebook != null" >
+              facebook
+            </if>
+            <if test="skype != null" >
+              skype
+            </if>
+            <if test="message != null" >
+              message
+            </if>
+            <if test="createTime != null" >
+              create_time
+            </if>
+            <if test="adminUser != null" >
+              admin_user
+            </if>
+            <if test="remark != null" >
+              remark
+            </if>
+            <if test="remoteAddr != null" >
+              remote_addr
+            </if>
+            <if test="deviceName != null" >
+              device_name
+            </if>
+            <if test="state != null" >
+              state
+            </if>
+
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null" >
+                #{id}
+            </if>
+            <if test="name != null" >
+                #{name}
+            </if>
+            <if test="email != null" >
+                #{email}
+            </if>
+            <if test="whatsapp != null" >
+                #{whatsapp}
+            </if>
+            <if test="facebook != null" >
+                #{facebook}
+            </if>
+            <if test="skype != null" >
+                #{skype}
+            </if>
+            <if test="message != null" >
+                #{message}
+            </if>
+            <if test="createTime != null" >
+                #{createTime}
+            </if>
+            <if test="adminUser != null" >
+                #{adminUser}
+            </if>
+            <if test="remark != null" >
+                #{remark}
+            </if>
+            <if test="remoteAddr != null" >
+                #{remoteAddr}
+            </if>
+            <if test="deviceName != null" >
+                #{deviceName}
+            </if>
+            <if test="state != null" >
+                #{state}
+            </if>
+
+        </trim>
+    </insert>
+
+    <insert id="insertByBatch" parameterType="java.util.List">
+        insert into website_message
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+           id,
+           name,
+           email,
+           whatsapp,
+           facebook,
+           skype,
+           message,
+           create_time,
+           admin_user,
+           remark,
+           remote_addr,
+           device_name,
+           state
+        </trim>
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+               #{item.id},
+               #{item.name},
+               #{item.email},
+               #{item.whatsapp},
+               #{item.facebook},
+               #{item.skype},
+               #{item.message},
+               #{item.createTime},
+               #{item.adminUser},
+               #{item.remark},
+               #{item.remoteAddr},
+               #{item.deviceName},
+               #{item.state}
+            </trim>
+        </foreach>
+    </insert>
+
+    <sql id="Query_Condition">
+        <if test="t != null">
+            where
+            <trim prefix=" " suffix=" " suffixOverrides=" and ">
+                1 = 1 and
+                    <if test="t.id != null">
+                        id = #{t.id} and
+                    </if>
+                    <if test="t.name != null">
+                        name = #{t.name} and
+                    </if>
+                    <if test="t.email != null">
+                        email = #{t.email} and
+                    </if>
+                    <if test="t.whatsapp != null">
+                        whatsapp = #{t.whatsapp} and
+                    </if>
+                    <if test="t.facebook != null">
+                        facebook = #{t.facebook} and
+                    </if>
+                    <if test="t.skype != null">
+                        skype = #{t.skype} and
+                    </if>
+                    <if test="t.message != null">
+                        message = #{t.message} and
+                    </if>
+                    <if test="t.createTime != null">
+                        create_time = #{t.createTime} and
+                    </if>
+                    <if test="t.adminUser != null">
+                        admin_user = #{t.adminUser} and
+                    </if>
+                    <if test="t.remark != null">
+                        remark = #{t.remark} and
+                    </if>
+                    <if test="t.remoteAddr != null">
+                        remote_addr = #{t.remoteAddr} and
+                    </if>
+                    <if test="t.deviceName != null">
+                        device_name = #{t.deviceName} and
+                    </if>
+                    <if test="t.state != null">
+                        state = #{t.state} and
+                    </if>
+            </trim>
+        </if>
+    </sql>
+
+    <select id="select" parameterType="com.upedge.common.base.Page" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from website_message
+        <include refid="Query_Condition"/>
+        <if test="orderBy != null">
+            order by ${orderBy}
+        </if>
+        <if test="pageNum != null and pageSize != null and fields==null">
+            limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+        </if>
+    </select>
+
+    <select id="count" parameterType="com.upedge.common.base.Page" resultType="java.lang.Long">
+        select
+        count(1)
+        from website_message
+        <include refid="Query_Condition"/>
+    </select>
+
+    <update id="updateState">
+        update website_message set state=#{state} where id=#{id}
+    </update>
+
+    <update id="allocate">
+        update website_message set admin_user=#{adminUser}
+        where id in
+        <foreach collection="ids" index="index" item="item"
+                 separator="," open="(" close=")">
+            #{item}
+        </foreach>
+    </update>
+
+</mapper>

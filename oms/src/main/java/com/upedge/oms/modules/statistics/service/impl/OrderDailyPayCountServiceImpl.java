@@ -11,6 +11,7 @@ import com.upedge.common.model.order.vo.OrderDailyCountVo;
 import com.upedge.common.model.statistics.request.OrderStatisticsRequest;
 import com.upedge.common.model.statistics.vo.CustomerOrderStatisticsVo;
 import com.upedge.common.model.statistics.vo.ManagerOrderStatisticsVo;
+import com.upedge.common.model.statistics.vo.OrderStatisticsVo;
 import com.upedge.common.utils.IdGenerate;
 import com.upedge.common.utils.ListUtils;
 import com.upedge.oms.modules.order.dao.OrderDao;
@@ -86,6 +87,11 @@ public class OrderDailyPayCountServiceImpl implements OrderDailyPayCountService 
     @Transactional
     public int insertSelective(OrderDailyPayCount record) {
         return orderDailyPayCountDao.insert(record);
+    }
+
+    @Override
+    public List<OrderStatisticsVo> selectCustomerOrderStatisticsByDate(OrderStatisticsRequest request) {
+        return orderDailyPayCountDao.selectCustomerOrderStatisticsByDate(request);
     }
 
     @Override
