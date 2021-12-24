@@ -8,6 +8,7 @@ import com.upedge.common.constant.Constant;
 import com.upedge.common.constant.ProductConstant;
 import com.upedge.common.constant.ResultCode;
 import com.upedge.common.constant.key.RedisKey;
+import com.upedge.common.exception.CustomerException;
 import com.upedge.common.feign.UmsFeignClient;
 import com.upedge.common.model.log.MqMessageLog;
 import com.upedge.common.model.product.VariantDetail;
@@ -652,9 +653,9 @@ public class ProductServiceImpl implements ProductService {
             //0:正常产品 1:捆绑产品
             productVariant.setVariantType(0);
             productVariant.setState(1);
-            if (StringUtils.isBlank(productVariant.getVariantImage())){
-                productVariant.setVariantImage(mainImage);
-            }
+//            if (StringUtils.isBlank(productVariant.getVariantImage())){
+//                productVariant.setVariantImage(mainImage);
+//            }
             List<String> cnNameList = productVariantVo.getVariantAttrVoList().stream().map(ProductVariantAttrVo::getVariantAttrCvalue).collect(Collectors.toList());
             List<String> enNameList = productVariantVo.getVariantAttrVoList().stream().map(ProductVariantAttrVo::getVariantAttrEvalue).collect(Collectors.toList());
             productVariant.setCnName(cnNameList.toString());
@@ -686,8 +687,9 @@ public class ProductServiceImpl implements ProductService {
         return productDao.selectByProductSku(productSku);
     }
 
+    @Transactional
     @Override
-    public BaseResponse putawayProduct(Long id, Session session) {
+    public BaseResponse putawayProduct(Long id, Session session) throws CustomerException {
         Product product = productDao.selectByPrimaryKey(id);
         if (product == null) {
             return new BaseResponse(ResultCode.FAIL_CODE, Constant.MESSAGE_FAIL);
@@ -736,6 +738,11 @@ public class ProductServiceImpl implements ProductService {
         product.setState(3);
         product.setUpdateTime(new Date());
         productDao.updateByPrimaryKeySelective(product);
+        ProductUoloadToSaiheRequest request = new ProductUoloadToSaiheRequest();
+        List<Long> productIds = new ArrayList<>();
+        productIds.add(id);
+        request.setProductIds(productIds);
+        uploadToSaihe(request);
         return new BaseResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS);
     }
 
@@ -760,7 +767,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public BaseResponse uploadToSaihe(ProductUoloadToSaiheRequest request) {
+    public BaseResponse uploadToSaihe(ProductUoloadToSaiheRequest request) throws CustomerException {
 
         List<SaiheSkuVo> list = productVariantService.listSaiheSkuVo(request.getProductIds());
         if (list == null || list.size() == 0) {
@@ -827,7 +834,8 @@ public class ProductServiceImpl implements ProductService {
                 return new BaseResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS);
             }
         } else {
-            return new BaseResponse(ResultCode.FAIL_CODE, apiUploadProductsResponse.getProcessUpdateProductResult().getStatus());
+            throw new CustomerException("订单上传赛盒失败，请联系IT坚持! 失败原因: " + apiUploadProductsResponse.getProcessUpdateProductResult().getStatus());
+
         }
     }
 

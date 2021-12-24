@@ -287,6 +287,7 @@ public class OrderCommonServiceImpl implements OrderCommonService {
         }
 
         SaiheOrderRecord saiheOrderRecord = importOrderToSaihe(saiheOrder);
+        saiheOrderRecord.setOrderType(orderType);
         saiheOrderRecord.setImportTime(new Date());
         if (record != null) {
             saiheOrderRecord.setId(record.getId());
@@ -436,7 +437,7 @@ public class OrderCommonServiceImpl implements OrderCommonService {
         apiUploadOrderInfo.setWareHouseID(SaiheConfig.UPEDGE_DEFAULT_WAREHOURSE_ID);
 
         //运输方式ID ShippingService
-        apiUploadOrderInfo.setTransportID(4);
+        apiUploadOrderInfo.setTransportID(5);
 
         //是否执行订单策略(默认为:true；如果为false，则必须传入WareHouseID和TransportID参数)
         apiUploadOrderInfo.setIsOperateMatch(false);

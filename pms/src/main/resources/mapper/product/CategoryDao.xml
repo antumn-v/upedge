@@ -1,0 +1,264 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.upedge.pms.modules.category.dao.CategoryDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.upedge.pms.modules.category.entity.Category" id="BaseResultMap">
+        <result property="id" column="id"/>
+        <result property="cateCode" column="cate_code"/>
+        <result property="cateName" column="cate_name"/>
+        <result property="parentCode" column="parent_code"/>
+        <result property="parentName" column="parent_name"/>
+        <result property="pathName" column="path_name"/>
+        <result property="pathCode" column="path_code"/>
+        <result property="createTime" column="create_time"/>
+        <result property="treeSort" column="tree_sort"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        `id`,`cate_code`,`cate_name`,`parent_code`,`parent_name`,`path_name`,`path_code`,`create_time`,`tree_sort`
+    </sql>
+
+    <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from category
+        where id = #{id}
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="com.upedge.pms.modules.category.entity.Category">
+        delete from category
+        where id = #{id}
+    </delete>
+
+    <update id="updateByPrimaryKeySelective" parameterType="com.upedge.pms.modules.category.entity.Category">
+        update category
+        <set>
+            <if test="cateCode != null">
+                cate_code = #{cateCode},
+            </if>
+            <if test="cateName != null">
+                cate_name = #{cateName},
+            </if>
+            <if test="parentCode != null">
+                parent_code = #{parentCode},
+            </if>
+            <if test="parentName != null">
+                parent_name = #{parentName},
+            </if>
+            <if test="pathName != null">
+                path_name = #{pathName},
+            </if>
+            <if test="pathCode != null">
+                path_code = #{pathCode},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime},
+            </if>
+            <if test="treeSort != null">
+                tree_sort = #{treeSort},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <update id="updateByPrimaryKey" parameterType="com.upedge.pms.modules.category.entity.Category">
+        update category
+        <set>
+        id = #{id},
+        cate_code = #{cateCode},
+        cate_name = #{cateName},
+        parent_code = #{parentCode},
+        parent_name = #{parentName},
+        path_name = #{pathName},
+        path_code = #{pathCode},
+        create_time = #{createTime},
+        tree_sort = #{treeSort},
+        </set>
+        where id = #{id}
+    </update>
+
+    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.upedge.pms.modules.category.entity.Category" useGeneratedKeys="true">
+        insert into category
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            id,
+            cate_code,
+            cate_name,
+            parent_code,
+            parent_name,
+            path_name,
+            path_code,
+            create_time,
+            tree_sort
+        </trim>
+        values (
+        #{id},
+        #{cateCode},
+        #{cateName},
+        #{parentCode},
+        #{parentName},
+        #{pathName},
+        #{pathCode},
+        #{createTime},
+        #{treeSort}
+        )
+    </insert>
+
+    <insert id="insertSelective"  keyColumn="id" keyProperty="id"  parameterType="com.upedge.pms.modules.category.entity.Category" useGeneratedKeys="true">
+        insert into category
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null" >
+              id
+            </if>
+            <if test="cateCode != null" >
+              cate_code
+            </if>
+            <if test="cateName != null" >
+              cate_name
+            </if>
+            <if test="parentCode != null" >
+              parent_code
+            </if>
+            <if test="parentName != null" >
+              parent_name
+            </if>
+            <if test="pathName != null" >
+              path_name
+            </if>
+            <if test="pathCode != null" >
+              path_code
+            </if>
+            <if test="createTime != null" >
+              create_time
+            </if>
+            <if test="treeSort != null" >
+              tree_sort
+            </if>
+
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null" >
+                #{id}
+            </if>
+            <if test="cateCode != null" >
+                #{cateCode}
+            </if>
+            <if test="cateName != null" >
+                #{cateName}
+            </if>
+            <if test="parentCode != null" >
+                #{parentCode}
+            </if>
+            <if test="parentName != null" >
+                #{parentName}
+            </if>
+            <if test="pathName != null" >
+                #{pathName}
+            </if>
+            <if test="pathCode != null" >
+                #{pathCode}
+            </if>
+            <if test="createTime != null" >
+                #{createTime}
+            </if>
+            <if test="treeSort != null" >
+                #{treeSort}
+            </if>
+
+        </trim>
+    </insert>
+
+    <insert id="insertByBatch" parameterType="java.util.List">
+        insert into category
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+           id,
+           cate_code,
+           cate_name,
+           parent_code,
+           parent_name,
+           path_name,
+           path_code,
+           create_time,
+           tree_sort
+        </trim>
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+               #{item.id},
+               #{item.cateCode},
+               #{item.cateName},
+               #{item.parentCode},
+               #{item.parentName},
+               #{item.pathName},
+               #{item.pathCode},
+               #{item.createTime},
+               #{item.treeSort}
+            </trim>
+        </foreach>
+    </insert>
+
+    <sql id="Query_Condition">
+        <if test="t != null">
+            where
+            <trim prefix=" " suffix=" " suffixOverrides=" and ">
+                1 = 1 and
+                    <if test="t.id != null">
+                        id = #{t.id} and
+                    </if>
+                    <if test="t.cateCode != null">
+                        cate_code = #{t.cateCode} and
+                    </if>
+                    <if test="t.cateName != null">
+                        cate_name LIKE CONCAT('%',#{t.cateName},'%')  and
+                    </if>
+                    <if test="t.parentCode != null">
+                        parent_code = #{t.parentCode} and
+                    </if>
+                    <if test="t.parentName != null">
+                        parent_name = #{t.parentName} and
+                    </if>
+                    <if test="t.pathName != null">
+                        path_name = #{t.pathName} and
+                    </if>
+                    <if test="t.pathCode != null">
+                        path_code = #{t.pathCode} and
+                    </if>
+                    <if test="t.createTime != null">
+                        create_time = #{t.createTime} and
+                    </if>
+                    <if test="t.treeSort != null">
+                        tree_sort = #{t.treeSort} and
+                    </if>
+            </trim>
+        </if>
+    </sql>
+
+    <select id="select" parameterType="com.upedge.common.base.Page" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from category
+        <include refid="Query_Condition"/>
+        <if test="orderBy != null">
+            order by ${orderBy}
+        </if>
+        <if test="pageNum != null and pageSize != null">
+            limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+        </if>
+    </select>
+
+    <select id="count" parameterType="com.upedge.common.base.Page" resultType="java.lang.Long">
+        select
+        count(1)
+        from category
+        <include refid="Query_Condition"/>
+    </select>
+
+    <select id="queryIdByCateCode" resultType="java.lang.Long">
+       select id from category where cate_code=#{cateCode} limit 1
+    </select>
+    <select id="selectByCateCode" resultType="com.upedge.pms.modules.category.entity.Category">
+
+        select id from category where cate_code=#{cateCode} limit 1
+    </select>
+</mapper>

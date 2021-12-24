@@ -108,8 +108,6 @@
     <update id="updateByPrimaryKey" parameterType="com.upedge.ums.modules.address.entity.CustomerAddress">
         update customer_address
         <set>
-        id = #{id},
-        customer_id = #{customerId},
         first_name = #{firstName},
         last_name = #{lastName},
         email = #{email},
@@ -124,7 +122,6 @@
         province_code = #{provinceCode},
         is_default = #{isDefault},
         address_type = #{addressType},
-        create_time = #{createTime},
         update_time = #{updateTime},
         </set>
         where id = #{id}

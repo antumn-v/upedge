@@ -2,6 +2,7 @@ package com.upedge.pms.modules.product.service;
 
 import com.upedge.common.base.BaseResponse;
 import com.upedge.common.base.Page;
+import com.upedge.common.exception.CustomerException;
 import com.upedge.common.model.product.VariantDetail;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.pms.modules.product.entity.Product;
@@ -38,11 +39,11 @@ public interface ProductService{
 
     Product selectByProductSku(String productSku);
 
-    BaseResponse putawayProduct(Long id, Session session);
+    BaseResponse putawayProduct(Long id, Session session) throws CustomerException;
 
     BaseResponse unshelveProduct(Long id, Session session);
 
-    BaseResponse uploadToSaihe(ProductUoloadToSaiheRequest request);
+    BaseResponse uploadToSaihe(ProductUoloadToSaiheRequest request) throws CustomerException;
 
     BaseResponse publicProduct(Long id);
 

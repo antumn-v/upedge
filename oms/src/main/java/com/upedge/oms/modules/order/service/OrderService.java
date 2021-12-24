@@ -31,6 +31,7 @@ public interface OrderService{
 
     BaseResponse createReshipOrder(Long id);
 
+    void initQuoteState(Long id);
 
     int initVatAmountByCustomerId(Long customerId);
 

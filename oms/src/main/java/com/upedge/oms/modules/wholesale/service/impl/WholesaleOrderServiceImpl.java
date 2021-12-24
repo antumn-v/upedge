@@ -1207,14 +1207,17 @@ public class WholesaleOrderServiceImpl implements WholesaleOrderService {
          * 并且没有赛盒orderCode的赛盒订单信息
          */
         SaiheOrder saiheOrder = wholesaleOrderDao.querySaiheOrder(id);
+        if (saiheOrder == null){
+            return false;
+        }
         /**
          * 该订单是否在赛盒已经上传了，不用再回传
          * orderCode在数据库中未有，保存信息
          */
-//        Boolean isUpload = orderCommonService.checkAndSaveOrderCodeFromSaihe(saiheOrder.getClientOrderCode(), OrderType.WHOLESALE);
-//        if (isUpload) {
-//            return true;
-//        }
+        Boolean isUpload = orderCommonService.checkAndSaveOrderCodeFromSaihe(saiheOrder.getClientOrderCode(), OrderType.WHOLESALE);
+        if (isUpload) {
+            return true;
+        }
         /**
          * 查询该订单的订单产品
          */

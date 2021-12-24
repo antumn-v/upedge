@@ -1,16 +1,19 @@
 package com.upedge.ums.modules.address.service.impl;
 
+import com.upedge.common.base.Page;
 import com.upedge.common.model.user.vo.Session;
+import com.upedge.common.utils.ListUtils;
 import com.upedge.common.web.util.UserUtil;
+import com.upedge.ums.modules.address.dao.CustomerAddressDao;
+import com.upedge.ums.modules.address.entity.CustomerAddress;
+import com.upedge.ums.modules.address.request.CustomerAddressListRequest;
+import com.upedge.ums.modules.address.service.CustomerAddressService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import java.util.List;
-import com.upedge.common.base.Page;
-import org.springframework.beans.factory.annotation.Autowired;
-import com.upedge.ums.modules.address.dao.CustomerAddressDao;
-import com.upedge.ums.modules.address.entity.CustomerAddress;
-import com.upedge.ums.modules.address.service.CustomerAddressService;
 
 
 @Service
@@ -66,6 +69,20 @@ public class CustomerAddressServiceImpl implements CustomerAddressService {
             }
         }
         return i;
+    }
+
+    @Override
+    public CustomerAddress selectCustomerBillingAddress(Long customerId) {
+        CustomerAddressListRequest request = new CustomerAddressListRequest();
+        CustomerAddress customerAddress = new CustomerAddress();
+        customerAddress.setCustomerId(customerId);
+        customerAddress.setAddressType(1);
+        request.setT(customerAddress);
+        List<CustomerAddress> results = select(request);
+        if (ListUtils.isNotEmpty(results)){
+            return results.get(0);
+        }
+        return null;
     }
 
     /**

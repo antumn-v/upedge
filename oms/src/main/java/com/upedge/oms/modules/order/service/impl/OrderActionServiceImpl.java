@@ -115,10 +115,7 @@ public class OrderActionServiceImpl implements OrderActionService {
             orderAddress.setOrderId(orderId);
             orderAddress.setId(IdGenerate.nextId());
         }
-
         StoreOrderRelate storeOrderRelate = storeOrderRelateDao.selectByOrderId(orderId).get(0);
-
-
 
         Map<Long, OrderItem> itemMap = new HashMap<>();
 
@@ -152,6 +149,7 @@ public class OrderActionServiceImpl implements OrderActionService {
                 if (null == orderItem) {
                     continue;
                 }
+
                 Long newItemId = IdGenerate.nextId();
                 OrderItem newItem = new OrderItem();
                 BeanUtils.copyProperties(orderItem, newItem);
@@ -209,7 +207,9 @@ public class OrderActionServiceImpl implements OrderActionService {
         orderActionLogDao.insertByBatch(actionLogs);
         orderAddressDao.insertByBatch(orderAddresses);
         storeOrderRelateDao.insertByBatch(storeOrderRelates);
-
+        for (Order order1 : orders) {
+            orderService.initQuoteState(order1.getId());
+        }
         List<Long> orderIds = new ArrayList<>();
         orderIds.add(orderId);
         orderService.deleteOrderByIds(orderIds);
@@ -317,10 +317,9 @@ public class OrderActionServiceImpl implements OrderActionService {
         storeOrderRelate.setOrderCreateTime(date);
         storeOrderRelate.setId(null);
         storeOrderRelateDao.insert(storeOrderRelate);
-
         orderAddress.setOrderId(id);
         orderAddressDao.insert(orderAddress);
-
+        orderService.initQuoteState(id);
         return "success";
     }
 
@@ -385,6 +384,7 @@ public class OrderActionServiceImpl implements OrderActionService {
         BigDecimal vatAmount = vatRuleService.getOrderVatAmount(order.getProductAmount(),shipDetail.getPrice(),order.getToAreaId(),order.getCustomerId());
         shipDetail.setVatAmount(vatAmount);
         orderDao.updateShipDetailById(shipDetail,orderId);
+        orderService.initQuoteState(orderId);
         return "success";
     }
 
@@ -468,6 +468,9 @@ public class OrderActionServiceImpl implements OrderActionService {
         orderAddressDao.insertByBatch(orderAddresses);
         storeOrderRelateDao.insertByBatch(storeOrderRelates);
         orderActionLogDao.insertByBatch(actionLogList);
+        for (Order order1 : orders) {
+            orderService.initQuoteState(order1.getId());
+        }
 
         return "success";
     }

@@ -156,7 +156,8 @@ public class ProductVariantServiceImpl implements ProductVariantService {
         List<ProductLog> productLogList = new ArrayList<>();
         List<VariantDetail> variantDetails = new ArrayList<>();
         for (ProductVariant productVariant : productVariantList) {
-            if (productVariant.getWeight().compareTo(request.getWeight()) != 0) {
+            if (productVariant.getWeight() == null
+                    || productVariant.getWeight().compareTo(request.getWeight()) != 0) {
                 ProductLog productLog = new ProductLog();
                 productLog.setId(IdGenerate.nextId());
                 productLog.setAdminUser(String.valueOf(session.getId()));
@@ -201,7 +202,8 @@ public class ProductVariantServiceImpl implements ProductVariantService {
 
         List<VariantDetail> variantDetails = new ArrayList<>();
         for (ProductVariant productVariant : productVariantList) {
-            if (productVariant.getWeight().compareTo(request.getVolumeWeight()) != 0) {
+            if (productVariant.getVolumeWeight() == null
+                    || productVariant.getVolumeWeight().compareTo(request.getVolumeWeight()) != 0) {
                 ProductLog productLog = new ProductLog();
                 productLog.setId(IdGenerate.nextId());
                 productLog.setAdminUser(String.valueOf(session.getId()));

@@ -9,6 +9,8 @@ import java.util.List;
  */
 public interface CustomerAddressService{
 
+    CustomerAddress selectCustomerBillingAddress(Long customerId);
+
     CustomerAddress selectByPrimaryKey(Long id);
 
     int deleteByPrimaryKey(Long id);

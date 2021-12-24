@@ -17,8 +17,10 @@ import com.upedge.oms.modules.order.request.*;
 import com.upedge.oms.modules.orderShippingUnit.service.OrderShippingUnitService;
 import com.upedge.oms.modules.wholesale.entity.WholesaleOrder;
 import com.upedge.oms.modules.wholesale.entity.WholesaleOrderAddress;
-import com.upedge.oms.modules.wholesale.request.*;
+import com.upedge.oms.modules.wholesale.request.ExcelCreateWholesaleRequest;
 import com.upedge.oms.modules.wholesale.request.ExcelCreateWholesaleRequest.WholesaleExcelData;
+import com.upedge.oms.modules.wholesale.request.WholesaleOrderExportShipsRequest;
+import com.upedge.oms.modules.wholesale.request.WholesaleOrderListRequest;
 import com.upedge.oms.modules.wholesale.response.WholesaleOrderListResponse;
 import com.upedge.oms.modules.wholesale.response.WholesaleOrderUpdateResponse;
 import com.upedge.oms.modules.wholesale.service.WholesaleOrderAddressService;
@@ -29,23 +31,25 @@ import com.upedge.oms.modules.wholesale.vo.WholesaleOrderAppVo;
 import com.upedge.oms.modules.wholesale.vo.WholesaleOrderExport;
 import com.upedge.oms.modules.wholesale.vo.WholesaleOrderItemVo;
 import com.upedge.thirdparty.saihe.config.SaiheConfig;
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.MapUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import org.springframework.web.bind.annotation.*;
 /**
  * @author author
  */
 @Slf4j
+@Api(tags = "批发订单")
 @RestController
 @RequestMapping("/wholesaleOrder")
 public class WholesaleOrderController {

@@ -12,6 +12,7 @@ import com.upedge.oms.modules.statistics.request.InvoiceListRequest;
 import com.upedge.oms.modules.statistics.request.InvoiceSearchRequest;
 import com.upedge.oms.modules.statistics.service.InvoiceService;
 import com.upedge.oms.modules.statistics.vo.InvoiceDetailVo;
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +22,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+@Api(tags = "账单")
 @RestController
 @RequestMapping("/invoice")
 public class InvoiceController {
@@ -50,18 +52,18 @@ public class InvoiceController {
         return new BaseResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS,detailVo,request);
     }
 
-    @ApiOperation("日期查询账单(带账单类型)")
-    @PostMapping("/search1")
-    public BaseResponse customerSearchInvoiceByType(@RequestBody InvoiceSearchRequest request){
-        Session session = UserUtil.getSession(redisTemplate);
-        request.setCustomerId(session.getCustomerId());
-        InvoiceDetailVo detailVo = invoiceService.customerInvoiceSearch(request);
-        return new BaseResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS,detailVo,request);
-    }
+//    @ApiOperation("日期查询账单")
+//    @PostMapping("/search")
+//    public BaseResponse customerSearchInvoiceByType(@RequestBody InvoiceSearchRequest request){
+//        Session session = UserUtil.getSession(redisTemplate);
+//        request.setCustomerId(session.getCustomerId());
+//        InvoiceDetailVo detailVo = invoiceService.customerInvoiceSearch(request);
+//        return new BaseResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS,detailVo,request);
+//    }
 
-    @ApiOperation("日期查询账单")
-    @PostMapping("/search")
-    public BaseResponse customerSearchInvoice(@RequestBody InvoiceSearchRequest request) throws CustomerException {
+    @ApiOperation("excel导出订单")
+    @PostMapping("/creatExcel")
+    public BaseResponse customerInvoiceCreatExcel(@RequestBody InvoiceSearchRequest request) throws CustomerException {
         Session session = UserUtil.getSession(redisTemplate);
         request.setCustomerId(session.getCustomerId());
         String url = invoiceService.customerSearchInvoice(request);

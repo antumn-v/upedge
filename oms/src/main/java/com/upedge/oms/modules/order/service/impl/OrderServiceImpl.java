@@ -5,10 +5,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.upedge.common.base.BaseResponse;
 import com.upedge.common.base.Page;
-import com.upedge.common.constant.BaseCode;
-import com.upedge.common.constant.Constant;
-import com.upedge.common.constant.OrderType;
-import com.upedge.common.constant.ResultCode;
+import com.upedge.common.constant.*;
 import com.upedge.common.constant.key.RedisKey;
 import com.upedge.common.exception.CustomerException;
 import com.upedge.common.feign.PmsFeignClient;
@@ -700,6 +697,39 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
+    public void initQuoteState(Long id) {
+        List<OrderItem> orderItems = orderItemDao.selectItemByOrderId(id);
+        Integer quoteProducts = 0;
+        Integer quoteState = 0;
+        if (ListUtils.isNotEmpty(orderItems)){
+            for (OrderItem orderItem : orderItems) {
+                if (orderItem.getQuoteState() == 5){
+                    quoteState = OrderConstant.QUOTE_STATE_QUOTING;
+                    break;
+                }
+                if (orderItem.getQuoteState() != 1
+                && orderItem.getQuoteState() != 6){
+                    quoteProducts++;
+                }
+            }
+        }
+        if (quoteState != OrderConstant.QUOTE_STATE_QUOTING){
+            if (quoteProducts == 0){
+                quoteState = OrderConstant.QUOTE_STATE_QUOTED;
+            }else if (quoteState == orderItems.size()){
+                quoteState = OrderConstant.QUOTE_STATE_UNQUOTED;
+            }else {
+                quoteState = OrderConstant.QUOTE_STATE_PART_UNQUOTED;
+            }
+        }
+        Order order = new Order();
+        order.setId(id);
+        order.setQuoteState(quoteState);
+        order.setUpdateTime(new Date());
+        updateByPrimaryKeySelective(order);
+    }
+
+    @Override
     public int initVatAmountByCustomerId(Long customerId) {
         return orderDao.initVatAmountByCustomerId(customerId);
     }
@@ -908,16 +938,6 @@ public class OrderServiceImpl implements OrderService {
         });
 
 
-        //客户经理  客户信息
-        CompletableFuture<Void> manageFuture = CompletableFuture.runAsync(() -> {
-            /*if (1==1){
-                return;
-            }*/
-            for (OrderVo orderVo : orderListVos) {
-                orderVo.setManagerName((String) redisTemplate.opsForHash().get(RedisKey.HASH_CUSTOMER_MANAGER_RELATE, String.valueOf(orderVo.getCustomerId())));
-            }
-        }, threadPoolExecutor);
-
         //目的地信息
         CompletableFuture<Void> areaFuture = CompletableFuture.runAsync(() -> {
             orderListVos.forEach(orderVo -> {
@@ -940,25 +960,6 @@ public class OrderServiceImpl implements OrderService {
             });
         }, threadPoolExecutor);
 
-        //补发订单补发信息
-        CompletableFuture<Void> reshipFuture = CompletableFuture.runAsync(() -> {
-            if (reshipIds.size() > 0) {
-                Map<Long, OrderReshipInfo> reshipInfoMap = new HashMap<>();
-                //补发订单
-                List<OrderReshipInfo> orderReshipInfoList = orderReshipInfoDao.listOrderReshipInfoByIds(reshipIds);
-                orderReshipInfoList.forEach(orderReshipInfo -> {
-                    reshipInfoMap.put(orderReshipInfo.getOrderId(), orderReshipInfo);
-                });
-                orderListVos.forEach(orderVo -> {
-                    OrderReshipInfo a = reshipInfoMap.get(orderVo.getId());
-                    //补发订单
-                    if (a != null && orderVo.getOrderType() == 1) {
-                        orderVo.setReshipTimes(a.getReshipTimes());
-                        orderVo.setOriginalOrderId(a.getOriginalOrderId());
-                    }
-                });
-            }
-        }, threadPoolExecutor);
 
         //发货信息
         CompletableFuture<Void> trackFuture = CompletableFuture.runAsync(() -> {
@@ -1015,7 +1016,7 @@ public class OrderServiceImpl implements OrderService {
         });
 
 
-        CompletableFuture.allOf(manageFuture, areaFuture, shipFuture, reshipFuture, trackFuture, storeFuture).get();
+        CompletableFuture.allOf( areaFuture, shipFuture,  trackFuture, storeFuture).get();
 
         return orderListVos;
     }
@@ -1440,10 +1441,10 @@ public class OrderServiceImpl implements OrderService {
          * 该订单是否在赛盒已经上传了，不用再回传
          * orderCode在数据库中未有，保存信息
          */
-//        Boolean isUpload = orderCommonService.checkAndSaveOrderCodeFromSaihe(saiheOrder.getClientOrderCode(), OrderType.NORMAL);
-//        if (isUpload){
-//            return true;
-//        }
+        Boolean isUpload = orderCommonService.checkAndSaveOrderCodeFromSaihe(saiheOrder.getClientOrderCode(), OrderType.NORMAL);
+        if (isUpload){
+            return true;
+        }
         /**
          * 查询该订单的订单产品
          */

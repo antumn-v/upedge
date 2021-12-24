@@ -18,9 +18,9 @@ public class SaiheConfig {
 
     //B2C网站平台
     public static final Integer UPEDGE_ORDER_SOURCE_TYPE=0;
-    //潘达默认仓库
-    public static final Integer UPEDGE_DEFAULT_WAREHOURSE_ID=1;
-    //潘达默认订单来源渠道
+    //
+    public static final Integer UPEDGE_DEFAULT_WAREHOURSE_ID=3;
+    //
     public static final Integer UPEDGE_DEFAULT_ORDER_SOURCE_ID=1;
 
     /**

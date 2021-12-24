@@ -3,25 +3,16 @@ package com.upedge.oms.modules.statistics.controller;
 import com.upedge.common.component.annotation.Permission;
 import com.upedge.common.constant.Constant;
 import com.upedge.common.constant.ResultCode;
-import com.upedge.common.model.user.vo.Session;
-import com.upedge.common.web.util.UserUtil;
 import com.upedge.oms.modules.statistics.entity.InvoiceExportRequest;
-import com.upedge.oms.modules.statistics.request.InvoiceExportRequestAddRequest;
-import com.upedge.oms.modules.statistics.request.InvoiceExportRequestListRequest;
-import com.upedge.oms.modules.statistics.request.InvoiceExportRequestUpdateRequest;
-import com.upedge.oms.modules.statistics.response.*;
+import com.upedge.oms.modules.statistics.response.InvoiceExportRequestInfoResponse;
 import com.upedge.oms.modules.statistics.service.InvoiceExportRequestService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
 
-import javax.validation.Valid;
-import java.util.List;
-import org.springframework.web.bind.annotation.*;
-/**
- * 
- *
- * @author 夕雾
- */
 @RestController
 @RequestMapping("/invoiceExportRequest")
 public class InvoiceExportRequestController {

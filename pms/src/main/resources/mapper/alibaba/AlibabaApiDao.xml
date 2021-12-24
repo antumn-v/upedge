@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.upedge.pms.modules.alibaba.dao.AlibabaApiDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.upedge.pms.modules.alibaba.entity.AlibabaApi" id="BaseResultMap">
+        <result property="apiKey" column="api_key"/>
+        <result property="apiSecret" column="api_secret"/>
+        <result property="accessToken" column="access_token"/>
+        <result property="refreshToken" column="refresh_token"/>
+        <result property="userId" column="user_id"/>
+        <result property="refreshTokenCreateTime" column="refresh_token_create_time"/>
+        <result property="refreshTokenExpireTime" column="refresh_token_expire_time"/>
+        <result property="accessTokenCreateTime" column="access_token_create_time"/>
+        <result property="accessTokenExpireTime" column="access_token_expire_time"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        `api_key`,`api_secret`,`access_token`,`refresh_token`,`user_id`,`refresh_token_create_time`,`refresh_token_expire_time`,`access_token_create_time`,`access_token_expire_time`
+    </sql>
+
+    <select id="selectByPrimaryKey" parameterType="com.upedge.pms.modules.alibaba.entity.AlibabaApi" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from alibaba_api
+        where api_key = #{apiKey}
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="com.upedge.pms.modules.alibaba.entity.AlibabaApi">
+        delete from alibaba_api
+        where api_key = #{apiKey}
+    </delete>
+
+    <update id="updateByPrimaryKeySelective" parameterType="com.upedge.pms.modules.alibaba.entity.AlibabaApi">
+        update alibaba_api
+        <set>
+            <if test="apiSecret != null">
+                api_secret = #{apiSecret},
+            </if>
+            <if test="accessToken != null">
+                access_token = #{accessToken},
+            </if>
+            <if test="refreshToken != null">
+                refresh_token = #{refreshToken},
+            </if>
+            <if test="userId != null">
+                user_id = #{userId},
+            </if>
+            <if test="refreshTokenCreateTime != null">
+                refresh_token_create_time = #{refreshTokenCreateTime},
+            </if>
+            <if test="refreshTokenExpireTime != null">
+                refresh_token_expire_time = #{refreshTokenExpireTime},
+            </if>
+            <if test="accessTokenCreateTime != null">
+                access_token_create_time = #{accessTokenCreateTime},
+            </if>
+            <if test="accessTokenExpireTime != null">
+                access_token_expire_time = #{accessTokenExpireTime},
+            </if>
+        </set>
+        where api_key = #{apiKey}
+    </update>
+
+    <update id="updateByPrimaryKey" parameterType="com.upedge.pms.modules.alibaba.entity.AlibabaApi">
+        update alibaba_api
+        <set>
+        api_key = #{apiKey},
+        api_secret = #{apiSecret},
+        access_token = #{accessToken},
+        refresh_token = #{refreshToken},
+        user_id = #{userId},
+        refresh_token_create_time = #{refreshTokenCreateTime},
+        refresh_token_expire_time = #{refreshTokenExpireTime},
+        access_token_create_time = #{accessTokenCreateTime},
+        access_token_expire_time = #{accessTokenExpireTime},
+        </set>
+        where api_key = #{apiKey}
+    </update>
+
+
+    <sql id="Query_Condition">
+        <if test="t != null">
+            where
+            <trim prefix=" " suffix=" " suffixOverrides=" and ">
+                1 = 1 and
+                    <if test="t.apiKey != null">
+                        api_key = #{t.apiKey} and
+                    </if>
+                    <if test="t.apiSecret != null">
+                        api_secret = #{t.apiSecret} and
+                    </if>
+                    <if test="t.accessToken != null">
+                        access_token = #{t.accessToken} and
+                    </if>
+                    <if test="t.refreshToken != null">
+                        refresh_token = #{t.refreshToken} and
+                    </if>
+                    <if test="t.userId != null">
+                        user_id = #{t.userId} and
+                    </if>
+                    <if test="t.refreshTokenCreateTime != null">
+                        refresh_token_create_time = #{t.refreshTokenCreateTime} and
+                    </if>
+                    <if test="t.refreshTokenExpireTime != null">
+                        refresh_token_expire_time = #{t.refreshTokenExpireTime} and
+                    </if>
+                    <if test="t.accessTokenCreateTime != null">
+                        access_token_create_time = #{t.accessTokenCreateTime} and
+                    </if>
+                    <if test="t.accessTokenExpireTime != null">
+                        access_token_expire_time = #{t.accessTokenExpireTime} and
+                    </if>
+            </trim>
+        </if>
+    </sql>
+
+    <select id="select" parameterType="com.upedge.common.base.Page" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from alibaba_api
+        <include refid="Query_Condition"/>
+        <if test="orderBy != null">
+            order by ${orderBy}
+        </if>
+        <if test="pageNum != null and pageSize != null">
+            limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+        </if>
+    </select>
+
+    <select id="count" parameterType="com.upedge.common.base.Page" resultType="java.lang.Long">
+        select
+        count(1)
+        from alibaba_api
+        <include refid="Query_Condition"/>
+    </select>
+    <select id="selectUnExpireApi" resultType="com.upedge.pms.modules.alibaba.entity.AlibabaApi">
+        select
+        <include refid="Base_Column_List"/>
+        from alibaba_api
+        where access_token_expire_time > #{timestamp}
+        order by access_token_expire_time desc
+        limit 1
+    </select>
+
+    <select id="selectAlibabaApi" resultType="com.upedge.pms.modules.alibaba.entity.AlibabaApi">
+        select
+        <include refid="Base_Column_List"/>
+        from alibaba_api
+        limit 1
+    </select>
+</mapper>

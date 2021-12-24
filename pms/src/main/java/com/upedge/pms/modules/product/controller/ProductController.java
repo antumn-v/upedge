@@ -5,8 +5,11 @@ import com.upedge.common.base.Page;
 import com.upedge.common.component.annotation.Permission;
 import com.upedge.common.constant.Constant;
 import com.upedge.common.constant.ResultCode;
+import com.upedge.common.constant.key.RedisKey;
+import com.upedge.common.exception.CustomerException;
 import com.upedge.common.feign.OmsFeignClient;
 import com.upedge.common.model.cart.request.CartAddRequest;
+import com.upedge.common.model.product.AlibabaApiVo;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.utils.UploadImgUtil;
 import com.upedge.common.utils.UrlUtils;
@@ -75,7 +78,8 @@ public class ProductController {
         if(p!=null){
             return BaseResponse.failed("产品不可重复导入");
         }
-        AlibabaProductVo AlibabaProductVo= Ali1688Service.getProduct(request.getOriginalProductId());
+        AlibabaApiVo alibabaApiVo = (AlibabaApiVo) redisTemplate.opsForValue().get(RedisKey.STRING_ALI1688_API);
+        AlibabaProductVo AlibabaProductVo= Ali1688Service.getProduct(request.getOriginalProductId(),alibabaApiVo);
         Session session = UserUtil.getSession(redisTemplate);
         if(AlibabaProductVo==null){
             return new BaseResponse(ResultCode.FAIL_CODE,Constant.MESSAGE_FAIL);
@@ -205,7 +209,12 @@ public class ProductController {
     @RequestMapping(value="/putaway/{id}",method = RequestMethod.POST)
     public BaseResponse putawayProduct(@PathVariable Long id){
         Session session = UserUtil.getSession(redisTemplate);
-        return productService.putawayProduct(id,session);
+        try {
+            return productService.putawayProduct(id,session);
+        } catch (CustomerException e) {
+            e.printStackTrace();
+            return BaseResponse.failed(e.getMessage());
+        }
     }
 
     @ApiOperation("修改产品信息")
@@ -263,8 +272,12 @@ public class ProductController {
         if(!SaiheConfig.SAIHE_PRODUCT_SWITCH){
             return new BaseResponse(ResultCode.FAIL_CODE,"未开启");
         }
-        Session session = UserUtil.getSession(redisTemplate);
-        return productService.uploadToSaihe(request);
+        try {
+            return productService.uploadToSaihe(request);
+        } catch (CustomerException e) {
+            e.printStackTrace();
+            return BaseResponse.failed(e.getMessage());
+        }
     }
 
     @ApiOperation("产品导入购物车")

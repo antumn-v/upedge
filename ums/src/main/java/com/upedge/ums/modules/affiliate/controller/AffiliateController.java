@@ -30,7 +30,7 @@ import java.util.List;
  *
  * @author author
  */
-@Api(tags = "佣金")
+@Api(tags = "联盟管理")
 @Slf4j
 @RestController
 @RequestMapping("/affiliate")

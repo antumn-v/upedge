@@ -119,7 +119,7 @@
             payment_id AS `paymentId`,
             pay_time AS `payTime`,
             IFNULL(sum( product_discharge_amount ), 0 )  AS `dischargeAmount`,
-            IFNULL(sum( ship_price ), 0 )  AS `shipPrice`,
+            IFNULL(sum( ship_price + service_fee ), 0 )  AS `shipPrice`,
             IFNULL(sum( product_amount ), 0 )  AS `productAmount`,
             IFNULL(sum( vat_amount ), 0 )  AS vatAmount,
             IFNULL(sum( pay_amount + vat_amount + fix_fee ), 0 )  AS payAmount,
@@ -150,19 +150,17 @@
 
     <select id="selectOrderInvoiceProductByPaymentId" resultType="com.upedge.oms.modules.statistics.vo.InvoiceProductVo"
             parameterType="com.upedge.oms.modules.statistics.request.InvoiceDetailRequest">
-        select oi.store_product_title as `title`,ifnull(oi.store_variant_name,'Default Title') as `variantTitle`,
+        select oi.store_variant_id,oi.store_product_title as `title`,ifnull(oi.store_variant_name,'Default Title') as `variantTitle`,
         sum(oi.quantity) as `quantity`,
         oi.store_variant_sku as `sku`,
-        oi.cny_price as `price`,
-        oi.admin_variant_image as `image`,
-        sum(oi.quantity * oi.cny_price) as `total`
+        oi.usd_price as `price`,
+        sum(oi.quantity * oi.usd_price) as `total`
         from `order` o
         inner join order_item oi
         on o.id = oi.order_id
         where o.payment_id = #{paymentId}
         and o.pay_state > '0'
-        and o.order_type != '1'
-        group by oi.store_variant_sku,oi.cny_price,oi.store_product_title,oi.store_variant_name,oi.admin_variant_image
+        group by oi.store_variant_id,oi.store_variant_sku,oi.usd_price,oi.store_product_title,oi.store_variant_name
     </select>
 
     <select id="selectOrderInvoiceProductByTime" resultType="com.upedge.oms.modules.statistics.vo.InvoiceProductVo"

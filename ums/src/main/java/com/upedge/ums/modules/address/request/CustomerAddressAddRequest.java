@@ -1,19 +1,17 @@
 package com.upedge.ums.modules.address.request;
 
-import com.upedge.common.base.Page;
 import com.upedge.ums.modules.address.entity.CustomerAddress;
-import java.util.Date;
 import lombok.Data;
+
+import java.util.Date;
+
 /**
  * @author gx
  */
 @Data
 public class CustomerAddressAddRequest{
 
-    /**
-    * 
-    */
-    private Long customerId;
+
     /**
     * 
     */
@@ -55,31 +53,12 @@ public class CustomerAddressAddRequest{
     */
     private String zip;
     /**
-    * 
-    */
-    private String countryCode;
-    /**
-    * 
-    */
-    private String provinceCode;
-    /**
     * 0 默认  1 非默认
     */
     private Boolean isDefault;
-    /**
-    * 0=普通地址，1=账单地址
-    */
-    private Integer addressType;
-    /**
-    * 
-    */
-    private Date createTime;
-    /**
-    * 
-    */
-    private Date updateTime;
 
-    public CustomerAddress toCustomerAddress(){
+
+    public CustomerAddress toCustomerAddress(Integer addressType,Long customerId){
         CustomerAddress customerAddress=new CustomerAddress();
         customerAddress.setCustomerId(customerId);
         customerAddress.setFirstName(firstName);
@@ -92,12 +71,10 @@ public class CustomerAddressAddRequest{
         customerAddress.setAddress1(address1);
         customerAddress.setAddress2(address2);
         customerAddress.setZip(zip);
-        customerAddress.setCountryCode(countryCode);
-        customerAddress.setProvinceCode(provinceCode);
         customerAddress.setIsDefault(isDefault);
         customerAddress.setAddressType(addressType);
-        customerAddress.setCreateTime(createTime);
-        customerAddress.setUpdateTime(updateTime);
+        customerAddress.setCreateTime(new Date());
+        customerAddress.setUpdateTime(new Date());
         return customerAddress;
     }
 

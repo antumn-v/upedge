@@ -6,6 +6,8 @@ public class RedisKey {
 
     public static final String STRING_CUSTOMER_IOSS = "customer:ioss:";
 
+    public static final String STRING_ALI1688_API = "1688_api_token";
+
     //待处理的woocommerce订单
     public static final String LIST_WOOCOMMERCE_ORDER_WEBHOOK = "webhook:woocommerce:order";
 

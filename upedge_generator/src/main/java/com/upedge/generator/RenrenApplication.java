@@ -11,6 +11,7 @@ import org.springframework.boot.autoconfigure.mongo.MongoAutoConfiguration;
 public class RenrenApplication {
 
 	public static void main(String[] args) {
+
 		SpringApplication.run(RenrenApplication.class, args);
 	}
 }
