@@ -6,6 +6,7 @@ import com.upedge.common.constant.ResultCode;
 import com.upedge.common.exception.CustomerException;
 import com.upedge.common.model.account.AccountOrderRefundedRequest;
 import com.upedge.common.model.account.AccountPaymentRequest;
+import com.upedge.common.model.account.request.ReturnOrderPayAmountToAccountRequest;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.web.util.UserUtil;
 import com.upedge.ums.modules.account.entity.Account;
@@ -184,6 +185,13 @@ public class AccountController {
             return BaseResponse.success();
         }
         return BaseResponse.failed();
+    }
+
+
+    @ApiOperation("支付金额返还")
+    @PostMapping("/returnOrderPayAmount")
+    public BaseResponse returnOrderPayAmount(@RequestBody ReturnOrderPayAmountToAccountRequest request){
+        return accountService.returnOrderPayAmountToAccount(request);
     }
 
     /**

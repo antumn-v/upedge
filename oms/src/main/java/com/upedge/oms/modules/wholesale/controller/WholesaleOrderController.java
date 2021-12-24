@@ -94,16 +94,16 @@ public class WholesaleOrderController {
         return new BaseResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS, itemVos);
     }
 
-    @ApiOperation("订单运输方式")
-    @GetMapping("/{id}/ship/list")
+//    @ApiOperation("订单运输方式")
+//    @GetMapping("/{id}/ship/list")
     public BaseResponse orderShipList(@PathVariable Long id) {
         WholesaleOrder wholesaleOrder = wholesaleOrderService.selectByPrimaryKey(id);
         List<ShipDetail> shipDetails = wholesaleOrderService.orderShipMethods(wholesaleOrder.getId(),wholesaleOrder.getToAreaId());
         return new BaseResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS, shipDetails);
     }
 
-    @ApiOperation("订单修改运输方式")
-    @PostMapping("/{id}/ship/update")
+//    @ApiOperation("订单修改运输方式")
+//    @PostMapping("/{id}/ship/update")
     public BaseResponse orderUpdateShipMethod(@PathVariable Long id, @RequestBody ShipDetail shipDetail) {
         return wholesaleOrderService.orderUpdateShipMethod(id, shipDetail);
     }
@@ -140,8 +140,9 @@ public class WholesaleOrderController {
         return BaseResponse.failed();
     }
 
-    @ApiOperation("订单产品修改数量")
-    @PostMapping("/item/{itemId}/update/quantity")
+
+//    @ApiOperation("订单产品修改数量")
+//    @PostMapping("/item/{itemId}/update/quantity")
     public BaseResponse orderItemUpdateQuantity(@PathVariable Long itemId, @Validated @RequestBody QuantityVo quantity) {
         boolean b = wholesaleOrderItemService.orderItemUpdateQuantity(itemId, quantity.getQuantity());
         if (b) {

@@ -16,6 +16,7 @@ import com.upedge.oms.modules.wholesale.entity.WholesaleOrderItem;
 import com.upedge.oms.modules.wholesale.request.ExcelCreateWholesaleRequest;
 import com.upedge.oms.modules.wholesale.request.ExcelCreateWholesaleRequest.WholesaleExcelData;
 import com.upedge.oms.modules.wholesale.request.WholesaleOrderListRequest;
+import com.upedge.oms.modules.wholesale.request.WholesaleOrderShipUpdateRequest;
 import com.upedge.oms.modules.wholesale.response.WholesaleOrderListResponse;
 import com.upedge.oms.modules.wholesale.response.WholesaleOrderUpdateResponse;
 import com.upedge.oms.modules.wholesale.vo.WholesaleOrderAppVo;
@@ -30,6 +31,8 @@ import java.util.Map;
  * @author author
  */
 public interface WholesaleOrderService{
+
+    BaseResponse updateShip(WholesaleOrderShipUpdateRequest request,Session session);
 
     Long orderInitToAreaId(WholesaleOrder order);
 

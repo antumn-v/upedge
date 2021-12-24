@@ -135,21 +135,11 @@ public class WholesaleOrderPayServiceImpl implements WholesaleOrderPayService {
 
         List<WholesaleOrderAppVo> orders = wholesaleOrderDao.selectPayListByPaymentId(paymentId);
 
-        // 检查ship unit
-//        a = checkOrderShipUnit(orders);
-//        if (!a) {
-//            return creatOrderPayCheckResultVo(new ArrayList<>(), paymentId, "ship error");
-//        }
-
-//        a = orderShipPriceCheck(orders);
-//        if (!a) {
-//            return "ship error";
-//        }
-        List<Long> orderShipUnitIds = orderShippingUnitService.selectOrderIdByOrderPaymentId(paymentId, OrderType.WHOLESALE);
         for (WholesaleOrderAppVo order : orders) {
-            if (!orderShipUnitIds.contains(order.getId())) {
-                return creatOrderPayCheckResultVo(new ArrayList<>(), paymentId, "ship error");
+            if (order.getFreightReview() == null){
+                return creatOrderPayCheckResultVo(new ArrayList<>(),paymentId,"Order ship error");
             }
+
             OrderProductAmountVo orderProductAmountVo = orderProductAmountVoMap.get(order.getId());
             if (null == orderProductAmountVo){
                 return creatOrderPayCheckResultVo(new ArrayList<>(), paymentId, "product error");

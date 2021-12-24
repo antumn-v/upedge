@@ -6,6 +6,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.upedge.common.base.BaseResponse;
 import com.upedge.common.base.Page;
 import com.upedge.common.constant.Constant;
+import com.upedge.common.constant.OrderConstant;
 import com.upedge.common.constant.OrderType;
 import com.upedge.common.constant.ResultCode;
 import com.upedge.common.constant.key.RedisKey;
@@ -27,6 +28,7 @@ import com.upedge.common.model.ship.request.ShippingMethodsRequest;
 import com.upedge.common.model.ship.response.ShipMethodSearchResponse;
 import com.upedge.common.model.ship.vo.AreaVo;
 import com.upedge.common.model.ship.vo.ShipDetail;
+import com.upedge.common.model.ship.vo.ShippingMethodRedis;
 import com.upedge.common.model.ship.vo.ShippingMethodVo;
 import com.upedge.common.model.user.vo.AddressVo;
 import com.upedge.common.model.user.vo.CustomerVo;
@@ -52,6 +54,7 @@ import com.upedge.oms.modules.wholesale.entity.*;
 import com.upedge.oms.modules.wholesale.request.ExcelCreateWholesaleRequest;
 import com.upedge.oms.modules.wholesale.request.ExcelCreateWholesaleRequest.WholesaleExcelData;
 import com.upedge.oms.modules.wholesale.request.WholesaleOrderListRequest;
+import com.upedge.oms.modules.wholesale.request.WholesaleOrderShipUpdateRequest;
 import com.upedge.oms.modules.wholesale.response.WholesaleOrderListResponse;
 import com.upedge.oms.modules.wholesale.response.WholesaleOrderUpdateResponse;
 import com.upedge.oms.modules.wholesale.service.WholesaleOrderService;
@@ -145,6 +148,32 @@ public class WholesaleOrderServiceImpl implements WholesaleOrderService {
     @Transactional
     public int insertSelective(WholesaleOrder record) {
         return wholesaleOrderDao.insert(record);
+    }
+
+    @Override
+    public BaseResponse updateShip(WholesaleOrderShipUpdateRequest request, Session session) {
+        Long id = request.getId();
+        WholesaleOrder wholesaleOrder = wholesaleOrderDao.selectByPrimaryKey(id);
+        if (wholesaleOrder == null){
+            return BaseResponse.failed("订单不存在");
+        }
+        if (wholesaleOrder.getPayState() != OrderConstant.PAY_STATE_UNPAID){
+            return BaseResponse.failed("不是待支付订单");
+        }
+        ShippingMethodRedis shippingMethodRedis = (ShippingMethodRedis) redisTemplate.opsForHash().get(RedisKey.SHIPPING_METHOD,String.valueOf(request.getShipMethodId()));
+        if (null== shippingMethodRedis
+        || null == request.getShipPrice()
+        || BigDecimal.ZERO.compareTo(request.getShipPrice()) == 0){
+            return BaseResponse.failed("运输方式不存在或运费不大于0");
+        }
+        wholesaleOrder = new WholesaleOrder();
+        wholesaleOrder.setId(id);
+        wholesaleOrder.setFreightReview(1);
+        wholesaleOrder.setShipPrice(request.getShipPrice());
+        wholesaleOrder.setShipMethodId(request.getShipMethodId());
+        wholesaleOrder.setUpdateTime(new Date());
+        updateByPrimaryKeySelective(wholesaleOrder);
+        return BaseResponse.success();
     }
 
     @Override

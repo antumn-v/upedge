@@ -4,6 +4,7 @@ import com.upedge.common.base.BaseResponse;
 import com.upedge.common.exception.CustomerException;
 import com.upedge.common.model.account.AccountOrderRefundedRequest;
 import com.upedge.common.model.account.AccountPaymentRequest;
+import com.upedge.common.model.account.request.ReturnOrderPayAmountToAccountRequest;
 import com.upedge.common.model.order.PaymentDetail;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.ums.modules.account.entity.Account;
@@ -31,17 +32,14 @@ public interface AccountService {
 
     Account selectById(Long id);
 
-
     AccountPayMethod selectByAccountBankNum(Long accountId, String bankNum);
 
-
+    BaseResponse returnOrderPayAmountToAccount(ReturnOrderPayAmountToAccountRequest request);
     /**分页查询账户
      * @param request
      * @return
      */
     AccountListResponse pageAccount(AccountListRequest request);
-
-
     /**
      * 增加账户
      * @param request

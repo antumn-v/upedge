@@ -25,7 +25,9 @@ public class WholesaleOrderAppVo {
     /**
      *
      */
-    private BigDecimal shipPrice = BigDecimal.ZERO;
+    private BigDecimal shipPrice;
+
+    private Integer freightReview;
 
     private String shipName;
     /**

@@ -54,8 +54,8 @@ public class WholesaleOrderPayController {
     @Autowired
     UmsFeignClient umsFeignClient;
 
-    @ApiOperation("支付列表")
-    @PostMapping("/list")
+//    @ApiOperation("支付列表")
+//    @PostMapping("/list")
     public BaseResponse wholesaleOrderPayList(@RequestBody List<Long> ids) {
         Session session = UserUtil.getSession(redisTemplate);
 
@@ -85,7 +85,7 @@ public class WholesaleOrderPayController {
                 Date payTime = new Date();
                 String result = wholesaleOrderPayService.payOrderByBalance(paymentId, request.getAmount(), session, payTime);
                 if (result.equals("success")) {
-                    wholesaleOrderPayService.processAfterPaid(paymentId,session.getCustomerId(),session.getId(),payTime);
+//                    wholesaleOrderPayService.processAfterPaid(paymentId,session.getCustomerId(),session.getId(),payTime);
                     OrderPayResponse.PayResponse payResponse = new OrderPayResponse.PayResponse(paymentId,request.getAmount(), TransactionConstant.PayMethod.ACCOUNT.getCode(),payTime,orderPayCheckResultVo.getTradingDataVo());
                     return new OrderPayResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS,payResponse);
                 }
@@ -96,8 +96,8 @@ public class WholesaleOrderPayController {
         return new OrderPayResponse(ResultCode.FAIL_CODE,Constant.MESSAGE_FAIL);
     }
 
-    @ApiOperation("paypal支付订单")
-    @PostMapping("/paypal")
+//    @ApiOperation("paypal支付订单")
+//    @PostMapping("/paypal")
     public BaseResponse paypalOrderByPaypal(@RequestBody @Valid OrderPayRequest request) {
         Session session = UserUtil.getSession(redisTemplate);
         List<Long> orderIds = request.getOrderIds();
@@ -131,8 +131,8 @@ public class WholesaleOrderPayController {
         return BaseResponse.failed();
     }
 
-    @ApiOperation("paypal验证")
-    @GetMapping("/paypal/execute")
+//    @ApiOperation("paypal验证")
+//    @GetMapping("/paypal/execute")
     public BaseResponse paypalSuccess(String paymentId, String PayerID, @RequestParam("token") String token) {
         String tokenKey = RedisKey.HASH_PAYPAL_TOKEN + token;
         PaypalOrder order = (PaypalOrder) redisTemplate.opsForHash().get(tokenKey, "order");
@@ -160,7 +160,7 @@ public class WholesaleOrderPayController {
             state = linkedHashMap.get("state");
             if (state.equals("completed")) {
                 wholesaleOrderPayService.payOrderByPaypal(session.getId(), session.getCustomerId(), order.getId());
-                wholesaleOrderPayService.processAfterPaid(session.getId(), session.getCustomerId(), order.getId(),new Date());
+//                wholesaleOrderPayService.processAfterPaid(session.getId(), session.getCustomerId(), order.getId(),new Date());
             }
             redisTemplate.delete(tokenKey);
             RedisUtil.unLock(redisTemplate, key);
@@ -193,7 +193,7 @@ public class WholesaleOrderPayController {
                 break;
             case "completed":
                 wholesaleOrderPayService.payOrderByPaypal(paypalPayment.getUserId(),paypalPayment.getCustomerId(),paypalPayment.getId());
-                wholesaleOrderPayService.processAfterPaid(paypalPayment.getId(),paypalPayment.getCustomerId(),paypalPayment.getUserId(),new Date());
+//                wholesaleOrderPayService.processAfterPaid(paypalPayment.getId(),paypalPayment.getCustomerId(),paypalPayment.getUserId(),new Date());
                 break;
             default:
                 List<ItemDischargeQuantityVo> dischargeQuantityVos = wholesaleOrderItemService.selectDischargeQuantityByPaymentId(paypalPayment.getId());

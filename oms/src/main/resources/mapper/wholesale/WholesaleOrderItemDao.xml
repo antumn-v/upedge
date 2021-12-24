@@ -39,7 +39,6 @@
         where o.payment_id = #{paymentId}
         and o.pay_state = '0'
         and o.order_status = '0'
-        and o.order_type != '1'
         group by oi.order_id
     </select>
 

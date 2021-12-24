@@ -9,6 +9,7 @@ import com.upedge.common.enums.TransactionType;
 import com.upedge.common.exception.CustomerException;
 import com.upedge.common.model.account.AccountOrderRefundedRequest;
 import com.upedge.common.model.account.AccountPaymentRequest;
+import com.upedge.common.model.account.request.ReturnOrderPayAmountToAccountRequest;
 import com.upedge.common.model.order.PaymentDetail;
 import com.upedge.common.model.order.TransactionDetail;
 import com.upedge.common.model.user.vo.Session;
@@ -119,6 +120,30 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public AccountPayMethod selectByAccountBankNum(Long accountId, String bankNum) {
         return accountPayMethodMapper.selectByAccountIdAndBankNum(accountId, bankNum);
+    }
+
+    @GlobalTransactional
+    @Override
+    public BaseResponse returnOrderPayAmountToAccount(ReturnOrderPayAmountToAccountRequest request) {
+        PaymentLog paymentLog = paymentLogDao.selectByPrimaryKey(request.getPaymentId());
+        if (paymentLog == null){
+            return BaseResponse.failed();
+        }
+        Long accountId = paymentLog.getAccountId();
+        RechargeLog rechargeLog=new RechargeLog();
+        rechargeLog.setAccountId(accountId);
+        rechargeLog.setRelateId(request.getOrderId());
+        rechargeLog.setAmount(request.getPayAmount());
+        rechargeLog.setRebate(BigDecimal.ZERO);
+        rechargeLog.setPayed(BigDecimal.ZERO);
+        rechargeLog.setRechargeStatus(0);
+        //0:电汇 1:paypal充值 2:payoneer充值，3=订单支付充值 4.退款充值
+        rechargeLog.setRechargeType(4);
+        rechargeLog.setCreateTime(new Date());
+        rechargeLog.setUpdateTime(new Date());
+        rechargeLogMapper.insert(rechargeLog);
+        accountMapper.accountIncreaseBalance(accountId,request.getPayAmount(),BigDecimal.ZERO,BigDecimal.ZERO);
+        return BaseResponse.success();
     }
 
     @Override

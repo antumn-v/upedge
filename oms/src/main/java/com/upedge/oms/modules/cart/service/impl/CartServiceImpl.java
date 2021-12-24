@@ -200,7 +200,7 @@ public class CartServiceImpl implements CartService {
         if (ListUtils.isNotEmpty(cartIds)) {
             cartDao.updateStateByIds(cartIds, 1);
         }
-        wholesaleOrderService.orderInitShipDetail(orderId);
+//        wholesaleOrderService.orderInitShipDetail(orderId);
         return true;
     }
 

@@ -25,10 +25,10 @@ import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.List;
-import org.springframework.web.bind.annotation.*;
 /**
  * 
  *
@@ -105,7 +105,7 @@ public class WholesaleRefundController {
     /**
      * 批发订单申请退款
      */
-    @RequestMapping(value = "/admin/applyRefund", method=RequestMethod.POST)
+    @RequestMapping(value = "/applyRefund", method=RequestMethod.POST)
     @ResponseBody
     public BaseResponse applyWholesaleOrder(@RequestBody @Valid ApplyWholesaleOrderRefundRequest request) {
         String key= RedisUtil.KEY_WHOLESALE_APPLY_REFUND+request.getOrderId();
@@ -129,7 +129,7 @@ public class WholesaleRefundController {
      * @param request
      * @return
      */
-    @RequestMapping(value="/admin/refundOrderList", method=RequestMethod.POST)
+    @RequestMapping(value="/refundOrderList", method=RequestMethod.POST)
     public WholesaleRefundListResponse refundOrderList(@RequestBody @Valid WholesaleRefundListRequest request) {
         return wholesaleRefundService.refundOrderList(request);
     }
@@ -137,7 +137,7 @@ public class WholesaleRefundController {
     /**
      *驳回退款  填写驳回理由
      */
-    @RequestMapping(value = "/admin/rejectRefund",method = RequestMethod.POST)
+    @RequestMapping(value = "/rejectRefund",method = RequestMethod.POST)
     @ResponseBody
     public BaseResponse rejectRefund(@RequestBody @Valid OrderRefundRejectRefundRequest request){
         String key= RedisUtil.KEY_WHOLESALE_PROCESS_REFUND+request.getId();
@@ -162,7 +162,7 @@ public class WholesaleRefundController {
      * @param request
      * @return
      */
-    @RequestMapping(value="/admin/refundOrderHistory", method=RequestMethod.POST)
+    @RequestMapping(value="/refundOrderHistory", method=RequestMethod.POST)
     public WholesaleRefundListResponse refundOrderHistory(@RequestBody @Valid WholesaleRefundListRequest request) {
         return wholesaleRefundService.refundOrderHistory(request);
     }
@@ -172,7 +172,7 @@ public class WholesaleRefundController {
      * @param request
      * @return
      */
-    @RequestMapping(value = "/admin/updateRemark",method = RequestMethod.POST)
+    @RequestMapping(value = "/updateRemark",method = RequestMethod.POST)
     @ResponseBody
     public BaseResponse updateRemark(@RequestBody @Valid OrderRefundUpdateRemarkRequest request) {
         return wholesaleRefundService.updateRemark(request);
@@ -181,7 +181,7 @@ public class WholesaleRefundController {
     /**
      * 批发订单确认退款
      */
-    @RequestMapping(value = "/admin/confirmRefund",method = RequestMethod.POST)
+    @RequestMapping(value = "/confirmRefund",method = RequestMethod.POST)
     public BaseResponse confirmRefund(@RequestBody @Valid ConfirmRefundRequest request){
         String key= RedisUtil.KEY_WHOLESALE_PROCESS_REFUND+request.getId();
         boolean flag= RedisUtil.lock(redisTemplate,key,2L,1000L*5*60);
