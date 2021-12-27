@@ -244,7 +244,7 @@ public class WholesaleOrderController {
      * @param request
      * @return
      */
-    @RequestMapping(value = "/admin/orderList", method = RequestMethod.POST)
+    @RequestMapping(value = "/orderList", method = RequestMethod.POST)
     public WholesaleOrderListResponse adminList(@RequestBody @Valid WholesaleOrderListRequest request) {
         Session session = UserUtil.getSession(redisTemplate);
         return wholesaleOrderService.adminList(request, session);
@@ -256,7 +256,7 @@ public class WholesaleOrderController {
      * @param request
      * @return
      */
-    @RequestMapping(value = "/admin/historyList", method = RequestMethod.POST)
+    @RequestMapping(value = "/historyList", method = RequestMethod.POST)
     public WholesaleOrderListResponse historyList(@RequestBody @Valid WholesaleOrderListRequest request) {
         Session session = UserUtil.getSession(redisTemplate);
         return wholesaleOrderService.historyList(request, session);
@@ -265,7 +265,7 @@ public class WholesaleOrderController {
     /**
      * 批发订单详情页
      */
-    @RequestMapping(value = "/admin/orderDetails/{id}", method = RequestMethod.POST)
+    @RequestMapping(value = "/orderDetails/{id}", method = RequestMethod.POST)
     public BaseResponse orderDetails(@PathVariable Long id) {
         Session session = UserUtil.getSession(redisTemplate);
         return wholesaleOrderService.orderDetails(id);
@@ -277,7 +277,7 @@ public class WholesaleOrderController {
      * @param request
      * @return
      */
-    @RequestMapping(value = "/admin/applyReshipOrder", method = RequestMethod.POST)
+    @RequestMapping(value = "/applyReshipOrder", method = RequestMethod.POST)
     public BaseResponse applyReshipOrder(@RequestBody @Valid ApplyReshipOrderRequest request) {
         String key = RedisUtil.KEY_WHOLESALE_APPLY_RESHIP + request.getOriginalOrderId();
         boolean flag = RedisUtil.lock(redisTemplate, key, 2L, 1000L * 2 * 60);
@@ -302,7 +302,7 @@ public class WholesaleOrderController {
      * @param request
      * @return
      */
-    @RequestMapping(value = "/admin/pendingList", method = RequestMethod.POST)
+    @RequestMapping(value = "/pendingList", method = RequestMethod.POST)
     public WholesaleOrderListResponse pendingList(@RequestBody @Valid WholesaleOrderListRequest request) {
         Session session = UserUtil.getSession(redisTemplate);
         return wholesaleOrderService.pendingList(request, session);
@@ -314,7 +314,7 @@ public class WholesaleOrderController {
      * @param request
      * @return
      */
-    @RequestMapping(value = "/admin/confirmPendingOrder", method = RequestMethod.POST)
+    @RequestMapping(value = "/confirmPendingOrder", method = RequestMethod.POST)
     public WholesaleOrderUpdateResponse confirmPendingOrder(@RequestBody @Valid UpdatePendingOrderRequest request) {
         Session session = UserUtil.getSession(redisTemplate);
         return wholesaleOrderService.confirmPendingOrder(request, session);
@@ -326,7 +326,7 @@ public class WholesaleOrderController {
      * @param request
      * @return
      */
-    @RequestMapping(value = "/admin/cancelPendingOrder", method = RequestMethod.POST)
+    @RequestMapping(value = "/cancelPendingOrder", method = RequestMethod.POST)
     public WholesaleOrderUpdateResponse cancelPendingOrder(@RequestBody @Valid UpdatePendingOrderRequest request) {
         Session session = UserUtil.getSession(redisTemplate);
         return wholesaleOrderService.cancelPendingOrder(request, session);
@@ -336,7 +336,7 @@ public class WholesaleOrderController {
      * 导入赛盒  订单已经关联了赛盒运输方式 并且没有saiheOrderCode
      * @return
      */
-    @RequestMapping(value = "/admin/importOrderToSaihe", method= RequestMethod.POST)
+    @RequestMapping(value = "/importOrderToSaihe", method= RequestMethod.POST)
     public BaseResponse importOrderToSaihe(@RequestBody OrderImportSaiheRequest request) {
         if(!SaiheConfig.SAIHE_ORDER_SWITCH){
             return new BaseResponse(ResultCode.FAIL_CODE,"未开启");
@@ -366,7 +366,7 @@ public class WholesaleOrderController {
      * @param request
      * @return
      */
-    @RequestMapping(value = "/admin/fromSaiheTracking", method= RequestMethod.POST)
+    @RequestMapping(value = "/fromSaiheTracking", method= RequestMethod.POST)
     public BaseResponse fromSaiheTracking(@RequestBody OrderSaiheTrackingRequest request) {
 //        if(!SaiheConfig.SAIHE_ORDER_SWITCH){
 //            return new BaseResponse(ResultCode.FAIL_CODE,"未开启");

@@ -2,6 +2,8 @@ package com.upedge.oms.enums;
 
 public enum WholesaleOrderTagEnum {
 
+    ALL(null,null,null),
+
     TO_ORDER(0,0,0),
 
     PAID(1,0,0),

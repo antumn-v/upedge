@@ -27,6 +27,8 @@ public class WholesaleOrderAppVo {
      */
     private BigDecimal shipPrice;
 
+    private BigDecimal serviceFee;
+
     private Integer freightReview;
 
     private String shipName;

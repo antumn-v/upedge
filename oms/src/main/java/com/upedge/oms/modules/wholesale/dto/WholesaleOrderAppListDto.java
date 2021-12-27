@@ -18,13 +18,15 @@ public class WholesaleOrderAppListDto {
 
     Long id;
 
-    String tags = "TO_ORDER";
+    String tags;
 
     Integer payState;
 
     Integer shipState;
 
     Integer refundState;
+
+    Integer freightReview;
 
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     @JSONField(format = "yyyy-MM-dd")

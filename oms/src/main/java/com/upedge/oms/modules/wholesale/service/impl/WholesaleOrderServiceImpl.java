@@ -201,10 +201,9 @@ public class WholesaleOrderServiceImpl implements WholesaleOrderService {
         WholesaleOrderAppListDto appListDto = request.getT();
         if (null == appListDto) {
             appListDto = new WholesaleOrderAppListDto();
-        } else {
-            appListDto.initDateRange();
-            appListDto.initOrderState();
         }
+        appListDto.initDateRange();
+        appListDto.initOrderState();
 
         if (appListDto.getTags().equals("PAID")) {
             appListDto.setPayState(null);
@@ -237,7 +236,6 @@ public class WholesaleOrderServiceImpl implements WholesaleOrderService {
                     shipMethodName = shipDetai.getMethodName();
                 }
             }
-            appVo.setItemVos(wholesaleOrderItemDao.listWholesaleOrderItem(appVo.getId()));
         }
 
         return orderAppVos;

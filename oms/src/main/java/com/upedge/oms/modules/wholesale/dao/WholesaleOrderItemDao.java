@@ -18,6 +18,8 @@ import java.util.Map;
  */
 public interface WholesaleOrderItemDao{
 
+    List<ItemDischargeQuantityVo> selectDischargeQuantityByOrderId(Long orderId);
+
     List<OrderProductAmountVo> selectOrderItemAmountByPaymentId(Long paymentId);
 
     void updateAdminVariantDetailByVariantId(@Param("name") String name,

@@ -10,6 +10,7 @@ import com.upedge.common.model.account.AccountOrderRefundedRequest;
 import com.upedge.common.model.account.AccountPaymentRequest;
 import com.upedge.common.model.account.PaypalOrder;
 import com.upedge.common.model.account.request.PaypalExecuteRequest;
+import com.upedge.common.model.account.request.ReturnOrderPayAmountToAccountRequest;
 import com.upedge.common.model.log.MqMessageLog;
 import com.upedge.common.model.order.TransactionDetail;
 import com.upedge.common.model.store.request.StoreSearchRequest;
@@ -30,6 +31,11 @@ public class UmsFeignClientFallbackFactory implements FallbackFactory<UmsFeignCl
     @Override
     public UmsFeignClient create(Throwable cause) {
         return new UmsFeignClient() {
+
+            @Override
+            public BaseResponse returnOrderPayAmount(ReturnOrderPayAmountToAccountRequest request) {
+                return BaseResponse.failed();
+            }
 
             @Override
             public BaseResponse getCustomerManager(Long customerId) {

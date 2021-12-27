@@ -37,6 +37,7 @@
         <result property="payAmount" column="pay_amount"/>
         <result property="shipMethodId" column="ship_method_id"/>
         <result property="freightReview" column="freight_review"/>
+        <result property="serviceFee" column="service_fee"/>
         <result property="shipPrice" column="ship_price"/>
         <result property="totalWeight" column="total_weight"/>
         <result property="productAmount" column="product_amount"/>
@@ -106,16 +107,22 @@
         select distinctrow wo.`id`,wo.`customer_id`,wo.`pay_amount`,wo.`ship_method_id`,wo.`total_weight`,
         wo.`product_amount`,wo.`vat_amount`,wo.`product_discharge_amount`,wo.`fix_fee`,
         wo.`pay_method`,wo.`pay_time`,wo.`payment_id`,wo.`pay_state`,(wo.`ship_price` + wo.`service_fee`) as
-        `ship_price`,
+        `ship_price`,wo.service_fee,wo.freight_review,
         wo.`refund_state`,wo.`ship_state`,wo.`create_time`,wo.`order_type`,
-        wer.customer_order_number,wer.store_name
+        woi.`id` as id,
+        woi.`order_id` as orderId,
+        woi.`admin_variant_id` as adminVariantId,
+        woi.`admin_product_id` as adminProductId,
+        woi.`admin_variant_image` as adminVariantImg,
+        woi.`usd_price` as usdPrice,
+        woi.`admin_product_title` as adminProductTitle,
+        woi.`admin_variant_sku` as adminVariantSku,
+        woi.`admin_variant_name` as adminVariantName,
+        woi.`quantity` as quantity,
+        woi.`discharge_quantity` as dischargeQuantity
         from wholesale_order wo
-        left join wholesale_excel_record wer
-        on wo.id = wer.wholesale_order_id
-        <if test="t.productTitle != null">
-            left join wholesale_order_item woi
-            on wo.id = woi.order_id
-        </if>
+        left join wholesale_order_item woi
+        on wo.id = woi.order_id
         <include refid="App_List_Condition"/>
         order by wo.create_time desc
         <if test="fromNum != null and pageSize != null">
@@ -197,6 +204,9 @@
                 </if>
                 <if test="t.shipState != null">
                     wo.ship_state = #{t.shipState} and
+                </if>
+                <if test="t.freightReview != null">
+                    wo.freight_review = #{freightReview} and
                 </if>
                 <if test="t.productTitle">
                     woi.admin_product_title like "%"#{t.productTitle}"%" and
@@ -358,6 +368,12 @@
             <if test="shipPrice != null">
                 ship_price = #{shipPrice},
             </if>
+            <if test="freightReview != null">
+                freight_review = #{freightReview},
+            </if>
+            <if test="serviceFee != null">
+                service_fee = #{serviceFee},
+            </if>
             <if test="totalWeight != null">
                 total_weight = #{totalWeight},
             </if>
@@ -414,7 +430,8 @@
             </if>
         </set>
         where id = #{id}
-        and pay_state = '0'
+        and freight_review != '3'
+        and pay_state %lt; 1
     </update>
 
     <update id="updateByPrimaryKey" parameterType="com.upedge.oms.modules.wholesale.entity.WholesaleOrder">
@@ -425,6 +442,8 @@
             pay_amount = #{payAmount},
             ship_method_id = #{shipMethodId},
             ship_price = #{shipPrice},
+            freight_review = #{freightReview},
+            service_fee = #{serviceFee},
             total_weight = #{totalWeight},
             product_amount = #{productAmount},
             vat_amount = #{vatAmount},
@@ -456,6 +475,8 @@
             pay_amount,
             ship_method_id,
             ship_price,
+            freight_review,
+            service_fee,
             total_weight,
             product_amount,
             vat_amount,
@@ -478,13 +499,15 @@
         values (
         #{id},
         #{customerId},
-        #{payAmount},
-        #{shipMethodId},
-        #{shipPrice},
+        '0',
+        null,
+        '0',
+        '0',
+        '0',
         #{totalWeight},
         #{productAmount},
         '0',
-        '0',
+        #{productDischargeAmount},
         '0',
         #{payMethod},
         #{payTime},
@@ -520,6 +543,12 @@
             </if>
             <if test="shipPrice != null">
                 ship_price
+            </if>
+            <if test="freightReview != null">
+                freight_review
+            </if>
+            <if test="serviceFee != null">
+                service_fee
             </if>
             <if test="totalWeight != null">
                 total_weight
@@ -592,6 +621,12 @@
             <if test="shipPrice != null">
                 #{shipPrice}
             </if>
+            <if test="freightReview != null">
+                #{freightReview}
+            </if>
+            <if test="serviceFee != null">
+                #{serviceFee}
+            </if>
             <if test="totalWeight != null">
                 #{totalWeight}
             </if>
@@ -657,6 +692,8 @@
             pay_amount,
             ship_method_id,
             ship_price,
+            freight_review,
+            service_fee,
             total_weight,
             product_amount,
             vat_amount,
@@ -684,6 +721,8 @@
                 #{item.payAmount},
                 #{item.shipMethodId},
                 #{item.shipPrice},
+                #{item.freightReview},
+                #{item.serviceFee},
                 #{item.totalWeight},
                 #{item.productAmount},
                 #{item.vatAmount},
@@ -725,6 +764,12 @@
                 </if>
                 <if test="t.shipPrice != null">
                     ship_price = #{t.shipPrice} and
+                </if>
+                <if test="t.freightReview != null">
+                    freight_review = #{t.freightReview} and
+                </if>
+                <if test="t.serviceFee != null">
+                    service_fee = #{t.serviceFee} and
                 </if>
                 <if test="t.totalWeight != null">
                     total_weight = #{t.totalWeight} and
@@ -780,15 +825,11 @@
                 <if test="t.managerCode != null">
                     manager_code = #{t.managerCode} and
                 </if>
-                <if test="bagFlag != null and bagFlag == 0">
-                    saihe_order_code is null and
-                </if>
-                <if test="bagFlag != null and bagFlag == 1">
-                    saihe_order_code is not null and
-                </if>
             </trim>
         </if>
     </sql>
+
+
     <sql id="Query_Condition_page">
         <if test="t != null">
             where

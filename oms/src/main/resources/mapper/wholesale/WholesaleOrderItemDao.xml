@@ -69,6 +69,14 @@
         group by oi.admin_variant_id
     </select>
 
+    <select id="selectDischargeQuantityByOrderId" resultType="com.upedge.oms.modules.order.vo.ItemDischargeQuantityVo">
+        select oi.admin_variant_id as `variantId`,sum(oi.discharge_quantity) as `dischargeQuantity`
+        from wholesale_order_item oi
+        where oi.order_id = #{orderId}
+        and oi.discharge_quantity > '0'
+        group by oi.admin_variant_id
+    </select>
+
     <update id="updateAdminVariantDetailByVariantId">
         update wholesale_order_item oi
         inner join `wholesale_order` o
