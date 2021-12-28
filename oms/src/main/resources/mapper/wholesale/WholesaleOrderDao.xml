@@ -7,7 +7,7 @@
         <result property="id" column="id"/>
         <result property="customerId" column="customer_id"/>
         <result property="payAmount" column="pay_amount"/>
-        <result property="shipMethodId" column="ship_method_id"/>
+        <result property="shipMethodName" column="ship_method_name"/>
         <result property="shipPrice" column="ship_price"/>
         <result property="freightReview" column="freight_review"/>
         <result property="serviceFee" column="service_fee"/>
@@ -35,11 +35,12 @@
         <result property="id" column="id"/>
         <result property="customerId" column="customer_id"/>
         <result property="payAmount" column="pay_amount"/>
-        <result property="shipMethodId" column="ship_method_id"/>
+        <result property="shipMethodName" column="ship_method_name"/>
         <result property="freightReview" column="freight_review"/>
         <result property="serviceFee" column="service_fee"/>
         <result property="shipPrice" column="ship_price"/>
         <result property="totalWeight" column="total_weight"/>
+        <result property="volumeWeight" column="volume_weight"/>
         <result property="productAmount" column="product_amount"/>
         <result property="vatAmount" column="vat_amount"/>
         <result property="productDischargeAmount" column="product_discharge_amount"/>
@@ -73,9 +74,8 @@
     </resultMap>
 
     <sql id="Base_Column_List">
-        `id`
-                ,`customer_id`,`pay_amount`,`ship_method_id`,`ship_price`,`total_weight`,`product_amount`,`freight_review`,`service_fee`,
-        `vat_amount`,`product_discharge_amount`,`fix_fee`,`pay_method`,`pay_time`,`payment_id`,`pay_state`,`manager_code`,
+        `id`,`customer_id`,`pay_amount`,`ship_method_name`,`ship_price`,`total_weight`,`product_amount`,`freight_review`,`service_fee`,
+        `vat_amount`,`product_discharge_amount`,`fix_fee`,`pay_method`,`pay_time`,`payment_id`,`pay_state`,`manager_code`,`volume_weight`,
         `refund_state`,`ship_state`,`to_area_id`,`create_time`,`update_time`,`saihe_order_code`,`order_status`,`order_type`
     </sql>
 
@@ -104,7 +104,7 @@
 
     <select id="selectOrderAppList" resultMap="WholesaleOrderAppVo"
             parameterType="com.upedge.oms.modules.order.request.WholesaleOrderAppListRequest">
-        select distinctrow wo.`id`,wo.`customer_id`,wo.`pay_amount`,wo.`ship_method_id`,wo.`total_weight`,
+        select distinctrow wo.`id`,wo.`customer_id`,wo.`pay_amount`,wo.`ship_method_name`,wo.`total_weight`,
         wo.`product_amount`,wo.`vat_amount`,wo.`product_discharge_amount`,wo.`fix_fee`,
         wo.`pay_method`,wo.`pay_time`,wo.`payment_id`,wo.`pay_state`,(wo.`ship_price` + wo.`service_fee`) as
         `ship_price`,wo.service_fee,wo.freight_review,
@@ -134,7 +134,7 @@
         select wo.`id`,
                wo.`customer_id`,
                wo.`pay_amount`,
-               wo.`ship_method_id`,
+               wo.`ship_method_name`,
                (wo.`ship_price` + wo.`service_fee`) as `ship_price`,
                wo.`total_weight`,
                wo.`product_amount`,
@@ -191,7 +191,9 @@
         <if test="t != null">
             where
             <trim prefix=" " suffix=" " suffixOverrides=" and ">
-                wo.customer_id = #{t.customerId} and
+                <if test="t.customerId != null">
+                    wo.customer_id = #{t.customerId} and
+                </if>
                 wo.order_status = '0' and
                 <if test="t.id != null">
                     wo.id = #{t.id} and
@@ -269,7 +271,7 @@
 
     <update id="updateOrderShipDetail">
         update wholesale_order
-        set ship_method_id = #{methodId},
+        set ship_method_name = #{methodId},
             ship_price     = #{price},
             total_weight   = #{weight}
         where id = #{id}
@@ -301,7 +303,7 @@
             update wholesale_order
             set ship_price = #{ship.price},
             total_weight = #{ship.weight},
-            ship_method_id = #{ship.methodId}
+            ship_method_name = #{ship.methodId}
             where id = #{orderId}
             and pay_state = '0'
         </foreach>
@@ -362,8 +364,8 @@
             <if test="payAmount != null">
                 pay_amount = #{payAmount},
             </if>
-            <if test="shipMethodId != null">
-                ship_method_id = #{shipMethodId},
+            <if test="shipMethodName != null">
+                ship_method_name = #{shipMethodName},
             </if>
             <if test="shipPrice != null">
                 ship_price = #{shipPrice},
@@ -428,10 +430,16 @@
             <if test="managerCode != null">
                 manager_code = #{managerCode},
             </if>
+            <if test="trackingCode != null">
+                tracking_code = #{trackingCode},
+            </if>
         </set>
         where id = #{id}
-        and freight_review != '3'
-        and pay_state %lt; 1
+        <if test="trackingCode == null || trackingCode == ''">
+            and freight_review != '3'
+            and pay_state &lt; 1
+        </if>
+
     </update>
 
     <update id="updateByPrimaryKey" parameterType="com.upedge.oms.modules.wholesale.entity.WholesaleOrder">
@@ -440,7 +448,7 @@
             id = #{id},
             customer_id = #{customerId},
             pay_amount = #{payAmount},
-            ship_method_id = #{shipMethodId},
+            ship_method_name = #{shipMethodName},
             ship_price = #{shipPrice},
             freight_review = #{freightReview},
             service_fee = #{serviceFee},
@@ -473,11 +481,12 @@
             id,
             customer_id,
             pay_amount,
-            ship_method_id,
+            ship_method_name,
             ship_price,
             freight_review,
             service_fee,
             total_weight,
+            volume_weight,
             product_amount,
             vat_amount,
             product_discharge_amount,
@@ -505,9 +514,10 @@
         '0',
         '0',
         #{totalWeight},
+        #{volumeWeight},
         #{productAmount},
         '0',
-        #{productDischargeAmount},
+        '0',
         '0',
         #{payMethod},
         #{payTime},
@@ -538,8 +548,8 @@
             <if test="payAmount != null">
                 pay_amount
             </if>
-            <if test="shipMethodId != null">
-                ship_method_id
+            <if test="shipMethodName != null">
+                ship_method_name
             </if>
             <if test="shipPrice != null">
                 ship_price
@@ -615,8 +625,8 @@
             <if test="payAmount != null">
                 #{payAmount}
             </if>
-            <if test="shipMethodId != null">
-                #{shipMethodId}
+            <if test="shipMethodName != null">
+                #{shipMethodName}
             </if>
             <if test="shipPrice != null">
                 #{shipPrice}
@@ -690,7 +700,7 @@
             id,
             customer_id,
             pay_amount,
-            ship_method_id,
+            ship_method_name,
             ship_price,
             freight_review,
             service_fee,
@@ -719,7 +729,7 @@
                 #{item.id},
                 #{item.customerId},
                 #{item.payAmount},
-                #{item.shipMethodId},
+                #{item.shipMethodName},
                 #{item.shipPrice},
                 #{item.freightReview},
                 #{item.serviceFee},
@@ -759,8 +769,8 @@
                 <if test="t.payAmount != null">
                     pay_amount = #{t.payAmount} and
                 </if>
-                <if test="t.shipMethodId != null">
-                    ship_method_id = #{t.shipMethodId} and
+                <if test="t.shipMethodName != null">
+                    ship_method_name = #{t.shipMethodName} and
                 </if>
                 <if test="t.shipPrice != null">
                     ship_price = #{t.shipPrice} and
@@ -844,8 +854,8 @@
                 <if test="t.payAmount != null">
                     pay_amount = #{t.payAmount} and
                 </if>
-                <if test="t.shipMethodId != null">
-                    ship_method_id = #{t.shipMethodId} and
+                <if test="t.shipMethodName != null">
+                    ship_method_name = #{t.shipMethodName} and
                 </if>
                 <if test="t.shipPrice != null">
                     ship_price = #{t.shipPrice} and
@@ -1016,7 +1026,7 @@
                od.province                                                                     as province,
                od.province_code                                                                as provinceCode,
                od.zip                                                                          as postalCode,
-               o.ship_method_id                                                                as shipMethodId
+               o.ship_method_name                                                                as shipMethodName
         from `wholesale_order` o
                      left join wholesale_order_address od on o.id = od.order_id
         where o.pay_state = 1
@@ -1054,7 +1064,7 @@
 
     <update id="delOrderShipInfoByProductId">
         update `wholesale_order`
-        set ship_method_id = null,
+        set ship_method_name = null,
             ship_price     = 0
         where id in
               (select a.order_id
@@ -1062,7 +1072,7 @@
     </update>
     <update id="delOrderShipInfoByVariantId">
         update `wholesale_order`
-        set ship_method_id = null,
+        set ship_method_name = null,
             ship_price     = 0
         where id in
               (select a.order_id
@@ -1078,7 +1088,7 @@
     </update>
     <update id="updateOrderShipMethod">
         update `wholesale_order`
-        set ship_method_id = null,
+        set ship_method_name = null,
             ship_price     = 0
         where id = #{id}
     </update>
@@ -1086,7 +1096,7 @@
         update `wholesale_order`
         set ship_price     = #{ship.price},
             total_weight   = #{ship.weight},
-            ship_method_id = #{ship.methodId}
+            ship_method_name = #{ship.methodId}
         where id = #{id}
           and pay_state = '0'
     </update>

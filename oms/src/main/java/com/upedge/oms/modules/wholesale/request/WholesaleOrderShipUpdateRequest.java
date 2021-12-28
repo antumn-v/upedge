@@ -11,7 +11,7 @@ public class WholesaleOrderShipUpdateRequest {
 
     BigDecimal shipPrice;
 
-    Long shipMethodId;
+    String shipMethodName;
 
     BigDecimal serviceFee;
 

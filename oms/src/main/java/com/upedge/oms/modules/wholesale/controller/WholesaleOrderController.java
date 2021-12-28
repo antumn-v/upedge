@@ -21,6 +21,7 @@ import com.upedge.oms.modules.wholesale.request.ExcelCreateWholesaleRequest;
 import com.upedge.oms.modules.wholesale.request.ExcelCreateWholesaleRequest.WholesaleExcelData;
 import com.upedge.oms.modules.wholesale.request.WholesaleOrderExportShipsRequest;
 import com.upedge.oms.modules.wholesale.request.WholesaleOrderListRequest;
+import com.upedge.oms.modules.wholesale.request.WholesaleUpdateTrackingCodeRequest;
 import com.upedge.oms.modules.wholesale.response.WholesaleOrderListResponse;
 import com.upedge.oms.modules.wholesale.response.WholesaleOrderUpdateResponse;
 import com.upedge.oms.modules.wholesale.service.WholesaleOrderAddressService;
@@ -88,7 +89,7 @@ public class WholesaleOrderController {
     }
 
     @ApiOperation("订单产品")
-    @GetMapping("/{id}/app/items")
+    @GetMapping("/{id}/items")
     public BaseResponse orderItems(@PathVariable Long id) {
         List<WholesaleOrderItemVo> itemVos = wholesaleOrderService.selectOrderItems(id);
         return new BaseResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS, itemVos);
@@ -138,6 +139,12 @@ public class WholesaleOrderController {
             return BaseResponse.success();
         }
         return BaseResponse.failed();
+    }
+
+    @ApiOperation("完善物流单号")
+    @PostMapping("/update/trackingCode")
+    public BaseResponse orderUpdateTrackingCode(@RequestBody@Valid WholesaleUpdateTrackingCodeRequest request){
+        return wholesaleOrderService.updateTrackingCode(request);
     }
 
 

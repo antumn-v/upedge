@@ -105,7 +105,6 @@ public class WholesaleOrderAddRequest{
         WholesaleOrder wholesaleOrder=new WholesaleOrder();
         wholesaleOrder.setCustomerId(customerId);
         wholesaleOrder.setPayAmount(payAmount);
-        wholesaleOrder.setShipMethodId(shipMethodId);
         wholesaleOrder.setShipPrice(shipPrice);
         wholesaleOrder.setTotalWeight(totalWeight);
         wholesaleOrder.setProductAmount(productAmount);

@@ -22,6 +22,7 @@ import com.upedge.oms.modules.stock.service.CustomerProductStockService;
 import com.upedge.oms.modules.wholesale.service.WholesaleOrderItemService;
 import com.upedge.oms.modules.wholesale.service.WholesaleOrderPayService;
 import com.upedge.oms.modules.wholesale.vo.WholesaleOrderAppVo;
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -32,6 +33,8 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+
+@Api(tags = "批发订单支付")
 @RestController
 @RequestMapping("/wholesaleOrder/pay")
 public class WholesaleOrderPayController {

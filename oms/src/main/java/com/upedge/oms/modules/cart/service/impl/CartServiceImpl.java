@@ -141,16 +141,9 @@ public class CartServiceImpl implements CartService {
         });
         ListVariantsRequest listVariantsRequest = new ListVariantsRequest();
         listVariantsRequest.setVariantIds(variantIds);
-//        BaseResponse response = pmsFeignClient.listVariantDetailByIds(listVariantsRequest);
-//        if (ResultCode.FAIL_CODE == response.getCode()
-//                || null == response.getData()) {
-//            return false;
-//        }
+
         Map<Long, Long> variantShipIdMap = new HashMap<>();
-//        List<VariantDetail> variantDetails = JSONArray.parseArray(JSON.toJSONString(response.getData())).toJavaList(VariantDetail.class);
-//        variantDetails.forEach(variantDetail -> {
-//            variantShipIdMap.put(variantDetail.getProductId(), variantDetail.getProductShippingId());
-//        });
+
         Date date = new Date();
         Long orderId = IdGenerate.nextId();
         BigDecimal amount = BigDecimal.ZERO;
@@ -158,7 +151,6 @@ public class CartServiceImpl implements CartService {
         BigDecimal volume = BigDecimal.ZERO;
         List<WholesaleOrderItem> orderItems = new ArrayList<>();
         List<Long> cartIds = new ArrayList<>();
-        Collection<String> strings = new ArrayList<>();
 
         for (Cart cart : carts) {
             WholesaleOrderItem item = new WholesaleOrderItem(cart);
@@ -166,7 +158,6 @@ public class CartServiceImpl implements CartService {
             item.setId(IdGenerate.nextId());
             item.setShippingId(variantShipIdMap.get(cart.getProductId()));
             orderItems.add(item);
-            strings.add(RedisKey.SHIPPING_METHODS + item.getShippingId());
             amount = amount.add(cart.getPrice().multiply(new BigDecimal(cart.getQuantity())));
             weight = weight.add(new BigDecimal(cart.getQuantity()).multiply(cart.getVariantWeight()));
             volume = volume.add(new BigDecimal(cart.getQuantity()).multiply(cart.getVariantVolume()));
@@ -176,6 +167,8 @@ public class CartServiceImpl implements CartService {
         }
         String managerCode = (String) redisTemplate.opsForHash().get(RedisKey.HASH_CUSTOMER_MANAGER_RELATE, String.valueOf(session.getCustomerId()));
         WholesaleOrder order = new WholesaleOrder();
+        order.setTotalWeight(weight);
+        order.setVolumeWeight(volume);
         order.setProductAmount(amount);
         order.setCustomerId(customerId);
         order.setCreateTime(date);
@@ -200,7 +193,6 @@ public class CartServiceImpl implements CartService {
         if (ListUtils.isNotEmpty(cartIds)) {
             cartDao.updateStateByIds(cartIds, 1);
         }
-//        wholesaleOrderService.orderInitShipDetail(orderId);
         return true;
     }
 

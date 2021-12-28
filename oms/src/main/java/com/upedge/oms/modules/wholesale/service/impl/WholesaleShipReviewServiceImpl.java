@@ -3,7 +3,6 @@ package com.upedge.oms.modules.wholesale.service.impl;
 import com.upedge.common.base.BaseResponse;
 import com.upedge.common.constant.OrderConstant;
 import com.upedge.common.constant.ResultCode;
-import com.upedge.common.constant.key.RedisKey;
 import com.upedge.common.feign.UmsFeignClient;
 import com.upedge.common.model.account.request.ReturnOrderPayAmountToAccountRequest;
 import com.upedge.common.utils.ListUtils;
@@ -47,13 +46,6 @@ public class WholesaleShipReviewServiceImpl implements WholesaleShipReviewServic
     public List<WholesaleOrderAppVo> reviewList(WholesaleOrderAppListRequest request) {
 
         List<WholesaleOrderAppVo> wholesaleOrderAppVos = wholesaleOrderDao.selectOrderAppList(request);
-        for (WholesaleOrderAppVo wholesaleOrderAppVo : wholesaleOrderAppVos) {
-            String shipMethodName = null;
-            if (null != wholesaleOrderAppVo.getShipMethodId()) {
-                shipMethodName = (String) redisTemplate.opsForHash().get(RedisKey.HASH_SHIP_METHOD + wholesaleOrderAppVo.getShipMethodId(), "name");
-                wholesaleOrderAppVo.setShipName(shipMethodName);
-            }
-        }
 
         return wholesaleOrderAppVos;
     }
@@ -95,7 +87,7 @@ public class WholesaleShipReviewServiceImpl implements WholesaleShipReviewServic
         wholesaleOrder.setId(id);
         wholesaleOrder.setPayState(0);
         wholesaleOrder.setShipPrice(BigDecimal.ZERO);
-        wholesaleOrder.setShipMethodId(null);
+        wholesaleOrder.setShipMethodName(null);
         wholesaleOrder.setFreightReview(0);
         wholesaleOrder.setUpdateTime(new Date());
         wholesaleOrderDao.updateByPrimaryKeySelective(wholesaleOrder);

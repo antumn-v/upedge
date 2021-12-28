@@ -21,10 +21,6 @@ public class WholesaleOrderAppVo {
     /**
      *
      */
-    private Long shipMethodId;
-    /**
-     *
-     */
     private BigDecimal shipPrice;
 
     private BigDecimal serviceFee;
@@ -32,10 +28,13 @@ public class WholesaleOrderAppVo {
     private Integer freightReview;
 
     private String shipName;
+
+    private String shipMethodName;
     /**
      *
      */
     private BigDecimal totalWeight;
+    private BigDecimal volumeWeight;
     /**
      *
      */
@@ -43,15 +42,15 @@ public class WholesaleOrderAppVo {
     /**
      *
      */
-    private BigDecimal vatAmount = BigDecimal.ZERO;
+    private BigDecimal vatAmount;
     /**
      *
      */
-    private BigDecimal productDischargeAmount = BigDecimal.ZERO;
+    private BigDecimal productDischargeAmount;
     /**
      *
      */
-    private BigDecimal fixFee = BigDecimal.ZERO;
+    private BigDecimal fixFee;
     /**
      * 0=balance,1=paypal
      */
@@ -67,15 +66,15 @@ public class WholesaleOrderAppVo {
     /**
      * -1=已取消。0=未支付。1=已支付。2=退款申请中。3=部分退款。4=全部退款  5=支付中
      */
-    private Integer payState = 0;
+    private Integer payState;
     /**
      *
      */
-    private Integer refundState = 0;
+    private Integer refundState;
     /**
      * 0=未发货。1=已发货。
      */
-    private Integer shipState = 0;
+    private Integer shipState;
     /**
      *
      */
@@ -87,7 +86,7 @@ public class WholesaleOrderAppVo {
     /**
      * 0=普通订单，1=excel导入
      */
-    private Integer orderType = 0;
+    private Integer orderType;
 
     private String customerOrderNumber;
 

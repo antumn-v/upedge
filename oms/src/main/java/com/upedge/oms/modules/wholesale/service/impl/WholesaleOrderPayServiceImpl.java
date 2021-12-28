@@ -16,9 +16,6 @@ import com.upedge.common.model.account.PaypalOrder;
 import com.upedge.common.model.old.tms.ShippingUnit;
 import com.upedge.common.model.order.PaymentDetail;
 import com.upedge.common.model.order.TransactionDetail;
-import com.upedge.common.model.ship.dto.ShipMethodSelectDto;
-import com.upedge.common.model.ship.request.ShipMethodBatchSearchRequest;
-import com.upedge.common.model.ship.response.ShipMethodBatchSearchResponse;
 import com.upedge.common.model.ship.vo.ShipDetail;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.utils.IdGenerate;
@@ -347,7 +344,6 @@ public class WholesaleOrderPayServiceImpl implements WholesaleOrderPayService {
                     continue;
                 }
                 orderVo.setShipName(shipDetail.getMethodName());
-                orderVo.setShipMethodId(shipDetail.getMethodId());
                 orderVo.setShipPrice(shipDetail.getPrice());
                 orderVo.setTotalWeight(shipDetail.getWeight());
             }
@@ -475,12 +471,7 @@ public class WholesaleOrderPayServiceImpl implements WholesaleOrderPayService {
         orderTransactionDto.setPaymentId(paymentId);
         orderTransactionDto.setPayTime(payTime);
         orderTransactionDto.setPayMethod(PayOrderMethod.RECHARGE);
-
-        BigDecimal cnyRate = (BigDecimal) redisTemplate.opsForHash().get("currency:rate:USD", "cnyRate");
-        if (null == cnyRate) {
-            cnyRate = new BigDecimal((Double) umsFeignClient.getCurrencyRate("USD").getData());
-        }
-        orderTransactionDto.setCnyRate(cnyRate);
+        orderTransactionDto.setCnyRate(new BigDecimal("6.3"));
 
         BaseResponse response = umsFeignClient.accountPayment(paymentRequest);
         if (response.getCode() != ResultCode.SUCCESS_CODE) {
@@ -608,59 +599,6 @@ public class WholesaleOrderPayServiceImpl implements WholesaleOrderPayService {
         return wholesaleOrderDao.updatePaymentIdByIds(paymentId, ids);
     }
 
-    /**
-     * 订单运输信息检查
-     *
-     * @param appVos
-     * @return
-     */
-    boolean orderShipPriceCheck(List<WholesaleOrderAppVo> appVos) {
-        Map<String, BigDecimal> map = new HashMap<>();
-        List<ShipMethodBatchSearchRequest.BatchShipMethodSelectDto> batchShipMethodSelectDtos = new ArrayList<>();
-        for (WholesaleOrderAppVo order : appVos) {
-            List<WholesaleOrderItemVo> itemVos = order.getItemVos();
-            ShipMethodBatchSearchRequest.BatchShipMethodSelectDto methodSelectDto = new ShipMethodBatchSearchRequest.BatchShipMethodSelectDto();
-            BigDecimal weight = BigDecimal.ZERO;
-            BigDecimal volume = BigDecimal.ZERO;
-            for (WholesaleOrderItemVo itemVo : itemVos) {
-                BigDecimal quantity = new BigDecimal(itemVo.getQuantity());
-                weight = weight.add(quantity.multiply(itemVo.getAdminVariantWeight()));
-                volume = volume.add(quantity.multiply(itemVo.getAdminVariantVolume()));
-            }
-            Set<Long> set = new HashSet<>();
-            set.add(order.getShipMethodId());
-            ShipMethodSelectDto shipMethodSelectDto = new ShipMethodSelectDto();
-            shipMethodSelectDto.setMethodIds(set);
-            shipMethodSelectDto.setToAreaId(order.getToAreaId());
-            shipMethodSelectDto.setVolumeWeight(volume);
-            shipMethodSelectDto.setWeight(weight);
-            methodSelectDto.setShipMethodSelectDto(shipMethodSelectDto);
-            String key = UUID.randomUUID().toString();
-            methodSelectDto.setRequestId(key);
-            batchShipMethodSelectDtos.add(methodSelectDto);
-            map.put(key, order.getShipPrice());
-        }
-        ShipMethodBatchSearchRequest request = new ShipMethodBatchSearchRequest();
-        request.setBatchShipMethodSelectDtos(batchShipMethodSelectDtos);
-        ShipMethodBatchSearchResponse response = tmsFeignClient.batchShipSearch(request);
-        if (ResultCode.FAIL_CODE == response.getCode() || ListUtils.isEmpty(response.getBatchShipMethodSelectVos())) {
-            return false;
-        }
-        List<ShipMethodBatchSearchResponse.BatchShipMethodSelectVo> batchShipMethodSelectVos = response.getBatchShipMethodSelectVos();
-        for (ShipMethodBatchSearchResponse.BatchShipMethodSelectVo batchShipMethodSelectVo : batchShipMethodSelectVos) {
-            BigDecimal price = batchShipMethodSelectVo.getShips().get(0).getPrice();
-            BigDecimal orderShipPrice = map.get(batchShipMethodSelectVo.getRequestId());
-            if (price.compareTo(orderShipPrice) != 0) {
-                return false;
-            }
-            map.remove(batchShipMethodSelectVo.getRequestId());
-        }
-        if (map.size() != 0) {
-            return false;
-        }
-
-        return true;
-    }
 
     /**
      * 发送保存交易信息的消息

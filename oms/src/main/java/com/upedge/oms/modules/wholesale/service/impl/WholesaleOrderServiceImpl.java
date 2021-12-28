@@ -28,7 +28,6 @@ import com.upedge.common.model.ship.request.ShippingMethodsRequest;
 import com.upedge.common.model.ship.response.ShipMethodSearchResponse;
 import com.upedge.common.model.ship.vo.AreaVo;
 import com.upedge.common.model.ship.vo.ShipDetail;
-import com.upedge.common.model.ship.vo.ShippingMethodRedis;
 import com.upedge.common.model.ship.vo.ShippingMethodVo;
 import com.upedge.common.model.user.vo.AddressVo;
 import com.upedge.common.model.user.vo.CustomerVo;
@@ -55,6 +54,7 @@ import com.upedge.oms.modules.wholesale.request.ExcelCreateWholesaleRequest;
 import com.upedge.oms.modules.wholesale.request.ExcelCreateWholesaleRequest.WholesaleExcelData;
 import com.upedge.oms.modules.wholesale.request.WholesaleOrderListRequest;
 import com.upedge.oms.modules.wholesale.request.WholesaleOrderShipUpdateRequest;
+import com.upedge.oms.modules.wholesale.request.WholesaleUpdateTrackingCodeRequest;
 import com.upedge.oms.modules.wholesale.response.WholesaleOrderListResponse;
 import com.upedge.oms.modules.wholesale.response.WholesaleOrderUpdateResponse;
 import com.upedge.oms.modules.wholesale.service.WholesaleOrderService;
@@ -151,6 +151,27 @@ public class WholesaleOrderServiceImpl implements WholesaleOrderService {
     }
 
     @Override
+    public BaseResponse updateTrackingCode(WholesaleUpdateTrackingCodeRequest request) {
+        if (StringUtils.isBlank(request.getTrackingCode())){
+            return BaseResponse.failed();
+        }
+        WholesaleOrder wholesaleOrder = selectByPrimaryKey(request.getId());
+        if (wholesaleOrder == null){
+            return BaseResponse.failed("订单不存在");
+        }
+        if (wholesaleOrder.getPayState() != OrderConstant.PAY_STATE_PAID
+        || wholesaleOrder.getFreightReview() != 3){
+            return BaseResponse.failed("订单未支付或运费未审核");
+        }
+        wholesaleOrder = new WholesaleOrder();
+        wholesaleOrder.setId(request.getId());
+        wholesaleOrder.setTrackingCode(request.getTrackingCode());
+        wholesaleOrder.setUpdateTime(new Date());
+        updateByPrimaryKeySelective(wholesaleOrder);
+        return BaseResponse.success();
+    }
+
+    @Override
     public BaseResponse updateShip(WholesaleOrderShipUpdateRequest request, Session session) {
         Long id = request.getId();
         WholesaleOrder wholesaleOrder = wholesaleOrderDao.selectByPrimaryKey(id);
@@ -160,17 +181,13 @@ public class WholesaleOrderServiceImpl implements WholesaleOrderService {
         if (wholesaleOrder.getPayState() != OrderConstant.PAY_STATE_UNPAID){
             return BaseResponse.failed("不是待支付订单");
         }
-        ShippingMethodRedis shippingMethodRedis = (ShippingMethodRedis) redisTemplate.opsForHash().get(RedisKey.SHIPPING_METHOD,String.valueOf(request.getShipMethodId()));
-        if (null== shippingMethodRedis
-        || null == request.getShipPrice()
-        || BigDecimal.ZERO.compareTo(request.getShipPrice()) == 0){
-            return BaseResponse.failed("运输方式不存在或运费不大于0");
-        }
+
         wholesaleOrder = new WholesaleOrder();
         wholesaleOrder.setId(id);
         wholesaleOrder.setFreightReview(1);
+        wholesaleOrder.setServiceFee(BigDecimal.ZERO);
         wholesaleOrder.setShipPrice(request.getShipPrice());
-        wholesaleOrder.setShipMethodId(request.getShipMethodId());
+        wholesaleOrder.setShipMethodName(request.getShipMethodName());
         wholesaleOrder.setUpdateTime(new Date());
         updateByPrimaryKeySelective(wholesaleOrder);
         return BaseResponse.success();
@@ -218,25 +235,6 @@ public class WholesaleOrderServiceImpl implements WholesaleOrderService {
         request.setT(appListDto);
         request.initFromNum();
         List<WholesaleOrderAppVo> orderAppVos = wholesaleOrderDao.selectOrderAppList(request);
-        for (WholesaleOrderAppVo appVo : orderAppVos) {
-            String shipMethodName = null;
-            if (null != appVo.getShipMethodId()) {
-                shipMethodName = (String) redisTemplate.opsForHash().get(RedisKey.HASH_SHIP_METHOD + appVo.getShipMethodId(), "name");
-                if (StringUtils.isBlank(shipMethodName)) {
-                    BaseResponse response = tmsFeignClient.info(appVo.getShipMethodId());
-                    if (ResultCode.SUCCESS_CODE == response.getCode()) {
-                        ShippingMethodVo methodVo = JSONObject.parseObject(JSON.toJSONString(response.getData())).toJavaObject(ShippingMethodVo.class);
-                        shipMethodName = methodVo.getName();
-                    }
-                }
-                appVo.setShipName(shipMethodName);
-            } else {
-                ShipDetail shipDetai = orderInitShipDetail(appVo.getId());
-                if(shipDetai != null){
-                    shipMethodName = shipDetai.getMethodName();
-                }
-            }
-        }
 
         return orderAppVos;
     }
@@ -622,7 +620,6 @@ public class WholesaleOrderServiceImpl implements WholesaleOrderService {
             }
 
             if (shipDetail.getPrice().compareTo(wholesaleOrder.getShipPrice()) != 0
-                    || !shipDetail.getMethodId().equals(wholesaleOrder.getShipMethodId())
                     || shipDetail.getWeight().compareTo(wholesaleOrder.getTotalWeight()) != 0) {
                 wholesaleOrderDao.updateOrderShipDetail(shipDetail.getMethodId(), shipDetail.getPrice(), shipDetail.getWeight(), id);
             }
@@ -774,7 +771,6 @@ public class WholesaleOrderServiceImpl implements WholesaleOrderService {
             BeanUtils.copyProperties(order, orderListVo);
             wholesaleOrderVoList.add(orderListVo);
             areaIds.add(order.getToAreaId());
-            shipIds.add(order.getShipMethodId());
             orderIds.add(order.getId());
             if (order.getOrderType() == 2) {
                 reshipIds.add(order.getId());
@@ -836,25 +832,25 @@ public class WholesaleOrderServiceImpl implements WholesaleOrderService {
         }, threadPoolExecutor);
 
         //运输方式信息
-        CompletableFuture<Void> shipFuture = CompletableFuture.runAsync(() -> {
-            Map<Long, ShippingMethodVo> shipMap = new HashMap<>();
-            ShippingMethodsRequest shippingMethodsRequest = new ShippingMethodsRequest();
-            shippingMethodsRequest.setIds(shipIds);
-            BaseResponse responseShipMethod = tmsFeignClient.listShippingMethod(shippingMethodsRequest);
-            List<LinkedHashMap> mapList = (List<LinkedHashMap>) responseShipMethod.getData();
-            mapList.forEach(m -> {
-                ShippingMethodVo shippingMethodVo = JSON.parseObject(JSON.toJSONString(m), ShippingMethodVo.class);
-                shipMap.put(shippingMethodVo.getId(), shippingMethodVo);
-            });
-            wholesaleOrderVoList.forEach(wholesaleOrderVo -> {
-                ShippingMethodVo s = shipMap.get(wholesaleOrderVo.getShipMethodId());
-                if (s != null) {
-                    wholesaleOrderVo.setShippingMethodName(s.getName());
-                    wholesaleOrderVo.setSaiheTransportId(s.getSaiheTransportId());
-                    wholesaleOrderVo.setSaiheTransportName(s.getSaiheTransportName());
-                }
-            });
-        }, threadPoolExecutor);
+//        CompletableFuture<Void> shipFuture = CompletableFuture.runAsync(() -> {
+//            Map<Long, ShippingMethodVo> shipMap = new HashMap<>();
+//            ShippingMethodsRequest shippingMethodsRequest = new ShippingMethodsRequest();
+//            shippingMethodsRequest.setIds(shipIds);
+//            BaseResponse responseShipMethod = tmsFeignClient.listShippingMethod(shippingMethodsRequest);
+//            List<LinkedHashMap> mapList = (List<LinkedHashMap>) responseShipMethod.getData();
+//            mapList.forEach(m -> {
+//                ShippingMethodVo shippingMethodVo = JSON.parseObject(JSON.toJSONString(m), ShippingMethodVo.class);
+//                shipMap.put(shippingMethodVo.getId(), shippingMethodVo);
+//            });
+//            wholesaleOrderVoList.forEach(wholesaleOrderVo -> {
+//                ShippingMethodVo s = shipMap.get(wholesaleOrderVo.getShipMethodId());
+//                if (s != null) {
+//                    wholesaleOrderVo.setShippingMethodName(s.getName());
+//                    wholesaleOrderVo.setSaiheTransportId(s.getSaiheTransportId());
+//                    wholesaleOrderVo.setSaiheTransportName(s.getSaiheTransportName());
+//                }
+//            });
+//        }, threadPoolExecutor);
 
         //补发订单补发信息
         CompletableFuture<Void> reshipFuture = CompletableFuture.runAsync(() -> {
@@ -876,7 +872,7 @@ public class WholesaleOrderServiceImpl implements WholesaleOrderService {
             }
         }, threadPoolExecutor);
 
-        CompletableFuture.allOf(customerFuture, manageFuture, areaFuture, shipFuture, reshipFuture).get();
+        CompletableFuture.allOf(customerFuture, manageFuture, areaFuture, reshipFuture).get();
 
         return wholesaleOrderVoList;
     }
@@ -1095,7 +1091,6 @@ public class WholesaleOrderServiceImpl implements WholesaleOrderService {
         Long orderId = IdGenerate.nextId();
         wholesaleOrder.setId(orderId);
         //使用选择的运输方式
-        wholesaleOrder.setShipMethodId(request.getShipMethodId());
         wholesaleOrder.setPayTime(new Date());
         wholesaleOrder.setPayAmount(BigDecimal.ZERO);
         wholesaleOrder.setShipPrice(BigDecimal.ZERO);

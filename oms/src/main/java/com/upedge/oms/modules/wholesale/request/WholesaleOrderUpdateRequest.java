@@ -27,7 +27,7 @@ public class WholesaleOrderUpdateRequest{
     /**
      * 
      */
-    private Long shipMethodId;
+    private String shipMethodName;
     /**
      * 
      */
@@ -106,7 +106,7 @@ public class WholesaleOrderUpdateRequest{
         wholesaleOrder.setId(id);
         wholesaleOrder.setCustomerId(customerId);
         wholesaleOrder.setPayAmount(payAmount);
-        wholesaleOrder.setShipMethodId(shipMethodId);
+        wholesaleOrder.setShipMethodName(shipMethodName);
         wholesaleOrder.setShipPrice(shipPrice);
         wholesaleOrder.setTotalWeight(totalWeight);
         wholesaleOrder.setProductAmount(productAmount);

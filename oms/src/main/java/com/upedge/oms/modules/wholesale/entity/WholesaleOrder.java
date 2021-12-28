@@ -27,7 +27,7 @@ public class WholesaleOrder{
 	/**
 	 * 
 	 */
-    private Long shipMethodId;
+    private String shipMethodName;
 	/**
 	 * 
 	 */
@@ -40,6 +40,7 @@ public class WholesaleOrder{
 	 * 
 	 */
     private BigDecimal totalWeight;
+	private BigDecimal volumeWeight;
 	/**
 	 * 
 	 */
@@ -106,6 +107,8 @@ public class WholesaleOrder{
     private Integer orderType;
 
     private String managerCode;
+
+	private String trackingCode;
 
     public void initOrder(WholesaleOrder order){
 		order.setOrderStatus(0);
