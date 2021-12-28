@@ -111,10 +111,16 @@ public class WholesaleOrder{
 	private String trackingCode;
 
     public void initOrder(WholesaleOrder order){
-		order.setOrderStatus(0);
 		order.setPayState(0);
 		order.setRefundState(0);
 		order.setShipState(0);
+		order.setVatAmount(BigDecimal.ZERO);
+		order.setFreightReview(0);
+		order.setOrderType(0);
+		order.setOrderStatus(0);
+		order.setProductDischargeAmount(BigDecimal.ZERO);
+		order.setServiceFee(BigDecimal.ZERO);
+		order.setShipPrice(BigDecimal.ZERO);
     }
 
 }

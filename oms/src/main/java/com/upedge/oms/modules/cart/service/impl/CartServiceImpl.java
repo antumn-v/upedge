@@ -165,7 +165,6 @@ public class CartServiceImpl implements CartService {
                 cartIds.add(cart.getId());
             }
         }
-        String managerCode = (String) redisTemplate.opsForHash().get(RedisKey.HASH_CUSTOMER_MANAGER_RELATE, String.valueOf(session.getCustomerId()));
         WholesaleOrder order = new WholesaleOrder();
         order.setTotalWeight(weight);
         order.setVolumeWeight(volume);
@@ -174,9 +173,7 @@ public class CartServiceImpl implements CartService {
         order.setCreateTime(date);
         order.setUpdateTime(date);
         order.setId(orderId);
-        order.setOrderType(0);
-        order.setManagerCode(managerCode);
-        order.setOrderStatus(0);
+        order.initOrder(order);
 
         AddressVo addressVo = request.getAddressVo();
         Long toAreaId = (Long) redisTemplate.opsForHash().get(RedisKey.HASH_COUNTRY_AREA_ID,addressVo.getCountry());
