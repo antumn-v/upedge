@@ -21,11 +21,11 @@ import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.List;
-import org.springframework.web.bind.annotation.*;
 /**
  * 
  *
@@ -48,12 +48,14 @@ public class CustomerProductStockController {
     @RequestMapping(value="/{id}/record", method=RequestMethod.POST)
     @Permission(permission = "stock:customerproductstock:info:id")
     public CustomerProductStockInfoResponse info(@PathVariable Long id, @RequestBody CustomerStockRecordListRequest recordListRequest) {
-
+        Session session = UserUtil.getSession(redisTemplate);
         CustomerProductStock result = customerProductStockService.selectByPrimaryKey(id);
+        if (null == result){
+            return new CustomerProductStockInfoResponse(ResultCode.FAIL_CODE,Constant.MESSAGE_FAIL);
+        }
 
         if (null == recordListRequest.getT()){
             recordListRequest.setT(new CustomerStockRecord());
-
         }
         recordListRequest.getT().setCustomerId(result.getCustomerId());
         recordListRequest.getT().setVariantId(result.getVariantId());

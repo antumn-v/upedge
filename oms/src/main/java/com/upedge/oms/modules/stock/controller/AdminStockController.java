@@ -8,7 +8,10 @@ import com.upedge.common.web.util.RedisUtil;
 import com.upedge.common.web.util.UserUtil;
 import com.upedge.oms.modules.stock.entity.StockOrder;
 import com.upedge.oms.modules.stock.request.*;
-import com.upedge.oms.modules.stock.response.*;
+import com.upedge.oms.modules.stock.response.ApplyStockOrderRefundResponse;
+import com.upedge.oms.modules.stock.response.CustomerProductStockListResponse;
+import com.upedge.oms.modules.stock.response.StockOrderListResponse;
+import com.upedge.oms.modules.stock.response.StockOrderRefundListResponse;
 import com.upedge.oms.modules.stock.service.AdminStockService;
 import com.upedge.oms.modules.stock.service.StockOrderService;
 import io.swagger.annotations.Api;
@@ -16,9 +19,9 @@ import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import org.springframework.web.bind.annotation.*;
 @Slf4j
 @Api(tags = "后台备库订单管理")
 @RestController
@@ -37,7 +40,7 @@ public class AdminStockController {
      * @return
      */
     @ApiOperation("备库订单列表")
-    @RequestMapping(value="/stockOrderList", method= RequestMethod.POST)
+    @RequestMapping(value="/orderList", method= RequestMethod.POST)
     public StockOrderListResponse stockList(@RequestBody @Valid AdminStockOrderListRequest request) {
         Session session = UserUtil.getSession(redisTemplate);
         return adminStockService.stockList(request,session);

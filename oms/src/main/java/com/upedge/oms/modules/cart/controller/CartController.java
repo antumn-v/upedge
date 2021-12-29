@@ -3,7 +3,6 @@ package com.upedge.oms.modules.cart.controller;
 import com.upedge.common.base.BaseResponse;
 import com.upedge.common.component.annotation.Permission;
 import com.upedge.common.constant.Constant;
-import com.upedge.common.constant.PayOrderMethod;
 import com.upedge.common.constant.ResultCode;
 import com.upedge.common.model.cart.request.CartAddRequest;
 import com.upedge.common.model.user.vo.Session;
@@ -11,7 +10,10 @@ import com.upedge.common.utils.ListUtils;
 import com.upedge.common.web.util.UserUtil;
 import com.upedge.oms.modules.cart.entity.Cart;
 import com.upedge.oms.modules.cart.request.*;
-import com.upedge.oms.modules.cart.response.*;
+import com.upedge.oms.modules.cart.response.CartDelResponse;
+import com.upedge.oms.modules.cart.response.CartInfoResponse;
+import com.upedge.oms.modules.cart.response.CartListResponse;
+import com.upedge.oms.modules.cart.response.CartUpdateResponse;
 import com.upedge.oms.modules.cart.service.CartService;
 import com.upedge.oms.modules.stock.controller.StockOrderController;
 import io.swagger.annotations.Api;
@@ -24,7 +26,6 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -135,19 +136,19 @@ public class CartController {
         if(null == orderId){
             return BaseResponse.failed();
         }
-        if(null != request.getPayMethod()){
-            List<Long> orderIds = new ArrayList<>();
-            orderIds.add(orderId);
-            switch (request.getPayMethod()){
-                case PayOrderMethod
-                        .RECHARGE:
-                    return stockOrderController.payByBalance(orderIds);
-                case PayOrderMethod.PAYPAL:
-                    return stockOrderController.payByPaypal(orderIds);
-                default:
-                    break;
-            }
-        }
+//        if(null != request.getPayMethod()){
+//            List<Long> orderIds = new ArrayList<>();
+//            orderIds.add(orderId);
+//            switch (request.getPayMethod()){
+//                case PayOrderMethod
+//                        .RECHARGE:
+//                    return stockOrderController.payByBalance(orderIds);
+//                case PayOrderMethod.PAYPAL:
+//                    return stockOrderController.payByPaypal(orderIds);
+//                default:
+//                    break;
+//            }
+//        }
         return BaseResponse.success();
     }
 
