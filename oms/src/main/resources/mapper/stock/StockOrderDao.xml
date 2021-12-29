@@ -751,9 +751,6 @@
                 <if test="t.refundState != null">
                     refund_state = #{t.refundState} and
                 </if>
-                <if test="t.adminState != null">
-                    admin_state = #{t.adminState} and
-                </if>
                 <if test="t.managerCode != null">
                     manager_code = #{t.managerCode} and
                 </if>

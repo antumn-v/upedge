@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.upedge.common.base.BaseResponse;
 import com.upedge.common.base.Page;
 import com.upedge.common.constant.*;
+import com.upedge.common.constant.key.RocketMqConfig;
 import com.upedge.common.enums.TransactionConstant;
 import com.upedge.common.feign.PmsFeignClient;
 import com.upedge.common.feign.UmsFeignClient;
@@ -354,6 +355,7 @@ public class StockOrderServiceImpl implements StockOrderService {
         customerOrderDailyCountUpdateRequest.setPaymentId(paymentId);
         customerOrderDailyCountUpdateRequest.setPayTime(payTime);
         orderDailyPayCountService.updateCustomerOrderDailyCount(customerOrderDailyCountUpdateRequest);
+        sendSavePaymentDetailMessage(detail);
         return detail;
     }
     /**
@@ -499,7 +501,7 @@ public class StockOrderServiceImpl implements StockOrderService {
         }
         detail.setOrderTransactions(transactionDetails);
 
-        Message message = new Message("order_transaction","stock_order","stock:order:transaction:"+paymentId, JSON.toJSONBytes(detail));
+        Message message = new Message(RocketMqConfig.TOPIC_SAVE_ORDER_TRANSACTION,"stock_order","stock:order:transaction:"+paymentId, JSON.toJSONBytes(detail));
         message.setDelayTimeLevel(1);
 
         MqMessageLog messageLog = MqMessageLog.toMqMessageLog(message,detail.toString());

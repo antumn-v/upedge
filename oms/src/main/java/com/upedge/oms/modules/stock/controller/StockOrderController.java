@@ -20,6 +20,7 @@ import com.upedge.oms.enums.StockOrderTagEnum;
 import com.upedge.oms.modules.stock.dto.StockOrderListDto;
 import com.upedge.oms.modules.stock.entity.StockOrder;
 import com.upedge.oms.modules.stock.request.StockOrderListRequest;
+import com.upedge.oms.modules.stock.request.StockOrderPayRequest;
 import com.upedge.oms.modules.stock.response.StockOrderInfoResponse;
 import com.upedge.oms.modules.stock.response.StockOrderListResponse;
 import com.upedge.oms.modules.stock.service.StockOrderService;
@@ -35,7 +36,6 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import java.io.IOException;
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
@@ -189,7 +189,8 @@ public class StockOrderController {
 
     @ApiOperation("余额支付订单")
     @PostMapping("/pay/balance")
-    public BaseResponse payByBalance(@RequestBody List<Long> orderIds) {
+    public BaseResponse payByBalance(@RequestBody@Valid StockOrderPayRequest request) {
+        List<Long> orderIds = request.getOrderIds();
         Session session = UserUtil.getSession(redisTemplate);
         Iterator<Long> ids = orderIds.iterator();
         while (ids.hasNext()) {
@@ -207,14 +208,8 @@ public class StockOrderController {
             }
         }
         if (ListUtils.isNotEmpty(orderIds)) {
-            PaymentDetail detail = stockOrderService.payOrderByBalance(orderIds, session);
-//            stockOrderService.payOrderAsync(detail);
-            if (null != detail) {
-                CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
-                    stockOrderService.sendSavePaymentDetailMessage(detail);
-                });
-                return BaseResponse.success();
-            }
+            stockOrderService.payOrderByBalance(orderIds, session);
+            return BaseResponse.success();
         }
         return BaseResponse.failed();
     }
