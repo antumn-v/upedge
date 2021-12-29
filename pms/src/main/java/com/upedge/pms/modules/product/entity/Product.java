@@ -1,9 +1,9 @@
 package com.upedge.pms.modules.product.entity;
 
-import java.math.BigDecimal;
-import java.io.Serializable;
-import java.util.Date;
 import lombok.Data;
+
+import java.math.BigDecimal;
+import java.util.Date;
 
 /**
  * @author gx

@@ -2,6 +2,7 @@ package com.upedge.pms.modules.product.service;
 
 import com.upedge.common.base.Page;
 import com.upedge.pms.modules.product.entity.StoreProductAttribute;
+import com.upedge.pms.modules.product.request.StoreProductListRequest;
 
 import java.util.List;
 
@@ -9,6 +10,10 @@ import java.util.List;
  * @author author
  */
 public interface StoreProductAttributeService{
+
+    List<StoreProductAttribute> selectStoreProduct(StoreProductListRequest request);
+
+    Long countStoreProduct(StoreProductListRequest request);
 
     StoreProductAttribute selectByPrimaryKey(Long id);
 

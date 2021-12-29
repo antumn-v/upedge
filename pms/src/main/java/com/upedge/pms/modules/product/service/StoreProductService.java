@@ -1,5 +1,6 @@
 package com.upedge.pms.modules.product.service;
 
+import com.upedge.common.model.user.vo.Session;
 import com.upedge.thirdparty.shoplazza.moudles.product.entity.ShoplazzaProduct;
 import com.upedge.thirdparty.woocommerce.moudles.product.entity.WoocProduct;
 import com.upedge.common.base.BaseResponse;
@@ -25,6 +26,8 @@ public interface StoreProductService {
      * @return
      */
     List<StoreProductRelateVo> selectStoreVariantRelateDetail(Long storeProductId);
+
+    BaseResponse toNormalProduct(Long id, Session session);
 
     List<StoreProductVariantVo> selectVariantByPlatId(PlatIdSelectStoreVariantRequest request);
 

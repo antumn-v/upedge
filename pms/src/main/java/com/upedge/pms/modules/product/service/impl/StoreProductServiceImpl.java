@@ -18,16 +18,12 @@ import com.upedge.common.utils.IdGenerate;
 import com.upedge.common.utils.ListUtils;
 import com.upedge.common.web.util.RedisUtil;
 import com.upedge.common.web.util.UserUtil;
-import com.upedge.pms.modules.product.dao.ImportProductAttributeDao;
-import com.upedge.pms.modules.product.dao.ImportProductVariantDao;
-import com.upedge.pms.modules.product.dao.StoreProductAttributeDao;
-import com.upedge.pms.modules.product.dao.StoreProductVariantDao;
+import com.upedge.pms.modules.product.dao.*;
 import com.upedge.pms.modules.product.dto.StoreProductDto;
-import com.upedge.pms.modules.product.entity.ImportProductAttribute;
-import com.upedge.pms.modules.product.entity.StoreProductAttribute;
-import com.upedge.pms.modules.product.entity.StoreProductVariant;
+import com.upedge.pms.modules.product.entity.*;
 import com.upedge.pms.modules.product.request.StoreProductListRequest;
 import com.upedge.pms.modules.product.response.StoreProductListResponse;
+import com.upedge.pms.modules.product.service.ProductService;
 import com.upedge.pms.modules.product.service.StoreProductService;
 import com.upedge.pms.modules.product.vo.StoreProductRelateVo;
 import com.upedge.thirdparty.shopify.moudles.product.controller.ShopifyProductApi;
@@ -70,11 +66,60 @@ public class StoreProductServiceImpl implements StoreProductService {
     @Autowired
     StoreProductVariantDao storeProductVariantDao;
 
+    @Autowired
+    ProductService productService;
+
+    @Autowired
+    ProductVariantDao productVariantDao;
+
+    @Autowired
+    ProductVariantAttrDao productVariantAttrDao;
+
 
 
     @Override
     public List<StoreProductRelateVo> selectStoreVariantRelateDetail(Long storeProductId) {
         return storeProductVariantDao.selectStoreVariantRelateDetail(storeProductId);
+    }
+
+    @Transactional
+    @Override
+    public BaseResponse toNormalProduct(Long id,Session session) {
+        StoreProductAttribute storeProductAttribute = storeProductAttributeDao.selectByPrimaryKey(id);
+        if (null == storeProductAttribute){
+            return BaseResponse.failed("店铺产品不存在");
+        }
+
+        List<StoreProductVariant> storeProductVariants = storeProductVariantDao.listUseVariantProductId(id);
+        List<ProductVariant> productVariants = new ArrayList<>();
+        List<ProductVariantAttr> productVariantAttrs = new ArrayList<>();
+        Long newProductId = null;
+        Product product = productService.selectByOriginalId(id.toString());
+        if (null == product){
+            newProductId = IdGenerate.nextId();
+            product = storeProductAttribute.toProduct(session);
+            product.setId(newProductId);
+            for (StoreProductVariant storeProductVariant : storeProductVariants) {
+                Long variantId = IdGenerate.nextId();
+                ProductVariant productVariant = storeProductVariant.toProductVariant(newProductId,variantId);
+                productVariants.add(productVariant);
+                ProductVariantAttr productVariantAttr = new ProductVariantAttr();
+                productVariantAttr.setVariantId(variantId);
+                productVariantAttr.setProductId(newProductId);
+                productVariantAttr.setVariantAttrCname("属性");
+                productVariantAttr.setVariantAttrEname("option");
+                productVariantAttr.setOriginalAttrCvalue(storeProductVariant.getTitle());
+                productVariantAttr.setVariantAttrEvalue(storeProductVariant.getTitle());
+                productVariantAttr.setVariantAttrCvalue(storeProductVariant.getTitle());
+                productVariantAttrs.add(productVariantAttr);
+            }
+            productService.insert(product);
+            productVariantDao.insertByBatch(productVariants);
+            productVariantAttrDao.insertByBatch(productVariantAttrs);
+            return BaseResponse.success();
+        }
+
+        return BaseResponse.failed("同一产品不能重复转换");
     }
 
     @Override
@@ -85,15 +130,7 @@ public class StoreProductServiceImpl implements StoreProductService {
         if (null == storeVo) {
             StoreSearchRequest storeSearchRequest = new StoreSearchRequest();
             storeSearchRequest.setId(storeId);
-//            BaseResponse baseResponse = umsFeignClient.storeSearch(storeSearchRequest);
-//            if (baseResponse.getCode() == ResultCode.SUCCESS_CODE) {
-//                storeVo = JSONObject.parseObject(JSON.toJSONString(baseResponse.getData())).toJavaObject(StoreVo.class);
-//            } else {
-//                return null;
-//            }
         }
-
-
         List<StoreProductVariantVo> variantVos = request.getVariantVos();
 
         List<StoreProductVariantVo> variantVoList = new ArrayList<>();
@@ -133,13 +170,6 @@ public class StoreProductServiceImpl implements StoreProductService {
             request.setT(new StoreProductDto());
         }
         request.getT().setCustomerId(session.getCustomerId());
-//        if (session.getUserType() == BaseCode.USER_ROLE_NORMAL) {
-//            List<Long> orgIds = session.getOrgIds();
-//            if (ListUtils.isEmpty(orgIds)) {
-//                return new StoreProductListResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS, new ArrayList<>(), request);
-//            }
-//            request.getT().setOrgIds(orgIds);
-//        }
         List<StoreProductAttribute> attributes = storeProductAttributeDao.selectStoreProduct(request);
         Long total = storeProductAttributeDao.countStoreProduct(request);
         request.setTotal(total);

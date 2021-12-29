@@ -3,6 +3,7 @@ package com.upedge.pms.modules.product.service.impl;
 import com.upedge.common.base.Page;
 import com.upedge.pms.modules.product.dao.StoreProductAttributeDao;
 import com.upedge.pms.modules.product.entity.StoreProductAttribute;
+import com.upedge.pms.modules.product.request.StoreProductListRequest;
 import com.upedge.pms.modules.product.service.StoreProductAttributeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -43,6 +44,16 @@ public class StoreProductAttributeServiceImpl implements StoreProductAttributeSe
     @Transactional
     public int insertSelective(StoreProductAttribute record) {
         return storeProductAttributeDao.insert(record);
+    }
+
+    @Override
+    public List<StoreProductAttribute> selectStoreProduct(StoreProductListRequest request) {
+        return storeProductAttributeDao.selectStoreProduct(request);
+    }
+
+    @Override
+    public Long countStoreProduct(StoreProductListRequest request) {
+        return storeProductAttributeDao.countStoreProduct(request);
     }
 
     /**

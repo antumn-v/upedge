@@ -39,6 +39,8 @@ public interface ProductService{
 
     Product selectByProductSku(String productSku);
 
+    Product selectByOriginalId(String originalId);
+
     BaseResponse putawayProduct(Long id, Session session) throws CustomerException;
 
     BaseResponse unshelveProduct(Long id, Session session);

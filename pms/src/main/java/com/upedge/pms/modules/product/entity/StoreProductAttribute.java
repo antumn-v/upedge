@@ -1,5 +1,6 @@
 package com.upedge.pms.modules.product.entity;
 
+import com.upedge.common.model.user.vo.Session;
 import lombok.Data;
 
 import java.util.Date;
@@ -89,5 +90,24 @@ public class StoreProductAttribute {
     public StoreProductAttribute() {
 
 
+    }
+
+    public Product toProduct(Session session){
+        Product product = new Product();
+        product.setProductSku(System.currentTimeMillis() + "");
+        product.setProductTitle(this.title);
+        product.setProductImage(this.image);
+        product.setOriginalId(this.id.toString());
+        product.setProductSource(4);
+        product.setState(1);
+        product.setOriginalTitle(this.title);
+        product.setSaiheState(0);
+        product.setProductType(1);
+        product.setReplaceState(0);
+        product.setCateType(0);
+        product.setUserId(session.getId().toString());
+        product.setCreateTime(new Date());
+        product.setUpdateTime(new Date());
+        return product;
     }
 }

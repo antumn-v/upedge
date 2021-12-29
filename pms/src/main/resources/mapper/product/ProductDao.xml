@@ -609,4 +609,11 @@
             #{id}
         </foreach>
     </select>
+
+    <select id="selectByOriginalId" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from product
+        where original_id = #{originalId}
+    </select>
 </mapper>

@@ -687,6 +687,14 @@ public class ProductServiceImpl implements ProductService {
         return productDao.selectByProductSku(productSku);
     }
 
+    @Override
+    public Product selectByOriginalId(String originalId) {
+        if (StringUtils.isBlank(originalId)){
+            return null;
+        }
+        return productDao.selectByOriginalId(originalId);
+    }
+
     @Transactional
     @Override
     public BaseResponse putawayProduct(Long id, Session session) throws CustomerException {

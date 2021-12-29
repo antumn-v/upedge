@@ -34,27 +34,25 @@
     <select id="selectStoreProduct" resultMap="BaseResultMap">
         select p.id,p.title,p.image,p.vendor,p.admin_product_id,p.store_name,
         p.relate_state,p.handle,p.source,p.price,
-        p.create_at,p.import_time
+        p.create_at,p.import_time,p.state,p.customer_id
         from store_product_attribute p
-        where p.customer_id = #{t.customerId}
-        and p.state = '1'
-        <if test="t.orgId != null">
-            and p.org_id = #{t.orgId}
-        </if>
-        <if test="t.orgIds != null and t.orgIds.length > 0 ">
-            and p.org_id in
-            <foreach collection="t.orgIds" item="oId" open="(" separator="," close=")">
-                #{oId}
-            </foreach>
-        </if>
-        <if test="t.title != null and t.title != ''">
-            and p.title like CONCAT('%',#{t.title},'%')
-        </if>
-        <if test="t.source != null">
-            and p.source = #{t.source}
-        </if>
-        <if test="t.relateState != null">
-            and p.relate_state = #{t.relateState}
+        where 1 = 1
+        <if test="t != null">
+            <if test="t.customerId != null">
+                and p.customer_id = #{t.customerId}
+            </if>
+            <if test="t.id != null">
+                and p.id = #{id}
+            </if>
+            <if test="t.storeId != null">
+                and p.store_id = #{t.storeId}
+            </if>
+            <if test="t.title != null and t.title != ''">
+                and p.title like CONCAT('%',#{t.title},'%')
+            </if>
+            <if test="t.source != null">
+                and p.source = #{t.source}
+            </if>
         </if>
         <if test="orderBy != null">
             order by ${orderBy}
@@ -67,20 +65,23 @@
     <select id="countStoreProduct" resultType="java.lang.Long">
         select count(1)
         from store_product_attribute p
-        where
-        p.customer_id = #{t.customerId}
-        and p.state = '1'
-        <if test="t.orgId != null">
-            and p.org_id = #{t.orgId}
-        </if>
-        <if test="t.title != null and t.title != ''">
-            and p.title like CONCAT('%',#{t.title},'%')
-        </if>
-        <if test="t.source != null">
-            and p.source = #{t.source}
-        </if>
-        <if test="t.relateState != null">
-            and p.relate_state = #{t.relateState}
+        where 1 = 1
+        <if test="t != null">
+            <if test="t.customerId != null">
+                and p.customer_id = #{t.customerId}
+            </if>
+            <if test="t.id != null">
+                and p.id = #{id}
+            </if>
+            <if test="t.storeId != null">
+                and p.store_id = #{t.storeId}
+            </if>
+            <if test="t.title != null and t.title != ''">
+                and p.title like CONCAT('%',#{t.title},'%')
+            </if>
+            <if test="t.source != null">
+                and p.source = #{t.source}
+            </if>
         </if>
     </select>
 

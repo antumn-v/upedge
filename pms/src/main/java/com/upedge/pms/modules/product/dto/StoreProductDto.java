@@ -9,7 +9,12 @@ import java.util.List;
  */
 @Data
 public class StoreProductDto {
+
+    private Long id;
+
     private Long customerId;
+
+    private Long storeId;
 
     private Long orgId;
 

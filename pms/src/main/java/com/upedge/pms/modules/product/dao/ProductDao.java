@@ -38,6 +38,8 @@ public interface ProductDao{
 
     Product selectByProductSku(String productSku);
 
+    Product selectByOriginalId(String originalId);
+
     void updateSaiheState(@Param("ids") List<Long> ids, @Param("size")Integer size);
 
     Product selectByPrimaryKey(Long id);
