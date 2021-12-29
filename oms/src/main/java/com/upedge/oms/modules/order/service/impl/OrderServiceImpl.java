@@ -215,6 +215,7 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public List<AppOrderVo> selectAppOrderList(AppOrderListRequest request) {
+        request.initFromNum();
         List<AppOrderVo> appOrderVos = orderDao.selectAppOrderList(request);
         List<AppStoreOrderVo> storeOrderVos = new ArrayList<>();
         if (ListUtils.isEmpty(appOrderVos)) {
@@ -1395,29 +1396,11 @@ public class OrderServiceImpl implements OrderService {
      * @return
      */
     @Override
-    public OrderListResponse manageList(OrderManageListRequest request, Session session) {
-        request.initFromNum();
-
-        List<Order> results = orderDao.historySelect(request);
-        Long total = orderDao.historyCount(request);
+    public OrderListResponse manageList(AppOrderListRequest request, Session session) {
+        List<AppOrderVo> appOrderVos = selectAppOrderList(request);
+        Long total = selectAppOrderCount(request);
         request.setTotal(total);
-        List<OrderHistoryVo> orderHistoryVoList = new ArrayList<>();
-
-        List<OrderVo> orderListVos;
-        try {
-            //查询订单信息
-            orderListVos = loadOrderInfo(results);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return new OrderListResponse(ResultCode.FAIL_CODE, Constant.MESSAGE_FAIL);
-        }
-
-        orderListVos.forEach(order -> {
-            OrderHistoryVo orderHistoryVo = new OrderHistoryVo();
-            BeanUtils.copyProperties(order, orderHistoryVo);
-            orderHistoryVoList.add(orderHistoryVo);
-        });
-        return new OrderListResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS, orderHistoryVoList, request);
+        return new OrderListResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS, appOrderVos, request);
     }
 
     /**

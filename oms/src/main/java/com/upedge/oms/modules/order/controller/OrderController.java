@@ -511,7 +511,7 @@ public class OrderController {
      */
     @ApiOperation("订单管理列表")
     @RequestMapping(value = "/manageList", method = RequestMethod.POST)
-    public OrderListResponse historyList(@RequestBody @Valid OrderManageListRequest request) {
+    public OrderListResponse historyList(@RequestBody AppOrderListRequest request) {
         Session session = UserUtil.getSession(redisTemplate);
         return orderService.manageList(request, session);
     }

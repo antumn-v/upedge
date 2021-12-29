@@ -205,7 +205,9 @@
         <if test="t != null">
             where
             <trim prefix=" " suffix=" " suffixOverrides=" and ">
-                o.customer_id = #{t.customerId} and
+                <if test="t.customerId != null">
+                    o.customer_id = #{t.customerId} and
+                </if>
                 o.order_status = '0' and
                 <if test="t.orderId != null">
                     o.id = #{t.orderId} and

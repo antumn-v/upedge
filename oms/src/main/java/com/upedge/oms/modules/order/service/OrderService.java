@@ -129,7 +129,7 @@ public interface OrderService{
 
     BaseResponse orderDetails(Long id);
 
-    OrderListResponse manageList(OrderManageListRequest request, Session session);
+    OrderListResponse manageList(AppOrderListRequest request, Session session);
 
     OrderListResponse pendingList(OrderListQueryRequest request, Session session);
 
