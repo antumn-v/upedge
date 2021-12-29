@@ -13,7 +13,7 @@ import com.upedge.tms.modules.ship.response.ShippingTemplateDisableResponse;
 import com.upedge.tms.modules.ship.response.ShippingTemplateEnableResponse;
 import com.upedge.tms.modules.ship.response.ShippingTemplateListResponse;
 import com.upedge.tms.modules.ship.service.ShippingTemplateService;
-import com.upedge.tms.modules.ship.vo.ShippingTemplateVo;
+import com.upedge.common.model.tms.ShippingTemplateVo;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

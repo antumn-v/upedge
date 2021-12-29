@@ -2,8 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="com.upedge.tms.modules.ship.dao.ShippingMethodTemplateDao">
-
-	<!-- 可根据自己的需求，是否要使用 -->
+    <!-- 可根据自己的需求，是否要使用 -->
     <resultMap type="com.upedge.tms.modules.ship.entity.ShippingMethodTemplate" id="BaseResultMap">
         <result property="id" column="id"/>
         <result property="shippingId" column="shipping_id"/>
@@ -26,29 +25,40 @@
         <result property="updateTime" column="update_time"/>
     </resultMap>
 
+    <resultMap id="MethodIdTemplateName" type="com.upedge.tms.modules.ship.vo.MethodIdTemplateNameVo">
+        <id property="methodId" column="method_id"/>
+        <collection property="shippingTemplateVos" ofType="com.upedge.common.model.tms.ShippingTemplateVo">
+            <id property="id" column="shipId"/>
+            <result property="name" column="shipName"/>
+        </collection>
+    </resultMap>
+
     <sql id="Base_Column_List">
-        `id`,`shipping_id`,`method_id`,`sort`
+        `id`
+                ,`shipping_id`,`method_id`,`sort`
     </sql>
 
     <select id="selectMethodIdsByTemplate" resultMap="ShippingMethod">
-        select m.id,m.name,m.weight_type
+        select m.id, m.name, m.weight_type
         from shipping_method_template t
-        left join shipping_method m
-        on t.method_id = m.id
+                     left join shipping_method m
+                on t.method_id = m.id
         where t.shipping_id = #{templateId}
-        and m.state = '1'
+          and m.state = '1'
         order by t.sort asc
     </select>
 
-    <select id="selectByPrimaryKey" parameterType="com.upedge.tms.modules.ship.entity.ShippingMethodTemplate" resultMap="BaseResultMap">
+    <select id="selectByPrimaryKey" parameterType="com.upedge.tms.modules.ship.entity.ShippingMethodTemplate"
+            resultMap="BaseResultMap">
         select
-        <include refid="Base_Column_List" />
+        <include refid="Base_Column_List"/>
         from shipping_method_template
         where id = #{id}
     </select>
 
     <delete id="deleteByPrimaryKey" parameterType="com.upedge.tms.modules.ship.entity.ShippingMethodTemplate">
-        delete from shipping_method_template
+        delete
+        from shipping_method_template
         where id = #{id}
     </delete>
 
@@ -71,15 +81,16 @@
     <update id="updateByPrimaryKey" parameterType="com.upedge.tms.modules.ship.entity.ShippingMethodTemplate">
         update shipping_method_template
         <set>
-        id = #{id},
-        shipping_id = #{shippingId},
-        method_id = #{methodId},
-        sort = #{sort},
+            id = #{id},
+            shipping_id = #{shippingId},
+            method_id = #{methodId},
+            sort = #{sort},
         </set>
         where id = #{id}
     </update>
 
-    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.upedge.tms.modules.ship.entity.ShippingMethodTemplate" useGeneratedKeys="true">
+    <insert id="insert" keyColumn="id" keyProperty="id"
+            parameterType="com.upedge.tms.modules.ship.entity.ShippingMethodTemplate" useGeneratedKeys="true">
         insert into shipping_method_template
         <trim prefix="(" suffix=")" suffixOverrides=",">
             id,
@@ -95,55 +106,54 @@
         )
     </insert>
 
-    <insert id="insertSelective"  keyColumn="id" keyProperty="id"  parameterType="com.upedge.tms.modules.ship.entity.ShippingMethodTemplate" useGeneratedKeys="true">
+    <insert id="insertSelective" keyColumn="id" keyProperty="id"
+            parameterType="com.upedge.tms.modules.ship.entity.ShippingMethodTemplate" useGeneratedKeys="true">
         insert into shipping_method_template
         <trim prefix="(" suffix=")" suffixOverrides=",">
-            <if test="id != null" >
-              id
+            <if test="id != null">
+                id
             </if>
-            <if test="shippingId != null" >
-              shipping_id
+            <if test="shippingId != null">
+                shipping_id
             </if>
-            <if test="methodId != null" >
-              method_id
+            <if test="methodId != null">
+                method_id
             </if>
-            <if test="sort != null" >
-              sort
+            <if test="sort != null">
+                sort
             </if>
-
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
-            <if test="id != null" >
+            <if test="id != null">
                 #{id}
             </if>
-            <if test="shippingId != null" >
+            <if test="shippingId != null">
                 #{shippingId}
             </if>
-            <if test="methodId != null" >
+            <if test="methodId != null">
                 #{methodId}
             </if>
-            <if test="sort != null" >
+            <if test="sort != null">
                 #{sort}
             </if>
-
         </trim>
     </insert>
 
     <insert id="insertByBatch" parameterType="java.util.List">
         insert into shipping_method_template
         <trim prefix="(" suffix=")" suffixOverrides=",">
-           id,
-           shipping_id,
-           method_id,
-           sort
+            id,
+            shipping_id,
+            method_id,
+            sort
         </trim>
         values
         <foreach collection="list" item="item" index="index" separator=",">
             <trim prefix="(" suffix=")" suffixOverrides=",">
-               #{item.id},
-               #{item.shippingId},
-               #{item.methodId},
-               #{item.sort}
+                #{item.id},
+                #{item.shippingId},
+                #{item.methodId},
+                #{item.sort}
             </trim>
         </foreach>
     </insert>
@@ -153,25 +163,25 @@
             where
             <trim prefix=" " suffix=" " suffixOverrides=" and ">
                 1 = 1 and
-                    <if test="t.id != null">
-                        id = #{t.id} and
-                    </if>
-                    <if test="t.shippingId != null">
-                        shipping_id = #{t.shippingId} and
-                    </if>
-                    <if test="t.methodId != null">
-                        method_id = #{t.methodId} and
-                    </if>
-                    <if test="t.sort != null">
-                        sort = #{t.sort} and
-                    </if>
+                <if test="t.id != null">
+                    id = #{t.id} and
+                </if>
+                <if test="t.shippingId != null">
+                    shipping_id = #{t.shippingId} and
+                </if>
+                <if test="t.methodId != null">
+                    method_id = #{t.methodId} and
+                </if>
+                <if test="t.sort != null">
+                    sort = #{t.sort} and
+                </if>
             </trim>
         </if>
     </sql>
 
     <select id="select" parameterType="com.upedge.common.base.Page" resultMap="BaseResultMap">
         select
-        <include refid="Base_Column_List" />
+        <include refid="Base_Column_List"/>
         from shipping_method_template
         <include refid="Query_Condition"/>
         order by sort,id
@@ -197,30 +207,43 @@
 
     <select id="queryMethodTemplate" resultMap="BaseResultMap">
         select
-        <include refid="Base_Column_List" />
+        <include refid="Base_Column_List"/>
         from shipping_method_template
         where shipping_id = #{shippingId} and method_id=#{methodId}
     </select>
 
     <select id="countShipMethod" resultType="java.lang.Integer">
-        select count(1) from shipping_method_template
+        select count(1)
+        from shipping_method_template
         where shipping_id = #{shippingId}
     </select>
 
-    <select id="countShipNum"  resultType="java.lang.Integer">
-        select count(1) from shipping_method_template
+    <select id="countShipNum" resultType="java.lang.Integer">
+        select count(1)
+        from shipping_method_template
         where method_id = #{methodId}
     </select>
 
     <select id="listShippingMethodTemplate" resultMap="BaseResultMap">
-        select
-        smt.`id`,
-        smt.`shipping_id`,
-        smt.`method_id`,
-        smt.`sort`
+        select smt.`id`,
+               smt.`shipping_id`,
+               smt.`method_id`,
+               smt.`sort`
         from shipping_method_template smt
-        left join shipping_method sm on sm.id=smt.method_id
-        where sm.state=1
+                     left join shipping_method sm on sm.id = smt.method_id
+        where sm.state = 1
     </select>
 
+    <delete id="deleteByShipMethodId">
+        delete
+        from shipping_method_template
+        where method_id = #{methodId}
+    </delete>
+
+    <select id="selectMethodTemplateNames" resultMap="MethodIdTemplateName">
+        select distinct smt.method_id, st.id as `shipId`, st.name as `shipName`
+        from shipping_method_template smt
+        inner join shipping_template st
+        on smt.shipping_id = st.id
+    </select>
 </mapper>

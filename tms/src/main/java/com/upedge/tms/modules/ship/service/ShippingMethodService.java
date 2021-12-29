@@ -2,6 +2,7 @@ package com.upedge.tms.modules.ship.service;
 
 import com.upedge.common.base.BaseResponse;
 import com.upedge.common.base.Page;
+import com.upedge.common.exception.CustomerException;
 import com.upedge.common.model.ship.request.ShipMethodBatchSearchRequest;
 import com.upedge.common.model.ship.request.ShipMethodPriceRequest;
 import com.upedge.common.model.ship.request.ShipMethodSearchRequest;
@@ -11,7 +12,9 @@ import com.upedge.common.model.ship.vo.ShipDetail;
 import com.upedge.common.model.ship.vo.ShipMethodNameVo;
 import com.upedge.tms.modules.ship.entity.SaiheTransport;
 import com.upedge.tms.modules.ship.entity.ShippingMethod;
+import com.upedge.tms.modules.ship.request.ShippingMethodAddRequest;
 import com.upedge.tms.modules.ship.request.ShippingMethodListRequest;
+import com.upedge.tms.modules.ship.request.ShippingMethodUpdateRequest;
 import com.upedge.tms.modules.ship.response.ShippingMethodDisableResponse;
 import com.upedge.tms.modules.ship.response.ShippingMethodEnableResponse;
 import com.upedge.tms.modules.ship.response.ShippingMethodListResponse;
@@ -22,6 +25,10 @@ import java.util.List;
  * @author author
  */
 public interface ShippingMethodService{
+
+    BaseResponse addShipMethod(ShippingMethodAddRequest request) throws CustomerException;
+
+    BaseResponse updateShipMethod(ShippingMethodUpdateRequest request,Long id) throws CustomerException;
 
     ShipMethodBatchSearchResponse batchSearchShipMethods(ShipMethodBatchSearchRequest request);
 

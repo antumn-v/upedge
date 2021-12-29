@@ -3,7 +3,11 @@ package com.upedge.tms.modules.ship.request;
 import com.upedge.tms.modules.ship.entity.ShippingMethod;
 import lombok.Data;
 
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.util.Date;
+import java.util.List;
 
 /**
  * @author author
@@ -14,6 +18,7 @@ public class ShippingMethodAddRequest{
     /**
     * 运输方式名称
     */
+    @NotBlank
     private String name;
     /**
     * 描述
@@ -34,10 +39,12 @@ public class ShippingMethodAddRequest{
     /**
     * 0:实重 1:体积重
     */
+    @NotNull
     private Integer weightType;
     /**
     * 追踪类型 0:真实追踪号 1:物流商单号
     */
+    @NotNull
     private Integer trackType;
     /**
     * 
@@ -55,6 +62,9 @@ public class ShippingMethodAddRequest{
     * 更新时间
     */
     private Date updateTime;
+
+    @Size(min = 1)
+    private List<Long> templateIds;
 
     public ShippingMethod toShippingMethod(){
         ShippingMethod shippingMethod=new ShippingMethod();

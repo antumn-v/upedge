@@ -1,8 +1,10 @@
 package com.upedge.common.model.ship.vo;
 
+import com.upedge.common.model.tms.ShippingTemplateVo;
 import lombok.Data;
 
 import java.util.Date;
+import java.util.List;
 
 @Data
 public class ShippingMethodVo {
@@ -59,4 +61,7 @@ public class ShippingMethodVo {
     private Integer unitNum;
 
     private Integer shipNum;
+
+    List<ShippingTemplateVo> shippingTemplateVos;
+
 }

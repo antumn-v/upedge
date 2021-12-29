@@ -4,18 +4,19 @@ import com.upedge.common.base.BaseResponse;
 import com.upedge.common.base.Page;
 import com.upedge.common.constant.Constant;
 import com.upedge.common.constant.ResultCode;
+import com.upedge.common.constant.key.RedisKey;
+import com.upedge.common.exception.CustomerException;
 import com.upedge.common.feign.UmsFeignClient;
 import com.upedge.common.model.ship.dto.ShipMethodSelectDto;
 import com.upedge.common.model.ship.request.ShipMethodBatchSearchRequest;
-import com.upedge.common.model.ship.request.ShipMethodBatchSearchRequest.*;
+import com.upedge.common.model.ship.request.ShipMethodBatchSearchRequest.BatchShipMethodSelectDto;
 import com.upedge.common.model.ship.request.ShipMethodPriceRequest;
 import com.upedge.common.model.ship.request.ShipMethodSearchRequest;
 import com.upedge.common.model.ship.request.ShippingMethodsRequest;
 import com.upedge.common.model.ship.response.ShipMethodBatchSearchResponse;
-import com.upedge.common.model.ship.response.ShipMethodBatchSearchResponse.*;
-import com.upedge.common.model.ship.vo.ShipDetail;
-import com.upedge.common.model.ship.vo.ShipMethodNameVo;
-import com.upedge.common.model.ship.vo.ShippingMethodVo;
+import com.upedge.common.model.ship.response.ShipMethodBatchSearchResponse.BatchShipMethodSelectVo;
+import com.upedge.common.model.ship.vo.*;
+import com.upedge.common.utils.IdGenerate;
 import com.upedge.common.utils.ListUtils;
 import com.upedge.tms.modules.area.dao.AreaDao;
 import com.upedge.tms.modules.ship.dao.ShippingMethodDao;
@@ -23,24 +24,29 @@ import com.upedge.tms.modules.ship.dao.ShippingMethodTemplateDao;
 import com.upedge.tms.modules.ship.dao.ShippingUnitDao;
 import com.upedge.tms.modules.ship.entity.SaiheTransport;
 import com.upedge.tms.modules.ship.entity.ShippingMethod;
+import com.upedge.tms.modules.ship.entity.ShippingMethodTemplate;
 import com.upedge.tms.modules.ship.entity.ShippingUnit;
+import com.upedge.tms.modules.ship.request.ShippingMethodAddRequest;
 import com.upedge.tms.modules.ship.request.ShippingMethodListRequest;
+import com.upedge.tms.modules.ship.request.ShippingMethodUpdateRequest;
 import com.upedge.tms.modules.ship.response.ShippingMethodDisableResponse;
 import com.upedge.tms.modules.ship.response.ShippingMethodEnableResponse;
 import com.upedge.tms.modules.ship.response.ShippingMethodListResponse;
 import com.upedge.tms.modules.ship.service.ShippingMethodService;
+import com.upedge.tms.modules.ship.service.ShippingMethodTemplateService;
 import com.upedge.tms.modules.ship.service.ShippingUnitService;
+import com.upedge.tms.modules.ship.vo.MethodIdTemplateNameVo;
+import com.upedge.common.model.tms.ShippingTemplateVo;
 import com.upedge.tms.mq.TmsProcuderService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -65,6 +71,9 @@ public class ShippingMethodServiceImpl implements ShippingMethodService {
     ShippingMethodTemplateDao shippingMethodTemplateDao;
 
     @Autowired
+    ShippingMethodTemplateService shippingMethodTemplateService;
+
+    @Autowired
     AreaDao areaDao;
 
     @Autowired
@@ -72,6 +81,9 @@ public class ShippingMethodServiceImpl implements ShippingMethodService {
 
     @Autowired
     private TmsProcuderService tmsProcuder;
+
+    @Autowired
+    RedisTemplate redisTemplate;
 
     @Override
     public List<ShippingMethod> allShippingMethod() {
@@ -93,8 +105,6 @@ public class ShippingMethodServiceImpl implements ShippingMethodService {
      */
     @Transactional
     public int insert(ShippingMethod record) {
-        com.upedge.common.model.old.tms.ShippingMethod shippingMethod = new com.upedge.common.model.old.tms.ShippingMethod();
-        BeanUtils.copyProperties(record,shippingMethod);
         return shippingMethodDao.insert(record);
     }
 
@@ -103,8 +113,6 @@ public class ShippingMethodServiceImpl implements ShippingMethodService {
      */
     @Transactional
     public int insertSelective(ShippingMethod record) {
-        com.upedge.common.model.old.tms.ShippingMethod shippingMethod = new com.upedge.common.model.old.tms.ShippingMethod();
-        BeanUtils.copyProperties(record,shippingMethod);
         return shippingMethodDao.insert(record);
     }
 
@@ -189,6 +197,77 @@ public class ShippingMethodServiceImpl implements ShippingMethodService {
         return shipDetails;
     }
 
+    @Transactional
+    @Override
+    public BaseResponse addShipMethod(ShippingMethodAddRequest request) throws CustomerException {
+        ShippingMethod shippingMethod = shippingMethodDao.getShippingMethodByName(request.getName());
+        if (null != shippingMethod){
+            return BaseResponse.failed("运输方式名称不能重复");
+        }
+        Long methodId = IdGenerate.nextId();
+        shippingMethod = request.toShippingMethod();
+        shippingMethod.setId(methodId);
+        insert(shippingMethod);
+
+        List<ShippingMethodTemplate> shippingMethodTemplates = new ArrayList<>();
+        List<Long> templateIds = request.getTemplateIds();
+        for (Long templateId : templateIds) {
+            ShippingTemplateRedis shippingTemplateRedis = (ShippingTemplateRedis) redisTemplate.opsForHash().get(RedisKey.SHIPPING_TEMPLATE,String.valueOf(templateId));
+            if (null == shippingTemplateRedis){
+                continue;
+            }
+            ShippingMethodTemplate shippingMethodTemplate = new ShippingMethodTemplate();
+            shippingMethodTemplate.setShippingId(templateId);
+            shippingMethodTemplate.setMethodId(methodId);
+            shippingMethodTemplates.add(shippingMethodTemplate);
+        }
+        if (ListUtils.isEmpty(shippingMethodTemplates)){
+            throw new CustomerException("运输模板信息错误");
+        }
+        shippingMethodTemplateDao.deleteByShipMethodId(methodId);
+        shippingMethodTemplateDao.insertByBatch(shippingMethodTemplates);
+        ShippingMethodRedis shippingMethodRedis = new ShippingMethodRedis();
+        BeanUtils.copyProperties(shippingMethod,shippingMethodRedis);
+        redisTemplate.opsForHash().put(RedisKey.SHIPPING_METHOD,String.valueOf(methodId),shippingMethodRedis);
+        shippingMethodTemplateService.redisInit();
+        return BaseResponse.success();
+    }
+
+    @Transactional
+    @Override
+    public BaseResponse updateShipMethod(ShippingMethodUpdateRequest request,Long methodId) throws CustomerException {
+        ShippingMethod shippingMethod = shippingMethodDao.selectByPrimaryKey(methodId);
+        if (null == shippingMethod){
+            return BaseResponse.failed("运输方式不存在");
+        }
+        shippingMethod = request.toShippingMethod(methodId);
+        shippingMethod.setId(methodId);
+        updateByPrimaryKey(shippingMethod);
+
+        List<ShippingMethodTemplate> shippingMethodTemplates = new ArrayList<>();
+        List<Long> templateIds = request.getTemplateIds();
+        for (Long templateId : templateIds) {
+            ShippingTemplateRedis shippingTemplateRedis = (ShippingTemplateRedis) redisTemplate.opsForHash().get(RedisKey.SHIPPING_TEMPLATE,String.valueOf(templateId));
+            if (null == shippingTemplateRedis){
+                continue;
+            }
+            ShippingMethodTemplate shippingMethodTemplate = new ShippingMethodTemplate();
+            shippingMethodTemplate.setShippingId(templateId);
+            shippingMethodTemplate.setMethodId(methodId);
+            shippingMethodTemplates.add(shippingMethodTemplate);
+        }
+        if (ListUtils.isEmpty(shippingMethodTemplates)){
+            throw new CustomerException("运输模板信息错误");
+        }
+        shippingMethodTemplateDao.deleteByShipMethodId(methodId);
+        shippingMethodTemplateDao.insertByBatch(shippingMethodTemplates);
+        ShippingMethodRedis shippingMethodRedis = new ShippingMethodRedis();
+        BeanUtils.copyProperties(shippingMethod,shippingMethodRedis);
+        redisTemplate.opsForHash().put(RedisKey.SHIPPING_METHOD,String.valueOf(methodId),shippingMethodRedis);
+        shippingMethodTemplateService.redisInit();
+        return BaseResponse.success();
+    }
+
     @Override
     public ShipMethodBatchSearchResponse batchSearchShipMethods(ShipMethodBatchSearchRequest request) {
         List<BatchShipMethodSelectVo> methodSelectVos = new ArrayList<>();
@@ -266,9 +345,6 @@ public class ShippingMethodServiceImpl implements ShippingMethodService {
     @Transactional
     public int updateByPrimaryKeySelective(ShippingMethod record) {
         int i = shippingMethodDao.updateByPrimaryKeySelective(record);
-        record = selectByPrimaryKey(record.getId());
-        com.upedge.common.model.old.tms.ShippingMethod shippingMethod = new com.upedge.common.model.old.tms.ShippingMethod();
-        BeanUtils.copyProperties(record,shippingMethod);
         return i;
     }
 
@@ -278,8 +354,6 @@ public class ShippingMethodServiceImpl implements ShippingMethodService {
     @Transactional
     public int updateByPrimaryKey(ShippingMethod record) {
 
-        com.upedge.common.model.old.tms.ShippingMethod shippingMethod = new com.upedge.common.model.old.tms.ShippingMethod();
-        BeanUtils.copyProperties(record,shippingMethod);
 
         return shippingMethodDao.updateByPrimaryKey(record);
     }
@@ -289,15 +363,19 @@ public class ShippingMethodServiceImpl implements ShippingMethodService {
         List<ShippingMethod> results = select(request);
         Long total = count(request);
         request.setTotal(total);
+        List<MethodIdTemplateNameVo> methodIdTemplateNameVos = shippingMethodTemplateDao.selectMethodTemplateNames();
+        Map<Long,List<ShippingTemplateVo>> map = new HashMap<>();
+        for (MethodIdTemplateNameVo methodIdTemplateNameVo : methodIdTemplateNameVos) {
+            map.put(methodIdTemplateNameVo.getMethodId(), methodIdTemplateNameVo.getShippingTemplateVos());
+        }
         List<ShippingMethodVo> shippingMethodVoList = new ArrayList<>();
         results.forEach(shippingMethod -> {
             ShippingMethodVo shippingMethodVo = new ShippingMethodVo();
             BeanUtils.copyProperties(shippingMethod, shippingMethodVo);
-            int unitNum = shippingUnitDao.countUnit(shippingMethod.getId());
-            shippingMethodVo.setUnitNum(unitNum);
-            int shipNum = shippingMethodTemplateDao.countShipNum(shippingMethod.getId());
-            shippingMethodVo.setShipNum(shipNum);
             shippingMethodVoList.add(shippingMethodVo);
+            if (map.get(shippingMethod.getId()) != null){
+                shippingMethodVo.setShippingTemplateVos(map.get(shippingMethod.getId()));
+            }
         });
         ShippingMethodListResponse res = new ShippingMethodListResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS, shippingMethodVoList, request);
         return res;
@@ -322,9 +400,6 @@ public class ShippingMethodServiceImpl implements ShippingMethodService {
     @Transactional
     public ShippingMethodEnableResponse enableShippingMethod(Long id) {
         shippingMethodDao.updateShippingMethodState(id, 1);
-        ShippingMethod method = selectByPrimaryKey(id);
-        com.upedge.common.model.old.tms.ShippingMethod shippingMethod = new com.upedge.common.model.old.tms.ShippingMethod();
-        BeanUtils.copyProperties(method,shippingMethod);
         return new ShippingMethodEnableResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS);
     }
 
@@ -332,10 +407,6 @@ public class ShippingMethodServiceImpl implements ShippingMethodService {
     @Transactional
     public ShippingMethodDisableResponse disableShippingMethod(Long id) {
         shippingMethodDao.updateShippingMethodState(id, 0);
-
-        ShippingMethod method = selectByPrimaryKey(id);
-        com.upedge.common.model.old.tms.ShippingMethod shippingMethod = new com.upedge.common.model.old.tms.ShippingMethod();
-        BeanUtils.copyProperties(method,shippingMethod);
         // 调用mq
         ArrayList<Long> list = new ArrayList<>();
         list.add(id);

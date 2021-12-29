@@ -16,6 +16,8 @@ import java.util.List;
  */
 public interface ShippingMethodTemplateService{
 
+    void redisInit();
+
     ShippingMethodTemplate selectByPrimaryKey(Long id);
 
     int deleteByPrimaryKey(Long id);

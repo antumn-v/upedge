@@ -349,4 +349,5 @@
         from shipping_method
         where saihe_transport_id=#{transportId} limit 1
     </select>
+
 </mapper>

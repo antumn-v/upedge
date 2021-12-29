@@ -11,6 +11,7 @@ import java.util.List;
  */
 public interface ShippingMethodDao{
 
+
     ShippingMethod selectByPrimaryKey(Long id);
 
     int deleteByPrimaryKey(ShippingMethod record);

@@ -3,7 +3,7 @@ package com.upedge.tms.modules.ship.service.impl;
 import com.upedge.common.base.Page;
 import com.upedge.common.constant.Constant;
 import com.upedge.common.constant.ResultCode;
-import com.upedge.common.model.old.tms.ShippingTemplateMethod;
+import com.upedge.common.constant.key.RedisKey;
 import com.upedge.common.utils.IdGenerate;
 import com.upedge.tms.modules.ship.dao.ShippingMethodDao;
 import com.upedge.tms.modules.ship.dao.ShippingMethodTemplateDao;
@@ -21,6 +21,7 @@ import com.upedge.tms.modules.ship.service.ShippingMethodTemplateService;
 import com.upedge.tms.modules.ship.vo.MethodTemplateVo;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -37,6 +38,11 @@ public class ShippingMethodTemplateServiceImpl implements ShippingMethodTemplate
     private ShippingMethodDao shippingMethodDao;
     @Autowired
     private ShippingTemplateDao shippingTemplateDao;
+
+    @Autowired
+    RedisTemplate redisTemplate;
+
+
 
 
 
@@ -65,6 +71,19 @@ public class ShippingMethodTemplateServiceImpl implements ShippingMethodTemplate
     public int insertSelective(ShippingMethodTemplate record) {
         record.setId(IdGenerate.nextId());
         return shippingMethodTemplateDao.insert(record);
+    }
+
+    @Override
+    public void redisInit() {
+        List<ShippingMethodTemplate> shippingMethodTemplateList=shippingMethodTemplateDao.listShippingMethodTemplate();
+        List<ShippingTemplate> shippingTemplates = shippingTemplateDao.allUseShippingTemplate();
+        for (ShippingTemplate shippingTemplate : shippingTemplates) {
+            redisTemplate.delete(RedisKey.SHIPPING_METHODS+shippingTemplate.getId());
+        }
+        for(ShippingMethodTemplate shippingMethodTemplate:shippingMethodTemplateList){
+            Long methodId=shippingMethodTemplate.getMethodId();
+            redisTemplate.opsForSet().add(RedisKey.SHIPPING_METHODS+shippingMethodTemplate.getShippingId(),methodId);
+        }
     }
 
     /**
@@ -158,8 +177,6 @@ public class ShippingMethodTemplateServiceImpl implements ShippingMethodTemplate
         }
         ShippingMethodTemplate entity=request.toShippingMethodTemplate();
         insertSelective(entity);
-        ShippingTemplateMethod shippingTemplateMethod = new ShippingTemplateMethod();
-        BeanUtils.copyProperties(entity,shippingTemplateMethod);
         return new ShippingMethodTemplateAddResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS,entity,request);
     }
 

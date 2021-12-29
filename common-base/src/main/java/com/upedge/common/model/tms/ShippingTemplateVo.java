@@ -1,4 +1,4 @@
-package com.upedge.tms.modules.ship.vo;
+package com.upedge.common.model.tms;
 
 import lombok.Data;
 

@@ -4,6 +4,7 @@ import com.upedge.common.base.BaseResponse;
 import com.upedge.common.constant.Constant;
 import com.upedge.common.constant.ResultCode;
 import com.upedge.common.constant.key.RedisKey;
+import com.upedge.common.exception.CustomerException;
 import com.upedge.common.model.ship.request.*;
 import com.upedge.common.model.ship.response.ShipMethodBatchSearchResponse;
 import com.upedge.common.model.ship.response.ShipMethodSearchResponse;
@@ -88,11 +89,14 @@ public class ShippingMethodController {
      * @return
      */
     @RequestMapping(value="/add", method=RequestMethod.POST)
-    public ShippingMethodAddResponse add(@RequestBody @Valid ShippingMethodAddRequest request) {
-        ShippingMethod entity=request.toShippingMethod();
-        shippingMethodService.insertSelective(entity);
-        ShippingMethodAddResponse res = new ShippingMethodAddResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS,entity,request);
-        return res;
+    public BaseResponse add(@RequestBody @Valid ShippingMethodAddRequest request) {
+
+        try {
+            return shippingMethodService.addShipMethod(request);
+        } catch (CustomerException e) {
+            e.printStackTrace();
+            return BaseResponse.failed(e.getMessage());
+        }
     }
 
     /**
@@ -102,9 +106,14 @@ public class ShippingMethodController {
      * @return
      */
     @RequestMapping(value="/update/{id}", method=RequestMethod.POST)
-    public ShippingMethodUpdateResponse update(@PathVariable Long id, @RequestBody @Valid ShippingMethodUpdateRequest request) {
+    public BaseResponse update(@PathVariable Long id, @RequestBody @Valid ShippingMethodUpdateRequest request) {
         ShippingMethod entity=request.toShippingMethod(id);
-        shippingMethodService.updateByPrimaryKeySelective(entity);
+        try {
+            shippingMethodService.updateShipMethod(request,id);
+        } catch (CustomerException e) {
+            e.printStackTrace();
+            return BaseResponse.failed(e.getMessage());
+        }
         //调用mq
         shippingMethodService.senMq(id);
         ShippingMethodVo shippingMethodVo = new ShippingMethodVo();

@@ -3,6 +3,7 @@ package com.upedge.tms.modules.ship.dao;
 import com.upedge.common.base.Page;
 import com.upedge.tms.modules.ship.entity.ShippingMethod;
 import com.upedge.tms.modules.ship.entity.ShippingMethodTemplate;
+import com.upedge.tms.modules.ship.vo.MethodIdTemplateNameVo;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
@@ -12,7 +13,11 @@ import java.util.List;
  */
 public interface ShippingMethodTemplateDao{
 
+    List<MethodIdTemplateNameVo> selectMethodTemplateNames();
+
     List<ShippingMethod> selectMethodIdsByTemplate(Long templateId);
+
+    void deleteByShipMethodId(Long methodId);
 
     ShippingMethodTemplate selectByPrimaryKey(ShippingMethodTemplate record);
 
