@@ -1,18 +1,16 @@
 package com.upedge.thirdparty.shopify.moudles.product.controller;
 
 
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-
 import com.upedge.thirdparty.shopify.config.Shopify;
 import com.upedge.thirdparty.shopify.entity.Response;
+import com.upedge.thirdparty.shopify.moudles.product.entity.ShopifyProduct;
 import com.upedge.thirdparty.shopify.moudles.shop.entity.ShopifyRequestParam;
 import com.upedge.thirdparty.shopify.utils.RequestUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
-
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -56,6 +54,20 @@ public class ShopifyProductApi {
         Integer count = jsonObject.getInteger("count");
         response.addData("count", count);
         return response.success();
+    }
+
+    public static ShopifyProduct getSingleProduct(String shop, String token, Long id, String param) {
+        String url = "https://" + shop + ".myshopify.com/admin/api/" + Shopify.version + "/products/"+id+".json";
+
+        ResponseEntity<JSONObject> entity =
+                RequestUtils.sendRequest(url, token, param, HttpMethod.GET, null);
+        if (entity != null
+        && entity.getBody() != null){
+            JSONObject jsonObject = entity.getBody();
+            ShopifyProduct shopifyProduct = jsonObject.toJavaObject(ShopifyProduct.class);
+            return shopifyProduct;
+        }
+        return null;
     }
 
     @PostMapping("/get")
