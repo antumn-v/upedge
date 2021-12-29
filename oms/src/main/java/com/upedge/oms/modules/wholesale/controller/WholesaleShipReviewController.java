@@ -33,8 +33,6 @@ public class WholesaleShipReviewController {
     @ApiOperation("待审核列表")
     @PostMapping("/list")
     public BaseResponse reviewList(@RequestBody WholesaleOrderAppListRequest request){
-
-        request.setCondition("wo.freight_review != '3'");
         List<WholesaleOrderAppVo> wholesaleOrderAppVos = wholesaleShipReviewService.reviewList(request);
         return BaseResponse.success(wholesaleOrderAppVos);
     }

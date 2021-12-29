@@ -36,6 +36,7 @@
         <result property="customerId" column="customer_id"/>
         <result property="payAmount" column="pay_amount"/>
         <result property="shipMethodName" column="ship_method_name"/>
+        <result property="trackingCode" column="tracking_code"/>
         <result property="freightReview" column="freight_review"/>
         <result property="serviceFee" column="service_fee"/>
         <result property="shipPrice" column="ship_price"/>
@@ -76,7 +77,7 @@
     <sql id="Base_Column_List">
         `id`,`customer_id`,`pay_amount`,`ship_method_name`,`ship_price`,`total_weight`,`product_amount`,`freight_review`,`service_fee`,
         `vat_amount`,`product_discharge_amount`,`fix_fee`,`pay_method`,`pay_time`,`payment_id`,`pay_state`,`manager_code`,`volume_weight`,
-        `refund_state`,`ship_state`,`to_area_id`,`create_time`,`update_time`,`saihe_order_code`,`order_status`,`order_type`
+        `refund_state`,`ship_state`,`to_area_id`,`create_time`,`update_time`,`saihe_order_code`,`order_status`,`order_type`,`tracking_code`
     </sql>
 
 
@@ -105,9 +106,9 @@
     <select id="selectOrderAppList" resultMap="WholesaleOrderAppVo"
             parameterType="com.upedge.oms.modules.order.request.WholesaleOrderAppListRequest">
         select distinctrow wo.`id`,wo.`customer_id`,wo.`pay_amount`,wo.`ship_method_name`,wo.`total_weight`,
-        wo.`product_amount`,wo.`vat_amount`,wo.`product_discharge_amount`,wo.`fix_fee`,
+        wo.`product_amount`,wo.`vat_amount`,wo.`product_discharge_amount`,wo.`fix_fee`,wo.`volume_weight`,
         wo.`pay_method`,wo.`pay_time`,wo.`payment_id`,wo.`pay_state`,(wo.`ship_price` + wo.`service_fee`) as
-        `ship_price`,wo.service_fee,wo.freight_review,
+        `ship_price`,wo.service_fee,wo.freight_review,wo.tracking_code,
         wo.`refund_state`,wo.`ship_state`,wo.`create_time`,wo.`order_type`,
         woi.`id` as id,
         woi.`order_id` as orderId,
@@ -435,10 +436,7 @@
             </if>
         </set>
         where id = #{id}
-        <if test="trackingCode == null || trackingCode == ''">
-            and freight_review != '3'
-            and pay_state &lt; 1
-        </if>
+
 
     </update>
 

@@ -15,7 +15,6 @@ import com.upedge.common.feign.PmsFeignClient;
 import com.upedge.common.feign.TmsFeignClient;
 import com.upedge.common.feign.UmsFeignClient;
 import com.upedge.common.model.manager.vo.ManagerInfoVo;
-import com.upedge.common.model.old.tms.ShippingUnit;
 import com.upedge.common.model.order.PaymentDetail;
 import com.upedge.common.model.order.vo.AllOrderAmountVo;
 import com.upedge.common.model.product.ListVariantsRequest;
@@ -29,6 +28,7 @@ import com.upedge.common.model.ship.response.ShipMethodSearchResponse;
 import com.upedge.common.model.ship.vo.AreaVo;
 import com.upedge.common.model.ship.vo.ShipDetail;
 import com.upedge.common.model.ship.vo.ShippingMethodVo;
+import com.upedge.common.model.tms.ShippingUnitVo;
 import com.upedge.common.model.user.vo.AddressVo;
 import com.upedge.common.model.user.vo.CustomerVo;
 import com.upedge.common.model.user.vo.Session;
@@ -590,7 +590,6 @@ public class WholesaleOrderServiceImpl implements WholesaleOrderService {
 
                 if (response.getCode() == ResultCode.SUCCESS_CODE) {
                     List<ShipDetail> shipDetails = JSONArray.parseArray(JSON.toJSONString(response.getData())).toJavaList(ShipDetail.class);
-                    wholesaleOrder = new WholesaleOrder();
                     if (ListUtils.isNotEmpty(shipDetails)) {
                         ShipDetail shipDetail = shipDetails.get(0);
                         wholesaleOrderDao.updateOrderShipDetail(shipDetail.getMethodId(), shipDetail.getPrice(), shipDetail.getWeight(), id);
@@ -629,7 +628,7 @@ public class WholesaleOrderServiceImpl implements WholesaleOrderService {
             orderShippingUnitService.delByOrderId(id, OrderType.WHOLESALE);
             BaseResponse response = tmsFeignClient.unitInfo(shipDetail.getShippingUtilId());
             if (response.getCode() == ResultCode.SUCCESS_CODE && response.getData() != null) {
-                ShippingUnit shippingUnit = JSON.parseObject(JSON.toJSONString(response.getData()), ShippingUnit.class);
+                ShippingUnitVo shippingUnit = JSON.parseObject(JSON.toJSONString(response.getData()), ShippingUnitVo.class);
                 OrderShippingUnit orderShippingUnit = new OrderShippingUnit();
                 BeanUtils.copyProperties(shippingUnit, orderShippingUnit);
                 orderShippingUnit.setOrderId(id);
@@ -1413,7 +1412,7 @@ public class WholesaleOrderServiceImpl implements WholesaleOrderService {
         if (CollectionUtils.isNotEmpty(shipDetails) && shipDetails.get(0).getShippingUtilId() != null) {
             BaseResponse shippingUnitResponse = tmsFeignClient.unitInfo(shipDetails.get(0).getShippingUtilId());
             if (shippingUnitResponse.getCode() == ResultCode.SUCCESS_CODE && shippingUnitResponse.getData() != null) {
-                ShippingUnit shippingUnit = JSON.parseObject(JSON.toJSONString(shippingUnitResponse.getData()), ShippingUnit.class);
+                ShippingUnitVo shippingUnit = JSON.parseObject(JSON.toJSONString(shippingUnitResponse.getData()), ShippingUnitVo.class);
                 OrderShippingUnit orderShippingUnit = new OrderShippingUnit();
                 BeanUtils.copyProperties(shippingUnit, orderShippingUnit);
                 orderShippingUnit.setOrderId(orderId);

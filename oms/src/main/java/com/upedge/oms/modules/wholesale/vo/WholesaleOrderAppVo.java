@@ -30,6 +30,8 @@ public class WholesaleOrderAppVo {
     private String shipName;
 
     private String shipMethodName;
+
+    private String trackingCode;
     /**
      *
      */

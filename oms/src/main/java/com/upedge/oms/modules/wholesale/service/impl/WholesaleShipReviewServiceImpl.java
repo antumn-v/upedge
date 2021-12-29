@@ -52,9 +52,18 @@ public class WholesaleShipReviewServiceImpl implements WholesaleShipReviewServic
 
     @Override
     public BaseResponse confirm(Long id) {
-        WholesaleOrder wholesaleOrder = new WholesaleOrder();
+        WholesaleOrder wholesaleOrder = wholesaleOrderDao.selectByPrimaryKey(id);
+        if (null == wholesaleOrder){
+            return BaseResponse.failed("订单不存在");
+        }
+        if (1 != wholesaleOrder.getPayState()
+        || 2 != wholesaleOrder.getFreightReview()){
+            return BaseResponse.failed("订单未支付或运费已审核");
+        }
+        wholesaleOrder = new WholesaleOrder();
         wholesaleOrder.setId(id);
         wholesaleOrder.setFreightReview(3);
+        wholesaleOrder.setUpdateTime(new Date());
         wholesaleOrderDao.updateByPrimaryKeySelective(wholesaleOrder);
         return BaseResponse.success();
     }
