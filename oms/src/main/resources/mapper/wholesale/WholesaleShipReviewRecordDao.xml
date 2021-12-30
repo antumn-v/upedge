@@ -1,0 +1,258 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.upedge.oms.modules.wholesale.dao.WholesaleShipReviewRecordDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.upedge.oms.modules.wholesale.entity.WholesaleShipReviewRecord" id="BaseResultMap">
+        <result property="id" column="id"/>
+        <result property="customerId" column="customer_id"/>
+        <result property="wholesaleOrderId" column="wholesale_order_id"/>
+        <result property="shipMethodName" column="ship_method_name"/>
+        <result property="shipPrice" column="ship_price"/>
+        <result property="reviewType" column="review_type"/>
+        <result property="reviewStatus" column="review_status"/>
+        <result property="reviewUserId" column="review_user_id"/>
+        <result property="createTime" column="create_time"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        `id`,`customer_id`,`wholesale_order_id`,`ship_method_name`,`ship_price`,`review_type`,`review_status`,`review_user_id`,`create_time`
+    </sql>
+
+    <select id="selectByPrimaryKey" parameterType="com.upedge.oms.modules.wholesale.entity.WholesaleShipReviewRecord" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from wholesale_ship_review_record
+        where id = #{id}
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="com.upedge.oms.modules.wholesale.entity.WholesaleShipReviewRecord">
+        delete from wholesale_ship_review_record
+        where id = #{id}
+    </delete>
+
+    <update id="updateByPrimaryKeySelective" parameterType="com.upedge.oms.modules.wholesale.entity.WholesaleShipReviewRecord">
+        update wholesale_ship_review_record
+        <set>
+            <if test="customerId != null">
+                customer_id = #{customerId},
+            </if>
+            <if test="wholesaleOrderId != null">
+                wholesale_order_id = #{wholesaleOrderId},
+            </if>
+            <if test="shipMethodName != null">
+                ship_method_name = #{shipMethodName},
+            </if>
+            <if test="shipPrice != null">
+                ship_price = #{shipPrice},
+            </if>
+            <if test="reviewType != null">
+                review_type = #{reviewType},
+            </if>
+            <if test="reviewStatus != null">
+                review_status = #{reviewStatus},
+            </if>
+            <if test="reviewUserId != null">
+                review_user_id = #{reviewUserId},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <update id="updateByPrimaryKey" parameterType="com.upedge.oms.modules.wholesale.entity.WholesaleShipReviewRecord">
+        update wholesale_ship_review_record
+        <set>
+        id = #{id},
+        customer_id = #{customerId},
+        wholesale_order_id = #{wholesaleOrderId},
+        ship_method_name = #{shipMethodName},
+        ship_price = #{shipPrice},
+        review_type = #{reviewType},
+        review_status = #{reviewStatus},
+        review_user_id = #{reviewUserId},
+        create_time = #{createTime},
+        </set>
+        where id = #{id}
+    </update>
+
+    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.upedge.oms.modules.wholesale.entity.WholesaleShipReviewRecord" useGeneratedKeys="true">
+        insert into wholesale_ship_review_record
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            id,
+            customer_id,
+            wholesale_order_id,
+            ship_method_name,
+            ship_price,
+            review_type,
+            review_status,
+            review_user_id,
+            create_time
+        </trim>
+        values (
+        #{id},
+        #{customerId},
+        #{wholesaleOrderId},
+        #{shipMethodName},
+        #{shipPrice},
+        #{reviewType},
+        #{reviewStatus},
+        #{reviewUserId},
+        #{createTime}
+        )
+    </insert>
+
+    <insert id="insertSelective"  keyColumn="id" keyProperty="id"  parameterType="com.upedge.oms.modules.wholesale.entity.WholesaleShipReviewRecord" useGeneratedKeys="true">
+        insert into wholesale_ship_review_record
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null" >
+              id
+            </if>
+            <if test="customerId != null" >
+              customer_id
+            </if>
+            <if test="wholesaleOrderId != null" >
+              wholesale_order_id
+            </if>
+            <if test="shipMethodName != null" >
+              ship_method_name
+            </if>
+            <if test="shipPrice != null" >
+              ship_price
+            </if>
+            <if test="reviewType != null" >
+              review_type
+            </if>
+            <if test="reviewStatus != null" >
+              review_status
+            </if>
+            <if test="reviewUserId != null" >
+              review_user_id
+            </if>
+            <if test="createTime != null" >
+              create_time
+            </if>
+
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null" >
+                #{id}
+            </if>
+            <if test="customerId != null" >
+                #{customerId}
+            </if>
+            <if test="wholesaleOrderId != null" >
+                #{wholesaleOrderId}
+            </if>
+            <if test="shipMethodName != null" >
+                #{shipMethodName}
+            </if>
+            <if test="shipPrice != null" >
+                #{shipPrice}
+            </if>
+            <if test="reviewType != null" >
+                #{reviewType}
+            </if>
+            <if test="reviewStatus != null" >
+                #{reviewStatus}
+            </if>
+            <if test="reviewUserId != null" >
+                #{reviewUserId}
+            </if>
+            <if test="createTime != null" >
+                #{createTime}
+            </if>
+
+        </trim>
+    </insert>
+
+    <insert id="insertByBatch" parameterType="java.util.List">
+        insert into wholesale_ship_review_record
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+           id,
+           customer_id,
+           wholesale_order_id,
+           ship_method_name,
+           ship_price,
+           review_type,
+           review_status,
+           review_user_id,
+           create_time
+        </trim>
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+               #{item.id},
+               #{item.customerId},
+               #{item.wholesaleOrderId},
+               #{item.shipMethodName},
+               #{item.shipPrice},
+               #{item.reviewType},
+               #{item.reviewStatus},
+               #{item.reviewUserId},
+               #{item.createTime}
+            </trim>
+        </foreach>
+    </insert>
+
+    <sql id="Query_Condition">
+        <if test="t != null">
+            where
+            <trim prefix=" " suffix=" " suffixOverrides=" and ">
+                1 = 1 and
+                    <if test="t.id != null">
+                        id = #{t.id} and
+                    </if>
+                    <if test="t.customerId != null">
+                        customer_id = #{t.customerId} and
+                    </if>
+                    <if test="t.wholesaleOrderId != null">
+                        wholesale_order_id = #{t.wholesaleOrderId} and
+                    </if>
+                    <if test="t.shipMethodName != null">
+                        ship_method_name = #{t.shipMethodName} and
+                    </if>
+                    <if test="t.shipPrice != null">
+                        ship_price = #{t.shipPrice} and
+                    </if>
+                    <if test="t.reviewType != null">
+                        review_type = #{t.reviewType} and
+                    </if>
+                    <if test="t.reviewStatus != null">
+                        review_status = #{t.reviewStatus} and
+                    </if>
+                    <if test="t.reviewUserId != null">
+                        review_user_id = #{t.reviewUserId} and
+                    </if>
+                    <if test="t.createTime != null">
+                        create_time = #{t.createTime} and
+                    </if>
+            </trim>
+        </if>
+    </sql>
+
+    <select id="select" parameterType="com.upedge.common.base.Page" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from wholesale_ship_review_record
+        <include refid="Query_Condition"/>
+        <if test="orderBy != null">
+            order by ${orderBy}
+        </if>
+        <if test="pageNum != null and pageSize != null">
+            limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+        </if>
+    </select>
+
+    <select id="count" parameterType="com.upedge.common.base.Page" resultType="java.lang.Long">
+        select
+        count(1)
+        from wholesale_ship_review_record
+        <include refid="Query_Condition"/>
+    </select>
+
+
+</mapper>

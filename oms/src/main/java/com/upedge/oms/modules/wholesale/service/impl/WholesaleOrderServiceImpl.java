@@ -58,6 +58,7 @@ import com.upedge.oms.modules.wholesale.request.WholesaleUpdateTrackingCodeReque
 import com.upedge.oms.modules.wholesale.response.WholesaleOrderListResponse;
 import com.upedge.oms.modules.wholesale.response.WholesaleOrderUpdateResponse;
 import com.upedge.oms.modules.wholesale.service.WholesaleOrderService;
+import com.upedge.oms.modules.wholesale.service.WholesaleShipReviewRecordService;
 import com.upedge.oms.modules.wholesale.vo.*;
 import com.upedge.thirdparty.saihe.entity.SaiheOrder;
 import com.upedge.thirdparty.saihe.entity.SaiheOrderItem;
@@ -117,11 +118,11 @@ public class WholesaleOrderServiceImpl implements WholesaleOrderService {
     @Autowired
     OrderCommonService orderCommonService;
 
-    /**
-     * orderShippingUnitService
-     */
     @Autowired
     private OrderShippingUnitService orderShippingUnitService;
+
+    @Autowired
+    WholesaleShipReviewRecordService wholesaleShipReviewRecordService;
 
 
     /**
@@ -151,7 +152,7 @@ public class WholesaleOrderServiceImpl implements WholesaleOrderService {
     }
 
     @Override
-    public BaseResponse updateTrackingCode(WholesaleUpdateTrackingCodeRequest request) {
+    public BaseResponse updateTrackingCode(WholesaleUpdateTrackingCodeRequest request,Session session) {
         if (StringUtils.isBlank(request.getTrackingCode())){
             return BaseResponse.failed();
         }
@@ -166,22 +167,26 @@ public class WholesaleOrderServiceImpl implements WholesaleOrderService {
         wholesaleOrder = new WholesaleOrder();
         wholesaleOrder.setId(request.getId());
         wholesaleOrder.setTrackingCode(request.getTrackingCode());
+        wholesaleOrder.setManagerCode(session.getId().toString());
         wholesaleOrder.setUpdateTime(new Date());
         updateByPrimaryKeySelective(wholesaleOrder);
         return BaseResponse.success();
     }
 
+    @Transactional
     @Override
     public BaseResponse updateShip(WholesaleOrderShipUpdateRequest request, Session session) {
         Long id = request.getId();
+
         WholesaleOrder wholesaleOrder = wholesaleOrderDao.selectByPrimaryKey(id);
+
         if (wholesaleOrder == null){
             return BaseResponse.failed("订单不存在");
         }
         if (wholesaleOrder.getPayState() != OrderConstant.PAY_STATE_UNPAID){
             return BaseResponse.failed("不是待支付订单");
         }
-
+        Long customerId = wholesaleOrder.getCustomerId();
         wholesaleOrder = new WholesaleOrder();
         wholesaleOrder.setId(id);
         wholesaleOrder.setFreightReview(1);
@@ -190,6 +195,17 @@ public class WholesaleOrderServiceImpl implements WholesaleOrderService {
         wholesaleOrder.setShipMethodName(request.getShipMethodName());
         wholesaleOrder.setUpdateTime(new Date());
         updateByPrimaryKeySelective(wholesaleOrder);
+
+        WholesaleShipReviewRecord wholesaleShipReviewRecord = new WholesaleShipReviewRecord();
+        wholesaleShipReviewRecord.setWholesaleOrderId(id);
+        wholesaleShipReviewRecord.setReviewType(0);
+        wholesaleShipReviewRecord.setReviewStatus(1);
+        wholesaleShipReviewRecord.setShipMethodName(request.getShipMethodName());
+        wholesaleShipReviewRecord.setReviewUserId(session.getId());
+        wholesaleShipReviewRecord.setShipPrice(request.getShipPrice());
+        wholesaleShipReviewRecord.setCreateTime(new Date());
+        wholesaleShipReviewRecord.setCustomerId(customerId);
+        wholesaleShipReviewRecordService.insert(wholesaleShipReviewRecord);
         return BaseResponse.success();
     }
 

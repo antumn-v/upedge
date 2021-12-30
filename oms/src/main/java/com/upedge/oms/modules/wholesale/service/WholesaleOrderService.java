@@ -33,7 +33,7 @@ import java.util.Map;
  */
 public interface WholesaleOrderService{
 
-    BaseResponse updateTrackingCode(WholesaleUpdateTrackingCodeRequest request);
+    BaseResponse updateTrackingCode(WholesaleUpdateTrackingCodeRequest request,Session session);
 
     BaseResponse updateShip(WholesaleOrderShipUpdateRequest request,Session session);
 

@@ -144,7 +144,8 @@ public class WholesaleOrderController {
     @ApiOperation("完善物流单号")
     @PostMapping("/update/trackingCode")
     public BaseResponse orderUpdateTrackingCode(@RequestBody@Valid WholesaleUpdateTrackingCodeRequest request){
-        return wholesaleOrderService.updateTrackingCode(request);
+        Session session = UserUtil.getSession(redisTemplate);
+        return wholesaleOrderService.updateTrackingCode(request,session);
     }
 
 
