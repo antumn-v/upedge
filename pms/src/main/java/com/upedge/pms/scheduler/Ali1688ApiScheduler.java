@@ -37,4 +37,8 @@ public class Ali1688ApiScheduler {
         }
 
     }
+
+    public static void main(String[] args) {
+        System.out.println(System.currentTimeMillis());
+    }
 }

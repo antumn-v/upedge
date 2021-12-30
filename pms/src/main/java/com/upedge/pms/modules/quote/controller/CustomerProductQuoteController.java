@@ -1,9 +1,10 @@
 package com.upedge.pms.modules.quote.controller;
 
 import com.upedge.common.base.BaseResponse;
-import com.upedge.common.constant.ResultCode;
 import com.upedge.common.model.pms.quote.CustomerProductQuoteVo;
 import com.upedge.common.model.pms.request.CustomerProductQuoteSearchRequest;
+import com.upedge.common.model.user.vo.Session;
+import com.upedge.common.web.util.UserUtil;
 import com.upedge.pms.modules.quote.entity.CustomerProductQuote;
 import com.upedge.pms.modules.quote.request.CustomerProductQuoteListRequest;
 import com.upedge.pms.modules.quote.request.CustomerProductQuoteUpdateRequest;
@@ -11,13 +12,13 @@ import com.upedge.pms.modules.quote.service.CustomerProductQuoteService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -32,6 +33,9 @@ public class CustomerProductQuoteController {
     @Autowired
     private CustomerProductQuoteService customerProductQuoteService;
 
+    @Autowired
+    RedisTemplate redisTemplate;
+
 
     @ApiOperation("已报价产品列表")
     @PostMapping("/list")
@@ -45,7 +49,8 @@ public class CustomerProductQuoteController {
     @ApiOperation("修改客户报价")
     @PostMapping("/update")
     public BaseResponse updateCustomerProductQuote(@RequestBody@Valid CustomerProductQuoteUpdateRequest request){
-        BaseResponse baseResponse = customerProductQuoteService.updateCustomerProductQuote(request);
+        Session session = UserUtil.getSession(redisTemplate);
+        BaseResponse baseResponse = customerProductQuoteService.updateCustomerProductQuote(request,session);
 //        if (baseResponse.getCode() == ResultCode.SUCCESS_CODE){
 //            List<Long> storeVariantIds = new ArrayList<>();
 //            storeVariantIds.add(request.getStoreVariantId());

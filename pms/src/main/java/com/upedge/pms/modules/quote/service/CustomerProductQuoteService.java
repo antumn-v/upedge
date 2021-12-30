@@ -4,6 +4,7 @@ import com.upedge.common.base.BaseResponse;
 import com.upedge.common.base.Page;
 import com.upedge.common.model.pms.quote.CustomerProductQuoteVo;
 import com.upedge.common.model.pms.request.CustomerProductQuoteSearchRequest;
+import com.upedge.common.model.user.vo.Session;
 import com.upedge.pms.modules.quote.entity.CustomerProductQuote;
 import com.upedge.pms.modules.quote.request.CustomerProductQuoteUpdateRequest;
 
@@ -15,7 +16,7 @@ import java.util.List;
 public interface CustomerProductQuoteService{
 
 
-    BaseResponse updateCustomerProductQuote(CustomerProductQuoteUpdateRequest request);
+    BaseResponse updateCustomerProductQuote(CustomerProductQuoteUpdateRequest request, Session session);
 
     List<CustomerProductQuoteVo> selectQuoteDetail(CustomerProductQuoteSearchRequest request);
 

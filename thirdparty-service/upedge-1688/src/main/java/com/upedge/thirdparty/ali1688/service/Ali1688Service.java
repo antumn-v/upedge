@@ -31,7 +31,7 @@ public class Ali1688Service {
             long now = System.currentTimeMillis();
             JSONObject jsonObject = JSONObject.parseObject(body);{
                 String accessToken = jsonObject.getString("access_token");
-                long expireTime = jsonObject.getLong("expires_in");
+                long expireTime = jsonObject.getLong("expires_in") * 1000;
                 alibabaApiVo.setAccessToken(accessToken);
                 alibabaApiVo.setAccessTokenCreateTime(now);
                 alibabaApiVo.setAccessTokenExpireTime(now + expireTime - 1000L);

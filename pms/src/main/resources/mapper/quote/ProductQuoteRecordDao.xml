@@ -1,0 +1,240 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.upedge.pms.modules.quote.dao.ProductQuoteRecordDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.upedge.pms.modules.quote.entity.ProductQuoteRecord" id="BaseResultMap">
+        <result property="id" column="id"/>
+        <result property="productId" column="product_id"/>
+        <result property="variantId" column="variant_id"/>
+        <result property="storeVariantId" column="store_variant_id"/>
+        <result property="storeProductId" column="store_product_id"/>
+        <result property="quotePrice" column="quote_price"/>
+        <result property="userId" column="user_id"/>
+        <result property="createTime" column="create_time"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        `id`,`product_id`,`variant_id`,`store_variant_id`,`store_product_id`,`quote_price`,`user_id`,`create_time`
+    </sql>
+
+    <select id="selectByPrimaryKey" parameterType="com.upedge.pms.modules.quote.entity.ProductQuoteRecord" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from product_quote_record
+        where id = #{id}
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="com.upedge.pms.modules.quote.entity.ProductQuoteRecord">
+        delete from product_quote_record
+        where id = #{id}
+    </delete>
+
+    <update id="updateByPrimaryKeySelective" parameterType="com.upedge.pms.modules.quote.entity.ProductQuoteRecord">
+        update product_quote_record
+        <set>
+            <if test="productId != null">
+                product_id = #{productId},
+            </if>
+            <if test="variantId != null">
+                variant_id = #{variantId},
+            </if>
+            <if test="storeVariantId != null">
+                store_variant_id = #{storeVariantId},
+            </if>
+            <if test="storeProductId != null">
+                store_product_id = #{storeProductId},
+            </if>
+            <if test="quotePrice != null">
+                quote_price = #{quotePrice},
+            </if>
+            <if test="userId != null">
+                user_id = #{userId},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <update id="updateByPrimaryKey" parameterType="com.upedge.pms.modules.quote.entity.ProductQuoteRecord">
+        update product_quote_record
+        <set>
+        id = #{id},
+        product_id = #{productId},
+        variant_id = #{variantId},
+        store_variant_id = #{storeVariantId},
+        store_product_id = #{storeProductId},
+        quote_price = #{quotePrice},
+        user_id = #{userId},
+        create_time = #{createTime},
+        </set>
+        where id = #{id}
+    </update>
+
+    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.upedge.pms.modules.quote.entity.ProductQuoteRecord" useGeneratedKeys="true">
+        insert into product_quote_record
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            id,
+            product_id,
+            variant_id,
+            store_variant_id,
+            store_product_id,
+            quote_price,
+            user_id,
+            create_time
+        </trim>
+        values (
+        #{id},
+        #{productId},
+        #{variantId},
+        #{storeVariantId},
+        #{storeProductId},
+        #{quotePrice},
+        #{userId},
+        #{createTime}
+        )
+    </insert>
+
+    <insert id="insertSelective"  keyColumn="id" keyProperty="id"  parameterType="com.upedge.pms.modules.quote.entity.ProductQuoteRecord" useGeneratedKeys="true">
+        insert into product_quote_record
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null" >
+              id
+            </if>
+            <if test="productId != null" >
+              product_id
+            </if>
+            <if test="variantId != null" >
+              variant_id
+            </if>
+            <if test="storeVariantId != null" >
+              store_variant_id
+            </if>
+            <if test="storeProductId != null" >
+              store_product_id
+            </if>
+            <if test="quotePrice != null" >
+              quote_price
+            </if>
+            <if test="userId != null" >
+              user_id
+            </if>
+            <if test="createTime != null" >
+              create_time
+            </if>
+
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null" >
+                #{id}
+            </if>
+            <if test="productId != null" >
+                #{productId}
+            </if>
+            <if test="variantId != null" >
+                #{variantId}
+            </if>
+            <if test="storeVariantId != null" >
+                #{storeVariantId}
+            </if>
+            <if test="storeProductId != null" >
+                #{storeProductId}
+            </if>
+            <if test="quotePrice != null" >
+                #{quotePrice}
+            </if>
+            <if test="userId != null" >
+                #{userId}
+            </if>
+            <if test="createTime != null" >
+                #{createTime}
+            </if>
+
+        </trim>
+    </insert>
+
+    <insert id="insertByBatch" parameterType="java.util.List">
+        insert into product_quote_record
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+           id,
+           product_id,
+           variant_id,
+           store_variant_id,
+           store_product_id,
+           quote_price,
+           user_id,
+           create_time
+        </trim>
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+               #{item.id},
+               #{item.productId},
+               #{item.variantId},
+               #{item.storeVariantId},
+               #{item.storeProductId},
+               #{item.quotePrice},
+               #{item.userId},
+               #{item.createTime}
+            </trim>
+        </foreach>
+    </insert>
+
+    <sql id="Query_Condition">
+        <if test="t != null">
+            where
+            <trim prefix=" " suffix=" " suffixOverrides=" and ">
+                1 = 1 and
+                    <if test="t.id != null">
+                        id = #{t.id} and
+                    </if>
+                    <if test="t.productId != null">
+                        product_id = #{t.productId} and
+                    </if>
+                    <if test="t.variantId != null">
+                        variant_id = #{t.variantId} and
+                    </if>
+                    <if test="t.storeVariantId != null">
+                        store_variant_id = #{t.storeVariantId} and
+                    </if>
+                    <if test="t.storeProductId != null">
+                        store_product_id = #{t.storeProductId} and
+                    </if>
+                    <if test="t.quotePrice != null">
+                        quote_price = #{t.quotePrice} and
+                    </if>
+                    <if test="t.userId != null">
+                        user_id = #{t.userId} and
+                    </if>
+                    <if test="t.createTime != null">
+                        create_time = #{t.createTime} and
+                    </if>
+            </trim>
+        </if>
+    </sql>
+
+    <select id="select" parameterType="com.upedge.common.base.Page" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from product_quote_record
+        <include refid="Query_Condition"/>
+        <if test="orderBy != null">
+            order by ${orderBy}
+        </if>
+        <if test="pageNum != null and pageSize != null">
+            limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+        </if>
+    </select>
+
+    <select id="count" parameterType="com.upedge.common.base.Page" resultType="java.lang.Long">
+        select
+        count(1)
+        from product_quote_record
+        <include refid="Query_Condition"/>
+    </select>
+
+
+</mapper>

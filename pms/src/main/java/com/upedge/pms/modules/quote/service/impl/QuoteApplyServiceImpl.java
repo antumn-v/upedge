@@ -21,9 +21,11 @@ import com.upedge.pms.modules.quote.dao.QuoteApplyItemDao;
 import com.upedge.pms.modules.quote.dto.QuoteApplyListDto;
 import com.upedge.pms.modules.quote.dto.QuoteApplyProcessItem;
 import com.upedge.pms.modules.quote.entity.CustomerProductQuote;
+import com.upedge.pms.modules.quote.entity.ProductQuoteRecord;
 import com.upedge.pms.modules.quote.entity.QuoteApply;
 import com.upedge.pms.modules.quote.entity.QuoteApplyItem;
 import com.upedge.pms.modules.quote.service.CustomerProductQuoteService;
+import com.upedge.pms.modules.quote.service.ProductQuoteRecordService;
 import com.upedge.pms.modules.quote.service.QuoteApplyService;
 import com.upedge.pms.modules.quote.vo.QuoteApplyVo;
 import org.springframework.beans.BeanUtils;
@@ -58,6 +60,9 @@ public class QuoteApplyServiceImpl implements QuoteApplyService {
 
     @Autowired
     ProductVariantDao productVariantDao;
+
+    @Autowired
+    ProductQuoteRecordService productQuoteRecordService;
 
 
     /**
@@ -133,6 +138,8 @@ public class QuoteApplyServiceImpl implements QuoteApplyService {
         List<CustomerProductQuote> customerProductQuotes = new ArrayList<>();
         Map<Long, Product> map = new HashMap<>();
         List<Long> storeVariantIds = new ArrayList<>();
+        Date date = new Date();
+        List<ProductQuoteRecord> productQuoteRecords = new ArrayList<>();
         for (QuoteApplyProcessItem quoteApplyProcessItem : quoteApplyProcessItems) {
             if (null == quoteApplyProcessItem.getPrice()
             || 0 == quoteApplyProcessItem.getPrice().compareTo(BigDecimal.ZERO)){
@@ -146,7 +153,8 @@ public class QuoteApplyServiceImpl implements QuoteApplyService {
                     || 0 == BigDecimal.ZERO.compareTo(productVariant.getWeight())) {
                 return BaseResponse.failed(quoteApplyProcessItem.getVariantSku() + " 变体未编辑完成");
             }else {
-
+                //匹配报价申请产品并保存报价记录
+                ProductQuoteRecord productQuoteRecord = new ProductQuoteRecord();
                 for (QuoteApplyItem quoteApplyItem : quoteApplyItems) {
                     if (quoteApplyItem.getId().equals(quoteApplyProcessItem.getQuoteApplyItemId())){
                         quoteApplyItem.setVariantId(productVariant.getId());
@@ -157,6 +165,11 @@ public class QuoteApplyServiceImpl implements QuoteApplyService {
                         quoteApplyItem.setProductId(productVariant.getProductId());
                         quoteApplyItemDao.updateByPrimaryKey(quoteApplyItem);
 
+                        BeanUtils.copyProperties(quoteApplyItem,productQuoteRecord);
+                        productQuoteRecord.setUserId(session.getId());
+                        productQuoteRecord.setCreateTime(date);
+                        productQuoteRecords.add(productQuoteRecord);
+                        //保存报价关联
                         CustomerProductQuote customerProductQuote = new CustomerProductQuote();
                         BeanUtils.copyProperties(quoteApplyItem,customerProductQuote);
                         customerProductQuote.setCustomerId(quoteApply.getCustomerId());
@@ -190,6 +203,10 @@ public class QuoteApplyServiceImpl implements QuoteApplyService {
         if (ListUtils.isNotEmpty(customerProductQuotes)){
             customerProductQuoteDao.insertByBatch(customerProductQuotes);
         }
+        if (ListUtils.isNotEmpty(productQuoteRecords)){
+            productQuoteRecordService.insertByBatch(productQuoteRecords);
+        }
+
         boolean b = customerProductQuoteService.sendCustomerProductQuoteUpdateMessage(storeVariantIds);
         if (!b){
             throw new CustomerException("消息队列异常，请重新提交");

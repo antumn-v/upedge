@@ -6,6 +6,7 @@ import com.upedge.common.base.Page;
 import com.upedge.common.constant.key.RocketMqConfig;
 import com.upedge.common.model.pms.quote.CustomerProductQuoteVo;
 import com.upedge.common.model.pms.request.CustomerProductQuoteSearchRequest;
+import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.utils.ListUtils;
 import com.upedge.pms.modules.product.dao.ProductVariantDao;
 import com.upedge.pms.modules.product.dao.StoreProductVariantDao;
@@ -15,17 +16,21 @@ import com.upedge.pms.modules.product.service.ProductService;
 import com.upedge.pms.modules.quote.dao.CustomerProductQuoteDao;
 import com.upedge.pms.modules.quote.dao.QuoteApplyItemDao;
 import com.upedge.pms.modules.quote.entity.CustomerProductQuote;
+import com.upedge.pms.modules.quote.entity.ProductQuoteRecord;
 import com.upedge.pms.modules.quote.request.CustomerProductQuoteUpdateRequest;
 import com.upedge.pms.modules.quote.service.CustomerProductQuoteService;
+import com.upedge.pms.modules.quote.service.ProductQuoteRecordService;
 import com.upedge.pms.mq.producer.ProductMqProducer;
 import jodd.util.StringUtil;
 import org.apache.rocketmq.common.message.Message;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -50,6 +55,9 @@ public class CustomerProductQuoteServiceImpl implements CustomerProductQuoteServ
 
     @Autowired
     ProductService productService;
+
+    @Autowired
+    ProductQuoteRecordService productQuoteRecordService;
 
 
 
@@ -80,7 +88,7 @@ public class CustomerProductQuoteServiceImpl implements CustomerProductQuoteServ
     }
 
     @Override
-    public BaseResponse updateCustomerProductQuote(CustomerProductQuoteUpdateRequest request) {
+    public BaseResponse updateCustomerProductQuote(CustomerProductQuoteUpdateRequest request, Session session) {
         Long storeVariantId = request.getStoreVariantId();
         if (null == storeVariantId
         || StringUtil.isEmpty(request.getVariantSku())
@@ -91,6 +99,10 @@ public class CustomerProductQuoteServiceImpl implements CustomerProductQuoteServ
         CustomerProductQuote customerProductQuote = customerProductQuoteDao.selectByStoreVariantId(storeVariantId);
         if (null == customerProductQuote){
             return BaseResponse.failed("该产品未报价");
+        }
+        if (customerProductQuote.getQuotePrice().compareTo(request.getQuotePrice()) == 0
+        && customerProductQuote.getVariantSku().equals(request.getVariantSku())){
+            return BaseResponse.success();
         }
         ProductVariant productVariant = productVariantDao.selectBySku(request.getVariantSku());
         if (null == productVariant
@@ -112,6 +124,12 @@ public class CustomerProductQuoteServiceImpl implements CustomerProductQuoteServ
         customerProductQuote.setVariantSku(productVariant.getVariantSku());
         customerProductQuote.setQuotePrice(request.getQuotePrice());
         customerProductQuoteDao.updateByPrimaryKeySelective(customerProductQuote);
+
+        ProductQuoteRecord productQuoteRecord = new ProductQuoteRecord();
+        BeanUtils.copyProperties(customerProductQuote,productQuoteRecord);
+        productQuoteRecord.setUserId(session.getId());
+        productQuoteRecord.setCreateTime(new Date());
+        productQuoteRecordService.insert(productQuoteRecord);
 
         List<Long> storeVariantIds = new ArrayList<>();
         storeVariantIds.add(request.getStoreVariantId());
