@@ -12,6 +12,7 @@ import com.upedge.oms.modules.stock.entity.CustomerProductStock;
 import com.upedge.oms.modules.stock.entity.CustomerStockRecord;
 import com.upedge.oms.modules.stock.request.CustomerProductStockListRequest;
 import com.upedge.oms.modules.stock.request.CustomerStockRecordListRequest;
+import com.upedge.oms.modules.stock.request.ManualAddCustomerStockRequest;
 import com.upedge.oms.modules.stock.response.CustomerProductStockInfoResponse;
 import com.upedge.oms.modules.stock.response.CustomerProductStockListResponse;
 import com.upedge.oms.modules.stock.service.CustomerProductStockService;
@@ -110,10 +111,17 @@ public class CustomerProductStockController {
      * @param id
      * @return
      */
-//    @ApiOperation("同步赛盒库存")
-//    @PostMapping(value = "/refreshSaiheInventory/{id}")
+    @ApiOperation("同步赛盒库存")
+    @PostMapping(value = "/refreshSaiheInventory/{id}")
     public BaseResponse refreshSaiheInventory(@PathVariable Long id) throws CustomerException {
         return   customerProductStockService.refreshSaiheInventory(id);
+    }
+
+    @ApiOperation("手动添加产品库存")
+    @PostMapping("/addManually")
+    public BaseResponse manualAddCustomerStock(@RequestBody@Valid ManualAddCustomerStockRequest request){
+        Session session = UserUtil.getSession(redisTemplate);
+        return customerProductStockService.manualAddCustomerVariantStock(request,session);
     }
 
 

@@ -2,28 +2,33 @@ package com.upedge.oms.modules.stock.service.impl;
 
 import com.upedge.common.base.BaseResponse;
 import com.upedge.common.base.Page;
+import com.upedge.common.constant.ProductConstant;
 import com.upedge.common.enums.CustomerExceptionEnum;
 import com.upedge.common.exception.CustomerException;
 import com.upedge.common.feign.PmsFeignClient;
 import com.upedge.common.model.order.vo.CustomerProductStockNumVo;
 import com.upedge.common.model.product.ProductSaiheInventoryVo;
+import com.upedge.common.model.product.VariantDetail;
+import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.utils.ListUtils;
 import com.upedge.oms.modules.order.vo.ItemDischargeQuantityVo;
 import com.upedge.oms.modules.stock.dao.CustomerProductStockDao;
 import com.upedge.oms.modules.stock.entity.CustomerProductStock;
+import com.upedge.oms.modules.stock.request.ManualAddCustomerStockRequest;
 import com.upedge.oms.modules.stock.service.CustomerProductStockService;
+import com.upedge.oms.modules.stock.vo.CustomerSkuStockVo;
+import com.upedge.thirdparty.saihe.config.SaiheConfig;
 import com.upedge.thirdparty.saihe.entity.GetProductInventory.ApiProductInventory;
 import com.upedge.thirdparty.saihe.entity.GetProductInventory.ProductInventoryList;
 import com.upedge.thirdparty.saihe.response.GetProductInventoryResponse;
 import com.upedge.thirdparty.saihe.service.SaiheService;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 
 @Service
@@ -59,6 +64,60 @@ public class CustomerProductStockServiceImpl implements CustomerProductStockServ
     @Transactional
     public int insertSelective(CustomerProductStock record) {
         return customerProductStockDao.insert(record);
+    }
+
+    @Override
+    public BaseResponse manualAddCustomerVariantStock(ManualAddCustomerStockRequest request, Session session) {
+        Long productId = request.getProductId();
+        Long customerId = request.getCustomerId();
+        List<VariantDetail> variantDetails = pmsFeignClient.getVariantDetail(productId);
+        if (ListUtils.isEmpty(variantDetails)){
+            return BaseResponse.failed("产品信息有误");
+        }
+        List<CustomerSkuStockVo> customerSkuStockVos = request.getCustomerSkuStockVos();
+        Map<String,VariantDetail> map = new HashMap<>();
+        for (VariantDetail variantDetail : variantDetails) {
+            map.put(variantDetail.getVariantSku(),variantDetail);
+        }
+        Date date = new Date();
+        List<CustomerProductStock> customerProductStocks = new ArrayList<>();
+        List<CustomerProductStock> updateStock = new ArrayList<>();
+
+        List<Long> variantIds = customerProductStockDao.selectWarehouseVariantIdsByCustomer(request.getCustomerId(), ProductConstant.DEFAULT_WAREHOURSE_ID.longValue());
+        for (CustomerSkuStockVo customerSkuStockVo : customerSkuStockVos) {
+            if(0 == customerSkuStockVo.getStock()) {
+                continue;
+            }
+            VariantDetail variantDetail = map.get(customerSkuStockVo.getVariantSku());
+            if (null == variantDetail){
+                return BaseResponse.failed("sku: "+customerSkuStockVo.getVariantSku()+" 不存在");
+            }
+            CustomerProductStock customerProductStock = new CustomerProductStock();
+            if (!variantIds.contains(variantDetail.getVariantId())){
+                BeanUtils.copyProperties(variantDetail,customerProductStock);
+                customerProductStock.setCustomerId(request.getCustomerId());
+                customerProductStock.setStock(customerSkuStockVo.getStock());
+                customerProductStock.setCreateTime(date);
+                customerProductStock.setUpdateTime(date);
+                customerProductStock.setStockType(1);
+                customerProductStock.setWarehouseId(SaiheConfig.UPEDGE_DEFAULT_WAREHOURSE_ID.longValue());
+                customerProductStocks.add(customerProductStock);
+            }else {
+                customerProductStock.setCustomerId(customerId);
+                customerProductStock.setVariantId(customerSkuStockVo.getVariantId());
+                customerProductStock.setStock(customerSkuStockVo.getStock());
+                customerProductStock.setWarehouseId(ProductConstant.DEFAULT_WAREHOURSE_ID.longValue());
+                updateStock.add(customerProductStock);
+            }
+
+        }
+        if(ListUtils.isNotEmpty(customerProductStocks)){
+            customerProductStockDao.insertByBatch(customerProductStocks);
+        }
+        if (ListUtils.isNotEmpty(updateStock)) {
+            customerProductStockDao.increaseVariantStock(updateStock);
+        }
+        return BaseResponse.success();
     }
 
     /**

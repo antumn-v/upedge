@@ -57,4 +57,6 @@ public class CustomerProductStock{
 
 	private String variantName;
 
+	private Integer stockType;
+
 }

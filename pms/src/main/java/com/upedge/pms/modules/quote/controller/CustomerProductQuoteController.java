@@ -37,9 +37,24 @@ public class CustomerProductQuoteController {
     RedisTemplate redisTemplate;
 
 
-    @ApiOperation("已报价产品列表")
+    @ApiOperation("客户查看已报价产品")
     @PostMapping("/list")
     public BaseResponse customerProductQuoteList(@RequestBody CustomerProductQuoteListRequest request){
+        Session session = UserUtil.getSession(redisTemplate);
+        if (request.getT() == null){
+            request.setT(new CustomerProductQuote());
+        }
+        request.getT().setCustomerId(session.getCustomerId());
+        List<CustomerProductQuote> customerProductQuotes = customerProductQuoteService.select(request);
+        Long total = customerProductQuoteService.count(request);
+        request.setTotal(total);
+        return BaseResponse.success(customerProductQuotes,request);
+    }
+
+
+    @ApiOperation("所有已报价产品")
+    @PostMapping("/all")
+    public BaseResponse allProductQuote(@RequestBody CustomerProductQuoteListRequest request){
         List<CustomerProductQuote> customerProductQuotes = customerProductQuoteService.select(request);
         Long total = customerProductQuoteService.count(request);
         request.setTotal(total);

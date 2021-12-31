@@ -4,8 +4,10 @@ import com.upedge.common.base.BaseResponse;
 import com.upedge.common.base.Page;
 import com.upedge.common.exception.CustomerException;
 import com.upedge.common.model.order.vo.CustomerProductStockNumVo;
+import com.upedge.common.model.user.vo.Session;
 import com.upedge.oms.modules.order.vo.ItemDischargeQuantityVo;
 import com.upedge.oms.modules.stock.entity.CustomerProductStock;
+import com.upedge.oms.modules.stock.request.ManualAddCustomerStockRequest;
 
 import java.util.List;
 
@@ -13,6 +15,9 @@ import java.util.List;
  * @author author
  */
 public interface CustomerProductStockService{
+
+
+    BaseResponse manualAddCustomerVariantStock(ManualAddCustomerStockRequest request, Session session);
 
     CustomerProductStock selectByPrimaryKey(Long id);
 
