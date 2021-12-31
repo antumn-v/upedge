@@ -8,6 +8,7 @@ import com.upedge.common.model.pms.request.CustomerProductQuoteSearchRequest;
 import com.upedge.common.model.pms.request.OrderQuoteApplyRequest;
 import com.upedge.common.model.product.ListVariantsRequest;
 import com.upedge.common.model.product.ProductSaiheInventoryVo;
+import com.upedge.common.model.product.VariantDetail;
 import com.upedge.common.model.product.request.PlatIdSelectStoreVariantRequest;
 import com.upedge.common.model.product.request.ProductVariantShipsRequest;
 import com.upedge.common.model.product.request.RelateDetailSearchRequest;
@@ -89,6 +90,11 @@ public class PmsFeignClientFallbackFactory implements FallbackFactory<PmsFeignCl
             @Override
             public BaseResponse userInfo(Long id) {
                 return new BaseResponse(ResultCode.FAIL_CODE,"服务异常");
+            }
+
+            @Override
+            public List<VariantDetail> getVariantDetail(Long id) {
+                return new ArrayList<>();
             }
 
             @Override

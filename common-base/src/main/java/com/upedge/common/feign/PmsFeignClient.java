@@ -8,6 +8,7 @@ import com.upedge.common.model.pms.request.CustomerProductQuoteSearchRequest;
 import com.upedge.common.model.pms.request.OrderQuoteApplyRequest;
 import com.upedge.common.model.product.ListVariantsRequest;
 import com.upedge.common.model.product.ProductSaiheInventoryVo;
+import com.upedge.common.model.product.VariantDetail;
 import com.upedge.common.model.product.request.PlatIdSelectStoreVariantRequest;
 import com.upedge.common.model.product.request.ProductVariantShipsRequest;
 import com.upedge.common.model.product.request.RelateDetailSearchRequest;
@@ -62,6 +63,9 @@ public interface PmsFeignClient {
 
     @RequestMapping(value = "/product/userInfo/{id}", method=RequestMethod.POST)
     BaseResponse userInfo(@PathVariable Long id);
+
+    @GetMapping("/product/variantDetail/{id}")
+    public List<VariantDetail> getVariantDetail(@PathVariable Long id);
 
     @RequestMapping(value = "/productSaiheInventory/all" , method = RequestMethod.POST)
     BaseResponse queryProductSaiheInventory(@RequestBody ProductSaiheInventoryVo productSaiheInventory);

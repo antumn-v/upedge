@@ -10,6 +10,7 @@ import com.upedge.common.exception.CustomerException;
 import com.upedge.common.feign.OmsFeignClient;
 import com.upedge.common.model.cart.request.CartAddRequest;
 import com.upedge.common.model.product.AlibabaApiVo;
+import com.upedge.common.model.product.VariantDetail;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.utils.UploadImgUtil;
 import com.upedge.common.utils.UrlUtils;
@@ -26,18 +27,19 @@ import com.upedge.pms.modules.product.vo.AppProductVo;
 import com.upedge.pms.modules.product.vo.ProductVo;
 import com.upedge.thirdparty.ali1688.service.Ali1688Service;
 import com.upedge.thirdparty.ali1688.vo.AlibabaProductVo;
-import com.upedge.thirdparty.saihe.config.SaiheConfig;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -269,9 +271,7 @@ public class ProductController {
     @ApiOperation("产品导入赛盒")
     @RequestMapping(value = "/uploadToSaihe",method = RequestMethod.POST)
     public BaseResponse uploadToSaihe(@RequestBody @Valid ProductUoloadToSaiheRequest request){
-        if(!SaiheConfig.SAIHE_PRODUCT_SWITCH){
-            return new BaseResponse(ResultCode.FAIL_CODE,"未开启");
-        }
+
         try {
             return productService.uploadToSaihe(request);
         } catch (CustomerException e) {
@@ -341,6 +341,31 @@ public class ProductController {
         }
         BaseResponse res = new ProductUpdateResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS);
         return res;
+    }
+
+    @GetMapping("/variantDetail/{id}")
+    public List<VariantDetail> getVariantDetail(@PathVariable Long id){
+        Product product = productService.selectByPrimaryKey(id);
+        if (null == product){
+            return null;
+        }
+        String productTitle = product.getProductTitle();
+        Long shippingId = product.getShippingId();
+        List<ProductVariant> productVariants = productVariantService.selectByProductId(id);
+
+        List<VariantDetail> variantDetails = new ArrayList<>();
+        for (ProductVariant productVariant : productVariants) {
+            VariantDetail variantDetail = new VariantDetail();
+            BeanUtils.copyProperties(productVariant,variantDetail);
+            variantDetail.setCnyPrice(productVariant.getVariantPrice());
+            variantDetail.setProductTitle(productTitle);
+            variantDetail.setProductShippingId(shippingId);
+            variantDetail.setVariantId(productVariant.getId());
+            variantDetail.setVolume(productVariant.getVolumeWeight());
+            variantDetail.setVariantName(productVariant.getEnName());
+            variantDetails.add(variantDetail);
+        }
+        return variantDetails;
     }
 
 
