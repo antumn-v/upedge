@@ -107,6 +107,8 @@ public interface AccountService {
 
     AccountCreditLimitUpdateResponse updateAccountCreditLimit(Long id, BigDecimal creditLimit);
 
+    int insert(Account account);
+
     boolean accountPayment(AccountPaymentRequest request);
 
     boolean accountPayOrders(PaymentDetail paymentDetail);

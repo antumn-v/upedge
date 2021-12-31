@@ -1,35 +1,30 @@
 package com.upedge.ums.modules.user.service.impl;
 
-import com.alibaba.fastjson.JSON;
 import com.upedge.common.base.BaseResponse;
+import com.upedge.common.base.Page;
 import com.upedge.common.constant.BaseCode;
 import com.upedge.common.constant.Constant;
 import com.upedge.common.constant.ResultCode;
-import com.upedge.common.constant.key.RedisKey;
 import com.upedge.common.enums.CustomerExceptionEnum;
-import com.upedge.common.enums.CustomerSettingEnum;
 import com.upedge.common.exception.CustomerException;
 import com.upedge.common.model.user.vo.*;
 import com.upedge.common.utils.IdGenerate;
-import com.upedge.common.utils.RedisKeyUtils;
 import com.upedge.common.utils.TokenUtil;
 import com.upedge.common.web.util.UserUtil;
 import com.upedge.ums.modules.account.entity.Account;
-import com.upedge.ums.modules.account.entity.AccountUser;
 import com.upedge.ums.modules.account.service.AccountService;
-
 import com.upedge.ums.modules.application.entity.Application;
 import com.upedge.ums.modules.application.entity.Menu;
 import com.upedge.ums.modules.application.service.ApplicationService;
 import com.upedge.ums.modules.application.service.MenuService;
 import com.upedge.ums.modules.organization.entity.Organization;
 import com.upedge.ums.modules.organization.entity.OrganizationMenu;
-import com.upedge.ums.modules.organization.entity.OrganizationRole;
 import com.upedge.ums.modules.organization.entity.OrganizationUser;
 import com.upedge.ums.modules.organization.service.OrganizationMenuService;
 import com.upedge.ums.modules.organization.service.OrganizationRoleService;
 import com.upedge.ums.modules.organization.service.OrganizationService;
 import com.upedge.ums.modules.organization.service.OrganizationUserService;
+import com.upedge.ums.modules.user.dao.UserDao;
 import com.upedge.ums.modules.user.entity.*;
 import com.upedge.ums.modules.user.request.CustomerSignUpRequest;
 import com.upedge.ums.modules.user.request.UserSignInRequest;
@@ -40,17 +35,17 @@ import com.upedge.ums.modules.user.response.UserSignInResponse;
 import com.upedge.ums.modules.user.service.*;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
-
-import com.upedge.common.base.Page;
-import org.springframework.beans.factory.annotation.Autowired;
-import com.upedge.ums.modules.user.dao.UserDao;
 
 
 @Service
@@ -360,8 +355,9 @@ public class UserServiceImpl implements UserService {
 
         Account account = request.toAccount(customer);
         account.setName(userInfo.getUsername());
+        account.setStatus(1);
         account.setIsDefault(true);
-//        accountService.insert(account);
+        accountService.insert(account);
 
 
 

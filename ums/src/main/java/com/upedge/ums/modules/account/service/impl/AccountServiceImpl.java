@@ -345,6 +345,11 @@ public class AccountServiceImpl implements AccountService {
         return new AccountCreditLimitUpdateResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS);
     }
 
+    @Override
+    public int insert(Account account) {
+        return accountMapper.insert(account);
+    }
+
     @GlobalTransactional
     @Override
     public boolean accountPayment(AccountPaymentRequest request) {
