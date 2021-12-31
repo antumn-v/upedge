@@ -63,7 +63,7 @@
         <result property="payTime" column="pay_time"/>
         <result property="createTime" column="create_time"/>
         <result property="updateTime" column="update_time"/>
-        <result property="adminState" column="admin_state"/>
+        <result property="saiheState" column="saihe_state"/>
         <result property="managerCode" column="manager_code"/>
         <result property="saiheCode" column="saihe_code"/>
         <collection property="items" ofType="com.upedge.oms.modules.stock.vo.AdminStockOrderItemVo">
@@ -605,7 +605,7 @@
         o.pay_time,
         o.create_time,
         o.update_time,
-        o.admin_state,
+        o.saihe_state,
         o.manager_code,
         o.saihe_code,
         item.id as itemId,
@@ -637,17 +637,17 @@
 
     <select id="countWithOutSaiheSku" resultType="java.lang.Long">
        select count(1) from stock_order_item i
-       left join admin_variant_sku v on i.variant_sku=v.variant_sku
+       left join saihe_sku_relate v on i.variant_sku=v.variant_sku
        where v.saihe_sku is null and i.order_id=#{id}
     </select>
 
     <update id="markStockOrder">
-        update stock_order set admin_state=1 where id=#{id} and admin_state=0
+        update stock_order set saihe_state=1 where id=#{id} and saihe_state=0
     </update>
 
     <update id="updateOrderStockedSuccess">
        update stock_order
-       set admin_state=#{adminState},
+       set saihe_state=#{saiheState},
        update_time=#{updateTime},
        saihe_code=#{saiheCode}
        where id=#{id}
@@ -655,7 +655,7 @@
 
     <select id="listVariantSkuForRefresh" resultType="java.lang.String">
        select DISTINCT i.variant_sku from stock_order_item i
-       left join admin_variant_sku v on i.variant_sku=v.variant_sku
+       left join saihe_sku_relate v on i.variant_sku=v.variant_sku
        where v.saihe_sku is null and i.order_id=#{id}
     </select>
 

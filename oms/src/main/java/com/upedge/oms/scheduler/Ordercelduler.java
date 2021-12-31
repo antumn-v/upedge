@@ -56,7 +56,7 @@ public class Ordercelduler {
     private OrderDailyRefundCountService orderDailyRefundCountService;
 
 
-    @Scheduled(cron = "0 0 */1 ? * *")
+    @Scheduled(cron = "0 */5 * ? * *")
     public void reUploadOrderToSaihe(){
         Page<SaiheOrderRecord> page = new Page<>();
         SaiheOrderRecord saiheOrderRecord = new SaiheOrderRecord();
@@ -70,9 +70,6 @@ public class Ordercelduler {
                 try {
                     Long id = Long.parseLong(orderRecord.getClientOrderCode());
                     switch (orderRecord.getOrderType()){
-                        case OrderType.WHOLESALE:
-                            wholesaleOrderService.importOrderToSaihe(id);
-                            break;
                         case OrderType.NORMAL:
                             orderService.importOrderToSaihe(id);
                             break;

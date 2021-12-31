@@ -66,7 +66,7 @@ public class AdminStockOrderVo {
     /**
      * 后台状态 0:未导入赛盒 1:已导入赛盒
      */
-    private Integer adminState;
+    private Integer saiheState;
     /**
      * 处理人
      */

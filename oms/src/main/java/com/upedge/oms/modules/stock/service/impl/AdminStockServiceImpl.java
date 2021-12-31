@@ -141,6 +141,7 @@ public class AdminStockServiceImpl implements AdminStockService {
         if(stockOrder.getSaiheCode()!=null){
             return new BaseResponse(ResultCode.FAIL_CODE,"已导入赛盒!");
         }
+        refreshSaiheSku(request.getId());
         long num=stockOrderDao.countWithOutSaiheSku(request.getId());
         if(num>0){
             return new BaseResponse(ResultCode.FAIL_CODE,"存在不匹配赛盒sku的子体，<br/>请先同步赛盒sku！");
@@ -241,7 +242,6 @@ public class AdminStockServiceImpl implements AdminStockService {
         return new BaseResponse(ResultCode.FAIL_CODE,"更新失败");
     }
 
-    @Transactional
     public void saveAdminVariantSku(String clientSku, String sku){
         AdminVariantSku adminVariantSku=adminVariantSkuDao.selectByPrimaryKey(clientSku);
         if(adminVariantSku==null){
@@ -378,7 +378,7 @@ public class AdminStockServiceImpl implements AdminStockService {
                             customerProductStock.getWarehouseId().intValue());*/
             ProductSaiheInventoryVo productSaiheInventoryVo = new ProductSaiheInventoryVo();
             productSaiheInventoryVo.setVariantSku(customerProductStock.getVariantSku());
-            productSaiheInventoryVo.setWarehouseId(customerProductStock.getWarehouseId().intValue());
+//            productSaiheInventoryVo.setWarehouseId(customerProductStock.getWarehouseId().intValue());
             BaseResponse baseResponse = pmsFeignClient.queryProductSaiheInventory(productSaiheInventoryVo);
 
             if (baseResponse.getCode() != -1 && baseResponse.getData() != null){

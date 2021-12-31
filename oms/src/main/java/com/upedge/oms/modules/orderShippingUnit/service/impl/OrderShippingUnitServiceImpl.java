@@ -6,7 +6,7 @@ import com.upedge.common.base.Page;
 import com.upedge.common.constant.OrderType;
 import com.upedge.common.constant.ResultCode;
 import com.upedge.common.feign.TmsFeignClient;
-import com.upedge.common.model.old.tms.ShippingUnit;
+import com.upedge.common.model.tms.ShippingUnitVo;
 import com.upedge.common.utils.IdGenerate;
 import com.upedge.oms.modules.order.service.OrderService;
 import com.upedge.oms.modules.orderShippingUnit.dao.OrderShippingUnitDao;
@@ -79,7 +79,7 @@ public class OrderShippingUnitServiceImpl implements OrderShippingUnitService {
         if (shippingUnitId != null){
             BaseResponse shippingUnitResponse = tmsFeignClient.unitInfo(shippingUnitId);
             if (shippingUnitResponse.getCode() == ResultCode.SUCCESS_CODE && shippingUnitResponse.getData() != null){
-                ShippingUnit shippingUnit = JSON.parseObject(JSON.toJSONString(shippingUnitResponse.getData()), ShippingUnit.class);
+                ShippingUnitVo shippingUnit = JSON.parseObject(JSON.toJSONString(shippingUnitResponse.getData()), ShippingUnitVo.class);
                 OrderShippingUnit orderShippingUnit = new OrderShippingUnit();
                 BeanUtils.copyProperties(shippingUnit,orderShippingUnit);
                 orderShippingUnit.setOrderId(orderId);

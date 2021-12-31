@@ -145,53 +145,7 @@ public class OrderPayServiceImpl implements OrderPayService {
         orderProductAmountVos.forEach(orderProductAmountVo -> {
             orderProductAmountVoMap.put(orderProductAmountVo.getId(), orderProductAmountVo);
         });
-//        List<CompletableFuture> completableFutures = new ArrayList<>();
-//        Map<Long, ShipDetail> orderShipMap = new ConcurrentHashMap<>();
-//        for (AppOrderVo orderVo : orderVos) {
-//            OrderShippingUnitVo orderShippingUnitVo = orderShippingUnitService.selectByOrderId(orderVo.getId(), OrderType.NORMAL);
-//            if (orderShippingUnitVo != null){
-//                continue ;
-//            }
-//            CompletableFuture<Boolean> orderShipVerify = CompletableFuture.supplyAsync(() -> {
-//                List<ShipDetail> shipDetails = orderServiceImpl.orderShipMethods(orderVo.getId(),  orderVo.getToAreaId());
-//                if (ListUtils.isEmpty(shipDetails)) {
-//                  //  orderVos.remove(orderVo);
-//                    return false;
-//                }
-//                ShipDetail ship = null;
-//                if (null != orderVo.getShipMethodId()) {
-//                    b:
-//                    for (ShipDetail shipDetail : shipDetails) {
-//                        if (shipDetail.getMethodId().equals(orderVo.getShipMethodId())) {
-//                            ship = shipDetail;
-//                            break b;
-//                        }
-//                    }
-//                }
-//                if (null == ship) {
-//                    ship = shipDetails.get(0);
-//                }
-//                orderVo.setShipPrice(ship.getPrice());
-//                orderVo.setShipMethodName(ship.getMethodName());
-//                orderVo.setTotalWeight(ship.getWeight());
-//                orderShipMap.put(orderVo.getId(), ship);
-//
-//                return true;
-//            }, threadPoolExecutor);
-//            completableFutures.add(orderShipVerify);
-//        }
-//        CompletableFuture<String>[] futureArray = completableFutures.toArray(new CompletableFuture[completableFutures.size()]);
-//        CompletableFuture<Void> combinedFuture = CompletableFuture.allOf(futureArray);
-//
-//        combinedFuture.get();
-//        List<String> combinedResult = Stream.of(futureArray).map(CompletableFuture::join)
-//                .distinct().collect(Collectors.toList());
-//        System.out.println(combinedResult);
-//        if (MapUtils.isNotEmpty(orderShipMap)) {
-//            orderDao.updateShipDetailByMap(orderShipMap);
-//            // 插入shipunit
-//            MateShippingUnit(orderShipMap);
-//        }
+
         List<Long> orderShipUnitIds = orderShippingUnitService.selectOrderIdByOrderPaymentId(paymentId, OrderType.NORMAL);
         List<AppOrderVo> cantShipOrders = new ArrayList<>();
         Map<Long, BigDecimal> vatAmountMap = new ConcurrentHashMap<>();
@@ -213,8 +167,13 @@ public class OrderPayServiceImpl implements OrderPayService {
                 }
                 orderVo.setShipMethodName(shipDetail.getMethodName());
                 orderVo.setShipMethodId(shipDetail.getMethodId());
-                orderVo.setShipPrice(shipDetail.getPrice());
+                orderVo.setShipPrice(shipDetail.getPrice().add(shipDetail.getServiceFee()));
+                orderVo.setServiceFee(shipDetail.getServiceFee());
                 orderVo.setTotalWeight(shipDetail.getWeight());
+            }else {
+                orderVo.setShipPrice(orderVo.getShipPrice().add(orderVo.getServiceFee()));
+                String shipMethodName = (String) redisTemplate.opsForHash().get(RedisKey.HASH_SHIP_METHOD + orderVo.getShipMethodId(), "name");
+                orderVo.setShipMethodName(shipMethodName);
             }
             BigDecimal vatAmount = vatRuleService.getOrderVatAmount(orderVo.getProductAmount(), orderVo.getShipPrice(), orderVo.getToAreaId(),orderVo.getCustomerId());
             if (null == orderVo.getVatAmount() || vatAmount.compareTo(orderVo.getVatAmount()) != 0) {

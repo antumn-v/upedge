@@ -104,7 +104,6 @@ public class OrderPayController {
                 redisTemplate.opsForValue().set(key, System.currentTimeMillis(), 15, TimeUnit.SECONDS);
             }
         }
-
         BigDecimal amount = request.getAmount();
         Long paymentId = IdGenerate.nextId();
         String result = "error";

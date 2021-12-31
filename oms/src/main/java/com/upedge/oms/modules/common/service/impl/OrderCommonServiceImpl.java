@@ -147,11 +147,11 @@ public class OrderCommonServiceImpl implements OrderCommonService {
         BeanUtils.copyProperties(saiheOrder, saiheOrderRecord);
         saiheOrderRecord.setId(IdGenerate.nextId());
         //客户id是（测试账号）不上传
-        if (saiheOrder.getCustomerId().equals(SaiheConfig.DEFAULT_ACCOUNT)) {
-            saiheOrderRecord.setState(0);
-            saiheOrderRecord.setFailReason("测试数据");
-            return saiheOrderRecord;
-        }
+//        if (saiheOrder.getCustomerId().equals(SaiheConfig.DEFAULT_ACCOUNT)) {
+//            saiheOrderRecord.setState(0);
+//            saiheOrderRecord.setFailReason("测试数据");
+//            return saiheOrderRecord;
+//        }
         //   检查产品是否导入赛盒 否则不上传
         if (!uploadSaihe(saiheOrder.getOrderItemList())) {
             saiheOrderRecord.setState(0);

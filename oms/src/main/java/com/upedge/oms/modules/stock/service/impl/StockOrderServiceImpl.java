@@ -403,7 +403,7 @@ public class StockOrderServiceImpl implements StockOrderService {
 
         List<StockOrderItem> variantQuantities = stockOrderItemDao.countVariantQuantityByOrderPaymentId(paymentId);
 
-        List<Long> variantIds = customerProductStockDao.selectWarehouseVariantIdsByCustomer(customerId, 162L);
+        List<Long> variantIds = customerProductStockDao.selectWarehouseVariantIdsByCustomer(customerId, ProductConstant.DEFAULT_WAREHOURSE_ID.longValue());
 
         List<CustomerProductStock> insertStock = new ArrayList<>();
 
@@ -415,7 +415,7 @@ public class StockOrderServiceImpl implements StockOrderService {
                 stock.setCustomerId(customerId);
                 stock.setVariantId(variantQuantity.getVariantId());
                 stock.setStock(variantQuantity.getQuantity());
-                stock.setWarehouseId(162L);
+                stock.setWarehouseId(ProductConstant.DEFAULT_WAREHOURSE_ID.longValue());
                 updateStock.add(stock);
             } else {
                 stock.setProductTitle(variantQuantity.getProductTitle());

@@ -593,7 +593,7 @@ public class StoreServiceImpl implements StoreService {
                 .append(ShopifyConfig.scope).append("&redirect_uri=")
                 .append(ShopifyConfig.redirect_url)
                 .append("&state=").append(nonce);
-        return url.toString();
+        return s.toString();
     }
 
     public void saveDefaultRole(Organization organization, Session session) {

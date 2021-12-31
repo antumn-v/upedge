@@ -39,6 +39,8 @@ public class AppOrderVo {
     private String shipMethodName;
 
     private BigDecimal shipPrice;
+
+    private BigDecimal serviceFee;
     /**
      *
      */
