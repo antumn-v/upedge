@@ -4,13 +4,14 @@ import com.upedge.common.base.BaseResponse;
 import com.upedge.common.base.Page;
 import com.upedge.common.constant.Constant;
 import com.upedge.common.constant.ResultCode;
+import com.upedge.common.exception.CustomerException;
 import com.upedge.common.model.ship.vo.ShipDetail;
 import com.upedge.common.utils.IdGenerate;
 import com.upedge.common.utils.ListUtils;
 import com.upedge.tms.modules.ship.dao.ShippingUnitDao;
 import com.upedge.tms.modules.ship.entity.ShippingUnit;
 import com.upedge.tms.modules.ship.service.ShippingUnitService;
-import com.upedge.tms.mq.TmsProcuderService;
+import com.upedge.tms.mq.TmsProducerService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -29,7 +30,7 @@ public class ShippingUnitServiceImpl implements ShippingUnitService {
     private ShippingUnitDao shippingUnitDao;
 
     @Autowired
-    private TmsProcuderService tmsProcuder;
+    private TmsProducerService tmsProducerService;
 
     /**
      *
@@ -66,13 +67,32 @@ public class ShippingUnitServiceImpl implements ShippingUnitService {
         return shippingUnitDao.selectByPrimaryKey(record);
     }
 
+    @Override
+    public int deleteByIds(List<Long> ids) throws CustomerException {
+        for (Long id : ids) {
+            deleteByPrimaryKey(id);
+        }
+        boolean b = tmsProducerService.sendMessage(ids);
+        if (!b){
+            throw new CustomerException("mq异常，请重新提交或联系IT");
+        }
+        return 1;
+    }
+
     /**
     *
     */
     @Transactional
     @Override
-    public int updateByPrimaryKeySelective(ShippingUnit record) {
-        return shippingUnitDao.updateByPrimaryKeySelective(record);
+    public int updateByPrimaryKeySelective(ShippingUnit record) throws CustomerException {
+        int i = shippingUnitDao.updateByPrimaryKeySelective(record);
+        if(i == 1){
+            boolean b = sendMq(record.getId());
+            if (!b){
+                throw new CustomerException("mq发送失败，请重新提交或联系IT");
+            }
+        }
+        return i;
     }
 
     /**
@@ -127,10 +147,10 @@ public class ShippingUnitServiceImpl implements ShippingUnitService {
     @Transactional
     @Override
     public Integer insertBatch(List<ShippingUnit> newList) {
-        List<com.upedge.common.model.old.tms.ShippingUnit> shippingUnits = new ArrayList<>();
+        List<ShippingUnit> shippingUnits = new ArrayList<>();
         for (ShippingUnit unit : newList) {
             unit.setId(IdGenerate.nextId());
-            com.upedge.common.model.old.tms.ShippingUnit shippingUnit = new com.upedge.common.model.old.tms.ShippingUnit();
+            ShippingUnit shippingUnit = new ShippingUnit();
             BeanUtils.copyProperties(unit,shippingUnit);
             shippingUnits.add(shippingUnit);
         }
@@ -155,10 +175,10 @@ public class ShippingUnitServiceImpl implements ShippingUnitService {
     }
 
     @Override
-    public void senMq(Long id) {
+    public boolean sendMq(Long id) {
         ArrayList<Long> list = new ArrayList<>();
         list.add(id);
-        tmsProcuder.sendMessage(list);
+       return tmsProducerService.sendMessage(list);
     }
 
     public ShipDetail shipUnitToDetail(ShippingUnit shippingUnit, BigDecimal weight) {

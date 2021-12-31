@@ -5,7 +5,7 @@ import com.upedge.common.constant.key.RocketMqConfig;
 import com.upedge.common.feign.UmsFeignClient;
 import com.upedge.common.model.log.MqMessageLog;
 import com.upedge.common.utils.IdGenerate;
-import com.upedge.tms.mq.TmsProcuderService;
+import com.upedge.tms.mq.TmsProducerService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.rocketmq.client.producer.DefaultMQProducer;
 import org.apache.rocketmq.client.producer.SendStatus;
@@ -19,7 +19,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 
 @Slf4j
 @Service
-public class TmsProcuderImpl implements TmsProcuderService {
+public class TmsProducerImpl implements TmsProducerService {
 
     @Autowired
     private ThreadPoolExecutor threadPoolExecutor;
@@ -37,23 +37,16 @@ public class TmsProcuderImpl implements TmsProcuderService {
     DefaultMQProducer defaultMQProducer;
 
     @Override
-    public void sendMessage(List<Long> shipUnitIds) {
-//        Future<?> submit =    threadPoolExecutor.submit(() -> {
-//            send(shipUnitIds);
-//        });
-//        try {
-//            submit.get();
-//        } catch (Exception e) {
-//            log.error("运输单元修改id为：{}",shipUnitIds.toString());
-//            e.printStackTrace();
-//        }
+    public boolean sendMessage(List<Long> shipUnitIds) {
+        return send(shipUnitIds);
     }
 
-    private void send(List<Long> shipUnitIds) {
+    private boolean send(List<Long> shipUnitIds) {
         log.info("运输单元修改id为：{}",shipUnitIds.toString());
+        boolean b = false;
         Message message = new Message(RocketMqConfig.TOPIC_SHIP_UNIT_UPDATE,"shipUnit",IdGenerate.nextId().toString() ,JSON.toJSONBytes(shipUnitIds));
         if (message == null){
-            return;
+            return b;
         }
         log.debug("运输单元发送消息，Message:{},tag:{},数据:{}",  JSON.toJSON(message));
         message.setDelayTimeLevel(1);
@@ -71,6 +64,7 @@ public class TmsProcuderImpl implements TmsProcuderService {
             }
         }
         if (status.equals(SendStatus.SEND_OK.name())) {
+            b = true;
             messageLog.setIsSendSuccess(1);
             log.warn("运输单元发送消息，key:{},运输单元发送成功", message.getKeys());
         } else {
@@ -78,5 +72,6 @@ public class TmsProcuderImpl implements TmsProcuderService {
             log.warn("运输单元发送消息，key:{}", message.getKeys());
         }
         umsFeignClient.saveMqLog(messageLog);
+        return b;
     }
 }

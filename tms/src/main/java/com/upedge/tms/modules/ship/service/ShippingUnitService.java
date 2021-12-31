@@ -2,6 +2,7 @@ package com.upedge.tms.modules.ship.service;
 
 import com.upedge.common.base.BaseResponse;
 import com.upedge.common.base.Page;
+import com.upedge.common.exception.CustomerException;
 import com.upedge.common.model.ship.vo.ShipDetail;
 import com.upedge.tms.modules.ship.entity.ShippingUnit;
 
@@ -16,11 +17,13 @@ public interface ShippingUnitService{
 
     ShippingUnit selectByPrimaryKey(Long id);
 
+    int deleteByIds(List<Long> ids) throws CustomerException;
+
     int deleteByPrimaryKey(Long id);
 
     int updateByPrimaryKey(ShippingUnit record);
 
-    int updateByPrimaryKeySelective(ShippingUnit record);
+    int updateByPrimaryKeySelective(ShippingUnit record) throws CustomerException;
 
     int insert(ShippingUnit record);
 
@@ -50,6 +53,6 @@ public interface ShippingUnitService{
 
     List<ShippingUnit> multiExportShippingUnits();
 
-    void senMq(Long id);
+    boolean sendMq(Long id);
 }
 

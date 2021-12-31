@@ -37,7 +37,7 @@ import com.upedge.tms.modules.ship.service.ShippingMethodTemplateService;
 import com.upedge.tms.modules.ship.service.ShippingUnitService;
 import com.upedge.tms.modules.ship.vo.MethodIdTemplateNameVo;
 import com.upedge.common.model.tms.ShippingTemplateVo;
-import com.upedge.tms.mq.TmsProcuderService;
+import com.upedge.tms.mq.TmsProducerService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -80,7 +80,7 @@ public class ShippingMethodServiceImpl implements ShippingMethodService {
     private ThreadPoolExecutor threadPoolExecutor;
 
     @Autowired
-    private TmsProcuderService tmsProcuder;
+    private TmsProducerService tmsProducerService;
 
     @Autowired
     RedisTemplate redisTemplate;
@@ -410,7 +410,7 @@ public class ShippingMethodServiceImpl implements ShippingMethodService {
         // 调用mq
         ArrayList<Long> list = new ArrayList<>();
         list.add(id);
-        tmsProcuder.sendMessage(list);
+        tmsProducerService.sendMessage(list);
         return new ShippingMethodDisableResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS);
     }
 
@@ -465,6 +465,6 @@ public class ShippingMethodServiceImpl implements ShippingMethodService {
     public void senMq(Long shippingMethodId) {
       List<ShippingUnit> list =  shippingUnitDao.selectListByShippingMethodId(shippingMethodId);
         List<Long> collect = list.stream().map(e -> e.getId()).collect(Collectors.toList());
-        tmsProcuder.sendMessage(collect);
+        tmsProducerService.sendMessage(collect);
     }
 }

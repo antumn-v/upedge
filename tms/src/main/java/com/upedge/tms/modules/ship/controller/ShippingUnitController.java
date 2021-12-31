@@ -3,6 +3,7 @@ package com.upedge.tms.modules.ship.controller;
 import com.upedge.common.base.BaseResponse;
 import com.upedge.common.constant.Constant;
 import com.upedge.common.constant.ResultCode;
+import com.upedge.common.exception.CustomerException;
 import com.upedge.common.model.tms.ShippingUnitInfoResponse;
 import com.upedge.common.model.tms.ShippingUnitVo;
 import com.upedge.common.utils.ListUtils;
@@ -14,14 +15,13 @@ import com.upedge.tms.modules.area.entity.Area;
 import com.upedge.tms.modules.area.service.AreaService;
 import com.upedge.tms.modules.ship.entity.ShippingMethod;
 import com.upedge.tms.modules.ship.entity.ShippingUnit;
-import com.upedge.tms.modules.ship.request.ShippingUnitAddRequest;
 import com.upedge.tms.modules.ship.request.ShippingUnitListRequest;
 import com.upedge.tms.modules.ship.request.ShippingUnitUpdateRequest;
-import com.upedge.tms.modules.ship.response.ShippingUnitAddResponse;
 import com.upedge.tms.modules.ship.response.ShippingUnitListResponse;
 import com.upedge.tms.modules.ship.response.ShippingUnitUpdateResponse;
 import com.upedge.tms.modules.ship.service.ShippingMethodService;
 import com.upedge.tms.modules.ship.service.ShippingUnitService;
+import com.upedge.tms.mq.TmsProducerService;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -59,6 +59,9 @@ public class ShippingUnitController {
     @Autowired
     RedisTemplate<String, Object> redisTemplate;
 
+
+    @Autowired
+    TmsProducerService tmsProducerService;
 
 //    @PostMapping("/add")
 //    public BaseResponse addShipUnit(@RequestBody ShippingUnitAddRequest request) {
@@ -351,11 +354,14 @@ public class ShippingUnitController {
 //    }
     @ApiOperation("修改运输单元")
     @RequestMapping(value = "/update/{id}", method = RequestMethod.POST)
-    public ShippingUnitUpdateResponse update(@PathVariable Long id, @RequestBody @Valid ShippingUnitUpdateRequest request) {
+    public BaseResponse update(@PathVariable Long id, @RequestBody @Valid ShippingUnitUpdateRequest request) {
         ShippingUnit entity = request.toShippingUnit(id);
-        shippingUnitService.updateByPrimaryKeySelective(entity);
-        // mq
-        shippingUnitService.senMq(id);
+        try {
+            shippingUnitService.updateByPrimaryKeySelective(entity);
+        } catch (CustomerException e) {
+            e.printStackTrace();
+            return BaseResponse.failed(e.getMessage());
+        }
         ShippingUnitUpdateResponse res = new ShippingUnitUpdateResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS);
         return res;
     }
@@ -368,9 +374,12 @@ public class ShippingUnitController {
      */
     @ApiOperation("删除运输单元")
     @RequestMapping(value = "/del", method = RequestMethod.DELETE)
-    public ShippingUnitUpdateResponse del(@RequestBody List<Long> ids) {
-        for (Long id : ids) {
-            shippingUnitService.deleteByPrimaryKey(id);
+    public BaseResponse del(@RequestBody List<Long> ids) {
+        try {
+            shippingUnitService.deleteByIds(ids);
+        } catch (CustomerException e) {
+            e.printStackTrace();
+            return BaseResponse.failed(e.getMessage());
         }
         ShippingUnitUpdateResponse res = new ShippingUnitUpdateResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS);
         return res;
@@ -385,7 +394,12 @@ public class ShippingUnitController {
     public BaseResponse open(@PathVariable Long id) {
         ShippingUnit shippingUnit = shippingUnitService.selectByPrimaryKey(id);
         shippingUnit.setState(1);
-        shippingUnitService.updateByPrimaryKeySelective(shippingUnit);
+        try {
+            shippingUnitService.updateByPrimaryKeySelective(shippingUnit);
+        } catch (CustomerException e) {
+            e.printStackTrace();
+            return BaseResponse.failed(e.getMessage());
+        }
         return BaseResponse.success();
 
     }
@@ -399,9 +413,12 @@ public class ShippingUnitController {
     public BaseResponse close(@PathVariable Long id) {
         ShippingUnit shippingUnit = shippingUnitService.selectByPrimaryKey(id);
         shippingUnit.setState(0);
-        shippingUnitService.updateByPrimaryKeySelective(shippingUnit);
-        // mq
-        shippingUnitService.senMq(id);
+        try {
+            shippingUnitService.updateByPrimaryKeySelective(shippingUnit);
+        } catch (CustomerException e) {
+            e.printStackTrace();
+            return BaseResponse.failed(e.getMessage());
+        }
         return BaseResponse.success();
     }
 
