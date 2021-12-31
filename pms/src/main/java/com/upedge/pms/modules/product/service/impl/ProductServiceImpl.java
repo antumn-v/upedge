@@ -791,11 +791,11 @@ public class ProductServiceImpl implements ProductService {
             }
 
 //            UserInfoVo userInfoVo = (UserInfoVo) redisTemplate.opsForHash().get("user:info:vo", saiheSkuVo.getUserId());
-            saiheSkuVo.setDevelopUser("system");
-            saiheSkuVo.setChargeUser("system");
-            saiheSkuVo.setEditorUser("system");
-            saiheSkuVo.setImageHandleUser("system");
-            saiheSkuVo.setPurchaseUser("system");
+            saiheSkuVo.setDevelopUser("章总");
+            saiheSkuVo.setChargeUser("章总");
+            saiheSkuVo.setEditorUser("章总");
+            saiheSkuVo.setImageHandleUser("章总");
+            saiheSkuVo.setPurchaseUser("章总");
 
             //报关中文名
             StringJoiner joinerName = new StringJoiner("  ");
