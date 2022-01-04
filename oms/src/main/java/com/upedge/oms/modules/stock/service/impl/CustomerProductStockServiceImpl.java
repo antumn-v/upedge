@@ -13,7 +13,9 @@ import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.utils.ListUtils;
 import com.upedge.oms.modules.order.vo.ItemDischargeQuantityVo;
 import com.upedge.oms.modules.stock.dao.CustomerProductStockDao;
+import com.upedge.oms.modules.stock.dao.CustomerStockRecordDao;
 import com.upedge.oms.modules.stock.entity.CustomerProductStock;
+import com.upedge.oms.modules.stock.entity.CustomerStockRecord;
 import com.upedge.oms.modules.stock.request.ManualAddCustomerStockRequest;
 import com.upedge.oms.modules.stock.service.CustomerProductStockService;
 import com.upedge.oms.modules.stock.vo.CustomerSkuStockVo;
@@ -36,6 +38,9 @@ public class CustomerProductStockServiceImpl implements CustomerProductStockServ
 
     @Autowired
     private CustomerProductStockDao customerProductStockDao;
+
+    @Autowired
+    CustomerStockRecordDao customerStockRecordDao;
 
     @Autowired
     private PmsFeignClient pmsFeignClient;
@@ -82,7 +87,7 @@ public class CustomerProductStockServiceImpl implements CustomerProductStockServ
         Date date = new Date();
         List<CustomerProductStock> customerProductStocks = new ArrayList<>();
         List<CustomerProductStock> updateStock = new ArrayList<>();
-
+        List<CustomerStockRecord> customerStockRecords = new ArrayList<>();
         List<Long> variantIds = customerProductStockDao.selectWarehouseVariantIdsByCustomer(request.getCustomerId(), ProductConstant.DEFAULT_WAREHOURSE_ID.longValue());
         for (CustomerSkuStockVo customerSkuStockVo : customerSkuStockVos) {
             if(0 == customerSkuStockVo.getStock()) {
@@ -109,13 +114,30 @@ public class CustomerProductStockServiceImpl implements CustomerProductStockServ
                 customerProductStock.setWarehouseId(ProductConstant.DEFAULT_WAREHOURSE_ID.longValue());
                 updateStock.add(customerProductStock);
             }
-
+            CustomerStockRecord customerStockRecord = new CustomerStockRecord();
+            customerStockRecord.setCustomerId(customerId);
+            customerStockRecord.setCreateTime(date);
+            customerStockRecord.setVariantId(variantDetail.getVariantId());
+            customerStockRecord.setVariantSku(variantDetail.getVariantSku());
+            customerStockRecord.setProductId(variantDetail.getProductId());
+            customerStockRecord.setOrderType(4);
+            customerStockRecord.setType(3);
+            customerStockRecord.setQuantity(customerSkuStockVo.getStock());
+            customerStockRecord.setWarehouseId(ProductConstant.DEFAULT_WAREHOURSE_ID.longValue());
+            customerStockRecord.setRelateId(0L);
+            customerStockRecord.setVariantImage(variantDetail.getVariantImage());
+            customerStockRecord.setUpdateTime(date);
+            customerStockRecord.setVariantName(variantDetail.getVariantName());
+            customerStockRecords.add(customerStockRecord);
         }
         if(ListUtils.isNotEmpty(customerProductStocks)){
             customerProductStockDao.insertByBatch(customerProductStocks);
         }
         if (ListUtils.isNotEmpty(updateStock)) {
             customerProductStockDao.increaseVariantStock(updateStock);
+        }
+        if (ListUtils.isNotEmpty(customerStockRecords)){
+            customerStockRecordDao.insertByBatch(customerStockRecords);
         }
         return BaseResponse.success();
     }
