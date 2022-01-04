@@ -107,6 +107,7 @@
                 <result property="adminVariantId" column="admin_variant_id"/>
                 <result property="storeVariantName" column="store_variant_name"/>
                 <result property="storeVariantSku" column="store_variant_sku"/>
+                <result property="storeVariantImage" column="store_variant_image"/>
                 <result property="adminVariantImage" column="admin_variant_image"/>
                 <result property="storeProductTitle" column="store_product_title"/>
                 <result property="price" column="usd_price"/>
@@ -390,6 +391,7 @@
                `admin_product_id`,
                `store_variant_name`,
                `store_variant_sku`,
+                `store_variant_image`,
                `admin_variant_image`,
                `store_product_title`,
                `usd_price`,

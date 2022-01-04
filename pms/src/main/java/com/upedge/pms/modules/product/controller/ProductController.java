@@ -343,6 +343,7 @@ public class ProductController {
         return res;
     }
 
+
     @GetMapping("/variantDetail/{id}")
     public List<VariantDetail> getVariantDetail(@PathVariable Long id){
         Product product = productService.selectByPrimaryKey(id);
@@ -368,5 +369,12 @@ public class ProductController {
         return variantDetails;
     }
 
+
+    @ApiOperation("根据产品ID获取变体")
+    @GetMapping("/variants/{id}")
+    public BaseResponse productVariants(@PathVariable Long id){
+        List<ProductVariant> productVariants = productVariantService.selectByProductId(id);
+        return BaseResponse.success(productVariants);
+    }
 
 }
