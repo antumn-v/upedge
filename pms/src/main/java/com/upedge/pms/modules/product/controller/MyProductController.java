@@ -101,6 +101,7 @@ public class MyProductController {
     public BaseResponse publishToStore(@RequestBody@Valid ImportProductPublishRequest request){
         StoreVo storeVo = (StoreVo) redisTemplate.opsForValue().get(RedisKey.STRING_STORE + request.getStoreId());
         List<Long> productIds = request.getProductIds();
+        importProductAttributeService.updateStateByIds(productIds,2);
         for (Long productId : productIds) {
             importProductService.uploadProductToShopify(storeVo,productId);
         }

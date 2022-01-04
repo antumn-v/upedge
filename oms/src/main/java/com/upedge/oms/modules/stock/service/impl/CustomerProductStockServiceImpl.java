@@ -66,11 +66,11 @@ public class CustomerProductStockServiceImpl implements CustomerProductStockServ
     /**
      *
      */
-    @Transactional
     public int insertSelective(CustomerProductStock record) {
         return customerProductStockDao.insert(record);
     }
 
+    @Transactional
     @Override
     public BaseResponse manualAddCustomerVariantStock(ManualAddCustomerStockRequest request, Session session) {
         Long productId = request.getProductId();

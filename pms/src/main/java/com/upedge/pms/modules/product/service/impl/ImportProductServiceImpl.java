@@ -29,6 +29,7 @@ import com.upedge.thirdparty.shopify.moudles.product.entity.ShopifyVariant;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -239,11 +240,12 @@ public class ImportProductServiceImpl implements ImportProductService {
         return new ImportProductAttributeDelResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS);
     }
 
+    @Async
     @Transactional
     @Override
-    public boolean uploadProductToShopify(StoreVo storeVo, Long productId) {
+    public Boolean uploadProductToShopify(StoreVo storeVo, Long productId) {
         ImportProductAttribute attribute = importProductAttributeDao.selectByPrimaryKey(productId);
-        if (0 != attribute.getState()) {
+        if (2 != attribute.getState()) {
             return false;
         }
         List<ImportVariantVo> variantVos = importProductVariantDao.selectForUploadStore(productId);
@@ -309,8 +311,10 @@ public class ImportProductServiceImpl implements ImportProductService {
             String platProductId = product.getId();
 
             List<ShopifyVariant> variantList = product.getVariants();
-
-            importProductVariantDao.updatePlatIdBySku(variantList, productId);
+            List<List<ShopifyVariant>> lists = groupList(variantList,5);
+            for (List<ShopifyVariant> list : lists) {
+                importProductVariantDao.updatePlatIdBySku(list, productId);
+            }
 
             LinkedList<ShopifyImage> images = importProductImageDao.selectForShopifyImage(productId);
             for (int i = 0; i < images.size(); i++) {
@@ -359,9 +363,23 @@ public class ImportProductServiceImpl implements ImportProductService {
     }
 
     @Override
-    public boolean uploadProductToWoocommerce(StoreVo storeVo, Long productId) {
+    public Boolean uploadProductToWoocommerce(StoreVo storeVo, Long productId) {
         return false;
     }
 
+
+    public static List<List<ShopifyVariant>> groupList(List<ShopifyVariant> list, Integer toIndex) {
+        List<List<ShopifyVariant>> listGroup = new ArrayList<List<ShopifyVariant>>();
+        int listSize = list.size();
+        //子集合的长度
+        for (int i = 0; i < list.size(); i += toIndex) {
+            if (i + toIndex > listSize) {
+                toIndex = listSize - i;
+            }
+            List<ShopifyVariant> newList = list.subList(i, i + toIndex);
+            listGroup.add(newList);
+        }
+        return listGroup;
+    }
 
 }

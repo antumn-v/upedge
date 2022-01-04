@@ -22,7 +22,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ThreadPoolExecutor;
 
 
@@ -78,44 +77,50 @@ public class ImportProductAttributeServiceImpl implements ImportProductAttribute
     }
 
     @Override
-    public UploadProductToStoreResponse importProductToStore(UploadProductToStoreRequest request,Session session) {
-        StoreVo storeVo = (StoreVo) redisTemplate.opsForValue().get(RedisKey.STRING_STORE + request.getStoreId());
-        if(null == storeVo){
-            return new UploadProductToStoreResponse(ResultCode.FAIL_CODE,"The shop does not exist");
+    public int updateStateByIds(List<Long> ids, Integer state) {
+        if (null != state
+        && ListUtils.isNotEmpty(ids)){
+            return importProductAttributeDao.updateStateByIds(ids, state);
         }
-        if (request.isImportAll()){
+        return 0;
+    }
+
+    @Override
+    public UploadProductToStoreResponse importProductToStore(UploadProductToStoreRequest request, Session session) {
+        StoreVo storeVo = (StoreVo) redisTemplate.opsForValue().get(RedisKey.STRING_STORE + request.getStoreId());
+        if (null == storeVo) {
+            return new UploadProductToStoreResponse(ResultCode.FAIL_CODE, "The shop does not exist");
+        }
+        if (request.isImportAll()) {
             List<Long> ids = getCustomerAllUnImportIds(session.getCustomerId());
             request.setProductIds(ids);
         }
-        if(ListUtils.isEmpty(request.getProductIds())){
+        if (ListUtils.isEmpty(request.getProductIds())) {
             return new UploadProductToStoreResponse(ResultCode.FAIL_CODE, Constant.MESSAGE_SUCCESS);
         }
         // 异步商品上传店铺
-        CompletableFuture.runAsync(() -> {
-            importProductToStoreSync(request,storeVo);
-        }, threadPoolExecutor);
-        return new UploadProductToStoreResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS,"已经创建后台任务序列！");
+        importProductAttributeDao.updateStateByIds(request.getProductIds(), 2);
+        importProductToStoreSync(request, storeVo);
+        return new UploadProductToStoreResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS, "已经创建后台任务序列！");
     }
-
 
     public void importProductToStoreSync(UploadProductToStoreRequest request, StoreVo storeVo) {
         List<Long> ids = request.getProductIds();
-        importProductAttributeDao.updateStateByIds(request.getProductIds(),2);
         ids.forEach(id -> {
             boolean b = false;
-            switch (storeVo.getStoreType()){
+            switch (storeVo.getStoreType()) {
                 case 0:
-                    b = importProductService.uploadProductToShopify(storeVo,id);
+                    b = importProductService.uploadProductToShopify(storeVo, id);
                     break;
                 case 1:
-                    b = importProductService.uploadProductToWoocommerce(storeVo,id);
+                    b = importProductService.uploadProductToWoocommerce(storeVo, id);
                     break;
                 default:
                     break;
             }
-            if(!b){
-                log.error("importProductToStoreSync -- fail id：{}；storeVo{}",id,storeVo);
-                updateStateById(id,0);
+            if (!b) {
+                log.error("importProductToStoreSync -- fail id：{}；storeVo{}", id, storeVo);
+                updateStateById(id, 0);
             }
         });
     }
@@ -129,7 +134,7 @@ public class ImportProductAttributeServiceImpl implements ImportProductAttribute
         importProductAttributeListRequest.getT().setState(0);
         importProductAttributeListRequest.getT().setCustomerId(customerId);
         List<ImportProductAttribute> importProductAttributes = importProductAttributeDao.select(importProductAttributeListRequest);
-        if (ListUtils.isNotEmpty(importProductAttributes)){
+        if (ListUtils.isNotEmpty(importProductAttributes)) {
             importProductAttributes.forEach(importProductAttribute -> {
                 ids.add(importProductAttribute.getId());
             });
@@ -140,39 +145,39 @@ public class ImportProductAttributeServiceImpl implements ImportProductAttribute
     /**
      *
      */
-    public ImportProductAttribute selectByPrimaryKey(Long id){
+    public ImportProductAttribute selectByPrimaryKey(Long id) {
 
         return importProductAttributeDao.selectByPrimaryKey(id);
     }
 
     /**
-    *
-    */
+     *
+     */
     @Transactional
     public int updateByPrimaryKeySelective(ImportProductAttribute record) {
         return importProductAttributeDao.updateByPrimaryKeySelective(record);
     }
 
     /**
-    *
-    */
+     *
+     */
     @Transactional
     public int updateByPrimaryKey(ImportProductAttribute record) {
         return importProductAttributeDao.updateByPrimaryKey(record);
     }
 
     /**
-    *
-    */
-    public List<ImportProductAttribute> select(Page<ImportProductAttribute> record){
+     *
+     */
+    public List<ImportProductAttribute> select(Page<ImportProductAttribute> record) {
         record.initFromNum();
         return importProductAttributeDao.select(record);
     }
 
     /**
-    *
-    */
-    public long count(Page<ImportProductAttribute> record){
+     *
+     */
+    public long count(Page<ImportProductAttribute> record) {
         return importProductAttributeDao.count(record);
     }
 

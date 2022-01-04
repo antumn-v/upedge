@@ -10,7 +10,9 @@ import java.util.concurrent.TimeUnit;
 public class OkHttpRequest {
 
     public static String commonRequest(String url,HttpMethod method,String data){
-        OkHttpClient client = new OkHttpClient().newBuilder().connectTimeout(60, TimeUnit.SECONDS)
+        OkHttpClient client = new OkHttpClient().newBuilder()
+                .readTimeout(60,TimeUnit.SECONDS)
+                .connectTimeout(60, TimeUnit.SECONDS)
                 .build();
         MediaType mediaType = MediaType.parse("application/json");
 
@@ -40,7 +42,9 @@ public class OkHttpRequest {
 
 
     public static String shopifyRequest(String url, String data, String token, HttpMethod method){
-        OkHttpClient client = new OkHttpClient().newBuilder().connectTimeout(60, TimeUnit.SECONDS)
+        OkHttpClient client = new OkHttpClient().newBuilder()
+                .connectTimeout(60, TimeUnit.SECONDS)
+                .readTimeout(60,TimeUnit.SECONDS)
                 .build();
         MediaType mediaType = MediaType.parse("application/json");
 

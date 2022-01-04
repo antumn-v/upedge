@@ -40,13 +40,13 @@ public interface ImportProductService {
      * @param productId
      * @return
      */
-    boolean uploadProductToShopify(StoreVo storeVo, Long productId);
+    Boolean uploadProductToShopify(StoreVo storeVo, Long productId);
 
     /**
      * 导入产品到woocommerce
      * @param productId
      * @return
      */
-    boolean uploadProductToWoocommerce(StoreVo storeVo, Long productId);
+    Boolean uploadProductToWoocommerce(StoreVo storeVo, Long productId);
 
 }

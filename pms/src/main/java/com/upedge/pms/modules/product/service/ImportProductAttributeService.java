@@ -15,6 +15,8 @@ public interface ImportProductAttributeService{
 
     void updateStateById(Long id, Integer state);
 
+    int updateStateByIds(List<Long> ids, Integer state);
+
     UploadProductToStoreResponse importProductToStore(UploadProductToStoreRequest request, Session session);
 
     List<Long> getCustomerAllUnImportIds(Long customerId);
