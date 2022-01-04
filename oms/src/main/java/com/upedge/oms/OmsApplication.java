@@ -13,7 +13,10 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
 
+
+@EnableTransactionManagement
 @EnableScheduling
 @EnableFeignClients(basePackages = "com.upedge.common.feign")
 @EnableDiscoveryClient
