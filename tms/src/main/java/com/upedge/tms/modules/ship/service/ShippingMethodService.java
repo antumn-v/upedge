@@ -56,7 +56,7 @@ public interface ShippingMethodService{
 
     ShippingMethodEnableResponse enableShippingMethod(Long id);
 
-    ShippingMethodDisableResponse disableShippingMethod(Long id);
+    ShippingMethodDisableResponse disableShippingMethod(Long id) throws CustomerException;
 
     List<String> listUseAllShippingMethodName();
 
@@ -81,6 +81,6 @@ public interface ShippingMethodService{
      */
     int updateBySaiheTransport(SaiheTransport record);
 
-    void senMq(Long id);
+    boolean sendMq(Long id);
 }
 

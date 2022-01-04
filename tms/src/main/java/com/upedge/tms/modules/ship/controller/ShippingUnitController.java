@@ -3,6 +3,7 @@ package com.upedge.tms.modules.ship.controller;
 import com.upedge.common.base.BaseResponse;
 import com.upedge.common.constant.Constant;
 import com.upedge.common.constant.ResultCode;
+import com.upedge.common.constant.key.RedisKey;
 import com.upedge.common.exception.CustomerException;
 import com.upedge.common.model.tms.ShippingUnitInfoResponse;
 import com.upedge.common.model.tms.ShippingUnitVo;
@@ -21,6 +22,7 @@ import com.upedge.tms.modules.ship.response.ShippingUnitListResponse;
 import com.upedge.tms.modules.ship.response.ShippingUnitUpdateResponse;
 import com.upedge.tms.modules.ship.service.ShippingMethodService;
 import com.upedge.tms.modules.ship.service.ShippingUnitService;
+import com.upedge.tms.modules.ship.vo.ShipMethodCountryVo;
 import com.upedge.tms.mq.TmsProducerService;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
@@ -69,6 +71,24 @@ public class ShippingUnitController {
 //        shippingUnitService.insert(shippingUnit);
 //        return BaseResponse.success();
 //    }
+
+    @PostMapping("/methodCountryUnitList")
+    public BaseResponse methodCountryUnitList(@RequestBody @Valid ShippingUnitListRequest request){
+        if (request.getT() == null) {
+            request.setT(new ShippingUnit());
+        }
+        ShippingUnit shippingUnit = request.getT();
+        shippingUnit.setState(1);
+        List<ShipMethodCountryVo> results = (List<ShipMethodCountryVo>) redisTemplate.opsForValue().get(RedisKey.STRING_METHOD_COUNTRY_UNIT_LIST);
+        if (ListUtils.isEmpty(results)){
+            results = shippingUnitService.selectMethodCountryUnitVo(request);
+            redisTemplate.opsForValue().set(RedisKey.STRING_METHOD_COUNTRY_UNIT_LIST,results);
+        }
+        int total = results.size();
+        request.setTotal((long) total);
+        ShippingUnitListResponse res = new ShippingUnitListResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS, results, request);
+        return res;
+    }
 
     /**
      * 运输导入列表
@@ -336,6 +356,7 @@ public class ShippingUnitController {
     public BaseResponse add(@RequestBody @Valid List<ShippingUnit> shippingUnits) {
         if (ListUtils.isNotEmpty(shippingUnits) && shippingUnits.size() > 0) {
             shippingUnitService.insertBatch(shippingUnits);
+            redisTemplate.delete(RedisKey.STRING_METHOD_COUNTRY_UNIT_LIST);
         }
         return BaseResponse.success();
     }

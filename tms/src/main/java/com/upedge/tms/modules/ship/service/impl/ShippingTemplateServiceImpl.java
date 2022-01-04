@@ -4,7 +4,10 @@ import com.upedge.common.base.BaseResponse;
 import com.upedge.common.base.Page;
 import com.upedge.common.constant.Constant;
 import com.upedge.common.constant.ResultCode;
+import com.upedge.common.constant.key.RedisKey;
 import com.upedge.common.feign.PmsFeignClient;
+import com.upedge.common.model.ship.vo.ShippingTemplateRedis;
+import com.upedge.common.model.tms.ShippingTemplateVo;
 import com.upedge.tms.modules.ship.dao.ShippingMethodTemplateDao;
 import com.upedge.tms.modules.ship.dao.ShippingTemplateDao;
 import com.upedge.tms.modules.ship.entity.ShippingTemplate;
@@ -13,9 +16,9 @@ import com.upedge.tms.modules.ship.response.ShippingTemplateDisableResponse;
 import com.upedge.tms.modules.ship.response.ShippingTemplateEnableResponse;
 import com.upedge.tms.modules.ship.response.ShippingTemplateListResponse;
 import com.upedge.tms.modules.ship.service.ShippingTemplateService;
-import com.upedge.common.model.tms.ShippingTemplateVo;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,6 +35,9 @@ public class ShippingTemplateServiceImpl implements ShippingTemplateService {
     private ShippingMethodTemplateDao shippingMethodTemplateDao;
     @Autowired
     private PmsFeignClient pmsFeignClient;
+
+    @Autowired
+    RedisTemplate redisTemplate;
 
 
 
@@ -58,6 +64,9 @@ public class ShippingTemplateServiceImpl implements ShippingTemplateService {
      */
     @Transactional
     public int insertSelective(ShippingTemplate record) {
+        ShippingTemplateRedis shippingTemplateRedis = new ShippingTemplateRedis();
+        BeanUtils.copyProperties(record,shippingTemplateRedis);
+        redisTemplate.opsForHash().put(RedisKey.SHIPPING_TEMPLATE,String.valueOf(record.getId()),shippingTemplateRedis);
         return shippingTemplateDao.insert(record);
     }
 
@@ -71,9 +80,13 @@ public class ShippingTemplateServiceImpl implements ShippingTemplateService {
     /**
     *
     */
-    @Transactional
     public int updateByPrimaryKeySelective(ShippingTemplate record) {
-        return shippingTemplateDao.updateByPrimaryKeySelective(record);
+        shippingTemplateDao.updateByPrimaryKeySelective(record);
+        record = selectByPrimaryKey(record.getId());
+        ShippingTemplateRedis shippingTemplateRedis = new ShippingTemplateRedis();
+        BeanUtils.copyProperties(record,shippingTemplateRedis);
+        redisTemplate.opsForHash().put(RedisKey.SHIPPING_TEMPLATE,String.valueOf(record.getId()),shippingTemplateRedis);
+        return 1;
     }
 
     /**
@@ -131,6 +144,11 @@ public class ShippingTemplateServiceImpl implements ShippingTemplateService {
     @Transactional
     public ShippingTemplateEnableResponse enableShippingTemplate(Long id) {
         shippingTemplateDao.updateShippingTemplateState(id,1);
+
+        ShippingTemplate record = selectByPrimaryKey(id);
+        ShippingTemplateRedis shippingTemplateRedis = new ShippingTemplateRedis();
+        BeanUtils.copyProperties(record,shippingTemplateRedis);
+        redisTemplate.opsForHash().put(RedisKey.SHIPPING_TEMPLATE,String.valueOf(record.getId()),shippingTemplateRedis);
         return new ShippingTemplateEnableResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS);
     }
 
@@ -158,6 +176,7 @@ public class ShippingTemplateServiceImpl implements ShippingTemplateService {
         if(productNum>0){
             return new ShippingTemplateDisableResponse(ResultCode.FAIL_CODE,"有产品关联");
         }
+        redisTemplate.opsForHash().delete(RedisKey.SHIPPING_TEMPLATE,String.valueOf(id));
         shippingTemplateDao.updateShippingTemplateState(id,0);
         return new ShippingTemplateDisableResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS);
     }

@@ -25,6 +25,35 @@
         <result property="state" column="state"/>
     </resultMap>
 
+    <resultMap id="MethodCountryUnitVo" type="com.upedge.tms.modules.ship.vo.ShipMethodCountryVo">
+        <id property="methodId" column="method_id"/>
+        <result property="methodName" column="method_name"/>
+        <collection property="countryShipUnitVos" ofType="com.upedge.tms.modules.ship.vo.CountryShipUnitVo">
+            <id property="areaId" column="to_area_id"/>
+            <result property="countryName" column="countryName"/>
+            <collection property="shippingUnits" ofType="com.upedge.tms.modules.ship.entity.ShippingUnit">
+                <id property="id" column="id"/>
+                <result property="methodId" column="method_id"/>
+                <result property="methodName" column="method_name"/>
+                <result property="fromAreaId" column="from_area_id"/>
+                <result property="toAreaId" column="to_area_id"/>
+                <result property="startWeight" column="start_weight"/>
+                <result property="endWeight" column="end_weight"/>
+                <result property="fixedFee" column="fixed_fee"/>
+                <result property="firstWeight" column="first_weight"/>
+                <result property="firstFreight" column="first_freight"/>
+                <result property="continueUnitWeight" column="continue_unit_weight"/>
+                <result property="continueUnitPrice" column="continue_unit_price"/>
+                <result property="deliveryMinDay" column="delivery_min_day"/>
+                <result property="deliveryMaxDay" column="delivery_max_day"/>
+                <result property="discount" column="discount"/>
+                <result property="remarks" column="remarks"/>
+                <result property="createTime" column="create_time"/>
+                <result property="state" column="state"/>
+            </collection>
+        </collection>
+    </resultMap>
+
     <sql id="Base_Column_List">
         `id`,`method_id`,`method_name`,`from_area_id`,`to_area_id`,`start_weight`,`end_weight`,`fixed_fee`,`first_weight`,`first_freight`,`continue_unit_weight`,`continue_unit_price`,`delivery_min_day`,`delivery_max_day`,`discount`,`remarks`,`create_time`,`state`
     </sql>
@@ -366,10 +395,10 @@
                 #{item.continueUnitPrice},
                 #{item.deliveryMinDay},
                 #{item.deliveryMaxDay},
-                #{item.discount},
+                '1',
                 #{item.remarks},
                 #{item.createTime},
-                #{item.state}
+                '1'
             </trim>
         </foreach>
     </insert>
@@ -507,4 +536,10 @@
         where method_id=#{shippingMethodId} and  state = 1
     </select>
 
+    <select id="selectMethodCountryUnitVo" resultMap="MethodCountryUnitVo">
+        select
+        <include refid="Base_Column_List" />
+        from shipping_unit
+        <include refid="Query_Condition"/>
+    </select>
 </mapper>

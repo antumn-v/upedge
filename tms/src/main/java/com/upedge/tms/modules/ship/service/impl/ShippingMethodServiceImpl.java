@@ -237,6 +237,7 @@ public class ShippingMethodServiceImpl implements ShippingMethodService {
     @Override
     public BaseResponse updateShipMethod(ShippingMethodUpdateRequest request,Long methodId) throws CustomerException {
         ShippingMethod shippingMethod = shippingMethodDao.selectByPrimaryKey(methodId);
+        Integer weightType = shippingMethod.getWeightType();
         if (null == shippingMethod){
             return BaseResponse.failed("运输方式不存在");
         }
@@ -261,10 +262,17 @@ public class ShippingMethodServiceImpl implements ShippingMethodService {
         }
         shippingMethodTemplateDao.deleteByShipMethodId(methodId);
         shippingMethodTemplateDao.insertByBatch(shippingMethodTemplates);
+        if (request.getWeightType() != null
+        && weightType != request.getWeightType()){
+            boolean b = sendMq(shippingMethod.getId());
+            if (!b){
+                throw new CustomerException("mq异常，请重新提交或联系IT");
+            }
+        }
+        shippingMethodTemplateService.redisInit();
         ShippingMethodRedis shippingMethodRedis = new ShippingMethodRedis();
         BeanUtils.copyProperties(shippingMethod,shippingMethodRedis);
         redisTemplate.opsForHash().put(RedisKey.SHIPPING_METHOD,String.valueOf(methodId),shippingMethodRedis);
-        shippingMethodTemplateService.redisInit();
         return BaseResponse.success();
     }
 
@@ -405,12 +413,14 @@ public class ShippingMethodServiceImpl implements ShippingMethodService {
 
     @Override
     @Transactional
-    public ShippingMethodDisableResponse disableShippingMethod(Long id) {
+    public ShippingMethodDisableResponse disableShippingMethod(Long id) throws CustomerException {
         shippingMethodDao.updateShippingMethodState(id, 0);
         // 调用mq
-        ArrayList<Long> list = new ArrayList<>();
-        list.add(id);
-        tmsProducerService.sendMessage(list);
+        boolean b = sendMq(id);
+        if (!b){
+            throw new CustomerException("mq异常，请重新提交或联系IT");
+        }
+        redisTemplate.delete(RedisKey.HASH_SHIP_METHOD + id);
         return new ShippingMethodDisableResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS);
     }
 
@@ -462,9 +472,9 @@ public class ShippingMethodServiceImpl implements ShippingMethodService {
     }
 
     @Override
-    public void senMq(Long shippingMethodId) {
+    public boolean sendMq(Long shippingMethodId) {
       List<ShippingUnit> list =  shippingUnitDao.selectListByShippingMethodId(shippingMethodId);
         List<Long> collect = list.stream().map(e -> e.getId()).collect(Collectors.toList());
-        tmsProducerService.sendMessage(collect);
+        return tmsProducerService.sendMessage(collect);
     }
 }

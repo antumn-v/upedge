@@ -11,6 +11,8 @@ public class RedisKey {
     //待处理的woocommerce订单
     public static final String LIST_WOOCOMMERCE_ORDER_WEBHOOK = "webhook:woocommerce:order";
 
+    public static final String STRING_METHOD_COUNTRY_UNIT_LIST = "method:country:unit:list";
+
     public static final String LIST_WOOCOMMERCE_PRODUCT_WEBHOOK = "webhook:woocommerce:product";
     //待处理的shoplazza订单
     public static final String LIST_SHOPLAZZA_ORDER_WEBHOOK = "webhook:shoplazza:order";

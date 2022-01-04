@@ -114,11 +114,9 @@ public class ShippingMethodController {
             e.printStackTrace();
             return BaseResponse.failed(e.getMessage());
         }
-        //调用mq
-        shippingMethodService.senMq(id);
-        ShippingMethodVo shippingMethodVo = new ShippingMethodVo();
-        BeanUtils.copyProperties(entity,shippingMethodVo);
-        updateShipMethodInRedis(shippingMethodVo);
+//        ShippingMethodVo shippingMethodVo = new ShippingMethodVo();
+//        BeanUtils.copyProperties(entity,shippingMethodVo);
+//        updateShipMethodInRedis(shippingMethodVo);
         ShippingMethodUpdateResponse res = new ShippingMethodUpdateResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS);
         return res;
     }
@@ -138,10 +136,14 @@ public class ShippingMethodController {
      * @return
      */
     @RequestMapping(value="/disable/{id}", method=RequestMethod.POST)
-    public ShippingMethodDisableResponse disableShippingMethod(@PathVariable Long id) {
-        Session session = UserUtil.getSession(redisTemplate);
-        redisTemplate.delete(RedisKey.HASH_SHIP_METHOD + id);
-        return shippingMethodService.disableShippingMethod(id);
+    public BaseResponse disableShippingMethod(@PathVariable Long id) {
+
+        try {
+            return shippingMethodService.disableShippingMethod(id);
+        } catch (CustomerException e) {
+            e.printStackTrace();
+            return BaseResponse.failed(e.getMessage());
+        }
     }
 
     /**

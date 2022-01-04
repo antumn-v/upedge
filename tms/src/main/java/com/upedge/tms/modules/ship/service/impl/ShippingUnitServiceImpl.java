@@ -4,16 +4,22 @@ import com.upedge.common.base.BaseResponse;
 import com.upedge.common.base.Page;
 import com.upedge.common.constant.Constant;
 import com.upedge.common.constant.ResultCode;
+import com.upedge.common.constant.key.RedisKey;
 import com.upedge.common.exception.CustomerException;
 import com.upedge.common.model.ship.vo.ShipDetail;
+import com.upedge.common.model.ship.vo.ShippingMethodRedis;
+import com.upedge.common.model.tms.ArearedisVo;
 import com.upedge.common.utils.IdGenerate;
 import com.upedge.common.utils.ListUtils;
 import com.upedge.tms.modules.ship.dao.ShippingUnitDao;
 import com.upedge.tms.modules.ship.entity.ShippingUnit;
 import com.upedge.tms.modules.ship.service.ShippingUnitService;
+import com.upedge.tms.modules.ship.vo.CountryShipUnitVo;
+import com.upedge.tms.modules.ship.vo.ShipMethodCountryVo;
 import com.upedge.tms.mq.TmsProducerService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,6 +37,9 @@ public class ShippingUnitServiceImpl implements ShippingUnitService {
 
     @Autowired
     private TmsProducerService tmsProducerService;
+
+    @Autowired
+    RedisTemplate redisTemplate;
 
     /**
      *
@@ -58,6 +67,27 @@ public class ShippingUnitServiceImpl implements ShippingUnitService {
         return shippingUnitDao.insert(record);
     }
 
+    @Override
+    public List<ShipMethodCountryVo> selectMethodCountryUnitVo(Page<ShippingUnit> record) {
+        List<ShipMethodCountryVo> shipMethodCountryVos = shippingUnitDao.selectMethodCountryUnitVo(record);
+        if (ListUtils.isNotEmpty(shipMethodCountryVos)){
+            for (ShipMethodCountryVo shipMethodCountryVo : shipMethodCountryVos) {
+                ShippingMethodRedis shippingMethodRedis = (ShippingMethodRedis) redisTemplate.opsForHash().get(RedisKey.SHIPPING_METHOD,String.valueOf(shipMethodCountryVo.getMethodId()));
+                if (null != shippingMethodRedis){
+                    shipMethodCountryVo.setMethodName(shippingMethodRedis.getDesc());
+                }
+                List<CountryShipUnitVo> countryShipUnitVos = shipMethodCountryVo.getCountryShipUnitVos();
+                for (CountryShipUnitVo countryShipUnitVo : countryShipUnitVos) {
+                    ArearedisVo arearedisVo = (ArearedisVo) redisTemplate.opsForHash().get(RedisKey.AREA,String.valueOf(countryShipUnitVo.getAreaId()));
+                    if (null != arearedisVo){
+                        countryShipUnitVo.setCountryName(arearedisVo.getName());
+                    }
+                }
+            }
+        }
+        return shipMethodCountryVos;
+    }
+
     /**
      *
      */
@@ -72,6 +102,7 @@ public class ShippingUnitServiceImpl implements ShippingUnitService {
         for (Long id : ids) {
             deleteByPrimaryKey(id);
         }
+        redisTemplate.delete(RedisKey.STRING_METHOD_COUNTRY_UNIT_LIST);
         boolean b = tmsProducerService.sendMessage(ids);
         if (!b){
             throw new CustomerException("mq异常，请重新提交或联系IT");
@@ -87,6 +118,7 @@ public class ShippingUnitServiceImpl implements ShippingUnitService {
     public int updateByPrimaryKeySelective(ShippingUnit record) throws CustomerException {
         int i = shippingUnitDao.updateByPrimaryKeySelective(record);
         if(i == 1){
+            redisTemplate.delete(RedisKey.STRING_METHOD_COUNTRY_UNIT_LIST);
             boolean b = sendMq(record.getId());
             if (!b){
                 throw new CustomerException("mq发送失败，请重新提交或联系IT");

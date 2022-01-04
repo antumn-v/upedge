@@ -5,6 +5,7 @@ import com.upedge.common.base.Page;
 import com.upedge.common.exception.CustomerException;
 import com.upedge.common.model.ship.vo.ShipDetail;
 import com.upedge.tms.modules.ship.entity.ShippingUnit;
+import com.upedge.tms.modules.ship.vo.ShipMethodCountryVo;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -14,6 +15,8 @@ import java.util.Set;
  * @author author
  */
 public interface ShippingUnitService{
+
+    List<ShipMethodCountryVo> selectMethodCountryUnitVo(Page<ShippingUnit> record);
 
     ShippingUnit selectByPrimaryKey(Long id);
 

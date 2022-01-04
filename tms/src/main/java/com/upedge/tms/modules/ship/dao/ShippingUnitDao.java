@@ -3,6 +3,7 @@ package com.upedge.tms.modules.ship.dao;
 import com.upedge.common.base.Page;
 import com.upedge.common.model.ship.vo.ShipMethodNameVo;
 import com.upedge.tms.modules.ship.entity.ShippingUnit;
+import com.upedge.tms.modules.ship.vo.ShipMethodCountryVo;
 import org.apache.ibatis.annotations.Param;
 
 import java.math.BigDecimal;
@@ -13,6 +14,8 @@ import java.util.Set;
  * @author author
  */
 public interface ShippingUnitDao{
+
+    List<ShipMethodCountryVo> selectMethodCountryUnitVo(Page<ShippingUnit> record);
 
     List<ShippingUnit> selectByMethodIdsAndWeight(@Param("methodIds") Set<Long> methodIds,
                                                 @Param("toAreaId") Long toAreaId,
