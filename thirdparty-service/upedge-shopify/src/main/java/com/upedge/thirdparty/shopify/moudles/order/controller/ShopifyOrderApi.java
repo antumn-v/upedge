@@ -48,6 +48,36 @@ public class ShopifyOrderApi {
         return jsonObject;
     }
 
+
+    public static JSONObject getDraftOrder(String shop,String token,String nextUrl,String param){
+        String url = null;
+        if (StringUtils.isBlank(nextUrl)){
+            url = "https://" + shop + ".myshopify.com/admin/api/" + Shopify.version + "/draft_orders.json";
+        } else {
+            url = nextUrl;
+        }
+        ResponseEntity<JSONObject> entity =
+                RequestUtils.sendRequest(url, token, param, HttpMethod.GET, null);
+        if (entity == null){
+            return null;
+        }
+        JSONObject jsonObject = entity.getBody();
+        HttpHeaders headers = entity.getHeaders();
+        String link = headers.getFirst("Link");
+        if (link != null && link.contains("next")) {
+            if (link.contains("previous")) {
+                link = link.substring(link.indexOf("rel=\"previous\","));
+            }
+            link = link.substring(link.indexOf("<") + 1, link.indexOf(">")).replace("%2C",",");
+        }else{
+            link = null;
+        }
+        if(StringUtils.isNotBlank(link)) {
+            jsonObject.put("nextUrl", link);
+        }
+        return jsonObject;
+    }
+
     public static JSONObject getOrderDetailById(@PathVariable String id,String shop,String token){
         String url = "https://" + shop + ".myshopify.com/admin/api/" + Shopify.version + "/orders/"+id+".json";
 
@@ -59,9 +89,17 @@ public class ShopifyOrderApi {
         return entity.getBody();
     }
 
-    public static void main(String[] args) {
-        System.out.println(getOrderDetailById("3932806054062","coloox","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"));
+    public static JSONObject getDraftOrderDetailById(@PathVariable String id,String shop,String token){
+        String url = "https://" + shop + ".myshopify.com/admin/api/" + Shopify.version + "/orders/"+id+".json";
+
+        ResponseEntity<JSONObject> entity = RequestUtils.sendRequest(url,token,null,HttpMethod.GET,null);
+        if (entity == null){
+            return null;
+        }
+
+        return entity.getBody();
     }
+
 
     public static ShopifyFulfillment orderFulfillment(String orderId,String shop,String token,Object body){
         String url = "https://" + shop + ".myshopify.com/admin/api/" + Shopify.version + "/orders/"+orderId+"/fulfillments.json";

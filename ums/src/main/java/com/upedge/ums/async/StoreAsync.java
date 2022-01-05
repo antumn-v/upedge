@@ -47,6 +47,7 @@ public class StoreAsync {
     @Autowired
     RedisTemplate redisTemplate;
 
+
     //获取店铺数据
     @Async
     public void getStoreData(Store store) {
@@ -249,8 +250,10 @@ public class StoreAsync {
         StoreVo storeVo = new StoreVo();
         BeanUtils.copyProperties(store, storeVo);
         JSONObject jsonObject = ShopifyOrderApi.getStoreOrder(shop, token, null, null, "financial_status=paid&limit=250");
-        while (jsonObject != null && jsonObject.containsKey("orders")) {
-            JSONArray array = jsonObject.getJSONArray("orders");
+        String key = "orders";
+
+        while (jsonObject != null && jsonObject.containsKey(key)) {
+            JSONArray array = jsonObject.getJSONArray(key);
             log.error("店铺获取订单：店铺:{},订单长度：{}",store.getStoreName(),array.size());
             for (int i = 0; i < array.size(); i++) {
                 JSONObject order = array.getJSONObject(i);
@@ -258,7 +261,6 @@ public class StoreAsync {
                 storeApiRequest.setId(order.getString("id"));
                 storeApiRequest.setStoreVo(storeVo);
                 storeApiRequest.setJsonObject(order);
-//                redisTemplate.opsForList().leftPush(RedisKey.LIST_SHOPIFY_ORDER_WEBHOOK, storeApiRequest);
                 omsFeignClient.updateShopifyOrder(storeApiRequest);
             }
             String nextUrl = null;

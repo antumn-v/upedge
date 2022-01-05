@@ -328,10 +328,10 @@ public class StoreProductServiceImpl implements StoreProductService {
             if (updateVariants.size() > 0) {
                 storeProductVariantDao.updateByBatch(updateVariants);
             }
-            if (importAttribute != null){
-                storeProductVariantDao.updateAdminVariantIdByImportId(importAttribute.getId(),storeProductId);
-            }
             storeProductVariantDao.markStoreVariantAsRemovedByPlatId(storeProductId, platVariantIds);
+        }
+        if (importAttribute != null){
+            storeProductVariantDao.updateAdminVariantIdByImportId(importAttribute.getId(),storeProductId);
         }
         saveProductRelate(attribute, importAttribute);
         attribute = new StoreProductAttribute();
