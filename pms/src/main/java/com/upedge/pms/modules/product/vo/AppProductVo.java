@@ -77,13 +77,13 @@ public class AppProductVo {
                 this.setPriceRange(this.minPrice.toString());
                 break;
             case 1:
-                this.setPriceRange(this.maxPrice + "~" + this.minPrice);
+                this.setPriceRange("$" +this.maxPrice + "~$" + this.minPrice);
                 break;
             case -1:
-                this.setPriceRange(this.minPrice + "~" + this.maxPrice);
+                this.setPriceRange("$" + this.minPrice + "~$" + this.maxPrice);
                 break;
             default:
-                this.setPriceRange(this.minPrice.toString());
+                this.setPriceRange("$" + this.minPrice);
                 break;
         }
 

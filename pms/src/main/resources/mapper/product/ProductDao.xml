@@ -557,13 +557,13 @@
             <trim prefix=" " suffix=" " suffixOverrides=" and ">
                 and
                 <if test="t.id != null">
-                    id = #{t.id} and
+                    p.id = #{t.id} and
                 </if>
                 <if test="t.productTitle != null and t.productTitle != ''">
-                    product_title like concat('%',#{t.productTitle},'%') and
+                    p.product_title like concat('%',#{t.productTitle},'%') and
                 </if>
                 <if test="t.categoryId != null">
-                    category_id = #{t.categoryId} and
+                    p.category_id = #{t.categoryId} and
                 </if>
             </trim>
         </if>
@@ -590,13 +590,13 @@
             <trim prefix=" " suffix=" " suffixOverrides=" and ">
                 and
                 <if test="t.id != null">
-                    id = #{t.id} and
+                    p.id = #{t.id} and
                 </if>
                 <if test="t.productTitle != null and t.productTitle != ''">
-                    product_title like concat('%',#{t.productTitle},'%') and
+                    p.product_title like concat('%',#{t.productTitle},'%') and
                 </if>
                 <if test="t.categoryId != null">
-                    category_id = #{t.categoryId} and
+                    p.category_id = #{t.categoryId} and
                 </if>
             </trim>
         </if>
