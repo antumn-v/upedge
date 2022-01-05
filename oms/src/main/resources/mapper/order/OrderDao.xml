@@ -1569,12 +1569,12 @@
         oi.store_variant_sku as storeVariantSku,
         oi.admin_variant_image as adminVariantImage,
         sum(oi.quantity) as quantity,
-        oi.saihe_sku_relate as adminVariantSku
+        oi.admin_variant_sku as adminVariantSku
         from order_item oi
         left join `order` o on oi.order_id=o.id
         where o.pay_state=0 and o.customer_id=#{customerId}
         GROUP BY
-        oi.saihe_sku_relate,oi.admin_variant_id,oi.store_variant_sku,oi.store_variant_name,oi.admin_variant_image
+        oi.admin_variant_sku,oi.admin_variant_id,oi.store_variant_sku,oi.store_variant_name,oi.admin_variant_image
         <if test="pageNum != null and pageSize != null">
             limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
         </if>
@@ -1588,7 +1588,7 @@
                                   left join `order` o on oi.order_id = o.id
                      where o.pay_state = 0
                        and o.customer_id = #{customerId}
-                     GROUP BY oi.saihe_sku_relate
+                     GROUP BY oi.admin_variant_sku
                      ) c
     </select>
 

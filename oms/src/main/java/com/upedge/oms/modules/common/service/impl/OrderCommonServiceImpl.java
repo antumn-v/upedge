@@ -17,6 +17,7 @@ import com.upedge.common.model.mq.ChangeManagerVo;
 import com.upedge.common.model.order.PaymentDetail;
 import com.upedge.common.model.order.TransactionDetail;
 import com.upedge.common.model.ship.vo.ShippingMethodVo;
+import com.upedge.common.model.user.vo.CustomerIossVo;
 import com.upedge.common.model.user.vo.CustomerVo;
 import com.upedge.common.utils.IdGenerate;
 import com.upedge.common.utils.ListUtils;
@@ -281,6 +282,7 @@ public class OrderCommonServiceImpl implements OrderCommonService {
      */
     @Override
     public Boolean upLoadOrderToSaiHe(SaiheOrder saiheOrder, Integer orderType) {
+        CustomerIossVo customerIossVo = (CustomerIossVo) redisTemplate.opsForValue().get(RedisKey.STRING_CUSTOMER_IOSS + saiheOrder.getCustomerId());
         SaiheOrderRecord record = saiheOrderRecordDao.selectByClientOrderCode(saiheOrder.getClientOrderCode());
         if (null != record && 1 == record.getState()) {
             return true;
@@ -305,7 +307,9 @@ public class OrderCommonServiceImpl implements OrderCommonService {
         }
         ApiUploadOrderInfo apiUploadOrderInfo = new ApiUploadOrderInfo();
         apiUploadOrderInfo.setCustomerID(SaiheConfig.CUSTOMER_ID);
-
+        if (customerIossVo != null){
+            apiUploadOrderInfo.setSenderTaxNumber(customerIossVo.getIossNum());
+        }
         //获取客户经理的渠道ID 默认128
         Integer orderSourceId = saiheOrder.getOrderSourceID() == null ? SaiheConfig.UPEDGE_DEFAULT_ORDER_SOURCE_ID : saiheOrder.getOrderSourceID();
         //来源渠道ID(需在ERP系统中创建)

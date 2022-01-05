@@ -17,7 +17,7 @@
         <result property="storeProductTitle" column="store_product_title"/>
         <result property="storeVariantImage" column="store_variant_image"/>
         <result property="adminVariantImage" column="admin_variant_image"/>
-        <result property="adminVariantSku" column="saihe_sku_relate"/>
+        <result property="adminVariantSku" column="admin_variant_sku"/>
         <result property="usdPrice" column="usd_price"/>
         <result property="usdRate" column="usd_rate"/>
         <result property="cnyPrice" column="cny_price"/>
@@ -123,7 +123,7 @@
         `id`,`order_id`,`store_order_id`,`store_order_item_id`,`store_variant_id`,
         `admin_variant_id`,`store_product_id`,`admin_product_id`,
         `store_variant_name`,`store_variant_sku`,`store_product_title`,`store_variant_image`,
-        `admin_variant_image`,`saihe_sku_relate`,`usd_price`,`usd_rate`,`cny_price`,
+        `admin_variant_image`,`admin_variant_sku`,`usd_price`,`usd_rate`,`cny_price`,
         `quantity`,`discharge_quantity`,`admin_variant_weight`,`admin_variant_volume`,`item_type`,`shipping_id`,`quote_state`
     </sql>
 
@@ -348,7 +348,7 @@
                 admin_variant_image = #{adminVariantImage},
             </if>
             <if test="adminVariantSku != null">
-                saihe_sku_relate = #{adminVariantSku},
+                admin_variant_sku = #{adminVariantSku},
             </if>
             <if test="usdPrice != null">
                 usd_price = #{usdPrice},
@@ -400,7 +400,7 @@
             store_product_title = #{storeProductTitle},
             store_variant_image = #{storeVariantImage},
             admin_variant_image = #{adminVariantImage},
-            saihe_sku_relate = #{adminVariantSku},
+            admin_variant_sku = #{adminVariantSku},
             usd_price = #{usdPrice},
             usd_rate = #{usdRate},
             cny_price = #{cnyPrice},
@@ -431,7 +431,7 @@
             store_product_title,
             store_variant_image,
             admin_variant_image,
-            saihe_sku_relate,
+            admin_variant_sku,
             usd_price,
             usd_rate,
             cny_price,
@@ -514,7 +514,7 @@
                 admin_variant_image
             </if>
             <if test="adminVariantSku != null" >
-                saihe_sku_relate
+                admin_variant_sku
             </if>
             <if test="usdPrice != null" >
                 usd_price
@@ -641,7 +641,7 @@
             store_product_title,
             store_variant_image,
             admin_variant_image,
-            saihe_sku_relate,
+            admin_variant_sku,
             usd_price,
             usd_rate,
             cny_price,
@@ -729,7 +729,7 @@
                     admin_variant_image = #{t.adminVariantImage} and
                 </if>
                 <if test="t.adminVariantSku != null">
-                    saihe_sku_relate = #{t.adminVariantSku} and
+                    admin_variant_sku = #{t.adminVariantSku} and
                 </if>
                 <if test="t.usdPrice != null">
                     usd_price = #{t.usdPrice} and
@@ -800,7 +800,7 @@
         on oi.order_id = o.id
         set oi.admin_product_id = #{productId},
         oi.admin_variant_id = #{variantId},
-        oi.saihe_sku_relate = #{variantSku},
+        oi.admin_variant_sku = #{variantSku},
         oi.admin_variant_image = #{variantImage},
         oi.admin_variant_volume = #{volume},
         oi.admin_variant_weight = #{weight},
@@ -859,7 +859,7 @@
         select
 		oi.quantity as productNum,
 		oi.usd_price as salePrice,
-		oi.saihe_sku_relate as sellerSku,
+		oi.admin_variant_sku as sellerSku,
 		oi.admin_product_id as adminProductId,
 		oi.id as orderItemId,
 		so.plat_order_name as orderName,
@@ -876,7 +876,7 @@
 			oi.quantity * oi.usd_price as  lineTotal,
 			oi.quantity as itemQuantity,
 			oi.usd_price,
-			oi.saihe_sku_relate,
+			oi.admin_variant_sku,
 			oi.admin_variant_id
 			from order_item oi
 			left join `order` o on oi.order_id = o.id

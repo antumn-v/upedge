@@ -5,9 +5,6 @@ import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 
-/**
- * Created by cjq on 2019/1/11.
- */
 public class ApiUploadOrderInfo {
 
     //客户编号
@@ -51,6 +48,9 @@ public class ApiUploadOrderInfo {
 
     //收货国家
     String Country;
+
+    //寄件人税号
+    String SenderTaxNumber;
 
     @XmlElement(name="OrderItemList")
     public OrderItemList getOrderItemList() {
@@ -324,5 +324,14 @@ public class ApiUploadOrderInfo {
 
     public void setIsOperateMatch(Boolean isOperateMatch) {
         this.IsOperateMatch = isOperateMatch;
+    }
+
+    @XmlElement(name="SenderTaxNumber")
+    public String getSenderTaxNumber() {
+        return SenderTaxNumber;
+    }
+
+    public void setSenderTaxNumber(String senderTaxNumber) {
+        SenderTaxNumber = senderTaxNumber;
     }
 }
