@@ -29,7 +29,7 @@ public class AirwallexVo {
     private Long itemQuantity;
 
     /**
-     * admin_variant_sku
+     * saihe_sku_relate
      */
     private String adminVariantSku;
 

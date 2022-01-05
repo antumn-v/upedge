@@ -117,7 +117,7 @@
         woi.`admin_variant_image` as adminVariantImg,
         woi.`usd_price` as usdPrice,
         woi.`admin_product_title` as adminProductTitle,
-        woi.`admin_variant_sku` as adminVariantSku,
+        woi.`saihe_sku_relate` as adminVariantSku,
         woi.`admin_variant_name` as adminVariantName,
         woi.`quantity` as quantity,
         woi.`discharge_quantity` as dischargeQuantity
@@ -158,7 +158,7 @@
                woi.`admin_variant_image`            as adminVariantImg,
                woi.`usd_price`                      as usdPrice,
                woi.`admin_product_title`            as adminProductTitle,
-               woi.`admin_variant_sku`              as adminVariantSku,
+               woi.`saihe_sku_relate`              as adminVariantSku,
                woi.`admin_variant_name`             as adminVariantName,
                woi.`quantity`                       as quantity,
                woi.`discharge_quantity`             as dischargeQuantity,

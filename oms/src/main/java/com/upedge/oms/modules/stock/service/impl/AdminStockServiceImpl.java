@@ -54,7 +54,7 @@ public class AdminStockServiceImpl implements AdminStockService {
     @Autowired
     private StockOrderItemDao stockOrderItemDao;
     @Autowired
-    private AdminVariantSkuDao adminVariantSkuDao;
+    private SaiheSkuRelateDao saiheSkuRelateDao;
     @Autowired
     private StockOrderRefundDao stockOrderRefundDao;
     @Autowired
@@ -243,12 +243,12 @@ public class AdminStockServiceImpl implements AdminStockService {
     }
 
     public void saveAdminVariantSku(String clientSku, String sku){
-        AdminVariantSku adminVariantSku=adminVariantSkuDao.selectByPrimaryKey(clientSku);
-        if(adminVariantSku==null){
-            adminVariantSku=new AdminVariantSku();
-            adminVariantSku.setVariantSku(clientSku);
-            adminVariantSku.setSaiheSku(sku);
-            adminVariantSkuDao.insert(adminVariantSku);
+        SaiheSkuRelate saiheSkuRelate =saiheSkuRelateDao.selectByPrimaryKey(clientSku);
+        if(saiheSkuRelate==null){
+            saiheSkuRelate=new SaiheSkuRelate();
+            saiheSkuRelate.setVariantSku(clientSku);
+            saiheSkuRelate.setSaiheSku(sku);
+            saiheSkuRelateDao.insert(saiheSkuRelate);
         }
     }
 

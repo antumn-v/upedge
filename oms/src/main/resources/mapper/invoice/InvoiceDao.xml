@@ -220,7 +220,7 @@
             parameterType="com.upedge.oms.modules.statistics.request.InvoiceDetailRequest">
         select oi.admin_product_title as `title`,ifnull(oi.admin_variant_name,'Default Title') as `variantTitle`,
         sum(oi.quantity) as `quantity`,
-        oi.admin_variant_sku as `sku`,
+        oi.saihe_sku_relate as `sku`,
         oi.cny_price as `price`,
         oi.admin_variant_image as `image`,
         sum(oi.quantity * oi.cny_price) as `total`
@@ -230,14 +230,14 @@
         where o.payment_id = #{paymentId}
         and o.pay_state > '0'
         and o.order_type != '1'
-        group by oi.admin_variant_sku,oi.cny_price,oi.admin_product_title,oi.admin_variant_name,oi.admin_variant_image
+        group by oi.saihe_sku_relate,oi.cny_price,oi.admin_product_title,oi.admin_variant_name,oi.admin_variant_image
     </select>
 
     <select id="selectWholesaleInvoiceProductByTime" resultType="com.upedge.oms.modules.statistics.vo.InvoiceProductVo"
             parameterType="com.upedge.oms.modules.statistics.request.InvoiceSearchRequest">
         select oi.admin_product_title as `title`,ifnull(oi.admin_variant_name,'Default Title') as `variantTitle`,
         sum(oi.quantity) as `quantity`,
-        oi.admin_variant_sku as `sku`,
+        oi.saihe_sku_relate as `sku`,
         oi.cny_price as `price`,
         oi.admin_variant_image as `image`,
         sum(oi.quantity * oi.cny_price) as `total`
@@ -249,7 +249,7 @@
         between #{beginTime} and #{endTime}
         and o.pay_state > '0'
         and o.order_type != '1'
-        group by oi.admin_variant_sku,oi.cny_price,oi.admin_product_title,oi.admin_variant_name,oi.admin_variant_image
+        group by oi.saihe_sku_relate,oi.cny_price,oi.admin_product_title,oi.admin_variant_name,oi.admin_variant_image
     </select>
 
     <select id="selectStockInvoiceDetailByPaymentId" resultType="com.upedge.oms.modules.statistics.vo.InvoiceDetailVo"

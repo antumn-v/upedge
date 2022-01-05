@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="com.upedge.oms.modules.stock.dao.AdminVariantSkuDao">
+<mapper namespace="com.upedge.oms.modules.stock.dao.SaiheSkuRelateDao">
 
 	<!-- 可根据自己的需求，是否要使用 -->
-    <resultMap type="com.upedge.oms.modules.stock.entity.AdminVariantSku" id="BaseResultMap">
+    <resultMap type="com.upedge.oms.modules.stock.entity.SaiheSkuRelate" id="BaseResultMap">
         <result property="variantSku" column="variant_sku"/>
         <result property="saiheSku" column="saihe_sku"/>
     </resultMap>
@@ -13,19 +13,19 @@
         `variant_sku`,`saihe_sku`
     </sql>
 
-    <select id="selectByPrimaryKey" parameterType="com.upedge.oms.modules.stock.entity.AdminVariantSku" resultMap="BaseResultMap">
+    <select id="selectByPrimaryKey" parameterType="com.upedge.oms.modules.stock.entity.SaiheSkuRelate" resultMap="BaseResultMap">
         select
         <include refid="Base_Column_List" />
         from saihe_sku_relate
         where variant_sku = #{variantSku}
     </select>
 
-    <delete id="deleteByPrimaryKey" parameterType="com.upedge.oms.modules.stock.entity.AdminVariantSku">
+    <delete id="deleteByPrimaryKey" parameterType="com.upedge.oms.modules.stock.entity.SaiheSkuRelate">
         delete from saihe_sku_relate
         where variant_sku = #{variantSku}
     </delete>
 
-    <update id="updateByPrimaryKeySelective" parameterType="com.upedge.oms.modules.stock.entity.AdminVariantSku">
+    <update id="updateByPrimaryKeySelective" parameterType="com.upedge.oms.modules.stock.entity.SaiheSkuRelate">
         update saihe_sku_relate
         <set>
             <if test="saiheSku != null">
@@ -35,7 +35,7 @@
         where variant_sku = #{variantSku}
     </update>
 
-    <update id="updateByPrimaryKey" parameterType="com.upedge.oms.modules.stock.entity.AdminVariantSku">
+    <update id="updateByPrimaryKey" parameterType="com.upedge.oms.modules.stock.entity.SaiheSkuRelate">
         update saihe_sku_relate
         <set>
         variant_sku = #{variantSku},
@@ -44,7 +44,7 @@
         where variant_sku = #{variantSku}
     </update>
 
-    <insert id="insert" keyColumn="variant_sku" keyProperty="variantSku" parameterType="com.upedge.oms.modules.stock.entity.AdminVariantSku" useGeneratedKeys="true">
+    <insert id="insert" keyColumn="variant_sku" keyProperty="variantSku" parameterType="com.upedge.oms.modules.stock.entity.SaiheSkuRelate" useGeneratedKeys="true">
         insert into saihe_sku_relate
         <trim prefix="(" suffix=")" suffixOverrides=",">
             variant_sku,
@@ -56,7 +56,7 @@
         )
     </insert>
 
-    <insert id="insertSelective"  keyColumn="variant_sku" keyProperty="variantSku"  parameterType="com.upedge.oms.modules.stock.entity.AdminVariantSku" useGeneratedKeys="true">
+    <insert id="insertSelective"  keyColumn="variant_sku" keyProperty="variantSku"  parameterType="com.upedge.oms.modules.stock.entity.SaiheSkuRelate" useGeneratedKeys="true">
         insert into saihe_sku_relate
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="variantSku != null" >

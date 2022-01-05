@@ -10,7 +10,7 @@
         <result property="adminVariantId" column="admin_variant_id"/>
         <result property="adminProductId" column="admin_product_id"/>
         <result property="adminProductTitle" column="admin_product_title"/>
-        <result property="adminVariantSku" column="admin_variant_sku"/>
+        <result property="adminVariantSku" column="saihe_sku_relate"/>
         <result property="adminVariantName" column="admin_variant_name"/>
         <result property="cartId" column="cart_id"/>
         <result property="quantity" column="quantity"/>
@@ -23,7 +23,7 @@
     </resultMap>
 
     <sql id="Base_Column_List">
-        `id`,`order_id`,`admin_variant_id`,`admin_product_id`,`admin_product_title`,`admin_variant_sku`,`admin_variant_name`,
+        `id`,`order_id`,`admin_variant_id`,`admin_product_id`,`admin_product_title`,`saihe_sku_relate`,`admin_variant_name`,
         `cart_id`,`quantity`,`discharge_quantity`,`admin_variant_image`,`usd_price`,
         `admin_variant_weight`,`admin_variant_volume`,`shipping_id`
     </sql>
@@ -43,7 +43,7 @@
     </select>
 
     <select id="selectByOrderPaymentId" resultMap="BaseResultMap">
-        select woi.`id`,`order_id`,`admin_variant_id`,`admin_product_id`,`admin_product_title`,`admin_variant_sku`,`admin_variant_name`,
+        select woi.`id`,`order_id`,`admin_variant_id`,`admin_product_id`,`admin_product_title`,`saihe_sku_relate`,`admin_variant_name`,
         `cart_id`,`quantity`,`discharge_quantity`,`admin_variant_image`,`usd_price`,`admin_variant_weight`,`admin_variant_volume`
         from wholesale_order_item woi
         inner join `wholesale_order` wo
@@ -136,7 +136,7 @@
                 admin_product_id = #{adminProductId},
             </if>
             <if test="adminVariantSku != null">
-                admin_variant_sku = #{adminVariantSku},
+                saihe_sku_relate = #{adminVariantSku},
             </if>
             <if test="cartId != null">
                 cart_id = #{cartId},
@@ -170,7 +170,7 @@
             order_id = #{orderId},
             admin_variant_id = #{adminVariantId},
             admin_product_id = #{adminProductId},
-            admin_variant_sku = #{adminVariantSku},
+            saihe_sku_relate = #{adminVariantSku},
             cart_id = #{cartId},
             quantity = #{quantity},
             discharge_quantity = #{dischargeQuantity},
@@ -199,7 +199,7 @@
             admin_variant_id,
             admin_product_id,
             admin_product_title,
-            admin_variant_sku,
+            saihe_sku_relate,
             admin_variant_name,
             cart_id,
             quantity,
@@ -243,7 +243,7 @@
                 admin_product_id
             </if>
             <if test="adminVariantSku != null" >
-                admin_variant_sku
+                saihe_sku_relate
             </if>
             <if test="cartId != null" >
                 cart_id
@@ -317,7 +317,7 @@
             admin_variant_id,
             admin_product_id,
             admin_product_title,
-            admin_variant_sku,
+            saihe_sku_relate,
             admin_variant_name,
             cart_id,
             quantity,
@@ -368,7 +368,7 @@
                     admin_product_id = #{t.adminProductId} and
                 </if>
                 <if test="t.adminVariantSku != null">
-                    admin_variant_sku = #{t.adminVariantSku} and
+                    saihe_sku_relate = #{t.adminVariantSku} and
                 </if>
                 <if test="t.cartId != null">
                     cart_id = #{t.cartId} and
@@ -425,7 +425,7 @@
         oi.`admin_variant_image` as adminVariantImg,
         oi.`usd_price` as usdPrice,
         oi.`admin_product_title` as adminProductTitle,
-        oi.`admin_variant_sku` as adminVariantSku,
+        oi.`saihe_sku_relate` as adminVariantSku,
         oi.`admin_variant_name` as adminVariantName,
         oi.`quantity` as quantity,
         oi.`discharge_quantity` as dischargeQuantity
@@ -444,7 +444,7 @@
         select
 		woi.quantity as productNum,
 		woi.usd_price as salePrice,
-		woi.admin_variant_sku as sellerSku,
+		woi.saihe_sku_relate as sellerSku,
 		woi.admin_product_id as adminProductId,
 		woi.id as orderItemId
 		from wholesale_order_item woi

@@ -358,7 +358,7 @@
        i.variant_sku as variantSku,
        v.saihe_sku as saiheSku
        from stock_order_item  i
-       left join admin_variant_sku v on v.variant_sku=i.variant_sku
+       left join saihe_sku_relate v on v.variant_sku=i.variant_sku
        where i.order_id=#{orderId}
     </select>
 
