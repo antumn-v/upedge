@@ -599,6 +599,15 @@ public class OrderServiceImpl implements OrderService {
     }
 
 
+    @Override
+    public int initShipByShipUnitId(Long shipUnitId) {
+
+        if (shipUnitId  != null){
+            return orderDao.initShipByShipUnitId(shipUnitId);
+        }
+        return 0;
+    }
+
     @Transactional
     @Override
     public BaseResponse createReshipOrder(Long id) {

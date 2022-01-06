@@ -65,10 +65,12 @@ public class OrderShipUnitCustomer {
                         return ConsumeConcurrentlyStatus.CONSUME_SUCCESS;
                     }
                     String body = new String(message.getBody());
-                    List<Long> longs = JSONArray.parseArray(body, Long.class);
+                    List<Long> shipUnitIds = JSONArray.parseArray(body, Long.class);
 
                     // 删除order_shipping_unit 并 清0运费 删除shipMethodId  目前只删除
-                    orderShippingUnitService.delOrderShipUnitAndShipMethod(longs);
+                    for (Long shipUnitId : shipUnitIds) {
+                        orderShippingUnitService.deleteByShipUnitId(shipUnitId);
+                    }
 
                     if (null == mqMessageLog) {
                         mqMessageLog = MqMessageLog.toMqMessageLog(message, String.valueOf(System.currentTimeMillis()));

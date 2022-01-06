@@ -6,15 +6,15 @@ import com.upedge.oms.modules.orderShippingUnit.vo.OrderShippingUnitVo;
 
 import java.util.List;
 
-/**
- * @author xwCui
- */
 public interface OrderShippingUnitService{
 
     List<Long> selectOrderIdByOrderPaymentId(Long paymentId,
                                              Integer orderType);
 
     void updateOrderShipUnit(Long orderId, Long shippingUnitId);
+
+
+    void deleteByShipUnitId(Long shipUnitId);
 
     OrderShippingUnit selectByPrimaryKey(Long id);
 
@@ -31,8 +31,6 @@ public interface OrderShippingUnitService{
     List<OrderShippingUnit> select(Page<OrderShippingUnit> record);
 
     long count(Page<OrderShippingUnit> record);
-
-
     /**
      * 查询带订单支付状态的订单unit信息
      * @param orderId
@@ -47,11 +45,8 @@ public interface OrderShippingUnitService{
      */
     int delByOrderId(Long orderId, int orderType);
 
-    /**
-     *  删除order_shipping_unit 并 清0运费 删除shipMethodId
-     * @param longs
-     */
-    void delOrderShipUnitAndShipMethod(List<Long> longs);
+
+//    void delOrderShipUnitAndShipMethod(List<Long> longs);
 
     void delByProductId(Long productId, int orderType);
 

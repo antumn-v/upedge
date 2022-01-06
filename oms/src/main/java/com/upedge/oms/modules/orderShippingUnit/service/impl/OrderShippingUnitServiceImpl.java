@@ -18,9 +18,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.CollectionUtils;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -92,6 +90,13 @@ public class OrderShippingUnitServiceImpl implements OrderShippingUnitService {
         }
     }
 
+    @Transactional
+    @Override
+    public void deleteByShipUnitId(Long shipUnitId) {
+        orderService.initShipByShipUnitId(shipUnitId);
+        orderShippingUnitDao.deleteUnPaidOrderUnitByShipUnitId(shipUnitId);
+    }
+
     /**
      *
      */
@@ -146,31 +151,7 @@ public class OrderShippingUnitServiceImpl implements OrderShippingUnitService {
         return orderShippingUnitDao.delete(record);
     }
 
-    /**
-     *  删除order_shipping_unit 并 清0运费 删除shipMethodId
-     * @param longs
-     */
-    @Transactional(rollbackFor = Exception.class)
-    @Override
-    public void delOrderShipUnitAndShipMethod(List<Long> longs) {
-       List<OrderShippingUnit> resultList = new ArrayList<>();
-        for (Long shipUnitId : longs) {
-            // 查询
-            List<OrderShippingUnit> orderShippingUnits  =  orderShippingUnitDao.selectListByOrderId(shipUnitId);
-            if (!CollectionUtils.isEmpty(orderShippingUnits)) {
-                resultList.addAll(orderShippingUnits);
-            }
-        }
-        for (OrderShippingUnit orderShippingUnit : resultList) {
-        int  delNumber =   orderShippingUnitDao.deleteOrderShippingUnit(orderShippingUnit.getId() ,orderShippingUnit.getOrderType(), orderShippingUnit.getOrderId());
-        if (delNumber > 0 && orderShippingUnit.getOrderType() == OrderType.NORMAL ){
-                orderService.updateOrderShipMethod(orderShippingUnit.getOrderId());
-           }
-            if (delNumber > 0 && orderShippingUnit.getOrderType() == OrderType.WHOLESALE ){
-                wholesaleOrderService.updateOrderShipMethod(orderShippingUnit.getOrderId());
-            }
-        }
-    }
+
 
     @Override
     public void delByProductId(Long productId, int orderType) {

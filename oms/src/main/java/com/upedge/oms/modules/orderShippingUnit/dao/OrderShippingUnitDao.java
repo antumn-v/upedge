@@ -17,6 +17,8 @@ public interface OrderShippingUnitDao{
 
     OrderShippingUnit selectByPrimaryKey(OrderShippingUnit record);
 
+    int deleteUnPaidOrderUnitByShipUnitId(Long shipUnitId);
+
     int deleteByPrimaryKey(OrderShippingUnit record);
 
     int updateByPrimaryKey(OrderShippingUnit record);

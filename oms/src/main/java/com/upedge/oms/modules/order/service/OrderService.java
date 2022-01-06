@@ -29,6 +29,8 @@ import java.util.Set;
  */
 public interface OrderService{
 
+    int initShipByShipUnitId(Long shipUnitId);
+
     BaseResponse createReshipOrder(Long id);
 
     void initQuoteState(Long id);

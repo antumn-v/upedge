@@ -43,6 +43,8 @@ public interface OrderDao{
 
     int initProductAmountById(@Param("orderIds") List<Long> orderIds);
 
+    int initShipByShipUnitId(Long shipUnitId);
+
     List<OrderProductAmountVo> selectOrderItemAmountByPaymentId(Long paymentId);
 
 

@@ -500,4 +500,12 @@
          WHERE  oi.admin_variant_id = #{variantId}  and  o.pay_state = 0
     </delete>
 
+    <delete id="deleteUnPaidOrderUnitByShipUnitId">
+        delete osu.*
+            from order_shipping_unit osu
+        inner join `order` o
+        on o.id = osu.order_id
+        where osu.ship_unit_id = #{shipUnitId}
+        and o.pay_state &lt; 1
+    </delete>
 </mapper>
