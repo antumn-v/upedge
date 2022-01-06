@@ -1089,6 +1089,7 @@
         set ship_method_name = null,
             ship_price     = 0
         where id = #{id}
+        and pay_state &lt; 1
     </update>
     <update id="updateShipDetailById">
         update `wholesale_order`

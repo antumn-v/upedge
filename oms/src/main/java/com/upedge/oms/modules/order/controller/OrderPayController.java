@@ -106,7 +106,6 @@ public class OrderPayController {
         }
         BigDecimal amount = request.getAmount();
         Long paymentId = IdGenerate.nextId();
-        String result = "error";
         int i = orderPayService.updatePaymentIdByIds(orderIds, paymentId, session.getCustomerId());
         if (i == orderIds.size()) {
             //库存检查
@@ -138,7 +137,6 @@ public class OrderPayController {
         Long paymentId = IdGenerate.nextId();
         int i = orderPayService.updatePaymentIdByIds(orderIds, paymentId, session.getCustomerId());
         if (i > 0) {
-            String result = "error";
             List<ItemDischargeQuantityVo> dischargeQuantityVos = orderItemService.selectDischargeQuantityByPaymentId(paymentId);
 
             OrderPayCheckResultVo orderPayCheckResultVo = orderPayService.orderPayCheck(paymentId, request.getAmount(), dischargeQuantityVos, session.getCustomerId(),"paypal");

@@ -13,10 +13,10 @@ import com.upedge.common.feign.TmsFeignClient;
 import com.upedge.common.feign.UmsFeignClient;
 import com.upedge.common.model.account.AccountPaymentRequest;
 import com.upedge.common.model.account.PaypalOrder;
-import com.upedge.common.model.old.tms.ShippingUnit;
 import com.upedge.common.model.order.PaymentDetail;
 import com.upedge.common.model.order.TransactionDetail;
 import com.upedge.common.model.ship.vo.ShipDetail;
+import com.upedge.common.model.tms.ShippingUnitVo;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.utils.IdGenerate;
 import com.upedge.common.utils.ListUtils;
@@ -438,7 +438,7 @@ public class WholesaleOrderPayServiceImpl implements WholesaleOrderPayService {
                 orderShippingUnitService.delByOrderId(k, OrderType.WHOLESALE);
                 BaseResponse shippingUnitResponse = tmsFeignClient.unitInfo(v.getShippingUtilId());
                 if (shippingUnitResponse.getCode() == ResultCode.SUCCESS_CODE && shippingUnitResponse.getData() != null) {
-                    ShippingUnit shippingUnit = JSON.parseObject(JSON.toJSONString(shippingUnitResponse.getData()), ShippingUnit.class);
+                    ShippingUnitVo shippingUnit = JSON.parseObject(JSON.toJSONString(shippingUnitResponse.getData()), ShippingUnitVo.class);
                     OrderShippingUnit orderShippingUnit = new OrderShippingUnit();
                     BeanUtils.copyProperties(shippingUnit, orderShippingUnit);
                     orderShippingUnit.setOrderId(k);
