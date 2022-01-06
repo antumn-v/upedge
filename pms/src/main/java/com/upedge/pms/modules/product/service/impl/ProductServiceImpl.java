@@ -242,7 +242,12 @@ public class ProductServiceImpl implements ProductService {
         }
         appProductVo.setVariantVos(variantVos);
         appProductVo.setAttributeMap(attributeMap);
-
+        ImportProductAttribute importProductAttribute = importProductAttributeDao.selectBySourceProductId(productId.toString());
+        if (importProductAttribute != null){
+            appProductVo.setImportState(1);
+        }else {
+            appProductVo.setImportState(0);
+        }
         List<VariantNameVo> variantNameVos = productVariantAttrService.selectNameValueByProductId(productId);
         appProductVo.setVariantNameValues(variantNameVos);
         ProductInfo productInfo = productInfoService.selectByProductId(productId);

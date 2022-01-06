@@ -123,7 +123,6 @@ public class Ali1688Service {
                 if (shippingInfo.getVolume() != null){
                     productVariantVo.setVolumeWeight(new BigDecimal(shippingInfo.getVolume()));
                 }
-
             }
             productVariantVo.setOriginalVariantId(Long.parseLong(skuInfos.getSkuId()));
             productVariantVo.setVariantSku(skuInfos.getSkuId());

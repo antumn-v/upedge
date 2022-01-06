@@ -356,5 +356,12 @@
         <include refid="Query_Condition"/>
     </select>
 
-
+    <select id="selectBySourceProductId" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from import_product_attribute
+        where source_product_id = #{sourceProductId}
+        and `state` = '0'
+        limit 1
+    </select>
 </mapper>

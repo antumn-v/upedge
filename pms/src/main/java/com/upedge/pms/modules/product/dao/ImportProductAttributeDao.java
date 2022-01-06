@@ -11,6 +11,8 @@ import java.util.List;
  */
 public interface ImportProductAttributeDao{
 
+    ImportProductAttribute selectBySourceProductId(String sourceProductId);
+
     List<String> selectImportedSourceProductIds(@Param("customerId") Long customerId);
 
     int updateStateByIds(@Param("ids") List<Long> ids, @Param("state") Integer state);
