@@ -542,4 +542,5 @@
         from shipping_unit
         <include refid="Query_Condition"/>
     </select>
+
 </mapper>

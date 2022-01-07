@@ -4,7 +4,10 @@ import com.upedge.common.base.BaseResponse;
 import com.upedge.common.base.Page;
 import com.upedge.common.exception.CustomerException;
 import com.upedge.common.model.ship.vo.ShipDetail;
+import com.upedge.common.model.user.vo.Session;
 import com.upedge.tms.modules.ship.entity.ShippingUnit;
+import com.upedge.tms.modules.ship.request.ShipUnitDelRequest;
+import com.upedge.tms.modules.ship.request.ShipUnitExcelImportRequest;
 import com.upedge.tms.modules.ship.vo.ShipMethodCountryVo;
 
 import java.math.BigDecimal;
@@ -16,11 +19,15 @@ import java.util.Set;
  */
 public interface ShippingUnitService{
 
+    BaseResponse excelImportShipUnit(ShipUnitExcelImportRequest request, Session session);
+
     List<ShipMethodCountryVo> selectMethodCountryUnitVo(Page<ShippingUnit> record);
 
     ShippingUnit selectByPrimaryKey(Long id);
 
     int deleteByIds(List<Long> ids) throws CustomerException;
+
+    int delete(ShipUnitDelRequest request) throws CustomerException;
 
     int deleteByPrimaryKey(Long id);
 

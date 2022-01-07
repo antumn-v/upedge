@@ -73,4 +73,6 @@ public class Constant {
 
 	public static final BigDecimal PAYPAL_FEE_PERCENTAGE = new BigDecimal("0.044");
 
+	public static final BigDecimal ONE_THOUSAND = new BigDecimal("1000");
+
 }

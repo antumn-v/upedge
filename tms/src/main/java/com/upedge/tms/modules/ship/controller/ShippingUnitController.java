@@ -7,15 +7,19 @@ import com.upedge.common.constant.key.RedisKey;
 import com.upedge.common.exception.CustomerException;
 import com.upedge.common.model.tms.ShippingUnitInfoResponse;
 import com.upedge.common.model.tms.ShippingUnitVo;
+import com.upedge.common.model.user.vo.Session;
+import com.upedge.common.utils.DateUtils;
 import com.upedge.common.utils.ListUtils;
 import com.upedge.common.utils.excel.ExcelExport;
 import com.upedge.common.utils.excel.ExcelField;
 import com.upedge.common.web.util.RedisUtil;
+import com.upedge.common.web.util.UserUtil;
 import com.upedge.tms.aspect.LocalLock;
 import com.upedge.tms.modules.area.entity.Area;
 import com.upedge.tms.modules.area.service.AreaService;
 import com.upedge.tms.modules.ship.entity.ShippingMethod;
 import com.upedge.tms.modules.ship.entity.ShippingUnit;
+import com.upedge.tms.modules.ship.request.ShipUnitExcelImportRequest;
 import com.upedge.tms.modules.ship.request.ShippingUnitListRequest;
 import com.upedge.tms.modules.ship.request.ShippingUnitUpdateRequest;
 import com.upedge.tms.modules.ship.response.ShippingUnitListResponse;
@@ -71,6 +75,14 @@ public class ShippingUnitController {
 //        shippingUnitService.insert(shippingUnit);
 //        return BaseResponse.success();
 //    }
+
+
+    @ApiOperation("excel导入运输单元")
+    @PostMapping("/excelImport")
+    public BaseResponse excelImportShipUnit(@RequestBody@Valid ShipUnitExcelImportRequest request){
+        Session session = UserUtil.getSession(redisTemplate);
+        return shippingUnitService.excelImportShipUnit(request,session);
+    }
 
     @PostMapping("/methodCountryUnitList")
     public BaseResponse methodCountryUnitList(@RequestBody @Valid ShippingUnitListRequest request){
@@ -443,4 +455,8 @@ public class ShippingUnitController {
         return BaseResponse.success();
     }
 
+
+    public static void main(String[] args) {
+        System.out.println(DateUtils.formatDate(1641358800426L,"yyyy-MM-dd HH:mm:ss"));
+    }
 }

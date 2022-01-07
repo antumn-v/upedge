@@ -9,14 +9,21 @@ import com.upedge.common.exception.CustomerException;
 import com.upedge.common.model.ship.vo.ShipDetail;
 import com.upedge.common.model.ship.vo.ShippingMethodRedis;
 import com.upedge.common.model.tms.ArearedisVo;
+import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.utils.IdGenerate;
 import com.upedge.common.utils.ListUtils;
+import com.upedge.tms.modules.area.dao.AreaDao;
+import com.upedge.tms.modules.area.entity.Area;
 import com.upedge.tms.modules.ship.dao.ShippingUnitDao;
+import com.upedge.tms.modules.ship.dto.ShipUnitExitImportDto;
 import com.upedge.tms.modules.ship.entity.ShippingUnit;
+import com.upedge.tms.modules.ship.request.ShipUnitDelRequest;
+import com.upedge.tms.modules.ship.request.ShipUnitExcelImportRequest;
 import com.upedge.tms.modules.ship.service.ShippingUnitService;
 import com.upedge.tms.modules.ship.vo.CountryShipUnitVo;
 import com.upedge.tms.modules.ship.vo.ShipMethodCountryVo;
 import com.upedge.tms.mq.TmsProducerService;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -24,9 +31,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 
 @Service
@@ -37,6 +42,9 @@ public class ShippingUnitServiceImpl implements ShippingUnitService {
 
     @Autowired
     private TmsProducerService tmsProducerService;
+
+    @Autowired
+    AreaDao areaDao;
 
     @Autowired
     RedisTemplate redisTemplate;
@@ -65,6 +73,46 @@ public class ShippingUnitServiceImpl implements ShippingUnitService {
     @Transactional
     public int insertSelective(ShippingUnit record) {
         return shippingUnitDao.insert(record);
+    }
+
+    @Override
+    public BaseResponse excelImportShipUnit(ShipUnitExcelImportRequest request, Session session) {
+        List<ShipUnitExitImportDto> shipUnitExitImportDtos = request.getShipUnitExitImportDtos();
+        if (ListUtils.isEmpty(shipUnitExitImportDtos)
+                || null == request.getMethodId()){
+            return BaseResponse.failed("请求数据为空");
+        }
+        Long methodId = request.getMethodId();
+        ShippingMethodRedis shippingMethodRedis = (ShippingMethodRedis) redisTemplate.opsForHash().get(RedisKey.SHIPPING_METHOD,String.valueOf(methodId));
+        if (shippingMethodRedis == null) {
+            return BaseResponse.failed("运输方式不存在");
+        }
+        String methodName = shippingMethodRedis.getName();
+        List<ShippingUnit> shippingUnits = new ArrayList<>();
+        Map<String,String> countryMap = new HashMap<>();
+        for (ShipUnitExitImportDto shipUnitExitImportDto : shipUnitExitImportDtos) {
+
+            String areaId = countryMap.get(shipUnitExitImportDto.getCountry());
+            if (null == areaId){
+                Area area = areaDao.getRegionByName(shipUnitExitImportDto.getCountry());
+                if (null == area){
+                    continue;
+                }
+                areaId = area.getId().toString();
+                countryMap.put(area.getName(),areaId);
+            }
+            if (StringUtils.isNotBlank(areaId)){
+                ShippingUnit shippingUnit = shipUnitExitImportDto.toShipUnit(areaId);
+                shippingUnit.setMethodId(methodId);
+                shippingUnit.setMethodName(methodName);
+                shippingUnits.add(shippingUnit);
+            }
+        }
+        if (ListUtils.isNotEmpty(shippingUnits)){
+            shippingUnitDao.insertByBatch(shippingUnits);
+            redisTemplate.delete(RedisKey.STRING_METHOD_COUNTRY_UNIT_LIST);
+        }
+        return BaseResponse.success();
     }
 
     @Override
@@ -108,6 +156,23 @@ public class ShippingUnitServiceImpl implements ShippingUnitService {
             throw new CustomerException("mq异常，请重新提交或联系IT");
         }
         return 1;
+    }
+
+    @Override
+    public int delete(ShipUnitDelRequest request) throws CustomerException {
+
+        if (ListUtils.isNotEmpty(request.getUnitIds())){
+            return deleteByIds(request.getUnitIds());
+        }
+        if (null != request.getMethodId()){
+            List<ShippingUnit> shippingUnits = shippingUnitDao.selectListByShippingMethodId(request.getMethodId());
+            List<Long> unitIds = new ArrayList<>();
+            for (ShippingUnit shippingUnit : shippingUnits) {
+                unitIds.add(shippingUnit.getId());
+            }
+            deleteByIds(unitIds);
+        }
+        return 0;
     }
 
     /**
