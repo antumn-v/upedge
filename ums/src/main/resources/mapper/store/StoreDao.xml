@@ -87,11 +87,11 @@
     </sql>
 
 
-    <select id="selectByStoreUrl" resultMap="BaseResultMap">
+    <select id="selectByStoreName" resultMap="BaseResultMap">
         select
         <include refid="Base_Column_List"/>
         from store
-        where store_url = #{storeUrl}
+        where store_name = #{storeName}
     </select>
 
     <select id="selectByPrimaryKey" parameterType="com.upedge.ums.modules.store.entity.Store" resultMap="BaseResultMap">

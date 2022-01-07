@@ -57,7 +57,7 @@ public class OkHttpRequest {
                 .url(url)
                 .method(method.toString(), body)
                 .addHeader("Content-Type", "application/json")
-                .addHeader("Authorization", "Basic " + token)
+                .addHeader("X-Shopify-Access-Token", token)
                 .build();
         Response response = null;
         try {

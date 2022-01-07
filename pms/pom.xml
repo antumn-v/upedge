@@ -82,12 +82,6 @@
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
 
-        <dependency>
-            <groupId>com.upedge</groupId>
-            <artifactId>upedge-1688</artifactId>
-            <version>1.0-SNAPSHOT</version>
-            <scope>compile</scope>
-        </dependency>
 
         <dependency>
             <groupId>com.upedge</groupId>
@@ -117,6 +111,14 @@
             <scope>compile</scope>
         </dependency>
 
+
+        <dependency>
+            <groupId>local-sdk2</groupId>
+            <artifactId>test2</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/libs/ocean.client.java.biz.jar</systemPath>
+        </dependency>
     </dependencies>
 
     <build>
@@ -124,7 +126,11 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <includeSystemScope>true</includeSystemScope>
+                </configuration>
             </plugin>
+
         </plugins>
     </build>
 

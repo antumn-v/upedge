@@ -6,9 +6,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-/**
- * Created by jiaqi on 2020/6/15.
- */
+
 public class ProductInfo {
 
     /**

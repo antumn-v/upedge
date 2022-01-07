@@ -1,7 +1,7 @@
 package com.upedge.pms.modules.alibaba.service;
 
 import com.alibaba.fastjson.JSON;
-import com.upedge.pms.modules.alibaba.config.TranslateConfig;
+import com.upedge.pms.config.TranslateConfig;
 import com.upedge.pms.modules.alibaba.entity.translate.TranslateRes;
 import com.upedge.pms.modules.alibaba.entity.translate.TranslateResult;
 import com.upedge.pms.modules.alibaba.entity.translate.Translation;

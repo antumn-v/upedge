@@ -1,4 +1,4 @@
-package com.upedge.thirdparty.ali1688.entity.product;
+package com.upedge.pms.modules.alibaba.entity.product;
 
 
 public class Attribute {

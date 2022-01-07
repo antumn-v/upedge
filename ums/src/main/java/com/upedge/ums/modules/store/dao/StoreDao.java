@@ -21,7 +21,7 @@ public interface StoreDao{
 
     List<Store> selectStoreByCustomer(Long customerId);
 
-    Store selectByStoreUrl(String storeUrl);
+    Store selectByStoreName(String storeName);
 
     Store selectByPrimaryKey(Store record);
 

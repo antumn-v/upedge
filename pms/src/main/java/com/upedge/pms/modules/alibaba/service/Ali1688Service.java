@@ -45,7 +45,7 @@ public class Ali1688Service {
     /**
      * 获取1688产品
      */
-    public static AlibabaProductVo getProduct(String alibabaProductId,AlibabaApiVo alibabaApiVo){
+    public static AlibabaProductVo getProduct(String alibabaProductId, AlibabaApiVo alibabaApiVo){
         AlibabaProductVo alibabaProductVo=new AlibabaProductVo();
         long s=System.currentTimeMillis();
         ProductInfo productInfo=getAlibabaProductDetail(alibabaProductId,alibabaApiVo);
@@ -331,7 +331,7 @@ public class Ali1688Service {
     /**
      * 加入产品铺货列表
      */
-    private static CommonResult syncProductListPushed(Long[] productIdList,AlibabaApiVo alibabaApiVo){
+    private static CommonResult syncProductListPushed(Long[] productIdList, AlibabaApiVo alibabaApiVo){
         if(productIdList==null||productIdList.length==0){
             return null;
         }

@@ -1,4 +1,4 @@
-package com.upedge.thirdparty.ali1688;
+package com.upedge.pms.modules.alibaba;
 
 public class Test {
 

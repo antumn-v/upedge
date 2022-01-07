@@ -7,7 +7,6 @@ import org.apache.rocketmq.client.producer.DefaultMQProducer;
 import org.apache.rocketmq.client.producer.SendStatus;
 import org.apache.rocketmq.common.message.Message;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
 @Slf4j
@@ -20,8 +19,7 @@ public class ProductMqProducer {
     @Autowired
     UmsFeignClient umsFeignClient;
 
-    @Async
-    public boolean sendMessage(Message message){
+    public Boolean sendMessage(Message message){
         String key = message.getKeys();
 
         MqMessageLog messageLog = MqMessageLog.toMqMessageLog(message,null);

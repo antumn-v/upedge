@@ -6,7 +6,6 @@ import com.upedge.common.utils.OkHttpRequest;
 import com.upedge.thirdparty.shopify.config.Shopify;
 import com.upedge.thirdparty.shopify.moudles.shop.entity.ShopifyWebhook;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -21,6 +20,10 @@ public class ShopifyWebhookApi {
         map.put("webhook",webhook);
         String s =  OkHttpRequest.shopifyRequest(url,JSON.toJSON(map).toString(),token,HttpMethod.POST);
         return JSONObject.parseObject(s);
+    }
+
+    public static void main(String[] args) {
+        System.out.println(listStoreWebhook("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","upedge-test"));
     }
 
     public static JSONObject listStoreWebhook(String token,String shop){

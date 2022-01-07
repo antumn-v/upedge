@@ -4,7 +4,7 @@ import com.upedge.common.constant.key.RedisKey;
 import com.upedge.common.model.product.AlibabaApiVo;
 import com.upedge.pms.modules.alibaba.entity.AlibabaApi;
 import com.upedge.pms.modules.alibaba.service.AlibabaApiService;
-import com.upedge.thirdparty.ali1688.service.Ali1688Service;
+import com.upedge.pms.modules.alibaba.service.Ali1688Service;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;

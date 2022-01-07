@@ -178,14 +178,15 @@ public class StoreServiceImpl implements StoreService {
     @Transactional
     @Override
     public Store updateShopifyStore(String storeUrl, String token, Session session) {
+
         storeUrl = storeUrl.replace(".myshopify.com","");
         Shop shopDetail = ShopifyShopApi.getShopDetail(storeUrl, token);
         if (null == shopDetail) {
             return null;
         }
+        Store store = storeDao.selectByStoreName(storeUrl);
         User user = null;
         Map<String, String> result = new HashMap<>();
-        Store store = storeDao.selectByStoreUrl(storeUrl);
         if (session == null){
             if(store != null){
                 user = userServiceImpl.selectByPrimaryKey(store.getUserId());
@@ -294,7 +295,7 @@ public class StoreServiceImpl implements StoreService {
 
         Organization parent = new Organization();
 
-        Store store = storeDao.selectByStoreUrl(storeUrl);
+        Store store = storeDao.selectByStoreName(storeUrl);
 
         boolean b = false;
 
@@ -396,7 +397,7 @@ public class StoreServiceImpl implements StoreService {
             return new ShopifyAuthResponse(ResultCode.FAIL_CODE, "wrong url");
         }
         Session session = UserUtil.getSession(redisTemplate);
-        Store store = storeDao.selectByStoreUrl(storeUrl);
+        Store store = storeDao.selectByStoreName(storeUrl);
         if (null != store) {
 
             if (!session.getCustomerId().equals(store.getCustomerId())) {
@@ -420,7 +421,7 @@ public class StoreServiceImpl implements StoreService {
         String token = request.getAccessToken();
         Organization parent = new Organization();
 
-        Store store = storeDao.selectByStoreUrl(storeUrl);
+        Store store = storeDao.selectByStoreName(storeUrl);
 
         boolean b = false;
 

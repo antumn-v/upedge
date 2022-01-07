@@ -14,7 +14,7 @@ import com.upedge.pms.modules.product.response.ProductListResponse;
 import com.upedge.pms.modules.product.vo.AddProductVo;
 import com.upedge.pms.modules.product.vo.AppProductVo;
 import com.upedge.pms.modules.product.vo.ProductVo;
-import com.upedge.thirdparty.ali1688.vo.AlibabaProductVo;
+import com.upedge.pms.modules.alibaba.vo.AlibabaProductVo;
 
 import java.util.List;
 
