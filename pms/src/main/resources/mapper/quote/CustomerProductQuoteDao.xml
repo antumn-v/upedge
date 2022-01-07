@@ -397,8 +397,14 @@
         on p.id = pv.product_id
         <where>
             1 = 1
+            <if test="customerId != null">
+                and cpq.customer_id = #{customerId}
+            </if>
             <if test="quoteApplyId != null">
                 and cpq.quote_apply_id = #{quoteApplyId}
+            </if>
+            <if test="variantId != null">
+                and cpq.variant_id #{variantId}
             </if>
             <if test="storeVariantId != null">
                 and cpq.store_variant_id = #{storeVariantId}

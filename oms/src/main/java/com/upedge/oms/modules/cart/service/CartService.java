@@ -1,10 +1,12 @@
 package com.upedge.oms.modules.cart.service;
 
+import com.upedge.common.base.BaseResponse;
 import com.upedge.common.base.Page;
 import com.upedge.common.model.cart.request.CartAddRequest;
 import com.upedge.common.model.product.VariantDetail;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.oms.modules.cart.entity.Cart;
+import com.upedge.oms.modules.cart.request.CartAddStockRequest;
 import com.upedge.oms.modules.cart.request.CartSubmitOrderRequest;
 import com.upedge.oms.modules.cart.request.CartSubmitWholesaleRequest;
 import com.upedge.oms.modules.cart.request.DelCarts;
@@ -16,6 +18,8 @@ import java.util.List;
  * @author author
  */
 public interface CartService{
+
+    BaseResponse addStockCart(CartAddStockRequest request,Session session);
 
     Long cartSubmitStockOrder(CartSubmitOrderRequest request, Session session);
 

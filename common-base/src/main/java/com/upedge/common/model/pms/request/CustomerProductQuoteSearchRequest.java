@@ -7,6 +7,10 @@ import java.util.List;
 @Data
 public class CustomerProductQuoteSearchRequest {
 
+    private Long customerId;
+
+    private Long variantId;
+
     private Long quoteApplyId;
 
     private Long storeVariantId;

@@ -1,10 +1,13 @@
 package com.upedge.oms.modules.cart.service.impl;
 
+import com.upedge.common.base.BaseResponse;
 import com.upedge.common.base.Page;
 import com.upedge.common.constant.key.RedisKey;
 import com.upedge.common.feign.PmsFeignClient;
 import com.upedge.common.feign.TmsFeignClient;
 import com.upedge.common.model.cart.request.CartAddRequest;
+import com.upedge.common.model.pms.quote.CustomerProductQuoteVo;
+import com.upedge.common.model.pms.request.CustomerProductQuoteSearchRequest;
 import com.upedge.common.model.product.ListVariantsRequest;
 import com.upedge.common.model.product.VariantDetail;
 import com.upedge.common.model.user.vo.AddressVo;
@@ -14,11 +17,11 @@ import com.upedge.common.utils.ListUtils;
 import com.upedge.common.web.util.UserUtil;
 import com.upedge.oms.modules.cart.dao.CartDao;
 import com.upedge.oms.modules.cart.entity.Cart;
+import com.upedge.oms.modules.cart.request.CartAddStockRequest;
 import com.upedge.oms.modules.cart.request.CartSubmitOrderRequest;
 import com.upedge.oms.modules.cart.request.CartSubmitWholesaleRequest;
 import com.upedge.oms.modules.cart.request.DelCarts;
 import com.upedge.oms.modules.cart.service.CartService;
-import com.upedge.oms.modules.orderShippingUnit.service.OrderShippingUnitService;
 import com.upedge.oms.modules.stock.dao.StockOrderDao;
 import com.upedge.oms.modules.stock.dao.StockOrderItemDao;
 import com.upedge.oms.modules.stock.entity.StockOrder;
@@ -72,8 +75,33 @@ public class CartServiceImpl implements CartService {
     @Autowired
     PmsFeignClient pmsFeignClient;
 
-    @Autowired
-    private OrderShippingUnitService orderShippingUnitService;
+
+    @Override
+    public BaseResponse addStockCart(CartAddStockRequest request, Session session) {
+        if (null == request.getVariantId()){
+            return BaseResponse.failed();
+        }
+        CustomerProductQuoteSearchRequest customerProductQuoteSearchRequest = new CustomerProductQuoteSearchRequest();
+        customerProductQuoteSearchRequest.setCustomerId(session.getCustomerId());
+        customerProductQuoteSearchRequest.setVariantId(request.getVariantId());
+        List<CustomerProductQuoteVo> customerProductQuoteVos = pmsFeignClient.searchCustomerProductQuote(customerProductQuoteSearchRequest);
+        if (ListUtils.isEmpty(customerProductQuoteVos)){
+            return BaseResponse.failed();
+        }
+        Date date = new Date();
+        CustomerProductQuoteVo customerProductQuoteVo = customerProductQuoteVos.get(0);
+        Cart cart = quoteProductToCart(customerProductQuoteVo,date);
+
+        Cart c = cartDao.selectCart(cart);
+
+        if (null == c) {
+            cartDao.insert(cart);
+        } else {
+            cart.setId(c.getId());
+            cartDao.updateQuantity(cart);
+        }
+        return BaseResponse.success();
+    }
 
     //购物车提交备库订单
     @Transactional
@@ -343,6 +371,26 @@ public class CartServiceImpl implements CartService {
         cart.setVariantWeight(request.getWeight());
         cart.setVariantVolume(request.getVolume());
         cart.setQuantity(request.getQuantity());
+        cart.setCreateTime(date);
+        cart.setUpdateTime(date);
+        return cart;
+    }
+
+    public Cart quoteProductToCart(CustomerProductQuoteVo request, Date date) {
+        Cart cart = new Cart();
+        cart.setCartType(1);
+        cart.setCustomerId(request.getCustomerId());
+        cart.setProductId(request.getProductId());
+        cart.setProductTitle(request.getProductTitle());
+        cart.setState(0);
+        cart.setVariantId(request.getVariantId());
+        cart.setVariantName(request.getVariantName());
+        cart.setVariantSku(request.getVariantSku());
+        cart.setVariantImage(request.getVariantImage());
+        cart.setPrice(request.getUsdPrice());
+        cart.setVariantWeight(request.getWeight());
+        cart.setVariantVolume(request.getVolume());
+        cart.setQuantity(1);
         cart.setCreateTime(date);
         cart.setUpdateTime(date);
         return cart;

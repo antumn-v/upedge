@@ -101,12 +101,17 @@ public class CartController {
         return res;
     }
 
+    @ApiOperation("添加备库订单购物车")
+    @PostMapping("/addStock")
+    public BaseResponse addToStockCart(@RequestBody CartAddStockRequest request){
+        Session session = UserUtil.getSession(redisTemplate);
+        return cartService.addStockCart(request,session);
+    }
+
     @ApiOperation("购物车添加产品，看产品模块/pms/product/importCart接口")
-    @PostMapping("/add")
+    @PostMapping("/addWholesale")
     public BaseResponse cartAdd(@RequestBody @Valid CartAddRequest request){
-
         cartService.addCarts(request);
-
         return new BaseResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS);
 
     }
@@ -115,11 +120,9 @@ public class CartController {
     @PostMapping("/submit/list")
     public BaseResponse cartSubmitList(@RequestBody CartSubmitListRequest request){
         List<Cart> carts = cartService.selectByIdsAndType(request.getIds(),request.getCartType());
-
         if(ListUtils.isEmpty(carts)){
             return new BaseResponse(ResultCode.FAIL_CODE,Constant.MESSAGE_FAIL);
         }
-
         return new BaseResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS,carts);
     }
 
