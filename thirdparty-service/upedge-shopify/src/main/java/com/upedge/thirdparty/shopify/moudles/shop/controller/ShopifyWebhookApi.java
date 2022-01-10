@@ -23,7 +23,7 @@ public class ShopifyWebhookApi {
     }
 
     public static void main(String[] args) {
-        System.out.println(listStoreWebhook("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","upedge-test"));
+        System.out.println(listStoreWebhook("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","upedge-one"));
     }
 
     public static JSONObject listStoreWebhook(String token,String shop){

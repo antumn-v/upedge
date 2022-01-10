@@ -259,7 +259,7 @@ public class StoreProductServiceImpl implements StoreProductService {
     public Long saveShopifyProduct(ShopifyProduct product, StoreVo storeVo) {
         String platProductId = product.getId();
         String key = RedisKey.STRING_STORE_PLAT_PRODUCT + storeVo.getId() + ":" + platProductId;
-        boolean b = RedisUtil.lock(redisTemplate, key, 5L, 20 * 1000L);
+        boolean b = RedisUtil.lock(redisTemplate, key, 5L, 5 * 1000L);
         if (!b) {
             return null;
         }

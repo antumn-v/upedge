@@ -28,7 +28,7 @@ public class ProductWebhookController {
     @PostMapping("/shopify/webhook/product/update")
     public void updateShopifyProduct(@RequestBody @Valid StoreApiRequest request){
         ShopifyProduct product = request.getJsonObject().toJavaObject(ShopifyProduct.class);
-        Long storeProductId = storeProductService.saveShopifyProduct(product,request.getStoreVo());
+        storeProductService.saveShopifyProduct(product,request.getStoreVo());
     }
 
 //    @PostMapping("/shoplazza/webhook/product/update")

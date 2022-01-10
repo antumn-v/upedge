@@ -1,7 +1,6 @@
 package com.upedge.ums.modules.store.controller;
 
 import com.alibaba.fastjson.JSONObject;
-import com.upedge.common.constant.key.RedisKey;
 import com.upedge.common.feign.OmsFeignClient;
 import com.upedge.common.feign.PmsFeignClient;
 import com.upedge.common.model.store.StoreVo;
@@ -30,7 +29,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Date;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.TimeUnit;
 
 /**
  * @author 海桐
@@ -60,48 +58,29 @@ public class WebhookController {
         String shopName = request.getHeader("X-Shopify-Shop-Domain");
         String resultData = getRequestData(request);
         String hashStr = verifyWebhook(resultData, ShopifyConfig.api_select_key);
-
         if (null == request) {
             return HttpStatus.BAD_REQUEST;
         }
+        shopName = shopName.replace(".myshopify.com","");
         Store store = new Store();
         store.setStoreName(shopName);
         store = storeService.selectByPrimaryKey(store);
-        if (store == null){
+        if (store == null) {
             return HttpStatus.OK;
         }
         StoreVo storeVo = new StoreVo();
         BeanUtils.copyProperties(store, storeVo);
         if (hashStr.equals(originalStr)) {
-
             JSONObject jsonObject = JSONObject.parseObject(resultData);
             StoreApiRequest apiRequest = new StoreApiRequest();
-//            apiRequest.setJsonObject(jsonObject);
             apiRequest.setStoreVo(storeVo);
-            if (jsonObject.containsKey("id")){
-                String id = jsonObject.getString("id");
-                String key = "shopify:webhook:" + shopName +":" + id;
-                if (redisTemplate.opsForValue().get(key) != null){
-                    return HttpStatus.OK;
-                }
-                apiRequest.setId(id);
-                redisTemplate.opsForValue().set(key,"1",20, TimeUnit.SECONDS);
-            }
-
+            apiRequest.setJsonObject(jsonObject);
             switch (topic) {
-                case "products/create":
-                    redisTemplate.opsForList().leftPush(RedisKey.LIST_SHOPIFY_PRODUCT_WEBHOOK, apiRequest);
-//                    pmsFeignClient.updateShopifyProduct(apiRequest);
-                    break;
                 case "products/update":
-                    redisTemplate.opsForList().leftPush(RedisKey.LIST_SHOPIFY_PRODUCT_WEBHOOK, apiRequest);
-                    break;
-                case "products/delete":
-                    redisTemplate.opsForList().leftPush(RedisKey.LIST_SHOPIFY_PRODUCT_WEBHOOK, apiRequest);
+                    pmsFeignClient.updateShopifyProduct(apiRequest);
                     break;
                 case "orders/updated":
-                    redisTemplate.opsForList().leftPush(RedisKey.LIST_SHOPIFY_ORDER_WEBHOOK, apiRequest);
-//                        omsFeignClient.updateShopifyOrder(apiRequest);
+                    omsFeignClient.updateShopifyOrder(apiRequest);
                     break;
                 case "app/uninstalled":
                     store.setStatus(0);
@@ -111,7 +90,6 @@ public class WebhookController {
                 default:
                     break;
             }
-
         }
         return HttpStatus.OK;
     }
@@ -137,17 +115,14 @@ public class WebhookController {
         apiRequest.setStoreVo(storeVo);
         switch (topic) {
             case "products/create":
-                redisTemplate.opsForList().leftPush(RedisKey.LIST_WOOCOMMERCE_PRODUCT_WEBHOOK, apiRequest);
                 break;
             case "products/update":
-                redisTemplate.opsForList().leftPush(RedisKey.LIST_WOOCOMMERCE_PRODUCT_WEBHOOK, apiRequest);
+                pmsFeignClient.updateWoocommerceProduct(apiRequest);
                 break;
             case "products/delete":
-                redisTemplate.opsForList().leftPush(RedisKey.LIST_WOOCOMMERCE_PRODUCT_WEBHOOK, apiRequest);
                 break;
             case "orders/updated":
-                redisTemplate.opsForList().leftPush(RedisKey.LIST_WOOCOMMERCE_ORDER_WEBHOOK, apiRequest);
-//                    omsFeignClient.woocommerceOrderUpdate(apiRequest);
+                omsFeignClient.woocommerceOrderUpdate(apiRequest);
                 break;
             default:
                 break;
@@ -172,7 +147,7 @@ public class WebhookController {
         }
 
         String hashStr = verifyWebhook(body, store.getApiToken());
-        if(!hmac.equals(hashStr)){
+        if (!hmac.equals(hashStr)) {
             return HttpStatus.BAD_REQUEST;
         }
         StoreVo storeVo = new StoreVo();
@@ -192,8 +167,7 @@ public class WebhookController {
                     pmsFeignClient.deleteStoreProduct(apiRequest);
                     break;
                 case "orders/updated":
-                    redisTemplate.opsForList().leftPush(RedisKey.LIST_SHOPLAZZA_ORDER_WEBHOOK, apiRequest);
-//                    omsFeignClient.woocommerceOrderUpdate(apiRequest);
+                    omsFeignClient.updateShoplazzaOrder(apiRequest);
                     break;
                 default:
                     break;

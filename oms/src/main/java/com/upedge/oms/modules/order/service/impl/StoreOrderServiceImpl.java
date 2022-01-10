@@ -21,11 +21,12 @@ import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.utils.IdGenerate;
 import com.upedge.common.utils.ListUtils;
 import com.upedge.common.web.util.RedisUtil;
-import com.upedge.oms.modules.order.dao.*;
 import com.upedge.oms.modules.order.dao.StoreOrderAddressDao;
+import com.upedge.oms.modules.order.dao.StoreOrderDao;
 import com.upedge.oms.modules.order.dao.StoreOrderItemDao;
+import com.upedge.oms.modules.order.dao.StoreOrderRefundDao;
 import com.upedge.oms.modules.order.dto.UnrecognizedStoreOrderDto;
-import com.upedge.oms.modules.order.entity.*;
+import com.upedge.oms.modules.order.entity.StoreOrder;
 import com.upedge.oms.modules.order.entity.StoreOrderAddress;
 import com.upedge.oms.modules.order.entity.StoreOrderItem;
 import com.upedge.oms.modules.order.request.StoreDataListRequest;
@@ -38,10 +39,10 @@ import com.upedge.oms.modules.order.vo.StoreOrderVariantData;
 import com.upedge.oms.modules.order.vo.StoreOrderVo;
 import com.upedge.oms.modules.statistics.request.AppUserSortRequest;
 import com.upedge.oms.modules.statistics.vo.AppUserSortVo;
-import com.upedge.thirdparty.shopify.moudles.order.controller.ShopifyOrderApi;
-import com.upedge.thirdparty.shopify.moudles.order.entity.*;
+import com.upedge.thirdparty.shopify.moudles.order.entity.ShopifyLineItem;
+import com.upedge.thirdparty.shopify.moudles.order.entity.ShopifyOrder;
 import com.upedge.thirdparty.shoplazza.moudles.order.entity.ShoplazzaOrder;
-import com.upedge.thirdparty.shoplazza.moudles.order.entity.ShoplazzaOrder.*;
+import com.upedge.thirdparty.shoplazza.moudles.order.entity.ShoplazzaOrder.ShoplazzaLineItems;
 import com.upedge.thirdparty.woocommerce.moudles.order.entity.WoocommerceOrder;
 import com.upedge.thirdparty.woocommerce.moudles.order.entity.WoocommerceOrderItem;
 import lombok.extern.slf4j.Slf4j;
@@ -164,29 +165,18 @@ public class StoreOrderServiceImpl implements StoreOrderService {
     public StoreOrder shopifyOrderUpdate(StoreApiRequest request) {
         StoreVo storeVo = request.getStoreVo();
         ShopifyOrder shopifyOrder = null;
-        String platOrderId = null;
+
         try {
             JSONObject jsonObject = request.getJsonObject();
-            if (request.getId() != null){
-                platOrderId = request.getId();
-            }else if (jsonObject != null && jsonObject.containsKey("id")){
-                platOrderId = jsonObject.getString("id");
-            } else {
-                return null;
-            }
-            jsonObject = ShopifyOrderApi.getOrderDetailById(platOrderId,storeVo.getStoreName(),storeVo.getApiToken());
-            if (jsonObject == null || !jsonObject.containsKey("order")) {
-                return null;
-            }
-            shopifyOrder = jsonObject.getJSONObject("order").toJavaObject(ShopifyOrder.class);
+            shopifyOrder = jsonObject.toJavaObject(ShopifyOrder.class);
         } catch (Exception e) {
             e.printStackTrace();
             return null;
         }
-
+        String platOrderId = shopifyOrder.getId();
 
         String key = RedisKey.STRING_STORE_PALT_ORDER_UPDATE + storeVo.getId() + ":" + platOrderId;
-        boolean flag = RedisUtil.lock(redisTemplate, key, 3L, 10 * 1000L);
+        boolean flag = RedisUtil.lock(redisTemplate, key, 3L, 5 * 1000L);
         if (!flag) {
             return null;
         }
@@ -194,9 +184,7 @@ public class StoreOrderServiceImpl implements StoreOrderService {
         StoreOrder storeOrder = storeOrderDao.selectByStorePlatId(storeVo.getId(), platOrderId);
         Long storeAddressId = null;
         Long storeOrderId = null;
-
         boolean b = false;
-
         Date date = new Date();
 
         if (null == storeOrder) {
