@@ -1,0 +1,108 @@
+server:
+  port: 8700
+spring:
+  application:
+    name: cms
+  #cloud
+  cloud:
+    loadbalancer:
+      ribbon:
+        enabled: false
+    consul:
+      host: localhost
+      port: 8500
+      discovery:
+        serviceName: ${spring.application.name}    # 注册到consul的服务名称
+        heartbeat: true
+  redis:
+    database: 0
+    host: 192.168.2.110
+    port: 6379
+    password: 123456
+    lettuce:
+      pool:
+        max-active: 8
+        max-idle: 8
+        min-idle: 0
+  datasource:
+    type: com.alibaba.druid.pool.DruidDataSource
+    druid:
+      driver-class-name: com.mysql.cj.jdbc.Driver
+      url: jdbc:mysql://rm-bp10n01g868v2qmqioo.mysql.rds.aliyuncs.com:3306/cms?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai&allowMultiQueries=true&useAffectedRows=true
+      username: guoxing
+      password: HssMy@5Tygcs#7
+      initial-size: 10
+      max-active: 100
+      min-idle: 10
+      max-wait: 60000
+      pool-prepared-statements: true
+      max-pool-prepared-statement-per-connection-size: 20
+      time-between-eviction-runs-millis: 60000
+      min-evictable-idle-time-millis: 300000
+      test-while-idle: true
+      test-on-borrow: false
+      test-on-return: false
+      stat-view-servlet:
+        enabled: true
+        url-pattern: /druid/*
+        #login-username: admin
+        #login-password: admin
+      filter:
+        stat:
+          log-slow-sql: true
+          slow-sql-millis: 1000
+          merge-sql: false
+        wall:
+          config:
+            multi-statement-allow: true
+
+
+#mybatis
+mybatis-plus:
+  mapper-locations: classpath*:/mapper/**/*.xml
+  global-config:
+    db-config:
+      id-type: AUTO
+      logic-delete-value: -1
+      logic-not-delete-value: 0
+    banner: false
+  configuration:
+    map-underscore-to-camel-case: true
+    cache-enabled: false
+    call-setters-on-nulls: true
+    jdbc-type-for-null: 'null'
+
+logging:
+  level:
+    root: WARN
+    com.upedge.cms: DEBUG
+    com.upedge.test: DEBUG
+
+feign:
+  client:
+    config:
+      default:
+        connectTimeout: 5000
+        readTimeout: 50000
+        loggerLevel: basic
+  okhttp:
+    enabled: true
+
+files:
+  image:
+    local: 'D:/developer/image/'
+    prefix: 'http://192.168.2.105:8611/image/'
+
+
+upedge:
+  thread:
+    coreSize: 20
+    maxSize: 200
+    keepAliveTime: 10
+
+
+rocketmq:
+  name-server: localhost:9876
+  producer:
+    group: cms
+    sendMsgTimeout: 9000

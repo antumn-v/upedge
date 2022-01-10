@@ -7,7 +7,6 @@ target/
 ### IntelliJ IDEA ###
 */.idea
 *.iml
-*.yml
 *.project
 *.classpath
 *.settings/

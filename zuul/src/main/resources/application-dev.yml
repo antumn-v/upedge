@@ -1,0 +1,76 @@
+server:
+  port: 8611
+spring:
+  application:
+    name: zuul
+  cloud:
+    loadbalancer:
+      ribbon:
+        enabled: false
+    consul:
+      host: localhost
+      port: 8500
+      discovery:
+        serviceName: ${spring.application.name}    # 注册到consul的服务名称
+        heartbeat: true
+  redis:
+    database: 0
+    host: 192.168.2.110
+    port: 6379
+    password: 123456
+    lettuce:
+      pool:
+        max-active: 8
+        max-idle: 8
+        min-idle: 0
+logging:
+  config: classpath:logback-boot.xml
+zuul:
+  host:
+    connect-timeout-millis: 35000 #HTTP连接超时要比Hystrix的大
+    socket-timeout-millis: 60000   #socket超时
+hystrix:
+  command:
+    default:
+      execution:
+        isolation:
+          thread:
+            timeoutInMilliseconds: 60000
+ribbon:        #设置ribbon的超时时间小于zuul的超时时间
+  ReadTimeout: 25000
+  ConnectTimeout: 25000
+  #routes: #没有定义路由的其他服务访问的方式：http://ZUUL_HOST:ZUUL_PORT/微服务在注册中心的serviceId/**
+  #  ribbon:
+  #    path: /ribbon/**
+  #    serviceId: subscriber  # 转发到消费者 /ribbon/
+  #  feign:
+  #    path: /feign/**
+  #    serviceId: subscriber  # 转发到消费者 /feign/
+#  routes:
+#    ums-service:
+#      path: /ums/**
+#      service-id: ums
+#      url: http://localhost:8000/
+#    pms-service:
+#      path: /pms/**
+#      service-id: pms
+#      url: http://localhost:8100/
+#    oms-service:
+#      path: /oms/**
+#      service-id: oms
+#      url: http://localhost:8200/
+#    tms-service:
+#      path: /tms/**
+#      service-id: tms
+#      url: http://localhost:8400/
+
+
+imageDirectory: 'D:/developer/image/'
+imageMapping: '/image/**'
+
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"

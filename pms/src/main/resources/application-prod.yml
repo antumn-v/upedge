@@ -1,0 +1,106 @@
+server:
+  port: 8100
+spring:
+  application:
+    name: pms
+  #cloud
+  cloud:
+    loadbalancer:
+      ribbon:
+        enabled: false
+    consul:
+      host: 172.23.127.10
+      port: 8500
+      discovery:
+        serviceName: ${spring.application.name}    # 注册到consul的服务名称
+        heartbeat: true
+  redis:
+    database: 0
+    host: 172.23.127.10
+    port: 6379
+    password: HssMy@5Tygcs#7
+    lettuce:
+      pool:
+        max-active: 8
+        max-idle: 8
+        min-idle: 0
+  datasource:
+    type: com.alibaba.druid.pool.DruidDataSource
+    druid:
+      driver-class-name: com.mysql.cj.jdbc.Driver
+      url: jdbc:mysql://rm-0xiq09n2322l69017.mysql.rds.aliyuncs.com:3306/pms?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai&allowMultiQueries=true&useAffectedRows=true
+      username: guoxing
+      password: HssMy@5Tygcs#7
+      initial-size: 10
+      max-active: 100
+      min-idle: 10
+      max-wait: 60000
+      pool-prepared-statements: true
+      max-pool-prepared-statement-per-connection-size: 20
+      time-between-eviction-runs-millis: 60000
+      min-evictable-idle-time-millis: 300000
+      test-while-idle: true
+      test-on-borrow: false
+      test-on-return: false
+      stat-view-servlet:
+        enabled: true
+        url-pattern: /druid/*
+        #login-username: admin
+        #login-password: admin
+      filter:
+        stat:
+          log-slow-sql: true
+          slow-sql-millis: 1000
+          merge-sql: false
+        wall:
+          config:
+            multi-statement-allow: true
+
+
+feign:
+  client:
+    config:
+      default:
+        connectTimeout: 5000
+        readTimeout: 50000
+        loggerLevel: basic
+  okhttp:
+    enabled: true
+
+#mybatis
+mybatis-plus:
+  mapper-locations: classpath*:/mapper/**/*.xml
+  global-config:
+    db-config:
+      id-type: AUTO
+      logic-delete-value: -1
+      logic-not-delete-value: 0
+    banner: false
+  configuration:
+    map-underscore-to-camel-case: true
+    cache-enabled: false
+    call-setters-on-nulls: true
+    jdbc-type-for-null: 'null'
+
+logging:
+  level:
+    root: WARN
+    com.upedge.pms: DEBUG
+    com.upedge.test: DEBUG
+
+files:
+  image:
+    local: '/root/image/'
+    prefix: 'https://app.upedge.cn/image/'
+
+rocketmq:
+  name-server: 172.23.127.10:9876
+  producer:
+    group: product
+    sendMsgTimeout: 9000
+
+upedge:
+  thread:
+    coreSize: 20
+    maxSize: 200
+    keepAliveTime: 10

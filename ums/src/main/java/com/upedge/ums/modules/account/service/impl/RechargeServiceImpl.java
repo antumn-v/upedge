@@ -75,9 +75,9 @@ public class RechargeServiceImpl implements RechargeService {
     UserInfoDao UserInfoDao;
 
 
-    @Value("${files.image.transfer.local}")
+    @Value("${files.image.local}")
     private String transferLocalPath;
-    @Value("${files.image.transfer.prefix}")
+    @Value("${files.image.prefix}")
     private String transferImageUrlPrefix;
 
     @Transactional
@@ -119,8 +119,6 @@ public class RechargeServiceImpl implements RechargeService {
             UserInfoDto userInfoDto = new UserInfoDto();
             rechargeRequestLogVo.setLoginName(userInfoDto.getLoginName());
             rechargeRequestLogVo.setUsername(userInfoDto.getUsername());
-            List<RechargeRequestAttr> attrList = rechargeRequestAttrMapper.listAttrByRechargeRequestId(log.getId());
-            rechargeRequestLogVo.setAttrs(attrList);
             rechargeRequestLogVoList.add(rechargeRequestLogVo);
         });
         return new ApplyRechargeListResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS, rechargeRequestLogVoList, request);

@@ -7,24 +7,24 @@ spring:
     type: com.alibaba.druid.pool.DruidDataSource
     #MySQL配置
     driverClassName: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/pms?useUnicode=true&characterEncoding=UTF-8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
-    username: root
-    password: 123456
+    url: jdbc:mysql://rm-bp10n01g868v2qmqioo.mysql.rds.aliyuncs.com:3306/oms?useUnicode=true&characterEncoding=UTF-8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
+    username: guoxing
+    password: HssMy@5Tygcs#7
     #oracle配置
     #    driverClassName: oracle.jdbc.OracleDriver
     #    url: jdbc:oracle:thin:@47.100.206.162:1521:xe
     #    username: renren
-    #    password: 123456
+    #    password: HssMy@5Tygcs#7
     #SQLServer配置
     #    driverClassName: com.microsoft.sqlserver.jdbc.SQLServerDriver
     #    url: jdbc:sqlserver://192.168.10.10:1433;DatabaseName=renren_fast
     #    username: sa
-    #    password: 123456
+    #    password: HssMy@5Tygcs#7
     #PostgreSQL配置
   #    driverClassName: org.postgresql.Driver
   #    url: jdbc:postgresql://192.168.10.10:5432/renren_fast
   #    username: postgres
-  #    password: 123456
+  #    password: HssMy@5Tygcs#7
 
 
 
