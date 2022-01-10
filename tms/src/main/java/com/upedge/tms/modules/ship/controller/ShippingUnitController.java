@@ -5,6 +5,7 @@ import com.upedge.common.constant.Constant;
 import com.upedge.common.constant.ResultCode;
 import com.upedge.common.constant.key.RedisKey;
 import com.upedge.common.exception.CustomerException;
+import com.upedge.common.model.ship.vo.ShipDetail;
 import com.upedge.common.model.tms.ShippingUnitInfoResponse;
 import com.upedge.common.model.tms.ShippingUnitVo;
 import com.upedge.common.model.user.vo.Session;
@@ -19,15 +20,14 @@ import com.upedge.tms.modules.area.entity.Area;
 import com.upedge.tms.modules.area.service.AreaService;
 import com.upedge.tms.modules.ship.entity.ShippingMethod;
 import com.upedge.tms.modules.ship.entity.ShippingUnit;
-import com.upedge.tms.modules.ship.request.ShipUnitExcelImportRequest;
-import com.upedge.tms.modules.ship.request.ShippingUnitListRequest;
-import com.upedge.tms.modules.ship.request.ShippingUnitUpdateRequest;
+import com.upedge.tms.modules.ship.request.*;
 import com.upedge.tms.modules.ship.response.ShippingUnitListResponse;
 import com.upedge.tms.modules.ship.response.ShippingUnitUpdateResponse;
 import com.upedge.tms.modules.ship.service.ShippingMethodService;
 import com.upedge.tms.modules.ship.service.ShippingUnitService;
 import com.upedge.tms.modules.ship.vo.ShipMethodCountryVo;
 import com.upedge.tms.mq.TmsProducerService;
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -52,6 +52,7 @@ import java.util.List;
  *
  * @author author
  */
+@Api(tags = "运输单元")
 @Slf4j
 @RestController
 @RequestMapping("/shippingUnit")
@@ -75,6 +76,12 @@ public class ShippingUnitController {
 //        shippingUnitService.insert(shippingUnit);
 //        return BaseResponse.success();
 //    }
+    @ApiOperation("运费计算")
+    @PostMapping("/freightCalculation")
+    public BaseResponse freightCalculation(@RequestBody@Valid ShipUnitFreightCalculationRequest request){
+        ShipDetail shipDetail = shippingUnitService.selectByCondition(request.getMethodId(),request.getAreaId(),request.getWeight());
+        return BaseResponse.success(shipDetail);
+    }
 
 
     @ApiOperation("excel导入运输单元")
@@ -407,9 +414,9 @@ public class ShippingUnitController {
      */
     @ApiOperation("删除运输单元")
     @RequestMapping(value = "/del", method = RequestMethod.DELETE)
-    public BaseResponse del(@RequestBody List<Long> ids) {
+    public BaseResponse del(@RequestBody ShipUnitDelRequest request) {
         try {
-            shippingUnitService.deleteByIds(ids);
+            shippingUnitService.delete(request);
         } catch (CustomerException e) {
             e.printStackTrace();
             return BaseResponse.failed(e.getMessage());
