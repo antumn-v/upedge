@@ -14,6 +14,7 @@ import com.upedge.common.model.user.vo.AddressVo;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.utils.IdGenerate;
 import com.upedge.common.utils.ListUtils;
+import com.upedge.common.utils.PriceUtils;
 import com.upedge.common.web.util.UserUtil;
 import com.upedge.oms.modules.cart.dao.CartDao;
 import com.upedge.oms.modules.cart.entity.Cart;
@@ -387,7 +388,7 @@ public class CartServiceImpl implements CartService {
         cart.setVariantName(request.getVariantName());
         cart.setVariantSku(request.getVariantSku());
         cart.setVariantImage(request.getVariantImage());
-        cart.setPrice(request.getUsdPrice());
+        cart.setPrice(PriceUtils.cnyToUsdByDefaultRate(request.getQuotePrice()));
         cart.setVariantWeight(request.getWeight());
         cart.setVariantVolume(request.getVolume());
         cart.setQuantity(1);
