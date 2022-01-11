@@ -93,7 +93,7 @@ public class QuoteApplyServiceImpl implements QuoteApplyService {
 
     @Override
     public List<QuoteApplyVo> quoteApplyList(Page<QuoteApplyListDto> page) {
-        if (page.getT() == null){
+        if (page.getT() == null) {
             QuoteApplyListDto quoteApplyListDto = new QuoteApplyListDto();
             quoteApplyListDto.setQuoteState(QuoteApply.STATE_INIT);
             page.setT(quoteApplyListDto);
@@ -103,7 +103,7 @@ public class QuoteApplyServiceImpl implements QuoteApplyService {
 
     @Override
     public Long quoteApplyCount(Page<QuoteApplyListDto> page) {
-        if (page.getT() == null){
+        if (page.getT() == null) {
             QuoteApplyListDto quoteApplyListDto = new QuoteApplyListDto();
             quoteApplyListDto.setQuoteState(QuoteApply.STATE_INIT);
             page.setT(quoteApplyListDto);
@@ -116,7 +116,7 @@ public class QuoteApplyServiceImpl implements QuoteApplyService {
         QuoteApply quoteApply = quoteApplyDao.selectByPrimaryKey(quoteApplyId);
         if (null == quoteApply
                 || quoteApply.getQuoteState() != QuoteApply.STATE_PROCESSING
-        || !quoteApply.getHandleUserId().equals(session.getId())){
+                || !quoteApply.getHandleUserId().equals(session.getId())) {
             return BaseResponse.failed();
         }
         quoteApply = new QuoteApply();
@@ -130,21 +130,45 @@ public class QuoteApplyServiceImpl implements QuoteApplyService {
     @Override
     public BaseResponse processQuoteApply(QuoteApplyProcessRequest request, Long quoteApplyId, Session session) throws CustomerException {
         QuoteApply quoteApply = quoteApplyDao.selectByPrimaryKey(quoteApplyId);
-        if (!quoteApply.getHandleUserId().equals(session.getId()) || quoteApply.getQuoteState() != QuoteApply.STATE_PROCESSING){
+        if (!quoteApply.getHandleUserId().equals(session.getId()) || quoteApply.getQuoteState() != QuoteApply.STATE_PROCESSING) {
             return BaseResponse.failed("权限不足");
         }
         List<QuoteApplyProcessItem> quoteApplyProcessItems = request.getItems();
+
         List<QuoteApplyItem> quoteApplyItems = quoteApplyItemDao.selectByQuoteApplyId(quoteApplyId);
+        Map<Long, QuoteApplyItem> quoteApplyItemMap = new HashMap<>();
+        for (QuoteApplyItem quoteApplyItem : quoteApplyItems) {
+            quoteApplyItemMap.put(quoteApplyItem.getId(), quoteApplyItem);
+        }
+
         List<CustomerProductQuote> customerProductQuotes = new ArrayList<>();
         Map<Long, Product> map = new HashMap<>();
         List<Long> storeVariantIds = new ArrayList<>();
         Date date = new Date();
         List<ProductQuoteRecord> productQuoteRecords = new ArrayList<>();
+
         for (QuoteApplyProcessItem quoteApplyProcessItem : quoteApplyProcessItems) {
+            QuoteApplyItem quoteApplyItem = quoteApplyItemMap.get(quoteApplyProcessItem.getQuoteApplyItemId());
+            if (null == quoteApplyItem) {
+                continue;
+            }
+            if (!quoteApplyProcessItem.isCanQuote()) {
+                ProductQuoteRecord productQuoteRecord = new ProductQuoteRecord();
+                productQuoteRecord.setStoreVariantId(quoteApplyItem.getStoreVariantId());
+                productQuoteRecord.setStoreProductId(quoteApplyItem.getStoreProductId());
+                productQuoteRecord.setUserId(session.getId());
+                productQuoteRecord.setCreateTime(date);
+                productQuoteRecords.add(productQuoteRecord);
+                quoteApplyItem.setState(2);
+                quoteApplyItemDao.updateByPrimaryKey(quoteApplyItem);
+                continue;
+            }
+
             if (null == quoteApplyProcessItem.getPrice()
-            || 0 == quoteApplyProcessItem.getPrice().compareTo(BigDecimal.ZERO)){
+                    || 0 == quoteApplyProcessItem.getPrice().compareTo(BigDecimal.ZERO)) {
                 return BaseResponse.failed("产品报价不能为0");
             }
+
             ProductVariant productVariant = productVariantDao.selectBySku(quoteApplyProcessItem.getVariantSku());
             if (null == productVariant
                     || null == productVariant.getWeight()
@@ -152,63 +176,60 @@ public class QuoteApplyServiceImpl implements QuoteApplyService {
                     || 0 == BigDecimal.ZERO.compareTo(productVariant.getVolumeWeight())
                     || 0 == BigDecimal.ZERO.compareTo(productVariant.getWeight())) {
                 return BaseResponse.failed(quoteApplyProcessItem.getVariantSku() + " 变体未编辑完成");
-            }else {
+            } else {
                 //匹配报价申请产品并保存报价记录
+                quoteApplyItem.setVariantId(productVariant.getId());
+                quoteApplyItem.setVariantImage(productVariant.getVariantImage());
+                quoteApplyItem.setVariantName(productVariant.getEnName());
+                quoteApplyItem.setVariantSku(productVariant.getVariantSku());
+                quoteApplyItem.setQuotePrice(quoteApplyProcessItem.getPrice());
+                quoteApplyItem.setProductId(productVariant.getProductId());
+                quoteApplyItem.setState(1);
+                quoteApplyItemDao.updateByPrimaryKey(quoteApplyItem);
+                //报价记录
                 ProductQuoteRecord productQuoteRecord = new ProductQuoteRecord();
-                for (QuoteApplyItem quoteApplyItem : quoteApplyItems) {
-                    if (quoteApplyItem.getId().equals(quoteApplyProcessItem.getQuoteApplyItemId())){
-                        quoteApplyItem.setVariantId(productVariant.getId());
-                        quoteApplyItem.setVariantImage(productVariant.getVariantImage());
-                        quoteApplyItem.setVariantName(productVariant.getEnName());
-                        quoteApplyItem.setVariantSku(productVariant.getVariantSku());
-                        quoteApplyItem.setQuotePrice(quoteApplyProcessItem.getPrice());
-                        quoteApplyItem.setProductId(productVariant.getProductId());
-                        quoteApplyItemDao.updateByPrimaryKey(quoteApplyItem);
-
-                        BeanUtils.copyProperties(quoteApplyItem,productQuoteRecord);
-                        productQuoteRecord.setUserId(session.getId());
-                        productQuoteRecord.setCreateTime(date);
-                        productQuoteRecords.add(productQuoteRecord);
-                        //保存报价关联
-                        CustomerProductQuote customerProductQuote = new CustomerProductQuote();
-                        BeanUtils.copyProperties(quoteApplyItem,customerProductQuote);
-                        customerProductQuote.setCustomerId(quoteApply.getCustomerId());
-                        Product product = map.get(productVariant.getProductId());
-                        if (product == null){
-                            product = productService.selectByPrimaryKey(productVariant.getProductId());
-                            if (product == null
-                            || product.getShippingId() == null){
-                                return BaseResponse.failed("产品不存在或产品未配置运输模板");
-                            }
-                            map.put(product.getId(),product);
-                        }
-                        customerProductQuote.setProductTitle(product.getProductTitle());
-                        customerProductQuotes.add(customerProductQuote);
-                        storeVariantIds.add(quoteApplyItem.getStoreVariantId());
+                BeanUtils.copyProperties(quoteApplyItem, productQuoteRecord);
+                productQuoteRecord.setUserId(session.getId());
+                productQuoteRecord.setCreateTime(date);
+                productQuoteRecords.add(productQuoteRecord);
+                //保存报价关联
+                CustomerProductQuote customerProductQuote = new CustomerProductQuote();
+                BeanUtils.copyProperties(quoteApplyItem, customerProductQuote);
+                customerProductQuote.setCustomerId(quoteApply.getCustomerId());
+                Product product = map.get(productVariant.getProductId());
+                if (product == null) {
+                    product = productService.selectByPrimaryKey(productVariant.getProductId());
+                    if (product == null
+                            || product.getShippingId() == null) {
+                        return BaseResponse.failed("产品不存在或产品未配置运输模板");
                     }
+                    map.put(product.getId(), product);
                 }
+                customerProductQuote.setProductTitle(product.getProductTitle());
+                customerProductQuotes.add(customerProductQuote);
+                storeVariantIds.add(quoteApplyItem.getStoreVariantId());
             }
         }
         List<QuoteApplyItem> unQuoteItems = quoteApplyItemDao.selectUnQuoteItemByApplyId(quoteApplyId);
         quoteApply = new QuoteApply();
         quoteApply.setId(quoteApplyId);
         quoteApply.setUpdateTime(new Date());
-        if (ListUtils.isNotEmpty(unQuoteItems)){
+        if (ListUtils.isNotEmpty(unQuoteItems)) {
             quoteApply.setQuoteType(QuoteApply.PART_QUOTED);
-        }else {
+        } else {
             quoteApply.setQuoteType(QuoteApply.ALL_QUOTED);
             quoteApply.setQuoteState(QuoteApply.STATE_FINISHED);
         }
         quoteApplyDao.updateByPrimaryKeySelective(quoteApply);
-        if (ListUtils.isNotEmpty(customerProductQuotes)){
+        if (ListUtils.isNotEmpty(customerProductQuotes)) {
             customerProductQuoteDao.insertByBatch(customerProductQuotes);
         }
-        if (ListUtils.isNotEmpty(productQuoteRecords)){
+        if (ListUtils.isNotEmpty(productQuoteRecords)) {
             productQuoteRecordService.insertByBatch(productQuoteRecords);
         }
 
         boolean b = customerProductQuoteService.sendCustomerProductQuoteUpdateMessage(storeVariantIds);
-        if (!b){
+        if (!b) {
             throw new CustomerException("消息队列异常，请重新提交");
 
         }
@@ -220,10 +241,10 @@ public class QuoteApplyServiceImpl implements QuoteApplyService {
         Long applyId = request.getQuoteApplyId();
 
         QuoteApply quoteApply = quoteApplyDao.selectByPrimaryKey(applyId);
-        if (quoteApply == null){
+        if (quoteApply == null) {
             return BaseResponse.failed("报价请求不存在");
         }
-        if (quoteApply.getQuoteState() != QuoteApply.STATE_INIT){
+        if (quoteApply.getQuoteState() != QuoteApply.STATE_INIT) {
             return BaseResponse.failed("报价请求已被处理");
         }
         quoteApply = new QuoteApply();
@@ -241,22 +262,22 @@ public class QuoteApplyServiceImpl implements QuoteApplyService {
         List<Long> storeVariantIds = request.getStoreVariantId();
         Long customerId = request.getCustomerId();
 
-        List<CustomerProductQuote> customerProductQuotes = customerProductQuoteDao.selectByCustomerAndStoreVariantIds(customerId,storeVariantIds);
-        if (ListUtils.isNotEmpty(customerProductQuotes)){
+        List<CustomerProductQuote> customerProductQuotes = customerProductQuoteDao.selectByCustomerAndStoreVariantIds(customerId, storeVariantIds);
+        if (ListUtils.isNotEmpty(customerProductQuotes)) {
             for (CustomerProductQuote customerProductQuote : customerProductQuotes) {
-                if (storeVariantIds.contains(customerProductQuote.getStoreVariantId())){
+                if (storeVariantIds.contains(customerProductQuote.getStoreVariantId())) {
                     storeVariantIds.remove(customerProductQuote.getStoreVariantId());
                 }
             }
         }
-        if (ListUtils.isEmpty(storeVariantIds)){
+        if (ListUtils.isEmpty(storeVariantIds)) {
             return BaseResponse.failed();
         }
         List<Long> quotingStoreVariantIds = quoteApplyItemDao.selectQuotingStoreVariantIds(storeVariantIds);
-        if (ListUtils.isNotEmpty(quotingStoreVariantIds)){
+        if (ListUtils.isNotEmpty(quotingStoreVariantIds)) {
             storeVariantIds.removeAll(quotingStoreVariantIds);
         }
-        if (ListUtils.isEmpty(storeVariantIds)){
+        if (ListUtils.isEmpty(storeVariantIds)) {
             return BaseResponse.failed();
         }
         Long applyId = IdGenerate.nextId();
@@ -272,6 +293,7 @@ public class QuoteApplyServiceImpl implements QuoteApplyService {
             quoteApplyItem.setStoreVariantName(storeProductVariant.getTitle());
             quoteApplyItem.setStoreProductTitle(storeProductVariant.getTitle());
             quoteApplyItem.setQuoteApplyId(applyId);
+            quoteApplyItem.setState(0);
             quoteApplyItems.add(quoteApplyItem);
         }
         quoteApplyItemDao.insertByBatch(quoteApplyItems);
@@ -292,40 +314,40 @@ public class QuoteApplyServiceImpl implements QuoteApplyService {
     /**
      *
      */
-    public QuoteApply selectByPrimaryKey(Long id){
+    public QuoteApply selectByPrimaryKey(Long id) {
         QuoteApply record = new QuoteApply();
         record.setId(id);
         return quoteApplyDao.selectByPrimaryKey(id);
     }
 
     /**
-    *
-    */
+     *
+     */
     @Transactional
     public int updateByPrimaryKeySelective(QuoteApply record) {
         return quoteApplyDao.updateByPrimaryKeySelective(record);
     }
 
     /**
-    *
-    */
+     *
+     */
     @Transactional
     public int updateByPrimaryKey(QuoteApply record) {
         return quoteApplyDao.updateByPrimaryKey(record);
     }
 
     /**
-    *
-    */
-    public List<QuoteApply> select(Page<QuoteApply> record){
+     *
+     */
+    public List<QuoteApply> select(Page<QuoteApply> record) {
         record.initFromNum();
         return quoteApplyDao.select(record);
     }
 
     /**
-    *
-    */
-    public long count(Page<QuoteApply> record){
+     *
+     */
+    public long count(Page<QuoteApply> record) {
         return quoteApplyDao.count(record);
     }
 

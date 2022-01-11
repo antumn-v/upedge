@@ -11,4 +11,6 @@ public class QuoteApplyProcessItem {
     String variantSku;
 
     BigDecimal price;
+
+    boolean canQuote;
 }

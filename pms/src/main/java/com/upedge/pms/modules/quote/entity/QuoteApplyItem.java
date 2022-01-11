@@ -1,9 +1,8 @@
 package com.upedge.pms.modules.quote.entity;
 
-import java.math.BigDecimal;
-import java.io.Serializable;
-import java.util.Date;
 import lombok.Data;
+
+import java.math.BigDecimal;
 
 /**
  * @author gx
@@ -71,5 +70,7 @@ public class QuoteApplyItem{
 	 * 
 	 */
     private Long quoteApplyId;
+
+	private Integer state;
 
 }

@@ -13,7 +13,6 @@ import com.upedge.common.web.util.UserUtil;
 import com.upedge.pms.modules.product.request.ClaimQuoteApplyRequest;
 import com.upedge.pms.modules.product.request.QuoteApplyProcessRequest;
 import com.upedge.pms.modules.quote.dto.QuoteApplyListDto;
-import com.upedge.pms.modules.quote.entity.CustomerProductQuote;
 import com.upedge.pms.modules.quote.response.QuoteApplyInfoResponse;
 import com.upedge.pms.modules.quote.service.CustomerProductQuoteService;
 import com.upedge.pms.modules.quote.service.QuoteApplyService;
@@ -114,7 +113,6 @@ public class QuoteApplyController {
         if (null == request.getT()){
             request.setT(new QuoteApplyListDto());
         }
-        request.getT().setQuoteState(1);
         request.getT().setHandleUserId(session.getId());
         List<QuoteApplyVo> results = quoteApplyService.quoteApplyList(request);
         Long total = quoteApplyService.quoteApplyCount(request);

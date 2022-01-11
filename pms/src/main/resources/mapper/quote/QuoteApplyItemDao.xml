@@ -20,10 +20,11 @@
         <result property="variantImage" column="variant_image"/>
         <result property="quotePrice" column="quote_price"/>
         <result property="quoteApplyId" column="quote_apply_id"/>
+        <result property="state" column="state"/>
     </resultMap>
 
     <sql id="Base_Column_List">
-        `id`,`product_id`,`variant_id`,`store_product_id`,`store_variant_id`,`store_variant_name`,`store_product_title`,`store_product_sku`,`store_variant_image`,`product_title`,`variant_name`,`variant_sku`,`variant_image`,`quote_price`,`quote_apply_id`
+        `id`,`product_id`,`variant_id`,`store_product_id`,`store_variant_id`,`store_variant_name`,`store_product_title`,`store_product_sku`,`store_variant_image`,`product_title`,`variant_name`,`variant_sku`,`variant_image`,`quote_price`,`quote_apply_id`,`state`
     </sql>
 
     <select id="selectByPrimaryKey" parameterType="com.upedge.pms.modules.quote.entity.QuoteApplyItem" resultMap="BaseResultMap">
@@ -37,6 +38,14 @@
         delete from quote_apply_item
         where id = #{id}
     </delete>
+
+    <update id="updateProductTitleByApplyId">
+        update quote_apply_item qai
+                left join product p
+        on pai.product_id = p.id
+                set qai.product_title = p.product_title
+        where qai.auote_apply_id = #{quoteApplyId}
+    </update>
 
     <update id="updateByPrimaryKeySelective" parameterType="com.upedge.pms.modules.quote.entity.QuoteApplyItem">
         update quote_apply_item
@@ -83,6 +92,9 @@
             <if test="quoteApplyId != null">
                 quote_apply_id = #{quoteApplyId},
             </if>
+            <if test="state != null">
+                state = #{state},
+            </if>
         </set>
         where id = #{id}
     </update>
@@ -90,30 +102,24 @@
     <update id="updateByPrimaryKey" parameterType="com.upedge.pms.modules.quote.entity.QuoteApplyItem">
         update quote_apply_item
         <set>
-        id = #{id},
-        product_id = #{productId},
-        variant_id = #{variantId},
-        store_product_id = #{storeProductId},
-        store_variant_id = #{storeVariantId},
-        store_variant_name = #{storeVariantName},
-        store_product_title = #{storeProductTitle},
-        store_product_sku = #{storeProductSku},
-        store_variant_image = #{storeVariantImage},
-        product_title = #{productTitle},
-        variant_name = #{variantName},
-        variant_sku = #{variantSku},
-        variant_image = #{variantImage},
-        quote_price = #{quotePrice},
-        quote_apply_id = #{quoteApplyId},
+            id = #{id},
+            product_id = #{productId},
+            variant_id = #{variantId},
+            store_product_id = #{storeProductId},
+            store_variant_id = #{storeVariantId},
+            store_variant_name = #{storeVariantName},
+            store_product_title = #{storeProductTitle},
+            store_product_sku = #{storeProductSku},
+            store_variant_image = #{storeVariantImage},
+            product_title = #{productTitle},
+            variant_name = #{variantName},
+            variant_sku = #{variantSku},
+            variant_image = #{variantImage},
+            quote_price = #{quotePrice},
+            quote_apply_id = #{quoteApplyId},
+            `state` = #{state},
         </set>
         where id = #{id}
-    </update>
-    <update id="updateProductTitleByApplyId">
-        update quote_apply_item qai
-        left join product p
-        on pai.product_id = p.id
-        set qai.product_title = p.product_title
-        where qai.auote_apply_id = #{quoteApplyId}
     </update>
 
     <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.upedge.pms.modules.quote.entity.QuoteApplyItem" useGeneratedKeys="true">
@@ -133,7 +139,8 @@
             variant_sku,
             variant_image,
             quote_price,
-            quote_apply_id
+            quote_apply_id,
+            `state`
         </trim>
         values (
         #{id},
@@ -150,7 +157,8 @@
         #{variantSku},
         #{variantImage},
         #{quotePrice},
-        #{quoteApplyId}
+        #{quoteApplyId},
+        #{state}
         )
     </insert>
 
@@ -158,49 +166,52 @@
         insert into quote_apply_item
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="id != null" >
-              id
+                id
             </if>
             <if test="productId != null" >
-              product_id
+                product_id
             </if>
             <if test="variantId != null" >
-              variant_id
+                variant_id
             </if>
             <if test="storeProductId != null" >
-              store_product_id
+                store_product_id
             </if>
             <if test="storeVariantId != null" >
-              store_variant_id
+                store_variant_id
             </if>
             <if test="storeVariantName != null" >
-              store_variant_name
+                store_variant_name
             </if>
             <if test="storeProductTitle != null" >
-              store_product_title
+                store_product_title
             </if>
             <if test="storeProductSku != null" >
-              store_product_sku
+                store_product_sku
             </if>
             <if test="storeVariantImage != null" >
-              store_variant_image
+                store_variant_image
             </if>
             <if test="productTitle != null" >
-              product_title
+                product_title
             </if>
             <if test="variantName != null" >
-              variant_name
+                variant_name
             </if>
             <if test="variantSku != null" >
-              variant_sku
+                variant_sku
             </if>
             <if test="variantImage != null" >
-              variant_image
+                variant_image
             </if>
             <if test="quotePrice != null" >
-              quote_price
+                quote_price
             </if>
             <if test="quoteApplyId != null" >
-              quote_apply_id
+                quote_apply_id
+            </if>
+            <if test="state != null" >
+                `state`
             </if>
 
         </trim>
@@ -250,6 +261,9 @@
             <if test="quoteApplyId != null" >
                 #{quoteApplyId}
             </if>
+            <if test="state != null" >
+                #{state}
+            </if>
 
         </trim>
     </insert>
@@ -257,40 +271,42 @@
     <insert id="insertByBatch" parameterType="java.util.List">
         insert into quote_apply_item
         <trim prefix="(" suffix=")" suffixOverrides=",">
-           id,
-           product_id,
-           variant_id,
-           store_product_id,
-           store_variant_id,
-           store_variant_name,
-           store_product_title,
-           store_product_sku,
-           store_variant_image,
-           product_title,
-           variant_name,
-           variant_sku,
-           variant_image,
-           quote_price,
-           quote_apply_id
+            id,
+            product_id,
+            variant_id,
+            store_product_id,
+            store_variant_id,
+            store_variant_name,
+            store_product_title,
+            store_product_sku,
+            store_variant_image,
+            product_title,
+            variant_name,
+            variant_sku,
+            variant_image,
+            quote_price,
+            quote_apply_id,
+            `state`
         </trim>
         values
         <foreach collection="list" item="item" index="index" separator=",">
             <trim prefix="(" suffix=")" suffixOverrides=",">
-               #{item.id},
-               #{item.productId},
-               #{item.variantId},
-               #{item.storeProductId},
-               #{item.storeVariantId},
-               #{item.storeVariantName},
-               #{item.storeProductTitle},
-               #{item.storeProductSku},
-               #{item.storeVariantImage},
-               #{item.productTitle},
-               #{item.variantName},
-               #{item.variantSku},
-               #{item.variantImage},
-               #{item.quotePrice},
-               #{item.quoteApplyId}
+                #{item.id},
+                #{item.productId},
+                #{item.variantId},
+                #{item.storeProductId},
+                #{item.storeVariantId},
+                #{item.storeVariantName},
+                #{item.storeProductTitle},
+                #{item.storeProductSku},
+                #{item.storeVariantImage},
+                #{item.productTitle},
+                #{item.variantName},
+                #{item.variantSku},
+                #{item.variantImage},
+                #{item.quotePrice},
+                #{item.quoteApplyId},
+                #{item.state}
             </trim>
         </foreach>
     </insert>
@@ -300,51 +316,54 @@
             where
             <trim prefix=" " suffix=" " suffixOverrides=" and ">
                 1 = 1 and
-                    <if test="t.id != null">
-                        id = #{t.id} and
-                    </if>
-                    <if test="t.productId != null">
-                        product_id = #{t.productId} and
-                    </if>
-                    <if test="t.variantId != null">
-                        variant_id = #{t.variantId} and
-                    </if>
-                    <if test="t.storeProductId != null">
-                        store_product_id = #{t.storeProductId} and
-                    </if>
-                    <if test="t.storeVariantId != null">
-                        store_variant_id = #{t.storeVariantId} and
-                    </if>
-                    <if test="t.storeVariantName != null">
-                        store_variant_name = #{t.storeVariantName} and
-                    </if>
-                    <if test="t.storeProductTitle != null">
-                        store_product_title = #{t.storeProductTitle} and
-                    </if>
-                    <if test="t.storeProductSku != null">
-                        store_product_sku = #{t.storeProductSku} and
-                    </if>
-                    <if test="t.storeVariantImage != null">
-                        store_variant_image = #{t.storeVariantImage} and
-                    </if>
-                    <if test="t.productTitle != null">
-                        product_title = #{t.productTitle} and
-                    </if>
-                    <if test="t.variantName != null">
-                        variant_name = #{t.variantName} and
-                    </if>
-                    <if test="t.variantSku != null">
-                        variant_sku = #{t.variantSku} and
-                    </if>
-                    <if test="t.variantImage != null">
-                        variant_image = #{t.variantImage} and
-                    </if>
-                    <if test="t.quotePrice != null">
-                        quote_price = #{t.quotePrice} and
-                    </if>
-                    <if test="t.quoteApplyId != null">
-                        quote_apply_id = #{t.quoteApplyId} and
-                    </if>
+                <if test="t.id != null">
+                    id = #{t.id} and
+                </if>
+                <if test="t.productId != null">
+                    product_id = #{t.productId} and
+                </if>
+                <if test="t.variantId != null">
+                    variant_id = #{t.variantId} and
+                </if>
+                <if test="t.storeProductId != null">
+                    store_product_id = #{t.storeProductId} and
+                </if>
+                <if test="t.storeVariantId != null">
+                    store_variant_id = #{t.storeVariantId} and
+                </if>
+                <if test="t.storeVariantName != null">
+                    store_variant_name = #{t.storeVariantName} and
+                </if>
+                <if test="t.storeProductTitle != null">
+                    store_product_title = #{t.storeProductTitle} and
+                </if>
+                <if test="t.storeProductSku != null">
+                    store_product_sku = #{t.storeProductSku} and
+                </if>
+                <if test="t.storeVariantImage != null">
+                    store_variant_image = #{t.storeVariantImage} and
+                </if>
+                <if test="t.productTitle != null">
+                    product_title = #{t.productTitle} and
+                </if>
+                <if test="t.variantName != null">
+                    variant_name = #{t.variantName} and
+                </if>
+                <if test="t.variantSku != null">
+                    variant_sku = #{t.variantSku} and
+                </if>
+                <if test="t.variantImage != null">
+                    variant_image = #{t.variantImage} and
+                </if>
+                <if test="t.quotePrice != null">
+                    quote_price = #{t.quotePrice} and
+                </if>
+                <if test="t.quoteApplyId != null">
+                    quote_apply_id = #{t.quoteApplyId} and
+                </if>
+                <if test="t.state != null">
+                    state = #{t.state} and
+                </if>
             </trim>
         </if>
     </sql>
@@ -387,6 +406,6 @@
         <include refid="Base_Column_List"/>
         from quote_apply_item
         where quote_apply_id = #{applyId}
-        and quote_price is null
+        and state  = '0'
     </select>
 </mapper>

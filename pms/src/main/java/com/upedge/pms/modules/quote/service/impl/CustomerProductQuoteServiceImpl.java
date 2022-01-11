@@ -143,19 +143,23 @@ public class CustomerProductQuoteServiceImpl implements CustomerProductQuoteServ
             return new ArrayList<>();
         }
         List<CustomerProductQuoteVo> quotingVariants = new ArrayList<>();
-        List<Long> storeVariantIds = quoteApplyItemDao.selectQuotingStoreVariantIds(request.getStoreVariantIds());
-        if (ListUtils.isNotEmpty(storeVariantIds)){
-            for (Long storeVariantId : storeVariantIds) {
-                CustomerProductQuoteVo customerProductQuoteVo = new CustomerProductQuoteVo();
-                customerProductQuoteVo.setStoreVariantId(storeVariantId);
-                customerProductQuoteVo.setQuoteType(5);
-                quotingVariants.add(customerProductQuoteVo);
-            }
-            request.getStoreVariantIds().removeAll(storeVariantIds);
-            if (ListUtils.isEmpty(request.getStoreVariantIds())){
-                return quotingVariants;
+        List<Long> storeVariantIds = new ArrayList<>();
+        if (ListUtils.isNotEmpty(request.getStoreVariantIds())){
+            storeVariantIds = quoteApplyItemDao.selectQuotingStoreVariantIds(request.getStoreVariantIds());
+            if (ListUtils.isNotEmpty(storeVariantIds)){
+                for (Long storeVariantId : storeVariantIds) {
+                    CustomerProductQuoteVo customerProductQuoteVo = new CustomerProductQuoteVo();
+                    customerProductQuoteVo.setStoreVariantId(storeVariantId);
+                    customerProductQuoteVo.setQuoteType(5);
+                    quotingVariants.add(customerProductQuoteVo);
+                }
+                request.getStoreVariantIds().removeAll(storeVariantIds);
+                if (ListUtils.isEmpty(request.getStoreVariantIds())){
+                    return quotingVariants;
+                }
             }
         }
+
         List<CustomerProductQuoteVo> customerProductQuoteVos = customerProductQuoteDao.selectQuoteDetail(request);
         if (ListUtils.isEmpty(customerProductQuoteVos) && ListUtils.isNotEmpty(request.getStoreVariantIds())) {
             for (CustomerProductQuoteVo customerProductQuoteVo : customerProductQuoteVos) {

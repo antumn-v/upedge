@@ -34,7 +34,7 @@ public class QuoteApplyListDto {
     /**
      * 店铺产品ID
      */
-    private Integer storeProductId;
+    private Long storeProductId;
     /**
      * 店铺产品SKU
      */
