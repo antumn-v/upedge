@@ -420,7 +420,7 @@ public class ShippingMethodServiceImpl implements ShippingMethodService {
         if (!b){
             throw new CustomerException("mq异常，请重新提交或联系IT");
         }
-        redisTemplate.delete(RedisKey.HASH_SHIP_METHOD + id);
+        redisTemplate.opsForHash().delete(RedisKey.SHIPPING_METHOD,id.toString());
         return new ShippingMethodDisableResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS);
     }
 

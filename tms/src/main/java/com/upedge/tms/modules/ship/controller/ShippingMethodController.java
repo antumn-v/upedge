@@ -3,7 +3,6 @@ package com.upedge.tms.modules.ship.controller;
 import com.upedge.common.base.BaseResponse;
 import com.upedge.common.constant.Constant;
 import com.upedge.common.constant.ResultCode;
-import com.upedge.common.constant.key.RedisKey;
 import com.upedge.common.exception.CustomerException;
 import com.upedge.common.model.ship.request.*;
 import com.upedge.common.model.ship.response.ShipMethodBatchSearchResponse;
@@ -17,7 +16,10 @@ import com.upedge.tms.modules.ship.entity.ShippingMethod;
 import com.upedge.tms.modules.ship.request.ShippingMethodAddRequest;
 import com.upedge.tms.modules.ship.request.ShippingMethodListRequest;
 import com.upedge.tms.modules.ship.request.ShippingMethodUpdateRequest;
-import com.upedge.tms.modules.ship.response.*;
+import com.upedge.tms.modules.ship.response.ShippingMethodEnableResponse;
+import com.upedge.tms.modules.ship.response.ShippingMethodInfoResponse;
+import com.upedge.tms.modules.ship.response.ShippingMethodListResponse;
+import com.upedge.tms.modules.ship.response.ShippingMethodUpdateResponse;
 import com.upedge.tms.modules.ship.service.ShippingMethodService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,7 +28,6 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
-import java.lang.reflect.Field;
 import java.util.List;
 
 /**
@@ -78,7 +79,6 @@ public class ShippingMethodController {
         ShippingMethodVo shippingMethodVo=new ShippingMethodVo();
         ShippingMethod result = shippingMethodService.selectByPrimaryKey(id);
         BeanUtils.copyProperties(result,shippingMethodVo);
-        updateShipMethodInRedis(shippingMethodVo);
         ShippingMethodInfoResponse res = new ShippingMethodInfoResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS,shippingMethodVo,id);
         return res;
     }
@@ -182,19 +182,6 @@ public class ShippingMethodController {
         return BaseResponse.failed();
     }
 
-    void updateShipMethodInRedis(ShippingMethodVo shippingMethodVo){
-        Field[] fields = shippingMethodVo.getClass().getDeclaredFields();
-        for(int i=0,len = fields.length;i<len;i++){
-            //这个是，有的字段是用private修饰的 将他设置为可读
-            fields[i].setAccessible(true);
-            try {
-                redisTemplate.opsForHash().put(RedisKey.HASH_SHIP_METHOD + shippingMethodVo.getId(),fields[i].getName(),fields[i].get(shippingMethodVo));
-            } catch (Exception e) {
-                e.printStackTrace();
-                redisTemplate.delete(RedisKey.HASH_SHIP_METHOD + shippingMethodVo.getId());
-                break;
-            }
-        }
-    }
+
 
 }

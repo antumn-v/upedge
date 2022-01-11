@@ -24,6 +24,7 @@ import com.upedge.common.model.ship.request.ShipMethodBatchSearchRequest.BatchSh
 import com.upedge.common.model.ship.response.ShipMethodBatchSearchResponse;
 import com.upedge.common.model.ship.response.ShipMethodBatchSearchResponse.BatchShipMethodSelectVo;
 import com.upedge.common.model.ship.vo.ShipDetail;
+import com.upedge.common.model.ship.vo.ShippingMethodRedis;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.utils.ListUtils;
 import com.upedge.common.web.util.RedisUtil;
@@ -172,8 +173,10 @@ public class OrderPayServiceImpl implements OrderPayService {
                 orderVo.setTotalWeight(shipDetail.getWeight());
             }else {
                 orderVo.setShipPrice(orderVo.getShipPrice().add(orderVo.getServiceFee()));
-                String shipMethodName = (String) redisTemplate.opsForHash().get(RedisKey.HASH_SHIP_METHOD + orderVo.getShipMethodId(), "name");
-                orderVo.setShipMethodName(shipMethodName);
+                ShippingMethodRedis shippingMethodRedis = (ShippingMethodRedis) redisTemplate.opsForHash().get(RedisKey.SHIPPING_METHOD, orderVo.getShipMethodId().toString());
+                if (null != shippingMethodRedis){
+                    orderVo.setShipMethodName(shippingMethodRedis.getName());
+                }
             }
             BigDecimal vatAmount = vatRuleService.getOrderVatAmount(orderVo.getProductAmount(), orderVo.getShipPrice(), orderVo.getToAreaId(),orderVo.getCustomerId());
             if (null == orderVo.getVatAmount() || vatAmount.compareTo(orderVo.getVatAmount()) != 0) {
@@ -305,7 +308,7 @@ public class OrderPayServiceImpl implements OrderPayService {
         if (!a) {
             return creatOrderPayCheckResultVo(new ArrayList<>(), paymentId, "stock error");
         }
-        orderDao.updateProductAmountByPaymentId(paymentId);
+//        orderDao.updateProductAmountByPaymentId(paymentId);
 
         List<AppOrderVo> orders = orderDao.selectPayOrderListByPaymentId(paymentId);
 

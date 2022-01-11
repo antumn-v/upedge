@@ -62,8 +62,6 @@ public class RedisKey {
     public static final String STRING_ORDER_PAY = "order:pay:paymentId:";
     //paypal支付信息
     public static final String HASH_PAYPAL_TOKEN = "paypal:token:";
-    //运输方式
-    public static final String HASH_SHIP_METHOD = "ship:method:";
     //需要重置密码的用户
     public static final String HASH_USER_NEED_RESET_PASSWTORD = "user:need:reset:password";
     //SaiheTransport

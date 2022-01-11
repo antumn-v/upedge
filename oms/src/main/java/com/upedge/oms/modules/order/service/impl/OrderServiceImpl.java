@@ -198,7 +198,7 @@ public class OrderServiceImpl implements OrderService {
         OrderAddress orderAddress = orderAddressDao.selectByOrderId(id);
         appOrderVo.setOrderAddress(orderAddress);
         if (null != appOrderVo.getShipMethodId()){
-            ShippingMethodRedis shippingMethodRedis = (ShippingMethodRedis) redisTemplate.opsForHash().get(RedisKey.HASH_SHIP_METHOD, appOrderVo.getShipMethodId().toString());
+            ShippingMethodRedis shippingMethodRedis = (ShippingMethodRedis) redisTemplate.opsForHash().get(RedisKey.SHIPPING_METHOD, appOrderVo.getShipMethodId().toString());
             if (null != shippingMethodRedis){
                 appOrderVo.setShipMethodName(shippingMethodRedis.getName());
             }
@@ -225,8 +225,10 @@ public class OrderServiceImpl implements OrderService {
         }
         for (AppOrderVo orderVo : appOrderVos) {
             if (1 == orderVo.getPayState()) {
-                String shipMethodName = (String) redisTemplate.opsForHash().get(RedisKey.HASH_SHIP_METHOD + orderVo.getShipMethodId(), "name");
-                orderVo.setShipMethodName(shipMethodName);
+                ShippingMethodRedis shippingMethodRedis = (ShippingMethodRedis) redisTemplate.opsForHash().get(RedisKey.SHIPPING_METHOD, orderVo.getShipMethodId().toString());
+                if (null != shippingMethodRedis){
+                    orderVo.setShipMethodName(shippingMethodRedis.getName());
+                }
             }
             orderVo.setStoreOrderVos(new ArrayList<>());
             for (AppStoreOrderVo storeOrderVo : storeOrderVos) {
