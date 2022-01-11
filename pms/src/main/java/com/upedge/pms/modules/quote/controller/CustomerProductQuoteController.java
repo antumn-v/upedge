@@ -1,9 +1,11 @@
 package com.upedge.pms.modules.quote.controller;
 
 import com.upedge.common.base.BaseResponse;
+import com.upedge.common.constant.Constant;
 import com.upedge.common.model.pms.quote.CustomerProductQuoteVo;
 import com.upedge.common.model.pms.request.CustomerProductQuoteSearchRequest;
 import com.upedge.common.model.user.vo.Session;
+import com.upedge.common.utils.PriceUtils;
 import com.upedge.common.web.util.UserUtil;
 import com.upedge.pms.modules.quote.entity.CustomerProductQuote;
 import com.upedge.pms.modules.quote.request.CustomerProductQuoteListRequest;
@@ -46,6 +48,11 @@ public class CustomerProductQuoteController {
         }
         request.getT().setCustomerId(session.getCustomerId());
         List<CustomerProductQuote> customerProductQuotes = customerProductQuoteService.select(request);
+        if (session.getApplicationId().equals(Constant.APP_APPLICATION_ID)){
+            for (CustomerProductQuote customerProductQuote : customerProductQuotes) {
+                customerProductQuote.setQuotePrice(PriceUtils.cnyToUsdByDefaultRate(customerProductQuote.getQuotePrice()));
+            }
+        }
         Long total = customerProductQuoteService.count(request);
         request.setTotal(total);
         return BaseResponse.success(customerProductQuotes,request);
