@@ -7,6 +7,7 @@ import com.upedge.pms.modules.product.vo.AppProductVo;
 import org.apache.ibatis.annotations.Param;
 
 import java.math.BigDecimal;
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
@@ -26,7 +27,9 @@ public interface ProductDao{
                              @Param("minPrice") BigDecimal minPrice ,
                              @Param("maxPrice") BigDecimal maxPrice);
 
-    int importFavorite(@Param("ids") List<Long> ids,@Param("userId") Long userId);
+    int importFavorite(@Param("ids") List<Long> ids,
+                       @Param("userId") Long userId,
+                       @Param("date")Date date);
 
     int multiRelease(@Param("ids") List<Long> ids,@Param("userId") Long userId);
 

@@ -884,7 +884,8 @@ public class ProductServiceImpl implements ProductService {
             return new ImportFavoriteResponse(ResultCode.FAIL_CODE, Constant.MESSAGE_FAIL);
         }
         //选品池->收藏夹
-        int res = productDao.importFavorite(request.getIds(), session.getId());
+
+        int res = productDao.importFavorite(request.getIds(), session.getId(),new Date());
         return new ImportFavoriteResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS, res);
     }
 

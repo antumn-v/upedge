@@ -164,7 +164,7 @@
     </update>
     <update id="importFavorite">
         update product
-        set user_id=#{userId},state=1
+        set user_id=#{userId},state=1,update_time = #{date}
         where state=0 and id in
         <foreach collection="ids" index="index" item="item"
                  separator="," open="(" close=")">
