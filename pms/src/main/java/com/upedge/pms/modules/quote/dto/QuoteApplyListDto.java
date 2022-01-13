@@ -39,4 +39,6 @@ public class QuoteApplyListDto {
      * 店铺产品SKU
      */
     private String storeVariantSku;
+
+    private Integer itemQuoteState;
 }

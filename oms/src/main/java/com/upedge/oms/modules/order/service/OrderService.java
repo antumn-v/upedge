@@ -16,6 +16,7 @@ import com.upedge.oms.modules.order.request.*;
 import com.upedge.oms.modules.order.response.OrderListResponse;
 import com.upedge.oms.modules.order.response.OrderUpdateResponse;
 import com.upedge.oms.modules.order.vo.*;
+import com.upedge.oms.modules.tickets.vo.SupportTicketsVo;
 import com.upedge.thirdparty.saihe.entity.SaiheOrder;
 
 import java.text.ParseException;
@@ -28,6 +29,9 @@ import java.util.Set;
  * @author author
  */
 public interface OrderService{
+
+
+    SupportTicketsVo orderTicketDetail(Long id);
 
     int initShipByShipUnitId(Long shipUnitId);
 

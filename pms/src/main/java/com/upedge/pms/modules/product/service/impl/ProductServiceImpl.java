@@ -728,23 +728,19 @@ public class ProductServiceImpl implements ProductService {
                 flag1 = true;
             }
             //变体重量异常
-            if (productVariant.getVolumeWeight().compareTo(BigDecimal.ZERO) <= 0
+            if (null == productVariant.getWeight()
+                || null == productVariant.getVolumeWeight()
+                || productVariant.getVolumeWeight().compareTo(BigDecimal.ZERO) <= 0
                     || productVariant.getWeight().compareTo(BigDecimal.ZERO) <= 0) {
-                flag2 = true;
+                return new BaseResponse(ResultCode.FAIL_CODE, "变体重量异常");
             }
             //变体价格异常
             if (productVariant.getVariantPrice().compareTo(BigDecimal.ZERO) <= 0) {
-                flag3 = true;
+                return new BaseResponse(ResultCode.FAIL_CODE, "变体价格异常");
             }
         }
         if (!flag1) {
             return new BaseResponse(ResultCode.FAIL_CODE, "无可用变体");
-        }
-        if (flag2) {
-            return new BaseResponse(ResultCode.FAIL_CODE, "变体重量异常");
-        }
-        if (flag3) {
-            return new BaseResponse(ResultCode.FAIL_CODE, "变体价格异常");
         }
         product = new Product();
         product.setId(id);

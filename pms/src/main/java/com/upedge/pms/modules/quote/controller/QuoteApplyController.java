@@ -114,6 +114,7 @@ public class QuoteApplyController {
             request.setT(new QuoteApplyListDto());
         }
         request.getT().setHandleUserId(session.getId());
+        request.getT().setItemQuoteState(0);
         List<QuoteApplyVo> results = quoteApplyService.quoteApplyList(request);
         Long total = quoteApplyService.quoteApplyCount(request);
         request.setTotal(total);

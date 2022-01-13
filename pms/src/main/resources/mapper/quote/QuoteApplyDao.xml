@@ -361,6 +361,9 @@
                 <if test="t.storeVariantSku != null">
                     qai.store_variant_sku = #{t.storeVariantSku} and
                 </if>
+                <if test="t.itemQuoteState != null">
+                    qai.state = #{t.itemQuoteState} and
+                </if>
             </trim>
         </if>
         order by qa.create_time desc

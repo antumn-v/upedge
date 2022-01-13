@@ -77,10 +77,6 @@ public class CustomerProductQuoteUpdateCustomer {
                             orderItemService.updateItemQuoteDetail(customerProductQuoteVo);
                         }
                     }
-
-//                     删除order_shipping_unit 并 清0运费 删除shipMethodId  目前只删除
-//                    orderShippingUnitService.delOrderShipUnitAndShipMethod(longs);
-
                     if (null == mqMessageLog) {
                         mqMessageLog = MqMessageLog.toMqMessageLog(message, String.valueOf(System.currentTimeMillis()));
                         mqMessageLog.setConsumeCount(1);

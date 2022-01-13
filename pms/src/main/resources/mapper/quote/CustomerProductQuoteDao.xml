@@ -19,6 +19,7 @@
         <result property="variantImage" column="variant_image"/>
         <result property="quotePrice" column="quote_price"/>
         <result property="quoteApplyId" column="quote_apply_id"/>
+        <result property="quoteState" column="quote_state"/>
     </resultMap>
 
     <sql id="Base_Column_List">
@@ -43,6 +44,9 @@
     <update id="updateByPrimaryKeySelective" parameterType="com.upedge.pms.modules.quote.entity.CustomerProductQuote">
         update customer_product_quote
         <set>
+            <if test="customerId != null">
+                customer_id = #{customerId},
+            </if>
             <if test="storeProductId != null">
                 store_product_id = #{storeProductId},
             </if>
@@ -82,6 +86,9 @@
             <if test="quoteApplyId != null">
                 quote_apply_id = #{quoteApplyId},
             </if>
+            <if test="quoteState != null">
+                quote_state = #{quoteState},
+            </if>
         </set>
         where store_variant_id = #{storeVariantId}
     </update>
@@ -89,6 +96,8 @@
     <update id="updateByPrimaryKey" parameterType="com.upedge.pms.modules.quote.entity.CustomerProductQuote">
         update customer_product_quote
         <set>
+            customer_id = #{customerId},
+            store_variant_id = #{storeVariantId},
             store_product_id = #{storeProductId},
             product_id = #{productId},
             variant_id = #{variantId},
@@ -102,14 +111,13 @@
             variant_image = #{variantImage},
             quote_price = #{quotePrice},
             quote_apply_id = #{quoteApplyId},
+            quote_state = #{quoteState},
         </set>
-        where customer_id = #{customerId}
-        and store_variant_id = #{storeVariantId}
+        where store_variant_id = #{storeVariantId}
     </update>
 
-    <insert id="insert" keyColumn="customer_id" keyProperty="customerId"
-            parameterType="com.upedge.pms.modules.quote.entity.CustomerProductQuote" useGeneratedKeys="true">
-        replace into customer_product_quote
+    <insert id="insert" keyColumn="store_variant_id" keyProperty="storeVariantId" parameterType="com.upedge.pms.modules.quote.entity.CustomerProductQuote" useGeneratedKeys="true">
+        insert into customer_product_quote
         <trim prefix="(" suffix=")" suffixOverrides=",">
             customer_id,
             store_variant_id,
@@ -125,7 +133,8 @@
             variant_sku,
             variant_image,
             quote_price,
-            quote_apply_id
+            quote_apply_id,
+            quote_state
         </trim>
         values (
         #{customerId},
@@ -142,111 +151,119 @@
         #{variantSku},
         #{variantImage},
         #{quotePrice},
-        #{quoteApplyId}
+        #{quoteApplyId},
+        #{quoteState}
         )
     </insert>
 
-    <insert id="insertSelective" keyColumn="customer_id" keyProperty="customerId"
-            parameterType="com.upedge.pms.modules.quote.entity.CustomerProductQuote" useGeneratedKeys="true">
-        replace into customer_product_quote
+    <insert id="insertSelective"  keyColumn="store_variant_id" keyProperty="storeVariantId"  parameterType="com.upedge.pms.modules.quote.entity.CustomerProductQuote" useGeneratedKeys="true">
+        insert into customer_product_quote
         <trim prefix="(" suffix=")" suffixOverrides=",">
-            <if test="customerId != null">
+            <if test="customerId != null" >
                 customer_id
             </if>
-            <if test="storeVariantId != null">
+            <if test="storeVariantId != null" >
                 store_variant_id
             </if>
-            <if test="storeProductId != null">
+            <if test="storeProductId != null" >
                 store_product_id
             </if>
-            <if test="productId != null">
+            <if test="productId != null" >
                 product_id
             </if>
-            <if test="variantId != null">
+            <if test="variantId != null" >
                 variant_id
             </if>
-            <if test="storeVariantName != null">
+            <if test="storeVariantName != null" >
                 store_variant_name
             </if>
-            <if test="storeProductTitle != null">
+            <if test="storeProductTitle != null" >
                 store_product_title
             </if>
-            <if test="storeProductSku != null">
+            <if test="storeProductSku != null" >
                 store_product_sku
             </if>
-            <if test="storeVariantImage != null">
+            <if test="storeVariantImage != null" >
                 store_variant_image
             </if>
-            <if test="productTitle != null">
+            <if test="productTitle != null" >
                 product_title
             </if>
-            <if test="variantName != null">
+            <if test="variantName != null" >
                 variant_name
             </if>
-            <if test="variantSku != null">
+            <if test="variantSku != null" >
                 variant_sku
             </if>
-            <if test="variantImage != null">
+            <if test="variantImage != null" >
                 variant_image
             </if>
-            <if test="quotePrice != null">
+            <if test="quotePrice != null" >
                 quote_price
             </if>
-            <if test="quoteApplyId != null">
+            <if test="quoteApplyId != null" >
                 quote_apply_id
             </if>
+            <if test="quoteState != null" >
+                quote_state
+            </if>
+
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
-            <if test="customerId != null">
+            <if test="customerId != null" >
                 #{customerId}
             </if>
-            <if test="storeVariantId != null">
+            <if test="storeVariantId != null" >
                 #{storeVariantId}
             </if>
-            <if test="storeProductId != null">
+            <if test="storeProductId != null" >
                 #{storeProductId}
             </if>
-            <if test="productId != null">
+            <if test="productId != null" >
                 #{productId}
             </if>
-            <if test="variantId != null">
+            <if test="variantId != null" >
                 #{variantId}
             </if>
-            <if test="storeVariantName != null">
+            <if test="storeVariantName != null" >
                 #{storeVariantName}
             </if>
-            <if test="storeProductTitle != null">
+            <if test="storeProductTitle != null" >
                 #{storeProductTitle}
             </if>
-            <if test="storeProductSku != null">
+            <if test="storeProductSku != null" >
                 #{storeProductSku}
             </if>
-            <if test="storeVariantImage != null">
+            <if test="storeVariantImage != null" >
                 #{storeVariantImage}
             </if>
-            <if test="productTitle != null">
+            <if test="productTitle != null" >
                 #{productTitle}
             </if>
-            <if test="variantName != null">
+            <if test="variantName != null" >
                 #{variantName}
             </if>
-            <if test="variantSku != null">
+            <if test="variantSku != null" >
                 #{variantSku}
             </if>
-            <if test="variantImage != null">
+            <if test="variantImage != null" >
                 #{variantImage}
             </if>
-            <if test="quotePrice != null">
+            <if test="quotePrice != null" >
                 #{quotePrice}
             </if>
-            <if test="quoteApplyId != null">
+            <if test="quoteApplyId != null" >
                 #{quoteApplyId}
             </if>
+            <if test="quoteState != null" >
+                #{quoteState}
+            </if>
+
         </trim>
     </insert>
 
     <insert id="insertByBatch" parameterType="java.util.List">
-        replace into customer_product_quote
+        insert into customer_product_quote
         <trim prefix="(" suffix=")" suffixOverrides=",">
             customer_id,
             store_variant_id,
@@ -262,7 +279,8 @@
             variant_sku,
             variant_image,
             quote_price,
-            quote_apply_id
+            quote_apply_id,
+            quote_state
         </trim>
         values
         <foreach collection="list" item="item" index="index" separator=",">
@@ -281,7 +299,8 @@
                 #{item.variantSku},
                 #{item.variantImage},
                 #{item.quotePrice},
-                #{item.quoteApplyId}
+                #{item.quoteApplyId},
+                #{item.quoteState}
             </trim>
         </foreach>
     </insert>
@@ -335,6 +354,9 @@
                 </if>
                 <if test="t.quoteApplyId != null">
                     quote_apply_id = #{t.quoteApplyId} and
+                </if>
+                <if test="t.quoteState != null">
+                    quote_state = #{t.quoteState} and
                 </if>
             </trim>
         </if>

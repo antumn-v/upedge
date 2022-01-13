@@ -65,4 +65,6 @@ public class CustomerProductQuoteVo extends VariantDetail {
     private Long quoteApplyId;
 
     private Integer quoteType;
+
+    private Integer quoteState;
 }

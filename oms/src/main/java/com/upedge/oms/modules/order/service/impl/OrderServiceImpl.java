@@ -57,6 +57,7 @@ import com.upedge.oms.modules.rules.dto.ShipRuleConditionDto;
 import com.upedge.oms.modules.rules.entity.OrderShipRule;
 import com.upedge.oms.modules.rules.service.OrderShipRuleService;
 import com.upedge.oms.modules.stock.dao.CustomerProductStockDao;
+import com.upedge.oms.modules.tickets.vo.SupportTicketsVo;
 import com.upedge.oms.modules.vat.service.VatRuleService;
 import com.upedge.thirdparty.saihe.entity.SaiheOrder;
 import com.upedge.thirdparty.saihe.entity.SaiheOrderItem;
@@ -540,10 +541,15 @@ public class OrderServiceImpl implements OrderService {
             BigDecimal itemQuantity = new BigDecimal(item.getQuantity());
             if (map.containsKey(item.getStoreVariantId())) {
                 CustomerProductQuoteVo customerProductQuoteVo = map.get(item.getStoreVariantId());
+                //报价中
                 if (customerProductQuoteVo.getQuoteType() == 5){
                     orderItem = new OrderItem();
                     orderItem.setQuoteState(5);
-                }else {
+                    //产品报价失败
+                }else if (customerProductQuoteVo.getQuoteState() == 0){
+                    orderItem = new OrderItem();
+                    orderItem.setQuoteState(4);
+                } else{//报价成功
                     orderItem = new OrderItem(customerProductQuoteVo);
                     orderItem.setQuoteState(customerProductQuoteVo.getQuoteType());
                     quoteState++;
@@ -600,6 +606,11 @@ public class OrderServiceImpl implements OrderService {
         return order;
     }
 
+
+    @Override
+    public SupportTicketsVo orderTicketDetail(Long id) {
+        return null;
+    }
 
     @Override
     public int initShipByShipUnitId(Long shipUnitId) {

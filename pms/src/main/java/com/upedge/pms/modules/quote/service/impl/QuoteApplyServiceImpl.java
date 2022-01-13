@@ -28,6 +28,7 @@ import com.upedge.pms.modules.quote.service.CustomerProductQuoteService;
 import com.upedge.pms.modules.quote.service.ProductQuoteRecordService;
 import com.upedge.pms.modules.quote.service.QuoteApplyService;
 import com.upedge.pms.modules.quote.vo.QuoteApplyVo;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -152,6 +153,9 @@ public class QuoteApplyServiceImpl implements QuoteApplyService {
             if (null == quoteApplyItem) {
                 continue;
             }
+            CustomerProductQuote customerProductQuote = new CustomerProductQuote();
+            BeanUtils.copyProperties(quoteApplyItem, customerProductQuote);
+            customerProductQuote.setCustomerId(quoteApply.getCustomerId());
             if (!quoteApplyProcessItem.isCanQuote()) {
                 ProductQuoteRecord productQuoteRecord = new ProductQuoteRecord();
                 productQuoteRecord.setStoreVariantId(quoteApplyItem.getStoreVariantId());
@@ -161,12 +165,14 @@ public class QuoteApplyServiceImpl implements QuoteApplyService {
                 productQuoteRecords.add(productQuoteRecord);
                 quoteApplyItem.setState(2);
                 quoteApplyItemDao.updateByPrimaryKey(quoteApplyItem);
+                customerProductQuote.setQuoteState(0);
+                customerProductQuotes.add(customerProductQuote);
                 continue;
             }
-
-            if (null == quoteApplyProcessItem.getPrice()
-                    || 0 == quoteApplyProcessItem.getPrice().compareTo(BigDecimal.ZERO)) {
-                return BaseResponse.failed("产品报价不能为0");
+            if (StringUtils.isBlank(quoteApplyProcessItem.getVariantSku())
+            || null == quoteApplyProcessItem.getPrice()
+                    || 0 == quoteApplyProcessItem.getPrice().compareTo(BigDecimal.ZERO)){
+                continue;
             }
 
             ProductVariant productVariant = productVariantDao.selectBySku(quoteApplyProcessItem.getVariantSku());
@@ -193,9 +199,7 @@ public class QuoteApplyServiceImpl implements QuoteApplyService {
                 productQuoteRecord.setCreateTime(date);
                 productQuoteRecords.add(productQuoteRecord);
                 //保存报价关联
-                CustomerProductQuote customerProductQuote = new CustomerProductQuote();
-                BeanUtils.copyProperties(quoteApplyItem, customerProductQuote);
-                customerProductQuote.setCustomerId(quoteApply.getCustomerId());
+
                 Product product = map.get(productVariant.getProductId());
                 if (product == null) {
                     product = productService.selectByPrimaryKey(productVariant.getProductId());
@@ -206,6 +210,7 @@ public class QuoteApplyServiceImpl implements QuoteApplyService {
                     map.put(product.getId(), product);
                 }
                 customerProductQuote.setProductTitle(product.getProductTitle());
+                customerProductQuote.setQuoteState(1);
                 customerProductQuotes.add(customerProductQuote);
                 storeVariantIds.add(quoteApplyItem.getStoreVariantId());
             }
