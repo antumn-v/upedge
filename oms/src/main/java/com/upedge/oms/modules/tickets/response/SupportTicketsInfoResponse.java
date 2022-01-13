@@ -6,6 +6,11 @@ import com.upedge.common.base.BaseResponse;
  * @author author
  */
 public class SupportTicketsInfoResponse extends BaseResponse {
+
+    public SupportTicketsInfoResponse(int code, String msg) {
+        super(code, msg);
+    }
+
     public SupportTicketsInfoResponse(int code, String msg, Object data, Object req) {
         super(code,msg,data,req);
     }

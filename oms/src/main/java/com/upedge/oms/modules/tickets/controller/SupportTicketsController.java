@@ -1,18 +1,16 @@
 package com.upedge.oms.modules.tickets.controller;
 
 import com.upedge.common.base.BaseResponse;
-import com.upedge.common.component.annotation.Permission;
 import com.upedge.common.constant.Constant;
-import com.upedge.common.constant.ResultCode;
 import com.upedge.common.exception.CustomerException;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.web.util.UserUtil;
 import com.upedge.oms.modules.tickets.dto.CustomerTicketListDto;
-import com.upedge.oms.modules.tickets.entity.SupportTickets;
 import com.upedge.oms.modules.tickets.request.*;
 import com.upedge.oms.modules.tickets.response.SupportTicketsInfoResponse;
 import com.upedge.oms.modules.tickets.response.SupportTicketsListResponse;
 import com.upedge.oms.modules.tickets.service.SupportTicketsService;
+import com.upedge.oms.modules.tickets.vo.SupportTicketsVo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -69,12 +67,19 @@ public class SupportTicketsController {
         return BaseResponse.success(count, request);
     }
 
-    @RequestMapping(value = "/info/{id}", method = RequestMethod.GET)
-    @Permission(permission = "tickets:supporttickets:info:id")
-    public SupportTicketsInfoResponse info(@PathVariable Long id) {
-        SupportTickets result = supportTicketsService.selectByPrimaryKey(id);
-        SupportTicketsInfoResponse res = new SupportTicketsInfoResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS, result, id);
-        return res;
+//    @RequestMapping(value = "/info/{id}", method = RequestMethod.GET)
+//    @Permission(permission = "tickets:supporttickets:info:id")
+//    public SupportTicketsInfoResponse info(@PathVariable Long id) {
+//        SupportTickets result = supportTicketsService.selectByPrimaryKey(id);
+//        SupportTicketsInfoResponse res = new SupportTicketsInfoResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS, result, id);
+//        return res;
+//    }
+
+    @ApiOperation("Ticket详情")
+    @GetMapping("/detail/{id}")
+    public BaseResponse ticketDetail(@PathVariable Long id){
+        SupportTicketsVo supportTicketsVo = supportTicketsService.ticketDetail(id);
+        return BaseResponse.success(supportTicketsVo);
     }
 
 

@@ -8,6 +8,7 @@ import com.upedge.oms.modules.tickets.entity.SupportTickets;
 import com.upedge.oms.modules.tickets.request.*;
 import com.upedge.oms.modules.tickets.response.SupportTicketsInfoResponse;
 import com.upedge.oms.modules.tickets.response.SupportTicketsListResponse;
+import com.upedge.oms.modules.tickets.vo.SupportTicketsVo;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
@@ -16,6 +17,8 @@ import java.util.List;
  * @author author
  */
 public interface SupportTicketsService{
+
+    SupportTicketsVo ticketDetail(Long id);
 
     BaseResponse claimTicket(Long id,Session session);
 

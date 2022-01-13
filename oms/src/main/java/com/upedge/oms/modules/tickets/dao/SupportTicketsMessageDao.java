@@ -53,7 +53,8 @@ public interface SupportTicketsMessageDao{
     //客户回复标记
     void markReplyFlag(@Param("id") Long id, @Param("flag") Integer flag);
     //更新未读消息设置为已读
-    void markReadMsg(@Param("ticketId") Long ticketId, @Param("fromUserId") Long fromUserId,
+    void markReadMsg(@Param("ticketId") Long ticketId,
+                     @Param("receiverCustomerId") Long receiverCustomerId,
                      @Param("readTime") Date readTime);
 
     List<SupportTicketsVo> listMsgCountByTicketIds(@Param("ticketIds") Set<Long> ticketIds);

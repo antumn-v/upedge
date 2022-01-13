@@ -17,6 +17,7 @@ import com.upedge.oms.modules.order.dao.OrderDao;
 import com.upedge.oms.modules.order.entity.Order;
 import com.upedge.oms.modules.order.entity.StoreOrderRelate;
 import com.upedge.oms.modules.order.service.OrderService;
+import com.upedge.oms.modules.order.vo.AppOrderVo;
 import com.upedge.oms.modules.redis.OmsRedisService;
 import com.upedge.oms.modules.tickets.dao.SupportTicketsCountDao;
 import com.upedge.oms.modules.tickets.dao.SupportTicketsDao;
@@ -95,6 +96,19 @@ public class SupportTicketsServiceImpl implements SupportTicketsService {
     @Transactional
     public int insertSelective(SupportTickets record) {
         return supportTicketsDao.insert(record);
+    }
+
+    @Override
+    public SupportTicketsVo ticketDetail(Long id) {
+        SupportTickets supportTickets = selectByPrimaryKey(id);
+        if (null == supportTickets){
+            return null;
+        }
+        SupportTicketsVo supportTicketsVo = new SupportTicketsVo();
+        BeanUtils.copyProperties(supportTickets,supportTicketsVo);
+        AppOrderVo appOrderVo = orderService.appOrderDetail(supportTickets.getOrderId());
+        supportTicketsVo.setOrderVo(appOrderVo);
+        return supportTicketsVo;
     }
 
     @Transactional
@@ -328,7 +342,8 @@ public class SupportTicketsServiceImpl implements SupportTicketsService {
         //客户消息回复标记 0:未回复 1:12小时内回复 2:24小时内回复 3:24外回复
         ticketsMessage.setFlag(0);
         supportTicketsMessageDao.insert(ticketsMessage);
-        return new BaseResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS,ticket);
+        SupportTicketsVo supportTicketsVo = ticketDetail(ticket.getId());
+        return new BaseResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS,supportTicketsVo);
     }
 
     /**
@@ -658,9 +673,12 @@ public class SupportTicketsServiceImpl implements SupportTicketsService {
     @Override
     public SupportTicketsInfoResponse ticketsInfo(Long id, Session session) {
         SupportTickets supportTickets = supportTicketsDao.selectByPrimaryKey(id);
+        if (supportTickets == null){
+            return new SupportTicketsInfoResponse(ResultCode.FAIL_CODE,"Ticket不存在");
+        }
         //更新未读消息设置为已读
         supportTicketsMessageDao.markReadMsg(supportTickets.getId(),
-                supportTickets.getCustomerId(), new Date());
+                session.getCustomerId(), new Date());
         return new SupportTicketsInfoResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS, supportTickets, id);
     }
 }

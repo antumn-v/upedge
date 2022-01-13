@@ -1,5 +1,6 @@
 package com.upedge.oms.modules.tickets.vo;
 
+import com.upedge.oms.modules.order.vo.AppOrderVo;
 import lombok.Data;
 
 import java.util.Date;
@@ -50,6 +51,8 @@ public class SupportTicketsVo {
     private String managerCode;
     private String customerLoginName;
     private String customerName;
+
+    private AppOrderVo orderVo;
 
 
 }

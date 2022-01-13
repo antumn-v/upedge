@@ -368,7 +368,9 @@
     <update id="markReadMsg">
         update support_tickets_message
         set state=1,read_time=#{readTime}
-        where ticket_id=#{ticketId} and sender_customer_id=#{senderCustomerId} and state=0
+        where ticket_id=#{ticketId}
+          and receiver_customer_id = #{receiverCustomerId}
+          and state=0
     </update>
 
     <select id="listMsgCountByTicketIds" parameterType="java.util.Set"
