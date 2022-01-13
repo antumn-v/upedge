@@ -40,6 +40,8 @@ public interface OrderItemDao{
 
     void updateItemQuoteDetail(CustomerProductQuoteVo customerProductQuoteVo);
 
+    void cancelItemQuoteDetail(CustomerProductQuoteVo customerProductQuoteVo);
+
     Long selectStoreOrderIdById(Long id);
 
     Integer selectCountQuantityByOrderId(Long orderId);

@@ -91,11 +91,11 @@ public class OrderItemServiceImpl implements OrderItemService {
     public BaseResponse orderItemApplyQuote(OrderItemQuoteRequest request, Session session) {
 
         List<Long> orderIds = request.getOrderIds();
-        if (ListUtils.isEmpty(orderIds)){
+        if (ListUtils.isEmpty(orderIds)) {
             return BaseResponse.failed();
         }
         List<Long> storeVariantIds = orderItemDao.selectStoreVariantIdsByOrderIds(orderIds);
-        if (ListUtils.isEmpty(storeVariantIds)){
+        if (ListUtils.isEmpty(storeVariantIds)) {
             return BaseResponse.failed();
         }
         OrderQuoteApplyRequest orderQuoteApplyRequest = new OrderQuoteApplyRequest();
@@ -148,23 +148,35 @@ public class OrderItemServiceImpl implements OrderItemService {
     @Transactional
     @Override
     public void updateItemQuoteDetail(CustomerProductQuoteVo customerProductQuoteVo) {
-        if (null == customerProductQuoteVo.getQuotePrice()){
+        //报价失败的产品
+        if (customerProductQuoteVo.getQuoteState() == 2) {
+            orderItemDao.cancelItemQuoteDetail(customerProductQuoteVo);
+        //报价成功的产品
+        }else if (customerProductQuoteVo.getQuoteState() == 1){
+            if (null == customerProductQuoteVo.getQuotePrice()) {
+                return;
+            }
+            BigDecimal usdPrice = PriceUtils.cnyToUsdByDefaultRate(customerProductQuoteVo.getQuotePrice());
+            customerProductQuoteVo.setUsdPrice(usdPrice);
+            orderItemDao.updateItemQuoteDetail(customerProductQuoteVo);
+        }else {
+            //异常情况直接返回
             return;
         }
-        BigDecimal usdPrice = PriceUtils.cnyToUsdByDefaultRate(customerProductQuoteVo.getQuotePrice());
-        customerProductQuoteVo.setUsdPrice(usdPrice);
-        orderItemDao.updateItemQuoteDetail(customerProductQuoteVo);
         Long storeVariantId = customerProductQuoteVo.getStoreVariantId();
+        //查询该产品关联的未支付订单
         List<Long> orderIds = orderItemDao.selectUnpaidOrderIdByStoreVariantId(storeVariantId);
-
         if (ListUtils.isNotEmpty(orderIds)) {
+            //修改订单产品费用
             orderDao.initProductAmountById(orderIds);
+            //查询订单中是否包含未报价的产品
             List<Long> partQuoteOrderIds = orderItemDao.selectUnQuoteItemOrderIdByOrderIds(orderIds);
-            if (ListUtils.isNotEmpty(partQuoteOrderIds)) {
+            if (ListUtils.isNotEmpty(partQuoteOrderIds)) {//标记订单为部分报价
                 orderDao.updateQuoteStateByIds(partQuoteOrderIds, OrderConstant.QUOTE_STATE_PART_UNQUOTED);
             }
             orderIds.removeAll(partQuoteOrderIds);
-            if (ListUtils.isNotEmpty(orderIds)){
+            if (ListUtils.isNotEmpty(orderIds)
+                    && customerProductQuoteVo.getQuoteState() == 1) {//标记订单未全部报价
                 orderDao.updateQuoteStateByIds(orderIds, OrderConstant.QUOTE_STATE_QUOTED);
             }
         }

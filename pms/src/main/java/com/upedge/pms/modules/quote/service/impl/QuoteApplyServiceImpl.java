@@ -167,6 +167,7 @@ public class QuoteApplyServiceImpl implements QuoteApplyService {
                 quoteApplyItemDao.updateByPrimaryKey(quoteApplyItem);
                 customerProductQuote.setQuoteState(0);
                 customerProductQuotes.add(customerProductQuote);
+                storeVariantIds.add(quoteApplyItem.getStoreVariantId());
                 continue;
             }
             if (StringUtils.isBlank(quoteApplyProcessItem.getVariantSku())

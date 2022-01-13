@@ -2151,12 +2151,7 @@
         set o.product_amount = ooo.productAmount,
         o.product_discharge_amount = ooo.dischargeAmount,
         o.cny_product_amount = ooo.cnyProductAmount
-        where o.id in
-        <foreach collection="orderIds" item="orderId" open="(" separator="," close=")">
-            #{orderId}
-        </foreach>
-        and o.pay_state = '0'
-        and o.order_status = '0'
+        where o.pay_state &lt; '1'
     </update>
 
     <update id="initShipByShipUnitId">

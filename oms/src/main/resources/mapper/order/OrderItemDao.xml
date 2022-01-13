@@ -959,4 +959,23 @@
             </foreach>
         and quote_state = '0'
     </select>
+
+    <update id="cancelItemQuoteDetail">
+        update order_item  oi
+        inner join `order` o
+        on oi.order_id = o.id
+        set oi.admin_product_id = null,
+            oi.admin_variant_id = null,
+            oi.admin_variant_sku = null,
+            oi.admin_variant_image = null,
+            oi.admin_variant_volume = null,
+            oi.admin_variant_weight =null,
+            oi.shipping_id = null,
+            oi.usd_price = null,
+            oi.cny_price = null,
+            oi.discharge_quantity = '0',
+            oi.quote_state = '4'
+        where oi.store_variant_id = #{storeVariantId}
+        and o.pay_state &lt; '1'
+    </update>
 </mapper>
