@@ -597,7 +597,7 @@ public class ProductServiceImpl implements ProductService {
         product.setSupplierId(Integer.toUnsignedLong(supplier.getId()));
         product.setId(productId);
         //导入到选品池
-        product.setState(ProductConstant.State.CHOOSING.getCode());
+        product.setState(ProductConstant.State.EDITING.getCode());
         product.setReplaceState(ProductConstant.ReplaceState.NO.getCode());
         product.setSaiheState(ProductConstant.SaiheState.NO.getCode());
         //0:1688 1:个人添加 2:复制产品3:捆绑产品

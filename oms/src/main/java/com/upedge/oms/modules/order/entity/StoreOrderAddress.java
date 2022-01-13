@@ -4,6 +4,7 @@ import com.upedge.thirdparty.shopify.moudles.order.entity.ShippingAddressBean;
 import com.upedge.thirdparty.shoplazza.moudles.order.entity.ShoplazzaOrder.*;
 import com.upedge.thirdparty.woocommerce.moudles.order.entity.WoocommerceOrderAddress;
 import lombok.Data;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * @author author
@@ -93,6 +94,9 @@ public class StoreOrderAddress{
 		this.company = addressBean.getCompany();
 		this.countryCode = addressBean.getCountry_code();
 		this.provinceCode = addressBean.getProvince_code();
+		if (StringUtils.isNotBlank(this.province)){
+			this.province = addressBean.getCity();
+		}
 	}
 
 	public StoreOrderAddress(ShoplazzaShippingAddress addressBean) {

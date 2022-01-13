@@ -7,6 +7,7 @@ import com.upedge.common.config.HostConfig;
 import com.upedge.common.constant.Constant;
 import com.upedge.common.constant.ResultCode;
 import com.upedge.common.constant.key.RedisKey;
+import com.upedge.common.exception.CustomerException;
 import com.upedge.common.feign.UmsFeignClient;
 import com.upedge.common.model.manager.vo.ManagerInfoVo;
 import com.upedge.common.model.user.vo.CustomerVo;
@@ -21,7 +22,6 @@ import com.upedge.oms.modules.tickets.dao.SupportTicketsCountDao;
 import com.upedge.oms.modules.tickets.dao.SupportTicketsDao;
 import com.upedge.oms.modules.tickets.dao.SupportTicketsMessageDao;
 import com.upedge.oms.modules.tickets.entity.SupportTickets;
-import com.upedge.oms.modules.tickets.entity.SupportTicketsCount;
 import com.upedge.oms.modules.tickets.entity.SupportTicketsMessage;
 import com.upedge.oms.modules.tickets.request.*;
 import com.upedge.oms.modules.tickets.response.SupportTicketsInfoResponse;
@@ -95,6 +95,24 @@ public class SupportTicketsServiceImpl implements SupportTicketsService {
     @Transactional
     public int insertSelective(SupportTickets record) {
         return supportTicketsDao.insert(record);
+    }
+
+    @Transactional
+    @Override
+    public BaseResponse claimTicket(Long id, Session session) {
+        SupportTickets supportTickets = selectByPrimaryKey(id);
+        if (null == supportTickets
+        || 2 != supportTickets.getState()){
+            return BaseResponse.failed("Ticket不存在或已被认领");
+        }
+        supportTickets = new SupportTickets();
+        supportTickets.setId(id);
+        supportTickets.setManagerName(session.getUserName());
+        supportTickets.setManagerCustomerId(session.getCustomerId());
+        supportTickets.setState(0);
+        updateByPrimaryKeySelective(supportTickets);
+        supportTicketsMessageDao.updateReceiverByTicketId(id,session.getCustomerId(),session.getId());
+        return BaseResponse.success();
     }
 
     @Override
@@ -258,31 +276,31 @@ public class SupportTicketsServiceImpl implements SupportTicketsService {
      */
     @Override
     @Transactional(readOnly = false)
-    public BaseResponse openTicket(OpenTicketRequest request, Session session) {
+    public BaseResponse openTicket(OpenTicketRequest request, Session session) throws CustomerException {
         //一个订单只能有一个开启状态的ticket
         SupportTickets ticket = supportTicketsDao.selectOpenTicketByOrderId(request.getOrderId());
-        Order upedgeOrder = orderDao.selectByPrimaryKey(request.getOrderId());
-        if (upedgeOrder == null || upedgeOrder.getPayState() != 1) {
+        Order order = orderDao.selectByPrimaryKey(request.getOrderId());
+        if (order == null || order.getPayState() != 1) {
             return new BaseResponse(ResultCode.FAIL_CODE, "The order does not exist or the order has not been paid");
         }
-        BaseResponse customerInfoResponse = umsFeignClient.customerInfo(upedgeOrder.getCustomerId());
-        //CustomerVo customerVo = JSONObject.parseObject(customerInfoResponse.getData().toString()).toJavaObject(CustomerVo.class);
+        BaseResponse customerInfoResponse = umsFeignClient.customerInfo(order.getCustomerId());
         Object data = customerInfoResponse.getData();
         CustomerVo customerVo = JSON.parseObject(JSON.toJSONString(data), CustomerVo.class);
-        ManagerInfoVo managerInfoVo = omsRedisService.getCustomerManager(upedgeOrder.getManagerCode(), upedgeOrder.getCustomerId());
         if (null == ticket) {
-
             ticket = new SupportTickets();
             ticket.setId(IdGenerate.nextId());
-            ticket.setCustomerName(customerVo.getUsername());
+            ticket.setCustomerName(customerVo.getCname());
             ticket.setOrderId(request.getOrderId());
-            ticket.setCustomerId(upedgeOrder.getCustomerId());
-            ticket.setManagerCode(managerInfoVo.getManagerCode());
-            ticket.setManagerCustomerId(managerInfoVo.getCustomerId());
-            ticket.setManagerName(managerInfoVo.getManagerName());
-            ticket.setManagerCode(managerInfoVo.getManagerCode());
-            //0:processing  1:solved
-            ticket.setState(0);
+            ticket.setCustomerId(order.getCustomerId());
+            if (session.getApplicationId().equals(Constant.ADMIN_APPLICATION_ID)){
+                ticket.setManagerCustomerId(session.getCustomerId());
+                ticket.setManagerName(session.getUserName());
+                ticket.setState(0);
+                //0:processing  1:solved  2:待领取
+            }else {
+                ticket.setState(2);
+            }
+
             ticket.setDescribes(request.getMsg());
             int timesCount = supportTicketsDao.countTicketByOrderId(request.getOrderId());
             ticket.setTimesCount(timesCount + 1);
@@ -290,34 +308,18 @@ public class SupportTicketsServiceImpl implements SupportTicketsService {
             ticket.setLastSource(1);
             ticket.setCreateTime(new Date());
             supportTicketsDao.insert(ticket);
-            SupportTicketsCount supportTicketsCount = new SupportTicketsCount();
-            supportTicketsCount.setId(IdGenerate.nextId());
-            supportTicketsCount.setTicketId(ticket.getId());
-            supportTicketsCount.setANum(0);
-            supportTicketsCount.setBNum(0);
-            supportTicketsCount.setMessageAll(1);
-            supportTicketsCount.setManagerCode(managerInfoVo.getManagerCode());
-            supportTicketsCount.setCustomerId(ticket.getCustomerId());
-            supportTicketsCountDao.insert(supportTicketsCount);
-        }else {
-            supportTicketsCountDao.addMessageAllByTicketId(ticket.getId(),ticket.getManagerCode());
         }
-
         SupportTicketsMessage ticketsMessage = new SupportTicketsMessage();
         ticketsMessage.setTicketId(ticket.getId());
         ticketsMessage.setMessage(request.getMsg());
         ticketsMessage.setSenderUserId(session.getId());
-        //admin发送消息
-        if (ticket.getManagerCustomerId().equals(session.getCustomerId())) {
-            ticketsMessage.setSenderCustomerId(ticket.getManagerCustomerId());
-            ticketsMessage.setReceiverCustomerId(ticket.getCustomerId());
-            ticketsMessage.setReceiverUserId(customerVo.getId());
-        } else {
-            //app发送
-            ticketsMessage.setSenderCustomerId(ticket.getCustomerId());
-            ticketsMessage.setReceiverCustomerId(ticket.getManagerCustomerId());
-            ticketsMessage.setReceiverUserId(managerInfoVo.getCustomerSignupUserId());
+        ticketsMessage.setSenderCustomerId(session.getCustomerId());
+        //admin发送消息直接给订单客户，app发送消息需现在admin进行认领
+        if (session.getApplicationId().equals(Constant.ADMIN_APPLICATION_ID)) {
+            ticketsMessage.setReceiverCustomerId(customerVo.getId());
+            ticketsMessage.setReceiverUserId(customerVo.getCustomerSignupUserId());
         }
+
         ticketsMessage.setSendTime(new Date());
         //0:app 1:admin
         ticketsMessage.setSource(session.getApplicationId());
@@ -443,30 +445,21 @@ public class SupportTicketsServiceImpl implements SupportTicketsService {
         if (CollectionUtils.isEmpty(userMsgList)){
             userMsgList =  supportTicketsMessageDao.selectNearestUserMsg(ticketId);
         }
-        int replyIn12 = 0;
-        int replyIn24 = 0;
-        int flag = 0;
         for (SupportTicketsMessage userMsg : userMsgList) {
             Date time = userMsg.getSendTime();
             Long costTime = currDate.getTime() - time.getTime();
             //客户消息回复标记 0:未恢复 1:12小时内回复 2:24小时内回复 3:24外回复
             if (costTime > 24 * 3600 * 1000) {
-                replyIn24++;
                 if (msgType == 2){
-                    replyIn24--;
                     //标记为24小时外已回复
                     supportTicketsMessageDao.markReplyFlag(userMsg.getId(), 3);
                 }
-
             } else if (costTime < 24 * 3600 * 1000 && costTime > 12 * 3600 * 1000) {
-                replyIn12++;
                 if (msgType == 2){
-                    replyIn12--;
                     //标记为24小时内已回复
                     supportTicketsMessageDao.markReplyFlag(userMsg.getId(), 2);
                 }
                 //12小时 24小时内回复
-
             } else {
                 if (msgType == 2){
                     //12小时内回复
@@ -474,9 +467,6 @@ public class SupportTicketsServiceImpl implements SupportTicketsService {
                 }
             }
         }
-        //更新数据 当前客户为回复消息总数-12小时、24小时内回复 = 未回复消息数
-        supportTicketsCountDao.updateSupportTicketsCount(ticketId, replyIn12, replyIn24);
-
     }
 
     /**

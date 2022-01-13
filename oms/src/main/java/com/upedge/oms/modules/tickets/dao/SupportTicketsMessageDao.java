@@ -22,6 +22,10 @@ public interface SupportTicketsMessageDao{
     SupportTicketsMessage selectTicketLastUnReceiveMessage(@Param("ticketId") Long ticketId,
                                                            @Param("receiverCustomerId") Long receiverCustomerId);
 
+    int updateReceiverByTicketId(@Param("ticketId")Long ticketId,
+                                 @Param("receiverCustomerId")Long receiverCustomerId,
+                                 @Param("receiverUserId")Long receiverUserId);
+
     void updateMessageHaveRead(SupportTicketsMessage supportTicketsMessage);
 
     SupportTicketsMessage selectByPrimaryKey(SupportTicketsMessage record);

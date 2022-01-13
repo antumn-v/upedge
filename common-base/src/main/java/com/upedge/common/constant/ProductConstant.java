@@ -59,8 +59,8 @@ public class ProductConstant {
 
     //赛盒上传状态 0:未上传 1:已上传
     public enum SaiheState {
-        YES(0,"未上传"),
-        NO(1,"已上传");
+        YES(1,"已上传"),
+        NO(0,"未上传");
 
         private int code;
 

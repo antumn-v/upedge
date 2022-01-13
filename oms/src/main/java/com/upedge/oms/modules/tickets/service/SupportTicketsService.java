@@ -2,6 +2,7 @@ package com.upedge.oms.modules.tickets.service;
 
 import com.upedge.common.base.BaseResponse;
 import com.upedge.common.base.Page;
+import com.upedge.common.exception.CustomerException;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.oms.modules.tickets.entity.SupportTickets;
 import com.upedge.oms.modules.tickets.request.*;
@@ -15,6 +16,8 @@ import java.util.List;
  * @author author
  */
 public interface SupportTicketsService{
+
+    BaseResponse claimTicket(Long id,Session session);
 
     BaseResponse customerTicketList(CustomerTicketListRequest request);
 
@@ -34,7 +37,7 @@ public interface SupportTicketsService{
 
     long count(Page<SupportTickets> record);
 
-    BaseResponse openTicket(OpenTicketRequest request, Session session);
+    BaseResponse openTicket(OpenTicketRequest request, Session session) throws CustomerException;
 
     SupportTicketsListResponse adminList(SupportTicketsListRequest request);
 

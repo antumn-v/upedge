@@ -3,10 +3,6 @@ package com.upedge.common.model.user.vo;
 import lombok.Data;
 
 import java.util.Date;
-
-/**
- * Created by jiaqi on 2020/11/9.
- */
 @Data
 public class UserInfoVo {
 

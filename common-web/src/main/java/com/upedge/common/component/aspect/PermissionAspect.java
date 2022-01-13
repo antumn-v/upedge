@@ -8,11 +8,9 @@ import com.upedge.common.exception.CustomerException;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.web.util.UserUtil;
 import org.aspectj.lang.JoinPoint;
-import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.stereotype.Component;
 
 import java.util.List;
 
@@ -22,8 +20,8 @@ import java.util.List;
  * @date 2020年6月20日
  */
 //@Order(50)
-@Aspect
-@Component
+//@Aspect
+//@Component
 public class PermissionAspect {
 
 	@Autowired

@@ -44,7 +44,7 @@ public interface UmsFeignClient {
      * @param customerId
      * @return
      */
-    @GetMapping("/cust/info/{customerId}")
+    @GetMapping("/customer/info/{customerId}")
     public BaseResponse customerInfo(@PathVariable Long customerId);
 
     /**
@@ -106,7 +106,7 @@ public interface UmsFeignClient {
     @PostMapping("/account/log/payInfo/{transactionId}")
     BaseResponse accountLogPayInfo(@PathVariable String transactionId);
 
-    @RequestMapping(value="/cust/customerByIds", method=RequestMethod.POST)
+    @RequestMapping(value="/customer/customerByIds", method=RequestMethod.POST)
     BaseResponse customerByIds(@RequestBody CustomerByIdsRequest request);
 
     /**

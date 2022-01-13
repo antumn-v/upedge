@@ -389,4 +389,11 @@
         where ticket_id = #{ticketId}
         and  flag != 0  order by send_time desc
     </select>
+
+    <update id="updateReceiverByTicketId">
+        update support_tickets_message
+            set receiver_customer_id = #{receiverCustomerId},
+                receiver_user_id = #{receiverUserId}
+        where ticket_id = #{ticketId}
+    </update>
 </mapper>

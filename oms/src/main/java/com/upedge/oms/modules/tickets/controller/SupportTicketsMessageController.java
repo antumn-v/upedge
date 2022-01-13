@@ -13,19 +13,21 @@ import com.upedge.oms.modules.tickets.request.SupportTicketsMessageListRequest;
 import com.upedge.oms.modules.tickets.request.SupportTicketsMessageUpdateRequest;
 import com.upedge.oms.modules.tickets.response.*;
 import com.upedge.oms.modules.tickets.service.SupportTicketsMessageService;
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.List;
-import org.springframework.web.bind.annotation.*;
 /**
  * 
  *
  * @author author
  */
+@Api(tags = "ticket消息列表")
 @RestController
 @RequestMapping("/supportTicketsMessage")
 public class SupportTicketsMessageController {

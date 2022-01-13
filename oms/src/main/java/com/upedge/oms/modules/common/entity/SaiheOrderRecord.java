@@ -15,7 +15,7 @@ public class SaiheOrderRecord{
 	 */
     private Long id;
 	/**
-	 * 客户自定义单号
+	 * 订单ID
 	 */
     private String clientOrderCode;
 	/**
@@ -27,7 +27,7 @@ public class SaiheOrderRecord{
 	 */
     private String saiheOrderCode;
 	/**
-	 * 
+	 * 客户ID
 	 */
     private Long customerId;
 	/**
@@ -51,14 +51,16 @@ public class SaiheOrderRecord{
 	 */
     private Integer transportId;
 	/**
-	 * 
+	 * 导入时间
 	 */
     private Date importTime;
 	/**
 	 * 0=失败，1=成功
 	 */
     private Integer state;
-
+	/**
+	 * 失败原因
+	 */
 	private String failReason;
 
 }

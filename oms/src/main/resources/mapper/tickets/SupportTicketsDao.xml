@@ -99,6 +99,12 @@
             <if test="customerName != null">
                 customer_name = #{customerName},
             </if>
+            <if test="managerCustomerId != null">
+                manager_customer_id = #{managerCustomerId},
+            </if>
+            <if test="managerName != null">
+                manager_name = #{managerName},
+            </if>
             <if test="state != null">
                 state = #{state},
             </if>
