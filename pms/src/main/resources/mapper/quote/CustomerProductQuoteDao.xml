@@ -24,7 +24,7 @@
 
     <sql id="Base_Column_List">
         `customer_id`
-                ,`store_variant_id`,`store_product_id`,`product_id`,`variant_id`,`store_variant_name`,`store_product_title`,`store_product_sku`,`store_variant_image`,`product_title`,`variant_name`,`variant_sku`,`variant_image`,`quote_price`,`quote_apply_id`
+                ,`store_variant_id`,`store_product_id`,`product_id`,`variant_id`,`store_variant_name`,`store_product_title`,`store_product_sku`,`store_variant_image`,`product_title`,`variant_name`,`variant_sku`,`variant_image`,`quote_price`,`quote_apply_id`,`quote_state`
     </sql>
 
     <select id="selectByPrimaryKey" parameterType="com.upedge.pms.modules.quote.entity.CustomerProductQuote"
@@ -411,7 +411,7 @@
         pv.variant_image,pv.variant_price as `cny_price`,pv.usd_price,
         pv.weight,pv.volume_weight as `volume`,
         p.shipping_id as productShippingId,p.id as productId,
-        '1' as quoteType
+        '1' as quoteType,cpq.quote_state
         from customer_product_quote cpq
         left join product_variant pv
         on cpq.variant_id = pv.id

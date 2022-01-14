@@ -60,7 +60,6 @@ public class CustomerProductQuoteServiceImpl implements CustomerProductQuoteServ
     ProductQuoteRecordService productQuoteRecordService;
 
 
-
     /**
      *
      */
@@ -91,29 +90,31 @@ public class CustomerProductQuoteServiceImpl implements CustomerProductQuoteServ
     public BaseResponse updateCustomerProductQuote(CustomerProductQuoteUpdateRequest request, Session session) {
         Long storeVariantId = request.getStoreVariantId();
         if (null == storeVariantId
-        || StringUtil.isEmpty(request.getVariantSku())
-        || null == request.getQuotePrice()
-        || 1 != request.getQuotePrice().compareTo(BigDecimal.ZERO)){
+                || StringUtil.isEmpty(request.getVariantSku())
+                || null == request.getQuotePrice()
+                || 1 != request.getQuotePrice().compareTo(BigDecimal.ZERO)) {
             return BaseResponse.failed();
         }
         CustomerProductQuote customerProductQuote = customerProductQuoteDao.selectByStoreVariantId(storeVariantId);
-        if (null == customerProductQuote){
+        if (null == customerProductQuote) {
             return BaseResponse.failed("该产品未报价");
         }
-        if (customerProductQuote.getQuotePrice().compareTo(request.getQuotePrice()) == 0
-        && customerProductQuote.getVariantSku().equals(request.getVariantSku())){
+        if (customerProductQuote.getQuotePrice() != null &&
+                StringUtil.isNotBlank(customerProductQuote.getVariantSku()) &&
+                customerProductQuote.getQuotePrice().compareTo(request.getQuotePrice()) == 0
+                && customerProductQuote.getVariantSku().equals(request.getVariantSku())) {
             return BaseResponse.success();
         }
         ProductVariant productVariant = productVariantDao.selectBySku(request.getVariantSku());
         if (null == productVariant
-        || null == productVariant.getWeight()
-        || null == productVariant.getVolumeWeight()
-        || 0 == BigDecimal.ZERO.compareTo(productVariant.getVolumeWeight())
-        || 0 == BigDecimal.ZERO.compareTo(productVariant.getWeight())){
+                || null == productVariant.getWeight()
+                || null == productVariant.getVolumeWeight()
+                || 0 == BigDecimal.ZERO.compareTo(productVariant.getVolumeWeight())
+                || 0 == BigDecimal.ZERO.compareTo(productVariant.getWeight())) {
             return BaseResponse.failed("sku不存在或变体重量体积未编辑");
         }
         Product product = productService.selectByPrimaryKey(productVariant.getProductId());
-        if(null == product.getShippingId()){
+        if (null == product.getShippingId()) {
             return BaseResponse.failed("产品运输属性不能为空！");
         }
         customerProductQuote.setProductId(productVariant.getProductId());
@@ -126,7 +127,7 @@ public class CustomerProductQuoteServiceImpl implements CustomerProductQuoteServ
         customerProductQuoteDao.updateByPrimaryKeySelective(customerProductQuote);
 
         ProductQuoteRecord productQuoteRecord = new ProductQuoteRecord();
-        BeanUtils.copyProperties(customerProductQuote,productQuoteRecord);
+        BeanUtils.copyProperties(customerProductQuote, productQuoteRecord);
         productQuoteRecord.setUserId(session.getId());
         productQuoteRecord.setCreateTime(new Date());
         productQuoteRecordService.insert(productQuoteRecord);
@@ -139,14 +140,14 @@ public class CustomerProductQuoteServiceImpl implements CustomerProductQuoteServ
 
     @Override
     public List<CustomerProductQuoteVo> selectQuoteDetail(CustomerProductQuoteSearchRequest request) {
-        if (request == null){
+        if (request == null) {
             return new ArrayList<>();
         }
         List<CustomerProductQuoteVo> quotingVariants = new ArrayList<>();
         List<Long> storeVariantIds = new ArrayList<>();
-        if (ListUtils.isNotEmpty(request.getStoreVariantIds())){
+        if (ListUtils.isNotEmpty(request.getStoreVariantIds())) {
             storeVariantIds = quoteApplyItemDao.selectQuotingStoreVariantIds(request.getStoreVariantIds());
-            if (ListUtils.isNotEmpty(storeVariantIds)){
+            if (ListUtils.isNotEmpty(storeVariantIds)) {
                 for (Long storeVariantId : storeVariantIds) {
                     CustomerProductQuoteVo customerProductQuoteVo = new CustomerProductQuoteVo();
                     customerProductQuoteVo.setStoreVariantId(storeVariantId);
@@ -154,7 +155,7 @@ public class CustomerProductQuoteServiceImpl implements CustomerProductQuoteServ
                     quotingVariants.add(customerProductQuoteVo);
                 }
                 request.getStoreVariantIds().removeAll(storeVariantIds);
-                if (ListUtils.isEmpty(request.getStoreVariantIds())){
+                if (ListUtils.isEmpty(request.getStoreVariantIds())) {
                     return quotingVariants;
                 }
             }
@@ -166,7 +167,7 @@ public class CustomerProductQuoteServiceImpl implements CustomerProductQuoteServ
                 storeVariantIds.add(customerProductQuoteVo.getStoreVariantId());
             }
             request.getStoreVariantIds().removeAll(storeVariantIds);
-            if (ListUtils.isNotEmpty(request.getStoreVariantIds())){
+            if (ListUtils.isNotEmpty(request.getStoreVariantIds())) {
                 storeVariantIds = request.getStoreVariantIds();
                 List<CustomerProductQuoteVo> customerProductQuoteVoList = storeProductVariantDao.selectQuoteDetailByIds(storeVariantIds);
                 customerProductQuoteVos.addAll(customerProductQuoteVoList);
@@ -178,8 +179,8 @@ public class CustomerProductQuoteServiceImpl implements CustomerProductQuoteServ
 
     @Override
     public List<CustomerProductQuote> selectByCustomerAndStoreVariantIds(Long customerId, List<Long> storeVariantIds) {
-        if (ListUtils.isNotEmpty(storeVariantIds) && null != customerId){
-            return customerProductQuoteDao.selectByCustomerAndStoreVariantIds(customerId,storeVariantIds);
+        if (ListUtils.isNotEmpty(storeVariantIds) && null != customerId) {
+            return customerProductQuoteDao.selectByCustomerAndStoreVariantIds(customerId, storeVariantIds);
         }
         return null;
     }
@@ -187,7 +188,7 @@ public class CustomerProductQuoteServiceImpl implements CustomerProductQuoteServ
     /**
      *
      */
-    public CustomerProductQuote selectByPrimaryKey(Long customerId){
+    public CustomerProductQuote selectByPrimaryKey(Long customerId) {
         CustomerProductQuote record = new CustomerProductQuote();
         record.setCustomerId(customerId);
         return customerProductQuoteDao.selectByPrimaryKey(record);
@@ -200,39 +201,39 @@ public class CustomerProductQuoteServiceImpl implements CustomerProductQuoteServ
         List<CustomerProductQuoteVo> customerProductQuoteVos = selectQuoteDetail(request);
         String tag = "quote";
         String key = UUID.randomUUID().toString();
-        Message message = new Message(RocketMqConfig.TOPIC_CUSTOMER_PRODUCT_QUOTE_UPDATE,tag,key, JSON.toJSONBytes(customerProductQuoteVos));
+        Message message = new Message(RocketMqConfig.TOPIC_CUSTOMER_PRODUCT_QUOTE_UPDATE, tag, key, JSON.toJSONBytes(customerProductQuoteVos));
         message.setDelayTimeLevel(0);
         return productMqProducer.sendMessage(message);
     }
 
     /**
-    *
-    */
+     *
+     */
     @Transactional
     public int updateByPrimaryKeySelective(CustomerProductQuote record) {
         return customerProductQuoteDao.updateByPrimaryKeySelective(record);
     }
 
     /**
-    *
-    */
+     *
+     */
     @Transactional
     public int updateByPrimaryKey(CustomerProductQuote record) {
         return customerProductQuoteDao.updateByPrimaryKey(record);
     }
 
     /**
-    *
-    */
-    public List<CustomerProductQuote> select(Page<CustomerProductQuote> record){
+     *
+     */
+    public List<CustomerProductQuote> select(Page<CustomerProductQuote> record) {
         record.initFromNum();
         return customerProductQuoteDao.select(record);
     }
 
     /**
-    *
-    */
-    public long count(Page<CustomerProductQuote> record){
+     *
+     */
+    public long count(Page<CustomerProductQuote> record) {
         return customerProductQuoteDao.count(record);
     }
 
