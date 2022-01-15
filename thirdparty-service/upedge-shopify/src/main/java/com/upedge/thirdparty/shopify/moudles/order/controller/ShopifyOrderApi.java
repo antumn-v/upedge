@@ -109,6 +109,22 @@ public class ShopifyOrderApi {
             JSONObject jsonObject = entity.getBody();
             if(jsonObject != null && jsonObject.containsKey("fulfillment")){
                 ShopifyFulfillment fulfillment = jsonObject.getJSONObject("fulfillment").toJavaObject(ShopifyFulfillment.class);
+                fulfillmentComplete(orderId,fulfillment.getId(),shop,token);
+                return fulfillment;
+            }
+        }
+        return null;
+    }
+
+
+    public static ShopifyFulfillment fulfillmentComplete(String orderId,String fulfillmentId,String shop,String token){
+        String url = "https://" + shop + ".myshopify.com/admin/api/" + Shopify.version + "/orders/"+orderId+"/fulfillments/"+fulfillmentId+"/complete.json";
+        ResponseEntity<JSONObject> entity =
+                RequestUtils.sendRequest( url, token, null, HttpMethod.POST, null);
+        if(null != entity){
+            JSONObject jsonObject = entity.getBody();
+            if(jsonObject != null && jsonObject.containsKey("fulfillment")){
+                ShopifyFulfillment fulfillment = jsonObject.getJSONObject("fulfillment").toJavaObject(ShopifyFulfillment.class);
                 return fulfillment;
             }
         }

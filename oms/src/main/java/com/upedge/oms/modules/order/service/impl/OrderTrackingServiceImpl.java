@@ -42,7 +42,6 @@ public class OrderTrackingServiceImpl  implements OrderTrackingService {
     public OrderTracking queryOrderTrackingByOrderId(Long orderId, Integer orderType) {
         OrderTracking orderTracking = new OrderTracking();
         orderTracking.setOrderId(orderId);
-        orderTracking.setOrderTrackingType(orderType);
         return orderTrackingDao.queryOrderTracking(orderTracking);
 
     }

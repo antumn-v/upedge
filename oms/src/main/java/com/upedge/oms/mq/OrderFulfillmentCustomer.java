@@ -27,7 +27,7 @@ public class OrderFulfillmentCustomer {
     OrderFulfillmentService orderFulfillmentService;
 
 
-    public void CustomerIossUpdateCustomer() throws MQClientException {
+    public OrderFulfillmentCustomer() throws MQClientException {
         consumer = new DefaultMQPushConsumer("order_fulfillment");
         consumer.setNamesrvAddr(RocketMqConfig.NAME_SERVER);
         //消费模式:一个新的订阅组第一次启动从队列的最后位置开始消费 后续再启动接着上次消费的进度开始消费

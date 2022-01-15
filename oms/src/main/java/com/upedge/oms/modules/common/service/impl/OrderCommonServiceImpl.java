@@ -1,7 +1,6 @@
 package com.upedge.oms.modules.common.service.impl;
 
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
 import com.upedge.common.base.BaseResponse;
 import com.upedge.common.constant.OrderType;
 import com.upedge.common.constant.ResultCode;
@@ -613,11 +612,10 @@ public class OrderCommonServiceImpl implements OrderCommonService {
                         if (StringUtils.isBlank(trackNum)){
                             return false;
                         }
+                        orderTracking.setOrderTrackingType(orderType);
                         // 根据orderId和 order_tracking_type查询订单
                         OrderTracking old = orderTrackingService.queryOrderTrackingByOrderId(a.getId(), orderType);
                         if (orderType == OrderType.NORMAL) {
-                            //标记该记录为普通订单
-                            orderTracking.setOrderTrackingType(0);
                             if (old == null) {
                                 orderTracking.setState(0);
                                 orderTracking.setId(IdGenerate.nextId());
@@ -626,14 +624,13 @@ public class OrderCommonServiceImpl implements OrderCommonService {
                                 orderDao.updateOrderAsTracked(id,trackNum);
                                 orderTrackingService.insert(orderTracking);
                                 //处于待回传状态，继续更新运输信息
-                                sendMqMessage(new Message(RocketMqConfig.TOPIC_ORDER_FULFILLMENT, JSONObject.toJSONBytes(id)));
+                                orderFulfillmentService.orderFulfillment(id);
+//                                sendMqMessage(new Message(RocketMqConfig.TOPIC_ORDER_FULFILLMENT,"",UUID.randomUUID().toString(), JSONObject.toJSONBytes(id)));
                             } else {
                                 orderTrackingService.updateOrderTracking(orderTracking);
                             }
                         }
                         if (orderType == OrderType.WHOLESALE) {
-                            //标记该记录为批发订单
-                            orderTracking.setOrderTrackingType(1);
                             if (old == null) {
                                 orderTracking.setCreateTime(new Date());
                                 //标记订单为发货

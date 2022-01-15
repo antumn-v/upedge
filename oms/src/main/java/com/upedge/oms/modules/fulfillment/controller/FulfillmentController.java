@@ -6,8 +6,10 @@ import com.upedge.common.constant.ResultCode;
 import com.upedge.oms.modules.fulfillment.service.FulfillmentService;
 import com.upedge.oms.modules.fulfillment.service.OrderFulfillmentService;
 import com.upedge.oms.modules.order.entity.OrderTracking;
+import com.upedge.oms.modules.order.service.OrderService;
 import com.upedge.oms.modules.order.service.OrderTrackingService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -27,6 +29,9 @@ public class FulfillmentController {
     @Autowired
     OrderFulfillmentService orderFulfillmentService;
 
+    @Autowired
+    OrderService orderService;
+
     @PostMapping("/postTrack")
     public BaseResponse postTrack(){
         List<Long> ids = orderTrackingService.selectOrderIdByState(0);
@@ -34,6 +39,19 @@ public class FulfillmentController {
             orderFulfillmentService.orderFulfillment(id);
         }
         return new BaseResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS);
+    }
+
+    @PostMapping("/{orderId}")
+    public BaseResponse fulfillment(@PathVariable Long orderId){
+        orderFulfillmentService.orderFulfillment(orderId);
+        return BaseResponse.success();
+    }
+
+
+    @PostMapping("/updateTrack/{orderId}")
+    public BaseResponse updateTrack(@PathVariable Long orderId){
+        orderService.getTrackingFromSaihe(orderId);
+        return BaseResponse.success();
     }
 
     /**
