@@ -151,7 +151,7 @@ public class AppProductServiceImpl implements AppProductService {
 
         Product product = productDao.selectByPrimaryKey(variant.getProductId());
 
-        key = RedisKey.SHIPPING_METHODS + product.getShippingId();
+        key = RedisKey.SHIPPING_TEMPLATED_METHODS + product.getShippingId();
         Set<Object> objects = redisTemplate.opsForSet().members(key);
         Set<Long> methodIds = new HashSet<>();
         if (ListUtils.isNotEmpty(objects)) {
@@ -195,7 +195,7 @@ public class AppProductServiceImpl implements AppProductService {
 
         Collection<String> strings = new ArrayList<>();
         for (int i = 0; i < shipTemplateIds.size(); i++) {
-            strings.add(RedisKey.SHIPPING_METHODS + shipTemplateIds.get(i));
+            strings.add(RedisKey.SHIPPING_TEMPLATED_METHODS + shipTemplateIds.get(i));
         }
 
         Set<Object> shipMethodIds = redisTemplate.opsForSet().union(strings);

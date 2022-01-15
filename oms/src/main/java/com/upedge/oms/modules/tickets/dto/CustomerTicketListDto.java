@@ -5,6 +5,8 @@ import lombok.Data;
 @Data
 public class CustomerTicketListDto {
 
+    Long orderId;
+
     Long customerId;
 
     Integer state;
@@ -12,4 +14,6 @@ public class CustomerTicketListDto {
     String orderNumber;
 
     String storeName;
+
+    Long managerCustomerId;
 }

@@ -64,8 +64,7 @@ public class OmsRedisServiceImpl implements OmsRedisService {
     //回传物流 店铺信息缓存
     @Override
     public StoreVo getStoreVo(Long storeId) {
-        String key = RedisKey.HASH_TRACK_STORE;
-        StoreVo storeVo = (StoreVo) redisTemplate.opsForHash().get(key, storeId);
+        StoreVo storeVo = (StoreVo) redisTemplate.opsForValue().get(RedisKey.STRING_STORE + storeId);
         return storeVo;
     }
 

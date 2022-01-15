@@ -8,7 +8,6 @@ import com.upedge.common.constant.ResultCode;
 import com.upedge.common.constant.key.RedisKey;
 import com.upedge.common.exception.CustomerException;
 import com.upedge.common.feign.UmsFeignClient;
-import com.upedge.common.model.manager.vo.ManagerInfoVo;
 import com.upedge.common.model.user.vo.CustomerVo;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.utils.*;
@@ -406,8 +405,6 @@ public class SupportTicketsServiceImpl implements SupportTicketsService {
         //CustomerVo customerVo = JSONObject.parseObject(customerInfoResponse.getData().toString()).toJavaObject(CustomerVo.class);
         Object data = customerInfoResponse.getData();
         CustomerVo customerVo = JSON.parseObject(JSON.toJSONString(data), CustomerVo.class);
-        ManagerInfoVo managerInfoVo = omsRedisService.getCustomerManager(upedgeOrder.getManagerCode(), upedgeOrder.getCustomerId());
-
 
         SupportTicketsMessage supportTicketsMessage = new SupportTicketsMessage();
         supportTicketsMessage.setTicketId(request.getTicketId());
@@ -418,20 +415,17 @@ public class SupportTicketsServiceImpl implements SupportTicketsService {
         int msgType = 0;
         if (supportTickets.getState() == 2) {
             supportTicketsMessage.setFlag(0);
-            supportTicketsMessage.setSenderCustomerId(session.getCustomerId());
             msgType = 1;
         } else {
             if (supportTickets.getManagerCustomerId().equals(session.getCustomerId())) {
-                supportTicketsMessage.setSenderCustomerId(session.getCustomerId());
                 supportTicketsMessage.setReceiverCustomerId(supportTickets.getCustomerId());
                 supportTicketsMessage.setReceiverUserId(customerVo.getId());
                 msgType = 2;
             } else {
                 //app发送
                 supportTicketsMessage.setFlag(0);
-                supportTicketsMessage.setSenderCustomerId(session.getCustomerId());
                 supportTicketsMessage.setReceiverCustomerId(supportTickets.getManagerCustomerId());
-                supportTicketsMessage.setReceiverUserId(managerInfoVo.getCustomerSignupUserId());
+                supportTicketsMessage.setReceiverUserId(supportTickets.getManagerCustomerId());
                 msgType = 1;
             }
         }
@@ -443,7 +437,6 @@ public class SupportTicketsServiceImpl implements SupportTicketsService {
         //新增一条消息
         supportTicketsCountDao.addMessageAllByTicketId(request.getTicketId(), null);
         supportTicketsMessageDao.insert(supportTicketsMessage);
-
 
         //记录admin回复消息时效数
         recordReplyData(request.getTicketId(), msgType);
