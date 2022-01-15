@@ -66,8 +66,9 @@ public class ShippingTemplateServiceImpl implements ShippingTemplateService {
     public int insertSelective(ShippingTemplate record) {
         ShippingTemplateRedis shippingTemplateRedis = new ShippingTemplateRedis();
         BeanUtils.copyProperties(record,shippingTemplateRedis);
+        int i  = shippingTemplateDao.insert(record);
         redisTemplate.opsForHash().put(RedisKey.SHIPPING_TEMPLATE,String.valueOf(record.getId()),shippingTemplateRedis);
-        return shippingTemplateDao.insert(record);
+        return i;
     }
 
     /**
@@ -92,9 +93,13 @@ public class ShippingTemplateServiceImpl implements ShippingTemplateService {
     /**
     *
     */
-    @Transactional
     public int updateByPrimaryKey(ShippingTemplate record) {
-        return shippingTemplateDao.updateByPrimaryKey(record);
+        shippingTemplateDao.updateByPrimaryKey(record);
+        record = selectByPrimaryKey(record.getId());
+        ShippingTemplateRedis shippingTemplateRedis = new ShippingTemplateRedis();
+        BeanUtils.copyProperties(record,shippingTemplateRedis);
+        redisTemplate.opsForHash().put(RedisKey.SHIPPING_TEMPLATE,String.valueOf(record.getId()),shippingTemplateRedis);
+        return 1;
     }
 
     /**

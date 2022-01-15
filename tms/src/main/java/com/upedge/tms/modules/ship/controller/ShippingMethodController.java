@@ -10,8 +10,6 @@ import com.upedge.common.model.ship.response.ShipMethodSearchResponse;
 import com.upedge.common.model.ship.vo.ShipDetail;
 import com.upedge.common.model.ship.vo.ShipMethodNameVo;
 import com.upedge.common.model.ship.vo.ShippingMethodVo;
-import com.upedge.common.model.user.vo.Session;
-import com.upedge.common.web.util.UserUtil;
 import com.upedge.tms.modules.ship.entity.ShippingMethod;
 import com.upedge.tms.modules.ship.request.ShippingMethodAddRequest;
 import com.upedge.tms.modules.ship.request.ShippingMethodListRequest;
@@ -127,7 +125,6 @@ public class ShippingMethodController {
      */
     @RequestMapping(value="/enable/{id}", method=RequestMethod.POST)
     public ShippingMethodEnableResponse enableShippingMethod(@PathVariable Long id) {
-        Session session = UserUtil.getSession(redisTemplate);
         return shippingMethodService.enableShippingMethod(id);
     }
 

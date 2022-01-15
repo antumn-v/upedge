@@ -6,7 +6,6 @@ import com.upedge.common.constant.Constant;
 import com.upedge.common.constant.ResultCode;
 import com.upedge.common.constant.key.RedisKey;
 import com.upedge.common.exception.CustomerException;
-import com.upedge.common.feign.UmsFeignClient;
 import com.upedge.common.model.ship.dto.ShipMethodSelectDto;
 import com.upedge.common.model.ship.request.ShipMethodBatchSearchRequest;
 import com.upedge.common.model.ship.request.ShipMethodBatchSearchRequest.BatchShipMethodSelectDto;
@@ -16,6 +15,7 @@ import com.upedge.common.model.ship.request.ShippingMethodsRequest;
 import com.upedge.common.model.ship.response.ShipMethodBatchSearchResponse;
 import com.upedge.common.model.ship.response.ShipMethodBatchSearchResponse.BatchShipMethodSelectVo;
 import com.upedge.common.model.ship.vo.*;
+import com.upedge.common.model.tms.ShippingTemplateVo;
 import com.upedge.common.utils.IdGenerate;
 import com.upedge.common.utils.ListUtils;
 import com.upedge.tms.modules.area.dao.AreaDao;
@@ -36,7 +36,6 @@ import com.upedge.tms.modules.ship.service.ShippingMethodService;
 import com.upedge.tms.modules.ship.service.ShippingMethodTemplateService;
 import com.upedge.tms.modules.ship.service.ShippingUnitService;
 import com.upedge.tms.modules.ship.vo.MethodIdTemplateNameVo;
-import com.upedge.common.model.tms.ShippingTemplateVo;
 import com.upedge.tms.mq.TmsProducerService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,7 +43,6 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.annotation.Resource;
 import java.math.BigDecimal;
 import java.util.*;
 import java.util.concurrent.Callable;
@@ -56,11 +54,9 @@ import java.util.stream.Collectors;
 @Service
 public class ShippingMethodServiceImpl implements ShippingMethodService {
 
-    @Resource
-    UmsFeignClient umsFeignClient;
-
     @Autowired
     private ShippingMethodDao shippingMethodDao;
+
     @Autowired
     private ShippingUnitDao shippingUnitDao;
 
@@ -97,6 +93,7 @@ public class ShippingMethodServiceImpl implements ShippingMethodService {
     public int deleteByPrimaryKey(Long id) {
         ShippingMethod record = new ShippingMethod();
         record.setId(id);
+        redisTemplate.opsForHash().delete(RedisKey.SHIPPING_METHOD,String.valueOf(id));
         return shippingMethodDao.deleteByPrimaryKey(record);
     }
 
@@ -105,7 +102,9 @@ public class ShippingMethodServiceImpl implements ShippingMethodService {
      */
     @Transactional
     public int insert(ShippingMethod record) {
-        return shippingMethodDao.insert(record);
+        int i = shippingMethodDao.insert(record);
+        updateRedisShipMethod(record.getId());
+        return i;
     }
 
     /**
@@ -197,7 +196,6 @@ public class ShippingMethodServiceImpl implements ShippingMethodService {
         return shipDetails;
     }
 
-    @Transactional
     @Override
     public BaseResponse addShipMethod(ShippingMethodAddRequest request) throws CustomerException {
         ShippingMethod shippingMethod = shippingMethodDao.getShippingMethodByName(request.getName());
@@ -224,16 +222,13 @@ public class ShippingMethodServiceImpl implements ShippingMethodService {
         if (ListUtils.isEmpty(shippingMethodTemplates)){
             throw new CustomerException("运输模板信息错误");
         }
-        shippingMethodTemplateDao.deleteByShipMethodId(methodId);
         shippingMethodTemplateDao.insertByBatch(shippingMethodTemplates);
-        ShippingMethodRedis shippingMethodRedis = new ShippingMethodRedis();
-        BeanUtils.copyProperties(shippingMethod,shippingMethodRedis);
-        redisTemplate.opsForHash().put(RedisKey.SHIPPING_METHOD,String.valueOf(methodId),shippingMethodRedis);
+        //更新缓存数据
+        updateRedisShipMethod(methodId);
         shippingMethodTemplateService.redisInit();
         return BaseResponse.success();
     }
 
-    @Transactional
     @Override
     public BaseResponse updateShipMethod(ShippingMethodUpdateRequest request,Long methodId) throws CustomerException {
         ShippingMethod shippingMethod = shippingMethodDao.selectByPrimaryKey(methodId);
@@ -243,7 +238,7 @@ public class ShippingMethodServiceImpl implements ShippingMethodService {
         }
         shippingMethod = request.toShippingMethod(methodId);
         shippingMethod.setId(methodId);
-        updateByPrimaryKey(shippingMethod);
+        updateByPrimaryKeySelective(shippingMethod);
 
         List<ShippingMethodTemplate> shippingMethodTemplates = new ArrayList<>();
         List<Long> templateIds = request.getTemplateIds();
@@ -270,9 +265,6 @@ public class ShippingMethodServiceImpl implements ShippingMethodService {
             }
         }
         shippingMethodTemplateService.redisInit();
-        ShippingMethodRedis shippingMethodRedis = new ShippingMethodRedis();
-        BeanUtils.copyProperties(shippingMethod,shippingMethodRedis);
-        redisTemplate.opsForHash().put(RedisKey.SHIPPING_METHOD,String.valueOf(methodId),shippingMethodRedis);
         return BaseResponse.success();
     }
 
@@ -353,17 +345,17 @@ public class ShippingMethodServiceImpl implements ShippingMethodService {
     @Transactional
     public int updateByPrimaryKeySelective(ShippingMethod record) {
         int i = shippingMethodDao.updateByPrimaryKeySelective(record);
+        updateRedisShipMethod(record.getId());
         return i;
     }
 
     /**
      *
      */
-    @Transactional
     public int updateByPrimaryKey(ShippingMethod record) {
-
-
-        return shippingMethodDao.updateByPrimaryKey(record);
+        int i = shippingMethodDao.updateByPrimaryKey(record);
+        updateRedisShipMethod(record.getId());
+        return i;
     }
 
     @Override
@@ -405,14 +397,14 @@ public class ShippingMethodServiceImpl implements ShippingMethodService {
     }
 
     @Override
-    @Transactional
     public ShippingMethodEnableResponse enableShippingMethod(Long id) {
         shippingMethodDao.updateShippingMethodState(id, 1);
+        updateRedisShipMethod(id);
+        shippingMethodTemplateService.redisInit();
         return new ShippingMethodEnableResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS);
     }
 
     @Override
-    @Transactional
     public ShippingMethodDisableResponse disableShippingMethod(Long id) throws CustomerException {
         shippingMethodDao.updateShippingMethodState(id, 0);
         // 调用mq
@@ -421,6 +413,7 @@ public class ShippingMethodServiceImpl implements ShippingMethodService {
             throw new CustomerException("mq异常，请重新提交或联系IT");
         }
         redisTemplate.opsForHash().delete(RedisKey.SHIPPING_METHOD,id.toString());
+        shippingMethodTemplateService.redisInit();
         return new ShippingMethodDisableResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS);
     }
 
@@ -476,5 +469,13 @@ public class ShippingMethodServiceImpl implements ShippingMethodService {
       List<ShippingUnit> list =  shippingUnitDao.selectListByShippingMethodId(shippingMethodId);
         List<Long> collect = list.stream().map(e -> e.getId()).collect(Collectors.toList());
         return tmsProducerService.sendMessage(collect);
+    }
+
+
+    public void updateRedisShipMethod(Long methodId){
+        ShippingMethod shippingMethod = selectByPrimaryKey(methodId);
+        ShippingMethodRedis shippingMethodRedis = new ShippingMethodRedis();
+        BeanUtils.copyProperties(shippingMethod,shippingMethodRedis);
+        redisTemplate.opsForHash().put(RedisKey.SHIPPING_METHOD,String.valueOf(methodId),shippingMethodRedis);
     }
 }
