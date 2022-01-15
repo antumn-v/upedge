@@ -198,9 +198,9 @@ public class OrderServiceImpl implements OrderService {
         appOrderVo.setOrderTracking(orderTrackingService.queryOrderTrackingByOrderId(id, OrderType.NORMAL));
         OrderAddress orderAddress = orderAddressDao.selectByOrderId(id);
         appOrderVo.setOrderAddress(orderAddress);
-        if (null != appOrderVo.getShipMethodId()){
+        if (null != appOrderVo.getShipMethodId()) {
             ShippingMethodRedis shippingMethodRedis = (ShippingMethodRedis) redisTemplate.opsForHash().get(RedisKey.SHIPPING_METHOD, appOrderVo.getShipMethodId().toString());
-            if (null != shippingMethodRedis){
+            if (null != shippingMethodRedis) {
                 appOrderVo.setShipMethodName(shippingMethodRedis.getName());
             }
         }
@@ -227,7 +227,7 @@ public class OrderServiceImpl implements OrderService {
         for (AppOrderVo orderVo : appOrderVos) {
             if (1 == orderVo.getPayState()) {
                 ShippingMethodRedis shippingMethodRedis = (ShippingMethodRedis) redisTemplate.opsForHash().get(RedisKey.SHIPPING_METHOD, orderVo.getShipMethodId().toString());
-                if (null != shippingMethodRedis){
+                if (null != shippingMethodRedis) {
                     orderVo.setShipMethodName(shippingMethodRedis.getName());
                 }
             }
@@ -542,14 +542,14 @@ public class OrderServiceImpl implements OrderService {
             if (map.containsKey(item.getStoreVariantId())) {
                 CustomerProductQuoteVo customerProductQuoteVo = map.get(item.getStoreVariantId());
                 //报价中
-                if (customerProductQuoteVo.getQuoteType() == 5){
+                if (customerProductQuoteVo.getQuoteType() == 5) {
                     orderItem = new OrderItem();
                     orderItem.setQuoteState(5);
                     //产品报价失败
-                }else if (customerProductQuoteVo.getQuoteState() == 0){
+                } else if (customerProductQuoteVo.getQuoteState() == 0) {
                     orderItem = new OrderItem();
                     orderItem.setQuoteState(4);
-                } else{//报价成功
+                } else {//报价成功
                     orderItem = new OrderItem(customerProductQuoteVo);
                     orderItem.setQuoteState(customerProductQuoteVo.getQuoteType());
                     quoteState++;
@@ -615,7 +615,7 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public int initShipByShipUnitId(Long shipUnitId) {
 
-        if (shipUnitId  != null){
+        if (shipUnitId != null) {
             return orderDao.initShipByShipUnitId(shipUnitId);
         }
         return 0;
@@ -625,13 +625,13 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public BaseResponse createReshipOrder(Long id) {
         Order order = orderDao.selectByPrimaryKey(id);
-        if (order == null){
+        if (order == null) {
             return BaseResponse.failed("Order does not exist");
         }
         List<OrderItem> orderItems = orderItemDao.selectItemByOrderId(id);
         Long reshipOrderId = IdGenerate.nextId();
         Order reshipOrder = new Order();
-        BeanUtils.copyProperties(order,reshipOrder);
+        BeanUtils.copyProperties(order, reshipOrder);
         reshipOrder.initOrder();
         reshipOrder.setQuoteState(order.getQuoteState());
         reshipOrder.setId(reshipOrderId);
@@ -661,20 +661,20 @@ public class OrderServiceImpl implements OrderService {
         List<OrderItem> reshipOrderItems = new ArrayList<>();
         for (OrderItem orderItem : orderItems) {
             OrderItem reshipOrderItem = new OrderItem();
-            BeanUtils.copyProperties(orderItem,reshipOrderItem);
+            BeanUtils.copyProperties(orderItem, reshipOrderItem);
             reshipOrderItem.setDischargeQuantity(0);
             reshipOrderItem.setOrderId(reshipOrderId);
             reshipOrderItem.setId(IdGenerate.nextId());
             BigDecimal itemQuantity = new BigDecimal(orderItem.getQuantity());
             CustomerProductQuoteVo customerProductQuoteVo = map.get(orderItem.getStoreVariantId());
-            if (null == customerProductQuoteVo){
+            if (null == customerProductQuoteVo) {
                 reshipOrderItem.setQuoteState(0);
                 reshipOrderItems.add(reshipOrderItem);
                 continue;
             }
-            if (customerProductQuoteVo.getQuoteType() == 5){
+            if (customerProductQuoteVo.getQuoteType() == 5) {
                 reshipOrderItem.setQuoteState(5);
-            }else {
+            } else {
                 reshipOrderItem.initItemQuoteDetail(customerProductQuoteVo);
                 reshipOrderItem.setQuoteState(customerProductQuoteVo.getQuoteType());
                 quoteState++;
@@ -724,24 +724,24 @@ public class OrderServiceImpl implements OrderService {
         List<OrderItem> orderItems = orderItemDao.selectItemByOrderId(id);
         Integer quoteProducts = 0;
         Integer quoteState = 0;
-        if (ListUtils.isNotEmpty(orderItems)){
+        if (ListUtils.isNotEmpty(orderItems)) {
             for (OrderItem orderItem : orderItems) {
-                if (orderItem.getQuoteState() == 5){
+                if (orderItem.getQuoteState() == 5) {
                     quoteState = OrderConstant.QUOTE_STATE_QUOTING;
                     break;
                 }
                 if (orderItem.getQuoteState() != 1
-                && orderItem.getQuoteState() != 6){
+                        && orderItem.getQuoteState() != 6) {
                     quoteProducts++;
                 }
             }
         }
-        if (quoteState != OrderConstant.QUOTE_STATE_QUOTING){
-            if (quoteProducts == 0){
+        if (quoteState != OrderConstant.QUOTE_STATE_QUOTING) {
+            if (quoteProducts == 0) {
                 quoteState = OrderConstant.QUOTE_STATE_QUOTED;
-            }else if (quoteState == orderItems.size()){
+            } else if (quoteState == orderItems.size()) {
                 quoteState = OrderConstant.QUOTE_STATE_UNQUOTED;
-            }else {
+            } else {
                 quoteState = OrderConstant.QUOTE_STATE_PART_UNQUOTED;
             }
         }
@@ -790,12 +790,12 @@ public class OrderServiceImpl implements OrderService {
             orderShippingUnitService.insert(orderShippingUnit);
         }
         //服务费
-        BigDecimal serviceFee = shipDetail.getPrice().multiply(new BigDecimal("0.08")).add(new BigDecimal("0.2")).setScale(2,BigDecimal.ROUND_UP);
+        BigDecimal serviceFee = shipDetail.getPrice().multiply(new BigDecimal("0.08")).add(new BigDecimal("0.2")).setScale(2, BigDecimal.ROUND_UP);
         shipDetail.setServiceFee(serviceFee);
         //vat
-        BigDecimal vatAmount = vatRuleService.getOrderVatAmount(order.getProductAmount(), order.getShipPrice(), order.getToAreaId(),order.getCustomerId());
+        BigDecimal vatAmount = vatRuleService.getOrderVatAmount(order.getProductAmount(), order.getShipPrice(), order.getToAreaId(), order.getCustomerId());
         shipDetail.setVatAmount(vatAmount);
-        orderDao.updateShipDetailById(shipDetail,id);
+        orderDao.updateShipDetailById(shipDetail, id);
         shipDetail.setPrice(shipDetail.getPrice().add(serviceFee));
         return shipDetail;
 
@@ -1039,7 +1039,7 @@ public class OrderServiceImpl implements OrderService {
         });
 
 
-        CompletableFuture.allOf( areaFuture, shipFuture,  trackFuture, storeFuture).get();
+        CompletableFuture.allOf(areaFuture, shipFuture, trackFuture, storeFuture).get();
 
         return orderListVos;
     }
@@ -1447,7 +1447,7 @@ public class OrderServiceImpl implements OrderService {
          * orderCode在数据库中未有，保存信息
          */
         Boolean isUpload = orderCommonService.checkAndSaveOrderCodeFromSaihe(saiheOrder.getClientOrderCode(), OrderType.NORMAL);
-        if (isUpload){
+        if (isUpload) {
             return true;
         }
         /**
@@ -1805,7 +1805,7 @@ public class OrderServiceImpl implements OrderService {
     public void matchingShipInfoByVariantId(List<OrderItem> list) {
         List<Long> orderIds = new ArrayList<>();
         for (OrderItem orderItem : list) {
-            if (orderIds.contains(orderItem.getOrderId())){
+            if (orderIds.contains(orderItem.getOrderId())) {
                 continue;
             }
             orderIds.add(orderItem.getOrderId());
