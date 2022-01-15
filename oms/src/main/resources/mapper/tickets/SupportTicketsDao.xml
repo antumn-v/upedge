@@ -33,37 +33,45 @@
         from support_tickets st
         left join store_order_relate sor
         on st.order_id = sor.order_id
-        where st.customer_id = #{t.customerId}
-        <if test="t.state != null">
-            and st.state = #{t.state}
-        </if>
-        <if test="t.orderNumber != null">
-            and sor.plat_order_name = #{t.orderNumber}
-        </if>
-        <if test="t.storeName != null">
-            and sor.store_name = #{t.storeName}
-        </if>
+        <include refid="CustomerTicket"/>
         order by st.state asc,st.create_time desc
         <if test="pageNum != null and pageSize != null">
             limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
         </if>
     </select>
 
+
+    <sql id="CustomerTicket">
+        <where>
+            <if test="t != null">
+                1 = 1
+                <if test="t.customerId != null">
+                    and  st.customer_id = #{t.customerId}
+                </if>
+                <if test="t.state != null">
+                    and st.state = #{t.state}
+                </if>
+                <if test="t.orderNumber != null">
+                    and  sor.plat_order_name = #{t.orderNumber}
+                </if>
+                <if test="t.storeName != null">
+                    and sor.store_name = #{t.storeName}
+                </if>
+                <if test="t.managerCustomerId != null">
+                    and st.manager_customer_id = #{t.managerCustomerId}
+                </if>
+                <if test="t.orderId != null">
+                    and sor.order_id = #{orderId}
+                </if>
+            </if>
+        </where>
+    </sql>
     <select id="selectCustomerTicketCount" resultType="java.lang.Long" parameterType="com.upedge.oms.modules.tickets.request.CustomerTicketListRequest">
         select count(st.id)
         from support_tickets st
         left join store_order_relate sor
         on st.order_id = sor.order_id
-        where st.customer_id = #{t.customerId}
-        <if test="t.state != null">
-            and st.state = #{t.state}
-        </if>
-        <if test="t.orderNumber != null">
-            and sor.plat_order_name = #{t.orderNumber}
-        </if>
-        <if test="t.storeName != null">
-            and sor.store_name = #{t.storeName}
-        </if>
+        <include refid="CustomerTicket"/>
     </select>
 
     <select id="selectOpenTicketByOrderId" resultMap="BaseResultMap">

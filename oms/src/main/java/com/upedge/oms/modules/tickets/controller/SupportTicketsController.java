@@ -6,9 +6,11 @@ import com.upedge.common.exception.CustomerException;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.web.util.UserUtil;
 import com.upedge.oms.modules.tickets.dto.CustomerTicketListDto;
-import com.upedge.oms.modules.tickets.request.*;
+import com.upedge.oms.modules.tickets.request.CustomerTicketListRequest;
+import com.upedge.oms.modules.tickets.request.OpenTicketRequest;
+import com.upedge.oms.modules.tickets.request.SendImgMsgRequest;
+import com.upedge.oms.modules.tickets.request.SendTextMsgRequest;
 import com.upedge.oms.modules.tickets.response.SupportTicketsInfoResponse;
-import com.upedge.oms.modules.tickets.response.SupportTicketsListResponse;
 import com.upedge.oms.modules.tickets.service.SupportTicketsService;
 import com.upedge.oms.modules.tickets.vo.SupportTicketsVo;
 import io.swagger.annotations.Api;
@@ -101,9 +103,15 @@ public class SupportTicketsController {
      * @param request
      * @return
      */
-    @RequestMapping(value = "/list", method = RequestMethod.POST)
-    public SupportTicketsListResponse adminList(@RequestBody @Valid SupportTicketsListRequest request) {
-        return supportTicketsService.adminList(request);
+    @ApiOperation("ticket处理列表")
+    @RequestMapping(value = "/processList", method = RequestMethod.POST)
+    public BaseResponse adminList(@RequestBody CustomerTicketListRequest request) {
+        Session session = UserUtil.getSession(redisTemplate);
+        if (null == request.getT()) {
+            request.setT(new CustomerTicketListDto());
+        }
+        request.getT().setManagerCustomerId(session.getCustomerId());
+        return supportTicketsService.customerTicketList(request);
     }
 
     @ApiOperation("开启support tickets")

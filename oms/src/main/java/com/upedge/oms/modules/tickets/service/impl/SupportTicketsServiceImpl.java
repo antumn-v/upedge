@@ -3,7 +3,6 @@ package com.upedge.oms.modules.tickets.service.impl;
 import com.alibaba.fastjson.JSON;
 import com.upedge.common.base.BaseResponse;
 import com.upedge.common.base.Page;
-import com.upedge.common.config.HostConfig;
 import com.upedge.common.constant.Constant;
 import com.upedge.common.constant.ResultCode;
 import com.upedge.common.constant.key.RedisKey;
@@ -32,6 +31,7 @@ import com.upedge.oms.modules.tickets.vo.CustomerTicketVo;
 import com.upedge.oms.modules.tickets.vo.SupportTicketsVo;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -72,6 +72,11 @@ public class SupportTicketsServiceImpl implements SupportTicketsService {
     RedisTemplate<String, Object> redisTemplate;
 
 
+    @Value("${files.image.local}")
+    private String imageLocalPath;
+    @Value("${files.image.prefix}")
+    private String imageUrlPrefix;
+
     /**
      *
      */
@@ -101,11 +106,11 @@ public class SupportTicketsServiceImpl implements SupportTicketsService {
     @Override
     public SupportTicketsVo ticketDetail(Long id) {
         SupportTickets supportTickets = selectByPrimaryKey(id);
-        if (null == supportTickets){
+        if (null == supportTickets) {
             return null;
         }
         SupportTicketsVo supportTicketsVo = new SupportTicketsVo();
-        BeanUtils.copyProperties(supportTickets,supportTicketsVo);
+        BeanUtils.copyProperties(supportTickets, supportTicketsVo);
         AppOrderVo appOrderVo = orderService.appOrderDetail(supportTickets.getOrderId());
         supportTicketsVo.setOrderVo(appOrderVo);
         return supportTicketsVo;
@@ -116,7 +121,7 @@ public class SupportTicketsServiceImpl implements SupportTicketsService {
     public BaseResponse claimTicket(Long id, Session session) {
         SupportTickets supportTickets = selectByPrimaryKey(id);
         if (null == supportTickets
-        || 2 != supportTickets.getState()){
+                || 2 != supportTickets.getState()) {
             return BaseResponse.failed("Ticket不存在或已被认领");
         }
         supportTickets = new SupportTickets();
@@ -125,7 +130,7 @@ public class SupportTicketsServiceImpl implements SupportTicketsService {
         supportTickets.setManagerCustomerId(session.getCustomerId());
         supportTickets.setState(0);
         updateByPrimaryKeySelective(supportTickets);
-        supportTicketsMessageDao.updateReceiverByTicketId(id,session.getCustomerId(),session.getId());
+        supportTicketsMessageDao.updateReceiverByTicketId(id, session.getCustomerId(), session.getId());
         return BaseResponse.success();
     }
 
@@ -133,15 +138,15 @@ public class SupportTicketsServiceImpl implements SupportTicketsService {
     public BaseResponse customerTicketList(CustomerTicketListRequest request) {
         request.initFromNum();
         List<CustomerTicketVo> ticketVos = supportTicketsDao.selectCustomerTicketList(request);
-        if(ListUtils.isNotEmpty(ticketVos)){
+        if (ListUtils.isNotEmpty(ticketVos)) {
             Date date = new Date();
             ticketVos.forEach(customerTicketVo -> {
-                customerTicketVo.setProcessTime(DateUtils.getDistanceOfTwoDate(customerTicketVo.getCreateTime(),date));
+                customerTicketVo.setProcessTime(DateUtils.getDistanceOfTwoDate(customerTicketVo.getCreateTime(), date));
             });
         }
         Long count = supportTicketsDao.selectCustomerTicketCount(request);
         request.setTotal(count);
-        return new BaseResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS,ticketVos,request);
+        return new BaseResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS, ticketVos, request);
     }
 
     /**
@@ -263,9 +268,9 @@ public class SupportTicketsServiceImpl implements SupportTicketsService {
         CompletableFuture<Void> customerFuture = CompletableFuture.runAsync(() -> {
             for (SupportTicketsVo supportTicketsVo : supportTicketsVoList) {
                 BaseResponse customerResponse = umsFeignClient.customerInfo(supportTicketsVo.getCustomerId());
-                if (customerResponse.getCode() == ResultCode.SUCCESS_CODE){
-                    CustomerVo customerVo =   JSON.parseObject(JSON.toJSONString( customerResponse.getData()),CustomerVo.class);
-                    if (customerVo != null){
+                if (customerResponse.getCode() == ResultCode.SUCCESS_CODE) {
+                    CustomerVo customerVo = JSON.parseObject(JSON.toJSONString(customerResponse.getData()), CustomerVo.class);
+                    if (customerVo != null) {
                         supportTicketsVo.setCustomerLoginName(customerVo.getLoginName());
                         supportTicketsVo.setCustomerName(customerVo.getUsername());
                     }
@@ -275,7 +280,7 @@ public class SupportTicketsServiceImpl implements SupportTicketsService {
 
 
         try {
-            CompletableFuture.allOf(orderNumberFuture, msgCountFuture,manageFuture,customerFuture).get();
+            CompletableFuture.allOf(orderNumberFuture, msgCountFuture, manageFuture, customerFuture).get();
         } catch (InterruptedException e) {
             e.printStackTrace();
         } catch (ExecutionException e) {
@@ -306,12 +311,12 @@ public class SupportTicketsServiceImpl implements SupportTicketsService {
             ticket.setCustomerName(customerVo.getCname());
             ticket.setOrderId(request.getOrderId());
             ticket.setCustomerId(order.getCustomerId());
-            if (session.getApplicationId().equals(Constant.ADMIN_APPLICATION_ID)){
+            if (session.getApplicationId().equals(Constant.ADMIN_APPLICATION_ID)) {
                 ticket.setManagerCustomerId(session.getCustomerId());
                 ticket.setManagerName(session.getUserName());
                 ticket.setState(0);
                 //0:processing  1:solved  2:待领取
-            }else {
+            } else {
                 ticket.setState(2);
             }
 
@@ -343,7 +348,7 @@ public class SupportTicketsServiceImpl implements SupportTicketsService {
         ticketsMessage.setFlag(0);
         supportTicketsMessageDao.insert(ticketsMessage);
         SupportTicketsVo supportTicketsVo = ticketDetail(ticket.getId());
-        return new BaseResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS,supportTicketsVo);
+        return new BaseResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS, supportTicketsVo);
     }
 
     /**
@@ -360,7 +365,7 @@ public class SupportTicketsServiceImpl implements SupportTicketsService {
         if (supportTickets == null || supportTickets.getState() == null) {
             return new BaseResponse(ResultCode.FAIL_CODE, "supportTicket不存在!");
         }
-        if (supportTickets.getState() != 0) {
+        if (supportTickets.getState() == 1) {
             return new BaseResponse(ResultCode.FAIL_CODE, "supportTicket已关闭!");
         }
         //获取后台操作人信息
@@ -390,7 +395,7 @@ public class SupportTicketsServiceImpl implements SupportTicketsService {
         if (supportTickets == null || supportTickets.getState() == null) {
             return new BaseResponse(ResultCode.FAIL_CODE, "supportTicket不存在!");
         }
-        if (supportTickets.getState() != 0) {
+        if (supportTickets.getState() == 1) {
             return new BaseResponse(ResultCode.FAIL_CODE, "supportTicket已关闭!");
         }
         Order upedgeOrder = orderDao.selectByPrimaryKey(supportTickets.getOrderId());
@@ -411,30 +416,37 @@ public class SupportTicketsServiceImpl implements SupportTicketsService {
         supportTicketsMessage.setSenderUserId(session.getId());
         //admin发送消息
         int msgType = 0;
-        if (supportTickets.getManagerCustomerId().equals(session.getCustomerId())) {
-            supportTicketsMessage.setSenderCustomerId(session.getCustomerId());
-            supportTicketsMessage.setReceiverCustomerId(supportTickets.getCustomerId());
-            supportTicketsMessage.setReceiverUserId(customerVo.getId());
-            msgType = 2;
-        } else {
-            //app发送
+        if (supportTickets.getState() == 2) {
             supportTicketsMessage.setFlag(0);
             supportTicketsMessage.setSenderCustomerId(session.getCustomerId());
-            supportTicketsMessage.setReceiverCustomerId(supportTickets.getManagerCustomerId());
-            supportTicketsMessage.setReceiverUserId(managerInfoVo.getCustomerSignupUserId());
             msgType = 1;
+        } else {
+            if (supportTickets.getManagerCustomerId().equals(session.getCustomerId())) {
+                supportTicketsMessage.setSenderCustomerId(session.getCustomerId());
+                supportTicketsMessage.setReceiverCustomerId(supportTickets.getCustomerId());
+                supportTicketsMessage.setReceiverUserId(customerVo.getId());
+                msgType = 2;
+            } else {
+                //app发送
+                supportTicketsMessage.setFlag(0);
+                supportTicketsMessage.setSenderCustomerId(session.getCustomerId());
+                supportTicketsMessage.setReceiverCustomerId(supportTickets.getManagerCustomerId());
+                supportTicketsMessage.setReceiverUserId(managerInfoVo.getCustomerSignupUserId());
+                msgType = 1;
+            }
         }
+
         Date currDate = new Date();
         supportTicketsMessage.setMessage(request.getMessage());
         supportTicketsMessage.setSendTime(currDate);
         supportTicketsMessage.setId(IdGenerate.nextId());
         //新增一条消息
-        supportTicketsCountDao.addMessageAllByTicketId(request.getTicketId(),null);
+        supportTicketsCountDao.addMessageAllByTicketId(request.getTicketId(), null);
         supportTicketsMessageDao.insert(supportTicketsMessage);
 
 
         //记录admin回复消息时效数
-        recordReplyData(request.getTicketId(),msgType);
+        recordReplyData(request.getTicketId(), msgType);
 
         return new BaseResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS, supportTicketsMessage);
     }
@@ -457,26 +469,26 @@ public class SupportTicketsServiceImpl implements SupportTicketsService {
         //查询上一条admin消息到该条消息之间的客户消息列表  计算该回复与客户消息的时间差
         List<SupportTicketsMessage> userMsgList = supportTicketsMessageDao.
                 queryNearestUserMsg(startDate, currDate, ticketId);
-        if (CollectionUtils.isEmpty(userMsgList)){
-            userMsgList =  supportTicketsMessageDao.selectNearestUserMsg(ticketId);
+        if (CollectionUtils.isEmpty(userMsgList)) {
+            userMsgList = supportTicketsMessageDao.selectNearestUserMsg(ticketId);
         }
         for (SupportTicketsMessage userMsg : userMsgList) {
             Date time = userMsg.getSendTime();
             Long costTime = currDate.getTime() - time.getTime();
             //客户消息回复标记 0:未恢复 1:12小时内回复 2:24小时内回复 3:24外回复
             if (costTime > 24 * 3600 * 1000) {
-                if (msgType == 2){
+                if (msgType == 2) {
                     //标记为24小时外已回复
                     supportTicketsMessageDao.markReplyFlag(userMsg.getId(), 3);
                 }
             } else if (costTime < 24 * 3600 * 1000 && costTime > 12 * 3600 * 1000) {
-                if (msgType == 2){
+                if (msgType == 2) {
                     //标记为24小时内已回复
                     supportTicketsMessageDao.markReplyFlag(userMsg.getId(), 2);
                 }
                 //12小时 24小时内回复
             } else {
-                if (msgType == 2){
+                if (msgType == 2) {
                     //12小时内回复
                     supportTicketsMessageDao.markReplyFlag(userMsg.getId(), 1);
                 }
@@ -585,7 +597,7 @@ public class SupportTicketsServiceImpl implements SupportTicketsService {
         if (supportTickets == null || supportTickets.getState() == null) {
             return new BaseResponse(ResultCode.FAIL_CODE, "supportTicket不存在!");
         }
-        if (supportTickets.getState() != 0) {
+        if (supportTickets.getState() == 1) {
             return new BaseResponse(ResultCode.FAIL_CODE, "supportTicket已关闭!");
         }
 
@@ -603,9 +615,7 @@ public class SupportTicketsServiceImpl implements SupportTicketsService {
 //            os.write(bytes1);
 //            //数据库存储的相对路径
 
-            String imgPath="/root/files/image/ticket/";
-            String urlPrefix = HostConfig.HOST + "/oms/image/ticket/";
-            String url = FileUtil.uploadImage(base64String,urlPrefix,imgPath);
+            String url = FileUtil.uploadImage(base64String, imageUrlPrefix, imageLocalPath);
 
             SupportTicketsMessage supportTicketsMessage = new SupportTicketsMessage();
             supportTicketsMessage.setTicketId(ticketId);
@@ -613,16 +623,22 @@ public class SupportTicketsServiceImpl implements SupportTicketsService {
             supportTicketsMessage.setSenderUserId(session.getId());
             int msgType = 0;
             //admin发送消息
-            if (supportTickets.getManagerCustomerId().equals(session.getCustomerId())) {
-                supportTicketsMessage.setSenderCustomerId(supportTickets.getManagerCustomerId());
-                supportTicketsMessage.setReceiverCustomerId(supportTickets.getCustomerId());
-                msgType = 2;
-            } else {
-                //app发送
+            if (supportTickets.getState() == 2) {
                 supportTicketsMessage.setFlag(0);
-                supportTicketsMessage.setSenderCustomerId(supportTickets.getCustomerId());
-                supportTicketsMessage.setReceiverCustomerId(supportTickets.getManagerCustomerId());
+                supportTicketsMessage.setSenderCustomerId(session.getCustomerId());
                 msgType = 1;
+            } else {
+                if (supportTickets.getManagerCustomerId().equals(session.getCustomerId())) {
+                    supportTicketsMessage.setSenderCustomerId(supportTickets.getManagerCustomerId());
+                    supportTicketsMessage.setReceiverCustomerId(supportTickets.getCustomerId());
+                    msgType = 2;
+                } else {
+                    //app发送
+                    supportTicketsMessage.setFlag(0);
+                    supportTicketsMessage.setSenderCustomerId(supportTickets.getCustomerId());
+                    supportTicketsMessage.setReceiverCustomerId(supportTickets.getManagerCustomerId());
+                    msgType = 1;
+                }
             }
             String message = "<img style='max-width:400px;max-height:400px;width:auto;height:auto' src='" + url + "' />";
             supportTicketsMessage.setMessage(message);
@@ -630,7 +646,7 @@ public class SupportTicketsServiceImpl implements SupportTicketsService {
             supportTicketsMessage.setId(IdGenerate.nextId());
             supportTicketsMessage.setSource(session.getApplicationId());
             //新增一条消息
-            supportTicketsCountDao.addMessageAllByTicketId(ticketId,null);
+            supportTicketsCountDao.addMessageAllByTicketId(ticketId, null);
             supportTicketsMessageDao.insert(supportTicketsMessage);
             //记录admin回复消息时效数
             recordReplyData(ticketId, msgType);
@@ -673,8 +689,8 @@ public class SupportTicketsServiceImpl implements SupportTicketsService {
     @Override
     public SupportTicketsInfoResponse ticketsInfo(Long id, Session session) {
         SupportTickets supportTickets = supportTicketsDao.selectByPrimaryKey(id);
-        if (supportTickets == null){
-            return new SupportTicketsInfoResponse(ResultCode.FAIL_CODE,"Ticket不存在");
+        if (supportTickets == null) {
+            return new SupportTicketsInfoResponse(ResultCode.FAIL_CODE, "Ticket不存在");
         }
         //更新未读消息设置为已读
         supportTicketsMessageDao.markReadMsg(supportTickets.getId(),
