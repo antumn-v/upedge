@@ -64,23 +64,7 @@ public class SupportTicketsMessageServiceImpl implements SupportTicketsMessageSe
         if (null == supportTicketsMessage || null == supportTicketsMessage.getTicketId()){
             return new ArrayList<>();
         }
-        Long ticketId = supportTicketsMessage.getTicketId();
-
-        SupportTicketsMessage message = supportTicketsMessageDao.selectTicketLastUnReceiveMessage(ticketId,session.getCustomerId());
-        List<SupportTicketsMessage> messages = new ArrayList<>();
-        if(null == message){
-            messages = supportTicketsMessageDao.select(request);
-        }else {
-            Date date = new Date();
-            messages = supportTicketsMessageDao.selectTicketLastUnReceiveMessageByDate(ticketId,session.getCustomerId(),message.getSendTime(),date);
-            //标记未读消息为已读
-            message = new SupportTicketsMessage();
-            message.setTicketId(ticketId);
-            message.setReadTime(new Date());
-            message.setReceiverCustomerId(session.getCustomerId());
-            message.setReceiverUserId(session.getId());
-            supportTicketsMessageDao.updateMessageHaveRead(message);
-        }
+        List<SupportTicketsMessage> messages = supportTicketsMessageDao.select(request);
         Collections.sort(messages, new Comparator<SupportTicketsMessage>() {
             @Override
             public int compare(SupportTicketsMessage o1, SupportTicketsMessage o2) {

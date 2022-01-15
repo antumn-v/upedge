@@ -210,6 +210,7 @@ public class QuoteApplyServiceImpl implements QuoteApplyService {
                     }
                     map.put(product.getId(), product);
                 }
+                BeanUtils.copyProperties(quoteApplyItem, customerProductQuote);
                 customerProductQuote.setProductTitle(product.getProductTitle());
                 customerProductQuote.setQuoteState(1);
                 customerProductQuotes.add(customerProductQuote);

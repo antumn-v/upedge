@@ -21,21 +21,20 @@ public class Ali1688ApiScheduler {
     RedisTemplate redisTemplate;
 
     @Scheduled(cron = "0 00 */1 ? * *")
-    public void refreshAli1688Api(){
+    public void refreshAli1688Api() {
         AlibabaApiVo alibabaApiVo = (AlibabaApiVo) redisTemplate.opsForValue().get(RedisKey.STRING_ALI1688_API);
         long now = System.currentTimeMillis();
-        long time = alibabaApiVo.getAccessTokenExpireTime() - now ;
-        if (time <= 60 * 60 * 1000){
+        long time = alibabaApiVo.getAccessTokenExpireTime() - now;
+        if (time <= 60 * 60 * 1000) {
             alibabaApiVo = Ali1688Service.refreshAccessToken(alibabaApiVo);
-            if (null == alibabaApiVo){
+            if (null == alibabaApiVo) {
                 return;
             }
             AlibabaApi alibabaApi = new AlibabaApi();
-            BeanUtils.copyProperties(alibabaApiVo,alibabaApi);
+            BeanUtils.copyProperties(alibabaApiVo, alibabaApi);
             alibabaApiService.updateByPrimaryKey(alibabaApi);
-            redisTemplate.opsForValue().set(RedisKey.STRING_ALI1688_API,alibabaApiVo);
+            redisTemplate.opsForValue().set(RedisKey.STRING_ALI1688_API, alibabaApiVo);
         }
-
     }
 
     public static void main(String[] args) {

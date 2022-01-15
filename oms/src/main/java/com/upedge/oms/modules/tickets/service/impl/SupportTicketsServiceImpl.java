@@ -411,6 +411,7 @@ public class SupportTicketsServiceImpl implements SupportTicketsService {
         supportTicketsMessage.setState(0);
         supportTicketsMessage.setSource(session.getApplicationId());
         supportTicketsMessage.setSenderUserId(session.getId());
+        supportTicketsMessage.setSenderCustomerId(session.getCustomerId());
         //admin发送消息
         int msgType = 0;
         if (supportTickets.getState() == 2) {
@@ -435,7 +436,7 @@ public class SupportTicketsServiceImpl implements SupportTicketsService {
         supportTicketsMessage.setSendTime(currDate);
         supportTicketsMessage.setId(IdGenerate.nextId());
         //新增一条消息
-        supportTicketsCountDao.addMessageAllByTicketId(request.getTicketId(), null);
+//        supportTicketsCountDao.addMessageAllByTicketId(request.getTicketId(), null);
         supportTicketsMessageDao.insert(supportTicketsMessage);
 
         //记录admin回复消息时效数

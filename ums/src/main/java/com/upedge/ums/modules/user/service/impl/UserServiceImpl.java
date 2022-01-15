@@ -11,7 +11,9 @@ import com.upedge.common.model.user.vo.*;
 import com.upedge.common.utils.IdGenerate;
 import com.upedge.common.utils.TokenUtil;
 import com.upedge.common.web.util.UserUtil;
+import com.upedge.ums.modules.account.dao.AccountUserMapper;
 import com.upedge.ums.modules.account.entity.Account;
+import com.upedge.ums.modules.account.entity.AccountUser;
 import com.upedge.ums.modules.account.service.AccountService;
 import com.upedge.ums.modules.application.entity.Application;
 import com.upedge.ums.modules.application.entity.Menu;
@@ -105,6 +107,9 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     RoleMenuService roleMenuService;
+
+    @Autowired
+    AccountUserMapper accountUserMapper;
 
 
     @Autowired
@@ -359,7 +364,10 @@ public class UserServiceImpl implements UserService {
         account.setIsDefault(true);
         accountService.insert(account);
 
-
+        AccountUser accountUser = new AccountUser();
+        accountUser.setAccountId(account.getId());
+        accountUser.setUserId(userId);
+        accountUserMapper.insert(accountUser);
 
         UserApplication userApplicationKey = new UserApplication();
         userApplicationKey.setApplicationId(applicationId);
