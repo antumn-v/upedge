@@ -397,7 +397,7 @@ public class OrderServiceImpl implements OrderService {
                 }
                 weight = weight.add(item.getAdminVariantWeight().multiply(new BigDecimal(item.getQuantity())));
                 volumn = volumn.add(item.getAdminVariantVolume().multiply(new BigDecimal(item.getQuantity())));
-                strings.add(RedisKey.SHIPPING_METHODS + item.getShippingId());
+                strings.add(RedisKey.SHIPPING_TEMPLATED_METHODS + item.getShippingId());
             }
             if (ListUtils.isEmpty(strings)) {
                 return null;
@@ -572,7 +572,7 @@ public class OrderServiceImpl implements OrderService {
             orderItem.setDischargeQuantity(0);
             orderItem.setItemType(0);
             orderItem.setId(IdGenerate.nextId());
-            strings.add(RedisKey.SHIPPING_METHODS + orderItem.getShippingId());
+            strings.add(RedisKey.SHIPPING_TEMPLATED_METHODS + orderItem.getShippingId());
             items.add(orderItem);
         }
         if (quoteState > 0 && quoteState == items.size()) {

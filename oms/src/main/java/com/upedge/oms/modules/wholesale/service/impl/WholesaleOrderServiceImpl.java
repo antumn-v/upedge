@@ -295,7 +295,7 @@ public class WholesaleOrderServiceImpl implements WholesaleOrderService {
             BigDecimal quantity = new BigDecimal(item.getQuantity());
             weight = weight.add(item.getAdminVariantWeight().multiply(quantity));
             volumn = volumn.add(item.getAdminVariantVolume().multiply(quantity));
-            strings.add(RedisKey.SHIPPING_METHODS + item.getShippingId());
+            strings.add(RedisKey.SHIPPING_TEMPLATED_METHODS + item.getShippingId());
         }
         Set<Object> shipMethodIds = redisTemplate.opsForSet().union(strings);
         if (ListUtils.isNotEmpty(shipMethodIds)) {
