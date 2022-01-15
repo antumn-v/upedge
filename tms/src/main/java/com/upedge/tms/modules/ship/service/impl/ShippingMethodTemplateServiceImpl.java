@@ -78,11 +78,11 @@ public class ShippingMethodTemplateServiceImpl implements ShippingMethodTemplate
         List<ShippingMethodTemplate> shippingMethodTemplateList=shippingMethodTemplateDao.listShippingMethodTemplate();
         List<ShippingTemplate> shippingTemplates = shippingTemplateDao.allUseShippingTemplate();
         for (ShippingTemplate shippingTemplate : shippingTemplates) {
-            redisTemplate.delete(RedisKey.SHIPPING_METHODS+shippingTemplate.getId());
+            redisTemplate.delete(RedisKey.SHIPPING_TEMPLATED_METHODS+shippingTemplate.getId());
         }
         for(ShippingMethodTemplate shippingMethodTemplate:shippingMethodTemplateList){
             Long methodId=shippingMethodTemplate.getMethodId();
-            redisTemplate.opsForSet().add(RedisKey.SHIPPING_METHODS+shippingMethodTemplate.getShippingId(),methodId);
+            redisTemplate.opsForSet().add(RedisKey.SHIPPING_TEMPLATED_METHODS+shippingMethodTemplate.getShippingId(),methodId);
         }
     }
 

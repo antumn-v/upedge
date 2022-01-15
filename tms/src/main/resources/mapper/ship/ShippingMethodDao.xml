@@ -32,7 +32,7 @@
 
     <select id="allShippingMethod" resultMap="BaseResultMap">
         select
-        `id`,`name`,`weight_type`,`desc`
+        <include refid="Base_Column_List"/>
         from shipping_method where state=1
     </select>
 
