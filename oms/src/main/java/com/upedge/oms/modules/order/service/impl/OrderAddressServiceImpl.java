@@ -40,11 +40,13 @@ public class OrderAddressServiceImpl implements OrderAddressService {
         }
         for (StoreOrderRelate storeOrderRelate : storeOrderRelateList) {
             OrderAddress orderAddress = orderAddressDao.selectByOrderId(storeOrderRelate.getOrderId());
+            Long orderAddressId = orderAddress.getId();
             if (!orderAddress.getCountry().equals(storeOrderAddress.getCountry())){
                 orderService.orderUpdateToAreaId(storeOrderRelate.getOrderId(),storeOrderAddress.getCountry());
             }
             BeanUtils.copyProperties(storeOrderAddress,orderAddress);
             orderAddress.setOrderId(storeOrderRelate.getOrderId());
+            orderAddress.setId(orderAddressId);
             orderAddressDao.updateByPrimaryKey(orderAddress);
         }
     }
