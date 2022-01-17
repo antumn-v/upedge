@@ -8,6 +8,8 @@ public class RedisKey {
 
     public static final String STRING_METHOD_COUNTRY_UNIT_LIST = "method:country:unit:list";
 
+    public static final String STRING_TRACKING_COMPANY = "tracking:company:list";
+
     //待统计的退款订单信息
     public static final String LIST_CUSTOMER_ORDER_DAILY_REFUND_COUNT_UPDATE = "customer:order:daily:refund:count:update";
     //客户登陆提示
