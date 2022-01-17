@@ -50,7 +50,9 @@ public class CustomerProductQuoteController {
         List<CustomerProductQuote> customerProductQuotes = customerProductQuoteService.select(request);
         if (session.getApplicationId().equals(Constant.APP_APPLICATION_ID)){
             for (CustomerProductQuote customerProductQuote : customerProductQuotes) {
-                customerProductQuote.setQuotePrice(PriceUtils.cnyToUsdByDefaultRate(customerProductQuote.getQuotePrice()));
+                if (customerProductQuote.getQuoteState() == 1){
+                    customerProductQuote.setQuotePrice(PriceUtils.cnyToUsdByDefaultRate(customerProductQuote.getQuotePrice()));
+                }
             }
         }
         Long total = customerProductQuoteService.count(request);

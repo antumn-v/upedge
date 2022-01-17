@@ -5,7 +5,6 @@ import com.upedge.common.component.annotation.Permission;
 import com.upedge.common.constant.Constant;
 import com.upedge.common.constant.ResultCode;
 import com.upedge.common.exception.CustomerException;
-import com.upedge.common.model.order.vo.CustomerProductStockNumVo;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.web.util.UserUtil;
 import com.upedge.oms.modules.stock.entity.CustomerProductStock;
@@ -97,14 +96,14 @@ public class CustomerProductStockController {
     }
 
 
-    /**
-     * 根据variant_sku分组查询商品数量
-     */
-    @RequestMapping(value="/list", method=RequestMethod.GET)
-    public BaseResponse customerStockNum() {
-        List<CustomerProductStockNumVo> result = customerProductStockService.getCustomerStockNum();
-        return BaseResponse.success(result);
-    }
+//    /**
+//     * 根据variant_sku分组查询商品数量
+//     */
+//    @RequestMapping(value="/list", method=RequestMethod.GET)
+//    public BaseResponse customerStockNum() {
+//        List<CustomerProductStockNumVo> result = customerProductStockService.getCustomerStockNum();
+//        return BaseResponse.success(result);
+//    }
 
     /**
      * 备库管理/客户商品库存/同步库存
