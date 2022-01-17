@@ -5,6 +5,7 @@ import com.upedge.common.base.Page;
 import com.upedge.common.constant.BaseCode;
 import com.upedge.common.constant.Constant;
 import com.upedge.common.constant.ResultCode;
+import com.upedge.common.constant.key.RedisKey;
 import com.upedge.common.enums.CustomerExceptionEnum;
 import com.upedge.common.exception.CustomerException;
 import com.upedge.common.model.user.vo.*;
@@ -220,7 +221,7 @@ public class UserServiceImpl implements UserService {
         user = userSignUp(request);
 
         if (request.getAutoLogin()) {
-            Map<String, String> result = userSignIn(user, request.getApplicationId());
+            Map<String, Object> result = userSignIn(user, request.getApplicationId());
             return new CustomerSignUpResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS, result);
         }
 
@@ -267,7 +268,7 @@ public class UserServiceImpl implements UserService {
                 UserUtil.encryptPassword(request.getPassword(), request.getLoginName()))) {
             return new UserSignInResponse(ResultCode.FAIL_CODE, "user or password error");
         }
-        Map<String, String> result = userSignIn(user, applicationId);
+        Map<String, Object> result = userSignIn(user, applicationId);
         return new UserSignInResponse(ResultCode.SUCCESS_CODE, "login success!", result);
     }
 
@@ -381,9 +382,9 @@ public class UserServiceImpl implements UserService {
         return user;
     }
 
-    public Map<String, String> userSignIn(User user, Long applicationId) {
+    public Map<String, Object> userSignIn(User user, Long applicationId) {
         Long userId = user.getId();
-        Map<String, String> result = new HashMap<>();
+        Map<String, Object> result = new HashMap<>();
         String token = TokenUtil.genToken(userId);
         result.put("token", token);
         UserVo userVo = new UserVo();
@@ -418,9 +419,21 @@ public class UserServiceImpl implements UserService {
         UserUtil.setUser(redisTemplate, token, session);
         user.setLastLoginTime(new Date());
         userDao.refreshLoginData(user);
+        Boolean guideNotice = guideNotice(userId);
+        result.put("guideNotice",guideNotice);
         return result;
     }
 
+
+    public Boolean guideNotice(Long userId){
+        Long createTime = (Long) redisTemplate.opsForHash().get(RedisKey.HASH_CUSTOMER_LOGIN_NOTICE,userId.toString());
+        if (createTime != null){
+            return false;
+        }
+        createTime = System.currentTimeMillis();
+        redisTemplate.opsForHash().put(RedisKey.HASH_CUSTOMER_LOGIN_NOTICE,userId.toString(),createTime);
+        return true;
+    }
 
 //    public List<CustomerSetting> saveCustomerSetting(Long customerId) {
 //

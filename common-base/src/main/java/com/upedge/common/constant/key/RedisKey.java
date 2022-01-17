@@ -2,34 +2,20 @@ package com.upedge.common.constant.key;
 
 public class RedisKey {
 
-    public static final String KEY_RECHARGE_REQUEST_PROCESS = "key:recharge:request:process:";
-
     public static final String STRING_CUSTOMER_IOSS = "customer:ioss:";
 
     public static final String STRING_ALI1688_API = "1688_api_token";
 
-    //待处理的woocommerce订单
-    public static final String LIST_WOOCOMMERCE_ORDER_WEBHOOK = "webhook:woocommerce:order";
-
     public static final String STRING_METHOD_COUNTRY_UNIT_LIST = "method:country:unit:list";
 
-    public static final String LIST_WOOCOMMERCE_PRODUCT_WEBHOOK = "webhook:woocommerce:product";
-    //待处理的shoplazza订单
-    public static final String LIST_SHOPLAZZA_ORDER_WEBHOOK = "webhook:shoplazza:order";
-    //待处理的shopify订单
-    public static final String LIST_SHOPIFY_ORDER_WEBHOOK = "webhook:shopify:order";
-
-    public static final String LIST_SHOPIFY_PRODUCT_WEBHOOK = "webhook:shopify:product";
-    //待统计的支付订单信息
-    public static final String LIST_CUSTOMER_ORDER_DAILY_COUNT_UPDATE = "customer:order:daily:count:update";
     //待统计的退款订单信息
     public static final String LIST_CUSTOMER_ORDER_DAILY_REFUND_COUNT_UPDATE = "customer:order:daily:refund:count:update";
+    //客户登陆提示
+    public static final String HASH_CUSTOMER_LOGIN_NOTICE = "customer:login:notice";
     //当前月包裹美元汇率
     public static final String STRING_PACKAGE_CURRENT_MONTH_USD_RATE = "package:current:month:usd:rate";
     //客户经理信息，拼接客户经理ID
     public static final String STRING_MANAGER_INFO = "manager:info:";
-    //客户信息，拼接客户ID
-    public static final String STRING_CUSTOMER_INFO = "customer:info:";
     //账户佣金提现加锁
     public static final String STRING_ACCOUNT_COMMISSION_WITHDRAWAL = "account:commission:withdrawal:";
     //店铺订单生成订单加锁
@@ -80,12 +66,6 @@ public class RedisKey {
     public static final String SHIPPING_TEMPLATE="shipping:template:";
     //客户备库建议
     public static final String ZSET_CUSTOMER_STOCK_ADVICE = "customer:stock:advice:";
-    //速卖通验证信息
-    public static final String AE_TOKEN="aeToken";
-    /**
-     * 赛盒运输方式
-     */
-    public static final  String SAIHE_TRANSPORT_REDIS = "SAIHE_TRANSPORT_REDIS";
     /**
      * 普通订单产品未导入赛盒的产品集合hash 导入产品时移除
      */
@@ -107,22 +87,7 @@ public class RedisKey {
     public static final String HASH_COUNTRY_AREA_ID = "country:area:id:";
 
     /**
-     * redis锁    创建价格申请
-     */
-    public static final  String STRING_CREAT_PRODUCT_PRICE_APPLY = "creatProductPriceApply";
-
-    /**
-     * 审核产品价格调整申请 redis锁
-     */
-    public static final  String STRING_AUTO_PRODUCT_PRICE_APPLY = "autoProductPriceApply";
-
-    /**
      * redis锁    提现申请通过
      */
     public static final  String WITHDRAWAL_APPLICATION_PASSED = "Withdrawal application passed";
-
-    /**
-     * redis锁    客户上传sourcing商品
-     */
-    public static final  String UPLOAD_SOURCING_PRODUCT = "upload_sourcing_product";
 }
