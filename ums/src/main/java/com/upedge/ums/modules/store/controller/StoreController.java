@@ -134,7 +134,7 @@ public class StoreController {
     @GetMapping("/connect/shopify")
     public BaseResponse shopifyConnectRequest(@RequestParam("hmac") String hmac,
                                               @RequestParam("shop") String shop) {
-        Map<String, String> result = new HashMap<>();
+        Map<String, Object> result = new HashMap<>();
         result.put("url", null);
         result.put("token", null);
         HttpServletRequest request = RequestUtil.getRequest();

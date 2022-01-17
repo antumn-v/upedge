@@ -186,7 +186,7 @@ public class StoreServiceImpl implements StoreService {
         }
         Store store = storeDao.selectByStoreName(storeUrl);
         User user = null;
-        Map<String, String> result = new HashMap<>();
+        Map<String, Object> result = new HashMap<>();
         if (session == null){
             if(store != null){
                 user = userServiceImpl.selectByPrimaryKey(store.getUserId());
@@ -209,7 +209,7 @@ public class StoreServiceImpl implements StoreService {
                 redisTemplate.opsForHash().put(RedisKey.HASH_USER_NEED_RESET_PASSWTORD,user.getLoginName(),password);
             }
             result = userServiceImpl.userSignIn(user, 1L);
-            session = (Session) redisTemplate.opsForValue().get(TokenUtil.getTokenKey(result.get("token")));
+            session = (Session) redisTemplate.opsForValue().get(TokenUtil.getTokenKey((String) result.get("token")));
         }
 
         boolean b = false;
