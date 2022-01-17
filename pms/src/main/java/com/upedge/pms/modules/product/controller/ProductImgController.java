@@ -1,32 +1,28 @@
 package com.upedge.pms.modules.product.controller;
 
-import java.util.Arrays;
-import java.util.Map;
-
-import com.upedge.common.constant.ResultCode;
-import org.springframework.beans.factory.annotation.Autowired;
 import com.upedge.common.component.annotation.Permission;
-import com.upedge.pms.modules.product.entity.ProductImg;
-import com.upedge.pms.modules.product.service.ProductImgService;
-import org.springframework.web.bind.annotation.*;
-import java.util.List;
 import com.upedge.common.constant.Constant;
+import com.upedge.common.constant.ResultCode;
+import com.upedge.pms.modules.product.entity.ProductImg;
 import com.upedge.pms.modules.product.request.ProductImgAddRequest;
 import com.upedge.pms.modules.product.request.ProductImgListRequest;
 import com.upedge.pms.modules.product.request.ProductImgUpdateRequest;
+import com.upedge.pms.modules.product.response.*;
+import com.upedge.pms.modules.product.service.ProductImgService;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
 
-import com.upedge.pms.modules.product.response.ProductImgAddResponse;
-import com.upedge.pms.modules.product.response.ProductImgDelResponse;
-import com.upedge.pms.modules.product.response.ProductImgInfoResponse;
-import com.upedge.pms.modules.product.response.ProductImgListResponse;
-import com.upedge.pms.modules.product.response.ProductImgUpdateResponse;
 import javax.validation.Valid;
+import java.util.List;
 
 /**
  * 商品图片表
  *
  * @author gx
  */
+@Api(tags = "产品图片")
 @RestController
 @RequestMapping("/productImg")
 public class ProductImgController {
@@ -69,6 +65,7 @@ public class ProductImgController {
         return res;
     }
 
+    @ApiOperation("图片修改")
     @RequestMapping(value="/update/{id}", method=RequestMethod.POST)
     @Permission(permission = "product:productimg:update")
     public ProductImgUpdateResponse update(@PathVariable Long id,@RequestBody @Valid ProductImgUpdateRequest request) {
