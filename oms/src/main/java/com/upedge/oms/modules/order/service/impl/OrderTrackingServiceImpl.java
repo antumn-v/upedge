@@ -1,6 +1,7 @@
 package com.upedge.oms.modules.order.service.impl;
 
 import com.upedge.common.base.Page;
+import com.upedge.common.utils.ListUtils;
 import com.upedge.oms.modules.fulfillment.service.FulfillmentService;
 import com.upedge.oms.modules.order.dao.OrderTrackingDao;
 import com.upedge.oms.modules.order.entity.OrderTracking;
@@ -21,6 +22,14 @@ public class OrderTrackingServiceImpl  implements OrderTrackingService {
 
     @Autowired
     private FulfillmentService fulfillmentService;
+
+    @Override
+    public List<OrderTracking> listOrderTrackingByOrderIds(List<Long> orderIds) {
+        if (ListUtils.isNotEmpty(orderIds)){
+            return orderTrackingDao.listOrderTrackingByOrderIds(orderIds);
+        }
+        return null;
+    }
 
     @Override
     public List<Long> selectOrderIdByState(Integer state) {

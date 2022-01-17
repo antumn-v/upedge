@@ -449,7 +449,6 @@
             inner join order_item oi
             on oi.order_id = o.id
         </if>
-
         <if test="t.shipNumber != null">
             inner join order_tracking ot
             on ot.order_id = o.id

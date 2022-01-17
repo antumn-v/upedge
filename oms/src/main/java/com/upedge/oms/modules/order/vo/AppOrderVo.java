@@ -1,7 +1,6 @@
 package com.upedge.oms.modules.order.vo;
 
 import com.upedge.oms.modules.order.entity.OrderAddress;
-import com.upedge.oms.modules.order.entity.OrderTracking;
 import lombok.Data;
 
 import java.math.BigDecimal;
@@ -37,6 +36,8 @@ public class AppOrderVo {
     private Long shipMethodId;
 
     private String shipMethodName;
+
+    private String trackingCode;
 
     private BigDecimal shipPrice;
 
@@ -101,8 +102,6 @@ public class AppOrderVo {
     private BigDecimal vatAmount = BigDecimal.ZERO;
 
     private List<AppStoreOrderVo> storeOrderVos;
-
-    private OrderTracking orderTracking;
 
     private OrderAddress orderAddress;
 

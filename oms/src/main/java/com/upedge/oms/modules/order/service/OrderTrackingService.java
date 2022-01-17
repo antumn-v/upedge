@@ -6,6 +6,8 @@ import java.util.List;
 
 public interface OrderTrackingService {
 
+    List<OrderTracking> listOrderTrackingByOrderIds( List<Long> orderIds);
+
     List<Long> selectOrderIdByState(Integer state);
 
     OrderTracking queryOrderTrackingByOrderId(Long id);

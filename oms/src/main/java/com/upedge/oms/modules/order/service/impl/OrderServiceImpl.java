@@ -2,7 +2,6 @@ package com.upedge.oms.modules.order.service.impl;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
 import com.upedge.common.base.BaseResponse;
 import com.upedge.common.base.Page;
 import com.upedge.common.constant.*;
@@ -20,8 +19,6 @@ import com.upedge.common.model.pms.quote.CustomerProductQuoteVo;
 import com.upedge.common.model.pms.request.CustomerProductQuoteSearchRequest;
 import com.upedge.common.model.product.ListVariantsRequest;
 import com.upedge.common.model.product.ProductVariantTo;
-import com.upedge.common.model.product.VariantDetail;
-import com.upedge.common.model.product.request.ProductVariantShipsRequest;
 import com.upedge.common.model.ship.request.ShipMethodSearchRequest;
 import com.upedge.common.model.ship.request.ShippingMethodsRequest;
 import com.upedge.common.model.ship.response.ShipMethodSearchResponse;
@@ -195,7 +192,12 @@ public class OrderServiceImpl implements OrderService {
             });
             appOrderVo.getStoreOrderVos().add(appStoreOrderVo);
         }
-        appOrderVo.setOrderTracking(orderTrackingService.queryOrderTrackingByOrderId(id, OrderType.NORMAL));
+        if (appOrderVo.getShipState() == 1){
+            OrderTracking orderTracking = orderTrackingService.queryOrderTrackingByOrderId(id, OrderType.NORMAL);
+            if (orderTracking != null){
+                appOrderVo.setTrackingCode(orderTracking.getTrackingCode());
+            }
+        }
         OrderAddress orderAddress = orderAddressDao.selectByOrderId(id);
         appOrderVo.setOrderAddress(orderAddress);
         if (null != appOrderVo.getShipMethodId()) {
@@ -205,7 +207,6 @@ public class OrderServiceImpl implements OrderService {
             }
         }
         completeOrderStoreUrl(appOrderVo);
-//        appOrderVo.setNote((String) redisTemplate.opsForValue().get(RedisKey.STRING_ORDER_NOTE + appOrderVo.getId()));
         return appOrderVo;
     }
 
@@ -224,12 +225,16 @@ public class OrderServiceImpl implements OrderService {
         } else {
             storeOrderVos = orderItemDao.selectAppOrderItemByOrderIds(appOrderVos);
         }
+        List<Long> shippedOrderIds = new ArrayList<>();
         for (AppOrderVo orderVo : appOrderVos) {
             if (1 == orderVo.getPayState()) {
                 ShippingMethodRedis shippingMethodRedis = (ShippingMethodRedis) redisTemplate.opsForHash().get(RedisKey.SHIPPING_METHOD, orderVo.getShipMethodId().toString());
                 if (null != shippingMethodRedis) {
                     orderVo.setShipMethodName(shippingMethodRedis.getName());
                 }
+            }
+            if (1 == orderVo.getShipState()){
+                shippedOrderIds.add(orderVo.getId());
             }
             orderVo.setStoreOrderVos(new ArrayList<>());
             for (AppStoreOrderVo storeOrderVo : storeOrderVos) {
@@ -240,7 +245,28 @@ public class OrderServiceImpl implements OrderService {
             }
             completeOrderStoreUrl(orderVo);
         }
+        completeOrderTrackingCode(appOrderVos);
         return appOrderVos;
+    }
+
+    void completeOrderTrackingCode(List<AppOrderVo> appOrderVos){
+        Map<Long,AppOrderVo> shippedOrderMap = new HashMap<>();
+        List<Long> shippedOrderIds = new ArrayList<>();
+        for (AppOrderVo appOrderVo : appOrderVos) {
+            if (appOrderVo.getShipState() == 1){
+                shippedOrderIds.add(appOrderVo.getId());
+                shippedOrderMap.put(appOrderVo.getId(),appOrderVo);
+            }
+        }
+        if (ListUtils.isNotEmpty(shippedOrderIds)){
+            List<OrderTracking> orderTrackings = orderTrackingService.listOrderTrackingByOrderIds(shippedOrderIds);
+            if (ListUtils.isNotEmpty(orderTrackings)){
+                for (OrderTracking orderTracking : orderTrackings) {
+                    AppOrderVo appOrderVo = shippedOrderMap.get(orderTracking.getOrderId());
+                    appOrderVo.setTrackingCode(orderTracking.getTrackingCode());
+                }
+            }
+        }
     }
 
     void completeOrderStoreUrl(AppOrderVo orderVo) {
@@ -386,7 +412,7 @@ public class OrderServiceImpl implements OrderService {
             page.setT(orderItem);
             List<OrderItem> items = orderItemDao.select(page);
             BigDecimal weight = BigDecimal.ZERO;
-            BigDecimal volumn = BigDecimal.ZERO;
+            BigDecimal volume = BigDecimal.ZERO;
             List<String> strings = new ArrayList<>();
             for (OrderItem item : items) {
                 if (null == item.getAdminVariantWeight()
@@ -396,7 +422,7 @@ public class OrderServiceImpl implements OrderService {
                     return null;
                 }
                 weight = weight.add(item.getAdminVariantWeight().multiply(new BigDecimal(item.getQuantity())));
-                volumn = volumn.add(item.getAdminVariantVolume().multiply(new BigDecimal(item.getQuantity())));
+                volume = volume.add(item.getAdminVariantVolume().multiply(new BigDecimal(item.getQuantity())));
                 strings.add(RedisKey.SHIPPING_TEMPLATED_METHODS + item.getShippingId());
             }
             if (ListUtils.isEmpty(strings)) {
@@ -411,7 +437,7 @@ public class OrderServiceImpl implements OrderService {
                 ShipMethodSearchRequest searchRequest = new ShipMethodSearchRequest();
                 searchRequest.setToAreaId(areaId);
                 searchRequest.setWeight(weight);
-                searchRequest.setVolumeWeight(volumn);
+                searchRequest.setVolumeWeight(volume);
                 searchRequest.setMethodIds(methodIds);
                 ShipMethodSearchResponse searchResponse = tmsFeignClient.shipSearch(searchRequest);
                 if (searchResponse.getCode() == ResultCode.SUCCESS_CODE) {
@@ -424,25 +450,6 @@ public class OrderServiceImpl implements OrderService {
         }
         return null;
 
-    }
-
-    ShipDetail orderShipDetail(Long orderId, Long customerId, Long areaId, Long shipMethodId) {
-        if (null == shipMethodId) {
-            return null;
-        }
-        List<VariantDetail> variantDetails = orderItemDao.selectAdminVariantDetailByOrder(orderId);
-
-        ProductVariantShipsRequest request = new ProductVariantShipsRequest();
-        request.setAreaId(areaId);
-        request.setCustomerId(customerId);
-        request.setVariantDetails(variantDetails);
-        request.setShipMethodId(shipMethodId);
-        BaseResponse response = pmsFeignClient.productSearchShips(request);
-        if (response.getCode() == ResultCode.SUCCESS_CODE) {
-            ShipDetail shipDetail = JSONObject.parseObject(JSON.toJSONString(response.getData())).toJavaObject(ShipDetail.class);
-            return shipDetail;
-        }
-        return null;
     }
 
     /**
