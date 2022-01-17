@@ -58,5 +58,7 @@ public class OrderTracking{
 	 */
 	private Integer orderTrackingType;
 
+	private String trackingCompany;
+
 
 }

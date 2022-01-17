@@ -54,7 +54,6 @@ import com.upedge.oms.modules.rules.dto.ShipRuleConditionDto;
 import com.upedge.oms.modules.rules.entity.OrderShipRule;
 import com.upedge.oms.modules.rules.service.OrderShipRuleService;
 import com.upedge.oms.modules.stock.dao.CustomerProductStockDao;
-import com.upedge.oms.modules.tickets.vo.SupportTicketsVo;
 import com.upedge.oms.modules.vat.service.VatRuleService;
 import com.upedge.thirdparty.saihe.entity.SaiheOrder;
 import com.upedge.thirdparty.saihe.entity.SaiheOrderItem;
@@ -141,6 +140,7 @@ public class OrderServiceImpl implements OrderService {
 
     @Autowired
     OrderFulfillmentService orderFulfillmentService;
+
 
     /**
      * 冗余订单物流单元信息
@@ -614,10 +614,6 @@ public class OrderServiceImpl implements OrderService {
     }
 
 
-    @Override
-    public SupportTicketsVo orderTicketDetail(Long id) {
-        return null;
-    }
 
     @Override
     public int initShipByShipUnitId(Long shipUnitId) {

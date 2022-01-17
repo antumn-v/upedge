@@ -28,6 +28,8 @@ public class ShippingMethodUpdateRequest{
      * 
      */
     private String saiheTransportName;
+
+    private String trackingCompany;
     /**
      * 
      */
@@ -56,6 +58,7 @@ public class ShippingMethodUpdateRequest{
         shippingMethod.setSaiheTransportId(saiheTransportId);
         shippingMethod.setSaiheTransportName(saiheTransportName);
         shippingMethod.setTrackingUrl(trackingUrl);
+        shippingMethod.setTrackingCompany(trackingCompany);
         shippingMethod.setWeightType(weightType);
         shippingMethod.setTrackType(trackType);
         shippingMethod.setPaypalCarrierEnum(paypalCarrierEnum);

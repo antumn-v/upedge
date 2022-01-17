@@ -30,9 +30,6 @@ import java.util.Set;
  */
 public interface OrderService{
 
-
-    SupportTicketsVo orderTicketDetail(Long id);
-
     int initShipByShipUnitId(Long shipUnitId);
 
     BaseResponse createReshipOrder(Long id);

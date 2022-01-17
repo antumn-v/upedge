@@ -102,6 +102,7 @@ public class OrderFulfillmentServiceImpl implements OrderFulfillmentService {
         }
         ShippingMethodRedis shippingMethodRedis = getShipMethodByTransportId(orderTracking.getTransportId());
         if (null == shippingMethodRedis){
+            orderTracking.setTrackingCompany(shippingMethodRedis.getTrackingCompany());
             orderTracking.setState(0);
             orderTrackingDao.updateOrderTracking(orderTracking);
             return;
@@ -187,11 +188,13 @@ public class OrderFulfillmentServiceImpl implements OrderFulfillmentService {
             locations = ShopifyShopApi.getShopifyLocations(storeVo.getStoreName(), storeVo.getApiToken());
             redisTemplate.opsForValue().set(storeLocationKey, locations);
         }
+
         Map<String,Object> fulfillmentMap = new HashMap<>();
         Map<String, Object> map = new HashMap<>();
         map.put("tracking_number", orderTracking.getTrackingCode());
-        map.put("tracking_company", orderTracking.getShippingMethodName());
+        map.put("tracking_company", orderTracking.getTrackingCompany());
         map.put("notify_customer", storeVo.isEmailPrompt());
+        map.put("tracking_url","https://t.17track.net/en#nums=" + orderTracking.getTrackingCode());
         map.put("line_items", lineItems);
         for (ShopifyLocation location : locations) {
             map.put("location_id", location.getId());
@@ -220,8 +223,9 @@ public class OrderFulfillmentServiceImpl implements OrderFulfillmentService {
                 Map<String, Object> fulfillment = new HashMap<>();
                 Map<String, Object> map = new HashMap<>();
                 map.put("tracking_number", orderTracking.getTrackingCode());
-                map.put("tracking_company", orderTracking.getShippingMethodName());
+                map.put("tracking_company", orderTracking.getTrackingCompany());
                 map.put("notify_customer", storeVo.isEmailPrompt());
+                map.put("tracking_url","https://t.17track.net/en#nums=" + orderTracking.getTrackingCode());
                 fulfillment.put("fulfillment", map);
                 ShopifyFulfillment updateShopFulfillment = ShopifyOrderApi.orderFulfillmentUpdate(fulfillment, storeVo.getApiToken(), storeVo.getStoreName(), platOrderId, shopifyFulfillment.getId());
                 saveStoreOrderFulfillment(fulfillment,storeVo,orderTracking,platOrderId,fulfillment_post,storeOrderId);

@@ -30,6 +30,8 @@ import com.upedge.oms.modules.order.service.OrderService;
 import com.upedge.oms.modules.order.vo.*;
 import com.upedge.oms.modules.orderShippingUnit.service.OrderShippingUnitService;
 import com.upedge.oms.modules.orderShippingUnit.vo.OrderShippingUnitVo;
+import com.upedge.oms.modules.tickets.service.SupportTicketsService;
+import com.upedge.oms.modules.tickets.vo.SupportTicketsVo;
 import com.upedge.thirdparty.saihe.config.SaiheConfig;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -69,6 +71,9 @@ public class OrderController {
 
     @Autowired
     OrderActionService orderActionService;
+
+    @Autowired
+    SupportTicketsService supportTicketsService;
 
     @Autowired
     RedisTemplate<String, Object> redisTemplate;
@@ -329,6 +334,16 @@ public class OrderController {
     public BaseResponse orderProfit(@PathVariable Long id) {
         OrderProfitVo profit = orderProfitService.selectByPrimaryKey(id);
         return new BaseResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS, profit);
+    }
+
+    @ApiOperation("订单ticket详情")
+    @GetMapping("/ticketDetail/{orderId}")
+    public BaseResponse orderTicketDetail(@PathVariable Long orderId){
+        SupportTicketsVo supportTicketsVo = supportTicketsService.selectOpenTicketDetailByOrderId(orderId);
+        if(null == supportTicketsVo){
+            return BaseResponse.failed();
+        }
+        return BaseResponse.success(supportTicketsVo);
     }
 
     /**

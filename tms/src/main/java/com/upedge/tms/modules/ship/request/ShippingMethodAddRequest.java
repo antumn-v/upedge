@@ -37,6 +37,10 @@ public class ShippingMethodAddRequest{
     */
     private String trackingUrl;
     /**
+     * 物流公司
+     */
+    private String trackingCompany;
+    /**
     * 0:实重 1:体积重
     */
     @NotNull
@@ -73,6 +77,7 @@ public class ShippingMethodAddRequest{
         shippingMethod.setSaiheTransportId(saiheTransportId);
         shippingMethod.setSaiheTransportName(saiheTransportName);
         shippingMethod.setTrackingUrl(trackingUrl);
+        shippingMethod.setTrackingCompany(trackingCompany);
         shippingMethod.setWeightType(weightType);
         shippingMethod.setTrackType(trackType);
         shippingMethod.setPaypalCarrierEnum(paypalCarrierEnum);

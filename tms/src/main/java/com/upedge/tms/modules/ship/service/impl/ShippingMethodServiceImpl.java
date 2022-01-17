@@ -93,7 +93,7 @@ public class ShippingMethodServiceImpl implements ShippingMethodService {
     public int deleteByPrimaryKey(Long id) {
         ShippingMethod record = new ShippingMethod();
         record.setId(id);
-        redisTemplate.opsForHash().delete(RedisKey.SHIPPING_METHOD,String.valueOf(id));
+        redisTemplate.opsForHash().delete(RedisKey.SHIPPING_METHOD, String.valueOf(id));
         return shippingMethodDao.deleteByPrimaryKey(record);
     }
 
@@ -186,20 +186,20 @@ public class ShippingMethodServiceImpl implements ShippingMethodService {
                     shipDetails.add(shipDetail);
                 }
             }
-            shipDetails.sort(new Comparator<ShipDetail>() {
-                @Override
-                public int compare(ShipDetail o1, ShipDetail o2) {
-                    return o1.getPrice().compareTo(o2.getPrice());
-                }
-            });
         }
+        shipDetails.sort(new Comparator<ShipDetail>() {
+            @Override
+            public int compare(ShipDetail o1, ShipDetail o2) {
+                return o1.getPrice().compareTo(o2.getPrice());
+            }
+        });
         return shipDetails;
     }
 
     @Override
     public BaseResponse addShipMethod(ShippingMethodAddRequest request) throws CustomerException {
         ShippingMethod shippingMethod = shippingMethodDao.getShippingMethodByName(request.getName());
-        if (null != shippingMethod){
+        if (null != shippingMethod) {
             return BaseResponse.failed("运输方式名称不能重复");
         }
         Long methodId = IdGenerate.nextId();
@@ -210,8 +210,8 @@ public class ShippingMethodServiceImpl implements ShippingMethodService {
         List<ShippingMethodTemplate> shippingMethodTemplates = new ArrayList<>();
         List<Long> templateIds = request.getTemplateIds();
         for (Long templateId : templateIds) {
-            ShippingTemplateRedis shippingTemplateRedis = (ShippingTemplateRedis) redisTemplate.opsForHash().get(RedisKey.SHIPPING_TEMPLATE,String.valueOf(templateId));
-            if (null == shippingTemplateRedis){
+            ShippingTemplateRedis shippingTemplateRedis = (ShippingTemplateRedis) redisTemplate.opsForHash().get(RedisKey.SHIPPING_TEMPLATE, String.valueOf(templateId));
+            if (null == shippingTemplateRedis) {
                 continue;
             }
             ShippingMethodTemplate shippingMethodTemplate = new ShippingMethodTemplate();
@@ -219,7 +219,7 @@ public class ShippingMethodServiceImpl implements ShippingMethodService {
             shippingMethodTemplate.setMethodId(methodId);
             shippingMethodTemplates.add(shippingMethodTemplate);
         }
-        if (ListUtils.isEmpty(shippingMethodTemplates)){
+        if (ListUtils.isEmpty(shippingMethodTemplates)) {
             throw new CustomerException("运输模板信息错误");
         }
         shippingMethodTemplateDao.insertByBatch(shippingMethodTemplates);
@@ -230,10 +230,10 @@ public class ShippingMethodServiceImpl implements ShippingMethodService {
     }
 
     @Override
-    public BaseResponse updateShipMethod(ShippingMethodUpdateRequest request,Long methodId) throws CustomerException {
+    public BaseResponse updateShipMethod(ShippingMethodUpdateRequest request, Long methodId) throws CustomerException {
         ShippingMethod shippingMethod = shippingMethodDao.selectByPrimaryKey(methodId);
         Integer weightType = shippingMethod.getWeightType();
-        if (null == shippingMethod){
+        if (null == shippingMethod) {
             return BaseResponse.failed("运输方式不存在");
         }
         shippingMethod = request.toShippingMethod(methodId);
@@ -243,8 +243,8 @@ public class ShippingMethodServiceImpl implements ShippingMethodService {
         List<ShippingMethodTemplate> shippingMethodTemplates = new ArrayList<>();
         List<Long> templateIds = request.getTemplateIds();
         for (Long templateId : templateIds) {
-            ShippingTemplateRedis shippingTemplateRedis = (ShippingTemplateRedis) redisTemplate.opsForHash().get(RedisKey.SHIPPING_TEMPLATE,String.valueOf(templateId));
-            if (null == shippingTemplateRedis){
+            ShippingTemplateRedis shippingTemplateRedis = (ShippingTemplateRedis) redisTemplate.opsForHash().get(RedisKey.SHIPPING_TEMPLATE, String.valueOf(templateId));
+            if (null == shippingTemplateRedis) {
                 continue;
             }
             ShippingMethodTemplate shippingMethodTemplate = new ShippingMethodTemplate();
@@ -252,15 +252,15 @@ public class ShippingMethodServiceImpl implements ShippingMethodService {
             shippingMethodTemplate.setMethodId(methodId);
             shippingMethodTemplates.add(shippingMethodTemplate);
         }
-        if (ListUtils.isEmpty(shippingMethodTemplates)){
+        if (ListUtils.isEmpty(shippingMethodTemplates)) {
             throw new CustomerException("运输模板信息错误");
         }
         shippingMethodTemplateDao.deleteByShipMethodId(methodId);
         shippingMethodTemplateDao.insertByBatch(shippingMethodTemplates);
         if (request.getWeightType() != null
-        && weightType != request.getWeightType()){
+                && weightType != request.getWeightType()) {
             boolean b = sendMq(shippingMethod.getId());
-            if (!b){
+            if (!b) {
                 throw new CustomerException("mq异常，请重新提交或联系IT");
             }
         }
@@ -364,7 +364,7 @@ public class ShippingMethodServiceImpl implements ShippingMethodService {
         Long total = count(request);
         request.setTotal(total);
         List<MethodIdTemplateNameVo> methodIdTemplateNameVos = shippingMethodTemplateDao.selectMethodTemplateNames();
-        Map<Long,List<ShippingTemplateVo>> map = new HashMap<>();
+        Map<Long, List<ShippingTemplateVo>> map = new HashMap<>();
         for (MethodIdTemplateNameVo methodIdTemplateNameVo : methodIdTemplateNameVos) {
             map.put(methodIdTemplateNameVo.getMethodId(), methodIdTemplateNameVo.getShippingTemplateVos());
         }
@@ -373,7 +373,7 @@ public class ShippingMethodServiceImpl implements ShippingMethodService {
             ShippingMethodVo shippingMethodVo = new ShippingMethodVo();
             BeanUtils.copyProperties(shippingMethod, shippingMethodVo);
             shippingMethodVoList.add(shippingMethodVo);
-            if (map.get(shippingMethod.getId()) != null){
+            if (map.get(shippingMethod.getId()) != null) {
                 shippingMethodVo.setShippingTemplateVos(map.get(shippingMethod.getId()));
             }
         });
@@ -409,10 +409,10 @@ public class ShippingMethodServiceImpl implements ShippingMethodService {
         shippingMethodDao.updateShippingMethodState(id, 0);
         // 调用mq
         boolean b = sendMq(id);
-        if (!b){
+        if (!b) {
             throw new CustomerException("mq异常，请重新提交或联系IT");
         }
-        redisTemplate.opsForHash().delete(RedisKey.SHIPPING_METHOD,id.toString());
+        redisTemplate.opsForHash().delete(RedisKey.SHIPPING_METHOD, id.toString());
         shippingMethodTemplateService.redisInit();
         return new ShippingMethodDisableResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS);
     }
@@ -466,16 +466,16 @@ public class ShippingMethodServiceImpl implements ShippingMethodService {
 
     @Override
     public boolean sendMq(Long shippingMethodId) {
-      List<ShippingUnit> list =  shippingUnitDao.selectListByShippingMethodId(shippingMethodId);
+        List<ShippingUnit> list = shippingUnitDao.selectListByShippingMethodId(shippingMethodId);
         List<Long> collect = list.stream().map(e -> e.getId()).collect(Collectors.toList());
         return tmsProducerService.sendMessage(collect);
     }
 
 
-    public void updateRedisShipMethod(Long methodId){
+    public void updateRedisShipMethod(Long methodId) {
         ShippingMethod shippingMethod = selectByPrimaryKey(methodId);
         ShippingMethodRedis shippingMethodRedis = new ShippingMethodRedis();
-        BeanUtils.copyProperties(shippingMethod,shippingMethodRedis);
-        redisTemplate.opsForHash().put(RedisKey.SHIPPING_METHOD,String.valueOf(methodId),shippingMethodRedis);
+        BeanUtils.copyProperties(shippingMethod, shippingMethodRedis);
+        redisTemplate.opsForHash().put(RedisKey.SHIPPING_METHOD, String.valueOf(methodId), shippingMethodRedis);
     }
 }

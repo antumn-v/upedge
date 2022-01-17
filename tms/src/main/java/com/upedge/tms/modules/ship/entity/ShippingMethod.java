@@ -34,6 +34,8 @@ private String saiheTransportName;
 	 * 
 	 */
 private String trackingUrl;
+
+private String trackingCompany;
 	/**
 	 * 0:实重 1:体积重
 	 */

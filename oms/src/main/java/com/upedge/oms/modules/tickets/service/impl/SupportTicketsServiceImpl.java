@@ -103,6 +103,19 @@ public class SupportTicketsServiceImpl implements SupportTicketsService {
     }
 
     @Override
+    public SupportTicketsVo selectOpenTicketDetailByOrderId(Long orderId) {
+        SupportTickets supportTickets = supportTicketsDao.selectOpenTicketByOrderId(orderId);
+        if (null == supportTickets){
+            return null;
+        }
+        SupportTicketsVo supportTicketsVo = new SupportTicketsVo();
+        BeanUtils.copyProperties(supportTickets, supportTicketsVo);
+        AppOrderVo appOrderVo = orderService.appOrderDetail(supportTickets.getOrderId());
+        supportTicketsVo.setOrderVo(appOrderVo);
+        return supportTicketsVo;
+    }
+
+    @Override
     public SupportTicketsVo ticketDetail(Long id) {
         SupportTickets supportTickets = selectByPrimaryKey(id);
         if (null == supportTickets) {

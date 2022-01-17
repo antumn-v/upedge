@@ -18,6 +18,8 @@ import java.util.List;
  */
 public interface SupportTicketsService{
 
+    SupportTicketsVo selectOpenTicketDetailByOrderId(Long orderId);
+
     SupportTicketsVo ticketDetail(Long id);
 
     BaseResponse claimTicket(Long id,Session session);

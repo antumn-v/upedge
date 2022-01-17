@@ -11,6 +11,7 @@
         <result property="saiheTransportId" column="saihe_transport_id"/>
         <result property="saiheTransportName" column="saihe_transport_name"/>
         <result property="trackingUrl" column="tracking_url"/>
+        <result property="trackingCompany" column="tracking_company"/>
         <result property="weightType" column="weight_type"/>
         <result property="trackType" column="track_type"/>
         <result property="paypalCarrierEnum" column="paypal_carrier_enum"/>
@@ -49,10 +50,10 @@
         update shipping_method
         <set>
             <if test="name != null">
-                `name` = #{name},
+                name = #{name},
             </if>
             <if test="desc != null">
-                `desc` = #{desc},
+                desc = #{desc},
             </if>
             <if test="saiheTransportId != null">
                 saihe_transport_id = #{saiheTransportId},
@@ -62,6 +63,9 @@
             </if>
             <if test="trackingUrl != null">
                 tracking_url = #{trackingUrl},
+            </if>
+            <if test="trackingCompany != null">
+                tracking_company = #{trackingCompany},
             </if>
             <if test="weightType != null">
                 weight_type = #{weightType},
@@ -73,13 +77,19 @@
                 paypal_carrier_enum = #{paypalCarrierEnum},
             </if>
             <if test="state != null">
-                `state` = #{state},
+                state = #{state},
             </if>
             <if test="createTime != null">
                 create_time = #{createTime},
             </if>
             <if test="updateTime != null">
                 update_time = #{updateTime},
+            </if>
+            <if test="unitNum != null">
+                unit_num = #{unitNum},
+            </if>
+            <if test="shipNum != null">
+                ship_num = #{shipNum},
             </if>
         </set>
         where id = #{id}
@@ -88,18 +98,21 @@
     <update id="updateByPrimaryKey" parameterType="com.upedge.tms.modules.ship.entity.ShippingMethod">
         update shipping_method
         <set>
-        id = #{id},
-        `name` = #{name},
-        `desc` = #{desc},
-        saihe_transport_id = #{saiheTransportId},
-        saihe_transport_name = #{saiheTransportName},
-        tracking_url = #{trackingUrl},
-        weight_type = #{weightType},
-        track_type = #{trackType},
-        paypal_carrier_enum = #{paypalCarrierEnum},
-        state = #{state},
-        create_time = #{createTime},
-        update_time = #{updateTime}
+            id = #{id},
+            name = #{name},
+            desc = #{desc},
+            saihe_transport_id = #{saiheTransportId},
+            saihe_transport_name = #{saiheTransportName},
+            tracking_url = #{trackingUrl},
+            tracking_company = #{trackingCompany},
+            weight_type = #{weightType},
+            track_type = #{trackType},
+            paypal_carrier_enum = #{paypalCarrierEnum},
+            state = #{state},
+            create_time = #{createTime},
+            update_time = #{updateTime},
+            unit_num = #{unitNum},
+            ship_num = #{shipNum},
         </set>
         where id = #{id}
     </update>
@@ -108,17 +121,20 @@
         insert into shipping_method
         <trim prefix="(" suffix=")" suffixOverrides=",">
             id,
-            `name`,
-            `desc`,
+            name,
+            desc,
             saihe_transport_id,
             saihe_transport_name,
             tracking_url,
+            tracking_company,
             weight_type,
             track_type,
             paypal_carrier_enum,
             state,
             create_time,
-            update_time
+            update_time,
+            unit_num,
+            ship_num
         </trim>
         values (
         #{id},
@@ -127,12 +143,15 @@
         #{saiheTransportId},
         #{saiheTransportName},
         #{trackingUrl},
+        #{trackingCompany},
         #{weightType},
         #{trackType},
         #{paypalCarrierEnum},
         #{state},
         #{createTime},
-        #{updateTime}
+        #{updateTime},
+        #{unitNum},
+        #{shipNum}
         )
     </insert>
 
@@ -140,41 +159,51 @@
         insert into shipping_method
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="id != null" >
-              id
+                id
             </if>
             <if test="name != null" >
-              `name`
+                name
             </if>
             <if test="desc != null" >
-              `desc`
+                desc
             </if>
             <if test="saiheTransportId != null" >
-              saihe_transport_id
+                saihe_transport_id
             </if>
             <if test="saiheTransportName != null" >
-              saihe_transport_name
+                saihe_transport_name
             </if>
             <if test="trackingUrl != null" >
-              tracking_url
+                tracking_url
+            </if>
+            <if test="trackingCompany != null" >
+                tracking_company
             </if>
             <if test="weightType != null" >
-              weight_type
+                weight_type
             </if>
             <if test="trackType != null" >
-              track_type
+                track_type
             </if>
             <if test="paypalCarrierEnum != null" >
-              paypal_carrier_enum
+                paypal_carrier_enum
             </if>
             <if test="state != null" >
-              state
+                state
             </if>
             <if test="createTime != null" >
-              create_time
+                create_time
             </if>
             <if test="updateTime != null" >
-              update_time
+                update_time
             </if>
+            <if test="unitNum != null" >
+                unit_num
+            </if>
+            <if test="shipNum != null" >
+                ship_num
+            </if>
+
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="id != null" >
@@ -195,6 +224,9 @@
             <if test="trackingUrl != null" >
                 #{trackingUrl}
             </if>
+            <if test="trackingCompany != null" >
+                #{trackingCompany}
+            </if>
             <if test="weightType != null" >
                 #{weightType}
             </if>
@@ -213,40 +245,53 @@
             <if test="updateTime != null" >
                 #{updateTime}
             </if>
+            <if test="unitNum != null" >
+                #{unitNum}
+            </if>
+            <if test="shipNum != null" >
+                #{shipNum}
+            </if>
+
         </trim>
     </insert>
 
     <insert id="insertByBatch" parameterType="java.util.List">
         insert into shipping_method
         <trim prefix="(" suffix=")" suffixOverrides=",">
-           id,
-           `name`,
-           `desc`,
-           saihe_transport_id,
-           saihe_transport_name,
-           tracking_url,
-           weight_type,
-           track_type,
-           paypal_carrier_enum,
-           state,
-           create_time,
-           update_time
+            id,
+            name,
+            desc,
+            saihe_transport_id,
+            saihe_transport_name,
+            tracking_url,
+            tracking_company,
+            weight_type,
+            track_type,
+            paypal_carrier_enum,
+            state,
+            create_time,
+            update_time,
+            unit_num,
+            ship_num
         </trim>
         values
         <foreach collection="list" item="item" index="index" separator=",">
             <trim prefix="(" suffix=")" suffixOverrides=",">
-               #{item.id},
-               #{item.name},
-               #{item.desc},
-               #{item.saiheTransportId},
-               #{item.saiheTransportName},
-               #{item.trackingUrl},
-               #{item.weightType},
-               #{item.trackType},
-               #{item.paypalCarrierEnum},
-               #{item.state},
-               #{item.createTime},
-               #{item.updateTime}
+                #{item.id},
+                #{item.name},
+                #{item.desc},
+                #{item.saiheTransportId},
+                #{item.saiheTransportName},
+                #{item.trackingUrl},
+                #{item.trackingCompany},
+                #{item.weightType},
+                #{item.trackType},
+                #{item.paypalCarrierEnum},
+                #{item.state},
+                #{item.createTime},
+                #{item.updateTime},
+                #{item.unitNum},
+                #{item.shipNum}
             </trim>
         </foreach>
     </insert>
@@ -256,43 +301,51 @@
             where
             <trim prefix=" " suffix=" " suffixOverrides=" and ">
                 1 = 1 and
-                    <if test="t.id != null">
-                        id = #{t.id} and
-                    </if>
-                    <if test="t.name != null">
-                      <!--  `name` = #{t.name} and -->
-                        `name` LIKE CONCAT('%',#{t.name},'%')  and
-                    </if>
-                    <if test="t.desc != null">
-                        `desc` = #{t.desc} and
-                    </if>
-                    <if test="t.saiheTransportId != null">
-                        saihe_transport_id = #{t.saiheTransportId} and
-                    </if>
-                    <if test="t.saiheTransportName != null">
-                        saihe_transport_name = #{t.saiheTransportName} and
-                    </if>
-                    <if test="t.trackingUrl != null">
-                        tracking_url = #{t.trackingUrl} and
-                    </if>
-                    <if test="t.weightType != null">
-                        weight_type = #{t.weightType} and
-                    </if>
-                    <if test="t.trackType != null">
-                        track_type = #{t.trackType} and
-                    </if>
-                    <if test="t.paypalCarrierEnum != null">
-                        paypal_carrier_enum = #{t.paypalCarrierEnum} and
-                    </if>
-                    <if test="t.state != null">
-                        state = #{t.state} and
-                    </if>
-                    <if test="t.createTime != null">
-                        create_time = #{t.createTime} and
-                    </if>
-                    <if test="t.updateTime != null">
-                        update_time = #{t.updateTime} and
-                    </if>
+                <if test="t.id != null">
+                    id = #{t.id} and
+                </if>
+                <if test="t.name != null">
+                    name = #{t.name} and
+                </if>
+                <if test="t.desc != null">
+                    desc = #{t.desc} and
+                </if>
+                <if test="t.saiheTransportId != null">
+                    saihe_transport_id = #{t.saiheTransportId} and
+                </if>
+                <if test="t.saiheTransportName != null">
+                    saihe_transport_name = #{t.saiheTransportName} and
+                </if>
+                <if test="t.trackingUrl != null">
+                    tracking_url = #{t.trackingUrl} and
+                </if>
+                <if test="t.trackingCompany != null">
+                    tracking_company = #{t.trackingCompany} and
+                </if>
+                <if test="t.weightType != null">
+                    weight_type = #{t.weightType} and
+                </if>
+                <if test="t.trackType != null">
+                    track_type = #{t.trackType} and
+                </if>
+                <if test="t.paypalCarrierEnum != null">
+                    paypal_carrier_enum = #{t.paypalCarrierEnum} and
+                </if>
+                <if test="t.state != null">
+                    state = #{t.state} and
+                </if>
+                <if test="t.createTime != null">
+                    create_time = #{t.createTime} and
+                </if>
+                <if test="t.updateTime != null">
+                    update_time = #{t.updateTime} and
+                </if>
+                <if test="t.unitNum != null">
+                    unit_num = #{t.unitNum} and
+                </if>
+                <if test="t.shipNum != null">
+                    ship_num = #{t.shipNum} and
+                </if>
             </trim>
         </if>
     </sql>
