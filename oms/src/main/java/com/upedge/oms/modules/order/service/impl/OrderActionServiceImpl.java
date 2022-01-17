@@ -248,7 +248,6 @@ public class OrderActionServiceImpl implements OrderActionService {
         List<OrderActionLog> orderActionLogs = new ArrayList<>();
 
         Date date = new Date();
-
         for (OrderActionLog orderActionLog : actionLogs) {
             Long newOrderId = orderActionLog.getNewOrderId();
             Order newOrder = null;
@@ -257,7 +256,6 @@ public class OrderActionServiceImpl implements OrderActionService {
                     newOrder = order;
                 } else {
                     newOrder = orderDao.selectByPrimaryKey(newOrderId);
-
                     if (0 != newOrder.getPayState() || 2 != order.getOrderType()) {
                         continue;
                     }
@@ -308,6 +306,7 @@ public class OrderActionServiceImpl implements OrderActionService {
         order.setId(id);
         order.setCreateTime(date);
         order.setOrderType(0);
+        order.setCnyProductAmount(BigDecimal.ZERO);
         orderDao.insert(order);
         orderItemDao.insertByBatch(items);
         orderActionLogDao.insertByBatch(orderActionLogs);
@@ -426,6 +425,7 @@ public class OrderActionServiceImpl implements OrderActionService {
                 newOrder.setId(newOrderId);
                 newOrder.setOrderType(0);
                 newOrder.setUpdateTime(date);
+                newOrder.setCnyProductAmount(BigDecimal.ZERO);
                 orders.add(newOrder);
                 newOrderIdMap.put(id,newOrderId);
 

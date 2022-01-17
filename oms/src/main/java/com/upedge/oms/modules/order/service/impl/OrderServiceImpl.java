@@ -746,7 +746,7 @@ public class OrderServiceImpl implements OrderService {
         if (quoteState != OrderConstant.QUOTE_STATE_QUOTING) {
             if (quoteProducts == 0) {
                 quoteState = OrderConstant.QUOTE_STATE_QUOTED;
-            } else if (quoteState == orderItems.size()) {
+            } else if (quoteProducts == orderItems.size()) {
                 quoteState = OrderConstant.QUOTE_STATE_UNQUOTED;
             } else {
                 quoteState = OrderConstant.QUOTE_STATE_PART_UNQUOTED;

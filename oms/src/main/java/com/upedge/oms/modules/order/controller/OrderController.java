@@ -24,6 +24,7 @@ import com.upedge.oms.modules.order.entity.OrderAddress;
 import com.upedge.oms.modules.order.request.*;
 import com.upedge.oms.modules.order.response.OrderListResponse;
 import com.upedge.oms.modules.order.response.OrderUpdateResponse;
+import com.upedge.oms.modules.order.service.OrderActionService;
 import com.upedge.oms.modules.order.service.OrderProfitService;
 import com.upedge.oms.modules.order.service.OrderService;
 import com.upedge.oms.modules.order.vo.*;
@@ -65,6 +66,10 @@ public class OrderController {
 
     @Autowired
     OrderProfitService orderProfitService;
+
+    @Autowired
+    OrderActionService orderActionService;
+
     @Autowired
     RedisTemplate<String, Object> redisTemplate;
     @Autowired
@@ -176,7 +181,6 @@ public class OrderController {
     }*/
 
 
-
     @ApiOperation("订单数量,参数同订单列表")
     @PostMapping("/count")
     public BaseResponse appOrderCount(@RequestBody AppOrderListRequest appOrderListRequest) {
@@ -197,11 +201,11 @@ public class OrderController {
                 @Override
                 public Boolean call() throws Exception {
                     AppOrderListRequest request = new AppOrderListRequest();
-                    BeanUtils.copyProperties(appOrderListRequest,request);
+                    BeanUtils.copyProperties(appOrderListRequest, request);
                     try {
                         AppOrderListDto appOrderList = request.getT();
                         AppOrderListDto appOrderListDto = new AppOrderListDto();
-                        BeanUtils.copyProperties(appOrderList,appOrderListDto);
+                        BeanUtils.copyProperties(appOrderList, appOrderListDto);
                         if (null == appOrderListDto) {
                             appOrderListDto = new AppOrderListDto();
                         } else {
@@ -249,33 +253,32 @@ public class OrderController {
         return new OrderListResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS, map, appOrderListRequest);
     }
 
-//    @ApiOperation("订单所有数量")
+    //    @ApiOperation("订单所有数量")
 //    @PostMapping("/allCount")
     public BaseResponse appOrderAllCount(@RequestBody AppOrderListRequest request) {
         Session session = UserUtil.getSession(redisTemplate);
         AppOrderListDto appOrderListDto = new AppOrderListDto();
-            if (session.getUserType() == BaseCode.USER_ROLE_NORMAL) {
-                List<Long> orgIds = session.getOrgIds();
-                if (ListUtils.isEmpty(orgIds)) {
-                    return new BaseResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS, new ArrayList<>(), request);
-                }
-                appOrderListDto.setOrgIds(orgIds);
+        if (session.getUserType() == BaseCode.USER_ROLE_NORMAL) {
+            List<Long> orgIds = session.getOrgIds();
+            if (ListUtils.isEmpty(orgIds)) {
+                return new BaseResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS, new ArrayList<>(), request);
             }
-            appOrderListDto.setShipState(0);
-            appOrderListDto.setPayState(0);
-            appOrderListDto.setRefundState(0);
-            appOrderListDto.setBeginTime(null);
-            appOrderListDto.setEndTime(null);
-            appOrderListDto.setCustomerId(session.getCustomerId());
-            request.setT(appOrderListDto);
-            Long total = orderService.selectAppOrderCount(request);
-            request.setTotal(total);
-        return BaseResponse.success(total,request);
+            appOrderListDto.setOrgIds(orgIds);
+        }
+        appOrderListDto.setShipState(0);
+        appOrderListDto.setPayState(0);
+        appOrderListDto.setRefundState(0);
+        appOrderListDto.setBeginTime(null);
+        appOrderListDto.setEndTime(null);
+        appOrderListDto.setCustomerId(session.getCustomerId());
+        request.setT(appOrderListDto);
+        Long total = orderService.selectAppOrderCount(request);
+        request.setTotal(total);
+        return BaseResponse.success(total, request);
     }
 
 
-
-//    @ApiOperation("未支付订单统计")
+    //    @ApiOperation("未支付订单统计")
 //    @GetMapping("/upPaid/count")
     public BaseResponse customerOrderUnPaidCount() {
         Session session = UserUtil.getSession(redisTemplate);
@@ -283,7 +286,7 @@ public class OrderController {
         return new BaseResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS, unPaidOrderCountVos);
     }
 
-//    @ApiOperation("订单产品列表")
+    //    @ApiOperation("订单产品列表")
 //    @GetMapping("/{orderId}/app/items")
     public BaseResponse getAppOrderItems(@PathVariable Long orderId) {
         List<AppOrderItemVo> appOrderItemVos = orderService.selectAppOrderItemByOrderId(orderId);
@@ -321,7 +324,7 @@ public class OrderController {
 
     }
 
-//    @ApiOperation("订单利润")
+    //    @ApiOperation("订单利润")
 //    @GetMapping("/{id}/profit")
     public BaseResponse orderProfit(@PathVariable Long id) {
         OrderProfitVo profit = orderProfitService.selectByPrimaryKey(id);
@@ -346,29 +349,29 @@ public class OrderController {
 
     @ApiOperation("订单修改运输方式")
     @PostMapping("/{id}/ship/update")
-    public BaseResponse orderUpdateShipDetail(@PathVariable Long id, @RequestBody ShipDetail shipDetail)  {
+    public BaseResponse orderUpdateShipDetail(@PathVariable Long id, @RequestBody ShipDetail shipDetail) {
         shipDetail = orderService.updateShipDetail(id, shipDetail);
         return BaseResponse.success(shipDetail);
     }
 
-//    @ApiOperation("订单能否发货判断")
+    //    @ApiOperation("订单能否发货判断")
 //    @PostMapping("/ship/verify")
     public BaseResponse orderShipVerify(@RequestBody List<Long> ids) {
         List<Long> idList = new ArrayList<>();
         for (Long id : ids) {
-            OrderShippingUnitVo orderShippingUnit = orderShippingUnitService.selectByOrderId(id,OrderType.NORMAL);
-            if (null != orderShippingUnit){
+            OrderShippingUnitVo orderShippingUnit = orderShippingUnitService.selectByOrderId(id, OrderType.NORMAL);
+            if (null != orderShippingUnit) {
                 continue;
             }
             ShipDetail shipDetail = orderService.orderInitShipDetail(id);
-            if(null == shipDetail){
+            if (null == shipDetail) {
                 idList.add(id);
             }
         }
         return new BaseResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS, idList);
     }
 
-//    @ApiOperation("修改订单备注")
+    //    @ApiOperation("修改订单备注")
 //    @PostMapping("/note/update")
     public BaseResponse updateOrderNote(@RequestBody @Valid OrderNoteVo orderNoteVo) {
         String key = RedisKey.STRING_ORDER_NOTE + orderNoteVo.getOrderId();
@@ -394,10 +397,23 @@ public class OrderController {
     @ApiOperation("恢复订单")
     @PostMapping("/{id}/restore")
     public BaseResponse restoreOrder(@PathVariable Long id) {
-        Order order = new Order();
-        order.setId(id);
-        order.setPayState(0);
-        orderService.updateByPrimaryKeySelective(order);
+        Order order = orderService.selectByPrimaryKey(id);
+        if (order.getPayState() == -1) {
+            order = new Order();
+            order.setId(id);
+            order.setPayState(0);
+            orderService.updateByPrimaryKeySelective(order);
+        } else {
+            switch (order.getOrderType()) {
+                case 2:
+                    orderActionService.restoreSplitOrder(order);
+                    break;
+                case 3:
+                    orderActionService.revertMergedOrder(order);
+                    break;
+            }
+        }
+
         return BaseResponse.success();
     }
 
@@ -440,9 +456,10 @@ public class OrderController {
 
     @ApiOperation("创建补发订单")
     @PostMapping("/createReshipOrder/{id}")
-    public BaseResponse createReshipOrder(@PathVariable Long id){
+    public BaseResponse createReshipOrder(@PathVariable Long id) {
         return orderService.createReshipOrder(id);
     }
+
     /**
      * 补发订单申请
      *
@@ -642,25 +659,29 @@ public class OrderController {
 
     /**
      * 获取客户经理批发订单销售额
+     *
      * @param allOrderAmountVo
      * @return
      */
 //    @ApiOperation("获取客户经理订单销售额")
     @PostMapping("/amountByManagerCodeSet")
-    public BaseResponse getNormalOrderAmountByManagerCodeSet(@RequestBody AllOrderAmountVo allOrderAmountVo){
+    public BaseResponse getNormalOrderAmountByManagerCodeSet(@RequestBody AllOrderAmountVo allOrderAmountVo) {
         return orderService.getNormalOrderAmountByManagerCodeSet(allOrderAmountVo);
-    };
+    }
 
-//    @ApiOperation("获取某月普通订单下单客户数量  根据 set<managerCode> select")
+    ;
+
+    //    @ApiOperation("获取某月普通订单下单客户数量  根据 set<managerCode> select")
     @PostMapping("/normalOrderCount")
-    public BaseResponse getNormalOrderCount(@RequestBody AllOrderAmountVo allOrderAmountVo){
+    public BaseResponse getNormalOrderCount(@RequestBody AllOrderAmountVo allOrderAmountVo) {
         return orderService.getNormalOrderCount(allOrderAmountVo);
-    };
+    }
 
+    ;
 
 
     @PostMapping("customerOrderStatistical/{customerId}")
-    public BaseResponse getCustomerOrderStatistical(@PathVariable Long customerId){
+    public BaseResponse getCustomerOrderStatistical(@PathVariable Long customerId) {
 
         return orderService.getCustomerOrderStatistical(customerId);
     }

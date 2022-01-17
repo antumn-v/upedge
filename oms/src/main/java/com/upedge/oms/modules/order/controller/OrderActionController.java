@@ -23,7 +23,6 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -77,12 +76,7 @@ public class OrderActionController {
             shipDetails = new ArrayList<>();
         }
         for (ShipDetail shipDetail : shipDetails) {
-            BigDecimal serviceFee = shipDetail.getPrice()
-                    .multiply(new BigDecimal("0.08"))
-                    .add(new BigDecimal("0.2"))
-                    .setScale(2,BigDecimal.ROUND_UP);
-            shipDetail.setServiceFee(serviceFee);
-            shipDetail.setPrice(shipDetail.getPrice().add(serviceFee));
+            shipDetail.setPrice(shipDetail.getPrice().add(shipDetail.getServiceFee()));
         }
         return new BaseResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS,shipDetails);
     }
