@@ -308,7 +308,7 @@ public class OrderPayServiceImpl implements OrderPayService {
         if (!a) {
             return creatOrderPayCheckResultVo(new ArrayList<>(), paymentId, "stock error");
         }
-//        orderDao.updateProductAmountByPaymentId(paymentId);
+        orderDao.updateProductAmountByPaymentId(paymentId);
 
         List<AppOrderVo> orders = orderDao.selectPayOrderListByPaymentId(paymentId);
 

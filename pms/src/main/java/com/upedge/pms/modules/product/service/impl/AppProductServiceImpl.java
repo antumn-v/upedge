@@ -1,5 +1,7 @@
 package com.upedge.pms.modules.product.service.impl;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.upedge.common.base.BaseResponse;
 import com.upedge.common.constant.Constant;
 import com.upedge.common.constant.ResultCode;
@@ -10,6 +12,7 @@ import com.upedge.common.model.product.request.ProductVariantShipsRequest;
 import com.upedge.common.model.ship.request.ShipMethodPriceRequest;
 import com.upedge.common.model.ship.request.ShipMethodSearchRequest;
 import com.upedge.common.model.ship.response.ShipMethodSearchResponse;
+import com.upedge.common.model.ship.vo.ShipDetail;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.utils.ListUtils;
 import com.upedge.common.utils.RedisKeyUtils;
@@ -172,7 +175,10 @@ public class AppProductServiceImpl implements AppProductService {
         || null == searchResponse.getData()){
             return new AppVariantShipsResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS, new ArrayList<>());
         }
-
+        List<ShipDetail> shipDetails = JSONArray.parseArray(JSON.toJSONString(searchResponse.getData())).toJavaList(ShipDetail.class);
+        for (ShipDetail shipDetail : shipDetails) {
+            shipDetail.setPrice(shipDetail.getPrice().add(shipDetail.getServiceFee()));
+        }
         return new AppVariantShipsResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS,searchResponse.getData());
     }
 

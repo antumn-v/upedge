@@ -368,7 +368,7 @@
                o.pay_amount,
                o.ship_method_id,
                o.ship_price,
-                o.service_fee,
+               o.service_fee,
                o.total_weight,
                o.product_amount,
                o.product_discharge_amount,
@@ -391,7 +391,7 @@
                `admin_product_id`,
                `store_variant_name`,
                `store_variant_sku`,
-                `store_variant_image`,
+               `store_variant_image`,
                `admin_variant_image`,
                `store_product_title`,
                `usd_price`,
@@ -483,9 +483,9 @@
                 inner join
                 (
                 select oo.id as `orderId`,
-                sum(quantity * ifnull(usd_price,'0')) as `productAmount`,
-                sum(quantity * ifnull(cny_price,'0')) as `cnyProductAmount`,
-                sum(discharge_quantity * ifnull(usd_price,'0')) as `dischargeAmount`
+                sum (quantity * ifnull(usd_price,'0')) as `productAmount`,
+                sum (quantity * ifnull(cny_price,'0')) as `cnyProductAmount`,
+                sum (discharge_quantity * ifnull(usd_price,'0')) as `dischargeAmount`
                 from order_item oi
                 inner join `order` oo
                 on oi.order_id = oo.id
@@ -1494,14 +1494,14 @@
         update `order`
         set ship_state=1
         where id = #{id}
-        and ship_state = 0 limit 1
+          and ship_state = 0 limit 1
     </update>
     <update id="updateOrderShipMethod">
         update `order`
         set ship_method_id = null,
             ship_price     = 0
         where id = #{id}
-        and pay_state &lt; 1
+          and pay_state &lt; 1
     </update>
     <update id="updateOrderType">
         update `order`
@@ -1930,7 +1930,7 @@
         select
                 date (pay_time) as dayDate,
                 count (1) as orderNum,
-                sum(IFNULL(product_amount, 0)+IFNULL(ship_price, 0)+IFNULL(vat_amount, 0)) as orderAmount
+                sum (IFNULL(product_amount, 0)+IFNULL(ship_price, 0)+IFNULL(vat_amount, 0)) as orderAmount
         from `order`
         where pay_state=1
           and refund_state = 0
@@ -2156,10 +2156,11 @@
 
     <update id="initShipByShipUnitId">
         update `order` o
-        inner join order_shipping_unit osu
+                inner join order_shipping_unit osu
         on o.id = osu.order_id
-        set o.ship_method_id = null,ship_price = '0'
+                set o.ship_method_id = null, ship_price = '0'
         where osu.ship_unit_id = #{shipUnitId}
-        and o.pay_state &lt; 1
+          and o.pay_state
+         &lt; 1
     </update>
 </mapper>

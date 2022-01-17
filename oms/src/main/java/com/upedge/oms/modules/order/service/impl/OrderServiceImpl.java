@@ -789,14 +789,11 @@ public class OrderServiceImpl implements OrderService {
             orderShippingUnit.setCreateTime(new Date());
             orderShippingUnitService.insert(orderShippingUnit);
         }
-        //服务费
-        BigDecimal serviceFee = shipDetail.getPrice().multiply(new BigDecimal("0.08")).add(new BigDecimal("0.2")).setScale(2, BigDecimal.ROUND_UP);
-        shipDetail.setServiceFee(serviceFee);
         //vat
         BigDecimal vatAmount = vatRuleService.getOrderVatAmount(order.getProductAmount(), order.getShipPrice(), order.getToAreaId(), order.getCustomerId());
         shipDetail.setVatAmount(vatAmount);
         orderDao.updateShipDetailById(shipDetail, id);
-        shipDetail.setPrice(shipDetail.getPrice().add(serviceFee));
+        shipDetail.setPrice(shipDetail.getPrice().add(shipDetail.getServiceFee()));
         return shipDetail;
 
     }

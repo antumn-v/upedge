@@ -298,6 +298,7 @@ public class ShippingUnitServiceImpl implements ShippingUnitService {
                     .add(shippingUnit.getFixedFee())
                     .divide(new BigDecimal("6.3"),2,BigDecimal.ROUND_UP);
         }
+        shipDetail.setServiceFee(BigDecimal.ONE);
         shipDetail.setPrice(price);
         return shipDetail;
     }

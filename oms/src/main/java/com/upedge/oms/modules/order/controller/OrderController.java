@@ -42,7 +42,6 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.math.BigDecimal;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -340,11 +339,7 @@ public class OrderController {
     public BaseResponse orderShipList(@PathVariable Long id) {
         List<ShipDetail> shipDetails = orderService.orderShipList(id);
         for (ShipDetail shipDetail : shipDetails) {
-            BigDecimal serviceFee = shipDetail.getPrice()
-                    .multiply(new BigDecimal("0.08"))
-                    .add(new BigDecimal("0.2"))
-                    .setScale(2,BigDecimal.ROUND_UP);
-            shipDetail.setPrice(shipDetail.getPrice().add(serviceFee));
+            shipDetail.setPrice(shipDetail.getPrice().add(shipDetail.getServiceFee()));
         }
         return new BaseResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS, shipDetails, id);
     }
