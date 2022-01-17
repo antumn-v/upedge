@@ -20,7 +20,8 @@ public class ShipUnitExitImportDto {
     /**
      * 重量区间
      */
-    private String weight;
+    private String startWeight;
+    private String endWeight;
     /**
      * 最低计费重
      * 首重=最低计费重*1000
@@ -42,12 +43,10 @@ public class ShipUnitExitImportDto {
         shippingUnit.setToAreaId(toAreaId);
         //日期区间
         String deliveryMinDay = timeliness.substring(0,timeliness.indexOf("-"));
-        String deliveryMaxDay = timeliness.substring(timeliness.indexOf("-")+1,timeliness.indexOf("工"));
+        String deliveryMaxDay = timeliness.substring(timeliness.indexOf("-")+1);
         shippingUnit.setDeliveryMinDay(Integer.valueOf(deliveryMinDay));
         shippingUnit.setDeliveryMaxDay(Integer.valueOf(deliveryMaxDay));
         //重量区间
-        String startWeight = weight.substring(0,weight.indexOf("<"));
-        String endWeight = weight.substring(weight.lastIndexOf("≤") + 1);
         shippingUnit.setStartWeight(new BigDecimal(startWeight).multiply(Constant.ONE_THOUSAND).add(BigDecimal.ONE));
         shippingUnit.setEndWeight(new BigDecimal(endWeight).multiply(Constant.ONE_THOUSAND));
         //续重单位重量
@@ -77,9 +76,9 @@ public class ShipUnitExitImportDto {
 //        String endWeight = weight.substring(weight.indexOf("≤") +1);
 //        System.out.println(firstWeight);
 //        System.out.println(endWeight);
-//        String timeliness = "6-12工作日";
+//        String timeliness = "6-12";
 //        String deliveryMinDay = timeliness.substring(0,timeliness.indexOf("-"));
-//        String deliveryMaxDay = timeliness.substring(timeliness.indexOf("-")+1,timeliness.indexOf("工"));
+//        String deliveryMaxDay = timeliness.substring(timeliness.indexOf("-")+1);
 //        System.out.println(deliveryMinDay);
 //        System.out.println(deliveryMaxDay);
     }
