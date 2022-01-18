@@ -89,7 +89,9 @@ public class StoreProductServiceImpl implements StoreProductService {
         if (null == storeProductAttribute){
             return BaseResponse.failed("店铺产品不存在");
         }
-
+        if (storeProductAttribute.getTransformState() == 1){
+            return BaseResponse.failed("同一产品不能重复转换");
+        }
         List<StoreProductVariant> storeProductVariants = storeProductVariantDao.listUseVariantProductId(id);
         List<ProductVariant> productVariants = new ArrayList<>();
         List<ProductVariantAttr> productVariantAttrs = new ArrayList<>();
@@ -116,9 +118,10 @@ public class StoreProductServiceImpl implements StoreProductService {
             productService.insert(product);
             productVariantDao.insertByBatch(productVariants);
             productVariantAttrDao.insertByBatch(productVariantAttrs);
+            storeProductAttributeDao.updateTransformStateById(id,1);
             return BaseResponse.success();
         }
-
+        storeProductAttributeDao.updateTransformStateById(id,1);
         return BaseResponse.failed("同一产品不能重复转换");
     }
 
@@ -526,7 +529,7 @@ public class StoreProductServiceImpl implements StoreProductService {
             attribute.setOrgPath(storeVo.getOrgPath());
             attribute.setCreateAt(product.getCreated_at());
             attribute.setState(1);
-            attribute.setPushState(0);
+            attribute.setTransformState(0);
             attribute.setStoreName(storeVo.getStoreName());
             attribute.setImportTime(new Date());
             storeProductAttributeDao.insert(attribute);

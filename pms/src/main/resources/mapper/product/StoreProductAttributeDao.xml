@@ -16,7 +16,7 @@
         <result property="adminProductId" column="admin_product_id"/>
         <result property="source" column="source"/>
         <result property="relateState" column="relate_state"/>
-        <result property="pushState" column="push_state"/>
+        <result property="transformState" column="transform_state"/>
         <result property="storeName" column="store_name"/>
         <result property="price" column="price"/>
         <result property="handle" column="handle"/>
@@ -28,13 +28,13 @@
     </resultMap>
 
     <sql id="Base_Column_List">
-        `id`,`plat_product_id`,`title`,`image`,`vendor`,`store_id`,`org_id`,`org_path`,`admin_product_id`,`source`,`relate_state`,`push_state`,`store_name`,`price`,`handle`,`state`,`create_at`,`update_at`,`import_time`,`customer_id`
+        `id`,`plat_product_id`,`title`,`image`,`vendor`,`store_id`,`org_id`,`org_path`,`admin_product_id`,`source`,`relate_state`,`transform_state`,`store_name`,`price`,`handle`,`state`,`create_at`,`update_at`,`import_time`,`customer_id`
     </sql>
 
     <select id="selectStoreProduct" resultMap="BaseResultMap">
         select p.id,p.title,p.image,p.vendor,p.admin_product_id,p.store_name,
         p.relate_state,p.handle,p.source,p.price,
-        p.create_at,p.import_time,p.state,p.customer_id
+        p.create_at,p.import_time,p.state,p.customer_id,p.transform_state
         from store_product_attribute p
         where 1 = 1
         <if test="t != null">
@@ -159,8 +159,8 @@
             <if test="importTime != null">
                 import_time = #{importTime},
             </if>
-            <if test="pushState != null">
-                push_state = #{pushState},
+            <if test="transformState != null">
+                transform_state = #{transformState},
             </if>
             <if test="customerId != null">
                 customer_id = #{customerId},
@@ -193,7 +193,7 @@
             create_at = #{createAt},
             update_at = #{updateAt},
             import_time = #{importTime},
-            push_state = #{pushState},
+            transform_state = #{transformState},
             customer_id = #{customerId},
             manager_code = #{managerCode},
         </set>
@@ -221,7 +221,7 @@
             create_at,
             update_at,
             import_time,
-            push_state,
+            transform_state,
             customer_id,
             manager_code
         </trim>
@@ -244,7 +244,7 @@
         #{createAt},
         #{updateAt},
         #{importTime},
-        #{pushState},
+        #{transformState},
         #{customerId},
         #{managerCode}
         )
@@ -307,8 +307,8 @@
             <if test="importTime != null" >
                 import_time
             </if>
-            <if test="pushState != null" >
-                push_state
+            <if test="transformState != null" >
+                transform_state
             </if>
             <if test="customerId != null" >
                 customer_id
@@ -373,8 +373,8 @@
             <if test="importTime != null" >
                 #{importTime}
             </if>
-            <if test="pushState != null" >
-                #{pushState}
+            <if test="transformState != null" >
+                #{transformState}
             </if>
             <if test="customerId != null" >
                 #{customerId}
@@ -407,7 +407,7 @@
             create_at,
             update_at,
             import_time,
-            push_state,
+            transform_state,
             customer_id,
             manager_code
         </trim>
@@ -432,7 +432,7 @@
                 #{item.createAt},
                 #{item.updateAt},
                 #{item.importTime},
-                #{item.pushState},
+                #{item.transformState},
                 #{item.customerId},
                 #{item.managerCode}
             </trim>
@@ -498,8 +498,8 @@
                 <if test="t.importTime != null">
                     import_time = #{t.importTime} and
                 </if>
-                <if test="t.pushState != null">
-                    push_state = #{t.pushState} and
+                <if test="t.transformState != null">
+                    transform_state = #{t.transformState} and
                 </if>
                 <if test="t.customerId != null">
                     customer_id = #{t.customerId} and
@@ -531,8 +531,8 @@
         <include refid="Query_Condition"/>
     </select>
 
-    <update id="updatePushState">
-        update store_product_attribute set push_state=#{pushState} where id=#{id}
+    <update id="updatetransformState">
+        update store_product_attribute set transform_state=#{transformState} where id=#{id}
     </update>
 
 
@@ -549,7 +549,7 @@
         spa.`admin_product_id` as adminProductId,
         spa.`source` as source,
         spa.`relate_state` relateState,
-        spa.`push_state` as pushState,
+        spa.`transform_state` as transformState,
         spa.`store_name` as storeName,
         spa.`price` as price,
         spa.`handle` as handle,
@@ -579,4 +579,9 @@
         <include refid="Query_Condition"/>
     </select>
 
+    <update id="updateTransformStateById">
+        update store_product_attribute
+        set transform_state = #{transformState}
+        where id = #{id};
+    </update>
 </mapper>

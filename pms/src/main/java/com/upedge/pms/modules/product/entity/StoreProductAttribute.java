@@ -79,9 +79,9 @@ public class StoreProductAttribute {
      */
     private Date importTime;
     /**
-     *0:未推送 1:等待中 2:已推送
+     *0:未转换  1:已转换
      */
-    private Integer pushState;
+    private Integer transformState;
 
     private Long customerId;
 

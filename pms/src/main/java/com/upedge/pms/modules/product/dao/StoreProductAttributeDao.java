@@ -20,6 +20,9 @@ public interface StoreProductAttributeDao{
     StoreProductAttribute selectStoreProductByPlatId(@Param("storeId") Long storeId,
                                                      @Param("platProductId") String platProductId);
 
+    int updateTransformStateById(@Param("id") Long id,
+                                 @Param("transformState") Integer transformState);
+
     StoreProductAttribute selectByPrimaryKey(Long id);
 
     int deleteByPrimaryKey(StoreProductAttribute record);
