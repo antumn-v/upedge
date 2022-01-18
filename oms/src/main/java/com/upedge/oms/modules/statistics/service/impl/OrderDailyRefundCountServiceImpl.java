@@ -175,7 +175,7 @@ public class OrderDailyRefundCountServiceImpl implements OrderDailyRefundCountSe
             orderDailyRefundCount.setManagerCode(orderRefund.getManagerCode());
         } else {
             orderDailyRefundCount.setShippedRefundCount(1);
-            orderDailyRefundCount.setShippedRefundAmount(orderRefund.getRefundAmount());
+            orderDailyRefundCount.setShippedRefundAmount(orderRefund.getActualRefundAmount());
             Integer orderSourceId = getOrderSourceIdBySaihe(orderRefund.getOrderId());
             String managerCode = null;
             if (null != orderSourceId){

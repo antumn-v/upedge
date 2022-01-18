@@ -29,7 +29,6 @@ import com.upedge.oms.modules.order.service.OrderRefundItemService;
 import com.upedge.oms.modules.order.service.OrderRefundService;
 import com.upedge.oms.modules.order.vo.AppOrderItemVo;
 import com.upedge.oms.modules.order.vo.OrderRefundVo;
-import com.upedge.oms.modules.statistics.request.OrderRefundDailyCountRequest;
 import com.upedge.oms.modules.statistics.service.OrderDailyRefundCountService;
 import com.upedge.thirdparty.saihe.entity.cancelOrderInfo.ApiCancelOrderResponse;
 import com.upedge.thirdparty.saihe.entity.getOrderByCode.ApiGetOrderResponse;
@@ -112,7 +111,7 @@ public class OrderRefundServiceImpl implements OrderRefundService {
     public BaseResponse appApplyRefund(ApplyOrderRefundRequest request, Session session) {
         Long orderId = request.getOrderId();
         Order order = orderDao.selectByPrimaryKey(orderId);
-        if (0 == order.getPayState() || 0 != order.getRefundState()) {
+        if (1 != order.getPayState() || 0 != order.getRefundState()) {
             return BaseResponse.failed();
         }
         if (request.getShippingPrice().compareTo(order.getShipPrice().add(order.getServiceFee())) > 0
@@ -508,11 +507,14 @@ public class OrderRefundServiceImpl implements OrderRefundService {
         }
 
         //检查申请退款金额
+        BigDecimal actualRefundAmount = request.getActualRefundAmount();
         BigDecimal refundAmount = orderRefund.getRefundAmount();
+        if (actualRefundAmount.compareTo(refundAmount) != 0){
+            refundAmount = actualRefundAmount;
+        }
         if (refundAmount == null || refundAmount.compareTo(BigDecimal.ZERO) <= 0) {
             return new BaseResponse(ResultCode.FAIL_CODE, "退款金额异常");
         }
-
         //检查申请退款金额  不能大于支付总金额  支付商品总金额/USD+运费/USD+VAT税费
         BigDecimal shippingPrice = order.getShipPrice() == null ? BigDecimal.ZERO : order.getShipPrice().add(order.getServiceFee());
         BigDecimal vatAmount = order.getVatAmount() == null ? BigDecimal.ZERO : order.getVatAmount();
@@ -560,32 +562,27 @@ public class OrderRefundServiceImpl implements OrderRefundService {
         //更新状态 已确认
         orderRefund.setState(1);
         //   String userCode=String.valueOf(session.getId());
-
+        orderRefund.setActualRefundAmount(actualRefundAmount);
         orderRefund.setUpdateTime(new Date());
 
         int rs = orderRefundDao.updateConfirmRefund(orderRefund);
         if (rs == 0) {
             throw new CustomerException(ResultCode.FAIL_CODE, "修改退款单状态异常");
         }
-
-
-
-
         // 统计退款信息
-        OrderRefundDailyCountRequest orderRefundDailyCountRequest = new OrderRefundDailyCountRequest();
-        orderRefundDailyCountRequest.setRefundId(request.getId());
-        orderRefundDailyCountRequest.setOrderType(OrderType.NORMAL);
-        orderRefundDailyCountRequest.setRefundTime(new Date());
-        orderDailyRefundCountService.OrderDailyRefundCount(orderRefundDailyCountRequest);
-
+//        OrderRefundDailyCountRequest orderRefundDailyCountRequest = new OrderRefundDailyCountRequest();
+//        orderRefundDailyCountRequest.setRefundId(request.getId());
+//        orderRefundDailyCountRequest.setOrderType(OrderType.NORMAL);
+//        orderRefundDailyCountRequest.setRefundTime(new Date());
+//        orderDailyRefundCountService.OrderDailyRefundCount(orderRefundDailyCountRequest);
 
         AccountOrderRefundedRequest accountOrderRefundedRequest = new AccountOrderRefundedRequest();
         accountOrderRefundedRequest.setOrderId(order.getId());
         accountOrderRefundedRequest.setRefundId(request.getId());
         accountOrderRefundedRequest.setCustomerId(order.getCustomerId());
         //支付商品总金额/USD+运费/USD+VAT税费
-        accountOrderRefundedRequest.setPayAmount(totalAmount);
-        accountOrderRefundedRequest.setRefundAmount(orderRefund.getRefundAmount());
+        accountOrderRefundedRequest.setPayAmount(order.getPayAmount());
+        accountOrderRefundedRequest.setRefundAmount(refundAmount);
         accountOrderRefundedRequest.setOrderType(OrderType.NORMAL);
         //账户退款
         BaseResponse response = umsFeignClient.accountOrderRefunded(accountOrderRefundedRequest);

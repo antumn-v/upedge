@@ -78,7 +78,7 @@ public class OrderRefundController {
     }
 
     @ApiOperation("订单申请退款")
-    @PostMapping("/refund/apply")
+    @PostMapping("/apply")
     public BaseResponse orderApplyRefund(@RequestBody ApplyOrderRefundRequest request){
         String key= RedisUtil.KEY_ORDER_APPLY_REFUND+request.getOrderId();
         boolean flag= RedisUtil.lock(redisTemplate,key,2L,1000L*2*60);

@@ -486,7 +486,8 @@
     <update id="updateConfirmRefund">
        update order_refund set state=#{state},
        manager_code=#{managerCode},
-       update_time=#{updateTime}
+       update_time=#{updateTime},
+       actual_refund_amount = #{actualRefundAmount}
        where state=0 and id=#{id} limit 1
     </update>
 

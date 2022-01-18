@@ -47,6 +47,8 @@ public class OrderRefund{
 	 * 
 	 */
     private BigDecimal refundAmount;
+
+	private BigDecimal actualRefundAmount;
 	/**
 	 * 
 	 */
