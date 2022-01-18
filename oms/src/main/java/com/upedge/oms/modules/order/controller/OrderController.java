@@ -434,17 +434,6 @@ public class OrderController {
 
     //===============================admin===================================
 
-    /**
-     * admin订单导出 赛盒待导入，待发货订单列表
-     *
-     * @param request
-     * @return
-     */
-//    @RequestMapping(value = "/orderList", method = RequestMethod.POST)
-//    public OrderListResponse orderList(@RequestBody @Valid OrderListRequest request) {
-//        Session session = UserUtil.getSession(redisTemplate);
-//        return orderService.orderList(request, session);
-//    }
 
     /**
      * 普通订单详情页

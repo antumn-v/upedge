@@ -409,7 +409,7 @@
         cpq.quote_price,
         pv.id as variantId,pv.en_name as variantName,pv.variant_sku,
         pv.variant_image,pv.variant_price as `cny_price`,pv.usd_price,
-        pv.weight,pv.volume_weight as `volume`,
+        pv.weight,pv.volume_weight as `volume`,p.product_title as `productTitle`,
         p.shipping_id as productShippingId,p.id as productId,
         '1' as quoteType,cpq.quote_state
         from customer_product_quote cpq
@@ -426,7 +426,7 @@
                 and cpq.quote_apply_id = #{quoteApplyId}
             </if>
             <if test="variantId != null">
-                and cpq.variant_id #{variantId}
+                and cpq.variant_id =  #{variantId}
             </if>
             <if test="storeVariantId != null">
                 and cpq.store_variant_id = #{storeVariantId}

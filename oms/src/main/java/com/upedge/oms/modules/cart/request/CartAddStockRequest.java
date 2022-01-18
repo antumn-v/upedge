@@ -11,4 +11,6 @@ public class CartAddStockRequest {
     private Long variantId;
 
     private Integer quantity;
+
+
 }

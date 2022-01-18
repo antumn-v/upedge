@@ -18,7 +18,6 @@ import com.upedge.common.utils.PriceUtils;
 import com.upedge.common.web.util.UserUtil;
 import com.upedge.oms.modules.cart.dao.CartDao;
 import com.upedge.oms.modules.cart.entity.Cart;
-import com.upedge.oms.modules.cart.request.CartAddStockRequest;
 import com.upedge.oms.modules.cart.request.CartSubmitOrderRequest;
 import com.upedge.oms.modules.cart.request.CartSubmitWholesaleRequest;
 import com.upedge.oms.modules.cart.request.DelCarts;
@@ -78,12 +77,12 @@ public class CartServiceImpl implements CartService {
 
 
     @Override
-    public BaseResponse addStockCart(CartAddStockRequest request, Session session) {
+    public BaseResponse addStockCart(CartAddRequest request) {
         if (null == request.getVariantId()){
             return BaseResponse.failed();
         }
         CustomerProductQuoteSearchRequest customerProductQuoteSearchRequest = new CustomerProductQuoteSearchRequest();
-        customerProductQuoteSearchRequest.setCustomerId(session.getCustomerId());
+        customerProductQuoteSearchRequest.setCustomerId(request.getCustomerId());
         customerProductQuoteSearchRequest.setVariantId(request.getVariantId());
         List<CustomerProductQuoteVo> customerProductQuoteVos = pmsFeignClient.searchCustomerProductQuote(customerProductQuoteSearchRequest);
         if (ListUtils.isEmpty(customerProductQuoteVos)){
@@ -92,7 +91,7 @@ public class CartServiceImpl implements CartService {
         Date date = new Date();
         CustomerProductQuoteVo customerProductQuoteVo = customerProductQuoteVos.get(0);
         Cart cart = quoteProductToCart(customerProductQuoteVo,date);
-
+        cart.setCustomerId(request.getCustomerId());
         Cart c = cartDao.selectCart(cart);
 
         if (null == c) {
@@ -280,15 +279,15 @@ public class CartServiceImpl implements CartService {
 
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public void addCarts(CartAddRequest cartAddRequest) {
+    public BaseResponse addWholesaleCarts(CartAddRequest cartAddRequest) {
         Integer cartType = cartAddRequest.getCartType();
         if (null == cartType) {
-            return;
+            return BaseResponse.failed();
         }
         Date date = new Date();
 
         Cart cart = cartAddDtoToCart(cartAddRequest, date);
-
+        cart.setCustomerId(cartAddRequest.getCustomerId());
         Cart c = cartDao.selectCart(cart);
 
         if (null == c) {
@@ -297,6 +296,7 @@ public class CartServiceImpl implements CartService {
             cart.setId(c.getId());
             cartDao.updateQuantity(cart);
         }
+        return BaseResponse.success();
     }
 
     @Override
@@ -379,7 +379,7 @@ public class CartServiceImpl implements CartService {
 
     public Cart quoteProductToCart(CustomerProductQuoteVo request, Date date) {
         Cart cart = new Cart();
-        cart.setCartType(1);
+        cart.setCartType(0);
         cart.setCustomerId(request.getCustomerId());
         cart.setProductId(request.getProductId());
         cart.setProductTitle(request.getProductTitle());

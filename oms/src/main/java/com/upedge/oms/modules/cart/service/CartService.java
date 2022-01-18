@@ -6,7 +6,6 @@ import com.upedge.common.model.cart.request.CartAddRequest;
 import com.upedge.common.model.product.VariantDetail;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.oms.modules.cart.entity.Cart;
-import com.upedge.oms.modules.cart.request.CartAddStockRequest;
 import com.upedge.oms.modules.cart.request.CartSubmitOrderRequest;
 import com.upedge.oms.modules.cart.request.CartSubmitWholesaleRequest;
 import com.upedge.oms.modules.cart.request.DelCarts;
@@ -19,7 +18,7 @@ import java.util.List;
  */
 public interface CartService{
 
-    BaseResponse addStockCart(CartAddStockRequest request,Session session);
+    BaseResponse addStockCart(CartAddRequest request);
 
     Long cartSubmitStockOrder(CartSubmitOrderRequest request, Session session);
 
@@ -36,7 +35,7 @@ public interface CartService{
 
     void updateCartByVariant(VariantDetail variantDetail, String tag);
 
-    void addCarts(CartAddRequest request);
+    BaseResponse addWholesaleCarts(CartAddRequest request);
 
     void updatePriceByVariantId(VariantDetail variantDetail);
 

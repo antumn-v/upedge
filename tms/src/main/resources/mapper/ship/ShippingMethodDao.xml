@@ -85,12 +85,6 @@
             <if test="updateTime != null">
                 update_time = #{updateTime},
             </if>
-            <if test="unitNum != null">
-                unit_num = #{unitNum},
-            </if>
-            <if test="shipNum != null">
-                ship_num = #{shipNum},
-            </if>
         </set>
         where id = #{id}
     </update>
@@ -110,9 +104,7 @@
             paypal_carrier_enum = #{paypalCarrierEnum},
             state = #{state},
             create_time = #{createTime},
-            update_time = #{updateTime},
-            unit_num = #{unitNum},
-            ship_num = #{shipNum},
+            update_time = #{updateTime}
         </set>
         where id = #{id}
     </update>
@@ -132,9 +124,7 @@
             paypal_carrier_enum,
             state,
             create_time,
-            update_time,
-            unit_num,
-            ship_num
+            update_time
         </trim>
         values (
         #{id},
@@ -149,9 +139,7 @@
         #{paypalCarrierEnum},
         #{state},
         #{createTime},
-        #{updateTime},
-        #{unitNum},
-        #{shipNum}
+        #{updateTime}
         )
     </insert>
 
@@ -197,12 +185,6 @@
             <if test="updateTime != null" >
                 update_time
             </if>
-            <if test="unitNum != null" >
-                unit_num
-            </if>
-            <if test="shipNum != null" >
-                ship_num
-            </if>
 
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
@@ -245,12 +227,6 @@
             <if test="updateTime != null" >
                 #{updateTime}
             </if>
-            <if test="unitNum != null" >
-                #{unitNum}
-            </if>
-            <if test="shipNum != null" >
-                #{shipNum}
-            </if>
 
         </trim>
     </insert>
@@ -270,9 +246,7 @@
             paypal_carrier_enum,
             state,
             create_time,
-            update_time,
-            unit_num,
-            ship_num
+            update_time
         </trim>
         values
         <foreach collection="list" item="item" index="index" separator=",">
@@ -289,9 +263,7 @@
                 #{item.paypalCarrierEnum},
                 #{item.state},
                 #{item.createTime},
-                #{item.updateTime},
-                #{item.unitNum},
-                #{item.shipNum}
+                #{item.updateTime}
             </trim>
         </foreach>
     </insert>
@@ -339,12 +311,6 @@
                 </if>
                 <if test="t.updateTime != null">
                     update_time = #{t.updateTime} and
-                </if>
-                <if test="t.unitNum != null">
-                    unit_num = #{t.unitNum} and
-                </if>
-                <if test="t.shipNum != null">
-                    ship_num = #{t.shipNum} and
                 </if>
             </trim>
         </if>

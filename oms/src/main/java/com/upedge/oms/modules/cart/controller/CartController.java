@@ -101,20 +101,36 @@ public class CartController {
         return res;
     }
 
-    @ApiOperation("添加备库订单购物车")
-    @PostMapping("/addStock")
-    public BaseResponse addToStockCart(@RequestBody CartAddStockRequest request){
-        Session session = UserUtil.getSession(redisTemplate);
-        return cartService.addStockCart(request,session);
+    @ApiOperation("产品导入购物车")
+    @PostMapping("/add")
+    public BaseResponse addVariantToCart(@RequestBody @Valid CartAddRequest request){
+        if (request.getCartType() == null){
+            return BaseResponse.failed();
+        }
+        switch (request.getCartType()){
+            case 0:
+                return cartService.addStockCart(request);
+            case 1:
+                return cartService.addWholesaleCarts(request);
+            default:break;
+        }
+        return BaseResponse.failed();
     }
 
-    @ApiOperation("购物车添加产品，看产品模块/pms/product/importCart接口")
-    @PostMapping("/addWholesale")
-    public BaseResponse cartAdd(@RequestBody @Valid CartAddRequest request){
-        cartService.addCarts(request);
-        return new BaseResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS);
-
-    }
+//    @ApiOperation("添加备库订单购物车")
+//    @PostMapping("/addStock")
+//    public BaseResponse addToStockCart(@RequestBody CartAddStockRequest request){
+//        Session session = UserUtil.getSession(redisTemplate);
+//        return cartService.addStockCart(request,session);
+//    }
+//
+//    @ApiOperation("购物车添加产品，看产品模块/pms/product/importCart接口")
+//    @PostMapping("/addWholesale")
+//    public BaseResponse cartAdd(@RequestBody @Valid CartAddRequest request){
+//        cartService.addWholesaleCarts(request);
+//        return new BaseResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS);
+//
+//    }
 
     @ApiOperation("购物车提交列表")
     @PostMapping("/submit/list")

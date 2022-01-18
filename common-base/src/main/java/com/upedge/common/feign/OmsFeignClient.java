@@ -15,6 +15,7 @@ import com.upedge.common.model.statistics.request.OrderStatisticsRequest;
 import com.upedge.common.model.statistics.response.ManagerOrderCountResponse;
 import com.upedge.common.model.statistics.response.ManagerPackageStatisticsResponse;
 import com.upedge.common.model.store.request.StoreApiRequest;
+import com.upedge.common.model.user.vo.Session;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.*;
 
@@ -47,7 +48,7 @@ public interface OmsFeignClient  {
     public BaseResponse managerOrderStatistics(@RequestBody OrderStatisticsRequest request);
 
     @PostMapping("/cart/add")
-    public BaseResponse cartAdd(@RequestBody CartAddRequest request);
+    public BaseResponse cartAdd(@RequestBody @Valid CartAddRequest request);
 
     @PostMapping("/storeOrder/shopify/update")
     public BaseResponse updateShopifyOrder(@RequestBody StoreApiRequest request);
