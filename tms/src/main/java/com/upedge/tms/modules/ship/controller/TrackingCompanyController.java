@@ -24,6 +24,9 @@ public class TrackingCompanyController {
     @PostMapping("/add")
     public BaseResponse addTracingCompany(@RequestParam String company){
         List<String> trackingCompanies = (List<String>) redisTemplate.opsForValue().get(RedisKey.STRING_TRACKING_COMPANY);
+        if (ListUtils.isEmpty(trackingCompanies)){
+            trackingCompanies = new ArrayList<>();
+        }
         if (trackingCompanies.contains(company)){
             return BaseResponse.success();
         }
@@ -36,6 +39,9 @@ public class TrackingCompanyController {
     @PostMapping("/delete")
     public BaseResponse deleteTrackingCompany(@RequestParam String company){
         List<String> trackingCompanies = (List<String>) redisTemplate.opsForValue().get(RedisKey.STRING_TRACKING_COMPANY);
+        if (ListUtils.isEmpty(trackingCompanies)){
+            trackingCompanies = new ArrayList<>();
+        }
         if (!trackingCompanies.contains(company)){
             return BaseResponse.success();
         }
@@ -46,7 +52,7 @@ public class TrackingCompanyController {
 
     @ApiOperation("查询物流公司")
     @GetMapping("/list")
-    public BaseResponse listTrackingCompanies(@RequestParam String company){
+    public BaseResponse listTrackingCompanies(){
         List<String> trackingCompanies = (List<String>) redisTemplate.opsForValue().get(RedisKey.STRING_TRACKING_COMPANY);
         if (ListUtils.isNotEmpty(trackingCompanies)){
             return BaseResponse.success(trackingCompanies);
