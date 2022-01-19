@@ -9,9 +9,12 @@ import com.upedge.common.model.pms.request.CustomerProductQuoteSearchRequest;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.utils.ListUtils;
 import com.upedge.pms.modules.product.dao.ProductVariantDao;
+import com.upedge.pms.modules.product.dao.StoreProductAttributeDao;
 import com.upedge.pms.modules.product.dao.StoreProductVariantDao;
 import com.upedge.pms.modules.product.entity.Product;
 import com.upedge.pms.modules.product.entity.ProductVariant;
+import com.upedge.pms.modules.product.entity.StoreProductAttribute;
+import com.upedge.pms.modules.product.entity.StoreProductVariant;
 import com.upedge.pms.modules.product.service.ProductService;
 import com.upedge.pms.modules.quote.dao.CustomerProductQuoteDao;
 import com.upedge.pms.modules.quote.dao.QuoteApplyItemDao;
@@ -43,6 +46,9 @@ public class CustomerProductQuoteServiceImpl implements CustomerProductQuoteServ
 
     @Autowired
     StoreProductVariantDao storeProductVariantDao;
+
+    @Autowired
+    StoreProductAttributeDao storeProductAttributeDao;
 
     @Autowired
     QuoteApplyItemDao quoteApplyItemDao;
@@ -165,6 +171,9 @@ public class CustomerProductQuoteServiceImpl implements CustomerProductQuoteServ
         List<CustomerProductQuoteVo> customerProductQuoteVos = customerProductQuoteDao.selectQuoteDetail(request);
         //验证是否还有没查询出来报价信息的产品
         storeVariantIds = request.getStoreVariantIds();
+        if (ListUtils.isEmpty(storeVariantIds)){
+            return customerProductQuoteVos;
+        }
         if (ListUtils.isNotEmpty(customerProductQuoteVos)){
             for (CustomerProductQuoteVo customerProductQuoteVo : customerProductQuoteVos) {
                 storeVariantIds.remove(customerProductQuoteVo.getStoreVariantId());
@@ -174,8 +183,9 @@ public class CustomerProductQuoteServiceImpl implements CustomerProductQuoteServ
         }
         //有未查询到报价信息的产品
         if (ListUtils.isNotEmpty(storeVariantIds)) {
-
-            Long customerId = customerProductQuoteVos.get(0).getCustomerId();
+            StoreProductVariant storeProductVariant = storeProductVariantDao.selectByPrimaryKey(storeVariantIds.get(0));
+            StoreProductAttribute storeProductAttribute = storeProductAttributeDao.selectByPrimaryKey(storeProductVariant.getProductId());
+            Long customerId = storeProductAttribute.getCustomerId();
             request.setStoreVariantIds(storeVariantIds);
             if (ListUtils.isNotEmpty(request.getStoreVariantIds())) {
                 storeVariantIds = request.getStoreVariantIds();

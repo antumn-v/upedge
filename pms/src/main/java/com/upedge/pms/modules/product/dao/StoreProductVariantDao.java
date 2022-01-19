@@ -43,7 +43,7 @@ public interface StoreProductVariantDao {
 
     List<String> selectPlatVariantIdByProductId(Long productId);
 
-    StoreProductVariant selectByPrimaryKey(StoreProductVariant record);
+    StoreProductVariant selectByPrimaryKey(Long id);
 
     /**
      * 店铺变体标记为已删除

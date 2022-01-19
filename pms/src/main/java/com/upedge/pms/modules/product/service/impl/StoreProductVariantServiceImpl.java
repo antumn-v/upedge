@@ -55,9 +55,7 @@ public class StoreProductVariantServiceImpl implements StoreProductVariantServic
      *
      */
     public StoreProductVariant selectByPrimaryKey(Long id){
-        StoreProductVariant record = new StoreProductVariant();
-        record.setId(id);
-        return storeProductVariantDao.selectByPrimaryKey(record);
+        return storeProductVariantDao.selectByPrimaryKey(id);
     }
 
     /**
