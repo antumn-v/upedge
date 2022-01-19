@@ -187,7 +187,7 @@ public class OrderActionServiceImpl implements OrderActionService {
             newOrder.setOrgId(order.getOrgId());
             newOrder.setOrgPath(order.getOrgPath());
             newOrder.setCnyProductAmount(cnyProductAmount);
-            newOrder.setShipPrice(null);
+            newOrder.setShipPrice(BigDecimal.ZERO);
             newOrder.setShipMethodId(null);
             orders.add(newOrder);
 

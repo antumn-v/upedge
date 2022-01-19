@@ -243,6 +243,10 @@ public class OrderServiceImpl implements OrderService {
                     orderVo.setOrderCustomerName(storeOrderVo.getOrderCustomerName());
                 }
             }
+            ArearedisVo arearedisVo = (ArearedisVo) redisTemplate.opsForHash().get(RedisKey.AREA,String.valueOf(orderVo.getToAreaId()));
+            if (null != arearedisVo){
+                orderVo.setCountry(arearedisVo.getEnName());
+            }
             completeOrderStoreUrl(orderVo);
         }
         completeOrderTrackingCode(appOrderVos);
