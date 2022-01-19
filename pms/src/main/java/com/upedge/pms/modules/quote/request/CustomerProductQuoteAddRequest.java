@@ -1,9 +1,8 @@
 package com.upedge.pms.modules.quote.request;
 
-import com.upedge.common.base.Page;
 import com.upedge.pms.modules.quote.entity.CustomerProductQuote;
-import java.util.Date;
 import lombok.Data;
+
 import java.math.BigDecimal;
 /**
  * @author gx
@@ -38,7 +37,7 @@ public class CustomerProductQuoteAddRequest{
     /**
     * 
     */
-    private String storeProductSku;
+    private String storeVariantSku;
     /**
     * 
     */
@@ -76,7 +75,7 @@ public class CustomerProductQuoteAddRequest{
         customerProductQuote.setVariantId(variantId);
         customerProductQuote.setStoreVariantName(storeVariantName);
         customerProductQuote.setStoreProductTitle(storeProductTitle);
-        customerProductQuote.setStoreProductSku(storeProductSku);
+        customerProductQuote.setStoreVariantSku(storeVariantSku);
         customerProductQuote.setStoreVariantImage(storeVariantImage);
         customerProductQuote.setProductTitle(productTitle);
         customerProductQuote.setVariantName(variantName);

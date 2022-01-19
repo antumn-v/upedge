@@ -36,7 +36,7 @@ public class CustomerProductQuoteVo extends VariantDetail {
     /**
      *
      */
-    private String storeProductSku;
+    private String storeVariantSku;
     /**
      *
      */

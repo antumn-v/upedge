@@ -143,6 +143,7 @@ public class CustomerProductQuoteServiceImpl implements CustomerProductQuoteServ
         if (request == null) {
             return new ArrayList<>();
         }
+        //报价中的产品
         List<CustomerProductQuoteVo> quotingVariants = new ArrayList<>();
         List<Long> storeVariantIds = new ArrayList<>();
         if (ListUtils.isNotEmpty(request.getStoreVariantIds())) {
@@ -160,17 +161,36 @@ public class CustomerProductQuoteServiceImpl implements CustomerProductQuoteServ
                 }
             }
         }
-
+        //已报价的产品
         List<CustomerProductQuoteVo> customerProductQuoteVos = customerProductQuoteDao.selectQuoteDetail(request);
-        if (ListUtils.isEmpty(customerProductQuoteVos) && ListUtils.isNotEmpty(request.getStoreVariantIds())) {
+        //验证是否还有没查询出来报价信息的产品
+        storeVariantIds = request.getStoreVariantIds();
+        if (ListUtils.isNotEmpty(customerProductQuoteVos)){
             for (CustomerProductQuoteVo customerProductQuoteVo : customerProductQuoteVos) {
-                storeVariantIds.add(customerProductQuoteVo.getStoreVariantId());
+                storeVariantIds.remove(customerProductQuoteVo.getStoreVariantId());
             }
-            request.getStoreVariantIds().removeAll(storeVariantIds);
+        }else {
+            customerProductQuoteVos = new ArrayList<>();
+        }
+        //有未查询到报价信息的产品
+        if (ListUtils.isNotEmpty(storeVariantIds)) {
+
+            Long customerId = customerProductQuoteVos.get(0).getCustomerId();
+            request.setStoreVariantIds(storeVariantIds);
             if (ListUtils.isNotEmpty(request.getStoreVariantIds())) {
                 storeVariantIds = request.getStoreVariantIds();
                 List<CustomerProductQuoteVo> customerProductQuoteVoList = storeProductVariantDao.selectQuoteDetailByIds(storeVariantIds);
-                customerProductQuoteVos.addAll(customerProductQuoteVoList);
+                if (ListUtils.isNotEmpty(customerProductQuoteVoList)){
+                    List<CustomerProductQuote> customerProductQuotes = new ArrayList<>();
+                    for (CustomerProductQuoteVo customerProductQuoteVo : customerProductQuoteVoList) {
+                        CustomerProductQuote customerProductQuote = new CustomerProductQuote();
+                        BeanUtils.copyProperties(customerProductQuoteVo,customerProductQuote);
+                        customerProductQuote.setCustomerId(customerId);
+                        customerProductQuotes.add(customerProductQuote);
+                        customerProductQuoteDao.insertByBatch(customerProductQuotes);
+                    }
+                    customerProductQuoteVos.addAll(customerProductQuoteVoList);
+                }
             }
         }
         customerProductQuoteVos.addAll(quotingVariants);

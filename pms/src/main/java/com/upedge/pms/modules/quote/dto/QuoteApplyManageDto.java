@@ -30,5 +30,5 @@ public class QuoteApplyManageDto {
 
     private Integer storeProductId;
 
-    private String storeProductSku;
+    private String storeVariantSku;
 }

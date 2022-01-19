@@ -23,9 +23,12 @@ import com.upedge.pms.modules.product.dto.StoreProductDto;
 import com.upedge.pms.modules.product.entity.*;
 import com.upedge.pms.modules.product.request.StoreProductListRequest;
 import com.upedge.pms.modules.product.response.StoreProductListResponse;
+import com.upedge.pms.modules.product.service.ProductAttributeService;
+import com.upedge.pms.modules.product.service.ProductInfoService;
 import com.upedge.pms.modules.product.service.ProductService;
 import com.upedge.pms.modules.product.service.StoreProductService;
 import com.upedge.pms.modules.product.vo.StoreProductRelateVo;
+import com.upedge.thirdparty.saihe.config.SaiheConfig;
 import com.upedge.thirdparty.shopify.moudles.product.controller.ShopifyProductApi;
 import com.upedge.thirdparty.shopify.moudles.product.entity.ShopifyImage;
 import com.upedge.thirdparty.shopify.moudles.product.entity.ShopifyProduct;
@@ -68,6 +71,12 @@ public class StoreProductServiceImpl implements StoreProductService {
 
     @Autowired
     ProductService productService;
+
+    @Autowired
+    ProductAttributeService productAttributeService;
+
+    @Autowired
+    ProductInfoService productInfoService;
 
     @Autowired
     ProductVariantDao productVariantDao;
@@ -119,6 +128,16 @@ public class StoreProductServiceImpl implements StoreProductService {
             productVariantDao.insertByBatch(productVariants);
             productVariantAttrDao.insertByBatch(productVariantAttrs);
             storeProductAttributeDao.updateTransformStateById(id,1);
+
+            ProductAttribute productAttribute = new ProductAttribute();
+            productAttribute.setProductId(newProductId);
+            productAttribute.setWarehouseId(SaiheConfig.UPEDGE_DEFAULT_WAREHOURSE_ID);
+            productAttributeService.insert(productAttribute);
+
+            ProductInfo productInfo = new ProductInfo();
+            productInfo.setProductId(newProductId);
+            productInfoService.insert(productInfo);
+
             return BaseResponse.success();
         }
         storeProductAttributeDao.updateTransformStateById(id,1);

@@ -35,7 +35,7 @@ public class QuoteApplyItemVo {
     /**
      *
      */
-    private String storeProductSku;
+    private String storeVariantSku;
     /**
      *
      */

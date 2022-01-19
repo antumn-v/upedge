@@ -11,7 +11,7 @@
         <result property="variantId" column="variant_id"/>
         <result property="storeVariantName" column="store_variant_name"/>
         <result property="storeProductTitle" column="store_product_title"/>
-        <result property="storeProductSku" column="store_product_sku"/>
+        <result property="storeVariantSku" column="store_variant_sku"/>
         <result property="storeVariantImage" column="store_variant_image"/>
         <result property="productTitle" column="product_title"/>
         <result property="variantName" column="variant_name"/>
@@ -24,7 +24,7 @@
 
     <sql id="Base_Column_List">
         `customer_id`
-                ,`store_variant_id`,`store_product_id`,`product_id`,`variant_id`,`store_variant_name`,`store_product_title`,`store_product_sku`,`store_variant_image`,`product_title`,`variant_name`,`variant_sku`,`variant_image`,`quote_price`,`quote_apply_id`,`quote_state`
+                ,`store_variant_id`,`store_product_id`,`product_id`,`variant_id`,`store_variant_name`,`store_product_title`,`store_variant_sku`,`store_variant_image`,`product_title`,`variant_name`,`variant_sku`,`variant_image`,`quote_price`,`quote_apply_id`,`quote_state`
     </sql>
 
     <select id="selectByPrimaryKey" parameterType="com.upedge.pms.modules.quote.entity.CustomerProductQuote"
@@ -62,8 +62,8 @@
             <if test="storeProductTitle != null">
                 store_product_title = #{storeProductTitle},
             </if>
-            <if test="storeProductSku != null">
-                store_product_sku = #{storeProductSku},
+            <if test="storeVariantSku != null">
+                store_variant_sku = #{storeVariantSku},
             </if>
             <if test="storeVariantImage != null">
                 store_variant_image = #{storeVariantImage},
@@ -103,7 +103,7 @@
             variant_id = #{variantId},
             store_variant_name = #{storeVariantName},
             store_product_title = #{storeProductTitle},
-            store_product_sku = #{storeProductSku},
+            store_variant_sku = #{storeVariantSku},
             store_variant_image = #{storeVariantImage},
             product_title = #{productTitle},
             variant_name = #{variantName},
@@ -126,7 +126,7 @@
             variant_id,
             store_variant_name,
             store_product_title,
-            store_product_sku,
+            store_variant_sku,
             store_variant_image,
             product_title,
             variant_name,
@@ -144,7 +144,7 @@
         #{variantId},
         #{storeVariantName},
         #{storeProductTitle},
-        #{storeProductSku},
+        #{storeVariantSku},
         #{storeVariantImage},
         #{productTitle},
         #{variantName},
@@ -180,8 +180,8 @@
             <if test="storeProductTitle != null" >
                 store_product_title
             </if>
-            <if test="storeProductSku != null" >
-                store_product_sku
+            <if test="storeVariantSku != null" >
+                store_variant_sku
             </if>
             <if test="storeVariantImage != null" >
                 store_variant_image
@@ -231,8 +231,8 @@
             <if test="storeProductTitle != null" >
                 #{storeProductTitle}
             </if>
-            <if test="storeProductSku != null" >
-                #{storeProductSku}
+            <if test="storeVariantSku != null" >
+                #{storeVariantSku}
             </if>
             <if test="storeVariantImage != null" >
                 #{storeVariantImage}
@@ -272,7 +272,7 @@
             variant_id,
             store_variant_name,
             store_product_title,
-            store_product_sku,
+            store_variant_sku,
             store_variant_image,
             product_title,
             variant_name,
@@ -292,7 +292,7 @@
                 #{item.variantId},
                 #{item.storeVariantName},
                 #{item.storeProductTitle},
-                #{item.storeProductSku},
+                #{item.storeVariantSku},
                 #{item.storeVariantImage},
                 #{item.productTitle},
                 #{item.variantName},
@@ -331,8 +331,8 @@
                 <if test="t.storeProductTitle != null">
                     store_product_title = #{t.storeProductTitle} and
                 </if>
-                <if test="t.storeProductSku != null">
-                    store_product_sku = #{t.storeProductSku} and
+                <if test="t.storeVariantSku != null">
+                    store_variant_sku = #{t.storeVariantSku} and
                 </if>
                 <if test="t.storeVariantImage != null">
                     store_variant_image = #{t.storeVariantImage} and
@@ -406,7 +406,7 @@
             resultType="com.upedge.common.model.pms.quote.CustomerProductQuoteVo"
             parameterType="com.upedge.common.model.pms.request.CustomerProductQuoteSearchRequest">
         select cpq.store_variant_id,cpq.store_product_id,cpq.quote_apply_id,
-        cpq.quote_price,
+        cpq.quote_price,cpq.customer_id,
         pv.id as variantId,pv.en_name as variantName,pv.variant_sku,
         pv.variant_image,pv.variant_price as `cny_price`,pv.usd_price,
         pv.weight,pv.volume_weight as `volume`,p.product_title as `productTitle`,

@@ -321,6 +321,12 @@ public class ProductServiceImpl implements ProductService {
         //开启异步任务 获取属性
         CompletableFuture<Void> productAttributeFuture = CompletableFuture.runAsync(() -> {
             ProductAttribute productAttribute = productAttributeService.selectByProductId(id);
+            if (productAttribute == null){
+                productAttribute = new ProductAttribute();
+                productAttribute.setProductId(id);
+                productAttribute.setWarehouseId(SaiheConfig.UPEDGE_DEFAULT_WAREHOURSE_ID);
+                productAttributeService.insert(productAttribute);
+            }
             adminProductVo.setProductAttribute(productAttribute);
         }, threadPoolExecutor);
 
@@ -333,6 +339,11 @@ public class ProductServiceImpl implements ProductService {
         //开启异步任务  获取产品描述
         CompletableFuture<Void> productInfoFuture = CompletableFuture.runAsync(() -> {
             ProductInfo productInfo = productInfoService.selectByProductId(id);
+            if (productInfo == null){
+                productInfo = new ProductInfo();
+                productInfo.setProductId(id);
+                productInfoService.insert(productInfo);
+            }
             adminProductVo.setProductInfo(productInfo);
         }, threadPoolExecutor);
 

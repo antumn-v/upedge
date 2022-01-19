@@ -108,6 +108,7 @@ public class StoreProductAttribute {
         product.setUserId(session.getId().toString());
         product.setCreateTime(new Date());
         product.setUpdateTime(new Date());
+        product.setPriceRange(this.price);
         return product;
     }
 }

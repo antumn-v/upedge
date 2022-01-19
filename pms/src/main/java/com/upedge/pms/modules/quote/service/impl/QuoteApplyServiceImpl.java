@@ -294,7 +294,7 @@ public class QuoteApplyServiceImpl implements QuoteApplyService {
         for (StoreProductVariant storeProductVariant : storeProductVariants) {
             QuoteApplyItem quoteApplyItem = new QuoteApplyItem();
             quoteApplyItem.setStoreProductId(storeProductVariant.getProductId());
-            quoteApplyItem.setStoreProductSku(storeProductVariant.getSku());
+            quoteApplyItem.setStoreVariantSku(storeProductVariant.getSku());
             quoteApplyItem.setStoreVariantId(storeProductVariant.getId());
             quoteApplyItem.setStoreVariantImage(storeProductVariant.getImage());
             quoteApplyItem.setStoreVariantName(storeProductVariant.getTitle());

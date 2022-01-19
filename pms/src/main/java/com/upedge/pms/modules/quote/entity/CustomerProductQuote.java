@@ -41,7 +41,7 @@ public class CustomerProductQuote{
 	/**
 	 * 
 	 */
-    private String storeProductSku;
+    private String storeVariantSku;
 	/**
 	 * 
 	 */

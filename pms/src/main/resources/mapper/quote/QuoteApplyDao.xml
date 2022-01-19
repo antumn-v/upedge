@@ -37,7 +37,7 @@
             <result property="storeVariantName" column="store_variant_name"/>
             <result property="storeProductTitle" column="store_product_title"/>
             <result property="storeProductHandle" column="handle"/>
-            <result property="storeProductSku" column="store_product_sku"/>
+            <result property="storeVariantSku" column="store_variant_sku"/>
             <result property="storeVariantImage" column="store_variant_image"/>
             <result property="productTitle" column="product_title"/>
             <result property="variantName" column="variant_name"/>
@@ -322,7 +322,7 @@
 
     <select id="selectQuoteApplies" resultMap="QuoteApplyVo">
         select qa.*,qai.`id` as `itemId`,qai.`product_id`,qai.`variant_id`,qai.`store_product_id`,
-        qai.`store_variant_id`,qai.`store_variant_name`,qai.`store_product_title`,qai.`store_product_sku`,qai.`store_variant_image`,
+        qai.`store_variant_id`,qai.`store_variant_name`,qai.`store_product_title`,qai.`store_variant_sku`,qai.`store_variant_image`,
         qai.`product_title`,qai.`variant_name`,qai.`variant_sku`,qai.`variant_image`,qai.`quote_price`,qai.`quote_apply_id`,
         spa.handle
         from quote_apply qa

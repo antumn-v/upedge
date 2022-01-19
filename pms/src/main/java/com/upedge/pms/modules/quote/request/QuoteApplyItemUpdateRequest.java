@@ -1,8 +1,8 @@
 package com.upedge.pms.modules.quote.request;
 
 import com.upedge.pms.modules.quote.entity.QuoteApplyItem;
-import java.util.Date;
 import lombok.Data;
+
 import java.math.BigDecimal;
 /**
  * @author gx
@@ -37,7 +37,7 @@ public class QuoteApplyItemUpdateRequest{
     /**
      * 
      */
-    private String storeProductSku;
+    private String storeVariantSku;
     /**
      * 
      */
@@ -76,7 +76,7 @@ public class QuoteApplyItemUpdateRequest{
         quoteApplyItem.setStoreVariantId(storeVariantId);
         quoteApplyItem.setStoreVariantName(storeVariantName);
         quoteApplyItem.setStoreProductTitle(storeProductTitle);
-        quoteApplyItem.setStoreProductSku(storeProductSku);
+        quoteApplyItem.setStoreVariantSku(storeVariantSku);
         quoteApplyItem.setStoreVariantImage(storeVariantImage);
         quoteApplyItem.setProductTitle(productTitle);
         quoteApplyItem.setVariantName(variantName);
