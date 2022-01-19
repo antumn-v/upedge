@@ -96,12 +96,16 @@ public class CustomerIossServiceImpl implements CustomerIossService {
     /**
     *
     */
-    @Transactional
     public int updateByPrimaryKeySelective(CustomerIoss record) {
-        CustomerIossVo customerIossVo = new CustomerIossVo();
-        BeanUtils.copyProperties(record,customerIossVo);
-        redisTemplate.opsForValue().set(RedisKey.STRING_CUSTOMER_IOSS+record.getCustomerId(),customerIossVo);
-        return customerIossDao.updateByPrimaryKeySelective(record);
+        int i = customerIossDao.updateByPrimaryKeySelective(record);
+        if (i == 1){
+            record = selectByPrimaryKey(record.getId());
+            CustomerIossVo customerIossVo = new CustomerIossVo();
+            BeanUtils.copyProperties(record,customerIossVo);
+            redisTemplate.opsForValue().set(RedisKey.STRING_CUSTOMER_IOSS+record.getCustomerId(),customerIossVo);
+        }
+
+        return i;
     }
 
     /**
