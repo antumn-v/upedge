@@ -283,7 +283,7 @@
         update `wholesale_order` o
                 inner join
                 (
-                select oo.id as `orderId`, sum (quantity * usd_price) as `productAmount`
+                select oo.id as `orderId`, sum(quantity * usd_price) as `productAmount`
                 from wholesale_order_item oi
                 inner join `wholesale_order` oo
                 on oi.order_id = oo.id

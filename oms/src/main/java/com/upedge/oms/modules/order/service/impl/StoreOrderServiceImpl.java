@@ -21,10 +21,7 @@ import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.utils.IdGenerate;
 import com.upedge.common.utils.ListUtils;
 import com.upedge.common.web.util.RedisUtil;
-import com.upedge.oms.modules.order.dao.StoreOrderAddressDao;
-import com.upedge.oms.modules.order.dao.StoreOrderDao;
-import com.upedge.oms.modules.order.dao.StoreOrderItemDao;
-import com.upedge.oms.modules.order.dao.StoreOrderRefundDao;
+import com.upedge.oms.modules.order.dao.*;
 import com.upedge.oms.modules.order.dto.UnrecognizedStoreOrderDto;
 import com.upedge.oms.modules.order.entity.StoreOrder;
 import com.upedge.oms.modules.order.entity.StoreOrderAddress;
@@ -72,6 +69,9 @@ public class StoreOrderServiceImpl implements StoreOrderService {
 
     @Autowired
     StoreOrderRefundDao storeOrderRefundDao;
+
+    @Autowired
+    StoreOrderRelateDao storeOrderRelateDao;
 
     @Autowired
     OrderAddressService orderAddressService;
@@ -180,13 +180,11 @@ public class StoreOrderServiceImpl implements StoreOrderService {
         if (!flag) {
             return null;
         }
-
         StoreOrder storeOrder = storeOrderDao.selectByStorePlatId(storeVo.getId(), platOrderId);
         Long storeAddressId = null;
         Long storeOrderId = null;
         boolean b = false;
         Date date = new Date();
-
         if (null == storeOrder) {
             storeAddressId = IdGenerate.nextId();
             storeOrderId = IdGenerate.nextId();
@@ -258,6 +256,7 @@ public class StoreOrderServiceImpl implements StoreOrderService {
             if (i == 1){
                 orderAddressService.updateByStoreOrderAddress(storeOrderAddress);
             }
+            storeOrderRelateDao.updateStoreStatusByStoreOrderId(storeOrder);
         } else {
             while (iterator.hasNext()) {
                 ShopifyLineItem lineItemsBean = iterator.next();

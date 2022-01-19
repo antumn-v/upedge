@@ -23,4 +23,9 @@ public class StoreOrderRelateServiceImpl implements StoreOrderRelateService {
     public List<StoreOrderRelate> selectByStoreOrderId(Long storeOrderId) {
         return storeOrderRelateDao.selectByStoreOrderId(storeOrderId);
     }
+
+    @Override
+    public int updateCustomerNameByOrderId(Long orderId, String customerName) {
+        return storeOrderRelateDao.updateCustomerNameByOrderId(orderId, customerName);
+    }
 }

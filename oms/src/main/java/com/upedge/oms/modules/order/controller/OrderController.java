@@ -341,7 +341,7 @@ public class OrderController {
     public BaseResponse orderTicketDetail(@PathVariable Long orderId){
         SupportTicketsVo supportTicketsVo = supportTicketsService.selectOpenTicketDetailByOrderId(orderId);
         if(null == supportTicketsVo){
-            return BaseResponse.failed();
+            return new BaseResponse(-2,Constant.MESSAGE_FAIL);
         }
         return BaseResponse.success(supportTicketsVo);
     }

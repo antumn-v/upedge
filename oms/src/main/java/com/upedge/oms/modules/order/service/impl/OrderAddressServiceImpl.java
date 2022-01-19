@@ -9,6 +9,7 @@ import com.upedge.oms.modules.order.service.OrderAddressService;
 import com.upedge.oms.modules.order.service.OrderService;
 import com.upedge.oms.modules.order.service.StoreOrderRelateService;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -32,22 +33,29 @@ public class OrderAddressServiceImpl implements OrderAddressService {
 
     @Override
     public void updateByStoreOrderAddress(StoreOrderAddress storeOrderAddress) {
+        if (null == storeOrderAddress){
+            return;
+        }
         List<Long> storeOrderIds = new ArrayList<>();
         storeOrderIds.add(storeOrderAddress.getStoreOrderId());
         List<StoreOrderRelate> storeOrderRelateList = storeOrderRelateService.selectUnPaidByStoreOrderId(storeOrderIds);
-        if (ListUtils.isNotEmpty(storeOrderRelateList)){
+        if (ListUtils.isEmpty(storeOrderRelateList)){
             return;
         }
+        String name = storeOrderAddress.getFirstName() + " " + storeOrderAddress.getLastName();
         for (StoreOrderRelate storeOrderRelate : storeOrderRelateList) {
             OrderAddress orderAddress = orderAddressDao.selectByOrderId(storeOrderRelate.getOrderId());
             Long orderAddressId = orderAddress.getId();
-            if (!orderAddress.getCountry().equals(storeOrderAddress.getCountry())){
+            if (StringUtils.isBlank(orderAddress.getCountry())
+                || !orderAddress.getCountry().equals(storeOrderAddress.getCountry())){
                 orderService.orderUpdateToAreaId(storeOrderRelate.getOrderId(),storeOrderAddress.getCountry());
             }
             BeanUtils.copyProperties(storeOrderAddress,orderAddress);
             orderAddress.setOrderId(storeOrderRelate.getOrderId());
             orderAddress.setId(orderAddressId);
+            orderAddress.setName(name);
             orderAddressDao.updateByPrimaryKey(orderAddress);
+            storeOrderRelateService.updateCustomerNameByOrderId(storeOrderRelate.getOrderId(),orderAddress.getName());
         }
     }
 }

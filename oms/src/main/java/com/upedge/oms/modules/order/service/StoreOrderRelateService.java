@@ -9,4 +9,7 @@ public interface StoreOrderRelateService {
     List<StoreOrderRelate> selectUnPaidByStoreOrderId(List<Long> storeOrderIds);
 
     List<StoreOrderRelate> selectByStoreOrderId(Long storeOrderId);
+
+    int updateCustomerNameByOrderId(Long orderId,
+                                    String customerName);
 }

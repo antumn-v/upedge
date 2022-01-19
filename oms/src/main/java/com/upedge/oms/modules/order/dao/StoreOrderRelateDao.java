@@ -1,6 +1,7 @@
 package com.upedge.oms.modules.order.dao;
 
 import com.upedge.common.base.Page;
+import com.upedge.oms.modules.order.entity.StoreOrder;
 import com.upedge.oms.modules.order.entity.StoreOrderRelate;
 import org.apache.ibatis.annotations.Param;
 
@@ -14,6 +15,8 @@ public interface StoreOrderRelateDao{
 
     int deleteByOrderId(@Param("orderIds") List<Long> orderIds);
 
+    int updateStoreStatusByStoreOrderId(StoreOrder storeOrder);
+
     List<StoreOrderRelate> selectUnPaidByStoreOrderId(@Param("storeOrderIds") List<Long> storeOrderIds);
 
     List<StoreOrderRelate> selectByOrderId(Long orderId);
@@ -21,6 +24,9 @@ public interface StoreOrderRelateDao{
     List<StoreOrderRelate> selectByStoreOrderId(Long storeOrderId);
 
     StoreOrderRelate selectByPrimaryKey(StoreOrderRelate record);
+
+    int updateCustomerNameByOrderId(@Param("orderId")Long orderId,
+                                    @Param("customerName")String customerName);
 
     int updateOrderId(@Param("orderIds") List<Long> orderIds,
                       @Param("orderId") Long orderId);

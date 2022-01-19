@@ -34,7 +34,6 @@
             #{storeOrderId}
         </foreach>
         and o.pay_state = '0'
-        and o.order_type != '1'
     </select>
 
     <select id="selectByOrderId" resultMap="BaseResultMap">
@@ -326,4 +325,16 @@
         </foreach>
     </select>
 
+    <update id="updateCustomerNameByOrderId">
+        update store_order_relate
+            set order_customer_name = #{customerName}
+        where order_id = #{orderId}
+    </update>
+
+    <update id="updateStoreStatusByStoreOrderId" parameterType="com.upedge.oms.modules.order.entity.StoreOrder">
+        update store_order_relate
+        set fulfillment_status = #{fulfillmentStatus},
+            financial_status = #{financialStatus}
+        where store_order_id = #{id}
+    </update>
 </mapper>
