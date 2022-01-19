@@ -179,7 +179,7 @@ public class AppProductServiceImpl implements AppProductService {
         for (ShipDetail shipDetail : shipDetails) {
             shipDetail.setPrice(shipDetail.getPrice().add(shipDetail.getServiceFee()));
         }
-        return new AppVariantShipsResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS,searchResponse.getData());
+        return new AppVariantShipsResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS,shipDetails);
     }
 
     @Override
