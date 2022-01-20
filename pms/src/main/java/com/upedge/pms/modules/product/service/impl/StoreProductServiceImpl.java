@@ -39,6 +39,7 @@ import com.upedge.thirdparty.woocommerce.moudles.product.controller.WoocommerceP
 import com.upedge.thirdparty.woocommerce.moudles.product.entity.WoocProduct;
 import com.upedge.thirdparty.woocommerce.moudles.product.entity.WoocVariant;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
@@ -85,7 +86,6 @@ public class StoreProductServiceImpl implements StoreProductService {
     ProductVariantAttrDao productVariantAttrDao;
 
 
-
     @Override
     public List<StoreProductRelateVo> selectStoreVariantRelateDetail(Long storeProductId) {
         return storeProductVariantDao.selectStoreVariantRelateDetail(storeProductId);
@@ -93,12 +93,12 @@ public class StoreProductServiceImpl implements StoreProductService {
 
     @Transactional
     @Override
-    public BaseResponse toNormalProduct(Long id,Session session) {
+    public BaseResponse toNormalProduct(Long id, Session session) {
         StoreProductAttribute storeProductAttribute = storeProductAttributeDao.selectByPrimaryKey(id);
-        if (null == storeProductAttribute){
+        if (null == storeProductAttribute) {
             return BaseResponse.failed("店铺产品不存在");
         }
-        if (storeProductAttribute.getTransformState() == 1){
+        if (storeProductAttribute.getTransformState() == 1) {
             return BaseResponse.failed("同一产品不能重复转换");
         }
         List<StoreProductVariant> storeProductVariants = storeProductVariantDao.listUseVariantProductId(id);
@@ -106,13 +106,13 @@ public class StoreProductServiceImpl implements StoreProductService {
         List<ProductVariantAttr> productVariantAttrs = new ArrayList<>();
         Long newProductId = null;
         Product product = productService.selectByOriginalId(id.toString());
-        if (null == product){
+        if (null == product) {
             newProductId = IdGenerate.nextId();
             product = storeProductAttribute.toProduct(session);
             product.setId(newProductId);
             for (StoreProductVariant storeProductVariant : storeProductVariants) {
                 Long variantId = IdGenerate.nextId();
-                ProductVariant productVariant = storeProductVariant.toProductVariant(newProductId,variantId);
+                ProductVariant productVariant = storeProductVariant.toProductVariant(newProductId, variantId);
                 productVariants.add(productVariant);
                 ProductVariantAttr productVariantAttr = new ProductVariantAttr();
                 productVariantAttr.setVariantId(variantId);
@@ -127,7 +127,7 @@ public class StoreProductServiceImpl implements StoreProductService {
             productService.insert(product);
             productVariantDao.insertByBatch(productVariants);
             productVariantAttrDao.insertByBatch(productVariantAttrs);
-            storeProductAttributeDao.updateTransformStateById(id,1);
+            storeProductAttributeDao.updateTransformStateById(id, 1);
 
             ProductAttribute productAttribute = new ProductAttribute();
             productAttribute.setProductId(newProductId);
@@ -140,7 +140,7 @@ public class StoreProductServiceImpl implements StoreProductService {
 
             return BaseResponse.success();
         }
-        storeProductAttributeDao.updateTransformStateById(id,1);
+        storeProductAttributeDao.updateTransformStateById(id, 1);
         return BaseResponse.failed("同一产品不能重复转换");
     }
 
@@ -288,74 +288,57 @@ public class StoreProductServiceImpl implements StoreProductService {
         ImportProductAttribute importAttribute = importProductAttributeDao.selectByPlatId(storeVo.getId(), platProductId);
         StoreProductAttribute attribute = saveShopifyProductAttribute(product, storeVo, importAttribute);
         Long storeProductId = attribute.getId();
+        String mainImage = null;
+        if (product.getImage() != null) {
+            mainImage = product.getImage().getSrc();
+        }
         //已保存的店铺变体
         List<String> variantPlatIds = storeProductVariantDao.selectPlatVariantIdByProductId(storeProductId);
-
         List<ShopifyVariant> variants = product.getVariants();
-
         List<ShopifyImage> images = product.getImages();
-
         HashMap<String, String> imageMap = new HashMap<>();
         if (ListUtils.isNotEmpty(images)) {
             images.forEach(image -> {
                 imageMap.put(image.getId(), image.getSrc());
             });
-
         }
         List<StoreProductVariant> insertVariants = new ArrayList<>();
         Date date = new Date();
         TreeSet<BigDecimal> variantPrices = new TreeSet<>();
+        List<String> platVariantIds = new ArrayList<>();
+        List<StoreProductVariant> updateVariants = new ArrayList<>();
 
-        if (ListUtils.isEmpty(variantPlatIds)) {
-            variants.forEach(variant -> {
+        for (ShopifyVariant variant : variants) {
+            variantPrices.add(variant.getPrice());
+            StoreProductVariant storeVariant = shopifyVariantToStoreVariant(variant, date, storeProductId, platProductId);
+            if (null != variant.getImage_id()) {
+                storeVariant.setImage(imageMap.get(variant.getImage_id()));
+            }
+            //没有图片的变体用主图图片
+            if (StringUtils.isBlank(storeVariant.getImage())) {
+                storeVariant.setImage(mainImage);
+            }
+            if (variantPlatIds.contains(variant.getId())) {
+                updateVariants.add(storeVariant);
+            } else {
                 Long storeVariantId = IdGenerate.nextId();
-                StoreProductVariant storeVariant = shopifyVariantToStoreVariant(variant, date, storeProductId, platProductId);
-                if (null != variant.getImage_id()) {
-                    storeVariant.setImage(imageMap.get(variant.getImage_id()));
-                }
-                variantPrices.add(variant.getPrice());
                 storeVariant.setId(storeVariantId);
                 insertVariants.add(storeVariant);
-            });
+            }
+            platVariantIds.add(variant.getId());
+        }
+
+        if (insertVariants.size() > 0) {
             storeProductVariantDao.insertByBatch(insertVariants);
-        } else {
-            List<String> platVariantIds = new ArrayList<>();
-
-            List<StoreProductVariant> updateVariants = new ArrayList<>();
-
-            variants.forEach(variant -> {
-
-                variantPrices.add(variant.getPrice());
-                if (variantPlatIds.contains(variant.getId())) {
-                    StoreProductVariant storeVariant = shopifyVariantToStoreVariant(variant, date, storeProductId, platProductId);
-                    if (null != variant.getImage_id()) {
-                        storeVariant.setImage(imageMap.get(variant.getImage_id()));
-                    }
-                    updateVariants.add(storeVariant);
-                } else {
-
-                    Long storeVariantId = IdGenerate.nextId();
-                    StoreProductVariant storeVariant = shopifyVariantToStoreVariant(variant, date, storeProductId, platProductId);
-                    storeVariant.setId(storeVariantId);
-                    if (null != variant.getImage_id()) {
-                        storeVariant.setImage(imageMap.get(variant.getImage_id()));
-                    }
-                    insertVariants.add(storeVariant);
-                }
-                platVariantIds.add(variant.getId());
-            });
-            if (insertVariants.size() > 0) {
-                storeProductVariantDao.insertByBatch(insertVariants);
-            }
-            if (updateVariants.size() > 0) {
-                storeProductVariantDao.updateByBatch(updateVariants);
-            }
-            storeProductVariantDao.markStoreVariantAsRemovedByPlatId(storeProductId, platVariantIds);
         }
-        if (importAttribute != null){
-            storeProductVariantDao.updateAdminVariantIdByImportId(importAttribute.getId(),storeProductId);
+        if (updateVariants.size() > 0) {
+            storeProductVariantDao.updateByBatch(updateVariants);
         }
-        saveProductRelate(attribute, importAttribute);
+        storeProductVariantDao.markStoreVariantAsRemovedByPlatId(storeProductId, platVariantIds);
+
+        if (importAttribute != null) {
+            storeProductVariantDao.updateAdminVariantIdByImportId(importAttribute.getId(), storeProductId);
+        }
         attribute = new StoreProductAttribute();
         attribute.setId(storeProductId);
         if (variantPrices.size() > 1) {
@@ -457,7 +440,7 @@ public class StoreProductServiceImpl implements StoreProductService {
             List<Long> orgIds = session.getOrgIds();
             if (ListUtils.isEmpty(orgIds)) {
                 request.setTotal(0L);
-                return  BaseResponse.success(0,request);
+                return BaseResponse.success(0, request);
             }
             request.getT().setOrgIds(orgIds);
         }
@@ -465,7 +448,7 @@ public class StoreProductServiceImpl implements StoreProductService {
 
         request.setTotal(total);
 
-        return BaseResponse.success(total,request);
+        return BaseResponse.success(total, request);
     }
 
     public StoreProductAttribute saveShoplazzaProductAttribute(ShoplazzaProduct product, StoreVo storeVo, ImportProductAttribute importAttribute) {
