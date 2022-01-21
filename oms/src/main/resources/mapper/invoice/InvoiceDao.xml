@@ -45,9 +45,12 @@
         and pay_state > '0'
         group by payment_id,pay_time
         ) invoices
-        where invoices.pay_time
-        between #{t.beginTime}
-        and #{t.endTime}
+        where 1 = 1
+        <if test="t.beginTime != null and t.endTime != null">
+            and date(invoices.pay_time)
+            between #{t.beginTime}
+            and #{t.endTime}
+        </if>
         <if test="t.orderType != null">
             and invoices.type = #{t.orderType}
         </if>

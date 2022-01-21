@@ -46,6 +46,7 @@ public class CustomerProductQuoteController {
         if (request.getT() == null){
             request.setT(new CustomerProductQuote());
         }
+        request.getT().setQuoteState(1);
         request.getT().setCustomerId(session.getCustomerId());
         List<CustomerProductQuote> customerProductQuotes = customerProductQuoteService.select(request);
         if (session.getApplicationId().equals(Constant.APP_APPLICATION_ID)){
