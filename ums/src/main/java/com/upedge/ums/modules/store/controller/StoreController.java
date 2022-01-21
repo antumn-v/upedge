@@ -17,7 +17,6 @@ import com.upedge.common.utils.HMACValidation;
 import com.upedge.common.utils.ListUtils;
 import com.upedge.common.web.util.RequestUtil;
 import com.upedge.common.web.util.UserUtil;
-
 import com.upedge.thirdparty.shopify.moudles.shop.controller.ShopifyShopApi;
 import com.upedge.thirdparty.shopify.moudles.shop.entity.ShopifyGetTokenParam;
 import com.upedge.ums.async.StoreAsync;
@@ -45,6 +44,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -115,28 +115,49 @@ public class StoreController {
                 return BaseResponse.failed();
             }
             String token = jsonObject.getJSONObject("data").getString("token");
-            Store store = storeService.updateShopifyStore(shop, token, session);
+            Store store = new Store();
+            store.setStoreUrl(shop);
+            store = storeService.selectByPrimaryKey(store);
+            Map<String,Object> map = new HashMap<>();
+            map.put("token",null);
+            map.put("guideNotice",false);
+            if (session == null && store == null){
+                store = new Store();
+                store.setStoreUrl(shop);
+                store.setApiToken(token);
+                redisTemplate.opsForValue().set(state,store,30,TimeUnit.MINUTES);
+                map.put("state",state);
+                return BaseResponse.success(map);
+            }
+            store = storeService.updateShopifyStore(shop, token, session);
             if (store != null) {
                 try {
                     storeAsync.getStoreData(store);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
+                if (session == null){
+                    Customer customer = customerService.selectByPrimaryKey(store.getCustomerId());
+                    User user = userService.selectByPrimaryKey(customer.getCustomerSignupUserId());
+                    map = userServiceImpl.userSignIn(user, 1L);
+                    map.put("state",null);
+                    return BaseResponse.success(map);
+                }
                 return BaseResponse.success();
             }
             return BaseResponse.failed();
-
         }
         return BaseResponse.success("Verification failed");
     }
 
 
-    @GetMapping("/connect/shopify")
+    @GetMapping("/connectShopify")
     public BaseResponse shopifyConnectRequest(@RequestParam("hmac") String hmac,
                                               @RequestParam("shop") String shop) {
         Map<String, Object> result = new HashMap<>();
         result.put("url", null);
         result.put("token", null);
+        result.put("guideNotice",false);
         HttpServletRequest request = RequestUtil.getRequest();
         String string = request.getQueryString();
         String[] params = string.split("&");
@@ -149,16 +170,16 @@ public class StoreController {
         }
         boolean verify = HMACValidation.Valicate(hmac, args, ShopifyConfig.api_select_key);
         if (verify) {
+            shop = shop.replace(".myshopify.com","");
             Store store = new Store();
             store.setStoreName(shop);
             store = storeService.selectByPrimaryKey(store);
             if (store == null || store.getStatus() != 1) {
-                Session session = null;
                 String nonce = System.currentTimeMillis() + "";
                 String url = getShopifyAuthUrl(shop, nonce);
-                redisTemplate.opsForValue().set(nonce, session);
+                redisTemplate.opsForValue().set(nonce, null,1, TimeUnit.HOURS);
                 result.put("url", url);
-                return new ShopifyAuthResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS, url);
+                return new ShopifyAuthResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS, result);
             } else {
                 Customer customer = customerService.selectByPrimaryKey(store.getCustomerId());
                 User user = userService.selectByPrimaryKey(customer.getCustomerSignupUserId());

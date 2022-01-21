@@ -16,10 +16,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
@@ -174,6 +171,22 @@ public class WebhookController {
             }
         });
 
+        return HttpStatus.OK;
+    }
+
+
+    @GetMapping("/customers/redact")
+    public HttpStatus customerRedact(){
+        return HttpStatus.OK;
+    }
+
+    @GetMapping("/customers/delete")
+    public HttpStatus customerDelete(){
+        return HttpStatus.OK;
+    }
+
+    @GetMapping("/store/delete")
+    public HttpStatus storeDelete(){
         return HttpStatus.OK;
     }
 

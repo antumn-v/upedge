@@ -40,6 +40,8 @@ public class RedisKey {
     public static final String STRING_AREA_VAT_RULE = "vat:rule:area:";
     //店铺信息
     public static final String STRING_STORE = "store:";
+
+    public static final String STRING_SHOPIFY_STATE = "shopify:state:";
     //店铺产品信息更新
     public static final String STRING_STORE_PLAT_PRODUCT = "store:plat:product:";
     //支付中的订单

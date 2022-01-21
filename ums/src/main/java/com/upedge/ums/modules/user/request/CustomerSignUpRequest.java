@@ -87,6 +87,7 @@ public class CustomerSignUpRequest {
     @ApiModelProperty(value = "注册成功后是否直接登陆,默认为true",required = false)
     private Boolean autoLogin = true;
 
+    private String state;
 
     private String managerCode;
 
@@ -148,10 +149,15 @@ public class CustomerSignUpRequest {
         user.setCustomerId(customer.getId());
         user.setUserType(BaseCode.USER_ROLE_ADMIN);
         user.setStatus(BaseCode.USER_ON);
+        user.setCountry(country);
+        user.setAvatar(Constant.AVATAR);
+        user.setEmail(email);
+        user.setMobile(mobile);
+        user.setUsername(username);
+        user.setLoginCount(0);
         user.setCreateTime(this.createTime);
         user.setUpdateTime(this.createTime);
         user.setLastLoginTime(new Date());
-        user.setLoginCount(0);
         return user;
     }
 

@@ -589,7 +589,7 @@ public class StoreServiceImpl implements StoreService {
 
     public static String getShopifyAuthUrl(String shop, String nonce) {
         StringBuffer url = new StringBuffer();
-        StringBuffer s = url.append("http://").append(shop).append(".myshopify.com/admin/oauth/authorize?client_id=")
+        StringBuffer s = url.append("https://").append(shop).append(".myshopify.com/admin/oauth/authorize?client_id=")
                 .append(ShopifyConfig.api_key).append("&scope=")
                 .append(ShopifyConfig.scope).append("&redirect_uri=")
                 .append(ShopifyConfig.redirect_url)
