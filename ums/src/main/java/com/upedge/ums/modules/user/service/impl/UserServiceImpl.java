@@ -202,9 +202,6 @@ public class UserServiceImpl implements UserService {
     @Transactional
     @Override
     public CustomerSignUpResponse signUp(CustomerSignUpRequest request) throws CustomerException {
-        System.out.println("----------请求信息----------");
-        System.out.println(request);
-        System.out.println("----------------------------");
         Application application = applicationService.selectByPrimaryKey(request.getApplicationId());
 
         if (null == application) {
@@ -321,13 +318,17 @@ public class UserServiceImpl implements UserService {
         customer.setCustomerSignupUserId(userId);
         customerService.insert(customer);
 
+        //添加默认组织
+        Organization organization = request.toOrganization(customer);
+        organizationService.insert(organization);
+
         User user = request.toUser(customer);
         user.setId(userId);
         insert(user);
 
-        //添加默认组织
-        Organization organization = request.toOrganization(customer);
-        organizationService.insert(organization);
+        UserInfo userInfo = request.toUserInfo(user);
+        userInfo.setOrgId(organization.getId());
+        userInfoService.insert(userInfo);
 
         OrganizationUser organizationUser = new OrganizationUser();
         organizationUser.setOrgId(organization.getId());
@@ -355,9 +356,7 @@ public class UserServiceImpl implements UserService {
         organizationMenu.setMenuId(0L);
         organizationMenuService.insert(organizationMenu);
 
-        UserInfo userInfo = request.toUserInfo(user);
-        userInfo.setOrgId(organization.getId());
-        userInfoService.insert(userInfo);
+
 
         Account account = request.toAccount(customer);
         account.setName(userInfo.getUsername());

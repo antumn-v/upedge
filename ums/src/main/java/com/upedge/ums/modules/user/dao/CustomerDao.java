@@ -1,14 +1,19 @@
 package com.upedge.ums.modules.user.dao;
 
-import com.upedge.ums.modules.user.entity.Customer;
-import org.apache.ibatis.annotations.Mapper;
-import java.util.List;
 import com.upedge.common.base.Page;
+import com.upedge.ums.modules.user.entity.Customer;
+import com.upedge.ums.modules.user.vo.CustomerDetailVo;
+
+import java.util.List;
 
 /**
  * @author gx
  */
 public interface CustomerDao{
+
+    Long countCustomerDetail(Page<CustomerDetailVo> customerDetailVoPage);
+
+    List<CustomerDetailVo> selectCustomerDetail(Page<CustomerDetailVo> customerDetailVoPage);
 
     Customer selectByPrimaryKey(Customer record);
 

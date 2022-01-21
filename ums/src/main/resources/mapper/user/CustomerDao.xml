@@ -182,5 +182,61 @@
         <include refid="Query_Condition"/>
     </select>
 
+    <select id="selectCustomerDetail" resultType="com.upedge.ums.modules.user.vo.CustomerDetailVo">
+        SELECT c.id,
+               u.email,
+               u.username,
+               u.login_count,
+               u.last_login_time,
+               u.`status`,
+               u.skype,
+               u.whatsapp,
+               u.wechat,
+               u.fb_info,
+        a.balance
+        FROM customer c
+        LEFT JOIN `user` u ON u.id = c.customer_signup_user_id
+        left join account a on a.customer_id = c.id
+        where a.is_default = '1'
+        <if test="t != null">
+            <trim prefix=" " suffix=" " suffixOverrides=" and ">
+                1 = 1 and
+                <if test="t.id != null">
+                    c.id = {t.id}
+                </if>
+                <if test="t.username != null">
+                    u.username = #{t.username}
+                </if>
+                <if test="t.email != null">
+                    u.email = #{t.email}
+                </if>
+            </trim>
+        </if>
+        order by u.last_login_time desc
+        <if test="pageNum != null and pageSize != null">
+            limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+        </if>
+    </select>
 
+    <select id="countCustomerDetail" resultType="Long">
+        SELECT count(1)
+        FROM customer c
+        LEFT JOIN `user` u ON u.id = c.customer_signup_user_id
+        left join account a on a.customer_id = c.id
+        where a.is_default = '1'
+        <if test="t != null">
+            <trim prefix=" " suffix=" " suffixOverrides=" and ">
+                1 = 1 and
+                <if test="t.id != null">
+                    c.id = {t.id}
+                </if>
+                <if test="t.username != null">
+                    u.username = #{t.username}
+                </if>
+                <if test="t.email != null">
+                    u.email = #{t.email}
+                </if>
+            </trim>
+        </if>
+    </select>
 </mapper>

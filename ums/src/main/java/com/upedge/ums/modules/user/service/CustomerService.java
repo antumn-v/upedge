@@ -1,13 +1,18 @@
 package com.upedge.ums.modules.user.service;
 
+import com.upedge.common.base.BaseResponse;
 import com.upedge.ums.modules.user.entity.Customer;
 import com.upedge.common.base.Page;
+import com.upedge.ums.modules.user.vo.CustomerDetailVo;
+
 import java.util.List;
 
 /**
  * @author gx
  */
 public interface CustomerService{
+
+    BaseResponse selectCustomerDetail(Page<CustomerDetailVo> customerDetailVoPage);
 
     Customer selectByPrimaryKey(Long id);
 

@@ -1,25 +1,22 @@
 package com.upedge.ums.modules.user.controller;
 
-import java.util.Arrays;
-import java.util.Map;
-
-import com.upedge.common.constant.ResultCode;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.upedge.common.base.BaseResponse;
+import com.upedge.common.base.Page;
 import com.upedge.common.component.annotation.Permission;
-import com.upedge.ums.modules.user.entity.Customer;
-import com.upedge.ums.modules.user.service.CustomerService;
-import org.springframework.web.bind.annotation.*;
-import java.util.List;
 import com.upedge.common.constant.Constant;
+import com.upedge.common.constant.ResultCode;
+import com.upedge.ums.modules.user.entity.Customer;
 import com.upedge.ums.modules.user.request.CustomerAddRequest;
-import com.upedge.ums.modules.user.request.CustomerListRequest;
 import com.upedge.ums.modules.user.request.CustomerUpdateRequest;
-
 import com.upedge.ums.modules.user.response.CustomerAddResponse;
 import com.upedge.ums.modules.user.response.CustomerDelResponse;
 import com.upedge.ums.modules.user.response.CustomerInfoResponse;
-import com.upedge.ums.modules.user.response.CustomerListResponse;
 import com.upedge.ums.modules.user.response.CustomerUpdateResponse;
+import com.upedge.ums.modules.user.service.CustomerService;
+import com.upedge.ums.modules.user.vo.CustomerDetailVo;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+
 import javax.validation.Valid;
 
 /**
@@ -44,12 +41,8 @@ public class CustomerController {
 
     @RequestMapping(value="/list", method=RequestMethod.POST)
     @Permission(permission = "user:customer:list")
-    public CustomerListResponse list(@RequestBody @Valid CustomerListRequest request) {
-        List<Customer> results = customerService.select(request);
-        Long total = customerService.count(request);
-        request.setTotal(total);
-        CustomerListResponse res = new CustomerListResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS,results,request);
-        return res;
+    public BaseResponse list(@RequestBody @Valid Page<CustomerDetailVo> request) {
+        return customerService.selectCustomerDetail(request);
     }
 
     @RequestMapping(value="/add", method=RequestMethod.POST)

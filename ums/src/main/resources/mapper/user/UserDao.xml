@@ -11,10 +11,20 @@
         <result property="loginPass" column="login_pass"/>
         <result property="userType" column="user_type"/>
         <result property="status" column="status"/>
+        <result property="username" column="username"/>
+        <result property="avatar" column="avatar"/>
+        <result property="mobile" column="mobile"/>
+        <result property="email" column="email"/>
+        <result property="country" column="country"/>
+        <result property="whatsapp" column="whatsapp"/>
+        <result property="wechat" column="wechat"/>
+        <result property="fbInfo" column="fb_info"/>
+        <result property="skype" column="skype"/>
+        <result property="sex" column="sex"/>
+        <result property="loginCount" column="login_count"/>
         <result property="createTime" column="create_time"/>
         <result property="updateTime" column="update_time"/>
         <result property="lastLoginTime" column="last_login_time"/>
-        <result property="loginCount" column="login_count"/>
     </resultMap>
 
     <sql id="Base_Column_List">
@@ -51,6 +61,39 @@
             <if test="status != null">
                 status = #{status},
             </if>
+            <if test="username != null">
+                username = #{username},
+            </if>
+            <if test="avatar != null">
+                avatar = #{avatar},
+            </if>
+            <if test="mobile != null">
+                mobile = #{mobile},
+            </if>
+            <if test="email != null">
+                email = #{email},
+            </if>
+            <if test="country != null">
+                country = #{country},
+            </if>
+            <if test="whatsapp != null">
+                whatsapp = #{whatsapp},
+            </if>
+            <if test="wechat != null">
+                wechat = #{wechat},
+            </if>
+            <if test="fbInfo != null">
+                fb_info = #{fbInfo},
+            </if>
+            <if test="skype != null">
+                skype = #{skype},
+            </if>
+            <if test="sex != null">
+                sex = #{sex},
+            </if>
+            <if test="loginCount != null">
+                login_count = #{loginCount},
+            </if>
             <if test="createTime != null">
                 create_time = #{createTime},
             </if>
@@ -60,9 +103,6 @@
             <if test="lastLoginTime != null">
                 last_login_time = #{lastLoginTime},
             </if>
-            <if test="loginCount != null">
-                login_count = #{loginCount},
-            </if>
         </set>
         where id = #{id}
     </update>
@@ -70,22 +110,28 @@
     <update id="updateByPrimaryKey" parameterType="com.upedge.ums.modules.user.entity.User">
         update user
         <set>
-        id = #{id},
-        customer_id = #{customerId},
-        login_name = #{loginName},
-        login_pass = #{loginPass},
-        user_type = #{userType},
-        status = #{status},
-        create_time = #{createTime},
-        update_time = #{updateTime},
-        last_login_time = #{lastLoginTime},
-        login_count = #{loginCount},
+            id = #{id},
+            customer_id = #{customerId},
+            login_name = #{loginName},
+            login_pass = #{loginPass},
+            user_type = #{userType},
+            status = #{status},
+            username = #{username},
+            avatar = #{avatar},
+            mobile = #{mobile},
+            email = #{email},
+            country = #{country},
+            whatsapp = #{whatsapp},
+            wechat = #{wechat},
+            fb_info = #{fbInfo},
+            skype = #{skype},
+            sex = #{sex},
+            login_count = #{loginCount},
+            create_time = #{createTime},
+            update_time = #{updateTime},
+            last_login_time = #{lastLoginTime},
         </set>
         where id = #{id}
-    </update>
-    <update id="refreshLoginData">
-        update user set last_login_time=#{lastLoginTime},login_count=login_count+1
-    where id=#{id}
     </update>
 
     <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.upedge.ums.modules.user.entity.User" useGeneratedKeys="true">
@@ -97,10 +143,20 @@
             login_pass,
             user_type,
             status,
+            username,
+            avatar,
+            mobile,
+            email,
+            country,
+            whatsapp,
+            wechat,
+            fb_info,
+            skype,
+            sex,
+            login_count,
             create_time,
             update_time,
-            last_login_time,
-            login_count
+            last_login_time
         </trim>
         values (
         #{id},
@@ -109,10 +165,20 @@
         #{loginPass},
         #{userType},
         #{status},
+        #{username},
+        #{avatar},
+        #{mobile},
+        #{email},
+        #{country},
+        #{whatsapp},
+        #{wechat},
+        #{fbInfo},
+        #{skype},
+        #{sex},
+        #{loginCount},
         #{createTime},
         #{updateTime},
-        #{lastLoginTime},
-        #{loginCount}
+        #{lastLoginTime}
         )
     </insert>
 
@@ -120,34 +186,64 @@
         insert into user
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="id != null" >
-              id
+                id
             </if>
             <if test="customerId != null" >
-              customer_id
+                customer_id
             </if>
             <if test="loginName != null" >
-              login_name
+                login_name
             </if>
             <if test="loginPass != null" >
-              login_pass
+                login_pass
             </if>
             <if test="userType != null" >
-              user_type
+                user_type
             </if>
             <if test="status != null" >
-              status
+                status
             </if>
-            <if test="createTime != null" >
-              create_time
+            <if test="username != null" >
+                username
             </if>
-            <if test="updateTime != null" >
-              update_time
+            <if test="avatar != null" >
+                avatar
             </if>
-            <if test="lastLoginTime != null" >
-              last_login_time
+            <if test="mobile != null" >
+                mobile
+            </if>
+            <if test="email != null" >
+                email
+            </if>
+            <if test="country != null" >
+                country
+            </if>
+            <if test="whatsapp != null" >
+                whatsapp
+            </if>
+            <if test="wechat != null" >
+                wechat
+            </if>
+            <if test="fbInfo != null" >
+                fb_info
+            </if>
+            <if test="skype != null" >
+                skype
+            </if>
+            <if test="sex != null" >
+                sex
             </if>
             <if test="loginCount != null" >
-              login_count
+                login_count
+            </if>
+            <if test="createTime != null" >
+                create_time
+            </if>
+            <if test="updateTime != null" >
+                update_time
+            </if>
+            <if test="lastLoginTime != null" >
+                last_login_time
             </if>
 
         </trim>
@@ -170,6 +266,39 @@
             <if test="status != null" >
                 #{status}
             </if>
+            <if test="username != null" >
+                #{username}
+            </if>
+            <if test="avatar != null" >
+                #{avatar}
+            </if>
+            <if test="mobile != null" >
+                #{mobile}
+            </if>
+            <if test="email != null" >
+                #{email}
+            </if>
+            <if test="country != null" >
+                #{country}
+            </if>
+            <if test="whatsapp != null" >
+                #{whatsapp}
+            </if>
+            <if test="wechat != null" >
+                #{wechat}
+            </if>
+            <if test="fbInfo != null" >
+                #{fbInfo}
+            </if>
+            <if test="skype != null" >
+                #{skype}
+            </if>
+            <if test="sex != null" >
+                #{sex}
+            </if>
+            <if test="loginCount != null" >
+                #{loginCount}
+            </if>
             <if test="createTime != null" >
                 #{createTime}
             </if>
@@ -179,9 +308,6 @@
             <if test="lastLoginTime != null" >
                 #{lastLoginTime}
             </if>
-            <if test="loginCount != null" >
-                #{loginCount}
-            </if>
 
         </trim>
     </insert>
@@ -189,30 +315,50 @@
     <insert id="insertByBatch" parameterType="java.util.List">
         insert into user
         <trim prefix="(" suffix=")" suffixOverrides=",">
-           id,
-           customer_id,
-           login_name,
-           login_pass,
-           user_type,
-           status,
-           create_time,
-           update_time,
-           last_login_time,
-           login_count
+            id,
+            customer_id,
+            login_name,
+            login_pass,
+            user_type,
+            status,
+            username,
+            avatar,
+            mobile,
+            email,
+            country,
+            whatsapp,
+            wechat,
+            fb_info,
+            skype,
+            sex,
+            login_count,
+            create_time,
+            update_time,
+            last_login_time
         </trim>
         values
         <foreach collection="list" item="item" index="index" separator=",">
             <trim prefix="(" suffix=")" suffixOverrides=",">
-               #{item.id},
-               #{item.customerId},
-               #{item.loginName},
-               #{item.loginPass},
-               #{item.userType},
-               #{item.status},
-               #{item.createTime},
-               #{item.updateTime},
-               #{item.lastLoginTime},
-               #{item.loginCount}
+                #{item.id},
+                #{item.customerId},
+                #{item.loginName},
+                #{item.loginPass},
+                #{item.userType},
+                #{item.status},
+                #{item.username},
+                #{item.avatar},
+                #{item.mobile},
+                #{item.email},
+                #{item.country},
+                #{item.whatsapp},
+                #{item.wechat},
+                #{item.fbInfo},
+                #{item.skype},
+                #{item.sex},
+                #{item.loginCount},
+                #{item.createTime},
+                #{item.updateTime},
+                #{item.lastLoginTime}
             </trim>
         </foreach>
     </insert>
@@ -222,39 +368,74 @@
             where
             <trim prefix=" " suffix=" " suffixOverrides=" and ">
                 1 = 1 and
-                    <if test="t.id != null">
-                        id = #{t.id} and
-                    </if>
-                    <if test="t.customerId != null">
-                        customer_id = #{t.customerId} and
-                    </if>
-                    <if test="t.loginName != null">
-                        login_name = #{t.loginName} and
-                    </if>
-                    <if test="t.loginPass != null">
-                        login_pass = #{t.loginPass} and
-                    </if>
-                    <if test="t.userType != null">
-                        user_type = #{t.userType} and
-                    </if>
-                    <if test="t.status != null">
-                        status = #{t.status} and
-                    </if>
-                    <if test="t.createTime != null">
-                        create_time = #{t.createTime} and
-                    </if>
-                    <if test="t.updateTime != null">
-                        update_time = #{t.updateTime} and
-                    </if>
-                    <if test="t.lastLoginTime != null">
-                        last_login_time = #{t.lastLoginTime} and
-                    </if>
-                    <if test="t.loginCount != null">
-                        login_count = #{t.loginCount} and
-                    </if>
+                <if test="t.id != null">
+                    id = #{t.id} and
+                </if>
+                <if test="t.customerId != null">
+                    customer_id = #{t.customerId} and
+                </if>
+                <if test="t.loginName != null">
+                    login_name = #{t.loginName} and
+                </if>
+                <if test="t.loginPass != null">
+                    login_pass = #{t.loginPass} and
+                </if>
+                <if test="t.userType != null">
+                    user_type = #{t.userType} and
+                </if>
+                <if test="t.status != null">
+                    status = #{t.status} and
+                </if>
+                <if test="t.username != null">
+                    username = #{t.username} and
+                </if>
+                <if test="t.avatar != null">
+                    avatar = #{t.avatar} and
+                </if>
+                <if test="t.mobile != null">
+                    mobile = #{t.mobile} and
+                </if>
+                <if test="t.email != null">
+                    email = #{t.email} and
+                </if>
+                <if test="t.country != null">
+                    country = #{t.country} and
+                </if>
+                <if test="t.whatsapp != null">
+                    whatsapp = #{t.whatsapp} and
+                </if>
+                <if test="t.wechat != null">
+                    wechat = #{t.wechat} and
+                </if>
+                <if test="t.fbInfo != null">
+                    fb_info = #{t.fbInfo} and
+                </if>
+                <if test="t.skype != null">
+                    skype = #{t.skype} and
+                </if>
+                <if test="t.sex != null">
+                    sex = #{t.sex} and
+                </if>
+                <if test="t.loginCount != null">
+                    login_count = #{t.loginCount} and
+                </if>
+                <if test="t.createTime != null">
+                    create_time = #{t.createTime} and
+                </if>
+                <if test="t.updateTime != null">
+                    update_time = #{t.updateTime} and
+                </if>
+                <if test="t.lastLoginTime != null">
+                    last_login_time = #{t.lastLoginTime} and
+                </if>
             </trim>
         </if>
     </sql>
+
+    <update id="refreshLoginData">
+        update user set last_login_time=#{lastLoginTime},login_count=login_count+1
+    where id=#{id}
+    </update>
 
     <select id="select" parameterType="com.upedge.common.base.Page" resultMap="BaseResultMap">
         select

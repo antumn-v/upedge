@@ -1,29 +1,30 @@
 package com.upedge.ums.modules.user.controller;
 
-import java.util.Arrays;
-import java.util.Map;
-
+import com.alibaba.fastjson.JSONObject;
 import com.upedge.common.base.BaseResponse;
+import com.upedge.common.component.annotation.Permission;
+import com.upedge.common.constant.Constant;
 import com.upedge.common.constant.ResultCode;
 import com.upedge.common.exception.CustomerException;
 import com.upedge.common.model.user.vo.Session;
+import com.upedge.common.utils.TokenUtil;
 import com.upedge.common.web.util.UserUtil;
+import com.upedge.ums.modules.store.entity.Store;
+import com.upedge.ums.modules.store.service.StoreService;
+import com.upedge.ums.modules.user.entity.User;
 import com.upedge.ums.modules.user.request.*;
 import com.upedge.ums.modules.user.response.*;
+import com.upedge.ums.modules.user.service.UserService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import com.upedge.common.component.annotation.Permission;
-import com.upedge.ums.modules.user.entity.User;
-import com.upedge.ums.modules.user.service.UserService;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.*;
-import java.util.List;
-import com.upedge.common.constant.Constant;
 
 import javax.validation.Valid;
+import java.util.List;
 
 /**
  * 
@@ -39,6 +40,9 @@ public class UserController {
     private UserService userService;
 
     @Autowired
+    StoreService storeService;
+
+    @Autowired
     RedisTemplate redisTemplate;
 
 
@@ -52,13 +56,33 @@ public class UserController {
         if (StringUtils.isBlank(request.getUsername())) {
             request.setUsername(loginName);
         }
-        return userService.signUp(request);
+        CustomerSignUpResponse customerSignUpResponse = userService.signUp(request);
+        if(StringUtils.isNotBlank(request.getState())
+                && customerSignUpResponse.getCode() == ResultCode.SUCCESS_CODE){
+            JSONObject jsonObject = JSONObject.parseObject(JSONObject.toJSONString(customerSignUpResponse.getData()));
+            String token = jsonObject.getString("token");
+            Session session = (Session) redisTemplate.opsForValue().get(TokenUtil.getTokenKey(token));
+            Store store = (Store) redisTemplate.opsForValue().get(request.getState());
+            storeService.updateShopifyStore(store.getStoreUrl(),store.getApiToken(),session);
+        }
+        return customerSignUpResponse;
     }
 
     @ApiOperation("登录")
     @PostMapping("/signin")
     public UserSignInResponse userSignIn(@RequestBody @Valid UserSignInRequest request) {
-        return userService.signIn(request);
+        UserSignInResponse userSignInResponse = userService.signIn(request);
+        if(StringUtils.isNotBlank(request.getState())
+        && userSignInResponse.getCode() == ResultCode.SUCCESS_CODE){
+            JSONObject jsonObject = JSONObject.parseObject(JSONObject.toJSONString(userSignInResponse.getData()));
+            String token = jsonObject.getString("token");
+            Session session = (Session) redisTemplate.opsForValue().get(TokenUtil.getTokenKey(token));
+            Store store = (Store) redisTemplate.opsForValue().get(request.getState());
+            if (store != null){
+                storeService.updateShopifyStore(store.getStoreUrl(),store.getApiToken(),session);
+            }
+        }
+        return userSignInResponse;
     }
 
     @ApiOperation("客户个人信息")
@@ -82,7 +106,6 @@ public class UserController {
     public BaseResponse userUpdatePassword(@RequestBody @Valid UserUpdatePwdRequest request){
         Session session = UserUtil.getSession(redisTemplate);
         return userService.userUpdatePassword(request,session);
-
     }
 
         @RequestMapping(value="/info/{id}", method=RequestMethod.GET)

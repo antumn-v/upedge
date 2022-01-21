@@ -16,5 +16,7 @@ public class UserSignInRequest {
     @NotNull
     private Long applicationId;
 
+    private String state;
+
 
 }
