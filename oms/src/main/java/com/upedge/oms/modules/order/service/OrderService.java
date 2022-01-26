@@ -16,8 +16,8 @@ import com.upedge.oms.modules.order.request.*;
 import com.upedge.oms.modules.order.response.OrderListResponse;
 import com.upedge.oms.modules.order.response.OrderUpdateResponse;
 import com.upedge.oms.modules.order.vo.*;
-import com.upedge.oms.modules.tickets.vo.SupportTicketsVo;
 import com.upedge.thirdparty.saihe.entity.SaiheOrder;
+import org.apache.ibatis.annotations.Param;
 
 import java.text.ParseException;
 import java.util.HashMap;
@@ -29,6 +29,8 @@ import java.util.Set;
  * @author author
  */
 public interface OrderService{
+
+    int cancelOrderByIds(@Param("ids") List<Long> ids);
 
     int initShipByShipUnitId(Long shipUnitId);
 

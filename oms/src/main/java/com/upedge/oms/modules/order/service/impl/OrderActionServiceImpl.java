@@ -71,24 +71,24 @@ public class OrderActionServiceImpl implements OrderActionService {
     @Override
     public List<SameAddressOrderVo> selectSameAddressOrderByStore(Long customerId) {
         List<SameAddressOrderVo> sameAddressOrderVoList = orderAddressDao.selectSameAddressOrderByStore(customerId);
-        if(null == sameAddressOrderVoList){
+        if (null == sameAddressOrderVoList) {
             sameAddressOrderVoList = new ArrayList<>();
-        }else {
+        } else {
             Iterator<SameAddressOrderVo> iterator = sameAddressOrderVoList.iterator();
-            while (iterator.hasNext()){
+            while (iterator.hasNext()) {
                 SameAddressOrderVo sameAddressOrderVo = iterator.next();
-                if (ListUtils.isEmpty(sameAddressOrderVo.getOrderIds()) || sameAddressOrderVo.getOrderIds().size() < 2){
+                if (ListUtils.isEmpty(sameAddressOrderVo.getOrderIds()) || sameAddressOrderVo.getOrderIds().size() < 2) {
                     iterator.remove();
-                }else {
+                } else {
                     List<AppOrderVo> appOrderVos = orderDao.selectAppOrderByIds(sameAddressOrderVo.getOrderIds());
                     if (ListUtils.isNotEmpty(appOrderVos)) {
                         sameAddressOrderVo.setAppOrderVos(appOrderVos);
-                    }else {
+                    } else {
                         iterator.remove();
                     }
                 }
             }
-            if(null == sameAddressOrderVoList){
+            if (null == sameAddressOrderVoList) {
                 sameAddressOrderVoList = new ArrayList<>();
             }
         }
@@ -100,7 +100,7 @@ public class OrderActionServiceImpl implements OrderActionService {
     public String splitNormalOrder(Long orderId, SplitNormalOrderRequest request) {
         List<OrderSplitModule> orderSplitModules = request.getOrderSplitModules();
         if (ListUtils.isEmpty(orderSplitModules)
-        || orderSplitModules.size() < 2){
+                || orderSplitModules.size() < 2) {
             return Constant.MESSAGE_FAIL;
         }
 
@@ -110,7 +110,7 @@ public class OrderActionServiceImpl implements OrderActionService {
             return "Only unpaid ordinary orders can be combined";
         }
         OrderAddress orderAddress = orderAddressDao.selectByOrderId(orderId);
-        if(orderAddress == null){
+        if (orderAddress == null) {
             orderAddress = new OrderAddress();
             orderAddress.setOrderId(orderId);
             orderAddress.setId(IdGenerate.nextId());
@@ -161,10 +161,10 @@ public class OrderActionServiceImpl implements OrderActionService {
                 newItem.setAdminVariantId(itemMap.get(itemId).getAdminVariantId());
                 newItem.setItemType(itemMap.get(itemId).getItemType());
                 orderItems.add(newItem);
-                if(null != orderItem.getUsdPrice()){
+                if (null != orderItem.getUsdPrice()) {
                     productAmount = productAmount.add(new BigDecimal(newItem.getQuantity()).multiply(orderItem.getUsdPrice()));
                 }
-                if (null != orderItem.getCnyPrice()){
+                if (null != orderItem.getCnyPrice()) {
                     cnyProductAmount = cnyProductAmount.add(new BigDecimal(newItem.getQuantity()).multiply(orderItem.getCnyPrice()));
                 }
                 OrderActionLog actionLog = new OrderActionLog();
@@ -240,13 +240,13 @@ public class OrderActionServiceImpl implements OrderActionService {
         Long id = IdGenerate.nextId();
 
         Map<Long, Order> orderMap = new HashMap<>();
-
+        orderMap.put(orderId, order);
         Map<Long, OrderItem> itemMap = new HashMap<>();
 
         List<OrderItem> items = new ArrayList<>();
 
         List<Long> orderIds = new ArrayList<>();
-
+        orderIds.add(orderId);
         List<OrderActionLog> orderActionLogs = new ArrayList<>();
 
         Date date = new Date();
@@ -254,17 +254,13 @@ public class OrderActionServiceImpl implements OrderActionService {
             Long newOrderId = orderActionLog.getNewOrderId();
             Order newOrder = null;
             if (!orderMap.containsKey(newOrderId)) {
-                if (newOrderId.equals(orderId)) {
-                    newOrder = order;
-                } else {
-                    newOrder = orderDao.selectByPrimaryKey(newOrderId);
-                    if (0 != newOrder.getPayState() || 2 != order.getOrderType()) {
-                        continue;
-                    }
-                }
+                newOrder = orderDao.selectByPrimaryKey(newOrderId);
                 orderIds.add(newOrderId);
                 orderMap.put(newOrderId, newOrder);
-            } else {
+            }else {
+                newOrder = orderMap.get(newOrderId);
+            }
+            if (0 != newOrder.getPayState() || 2 != order.getOrderType()) {
                 continue;
             }
             OrderItem orderItem = null;
@@ -303,7 +299,7 @@ public class OrderActionServiceImpl implements OrderActionService {
         }
         OrderAddress orderAddress = orderAddressDao.selectByOrderId(orderId);
         List<StoreOrderRelate> storeOrderRelates = storeOrderRelateDao.selectByOrderId(orderId);
-        log.info("订单拆分即将删除的原订单：{}",orderIds);
+        log.info("订单拆分即将删除的原订单：{}", orderIds);
         orderService.deleteOrderByIds(orderIds);
         order.setId(id);
         order.setCreateTime(date);
@@ -319,6 +315,7 @@ public class OrderActionServiceImpl implements OrderActionService {
         storeOrderRelate.setId(null);
         storeOrderRelateDao.insert(storeOrderRelate);
         orderAddress.setOrderId(id);
+        orderAddress.setId(IdGenerate.nextId());
         orderAddressDao.insert(orderAddress);
         orderService.initQuoteState(id);
         return "success";
@@ -339,9 +336,7 @@ public class OrderActionServiceImpl implements OrderActionService {
         }
         List<AppOrderVo> appOrderVos = orderDao.selectAppOrderByIds(orderIds);
         AppOrderVo appOrderVo = appOrderVos.get(0);
-        if (0 != appOrderVo.getPayState() || 0 != appOrderVo.getOrderType()) {
-            return "Only unpaid ordinary orders can be combined";
-        }
+
         appOrderVos.remove(appOrderVo);
         Long orderId = appOrderVo.getId();
         Long storeId = appOrderVo.getStoreId();
@@ -376,15 +371,15 @@ public class OrderActionServiceImpl implements OrderActionService {
 
         orderActionLogDao.insertByBatch(actionLogs);
 
-        orderDao.updateOrderType(orderId,3);
+        orderDao.updateOrderType(orderId, 3);
         orderIds.clear();
         orderIds.add(orderId);
         orderDao.initProductAmountById(orderIds);
         shipDetail.setPrice(shipDetail.getPrice().subtract(shipDetail.getServiceFee()));
         Order order = orderDao.selectByPrimaryKey(orderId);
-        BigDecimal vatAmount = vatRuleService.getOrderVatAmount(order.getProductAmount(),shipDetail.getPrice(),order.getToAreaId(),order.getCustomerId());
+        BigDecimal vatAmount = vatRuleService.getOrderVatAmount(order.getProductAmount(), shipDetail.getPrice(), order.getToAreaId(), order.getCustomerId());
         shipDetail.setVatAmount(vatAmount);
-        orderDao.updateShipDetailById(shipDetail,orderId);
+        orderDao.updateShipDetailById(shipDetail, orderId);
         orderService.initQuoteState(orderId);
         return "success";
     }
@@ -415,12 +410,12 @@ public class OrderActionServiceImpl implements OrderActionService {
             Long itemId = orderActionLog.getNewItemId();
             Long newOrderId = null;
 
-            if(newOrderIdMap.containsKey(id)){
+            if (newOrderIdMap.containsKey(id)) {
                 newOrderId = newOrderIdMap.get(id);
                 if (orderItemMap.get(newOrderId).contains(itemId)) {
                     continue;
                 }
-            }else {
+            } else {
                 Order newOrder = new Order();
                 newOrderId = orderActionLog.getOldOrderId();
                 BeanUtils.copyProperties(order, newOrder);
@@ -429,7 +424,7 @@ public class OrderActionServiceImpl implements OrderActionService {
                 newOrder.setUpdateTime(date);
                 newOrder.setCnyProductAmount(BigDecimal.ZERO);
                 orders.add(newOrder);
-                newOrderIdMap.put(id,newOrderId);
+                newOrderIdMap.put(id, newOrderId);
 
                 Long storeOrderId = orderItemDao.selectStoreOrderIdById(itemId);
                 StoreOrder storeOrder = storeOrderDao.selectByPrimaryKey(storeOrderId);
@@ -437,7 +432,7 @@ public class OrderActionServiceImpl implements OrderActionService {
                 storeOrderRelate.setOrderId(newOrderId);
                 storeOrderRelate.setOrderCreateTime(date);
                 storeOrderRelates.add(storeOrderRelate);
-                storeOrderRelateDao.deleteByOrderAndStoreOrder(orderId,storeOrderId);
+                storeOrderRelateDao.deleteByOrderAndStoreOrder(orderId, storeOrderId);
 
                 StoreOrderAddress storeOrderAddress = storeOrderAddressDao.selectByStoreOrderId(storeOrderId);
                 OrderAddress address = new OrderAddress();
@@ -454,7 +449,7 @@ public class OrderActionServiceImpl implements OrderActionService {
                 orderItemMap.get(newOrderId).add(itemId);
 
                 OrderActionLog log = new OrderActionLog();
-                BeanUtils.copyProperties(orderActionLog,log);
+                BeanUtils.copyProperties(orderActionLog, log);
                 log.setCreateTime(date);
                 log.setActionType(OrderActionType.SPLIT_MERGE_ORDER);
                 log.setNewOrderId(newOrderId);
@@ -464,7 +459,7 @@ public class OrderActionServiceImpl implements OrderActionService {
             }
         }
 
-        orderDao.updateOrderType(orderId,0);
+        orderDao.updateOrderType(orderId, 0);
         orderDao.insertByBatch(orders);
         orderItemDao.updateOrderIdByOrderItemMap(orderItemMap);
         orderAddressDao.insertByBatch(orderAddresses);

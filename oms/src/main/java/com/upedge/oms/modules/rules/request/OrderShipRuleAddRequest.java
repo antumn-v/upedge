@@ -22,22 +22,6 @@ public class OrderShipRuleAddRequest{
     @NotNull
     private String title;
     /**
-    * 
-    */
-    private Double orderAmountMin = 0.00;
-    /**
-    * 
-    */
-    private Double orderAmountMax = 9999.00;
-    /**
-    * 
-    */
-    private Double freightMin = 0.00;
-    /**
-    * 
-    */
-    private Double freightMax = 9999.00;
-    /**
     * 0=禁用 1= 启用 2=已删除
     */
     @NotNull
@@ -64,10 +48,10 @@ public class OrderShipRuleAddRequest{
         OrderShipRule orderShipRules=new OrderShipRule();
         orderShipRules.setCustomerId(customerId);
         orderShipRules.setTitle(title);
-        orderShipRules.setOrderAmountMin(orderAmountMin);
-        orderShipRules.setOrderAmountMax(orderAmountMax);
-        orderShipRules.setFreightMin(freightMin);
-        orderShipRules.setFreightMax(freightMax);
+        orderShipRules.setOrderAmountMin(0.00);
+        orderShipRules.setOrderAmountMax(99999.00);
+        orderShipRules.setFreightMin(0.00);
+        orderShipRules.setFreightMax(99999.00);
         orderShipRules.setState(state);
         orderShipRules.setShippingMethodId(shippingMethodId);
         orderShipRules.setShippingMethodName(shippingMethodName);

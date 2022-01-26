@@ -2162,4 +2162,14 @@
           and o.pay_state
          &lt; 1
     </update>
+
+    <update id="cancelOrderByIds">
+        update `order`
+            set pay_state = '-1'
+        where id in
+            <foreach collection="ids" item="id" open="(" separator="," close=")">
+                #{id}
+            </foreach>
+        and pay_state = '0'
+    </update>
 </mapper>

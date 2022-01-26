@@ -24,10 +24,6 @@
         <result property="id" column="id"/>
         <result property="customerId" column="customer_id"/>
         <result property="title" column="title"/>
-        <result property="orderAmountMin" column="order_amount_min"/>
-        <result property="orderAmountMax" column="order_amount_max"/>
-        <result property="freightMin" column="freight_min"/>
-        <result property="freightMax" column="freight_max"/>
         <result property="state" column="state"/>
         <result property="shippingMethodId" column="shipping_method_id"/>
         <result property="shippingMethodName" column="shipping_method_name"/>

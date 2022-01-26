@@ -618,6 +618,13 @@ public class OrderServiceImpl implements OrderService {
     }
 
 
+    @Override
+    public int cancelOrderByIds(List<Long> ids) {
+        if (ListUtils.isEmpty(ids)){
+            return 0;
+        }
+        return orderDao.cancelOrderByIds(ids);
+    }
 
     @Override
     public int initShipByShipUnitId(Long shipUnitId) {

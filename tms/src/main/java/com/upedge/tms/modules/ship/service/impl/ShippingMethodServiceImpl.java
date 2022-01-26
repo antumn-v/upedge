@@ -116,18 +116,7 @@ public class ShippingMethodServiceImpl implements ShippingMethodService {
     }
 
     @Override
-    public List<ShipMethodNameVo> selectMixedShipMethodNamesByCountries(String countries) {
-
-        List<String> countryNames = new ArrayList<>();
-
-        if (countries.contains(",")) {
-            String[] names = countries.split(",");
-            for (int i = 0; i < names.length; i++) {
-                countryNames.add(names[i]);
-            }
-        } else {
-            countryNames.add(countries);
-        }
+    public List<ShipMethodNameVo> selectMixedShipMethodNamesByCountries(List<String> countryNames) {
 
         List<Long> areaIds = areaDao.selectIdByCountries(countryNames);
 

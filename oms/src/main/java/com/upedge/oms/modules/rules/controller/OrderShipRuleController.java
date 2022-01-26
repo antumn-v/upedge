@@ -14,19 +14,21 @@ import com.upedge.oms.modules.rules.request.OrderShipRuleUpdateRequest;
 import com.upedge.oms.modules.rules.response.*;
 import com.upedge.oms.modules.rules.service.OrderShipRuleService;
 import com.upedge.oms.modules.rules.vo.OrderShipRuleVo;
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.Date;
 import java.util.List;
-import org.springframework.web.bind.annotation.*;
 /**
  * 
  *
  * @author author
  */
+@Api(tags = "运输规则")
 @RestController
 @RequestMapping("/shipRules")
 public class OrderShipRuleController {

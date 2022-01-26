@@ -239,12 +239,14 @@ public class RechargeController {
      * @return
      */
     @GetMapping("/paypalExecute")
-    public ApplyRechargeResponse paypalExecute( String paymentId, @RequestParam("PayerID") String payerId, @RequestParam("token") String token) {
+    public ApplyRechargeResponse paypalExecute( String paymentId,String payerId, @RequestParam("token") String token) {
         String key = RedisKey.HASH_PAYPAL_TOKEN + token;
         PaypalOrder order = (PaypalOrder) redisTemplate.opsForHash().get(key, "order");
         redisTemplate.delete(key);
-        if (StringUtils.isBlank(paymentId)){
-            return new ApplyRechargeResponse(ResultCode.FAIL_CODE, Constant.MESSAGE_FAIL);
+
+        if (StringUtils.isBlank(paymentId)
+        || StringUtils.isBlank(payerId)){
+            return new ApplyRechargeResponse(ResultCode.FAIL_CODE, "Cancel Payment");
         }
         if (null == order) {
             return new ApplyRechargeResponse(ResultCode.FAIL_CODE, Constant.MESSAGE_FAIL);

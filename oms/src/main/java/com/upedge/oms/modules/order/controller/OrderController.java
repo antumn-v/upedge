@@ -409,6 +409,14 @@ public class OrderController {
         return BaseResponse.success();
     }
 
+
+    @ApiOperation("批量取消")
+    @PostMapping("/cancel")
+    public BaseResponse cancelOrderByIds(@RequestBody List<Long> ids){
+        orderService.cancelOrderByIds(ids);
+        return BaseResponse.success();
+    }
+
     @ApiOperation("恢复订单")
     @PostMapping("/{id}/restore")
     public BaseResponse restoreOrder(@PathVariable Long id) {

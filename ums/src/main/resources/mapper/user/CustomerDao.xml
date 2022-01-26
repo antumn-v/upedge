@@ -185,6 +185,7 @@
     <select id="selectCustomerDetail" resultType="com.upedge.ums.modules.user.vo.CustomerDetailVo">
         SELECT c.id,
                u.email,
+               u.loginname,
                u.username,
                u.login_count,
                u.last_login_time,

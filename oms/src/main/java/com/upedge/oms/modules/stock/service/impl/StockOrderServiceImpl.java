@@ -348,7 +348,7 @@ public class StockOrderServiceImpl implements StockOrderService {
             return null;
         }
         stockOrderDao.completeOrderTransaction(detail, BigDecimal.ZERO);
-//        orderPaidByPaymentId(paymentId, session.getCustomerId());
+        orderPaidByPaymentId(paymentId, session.getCustomerId());
         CustomerOrderDailyCountUpdateRequest customerOrderDailyCountUpdateRequest = new CustomerOrderDailyCountUpdateRequest();
         customerOrderDailyCountUpdateRequest.setCustomerId(session.getCustomerId());
         customerOrderDailyCountUpdateRequest.setOrderType(TransactionConstant.OrderType.STOCK_ORDER.getCode());
@@ -358,13 +358,7 @@ public class StockOrderServiceImpl implements StockOrderService {
         sendSavePaymentDetailMessage(detail);
         return detail;
     }
-    /**
-     * 将订单推送到赛盒
-     * @param paymentId
-     */
-    private void sendWholesaleOrderUploadSaiheMessage(Long paymentId) {
-        mqOnSaiheService.uploadPaymentIdOnMq(paymentId ,OrderType.STOCK);
-    }
+
 
     public synchronized boolean orderPaidByPaymentId(Long paymentId, Long customerId) {
         StockOrderListDto orderListDto = new StockOrderListDto();
@@ -492,26 +486,18 @@ public class StockOrderServiceImpl implements StockOrderService {
 
     @Override
     public void sendSavePaymentDetailMessage(PaymentDetail detail) {
-
         Long paymentId = detail.getPaymentId();
-
         List<TransactionDetail> transactionDetails = stockOrderDao.selectTransactionDetailByPaymentId(paymentId);
         if (ListUtils.isEmpty(transactionDetails)) {
             return;
         }
         detail.setOrderTransactions(transactionDetails);
-
         Message message = new Message(RocketMqConfig.TOPIC_SAVE_ORDER_TRANSACTION,"stock_order","stock:order:transaction:"+paymentId, JSON.toJSONBytes(detail));
         message.setDelayTimeLevel(1);
-
         MqMessageLog messageLog = MqMessageLog.toMqMessageLog(message,detail.toString());
-
-
         log.warn("交易ID：{},消息：{}",paymentId,detail);
-
         String status = "failed";
         int i = 1;
-
         while (i < 4 && !status.equals(SendStatus.SEND_OK.name())){
             try {
                 status =  defaultMQProducer.send(message).getSendStatus().name();
@@ -529,7 +515,6 @@ public class StockOrderServiceImpl implements StockOrderService {
             messageLog.setIsSendSuccess(0);
             log.warn("payment Id:{},交易信息发送失败",paymentId);
         }
-
         umsFeignClient.saveMqLog(messageLog);
     }
 

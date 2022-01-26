@@ -240,12 +240,12 @@ public class ProductVariantServiceImpl implements ProductVariantService {
         if (request.getPrice().compareTo(BigDecimal.ZERO) <= 0) {
             return new ProductVariantUpdatePriceResponse(ResultCode.FAIL_CODE, Constant.MESSAGE_FAIL);
         }
-        BigDecimal usdPrice = PriceUtils.cnyToUsdByDefaultRate(request.getPrice());
-        productVariantDao.updatePrice(request.getIds(), request.getPrice(),usdPrice);
-        List<ProductVariant> productVariantList = productVariantDao.listProductVariantByIds(request.getIds());
-        productService.refreshProductPriceRange(productVariantList.get(0).getProductId());
-        List<ProductLog> productLogList = new ArrayList<>();
 
+        List<Long> variantIds = request.getIds();
+        List<ProductVariant> productVariantList = productVariantDao.listProductVariantByIds(variantIds);
+        BigDecimal usdPrice = PriceUtils.cnyToUsdByDefaultRate(request.getPrice());
+
+        List<ProductLog> productLogList = new ArrayList<>();
         List<VariantDetail> variantDetails = new ArrayList<>();
 
         for (ProductVariant productVariant : productVariantList) {
@@ -267,8 +267,15 @@ public class ProductVariantServiceImpl implements ProductVariantService {
                 variantDetail.setUsdPrice(productVariant.getUsdPrice());
                 variantDetail.setVariantId(productVariant.getId());
                 variantDetails.add(variantDetail);
+            }else {
+                variantIds.remove(productVariant.getId());
             }
         }
+        if (ListUtils.isEmpty(variantIds)){
+            return new ProductVariantUpdatePriceResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS);
+        }
+        productVariantDao.updatePrice(request.getIds(), request.getPrice(),usdPrice);
+        productService.refreshProductPriceRange(productVariantList.get(0).getProductId());
         if (productLogList.size() > 0) {
             productLogDao.insertByBatch(productLogList);
         }

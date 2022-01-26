@@ -1,25 +1,24 @@
 server:
-  port: 8000
+  port: 8400
 spring:
   application:
-    name: ums
+    name: tms
   #cloud
   cloud:
+    loadbalancer:
+      ribbon:
+        enabled: false
     consul:
-      host: 172.23.127.10
+      host: localhost
       port: 8500
       discovery:
-        register: true #是否需要注册
-        instance-id: ${spring.application.name}-1 #实例id(唯一标志)
-        service-name: ${spring.application.name} #服务的名称
-        prefer-ip-address: true #开启ip地址注册
-        ip-address: ${spring.cloud.client.ip-address} #当前服务的请求ip
-        port: ${server.port} #服务的请求端口
+        serviceName: ${spring.application.name}    # 注册到consul的服务名称
+        heartbeat: true
   redis:
     database: 0
-    host: 172.23.127.10
+    host: 192.168.2.110
     port: 6379
-    password: HssMy@5Tygcs#7
+    password: 123456
     lettuce:
       pool:
         max-active: 8
@@ -29,7 +28,7 @@ spring:
     type: com.alibaba.druid.pool.DruidDataSource
     druid:
       driver-class-name: com.mysql.cj.jdbc.Driver
-      url: jdbc:mysql://rm-0xiq09n2322l69017.mysql.rds.aliyuncs.com:3306/ums?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai&allowMultiQueries=true&useAffectedRows=true
+      url: jdbc:mysql://rm-0xiq09n2322l690179o.mysql.rds.aliyuncs.com:3306/tms?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai&allowMultiQueries=true&useAffectedRows=true
       username: guoxing
       password: HssMy@5Tygcs#7
       initial-size: 10
@@ -76,19 +75,8 @@ mybatis-plus:
 logging:
   level:
     root: WARN
-    com.upedge.ums: DEBUG
+    com.upedge.tms: DEBUG
     com.upedge.test: DEBUG
-
-files:
-  image:
-    local: '/root/image/'
-    prefix: 'https://app.upedge.cn/image/'
-
-upedge:
-  thread:
-    coreSize: 20
-    maxSize: 200
-    keepAliveTime: 10
 
 feign:
   client:
@@ -100,29 +88,20 @@ feign:
   okhttp:
     enabled: true
 
+files:
+  image:
+    local: 'D:/developer/image/'
+    prefix: 'http://192.168.2.105:8611/image/'
+
+upedge:
+  thread:
+    coreSize: 20
+    maxSize: 200
+    keepAliveTime: 10
+
+
 rocketmq:
-  name-server: 172.23.127.10:9876
+  name-server: localhost:9876
   producer:
-    group: ums
+    group: tms
     sendMsgTimeout: 9000
-
-seata:
-  enabled: true
-  application-id: ${spring.application.name}
-  enable-auto-data-source-proxy: true
-  use-jdk-proxy: false
-  tx-service-group: default
-  service:
-    vgroupMapping:
-      default: default
-    enable-degrade: false
-    disable-global-transaction: false
-    grouplist:
-      default: 172.23.127.10:8091
-
-
-paypal:
-  key: AQ8LzGMoj51SaXobrwrWTGFlDsWj63QmDj-Qhlu8RxWW4lKxPthprqQSxW1BQ1XZ14cizuaTLaX3RtBt
-  secret: EN134VJujDeWrfM_uBy1Wx2vXg6PCnWTkODRQKUIHodq4pUFZQFiYcamxV1Gp0HwDjPr6hV2vxLDq1da
-  mode: live
-  url: https://api.paypal.com

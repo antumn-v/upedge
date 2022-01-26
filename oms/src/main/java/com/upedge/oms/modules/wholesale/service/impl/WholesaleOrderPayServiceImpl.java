@@ -118,12 +118,12 @@ public class WholesaleOrderPayServiceImpl implements WholesaleOrderPayService {
 
     @Override
     public OrderPayCheckResultVo orderPayCheck(Long paymentId, BigDecimal amount, List<ItemDischargeQuantityVo> dischargeQuantityVos, Long customerId, String payType) {
-        boolean a = customerProductStockService.orderItemStockCheck(dischargeQuantityVos, customerId);
-        if (!a) {
-            return creatOrderPayCheckResultVo(new ArrayList<>(), paymentId, "stock error");
-        }
+        //批发订单无法使用备库库存
+//        boolean a = customerProductStockService.orderItemStockCheck(dischargeQuantityVos, customerId);
+//        if (!a) {
+//            return creatOrderPayCheckResultVo(new ArrayList<>(), paymentId, "stock error");
+//        }
 //        wholesaleOrderDao.updateProductAmountByPaymentId(paymentId);
-
         List<OrderProductAmountVo> orderProductAmountVos = wholesaleOrderItemDao.selectOrderItemAmountByPaymentId(paymentId);
         Map<Long,OrderProductAmountVo> orderProductAmountVoMap = new HashMap<>();
         orderProductAmountVos.forEach(orderProductAmountVo -> {
@@ -136,7 +136,6 @@ public class WholesaleOrderPayServiceImpl implements WholesaleOrderPayService {
             if (order.getFreightReview() == null){
                 return creatOrderPayCheckResultVo(new ArrayList<>(),paymentId,"Order ship error");
             }
-
             OrderProductAmountVo orderProductAmountVo = orderProductAmountVoMap.get(order.getId());
             if (null == orderProductAmountVo){
                 return creatOrderPayCheckResultVo(new ArrayList<>(), paymentId, "product error");
@@ -158,9 +157,9 @@ public class WholesaleOrderPayServiceImpl implements WholesaleOrderPayService {
         }
         int i = wholesaleOrderDao.updatePayStateByPaymentId(paymentId, 2);
         if (i == orders.size()) {
-            if (ListUtils.isNotEmpty(dischargeQuantityVos)) {
-                customerProductStockService.increaseCustomerLockStock(customerId, dischargeQuantityVos);
-            }
+//            if (ListUtils.isNotEmpty(dischargeQuantityVos)) {
+//                customerProductStockService.increaseCustomerLockStock(customerId, dischargeQuantityVos);
+//            }
             if (StringUtils.equals("paypal", payType)) {
                 return creatOrderPayCheckResultVo(orders, paymentId, "success");
             } else {

@@ -6,7 +6,7 @@ spring:
   #cloud
   cloud:
     consul:
-      host: 172.23.127.10
+      host: localhost
       port: 8500
       discovery:
         register: true #是否需要注册
@@ -17,9 +17,9 @@ spring:
         port: ${server.port} #服务的请求端口
   redis:
     database: 0
-    host: 172.23.127.10
+    host: 192.168.2.110
     port: 6379
-    password: HssMy@5Tygcs#7
+    password: 123456
     lettuce:
       pool:
         max-active: 8
@@ -29,7 +29,7 @@ spring:
     type: com.alibaba.druid.pool.DruidDataSource
     druid:
       driver-class-name: com.mysql.cj.jdbc.Driver
-      url: jdbc:mysql://rm-0xiq09n2322l69017.mysql.rds.aliyuncs.com:3306/ums?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai&allowMultiQueries=true&useAffectedRows=true
+      url: jdbc:mysql://rm-0xiq09n2322l690179o.mysql.rds.aliyuncs.com:3306/ums?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai&allowMultiQueries=true&useAffectedRows=true
       username: guoxing
       password: HssMy@5Tygcs#7
       initial-size: 10
@@ -79,10 +79,11 @@ logging:
     com.upedge.ums: DEBUG
     com.upedge.test: DEBUG
 
+
 files:
   image:
-    local: '/root/image/'
-    prefix: 'https://app.upedge.cn/image/'
+      local: 'D:/developer/image/'
+      prefix: 'http://192.168.2.105:8611/image/'
 
 upedge:
   thread:
@@ -101,7 +102,7 @@ feign:
     enabled: true
 
 rocketmq:
-  name-server: 172.23.127.10:9876
+  name-server: localhost:9876
   producer:
     group: ums
     sendMsgTimeout: 9000
@@ -118,11 +119,11 @@ seata:
     enable-degrade: false
     disable-global-transaction: false
     grouplist:
-      default: 172.23.127.10:8091
+      default: 192.168.2.105:8091
 
 
 paypal:
-  key: AQ8LzGMoj51SaXobrwrWTGFlDsWj63QmDj-Qhlu8RxWW4lKxPthprqQSxW1BQ1XZ14cizuaTLaX3RtBt
-  secret: EN134VJujDeWrfM_uBy1Wx2vXg6PCnWTkODRQKUIHodq4pUFZQFiYcamxV1Gp0HwDjPr6hV2vxLDq1da
-  mode: live
-  url: https://api.paypal.com
+  key: Ac9RXP4zFQ0hSxq4F_Lr_3I_yTjFUSSIxQyphhCqwvxQFdAi2_-A1z1dFL1qLelfweNcNNo-8fBi-hTl
+  secret: EJ1pILHmVh4MWP1fQaPo9UwNiG9yj2nLZbaKbxhMUBeXgMY8P61gJkBgqyruP491abDyxOcRPEV1yzZY
+  mode: sandbox
+  url: https://api.sandbox.paypal.com

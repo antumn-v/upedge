@@ -99,8 +99,6 @@ public class QuoteApplyController {
     @Permission(permission = "quote:quoteapply:list")
     public BaseResponse list(@RequestBody @Valid Page<QuoteApplyListDto> request) {
         List<QuoteApplyVo> results = quoteApplyService.quoteApplyList(request);
-        Long total = quoteApplyService.quoteApplyCount(request);
-        request.setTotal(total);
         BaseResponse res = new BaseResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS,results,request);
         return res;
     }
@@ -116,8 +114,6 @@ public class QuoteApplyController {
         request.getT().setHandleUserId(session.getId());
         request.getT().setItemQuoteState(0);
         List<QuoteApplyVo> results = quoteApplyService.quoteApplyList(request);
-        Long total = quoteApplyService.quoteApplyCount(request);
-        request.setTotal(total);
         BaseResponse res = new BaseResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS,results,request);
         return res;
     }

@@ -32,7 +32,7 @@ public interface ShippingMethodService{
 
     ShipMethodBatchSearchResponse batchSearchShipMethods(ShipMethodBatchSearchRequest request);
 
-    List<ShipMethodNameVo> selectMixedShipMethodNamesByCountries(String countries);
+    List<ShipMethodNameVo> selectMixedShipMethodNamesByCountries(List<String> countries);
 
     List<ShipDetail> searchShipMethods(ShipMethodSearchRequest request);
 

@@ -82,8 +82,7 @@ public class WholesaleOrderPayController {
         }
         int i = wholesaleOrderPayService.updatePaymentIdByIds(paymentId, ids);
         if (i > 0) {
-            List<ItemDischargeQuantityVo> dischargeQuantityVos = wholesaleOrderItemService.selectDischargeQuantityByPaymentId(paymentId);
-            OrderPayCheckResultVo orderPayCheckResultVo = wholesaleOrderPayService.orderPayCheck(paymentId, request.getAmount(), dischargeQuantityVos, session.getCustomerId(),"balance");
+            OrderPayCheckResultVo orderPayCheckResultVo = wholesaleOrderPayService.orderPayCheck(paymentId, request.getAmount(), new ArrayList<>(), session.getCustomerId(),"balance");
             if (orderPayCheckResultVo.getPayMessage().equals("success")) {
                 Date payTime = new Date();
                 String result = wholesaleOrderPayService.payOrderByBalance(paymentId, request.getAmount(), session, payTime);
@@ -93,7 +92,7 @@ public class WholesaleOrderPayController {
                     return new OrderPayResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS,payResponse);
                 }
             }
-            wholesaleOrderPayService.orderPayRollBack(paymentId, session.getCustomerId(), dischargeQuantityVos);
+            wholesaleOrderPayService.orderPayRollBack(paymentId, session.getCustomerId(), new ArrayList<>());
             return new OrderPayResponse(ResultCode.FAIL_CODE,orderPayCheckResultVo.getPayMessage());
         }
         return new OrderPayResponse(ResultCode.FAIL_CODE,Constant.MESSAGE_FAIL);

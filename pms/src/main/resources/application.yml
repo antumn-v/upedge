@@ -1,6 +1,6 @@
 spring:
   profiles:
-    active: dev
+    active: debug
   jackson:
     date-format: yyyy-MM-dd
     time-zone: GMT+8

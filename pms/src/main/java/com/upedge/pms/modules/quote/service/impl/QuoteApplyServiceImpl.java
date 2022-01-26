@@ -200,13 +200,12 @@ public class QuoteApplyServiceImpl implements QuoteApplyService {
                 productQuoteRecord.setCreateTime(date);
                 productQuoteRecords.add(productQuoteRecord);
                 //保存报价关联
-
                 Product product = map.get(productVariant.getProductId());
                 if (product == null) {
                     product = productService.selectByPrimaryKey(productVariant.getProductId());
                     if (product == null
                             || product.getShippingId() == null) {
-                        return BaseResponse.failed("产品不存在或产品未配置运输模板");
+                        return BaseResponse.failed(product.getId() + " 产品不存在或产品未配置运输模板");
                     }
                     map.put(product.getId(), product);
                 }
@@ -234,11 +233,9 @@ public class QuoteApplyServiceImpl implements QuoteApplyService {
         if (ListUtils.isNotEmpty(productQuoteRecords)) {
             productQuoteRecordService.insertByBatch(productQuoteRecords);
         }
-
         boolean b = customerProductQuoteService.sendCustomerProductQuoteUpdateMessage(storeVariantIds);
         if (!b) {
             throw new CustomerException("消息队列异常，请重新提交");
-
         }
         return BaseResponse.success();
     }

@@ -36,6 +36,8 @@ import java.util.Set;
  */
 public interface OrderDao{
 
+    int cancelOrderByIds(@Param("ids") List<Long> ids);
+
     int updateQuoteStateByIds(@Param("ids") List<Long> ids,
                               @Param("quoteState") Integer quoteState);
 
