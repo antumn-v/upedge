@@ -1,45 +1,46 @@
 package com.upedge.pms.modules.product.controller;
 
-import java.util.Arrays;
-import java.util.Map;
-
-import com.upedge.common.constant.ResultCode;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.upedge.common.base.BaseResponse;
 import com.upedge.common.component.annotation.Permission;
-import com.upedge.pms.modules.product.entity.CustomerPrivateProduct;
-import com.upedge.pms.modules.product.service.CustomerPrivateProductService;
-import org.springframework.web.bind.annotation.*;
-import java.util.List;
 import com.upedge.common.constant.Constant;
-import com.upedge.pms.modules.product.request.CustomerPrivateProductAddRequest;
+import com.upedge.common.constant.ResultCode;
+import com.upedge.common.model.user.vo.Session;
+import com.upedge.common.web.util.UserUtil;
+import com.upedge.pms.modules.product.entity.CustomerPrivateProduct;
+import com.upedge.pms.modules.product.request.AllocationPrivateProductRequest;
 import com.upedge.pms.modules.product.request.CustomerPrivateProductListRequest;
-import com.upedge.pms.modules.product.request.CustomerPrivateProductUpdateRequest;
-
-import com.upedge.pms.modules.product.response.CustomerPrivateProductAddResponse;
 import com.upedge.pms.modules.product.response.CustomerPrivateProductDelResponse;
-import com.upedge.pms.modules.product.response.CustomerPrivateProductInfoResponse;
 import com.upedge.pms.modules.product.response.CustomerPrivateProductListResponse;
-import com.upedge.pms.modules.product.response.CustomerPrivateProductUpdateResponse;
+import com.upedge.pms.modules.product.service.CustomerPrivateProductService;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.web.bind.annotation.*;
+
 import javax.validation.Valid;
+import java.util.List;
 
 /**
  * 
  *
  * @author gx
  */
+@Api(tags = "私有产品管理")
 @RestController
 @RequestMapping("/customerPrivateProduct")
 public class CustomerPrivateProductController {
     @Autowired
     private CustomerPrivateProductService customerPrivateProductService;
 
+    @Autowired
+    RedisTemplate redisTemplate;
 
-    @RequestMapping(value="/info/{id}", method=RequestMethod.GET)
-    @Permission(permission = "product:customerprivateproduct:info:id")
-    public CustomerPrivateProductInfoResponse info(@PathVariable Long id) {
-        CustomerPrivateProduct result = customerPrivateProductService.selectByPrimaryKey(id);
-        CustomerPrivateProductInfoResponse res = new CustomerPrivateProductInfoResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS,result,id);
-        return res;
+    @ApiOperation("分配私有产品")
+    @PostMapping("/allocation")
+    public BaseResponse allocationPrivateProduct(@RequestBody@Valid AllocationPrivateProductRequest request){
+        Session session = UserUtil.getSession(redisTemplate);
+        return customerPrivateProductService.allocationPrivateProduct(request,session);
     }
 
     @RequestMapping(value="/list", method=RequestMethod.POST)
@@ -52,14 +53,7 @@ public class CustomerPrivateProductController {
         return res;
     }
 
-    @RequestMapping(value="/add", method=RequestMethod.POST)
-    @Permission(permission = "product:customerprivateproduct:add")
-    public CustomerPrivateProductAddResponse add(@RequestBody @Valid CustomerPrivateProductAddRequest request) {
-        CustomerPrivateProduct entity=request.toCustomerPrivateProduct();
-        customerPrivateProductService.insertSelective(entity);
-        CustomerPrivateProductAddResponse res = new CustomerPrivateProductAddResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS,entity,request);
-        return res;
-    }
+
 
     @RequestMapping(value="/del/{id}", method=RequestMethod.POST)
     @Permission(permission = "product:customerprivateproduct:del:id")
@@ -69,14 +63,6 @@ public class CustomerPrivateProductController {
         return res;
     }
 
-    @RequestMapping(value="/update/{id}", method=RequestMethod.POST)
-    @Permission(permission = "product:customerprivateproduct:update")
-    public CustomerPrivateProductUpdateResponse update(@PathVariable Long id,@RequestBody @Valid CustomerPrivateProductUpdateRequest request) {
-        CustomerPrivateProduct entity=request.toCustomerPrivateProduct(id);
-        customerPrivateProductService.updateByPrimaryKeySelective(entity);
-        CustomerPrivateProductUpdateResponse res = new CustomerPrivateProductUpdateResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS);
-        return res;
-    }
 
 
 }

@@ -156,5 +156,71 @@
          where product_id =  #{productId}
     </select>
 
+    <select id="selectPrivateWinningProducts" resultType="com.upedge.pms.modules.product.vo.AppProductVo">
+        select
+        p.id,p.price_range priceRange,`product_title`,`product_image`,p.category_id,
+        p.create_time creatTime,p.update_time,
+        a.turnover,a.score,
+        p.min_price,
+        p.max_price
+        from customer_private_product cpq
+        inner join product p
+        on p.id = cpq.product_id
+        left join product_attribute a
+        on p.id = a.product_id
+        where cpq.customer_id = #{customerId}
+        and p.state = '3'
+        and p.cate_type = '0'
+        and p.product_type = '1'
+        <if test="t != null">
+            <trim prefix=" " suffix=" " suffixOverrides=" and ">
+                and
+                <if test="t.id != null">
+                    p.id = #{t.id} and
+                </if>
+                <if test="t.productTitle != null and t.productTitle != ''">
+                    p.product_title like concat('%',#{t.productTitle},'%') and
+                </if>
+                <if test="t.categoryId != null">
+                    p.category_id = #{t.categoryId} and
+                </if>
+            </trim>
+        </if>
+        <if test="orderBy != null">
+            order by ${orderBy} , id desc
+        </if>
+        <if test="orderBy == null">
+            order by  id desc
+        </if>
+        <if test="pageNum != null and pageSize != null">
+            limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+        </if>
+    </select>
 
+    <select id="countPrivateWinningProducts" resultType="java.lang.Long">
+        select count(1)
+        from customer_private_product cpq
+        inner join product p
+        on p.id = cpq.product_id
+        left join product_attribute a
+        on p.id = a.product_id
+        where cpq.customer_id = #{customerId}
+        and p.state = '3'
+        and p.cate_type = '0'
+        and p.product_type = '1'
+        <if test="t != null">
+            <trim prefix=" " suffix=" " suffixOverrides=" and ">
+                and
+                <if test="t.id != null">
+                    p.id = #{t.id} and
+                </if>
+                <if test="t.productTitle != null and t.productTitle != ''">
+                    p.product_title like concat('%',#{t.productTitle},'%') and
+                </if>
+                <if test="t.categoryId != null">
+                    p.category_id = #{t.categoryId} and
+                </if>
+            </trim>
+        </if>
+    </select>
 </mapper>

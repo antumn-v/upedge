@@ -16,6 +16,8 @@ import java.util.Set;
  */
 public interface ProductDao{
 
+    List<Product> selectByIds(List<Long> ids);
+
     List<Long> selectShippingIdByIds(@Param("ids") Set<Long> ids);
 
     List<AppProductVo> selectWinningProducts(WinningProductListRequest request);

@@ -1,15 +1,21 @@
 package com.upedge.pms.modules.product.dao;
 
-import com.upedge.pms.modules.product.entity.CustomerPrivateProduct;
-import org.apache.ibatis.annotations.Mapper;
-import java.util.List;
 import com.upedge.common.base.Page;
+import com.upedge.pms.modules.product.entity.CustomerPrivateProduct;
+import com.upedge.pms.modules.product.request.PrivateWinningProductsRequest;
+import com.upedge.pms.modules.product.vo.AppProductVo;
+
+import java.util.List;
 
 /**
  * @author gx
  */
 public interface CustomerPrivateProductDao{
 
+
+    List<AppProductVo> selectPrivateWinningProducts(PrivateWinningProductsRequest request);
+
+    Long countPrivateWinningProducts(PrivateWinningProductsRequest request);
 
     int countByProductId(Long productId);
 

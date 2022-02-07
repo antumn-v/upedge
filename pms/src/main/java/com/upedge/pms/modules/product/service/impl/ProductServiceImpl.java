@@ -282,25 +282,9 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public BaseResponse winningProductList(WinningProductListRequest request, Session session) {
-
         List<AppProductVo> productVos = productDao.selectWinningProducts(request);
-
-        if (ListUtils.isNotEmpty(productVos)) {
-            List<String> sourceProductIds = importProductAttributeDao.selectImportedSourceProductIds(session.getCustomerId());
-            boolean b = ListUtils.isNotEmpty(sourceProductIds);
-            productVos.forEach(appProductVo -> {
-                appProductVo.initUsdPriceRange();
-                if (b) {
-                    if (sourceProductIds.contains(String.valueOf(appProductVo.getId()))) {
-                        appProductVo.setImportState(1);
-                    } else {
-                        appProductVo.setImportState(0);
-                    }
-                } else {
-                    appProductVo.setImportState(0);
-                }
-            });
-        }
+        //检查产品是否已导入my product
+        checkImportProducts(productVos,session.getCustomerId());
         Long total = productDao.countWinningProduct(request);
         request.setTotal(total);
         return new BaseResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS, productVos, request);
@@ -1076,6 +1060,35 @@ public class ProductServiceImpl implements ProductService {
         return apiImportProductInfo;
     }
 
+
+    @Override
+    public List<Product> selectByIds(List<Long> productIds) {
+        if (ListUtils.isEmpty(productIds)){
+            return new ArrayList<>();
+        }
+        return productDao.selectByIds(productIds);
+    }
+
+    @Override
+    public List<AppProductVo> checkImportProducts(List<AppProductVo> productVos,Long customerId) {
+        if (ListUtils.isNotEmpty(productVos)) {
+            List<String> sourceProductIds = importProductAttributeDao.selectImportedSourceProductIds(customerId);
+            boolean b = ListUtils.isNotEmpty(sourceProductIds);
+            productVos.forEach(appProductVo -> {
+                appProductVo.initUsdPriceRange();
+                if (b) {
+                    if (sourceProductIds.contains(String.valueOf(appProductVo.getId()))) {
+                        appProductVo.setImportState(1);
+                    } else {
+                        appProductVo.setImportState(0);
+                    }
+                } else {
+                    appProductVo.setImportState(0);
+                }
+            });
+        }
+        return productVos;
+    }
 
     @Override
     public boolean sendUpdateVariantMessage(List<VariantDetail> variantDetails, String tag) {

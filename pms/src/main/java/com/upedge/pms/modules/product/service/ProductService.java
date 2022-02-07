@@ -23,6 +23,10 @@ import java.util.List;
  */
 public interface ProductService{
 
+    List<Product> selectByIds(List<Long> productIds);
+
+    List<AppProductVo> checkImportProducts(List<AppProductVo> productVos,Long customerId);
+
     boolean sendUpdateVariantMessage(List<VariantDetail> variantDetails, String tag);
 
     BaseResponse updateInfo(Long id,UpdateInfoProductRequest request, Session session) throws Exception;
