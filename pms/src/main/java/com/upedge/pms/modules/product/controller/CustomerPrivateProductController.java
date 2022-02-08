@@ -9,7 +9,6 @@ import com.upedge.common.web.util.UserUtil;
 import com.upedge.pms.modules.product.entity.CustomerPrivateProduct;
 import com.upedge.pms.modules.product.request.AllocationPrivateProductRequest;
 import com.upedge.pms.modules.product.request.CustomerPrivateProductListRequest;
-import com.upedge.pms.modules.product.response.CustomerPrivateProductDelResponse;
 import com.upedge.pms.modules.product.response.CustomerPrivateProductListResponse;
 import com.upedge.pms.modules.product.service.CustomerPrivateProductService;
 import io.swagger.annotations.Api;
@@ -55,13 +54,6 @@ public class CustomerPrivateProductController {
 
 
 
-    @RequestMapping(value="/del/{id}", method=RequestMethod.POST)
-    @Permission(permission = "product:customerprivateproduct:del:id")
-    public CustomerPrivateProductDelResponse del(@PathVariable Long id) {
-        customerPrivateProductService.deleteByPrimaryKey(id);
-        CustomerPrivateProductDelResponse res = new CustomerPrivateProductDelResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS);
-        return res;
-    }
 
 
 

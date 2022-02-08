@@ -25,8 +25,6 @@ public interface CustomerPrivateProductService{
 
     CustomerPrivateProduct selectByPrimaryKey(Long id);
 
-    int deleteByPrimaryKey(Long id);
-
     int updateByPrimaryKey(CustomerPrivateProduct record);
 
     int updateByPrimaryKeySelective(CustomerPrivateProduct record);

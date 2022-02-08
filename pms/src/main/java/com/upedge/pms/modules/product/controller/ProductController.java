@@ -329,7 +329,7 @@ public class ProductController {
     }
 
 
-
+    @ApiOperation("修改产品信息")
     @RequestMapping(value="/update/{id}", method=RequestMethod.POST)
     @Permission(permission = "product:product:update")
     public BaseResponse update(@PathVariable Long id,@RequestBody @Valid ProductUpdateRequest request) {

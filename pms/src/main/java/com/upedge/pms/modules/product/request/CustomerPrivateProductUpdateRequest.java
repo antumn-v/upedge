@@ -1,7 +1,6 @@
 package com.upedge.pms.modules.product.request;
 
 import com.upedge.pms.modules.product.entity.CustomerPrivateProduct;
-import java.util.Date;
 import lombok.Data;
 /**
  * @author gx
@@ -20,7 +19,6 @@ public class CustomerPrivateProductUpdateRequest{
 
     public CustomerPrivateProduct toCustomerPrivateProduct(Long id){
         CustomerPrivateProduct customerPrivateProduct=new CustomerPrivateProduct();
-        customerPrivateProduct.setId(id);
         customerPrivateProduct.setProductId(productId);
         customerPrivateProduct.setCustomerId(customerId);
         return customerPrivateProduct;

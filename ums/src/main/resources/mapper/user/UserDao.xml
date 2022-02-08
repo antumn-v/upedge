@@ -377,9 +377,6 @@
                 <if test="t.loginName != null">
                     login_name = #{t.loginName} and
                 </if>
-                <if test="t.loginPass != null">
-                    login_pass = #{t.loginPass} and
-                </if>
                 <if test="t.userType != null">
                     user_type = #{t.userType} and
                 </if>
@@ -387,7 +384,7 @@
                     status = #{t.status} and
                 </if>
                 <if test="t.username != null">
-                    username = #{t.username} and
+                    username = concat('%',#{t.username},'%') and
                 </if>
                 <if test="t.avatar != null">
                     avatar = #{t.avatar} and
@@ -415,18 +412,6 @@
                 </if>
                 <if test="t.sex != null">
                     sex = #{t.sex} and
-                </if>
-                <if test="t.loginCount != null">
-                    login_count = #{t.loginCount} and
-                </if>
-                <if test="t.createTime != null">
-                    create_time = #{t.createTime} and
-                </if>
-                <if test="t.updateTime != null">
-                    update_time = #{t.updateTime} and
-                </if>
-                <if test="t.lastLoginTime != null">
-                    last_login_time = #{t.lastLoginTime} and
                 </if>
             </trim>
         </if>

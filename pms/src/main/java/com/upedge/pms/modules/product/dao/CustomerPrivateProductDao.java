@@ -12,6 +12,7 @@ import java.util.List;
  */
 public interface CustomerPrivateProductDao{
 
+    List<Long> selectCustomerIdsByProductId(Long productId);
 
     List<AppProductVo> selectPrivateWinningProducts(PrivateWinningProductsRequest request);
 

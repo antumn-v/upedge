@@ -33,15 +33,6 @@ public class CustomerPrivateProductServiceImpl implements CustomerPrivateProduct
     /**
      *
      */
-    public int deleteByPrimaryKey(Long id) {
-        CustomerPrivateProduct record = new CustomerPrivateProduct();
-        record.setId(id);
-        return customerPrivateProductDao.deleteByPrimaryKey(record);
-    }
-
-    /**
-     *
-     */
     public int insert(CustomerPrivateProduct record) {
         return customerPrivateProductDao.insert(record);
     }
@@ -55,7 +46,7 @@ public class CustomerPrivateProductServiceImpl implements CustomerPrivateProduct
 
     @Override
     public List<AppProductVo> selectPrivateWinningProducts(PrivateWinningProductsRequest request) {
-        if (null == request.getCustomerId()){
+        if (null == request.getCustomerId()) {
             return new ArrayList<>();
         }
         return customerPrivateProductDao.selectPrivateWinningProducts(request);
@@ -63,7 +54,7 @@ public class CustomerPrivateProductServiceImpl implements CustomerPrivateProduct
 
     @Override
     public Long countPrivateWinningProducts(PrivateWinningProductsRequest request) {
-        if (null == request.getCustomerId()){
+        if (null == request.getCustomerId()) {
             return 0L;
         }
         return customerPrivateProductDao.countPrivateWinningProducts(request);
@@ -72,22 +63,35 @@ public class CustomerPrivateProductServiceImpl implements CustomerPrivateProduct
     @Override
     public BaseResponse allocationPrivateProduct(AllocationPrivateProductRequest request, Session session) {
         List<Long> productIds = request.getProductIds();
-        List<Long> customerIds = request.getCustomerIds();;
+        List<Long> customerIds = request.getCustomerIds();
+        ;
         if (ListUtils.isEmpty(customerIds)
-        || ListUtils.isEmpty(productIds)){
+                || ListUtils.isEmpty(productIds)) {
             return BaseResponse.failed("产品列表和客户列表不能为空");
         }
-        List<Product> products = productService.selectByIds(productIds);
-        if (ListUtils.isEmpty(products)){
+        List<Product> products = new ArrayList<>();
+        if (productIds.size() == 1) {
+            Product product = productService.selectByPrimaryKey(productIds.get(0));
+            products.add(product);
+        } else {
+            products = productService.selectByIds(productIds);
+        }
+
+        if (ListUtils.isEmpty(products)) {
             return BaseResponse.failed("产品ID有误");
         }
         //判断去重字符串
         List<String> customerProductIds = new ArrayList<>();
         List<CustomerPrivateProduct> customerPrivateProducts = new ArrayList<>();
-        for (Long customerId : customerIds) {
-            for (Long productId : productIds) {
+
+        for (Long productId : productIds) {
+            List<Long> productCustomerIds = customerPrivateProductDao.selectCustomerIdsByProductId(productId);
+            if (ListUtils.isNotEmpty(productCustomerIds)){
+                customerIds.removeAll(productCustomerIds);
+            }
+            for (Long customerId : customerIds) {
                 String customerProductId = customerId + "-" + productId;
-                if (customerProductIds.contains(customerProductId)){
+                if (customerProductIds.contains(customerProductId)) {
                     continue;
                 }
                 customerProductIds.add(customerProductId);
@@ -97,7 +101,9 @@ public class CustomerPrivateProductServiceImpl implements CustomerPrivateProduct
                 customerPrivateProducts.add(customerPrivateProduct);
             }
         }
-        customerPrivateProductDao.insertByBatch(customerPrivateProducts);
+        if (ListUtils.isNotEmpty(customerPrivateProducts)){
+            customerPrivateProductDao.insertByBatch(customerPrivateProducts);
+        }
         return BaseResponse.success();
     }
 
@@ -109,38 +115,37 @@ public class CustomerPrivateProductServiceImpl implements CustomerPrivateProduct
     /**
      *
      */
-    public CustomerPrivateProduct selectByPrimaryKey(Long id){
+    public CustomerPrivateProduct selectByPrimaryKey(Long id) {
         CustomerPrivateProduct record = new CustomerPrivateProduct();
-        record.setId(id);
-        return customerPrivateProductDao.selectByPrimaryKey(record);
+        return null;
     }
 
     /**
-    *
-    */
+     *
+     */
     public int updateByPrimaryKeySelective(CustomerPrivateProduct record) {
         return customerPrivateProductDao.updateByPrimaryKeySelective(record);
     }
 
     /**
-    *
-    */
+     *
+     */
     public int updateByPrimaryKey(CustomerPrivateProduct record) {
         return customerPrivateProductDao.updateByPrimaryKey(record);
     }
 
     /**
-    *
-    */
-    public List<CustomerPrivateProduct> select(Page<CustomerPrivateProduct> record){
+     *
+     */
+    public List<CustomerPrivateProduct> select(Page<CustomerPrivateProduct> record) {
         record.initFromNum();
         return customerPrivateProductDao.select(record);
     }
 
     /**
-    *
-    */
-    public long count(Page<CustomerPrivateProduct> record){
+     *
+     */
+    public long count(Page<CustomerPrivateProduct> record) {
         return customerPrivateProductDao.count(record);
     }
 

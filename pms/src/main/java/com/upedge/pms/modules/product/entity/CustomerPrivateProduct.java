@@ -1,7 +1,5 @@
 package com.upedge.pms.modules.product.entity;
 
-import java.io.Serializable;
-import java.util.Date;
 import lombok.Data;
 
 /**
@@ -10,10 +8,6 @@ import lombok.Data;
 @Data
 public class CustomerPrivateProduct{
 
-	/**
-	 * 
-	 */
-    private Long id;
 	/**
 	 * 产品ID
 	 */

@@ -108,7 +108,7 @@ public class UserController {
         return userService.userUpdatePassword(request,session);
     }
 
-        @RequestMapping(value="/info/{id}", method=RequestMethod.GET)
+    @RequestMapping(value="/info/{id}", method=RequestMethod.GET)
     @Permission(permission = "user:user:info:id")
     public UserInfoResponse info(@PathVariable Long id) {
         User result = userService.selectByPrimaryKey(id);

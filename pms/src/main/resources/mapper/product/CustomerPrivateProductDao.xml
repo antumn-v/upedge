@@ -5,13 +5,12 @@
 
     <!-- 可根据自己的需求，是否要使用 -->
     <resultMap type="com.upedge.pms.modules.product.entity.CustomerPrivateProduct" id="BaseResultMap">
-        <result property="id" column="id"/>
         <result property="productId" column="product_id"/>
         <result property="customerId" column="customer_id"/>
     </resultMap>
 
     <sql id="Base_Column_List">
-        `id`,`product_id`,`customer_id`
+        `product_id`,`customer_id`
     </sql>
 
     <select id="selectByPrimaryKey" parameterType="com.upedge.pms.modules.product.entity.CustomerPrivateProduct"
@@ -38,29 +37,26 @@
                 customer_id = #{customerId},
             </if>
         </set>
-        where id = #{id}
+        where product_id = #{productId}
     </update>
 
     <update id="updateByPrimaryKey" parameterType="com.upedge.pms.modules.product.entity.CustomerPrivateProduct">
         update customer_private_product
         <set>
-            id = #{id},
             product_id = #{productId},
             customer_id = #{customerId},
         </set>
-        where id = #{id}
+        where product_id = #{productId}
     </update>
 
     <insert id="insert" keyColumn="id" keyProperty="id"
             parameterType="com.upedge.pms.modules.product.entity.CustomerPrivateProduct" useGeneratedKeys="true">
         insert into customer_private_product
         <trim prefix="(" suffix=")" suffixOverrides=",">
-            id,
             product_id,
             customer_id
         </trim>
         values (
-        #{id},
         #{productId},
         #{customerId}
         )
@@ -70,9 +66,6 @@
             parameterType="com.upedge.pms.modules.product.entity.CustomerPrivateProduct" useGeneratedKeys="true">
         insert into customer_private_product
         <trim prefix="(" suffix=")" suffixOverrides=",">
-            <if test="id != null">
-                id
-            </if>
             <if test="productId != null">
                 product_id
             </if>
@@ -82,9 +75,6 @@
 
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
-            <if test="id != null">
-                #{id}
-            </if>
             <if test="productId != null">
                 #{productId}
             </if>
@@ -98,14 +88,12 @@
     <insert id="insertByBatch" parameterType="java.util.List">
         insert into customer_private_product
         <trim prefix="(" suffix=")" suffixOverrides=",">
-            id,
             product_id,
             customer_id
         </trim>
         values
         <foreach collection="list" item="item" index="index" separator=",">
             <trim prefix="(" suffix=")" suffixOverrides=",">
-                #{item.id},
                 #{item.productId},
                 #{item.customerId}
             </trim>
@@ -117,9 +105,6 @@
             where
             <trim prefix=" " suffix=" " suffixOverrides=" and ">
                 1 = 1 and
-                <if test="t.id != null">
-                    id = #{t.id} and
-                </if>
                 <if test="t.productId != null">
                     product_id = #{t.productId} and
                 </if>
@@ -222,5 +207,11 @@
                 </if>
             </trim>
         </if>
+    </select>
+
+    <select id="selectCustomerIdsByProductId" resultType="java.lang.Long">
+        select customer_id
+        from customer_private_product
+        where product_id = #{productId}
     </select>
 </mapper>
