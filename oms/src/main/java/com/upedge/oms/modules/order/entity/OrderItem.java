@@ -86,6 +86,12 @@ public class OrderItem{
 
 	private Integer quoteState;
 
+	private BigDecimal width;
+
+	private BigDecimal height;
+
+	private BigDecimal length;
+
 
 	public OrderItem(StoreOrderItem storeOrderItem) {
 		this.storeVariantId = storeOrderItem.getStoreVariantId();
@@ -120,6 +126,9 @@ public class OrderItem{
 		this.adminVariantImage = variantVo.getVariantImage();
 		this.adminVariantSku = variantVo.getVariantSku();
 		this.usdRate = new BigDecimal("6.3");
+		this.width = variantVo.getWidth();
+		this.length = variantVo.getLength();
+		this.height = variantVo.getHeight();
 	}
 
 	public void initItemQuoteDetail(CustomerProductQuoteVo variantVo){
@@ -133,6 +142,9 @@ public class OrderItem{
 		this.adminVariantImage = variantVo.getVariantImage();
 		this.adminVariantSku = variantVo.getVariantSku();
 		this.usdRate = new BigDecimal("6.3");
+		this.width = variantVo.getWidth();
+		this.length = variantVo.getLength();
+		this.height = variantVo.getHeight();
 	}
 
 

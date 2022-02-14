@@ -19,7 +19,6 @@
         <module>oms</module>
         <module>tms</module>
         <module>zuul</module>
-        <module>upedge-4px</module>
         <!--        <module>cms</module>-->
     </modules>
 

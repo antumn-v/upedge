@@ -3,6 +3,7 @@ package com.upedge.pms.modules.alibaba.controller;
 import com.upedge.common.component.annotation.Permission;
 import com.upedge.common.constant.Constant;
 import com.upedge.common.constant.ResultCode;
+import com.upedge.pms.modules.alibaba.service.AlibabaApiService;
 import com.upedge.pms.modules.alibaba.entity.AlibabaApi;
 import com.upedge.pms.modules.alibaba.request.AlibabaApiListRequest;
 import com.upedge.pms.modules.alibaba.request.AlibabaApiUpdateRequest;
@@ -10,7 +11,6 @@ import com.upedge.pms.modules.alibaba.response.AlibabaApiDelResponse;
 import com.upedge.pms.modules.alibaba.response.AlibabaApiInfoResponse;
 import com.upedge.pms.modules.alibaba.response.AlibabaApiListResponse;
 import com.upedge.pms.modules.alibaba.response.AlibabaApiUpdateResponse;
-import com.upedge.pms.modules.alibaba.service.AlibabaApiService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 

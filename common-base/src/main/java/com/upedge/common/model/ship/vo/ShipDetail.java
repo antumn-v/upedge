@@ -17,6 +17,8 @@ public class ShipDetail {
 
     private String methodName;
 
+    private String warehouseCode;
+
     private BigDecimal price;
 
     private BigDecimal weight;

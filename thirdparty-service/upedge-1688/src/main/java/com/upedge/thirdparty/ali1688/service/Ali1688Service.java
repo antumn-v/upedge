@@ -1,4 +1,4 @@
-package com.upedge.pms.modules.alibaba.service;
+package com.upedge.thirdparty.ali1688.service;
 
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.ocean.rawsdk.ApiExecutor;
@@ -6,15 +6,15 @@ import com.alibaba.ocean.rawsdk.common.SDKResult;
 import com.upedge.common.model.product.AlibabaApiVo;
 import com.upedge.common.utils.GetImgUrlList;
 import com.upedge.common.utils.OkHttpRequest;
-import com.upedge.pms.modules.alibaba.entity.listPushed.AlibabaCrossSyncProductListPushedParam;
-import com.upedge.pms.modules.alibaba.entity.listPushed.AlibabaCrossSyncProductListPushedResult;
-import com.upedge.pms.modules.alibaba.entity.listPushed.CommonResult;
-import com.upedge.pms.modules.alibaba.entity.product.*;
-import com.upedge.pms.modules.alibaba.entity.supplier.AlibabaAccountAgentCrossBasicParam;
-import com.upedge.pms.modules.alibaba.entity.supplier.AlibabaAccountAgentCrossBasicResult;
-import com.upedge.pms.modules.alibaba.entity.supplier.SimpleAccountInfo;
-import com.upedge.pms.modules.alibaba.entity.translate.TranslateResult;
-import com.upedge.pms.modules.alibaba.vo.*;
+import com.upedge.thirdparty.ali1688.entity.listPushed.AlibabaCrossSyncProductListPushedParam;
+import com.upedge.thirdparty.ali1688.entity.listPushed.AlibabaCrossSyncProductListPushedResult;
+import com.upedge.thirdparty.ali1688.entity.listPushed.CommonResult;
+import com.upedge.thirdparty.ali1688.entity.product.Attribute;
+import com.upedge.thirdparty.ali1688.entity.supplier.AlibabaAccountAgentCrossBasicParam;
+import com.upedge.thirdparty.ali1688.entity.supplier.AlibabaAccountAgentCrossBasicResult;
+import com.upedge.thirdparty.ali1688.entity.supplier.SimpleAccountInfo;
+import com.upedge.thirdparty.ali1688.entity.translate.TranslateResult;
+import com.upedge.thirdparty.ali1688.vo.AlibabaProductVo;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpMethod;
 
@@ -48,7 +48,7 @@ public class Ali1688Service {
     public static AlibabaProductVo getProduct(String alibabaProductId,AlibabaApiVo alibabaApiVo){
         AlibabaProductVo alibabaProductVo=new AlibabaProductVo();
         long s=System.currentTimeMillis();
-        ProductInfo productInfo=getAlibabaProductDetail(alibabaProductId,alibabaApiVo);
+        com.upedge.thirdparty.ali1688.entity.product.ProductInfo productInfo=getAlibabaProductDetail(alibabaProductId,alibabaApiVo);
         long e=System.currentTimeMillis();
         if(productInfo==null){
             return null;
@@ -68,12 +68,12 @@ public class Ali1688Service {
             }
         }
 
-        ProductAttributeVo productAttributeVo=new ProductAttributeVo();
+        com.upedge.thirdparty.ali1688.vo.ProductAttributeVo productAttributeVo=new com.upedge.thirdparty.ali1688.vo.ProductAttributeVo();
         productAttributeVo.setAliCnCategoryId(productInfo.getCategoryID());
         productAttributeVo.setScore(productInfo.getQualityLevel());
 
-        List<ProductAttribute> attrList=productInfo.getAttributes();
-        for(ProductAttribute productAttribute:attrList){
+        List<com.upedge.thirdparty.ali1688.entity.product.ProductAttribute> attrList=productInfo.getAttributes();
+        for(com.upedge.thirdparty.ali1688.entity.product.ProductAttribute productAttribute:attrList){
             if(productAttribute.getAttributeName().contains("货号")){
               if(StringUtils.isNumeric(productAttribute.getValue())){
                 productAttributeVo.setItemNo(productAttribute.getValue());
@@ -83,7 +83,7 @@ public class Ali1688Service {
             }
         }
 
-        ProductInfoVo productInfoVo=productInfo.toProductInfoVo();
+        com.upedge.thirdparty.ali1688.vo.ProductInfoVo productInfoVo=productInfo.toProductInfoVo();
         //产品描述
         alibabaProductVo.setProductInfoVo(productInfoVo);
         //提取描述图片
@@ -94,8 +94,8 @@ public class Ali1688Service {
         //图片
         Map<String,Integer> imgMap=new HashMap<String,Integer>();
 
-        List<ProductImgVo> productImgVoList=new ArrayList<>();
-        ProductImageInfo imageInfo=productInfo.getImage();
+        List<com.upedge.thirdparty.ali1688.vo.ProductImgVo> productImgVoList=new ArrayList<>();
+        com.upedge.thirdparty.ali1688.entity.product.ProductImageInfo imageInfo=productInfo.getImage();
         if(imageInfo!=null&&imageInfo.getImages()!=null&&imageInfo.getImages().size()>0){
             //产品主图
             String productImage="https://cbu01.alicdn.com/"+imageInfo.getImages().get(0);
@@ -107,14 +107,14 @@ public class Ali1688Service {
             }
         }
 
-        List<ProductVariantVo> productVariantVoList=new ArrayList<>();
+        List<com.upedge.thirdparty.ali1688.vo.ProductVariantVo> productVariantVoList=new ArrayList<>();
         Set<String> attrSet=new HashSet<>();
-        for(ProductSKUInfo skuInfos:productInfo.getSkuInfos()){
+        for(com.upedge.thirdparty.ali1688.entity.product.ProductSKUInfo skuInfos:productInfo.getSkuInfos()){
             //变体
-            ProductVariantVo productVariantVo=new ProductVariantVo();
-            List<ProductVariantAttrVo> productVariantAttrVoList=new ArrayList<>();
+            com.upedge.thirdparty.ali1688.vo.ProductVariantVo productVariantVo=new com.upedge.thirdparty.ali1688.vo.ProductVariantVo();
+            List<com.upedge.thirdparty.ali1688.vo.ProductVariantAttrVo> productVariantAttrVoList=new ArrayList<>();
             List<Attribute> attributeList=skuInfos.getAttributes();
-            ProductShippingInfo shippingInfo=productInfo.getShippingInfo();
+            com.upedge.thirdparty.ali1688.entity.product.ProductShippingInfo shippingInfo=productInfo.getShippingInfo();
             if(shippingInfo!=null){
                 if (shippingInfo.getUnitWeight() != null){
                     productVariantVo.setWeight(new BigDecimal(shippingInfo.getUnitWeight()).multiply(new BigDecimal("1000")));
@@ -139,7 +139,7 @@ public class Ali1688Service {
             }
             for(int i=0;i<attributeList.size();i++){
                 Attribute attribute=attributeList.get(i);
-                ProductVariantAttrVo productVariantAttrVo=new ProductVariantAttrVo();
+                com.upedge.thirdparty.ali1688.vo.ProductVariantAttrVo productVariantAttrVo=new com.upedge.thirdparty.ali1688.vo.ProductVariantAttrVo();
                 productVariantAttrVo.setVariantAttrCname(attribute.getAttributeDisplayName());
                 productVariantAttrVo.setVariantAttrEname("");
                 productVariantAttrVo.setOriginalAttrCvalue(attribute.getAttributeValue());
@@ -161,7 +161,7 @@ public class Ali1688Service {
         //没有变体，添加默认变体
         if(productInfo.getSkuInfos()==null||productInfo.getSkuInfos().size()==0){
             //变体
-            ProductVariantVo productVariantVo=new ProductVariantVo();
+            com.upedge.thirdparty.ali1688.vo.ProductVariantVo productVariantVo=new com.upedge.thirdparty.ali1688.vo.ProductVariantVo();
             productVariantVo.setOriginalVariantId(Long.parseLong(alibabaProductId));
             productVariantVo.setVariantSku(alibabaProductId);
             productVariantVo.setVariantPrice(price==null?new BigDecimal(price):new BigDecimal(price));
@@ -174,8 +174,8 @@ public class Ali1688Service {
                     ||productVariantVo.getWeight().compareTo(BigDecimal.ZERO)<=0){
                 productVariantVo.setState(0);
             }
-            List<ProductVariantAttrVo> productVariantAttrVoList=new ArrayList<>();
-            ProductVariantAttrVo productVariantAttrVo=new ProductVariantAttrVo();
+            List<com.upedge.thirdparty.ali1688.vo.ProductVariantAttrVo> productVariantAttrVoList=new ArrayList<>();
+            com.upedge.thirdparty.ali1688.vo.ProductVariantAttrVo productVariantAttrVo=new com.upedge.thirdparty.ali1688.vo.ProductVariantAttrVo();
             productVariantAttrVo.setVariantAttrCname("默认");
             productVariantAttrVo.setVariantAttrEname("default");
             productVariantAttrVo.setOriginalAttrCvalue("默认");
@@ -195,7 +195,7 @@ public class Ali1688Service {
             if(StringUtils.isBlank(image.getKey())){
                 continue;
             }
-            ProductImgVo productImgVo=new ProductImgVo();
+            com.upedge.thirdparty.ali1688.vo.ProductImgVo productImgVo=new com.upedge.thirdparty.ali1688.vo.ProductImgVo();
             productImgVo.setImageUrl(image.getKey());
             productImgVo.setImageSeq(image.getValue());
             productImgVo.setState(1);
@@ -209,7 +209,7 @@ public class Ali1688Service {
             }
             Integer seq=imgMap.size() + 1;
             imgMap.put(img, seq);
-            ProductImgVo productImgVo=new ProductImgVo();
+            com.upedge.thirdparty.ali1688.vo.ProductImgVo productImgVo=new com.upedge.thirdparty.ali1688.vo.ProductImgVo();
             productImgVo.setImageUrl(img);
             productImgVo.setImageSeq(seq);
             productImgVo.setState(0);
@@ -222,7 +222,7 @@ public class Ali1688Service {
         //获取供应商信息
         SimpleAccountInfo simpleAccountInfo=getSimpleAccountInfo(productInfo.getSupplierLoginId(),alibabaApiVo);
         //供应商信息
-        SupplierVo supplierVo=simpleAccountInfo.toSupplierVo();
+        com.upedge.thirdparty.ali1688.vo.SupplierVo supplierVo=simpleAccountInfo.toSupplierVo();
         alibabaProductVo.setSupplierVo(supplierVo);
 
         productAttributeVo.setAliCnCategoryName(simpleAccountInfo.getCategoryName());
@@ -234,7 +234,7 @@ public class Ali1688Service {
         List<String> translateAttr=new ArrayList<>(attrSet);
         translateAttr.add(productInfo.getSubject());
         translateAttr.add(simpleAccountInfo.getCategoryName());
-        TranslateResult translateResult= TranslateService.translate(translateAttr);
+        TranslateResult translateResult= com.upedge.thirdparty.ali1688.config.service.TranslateService.translate(translateAttr);
 
         if(translateResult!=null&&translateResult.getResult()!=null) {
             //报关英文名
@@ -252,7 +252,7 @@ public class Ali1688Service {
             }
             List<String> descAttr = new ArrayList<>();
             descAttr.add(productInfoVo.getCnDesc());
-            TranslateResult  descTranslateResult= TranslateService.translate(descAttr);
+            TranslateResult  descTranslateResult= com.upedge.thirdparty.ali1688.config.service.TranslateService.translate(descAttr);
             String enDesc = descTranslateResult.getResult().get(productInfoVo.getCnDesc());
             if (StringUtils.isNotBlank(enDesc)){
                 productInfoVo.setProductDesc(enDesc);
@@ -261,8 +261,8 @@ public class Ali1688Service {
             }
             alibabaProductVo.setProductInfoVo(productInfoVo);
             alibabaProductVo.getProductVariantVoList().forEach(variant -> {
-                List<ProductVariantAttrVo> variantAttrVoList=variant.getVariantAttrVoList();
-                for(ProductVariantAttrVo attr:variantAttrVoList){
+                List<com.upedge.thirdparty.ali1688.vo.ProductVariantAttrVo> variantAttrVoList=variant.getVariantAttrVoList();
+                for(com.upedge.thirdparty.ali1688.vo.ProductVariantAttrVo attr:variantAttrVoList){
                     String cname = attr.getVariantAttrCname();
                     String cvalue = attr.getOriginalAttrCvalue();
                     if (!StringUtils.isBlank(cname) &&
@@ -283,7 +283,7 @@ public class Ali1688Service {
     /**
      * 通过1688产品id获取产品信息
      */
-    private static ProductInfo getAlibabaProductDetail(String alibabaProductId,AlibabaApiVo alibabaApiVo){
+    private static com.upedge.thirdparty.ali1688.entity.product.ProductInfo getAlibabaProductDetail(String alibabaProductId, AlibabaApiVo alibabaApiVo){
         if(StringUtils.isBlank(alibabaProductId)||!StringUtils.isNumeric(alibabaProductId)){
             return null;
         }
@@ -295,14 +295,14 @@ public class Ali1688Service {
         //获取产品信息
         ApiExecutor apiExecutor = new ApiExecutor(alibabaApiVo.getApiKey(), alibabaApiVo.getApiSecret());
 
-        AlibabaCrossProductInfoParam param = new AlibabaCrossProductInfoParam();
+        com.upedge.thirdparty.ali1688.entity.product.AlibabaCrossProductInfoParam param = new com.upedge.thirdparty.ali1688.entity.product.AlibabaCrossProductInfoParam();
 
         param.setProductId(Long.parseLong(alibabaProductId));
 
-        SDKResult<AlibabaCrossProductInfoResult> sdkResult =
+        SDKResult<com.upedge.thirdparty.ali1688.entity.product.AlibabaCrossProductInfoResult> sdkResult =
                 apiExecutor.execute(param, alibabaApiVo.getAccessToken());
 
-        ProductInfo productInfo=sdkResult.getResult().getProductInfo();
+        com.upedge.thirdparty.ali1688.entity.product.ProductInfo productInfo=sdkResult.getResult().getProductInfo();
         return productInfo;
 
     }

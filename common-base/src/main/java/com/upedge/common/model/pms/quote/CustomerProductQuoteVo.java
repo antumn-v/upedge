@@ -53,6 +53,12 @@ public class CustomerProductQuoteVo extends VariantDetail {
      *
      */
     private String variantSku;
+
+    private BigDecimal width;
+
+    private BigDecimal length;
+
+    private BigDecimal height;
     /**
      *
      */

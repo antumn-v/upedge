@@ -10,11 +10,14 @@ import java.util.List;
 @Data
 public class ProductVariantUpdateVolumeWeightRequest {
 
-    /**
-     * 体积重
-     */
     @NotNull
-    private BigDecimal volumeWeight;
+    private BigDecimal length;
+
+    @NotNull
+    private BigDecimal width;
+
+    @NotNull
+    private BigDecimal height;
     /**
      * 变体ids
      */

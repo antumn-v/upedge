@@ -53,4 +53,10 @@ public class VariantDetail {
      * 体积
      */
     private BigDecimal volume;
+
+    private BigDecimal width;
+
+    private BigDecimal length;
+
+    private BigDecimal height;
 }

@@ -1,4 +1,4 @@
-package com.upedge.pms.modules.alibaba.entity.product;
+package com.upedge.thirdparty.ali1688.entity.product;
 
 /**
  * Created by jiaqi on 2020/6/15.

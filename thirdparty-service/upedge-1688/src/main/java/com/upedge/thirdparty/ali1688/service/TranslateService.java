@@ -1,10 +1,10 @@
-package com.upedge.pms.modules.alibaba.service;
+package com.upedge.thirdparty.ali1688.config.service;
 
 import com.alibaba.fastjson.JSON;
-import com.upedge.pms.modules.alibaba.config.TranslateConfig;
-import com.upedge.pms.modules.alibaba.entity.translate.TranslateRes;
-import com.upedge.pms.modules.alibaba.entity.translate.TranslateResult;
-import com.upedge.pms.modules.alibaba.entity.translate.Translation;
+import com.upedge.thirdparty.ali1688.config.TranslateConfig;
+import com.upedge.thirdparty.ali1688.entity.translate.TranslateRes;
+import com.upedge.thirdparty.ali1688.entity.translate.TranslateResult;
+import com.upedge.thirdparty.ali1688.entity.translate.Translation;
 import org.apache.http.Consts;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.entity.UrlEncodedFormEntity;

@@ -19,6 +19,7 @@
         <module>upedge-shoplazza</module>
         <module>upedge-woocommerce</module>
         <module>upedge-trackingmore</module>
+        <module>upedge-fpx</module>
     </modules>
 
     <dependencies>

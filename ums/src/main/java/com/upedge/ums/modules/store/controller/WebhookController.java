@@ -16,11 +16,15 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -49,6 +53,7 @@ public class WebhookController {
 
     @RequestMapping(value = "/webhook", method = RequestMethod.POST)
     public HttpStatus shopifyWebhook() {
+        HttpServletResponse response = RequestUtil.getResponse();
         HttpServletRequest request = RequestUtil.getRequest();
         String topic = request.getHeader("X-Shopify-Topic");
         String originalStr = request.getHeader("X-Shopify-Hmac-Sha256");
@@ -56,6 +61,7 @@ public class WebhookController {
         String resultData = getRequestData(request);
         String hashStr = verifyWebhook(resultData, ShopifyConfig.api_select_key);
         if (null == request) {
+            response.setStatus(401);
             return HttpStatus.BAD_REQUEST;
         }
         shopName = shopName.replace(".myshopify.com","");
@@ -87,8 +93,10 @@ public class WebhookController {
                 default:
                     break;
             }
+            return HttpStatus.OK;
         }
-        return HttpStatus.OK;
+        response.setStatus(401);
+        return HttpStatus.UNAUTHORIZED;
     }
 
     @RequestMapping(value = "/woocommerce", method = RequestMethod.POST)
@@ -124,8 +132,6 @@ public class WebhookController {
             default:
                 break;
         }
-
-
         return HttpStatus.OK;
     }
 
@@ -142,7 +148,6 @@ public class WebhookController {
         if (StringUtils.isBlank(body) || null == store) {
             return HttpStatus.BAD_REQUEST;
         }
-
         String hashStr = verifyWebhook(body, store.getApiToken());
         if (!hmac.equals(hashStr)) {
             return HttpStatus.BAD_REQUEST;
@@ -175,19 +180,89 @@ public class WebhookController {
     }
 
 
-    @GetMapping("/customers/redact")
+    @RequestMapping("/customers/redact")
     public HttpStatus customerRedact(){
-        return HttpStatus.OK;
+        HttpServletResponse response = RequestUtil.getResponse();
+        HttpServletRequest request = RequestUtil.getRequest();
+        String originalStr = request.getHeader("X-Shopify-Hmac-Sha256");
+        String resultData = getRequestData(request);
+        String hashStr = verifyWebhook(resultData, ShopifyConfig.api_select_key);
+        JSONObject jsonObject = JSONObject.parseObject(resultData);
+        String shop = jsonObject.getString("shop_domain");
+        log.warn("/customers/redact--->" + resultData);
+        if (!hashStr.equals(originalStr)){
+            response.setStatus(401);
+            return HttpStatus.UNAUTHORIZED;
+        }
+        Store store = new Store();
+        store.setStoreName(shop.replace(".myshopify.com",""));
+        store = storeService.selectByPrimaryKey(store);
+        if (store != null){
+            response.setStatus(200);
+            store.setStatus(0);
+            store.setUpdateTime(new Date());
+            storeService.updateByPrimaryKeySelective(store);
+            return HttpStatus.OK;
+        }
+        response.setStatus(401);
+        return HttpStatus.UNAUTHORIZED;
     }
 
-    @GetMapping("/customers/delete")
+    @RequestMapping("/customers/delete")
     public HttpStatus customerDelete(){
-        return HttpStatus.OK;
+        HttpServletResponse response = RequestUtil.getResponse();
+        HttpServletRequest request = RequestUtil.getRequest();
+        String originalStr = request.getHeader("X-Shopify-Hmac-Sha256");
+        String resultData = getRequestData(request);
+        String hashStr = verifyWebhook(resultData, ShopifyConfig.api_select_key);
+        JSONObject jsonObject = JSONObject.parseObject(resultData);
+        String shop = jsonObject.getString("shop_domain");
+        log.warn("/customers/delete--->" + resultData);
+        if (!hashStr.equals(originalStr)){
+            response.setStatus(401);
+            return HttpStatus.UNAUTHORIZED;
+        }
+        Store store = new Store();
+        store.setStoreName(shop.replace(".myshopify.com",""));
+        store = storeService.selectByPrimaryKey(store);
+        if (store != null){
+            response.setStatus(200);
+            store.setStatus(0);
+            store.setUpdateTime(new Date());
+            storeService.updateByPrimaryKeySelective(store);
+            return HttpStatus.OK;
+        }
+        response.setStatus(401);
+        return HttpStatus.UNAUTHORIZED;
     }
 
-    @GetMapping("/store/delete")
+    @PostMapping("/store/delete")
     public HttpStatus storeDelete(){
-        return HttpStatus.OK;
+        HttpServletResponse response = RequestUtil.getResponse();
+        HttpServletRequest request = RequestUtil.getRequest();
+        String originalStr = request.getHeader("X-Shopify-Hmac-Sha256");
+        String resultData = getRequestData(request);
+        String hashStr = verifyWebhook(resultData, ShopifyConfig.api_select_key);
+        JSONObject jsonObject = JSONObject.parseObject(resultData);
+        String shop = jsonObject.getString("shop_domain");
+        log.warn("/store/delete---> data:{}, ---> hmac: {}", resultData,originalStr);
+        if (!hashStr.equals(originalStr)){
+            response.setStatus(401);
+            return HttpStatus.UNAUTHORIZED;
+        }
+
+        Store store = new Store();
+        store.setStoreName(shop.replace(".myshopify.com",""));
+        store = storeService.selectByPrimaryKey(store);
+        if (store != null){
+            response.setStatus(200);
+            store.setStatus(0);
+            store.setUpdateTime(new Date());
+            storeService.updateByPrimaryKeySelective(store);
+            return HttpStatus.OK;
+        }
+        response.setStatus(401);
+        return HttpStatus.UNAUTHORIZED;
     }
 
     public static String verifyWebhook(String message, String appSecret) {

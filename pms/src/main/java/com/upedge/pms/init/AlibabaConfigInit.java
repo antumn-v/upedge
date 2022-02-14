@@ -2,9 +2,7 @@ package com.upedge.pms.init;
 
 import com.upedge.common.constant.key.RedisKey;
 import com.upedge.common.model.product.AlibabaApiVo;
-import com.upedge.pms.modules.alibaba.entity.AlibabaApi;
 import com.upedge.pms.modules.alibaba.service.AlibabaApiService;
-import com.upedge.pms.modules.alibaba.service.Ali1688Service;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -25,12 +23,12 @@ public class AlibabaConfigInit {
     @PostConstruct
     public void AlibabaConfigInit(){
         long now = System.currentTimeMillis();
-        AlibabaApi alibabaApi = alibabaApiService.selectAlibabaApi();
+        com.upedge.pms.modules.alibaba.entity.AlibabaApi alibabaApi = alibabaApiService.selectAlibabaApi();
         AlibabaApiVo alibabaApiVo = new AlibabaApiVo();
         BeanUtils.copyProperties(alibabaApi,alibabaApiVo);
         long time = alibabaApi.getAccessTokenExpireTime() - now ;
         if (time <= 60 * 60 * 1000){
-            alibabaApiVo = Ali1688Service.refreshAccessToken(alibabaApiVo);
+            alibabaApiVo = com.upedge.pms.modules.alibaba.service.Ali1688Service.refreshAccessToken(alibabaApiVo);
             if (null == alibabaApiVo){
                 return;
             }

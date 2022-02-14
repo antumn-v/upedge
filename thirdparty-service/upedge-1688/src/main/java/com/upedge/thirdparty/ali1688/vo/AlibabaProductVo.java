@@ -1,4 +1,4 @@
-package com.upedge.pms.modules.alibaba.vo;
+package com.upedge.thirdparty.ali1688.vo;
 
 import lombok.Data;
 
@@ -34,27 +34,27 @@ public class AlibabaProductVo{
 	/**
 	 * 属性信息
 	 */
-	private ProductAttributeVo productAttributeVo;
+	private com.upedge.thirdparty.ali1688.vo.ProductAttributeVo productAttributeVo;
 
 	/**
 	 * 产品描述
 	 */
-	private ProductInfoVo productInfoVo;
+	private com.upedge.thirdparty.ali1688.vo.ProductInfoVo productInfoVo;
 
 	/**
 	 * 产品供应商
 	 */
-	private SupplierVo supplierVo;
+	private com.upedge.thirdparty.ali1688.vo.SupplierVo supplierVo;
 
 	/**
 	 * 产品图片列表
 	 */
-	private List<ProductImgVo> productImgVoList;
+	private List<com.upedge.thirdparty.ali1688.vo.ProductImgVo> productImgVoList;
 
 	/**
 	 * 产品变体列表
 	 */
-	private List<ProductVariantVo> productVariantVoList;
+	private List<com.upedge.thirdparty.ali1688.vo.ProductVariantVo> productVariantVoList;
 
 
 

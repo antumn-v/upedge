@@ -214,7 +214,10 @@
 
     <update id="updateVolumeWeight">
         update product_variant
-        set volume_weight=#{volumeWeight}
+        set volume_weight=#{volumeWeight},
+        width = #{width},
+        length  = #{length},
+        height = #{height}
         where id in
         <foreach collection="ids" index="index" item="item"
                  separator="," open="(" close=")">

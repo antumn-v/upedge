@@ -18,7 +18,11 @@ public interface ProductVariantDao{
 
     void updateWeight(@Param("ids") List<Long> ids,@Param("weight") BigDecimal weight);
 
-    void updateVolumeWeight(@Param("ids") List<Long> ids,@Param("volumeWeight") BigDecimal volumeWeight);
+    void updateVolumeWeight(@Param("ids") List<Long> ids,
+                            @Param("volumeWeight") BigDecimal volumeWeight,
+                            @Param("width")BigDecimal width,
+                            @Param("height")BigDecimal height,
+                            @Param("length")BigDecimal length);
 
     void updateVariantImage(@Param("ids") List<Long> ids,@Param("variantImage") String variantImage);
 

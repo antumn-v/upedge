@@ -197,13 +197,26 @@ public class ProductVariantServiceImpl implements ProductVariantService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public ProductVariantUpdateVolumeWeightResponse updateVolumeWeight(ProductVariantUpdateVolumeWeightRequest request, Session session) throws CustomerException {
+        BigDecimal width = request.getWidth();
+        BigDecimal height = request.getHeight();
+        BigDecimal length = request.getLength();
+        if (null == width
+        || null == height
+        || null == length
+        || BigDecimal.ZERO.compareTo(width) == 0
+        || BigDecimal.ZERO.compareTo(height) == 0
+        || BigDecimal.ZERO.compareTo(length) == 0){
+            return new ProductVariantUpdateVolumeWeightResponse(ResultCode.FAIL_CODE,"长宽高不能为0!");
+        }
+        BigDecimal volume = width.multiply(height).multiply(length);
+
         List<ProductVariant> productVariantList = productVariantDao.listProductVariantByIds(request.getIds());
         List<ProductLog> productLogList = new ArrayList<>();
 
         List<VariantDetail> variantDetails = new ArrayList<>();
         for (ProductVariant productVariant : productVariantList) {
             if (productVariant.getVolumeWeight() == null
-                    || productVariant.getVolumeWeight().compareTo(request.getVolumeWeight()) != 0) {
+                    || productVariant.getVolumeWeight().compareTo(volume) != 0) {
                 ProductLog productLog = new ProductLog();
                 productLog.setId(IdGenerate.nextId());
                 productLog.setAdminUser(String.valueOf(session.getId()));
@@ -213,16 +226,19 @@ public class ProductVariantServiceImpl implements ProductVariantService {
                 //操作类型 1:修改实重 2:修改体积重 3:修改运输模板 4:修改价格
                 productLog.setOptType(2);
                 productLog.setOldInfo(String.valueOf(productVariant.getWeight()));
-                productLog.setNewInfo(String.valueOf(request.getVolumeWeight()));
+                productLog.setNewInfo(String.valueOf(volume));
                 productLogList.add(productLog);
 
                 VariantDetail variantDetail = new VariantDetail();
                 variantDetail.setVolume(productVariant.getVolumeWeight());
                 variantDetail.setVariantId(productVariant.getId());
+                variantDetail.setLength(length);
+                variantDetail.setWidth(width);
+                variantDetail.setHeight(height);
                 variantDetails.add(variantDetail);
             }
         }
-        productVariantDao.updateVolumeWeight(request.getIds(), request.getVolumeWeight());
+        productVariantDao.updateVolumeWeight(request.getIds(), volume,width,height,length);
         if (productLogList.size() > 0) {
             productLogDao.insertByBatch(productLogList);
         }

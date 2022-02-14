@@ -1,4 +1,4 @@
-package com.upedge.pms.modules.alibaba.entity.listPushed;
+package com.upedge.thirdparty.ali1688.entity.listPushed;
 
 import com.alibaba.ocean.rawsdk.client.APIId;
 import com.alibaba.ocean.rawsdk.common.AbstractAPIRequest;

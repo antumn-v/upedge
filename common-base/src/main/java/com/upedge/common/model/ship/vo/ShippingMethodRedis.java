@@ -57,4 +57,6 @@ public class ShippingMethodRedis {
      * 更新时间
      */
     private Date updateTime;
+
+    private String warehouseCode;
 }

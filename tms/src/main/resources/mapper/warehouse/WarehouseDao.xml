@@ -1,0 +1,348 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.upedge.tms.modules.warehouse.dao.WarehouseDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.upedge.tms.modules.warehouse.entity.Warehouse" id="BaseResultMap">
+        <result property="id" column="id"/>
+        <result property="warehouseCode" column="warehouse_code"/>
+        <result property="warehouseType" column="warehouse_type"/>
+        <result property="warehouseName" column="warehouse_name"/>
+        <result property="warehouseEnEame" column="warehouse_en_eame"/>
+        <result property="country" column="country"/>
+        <result property="province" column="province"/>
+        <result property="city" column="city"/>
+        <result property="address1" column="address1"/>
+        <result property="address2" column="address2"/>
+        <result property="zip" column="zip"/>
+        <result property="email" column="email"/>
+        <result property="phone" column="phone"/>
+        <result property="state" column="state"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        `id`,`warehouse_code`,`warehouse_type`,`warehouse_name`,`warehouse_en_eame`,`country`,`province`,`city`,`address1`,`address2`,`zip`,`email`,`phone`,`state`
+    </sql>
+
+    <select id="selectByPrimaryKey" parameterType="com.upedge.tms.modules.warehouse.entity.Warehouse" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from warehouse
+        where id = #{id}
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="com.upedge.tms.modules.warehouse.entity.Warehouse">
+        delete from warehouse
+        where id = #{id}
+    </delete>
+
+    <update id="updateByPrimaryKeySelective" parameterType="com.upedge.tms.modules.warehouse.entity.Warehouse">
+        update warehouse
+        <set>
+            <if test="warehouseCode != null">
+                warehouse_code = #{warehouseCode},
+            </if>
+            <if test="warehouseType != null">
+                warehouse_type = #{warehouseType},
+            </if>
+            <if test="warehouseName != null">
+                warehouse_name = #{warehouseName},
+            </if>
+            <if test="warehouseEnEame != null">
+                warehouse_en_eame = #{warehouseEnEame},
+            </if>
+            <if test="country != null">
+                country = #{country},
+            </if>
+            <if test="province != null">
+                province = #{province},
+            </if>
+            <if test="city != null">
+                city = #{city},
+            </if>
+            <if test="address1 != null">
+                address1 = #{address1},
+            </if>
+            <if test="address2 != null">
+                address2 = #{address2},
+            </if>
+            <if test="zip != null">
+                zip = #{zip},
+            </if>
+            <if test="email != null">
+                email = #{email},
+            </if>
+            <if test="phone != null">
+                phone = #{phone},
+            </if>
+            <if test="state != null">
+                state = #{state},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <update id="updateByPrimaryKey" parameterType="com.upedge.tms.modules.warehouse.entity.Warehouse">
+        update warehouse
+        <set>
+        id = #{id},
+        warehouse_code = #{warehouseCode},
+        warehouse_type = #{warehouseType},
+        warehouse_name = #{warehouseName},
+        warehouse_en_eame = #{warehouseEnEame},
+        country = #{country},
+        province = #{province},
+        city = #{city},
+        address1 = #{address1},
+        address2 = #{address2},
+        zip = #{zip},
+        email = #{email},
+        phone = #{phone},
+        state = #{state},
+        </set>
+        where id = #{id}
+    </update>
+
+    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.upedge.tms.modules.warehouse.entity.Warehouse" useGeneratedKeys="true">
+        insert into warehouse
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            id,
+            warehouse_code,
+            warehouse_type,
+            warehouse_name,
+            warehouse_en_eame,
+            country,
+            province,
+            city,
+            address1,
+            address2,
+            zip,
+            email,
+            phone,
+            state
+        </trim>
+        values (
+        #{id},
+        #{warehouseCode},
+        #{warehouseType},
+        #{warehouseName},
+        #{warehouseEnEame},
+        #{country},
+        #{province},
+        #{city},
+        #{address1},
+        #{address2},
+        #{zip},
+        #{email},
+        #{phone},
+        #{state}
+        )
+    </insert>
+
+    <insert id="insertSelective"  keyColumn="id" keyProperty="id"  parameterType="com.upedge.tms.modules.warehouse.entity.Warehouse" useGeneratedKeys="true">
+        insert into warehouse
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null" >
+              id
+            </if>
+            <if test="warehouseCode != null" >
+              warehouse_code
+            </if>
+            <if test="warehouseType != null" >
+              warehouse_type
+            </if>
+            <if test="warehouseName != null" >
+              warehouse_name
+            </if>
+            <if test="warehouseEnEame != null" >
+              warehouse_en_eame
+            </if>
+            <if test="country != null" >
+              country
+            </if>
+            <if test="province != null" >
+              province
+            </if>
+            <if test="city != null" >
+              city
+            </if>
+            <if test="address1 != null" >
+              address1
+            </if>
+            <if test="address2 != null" >
+              address2
+            </if>
+            <if test="zip != null" >
+              zip
+            </if>
+            <if test="email != null" >
+              email
+            </if>
+            <if test="phone != null" >
+              phone
+            </if>
+            <if test="state != null" >
+              state
+            </if>
+
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null" >
+                #{id}
+            </if>
+            <if test="warehouseCode != null" >
+                #{warehouseCode}
+            </if>
+            <if test="warehouseType != null" >
+                #{warehouseType}
+            </if>
+            <if test="warehouseName != null" >
+                #{warehouseName}
+            </if>
+            <if test="warehouseEnEame != null" >
+                #{warehouseEnEame}
+            </if>
+            <if test="country != null" >
+                #{country}
+            </if>
+            <if test="province != null" >
+                #{province}
+            </if>
+            <if test="city != null" >
+                #{city}
+            </if>
+            <if test="address1 != null" >
+                #{address1}
+            </if>
+            <if test="address2 != null" >
+                #{address2}
+            </if>
+            <if test="zip != null" >
+                #{zip}
+            </if>
+            <if test="email != null" >
+                #{email}
+            </if>
+            <if test="phone != null" >
+                #{phone}
+            </if>
+            <if test="state != null" >
+                #{state}
+            </if>
+
+        </trim>
+    </insert>
+
+    <insert id="insertByBatch" parameterType="java.util.List">
+        insert into warehouse
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+           id,
+           warehouse_code,
+           warehouse_type,
+           warehouse_name,
+           warehouse_en_eame,
+           country,
+           province,
+           city,
+           address1,
+           address2,
+           zip,
+           email,
+           phone,
+           state
+        </trim>
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+               #{item.id},
+               #{item.warehouseCode},
+               #{item.warehouseType},
+               #{item.warehouseName},
+               #{item.warehouseEnEame},
+               #{item.country},
+               #{item.province},
+               #{item.city},
+               #{item.address1},
+               #{item.address2},
+               #{item.zip},
+               #{item.email},
+               #{item.phone},
+               #{item.state}
+            </trim>
+        </foreach>
+    </insert>
+
+    <sql id="Query_Condition">
+        <if test="t != null">
+            where
+            <trim prefix=" " suffix=" " suffixOverrides=" and ">
+                1 = 1 and
+                    <if test="t.id != null">
+                        id = #{t.id} and
+                    </if>
+                    <if test="t.warehouseCode != null">
+                        warehouse_code = #{t.warehouseCode} and
+                    </if>
+                    <if test="t.warehouseType != null">
+                        warehouse_type = #{t.warehouseType} and
+                    </if>
+                    <if test="t.warehouseName != null">
+                        warehouse_name = #{t.warehouseName} and
+                    </if>
+                    <if test="t.warehouseEnEame != null">
+                        warehouse_en_eame = #{t.warehouseEnEame} and
+                    </if>
+                    <if test="t.country != null">
+                        country = #{t.country} and
+                    </if>
+                    <if test="t.province != null">
+                        province = #{t.province} and
+                    </if>
+                    <if test="t.city != null">
+                        city = #{t.city} and
+                    </if>
+                    <if test="t.address1 != null">
+                        address1 = #{t.address1} and
+                    </if>
+                    <if test="t.address2 != null">
+                        address2 = #{t.address2} and
+                    </if>
+                    <if test="t.zip != null">
+                        zip = #{t.zip} and
+                    </if>
+                    <if test="t.email != null">
+                        email = #{t.email} and
+                    </if>
+                    <if test="t.phone != null">
+                        phone = #{t.phone} and
+                    </if>
+                    <if test="t.state != null">
+                        state = #{t.state} and
+                    </if>
+            </trim>
+        </if>
+    </sql>
+
+    <select id="select" parameterType="com.upedge.common.base.Page" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from warehouse
+        <include refid="Query_Condition"/>
+        <if test="orderBy != null">
+            order by ${orderBy}
+        </if>
+        <if test="pageNum != null and pageSize != null">
+            limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+        </if>
+    </select>
+
+    <select id="count" parameterType="com.upedge.common.base.Page" resultType="java.lang.Long">
+        select
+        count(1)
+        from warehouse
+        <include refid="Query_Condition"/>
+    </select>
+
+
+</mapper>

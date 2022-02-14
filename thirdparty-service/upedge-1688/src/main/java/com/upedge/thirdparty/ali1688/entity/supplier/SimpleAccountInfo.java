@@ -1,6 +1,6 @@
-package com.upedge.pms.modules.alibaba.entity.supplier;
+package com.upedge.thirdparty.ali1688.entity.supplier;
 
-import com.upedge.pms.modules.alibaba.vo.SupplierVo;
+import com.upedge.thirdparty.ali1688.vo.SupplierVo;
 
 /**
  * Created by jiaqi on 2020/6/9.

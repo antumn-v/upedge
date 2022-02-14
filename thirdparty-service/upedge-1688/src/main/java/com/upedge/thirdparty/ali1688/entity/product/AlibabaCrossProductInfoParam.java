@@ -1,4 +1,4 @@
-package com.upedge.pms.modules.alibaba.entity.product;
+package com.upedge.thirdparty.ali1688.entity.product;
 
 import com.alibaba.ocean.rawsdk.client.APIId;
 import com.alibaba.ocean.rawsdk.common.AbstractAPIRequest;

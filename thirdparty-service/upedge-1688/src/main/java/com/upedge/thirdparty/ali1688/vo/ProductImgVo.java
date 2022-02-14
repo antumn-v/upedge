@@ -1,4 +1,4 @@
-package com.upedge.pms.modules.alibaba.vo;
+package com.upedge.thirdparty.ali1688.vo;
 
 import lombok.Data;
 

@@ -57,13 +57,19 @@ public class UserController {
             request.setUsername(loginName);
         }
         CustomerSignUpResponse customerSignUpResponse = userService.signUp(request);
-        if(StringUtils.isNotBlank(request.getState())
-                && customerSignUpResponse.getCode() == ResultCode.SUCCESS_CODE){
-            JSONObject jsonObject = JSONObject.parseObject(JSONObject.toJSONString(customerSignUpResponse.getData()));
-            String token = jsonObject.getString("token");
-            Session session = (Session) redisTemplate.opsForValue().get(TokenUtil.getTokenKey(token));
-            Store store = (Store) redisTemplate.opsForValue().get(request.getState());
-            storeService.updateShopifyStore(store.getStoreUrl(),store.getApiToken(),session);
+        try {
+            if(StringUtils.isNotBlank(request.getState())
+                    && customerSignUpResponse.getCode() == ResultCode.SUCCESS_CODE){
+                Store store = (Store) redisTemplate.opsForValue().get(request.getState());
+                if (store != null){
+                    JSONObject jsonObject = JSONObject.parseObject(JSONObject.toJSONString(customerSignUpResponse.getData()));
+                    String token = jsonObject.getString("token");
+                    Session session = (Session) redisTemplate.opsForValue().get(TokenUtil.getTokenKey(token));
+                    storeService.updateShopifyStore(store.getStoreUrl(),store.getApiToken(),session);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
         return customerSignUpResponse;
     }
@@ -72,15 +78,19 @@ public class UserController {
     @PostMapping("/signin")
     public UserSignInResponse userSignIn(@RequestBody @Valid UserSignInRequest request) {
         UserSignInResponse userSignInResponse = userService.signIn(request);
-        if(StringUtils.isNotBlank(request.getState())
-        && userSignInResponse.getCode() == ResultCode.SUCCESS_CODE){
-            JSONObject jsonObject = JSONObject.parseObject(JSONObject.toJSONString(userSignInResponse.getData()));
-            String token = jsonObject.getString("token");
-            Session session = (Session) redisTemplate.opsForValue().get(TokenUtil.getTokenKey(token));
-            Store store = (Store) redisTemplate.opsForValue().get(request.getState());
-            if (store != null){
-                storeService.updateShopifyStore(store.getStoreUrl(),store.getApiToken(),session);
+        try {
+            if(StringUtils.isNotBlank(request.getState())
+            && userSignInResponse.getCode() == ResultCode.SUCCESS_CODE){
+                JSONObject jsonObject = JSONObject.parseObject(JSONObject.toJSONString(userSignInResponse.getData()));
+                String token = jsonObject.getString("token");
+                Session session = (Session) redisTemplate.opsForValue().get(TokenUtil.getTokenKey(token));
+                Store store = (Store) redisTemplate.opsForValue().get(request.getState());
+                if (store != null){
+                    storeService.updateShopifyStore(store.getStoreUrl(),store.getApiToken(),session);
+                }
             }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
         return userSignInResponse;
     }

@@ -1,10 +1,17 @@
 package com.upedge.tms.mq.impl;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.upedge.common.constant.key.RocketMqConfig;
 import com.upedge.common.feign.UmsFeignClient;
 import com.upedge.common.model.log.MqMessageLog;
 import com.upedge.common.utils.IdGenerate;
+import com.upedge.thirdparty.fpx.config.FpxConfig;
+import com.upedge.thirdparty.fpx.constants.AmbientEnum;
+import com.upedge.thirdparty.fpx.constants.MethodEnum;
+import com.upedge.thirdparty.fpx.dto.ShipPriceCalculator;
+import com.upedge.thirdparty.fpx.model.AffterentParam;
+import com.upedge.thirdparty.fpx.utils.ApiHttpClientUtils;
 import com.upedge.tms.mq.TmsProducerService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.rocketmq.client.producer.DefaultMQProducer;
@@ -13,6 +20,7 @@ import org.apache.rocketmq.common.message.Message;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ThreadPoolExecutor;
 
@@ -73,5 +81,49 @@ public class TmsProducerImpl implements TmsProducerService {
         }
         umsFeignClient.saveMqLog(messageLog);
         return b;
+    }
+
+    public static void main(String[] args) {
+        AffterentParam param = new AffterentParam();
+        param.setAppKey(FpxConfig.API_KEY);
+        param.setAppSecret(FpxConfig.API_SECRET);
+        param.setVersion(FpxConfig.VERSION);
+        param.setMethod(MethodEnum.price_calculator.getMethod());
+        param.setFormat("json");
+        param.setLanguage("cn");
+        param.setAccessToken("");
+
+        List<String> codes = new ArrayList<>();
+        codes.add("S004");
+        codes.add("S001");
+        codes.add("S003");
+        codes.add("S006");
+        codes.add("F009");
+        codes.add("S007");
+        codes.add("S098");
+        codes.add("S153");
+        codes.add("F191");
+        codes.add("F192");
+        codes.add("F001");
+        codes.add("F137");
+        codes.add("F190");
+
+        ShipPriceCalculator.DestinationDTO destinationDTO = new ShipPriceCalculator.DestinationDTO();
+        destinationDTO.setCountry("US");
+
+        ShipPriceCalculator priceCalculator = new ShipPriceCalculator();
+        priceCalculator.setHeight("55.335");
+        priceCalculator.setLength("25.335");
+        priceCalculator.setWidth("15.335");
+        priceCalculator.setWeight("25");
+        priceCalculator.setService_code("FB4");
+        priceCalculator.setProduct_codes(codes);
+        priceCalculator.setWarehouse_code("USLAXA");
+        priceCalculator.setBilling_time(System.currentTimeMillis());
+        priceCalculator.setDestination(destinationDTO);
+
+        JSONObject jsonObject = JSONObject.parseObject(JSON.toJSONString(priceCalculator));
+
+        System.out.println(ApiHttpClientUtils.apiJsongPost(param,jsonObject, AmbientEnum.FORMAT_ADDRESS));
     }
 }

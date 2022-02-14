@@ -19,6 +19,7 @@
         <module name="upedge_ums" />
         <module name="upedge-1688" />
         <module name="oms" />
+        <module name="upedge-fpx" />
         <module name="pms" />
         <module name="panda-trackingmore" />
         <module name="ums" />
@@ -52,6 +53,7 @@
       <module name="tms" options="-parameters" />
       <module name="ums" options="-parameters" />
       <module name="upedge-1688" options="-parameters" />
+      <module name="upedge-fpx" options="" />
       <module name="upedge-saihe" options="-parameters" />
       <module name="upedge-shopify" options="-parameters" />
       <module name="upedge-shoplazza" options="-parameters" />

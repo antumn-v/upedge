@@ -1,4 +1,4 @@
-package com.upedge.pms.modules.alibaba.entity.translate;
+package com.upedge.thirdparty.ali1688.entity.translate;
 
 /**
  * Created by jiaqi on 2019/11/27.

@@ -1,4 +1,4 @@
-package com.upedge.pms.modules.alibaba.entity.listPushed;
+package com.upedge.thirdparty.ali1688.entity.listPushed;
 
 /**
  * Created by jiaqi on 2020/6/15.

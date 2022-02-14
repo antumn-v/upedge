@@ -18,6 +18,7 @@
         <result property="state" column="state"/>
         <result property="createTime" column="create_time"/>
         <result property="updateTime" column="update_time"/>
+        <result property="warehouseCode" column="warehouse_code"/>
     </resultMap>
 
     <sql id="Base_Column_List">
@@ -85,6 +86,15 @@
             <if test="updateTime != null">
                 update_time = #{updateTime},
             </if>
+            <if test="unitNum != null">
+                unit_num = #{unitNum},
+            </if>
+            <if test="shipNum != null">
+                ship_num = #{shipNum},
+            </if>
+            <if test="warehouseCode != null">
+                warehouse_code = #{warehouseCode},
+            </if>
         </set>
         where id = #{id}
     </update>
@@ -104,7 +114,10 @@
             paypal_carrier_enum = #{paypalCarrierEnum},
             state = #{state},
             create_time = #{createTime},
-            update_time = #{updateTime}
+            update_time = #{updateTime},
+            unit_num = #{unitNum},
+            ship_num = #{shipNum},
+            warehouse_code = #{warehouseCode},
         </set>
         where id = #{id}
     </update>
@@ -124,7 +137,10 @@
             paypal_carrier_enum,
             state,
             create_time,
-            update_time
+            update_time,
+            unit_num,
+            ship_num,
+            warehouse_code
         </trim>
         values (
         #{id},
@@ -139,7 +155,10 @@
         #{paypalCarrierEnum},
         #{state},
         #{createTime},
-        #{updateTime}
+        #{updateTime},
+        #{unitNum},
+        #{shipNum},
+        #{warehouseCode}
         )
     </insert>
 
@@ -185,6 +204,15 @@
             <if test="updateTime != null" >
                 update_time
             </if>
+            <if test="unitNum != null" >
+                unit_num
+            </if>
+            <if test="shipNum != null" >
+                ship_num
+            </if>
+            <if test="warehouseCode != null" >
+                warehouse_code
+            </if>
 
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
@@ -227,6 +255,15 @@
             <if test="updateTime != null" >
                 #{updateTime}
             </if>
+            <if test="unitNum != null" >
+                #{unitNum}
+            </if>
+            <if test="shipNum != null" >
+                #{shipNum}
+            </if>
+            <if test="warehouseCode != null" >
+                #{warehouseCode}
+            </if>
 
         </trim>
     </insert>
@@ -246,7 +283,10 @@
             paypal_carrier_enum,
             state,
             create_time,
-            update_time
+            update_time,
+            unit_num,
+            ship_num,
+            warehouse_code
         </trim>
         values
         <foreach collection="list" item="item" index="index" separator=",">
@@ -263,7 +303,10 @@
                 #{item.paypalCarrierEnum},
                 #{item.state},
                 #{item.createTime},
-                #{item.updateTime}
+                #{item.updateTime},
+                #{item.unitNum},
+                #{item.shipNum},
+                #{item.warehouseCode}
             </trim>
         </foreach>
     </insert>
@@ -311,6 +354,15 @@
                 </if>
                 <if test="t.updateTime != null">
                     update_time = #{t.updateTime} and
+                </if>
+                <if test="t.unitNum != null">
+                    unit_num = #{t.unitNum} and
+                </if>
+                <if test="t.shipNum != null">
+                    ship_num = #{t.shipNum} and
+                </if>
+                <if test="t.warehouseCode != null">
+                    warehouse_code = #{t.warehouseCode} and
                 </if>
             </trim>
         </if>

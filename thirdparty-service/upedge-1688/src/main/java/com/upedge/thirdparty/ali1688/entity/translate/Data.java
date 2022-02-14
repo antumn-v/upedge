@@ -1,4 +1,4 @@
-package com.upedge.pms.modules.alibaba.entity.translate;
+package com.upedge.thirdparty.ali1688.entity.translate;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -12,7 +12,7 @@ import com.aliyuncs.profile.IClientProfile;
 public class EmailUtils {
 
     public static boolean sendEmailByAli(String toAddress, String subject, String content){
-        IClientProfile profile = DefaultProfile.getProfile("cn-hangzhou", "LTAI4GKWcKLU9uX9KMbKXU7R", "r0yMavI1zhaXASFq5kJ3p7OvDstFkR");
+        IClientProfile profile = DefaultProfile.getProfile("cn-hangzhou", "LTAI4G11r85nKNnKxhtHrAQ6", "51qt1QMGeGez01wKCqqA1od6U5RROb");
         // 如果是除杭州region外的其它region（如新加坡region）， 需要做如下处理
         //try {
         //DefaultProfile.addEndpoint("dm.ap-southeast-1.aliyuncs.com", "ap-southeast-1", "Dm",  "dm.ap-southeast-1.aliyuncs.com");
@@ -23,7 +23,7 @@ public class EmailUtils {
         SingleSendMailRequest request = new SingleSendMailRequest();
         try {
             //request.setVersion("2017-06-22");// 如果是除杭州region外的其它region（如新加坡region）,必须指定为2017-06-22
-            request.setAccountName("no-reply@support.upedge.com");
+            request.setAccountName("no-reply@mail.upedge.cn");
             request.setFromAlias("UPEDGE");
             request.setAddressType(1);
 //			request.setTagName("控制台创建的标签");
@@ -54,5 +54,9 @@ public class EmailUtils {
             e.printStackTrace();
         }
         return false;
+    }
+
+    public static void main(String[] args) {
+        sendEmailByAli("maritime1027@gmail.com","测试","测试");
     }
 }

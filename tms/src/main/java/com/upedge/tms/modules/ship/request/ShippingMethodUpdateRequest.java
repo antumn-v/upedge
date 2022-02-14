@@ -47,6 +47,8 @@ public class ShippingMethodUpdateRequest{
      */
     private String paypalCarrierEnum;
 
+    private String warehouseCode;
+
     @Size(min = 1)
     private List<Long> templateIds;
 

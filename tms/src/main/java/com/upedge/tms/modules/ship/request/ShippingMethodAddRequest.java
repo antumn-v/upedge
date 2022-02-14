@@ -54,6 +54,8 @@ public class ShippingMethodAddRequest{
     * 
     */
     private String paypalCarrierEnum;
+
+    private String warehouseCode;
     /**
     * 0:禁用 1:启用
     */

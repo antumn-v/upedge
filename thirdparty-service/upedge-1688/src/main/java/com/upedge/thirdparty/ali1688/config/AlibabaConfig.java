@@ -1,4 +1,4 @@
-package com.upedge.pms.modules.alibaba.config;
+package com.upedge.thirdparty.ali1688.config;
 
 public class AlibabaConfig {
 
