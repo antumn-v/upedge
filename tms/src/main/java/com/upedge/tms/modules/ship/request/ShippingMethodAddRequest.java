@@ -3,14 +3,12 @@ package com.upedge.tms.modules.ship.request;
 import com.upedge.tms.modules.ship.entity.ShippingMethod;
 import lombok.Data;
 
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.util.Date;
 import java.util.List;
 
 /**
- * @author author
+ * @author gx
  */
 @Data
 public class ShippingMethodAddRequest{
@@ -18,7 +16,6 @@ public class ShippingMethodAddRequest{
     /**
     * 运输方式名称
     */
-    @NotBlank
     private String name;
     /**
     * 描述
@@ -37,25 +34,21 @@ public class ShippingMethodAddRequest{
     */
     private String trackingUrl;
     /**
-     * 物流公司
-     */
+    * 物流商公司
+    */
     private String trackingCompany;
     /**
     * 0:实重 1:体积重
     */
-    @NotNull
     private Integer weightType;
     /**
     * 追踪类型 0:真实追踪号 1:物流商单号
     */
-    @NotNull
     private Integer trackType;
     /**
     * 
     */
     private String paypalCarrierEnum;
-
-    private String warehouseCode;
     /**
     * 0:禁用 1:启用
     */
@@ -68,6 +61,14 @@ public class ShippingMethodAddRequest{
     * 更新时间
     */
     private Date updateTime;
+    /**
+    * 仓库代码
+    */
+    private String warehouseCode;
+    /**
+    * 运输方式代码
+    */
+    private String methodCode;
 
     @Size(min = 1)
     private List<Long> templateIds;
@@ -84,8 +85,10 @@ public class ShippingMethodAddRequest{
         shippingMethod.setTrackType(trackType);
         shippingMethod.setPaypalCarrierEnum(paypalCarrierEnum);
         shippingMethod.setState(state);
-        shippingMethod.setCreateTime(new Date());
+        shippingMethod.setCreateTime(createTime);
         shippingMethod.setUpdateTime(updateTime);
+        shippingMethod.setWarehouseCode(warehouseCode);
+        shippingMethod.setMethodCode(methodCode);
         return shippingMethod;
     }
 

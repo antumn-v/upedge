@@ -73,6 +73,8 @@ public interface OrderItemDao{
     int updateAdminVariantByStoreVariantId(@Param("storeVariantId") Long storeVariantId,
                                            @Param("r") RelateVariantVo r);
 
+    int updateVolumeByVariantId(VariantDetail variantDetail);
+
     int updateOrderIdByOrderIds(@Param("orderIds") List<Long> orderIds,
                                 @Param("orderId") Long orderId);
 

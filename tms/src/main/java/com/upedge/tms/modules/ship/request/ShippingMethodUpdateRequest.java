@@ -4,10 +4,11 @@ import com.upedge.tms.modules.ship.entity.ShippingMethod;
 import lombok.Data;
 
 import javax.validation.constraints.Size;
+import java.util.Date;
 import java.util.List;
 
 /**
- * @author author
+ * @author gx
  */
 @Data
 public class ShippingMethodUpdateRequest{
@@ -28,12 +29,14 @@ public class ShippingMethodUpdateRequest{
      * 
      */
     private String saiheTransportName;
-
-    private String trackingCompany;
     /**
      * 
      */
     private String trackingUrl;
+    /**
+     * 物流商公司
+     */
+    private String trackingCompany;
     /**
      * 0:实重 1:体积重
      */
@@ -46,8 +49,26 @@ public class ShippingMethodUpdateRequest{
      * 
      */
     private String paypalCarrierEnum;
-
+    /**
+     * 0:禁用 1:启用
+     */
+    private Integer state;
+    /**
+     * 创建时间
+     */
+    private Date createTime;
+    /**
+     * 更新时间
+     */
+    private Date updateTime;
+    /**
+     * 仓库代码
+     */
     private String warehouseCode;
+    /**
+     * 运输方式代码
+     */
+    private String methodCode;
 
     @Size(min = 1)
     private List<Long> templateIds;
@@ -64,6 +85,11 @@ public class ShippingMethodUpdateRequest{
         shippingMethod.setWeightType(weightType);
         shippingMethod.setTrackType(trackType);
         shippingMethod.setPaypalCarrierEnum(paypalCarrierEnum);
+        shippingMethod.setState(state);
+        shippingMethod.setCreateTime(createTime);
+        shippingMethod.setUpdateTime(updateTime);
+        shippingMethod.setWarehouseCode(warehouseCode);
+        shippingMethod.setMethodCode(methodCode);
         return shippingMethod;
     }
 

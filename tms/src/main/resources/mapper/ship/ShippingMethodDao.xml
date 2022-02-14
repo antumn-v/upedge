@@ -7,6 +7,7 @@
     <resultMap type="com.upedge.tms.modules.ship.entity.ShippingMethod" id="BaseResultMap">
         <result property="id" column="id"/>
         <result property="name" column="name"/>
+        <result property="methodCode" column="method_code"/>
         <result property="desc" column="desc"/>
         <result property="saiheTransportId" column="saihe_transport_id"/>
         <result property="saiheTransportName" column="saihe_transport_name"/>
@@ -22,7 +23,8 @@
     </resultMap>
 
     <sql id="Base_Column_List">
-        `id`,`name`,`desc`,`saihe_transport_id`,`saihe_transport_name`,`tracking_url`,`weight_type`,`track_type`,`paypal_carrier_enum`,`state`,`create_time`,`update_time`
+        `id`,`name`,`desc`,`saihe_transport_id`,`saihe_transport_name`,`tracking_url`,`weight_type`,`track_type`,`paypal_carrier_enum`,`state`,`create_time`,`update_time`,
+        `method_code`,`warehouse_code`
     </sql>
 
     <select id="selectByPrimaryKey" parameterType="com.upedge.tms.modules.ship.entity.ShippingMethod" resultMap="BaseResultMap">
@@ -86,14 +88,11 @@
             <if test="updateTime != null">
                 update_time = #{updateTime},
             </if>
-            <if test="unitNum != null">
-                unit_num = #{unitNum},
-            </if>
-            <if test="shipNum != null">
-                ship_num = #{shipNum},
-            </if>
             <if test="warehouseCode != null">
                 warehouse_code = #{warehouseCode},
+            </if>
+            <if test="methodCode != null">
+                method_code = #{methodCode},
             </if>
         </set>
         where id = #{id}
@@ -115,9 +114,8 @@
             state = #{state},
             create_time = #{createTime},
             update_time = #{updateTime},
-            unit_num = #{unitNum},
-            ship_num = #{shipNum},
             warehouse_code = #{warehouseCode},
+            method_code = #{methodCode},
         </set>
         where id = #{id}
     </update>
@@ -138,9 +136,8 @@
             state,
             create_time,
             update_time,
-            unit_num,
-            ship_num,
-            warehouse_code
+            warehouse_code,
+            method_code
         </trim>
         values (
         #{id},
@@ -156,9 +153,8 @@
         #{state},
         #{createTime},
         #{updateTime},
-        #{unitNum},
-        #{shipNum},
-        #{warehouseCode}
+        #{warehouseCode},
+        #{methodCode}
         )
     </insert>
 
@@ -204,14 +200,11 @@
             <if test="updateTime != null" >
                 update_time
             </if>
-            <if test="unitNum != null" >
-                unit_num
-            </if>
-            <if test="shipNum != null" >
-                ship_num
-            </if>
             <if test="warehouseCode != null" >
                 warehouse_code
+            </if>
+            <if test="methodCode != null" >
+                method_code
             </if>
 
         </trim>
@@ -255,14 +248,11 @@
             <if test="updateTime != null" >
                 #{updateTime}
             </if>
-            <if test="unitNum != null" >
-                #{unitNum}
-            </if>
-            <if test="shipNum != null" >
-                #{shipNum}
-            </if>
             <if test="warehouseCode != null" >
                 #{warehouseCode}
+            </if>
+            <if test="methodCode != null" >
+                #{methodCode}
             </if>
 
         </trim>
@@ -284,9 +274,8 @@
             state,
             create_time,
             update_time,
-            unit_num,
-            ship_num,
-            warehouse_code
+            warehouse_code,
+            method_code
         </trim>
         values
         <foreach collection="list" item="item" index="index" separator=",">
@@ -304,9 +293,8 @@
                 #{item.state},
                 #{item.createTime},
                 #{item.updateTime},
-                #{item.unitNum},
-                #{item.shipNum},
-                #{item.warehouseCode}
+                #{item.warehouseCode},
+                #{item.methodCode}
             </trim>
         </foreach>
     </insert>
@@ -355,14 +343,11 @@
                 <if test="t.updateTime != null">
                     update_time = #{t.updateTime} and
                 </if>
-                <if test="t.unitNum != null">
-                    unit_num = #{t.unitNum} and
-                </if>
-                <if test="t.shipNum != null">
-                    ship_num = #{t.shipNum} and
-                </if>
                 <if test="t.warehouseCode != null">
                     warehouse_code = #{t.warehouseCode} and
+                </if>
+                <if test="t.methodCode != null">
+                    method_code = #{t.methodCode} and
                 </if>
             </trim>
         </if>

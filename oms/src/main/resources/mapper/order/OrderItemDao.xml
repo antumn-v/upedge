@@ -253,6 +253,8 @@
     </update>
 
 
+
+
     <update id="updateAdminVariantDetailByVariantId">
         update order_item oi
         inner join `order` o
@@ -813,6 +815,18 @@
         and o.pay_state &lt; '1'
     </update>
 
+    <update id="updateVolumeByVariantId">
+        update order_item oi
+        inner join `order` o
+        on oi.order_id = o.id
+        set oi.length = #{length},
+        oi.width = #{width},
+        oi.height = #{height},
+        oi.admin_variant_volume = #{volume}
+        where oi.variant_id = #{variantId}
+        and o.pay_state &lt; '1'
+    </update>
+
     <select id="listOrderItem" resultType="com.upedge.oms.modules.order.vo.OrderItemVo">
         select
         oi.`id` as id,
@@ -978,4 +992,6 @@
         where oi.store_variant_id = #{storeVariantId}
         and o.pay_state &lt; '1'
     </update>
+
+
 </mapper>

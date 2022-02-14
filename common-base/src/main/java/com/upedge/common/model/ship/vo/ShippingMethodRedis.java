@@ -15,6 +15,8 @@ public class ShippingMethodRedis {
      * 运输方式名称
      */
     private String name;
+
+    private String methodCode;
     /**
      * 描述
      */

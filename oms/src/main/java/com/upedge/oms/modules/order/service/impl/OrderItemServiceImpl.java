@@ -148,6 +148,9 @@ public class OrderItemServiceImpl implements OrderItemService {
     @Transactional
     @Override
     public void updateItemQuoteDetail(CustomerProductQuoteVo customerProductQuoteVo) {
+        if (customerProductQuoteVo.getQuoteState() == null){
+            return;
+        }
         //报价失败的产品
         if (customerProductQuoteVo.getQuoteState() == 2) {
             orderItemDao.cancelItemQuoteDetail(customerProductQuoteVo);
@@ -249,9 +252,6 @@ public class OrderItemServiceImpl implements OrderItemService {
 
                     orderShippingUnitService.delByProductId(variantDetail.getProductId(), OrderType.NORMAL);
                     list = orderItemDao.selectOrderItemListByProduct(variantDetail.getProductId());
-                    /*for (OrderItem orderItem : list) {
-                        orderShippingUnitService.delByOrderId(orderItem.getOrderId(),OrderType.NORMAL);
-                    }*/
                     // 重新匹配运输规则
                     orderService.matchingShipInfoByProductId(list);
                     return;
@@ -264,15 +264,20 @@ public class OrderItemServiceImpl implements OrderItemService {
             return;
         }
         orderItemDao.updateAdminVariantDetailByVariantId(name, value, variantDetail.getVariantId());
-        if (tag.equals("price")) {
-            orderItemDao.updateUsdPriceByAdminVariantId(variantDetail.getVariantId(), variantDetail.getUsdPrice());
-        } else {
-//    orderService.delOrderShipInfoByVariantId(variantDetail.getVariantId());
+        switch (tag){
+            case "price":
+                orderItemDao.updateUsdPriceByAdminVariantId(variantDetail.getVariantId(), variantDetail.getUsdPrice());
+                break;
+            case "volume":
+                orderItemDao.updateVolumeByVariantId(variantDetail);
+                break;
+            default:
+                break;
+        }
+        //未支付订单重新匹配运输方式
+        if (!tag.equals("price")) {
             orderShippingUnitService.delByVariantId(variantDetail.getVariantId(), OrderType.NORMAL);
             list = orderItemDao.selectOrderItemListByVariantId(variantDetail.getVariantId());
-    /*    for (OrderItem orderItem : list) {
-            orderShippingUnitService.delByOrderId(orderItem.getOrderId(),OrderType.NORMAL);
-        }*/
             orderService.matchingShipInfoByVariantId(list);
         }
 
