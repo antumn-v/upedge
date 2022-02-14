@@ -28,7 +28,8 @@
     </resultMap>
 
     <sql id="Base_Column_List">
-        `id`,`customer_id`,`login_name`,`login_pass`,`user_type`,`status`,`create_time`,`update_time`,`last_login_time`,`login_count`
+        `id`,`customer_id`,`login_name`,`login_pass`,`user_type`,`status`,`create_time`,`update_time`,`last_login_time`,`login_count`,
+        `username`,`avatar`,`mobile`,`email`,`country`,`whatsapp`,`wechat`,`fb_info`,`skype`,`sex`
     </sql>
 
     <select id="selectByPrimaryKey" parameterType="com.upedge.ums.modules.user.entity.User" resultMap="BaseResultMap">
@@ -384,7 +385,7 @@
                     status = #{t.status} and
                 </if>
                 <if test="t.username != null">
-                    username = concat('%',#{t.username},'%') and
+                    username like concat('%',#{t.username},'%') and
                 </if>
                 <if test="t.avatar != null">
                     avatar = #{t.avatar} and
