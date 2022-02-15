@@ -74,7 +74,7 @@ public class AppProductVo {
         int i = this.minPrice.compareTo(this.maxPrice);
         switch (i){
             case 0:
-                this.setPriceRange(this.minPrice.toString());
+                this.setPriceRange("$" + this.minPrice);
                 break;
             case 1:
                 this.setPriceRange("$" +this.maxPrice + "~$" + this.minPrice);
