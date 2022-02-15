@@ -61,10 +61,10 @@ public class AppProductVo {
 
     public void initUsdPriceRange(){
         BigDecimal usdRate = new BigDecimal("6.3");
-        if (this.minPrice == null){
-            this.minPrice = BigDecimal.ZERO;
-        }else{
+        if (this.minPrice != null) {
             this.minPrice = this.minPrice.divide(usdRate,2,BigDecimal.ROUND_UP);
+        } else {
+            this.minPrice = BigDecimal.ZERO;
         }
         if (this.maxPrice == null){
             this.maxPrice = BigDecimal.ZERO;
