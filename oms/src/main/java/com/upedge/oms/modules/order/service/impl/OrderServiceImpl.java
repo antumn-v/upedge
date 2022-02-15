@@ -489,6 +489,12 @@ public class OrderServiceImpl implements OrderService {
             || shipMethodIds.size() == 0){
                 return null;
             }
+            BigDecimal actualWeight = BigDecimal.ZERO;
+            if (weight.compareTo(volume) == -1){
+                actualWeight = volume;
+            }else {
+                actualWeight = weight;
+            }
 
             Map<String,ShippingMethodRedis> codeShipMethodMap = new HashMap<>();
             List<String> methodCodes = new ArrayList<>();
@@ -510,7 +516,7 @@ public class OrderServiceImpl implements OrderService {
             priceCalculator.setHeight("1");
             priceCalculator.setLength("1");
             priceCalculator.setWidth("1");
-            priceCalculator.setWeight(weight.toPlainString());
+            priceCalculator.setWeight(actualWeight.toString());
             priceCalculator.setService_code("FB4");
             priceCalculator.setProduct_codes(methodCodes);
             priceCalculator.setWarehouse_code(warehouseCode);
@@ -529,7 +535,7 @@ public class OrderServiceImpl implements OrderService {
                     for (PriceCalculatorDTO.FeesDTO feesDTO : feesDTOS) {
                         ShippingMethodRedis shippingMethodRedis = codeShipMethodMap.get(priceCalculatorDTO);
                         ShipDetail shipDetail = new ShipDetail(shippingMethodRedis);
-                        shipDetail.setWeight(weight);
+                        shipDetail.setWeight(actualWeight);
                         shipDetail.setDays(priceCalculatorDTO.getTimely());
                         shipDetail.setPrice(feesDTO.getAmount().divide(new BigDecimal("6.3"),2,BigDecimal.ROUND_UP));
                         shipDetails.add(shipDetail);
