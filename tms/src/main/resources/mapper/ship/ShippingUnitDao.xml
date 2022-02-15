@@ -95,8 +95,6 @@
         and sm.state = '1'
         and #{weight} between su.start_weight and su.end_weight
         and sm.weight_type = #{weightType}
-
-
     </select>
 
     <select id="selectByPrimaryKey" parameterType="com.upedge.tms.modules.ship.entity.ShippingUnit" resultMap="BaseResultMap">

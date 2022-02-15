@@ -9,6 +9,8 @@ import java.util.List;
  */
 public interface WarehouseService{
 
+    void redisInit();
+
     Warehouse selectByPrimaryKey(Long id);
 
     int deleteByPrimaryKey(Long id);

@@ -55,6 +55,9 @@ import com.upedge.oms.modules.rules.entity.OrderShipRule;
 import com.upedge.oms.modules.rules.service.OrderShipRuleService;
 import com.upedge.oms.modules.stock.dao.CustomerProductStockDao;
 import com.upedge.oms.modules.vat.service.VatRuleService;
+import com.upedge.thirdparty.fpx.api.FpxCommonApi;
+import com.upedge.thirdparty.fpx.dto.PriceCalculatorDTO;
+import com.upedge.thirdparty.fpx.dto.ShipPriceCalculator;
 import com.upedge.thirdparty.saihe.entity.SaiheOrder;
 import com.upedge.thirdparty.saihe.entity.SaiheOrderItem;
 import lombok.extern.slf4j.Slf4j;
@@ -449,6 +452,92 @@ public class OrderServiceImpl implements OrderService {
                     return shipDetails;
                 }
             }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+
+    }
+
+    List<ShipDetail> orderShipMethods(Long orderId, Long areaId,String warehouseCode) {
+        try {
+
+            Page<OrderItem> page = new Page<>();
+            OrderItem orderItem = new OrderItem();
+            orderItem.setOrderId(orderId);
+            page.setT(orderItem);
+            List<OrderItem> items = orderItemDao.select(page);
+            BigDecimal weight = BigDecimal.ZERO;
+            BigDecimal volume = BigDecimal.ZERO;
+            List<String> strings = new ArrayList<>();
+            for (OrderItem item : items) {
+                if (null == item.getAdminVariantWeight()
+                        || null == item.getAdminVariantVolume()
+                        || BigDecimal.ZERO.compareTo(item.getAdminVariantWeight()) == 0
+                        || BigDecimal.ZERO.compareTo(item.getAdminVariantVolume()) == 0) {
+                    return null;
+                }
+                weight = weight.add(item.getAdminVariantWeight().multiply(new BigDecimal(item.getQuantity())));
+                volume = volume.add(item.getAdminVariantVolume().multiply(new BigDecimal(item.getQuantity())));
+                strings.add(RedisKey.SHIPPING_TEMPLATED_METHODS + item.getShippingId());
+            }
+            if (ListUtils.isEmpty(strings)) {
+                return null;
+            }
+            Set<Object> shipMethodIds = redisTemplate.opsForSet().union(strings);
+            if (shipMethodIds == null
+            || shipMethodIds.size() == 0){
+                return null;
+            }
+
+            Map<String,ShippingMethodRedis> codeShipMethodMap = new HashMap<>();
+            List<String> methodCodes = new ArrayList<>();
+            for (Object shipMethodId : shipMethodIds) {
+                ShippingMethodRedis shippingMethodRedis = (ShippingMethodRedis) redisTemplate.opsForHash().get(RedisKey.SHIPPING_METHOD,shipMethodId);
+                if (shippingMethodRedis.getWarehouseCode().equals(warehouseCode)){
+                    methodCodes.add(shippingMethodRedis.getMethodCode());
+                }
+            }
+            if (ListUtils.isEmpty(methodCodes)){
+                return null;
+            }
+
+            ArearedisVo arearedisVo = (ArearedisVo) redisTemplate.opsForHash().get(RedisKey.AREA,String.valueOf(areaId));
+            ShipPriceCalculator.DestinationDTO destinationDTO = new ShipPriceCalculator.DestinationDTO();
+            destinationDTO.setCountry(arearedisVo.getAreaCode());
+
+            ShipPriceCalculator priceCalculator = new ShipPriceCalculator();
+            priceCalculator.setHeight("1");
+            priceCalculator.setLength("1");
+            priceCalculator.setWidth("1");
+            priceCalculator.setWeight(weight.toPlainString());
+            priceCalculator.setService_code("FB4");
+            priceCalculator.setProduct_codes(methodCodes);
+            priceCalculator.setWarehouse_code(warehouseCode);
+            priceCalculator.setBilling_time(System.currentTimeMillis());
+            priceCalculator.setDestination(destinationDTO);
+
+            List<PriceCalculatorDTO> priceCalculatorDTOS = FpxCommonApi.priceCalculator(priceCalculator);
+            if (ListUtils.isNotEmpty(priceCalculatorDTOS)){
+                List<ShipDetail> shipDetails = new ArrayList<>();
+                for (PriceCalculatorDTO priceCalculatorDTO : priceCalculatorDTOS) {
+                    List<PriceCalculatorDTO.FeesDTO> feesDTOS = priceCalculatorDTO.getFees();
+                    BigDecimal price = BigDecimal.ZERO;
+                    for (PriceCalculatorDTO.FeesDTO feesDTO : feesDTOS) {
+                        price = price.add(feesDTO.getAmount());
+                    }
+                    for (PriceCalculatorDTO.FeesDTO feesDTO : feesDTOS) {
+                        ShippingMethodRedis shippingMethodRedis = codeShipMethodMap.get(priceCalculatorDTO);
+                        ShipDetail shipDetail = new ShipDetail(shippingMethodRedis);
+                        shipDetail.setWeight(weight);
+                        shipDetail.setDays(priceCalculatorDTO.getTimely());
+                        shipDetail.setPrice(feesDTO.getAmount().divide(new BigDecimal("6.3"),2,BigDecimal.ROUND_UP));
+                        shipDetails.add(shipDetail);
+                    }
+                }
+                return shipDetails;
+            }
+
         } catch (Exception e) {
             e.printStackTrace();
         }

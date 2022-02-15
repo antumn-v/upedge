@@ -1,13 +1,19 @@
 package com.upedge.tms.modules.warehouse.service.impl;
 
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import java.util.List;
 import com.upedge.common.base.Page;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.upedge.common.constant.key.RedisKey;
+import com.upedge.common.model.tms.WarehouseVo;
+import com.upedge.common.utils.ListUtils;
 import com.upedge.tms.modules.warehouse.dao.WarehouseDao;
 import com.upedge.tms.modules.warehouse.entity.Warehouse;
 import com.upedge.tms.modules.warehouse.service.WarehouseService;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 
 @Service
@@ -15,6 +21,9 @@ public class WarehouseServiceImpl implements WarehouseService {
 
     @Autowired
     private WarehouseDao warehouseDao;
+
+    @Autowired
+    RedisTemplate redisTemplate;
 
 
 
@@ -42,6 +51,21 @@ public class WarehouseServiceImpl implements WarehouseService {
     @Transactional
     public int insertSelective(Warehouse record) {
         return warehouseDao.insert(record);
+    }
+
+    @Override
+    public void redisInit() {
+        Page<Warehouse> page = new Page<>();
+        page.setPageSize(-1);
+        List<Warehouse> warehouses = select(page);
+        if (ListUtils.isNotEmpty(warehouses)){
+            warehouses.forEach(warehouse -> {
+                String key = RedisKey.STRING_WAREHOUSE + warehouse.getWarehouseCode();
+                WarehouseVo warehouseVo = new WarehouseVo();
+                BeanUtils.copyProperties(warehouse,warehouseVo);
+                redisTemplate.opsForValue().set(key,warehouseVo);
+            });
+        }
     }
 
     /**

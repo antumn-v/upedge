@@ -17,6 +17,8 @@ public class ShipDetail {
 
     private String methodName;
 
+    private String methodCode;
+
     private String warehouseCode;
 
     private BigDecimal price;
@@ -49,5 +51,14 @@ public class ShipDetail {
         return Objects.hash(methodId, price, weight);
     }
 
+    public ShipDetail(ShippingMethodRedis shippingMethodRedis) {
+        this.methodId = shippingMethodRedis.getId();
+        this.methodName = shippingMethodRedis.getName();
+        this.shippingUtilId = 0L;
+        this.warehouseCode = shippingMethodRedis.getWarehouseCode();
+        this.methodCode = shippingMethodRedis.getMethodCode();
+    }
 
+    public ShipDetail() {
+    }
 }

@@ -58,10 +58,5 @@ public class ResponseMsg {
         return responseMsg;
     }
 
-    class ResponseError {
-        String errorCode;
-        String errorMsg;
 
-
-    }
 }

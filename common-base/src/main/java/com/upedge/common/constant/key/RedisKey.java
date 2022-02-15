@@ -10,7 +10,7 @@ public class RedisKey {
 
     public static final String STRING_TRACKING_COMPANY = "tracking:company:list";
 
-    public static final String LIST_WAREHOUSE = "warehouse:list";
+    public static final String STRING_WAREHOUSE = "warehouse:code:";
 
     public static final String HASH_CUSTOMER_SETTING = "customer:setting:";
 
