@@ -267,7 +267,7 @@ public class SaiheService {
             procurementRequest.setUserName(SaiheConfig.USERNAME);
             procurementRequest.setPassword(SaiheConfig.PASSWORD);
             procurementRequest.setCustomerID(SaiheConfig.CUSTOMER_ID);
-            procurementRequest.setWareHouseID(SaiheConfig.UPEDGE_DEFAULT_WAREHOURSE_ID);
+            procurementRequest.setWareHouseID(SaiheConfig.UPEDGE_DEFAULT_WAREHOUSE_ID);
             procurementRequest.setRemark("");
             ProductList productList=new ProductList();
             productList.setProductList(procurementProductList);

@@ -6,10 +6,14 @@
     <!-- 可根据自己的需求，是否要使用 -->
     <resultMap type="com.upedge.oms.modules.stock.entity.StockOrder" id="BaseResultMap">
         <result property="id" column="id"/>
-        <result property="warehouseId" column="warehouse_id"/>
+        <result property="warehouseCode" column="warehouse_code"/>
         <result property="customerId" column="customer_id"/>
         <result property="payMethod" column="pay_method"/>
         <result property="paymentId" column="payment_id"/>
+        <result property="productAmount" column="product_amount"/>
+        <result property="shipPrice" column="ship_price"/>
+        <result property="shipMethod" column="ship_method"/>
+        <result property="shipReview" column="ship_review"/>
         <result property="amount" column="amount"/>
         <result property="paypalFee" column="paypal_fee"/>
         <result property="payState" column="pay_state"/>
@@ -25,7 +29,7 @@
 
     <resultMap type="com.upedge.oms.modules.stock.vo.StockOrderVo" id="StockOrderVo">
         <result property="id" column="id"/>
-        <result property="warehouseId" column="warehouse_id"/>
+        <result property="warehouseCode" column="warehouse_code"/>
         <result property="customerId" column="customer_id"/>
         <result property="payMethod" column="pay_method"/>
         <result property="paymentId" column="payment_id"/>
@@ -52,7 +56,7 @@
 
     <resultMap type="com.upedge.oms.modules.stock.vo.AdminStockOrderVo" id="AdminStockOrderVo">
         <result property="id" column="id"/>
-        <result property="warehouseId" column="warehouse_id"/>
+        <result property="warehouseCode" column="warehouse_code"/>
         <result property="customerId" column="customer_id"/>
         <result property="payMethod" column="pay_method"/>
         <result property="paymentId" column="payment_id"/>
@@ -79,7 +83,7 @@
     </resultMap>
 
     <sql id="Base_Column_List">
-        `id`,`warehouse_id`,`customer_id`,`pay_method`,`payment_id`,`amount`,`paypal_fee`,`pay_state`,`refund_state`,`pay_time`,`create_time`,`update_time`,`saihe_state`,`saihe_code`,`manager_code`,`org_path`,`purchase_state`
+        `id`,`warehouse_code`,`customer_id`,`pay_method`,`payment_id`,`product_amount`,`ship_price`,`ship_method`,`ship_review`,`amount`,`paypal_fee`,`pay_state`,`refund_state`,`pay_time`,`create_time`,`update_time`,`saihe_state`,`saihe_code`,`manager_code`,`purchase_state`
     </sql>
 
     <select id="selectTransactionDetailByPaymentId" resultType="com.upedge.common.model.order.TransactionDetail">
@@ -160,6 +164,9 @@
                     o.refund_state = #{t.refundState} and
                 </if>
             </if>
+            <if test="t.shipReview != null">
+                o.ship_review = #{t.shipReview} and
+            </if>
             <if test="t.productTitle != null">
                 item.product_title like CONCAT('%',#{t.productTitle},'%') and
             </if>
@@ -176,7 +183,7 @@
     </sql>
 
     <select id="selectOrderById" resultMap="StockOrderVo">
-        select o.id,o.warehouse_id,o.customer_id,o.pay_method,o.payment_id,o.amount,o.paypal_fee,
+        select o.id,o.warehouse_code,o.customer_id,o.pay_method,o.payment_id,o.amount,o.paypal_fee,
         o.pay_state,o.refund_state,o.pay_time,o.create_time,o.update_time,
         item.id as itemId,item.product_id,item.variant_id,item.order_id,
         item.price,item.quantity,item.product_title,item.variant_name,
@@ -188,7 +195,7 @@
     </select>
 
     <select id="selectOrderByIds" resultMap="StockOrderVo">
-        select o.id,o.warehouse_id,o.customer_id,o.pay_method,o.payment_id,o.amount,o.paypal_fee,
+        select o.id,o.warehouse_code,o.customer_id,o.pay_method,o.payment_id,o.amount,o.paypal_fee,
         o.pay_state,o.refund_state,o.pay_time,o.create_time,o.update_time,
         item.id as itemId,item.product_id,item.variant_id,item.order_id,
         item.price,item.quantity,item.product_title,item.variant_name,
@@ -203,7 +210,7 @@
     </select>
 
     <select id="selectOrderList" resultMap="StockOrderVo" parameterType="com.upedge.common.base.Page">
-        select o.id,o.warehouse_id,o.customer_id,o.pay_method,o.payment_id,o.amount,o.paypal_fee,
+        select o.id,o.warehouse_code,o.customer_id,o.pay_method,o.payment_id,o.amount,o.paypal_fee,
         o.pay_state,o.refund_state,o.pay_time,o.create_time,o.update_time,
         item.id as itemId,item.product_id,item.variant_id,item.order_id,
         item.price,item.quantity,item.product_title,item.variant_name,
@@ -255,8 +262,8 @@
     <update id="updateByPrimaryKeySelective" parameterType="com.upedge.oms.modules.stock.entity.StockOrder">
         update stock_order
         <set>
-            <if test="warehouseId != null">
-                warehouse_id = #{warehouseId},
+            <if test="warehouseCode != null">
+                warehouse_code = #{warehouseCode},
             </if>
             <if test="customerId != null">
                 customer_id = #{customerId},
@@ -266,6 +273,18 @@
             </if>
             <if test="paymentId != null">
                 payment_id = #{paymentId},
+            </if>
+            <if test="productAmount != null">
+                product_amount = #{productAmount},
+            </if>
+            <if test="shipPrice != null">
+                ship_price = #{shipPrice},
+            </if>
+            <if test="shipMethod != null">
+                ship_method = #{shipMethod},
+            </if>
+            <if test="shipReview != null">
+                ship_review = #{shipReview},
             </if>
             <if test="amount != null">
                 amount = #{amount},
@@ -297,9 +316,6 @@
             <if test="managerCode != null">
                 manager_code = #{managerCode},
             </if>
-            <if test="orgPath != null">
-                org_path = #{orgPath},
-            </if>
             <if test="purchaseState != null">
                 purchase_state = #{purchaseState},
             </if>
@@ -311,10 +327,14 @@
         update stock_order
         <set>
             id = #{id},
-            warehouse_id = #{warehouseId},
+            warehouse_code = #{warehouseCode},
             customer_id = #{customerId},
             pay_method = #{payMethod},
             payment_id = #{paymentId},
+            product_amount = #{productAmount},
+            ship_price = #{shipPrice},
+            ship_method = #{shipMethod},
+            ship_review = #{shipReview},
             amount = #{amount},
             paypal_fee = #{paypalFee},
             pay_state = #{payState},
@@ -325,7 +345,6 @@
             saihe_state = #{saiheState},
             saihe_code = #{saiheCode},
             manager_code = #{managerCode},
-            org_path = #{orgPath},
             purchase_state = #{purchaseState},
         </set>
         where id = #{id}
@@ -335,10 +354,14 @@
         insert into stock_order
         <trim prefix="(" suffix=")" suffixOverrides=",">
             id,
-            warehouse_id,
+            warehouse_code,
             customer_id,
             pay_method,
             payment_id,
+            product_amount,
+            ship_price,
+            ship_method,
+            ship_review,
             amount,
             paypal_fee,
             pay_state,
@@ -349,15 +372,18 @@
             saihe_state,
             saihe_code,
             manager_code,
-            org_path,
             purchase_state
         </trim>
         values (
         #{id},
-        #{warehouseId},
+        #{warehouseCode},
         #{customerId},
         #{payMethod},
         #{paymentId},
+        #{productAmount},
+        #{shipPrice},
+        #{shipMethod},
+        #{shipReview},
         #{amount},
         #{paypalFee},
         #{payState},
@@ -368,7 +394,6 @@
         #{saiheState},
         #{saiheCode},
         #{managerCode},
-        #{orgPath},
         #{purchaseState}
         )
     </insert>
@@ -379,8 +404,8 @@
             <if test="id != null" >
                 id
             </if>
-            <if test="warehouseId != null" >
-                warehouse_id
+            <if test="warehouseCode != null" >
+                warehouse_code
             </if>
             <if test="customerId != null" >
                 customer_id
@@ -390,6 +415,18 @@
             </if>
             <if test="paymentId != null" >
                 payment_id
+            </if>
+            <if test="productAmount != null" >
+                product_amount
+            </if>
+            <if test="shipPrice != null" >
+                ship_price
+            </if>
+            <if test="shipMethod != null" >
+                ship_method
+            </if>
+            <if test="shipReview != null" >
+                ship_review
             </if>
             <if test="amount != null" >
                 amount
@@ -421,9 +458,6 @@
             <if test="managerCode != null" >
                 manager_code
             </if>
-            <if test="orgPath != null" >
-                org_path
-            </if>
             <if test="purchaseState != null" >
                 purchase_state
             </if>
@@ -433,8 +467,8 @@
             <if test="id != null" >
                 #{id}
             </if>
-            <if test="warehouseId != null" >
-                #{warehouseId}
+            <if test="warehouseCode != null" >
+                #{warehouseCode}
             </if>
             <if test="customerId != null" >
                 #{customerId}
@@ -444,6 +478,18 @@
             </if>
             <if test="paymentId != null" >
                 #{paymentId}
+            </if>
+            <if test="productAmount != null" >
+                #{productAmount}
+            </if>
+            <if test="shipPrice != null" >
+                #{shipPrice}
+            </if>
+            <if test="shipMethod != null" >
+                #{shipMethod}
+            </if>
+            <if test="shipReview != null" >
+                #{shipReview}
             </if>
             <if test="amount != null" >
                 #{amount}
@@ -475,9 +521,6 @@
             <if test="managerCode != null" >
                 #{managerCode}
             </if>
-            <if test="orgPath != null" >
-                #{orgPath}
-            </if>
             <if test="purchaseState != null" >
                 #{purchaseState}
             </if>
@@ -489,10 +532,14 @@
         insert into stock_order
         <trim prefix="(" suffix=")" suffixOverrides=",">
             id,
-            warehouse_id,
+            warehouse_code,
             customer_id,
             pay_method,
             payment_id,
+            product_amount,
+            ship_price,
+            ship_method,
+            ship_review,
             amount,
             paypal_fee,
             pay_state,
@@ -503,17 +550,20 @@
             saihe_state,
             saihe_code,
             manager_code,
-            org_path,
             purchase_state
         </trim>
         values
         <foreach collection="list" item="item" index="index" separator=",">
             <trim prefix="(" suffix=")" suffixOverrides=",">
                 #{item.id},
-                #{item.warehouseId},
+                #{item.warehouseCode},
                 #{item.customerId},
                 #{item.payMethod},
                 #{item.paymentId},
+                #{item.productAmount},
+                #{item.shipPrice},
+                #{item.shipMethod},
+                #{item.shipReview},
                 #{item.amount},
                 #{item.paypalFee},
                 #{item.payState},
@@ -524,7 +574,6 @@
                 #{item.saiheState},
                 #{item.saiheCode},
                 #{item.managerCode},
-                #{item.orgPath},
                 #{item.purchaseState}
             </trim>
         </foreach>
@@ -538,8 +587,8 @@
                 <if test="t.id != null">
                     id = #{t.id} and
                 </if>
-                <if test="t.warehouseId != null">
-                    warehouse_id = #{t.warehouseId} and
+                <if test="t.warehouseCode != null">
+                    warehouse_code = #{t.warehouseCode} and
                 </if>
                 <if test="t.customerId != null">
                     customer_id = #{t.customerId} and
@@ -549,6 +598,18 @@
                 </if>
                 <if test="t.paymentId != null">
                     payment_id = #{t.paymentId} and
+                </if>
+                <if test="t.productAmount != null">
+                    product_amount = #{t.productAmount} and
+                </if>
+                <if test="t.shipPrice != null">
+                    ship_price = #{t.shipPrice} and
+                </if>
+                <if test="t.shipMethod != null">
+                    ship_method = #{t.shipMethod} and
+                </if>
+                <if test="t.shipReview != null">
+                    ship_review = #{t.shipReview} and
                 </if>
                 <if test="t.amount != null">
                     amount = #{t.amount} and
@@ -580,9 +641,6 @@
                 <if test="t.managerCode != null">
                     manager_code = #{t.managerCode} and
                 </if>
-                <if test="t.orgPath != null">
-                    org_path = #{t.orgPath} and
-                </if>
                 <if test="t.purchaseState != null">
                     purchase_state = #{t.purchaseState} and
                 </if>
@@ -594,7 +652,7 @@
     <select id="selectAdminStockOrderList" resultMap="AdminStockOrderVo" parameterType="com.upedge.common.base.Page">
         select
         DISTINCT o.id,
-        o.warehouse_id,
+        o.warehouse_code,
         o.customer_id,
         o.pay_method,
         o.payment_id,
@@ -730,8 +788,8 @@
                 <if test="t.id != null">
                     id = #{t.id} and
                 </if>
-                <if test="t.warehouseId != null">
-                    warehouse_id = #{t.warehouseId} and
+                <if test="t.warehouseCode != null">
+                    warehouse_code = #{t.warehouseCode} and
                 </if>
                 <if test="t.customerId != null">
                     customer_id = #{t.customerId} and
@@ -790,4 +848,12 @@
             </if>
         </if>
     </select>
+
+    <update id="confirmShipReview">
+        update stock_order
+            set ship_review = '3'
+        where id = #{orderId}
+        and pay_state = '1'
+        and ship_review = '2'
+    </update>
 </mapper>

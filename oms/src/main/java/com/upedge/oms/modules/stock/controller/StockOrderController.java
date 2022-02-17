@@ -21,6 +21,7 @@ import com.upedge.oms.modules.stock.dto.StockOrderListDto;
 import com.upedge.oms.modules.stock.entity.StockOrder;
 import com.upedge.oms.modules.stock.request.StockOrderListRequest;
 import com.upedge.oms.modules.stock.request.StockOrderPayRequest;
+import com.upedge.oms.modules.stock.request.StockOrderUpdateTrackRequest;
 import com.upedge.oms.modules.stock.response.StockOrderInfoResponse;
 import com.upedge.oms.modules.stock.response.StockOrderListResponse;
 import com.upedge.oms.modules.stock.service.StockOrderService;
@@ -284,6 +285,11 @@ public class StockOrderController {
         return BaseResponse.success();
     }
 
+    @PostMapping("/updateTrack")
+    public BaseResponse updateTrack(@RequestBody@Valid StockOrderUpdateTrackRequest request){
+        Session session = UserUtil.getSession(redisTemplate);
+        return null;
+    }
     public static void main(String[] args) {
 
     }

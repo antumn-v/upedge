@@ -10,11 +10,10 @@ import com.upedge.thirdparty.fpx.dto.ShipPriceCalculator;
 import com.upedge.thirdparty.fpx.model.AffterentParam;
 import com.upedge.thirdparty.fpx.utils.ApiHttpClientUtils;
 import com.upedge.thirdparty.fpx.vo.PriceCalculatorResultVo;
-import lombok.extern.slf4j.Slf4j;
+
 
 import java.util.List;
 
-@Slf4j
 public class FpxCommonApi {
 
 

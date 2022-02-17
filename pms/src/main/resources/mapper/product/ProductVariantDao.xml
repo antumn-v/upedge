@@ -46,7 +46,7 @@
         <result property="imageHandleUser" column="imageHandleUser"/>
         <result property="purchaseUser" column="purchaseUser"/>
         <result property="supplierCode" column="supplierCode"/>
-        <result property="wareHouseId" column="wareHouseId"/>
+        <result property="warehouseCode" column="warehouseCode"/>
         <result property="shippingAttribute" column="shippingAttribute"/>
         <result property="userId" column="userId"/>
         <result property="shippingId" column="shippingId"/>
@@ -87,7 +87,7 @@
         --         jsu.username as imageHandleUser,
         --         jsu.username as purchaseUser,
         a.item_no as supplierCode,
-        a.warehouse_id as wareHouseId,
+        a.warehouse_code as warehouseCode,
         --     t.saihe_id as shippingAttribute,
         p.shipping_id as shippingId,
         pva.variant_attr_cvalue as variantAttrCvalue,

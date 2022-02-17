@@ -23,7 +23,7 @@ public class StockOrder{
 	/**
 	 * 仓库ID
 	 */
-    private Long warehouseId;
+    private String warehouseCode;
 	/**
 	 * 用户ID
 	 */
@@ -36,6 +36,14 @@ public class StockOrder{
 	 * 交易ID
 	 */
     private Long paymentId;
+
+	private BigDecimal productAmount;
+
+	private BigDecimal shipPrice;
+
+	private String shipMethod;
+
+	private Integer shipReview;
 	/**
 	 * 交易金额
 	 */

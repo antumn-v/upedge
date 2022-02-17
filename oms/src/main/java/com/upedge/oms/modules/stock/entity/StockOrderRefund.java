@@ -54,7 +54,7 @@ public class StockOrderRefund{
 	/**
 	 * 
 	 */
-    private Integer warehouseId;
+    private String warehouseCode;
 
 	private Integer gteState;
 

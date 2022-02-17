@@ -26,7 +26,7 @@ public class CustomerStockRecordDetailVo {
     /**
      * 仓库ID
      */
-    private Long warehouseId;
+    private Long warehouseCode;
     /**
      * 订单id
      */

@@ -188,12 +188,12 @@ public class ProductServiceImpl implements ProductService {
             productDao.updateByPrimaryKeySelective(product);
         }
         if(!StringUtils.isBlank(request.getEntryCname())||!StringUtils.isBlank(request.getEntryCname())
-                ||request.getWarehouseId()!=null){
+                ||request.getWarehouseCode()!=null){
             ProductAttribute attribute=new ProductAttribute();
             attribute.setId(productAttribute.getId());
             attribute.setEntryCname(request.getEntryCname());
             attribute.setEntryEname(request.getEntryEname());
-            attribute.setWarehouseId(request.getWarehouseId());
+            attribute.setWarehouseCode(request.getWarehouseCode());
 //            attribute.setShippingAttributeId(request.getShippingAttributeId());
             productAttributeService.updateByPrimaryKeySelective(attribute);
         }
@@ -308,7 +308,7 @@ public class ProductServiceImpl implements ProductService {
             if (productAttribute == null){
                 productAttribute = new ProductAttribute();
                 productAttribute.setProductId(id);
-                productAttribute.setWarehouseId(SaiheConfig.UPEDGE_DEFAULT_WAREHOURSE_ID);
+                productAttribute.setWarehouseCode(SaiheConfig.UPEDGE_DEFAULT_WAREHOUSE_ID);
                 productAttributeService.insert(productAttribute);
             }
             adminProductVo.setProductAttribute(productAttribute);
@@ -617,7 +617,7 @@ public class ProductServiceImpl implements ProductService {
             productAttribute.setAliCnCategoryName(categoryMapping.getAliCnCategoryName());
         }
         productAttribute.setTurnover(0);
-        productAttribute.setWarehouseId(ProductConstant.DEFAULT_WAREHOURSE_ID);
+        productAttribute.setWarehouseCode(SaiheConfig.UPEDGE_DEFAULT_WAREHOUSE_ID);
         productAttributeService.insert(productAttribute);
 
 
@@ -1033,8 +1033,8 @@ public class ProductServiceImpl implements ProductService {
         apiImportProductInfo.setProductAdmin(apiImportProductAdmin);
 
         //赛盒仓库 默认仓库
-        Integer warehouseId = saiheSkuVo.getWareHouseId() == null ? SaiheConfig.UPEDGE_DEFAULT_WAREHOURSE_ID : saiheSkuVo.getWareHouseId();
-        apiImportProductInfo.setDefaultLocalWarehouse(warehouseId);//默认本地发货仓库
+        Integer warehouseCode = saiheSkuVo.getWarehouseCode() == null ? SaiheConfig.UPEDGE_DEFAULT_WAREHOUSE_ID : saiheSkuVo.getWarehouseCode();
+        apiImportProductInfo.setDefaultLocalWarehouse(warehouseCode);//默认本地发货仓库
 
         ApiImportProductSupplier ProductSuppiler = new ApiImportProductSupplier();//产品供应商
         ProductSuppiler.setSupplierName(saiheSkuVo.getSupplierName());//供应商名称

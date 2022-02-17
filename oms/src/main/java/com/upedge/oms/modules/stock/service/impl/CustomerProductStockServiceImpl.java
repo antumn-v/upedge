@@ -19,7 +19,6 @@ import com.upedge.oms.modules.stock.entity.CustomerStockRecord;
 import com.upedge.oms.modules.stock.request.ManualAddCustomerStockRequest;
 import com.upedge.oms.modules.stock.service.CustomerProductStockService;
 import com.upedge.oms.modules.stock.vo.CustomerSkuStockVo;
-import com.upedge.thirdparty.saihe.config.SaiheConfig;
 import com.upedge.thirdparty.saihe.entity.GetProductInventory.ApiProductInventory;
 import com.upedge.thirdparty.saihe.entity.GetProductInventory.ProductInventoryList;
 import com.upedge.thirdparty.saihe.response.GetProductInventoryResponse;
@@ -88,7 +87,7 @@ public class CustomerProductStockServiceImpl implements CustomerProductStockServ
         List<CustomerProductStock> customerProductStocks = new ArrayList<>();
         List<CustomerProductStock> updateStock = new ArrayList<>();
         List<CustomerStockRecord> customerStockRecords = new ArrayList<>();
-        List<Long> variantIds = customerProductStockDao.selectWarehouseVariantIdsByCustomer(request.getCustomerId(), ProductConstant.DEFAULT_WAREHOURSE_ID.longValue());
+        List<Long> variantIds = customerProductStockDao.selectWarehouseVariantIdsByCustomer(request.getCustomerId(), ProductConstant.DEFAULT_WAREHOUSE_ID);
         for (CustomerSkuStockVo customerSkuStockVo : customerSkuStockVos) {
             if(0 == customerSkuStockVo.getStock()) {
                 continue;
@@ -105,13 +104,13 @@ public class CustomerProductStockServiceImpl implements CustomerProductStockServ
                 customerProductStock.setCreateTime(date);
                 customerProductStock.setUpdateTime(date);
                 customerProductStock.setStockType(1);
-                customerProductStock.setWarehouseId(SaiheConfig.UPEDGE_DEFAULT_WAREHOURSE_ID.longValue());
+                customerProductStock.setWarehouseCode(ProductConstant.DEFAULT_WAREHOUSE_ID);
                 customerProductStocks.add(customerProductStock);
             }else {
                 customerProductStock.setCustomerId(customerId);
                 customerProductStock.setVariantId(customerSkuStockVo.getVariantId());
                 customerProductStock.setStock(customerSkuStockVo.getStock());
-                customerProductStock.setWarehouseId(ProductConstant.DEFAULT_WAREHOURSE_ID.longValue());
+                customerProductStock.setWarehouseCode(ProductConstant.DEFAULT_WAREHOUSE_ID);
                 updateStock.add(customerProductStock);
             }
             CustomerStockRecord customerStockRecord = new CustomerStockRecord();
@@ -123,7 +122,7 @@ public class CustomerProductStockServiceImpl implements CustomerProductStockServ
             customerStockRecord.setOrderType(4);
             customerStockRecord.setType(3);
             customerStockRecord.setQuantity(customerSkuStockVo.getStock());
-            customerStockRecord.setWarehouseId(ProductConstant.DEFAULT_WAREHOURSE_ID.longValue());
+            customerStockRecord.setWarehouseCode(ProductConstant.DEFAULT_WAREHOUSE_ID);
             customerStockRecord.setRelateId(0L);
             customerStockRecord.setVariantImage(variantDetail.getVariantImage());
             customerStockRecord.setUpdateTime(date);
@@ -271,12 +270,12 @@ public class CustomerProductStockServiceImpl implements CustomerProductStockServ
         CustomerProductStock customerProductStock = new CustomerProductStock();
         customerProductStock.setId(id);
         customerProductStock = customerProductStockDao.selectByPrimaryKey(customerProductStock);
-        if (customerProductStock == null || customerProductStock.getWarehouseId() == null){
+        if (customerProductStock == null || customerProductStock.getWarehouseCode() == null){
             throw new CustomerException(CustomerExceptionEnum.FIND_NULL);
         }
 
         //赛盒
-        GetProductInventoryResponse getProductInventoryResponse = SaiheService.getProductInventory(Integer.valueOf(customerProductStock.getWarehouseId().toString()), customerProductStock.getVariantSku());
+        GetProductInventoryResponse getProductInventoryResponse = SaiheService.getProductInventory(Integer.valueOf(customerProductStock.getWarehouseCode().toString()), customerProductStock.getVariantSku());
         if (getProductInventoryResponse.getGetProductInventoryResult().getStatus().equals("OK")) {
             ProductInventoryList productInventoryList=getProductInventoryResponse.
                     getGetProductInventoryResult().getProductInventoryList();
@@ -295,7 +294,7 @@ public class CustomerProductStockServiceImpl implements CustomerProductStockServ
             //同步赛盒库存信息
             ProductSaiheInventoryVo productSaiheInventoryVo=new ProductSaiheInventoryVo();
             productSaiheInventoryVo.setVariantSku(apiProductInventory.getClientSKU());
-            productSaiheInventoryVo.setWarehouseId(Integer.valueOf(customerProductStock.getWarehouseId().toString()));
+            productSaiheInventoryVo.setWarehouseId(Integer.valueOf(customerProductStock.getWarehouseCode().toString()));
             productSaiheInventoryVo.setGoodNum(apiProductInventory.getGoodNum());
             productSaiheInventoryVo.setLockNum(apiProductInventory.getLockNum());
             productSaiheInventoryVo.setUpdateTime(apiProductInventory.getUpdateTime());

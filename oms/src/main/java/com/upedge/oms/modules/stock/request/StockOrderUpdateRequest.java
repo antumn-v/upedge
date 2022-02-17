@@ -1,9 +1,10 @@
 package com.upedge.oms.modules.stock.request;
 
 import com.upedge.oms.modules.stock.entity.StockOrder;
-import java.util.Date;
 import lombok.Data;
+
 import java.math.BigDecimal;
+import java.util.Date;
 /**
  * @author gx
  */
@@ -13,7 +14,7 @@ public class StockOrderUpdateRequest{
     /**
      * 仓库ID
      */
-    private Long warehouseId;
+    private String warehouseCode;
     /**
      * 用户ID
      */
@@ -78,7 +79,7 @@ public class StockOrderUpdateRequest{
     public StockOrder toStockOrder(Long id){
         StockOrder stockOrder=new StockOrder();
         stockOrder.setId(id);
-        stockOrder.setWarehouseId(warehouseId);
+        stockOrder.setWarehouseCode(warehouseCode);
         stockOrder.setCustomerId(customerId);
         stockOrder.setPayMethod(payMethod);
         stockOrder.setPaymentId(paymentId);

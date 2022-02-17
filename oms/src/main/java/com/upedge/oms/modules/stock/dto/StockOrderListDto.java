@@ -19,6 +19,8 @@ public class StockOrderListDto  {
 
     private Long customerId;
 
+
+    private Integer shipReview;
     /**
      * 支付状态,待支付=0，已支付=1，取消订单=-1
      */

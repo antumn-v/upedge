@@ -26,7 +26,7 @@ public class CustomerStockRecordUpdateRequest{
     /**
      * 仓库ID
      */
-    private Long warehouseId;
+    private String warehouseCode;
     /**
      * 订单id
      */
@@ -62,7 +62,7 @@ public class CustomerStockRecordUpdateRequest{
         customerStockRecord.setCustomerId(customerId);
         customerStockRecord.setProductId(productId);
         customerStockRecord.setVariantId(variantId);
-        customerStockRecord.setWarehouseId(warehouseId);
+        customerStockRecord.setWarehouseCode(warehouseCode);
         customerStockRecord.setRelateId(relateId);
         customerStockRecord.setType(type);
         customerStockRecord.setOrderType(orderType);

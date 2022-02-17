@@ -29,7 +29,7 @@ public class CustomerStockRecord{
 	/**
 	 * 仓库ID
 	 */
-    private Long warehouseId;
+    private String warehouseCode;
 	/**
 	 * 订单id
 	 */

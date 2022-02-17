@@ -10,6 +10,7 @@ import com.upedge.common.model.pms.quote.CustomerProductQuoteVo;
 import com.upedge.common.model.pms.request.CustomerProductQuoteSearchRequest;
 import com.upedge.common.model.product.ListVariantsRequest;
 import com.upedge.common.model.product.VariantDetail;
+import com.upedge.common.model.tms.WarehouseVo;
 import com.upedge.common.model.user.vo.AddressVo;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.utils.IdGenerate;
@@ -111,6 +112,11 @@ public class CartServiceImpl implements CartService {
         if (ListUtils.isEmpty(carts)) {
             return null;
         }
+        String warehouseCode = request.getWarehouseCode();
+        WarehouseVo warehouseVo = (WarehouseVo) redisTemplate.opsForValue().get(RedisKey.STRING_WAREHOUSE + warehouseCode);
+        if (warehouseVo == null){
+            return null;
+        }
         Long orderId = IdGenerate.nextId();
 
         BigDecimal amount = BigDecimal.ZERO;
@@ -141,9 +147,15 @@ public class CartServiceImpl implements CartService {
         order.setPayState(0);
         order.setRefundState(0);
         order.setSaiheState(0);
-        order.setWarehouseId(request.getWarehouseId());
+        order.setWarehouseCode(request.getWarehouseCode());
         order.setCustomerId(session.getCustomerId());
         order.setManagerCode(managerCode);
+        //本地仓库不需要设置运费
+        if (warehouseVo.getWarehouseType() == WarehouseVo.LOCAL){
+            order.setShipReview(1);
+        }else {
+            order.setShipReview(0);
+        }
         stockOrderDao.insert(order);
         return orderId;
     }

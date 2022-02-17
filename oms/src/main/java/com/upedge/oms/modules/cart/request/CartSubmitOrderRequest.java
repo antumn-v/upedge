@@ -12,7 +12,8 @@ import java.util.List;
 @Data
 public class CartSubmitOrderRequest {
 
-    private Long warehouseId = 0L;
+    @NotNull
+    private String warehouseCode;
 
     private Integer payMethod = null;
 

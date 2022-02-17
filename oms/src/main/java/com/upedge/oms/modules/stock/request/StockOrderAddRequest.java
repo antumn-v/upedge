@@ -14,7 +14,7 @@ public class StockOrderAddRequest{
     /**
     * 仓库ID
     */
-    private Long warehouseId;
+    private String warehouseCode;
     /**
     * 用户ID
     */
@@ -78,7 +78,7 @@ public class StockOrderAddRequest{
 
     public StockOrder toStockOrder(){
         StockOrder stockOrder=new StockOrder();
-        stockOrder.setWarehouseId(warehouseId);
+        stockOrder.setWarehouseCode(warehouseCode);
         stockOrder.setCustomerId(customerId);
         stockOrder.setPayMethod(payMethod);
         stockOrder.setPaymentId(paymentId);

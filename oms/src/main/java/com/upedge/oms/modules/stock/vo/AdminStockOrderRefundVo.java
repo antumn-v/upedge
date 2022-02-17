@@ -54,7 +54,7 @@ public class AdminStockOrderRefundVo {
     /**
      *
      */
-    private Integer warehouseId;
+    private Integer warehouseCode;
 
     private List<StockOrderRefundItem> items;
 }

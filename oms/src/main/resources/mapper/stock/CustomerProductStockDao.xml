@@ -10,7 +10,7 @@
         <result property="productId" column="product_id"/>
         <result property="variantId" column="variant_id"/>
         <result property="stock" column="stock"/>
-        <result property="warehouseId" column="warehouse_id"/>
+        <result property="warehouseCode" column="warehouse_code"/>
         <result property="lockStock" column="lock_stock"/>
         <result property="createTime" column="create_time"/>
         <result property="updateTime" column="update_time"/>
@@ -21,7 +21,7 @@
     </resultMap>
 
     <sql id="Base_Column_List">
-        `id`,`customer_id`,`product_id`,`variant_id`,`stock`,`warehouse_id`,
+        `id`,`customer_id`,`product_id`,`variant_id`,`stock`,`warehouse_code`,
         `lock_stock`,`create_time`,`update_time`,`variant_image`,`variant_sku`,`product_title`,`variant_name`
     </sql>
 
@@ -36,7 +36,7 @@
         select distinct variant_id
         from customer_product_stock
         where customer_id = #{customerId}
-        and warehouse_id = #{warehouseId}
+        and warehouse_code = #{warehouseCode}
     </select>
 
     <update id="increaseVariantStock">
@@ -44,7 +44,7 @@
             update customer_product_stock
             set stock = stock + #{s.stock}
             where customer_id = #{s.customerId}
-            and warehouse_id = #{s.warehouseId}
+            and warehouse_code = #{s.warehouseCode}
             and variant_id = #{s.variantId}
         </foreach>
     </update>
@@ -121,8 +121,8 @@
             <if test="stock != null">
                 stock = #{stock},
             </if>
-            <if test="warehouseId != null">
-                warehouse_id = #{warehouseId},
+            <if test="warehouseCode != null">
+                warehouse_code = #{warehouseCode},
             </if>
             <if test="lockStock != null">
                 lock_stock = #{lockStock},
@@ -148,7 +148,7 @@
             product_id = #{productId},
             variant_id = #{variantId},
             stock = #{stock},
-            warehouse_id = #{warehouseId},
+            warehouse_code = #{warehouseCode},
             lock_stock = #{lockStock},
             create_time = #{createTime},
             update_time = #{updateTime},
@@ -166,7 +166,7 @@
             product_id,
             variant_id,
             stock,
-            warehouse_id,
+            warehouse_code,
             lock_stock,
             create_time,
             update_time,
@@ -180,7 +180,7 @@
         #{productId},
         #{variantId},
         #{stock},
-        #{warehouseId},
+        #{warehouseCode},
         #{lockStock},
         #{createTime},
         #{updateTime},
@@ -209,8 +209,8 @@
             <if test="stock != null">
                 stock
             </if>
-            <if test="warehouseId != null">
-                warehouse_id
+            <if test="warehouseCode != null">
+                warehouse_code
             </if>
             <if test="lockStock != null">
                 lock_stock
@@ -242,8 +242,8 @@
             <if test="stock != null">
                 #{stock}
             </if>
-            <if test="warehouseId != null">
-                #{warehouseId}
+            <if test="warehouseCode != null">
+                #{warehouseCode}
             </if>
             <if test="lockStock != null">
                 #{lockStock}
@@ -269,7 +269,7 @@
             product_id,
             variant_id,
             stock,
-            warehouse_id,
+            warehouse_code,
             lock_stock,
             create_time,
             update_time,
@@ -286,7 +286,7 @@
                 #{item.productId},
                 #{item.variantId},
                 #{item.stock},
-                #{item.warehouseId},
+                #{item.warehouseCode},
                 #{item.lockStock},
                 #{item.createTime},
                 #{item.updateTime},
@@ -318,8 +318,8 @@
                 <if test="t.stock != null">
                     stock = #{t.stock} and
                 </if>
-                <if test="t.warehouseId != null">
-                    warehouse_id = #{t.warehouseId} and
+                <if test="t.warehouseCode != null">
+                    warehouse_code = #{t.warehouseCode} and
                 </if>
                 <if test="t.lockStock != null">
                     lock_stock = #{t.lockStock} and
@@ -372,7 +372,7 @@
         <include refid="Base_Column_List"/>
         from customer_product_stock
         where customer_id=#{customerId}
-        and variant_id=#{variantId} and warehouse_id=#{warehouseId}
+        and variant_id=#{variantId} and warehouse_code=#{warehouseCode}
     </select>
 
     <!-- 根据sku分组获得该sku下的数量 -->

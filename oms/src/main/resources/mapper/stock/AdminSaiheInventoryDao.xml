@@ -8,7 +8,7 @@
         <result property="variantSku" column="variant_sku"/>
         <result property="goodNum" column="good_num"/>
         <result property="lockNum" column="lock_num"/>
-        <result property="warehouseId" column="warehouse_id"/>
+        <result property="warehouseCode" column="warehouse_code"/>
         <result property="updateTime" column="update_time"/>
         <result property="activeDays" column="active_days"/>
         <result property="activeTime" column="active_time"/>
@@ -20,7 +20,7 @@
     </resultMap>
 
     <sql id="Base_Column_List">
-        `variant_sku`,`good_num`,`lock_num`,`warehouse_id`,`update_time`,`active_days`,`active_time`,`position_code`,`processing_num`,`history_in_num`,`history_out_num`,`upedge_num`
+        `variant_sku`,`good_num`,`lock_num`,`warehouse_code`,`update_time`,`active_days`,`active_time`,`position_code`,`processing_num`,`history_in_num`,`history_out_num`,`upedge_num`
     </sql>
 
     <select id="selectByPrimaryKey" parameterType="com.upedge.oms.modules.stock.entity.AdminSaiheInventory" resultMap="BaseResultMap">
@@ -44,8 +44,8 @@
             <if test="lockNum != null">
                 lock_num = #{lockNum},
             </if>
-            <if test="warehouseId != null">
-                warehouse_id = #{warehouseId},
+            <if test="warehouseCode != null">
+                warehouse_code = #{warehouseCode},
             </if>
             <if test="updateTime != null">
                 update_time = #{updateTime},
@@ -81,7 +81,7 @@
         variant_sku = #{variantSku},
         good_num = #{goodNum},
         lock_num = #{lockNum},
-        warehouse_id = #{warehouseId},
+        warehouse_code = #{warehouseCode},
         update_time = #{updateTime},
         active_days = #{activeDays},
         active_time = #{activeTime},
@@ -100,7 +100,7 @@
             variant_sku,
             good_num,
             lock_num,
-            warehouse_id,
+            warehouse_code,
             update_time,
             active_days,
             active_time,
@@ -114,7 +114,7 @@
         #{variantSku},
         #{goodNum},
         #{lockNum},
-        #{warehouseId},
+        #{warehouseCode},
         #{updateTime},
         #{activeDays},
         #{activeTime},
@@ -138,8 +138,8 @@
             <if test="lockNum != null" >
               lock_num
             </if>
-            <if test="warehouseId != null" >
-              warehouse_id
+            <if test="warehouseCode != null" >
+              warehouse_code
             </if>
             <if test="updateTime != null" >
               update_time
@@ -177,8 +177,8 @@
             <if test="lockNum != null" >
                 #{lockNum}
             </if>
-            <if test="warehouseId != null" >
-                #{warehouseId}
+            <if test="warehouseCode != null" >
+                #{warehouseCode}
             </if>
             <if test="updateTime != null" >
                 #{updateTime}
@@ -214,7 +214,7 @@
            variant_sku,
            good_num,
            lock_num,
-           warehouse_id,
+           warehouse_code,
            update_time,
            active_days,
            active_time,
@@ -230,7 +230,7 @@
                #{item.variantSku},
                #{item.goodNum},
                #{item.lockNum},
-               #{item.warehouseId},
+               #{item.warehouseCode},
                #{item.updateTime},
                #{item.activeDays},
                #{item.activeTime},
@@ -257,8 +257,8 @@
                     <if test="t.lockNum != null">
                         lock_num = #{t.lockNum} and
                     </if>
-                    <if test="t.warehouseId != null">
-                        warehouse_id = #{t.warehouseId} and
+                    <if test="t.warehouseCode != null">
+                        warehouse_code = #{t.warehouseCode} and
                     </if>
                     <if test="t.updateTime != null">
                         update_time = #{t.updateTime} and
@@ -312,7 +312,7 @@
         select
         <include refid="Base_Column_List" />
         from admin_saihe_inventory
-		where warehouse_id=#{warehouseId} and variant_sku=#{variantSku}
+		where warehouse_code=#{warehouseCode} and variant_sku=#{variantSku}
     </select>
 
 

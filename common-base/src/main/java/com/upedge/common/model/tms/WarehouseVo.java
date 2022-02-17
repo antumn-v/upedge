@@ -5,6 +5,11 @@ import lombok.Data;
 @Data
 public class WarehouseVo {
 
+
+    public static Integer OVERSEAS = 1;
+
+    public static Integer LOCAL = 0;
+
     private Long id;
     /**
      *

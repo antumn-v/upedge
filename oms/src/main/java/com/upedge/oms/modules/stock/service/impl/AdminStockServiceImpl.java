@@ -375,10 +375,10 @@ public class AdminStockServiceImpl implements AdminStockService {
             //查询赛盒库存信息
             /*AdminSaiheInventory adminSaiheInventory=adminSaiheInventoryDao.
                     queryAdminSaiheInventory(customerProductStock.getVariantSku(),
-                            customerProductStock.getWarehouseId().intValue());*/
+                            customerProductStock.getWarehouseCode().intValue());*/
             ProductSaiheInventoryVo productSaiheInventoryVo = new ProductSaiheInventoryVo();
             productSaiheInventoryVo.setVariantSku(customerProductStock.getVariantSku());
-//            productSaiheInventoryVo.setWarehouseId(customerProductStock.getWarehouseId().intValue());
+//            productSaiheInventoryVo.setWarehouseCode(customerProductStock.getWarehouseCode().intValue());
             BaseResponse baseResponse = pmsFeignClient.queryProductSaiheInventory(productSaiheInventoryVo);
 
             if (baseResponse.getCode() != -1 && baseResponse.getData() != null){
@@ -508,7 +508,7 @@ public class AdminStockServiceImpl implements AdminStockService {
 
         for(StockOrderRefundItem item:stockOrderRefundItems){
             //检查库存每个退款项的库存
-            CustomerProductStock customerProductStock=customerProductStockDao.queryStockForCustomerProduct(stockOrderRefund.getCustomerId(),item.getVariantId(),stockOrderRefund.getWarehouseId());
+            CustomerProductStock customerProductStock=customerProductStockDao.queryStockForCustomerProduct(stockOrderRefund.getCustomerId(),item.getVariantId(),stockOrderRefund.getWarehouseCode());
             if(customerProductStock==null||customerProductStock.getStock()==null||customerProductStock.getStock()<0){
                 throw new CustomerException(ResultCode.FAIL_CODE,"库存异常");
             }
@@ -531,7 +531,7 @@ public class AdminStockServiceImpl implements AdminStockService {
             customerStockRecord.setCustomerId(stockOrderRefund.getCustomerId());
             customerStockRecord.setProductId(item.getProductId());
             customerStockRecord.setVariantId(item.getVariantId());
-            customerStockRecord.setWarehouseId(stockOrderRefund.getWarehouseId().longValue());
+            customerStockRecord.setWarehouseCode(stockOrderRefund.getWarehouseCode());
             customerStockRecord.setRelateId(stockOrderRefund.getId());
             //交易类型  增加=0，抵扣=1，退款=2
             customerStockRecord.setType(2);

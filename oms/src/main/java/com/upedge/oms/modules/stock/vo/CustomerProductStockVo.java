@@ -31,7 +31,7 @@ public class CustomerProductStockVo {
     /**
      *
      */
-    private Long warehouseId;
+    private Long warehouseCode;
     /**
      * 被锁定的库存
      */

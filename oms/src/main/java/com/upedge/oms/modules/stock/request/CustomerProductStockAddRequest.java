@@ -30,7 +30,7 @@ public class CustomerProductStockAddRequest{
     /**
     * 
     */
-    private Long warehouseId;
+    private String warehouseCode;
     /**
     * 被锁定的库存
     */
@@ -50,7 +50,7 @@ public class CustomerProductStockAddRequest{
         customerProductStock.setProductId(productId);
         customerProductStock.setVariantId(variantId);
         customerProductStock.setStock(stock);
-        customerProductStock.setWarehouseId(warehouseId);
+        customerProductStock.setWarehouseCode(warehouseCode);
         customerProductStock.setLockStock(lockStock);
         customerProductStock.setCreateTime(createTime);
         customerProductStock.setUpdateTime(updateTime);

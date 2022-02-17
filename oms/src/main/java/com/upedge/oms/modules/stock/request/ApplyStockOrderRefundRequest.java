@@ -33,7 +33,7 @@ public class ApplyStockOrderRefundRequest {
         stockOrderRefund.setCustomerId(stockOrder.getCustomerId());
         //设置后台操作人
         stockOrderRefund.setManagerCode(managerCode);
-        stockOrderRefund.setWarehouseId(stockOrder.getWarehouseId().intValue());
+        stockOrderRefund.setWarehouseCode(stockOrder.getWarehouseCode());
         return stockOrderRefund;
     }
 }

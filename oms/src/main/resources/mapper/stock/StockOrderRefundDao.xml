@@ -15,7 +15,7 @@
         <result property="source" column="source"/>
         <result property="customerId" column="customer_id"/>
         <result property="managerCode" column="manager_code"/>
-        <result property="warehouseId" column="warehouse_id"/>
+        <result property="warehouseCode" column="warehouse_code"/>
     </resultMap>
 
     <resultMap type="com.upedge.oms.modules.stock.vo.AdminStockOrderRefundVo" id="AdminStockOrderRefundVo">
@@ -29,7 +29,7 @@
         <result property="source" column="source"/>
         <result property="customerId" column="customer_id"/>
         <result property="managerCode" column="manager_code"/>
-        <result property="warehouseId" column="warehouse_id"/>
+        <result property="warehouseCode" column="warehouse_code"/>
         <collection property="items" ofType="com.upedge.oms.modules.stock.entity.StockOrderRefundItem">
             <result property="id" column="itemId"/>
             <result property="stockRefundId" column="stock_refund_id"/>
@@ -46,7 +46,7 @@
     </resultMap>
 
     <sql id="Base_Column_List">
-        `id`,`stock_order_id`,`amount`,`state`,`reason`,`create_time`,`update_time`,`source`,`customer_id`,`manager_code`,`warehouse_id`
+        `id`,`stock_order_id`,`amount`,`state`,`reason`,`create_time`,`update_time`,`source`,`customer_id`,`manager_code`,`warehouse_code`
     </sql>
 
     <select id="selectByPrimaryKey" resultMap="BaseResultMap">
@@ -91,8 +91,8 @@
             <if test="managerCode != null">
                 manager_code = #{managerCode},
             </if>
-            <if test="warehouseId != null">
-                warehouse_id = #{warehouseId},
+            <if test="warehouseCode != null">
+                warehouse_code = #{warehouseCode},
             </if>
         </set>
         where id = #{id}
@@ -111,7 +111,7 @@
         source = #{source},
         customer_id = #{customerId},
         manager_code = #{managerCode},
-        warehouse_id = #{warehouseId},
+        warehouse_code = #{warehouseCode},
         </set>
         where id = #{id}
     </update>
@@ -129,7 +129,7 @@
             source,
             customer_id,
             manager_code,
-            warehouse_id
+            warehouse_code
         </trim>
         values (
         #{id},
@@ -142,7 +142,7 @@
         #{source},
         #{customerId},
         #{managerCode},
-        #{warehouseId}
+        #{warehouseCode}
         )
     </insert>
 
@@ -179,8 +179,8 @@
             <if test="managerCode != null" >
                 manager_code
             </if>
-            <if test="warehouseId != null" >
-              warehouse_id
+            <if test="warehouseCode != null" >
+              warehouse_code
             </if>
 
         </trim>
@@ -215,8 +215,8 @@
             <if test="managerCode != null" >
                 #{managerCode}
             </if>
-            <if test="warehouseId != null" >
-                #{warehouseId}
+            <if test="warehouseCode != null" >
+                #{warehouseCode}
             </if>
 
         </trim>
@@ -235,7 +235,7 @@
            source,
            customer_id,
             manager_code,
-           warehouse_id
+           warehouse_code
         </trim>
         values
         <foreach collection="list" item="item" index="index" separator=",">
@@ -250,7 +250,7 @@
                #{item.source},
                #{item.customerId},
                #{item.managerCode},
-               #{item.warehouseId}
+               #{item.warehouseCode}
             </trim>
         </foreach>
     </insert>
@@ -293,8 +293,8 @@
                     <if test="t.managerCode != null">
                         manager_code = #{t.managerCode} and
                     </if>
-                    <if test="t.warehouseId != null">
-                        warehouse_id = #{t.warehouseId} and
+                    <if test="t.warehouseCode != null">
+                        warehouse_code = #{t.warehouseCode} and
                     </if>
             </trim>
         </if>
@@ -363,7 +363,7 @@
         on o.id = item.stock_refund_id
         left join customer_product_stock cps
         on cps.customer_id=o.customer_id and cps.product_id=item.product_id
-        and cps.variant_id=item.variant_id and cps.warehouse_id=o.warehouse_id
+        and cps.variant_id=item.variant_id and cps.warehouse_code=o.warehouse_code
         <include refid="Query_Condition"/>
         order by o.update_time desc
         <if test="pageNum != null and pageSize != null">

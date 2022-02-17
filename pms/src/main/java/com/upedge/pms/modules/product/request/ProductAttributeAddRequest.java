@@ -45,7 +45,7 @@ public class ProductAttributeAddRequest{
     /**
     * 赛盒仓库id
     */
-    private Integer warehouseId;
+    private Integer warehouseCode;
 
     public ProductAttribute toProductAttribute(){
         ProductAttribute productAttribute=new ProductAttribute();
@@ -57,7 +57,7 @@ public class ProductAttributeAddRequest{
         productAttribute.setScore(score);
         productAttribute.setEntryEname(entryEname);
         productAttribute.setEntryCname(entryCname);
-        productAttribute.setWarehouseId(warehouseId);
+        productAttribute.setWarehouseCode(warehouseCode);
         return productAttribute;
     }
 

@@ -1,8 +1,7 @@
 package com.upedge.tms.modules.warehouse.request;
 
-import com.upedge.common.base.Page;
+import com.upedge.common.utils.IdGenerate;
 import com.upedge.tms.modules.warehouse.entity.Warehouse;
-import java.util.Date;
 import lombok.Data;
 /**
  * @author gx
@@ -65,6 +64,7 @@ public class WarehouseAddRequest{
 
     public Warehouse toWarehouse(){
         Warehouse warehouse=new Warehouse();
+        warehouse.setId(IdGenerate.nextId());
         warehouse.setWarehouseCode(warehouseCode);
         warehouse.setWarehouseType(warehouseType);
         warehouse.setWarehouseName(warehouseName);

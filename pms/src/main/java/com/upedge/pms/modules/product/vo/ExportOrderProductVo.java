@@ -263,7 +263,7 @@ public class ExportOrderProductVo implements Serializable {
         this.productType = productType;
     }
 
-    private Integer wareHouseId;//赛盒仓库ID
+    private Integer warehouseCode;//赛盒仓库ID
 
     private String receiptRemark;//采购收货备注
     private String procurementCheckMemo;//质检备注
@@ -293,11 +293,11 @@ public class ExportOrderProductVo implements Serializable {
         this.deliveryPackNote = deliveryPackNote;
     }
 
-    public Integer getWareHouseId() {
-        return wareHouseId;
+    public Integer getWarehouseCode() {
+        return warehouseCode;
     }
-    public void setWareHouseId(Integer wareHouseId) {
-        this.wareHouseId = wareHouseId;
+    public void setWarehouseCode(Integer warehouseCode) {
+        this.warehouseCode = warehouseCode;
     }
 
     public static void main(String[] args) {

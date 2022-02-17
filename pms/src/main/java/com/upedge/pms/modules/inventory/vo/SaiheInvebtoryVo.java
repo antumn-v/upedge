@@ -26,7 +26,7 @@ public class SaiheInvebtoryVo {
     /**
      * 仓库id
      */
-    private Integer warehouseId;
+    private Integer warehouseCode;
     /**
      * 库存更新时间
      */

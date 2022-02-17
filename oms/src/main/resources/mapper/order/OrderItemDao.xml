@@ -77,7 +77,7 @@
         <result property="customerId" column="customer_id"/>
         <result property="productId" column="product_id"/>
         <result property="variantId" column="variant_id"/>
-        <result property="warehouseId" column="warehouse_id"/>
+        <result property="warehouseCode" column="warehouse_code"/>
         <result property="relateId" column="relate_id"/>
         <result property="type" column="type"/>
         <result property="orderType" column="order_type"/>
@@ -139,7 +139,7 @@
     </select>
 
     <select id="selectStockRecordByPaymentId" resultMap="StockRecord">
-        select cps.warehouse_id,cps.variant_image,cps.variant_sku,cps.variant_name,
+        select cps.warehouse_code,cps.variant_image,cps.variant_sku,cps.variant_name,
         oi.discharge_quantity as `quantity`,'1' as `type`,'2' as `order_type`,
         oi.order_id as `relate_id`,cps.variant_id,cps.product_id,cps.customer_id
         from order_item oi

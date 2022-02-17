@@ -437,12 +437,12 @@ public class OrderCommonServiceImpl implements OrderCommonService {
         apiUploadOrderInfo.setOrderDescription(orderInfo + againInfo + vatInfo);
 
         //发货仓库ID 默认仓库
-        apiUploadOrderInfo.setWareHouseID(SaiheConfig.UPEDGE_DEFAULT_WAREHOURSE_ID);
+        apiUploadOrderInfo.setWareHouseID(SaiheConfig.UPEDGE_DEFAULT_WAREHOUSE_ID);
 
         //运输方式ID ShippingService
         apiUploadOrderInfo.setTransportID(5);
 
-        //是否执行订单策略(默认为:true；如果为false，则必须传入WareHouseID和TransportID参数)
+        //是否执行订单策略(默认为:true；如果为false，则必须传入warehouseCode和TransportID参数)
         apiUploadOrderInfo.setIsOperateMatch(false);
 //        log.error("订单上传赛盒:{}",apiUploadOrderInfo);
         //回传

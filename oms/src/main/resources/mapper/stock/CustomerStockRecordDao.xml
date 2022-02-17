@@ -9,7 +9,7 @@
         <result property="customerId" column="customer_id"/>
         <result property="productId" column="product_id"/>
         <result property="variantId" column="variant_id"/>
-        <result property="warehouseId" column="warehouse_id"/>
+        <result property="warehouseCode" column="warehouse_code"/>
         <result property="relateId" column="relate_id"/>
         <result property="type" column="type"/>
         <result property="orderType" column="order_type"/>
@@ -22,7 +22,7 @@
     </resultMap>
 
     <sql id="Base_Column_List">
-        `id`,`customer_id`,`product_id`,`variant_id`,`warehouse_id`,`relate_id`,`type`,
+        `id`,`customer_id`,`product_id`,`variant_id`,`warehouse_code`,`relate_id`,`type`,
         `order_type`,`quantity`,`create_time`,`update_time`,`variant_image`,`variant_sku`,`variant_name`
     </sql>
 
@@ -51,8 +51,8 @@
             <if test="variantId != null">
                 variant_id = #{variantId},
             </if>
-            <if test="warehouseId != null">
-                warehouse_id = #{warehouseId},
+            <if test="warehouseCode != null">
+                warehouse_code = #{warehouseCode},
             </if>
             <if test="relateId != null">
                 relate_id = #{relateId},
@@ -86,7 +86,7 @@
             customer_id = #{customerId},
             product_id = #{productId},
             variant_id = #{variantId},
-            warehouse_id = #{warehouseId},
+            warehouse_code = #{warehouseCode},
             relate_id = #{relateId},
             type = #{type},
             order_type = #{orderType},
@@ -106,7 +106,7 @@
             customer_id,
             product_id,
             variant_id,
-            warehouse_id,
+            warehouse_code,
             relate_id,
             `type`,
             order_type,
@@ -120,7 +120,7 @@
         #{customerId},
         #{productId},
         #{variantId},
-        #{warehouseId},
+        #{warehouseCode},
         #{relateId},
         #{type},
         #{orderType},
@@ -147,8 +147,8 @@
             <if test="variantId != null">
                 variant_id
             </if>
-            <if test="warehouseId != null">
-                warehouse_id
+            <if test="warehouseCode != null">
+                warehouse_code
             </if>
             <if test="relateId != null">
                 relate_id
@@ -186,8 +186,8 @@
             <if test="variantId != null">
                 #{variantId}
             </if>
-            <if test="warehouseId != null">
-                #{warehouseId}
+            <if test="warehouseCode != null">
+                #{warehouseCode}
             </if>
             <if test="relateId != null">
                 #{relateId}
@@ -221,7 +221,7 @@
             customer_id,
             product_id,
             variant_id,
-            warehouse_id,
+            warehouse_code,
             relate_id,
             type,
             order_type,
@@ -239,7 +239,7 @@
                 #{item.customerId},
                 #{item.productId},
                 #{item.variantId},
-                #{item.warehouseId},
+                #{item.warehouseCode},
                 #{item.relateId},
                 #{item.type},
                 #{item.orderType},
@@ -270,8 +270,8 @@
                 <if test="t.variantId != null">
                     variant_id = #{t.variantId} and
                 </if>
-                <if test="t.warehouseId != null">
-                    warehouse_id = #{t.warehouseId} and
+                <if test="t.warehouseCode != null">
+                    warehouse_code = #{t.warehouseCode} and
                 </if>
                 <if test="t.relateId != null">
                     relate_id = #{t.relateId} and

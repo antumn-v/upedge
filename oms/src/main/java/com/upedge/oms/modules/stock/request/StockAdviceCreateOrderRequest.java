@@ -13,8 +13,8 @@ public class StockAdviceCreateOrderRequest {
     @Size(min = 1)
     List<VariantQuantity> variantQuantities;
 
-    @NotNull()
-    Long warehouseId;
+    @NotNull
+    String warehouseCode;
 
 
 }

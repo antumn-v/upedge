@@ -245,7 +245,7 @@ public class SaiheSkuVo {
     // 产品类型
     private String productType;
     //赛盒仓库ID
-    private Integer wareHouseId;
+    private Integer warehouseCode;
     //采购收货备注
     private String receiptRemark;
     //质检备注
@@ -1132,11 +1132,11 @@ public class SaiheSkuVo {
         this.deliveryPackNote = deliveryPackNote;
     }
 
-    public Integer getWareHouseId() {
-        return wareHouseId;
+    public Integer getWarehouseCode() {
+        return warehouseCode;
     }
-    public void setWareHouseId(Integer wareHouseId) {
-        this.wareHouseId = wareHouseId;
+    public void setWarehouseCode(Integer warehouseCode) {
+        this.warehouseCode = warehouseCode;
     }
 
 

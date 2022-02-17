@@ -33,7 +33,7 @@ public class CustomerProductStock{
 	/**
 	 * 
 	 */
-    private Long warehouseId;
+    private String warehouseCode;
 	/**
 	 * 被锁定的库存
 	 */

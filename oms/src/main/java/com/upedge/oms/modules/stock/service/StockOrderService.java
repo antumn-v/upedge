@@ -9,6 +9,8 @@ import com.upedge.common.model.user.vo.Session;
 import com.upedge.oms.modules.stock.entity.StockOrder;
 import com.upedge.oms.modules.stock.request.StockOrderItemUpdatePurchaseNoRequest;
 import com.upedge.oms.modules.stock.request.StockOrderListRequest;
+import com.upedge.oms.modules.stock.request.StockOrderUpdateShipRequest;
+import com.upedge.oms.modules.stock.request.StockOrderUpdateTrackRequest;
 import com.upedge.oms.modules.stock.vo.StockOrderVo;
 
 import java.util.List;
@@ -17,6 +19,14 @@ import java.util.List;
  * @author author
  */
 public interface StockOrderService{
+
+    BaseResponse confirmShipReview(Long orderId,Session session);
+
+    BaseResponse updateTrack(StockOrderUpdateTrackRequest request, Session session);
+
+    BaseResponse rejectShipReview(Long orderId,Session session);
+
+    BaseResponse updateShipDetail(Session session, StockOrderUpdateShipRequest request);
 
     BaseResponse excelImportStockOrders(Session session, List<VariantQuantity> variantQuantities);
 

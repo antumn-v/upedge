@@ -19,7 +19,7 @@ public interface CustomerProductStockDao{
     int increaseVariantStock(@Param("stocks") List<CustomerProductStock> stocks);
 
     List<Long> selectWarehouseVariantIdsByCustomer(@Param("customerId") Long customerId,
-                                                   @Param("warehouseId") Long warehouseId);
+                                                   @Param("warehouseCode") String warehouseCode);
 
     CustomerProductStock selectByPrimaryKey(CustomerProductStock record);
 
@@ -74,7 +74,7 @@ public interface CustomerProductStockDao{
      */
     CustomerProductStock queryStockForCustomerProduct(
             @Param("customerId") Long customerId,
-            @Param("variantId") Long variantId, @Param("warehouseId") Integer warehouseId);
+            @Param("variantId") Long variantId, @Param("warehouseCode") String warehouseCode);
 
     Integer subStockForRefund(@Param("id") Long id, @Param("quantity") Integer quantity);
 

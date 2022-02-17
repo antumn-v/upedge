@@ -8,7 +8,7 @@
         <result property="variantSku" column="variant_sku"/>
         <result property="goodNum" column="good_num"/>
         <result property="lockNum" column="lock_num"/>
-        <result property="warehouseId" column="warehouse_id"/>
+        <result property="warehouseCode" column="warehouse_code"/>
         <result property="updateTime" column="update_time"/>
         <result property="activeDays" column="active_days"/>
         <result property="activeTime" column="active_time"/>
@@ -20,7 +20,7 @@
     </resultMap>
 
     <sql id="Base_Column_List">
-        `variant_sku`,`good_num`,`lock_num`,`warehouse_id`,`update_time`,`active_days`,`active_time`,`position_code`,`processing_num`,`history_in_num`,`history_out_num`,`customer_stock`
+        `variant_sku`,`good_num`,`lock_num`,`warehouse_code`,`update_time`,`active_days`,`active_time`,`position_code`,`processing_num`,`history_in_num`,`history_out_num`,`customer_stock`
     </sql>
 
     <select id="selectByPrimaryKey" parameterType="com.upedge.pms.modules.inventory.entity.ProductSaiheInventory" resultMap="BaseResultMap">
@@ -44,8 +44,8 @@
             <if test="lockNum != null">
                 lock_num = #{lockNum},
             </if>
-            <if test="warehouseId != null">
-                warehouse_id = #{warehouseId},
+            <if test="warehouseCode != null">
+                warehouse_code = #{warehouseCode},
             </if>
             <if test="updateTime != null">
                 update_time = #{updateTime},
@@ -81,7 +81,7 @@
         variant_sku = #{variantSku},
         good_num = #{goodNum},
         lock_num = #{lockNum},
-        warehouse_id = #{warehouseId},
+        warehouse_code = #{warehouseCode},
         update_time = #{updateTime},
         active_days = #{activeDays},
         active_time = #{activeTime},
@@ -110,7 +110,7 @@
             variant_sku,
             good_num,
             lock_num,
-            warehouse_id,
+            warehouse_code,
             update_time,
             active_days,
             active_time,
@@ -124,7 +124,7 @@
         #{variantSku},
         #{goodNum},
         #{lockNum},
-        #{warehouseId},
+        #{warehouseCode},
         #{updateTime},
         #{activeDays},
         #{activeTime},
@@ -148,8 +148,8 @@
             <if test="lockNum != null" >
               lock_num
             </if>
-            <if test="warehouseId != null" >
-              warehouse_id
+            <if test="warehouseCode != null" >
+              warehouse_code
             </if>
             <if test="updateTime != null" >
               update_time
@@ -187,8 +187,8 @@
             <if test="lockNum != null" >
                 #{lockNum}
             </if>
-            <if test="warehouseId != null" >
-                #{warehouseId}
+            <if test="warehouseCode != null" >
+                #{warehouseCode}
             </if>
             <if test="updateTime != null" >
                 #{updateTime}
@@ -224,7 +224,7 @@
            variant_sku,
            good_num,
            lock_num,
-           warehouse_id,
+           warehouse_code,
            update_time,
            active_days,
            active_time,
@@ -240,7 +240,7 @@
                #{item.variantSku},
                #{item.goodNum},
                #{item.lockNum},
-               #{item.warehouseId},
+               #{item.warehouseCode},
                #{item.updateTime},
                #{item.activeDays},
                #{item.activeTime},
@@ -254,7 +254,7 @@
     </insert>
     <insert id="saveProductSaiheInventory" parameterType="java.util.List">
         insert into product_saihe_inventory(variant_sku,good_num,lock_num,
-        warehouse_id,update_time,active_days,
+        warehouse_code,update_time,active_days,
         active_time,position_code,processing_num,
         history_in_num,history_out_num)
         values
@@ -263,7 +263,7 @@
             (#{item.variantSku,jdbcType=VARCHAR},
             #{item.goodNum,jdbcType=INTEGER},
             #{item.lockNum,jdbcType=INTEGER},
-            #{item.warehouseId,jdbcType=INTEGER},
+            #{item.warehouseCode,jdbcType=INTEGER},
             #{item.updateTime,jdbcType=TIMESTAMP},
             #{item.activeDays,jdbcType=INTEGER},
             #{item.activeTime,jdbcType=TIMESTAMP},
@@ -284,8 +284,8 @@
         history_out_num = VALUES(history_out_num)
     </insert>
     <insert id="insertProductSaiheInventory" parameterType="com.upedge.common.model.product.ProductSaiheInventoryVo">
-        insert into product_saihe_inventory(variant_sku,warehouse_id,good_num,lock_num,update_time)
-		values(#{variantSku},#{warehouseId},#{goodNum},#{lockNum},#{updateTime})
+        insert into product_saihe_inventory(variant_sku,warehouse_code,good_num,lock_num,update_time)
+		values(#{variantSku},#{warehouseCode},#{goodNum},#{lockNum},#{updateTime})
 		ON DUPLICATE KEY UPDATE
         good_num = VALUES(good_num),
         lock_num = VALUES(lock_num),
@@ -306,8 +306,8 @@
                     <if test="t.lockNum != null">
                         lock_num = #{t.lockNum} and
                     </if>
-                    <if test="t.warehouseId != null">
-                        warehouse_id = #{t.warehouseId} and
+                    <if test="t.warehouseCode != null">
+                        warehouse_code = #{t.warehouseCode} and
                     </if>
                     <if test="t.updateTime != null">
                         update_time = #{t.updateTime} and
@@ -369,7 +369,7 @@
             resultType="com.upedge.pms.modules.inventory.vo.SaiheInvebtoryVo">
         select
         asi.variant_sku as variantSku,asi.good_num as goodNum,
-        asi.lock_num as lockNum,asi.warehouse_id as warehouseId,
+        asi.lock_num as lockNum,asi.warehouse_code as warehouseCode,
         asi.update_time as updateTime,asi.active_days as activeDays,
         asi.active_time as activeTime,asi.position_code as positionCode,
         asi.processing_num as processingNum,asi.history_in_num as historyInNum,

@@ -1,7 +1,5 @@
 package com.upedge.pms.modules.product.entity;
 
-import java.io.Serializable;
-import java.util.Date;
 import lombok.Data;
 
 /**
@@ -49,6 +47,6 @@ public class ProductAttribute{
 	/**
 	 * 赛盒仓库id
 	 */
-    private Integer warehouseId;
+    private Integer warehouseCode;
 
 }

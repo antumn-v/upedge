@@ -172,7 +172,7 @@ public class StockAdviceServiceImpl implements StockAdviceService {
         CartSubmitOrderRequest cartSubmitOrderRequest = new CartSubmitOrderRequest();
         cartSubmitOrderRequest.setCarts(carts);
         cartSubmitOrderRequest.setCartType(0);
-        cartSubmitOrderRequest.setWarehouseId(request.getWarehouseId());
+        cartSubmitOrderRequest.setWarehouseCode(request.getWarehouseCode());
         Long orderId = cartService.cartSubmitStockOrder(cartSubmitOrderRequest,session);
         if(null != orderId) {
             StockAdviceCreatOrderVo stockAdviceCreatOrderVo = new StockAdviceCreatOrderVo();

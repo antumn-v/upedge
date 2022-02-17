@@ -2,7 +2,7 @@ package com.upedge.common.constant;
 
 public class ProductConstant {
 
-    public static final Integer DEFAULT_WAREHOURSE_ID = 3;
+    public static final String DEFAULT_WAREHOUSE_ID = "3";
 
     //商品状态（0:选品池 1:编辑中2:下架3: 上架 4:机器上架 ）
     public enum State{

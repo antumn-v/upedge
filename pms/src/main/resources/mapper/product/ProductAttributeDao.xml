@@ -14,11 +14,11 @@
         <result property="score" column="score"/>
         <result property="entryEname" column="entry_ename"/>
         <result property="entryCname" column="entry_cname"/>
-        <result property="warehouseId" column="warehouse_id"/>
+        <result property="warehouseCode" column="warehouse_code"/>
     </resultMap>
 
     <sql id="Base_Column_List">
-        `id`,`product_id`,`ali_cn_category_id`,`ali_cn_category_name`,`item_no`,`turnover`,`score`,`entry_ename`,`entry_cname`,`warehouse_id`
+        `id`,`product_id`,`ali_cn_category_id`,`ali_cn_category_name`,`item_no`,`turnover`,`score`,`entry_ename`,`entry_cname`,`warehouse_code`
     </sql>
 
     <select id="selectByPrimaryKey" parameterType="com.upedge.pms.modules.product.entity.ProductAttribute" resultMap="BaseResultMap">
@@ -60,8 +60,8 @@
             <if test="entryCname != null">
                 entry_cname = #{entryCname},
             </if>
-            <if test="warehouseId != null">
-                warehouse_id = #{warehouseId},
+            <if test="warehouseCode != null">
+                warehouse_code = #{warehouseCode},
             </if>
         </set>
         where id = #{id}
@@ -79,7 +79,7 @@
         score = #{score},
         entry_ename = #{entryEname},
         entry_cname = #{entryCname},
-        warehouse_id = #{warehouseId},
+        warehouse_code = #{warehouseCode},
         </set>
         where id = #{id}
     </update>
@@ -96,7 +96,7 @@
             score,
             entry_ename,
             entry_cname,
-            warehouse_id
+            warehouse_code
         </trim>
         values (
         #{id},
@@ -108,7 +108,7 @@
         #{score},
         #{entryEname},
         #{entryCname},
-        #{warehouseId}
+        #{warehouseCode}
         )
     </insert>
 
@@ -142,8 +142,8 @@
             <if test="entryCname != null" >
               entry_cname
             </if>
-            <if test="warehouseId != null" >
-              warehouse_id
+            <if test="warehouseCode != null" >
+              warehouse_code
             </if>
 
         </trim>
@@ -175,8 +175,8 @@
             <if test="entryCname != null" >
                 #{entryCname}
             </if>
-            <if test="warehouseId != null" >
-                #{warehouseId}
+            <if test="warehouseCode != null" >
+                #{warehouseCode}
             </if>
 
         </trim>
@@ -194,7 +194,7 @@
            score,
            entry_ename,
            entry_cname,
-           warehouse_id
+           warehouse_code
         </trim>
         values
         <foreach collection="list" item="item" index="index" separator=",">
@@ -208,7 +208,7 @@
                #{item.score},
                #{item.entryEname},
                #{item.entryCname},
-               #{item.warehouseId}
+               #{item.warehouseCode}
             </trim>
         </foreach>
     </insert>
@@ -245,8 +245,8 @@
                     <if test="t.entryCname != null">
                         entry_cname = #{t.entryCname} and
                     </if>
-                    <if test="t.warehouseId != null">
-                        warehouse_id = #{t.warehouseId} and
+                    <if test="t.warehouseCode != null">
+                        warehouse_code = #{t.warehouseCode} and
                     </if>
             </trim>
         </if>

@@ -131,7 +131,7 @@ public class StoreProductServiceImpl implements StoreProductService {
 
             ProductAttribute productAttribute = new ProductAttribute();
             productAttribute.setProductId(newProductId);
-            productAttribute.setWarehouseId(SaiheConfig.UPEDGE_DEFAULT_WAREHOURSE_ID);
+            productAttribute.setWarehouseCode(SaiheConfig.UPEDGE_DEFAULT_WAREHOUSE_ID);
             productAttributeService.insert(productAttribute);
 
             ProductInfo productInfo = new ProductInfo();

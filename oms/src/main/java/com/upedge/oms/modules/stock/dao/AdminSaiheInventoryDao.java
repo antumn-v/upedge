@@ -30,5 +30,5 @@ public interface AdminSaiheInventoryDao{
     long count(Page<AdminSaiheInventory> record);
 
     AdminSaiheInventory queryAdminSaiheInventory(
-            @Param("variantSku") String variantSku, @Param("warehouseId") int warehouseId);
+            @Param("variantSku") String variantSku, @Param("warehouseCode") int warehouseCode);
 }

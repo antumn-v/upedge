@@ -24,7 +24,7 @@ public class ProductSaiheInventoryUpdateRequest{
     /**
      * 仓库id
      */
-    private Integer warehouseId;
+    private Integer warehouseCode;
     /**
      * 库存更新时间
      */
@@ -65,7 +65,7 @@ public class ProductSaiheInventoryUpdateRequest{
         productSaiheInventory.setVariantSku(variantSku);
         productSaiheInventory.setGoodNum(goodNum);
         productSaiheInventory.setLockNum(lockNum);
-        productSaiheInventory.setWarehouseId(warehouseId);
+        productSaiheInventory.setWarehouseCode(warehouseCode);
         productSaiheInventory.setUpdateTime(updateTime);
         productSaiheInventory.setActiveDays(activeDays);
         productSaiheInventory.setActiveTime(activeTime);

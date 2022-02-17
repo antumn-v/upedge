@@ -19,7 +19,7 @@ public class StockOrderVo {
     /**
      * 仓库ID
      */
-    private Long warehouseId;
+    private String warehouseCode;
     /**
      * 用户ID
      */

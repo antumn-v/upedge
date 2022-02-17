@@ -40,6 +40,8 @@ import com.upedge.oms.modules.stock.entity.StockOrder;
 import com.upedge.oms.modules.stock.entity.StockOrderItem;
 import com.upedge.oms.modules.stock.request.StockOrderItemUpdatePurchaseNoRequest;
 import com.upedge.oms.modules.stock.request.StockOrderListRequest;
+import com.upedge.oms.modules.stock.request.StockOrderUpdateShipRequest;
+import com.upedge.oms.modules.stock.request.StockOrderUpdateTrackRequest;
 import com.upedge.oms.modules.stock.service.StockOrderService;
 import com.upedge.oms.modules.stock.vo.StockOrderItemVo;
 import com.upedge.oms.modules.stock.vo.StockOrderVo;
@@ -124,6 +126,48 @@ public class StockOrderServiceImpl implements StockOrderService {
     @Override
     public int insertSelective(StockOrder record) {
         return stockOrderDao.insert(record);
+    }
+
+    @Override
+    public BaseResponse confirmShipReview(Long orderId, Session session) {
+        StockOrder stockOrder = selectByPrimaryKey(orderId);
+        if (stockOrder == null
+        || stockOrder.getShipReview() != 2
+        || stockOrder.getPayState() != 1){
+            return BaseResponse.failed("订单不存在或订单未支付");
+        }
+        int i = stockOrderDao.confirmShipReview(orderId);
+        if (i == 1){
+            return BaseResponse.success();
+        }
+        return BaseResponse.failed("订单异常");
+    }
+
+    @Override
+    public BaseResponse updateTrack(StockOrderUpdateTrackRequest request, Session session) {
+        return null;
+    }
+
+    @Override
+    public BaseResponse rejectShipReview(Long orderId, Session session) {
+        return null;
+    }
+
+    @Override
+    public BaseResponse updateShipDetail(Session session, StockOrderUpdateShipRequest request) {
+        Long orderId = request.getOrderId();
+
+        StockOrder stockOrder = selectByPrimaryKey(orderId);
+        if (stockOrder == null
+        || stockOrder.getShipReview() > 1
+        || stockOrder.getPayState() != 0){
+            return BaseResponse.failed("订单不存在或订单已支付");
+        }
+        stockOrder.setShipReview(1);
+        stockOrder.setShipMethod(request.getShipMethod());
+        stockOrder.setShipPrice(request.getShipPrice());
+        stockOrderDao.updateByPrimaryKeySelective(stockOrder);
+        return BaseResponse.success();
     }
 
     @Override
@@ -386,7 +430,7 @@ public class StockOrderServiceImpl implements StockOrderService {
                 record.setVariantId(stockOrderItem.getVariantId());
                 record.setVariantImage(stockOrderItem.getVariantImage());
                 record.setType(0);
-                record.setWarehouseId(stockOrderVo.getWarehouseId());
+                record.setWarehouseCode(stockOrderVo.getWarehouseCode());
                 record.setCreateTime(date);
                 record.setUpdateTime(date);
                 record.setVariantSku(stockOrderItem.getVariantSku());
@@ -397,7 +441,7 @@ public class StockOrderServiceImpl implements StockOrderService {
 
         List<StockOrderItem> variantQuantities = stockOrderItemDao.countVariantQuantityByOrderPaymentId(paymentId);
 
-        List<Long> variantIds = customerProductStockDao.selectWarehouseVariantIdsByCustomer(customerId, ProductConstant.DEFAULT_WAREHOURSE_ID.longValue());
+        List<Long> variantIds = customerProductStockDao.selectWarehouseVariantIdsByCustomer(customerId, ProductConstant.DEFAULT_WAREHOUSE_ID);
 
         List<CustomerProductStock> insertStock = new ArrayList<>();
 
@@ -409,7 +453,7 @@ public class StockOrderServiceImpl implements StockOrderService {
                 stock.setCustomerId(customerId);
                 stock.setVariantId(variantQuantity.getVariantId());
                 stock.setStock(variantQuantity.getQuantity());
-                stock.setWarehouseId(ProductConstant.DEFAULT_WAREHOURSE_ID.longValue());
+                stock.setWarehouseCode(ProductConstant.DEFAULT_WAREHOUSE_ID);
                 updateStock.add(stock);
             } else {
                 stock.setProductTitle(variantQuantity.getProductTitle());
@@ -421,7 +465,7 @@ public class StockOrderServiceImpl implements StockOrderService {
                 stock.setCustomerId(customerId);
                 stock.setStock(variantQuantity.getQuantity());
                 stock.setLockStock(0);
-                stock.setWarehouseId(ProductConstant.DEFAULT_WAREHOURSE_ID.longValue());
+                stock.setWarehouseCode(ProductConstant.DEFAULT_WAREHOUSE_ID);
                 stock.setCreateTime(date);
                 stock.setUpdateTime(date);
                 insertStock.add(stock);

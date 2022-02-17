@@ -51,7 +51,7 @@ public class StockOrderRefundUpdateRequest{
     /**
      * 
      */
-    private Integer warehouseId;
+    private String warehouseCode;
 
     public StockOrderRefund toStockOrderRefund(Long id){
         StockOrderRefund stockOrderRefund=new StockOrderRefund();
@@ -65,7 +65,7 @@ public class StockOrderRefundUpdateRequest{
         stockOrderRefund.setSource(source);
         stockOrderRefund.setCustomerId(customerId);
         stockOrderRefund.setManagerCode(managerCode);
-        stockOrderRefund.setWarehouseId(warehouseId);
+        stockOrderRefund.setWarehouseCode(warehouseCode);
         return stockOrderRefund;
     }
 

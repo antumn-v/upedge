@@ -21,6 +21,8 @@ public interface StockOrderDao{
 
     PaymentAmount selectSumAmountByPaymentId(Long paymentId);
 
+    int confirmShipReview(Long orderId);
+
     List<TransactionDetail> selectTransactionDetailByPaymentId(Long paymentId);
 
     /**

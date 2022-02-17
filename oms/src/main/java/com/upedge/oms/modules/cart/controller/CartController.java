@@ -145,7 +145,7 @@ public class CartController {
     @ApiOperation("购物车提交备库订单")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "cartType",value = "购物车类型，0=备库订单，1=批发订单",required = true),
-            @ApiImplicitParam(name = "warehouseId",value = "仓库ID",required = true),
+            @ApiImplicitParam(name = "warehouseCode",value = "仓库ID",required = true),
             @ApiImplicitParam(name = "payMethod",value = "支付方式，0=balance，1=paypal,可以不传",required = false)
     })
     @PostMapping("/submit/stock")
