@@ -57,6 +57,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 
 @Service
@@ -396,6 +398,11 @@ public class StoreServiceImpl implements StoreService {
         if (null == storeUrl) {
             return new ShopifyAuthResponse(ResultCode.FAIL_CODE, "wrong url");
         }
+        storeUrl = verifyStoreAddress(storeUrl);
+        if (StringUtils.isBlank(storeUrl)){
+            return new ShopifyAuthResponse(ResultCode.FAIL_CODE, "wrong url");
+        }
+        storeUrl = storeUrl.replace(".myshopify.com","");
         Session session = UserUtil.getSession(redisTemplate);
         Store store = storeDao.selectByStoreName(storeUrl);
         if (null != store) {
@@ -412,6 +419,22 @@ public class StoreServiceImpl implements StoreService {
         String url = getShopifyAuthUrl(storeUrl, nonce);
         redisTemplate.opsForValue().set(nonce, session);
         return new ShopifyAuthResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS, url);
+    }
+
+    public static String verifyStoreAddress(String storeAddress) {
+        if (StringUtils.isBlank(storeAddress)){
+            return null;
+        }
+        String pattern = "[\\w\\-]+\\.myshopify.com";
+        // 创建 Pattern 对象
+        Pattern r = Pattern.compile(pattern);
+        // 现在创建 matcher 对象
+        Matcher m = r.matcher(storeAddress);
+        if (m.find()) {
+            return m.group(0);
+        } else {
+            return null;
+        }
     }
 
     @Transactional

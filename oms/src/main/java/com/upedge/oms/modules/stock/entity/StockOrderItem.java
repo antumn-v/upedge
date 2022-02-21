@@ -65,4 +65,6 @@ public class StockOrderItem{
 	 */
 	private String purchaseNo;
 
+	private String warehouseCode;
+
 }

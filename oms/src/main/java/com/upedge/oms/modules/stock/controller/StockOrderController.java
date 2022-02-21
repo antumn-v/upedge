@@ -285,13 +285,18 @@ public class StockOrderController {
         return BaseResponse.success();
     }
 
+    @ApiOperation("补充订单物流信息")
     @PostMapping("/updateTrack")
     public BaseResponse updateTrack(@RequestBody@Valid StockOrderUpdateTrackRequest request){
         Session session = UserUtil.getSession(redisTemplate);
-        return null;
+        return stockOrderService.updateTrack(request,session);
     }
-    public static void main(String[] args) {
 
+    @ApiOperation("确认收货")
+    @PostMapping("/confirmReceipt/{orderId}")
+    public BaseResponse orderConfirmReceipt(@PathVariable Long orderId){
+        Session session = UserUtil.getSession(redisTemplate);
+        return stockOrderService.orderConfirmReceipt(orderId,session);
     }
 
 }

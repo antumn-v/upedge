@@ -2,7 +2,6 @@ package com.upedge.oms.modules.stock.service.impl;
 
 import com.upedge.common.base.BaseResponse;
 import com.upedge.common.base.Page;
-import com.upedge.common.constant.ProductConstant;
 import com.upedge.common.enums.CustomerExceptionEnum;
 import com.upedge.common.exception.CustomerException;
 import com.upedge.common.feign.PmsFeignClient;
@@ -87,7 +86,8 @@ public class CustomerProductStockServiceImpl implements CustomerProductStockServ
         List<CustomerProductStock> customerProductStocks = new ArrayList<>();
         List<CustomerProductStock> updateStock = new ArrayList<>();
         List<CustomerStockRecord> customerStockRecords = new ArrayList<>();
-        List<Long> variantIds = customerProductStockDao.selectWarehouseVariantIdsByCustomer(request.getCustomerId(), ProductConstant.DEFAULT_WAREHOUSE_ID);
+        String warehouseCode = request.getWarehouseCode();
+        List<Long> variantIds = customerProductStockDao.selectWarehouseVariantIdsByCustomer(request.getCustomerId(), warehouseCode);
         for (CustomerSkuStockVo customerSkuStockVo : customerSkuStockVos) {
             if(0 == customerSkuStockVo.getStock()) {
                 continue;
@@ -104,13 +104,13 @@ public class CustomerProductStockServiceImpl implements CustomerProductStockServ
                 customerProductStock.setCreateTime(date);
                 customerProductStock.setUpdateTime(date);
                 customerProductStock.setStockType(1);
-                customerProductStock.setWarehouseCode(ProductConstant.DEFAULT_WAREHOUSE_ID);
+                customerProductStock.setWarehouseCode(warehouseCode);
                 customerProductStocks.add(customerProductStock);
             }else {
                 customerProductStock.setCustomerId(customerId);
                 customerProductStock.setVariantId(customerSkuStockVo.getVariantId());
                 customerProductStock.setStock(customerSkuStockVo.getStock());
-                customerProductStock.setWarehouseCode(ProductConstant.DEFAULT_WAREHOUSE_ID);
+                customerProductStock.setWarehouseCode(warehouseCode);
                 updateStock.add(customerProductStock);
             }
             CustomerStockRecord customerStockRecord = new CustomerStockRecord();
@@ -122,12 +122,15 @@ public class CustomerProductStockServiceImpl implements CustomerProductStockServ
             customerStockRecord.setOrderType(4);
             customerStockRecord.setType(3);
             customerStockRecord.setQuantity(customerSkuStockVo.getStock());
-            customerStockRecord.setWarehouseCode(ProductConstant.DEFAULT_WAREHOUSE_ID);
-            customerStockRecord.setRelateId(0L);
+            customerStockRecord.setWarehouseCode(warehouseCode);
+            customerStockRecord.setRelateId(System.currentTimeMillis());
             customerStockRecord.setVariantImage(variantDetail.getVariantImage());
             customerStockRecord.setUpdateTime(date);
             customerStockRecord.setVariantName(variantDetail.getVariantName());
             customerStockRecords.add(customerStockRecord);
+        }
+        if (ListUtils.isNotEmpty(customerStockRecords)){
+            customerStockRecordDao.insertByBatch(customerStockRecords);
         }
         if(ListUtils.isNotEmpty(customerProductStocks)){
             customerProductStockDao.insertByBatch(customerProductStocks);
@@ -135,9 +138,7 @@ public class CustomerProductStockServiceImpl implements CustomerProductStockServ
         if (ListUtils.isNotEmpty(updateStock)) {
             customerProductStockDao.increaseVariantStock(updateStock);
         }
-        if (ListUtils.isNotEmpty(customerStockRecords)){
-            customerStockRecordDao.insertByBatch(customerStockRecords);
-        }
+
         return BaseResponse.success();
     }
 

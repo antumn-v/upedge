@@ -168,7 +168,7 @@ public class OrderPayServiceImpl implements OrderPayService {
                 }
                 orderVo.setShipMethodName(shipDetail.getMethodName());
                 orderVo.setShipMethodId(shipDetail.getMethodId());
-                orderVo.setShipPrice(shipDetail.getPrice().add(shipDetail.getServiceFee()));
+                orderVo.setShipPrice(shipDetail.getPrice());
                 orderVo.setServiceFee(shipDetail.getServiceFee());
                 orderVo.setTotalWeight(shipDetail.getWeight());
             }else {

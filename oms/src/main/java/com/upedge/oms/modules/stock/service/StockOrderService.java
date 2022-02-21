@@ -24,6 +24,8 @@ public interface StockOrderService{
 
     BaseResponse updateTrack(StockOrderUpdateTrackRequest request, Session session);
 
+    BaseResponse orderConfirmReceipt(Long orderId,Session session);
+
     BaseResponse rejectShipReview(Long orderId,Session session);
 
     BaseResponse updateShipDetail(Session session, StockOrderUpdateShipRequest request);

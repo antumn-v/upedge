@@ -22,11 +22,13 @@ import com.upedge.common.model.product.VariantQuantity;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.utils.IdGenerate;
 import com.upedge.common.utils.ListUtils;
+import com.upedge.common.web.util.RedisUtil;
 import com.upedge.common.web.util.RequestUtil;
 import com.upedge.oms.constant.StockOrderState;
 import com.upedge.oms.modules.cart.dao.CartDao;
 import com.upedge.oms.modules.cart.entity.Cart;
-import com.upedge.oms.modules.common.service.MqOnSaiheService;
+import com.upedge.oms.modules.order.entity.OrderTracking;
+import com.upedge.oms.modules.order.service.OrderTrackingService;
 import com.upedge.oms.modules.statistics.service.OrderDailyPayCountService;
 import com.upedge.oms.modules.stock.dao.CustomerProductStockDao;
 import com.upedge.oms.modules.stock.dao.CustomerStockRecordDao;
@@ -95,7 +97,7 @@ public class StockOrderServiceImpl implements StockOrderService {
     ThreadPoolExecutor threadPoolExecutor;
 
     @Autowired
-    private MqOnSaiheService mqOnSaiheService;
+    private OrderTrackingService orderTrackingService;
 
     @Autowired
     OrderDailyPayCountService orderDailyPayCountService;
@@ -145,7 +147,51 @@ public class StockOrderServiceImpl implements StockOrderService {
 
     @Override
     public BaseResponse updateTrack(StockOrderUpdateTrackRequest request, Session session) {
-        return null;
+        Long orderId = request.getOrderId();
+        StockOrder stockOrder = selectByPrimaryKey(orderId);
+        if (stockOrder == null
+            || stockOrder.getShipReview() != 3
+            || stockOrder.getPayState() != 1){
+            return BaseResponse.failed("订单未支付或运费为审核");
+        }
+        OrderTracking orderTracking = orderTrackingService.queryOrderTrackingByOrderId(orderId,OrderType.STOCK);
+        if (null == orderTracking){
+            orderTracking = new OrderTracking();
+            orderTracking.setTrackingCompany(stockOrder.getShipMethod());
+            orderTracking.setOrderId(orderId);
+            orderTracking.setCreateTime(new Date());
+            orderTracking.setUpdateTime(new Date());
+            orderTracking.setOrderTrackingType(OrderType.STOCK);
+            orderTracking.setTrackingCode(request.getTrackingCode());
+            orderTracking.setShippingMethodName(stockOrder.getShipMethod());
+            orderTracking.setTrackType(request.getTrackingType());
+            orderTracking.setState(1);
+            orderTrackingService.insert(orderTracking);
+        }else {
+            orderTracking.setTrackType(request.getTrackingType());
+            orderTracking.setTrackingCode(request.getTrackingCode());
+            orderTracking.setUpdateTime(new Date());
+            orderTrackingService.updateOrderTracking(orderTracking);
+        }
+        return BaseResponse.success();
+    }
+
+    @Transactional
+    @Override
+    public BaseResponse orderConfirmReceipt(Long orderId, Session session) {
+        String key = "stock:receipt:" + orderId;
+        boolean b = RedisUtil.lock(redisTemplate,key,10L,30 * 1000L);
+        if (!b){
+            return BaseResponse.failed();
+        }
+        StockOrder stockOrder = selectByPrimaryKey(orderId);
+        if (stockOrder == null
+                || stockOrder.getShipReview() != 3
+                || stockOrder.getPayState() != 1){
+            return BaseResponse.failed("订单未支付或运费为审核");
+        }
+        orderPaidByPaymentId(null,orderId,stockOrder.getCustomerId(),stockOrder.getWarehouseCode());
+        return BaseResponse.success();
     }
 
     @Override
@@ -156,7 +202,6 @@ public class StockOrderServiceImpl implements StockOrderService {
     @Override
     public BaseResponse updateShipDetail(Session session, StockOrderUpdateShipRequest request) {
         Long orderId = request.getOrderId();
-
         StockOrder stockOrder = selectByPrimaryKey(orderId);
         if (stockOrder == null
         || stockOrder.getShipReview() > 1
@@ -359,7 +404,6 @@ public class StockOrderServiceImpl implements StockOrderService {
     }
 
     @GlobalTransactional
-    @Transactional
     @Override
     public PaymentDetail payOrderByBalance(List<Long> ids, Session session) {
         Date payTime = new Date();
@@ -392,7 +436,9 @@ public class StockOrderServiceImpl implements StockOrderService {
             return null;
         }
         stockOrderDao.completeOrderTransaction(detail, BigDecimal.ZERO);
-        orderPaidByPaymentId(paymentId, session.getCustomerId());
+
+
+        orderPaidByPaymentId(paymentId,null, session.getCustomerId(),"CNHZ");
         CustomerOrderDailyCountUpdateRequest customerOrderDailyCountUpdateRequest = new CustomerOrderDailyCountUpdateRequest();
         customerOrderDailyCountUpdateRequest.setCustomerId(session.getCustomerId());
         customerOrderDailyCountUpdateRequest.setOrderType(TransactionConstant.OrderType.STOCK_ORDER.getCode());
@@ -411,9 +457,7 @@ public class StockOrderServiceImpl implements StockOrderService {
         Page<StockOrderListDto> page = new Page<>();
         page.setPageSize(null);
         page.setT(orderListDto);
-
         List<StockOrderVo> orderVos = stockOrderDao.selectOrderList(page);
-
         List<CustomerStockRecord> records = new ArrayList<>();
 
         Date date = new Date();
@@ -439,6 +483,7 @@ public class StockOrderServiceImpl implements StockOrderService {
             });
         });
 
+
         List<StockOrderItem> variantQuantities = stockOrderItemDao.countVariantQuantityByOrderPaymentId(paymentId);
 
         List<Long> variantIds = customerProductStockDao.selectWarehouseVariantIdsByCustomer(customerId, ProductConstant.DEFAULT_WAREHOUSE_ID);
@@ -453,7 +498,6 @@ public class StockOrderServiceImpl implements StockOrderService {
                 stock.setCustomerId(customerId);
                 stock.setVariantId(variantQuantity.getVariantId());
                 stock.setStock(variantQuantity.getQuantity());
-                stock.setWarehouseCode(ProductConstant.DEFAULT_WAREHOUSE_ID);
                 updateStock.add(stock);
             } else {
                 stock.setProductTitle(variantQuantity.getProductTitle());
@@ -482,6 +526,85 @@ public class StockOrderServiceImpl implements StockOrderService {
 
         customerStockRecordDao.insertByBatch(records);
 
+        return true;
+    }
+
+    public synchronized boolean orderPaidByPaymentId(Long paymentId,Long orderId, Long customerId,String warehouseCode) {
+        StockOrderListDto orderListDto = new StockOrderListDto();
+        orderListDto.setPaymentId(paymentId);
+        orderListDto.setOrderId(orderId);
+        orderListDto.setCustomerId(customerId);
+        orderListDto.setWarehouseCode(warehouseCode);
+        Page<StockOrderListDto> page = new Page<>();
+        page.setPageSize(null);
+        page.setT(orderListDto);
+        List<StockOrderVo> orderVos = stockOrderDao.selectOrderList(page);
+        List<CustomerStockRecord> records = new ArrayList<>();
+
+        Date date = new Date();
+
+        orderVos.forEach(stockOrderVo -> {
+            List<StockOrderItemVo> itemVos = stockOrderVo.getItems();
+            itemVos.forEach(stockOrderItem -> {
+                CustomerStockRecord record = new CustomerStockRecord();
+                record.setCustomerId(customerId);
+                record.setOrderType(OrderType.STOCK);
+                record.setProductId(stockOrderItem.getProductId());
+                record.setQuantity(stockOrderItem.getQuantity());
+                record.setRelateId(stockOrderItem.getId());
+                record.setVariantId(stockOrderItem.getVariantId());
+                record.setVariantImage(stockOrderItem.getVariantImage());
+                record.setType(0);
+                record.setWarehouseCode(warehouseCode);
+                record.setCreateTime(date);
+                record.setUpdateTime(date);
+                record.setVariantSku(stockOrderItem.getVariantSku());
+                record.setVariantName(stockOrderItem.getVariantName());
+                records.add(record);
+            });
+        });
+
+        customerStockRecordDao.insertByBatch(records);
+
+        List<StockOrderItem> variantQuantities = stockOrderItemDao.countVariantQuantityByOrderPaymentId(paymentId);
+
+        List<Long> variantIds = customerProductStockDao.selectWarehouseVariantIdsByCustomer(customerId, ProductConstant.DEFAULT_WAREHOUSE_ID);
+
+        List<CustomerProductStock> insertStock = new ArrayList<>();
+
+        List<CustomerProductStock> updateStock = new ArrayList<>();
+
+        variantQuantities.forEach(variantQuantity -> {
+            CustomerProductStock stock = new CustomerProductStock();
+            if (variantIds.contains(variantQuantity.getVariantId())) {
+                stock.setCustomerId(customerId);
+                stock.setVariantId(variantQuantity.getVariantId());
+                stock.setStock(variantQuantity.getQuantity());
+                updateStock.add(stock);
+            } else {
+                stock.setProductTitle(variantQuantity.getProductTitle());
+                stock.setVariantSku(variantQuantity.getVariantSku());
+                stock.setVariantId(variantQuantity.getVariantId());
+                stock.setProductId(variantQuantity.getProductId());
+                stock.setVariantImage(variantQuantity.getVariantImage());
+                stock.setVariantName(variantQuantity.getVariantName());
+                stock.setCustomerId(customerId);
+                stock.setStock(variantQuantity.getQuantity());
+                stock.setLockStock(0);
+                stock.setWarehouseCode(warehouseCode);
+                stock.setCreateTime(date);
+                stock.setUpdateTime(date);
+                insertStock.add(stock);
+            }
+        });
+
+        if (ListUtils.isNotEmpty(insertStock)) {
+            customerProductStockDao.insertByBatch(insertStock);
+        }
+
+        if (ListUtils.isNotEmpty(updateStock)) {
+            customerProductStockDao.increaseVariantStock(updateStock);
+        }
         return true;
     }
 

@@ -1117,100 +1117,100 @@
         <where>
             <trim prefix=" " suffix=" " suffixOverrides=" and ">
                 <if test="t != null">
-                    1 = 1 and
+                    1 = 1
                     <if test="t.id != null">
-                        id = #{t.id} and
+                        and id = #{t.id}
                     </if>
                     <if test="t.customerId != null">
-                        customer_id = #{t.customerId} and
+                        and customer_id = #{t.customerId}
                     </if>
                     <if test="t.storeId != null">
-                        store_id = #{t.storeId} and
+                        and store_id = #{t.storeId}
                     </if>
                     <if test="t.orgId != null">
-                        org_id = #{t.orgId} and
+                        and org_id = #{t.orgId}
                     </if>
                     <if test="t.orgPath != null">
-                        org_path = #{t.orgPath} and
+                        and org_path = #{t.orgPath}
                     </if>
                     <if test="t.payAmount != null">
-                        pay_amount = #{t.payAmount} and
+                        and pay_amount = #{t.payAmount}
                     </if>
                     <if test="t.shipMethodId != null">
-                        ship_method_id = #{t.shipMethodId} and
+                        and ship_method_id = #{t.shipMethodId}
                     </if>
                     <if test="t.shipPrice != null">
-                        ship_price = #{t.shipPrice} and
+                        and ship_price = #{t.shipPrice}
                     </if>
                     <if test="t.totalWeight != null">
-                        total_weight = #{t.totalWeight} and
+                        and total_weight = #{t.totalWeight}
                     </if>
                     <if test="t.cnyProductAmount != null">
-                        cny_product_amount = #{t.cnyProductAmount} and
+                        and  cny_product_amount = #{t.cnyProductAmount}
                     </if>
                     <if test="t.productAmount != null">
-                        product_amount = #{t.productAmount} and
+                        and product_amount = #{t.productAmount}
                     </if>
                     <if test="t.productDischargeAmount != null">
-                        product_discharge_amount = #{t.productDischargeAmount} and
+                        and product_discharge_amount = #{t.productDischargeAmount}
                     </if>
                     <if test="t.fixFee != null">
-                        fix_fee = #{t.fixFee} and
+                        and fix_fee = #{t.fixFee}
                     </if>
                     <if test="t.fixFeePercentage != null">
-                        fix_fee_percentage = #{t.fixFeePercentage} and
+                        and fix_fee_percentage = #{t.fixFeePercentage}
                     </if>
                     <if test="t.payMethod != null">
-                        pay_method = #{t.payMethod} and
+                        and pay_method = #{t.payMethod}
                     </if>
                     <if test="t.payTime != null">
-                        pay_time = #{t.payTime} and
+                        and pay_time = #{t.payTime}
                     </if>
                     <if test="t.paymentId != null">
-                        payment_id = #{t.paymentId} and
+                        and payment_id = #{t.paymentId}
                     </if>
                     <if test="t.payState != null">
-                        pay_state = #{t.payState} and
+                        and pay_state = #{t.payState}
                     </if>
                     <if test="t.refundState != null">
-                        refund_state = #{t.refundState} and
+                        and refund_state = #{t.refundState}
                     </if>
                     <if test="t.shipState != null">
-                        ship_state = #{t.shipState} and
+                        and ship_state = #{t.shipState}
                     </if>
                     <if test="t.quoteState != null">
-                        quote_state = #{t.quoteState} and
+                        and quote_state = #{t.quoteState}
                     </if>
                     <if test="t.orderType != null">
-                        order_type = #{t.orderType} and
+                        and order_type = #{t.orderType}
                     </if>
                     <if test="t.toAreaId != null">
-                        to_area_id = #{t.toAreaId} and
+                        and to_area_id = #{t.toAreaId}
                     </if>
                     <if test="t.cnyRate != null">
-                        cny_rate = #{t.cnyRate} and
+                        and cny_rate = #{t.cnyRate}
                     </if>
                     <if test="t.createTime != null">
-                        create_time = #{t.createTime} and
+                        and create_time = #{t.createTime}
                     </if>
                     <if test="t.updateTime != null">
-                        update_time = #{t.updateTime} and
+                        and update_time = #{t.updateTime}
                     </if>
                     <if test="t.saiheOrderCode != null">
-                        saihe_order_code = #{t.saiheOrderCode} and
+                        and saihe_order_code = #{t.saiheOrderCode}
                     </if>
                     <if test="t.vatAmount != null">
-                        vat_amount = #{t.vatAmount} and
+                        and vat_amount = #{t.vatAmount}
                     </if>
                     <if test="t.orderStatus != null">
-                        order_status = #{t.orderStatus} and
+                        and order_status = #{t.orderStatus}
                     </if>
                     <if test="t.managerCode != null">
-                        manager_code = #{t.managerCode} and
+                        and manager_code = #{t.managerCode}
                     </if>
                 </if>
                 <if test="condition != null">
-                    ${condition} and
+                    and ${condition}
                 </if>
             </trim>
         </where>

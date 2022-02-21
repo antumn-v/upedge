@@ -18,6 +18,7 @@
         <result property="variantImage" column="variant_image"/>
         <result property="inboundQuantity" column="inbound_quantity"/>
         <result property="purchaseNo" column="purchase_no"/>
+        <result property="warehouseCode" column="warehouseCode"/>
     </resultMap>
 
     <sql id="Base_Column_List">
@@ -25,14 +26,14 @@
     </sql>
 
     <select id="countVariantQuantityByOrderPaymentId" resultMap="BaseResultMap">
-        select item.variant_id,sum(item.quantity) as quantity,
+        select item.variant_id,sum(item.quantity) as quantity,o.warehouse_code,
         item.variant_image,item.product_id,item.variant_sku,item.product_title,item.variant_name
         from stock_order_item item
         inner join stock_order o
         on item.order_id = o.id
         where o.payment_id = #{paymentId}
         and o.pay_state = '1'
-        group by item.variant_id,item.variant_image,item.product_id,item.variant_sku,item.product_title,item.variant_name
+        group by item.variant_id,o.warehouse_code,item.variant_image,item.product_id,item.variant_sku,item.product_title,item.variant_name
     </select>
 
 

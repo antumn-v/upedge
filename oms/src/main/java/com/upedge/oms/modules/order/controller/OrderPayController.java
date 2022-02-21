@@ -99,9 +99,9 @@ public class OrderPayController {
         for (Long id : orderIds) {
             String key = RedisKey.STRING_ORDER_ID_PENDING + id;
             if (null != redisTemplate.opsForValue().get(key)) {
-                return new OrderPayResponse(ResultCode.FAIL_CODE,"Orders cannot be submitted repeatedly within 15 seconds");
+                return new OrderPayResponse(ResultCode.FAIL_CODE,"Orders cannot be submitted repeatedly within 3 seconds");
             } else {
-                redisTemplate.opsForValue().set(key, System.currentTimeMillis(), 15, TimeUnit.SECONDS);
+                redisTemplate.opsForValue().set(key, System.currentTimeMillis(), 3, TimeUnit.SECONDS);
             }
         }
         BigDecimal amount = request.getAmount();

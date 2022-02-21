@@ -64,4 +64,6 @@ public class StockOrderListDto  {
      *
      */
     private String variantSku;
+
+    private String warehouseCode;
 }

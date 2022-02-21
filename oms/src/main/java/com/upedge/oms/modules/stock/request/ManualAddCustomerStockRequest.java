@@ -17,7 +17,7 @@ public class ManualAddCustomerStockRequest {
     @NotNull
     Long customerId;
 
-    Integer warehouseCode;
+    String warehouseCode;
 
     @Size(min = 1)
     List<CustomerSkuStockVo> customerSkuStockVos;
