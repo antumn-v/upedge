@@ -543,7 +543,9 @@ public class StoreServiceImpl implements StoreService {
         }
 
         record = storeDao.selectByPrimaryKey(record);
-        redisTemplate.opsForValue().set(RedisKey.STRING_STORE + record.getId(), record);
+        StoreVo storeVo = new StoreVo();
+        BeanUtils.copyProperties(record,storeVo);
+        redisTemplate.opsForValue().set(RedisKey.STRING_STORE + record.getId(),storeVo);
 
         return i;
     }
@@ -560,7 +562,9 @@ public class StoreServiceImpl implements StoreService {
         }
 
         record = storeDao.selectByPrimaryKey(record);
-        redisTemplate.opsForValue().set(RedisKey.STRING_STORE + record.getId(), record);
+        StoreVo storeVo = new StoreVo();
+        BeanUtils.copyProperties(record,storeVo);
+        redisTemplate.opsForValue().set(RedisKey.STRING_STORE + record.getId(),storeVo);
         return i;
     }
 
@@ -702,7 +706,9 @@ public class StoreServiceImpl implements StoreService {
             storeDao.updateUsdRateById(record.getId());
         }
         record = storeDao.selectByPrimaryKey(record);
-        redisTemplate.opsForValue().set(RedisKey.STRING_STORE + record.getId(), record);
+        StoreVo storeVo = new StoreVo();
+        BeanUtils.copyProperties(record,storeVo);
+        redisTemplate.opsForValue().set(RedisKey.STRING_STORE + record.getId(),storeVo);
         return i;
     }
 
