@@ -10,6 +10,7 @@ import com.upedge.common.constant.ResultCode;
 import com.upedge.common.constant.key.RedisKey;
 import com.upedge.common.constant.key.RocketMqConfig;
 import com.upedge.common.enums.TransactionConstant;
+import com.upedge.common.exception.CustomerException;
 import com.upedge.common.feign.TmsFeignClient;
 import com.upedge.common.feign.UmsFeignClient;
 import com.upedge.common.model.account.AccountPaymentRequest;
@@ -25,6 +26,7 @@ import com.upedge.common.model.ship.response.ShipMethodBatchSearchResponse;
 import com.upedge.common.model.ship.response.ShipMethodBatchSearchResponse.BatchShipMethodSelectVo;
 import com.upedge.common.model.ship.vo.ShipDetail;
 import com.upedge.common.model.ship.vo.ShippingMethodRedis;
+import com.upedge.common.model.tms.WarehouseVo;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.utils.ListUtils;
 import com.upedge.common.web.util.RedisUtil;
@@ -34,8 +36,10 @@ import com.upedge.oms.modules.common.service.MqOnSaiheService;
 import com.upedge.oms.modules.common.vo.OrderPayCheckResultVo;
 import com.upedge.oms.modules.order.dao.OrderDao;
 import com.upedge.oms.modules.order.dao.OrderItemDao;
+import com.upedge.oms.modules.order.dto.AppOrderListDto;
 import com.upedge.oms.modules.order.dto.OrderTransactionDto;
 import com.upedge.oms.modules.order.entity.Order;
+import com.upedge.oms.modules.order.request.AppOrderListRequest;
 import com.upedge.oms.modules.order.service.OrderPayService;
 import com.upedge.oms.modules.order.service.OrderProfitService;
 import com.upedge.oms.modules.order.service.OrderService;
@@ -131,15 +135,17 @@ public class OrderPayServiceImpl implements OrderPayService {
     @Transactional(rollbackFor = Exception.class)
     @Override
     public List<AppOrderVo> orderPayList(Long paymentId, Session session) throws ExecutionException, InterruptedException {
-
+        AppOrderListRequest appOrderListRequest = new AppOrderListRequest();
+        AppOrderListDto appOrderListDto = new AppOrderListDto();
+        appOrderListDto.setPaymentId(paymentId);
+        appOrderListRequest.setT(appOrderListDto);
+        appOrderListRequest.setPageSize(-1);
         Long customerId = session.getCustomerId();
-//        orderDao.updateProductAmountByPaymentId(paymentId);
-
-        List<AppOrderVo> orderVos = orderDao.selectPayOrderListByPaymentId(paymentId);
+        List<AppOrderVo> orderVos = orderService.selectAppOrderList(appOrderListRequest);
         if (ListUtils.isEmpty(orderVos)) {
             return null;
         }
-        refreshOrderDischarge(customerId, orderVos);
+        refreshOrderStockDischarge(customerId, orderVos);
 
         List<OrderProductAmountVo> orderProductAmountVos = orderDao.selectOrderItemAmountByPaymentId(paymentId);
         Map<Long, OrderProductAmountVo> orderProductAmountVoMap = new HashMap<>();
@@ -172,7 +178,6 @@ public class OrderPayServiceImpl implements OrderPayService {
                 orderVo.setServiceFee(shipDetail.getServiceFee());
                 orderVo.setTotalWeight(shipDetail.getWeight());
             }else {
-                orderVo.setShipPrice(orderVo.getShipPrice().add(orderVo.getServiceFee()));
                 ShippingMethodRedis shippingMethodRedis = (ShippingMethodRedis) redisTemplate.opsForHash().get(RedisKey.SHIPPING_METHOD, orderVo.getShipMethodId().toString());
                 if (null != shippingMethodRedis){
                     orderVo.setShipMethodName(shippingMethodRedis.getName());
@@ -191,7 +196,7 @@ public class OrderPayServiceImpl implements OrderPayService {
         return orderVos;
     }
 
-    public void refreshOrderDischarge(Long customerId, List<AppOrderVo> orderVos) {
+    public void refreshOrderStockDischarge(Long customerId, List<AppOrderVo> orderVos) {
         CustomerProductStock customerProductStock = new CustomerProductStock();
         customerProductStock.setCustomerId(customerId);
         Page<CustomerProductStock> page = new Page<>();
@@ -211,9 +216,9 @@ public class OrderPayServiceImpl implements OrderPayService {
             }
             orderVos.forEach(appOrderVo -> {
                 BigDecimal dischargeAmount = BigDecimal.ZERO;
-                List<AppStoreOrderVo> storeOrderVos = appOrderVo.getStoreOrderVos();
+                Set<AppStoreOrderVo> storeOrderVos = appOrderVo.getStoreOrderVos();
                 for (AppStoreOrderVo storeOrderVo : storeOrderVos) {
-                    List<AppOrderItemVo> itemVos = storeOrderVo.getItemVos();
+                    Set<AppOrderItemVo> itemVos = storeOrderVo.getItemVos();
                     for (AppOrderItemVo appOrderItemVo : itemVos) {
                         Integer dischargeQuantity = 0;
                         if (map.containsKey(appOrderItemVo.getAdminVariantId())) {
@@ -248,6 +253,87 @@ public class OrderPayServiceImpl implements OrderPayService {
             if (0 < itemDischargeMap.size()) {
                 orderItemDao.updateDischargeQuantityByMap(itemDischargeMap);
             }
+        }
+    }
+
+    public void refreshOrderStockDischarge(Long customerId, List<AppOrderVo> orderVos,String warehouseCode) throws CustomerException {
+        WarehouseVo warehouseVo = (WarehouseVo) redisTemplate.opsForValue().get(RedisKey.STRING_WAREHOUSE+warehouseCode);
+        if (warehouseVo == null){
+            throw new CustomerException("Warehouse Error！");
+        }
+
+        CustomerProductStock customerProductStock = new CustomerProductStock();
+        customerProductStock.setCustomerId(customerId);
+        Page<CustomerProductStock> page = new Page<>();
+        page.setT(customerProductStock);
+        page.setCondition("stock > 0");
+        page.setPageSize(-1);
+        List<CustomerProductStock> productStocks = customerProductStockDao.select(page);
+        if (ListUtils.isNotEmpty(productStocks)) {
+            //客户库存
+            Map<Long, Integer> map = new HashMap<>();
+            //需修改订单抵扣费用的集合
+            Map<Long, BigDecimal> orderDischargeMap = new HashMap<>();
+            //需修改订单产品抵扣数量的集合
+            Map<Long, Integer> itemDischargeMap = new HashMap<>();
+            for (CustomerProductStock productStock : productStocks) {
+                map.put(productStock.getVariantId(), productStock.getStock());
+            }
+            boolean b = true;
+            for (AppOrderVo appOrderVo : orderVos) {
+                BigDecimal dischargeAmount = BigDecimal.ZERO;
+                Set<AppStoreOrderVo> storeOrderVos = appOrderVo.getStoreOrderVos();
+                for (AppStoreOrderVo storeOrderVo : storeOrderVos) {
+                    Set<AppOrderItemVo> itemVos = storeOrderVo.getItemVos();
+                    for (AppOrderItemVo appOrderItemVo : itemVos) {
+                        Integer dischargeQuantity = 0;
+                        if (map.containsKey(appOrderItemVo.getAdminVariantId())) {
+                            Integer stock = map.get(appOrderItemVo.getAdminVariantId());
+                            if (stock > 0) {
+                                Integer quantity = appOrderItemVo.getQuantity();
+                                if (stock >= quantity) {
+                                    dischargeQuantity = quantity;
+                                    stock = stock - quantity;
+                                } else {
+                                    if (warehouseVo.getWarehouseType() == WarehouseVo.OVERSEAS){
+                                        b = false;
+                                        break;
+                                    }
+                                    dischargeQuantity = stock;
+                                    stock = 0;
+                                }
+                                if (stock == 0) {
+                                    map.remove(appOrderItemVo.getAdminVariantId());
+                                } else {
+                                    map.put(appOrderItemVo.getAdminVariantId(), stock);
+                                }
+                            }
+                        }
+                        dischargeAmount = dischargeAmount.add(new BigDecimal(dischargeQuantity).multiply(appOrderItemVo.getPrice()));
+                        appOrderItemVo.setDischargeQuantity(dischargeQuantity);
+                        itemDischargeMap.put(appOrderItemVo.getId(), dischargeQuantity);
+                    }
+                    if (!b){
+                        break;
+                    }
+                }
+                orderDischargeMap.put(appOrderVo.getId(), dischargeAmount);
+                appOrderVo.setProductDischargeAmount(dischargeAmount);
+            }
+            if (!b){
+                throw new CustomerException("Insufficient stock in overseas warehouses");
+            }
+            if (0 < orderDischargeMap.size()) {
+                orderDao.updateDischargeAmountByMap(orderDischargeMap);
+            }
+            if (0 < itemDischargeMap.size()) {
+                orderItemDao.updateDischargeQuantityByMap(itemDischargeMap);
+            }
+        }else {
+            if (warehouseVo.getWarehouseType() == WarehouseVo.OVERSEAS){
+                throw new CustomerException("Insufficient stock in overseas warehouses");
+            }
+
         }
     }
 
@@ -600,9 +686,9 @@ public class OrderPayServiceImpl implements OrderPayService {
             productAmount = productAmount.add(orderVo.getProductAmount());
             dischargeAmount = dischargeAmount.add(orderVo.getProductDischargeAmount());
             shipPrice = shipPrice.add(orderVo.getShipPrice().add(orderVo.getVatAmount()));
-            List<AppStoreOrderVo> storeOrderVos = orderVo.getStoreOrderVos();
+            Set<AppStoreOrderVo> storeOrderVos = orderVo.getStoreOrderVos();
             storeOrderVos.forEach(appStoreOrderVo -> {
-                List<AppOrderItemVo> orderItemVos = appStoreOrderVo.getItemVos();
+                Set<AppOrderItemVo> orderItemVos = appStoreOrderVo.getItemVos();
                 for (AppOrderItemVo itemVo : orderItemVos) {
                     PaypalOrderItem orderItem = new PaypalOrderItem();
                     orderItem.setItemId(itemVo.getId());
@@ -673,9 +759,9 @@ public class OrderPayServiceImpl implements OrderPayService {
             BatchShipMethodSelectDto methodSelectDto = new BatchShipMethodSelectDto();
             BigDecimal weight = BigDecimal.ZERO;
             BigDecimal volume = BigDecimal.ZERO;
-            List<AppStoreOrderVo> storeOrderVos = order.getStoreOrderVos();
+            Set<AppStoreOrderVo> storeOrderVos = order.getStoreOrderVos();
             for (AppStoreOrderVo storeOrderVo : storeOrderVos) {
-                List<AppOrderItemVo> itemVos = storeOrderVo.getItemVos();
+                Set<AppOrderItemVo> itemVos = storeOrderVo.getItemVos();
                 for (AppOrderItemVo itemVo : itemVos) {
                     BigDecimal quantity = new BigDecimal(itemVo.getQuantity());
                     weight = weight.add(quantity.multiply(itemVo.getAdminVariantWeight()));

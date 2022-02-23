@@ -5,7 +5,7 @@ import lombok.Data;
 
 import java.math.BigDecimal;
 import java.util.Date;
-import java.util.List;
+import java.util.Set;
 
 @Data
 public class AppOrderVo {
@@ -101,7 +101,7 @@ public class AppOrderVo {
 
     private BigDecimal vatAmount = BigDecimal.ZERO;
 
-    private List<AppStoreOrderVo> storeOrderVos;
+    private Set<AppStoreOrderVo> storeOrderVos;
 
     private OrderAddress orderAddress;
 

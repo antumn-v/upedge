@@ -183,11 +183,11 @@ public class OrderServiceImpl implements OrderService {
         List<StoreOrderRelate> storeOrderRelates = storeOrderRelateDao.selectByOrderId(id);
         appOrderVo.setOrderCustomerName(storeOrderRelates.get(0).getOrderCustomerName());
         List<AppOrderItemVo> itemVos = orderItemDao.selectAppOrderItemByOrderId(id);
-        appOrderVo.setStoreOrderVos(new ArrayList<>());
+        appOrderVo.setStoreOrderVos(new HashSet<>());
         for (StoreOrderRelate storeOrderRelate : storeOrderRelates) {
             AppStoreOrderVo appStoreOrderVo = new AppStoreOrderVo();
             BeanUtils.copyProperties(storeOrderRelate, appStoreOrderVo);
-            appStoreOrderVo.setItemVos(new ArrayList<>());
+            appStoreOrderVo.setItemVos(new HashSet<>());
             itemVos.forEach(appOrderItemVo -> {
                 if (appOrderItemVo.getStoreOrderId().equals(appStoreOrderVo.getStoreOrderId())) {
                     appStoreOrderVo.getItemVos().add(appOrderItemVo);
@@ -239,7 +239,7 @@ public class OrderServiceImpl implements OrderService {
             if (1 == orderVo.getShipState()){
                 shippedOrderIds.add(orderVo.getId());
             }
-            orderVo.setStoreOrderVos(new ArrayList<>());
+            orderVo.setStoreOrderVos(new HashSet<>());
             for (AppStoreOrderVo storeOrderVo : storeOrderVos) {
                 if (orderVo.getId().equals(storeOrderVo.getOrderId())) {
                     orderVo.getStoreOrderVos().add(storeOrderVo);

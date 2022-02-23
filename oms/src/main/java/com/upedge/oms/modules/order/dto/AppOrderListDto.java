@@ -29,7 +29,7 @@ public class AppOrderListDto {
 
     String orderId;
 
-    String paymentId;
+    Long paymentId;
 
     Integer financialStatus;
 

@@ -205,7 +205,7 @@
 
     <sql id="App_Order_Condition">
         <if test="t != null">
-            where
+            where 1 = 1 and
             <trim prefix=" " suffix=" " suffixOverrides=" and ">
                 <if test="t.customerId != null">
                     o.customer_id = #{t.customerId} and
@@ -401,12 +401,13 @@
                `admin_variant_volume`,
                oi.admin_variant_id
         from `order` o
-                     inner join order_item oi
-                on o.id = oi.order_id
-                     inner join store_order_relate sor
-                on oi.order_id = sor.order_id
+        inner join order_item oi
+        on o.id = oi.order_id
+        inner join store_order_relate sor
+        on o.id = sor.order_id
+        on oi.store_order_id = sor.store_order_id
         where o.payment_id = #{paymentId}
-          and o.order_status = '0'
+        and o.order_status = '0'
         order by sor.plat_order_create_time desc
     </select>
 
@@ -482,9 +483,9 @@
                 inner join
                 (
                 select oo.id as `orderId`,
-                sum(quantity * ifnull(usd_price,'0')) as `productAmount`,
-                sum(quantity * ifnull(cny_price,'0')) as `cnyProductAmount`,
-                sum(discharge_quantity * ifnull(usd_price,'0')) as `dischargeAmount`
+                sum (quantity * ifnull(usd_price,'0')) as `productAmount`,
+                sum (quantity * ifnull(cny_price,'0')) as `cnyProductAmount`,
+                sum (discharge_quantity * ifnull(usd_price,'0')) as `dischargeAmount`
                 from order_item oi
                 inner join `order` oo
                 on oi.order_id = oo.id
@@ -1146,7 +1147,7 @@
                         and total_weight = #{t.totalWeight}
                     </if>
                     <if test="t.cnyProductAmount != null">
-                        and  cny_product_amount = #{t.cnyProductAmount}
+                        and cny_product_amount = #{t.cnyProductAmount}
                     </if>
                     <if test="t.productAmount != null">
                         and product_amount = #{t.productAmount}
@@ -1929,7 +1930,7 @@
         select
                 date (pay_time) as dayDate,
                 count (1) as orderNum,
-                sum(IFNULL(product_amount, 0)+IFNULL(ship_price, 0)+IFNULL(vat_amount, 0)) as orderAmount
+                sum (IFNULL(product_amount, 0)+IFNULL(ship_price, 0)+IFNULL(vat_amount, 0)) as orderAmount
         from `order`
         where pay_state=1
           and refund_state = 0
@@ -2165,11 +2166,11 @@
 
     <update id="cancelOrderByIds">
         update `order`
-            set pay_state = '-1'
+        set pay_state = '-1'
         where id in
-            <foreach collection="ids" item="id" open="(" separator="," close=")">
-                #{id}
-            </foreach>
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
         and pay_state = '0'
     </update>
 </mapper>
