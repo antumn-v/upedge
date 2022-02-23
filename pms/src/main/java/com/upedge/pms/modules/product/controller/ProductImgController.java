@@ -1,5 +1,6 @@
 package com.upedge.pms.modules.product.controller;
 
+import com.upedge.common.base.BaseResponse;
 import com.upedge.common.component.annotation.Permission;
 import com.upedge.common.constant.Constant;
 import com.upedge.common.constant.ResultCode;
@@ -7,6 +8,7 @@ import com.upedge.pms.modules.product.entity.ProductImg;
 import com.upedge.pms.modules.product.request.ProductImgAddRequest;
 import com.upedge.pms.modules.product.request.ProductImgListRequest;
 import com.upedge.pms.modules.product.request.ProductImgUpdateRequest;
+import com.upedge.pms.modules.product.request.ProductUploadImageRequest;
 import com.upedge.pms.modules.product.response.*;
 import com.upedge.pms.modules.product.service.ProductImgService;
 import io.swagger.annotations.Api;
@@ -73,6 +75,12 @@ public class ProductImgController {
         productImgService.updateByPrimaryKeySelective(entity);
         ProductImgUpdateResponse res = new ProductImgUpdateResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS);
         return res;
+    }
+
+    @ApiOperation("图片上传")
+    @PostMapping("/upload")
+    public BaseResponse uploadImage(@RequestBody@Valid ProductUploadImageRequest request){
+        return productImgService.uploadImage(request);
     }
 
 
