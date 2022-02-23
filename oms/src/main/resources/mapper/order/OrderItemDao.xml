@@ -171,7 +171,8 @@
     <select id="selectAppOrderItemByOrderId" resultMap="AppOrderItemVo" parameterType="java.lang.Long">
         select oi.id,oi.order_id,`admin_product_id`,`store_variant_name`,oi.store_order_id,
         `store_variant_sku`,`admin_variant_image`,`store_product_title`,`usd_price`,`quantity`,
-        `discharge_quantity`,`admin_variant_weight`,`admin_variant_volume`,store_variant_id
+        `discharge_quantity`,`admin_variant_weight`,`admin_variant_volume`,store_variant_id,
+            `store_variant_image`
         from order_item oi
         where oi.order_id = #{orderId}
     </select>
