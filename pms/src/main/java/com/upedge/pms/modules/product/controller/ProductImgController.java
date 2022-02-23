@@ -59,6 +59,7 @@ public class ProductImgController {
         return res;
     }
 
+    @ApiOperation("删除图片")
     @RequestMapping(value="/del/{id}", method=RequestMethod.POST)
     @Permission(permission = "product:productimg:del:id")
     public ProductImgDelResponse del(@PathVariable Long id) {
