@@ -1,5 +1,6 @@
 package com.upedge.pms.mq.producer;
 
+import com.upedge.common.exception.CustomerException;
 import com.upedge.common.feign.UmsFeignClient;
 import com.upedge.common.model.log.MqMessageLog;
 import lombok.extern.slf4j.Slf4j;
@@ -19,7 +20,7 @@ public class ProductMqProducer {
     @Autowired
     UmsFeignClient umsFeignClient;
 
-    public Boolean sendMessage(Message message){
+    public Boolean sendMessage(Message message)  {
         String key = message.getKeys();
 
         MqMessageLog messageLog = MqMessageLog.toMqMessageLog(message,null);

@@ -93,6 +93,24 @@ public class CustomerProductQuoteServiceImpl implements CustomerProductQuoteServ
     }
 
     @Override
+    public BaseResponse cancelQuote(Long storeVariantId, Session session) {
+
+        CustomerProductQuote customerProductQuote = customerProductQuoteDao.selectByStoreVariantId(storeVariantId);
+        if (null == customerProductQuote){
+            return BaseResponse.failed("请求信息有误");
+        }
+        if (customerProductQuote.getQuoteState() == 0){
+            return BaseResponse.success();
+        }
+        customerProductQuote.setQuoteState(0);
+        updateByPrimaryKey(customerProductQuote);
+        List<Long> storeVariantIds = new ArrayList<>();
+        storeVariantIds.add(storeVariantId);
+        sendCustomerProductQuoteUpdateMessage(storeVariantIds);
+        return BaseResponse.success();
+    }
+
+    @Override
     public BaseResponse updateCustomerProductQuote(CustomerProductQuoteUpdateRequest request, Session session) {
         Long storeVariantId = request.getStoreVariantId();
         if (null == storeVariantId

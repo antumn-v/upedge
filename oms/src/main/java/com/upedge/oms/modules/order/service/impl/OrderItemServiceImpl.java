@@ -152,7 +152,7 @@ public class OrderItemServiceImpl implements OrderItemService {
             return;
         }
         //报价失败的产品
-        if (customerProductQuoteVo.getQuoteState() == 2) {
+        if (customerProductQuoteVo.getQuoteState() == 0) {
             orderItemDao.cancelItemQuoteDetail(customerProductQuoteVo);
         //报价成功的产品
         }else if (customerProductQuoteVo.getQuoteState() == 1){
