@@ -34,7 +34,6 @@ public class UpdateInfoProductRequest {
     /**
      * 赛盒仓库id
      */
-    @NotNull
     private Integer warehouseCode;
     /**
      * 运输模板id

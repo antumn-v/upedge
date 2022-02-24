@@ -92,6 +92,7 @@ public class CartServiceImpl implements CartService {
         Date date = new Date();
         CustomerProductQuoteVo customerProductQuoteVo = customerProductQuoteVos.get(0);
         Cart cart = quoteProductToCart(customerProductQuoteVo,date);
+        cart.setVariantImage(request.getVariantImage());
         cart.setCustomerId(request.getCustomerId());
         Cart c = cartDao.selectCart(cart);
 

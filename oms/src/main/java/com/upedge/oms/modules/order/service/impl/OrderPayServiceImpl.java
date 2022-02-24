@@ -396,7 +396,15 @@ public class OrderPayServiceImpl implements OrderPayService {
         }
         orderDao.updateProductAmountByPaymentId(paymentId);
 
-        List<AppOrderVo> orders = orderDao.selectPayOrderListByPaymentId(paymentId);
+        AppOrderListRequest appOrderListRequest = new AppOrderListRequest();
+        AppOrderListDto appOrderListDto = new AppOrderListDto();
+        appOrderListDto.setPaymentId(paymentId);
+        appOrderListRequest.setT(appOrderListDto);
+        appOrderListRequest.setPageSize(-1);
+        List<AppOrderVo> orders = orderService.selectAppOrderList(appOrderListRequest);
+        if (ListUtils.isEmpty(orders)) {
+            return null;
+        }
 
         List<Long> orderIds = orderShippingUnitService.selectOrderIdByOrderPaymentId(paymentId,OrderType.NORMAL);
         for (AppOrderVo order : orders) {

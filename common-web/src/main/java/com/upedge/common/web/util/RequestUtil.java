@@ -17,5 +17,11 @@ public class RequestUtil {
 		HttpServletResponse  response = ((ServletRequestAttributes) (RequestContextHolder.currentRequestAttributes())).getResponse();
 		return response;
 	}
+
+	public static String getWarehouseCode(){
+		HttpServletRequest request = getRequest();
+		String warehouseCode = request.getHeader("warehouseCode");
+		return warehouseCode;
+	}
 		
 }

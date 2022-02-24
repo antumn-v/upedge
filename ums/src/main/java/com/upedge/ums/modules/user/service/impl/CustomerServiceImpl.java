@@ -61,17 +61,21 @@ public class CustomerServiceImpl implements CustomerService {
         }
         List<CustomerDetailVo> customerDetailVos =  customerDao.selectCustomerDetail(customerDetailVoPage);
         Long total = customerDao.countCustomerDetail(customerDetailVoPage);
-        Set<String> storeKeys = redisTemplate.keys(RedisKey.STRING_STORE + "*");
-        List<StoreVo> storeVos = redisTemplate.opsForValue().multiGet(storeKeys);
-        for (CustomerDetailVo customerDetailVo : customerDetailVos) {
-            Long customerId = customerDetailVo.getId();
-            customerDetailVo.setStores(new ArrayList<>());
-            for (StoreVo storeVo : storeVos) {
-                if (storeVo.getCustomerId().equals(customerId)){
-                    customerDetailVo.getStores().add(storeVo);
+        try {
+            Set<String> storeKeys = redisTemplate.keys(RedisKey.STRING_STORE + "*");
+            List<StoreVo> storeVos = redisTemplate.opsForValue().multiGet(storeKeys);
+            for (CustomerDetailVo customerDetailVo : customerDetailVos) {
+                Long customerId = customerDetailVo.getId();
+                customerDetailVo.setStores(new ArrayList<>());
+                for (StoreVo storeVo : storeVos) {
+                    if (storeVo.getCustomerId().equals(customerId)){
+                        customerDetailVo.getStores().add(storeVo);
+                    }
                 }
+                storeVos.removeAll(customerDetailVo.getStores());
             }
-            storeVos.removeAll(customerDetailVo.getStores());
+        } catch (Exception e) {
+            e.printStackTrace();
         }
         customerDetailVoPage.setTotal(total);
         return BaseResponse.success(customerDetailVos,customerDetailVoPage);

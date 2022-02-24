@@ -43,9 +43,7 @@ public class RedisKey {
     //国家vat规则
     public static final String STRING_AREA_VAT_RULE = "vat:rule:area:";
     //店铺信息
-    public static final String STRING_STORE = "store:";
-
-    public static final String STRING_SHOPIFY_STATE = "shopify:state:";
+    public static final String STRING_STORE = "store:vo:";
     //店铺产品信息更新
     public static final String STRING_STORE_PLAT_PRODUCT = "store:plat:product:";
     //支付中的订单
@@ -60,12 +58,8 @@ public class RedisKey {
     public static final String HASH_USER_NEED_RESET_PASSWTORD = "user:need:reset:password";
     //SaiheTransport
     public static final String STRING_SAIHE_TRANSPORT_IDKEY = "saihe_transport:idkey:";
-    //国家信息
-    public static final String HASH_AREA = "area:name:";
     //客户ID与客户经理ID关联
     public static final String HASH_CUSTOMER_MANAGER_RELATE = "customer:manager:relate";
-    //登录名和CustomerId
-    public static final String HASH_LOGINNAME_CUSTOMERID = "loginname:customerId";
     //运输方式信息  map
     public static final String SHIPPING_METHOD="shipping:method";
     //运输模板与运输方式关联信息
@@ -97,5 +91,5 @@ public class RedisKey {
     /**
      * redis锁    提现申请通过
      */
-    public static final  String WITHDRAWAL_APPLICATION_PASSED = "Withdrawal application passed";
+    public static final  String WITHDRAWAL_APPLICATION_PASSED = "withdrawal:apply:passed";
 }
