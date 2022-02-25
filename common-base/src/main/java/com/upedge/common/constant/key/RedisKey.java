@@ -65,7 +65,7 @@ public class RedisKey {
     //运输模板与运输方式关联信息
     public static final String SHIPPING_TEMPLATED_METHODS="shipping:template:methods:";
     // 运输模板信息
-    public static final String SHIPPING_TEMPLATE="shipping:template:";
+    public static final String SHIPPING_TEMPLATE="shipping:template:vo:hash";
     //客户备库建议
     public static final String ZSET_CUSTOMER_STOCK_ADVICE = "customer:stock:advice:";
     /**

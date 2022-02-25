@@ -52,8 +52,7 @@
         where r.customer_id = #{customerId}
         and o.area_id = #{areaId}
         and state != '2'
-        and #{amount} between r.order_amount_min and r.order_amount_max
-        and #{freight} between r.freight_min and r.freight_max
+        and ship_template_id = #{shipTemplateId}
         order by r.sequence asc
     </select>
 

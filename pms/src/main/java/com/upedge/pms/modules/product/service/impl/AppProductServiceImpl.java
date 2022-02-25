@@ -162,7 +162,6 @@ public class AppProductServiceImpl implements AppProductService {
                 methodIds.add((Long) o);
             });
         }
-
         ShipMethodSearchRequest searchRequest = new ShipMethodSearchRequest();
         searchRequest.getTemplateIds().add(product.getShippingId());
         searchRequest.setToAreaId(request.getToAreaId());

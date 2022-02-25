@@ -74,6 +74,8 @@ public interface OrderDao{
 
     List<AppOrderVo> selectAppOrderList(AppOrderListRequest request);
 
+    List<Long> selectAppOrderIds(AppOrderListRequest request);
+
     Long selectAppOrderCount(AppOrderListRequest request);
 
     int updateOrderProductAmount(@Param("id") Long id,

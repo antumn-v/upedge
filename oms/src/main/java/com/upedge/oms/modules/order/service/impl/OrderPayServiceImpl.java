@@ -140,6 +140,7 @@ public class OrderPayServiceImpl implements OrderPayService {
         appOrderListDto.setPaymentId(paymentId);
         appOrderListRequest.setT(appOrderListDto);
         appOrderListRequest.setPageSize(-1);
+        appOrderListRequest.initFromNum();
         Long customerId = session.getCustomerId();
         List<AppOrderVo> orderVos = orderService.selectAppOrderList(appOrderListRequest);
         if (ListUtils.isEmpty(orderVos)) {

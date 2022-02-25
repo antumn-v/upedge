@@ -437,11 +437,32 @@
 
     <select id="selectAppOrderList" resultMap="AppOrderVo"
             parameterType="com.upedge.oms.modules.order.request.AppOrderListRequest">
-        select distinctrow o.customer_id,o.id,o.store_id,o.pay_amount,o.ship_method_id,
+        select o.customer_id,o.id,o.store_id,o.pay_amount,o.ship_method_id,
         (o.ship_price+o.service_fee) as ship_price,
         o.total_weight,o.product_amount,o.product_discharge_amount,o.fix_fee,o.pay_method,
         o.pay_time,o.payment_id,o.pay_state,o.refund_state,o.ship_state,o.order_type,o.to_area_id,
         o.vat_amount,o.create_time,o.store_id,r.plat_order_create_time,o.quote_state
+        from `order` o
+        inner join store_order_relate r
+        on o.id = r.order_id
+        <if test="t.productTitle != null or t.sku != null">
+            inner join order_item oi
+            on oi.order_id = o.id
+        </if>
+        <if test="t.shipNumber != null">
+            inner join order_tracking ot
+            on ot.order_id = o.id
+        </if>
+        <include refid="App_Order_Condition"/>
+        order by r.plat_order_create_time desc
+        <if test="fromNum != null and pageSize != null">
+            limit #{fromNum},#{pageSize}
+        </if>
+    </select>
+
+    <select id="selectAppOrderIds" resultType="java.lang.Long"
+            parameterType="com.upedge.oms.modules.order.request.AppOrderListRequest">
+        select distinct o.id
         from `order` o
         inner join store_order_relate r
         on o.id = r.order_id

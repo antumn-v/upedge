@@ -19,4 +19,6 @@ public class ShipRuleConditionDto {
     private String country;
 
     private Long areaId;
+
+    private Long shipTemplateId;
 }
