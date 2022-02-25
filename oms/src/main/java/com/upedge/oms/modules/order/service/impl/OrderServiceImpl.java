@@ -25,6 +25,7 @@ import com.upedge.common.model.ship.response.ShipMethodSearchResponse;
 import com.upedge.common.model.ship.vo.ShipDetail;
 import com.upedge.common.model.ship.vo.ShippingMethodRedis;
 import com.upedge.common.model.ship.vo.ShippingMethodVo;
+import com.upedge.common.model.ship.vo.ShippingTemplateRedis;
 import com.upedge.common.model.store.StoreVo;
 import com.upedge.common.model.tms.ArearedisVo;
 import com.upedge.common.model.tms.ShippingUnitVo;
@@ -363,17 +364,15 @@ public class OrderServiceImpl implements OrderService {
             return null;
         }
 
-        List<StoreOrderRelate> storeOrderRelates = storeOrderRelateDao.selectByOrderId(id);
-        if (storeOrderRelates.size() > 1) {
+        ShippingTemplateRedis shippingTemplateRedis = getOrderShipTemplate(id);
+        if (null == shippingTemplateRedis){
             return null;
         }
-        StoreOrderRelate storeOrderRelate = storeOrderRelates.get(0);
-        StoreOrder storeOrder = storeOrderDao.selectByPrimaryKey(storeOrderRelate.getStoreOrderId());
+
         ShipRuleConditionDto shipRuleConditionDto = new ShipRuleConditionDto();
-        shipRuleConditionDto.setAmount(storeOrder.getTotalPrice());
-        shipRuleConditionDto.setFreight(storeOrder.getFreight());
         shipRuleConditionDto.setAreaId(order.getToAreaId());
         shipRuleConditionDto.setCustomerId(order.getCustomerId());
+        shipRuleConditionDto.setShipTemplateId(shippingTemplateRedis.getId());
         List<OrderShipRule> rules = orderShipRuleService.selectShipRulesByCondition(shipRuleConditionDto);
         if (ListUtils.isEmpty(rules)) {
             return null;
@@ -420,7 +419,7 @@ public class OrderServiceImpl implements OrderService {
             List<OrderItem> items = orderItemDao.select(page);
             BigDecimal weight = BigDecimal.ZERO;
             BigDecimal volume = BigDecimal.ZERO;
-            List<String> strings = new ArrayList<>();
+            ShippingTemplateRedis shippingTemplateRedis = null;
             for (OrderItem item : items) {
                 if (null == item.getAdminVariantWeight()
                         || null == item.getAdminVariantVolume()
@@ -430,12 +429,21 @@ public class OrderServiceImpl implements OrderService {
                 }
                 weight = weight.add(item.getAdminVariantWeight().multiply(new BigDecimal(item.getQuantity())));
                 volume = volume.add(item.getAdminVariantVolume().multiply(new BigDecimal(item.getQuantity())));
-                strings.add(RedisKey.SHIPPING_TEMPLATED_METHODS + item.getShippingId());
+                ShippingTemplateRedis templateRedis = (ShippingTemplateRedis) redisTemplate.opsForHash().get(RedisKey.SHIPPING_TEMPLATE,item.getShippingId());
+                if (null != templateRedis){
+                    if (null == shippingTemplateRedis){
+                        shippingTemplateRedis = templateRedis;
+                    }else {
+                        if (templateRedis.getSeq() < shippingTemplateRedis.getSeq()){
+                            shippingTemplateRedis = templateRedis;
+                        }
+                    }
+                }
             }
-            if (ListUtils.isEmpty(strings)) {
+            if (null == shippingTemplateRedis){
                 return null;
             }
-            Set<Object> shipMethodIds = redisTemplate.opsForSet().union(strings);
+            Set<Object> shipMethodIds = redisTemplate.opsForSet().members(RedisKey.SHIPPING_TEMPLATED_METHODS + shippingTemplateRedis.getId());
             if (ListUtils.isNotEmpty(shipMethodIds)) {
                 Set<Long> methodIds = new HashSet<>();
                 shipMethodIds.forEach(shipMethodId -> {
@@ -445,6 +453,7 @@ public class OrderServiceImpl implements OrderService {
                 searchRequest.setToAreaId(areaId);
                 searchRequest.setWeight(weight);
                 searchRequest.setVolumeWeight(volume);
+
                 searchRequest.setMethodIds(methodIds);
                 ShipMethodSearchResponse searchResponse = tmsFeignClient.shipSearch(searchRequest);
                 if (searchResponse.getCode() == ResultCode.SUCCESS_CODE) {
@@ -1917,6 +1926,24 @@ public class OrderServiceImpl implements OrderService {
             orderIds.add(orderItem.getOrderId());
             orderInitShipDetail(orderItem.getOrderId());
         }
+    }
+
+    private ShippingTemplateRedis getOrderShipTemplate(Long orderId){
+        ShippingTemplateRedis shippingTemplateRedis = null;
+        List<OrderItem> orderItems = orderItemDao.selectItemByOrderId(orderId);
+        for (OrderItem orderItem : orderItems) {
+            ShippingTemplateRedis templateRedis = (ShippingTemplateRedis) redisTemplate.opsForHash().get(RedisKey.SHIPPING_TEMPLATE,orderItem.getShippingId());
+            if (null != templateRedis){
+                if (null == shippingTemplateRedis){
+                    shippingTemplateRedis = templateRedis;
+                }else {
+                    if (templateRedis.getSeq() < shippingTemplateRedis.getSeq()){
+                        shippingTemplateRedis = templateRedis;
+                    }
+                }
+            }
+        }
+        return shippingTemplateRedis;
     }
 
 
