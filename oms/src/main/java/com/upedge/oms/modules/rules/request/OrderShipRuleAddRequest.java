@@ -35,6 +35,9 @@ public class OrderShipRuleAddRequest{
     @NotNull
     private String shippingMethodName;
 
+    @NotNull
+    private Long shipTemplateId;
+
     /**
     * 
     */
@@ -57,6 +60,7 @@ public class OrderShipRuleAddRequest{
         orderShipRules.setShippingMethodName(shippingMethodName);
         orderShipRules.setCreateTime(new Date());
         orderShipRules.setSequence(sequence);
+        orderShipRules.setShipTemplateId(shipTemplateId);
         return orderShipRules;
     }
 

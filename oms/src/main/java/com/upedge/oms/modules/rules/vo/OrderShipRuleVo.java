@@ -46,6 +46,8 @@ public class OrderShipRuleVo {
 
     private String shippingMethodName;
 
+    private Long shipTemplateId;
+
     private Integer sequence;
 
     List<OrderShipRuleCountryVo> countries;

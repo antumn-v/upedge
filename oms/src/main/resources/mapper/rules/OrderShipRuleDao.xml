@@ -15,6 +15,7 @@
         <result property="state" column="state"/>
         <result property="shippingMethodId" column="shipping_method_id"/>
         <result property="shippingMethodName" column="shipping_method_name"/>
+        <result property="shipTemplateId" column="ship_template_id"/>
         <result property="createTime" column="create_time"/>
         <result property="updateTime" column="update_time"/>
         <result property="sequence" column="sequence"/>
@@ -117,13 +118,16 @@
                 freight_max = #{freightMax},
             </if>
             <if test="state != null">
-                state = #{state},
+                `state` = #{state},
+            </if>
+            <if test="shippingMethodName != null">
+                shipping_method_name = #{shippingMethodName},
             </if>
             <if test="shippingMethodId != null">
                 shipping_method_id = #{shippingMethodId},
             </if>
-            <if test="shippingMethodName != null">
-                shipping_method_name = #{shippingMethodName},
+            <if test="shipTemplateId != null">
+                ship_template_id = #{shipTemplateId},
             </if>
             <if test="createTime != null">
                 create_time = #{createTime},
@@ -132,7 +136,7 @@
                 update_time = #{updateTime},
             </if>
             <if test="sequence != null">
-                sequence = #{sequence},
+                `sequence` = #{sequence},
             </if>
         </set>
         where id = #{id}
@@ -149,8 +153,9 @@
             freight_min = #{freightMin},
             freight_max = #{freightMax},
             state = #{state},
-            shipping_method_id = #{shippingMethodId},
             shipping_method_name = #{shippingMethodName},
+            shipping_method_id = #{shippingMethodId},
+            ship_template_id = #{shipTemplateId},
             create_time = #{createTime},
             update_time = #{updateTime},
             sequence = #{sequence},
@@ -158,8 +163,7 @@
         where id = #{id}
     </update>
 
-    <insert id="insert" keyColumn="id" keyProperty="id"
-            parameterType="com.upedge.oms.modules.rules.entity.OrderShipRule" useGeneratedKeys="true">
+    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.upedge.oms.modules.rules.entity.OrderShipRule" useGeneratedKeys="true">
         insert into order_ship_rule
         <trim prefix="(" suffix=")" suffixOverrides=",">
             id,
@@ -170,8 +174,9 @@
             freight_min,
             freight_max,
             state,
+            shipping_method_name,
             shipping_method_id,
-            shipping_method_name ,
+            ship_template_id,
             create_time,
             update_time,
             sequence
@@ -185,97 +190,103 @@
         #{freightMin},
         #{freightMax},
         #{state},
-        #{shippingMethodId},
         #{shippingMethodName},
+        #{shippingMethodId},
+        #{shipTemplateId},
         #{createTime},
-        #{createTime},
+        #{updateTime},
         #{sequence}
         )
     </insert>
 
-    <insert id="insertSelective" keyColumn="id" keyProperty="id"
-            parameterType="com.upedge.oms.modules.rules.entity.OrderShipRule" useGeneratedKeys="true">
+    <insert id="insertSelective"  keyColumn="id" keyProperty="id"  parameterType="com.upedge.oms.modules.rules.entity.OrderShipRule" useGeneratedKeys="true">
         insert into order_ship_rule
         <trim prefix="(" suffix=")" suffixOverrides=",">
-            <if test="id != null">
+            <if test="id != null" >
                 id
             </if>
-            <if test="customerId != null">
+            <if test="customerId != null" >
                 customer_id
             </if>
-            <if test="title != null">
+            <if test="title != null" >
                 title
             </if>
-            <if test="orderAmountMin != null">
+            <if test="orderAmountMin != null" >
                 order_amount_min
             </if>
-            <if test="orderAmountMax != null">
+            <if test="orderAmountMax != null" >
                 order_amount_max
             </if>
-            <if test="freightMin != null">
+            <if test="freightMin != null" >
                 freight_min
             </if>
-            <if test="freightMax != null">
+            <if test="freightMax != null" >
                 freight_max
             </if>
-            <if test="state != null">
+            <if test="state != null" >
                 state
             </if>
-            <if test="shippingMethodId != null">
-                shipping_method_id
-            </if>
-            <if test="shippingMethodName != null">
+            <if test="shippingMethodName != null" >
                 shipping_method_name
             </if>
-            <if test="createTime != null">
+            <if test="shippingMethodId != null" >
+                shipping_method_id
+            </if>
+            <if test="shipTemplateId != null" >
+                ship_template_id
+            </if>
+            <if test="createTime != null" >
                 create_time
             </if>
-            <if test="updateTime != null">
+            <if test="updateTime != null" >
                 update_time
             </if>
-            <if test="sequence != null">
+            <if test="sequence != null" >
                 sequence
             </if>
 
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
-            <if test="id != null">
+            <if test="id != null" >
                 #{id}
             </if>
-            <if test="customerId != null">
+            <if test="customerId != null" >
                 #{customerId}
             </if>
-            <if test="title != null">
+            <if test="title != null" >
                 #{title}
             </if>
-            <if test="orderAmountMin != null">
+            <if test="orderAmountMin != null" >
                 #{orderAmountMin}
             </if>
-            <if test="orderAmountMax != null">
+            <if test="orderAmountMax != null" >
                 #{orderAmountMax}
             </if>
-            <if test="freightMin != null">
+            <if test="freightMin != null" >
                 #{freightMin}
             </if>
-            <if test="freightMax != null">
+            <if test="freightMax != null" >
                 #{freightMax}
             </if>
-            <if test="state != null">
+            <if test="state != null" >
                 #{state}
             </if>
-            <if test="shippingMethodId != null">
-                #{shippingMethodId}
-            </if>
-            <if test="shippingMethodName != null">
+            <if test="shippingMethodName != null" >
                 #{shippingMethodName}
             </if>
-            <if test="createTime != null">
+            <if test="shippingMethodId != null" >
+                #{shippingMethodId}
+            </if>
+            <if test="shipTemplateId != null" >
+                #{shipTemplateId}
+            </if>
+            <if test="createTime != null" >
                 #{createTime}
             </if>
-            <if test="updateTime != null">
+            <if test="updateTime != null" >
                 #{updateTime}
             </if>
-            <if test="sequence != null">
+            <if test="sequence != null" >
                 #{sequence}
             </if>
 
@@ -293,8 +304,9 @@
             freight_min,
             freight_max,
             state,
-            shipping_method_id,
             shipping_method_name,
+            shipping_method_id,
+            ship_template_id,
             create_time,
             update_time,
             sequence
@@ -310,8 +322,9 @@
                 #{item.freightMin},
                 #{item.freightMax},
                 #{item.state},
-                #{item.shippingMethodId},
                 #{item.shippingMethodName},
+                #{item.shippingMethodId},
+                #{item.shipTemplateId},
                 #{item.createTime},
                 #{item.updateTime},
                 #{item.sequence}
@@ -348,11 +361,14 @@
                 <if test="t.state != null">
                     state = #{t.state} and
                 </if>
+                <if test="t.shippingMethodName != null">
+                    shipping_method_name = #{t.shippingMethodName} and
+                </if>
                 <if test="t.shippingMethodId != null">
                     shipping_method_id = #{t.shippingMethodId} and
                 </if>
-                <if test="shippingMethodName != null">
-                    shipping_method_name = #{shippingMethodName} and
+                <if test="t.shipTemplateId != null">
+                    ship_template_id = #{t.shipTemplateId} and
                 </if>
                 <if test="t.createTime != null">
                     create_time = #{t.createTime} and
@@ -361,12 +377,11 @@
                     update_time = #{t.updateTime} and
                 </if>
                 <if test="t.sequence != null">
-                    sequence = #{t.sequence} and
+                    `sequence` = #{t.sequence} and
                 </if>
             </trim>
         </if>
     </sql>
-
     <select id="select" parameterType="com.upedge.common.base.Page" resultMap="BaseResultMap">
         select
         <include refid="Base_Column_List"/>
