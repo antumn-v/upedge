@@ -34,6 +34,8 @@ public class ShippingTemplateAddRequest{
 
     private Integer saiheId;
 
+    private Integer seq;
+
     public ShippingTemplate toShippingTemplate(){
         ShippingTemplate shippingTemplate=new ShippingTemplate();
         shippingTemplate.setName(name);
@@ -42,6 +44,7 @@ public class ShippingTemplateAddRequest{
         shippingTemplate.setCreateTime(new Date());
         shippingTemplate.setUpdateTime(new Date());
         shippingTemplate.setSaiheId(saiheId);
+        shippingTemplate.setSeq(seq);
         return shippingTemplate;
     }
 

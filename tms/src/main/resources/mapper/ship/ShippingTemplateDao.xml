@@ -12,6 +12,7 @@
         <result property="createTime" column="create_time"/>
         <result property="updateTime" column="update_time"/>
         <result property="saiheId" column="saihe_id"/>
+        <result property="seq" column="seq"/>
     </resultMap>
 
     <sql id="Base_Column_List">
@@ -34,10 +35,10 @@
         update shipping_template
         <set>
             <if test="name != null">
-                `name` = #{name},
+                name = #{name},
             </if>
             <if test="desc != null">
-                `desc` = #{desc},
+                desc = #{desc},
             </if>
             <if test="state != null">
                 state = #{state},
@@ -51,6 +52,9 @@
             <if test="saiheId != null">
                 saihe_id = #{saiheId},
             </if>
+            <if test="seq != null">
+                seq = #{seq},
+            </if>
         </set>
         where id = #{id}
     </update>
@@ -58,13 +62,14 @@
     <update id="updateByPrimaryKey" parameterType="com.upedge.tms.modules.ship.entity.ShippingTemplate">
         update shipping_template
         <set>
-        id = #{id},
-        `name` = #{name},
-        `desc` = #{desc},
-        state = #{state},
-        create_time = #{createTime},
-        update_time = #{updateTime},
-        saihe_id = #{saiheId}
+            id = #{id},
+            name = #{name},
+            desc = #{desc},
+            state = #{state},
+            create_time = #{createTime},
+            update_time = #{updateTime},
+            saihe_id = #{saiheId},
+            seq = #{seq},
         </set>
         where id = #{id}
     </update>
@@ -73,12 +78,13 @@
         insert into shipping_template
         <trim prefix="(" suffix=")" suffixOverrides=",">
             id,
-            `name`,
-            `desc`,
+            name,
+            desc,
             state,
             create_time,
             update_time,
-            saihe_id
+            saihe_id,
+            seq
         </trim>
         values (
         #{id},
@@ -87,7 +93,8 @@
         #{state},
         #{createTime},
         #{updateTime},
-        #{saiheId}
+        #{saiheId},
+        #{seq}
         )
     </insert>
 
@@ -95,26 +102,30 @@
         insert into shipping_template
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="id != null" >
-              id
+                id
             </if>
             <if test="name != null" >
-              `name`
+                name
             </if>
             <if test="desc != null" >
-              `desc`
+                desc
             </if>
             <if test="state != null" >
-              state
+                state
             </if>
             <if test="createTime != null" >
-              create_time
+                create_time
             </if>
             <if test="updateTime != null" >
-              update_time
+                update_time
             </if>
             <if test="saiheId != null" >
-              saihe_id
+                saihe_id
             </if>
+            <if test="seq != null" >
+                seq
+            </if>
+
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="id != null" >
@@ -138,6 +149,9 @@
             <if test="saiheId != null" >
                 #{saiheId}
             </if>
+            <if test="seq != null" >
+                #{seq}
+            </if>
 
         </trim>
     </insert>
@@ -145,24 +159,26 @@
     <insert id="insertByBatch" parameterType="java.util.List">
         insert into shipping_template
         <trim prefix="(" suffix=")" suffixOverrides=",">
-           id,
-           `name`,
-           `desc`,
-           state,
-           create_time,
-           update_time,
-            saihe_id
+            id,
+            name,
+            desc,
+            state,
+            create_time,
+            update_time,
+            saihe_id,
+            seq
         </trim>
         values
         <foreach collection="list" item="item" index="index" separator=",">
             <trim prefix="(" suffix=")" suffixOverrides=",">
-               #{item.id},
-               #{item.name},
-               #{item.desc},
-               #{item.state},
-               #{item.createTime},
-               #{item.updateTime},
-               #{item.saiheId}
+                #{item.id},
+                #{item.name},
+                #{item.desc},
+                #{item.state},
+                #{item.createTime},
+                #{item.updateTime},
+                #{item.saiheId},
+                #{item.seq}
             </trim>
         </foreach>
     </insert>
@@ -172,25 +188,30 @@
             where
             <trim prefix=" " suffix=" " suffixOverrides=" and ">
                 1 = 1 and
-                    <if test="t.id != null">
-                        id = #{t.id} and
-                    </if>
-                    <if test="t.name != null">
-                      <!--  `name` = #{t.name} and -->
-                        `name` Like CONCAT('%',#{t.name},'%')  and
-                    </if>
-                    <if test="t.desc != null">
-                        `desc` = #{t.desc} and
-                    </if>
-                    <if test="t.state != null">
-                        state = #{t.state} and
-                    </if>
-                    <if test="t.createTime != null">
-                        create_time = #{t.createTime} and
-                    </if>
-                    <if test="t.updateTime != null">
-                        update_time = #{t.updateTime} and
-                    </if>
+                <if test="t.id != null">
+                    id = #{t.id} and
+                </if>
+                <if test="t.name != null">
+                    name = #{t.name} and
+                </if>
+                <if test="t.desc != null">
+                    desc = #{t.desc} and
+                </if>
+                <if test="t.state != null">
+                    state = #{t.state} and
+                </if>
+                <if test="t.createTime != null">
+                    create_time = #{t.createTime} and
+                </if>
+                <if test="t.updateTime != null">
+                    update_time = #{t.updateTime} and
+                </if>
+                <if test="t.saiheId != null">
+                    saihe_id = #{t.saiheId} and
+                </if>
+                <if test="t.seq != null">
+                    seq = #{t.seq} and
+                </if>
             </trim>
         </if>
     </sql>

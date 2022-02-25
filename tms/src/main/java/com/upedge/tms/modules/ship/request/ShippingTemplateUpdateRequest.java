@@ -25,6 +25,8 @@ public class ShippingTemplateUpdateRequest{
 
     private Integer saiheId;
 
+    private Integer seq;
+
     public ShippingTemplate toShippingTemplate(Long id){
         ShippingTemplate shippingTemplate=new ShippingTemplate();
         shippingTemplate.setId(id);
@@ -32,6 +34,7 @@ public class ShippingTemplateUpdateRequest{
         shippingTemplate.setDesc(desc);
         shippingTemplate.setSaiheId(saiheId);
         shippingTemplate.setUpdateTime(new Date());
+        shippingTemplate.setSeq(seq);
         return shippingTemplate;
     }
 
