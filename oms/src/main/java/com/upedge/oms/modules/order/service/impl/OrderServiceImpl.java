@@ -429,7 +429,7 @@ public class OrderServiceImpl implements OrderService {
                 }
                 weight = weight.add(item.getAdminVariantWeight().multiply(new BigDecimal(item.getQuantity())));
                 volume = volume.add(item.getAdminVariantVolume().multiply(new BigDecimal(item.getQuantity())));
-                ShippingTemplateRedis templateRedis = (ShippingTemplateRedis) redisTemplate.opsForHash().get(RedisKey.SHIPPING_TEMPLATE,item.getShippingId());
+                ShippingTemplateRedis templateRedis = (ShippingTemplateRedis) redisTemplate.opsForHash().get(RedisKey.SHIPPING_TEMPLATE,String.valueOf(item.getShippingId()));
                 if (null != templateRedis){
                     if (null == shippingTemplateRedis){
                         shippingTemplateRedis = templateRedis;
@@ -1932,7 +1932,7 @@ public class OrderServiceImpl implements OrderService {
         ShippingTemplateRedis shippingTemplateRedis = null;
         List<OrderItem> orderItems = orderItemDao.selectItemByOrderId(orderId);
         for (OrderItem orderItem : orderItems) {
-            ShippingTemplateRedis templateRedis = (ShippingTemplateRedis) redisTemplate.opsForHash().get(RedisKey.SHIPPING_TEMPLATE,orderItem.getShippingId());
+            ShippingTemplateRedis templateRedis = (ShippingTemplateRedis) redisTemplate.opsForHash().get(RedisKey.SHIPPING_TEMPLATE,String.valueOf(orderItem.getShippingId()));
             if (null != templateRedis){
                 if (null == shippingTemplateRedis){
                     shippingTemplateRedis = templateRedis;

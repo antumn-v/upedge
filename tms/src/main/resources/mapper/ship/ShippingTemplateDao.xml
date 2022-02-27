@@ -16,7 +16,7 @@
     </resultMap>
 
     <sql id="Base_Column_List">
-        `id`,`name`,`desc`,`state`,`create_time`,`update_time`,`saihe_id`
+        `id`,`name`,`desc`,`state`,`create_time`,`update_time`,`saihe_id`,`seq`
     </sql>
 
     <select id="selectByPrimaryKey" parameterType="com.upedge.tms.modules.ship.entity.ShippingTemplate" resultMap="BaseResultMap">
@@ -236,7 +236,7 @@
 
     <select id="allUseShippingTemplate"  resultMap="BaseResultMap">
         select
-        `id`,`name`
+        <include refid="Base_Column_List"/>
         from shipping_template where state=1
     </select>
 

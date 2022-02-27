@@ -38,6 +38,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -88,7 +89,7 @@ public class OrderPayController {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return BaseResponse.failed("order error");
+        return new BaseResponse(ResultCode.SUCCESS_CODE,new ArrayList<>());
     }
 
     @ApiOperation("余额支付订单")
