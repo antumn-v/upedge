@@ -10,7 +10,7 @@
         from
         (
         select upedge.payment_id,
-        upedge.pay_time, sum(upedge.ship_price + upedge.product_amount) as amount,
+        upedge.pay_time, sum(upedge.pay_amount) as amount,
         '2' as 'type','0' as 'status'
         from `order` upedge
         left join store_order_relate sor
@@ -36,7 +36,7 @@
         and pay_state > '0'
         group by payment_id,pay_time
         union
-        select payment_id,pay_time,sum(product_amount + ship_price) as amount,'3' as 'type','0' as 'status'
+        select payment_id,pay_time,sum(pay_amount) as amount,'3' as 'type','0' as 'status'
         from wholesale_order
         where customer_id = #{t.customerId}
         <if test="t.orderId != null">
@@ -125,7 +125,7 @@
             IFNULL(sum( ship_price + service_fee ), 0 )  AS `shipPrice`,
             IFNULL(sum( product_amount ), 0 )  AS `productAmount`,
             IFNULL(sum( vat_amount ), 0 )  AS vatAmount,
-            IFNULL(sum( pay_amount + vat_amount + fix_fee ), 0 )  AS payAmount,
+            IFNULL(sum( pay_amount), 0 )  AS payAmount,
             IFNULL(sum( fix_fee ), 0 )  AS `fixFee`
         from `order`
         where payment_id = #{paymentId}
