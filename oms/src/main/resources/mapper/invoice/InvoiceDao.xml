@@ -261,10 +261,10 @@
             payment_id AS `paymentId`,
             pay_time AS `payTime`,
             '0' AS `dischargeAmount`,
-            '0' AS `shipPrice`,
+            sum(ship_price) AS `shipPrice`,
             IFNULL( sum( amount ), 0 ) AS `productAmount`,
             '0' AS vatAmount,
-            IFNULL( sum( amount + paypal_fee + amount ), 0 ) AS payAmount,
+            IFNULL( sum( amount + paypal_fee), 0 ) AS payAmount,
             IFNULL( sum( paypal_fee ), 0 ) AS `fixFee`
         from stock_order
         where payment_id = #{paymentId}

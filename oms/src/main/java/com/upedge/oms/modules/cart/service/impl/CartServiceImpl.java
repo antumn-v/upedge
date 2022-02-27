@@ -148,6 +148,8 @@ public class CartServiceImpl implements CartService {
         order.setPayState(0);
         order.setRefundState(0);
         order.setSaiheState(0);
+        order.setShipPrice(BigDecimal.ZERO);
+        order.setPaypalFee(BigDecimal.ZERO);
         order.setWarehouseCode(request.getWarehouseCode());
         order.setCustomerId(session.getCustomerId());
         order.setManagerCode(managerCode);
