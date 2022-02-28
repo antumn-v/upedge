@@ -19,10 +19,7 @@ public class ProductImportCartRequest {
     @NotNull
     private Integer quantity;
 
-    /**
-     * 备库=0，批发=1
-     */
-    @NotNull
-    private Integer cartType;
+
+    private String image;
 
 }

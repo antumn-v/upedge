@@ -73,6 +73,8 @@ public class Cart{
 	 */
     private Integer cartType;
 
+	private Long markId;
+
 	public static Cart variantToCart(VariantDetail detail, Date date){
 		Cart cart = new Cart();
 		cart.setProductId(detail.getProductId());

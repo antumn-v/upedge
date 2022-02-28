@@ -2,7 +2,6 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="com.upedge.oms.modules.cart.dao.CartDao">
-
     <!-- 可根据自己的需求，是否要使用 -->
     <resultMap type="com.upedge.oms.modules.cart.entity.Cart" id="BaseResultMap">
         <result property="id" column="id"/>
@@ -21,33 +20,35 @@
         <result property="createTime" column="create_time"/>
         <result property="updateTime" column="update_time"/>
         <result property="cartType" column="cart_type"/>
+        <result property="markId" column="mark_id"/>
     </resultMap>
 
     <sql id="Base_Column_List">
-        `id`,`customer_id`,`product_id`,`product_title`,`variant_id`,`variant_name`,
+        `id`
+                ,`customer_id`,`product_id`,`product_title`,`variant_id`,`variant_name`,
         `variant_sku`,`variant_image`,`quantity`,`price`,`state`,`create_time`,`update_time`,`cart_type`,
-        `variant_weight`,`variant_volume`
+        `variant_weight`,`variant_volume`,`mark_id`
     </sql>
 
     <update id="updatePriceByVariantId">
         update cart
         set price = #{price}
         where variant_id = #{variantId}
-        and state = '0'
+          and state = '0'
     </update>
 
     <update id="updateWeightByVariantId">
         update cart
         set variant_weight = #{weight}
         where variant_id = #{variantId}
-        and state = '0'
+          and state = '0'
     </update>
 
     <update id="updateVolumeByVariantId">
         update cart
         set variant_volume = #{volume}
         where variant_id = #{variantId}
-        and state = '0'
+          and state = '0'
     </update>
 
     <select id="selectByIdsAndType" resultMap="BaseResultMap">
@@ -55,16 +56,16 @@
         <include refid="Base_Column_List"/>
         from cart
         where
-         1=1
+        1=1
         <if test="ids == null">
-            and   1 !=  1
+            and 1 != 1
         </if>
-         <if test="ids != null">
-         and   id in
-        <foreach collection="ids" item="id" open="(" separator="," close=")">
-            #{id}
-        </foreach>
-         </if>
+        <if test="ids != null">
+            and id in
+            <foreach collection="ids" item="id" open="(" separator="," close=")">
+                #{id}
+            </foreach>
+        </if>
         and state = '0'
         and cart_type = #{cartType};
         and customer_id = #{customerId}
@@ -95,15 +96,24 @@
         select variant_id
         from cart
         where customer_id = #{customerId}
-        and cart_type = #{type}
-        and state = '0'
+          and cart_type = #{type}
+          and state = '0'
     </select>
 
     <update id="updateQuantity" parameterType="com.upedge.oms.modules.cart.entity.Cart">
         update cart
-        set quantity = quantity + #{quantity},update_time = #{updateTime}
+        set quantity       = quantity + #{quantity},
+            update_time    = #{updateTime},
+            product_title  = #{productTitle},
+            variant_id     = #{variantId},
+            variant_name   = #{variantName},
+            variant_sku    = #{variantSku},
+            variant_image  = #{variantImage},
+            variant_weight = #{variantWeight},
+            variant_volume = #{variantVolume},
+            update_time    = #{updateTime}
         where id = #{id}
-        and state = '0'
+          and state = '0'
     </update>
 
     <select id="selectByPrimaryKey" parameterType="com.upedge.oms.modules.cart.entity.Cart" resultMap="BaseResultMap">
@@ -114,7 +124,8 @@
     </select>
 
     <delete id="deleteByPrimaryKey" parameterType="com.upedge.oms.modules.cart.entity.Cart">
-        delete from cart
+        delete
+        from cart
         where id = #{id}
     </delete>
 
@@ -142,6 +153,12 @@
             <if test="variantImage != null">
                 variant_image = #{variantImage},
             </if>
+            <if test="variantWeight != null">
+                variant_weight = #{variantWeight},
+            </if>
+            <if test="variantVolume != null">
+                variant_volume = #{variantVolume},
+            </if>
             <if test="quantity != null">
                 quantity = #{quantity},
             </if>
@@ -149,7 +166,7 @@
                 price = #{price},
             </if>
             <if test="state != null">
-                state = #{state},
+                `state` = #{state},
             </if>
             <if test="createTime != null">
                 create_time = #{createTime},
@@ -159,6 +176,9 @@
             </if>
             <if test="cartType != null">
                 cart_type = #{cartType},
+            </if>
+            <if test="markId != null">
+                mark_id = #{markId},
             </if>
         </set>
         where id = #{id}
@@ -175,12 +195,15 @@
             variant_name = #{variantName},
             variant_sku = #{variantSku},
             variant_image = #{variantImage},
+            variant_weight = #{variantWeight},
+            variant_volume = #{variantVolume},
             quantity = #{quantity},
             price = #{price},
-            state = #{state},
+            `state` = #{state},
             create_time = #{createTime},
             update_time = #{updateTime},
             cart_type = #{cartType},
+            mark_id = #{markId},
         </set>
         where id = #{id}
     </update>
@@ -197,14 +220,15 @@
             variant_name,
             variant_sku,
             variant_image,
-            variant_volume,
             variant_weight,
+            variant_volume,
             quantity,
             price,
-            state,
+            `state`,
             create_time,
             update_time,
-            cart_type
+            cart_type,
+            mark_id
         </trim>
         values (
         #{id},
@@ -215,14 +239,15 @@
         #{variantName},
         #{variantSku},
         #{variantImage},
-        #{variantVolume},
         #{variantWeight},
+        #{variantVolume},
         #{quantity},
         #{price},
         #{state},
         #{createTime},
         #{updateTime},
-        #{cartType}
+        #{cartType},
+        #{markId}
         )
     </insert>
 
@@ -254,6 +279,12 @@
             <if test="variantImage != null">
                 variant_image
             </if>
+            <if test="variantWeight != null">
+                variant_weight
+            </if>
+            <if test="variantVolume != null">
+                variant_volume
+            </if>
             <if test="quantity != null">
                 quantity
             </if>
@@ -261,7 +292,7 @@
                 price
             </if>
             <if test="state != null">
-                state
+                `state`
             </if>
             <if test="createTime != null">
                 create_time
@@ -272,7 +303,9 @@
             <if test="cartType != null">
                 cart_type
             </if>
-
+            <if test="markId != null">
+                mark_id
+            </if>
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="id != null">
@@ -299,6 +332,12 @@
             <if test="variantImage != null">
                 #{variantImage}
             </if>
+            <if test="variantWeight != null">
+                #{variantWeight}
+            </if>
+            <if test="variantVolume != null">
+                #{variantVolume}
+            </if>
             <if test="quantity != null">
                 #{quantity}
             </if>
@@ -317,7 +356,9 @@
             <if test="cartType != null">
                 #{cartType}
             </if>
-
+            <if test="markId != null">
+                #{markId}
+            </if>
         </trim>
     </insert>
 
@@ -336,10 +377,11 @@
             variant_volume,
             quantity,
             price,
-            state,
+            `state`,
             create_time,
             update_time,
-            cart_type
+            cart_type,
+            mark_id
         </trim>
         values
         <foreach collection="list" item="item" index="index" separator=",">
@@ -358,8 +400,9 @@
                 #{item.price},
                 #{item.state},
                 #{item.createTime},
-                #{item.createTime},
-                #{item.cartType}
+                #{item.updateTime},
+                #{item.cartType},
+                #{item.markId}
             </trim>
         </foreach>
     </insert>
@@ -393,6 +436,12 @@
                 <if test="t.variantImage != null">
                     variant_image = #{t.variantImage} and
                 </if>
+                <if test="t.variantWeight != null">
+                    variant_weight = #{t.variantWeight} and
+                </if>
+                <if test="t.variantVolume != null">
+                    variant_volume = #{t.variantVolume} and
+                </if>
                 <if test="t.quantity != null">
                     quantity = #{t.quantity} and
                 </if>
@@ -400,7 +449,7 @@
                     price = #{t.price} and
                 </if>
                 <if test="t.state != null">
-                    state = #{t.state} and
+                    `state` = #{t.state} and
                 </if>
                 <if test="t.createTime != null">
                     create_time = #{t.createTime} and
@@ -411,9 +460,13 @@
                 <if test="t.cartType != null">
                     cart_type = #{t.cartType} and
                 </if>
+                <if test="t.markId != null">
+                    mark_id = #{t.markId} and
+                </if>
             </trim>
         </if>
     </sql>
+
 
     <select id="select" parameterType="com.upedge.common.base.Page" resultMap="BaseResultMap">
         select
@@ -435,5 +488,13 @@
         <include refid="Query_Condition"/>
     </select>
 
-
+    <select id="selectByMarkId" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from cart
+        where customer_id = #{customerId}
+        and mark_id = #{markId}
+        and state = '0'
+        limit 1
+    </select>
 </mapper>

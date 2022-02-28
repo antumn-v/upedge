@@ -16,6 +16,9 @@ public class CartAddRequest extends VariantDetail {
 
     Long customerId;
 
+    @NotNull
+    private Long markId;
+
     public CartAddRequest() {
     }
 }

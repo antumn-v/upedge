@@ -22,6 +22,9 @@ public interface CartDao{
                                   @Param("cartType") Integer cartType,
                                   @Param("customerId") Long customerId);
 
+    Cart selectByMarkId(@Param("customerId") Long customerId,
+                        @Param("markId") Long markId);
+
     /**
      * 修改购物车状态
      * @param ids

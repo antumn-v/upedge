@@ -2,14 +2,19 @@ package com.upedge.pms.modules.quote.controller;
 
 import com.upedge.common.base.BaseResponse;
 import com.upedge.common.constant.Constant;
+import com.upedge.common.feign.OmsFeignClient;
+import com.upedge.common.model.cart.request.CartAddRequest;
 import com.upedge.common.model.pms.quote.CustomerProductQuoteVo;
 import com.upedge.common.model.pms.request.CustomerProductQuoteSearchRequest;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.utils.PriceUtils;
 import com.upedge.common.web.util.UserUtil;
+import com.upedge.pms.modules.product.entity.ProductVariant;
+import com.upedge.pms.modules.product.service.ProductVariantService;
 import com.upedge.pms.modules.quote.entity.CustomerProductQuote;
 import com.upedge.pms.modules.quote.request.CustomerProductQuoteListRequest;
 import com.upedge.pms.modules.quote.request.CustomerProductQuoteUpdateRequest;
+import com.upedge.pms.modules.quote.request.QuoteProductImportCartRequest;
 import com.upedge.pms.modules.quote.service.CustomerProductQuoteService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -34,6 +39,12 @@ import java.util.List;
 public class CustomerProductQuoteController {
     @Autowired
     private CustomerProductQuoteService customerProductQuoteService;
+
+    @Autowired
+    ProductVariantService productVariantService;
+
+    @Autowired
+    OmsFeignClient omsFeignClient;
 
     @Autowired
     RedisTemplate redisTemplate;
@@ -88,6 +99,33 @@ public class CustomerProductQuoteController {
     public List<CustomerProductQuoteVo> searchCustomerProductQuote(@RequestBody CustomerProductQuoteSearchRequest request){
         List<CustomerProductQuoteVo> customerProductQuoteVos = customerProductQuoteService.selectQuoteDetail(request);
         return customerProductQuoteVos;
+    }
+
+    @ApiOperation("已报价产品导入备库购物车")
+    @PostMapping("/importCart")
+    public BaseResponse importStockCart(@RequestBody@Valid QuoteProductImportCartRequest request){
+        Session session = UserUtil.getSession(redisTemplate);
+        CustomerProductQuote customerProductQuote = customerProductQuoteService.selectByPrimaryKey(request.getStoreVariantId());
+        if (null == customerProductQuote
+        || !session.getCustomerId().equals(customerProductQuote.getCustomerId())){
+            return BaseResponse.failed();
+        }
+        ProductVariant variant = productVariantService.selectByPrimaryKey(customerProductQuote.getVariantId());
+        CartAddRequest cartAddRequest = new CartAddRequest();
+        cartAddRequest.setCartType(0);
+        cartAddRequest.setCustomerId(session.getCustomerId());
+        cartAddRequest.setQuantity(request.getQuantity());
+        cartAddRequest.setVariantId(variant.getId());
+        cartAddRequest.setUsdPrice(PriceUtils.cnyToUsdByDefaultRate(customerProductQuote.getQuotePrice()));
+        cartAddRequest.setVariantImage(customerProductQuote.getStoreVariantImage());
+        cartAddRequest.setVariantName(customerProductQuote.getStoreVariantName());
+        cartAddRequest.setVariantSku(customerProductQuote.getStoreVariantSku());
+        cartAddRequest.setProductId(customerProductQuote.getProductId());
+        cartAddRequest.setProductTitle(customerProductQuote.getProductTitle());
+        cartAddRequest.setWeight(variant.getWeight());
+        cartAddRequest.setVolume(variant.getVolumeWeight());
+        cartAddRequest.setMarkId(customerProductQuote.getStoreVariantId());
+        return omsFeignClient.cartAdd(cartAddRequest);
     }
 
 

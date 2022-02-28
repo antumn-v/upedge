@@ -7,7 +7,6 @@ import com.upedge.common.feign.PmsFeignClient;
 import com.upedge.common.feign.TmsFeignClient;
 import com.upedge.common.model.cart.request.CartAddRequest;
 import com.upedge.common.model.pms.quote.CustomerProductQuoteVo;
-import com.upedge.common.model.pms.request.CustomerProductQuoteSearchRequest;
 import com.upedge.common.model.product.ListVariantsRequest;
 import com.upedge.common.model.product.VariantDetail;
 import com.upedge.common.model.tms.WarehouseVo;
@@ -82,19 +81,12 @@ public class CartServiceImpl implements CartService {
         if (null == request.getVariantId()){
             return BaseResponse.failed();
         }
-        CustomerProductQuoteSearchRequest customerProductQuoteSearchRequest = new CustomerProductQuoteSearchRequest();
-        customerProductQuoteSearchRequest.setCustomerId(request.getCustomerId());
-        customerProductQuoteSearchRequest.setVariantId(request.getVariantId());
-        List<CustomerProductQuoteVo> customerProductQuoteVos = pmsFeignClient.searchCustomerProductQuote(customerProductQuoteSearchRequest);
-        if (ListUtils.isEmpty(customerProductQuoteVos)){
-            return BaseResponse.failed();
-        }
+
         Date date = new Date();
-        CustomerProductQuoteVo customerProductQuoteVo = customerProductQuoteVos.get(0);
-        Cart cart = quoteProductToCart(customerProductQuoteVo,date);
+        Cart cart = cartAddDtoToCart(request,date);
         cart.setVariantImage(request.getVariantImage());
         cart.setCustomerId(request.getCustomerId());
-        Cart c = cartDao.selectCart(cart);
+        Cart c = cartDao.selectByMarkId(request.getCustomerId(), request.getMarkId());
 
         if (null == c) {
             cartDao.insert(cart);
@@ -389,23 +381,24 @@ public class CartServiceImpl implements CartService {
         cart.setQuantity(request.getQuantity());
         cart.setCreateTime(date);
         cart.setUpdateTime(date);
+        cart.setMarkId(request.getMarkId());
         return cart;
     }
 
-    public Cart quoteProductToCart(CustomerProductQuoteVo request, Date date) {
+    public Cart quoteProductToCart(CustomerProductQuoteVo customerProductQuoteVo, Date date) {
         Cart cart = new Cart();
         cart.setCartType(0);
-        cart.setCustomerId(request.getCustomerId());
-        cart.setProductId(request.getProductId());
-        cart.setProductTitle(request.getProductTitle());
+        cart.setCustomerId(customerProductQuoteVo.getCustomerId());
+        cart.setProductId(customerProductQuoteVo.getProductId());
+        cart.setProductTitle(customerProductQuoteVo.getProductTitle());
         cart.setState(0);
-        cart.setVariantId(request.getVariantId());
-        cart.setVariantName(request.getVariantName());
-        cart.setVariantSku(request.getVariantSku());
-        cart.setVariantImage(request.getVariantImage());
-        cart.setPrice(PriceUtils.cnyToUsdByDefaultRate(request.getQuotePrice()));
-        cart.setVariantWeight(request.getWeight());
-        cart.setVariantVolume(request.getVolume());
+        cart.setVariantId(customerProductQuoteVo.getVariantId());
+        cart.setVariantName(customerProductQuoteVo.getVariantName());
+        cart.setVariantSku(customerProductQuoteVo.getVariantSku());
+        cart.setVariantImage(customerProductQuoteVo.getVariantImage());
+        cart.setPrice(PriceUtils.cnyToUsdByDefaultRate(customerProductQuoteVo.getQuotePrice()));
+        cart.setVariantWeight(customerProductQuoteVo.getWeight());
+        cart.setVariantVolume(customerProductQuoteVo.getVolume());
         cart.setQuantity(1);
         cart.setCreateTime(date);
         cart.setUpdateTime(date);

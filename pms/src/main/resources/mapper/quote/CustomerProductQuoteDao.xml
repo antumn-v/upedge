@@ -27,12 +27,12 @@
                 ,`store_variant_id`,`store_product_id`,`product_id`,`variant_id`,`store_variant_name`,`store_product_title`,`store_variant_sku`,`store_variant_image`,`product_title`,`variant_name`,`variant_sku`,`variant_image`,`quote_price`,`quote_apply_id`,`quote_state`
     </sql>
 
-    <select id="selectByPrimaryKey" parameterType="com.upedge.pms.modules.quote.entity.CustomerProductQuote"
+    <select id="selectByPrimaryKey"
             resultMap="BaseResultMap">
         select
         <include refid="Base_Column_List"/>
         from customer_product_quote
-        where customer_id = #{customerId}
+        where store_variant_id = #{storeVariantId}
     </select>
 
     <delete id="deleteByPrimaryKey" parameterType="com.upedge.pms.modules.quote.entity.CustomerProductQuote">

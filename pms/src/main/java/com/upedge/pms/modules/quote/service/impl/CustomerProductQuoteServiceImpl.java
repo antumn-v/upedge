@@ -236,10 +236,8 @@ public class CustomerProductQuoteServiceImpl implements CustomerProductQuoteServ
     /**
      *
      */
-    public CustomerProductQuote selectByPrimaryKey(Long customerId) {
-        CustomerProductQuote record = new CustomerProductQuote();
-        record.setCustomerId(customerId);
-        return customerProductQuoteDao.selectByPrimaryKey(record);
+    public CustomerProductQuote selectByPrimaryKey(Long storeVariantId) {
+        return customerProductQuoteDao.selectByPrimaryKey(storeVariantId);
     }
 
     @Override

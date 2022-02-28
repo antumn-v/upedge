@@ -292,19 +292,19 @@ public class ProductController {
         ProductVariant variant = productVariantService.selectByPrimaryKey(request.getVariantId());
 
         CartAddRequest cartAddRequest = new CartAddRequest();
-        cartAddRequest.setCartType(request.getCartType());
+        cartAddRequest.setCartType(1);
         cartAddRequest.setCustomerId(session.getCustomerId());
         cartAddRequest.setQuantity(request.getQuantity());
         cartAddRequest.setVariantId(variant.getId());
         cartAddRequest.setUsdPrice(variant.getUsdPrice());
-        cartAddRequest.setVariantImage(variant.getVariantImage());
+        cartAddRequest.setVariantImage(request.getImage());
         cartAddRequest.setVariantName(variant.getEnName());
         cartAddRequest.setVariantSku(variant.getVariantSku());
         cartAddRequest.setProductId(product.getId());
         cartAddRequest.setProductTitle(product.getProductTitle());
         cartAddRequest.setWeight(variant.getWeight());
         cartAddRequest.setVolume(variant.getVolumeWeight());
-
+        cartAddRequest.setMarkId(variant.getId());
         return omsFeignClient.cartAdd(cartAddRequest);
 
     }

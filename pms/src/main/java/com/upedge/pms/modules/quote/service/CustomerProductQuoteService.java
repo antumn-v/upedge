@@ -24,7 +24,7 @@ public interface CustomerProductQuoteService{
     List<CustomerProductQuote> selectByCustomerAndStoreVariantIds(Long customerId,
                                                                   List<Long> storeVariantIds);
 
-    CustomerProductQuote selectByPrimaryKey(Long customerId);
+    CustomerProductQuote selectByPrimaryKey(Long storeVariantId);
 
     boolean sendCustomerProductQuoteUpdateMessage(List<Long> storeVariantIds);
 

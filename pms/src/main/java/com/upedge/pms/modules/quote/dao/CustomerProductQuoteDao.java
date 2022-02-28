@@ -21,7 +21,7 @@ public interface CustomerProductQuoteDao{
     List<CustomerProductQuote> selectByCustomerAndStoreVariantIds(@Param("customerId")Long customerId,
                                                                   @Param("storeVariantIds") List<Long> storeVariantIds);
 
-    CustomerProductQuote selectByPrimaryKey(CustomerProductQuote record);
+    CustomerProductQuote selectByPrimaryKey(Long storeVariantId);
 
     int deleteByPrimaryKey(CustomerProductQuote record);
 
