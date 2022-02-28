@@ -60,7 +60,7 @@ public class StoreVo {
 
     private String trackingUrl;
 
-    private boolean emailPrompt=false;
+    private Boolean emailPrompt=false;
 
     public String getTrackingUrl(String trackingCode) {
         if(StringUtils.isBlank(trackingUrl)){

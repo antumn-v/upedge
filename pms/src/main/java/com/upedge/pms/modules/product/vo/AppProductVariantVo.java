@@ -59,7 +59,6 @@ public class AppProductVariantVo {
         variant.setSourceVariantId(String.valueOf(id));
         variant.setInventory(inventory);
         variant.setWeight(weight);
-        variant.setCost(variantPrice);
         return variant;
     }
 

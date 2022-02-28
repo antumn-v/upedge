@@ -95,10 +95,7 @@ public class ImportProductServiceImpl implements ImportProductService {
     @Transactional
     @Override
     public ImportAddAppProductResponse addAppProduct(ImportAddAppProductRequest request) {
-
         Session session = UserUtil.getSession(redisTemplate);
-
-        Long customerId = session.getCustomerId();
 
         Long productId = Long.parseLong(request.getProductId());
 
@@ -125,7 +122,7 @@ public class ImportProductServiceImpl implements ImportProductService {
             Long variantId = IdGenerate.nextId();
             ImportProductVariant variant = appProductVariantVo.toImportVariant(variantId);
             BigDecimal cost = appProductVariantVo.getUsdPrice();
-
+            variant.setCost(cost);
             if (priceMap.containsKey(cost)) {
                 variant.setPrice(priceMap.get(cost));
                 variant.setComparePrice(comparePriceMap.get(cost));
@@ -344,7 +341,7 @@ public class ImportProductServiceImpl implements ImportProductService {
                 importPublishedRecord.setPublishTime(new Date());
                 importPublishedRecordService.insert(importPublishedRecord);
 
-                variants.forEach(shopifyVariant -> {
+                variantList.forEach(shopifyVariant -> {
                     InventoryItem inventoryItem = new InventoryItem();
                     inventoryItem.setId(shopifyVariant.getInventory_item_id());
                     inventoryItem.setCost(skuCost.get(shopifyVariant.getSku()));

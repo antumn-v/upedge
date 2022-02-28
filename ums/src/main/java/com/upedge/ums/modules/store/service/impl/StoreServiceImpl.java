@@ -406,11 +406,9 @@ public class StoreServiceImpl implements StoreService {
         Session session = UserUtil.getSession(redisTemplate);
         Store store = storeDao.selectByStoreName(storeUrl);
         if (null != store) {
-
             if (!session.getCustomerId().equals(store.getCustomerId())) {
                 return new ShopifyAuthResponse(ResultCode.FAIL_CODE, "The store has been bound to other users");
             }
-
             if (1 == store.getStatus()) {
                 return new ShopifyAuthResponse(ResultCode.FAIL_CODE, "Store cannot be re-authorized");
             }
