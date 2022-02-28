@@ -36,4 +36,6 @@ public class ShippingTemplateVo {
     private Integer methodNum;
 
     private Integer saiheId;
+
+    private Integer seq;
 }

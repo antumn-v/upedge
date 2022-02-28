@@ -174,10 +174,11 @@ public class ShippingTemplateServiceImpl implements ShippingTemplateService {
         }
         //是否产品在使用
         BaseResponse response =pmsFeignClient.countProductByShippingId(shippingTemplate.getId());
-        if(response==null||response.getCode()!=1){
+        if(response==null||response.getCode()!=1
+        || response.getData() == null){
             return new ShippingTemplateDisableResponse(ResultCode.FAIL_CODE,"服务异常");
         }
-        Integer productNum= (Integer) response.getData();
+        Integer productNum= Integer.valueOf((String) response.getData());
         if(productNum>0){
             return new ShippingTemplateDisableResponse(ResultCode.FAIL_CODE,"有产品关联");
         }

@@ -1,5 +1,6 @@
 package com.upedge.tms.modules.ship.request;
 
+import com.upedge.common.utils.IdGenerate;
 import com.upedge.tms.modules.ship.entity.ShippingTemplate;
 import lombok.Data;
 
@@ -38,6 +39,7 @@ public class ShippingTemplateAddRequest{
 
     public ShippingTemplate toShippingTemplate(){
         ShippingTemplate shippingTemplate=new ShippingTemplate();
+        shippingTemplate.setId(IdGenerate.nextId());
         shippingTemplate.setName(name);
         shippingTemplate.setDesc(desc);
         shippingTemplate.setState(1);

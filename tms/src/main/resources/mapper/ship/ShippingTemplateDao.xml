@@ -35,13 +35,13 @@
         update shipping_template
         <set>
             <if test="name != null">
-                name = #{name},
+                `name` = #{name},
             </if>
             <if test="desc != null">
-                desc = #{desc},
+                `desc` = #{desc},
             </if>
             <if test="state != null">
-                state = #{state},
+                `state` = #{state},
             </if>
             <if test="createTime != null">
                 create_time = #{createTime},
@@ -63,9 +63,9 @@
         update shipping_template
         <set>
             id = #{id},
-            name = #{name},
-            desc = #{desc},
-            state = #{state},
+            `name` = #{name},
+            `desc` = #{desc},
+            `state` = #{state},
             create_time = #{createTime},
             update_time = #{updateTime},
             saihe_id = #{saiheId},
@@ -78,9 +78,9 @@
         insert into shipping_template
         <trim prefix="(" suffix=")" suffixOverrides=",">
             id,
-            name,
-            desc,
-            state,
+            `name`,
+            `desc`,
+            `state`,
             create_time,
             update_time,
             saihe_id,
@@ -105,13 +105,13 @@
                 id
             </if>
             <if test="name != null" >
-                name
+                `name`
             </if>
             <if test="desc != null" >
-                desc
+                `desc`
             </if>
             <if test="state != null" >
-                state
+                `state`
             </if>
             <if test="createTime != null" >
                 create_time
@@ -160,9 +160,9 @@
         insert into shipping_template
         <trim prefix="(" suffix=")" suffixOverrides=",">
             id,
-            name,
-            desc,
-            state,
+            `name`,
+            `desc`,
+            `state`,
             create_time,
             update_time,
             saihe_id,
@@ -192,13 +192,13 @@
                     id = #{t.id} and
                 </if>
                 <if test="t.name != null">
-                    name = #{t.name} and
+                    `name` = #{t.name} and
                 </if>
                 <if test="t.desc != null">
-                    desc = #{t.desc} and
+                    `desc` = #{t.desc} and
                 </if>
                 <if test="t.state != null">
-                    state = #{t.state} and
+                    `state` = #{t.state} and
                 </if>
                 <if test="t.createTime != null">
                     create_time = #{t.createTime} and
