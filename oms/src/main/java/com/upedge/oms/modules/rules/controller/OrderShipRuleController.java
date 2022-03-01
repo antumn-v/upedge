@@ -1,11 +1,16 @@
 package com.upedge.oms.modules.rules.controller;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.upedge.common.base.BaseResponse;
 import com.upedge.common.component.annotation.Permission;
 import com.upedge.common.constant.Constant;
 import com.upedge.common.constant.ResultCode;
+import com.upedge.common.constant.key.RedisKey;
 import com.upedge.common.feign.TmsFeignClient;
 import com.upedge.common.model.ship.request.CountriesMixShipMethodRequest;
+import com.upedge.common.model.ship.vo.ShipMethodNameVo;
+import com.upedge.common.model.ship.vo.ShippingTemplateRedis;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.web.util.UserUtil;
 import com.upedge.oms.modules.rules.entity.OrderShipRule;
@@ -21,8 +26,8 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
+
 /**
  * 
  *
@@ -58,6 +63,12 @@ public class OrderShipRuleController {
         Session session = UserUtil.getSession(redisTemplate);
         
         List<OrderShipRuleVo> results = orderShipRulesService.selectCustomerShipRules(session.getCustomerId());
+        for (OrderShipRuleVo result : results) {
+            ShippingTemplateRedis shippingTemplateRedis = (ShippingTemplateRedis) redisTemplate.opsForHash().get(RedisKey.SHIPPING_TEMPLATE,String.valueOf(result.getShipTemplateId()));
+            if (null != shippingTemplateRedis){
+                result.setShipTemplateName(shippingTemplateRedis.getName());
+            }
+        }
         
         OrderShipRuleListResponse res = new OrderShipRuleListResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS,results);
         return res;
@@ -99,7 +110,26 @@ public class OrderShipRuleController {
     @ApiOperation("根据国家查询支持的运输方式")
     @PostMapping("/countries/shipMethods")
     public BaseResponse mixShipMethodByCountries(@RequestBody CountriesMixShipMethodRequest request){
-        return tmsFeignClient.mixShipMethodNameByCountries(request);
+        BaseResponse response=  tmsFeignClient.mixShipMethodNameByCountries(request);
+        if (response.getCode() != ResultCode.SUCCESS_CODE
+        || null == response.getData()){
+            return response;
+        }
+        JSONArray jsonArray = JSONArray.parseArray(JSON.toJSONString(response.getData()));
+        List<ShipMethodNameVo> shipMethodNameVos = jsonArray.toJavaList(ShipMethodNameVo.class);
+        Set<Object> methodIds = redisTemplate.opsForSet().members(RedisKey.SHIPPING_TEMPLATED_METHODS + request.getShipTemplateId());
+        List<Long> ids = new ArrayList<>();
+        for (Object methodId : methodIds) {
+            ids.add((Long) methodId);
+        }
+        Iterator<ShipMethodNameVo> iterator =  shipMethodNameVos.iterator();
+        while (iterator.hasNext()){
+            ShipMethodNameVo shipMethodNameVo = iterator.next();;
+            if (!ids.contains(shipMethodNameVo.getShipMethodId())){
+                iterator.remove();
+            }
+        }
+        return BaseResponse.success(shipMethodNameVos);
     }
 
 }

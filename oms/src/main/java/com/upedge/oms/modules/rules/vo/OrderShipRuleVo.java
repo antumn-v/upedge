@@ -48,6 +48,8 @@ public class OrderShipRuleVo {
 
     private Long shipTemplateId;
 
+    private String shipTemplateName;
+
     private Integer sequence;
 
     List<OrderShipRuleCountryVo> countries;

@@ -28,6 +28,7 @@
         <result property="state" column="state"/>
         <result property="shippingMethodId" column="shipping_method_id"/>
         <result property="shippingMethodName" column="shipping_method_name"/>
+        <result property="shipTemplateId" column="ship_template_id"/>
         <result property="sequence" column="sequence"/>
         <collection property="countries" ofType="com.upedge.oms.modules.rules.vo.OrderShipRuleCountryVo">
             <result property="countryName" column="country_name"/>
@@ -73,14 +74,14 @@
         select
         r.`id`,r.`customer_id`,`title`,
         `order_amount_min`,`order_amount_max`,`freight_min`,`freight_max`,
-        `state`,`shipping_method_id`,`shipping_method_name`,`sequence`,
+        `state`,`shipping_method_id`,`shipping_method_name`,`sequence`,ship_template_id,
         o.country_name,o.area_id
         from order_ship_rule r
         inner join order_ship_rule_country o
         on r.id = o.ship_rule_id
         where r.customer_id = #{customerId}
         and state != '2'
-        order by create_time desc,sequence asc
+        order by create_time desc,`sequence` asc
     </select>
 
     <select id="selectByPrimaryKey" parameterType="com.upedge.oms.modules.rules.entity.OrderShipRule"

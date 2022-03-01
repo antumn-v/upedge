@@ -11,6 +11,9 @@ public class CountriesMixShipMethodRequest {
     @NotNull
     List<String> countries;
 
+    @NotNull
+    private Long shipTemplateId;
+
     public CountriesMixShipMethodRequest() {
     }
 }
