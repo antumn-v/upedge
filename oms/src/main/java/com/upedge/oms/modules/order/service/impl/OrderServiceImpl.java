@@ -29,6 +29,7 @@ import com.upedge.common.model.ship.vo.ShippingTemplateRedis;
 import com.upedge.common.model.store.StoreVo;
 import com.upedge.common.model.tms.ArearedisVo;
 import com.upedge.common.model.tms.ShippingUnitVo;
+import com.upedge.common.model.tms.WarehouseVo;
 import com.upedge.common.model.user.vo.CustomerVo;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.utils.DateTools;
@@ -919,6 +920,44 @@ public class OrderServiceImpl implements OrderService {
     @Transactional
     @Override
     public ShipDetail orderInitShipDetail(Long orderId) {
+        Order order = orderDao.selectByPrimaryKey(orderId);
+        if (null == order
+                || order.getPayState() != 0
+                || order.getOrderType() == 1) {
+            return null;
+        }
+        if (order.getToAreaId() == null) {
+            OrderAddress orderAddress = orderAddressDao.selectByOrderId(orderId);
+            if (StringUtils.isNotBlank(orderAddress.getCountry())) {
+                Long toAreaId = (Long) redisTemplate.opsForHash().get(RedisKey.HASH_COUNTRY_AREA_ID, orderAddress.getCountry());
+                order.setToAreaId(toAreaId);
+                orderDao.updateToAreaIdById(orderId, toAreaId);
+            } else {
+                return null;
+            }
+        }
+        OrderShipRuleDetail shipRuleDetail = matchShipRule(orderId);
+        if (null == shipRuleDetail) {
+            List<ShipDetail> shipDetails = orderShipMethods(order.getId(), order.getToAreaId());
+            if (ListUtils.isNotEmpty(shipDetails)) {
+                ShipDetail shipDetail = shipDetails.get(0);
+                shipDetail = updateShipDetailById(orderId, shipDetail);
+                return shipDetail;
+            }
+        } else {
+            return shipRuleDetail.getShipDetail();
+        }
+        return null;
+    }
+
+    public ShipDetail orderInitShipDetail(Long orderId,String warehouseCode) {
+
+        WarehouseVo warehouseVo = (WarehouseVo) redisTemplate.opsForValue().get(RedisKey.STRING_WAREHOUSE+warehouseCode);
+        if (warehouseVo == null
+        || warehouseVo.getWarehouseType() == WarehouseVo.LOCAL){
+
+        }
+
         Order order = orderDao.selectByPrimaryKey(orderId);
         if (null == order
                 || order.getPayState() != 0

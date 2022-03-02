@@ -19,12 +19,12 @@ import com.upedge.tms.modules.ship.response.ShippingMethodInfoResponse;
 import com.upedge.tms.modules.ship.response.ShippingMethodListResponse;
 import com.upedge.tms.modules.ship.response.ShippingMethodUpdateResponse;
 import com.upedge.tms.modules.ship.service.ShippingMethodService;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.*;
 
-import javax.annotation.Resource;
 import javax.validation.Valid;
 import java.util.List;
 
@@ -33,14 +33,15 @@ import java.util.List;
  *
  * @author author
  */
+@Api(tags = "运输方式管理")
 @RestController
 @RequestMapping("/shippingMethod")
 public class ShippingMethodController {
     @Autowired
     private ShippingMethodService shippingMethodService;
-    @Resource
-    private RedisTemplate<String, Object> redisTemplate;
 
+
+    @ApiOperation("所有运输方式")
     @RequestMapping(value="/all", method=RequestMethod.POST)
     public BaseResponse all() {
         List<ShippingMethod> results = shippingMethodService.allShippingMethod();
@@ -52,6 +53,7 @@ public class ShippingMethodController {
      * @param request
      * @return
      */
+    @ApiOperation("运输方式列表")
     @RequestMapping(value="/list", method=RequestMethod.POST)
     public ShippingMethodListResponse list(@RequestBody @Valid ShippingMethodListRequest request) {
         return shippingMethodService.list(request);
@@ -86,6 +88,7 @@ public class ShippingMethodController {
      * @param request
      * @return
      */
+    @ApiOperation("新增运输方式")
     @RequestMapping(value="/add", method=RequestMethod.POST)
     public BaseResponse add(@RequestBody @Valid ShippingMethodAddRequest request) {
 
@@ -103,6 +106,7 @@ public class ShippingMethodController {
      * @param request
      * @return
      */
+    @ApiOperation("更新运输方式")
     @RequestMapping(value="/update/{id}", method=RequestMethod.POST)
     public BaseResponse update(@PathVariable Long id, @RequestBody @Valid ShippingMethodUpdateRequest request) {
         ShippingMethod entity=request.toShippingMethod(id);
@@ -123,6 +127,7 @@ public class ShippingMethodController {
      * 启用运输方式
      * @return
      */
+    @ApiOperation("启用运输方式")
     @RequestMapping(value="/enable/{id}", method=RequestMethod.POST)
     public ShippingMethodEnableResponse enableShippingMethod(@PathVariable Long id) {
         return shippingMethodService.enableShippingMethod(id);
@@ -132,6 +137,7 @@ public class ShippingMethodController {
      * 禁用运输方式
      * @return
      */
+    @ApiOperation("禁用运输方式")
     @RequestMapping(value="/disable/{id}", method=RequestMethod.POST)
     public BaseResponse disableShippingMethod(@PathVariable Long id) {
 

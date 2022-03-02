@@ -14,6 +14,7 @@ import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.utils.IdGenerate;
 import com.upedge.common.utils.ListUtils;
 import com.upedge.common.web.util.RedisUtil;
+import com.upedge.common.web.util.RequestUtil;
 import com.upedge.common.web.util.UserUtil;
 import com.upedge.oms.async.OrderAsyncTask;
 import com.upedge.oms.constant.StockOrderState;
@@ -78,11 +79,13 @@ public class OrderPayController {
 
     @PostMapping("/list")
     public BaseResponse orderPayList(@RequestBody List<Long> orderIds) {
+        String warehouseCode = RequestUtil.getWarehouseCode();
+
         Session session = UserUtil.getSession(redisTemplate);
         try {
             Long paymentId = IdGenerate.nextId();
             orderPayService.updatePaymentIdByIds(orderIds, paymentId, session.getCustomerId());
-            List<AppOrderVo> appOrderVos = orderPayService.orderPayList(paymentId, session);
+            List<AppOrderVo> appOrderVos = orderPayService.orderPayList(paymentId, session,warehouseCode);
             if (ListUtils.isNotEmpty(appOrderVos)) {
                 return new BaseResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS, appOrderVos);
             }

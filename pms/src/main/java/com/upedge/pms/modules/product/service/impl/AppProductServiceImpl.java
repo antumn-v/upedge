@@ -15,7 +15,6 @@ import com.upedge.common.model.ship.response.ShipMethodSearchResponse;
 import com.upedge.common.model.ship.vo.ShipDetail;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.utils.ListUtils;
-import com.upedge.common.utils.RedisKeyUtils;
 import com.upedge.pms.modules.product.dao.*;
 import com.upedge.pms.modules.product.entity.Product;
 import com.upedge.pms.modules.product.entity.ProductImg;
@@ -144,7 +143,6 @@ public class AppProductServiceImpl implements AppProductService {
     @Override
     public AppVariantShipsResponse variantShips(AppVariantShipsRequest request, Session session) {
 
-        String key = RedisKeyUtils.getCustomerSettingKey(session.getCustomerId());
         ProductVariant variant = new ProductVariant();
         variant.setId(request.getVariantId());
         variant = productVariantDao.selectByPrimaryKey(variant);
@@ -154,7 +152,7 @@ public class AppProductServiceImpl implements AppProductService {
 
         Product product = productDao.selectByPrimaryKey(variant.getProductId());
 
-        key = RedisKey.SHIPPING_TEMPLATED_METHODS + product.getShippingId();
+        String key = RedisKey.SHIPPING_TEMPLATED_METHODS + product.getShippingId();
         Set<Object> objects = redisTemplate.opsForSet().members(key);
         Set<Long> methodIds = new HashSet<>();
         if (ListUtils.isNotEmpty(objects)) {

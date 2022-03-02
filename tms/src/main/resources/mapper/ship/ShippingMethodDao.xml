@@ -53,10 +53,10 @@
         update shipping_method
         <set>
             <if test="name != null">
-                name = #{name},
+                `name` = #{name},
             </if>
             <if test="desc != null">
-                desc = #{desc},
+                `desc` = #{desc},
             </if>
             <if test="saiheTransportId != null">
                 saihe_transport_id = #{saiheTransportId},
@@ -80,7 +80,7 @@
                 paypal_carrier_enum = #{paypalCarrierEnum},
             </if>
             <if test="state != null">
-                state = #{state},
+                `state` = #{state},
             </if>
             <if test="createTime != null">
                 create_time = #{createTime},
@@ -102,8 +102,8 @@
         update shipping_method
         <set>
             id = #{id},
-            name = #{name},
-            desc = #{desc},
+            `name` = #{name},
+            `desc` = #{desc},
             saihe_transport_id = #{saiheTransportId},
             saihe_transport_name = #{saiheTransportName},
             tracking_url = #{trackingUrl},
@@ -111,7 +111,7 @@
             weight_type = #{weightType},
             track_type = #{trackType},
             paypal_carrier_enum = #{paypalCarrierEnum},
-            state = #{state},
+            `state` = #{state},
             create_time = #{createTime},
             update_time = #{updateTime},
             warehouse_code = #{warehouseCode},
@@ -124,8 +124,8 @@
         insert into shipping_method
         <trim prefix="(" suffix=")" suffixOverrides=",">
             id,
-            name,
-            desc,
+            `name`,
+            `desc`,
             saihe_transport_id,
             saihe_transport_name,
             tracking_url,
@@ -133,7 +133,7 @@
             weight_type,
             track_type,
             paypal_carrier_enum,
-            state,
+            `state`,
             create_time,
             update_time,
             warehouse_code,
@@ -165,10 +165,10 @@
                 id
             </if>
             <if test="name != null" >
-                name
+                `name`
             </if>
             <if test="desc != null" >
-                desc
+                `desc`
             </if>
             <if test="saiheTransportId != null" >
                 saihe_transport_id
@@ -192,7 +192,7 @@
                 paypal_carrier_enum
             </if>
             <if test="state != null" >
-                state
+                `state`
             </if>
             <if test="createTime != null" >
                 create_time
@@ -262,8 +262,8 @@
         insert into shipping_method
         <trim prefix="(" suffix=")" suffixOverrides=",">
             id,
-            name,
-            desc,
+            `name`,
+            `desc`,
             saihe_transport_id,
             saihe_transport_name,
             tracking_url,
@@ -271,7 +271,7 @@
             weight_type,
             track_type,
             paypal_carrier_enum,
-            state,
+            `state`,
             create_time,
             update_time,
             warehouse_code,
@@ -308,10 +308,10 @@
                     id = #{t.id} and
                 </if>
                 <if test="t.name != null">
-                    name = #{t.name} and
+                    `name` = #{t.name} and
                 </if>
                 <if test="t.desc != null">
-                    desc = #{t.desc} and
+                    `desc` = #{t.desc} and
                 </if>
                 <if test="t.saiheTransportId != null">
                     saihe_transport_id = #{t.saiheTransportId} and
@@ -335,7 +335,7 @@
                     paypal_carrier_enum = #{t.paypalCarrierEnum} and
                 </if>
                 <if test="t.state != null">
-                    state = #{t.state} and
+                    `state` = #{t.state} and
                 </if>
                 <if test="t.createTime != null">
                     create_time = #{t.createTime} and

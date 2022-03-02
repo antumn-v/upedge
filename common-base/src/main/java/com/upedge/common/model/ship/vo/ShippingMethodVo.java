@@ -62,6 +62,10 @@ public class ShippingMethodVo {
 
     private Integer shipNum;
 
+    private String methodCode;
+
+    private String warehouseCode;
+
     List<ShippingTemplateVo> shippingTemplateVos;
 
 }

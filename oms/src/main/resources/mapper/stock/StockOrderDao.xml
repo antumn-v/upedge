@@ -153,6 +153,9 @@
             <if test="t.paymentId != null">
                 o.payment_id = #{t.paymentId} and
             </if>
+            <if test="t.warehouseCode != null">
+                o.warehouse_code = #{t.warehouseCode} and
+            </if>
             <if test="t.payState != null">
                 o.pay_state = #{t.payState} and
             </if>

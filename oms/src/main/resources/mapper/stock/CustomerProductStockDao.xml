@@ -42,7 +42,8 @@
     <update id="increaseVariantStock">
         <foreach collection="stocks" item="s" separator=";">
             update customer_product_stock
-            set stock = stock + #{s.stock}
+            set stock = stock + #{s.stock},
+            variant_image = #{s.variantImage}
             where customer_id = #{s.customerId}
             and warehouse_code = #{s.warehouseCode}
             and variant_id = #{s.variantId}

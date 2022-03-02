@@ -53,6 +53,7 @@ public interface OrderService{
      * @param orderId
      */
     ShipDetail orderInitShipDetail(Long orderId);
+    ShipDetail orderInitShipDetail(Long orderId,String warehouseCode);
 
     void orderUpdateToAreaId(Long orderId, String country);
 

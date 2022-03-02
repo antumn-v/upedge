@@ -10,7 +10,8 @@ public class ShopifyConfig {
 //    public static final String redirect_url = "http://guoxing.gz2vip.idcfengye.com/storeblank";
 
 
-    public static String scope = "read_products,write_products,read_orders,write_orders," +
-            "read_fulfillments,write_fulfillments,read_inventory,write_inventory,read_locations," +
+    public static String scope = "read_products,write_products," +
+            "read_orders,write_orders," +
+            "read_fulfillments,write_fulfillments," +
             "read_all_orders";
 }

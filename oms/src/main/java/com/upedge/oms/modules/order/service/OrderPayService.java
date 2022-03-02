@@ -1,6 +1,7 @@
 package com.upedge.oms.modules.order.service;
 
 import com.upedge.common.base.BaseResponse;
+import com.upedge.common.exception.CustomerException;
 import com.upedge.common.model.order.PaymentDetail;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.oms.modules.common.vo.OrderPayCheckResultVo;
@@ -28,7 +29,7 @@ public interface OrderPayService {
 
     String payOrderByBalance(Session session, BigDecimal amount, Long paymentId, List<ItemDischargeQuantityVo> dischargeQuantityVos);
 
-    List<AppOrderVo> orderPayList(Long paymnetId, Session session) throws ExecutionException, InterruptedException;
+    List<AppOrderVo> orderPayList(Long paymnetId, Session session,String warehouseCode) throws ExecutionException, InterruptedException, CustomerException;
 
     void sendSaveTransactionRecordMessage(Long paymentId, Long customerId, Long userId, Integer payMethod);
 

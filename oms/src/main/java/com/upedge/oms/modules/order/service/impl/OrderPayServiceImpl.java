@@ -134,7 +134,7 @@ public class OrderPayServiceImpl implements OrderPayService {
 
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public List<AppOrderVo> orderPayList(Long paymentId, Session session) throws ExecutionException, InterruptedException {
+    public List<AppOrderVo> orderPayList(Long paymentId, Session session,String warehouseCode) throws CustomerException {
         AppOrderListRequest appOrderListRequest = new AppOrderListRequest();
         AppOrderListDto appOrderListDto = new AppOrderListDto();
         appOrderListDto.setPaymentId(paymentId);
@@ -146,7 +146,7 @@ public class OrderPayServiceImpl implements OrderPayService {
         if (ListUtils.isEmpty(orderVos)) {
             return null;
         }
-        refreshOrderStockDischarge(customerId, orderVos);
+        refreshOrderStockDischarge(customerId, orderVos,warehouseCode);
 
         List<OrderProductAmountVo> orderProductAmountVos = orderDao.selectOrderItemAmountByPaymentId(paymentId);
         Map<Long, OrderProductAmountVo> orderProductAmountVoMap = new HashMap<>();
