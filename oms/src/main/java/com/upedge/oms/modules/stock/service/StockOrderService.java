@@ -55,7 +55,7 @@ public interface StockOrderService{
 
     PaymentDetail orderPaidByPaypal(Long paymentId, Long customerId, Long userId);
 
-    PaymentDetail payOrderByBalance(List<Long> ids, Session session);
+    PaymentDetail payOrderByBalance(Long id, Session session);
 
     StockOrder selectByPrimaryKey(Long id);
 

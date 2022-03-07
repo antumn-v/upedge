@@ -13,11 +13,14 @@ import org.apache.ibatis.annotations.Param;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Set;
 
 /**
  * @author author
  */
 public interface StockOrderDao{
+
+    Set<String> selectOrderWarehouseByPaymentId(Long paymentId);
 
     PaymentAmount selectSumAmountByPaymentId(Long paymentId);
 

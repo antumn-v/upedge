@@ -87,7 +87,7 @@ public class CustomerProductStockServiceImpl implements CustomerProductStockServ
         List<CustomerProductStock> updateStock = new ArrayList<>();
         List<CustomerStockRecord> customerStockRecords = new ArrayList<>();
         String warehouseCode = request.getWarehouseCode();
-        List<Long> variantIds = customerProductStockDao.selectWarehouseVariantIdsByCustomer(request.getCustomerId(), warehouseCode);
+        List<Long> variantIds = customerProductStockDao.selectWarehouseVariantIdsByCustomer(request.getCustomerId(),request.getWarehouseCode());
         for (CustomerSkuStockVo customerSkuStockVo : customerSkuStockVos) {
             if(0 == customerSkuStockVo.getStock()) {
                 continue;

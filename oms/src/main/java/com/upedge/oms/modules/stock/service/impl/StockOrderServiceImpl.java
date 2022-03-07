@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.upedge.common.base.BaseResponse;
 import com.upedge.common.base.Page;
 import com.upedge.common.constant.*;
+import com.upedge.common.constant.key.RedisKey;
 import com.upedge.common.constant.key.RocketMqConfig;
 import com.upedge.common.enums.TransactionConstant;
 import com.upedge.common.feign.PmsFeignClient;
@@ -19,6 +20,7 @@ import com.upedge.common.model.order.request.CustomerOrderDailyCountUpdateReques
 import com.upedge.common.model.product.ListVariantsRequest;
 import com.upedge.common.model.product.VariantDetail;
 import com.upedge.common.model.product.VariantQuantity;
+import com.upedge.common.model.tms.WarehouseVo;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.utils.IdGenerate;
 import com.upedge.common.utils.ListUtils;
@@ -35,7 +37,6 @@ import com.upedge.oms.modules.stock.dao.CustomerStockRecordDao;
 import com.upedge.oms.modules.stock.dao.StockOrderDao;
 import com.upedge.oms.modules.stock.dao.StockOrderItemDao;
 import com.upedge.oms.modules.stock.dto.StockOrderItemPurchaseNoDto;
-import com.upedge.oms.modules.stock.dto.StockOrderListDto;
 import com.upedge.oms.modules.stock.entity.CustomerProductStock;
 import com.upedge.oms.modules.stock.entity.CustomerStockRecord;
 import com.upedge.oms.modules.stock.entity.StockOrder;
@@ -101,6 +102,7 @@ public class StockOrderServiceImpl implements StockOrderService {
 
     @Autowired
     OrderDailyPayCountService orderDailyPayCountService;
+
     /**
      *
      */
@@ -134,12 +136,12 @@ public class StockOrderServiceImpl implements StockOrderService {
     public BaseResponse confirmShipReview(Long orderId, Session session) {
         StockOrder stockOrder = selectByPrimaryKey(orderId);
         if (stockOrder == null
-        || stockOrder.getShipReview() != 2
-        || stockOrder.getPayState() != 1){
+                || stockOrder.getShipReview() != 2
+                || stockOrder.getPayState() != 1) {
             return BaseResponse.failed("订单不存在或订单未支付");
         }
         int i = stockOrderDao.confirmShipReview(orderId);
-        if (i == 1){
+        if (i == 1) {
             return BaseResponse.success();
         }
         return BaseResponse.failed("订单异常");
@@ -150,12 +152,12 @@ public class StockOrderServiceImpl implements StockOrderService {
         Long orderId = request.getOrderId();
         StockOrder stockOrder = selectByPrimaryKey(orderId);
         if (stockOrder == null
-            || stockOrder.getShipReview() != 3
-            || stockOrder.getPayState() != 1){
+                || stockOrder.getShipReview() != 3
+                || stockOrder.getPayState() != 1) {
             return BaseResponse.failed("订单未支付或运费为审核");
         }
-        OrderTracking orderTracking = orderTrackingService.queryOrderTrackingByOrderId(orderId,OrderType.STOCK);
-        if (null == orderTracking){
+        OrderTracking orderTracking = orderTrackingService.queryOrderTrackingByOrderId(orderId, OrderType.STOCK);
+        if (null == orderTracking) {
             orderTracking = new OrderTracking();
             orderTracking.setTrackingCompany(stockOrder.getShipMethod());
             orderTracking.setOrderId(orderId);
@@ -167,7 +169,7 @@ public class StockOrderServiceImpl implements StockOrderService {
             orderTracking.setTrackType(request.getTrackingType());
             orderTracking.setState(1);
             orderTrackingService.insert(orderTracking);
-        }else {
+        } else {
             orderTracking.setTrackType(request.getTrackingType());
             orderTracking.setTrackingCode(request.getTrackingCode());
             orderTracking.setUpdateTime(new Date());
@@ -180,17 +182,17 @@ public class StockOrderServiceImpl implements StockOrderService {
     @Override
     public BaseResponse orderConfirmReceipt(Long orderId, Session session) {
         String key = "stock:receipt:" + orderId;
-        boolean b = RedisUtil.lock(redisTemplate,key,10L,30 * 1000L);
-        if (!b){
+        boolean b = RedisUtil.lock(redisTemplate, key, 10L, 30 * 1000L);
+        if (!b) {
             return BaseResponse.failed();
         }
         StockOrder stockOrder = selectByPrimaryKey(orderId);
         if (stockOrder == null
                 || stockOrder.getShipReview() != 3
-                || stockOrder.getPayState() != 1){
+                || stockOrder.getPayState() != 1) {
             return BaseResponse.failed("订单未支付或运费为审核");
         }
-        orderPaidByPaymentId(null,orderId,stockOrder.getCustomerId(),stockOrder.getWarehouseCode());
+        orderPaidByPaymentId(orderId, stockOrder.getCustomerId(), stockOrder.getWarehouseCode());
         return BaseResponse.success();
     }
 
@@ -204,8 +206,8 @@ public class StockOrderServiceImpl implements StockOrderService {
         Long orderId = request.getOrderId();
         StockOrder stockOrder = selectByPrimaryKey(orderId);
         if (stockOrder == null
-        || stockOrder.getShipReview() > 1
-        || stockOrder.getPayState() != 0){
+                || stockOrder.getShipReview() > 1
+                || stockOrder.getPayState() != 0) {
             return BaseResponse.failed("订单不存在或订单已支付");
         }
         stockOrder.setShipReview(1);
@@ -220,31 +222,31 @@ public class StockOrderServiceImpl implements StockOrderService {
         List<String> variantSkus = new ArrayList<>();
         Map<String, Integer> variantQuantity = new HashMap<>();
         variantQuantities.forEach(v -> {
-            variantQuantity.put(v.getVariantSku(),v.getQuantity());
+            variantQuantity.put(v.getVariantSku(), v.getQuantity());
             variantSkus.add(v.getVariantSku());
         });
 
         ListVariantsRequest listVariantsRequest = new ListVariantsRequest();
         listVariantsRequest.setVariantSkus(variantSkus);
         BaseResponse response = pmsFeignClient.listVariantDetailByIds(listVariantsRequest);
-        if(ResultCode.FAIL_CODE == response.getCode()
-                || null == response.getData()){
+        if (ResultCode.FAIL_CODE == response.getCode()
+                || null == response.getData()) {
             return new BaseResponse(ResultCode.FAIL_CODE, Constant.MESSAGE_FAIL);
         }
         Date date = new Date();
         List<Cart> carts = new ArrayList<>();
         List<VariantDetail> variantDetails = JSONArray.parseArray(JSON.toJSONString(response.getData())).toJavaList(VariantDetail.class);
         variantDetails.forEach(variantDetail -> {
-            Cart cart = new Cart(variantDetail,date);
+            Cart cart = new Cart(variantDetail, date);
             cart.setId(IdGenerate.nextId());
             cart.setCustomerId(session.getCustomerId());
             cart.setQuantity(variantQuantity.get(variantDetail.getVariantSku()));
             cart.setCartType(0);
             carts.add(cart);
         });
-        if(ListUtils.isNotEmpty(carts)){
+        if (ListUtils.isNotEmpty(carts)) {
             cartDao.insertByBatch(carts);
-            return new BaseResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS,carts);
+            return new BaseResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS, carts);
         }
         return BaseResponse.failed();
     }
@@ -267,8 +269,8 @@ public class StockOrderServiceImpl implements StockOrderService {
         paypalOrder.setSession(session);
         HttpServletRequest request = RequestUtil.getRequest();
         String origin = request.getHeader("Origin");
-        paypalOrder.setSuccessUrl(origin+"/payment/stockPayPal");
-        paypalOrder.setFailedUrl(origin+"/payment/stockPayPal");
+        paypalOrder.setSuccessUrl(origin + "/payment/stockPayPal");
+        paypalOrder.setFailedUrl(origin + "/payment/stockPayPal");
         paypalOrder.setAccountPaymethodId(PayOrderMethod.PAYPAL);
         paypalOrder.setAmount(amount);
         paypalOrder.setProductAmount(amount);
@@ -279,7 +281,7 @@ public class StockOrderServiceImpl implements StockOrderService {
         orderVos.forEach(stockOrderVo -> {
             List<StockOrderItemVo> orderItemVos = stockOrderVo.getItems();
             orderItemVos.forEach(itemVo -> {
-                PaypalOrderItem orderItem =  new PaypalOrderItem();
+                PaypalOrderItem orderItem = new PaypalOrderItem();
                 orderItem.setItemId(itemVo.getId());
                 orderItem.setOrderId(itemVo.getOrderId());
                 orderItem.setPrice(itemVo.getPrice());
@@ -292,8 +294,8 @@ public class StockOrderServiceImpl implements StockOrderService {
 
         BaseResponse response = umsFeignClient.getPaypalOrderUrl(paypalOrder);
 
-        if(response.getCode() == ResultCode.SUCCESS_CODE){
-            stockOrderDao.updatePayStateByPaymentId(paymentId,StockOrderState.PENDING);
+        if (response.getCode() == ResultCode.SUCCESS_CODE) {
+            stockOrderDao.updatePayStateByPaymentId(paymentId, StockOrderState.PENDING);
         }
 
         return response;
@@ -314,13 +316,13 @@ public class StockOrderServiceImpl implements StockOrderService {
     public BaseResponse updateOrderItemPurchaseNo(StockOrderItemUpdatePurchaseNoRequest request) {
         StockOrder stockOrder = stockOrderDao.selectByPrimaryKey(request.getOrderId());
         if (null == stockOrder
-        || OrderConstant.PAY_STATE_PAID != stockOrder.getPayState()
-        || OrderConstant.NO_REFUND != stockOrder.getPayState()
-        || stockOrder.PURCHASING != stockOrder.getPurchaseState()){
+                || OrderConstant.PAY_STATE_PAID != stockOrder.getPayState()
+                || OrderConstant.NO_REFUND != stockOrder.getPayState()
+                || stockOrder.PURCHASING != stockOrder.getPurchaseState()) {
             return BaseResponse.failed("订单状态异常");
         }
         List<StockOrderItemPurchaseNoDto> stockOrderItemPurchaseNoDtos = request.getItemPurchaseNos();
-        if (ListUtils.isEmpty(stockOrderItemPurchaseNoDtos)){
+        if (ListUtils.isEmpty(stockOrderItemPurchaseNoDtos)) {
             return BaseResponse.failed();
         }
         for (StockOrderItemPurchaseNoDto stockOrderItemPurchaseNoDto : stockOrderItemPurchaseNoDtos) {
@@ -352,7 +354,7 @@ public class StockOrderServiceImpl implements StockOrderService {
 
     @Override
     public void updatePriceByVariantId(VariantDetail variantDetail) {
-        if (null != variantDetail.getUsdPrice()){
+        if (null != variantDetail.getUsdPrice()) {
             stockOrderItemDao.updatePriceByVariantId(variantDetail.getVariantId(), variantDetail.getUsdPrice());
         }
     }
@@ -360,7 +362,7 @@ public class StockOrderServiceImpl implements StockOrderService {
     @Override
     public List<StockOrderVo> selectOrderList(StockOrderListRequest request) {
         List<StockOrderVo> stockOrderVos = stockOrderDao.selectOrderList(request);
-        if (ListUtils.isEmpty(stockOrderVos)){
+        if (ListUtils.isEmpty(stockOrderVos)) {
             return new ArrayList<>();
         }
         List<Long> orderIds = new ArrayList<>();
@@ -372,7 +374,7 @@ public class StockOrderServiceImpl implements StockOrderService {
             List<StockOrderItemVo> storeOrderItemVoList = new ArrayList<>();
             Long orderId = stockOrderVo.getId();
             for (StockOrderItemVo stockOrderItemVo : stockOrderItemVos) {
-                if (orderId.equals(stockOrderItemVo.getOrderId())){
+                if (orderId.equals(stockOrderItemVo.getOrderId())) {
                     storeOrderItemVoList.add(stockOrderItemVo);
                 }
             }
@@ -406,12 +408,12 @@ public class StockOrderServiceImpl implements StockOrderService {
         detail.setOrderType(OrderType.STOCK);
         detail.setPayTime(payTime);
         stockOrderDao.completeOrderTransaction(detail, Constant.PAYPAL_FEE_PERCENTAGE);
-//        orderPaidByPaymentId(paymentId, customerId);
+//        orderPaidByPaymentId(paymentId,null, customerId);
         return detail;
     }
 
     @Override
-    public void payOrderAsync(PaymentDetail detail){
+    public void payOrderAsync(PaymentDetail detail) {
         threadPoolExecutor.submit(() -> {
             sendSavePaymentDetailMessage(detail);
            /* CustomerOrderDailyCountUpdateRequest customerOrderDailyCountUpdateRequest = new CustomerOrderDailyCountUpdateRequest();
@@ -425,13 +427,36 @@ public class StockOrderServiceImpl implements StockOrderService {
 
     @GlobalTransactional
     @Override
-    public PaymentDetail payOrderByBalance(List<Long> ids, Session session) {
+    public PaymentDetail payOrderByBalance(Long id, Session session) {
+        StockOrder stockOrder = selectByPrimaryKey(id);
+        if (stockOrder == null
+                || stockOrder.getPayState() != 0
+                || stockOrder.getShipReview() != 1) {
+            return null;
+        }
+        WarehouseVo warehouseVo = (WarehouseVo) redisTemplate.opsForValue().get(RedisKey.STRING_WAREHOUSE + stockOrder.getWarehouseCode());
+        if (warehouseVo == null) {
+            return null;
+        }
+        //修改订单支付状态
+        BigDecimal amount = stockOrder.getAmount();
         Date payTime = new Date();
         Long paymentId = IdGenerate.nextId();
-        stockOrderDao.updatePaymentIdByIds(paymentId,ids);
-        stockOrderDao.updatePayStateByPaymentId(paymentId,StockOrderState.PENDING);
-        BigDecimal amount = stockOrderDao.selectAmountByPaymentId(paymentId);
+        stockOrder = new StockOrder();
+        stockOrder.setId(id);
+        stockOrder.setPayTime(payTime);
+        stockOrder.setPaymentId(paymentId);
+        stockOrder.setPayMethod(0);
+        stockOrder.setPayState(1);
+        //海外仓的订单需要先审核运费
+        if (warehouseVo.getWarehouseType() == WarehouseVo.LOCAL) {
+            stockOrder.setShipReview(3);
+        } else {
+            stockOrder.setShipReview(2);
+        }
+        updateByPrimaryKeySelective(stockOrder);
 
+        //用户模块账户扣款
         AccountPaymentRequest request = new AccountPaymentRequest();
         request.setAccountId(session.getAccountId());
         request.setCustomerId(session.getCustomerId());
@@ -441,7 +466,22 @@ public class StockOrderServiceImpl implements StockOrderService {
         request.setUserId(session.getId());
         request.setId(paymentId);
         request.setPayAmount(amount);
-
+        BaseResponse response = umsFeignClient.accountPayment(request);
+        if (response.getCode() != ResultCode.SUCCESS_CODE) {
+            return null;
+        }
+        //本地仓更新库存信息
+        if (warehouseVo.getWarehouseType() == WarehouseVo.LOCAL) {
+            orderPaidByPaymentId(id, session.getCustomerId(), warehouseVo.getWarehouseCode());
+        }
+        //更新客户每日支付信息
+        CustomerOrderDailyCountUpdateRequest customerOrderDailyCountUpdateRequest = new CustomerOrderDailyCountUpdateRequest();
+        customerOrderDailyCountUpdateRequest.setCustomerId(session.getCustomerId());
+        customerOrderDailyCountUpdateRequest.setOrderType(TransactionConstant.OrderType.STOCK_ORDER.getCode());
+        customerOrderDailyCountUpdateRequest.setPaymentId(paymentId);
+        customerOrderDailyCountUpdateRequest.setPayTime(payTime);
+        orderDailyPayCountService.updateCustomerOrderDailyCount(customerOrderDailyCountUpdateRequest);
+        //保存交易流水
         PaymentDetail detail = new PaymentDetail();
         detail.setPaymentId(paymentId);
         detail.setUserId(session.getId());
@@ -450,143 +490,39 @@ public class StockOrderServiceImpl implements StockOrderService {
         detail.setPayAmount(amount);
         detail.setOrderType(OrderType.STOCK);
         detail.setPayTime(payTime);
-
-        BaseResponse response = umsFeignClient.accountPayment(request);
-        if(response.getCode() != ResultCode.SUCCESS_CODE){
-            return null;
-        }
-        stockOrderDao.completeOrderTransaction(detail, BigDecimal.ZERO);
-
-
-        orderPaidByPaymentId(paymentId,null, session.getCustomerId(),"CNHZ");
-        CustomerOrderDailyCountUpdateRequest customerOrderDailyCountUpdateRequest = new CustomerOrderDailyCountUpdateRequest();
-        customerOrderDailyCountUpdateRequest.setCustomerId(session.getCustomerId());
-        customerOrderDailyCountUpdateRequest.setOrderType(TransactionConstant.OrderType.STOCK_ORDER.getCode());
-        customerOrderDailyCountUpdateRequest.setPaymentId(paymentId);
-        customerOrderDailyCountUpdateRequest.setPayTime(payTime);
-        orderDailyPayCountService.updateCustomerOrderDailyCount(customerOrderDailyCountUpdateRequest);
         sendSavePaymentDetailMessage(detail);
         return detail;
     }
 
 
-    public synchronized boolean orderPaidByPaymentId(Long paymentId, Long customerId) {
-        StockOrderListDto orderListDto = new StockOrderListDto();
-        orderListDto.setPaymentId(paymentId);
-        orderListDto.setCustomerId(customerId);
-        Page<StockOrderListDto> page = new Page<>();
-        page.setPageSize(null);
-        page.setT(orderListDto);
-        List<StockOrderVo> orderVos = stockOrderDao.selectOrderList(page);
+    public synchronized boolean orderPaidByPaymentId(Long orderId, Long customerId, String warehouseCode) {
+
+        StockOrderVo stockOrderVo = stockOrderDao.selectOrderById(orderId);
         List<CustomerStockRecord> records = new ArrayList<>();
 
         Date date = new Date();
 
-        orderVos.forEach(stockOrderVo -> {
-            List<StockOrderItemVo> itemVos = stockOrderVo.getItems();
-            itemVos.forEach(stockOrderItem -> {
-                CustomerStockRecord record = new CustomerStockRecord();
-                record.setCustomerId(customerId);
-                record.setOrderType(OrderType.STOCK);
-                record.setProductId(stockOrderItem.getProductId());
-                record.setQuantity(stockOrderItem.getQuantity());
-                record.setRelateId(stockOrderVo.getId());
-                record.setVariantId(stockOrderItem.getVariantId());
-                record.setVariantImage(stockOrderItem.getVariantImage());
-                record.setType(0);
-                record.setWarehouseCode(stockOrderVo.getWarehouseCode());
-                record.setCreateTime(date);
-                record.setUpdateTime(date);
-                record.setVariantSku(stockOrderItem.getVariantSku());
-                record.setVariantName(stockOrderItem.getVariantName());
-                records.add(record);
-            });
+        List<StockOrderItemVo> itemVos = stockOrderVo.getItems();
+        itemVos.forEach(stockOrderItem -> {
+            CustomerStockRecord record = new CustomerStockRecord();
+            record.setCustomerId(customerId);
+            record.setOrderType(OrderType.STOCK);
+            record.setProductId(stockOrderItem.getProductId());
+            record.setQuantity(stockOrderItem.getQuantity());
+            record.setRelateId(stockOrderItem.getId());
+            record.setVariantId(stockOrderItem.getVariantId());
+            record.setVariantImage(stockOrderItem.getVariantImage());
+            record.setType(0);
+            record.setWarehouseCode(stockOrderVo.getWarehouseCode());
+            record.setCreateTime(date);
+            record.setUpdateTime(date);
+            record.setVariantSku(stockOrderItem.getVariantSku());
+            record.setVariantName(stockOrderItem.getVariantName());
+            records.add(record);
         });
-
-
-        List<StockOrderItem> variantQuantities = stockOrderItemDao.countVariantQuantityByOrderPaymentId(paymentId);
-
-        List<Long> variantIds = customerProductStockDao.selectWarehouseVariantIdsByCustomer(customerId, ProductConstant.DEFAULT_WAREHOUSE_ID);
-
-        List<CustomerProductStock> insertStock = new ArrayList<>();
-
-        List<CustomerProductStock> updateStock = new ArrayList<>();
-
-        variantQuantities.forEach(variantQuantity -> {
-            CustomerProductStock stock = new CustomerProductStock();
-            if (variantIds.contains(variantQuantity.getVariantId())) {
-                stock.setCustomerId(customerId);
-                stock.setVariantId(variantQuantity.getVariantId());
-                stock.setStock(variantQuantity.getQuantity());
-                updateStock.add(stock);
-            } else {
-                stock.setProductTitle(variantQuantity.getProductTitle());
-                stock.setVariantSku(variantQuantity.getVariantSku());
-                stock.setVariantId(variantQuantity.getVariantId());
-                stock.setProductId(variantQuantity.getProductId());
-                stock.setVariantImage(variantQuantity.getVariantImage());
-                stock.setVariantName(variantQuantity.getVariantName());
-                stock.setCustomerId(customerId);
-                stock.setStock(variantQuantity.getQuantity());
-                stock.setLockStock(0);
-                stock.setWarehouseCode(ProductConstant.DEFAULT_WAREHOUSE_ID);
-                stock.setCreateTime(date);
-                stock.setUpdateTime(date);
-                insertStock.add(stock);
-            }
-        });
-
-        if (ListUtils.isNotEmpty(insertStock)) {
-            customerProductStockDao.insertByBatch(insertStock);
-        }
-
-        if (ListUtils.isNotEmpty(updateStock)) {
-            customerProductStockDao.increaseVariantStock(updateStock);
-        }
-
         customerStockRecordDao.insertByBatch(records);
 
-        return true;
-    }
-
-    public synchronized boolean orderPaidByPaymentId(Long paymentId,Long orderId, Long customerId,String warehouseCode) {
-        StockOrderListDto orderListDto = new StockOrderListDto();
-        orderListDto.setPaymentId(paymentId);
-        orderListDto.setOrderId(orderId);
-        orderListDto.setCustomerId(customerId);
-        orderListDto.setWarehouseCode(warehouseCode);
-        Page<StockOrderListDto> page = new Page<>();
-        page.setPageSize(null);
-        page.setT(orderListDto);
-        List<StockOrderVo> orderVos = stockOrderDao.selectOrderList(page);
-        List<CustomerStockRecord> records = new ArrayList<>();
-
-        Date date = new Date();
-
-        orderVos.forEach(stockOrderVo -> {
-            List<StockOrderItemVo> itemVos = stockOrderVo.getItems();
-            itemVos.forEach(stockOrderItem -> {
-                CustomerStockRecord record = new CustomerStockRecord();
-                record.setCustomerId(customerId);
-                record.setOrderType(OrderType.STOCK);
-                record.setProductId(stockOrderItem.getProductId());
-                record.setQuantity(stockOrderItem.getQuantity());
-                record.setRelateId(stockOrderItem.getId());
-                record.setVariantId(stockOrderItem.getVariantId());
-                record.setVariantImage(stockOrderItem.getVariantImage());
-                record.setType(0);
-                record.setWarehouseCode(warehouseCode);
-                record.setCreateTime(date);
-                record.setUpdateTime(date);
-                record.setVariantSku(stockOrderItem.getVariantSku());
-                record.setVariantName(stockOrderItem.getVariantName());
-                records.add(record);
-            });
-        });
-
-        customerStockRecordDao.insertByBatch(records);
-
-        List<StockOrderItem> variantQuantities = stockOrderItemDao.countVariantQuantityByOrderPaymentId(paymentId);
+        List<StockOrderItem> variantQuantities = stockOrderItemDao.countVariantQuantityByOrderId(orderId);
 
         List<Long> variantIds = customerProductStockDao.selectWarehouseVariantIdsByCustomer(customerId, warehouseCode);
 
@@ -596,13 +532,13 @@ public class StockOrderServiceImpl implements StockOrderService {
 
         variantQuantities.forEach(variantQuantity -> {
             CustomerProductStock stock = new CustomerProductStock();
+            stock.setWarehouseCode(warehouseCode);
             if (variantIds.contains(variantQuantity.getVariantId())) {
                 stock.setCustomerId(customerId);
                 stock.setVariantId(variantQuantity.getVariantId());
                 stock.setVariantImage(variantQuantity.getVariantImage());
                 stock.setVariantName(variantQuantity.getVariantName());
                 stock.setStock(variantQuantity.getQuantity());
-                stock.setWarehouseCode(warehouseCode);
                 updateStock.add(stock);
             } else {
                 stock.setProductTitle(variantQuantity.getProductTitle());
@@ -614,7 +550,6 @@ public class StockOrderServiceImpl implements StockOrderService {
                 stock.setCustomerId(customerId);
                 stock.setStock(variantQuantity.getQuantity());
                 stock.setLockStock(0);
-                stock.setWarehouseCode(warehouseCode);
                 stock.setCreateTime(date);
                 stock.setUpdateTime(date);
                 insertStock.add(stock);
@@ -682,34 +617,35 @@ public class StockOrderServiceImpl implements StockOrderService {
             return;
         }
         detail.setOrderTransactions(transactionDetails);
-        Message message = new Message(RocketMqConfig.TOPIC_SAVE_ORDER_TRANSACTION,"stock_order","stock:order:transaction:"+paymentId, JSON.toJSONBytes(detail));
+        Message message = new Message(RocketMqConfig.TOPIC_SAVE_ORDER_TRANSACTION, "stock_order", "stock:order:transaction:" + paymentId, JSON.toJSONBytes(detail));
         message.setDelayTimeLevel(1);
-        MqMessageLog messageLog = MqMessageLog.toMqMessageLog(message,detail.toString());
-        log.warn("交易ID：{},消息：{}",paymentId,detail);
+        MqMessageLog messageLog = MqMessageLog.toMqMessageLog(message, detail.toString());
+        log.warn("交易ID：{},消息：{}", paymentId, detail);
         String status = "failed";
         int i = 1;
-        while (i < 4 && !status.equals(SendStatus.SEND_OK.name())){
+        while (i < 4 && !status.equals(SendStatus.SEND_OK.name())) {
             try {
-                status =  defaultMQProducer.send(message).getSendStatus().name();
+                status = defaultMQProducer.send(message).getSendStatus().name();
             } catch (Exception e) {
                 e.printStackTrace();
-                log.warn("payment Id:{},交易信息发送失败,失败次数:{}",paymentId,i);
-            }finally {
+                log.warn("payment Id:{},交易信息发送失败,失败次数:{}", paymentId, i);
+            } finally {
                 i += 1;
             }
         }
-        if(status.equals(SendStatus.SEND_OK.name())){
+        if (status.equals(SendStatus.SEND_OK.name())) {
             messageLog.setIsSendSuccess(1);
-            log.warn("payment Id:{},交易信息发送成功",paymentId);
-        }else {
+            log.warn("payment Id:{},交易信息发送成功", paymentId);
+        } else {
             messageLog.setIsSendSuccess(0);
-            log.warn("payment Id:{},交易信息发送失败",paymentId);
+            log.warn("payment Id:{},交易信息发送失败", paymentId);
         }
         umsFeignClient.saveMqLog(messageLog);
     }
 
     /**
      * 根据paymentId 查询支付号下的所有订单
+     *
      * @param paymentId
      * @return
      */

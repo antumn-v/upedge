@@ -856,4 +856,12 @@
         and pay_state = '1'
         and ship_review = '2'
     </update>
+
+    <select id="selectOrderWarehouseByPaymentId" resultType="java.lang.String">
+        select distinct warehouse_code
+        from stock_order
+        where payment_id = #{paymentId}
+        and pay_state = '1'
+        and ship_review = '2'
+    </select>
 </mapper>

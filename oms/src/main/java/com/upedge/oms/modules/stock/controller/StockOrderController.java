@@ -69,7 +69,7 @@ public class StockOrderController {
         return res;
     }
 
-//    @ApiOperation("创建备库订单")
+    //    @ApiOperation("创建备库订单")
 //    @PostMapping("/create")
     public BaseResponse excelImportStockOrder(@RequestBody List<VariantQuantity> variantQuantities) {
         Session session = UserUtil.getSession(redisTemplate);
@@ -102,7 +102,7 @@ public class StockOrderController {
         return res;
     }
 
-//    @PostMapping("/count")
+    //    @PostMapping("/count")
     public StockOrderListResponse count(@RequestBody @Valid StockOrderListRequest request) {
         Session session = UserUtil.getSession(redisTemplate);
 
@@ -110,7 +110,7 @@ public class StockOrderController {
         if (null == request.getT()) {
             request.setT(new StockOrderListDto());
         }
-        for (StockOrderTagEnum tag: StockOrderTagEnum.values()) {
+        for (StockOrderTagEnum tag : StockOrderTagEnum.values()) {
             StockOrderListDto stockOrderListDto = request.getT();
 
             stockOrderListDto.setCustomerId(session.getCustomerId());
@@ -120,7 +120,7 @@ public class StockOrderController {
             stockOrderListDto.setRefundState(enums.getRefundState());
 
             Long total = stockOrderService.countOrderList(request);
-            map.put(tag.name(),total);
+            map.put(tag.name(), total);
         }
         StockOrderListResponse res = new StockOrderListResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS, map, request);
         return res;
@@ -160,7 +160,7 @@ public class StockOrderController {
         return new BaseResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS, stockOrderVos);
     }
 
-//    @PostMapping("/pay/paypal")
+    //    @PostMapping("/pay/paypal")
     public BaseResponse payByPaypal(@RequestBody List<Long> orderIds) {
 
         Session session = UserUtil.getSession(redisTemplate);
@@ -190,40 +190,31 @@ public class StockOrderController {
 
     @ApiOperation("余额支付订单")
     @PostMapping("/pay/balance")
-    public BaseResponse payByBalance(@RequestBody@Valid StockOrderPayRequest request) {
-        List<Long> orderIds = request.getOrderIds();
+    public BaseResponse payByBalance(@RequestBody @Valid StockOrderPayRequest request) {
+        Long id = request.getId();
         Session session = UserUtil.getSession(redisTemplate);
-        Iterator<Long> ids = orderIds.iterator();
-        while (ids.hasNext()) {
-            Long id = ids.next();
-            String key = RedisKey.STRING_ORDER_ID_PENDING + id;
-            if (redisTemplate.hasKey(key)) {
-                return BaseResponse.failed("The orders are processing.Please try again 15 seconds later.");
-            }
-
-            boolean b = stockOrderService.refreshOrderDetail(id);
-            if (!b) {
-                ids.remove();
-            } else {
-                redisTemplate.opsForValue().set(key, System.currentTimeMillis(), 15, TimeUnit.SECONDS);
-            }
+        String key = RedisKey.STRING_ORDER_ID_PENDING + id;
+        if (redisTemplate.hasKey(key)) {
+            return BaseResponse.failed("The orders are processing.Please try again 3 seconds later.");
         }
-        if (ListUtils.isNotEmpty(orderIds)) {
-            stockOrderService.payOrderByBalance(orderIds, session);
-            return BaseResponse.success();
+        redisTemplate.opsForValue().set(key, System.currentTimeMillis(), 3, TimeUnit.SECONDS);
+        boolean b = stockOrderService.refreshOrderDetail(id);
+        if (!b) {
+            return BaseResponse.failed();
         }
-        return BaseResponse.failed();
+        stockOrderService.payOrderByBalance(id, session);
+        return BaseResponse.success();
     }
 
-//    @GetMapping("/pay/paypal/execute")
+    //    @GetMapping("/pay/paypal/execute")
     public BaseResponse paypalSuccess(String paymentId, String PayerID, @RequestParam("token") String token) throws IOException {
         String tokenKey = RedisKey.HASH_PAYPAL_TOKEN + token;
         PaypalOrder order = (PaypalOrder) redisTemplate.opsForHash().get(tokenKey, "order");
         redisTemplate.delete(tokenKey);
-        if(null == order){
+        if (null == order) {
             return BaseResponse.failed("Transaction canceled or timed out.");
         }
-        if (StringUtils.isBlank(paymentId) || StringUtils.isBlank(PayerID) ) {
+        if (StringUtils.isBlank(paymentId) || StringUtils.isBlank(PayerID)) {
             stockOrderService.updatePayStateByPaymentId(order.getId(), StockOrderState.UN_PAID);
             return BaseResponse.failed("Transaction canceled or timed out.");
         } else {
@@ -232,7 +223,8 @@ public class StockOrderController {
             boolean flag = RedisUtil.lock(redisTemplate, key, 3L, 10 * 1000L);
             if (!flag) {
                 return BaseResponse.failed();
-            }            PaypalExecuteRequest paypalExecuteRequest = new PaypalExecuteRequest(paymentId, PayerID, token, order);
+            }
+            PaypalExecuteRequest paypalExecuteRequest = new PaypalExecuteRequest(paymentId, PayerID, token, order);
             BaseResponse response = umsFeignClient.executePaypalOrder(paypalExecuteRequest);
             if (response.getCode() == ResultCode.SUCCESS_CODE) {
                 LinkedHashMap<String, String> linkedHashMap = (LinkedHashMap<String, String>) response.getData();
@@ -246,19 +238,19 @@ public class StockOrderController {
                 map.put("payAmount", order.getAmount());
                 response.setData(map);
                 response.setCode(ResultCode.SUCCESS_CODE);
-                RedisUtil.unLock(redisTemplate,key);
+                RedisUtil.unLock(redisTemplate, key);
                 return response;
             } else {
                 stockOrderService.updatePayStateByPaymentId(order.getId(), StockOrderState.UN_PAID);
             }
-            RedisUtil.unLock(redisTemplate,key);
+            RedisUtil.unLock(redisTemplate, key);
             return BaseResponse.failed();
         }
 
 
     }
 
-//    @GetMapping("/pay/paypal/cancel")
+    //    @GetMapping("/pay/paypal/cancel")
     public void paypalCancel(@RequestParam("token") String token) {
         PaypalOrder order = (PaypalOrder) redisTemplate.opsForHash().get(token, "order");
         if (null != order) {
@@ -269,7 +261,7 @@ public class StockOrderController {
         }
     }
 
-//    @PostMapping("/pay/paypal/completed")
+    //    @PostMapping("/pay/paypal/completed")
     public BaseResponse stockPaypalCompleted(@RequestBody @Valid PaypalPayment paypalPayment) {
         switch (paypalPayment.getState()) {
             case "pending":
@@ -287,16 +279,16 @@ public class StockOrderController {
 
     @ApiOperation("补充订单物流信息")
     @PostMapping("/updateTrack")
-    public BaseResponse updateTrack(@RequestBody@Valid StockOrderUpdateTrackRequest request){
+    public BaseResponse updateTrack(@RequestBody @Valid StockOrderUpdateTrackRequest request) {
         Session session = UserUtil.getSession(redisTemplate);
-        return stockOrderService.updateTrack(request,session);
+        return stockOrderService.updateTrack(request, session);
     }
 
     @ApiOperation("确认收货")
     @PostMapping("/confirmReceipt/{orderId}")
-    public BaseResponse orderConfirmReceipt(@PathVariable Long orderId){
+    public BaseResponse orderConfirmReceipt(@PathVariable Long orderId) {
         Session session = UserUtil.getSession(redisTemplate);
-        return stockOrderService.orderConfirmReceipt(orderId,session);
+        return stockOrderService.orderConfirmReceipt(orderId, session);
     }
 
 }

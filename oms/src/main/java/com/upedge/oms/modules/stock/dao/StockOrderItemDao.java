@@ -19,6 +19,7 @@ public interface StockOrderItemDao{
                                @Param("price") BigDecimal price);
 
     List<StockOrderItem> countVariantQuantityByOrderPaymentId(Long paymentId);
+    List<StockOrderItem> countVariantQuantityByOrderId(Long orderId);
 
     StockOrderItem selectByPrimaryKey(StockOrderItem record);
 
