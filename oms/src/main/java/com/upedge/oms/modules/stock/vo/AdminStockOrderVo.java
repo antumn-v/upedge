@@ -16,7 +16,7 @@ public class AdminStockOrderVo {
     /**
      * 仓库ID
      */
-    private Long warehouseCode;
+    private String warehouseCode;
     /**
      * 用户ID
      */

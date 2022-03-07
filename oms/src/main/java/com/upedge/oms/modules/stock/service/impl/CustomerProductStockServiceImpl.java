@@ -9,6 +9,7 @@ import com.upedge.common.model.order.vo.CustomerProductStockNumVo;
 import com.upedge.common.model.product.ProductSaiheInventoryVo;
 import com.upedge.common.model.product.VariantDetail;
 import com.upedge.common.model.user.vo.Session;
+import com.upedge.common.utils.IdGenerate;
 import com.upedge.common.utils.ListUtils;
 import com.upedge.oms.modules.order.vo.ItemDischargeQuantityVo;
 import com.upedge.oms.modules.stock.dao.CustomerProductStockDao;
@@ -81,9 +82,13 @@ public class CustomerProductStockServiceImpl implements CustomerProductStockServ
         if (customerProductStock.getStock() < record.getQuantity()){
             return BaseResponse.failed("库存不足");
         }
+        record.setRevokeState(1);
+        customerStockRecordDao.updateByPrimaryKey(record);
 
         CustomerStockRecord customerStockRecord = new CustomerStockRecord();
         BeanUtils.copyProperties(record,customerStockRecord);
+        customerStockRecord.setId(IdGenerate.nextId());
+        customerStockRecord.setRelateId(IdGenerate.nextId());
         customerStockRecord.setRevokeState(1);
         customerStockRecord.setCreateTime(new Date());
         customerStockRecord.setType(4);

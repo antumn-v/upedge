@@ -355,6 +355,7 @@ public class ProductController {
     @RequestMapping(value="/list", method=RequestMethod.POST)
     @Permission(permission = "product:product:list")
     public ProductListResponse productList(@RequestBody @Valid ProductListRequest request) {
+        request.setCondition("state != '5'");
         request.setOrderBy("update_time desc");
         List<Product> results = productService.select(request);
         Long total = productService.count(request);

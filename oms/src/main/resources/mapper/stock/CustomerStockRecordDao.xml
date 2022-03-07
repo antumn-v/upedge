@@ -23,7 +23,7 @@
     </resultMap>
 
     <sql id="Base_Column_List">
-        `id`,`customer_id`,`product_id`,`variant_id`,`warehouse_code`,`relate_id`,`type`,
+        `id`,`customer_id`,`product_id`,`variant_id`,`warehouse_code`,`relate_id`,`type`,revoke_state,
         `order_type`,`quantity`,`create_time`,`update_time`,`variant_image`,`variant_sku`,`variant_name`
     </sql>
 
