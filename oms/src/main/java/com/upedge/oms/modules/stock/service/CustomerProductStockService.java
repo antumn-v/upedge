@@ -17,6 +17,8 @@ import java.util.List;
 public interface CustomerProductStockService{
 
 
+    BaseResponse revokeManualAddRecord(Long recordId,Session session);
+
     BaseResponse manualAddCustomerVariantStock(ManualAddCustomerStockRequest request, Session session);
 
     CustomerProductStock selectByPrimaryKey(Long id);
@@ -73,6 +75,5 @@ public interface CustomerProductStockService{
      */
     BaseResponse refreshSaiheInventory(Long id) throws CustomerException;
 
-    CustomerProductStock selectStockByVariantAndCustomerId(Long variantId, Long userId);
 }
 

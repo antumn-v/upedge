@@ -86,9 +86,7 @@ public class CustomerStockRecordServiceImpl implements CustomerStockRecordServic
      *
      */
     public CustomerStockRecord selectByPrimaryKey(Long id){
-        CustomerStockRecord record = new CustomerStockRecord();
-        record.setId(id);
-        return customerStockRecordDao.selectByPrimaryKey(record);
+        return customerStockRecordDao.selectByPrimaryKey(id);
     }
 
     /**

@@ -10,7 +10,7 @@ import java.util.List;
  */
 public interface CustomerStockRecordDao{
 
-    CustomerStockRecord selectByPrimaryKey(CustomerStockRecord record);
+    CustomerStockRecord selectByPrimaryKey(Long id);
 
     int deleteByPrimaryKey(CustomerStockRecord record);
 

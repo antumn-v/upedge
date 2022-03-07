@@ -379,25 +379,25 @@ public class AdminStockServiceImpl implements AdminStockService {
             ProductSaiheInventoryVo productSaiheInventoryVo = new ProductSaiheInventoryVo();
             productSaiheInventoryVo.setVariantSku(customerProductStock.getVariantSku());
 //            productSaiheInventoryVo.setWarehouseCode(customerProductStock.getWarehouseCode().intValue());
-            BaseResponse baseResponse = pmsFeignClient.queryProductSaiheInventory(productSaiheInventoryVo);
-
-            if (baseResponse.getCode() != -1 && baseResponse.getData() != null){
-                List<ProductSaiheInventoryVo> data = (List<ProductSaiheInventoryVo>) baseResponse.getData();
-                if(data.size() != 0) {
-                customerProductStockVo.setProductSaiheInventoryVo(data.get(0));
-                 }
-            }
-            String managerCode = (String) redisTemplate.opsForHash().get(RedisKey.HASH_CUSTOMER_MANAGER_RELATE,customerProductStock.getCustomerId().toString());
-            customerProductStockVo.setManagerCode(managerCode);
-
-            BaseResponse customerResponse = umsFeignClient.customerInfo(customerProductStock.getCustomerId());
-            if (customerResponse.getCode() == ResultCode.SUCCESS_CODE){
-                CustomerVo customerVo =   JSON.parseObject(JSON.toJSONString( customerResponse.getData()),CustomerVo.class);
-                if (customerVo != null){
-                    customerProductStockVo.setCustomerLoginName(customerVo.getLoginName());
-                    customerProductStockVo.setCustomerName(customerVo.getUsername());
-                }
-            }
+//            BaseResponse baseResponse = pmsFeignClient.queryProductSaiheInventory(productSaiheInventoryVo);
+//
+//            if (baseResponse.getCode() != -1 && baseResponse.getData() != null){
+//                List<ProductSaiheInventoryVo> data = (List<ProductSaiheInventoryVo>) baseResponse.getData();
+//                if(data.size() != 0) {
+//                customerProductStockVo.setProductSaiheInventoryVo(data.get(0));
+//                 }
+//            }
+//            String managerCode = (String) redisTemplate.opsForHash().get(RedisKey.HASH_CUSTOMER_MANAGER_RELATE,customerProductStock.getCustomerId().toString());
+//            customerProductStockVo.setManagerCode(managerCode);
+//
+//            BaseResponse customerResponse = umsFeignClient.customerInfo(customerProductStock.getCustomerId());
+//            if (customerResponse.getCode() == ResultCode.SUCCESS_CODE){
+//                CustomerVo customerVo =   JSON.parseObject(JSON.toJSONString( customerResponse.getData()),CustomerVo.class);
+//                if (customerVo != null){
+//                    customerProductStockVo.setCustomerLoginName(customerVo.getLoginName());
+//                    customerProductStockVo.setCustomerName(customerVo.getUsername());
+//                }
+//            }
             customerProductStockVoList.add(customerProductStockVo);
         });
         CustomerProductStockListResponse res = new CustomerProductStockListResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS,customerProductStockVoList,request);

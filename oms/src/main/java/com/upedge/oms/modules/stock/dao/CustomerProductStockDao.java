@@ -80,5 +80,7 @@ public interface CustomerProductStockDao{
 
     List<CustomerProductStockNumVo> getCustomerStockNum();
 
-    CustomerProductStock selectStockByVariantAndCustomerId(@Param("variantId") Long variantId, @Param("customerId") Long customerId);
+    CustomerProductStock selectStockByVariantAndCustomerId(@Param("variantId") Long variantId,
+                                                           @Param("customerId") Long customerId,
+                                                           @Param("warehouseCode")String warehouseCode);
 }

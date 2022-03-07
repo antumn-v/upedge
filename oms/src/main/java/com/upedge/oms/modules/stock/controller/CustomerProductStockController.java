@@ -1,6 +1,7 @@
 package com.upedge.oms.modules.stock.controller;
 
 import com.upedge.common.base.BaseResponse;
+import com.upedge.common.base.Page;
 import com.upedge.common.component.annotation.Permission;
 import com.upedge.common.constant.Constant;
 import com.upedge.common.constant.ResultCode;
@@ -10,6 +11,7 @@ import com.upedge.common.web.util.UserUtil;
 import com.upedge.oms.modules.stock.entity.CustomerProductStock;
 import com.upedge.oms.modules.stock.entity.CustomerStockRecord;
 import com.upedge.oms.modules.stock.request.CustomerProductStockListRequest;
+import com.upedge.oms.modules.stock.request.CustomerProductStockRevokeListRequest;
 import com.upedge.oms.modules.stock.request.CustomerStockRecordListRequest;
 import com.upedge.oms.modules.stock.request.ManualAddCustomerStockRequest;
 import com.upedge.oms.modules.stock.response.CustomerProductStockInfoResponse;
@@ -17,6 +19,7 @@ import com.upedge.oms.modules.stock.response.CustomerProductStockListResponse;
 import com.upedge.oms.modules.stock.service.CustomerProductStockService;
 import com.upedge.oms.modules.stock.service.CustomerStockRecordService;
 import com.upedge.oms.modules.stock.vo.CustomerStockRecordDetailVo;
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,7 +34,7 @@ import java.util.List;
  *
  * @author author
  */
-@ApiOperation("客户库存")
+@Api(tags = "客户库存")
 @RestController
 @RequestMapping("/customer/stock")
 public class CustomerProductStockController {
@@ -123,5 +126,27 @@ public class CustomerProductStockController {
         return customerProductStockService.manualAddCustomerVariantStock(request,session);
     }
 
+    @ApiOperation("可撤销的手动增加库存记录")
+    @PostMapping("/revokeList")
+    public BaseResponse revokeList(@RequestBody@Valid CustomerProductStockRevokeListRequest request){
+        CustomerStockRecord customerStockRecord = new CustomerStockRecord();
+        customerStockRecord.setWarehouseCode(request.getWarehouseCode());
+        customerStockRecord.setCustomerId(request.getCustomerId());
+        customerStockRecord.setVariantId(request.getVariantId());
+        customerStockRecord.setType(3);
+        customerStockRecord.setRevokeState(0);
+        Page<CustomerStockRecord> page = new Page<>();
+        page.setT(customerStockRecord);
+        page.setPageSize(-1);
+        List<CustomerStockRecord> customerStockRecords = customerStockRecordService.select(page);
+        return BaseResponse.success(customerStockRecords);
+    }
+
+    @ApiOperation("撤销手动增加的库存记录")
+    @PostMapping("/revokeManualAdd/{recordId}")
+    public BaseResponse revokeManualAddCustomerStock(@PathVariable Long recordId){
+        Session session = UserUtil.getSession(redisTemplate);
+        return customerProductStockService.revokeManualAddRecord(recordId,session);
+    }
 
 }

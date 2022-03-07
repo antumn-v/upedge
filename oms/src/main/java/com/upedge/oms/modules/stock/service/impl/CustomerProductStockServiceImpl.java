@@ -70,6 +70,31 @@ public class CustomerProductStockServiceImpl implements CustomerProductStockServ
 
     @Transactional
     @Override
+    public BaseResponse revokeManualAddRecord(Long recordId, Session session) {
+        CustomerStockRecord record = customerStockRecordDao.selectByPrimaryKey(recordId);
+        if (null == record
+        || record.getRevokeState() != 0){
+            return BaseResponse.failed();
+        }
+        CustomerProductStock customerProductStock
+                = customerProductStockDao.selectStockByVariantAndCustomerId(record.getVariantId(),record.getCustomerId(),record.getWarehouseCode());
+        if (customerProductStock.getStock() < record.getQuantity()){
+            return BaseResponse.failed("库存不足");
+        }
+
+        CustomerStockRecord customerStockRecord = new CustomerStockRecord();
+        BeanUtils.copyProperties(record,customerStockRecord);
+        customerStockRecord.setRevokeState(1);
+        customerStockRecord.setCreateTime(new Date());
+        customerStockRecord.setType(4);
+        customerStockRecordDao.insert(customerStockRecord);
+
+        customerProductStockDao.subStockForRefund(customerProductStock.getId(),record.getQuantity());
+        return BaseResponse.success();
+    }
+
+    @Transactional
+    @Override
     public BaseResponse manualAddCustomerVariantStock(ManualAddCustomerStockRequest request, Session session) {
         Long productId = request.getProductId();
         Long customerId = request.getCustomerId();
@@ -126,6 +151,7 @@ public class CustomerProductStockServiceImpl implements CustomerProductStockServ
             customerStockRecord.setRelateId(System.currentTimeMillis());
             customerStockRecord.setVariantImage(variantDetail.getVariantImage());
             customerStockRecord.setUpdateTime(date);
+            customerStockRecord.setRevokeState(0);
             customerStockRecord.setVariantName(variantDetail.getVariantName());
             customerStockRecords.add(customerStockRecord);
         }
@@ -307,11 +333,6 @@ public class CustomerProductStockServiceImpl implements CustomerProductStockServ
 
     }
 
-    @Override
-    public CustomerProductStock selectStockByVariantAndCustomerId(Long variantId, Long userId) {
 
-        return customerProductStockDao.selectStockByVariantAndCustomerId(variantId,userId);
-
-    }
 
 }

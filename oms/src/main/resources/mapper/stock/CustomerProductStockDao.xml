@@ -393,10 +393,13 @@
         from customer_product_stock
         where  customer_id = #{customerId}
         and  variant_id = #{variantId}
+        and warehouse_code = #{warehouseCode}
+        limit 1
     </select>
 
     <update id="subStockForRefund">
         update customer_product_stock set stock=stock-#{quantity} where id=#{id} and stock>=#{quantity}
     </update>
+
 
 </mapper>

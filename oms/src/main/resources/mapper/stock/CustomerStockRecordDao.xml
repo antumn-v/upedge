@@ -19,6 +19,7 @@
         <result property="variantImage" column="variant_image"/>
         <result property="variantSku" column="variant_sku"/>
         <result property="variantName" column="variant_name"/>
+        <result property="revokeState" column="revoke_state"/>
     </resultMap>
 
     <sql id="Base_Column_List">
@@ -72,8 +73,17 @@
             <if test="updateTime != null">
                 update_time = #{updateTime},
             </if>
+            <if test="variantName != null">
+                variant_name = #{variantName},
+            </if>
+            <if test="variantSku != null">
+                variant_sku = #{variantSku},
+            </if>
             <if test="variantImage != null">
                 variant_image = #{variantImage},
+            </if>
+            <if test="revokeState != null">
+                revoke_state = #{revokeState},
             </if>
         </set>
         where id = #{id}
@@ -93,13 +103,15 @@
             quantity = #{quantity},
             create_time = #{createTime},
             update_time = #{updateTime},
+            variant_name = #{variantName},
+            variant_sku = #{variantSku},
             variant_image = #{variantImage},
+            revoke_state = #{revokeState},
         </set>
         where id = #{id}
     </update>
 
-    <insert id="insert" keyColumn="id" keyProperty="id"
-            parameterType="com.upedge.oms.modules.stock.entity.CustomerStockRecord" useGeneratedKeys="true">
+    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.upedge.oms.modules.stock.entity.CustomerStockRecord" useGeneratedKeys="true">
         insert into customer_stock_record
         <trim prefix="(" suffix=")" suffixOverrides=",">
             id,
@@ -108,12 +120,15 @@
             variant_id,
             warehouse_code,
             relate_id,
-            `type`,
+            type,
             order_type,
             quantity,
             create_time,
             update_time,
-            variant_image
+            variant_name,
+            variant_sku,
+            variant_image,
+            revoke_state
         </trim>
         values (
         #{id},
@@ -127,88 +142,108 @@
         #{quantity},
         #{createTime},
         #{updateTime},
-        #{variantImage}
+        #{variantName},
+        #{variantSku},
+        #{variantImage},
+        #{revokeState}
         )
     </insert>
 
-    <insert id="insertSelective" keyColumn="id" keyProperty="id"
-            parameterType="com.upedge.oms.modules.stock.entity.CustomerStockRecord" useGeneratedKeys="true">
+    <insert id="insertSelective"  keyColumn="id" keyProperty="id"  parameterType="com.upedge.oms.modules.stock.entity.CustomerStockRecord" useGeneratedKeys="true">
         insert into customer_stock_record
         <trim prefix="(" suffix=")" suffixOverrides=",">
-            <if test="id != null">
+            <if test="id != null" >
                 id
             </if>
-            <if test="customerId != null">
+            <if test="customerId != null" >
                 customer_id
             </if>
-            <if test="productId != null">
+            <if test="productId != null" >
                 product_id
             </if>
-            <if test="variantId != null">
+            <if test="variantId != null" >
                 variant_id
             </if>
-            <if test="warehouseCode != null">
+            <if test="warehouseCode != null" >
                 warehouse_code
             </if>
-            <if test="relateId != null">
+            <if test="relateId != null" >
                 relate_id
             </if>
-            <if test="type != null">
+            <if test="type != null" >
                 type
             </if>
-            <if test="orderType != null">
+            <if test="orderType != null" >
                 order_type
             </if>
-            <if test="quantity != null">
+            <if test="quantity != null" >
                 quantity
             </if>
-            <if test="createTime != null">
+            <if test="createTime != null" >
                 create_time
             </if>
-            <if test="updateTime != null">
+            <if test="updateTime != null" >
                 update_time
             </if>
-            <if test="variantImage != null">
+            <if test="variantName != null" >
+                variant_name
+            </if>
+            <if test="variantSku != null" >
+                variant_sku
+            </if>
+            <if test="variantImage != null" >
                 variant_image
+            </if>
+            <if test="revokeState != null" >
+                revoke_state
             </if>
 
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
-            <if test="id != null">
+            <if test="id != null" >
                 #{id}
             </if>
-            <if test="customerId != null">
+            <if test="customerId != null" >
                 #{customerId}
             </if>
-            <if test="productId != null">
+            <if test="productId != null" >
                 #{productId}
             </if>
-            <if test="variantId != null">
+            <if test="variantId != null" >
                 #{variantId}
             </if>
-            <if test="warehouseCode != null">
+            <if test="warehouseCode != null" >
                 #{warehouseCode}
             </if>
-            <if test="relateId != null">
+            <if test="relateId != null" >
                 #{relateId}
             </if>
-            <if test="type != null">
+            <if test="type != null" >
                 #{type}
             </if>
-            <if test="orderType != null">
+            <if test="orderType != null" >
                 #{orderType}
             </if>
-            <if test="quantity != null">
+            <if test="quantity != null" >
                 #{quantity}
             </if>
-            <if test="createTime != null">
+            <if test="createTime != null" >
                 #{createTime}
             </if>
-            <if test="updateTime != null">
+            <if test="updateTime != null" >
                 #{updateTime}
             </if>
-            <if test="variantImage != null">
+            <if test="variantName != null" >
+                #{variantName}
+            </if>
+            <if test="variantSku != null" >
+                #{variantSku}
+            </if>
+            <if test="variantImage != null" >
                 #{variantImage}
+            </if>
+            <if test="revokeState != null" >
+                #{revokeState}
             </if>
 
         </trim>
@@ -228,9 +263,10 @@
             quantity,
             create_time,
             update_time,
-            variant_image,
             variant_name,
-            variant_sku
+            variant_sku,
+            variant_image,
+            revoke_state
         </trim>
         values
         <foreach collection="list" item="item" index="index" separator=",">
@@ -246,9 +282,10 @@
                 #{item.quantity},
                 #{item.createTime},
                 #{item.updateTime},
-                #{item.variantImage},
                 #{item.variantName},
-                #{item.variantSku}
+                #{item.variantSku},
+                #{item.variantImage},
+                #{item.revokeState}
             </trim>
         </foreach>
     </insert>
@@ -291,8 +328,17 @@
                 <if test="t.updateTime != null">
                     update_time = #{t.updateTime} and
                 </if>
+                <if test="t.variantName != null">
+                    variant_name = #{t.variantName} and
+                </if>
+                <if test="t.variantSku != null">
+                    variant_sku = #{t.variantSku} and
+                </if>
                 <if test="t.variantImage != null">
                     variant_image = #{t.variantImage} and
+                </if>
+                <if test="t.revokeState != null">
+                    revoke_state = #{t.revokeState} and
                 </if>
             </trim>
         </if>

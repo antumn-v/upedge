@@ -62,4 +62,6 @@ public class CustomerStockRecord{
     private String variantSku;
 
     private String variantName;
+
+	private Integer revokeState;
 }

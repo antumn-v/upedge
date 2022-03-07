@@ -518,6 +518,7 @@ public class StockOrderServiceImpl implements StockOrderService {
             record.setUpdateTime(date);
             record.setVariantSku(stockOrderItem.getVariantSku());
             record.setVariantName(stockOrderItem.getVariantName());
+            record.setRevokeState(0);
             records.add(record);
         });
         customerStockRecordDao.insertByBatch(records);
