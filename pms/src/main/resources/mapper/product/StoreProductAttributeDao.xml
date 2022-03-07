@@ -38,19 +38,19 @@
         from store_product_attribute p
         where 1 = 1
         <if test="t != null">
-            <if test="t.customerId != null">
+            <if test="t.customerId != null and t.customerId != ''">
                 and p.customer_id = #{t.customerId}
             </if>
-            <if test="t.id != null">
-                and p.id = #{id}
+            <if test="t.id != null and t.id != ''">
+                and p.id = #{t.id}
             </if>
-            <if test="t.storeId != null">
+            <if test="t.storeId != null and t.storeId != ''">
                 and p.store_id = #{t.storeId}
             </if>
             <if test="t.title != null and t.title != ''">
                 and p.title like CONCAT('%',#{t.title},'%')
             </if>
-            <if test="t.source != null">
+            <if test="t.source != null and t.source != ''">
                 and p.source = #{t.source}
             </if>
         </if>
@@ -71,7 +71,7 @@
                 and p.customer_id = #{t.customerId}
             </if>
             <if test="t.id != null">
-                and p.id = #{id}
+                and p.id = #{t.id}
             </if>
             <if test="t.storeId != null">
                 and p.store_id = #{t.storeId}

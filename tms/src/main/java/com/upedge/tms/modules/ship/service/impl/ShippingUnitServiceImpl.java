@@ -90,6 +90,7 @@ public class ShippingUnitServiceImpl implements ShippingUnitService {
         String methodName = shippingMethodRedis.getName();
         List<ShippingUnit> shippingUnits = new ArrayList<>();
         Map<String,String> countryMap = new HashMap<>();
+
         for (ShipUnitExitImportDto shipUnitExitImportDto : shipUnitExitImportDtos) {
 
             String areaId = countryMap.get(shipUnitExitImportDto.getCountry());
@@ -300,6 +301,7 @@ public class ShippingUnitServiceImpl implements ShippingUnitService {
         }
         shipDetail.setServiceFee(BigDecimal.ONE);
         shipDetail.setPrice(price);
+        shipDetail.setWeightType(0);
         return shipDetail;
     }
 }

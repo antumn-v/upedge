@@ -2,6 +2,7 @@ package com.upedge.oms.modules.order.controller;
 
 import com.upedge.common.base.BaseResponse;
 import com.upedge.common.constant.Constant;
+import com.upedge.common.constant.ProductConstant;
 import com.upedge.common.constant.ResultCode;
 import com.upedge.common.model.store.StoreVo;
 import com.upedge.common.model.store.request.StoreApiRequest;
@@ -95,7 +96,7 @@ public class StoreOrderController {
         storeOrderService.completeStoreOrderItemDetail(storeOrder.getId());
         Order order =  orderService.createOrderByStoreOrder(storeOrder.getId());
         if(order != null){
-            orderService.orderInitShipDetail(order.getId());
+            orderService.orderInitShipDetail(order.getId(), ProductConstant.DEFAULT_WAREHOUSE_ID);
         }
         return BaseResponse.success();
     }
@@ -106,7 +107,7 @@ public class StoreOrderController {
         storeOrderService.completeStoreOrderItemDetail(storeOrder.getId());
         Order order =  orderService.createOrderByStoreOrder(storeOrder.getId());
         if(order != null){
-            orderService.orderInitShipDetail(order.getId());
+            orderService.orderInitShipDetail(order.getId(),ProductConstant.DEFAULT_WAREHOUSE_ID);
         }
         return new BaseResponse(ResultCode.SUCCESS_CODE,storeOrder);
     }

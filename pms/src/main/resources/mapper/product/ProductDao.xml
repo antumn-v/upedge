@@ -182,8 +182,8 @@
     </update>
     <update id="abandonProduct">
          update product
-        set user_id=#{userId},state=-1
-        where state=1 and id=#{id} limit 1
+        set user_id=#{userId},state=5
+        where  id=#{id} limit 1
     </update>
 
     <update id="publicProduct">

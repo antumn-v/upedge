@@ -70,7 +70,7 @@
     </resultMap>
 
     <resultMap type="com.upedge.oms.modules.order.vo.AppOrderVo" id="AppOrderPayList">
-        <result property="id" column="id"/>
+        <id property="id" column="id"/>
         <result property="customerId" column="customer_id"/>
         <result property="storeId" column="store_id"/>
         <result property="storeName" column="store_name"/>
@@ -94,14 +94,16 @@
         <result property="createTime" column="create_time"/>
         <result property="orderCustomerName" column="order_customer_name"/>
         <collection ofType="com.upedge.oms.modules.order.vo.AppStoreOrderVo" property="storeOrderVos">
+            <id property="storeOrderId" column="store_order_id"/>
             <result property="platOrderCreateTime" column="plat_order_create_time"/>
             <result property="platOrderName" column="plat_order_name"/>
             <result property="financialStatus" column="financial_status"/>
             <result property="fulfillmentStatus" column="fulfillment_status"/>
-            <result property="storeOrderId" column="store_order_id"/>
             <result property="platOrderCreateTime" column="plat_order_create_time"/>
+            <result property="orderCustomerName" column="order_customer_name"/>
+            <result property="orderId" column="order_id"/>
             <collection ofType="com.upedge.oms.modules.order.vo.AppOrderItemVo" property="itemVos">
-                <result property="id" column="itemId"/>
+                <id property="id" column="itemId"/>
                 <result property="orderId" column="order_id"/>
                 <result property="adminProductId" column="admin_product_id"/>
                 <result property="adminVariantId" column="admin_variant_id"/>
@@ -116,6 +118,7 @@
                 <result property="quantity" column="quantity"/>
                 <result property="dischargeQuantity" column="discharge_quantity"/>
                 <result property="itemType" column="item_type"/>
+                <result property="quoteState" column="quote_state"/>
             </collection>
         </collection>
     </resultMap>
@@ -462,7 +465,10 @@
 
     <select id="selectAppOrderIds" resultType="java.lang.Long"
             parameterType="com.upedge.oms.modules.order.request.AppOrderListRequest">
-        select distinct o.id
+        select o.id
+        from
+        (
+        select distinct o.id,r.plat_order_create_time
         from `order` o
         inner join store_order_relate r
         on o.id = r.order_id
@@ -479,6 +485,7 @@
         <if test="fromNum != null and pageSize != null">
             limit #{fromNum},#{pageSize}
         </if>
+        )
     </select>
 
     <select id="selectAppOrderCount" resultType="java.lang.Long"

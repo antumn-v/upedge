@@ -764,7 +764,7 @@ public class ProductServiceImpl implements ProductService {
         }
         product = new Product();
         product.setId(id);
-        product.setState(2);
+        product.setState(1);
         product.setUpdateTime(new Date());
         productDao.updateByPrimaryKeySelective(product);
         return new BaseResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS);

@@ -1,10 +1,7 @@
 package com.upedge.oms.modules.order.controller;
 
 import com.upedge.common.base.BaseResponse;
-import com.upedge.common.constant.BaseCode;
-import com.upedge.common.constant.Constant;
-import com.upedge.common.constant.OrderType;
-import com.upedge.common.constant.ResultCode;
+import com.upedge.common.constant.*;
 import com.upedge.common.constant.key.RedisKey;
 import com.upedge.common.exception.CustomerException;
 import com.upedge.common.model.order.request.ManagerActualRequest;
@@ -14,6 +11,7 @@ import com.upedge.common.model.ship.vo.ShipDetail;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.utils.ListUtils;
 import com.upedge.common.web.util.RedisUtil;
+import com.upedge.common.web.util.RequestUtil;
 import com.upedge.common.web.util.UserUtil;
 import com.upedge.oms.enums.OrderTagEnum;
 import com.upedge.oms.modules.order.dto.AppOrderListDto;
@@ -355,7 +353,8 @@ public class OrderController {
     @ApiOperation("订单运输方式")
     @GetMapping("/{id}/ship/list")
     public BaseResponse orderShipList(@PathVariable Long id) {
-        List<ShipDetail> shipDetails = orderService.orderShipList(id);
+        String warehouseCode = RequestUtil.getWarehouseCode();
+        List<ShipDetail> shipDetails = orderService.orderShipList(id,warehouseCode);
         for (ShipDetail shipDetail : shipDetails) {
             shipDetail.setPrice(shipDetail.getPrice().add(shipDetail.getServiceFee()));
         }
@@ -365,20 +364,22 @@ public class OrderController {
     @ApiOperation("订单修改运输方式")
     @PostMapping("/{id}/ship/update")
     public BaseResponse orderUpdateShipDetail(@PathVariable Long id, @RequestBody ShipDetail shipDetail) {
-        shipDetail = orderService.updateShipDetail(id, shipDetail);
+        String warehouseCode = RequestUtil.getWarehouseCode();
+        shipDetail = orderService.updateShipDetail(id,shipDetail,warehouseCode);
         return BaseResponse.success(shipDetail);
     }
 
     //    @ApiOperation("订单能否发货判断")
 //    @PostMapping("/ship/verify")
     public BaseResponse orderShipVerify(@RequestBody List<Long> ids) {
+        String warehouseCode = RequestUtil.getWarehouseCode();
         List<Long> idList = new ArrayList<>();
         for (Long id : ids) {
             OrderShippingUnitVo orderShippingUnit = orderShippingUnitService.selectByOrderId(id, OrderType.NORMAL);
             if (null != orderShippingUnit) {
                 continue;
             }
-            ShipDetail shipDetail = orderService.orderInitShipDetail(id);
+            ShipDetail shipDetail = orderService.orderInitShipDetail(id, warehouseCode);
             if (null == shipDetail) {
                 idList.add(id);
             }

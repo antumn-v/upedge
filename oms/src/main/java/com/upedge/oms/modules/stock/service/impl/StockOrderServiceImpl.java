@@ -359,7 +359,27 @@ public class StockOrderServiceImpl implements StockOrderService {
 
     @Override
     public List<StockOrderVo> selectOrderList(StockOrderListRequest request) {
-        return stockOrderDao.selectOrderList(request);
+        List<StockOrderVo> stockOrderVos = stockOrderDao.selectOrderList(request);
+        if (ListUtils.isEmpty(stockOrderVos)){
+            return new ArrayList<>();
+        }
+        List<Long> orderIds = new ArrayList<>();
+        for (StockOrderVo stockOrderVo : stockOrderVos) {
+            orderIds.add(stockOrderVo.getId());
+        }
+        List<StockOrderItemVo> stockOrderItemVos = stockOrderItemDao.selectItemVoByOrderIds(orderIds);
+        for (StockOrderVo stockOrderVo : stockOrderVos) {
+            List<StockOrderItemVo> storeOrderItemVoList = new ArrayList<>();
+            Long orderId = stockOrderVo.getId();
+            for (StockOrderItemVo stockOrderItemVo : stockOrderItemVos) {
+                if (orderId.equals(stockOrderItemVo.getOrderId())){
+                    storeOrderItemVoList.add(stockOrderItemVo);
+                }
+            }
+            stockOrderVo.setItems(storeOrderItemVoList);
+            stockOrderItemVos.removeAll(storeOrderItemVoList);
+        }
+        return stockOrderVos;
     }
 
     @Override

@@ -40,6 +40,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -169,6 +170,23 @@ public class ProductController {
         return productService.favoriteList(request);
     }
 
+    @ApiOperation("废弃池列表")
+    @PostMapping("/abandonList")
+    public BaseResponse abandonProductList(@RequestBody @Valid ProductListRequest request) {
+
+        if(request.getT()==null){
+            Product product=new Product();
+            request.setT(product);
+        }
+        Product p=request.getT();
+        p.setState(5);
+        request.setOrderBy("create_time desc");
+        List<Product> results = productService.select(request);
+        Long total = productService.count(request);
+        request.setTotal(total);
+        return BaseResponse.success(results,request);
+    }
+
     /**
      *释放产品到选品池
      */
@@ -183,11 +201,28 @@ public class ProductController {
      * 废弃产品
      */
     @ApiOperation("废弃产品")
-//    @RequestMapping(value="/abandonProduct/{id}", method=RequestMethod.POST)
+    @RequestMapping(value="/abandonProduct/{id}", method=RequestMethod.POST)
     public AbandonProductResponse abandonProduct(@PathVariable Long id) {
         Session session = UserUtil.getSession(redisTemplate);
         return productService.abandonProduct(id,session);
     }
+
+    @ApiOperation("恢复产品")
+    @RequestMapping(value="/restoreProduct/{id}", method=RequestMethod.POST)
+    public BaseResponse restoreProduct(@PathVariable Long id) throws Exception {
+        Product product = productService.selectByPrimaryKey(id);
+        if (product == null
+        || product.getState() != 5){
+            return BaseResponse.failed();
+        }
+        product = new Product();
+        product.setId(id);
+        product.setState(1);
+        product.setUpdateTime(new Date());
+        productService.updateByPrimaryKeySelective(product);
+        return BaseResponse.success();
+    }
+
 
     @ApiOperation("产品详情")
     @GetMapping("/detail/{id}")
@@ -320,7 +355,7 @@ public class ProductController {
     @RequestMapping(value="/list", method=RequestMethod.POST)
     @Permission(permission = "product:product:list")
     public ProductListResponse productList(@RequestBody @Valid ProductListRequest request) {
-        request.setOrderBy("create_time desc");
+        request.setOrderBy("update_time desc");
         List<Product> results = productService.select(request);
         Long total = productService.count(request);
         request.setTotal(total);

@@ -2,6 +2,7 @@ package com.upedge.oms.modules.stock.dao;
 
 import com.upedge.common.base.Page;
 import com.upedge.oms.modules.stock.entity.StockOrderItem;
+import com.upedge.oms.modules.stock.vo.StockOrderItemVo;
 import org.apache.ibatis.annotations.Param;
 
 import java.math.BigDecimal;
@@ -11,6 +12,8 @@ import java.util.List;
  * @author author
  */
 public interface StockOrderItemDao{
+
+    List<StockOrderItemVo> selectItemVoByOrderIds(@Param("ids") List<Long> ids);
 
     int updatePriceByVariantId(@Param("variantId") Long variantId,
                                @Param("price") BigDecimal price);

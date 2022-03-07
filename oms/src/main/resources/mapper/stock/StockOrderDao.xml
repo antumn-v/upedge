@@ -213,11 +213,8 @@
     </select>
 
     <select id="selectOrderList" resultMap="StockOrderVo" parameterType="com.upedge.common.base.Page">
-        select o.id,o.warehouse_code,o.customer_id,o.pay_method,o.payment_id,o.amount,o.paypal_fee,
-        o.pay_state,o.refund_state,o.pay_time,o.create_time,o.update_time,
-        item.id as itemId,item.product_id,item.variant_id,item.order_id,
-        item.price,item.quantity,item.product_title,item.variant_name,
-        item.variant_sku,item.variant_image
+        select distinct o.id,o.warehouse_code,o.customer_id,o.pay_method,o.payment_id,o.amount,o.paypal_fee,
+        o.pay_state,o.refund_state,o.pay_time,o.create_time,o.update_time
         from stock_order o
         inner join stock_order_item item
         on o.id = item.order_id

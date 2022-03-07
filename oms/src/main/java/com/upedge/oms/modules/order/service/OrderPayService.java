@@ -29,7 +29,7 @@ public interface OrderPayService {
 
     String payOrderByBalance(Session session, BigDecimal amount, Long paymentId, List<ItemDischargeQuantityVo> dischargeQuantityVos);
 
-    List<AppOrderVo> orderPayList(Long paymnetId, Session session,String warehouseCode) throws ExecutionException, InterruptedException, CustomerException;
+    BaseResponse orderPayList(Long paymnetId, Session session,String warehouseCode) throws ExecutionException, InterruptedException, CustomerException;
 
     void sendSaveTransactionRecordMessage(Long paymentId, Long customerId, Long userId, Integer payMethod);
 

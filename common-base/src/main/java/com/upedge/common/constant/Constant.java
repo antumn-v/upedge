@@ -75,4 +75,6 @@ public class Constant {
 
 	public static final BigDecimal ONE_THOUSAND = new BigDecimal("1000");
 
+	public static final String OVERSEA_WAREHOUSE = "";
+
 }

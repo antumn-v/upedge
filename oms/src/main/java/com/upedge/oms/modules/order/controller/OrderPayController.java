@@ -12,7 +12,6 @@ import com.upedge.common.model.account.PaypalPayment;
 import com.upedge.common.model.account.request.PaypalExecuteRequest;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.utils.IdGenerate;
-import com.upedge.common.utils.ListUtils;
 import com.upedge.common.web.util.RedisUtil;
 import com.upedge.common.web.util.RequestUtil;
 import com.upedge.common.web.util.UserUtil;
@@ -23,7 +22,6 @@ import com.upedge.oms.modules.order.request.OrderPayRequest;
 import com.upedge.oms.modules.order.response.OrderPayResponse;
 import com.upedge.oms.modules.order.service.OrderItemService;
 import com.upedge.oms.modules.order.service.OrderPayService;
-import com.upedge.oms.modules.order.vo.AppOrderVo;
 import com.upedge.oms.modules.order.vo.ItemDischargeQuantityVo;
 import com.upedge.oms.modules.stock.service.CustomerProductStockService;
 import com.upedge.oms.modules.stock.service.StockOrderService;
@@ -85,10 +83,8 @@ public class OrderPayController {
         try {
             Long paymentId = IdGenerate.nextId();
             orderPayService.updatePaymentIdByIds(orderIds, paymentId, session.getCustomerId());
-            List<AppOrderVo> appOrderVos = orderPayService.orderPayList(paymentId, session,warehouseCode);
-            if (ListUtils.isNotEmpty(appOrderVos)) {
-                return new BaseResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS, appOrderVos);
-            }
+            return orderPayService.orderPayList(paymentId, session,warehouseCode);
+
         } catch (Exception e) {
             e.printStackTrace();
         }

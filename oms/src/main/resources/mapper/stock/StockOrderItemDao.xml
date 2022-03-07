@@ -370,4 +370,15 @@
        where id=#{id} and order_id=#{orderId}
     </select>
 
+    <select id="selectItemVoByOrderIds" resultType="com.upedge.oms.modules.stock.vo.StockOrderItemVo">
+        select
+                item.id as itemId,item.product_id,item.variant_id,item.order_id,
+                item.price,item.quantity,item.product_title,item.variant_name,
+                item.variant_sku,item.variant_image
+        from stock_order_item item
+        where order_id in
+            <foreach collection="ids" item="id" open="(" close=")" separator=",">
+                #{id}
+            </foreach>
+    </select>
 </mapper>

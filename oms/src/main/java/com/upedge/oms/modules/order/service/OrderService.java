@@ -53,6 +53,7 @@ public interface OrderService{
      * @param orderId
      */
     ShipDetail orderInitShipDetail(Long orderId);
+
     ShipDetail orderInitShipDetail(Long orderId,String warehouseCode);
 
     void orderUpdateToAreaId(Long orderId, String country);
@@ -100,11 +101,11 @@ public interface OrderService{
      * @param shipDetail
      * @return vat
      */
-    ShipDetail updateShipDetail(Long id, ShipDetail shipDetail);
+    ShipDetail updateShipDetail(Long id,ShipDetail shipDetail,String warehouseCode);
 
     int updateOrderAttr(OrderAttr orderAttr);
 
-    List<ShipDetail> orderShipList(Long id);
+    List<ShipDetail> orderShipList(Long id,String warehouseCode);
 
     OrderShipRuleDetail matchShipRule(Long id);
 
@@ -232,5 +233,6 @@ public interface OrderService{
 
     void matchingShipInfoByVariantId(List<OrderItem> list);
 
+    List<ShipDetail> orderOverseaWarehouseShipMethods(Long orderId, Long areaId,String warehouseCode);
 }
 

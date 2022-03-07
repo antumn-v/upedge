@@ -47,15 +47,15 @@ public class ShipUnitExitImportDto {
         shippingUnit.setDeliveryMinDay(Integer.valueOf(deliveryMinDay));
         shippingUnit.setDeliveryMaxDay(Integer.valueOf(deliveryMaxDay));
         //重量区间
-        shippingUnit.setStartWeight(new BigDecimal(startWeight).multiply(Constant.ONE_THOUSAND).add(BigDecimal.ONE));
-        shippingUnit.setEndWeight(new BigDecimal(endWeight).multiply(Constant.ONE_THOUSAND));
+        shippingUnit.setStartWeight(new BigDecimal(startWeight));
+        shippingUnit.setEndWeight(new BigDecimal(endWeight));
         //续重单位重量
         shippingUnit.setContinueUnitWeight(BigDecimal.ONE);
         //单价
         BigDecimal continueUnitPrice = shipPrice.divide(Constant.ONE_THOUSAND);
         shippingUnit.setContinueUnitPrice(continueUnitPrice);
         //首重
-        BigDecimal firstWeight = new BigDecimal(minBillingWeight.replace("KG","")).multiply(Constant.ONE_THOUSAND);
+        BigDecimal firstWeight = new BigDecimal(minBillingWeight);
         shippingUnit.setFirstWeight(firstWeight);
         //首重运费=单价*首重
         BigDecimal firstFreight = continueUnitPrice.multiply(firstWeight);

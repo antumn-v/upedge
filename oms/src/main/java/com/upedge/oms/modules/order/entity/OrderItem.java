@@ -2,6 +2,7 @@ package com.upedge.oms.modules.order.entity;
 
 import com.upedge.common.model.pms.quote.CustomerProductQuoteVo;
 import com.upedge.common.model.product.RelateVariantVo;
+import com.upedge.common.utils.PriceUtils;
 import lombok.Data;
 
 import java.math.BigDecimal;
@@ -120,7 +121,7 @@ public class OrderItem{
 		this.adminProductId = variantVo.getProductId();
 		this.shippingId = variantVo.getProductShippingId();
 		this.cnyPrice = variantVo.getCnyPrice();
-		this.usdPrice = variantVo.getQuotePrice();
+		this.usdPrice = PriceUtils.cnyToUsdByDefaultRate(variantVo.getQuotePrice());
 		this.adminVariantVolume = variantVo.getVolume();
 		this.adminVariantWeight = variantVo.getWeight();
 		this.adminVariantImage = variantVo.getVariantImage();
@@ -136,7 +137,7 @@ public class OrderItem{
 		this.adminProductId = variantVo.getProductId();
 		this.shippingId = variantVo.getProductShippingId();
 		this.cnyPrice = variantVo.getCnyPrice();
-		this.usdPrice = variantVo.getQuotePrice();
+		this.usdPrice = PriceUtils.cnyToUsdByDefaultRate(variantVo.getQuotePrice());
 		this.adminVariantVolume = variantVo.getVolume();
 		this.adminVariantWeight = variantVo.getWeight();
 		this.adminVariantImage = variantVo.getVariantImage();

@@ -141,14 +141,13 @@ public class ShippingMethodServiceImpl implements ShippingMethodService {
     @Override
     public List<ShipDetail> searchShipMethods(ShipMethodSearchRequest request) {
         BigDecimal weight = request.getWeight();
-        BigDecimal volumn = request.getVolumeWeight();
-        if (weight.compareTo(volumn) == 1) {
-            volumn = weight;
-        }
+//        BigDecimal volumn = request.getVolumeWeight();
+//        if (weight.compareTo(volumn) == 1) {
+//            volumn = weight;
+//        }
         List<ShipDetail> shipDetails = new ArrayList<>();
         if (ListUtils.isNotEmpty(request.getMethodIds())) {
             shipDetails.addAll(shippingUnitService.selectByMethodIdsAndWeight(request.getMethodIds(), request.getToAreaId(), weight, 0));
-            shipDetails.addAll(shippingUnitService.selectByMethodIdsAndWeight(request.getMethodIds(), request.getToAreaId(), volumn, 1));
         } else {
             List<Long> templateIds = request.getTemplateIds();
             List<ShippingMethod> methods = new ArrayList<>();
@@ -165,13 +164,9 @@ public class ShippingMethodServiceImpl implements ShippingMethodService {
             }
             for (ShippingMethod shippingMethod : methods) {
                 ShipDetail shipDetail = null;
-                if (0 == shippingMethod.getWeightType()) {
-                    shipDetail = shippingUnitService.selectByCondition(shippingMethod.getId(), request.getToAreaId(), request.getWeight());
-                } else if (1 == shippingMethod.getWeightType()) {
-                    shipDetail = shippingUnitService.selectByCondition(shippingMethod.getId(), request.getToAreaId(), request.getVolumeWeight());
-                }
+                shipDetail = shippingUnitService.selectByCondition(shippingMethod.getId(), request.getToAreaId(), request.getWeight());
                 if (null != shipDetail) {
-                    shipDetail.setWeightType(shippingMethod.getWeightType());
+                    shipDetail.setWeightType(0);
                     shipDetails.add(shipDetail);
                 }
             }

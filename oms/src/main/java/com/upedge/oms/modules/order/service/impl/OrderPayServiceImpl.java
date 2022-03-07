@@ -3,10 +3,7 @@ package com.upedge.oms.modules.order.service.impl;
 import com.alibaba.fastjson.JSON;
 import com.upedge.common.base.BaseResponse;
 import com.upedge.common.base.Page;
-import com.upedge.common.constant.Constant;
-import com.upedge.common.constant.OrderType;
-import com.upedge.common.constant.PayOrderMethod;
-import com.upedge.common.constant.ResultCode;
+import com.upedge.common.constant.*;
 import com.upedge.common.constant.key.RedisKey;
 import com.upedge.common.constant.key.RocketMqConfig;
 import com.upedge.common.enums.TransactionConstant;
@@ -134,19 +131,21 @@ public class OrderPayServiceImpl implements OrderPayService {
 
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public List<AppOrderVo> orderPayList(Long paymentId, Session session,String warehouseCode) throws CustomerException {
+    public BaseResponse orderPayList(Long paymentId, Session session, String warehouseCode) throws CustomerException {
         AppOrderListRequest appOrderListRequest = new AppOrderListRequest();
         AppOrderListDto appOrderListDto = new AppOrderListDto();
         appOrderListDto.setPaymentId(paymentId);
+        appOrderListDto.setPayState(0);
+        appOrderListDto.setQuoteState(3);
         appOrderListRequest.setT(appOrderListDto);
         appOrderListRequest.setPageSize(-1);
         appOrderListRequest.initFromNum();
         Long customerId = session.getCustomerId();
         List<AppOrderVo> orderVos = orderService.selectAppOrderList(appOrderListRequest);
         if (ListUtils.isEmpty(orderVos)) {
-            return null;
+            return BaseResponse.failed("The order does not meet the payment conditions");
         }
-        refreshOrderStockDischarge(customerId, orderVos,warehouseCode);
+        refreshOrderStockDischarge(customerId, orderVos, warehouseCode);
 
         List<OrderProductAmountVo> orderProductAmountVos = orderDao.selectOrderItemAmountByPaymentId(paymentId);
         Map<Long, OrderProductAmountVo> orderProductAmountVoMap = new HashMap<>();
@@ -158,33 +157,57 @@ public class OrderPayServiceImpl implements OrderPayService {
         List<AppOrderVo> cantShipOrders = new ArrayList<>();
         Map<Long, BigDecimal> vatAmountMap = new ConcurrentHashMap<>();
         for (AppOrderVo orderVo : orderVos) {
+            Long shipMethodId = orderVo.getShipMethodId();
             OrderProductAmountVo orderProductAmountVo = orderProductAmountVoMap.get(orderVo.getId());
-            if (null == orderProductAmountVo) {
+            if (null == shipMethodId || null == orderProductAmountVo) {
+//                return BaseResponse.failed("The order "+orderVo.getId()+" has no shipping method selected");
                 cantShipOrders.add(orderVo);
                 continue;
             }
+
             if (orderVo.getProductAmount().compareTo(orderProductAmountVo.getProductAmount()) != 0) {
                 orderVo.setProductAmount(orderProductAmountVo.getProductAmount());
                 orderDao.updateOrderProductAmount(orderProductAmountVo.getId(), orderProductAmountVo.getProductAmount(), orderProductAmountVo.getCnyProductAmount());
             }
-            if (!orderShipUnitIds.contains(orderVo.getId())) {
-                ShipDetail shipDetail = orderService.orderInitShipDetail(orderVo.getId());
-                if (shipDetail == null) {
+            ShippingMethodRedis shippingMethodRedis = (ShippingMethodRedis) redisTemplate.opsForHash().get(RedisKey.SHIPPING_METHOD, orderVo.getShipMethodId().toString());
+            WarehouseVo warehouseVo = (WarehouseVo) redisTemplate.opsForValue().get(RedisKey.STRING_WAREHOUSE + shippingMethodRedis.getWarehouseCode());
+            if ( warehouseVo == null || warehouseVo.getWarehouseType() == WarehouseVo.LOCAL) {
+                if (!orderShipUnitIds.contains(orderVo.getId())) {
+                    cantShipOrders.add(orderVo);
+                    continue;
+//                    ShipDetail shipDetail = orderService.orderInitShipDetail(orderVo.getId(),warehouseCode);
+//                    if (shipDetail == null) {
+//
+//                    }
+//                    orderVo.setShipMethodName(shipDetail.getMethodName());
+//                    orderVo.setShipMethodId(shipDetail.getMethodId());
+//                    orderVo.setShipPrice(shipDetail.getPrice());
+//                    orderVo.setServiceFee(shipDetail.getServiceFee());
+//                    orderVo.setTotalWeight(shipDetail.getWeight());
+                }
+            } else {
+                List<ShipDetail> shipDetails = orderService.orderOverseaWarehouseShipMethods(orderVo.getId(),orderVo.getToAreaId(),Constant.OVERSEA_WAREHOUSE);
+                if (ListUtils.isEmpty(shipDetails)){
                     cantShipOrders.add(orderVo);
                     continue;
                 }
-                orderVo.setShipMethodName(shipDetail.getMethodName());
-                orderVo.setShipMethodId(shipDetail.getMethodId());
-                orderVo.setShipPrice(shipDetail.getPrice());
-                orderVo.setServiceFee(shipDetail.getServiceFee());
-                orderVo.setTotalWeight(shipDetail.getWeight());
-            }else {
-                ShippingMethodRedis shippingMethodRedis = (ShippingMethodRedis) redisTemplate.opsForHash().get(RedisKey.SHIPPING_METHOD, orderVo.getShipMethodId().toString());
-                if (null != shippingMethodRedis){
-                    orderVo.setShipMethodName(shippingMethodRedis.getName());
+                for (ShipDetail shipDetail : shipDetails) {
+                    if (shipDetail.getMethodId().equals(orderVo.getShipMethodId())){
+                        if (shipDetail.getPrice().compareTo(orderVo.getShipPrice()) != 0){
+                            orderService.updateShipDetail(orderVo.getId(),shipDetail,shipDetail.getWarehouseCode());
+                            orderVo.setShipMethodName(shipDetail.getMethodName());
+                            orderVo.setShipMethodId(shipDetail.getMethodId());
+                            orderVo.setShipPrice(shipDetail.getPrice());
+                            orderVo.setServiceFee(shipDetail.getServiceFee());
+                            orderVo.setTotalWeight(shipDetail.getWeight());
+                        }
+                    }
                 }
             }
-            BigDecimal vatAmount = vatRuleService.getOrderVatAmount(orderVo.getProductAmount(), orderVo.getShipPrice(), orderVo.getToAreaId(),orderVo.getCustomerId());
+            if (null != shippingMethodRedis) {
+                orderVo.setShipMethodName(shippingMethodRedis.getName());
+            }
+            BigDecimal vatAmount = vatRuleService.getOrderVatAmount(orderVo.getProductAmount(), orderVo.getShipPrice(), orderVo.getToAreaId(), orderVo.getCustomerId());
             if (null == orderVo.getVatAmount() || vatAmount.compareTo(orderVo.getVatAmount()) != 0) {
                 orderVo.setVatAmount(vatAmount);
                 vatAmountMap.put(orderVo.getId(), vatAmount);
@@ -194,7 +217,7 @@ public class OrderPayServiceImpl implements OrderPayService {
         if (MapUtils.isNotEmpty(vatAmountMap)) {
             orderDao.updateVatAmountByMap(vatAmountMap);
         }
-        return orderVos;
+        return BaseResponse.success(orderVos);
     }
 
     public void refreshOrderStockDischarge(Long customerId, List<AppOrderVo> orderVos) {
@@ -257,9 +280,9 @@ public class OrderPayServiceImpl implements OrderPayService {
         }
     }
 
-    public void refreshOrderStockDischarge(Long customerId, List<AppOrderVo> orderVos,String warehouseCode) throws CustomerException {
-        WarehouseVo warehouseVo = (WarehouseVo) redisTemplate.opsForValue().get(RedisKey.STRING_WAREHOUSE+warehouseCode);
-        if (warehouseVo == null){
+    public void refreshOrderStockDischarge(Long customerId, List<AppOrderVo> orderVos, String warehouseCode) throws CustomerException {
+        WarehouseVo warehouseVo = (WarehouseVo) redisTemplate.opsForValue().get(RedisKey.STRING_WAREHOUSE + warehouseCode);
+        if (warehouseVo == null) {
             throw new CustomerException("Warehouse Error！");
         }
 
@@ -296,7 +319,7 @@ public class OrderPayServiceImpl implements OrderPayService {
                                     dischargeQuantity = quantity;
                                     stock = stock - quantity;
                                 } else {
-                                    if (warehouseVo.getWarehouseType() == WarehouseVo.OVERSEAS){
+                                    if (warehouseVo.getWarehouseType() == WarehouseVo.OVERSEAS) {
                                         b = false;
                                         break;
                                     }
@@ -314,14 +337,14 @@ public class OrderPayServiceImpl implements OrderPayService {
                         appOrderItemVo.setDischargeQuantity(dischargeQuantity);
                         itemDischargeMap.put(appOrderItemVo.getId(), dischargeQuantity);
                     }
-                    if (!b){
+                    if (!b) {
                         break;
                     }
                 }
                 orderDischargeMap.put(appOrderVo.getId(), dischargeAmount);
                 appOrderVo.setProductDischargeAmount(dischargeAmount);
             }
-            if (!b){
+            if (!b) {
                 throw new CustomerException("Insufficient stock in overseas warehouses");
             }
             if (0 < orderDischargeMap.size()) {
@@ -330,8 +353,8 @@ public class OrderPayServiceImpl implements OrderPayService {
             if (0 < itemDischargeMap.size()) {
                 orderItemDao.updateDischargeQuantityByMap(itemDischargeMap);
             }
-        }else {
-            if (warehouseVo.getWarehouseType() == WarehouseVo.OVERSEAS){
+        } else {
+            if (warehouseVo.getWarehouseType() == WarehouseVo.OVERSEAS) {
                 throw new CustomerException("Insufficient stock in overseas warehouses");
             }
 
@@ -366,7 +389,7 @@ public class OrderPayServiceImpl implements OrderPayService {
         int i = orderDao.updatePayStateByPaymentId(paymentId, 0);
         List<Order> orders = orderDao.selectOrderByPaymentId(paymentId);
         orders.forEach(e -> {
-            orderService.orderInitShipDetail(e.getId());
+            orderService.orderInitShipDetail(e.getId(), ProductConstant.DEFAULT_WAREHOUSE_ID);
         });
         if (i > 0) {
             if (ListUtils.isNotEmpty(dischargeQuantityVos)) {
@@ -407,9 +430,9 @@ public class OrderPayServiceImpl implements OrderPayService {
             return null;
         }
 
-        List<Long> orderIds = orderShippingUnitService.selectOrderIdByOrderPaymentId(paymentId,OrderType.NORMAL);
+        List<Long> orderIds = orderShippingUnitService.selectOrderIdByOrderPaymentId(paymentId, OrderType.NORMAL);
         for (AppOrderVo order : orders) {
-            if (!orderIds.contains(order.getId())){
+            if (!orderIds.contains(order.getId())) {
                 return creatOrderPayCheckResultVo(new ArrayList<>(), paymentId, "ship error");
             }
         }
@@ -425,9 +448,9 @@ public class OrderPayServiceImpl implements OrderPayService {
                     || orderProductAmountVo.getProductAmount().compareTo(order.getProductAmount()) != 0) {
                 return creatOrderPayCheckResultVo(new ArrayList<>(), paymentId, "product amount error");
             }
-            BigDecimal vatAmount = vatRuleService.getOrderVatAmount(order.getProductAmount(), order.getShipPrice(), order.getToAreaId(),order.getCustomerId());
+            BigDecimal vatAmount = vatRuleService.getOrderVatAmount(order.getProductAmount(), order.getShipPrice(), order.getToAreaId(), order.getCustomerId());
             if (vatAmount.compareTo(order.getVatAmount()) != 0) {
-                orderDao.updateOrderVatAmountById(order.getId(),vatAmount);
+                orderDao.updateOrderVatAmountById(order.getId(), vatAmount);
                 return creatOrderPayCheckResultVo(new ArrayList<>(), paymentId, "vat error");
             }
         }
@@ -613,11 +636,10 @@ public class OrderPayServiceImpl implements OrderPayService {
 */
 
 
-
     }
 
     @Override
-    public void payOrderAsync(Long userId, Long customerId, Long paymentId,Integer payMethod) {
+    public void payOrderAsync(Long userId, Long customerId, Long paymentId, Integer payMethod) {
 
         Future<?> submit = threadPoolExecutor.submit(new Runnable() {
             @Override
@@ -632,7 +654,7 @@ public class OrderPayServiceImpl implements OrderPayService {
                         }
                     }
                 }
-                sendSaveTransactionRecordMessage(paymentId,customerId,userId,payMethod);
+                sendSaveTransactionRecordMessage(paymentId, customerId, userId, payMethod);
                 // 订单上传赛盒 放在 sendSaveTransactionRecordMessage的消費端
                 mqOnSaiheService.uploadPaymentIdOnMq(paymentId, OrderType.NORMAL);
             }

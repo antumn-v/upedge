@@ -827,7 +827,7 @@
         oi.width = #{width},
         oi.height = #{height},
         oi.admin_variant_volume = #{volume}
-        where oi.variant_id = #{variantId}
+        where oi.admin_variant_id = #{variantId}
         and o.pay_state &lt; '1'
     </update>
 

@@ -53,7 +53,7 @@
         on r.id = o.ship_rule_id
         where r.customer_id = #{customerId}
         and o.area_id = #{areaId}
-        and state != '2'
+        and `state` != '2'
         and ship_template_id = #{shipTemplateId}
         order by r.sequence asc
     </select>
