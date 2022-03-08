@@ -36,6 +36,11 @@ import java.util.Set;
  */
 public interface OrderDao{
 
+    List<Order> selectUnPaidOrderByAreaId(Long areaId);
+
+    int updateOrderVatAmountByAreaId(@Param("areaIds") List<Long> areaIds,
+                                     @Param("vatAmount") BigDecimal vatAmount);
+
     int cancelOrderByIds(@Param("ids") List<Long> ids);
 
     int updateQuoteStateByIds(@Param("ids") List<Long> ids,

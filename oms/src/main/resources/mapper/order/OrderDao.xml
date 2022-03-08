@@ -2200,4 +2200,23 @@
         </foreach>
         and pay_state = '0'
     </update>
+
+    <select id="selectUnPaidOrderByAreaId" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from `order`
+        where to_area_id = #{areaId}
+        and pay_state = '0'
+        and quote_state = '3'
+    </select>
+
+    <update id="updateOrderVatAmountByAreaId">
+        update `order`
+            set vat_amount = #{vatAmount}
+        where pay_state &lt; 1
+        and to_area_id in
+            <foreach collection="areaIds" item="areaId" open="(" separator="," close=")">
+                #{areaId}
+            </foreach>
+    </update>
 </mapper>

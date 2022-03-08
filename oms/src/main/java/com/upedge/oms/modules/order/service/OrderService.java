@@ -19,6 +19,7 @@ import com.upedge.oms.modules.order.vo.*;
 import com.upedge.thirdparty.saihe.entity.SaiheOrder;
 import org.apache.ibatis.annotations.Param;
 
+import java.math.BigDecimal;
 import java.text.ParseException;
 import java.util.HashMap;
 import java.util.List;
@@ -34,6 +35,9 @@ public interface OrderService{
 
     int initShipByShipUnitId(Long shipUnitId);
 
+    int updateOrderVatAmountByAreaId(List<Long> areaIds,
+                                     BigDecimal vatAmount);
+
     BaseResponse createReshipOrder(Long id);
 
     void initQuoteState(Long id);
@@ -46,6 +50,8 @@ public interface OrderService{
                               String saiheOrderCode);
 
     boolean initOrderProductAmount(Long orderId);
+
+    void initOrderVatAmountByAreaId(Long areaId);
 
 
     /**

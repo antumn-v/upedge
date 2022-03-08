@@ -67,6 +67,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -791,6 +792,15 @@ public class OrderServiceImpl implements OrderService {
         return 0;
     }
 
+    @Override
+    public int updateOrderVatAmountByAreaId(List<Long> areaIds, BigDecimal vatAmount) {
+        if (ListUtils.isNotEmpty(areaIds)
+        && vatAmount != null){
+            return orderDao.updateOrderVatAmountByAreaId(areaIds, vatAmount);
+        }
+        return 0;
+    }
+
     @Transactional
     @Override
     public BaseResponse createReshipOrder(Long id) {
@@ -940,6 +950,18 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public boolean initOrderProductAmount(Long orderId) {
         return false;
+    }
+
+    @Async
+    @Override
+    public void initOrderVatAmountByAreaId(Long areaId) {
+        List<Order> orders = orderDao.selectUnPaidOrderByAreaId(areaId);
+        for (Order order : orders) {
+            BigDecimal vatAmount = vatRuleService.getOrderVatAmount(order.getProductAmount(),order.getShipPrice(),order.getToAreaId(),order.getCustomerId());
+            if (vatAmount.compareTo(order.getVatAmount()) != 0){
+                orderDao.updateOrderVatAmountById(order.getId(),vatAmount);
+            }
+        }
     }
 
     public ShipDetail updateShipDetailById(Long id, ShipDetail shipDetail) {

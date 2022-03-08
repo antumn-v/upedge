@@ -8,6 +8,7 @@ import com.upedge.common.model.user.vo.CustomerIossVo;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.utils.IdGenerate;
 import com.upedge.oms.constant.VatRuleType;
+import com.upedge.oms.modules.order.service.OrderService;
 import com.upedge.oms.modules.vat.dao.VatRuleDao;
 import com.upedge.oms.modules.vat.dao.VatRuleItemDao;
 import com.upedge.oms.modules.vat.dao.VatRuleLogDao;
@@ -44,6 +45,9 @@ public class VatRuleServiceImpl implements VatRuleService {
     private VatRuleItemDao vatRuleItemDao;
     @Autowired
     private VatRuleLogDao vatRuleLogDao;
+
+    @Autowired
+    OrderService orderService;
 
     @Autowired
     RedisTemplate<String, Object> redisTemplate;
@@ -233,6 +237,7 @@ public class VatRuleServiceImpl implements VatRuleService {
         }
     }
 
+    @Transactional
     @Override
     public VatRuleUpdateResponse adminUpdate(Long id, VatRuleUpdateRequest request, Session session) {
         if(request.getRatio()==null
@@ -257,6 +262,14 @@ public class VatRuleServiceImpl implements VatRuleService {
         VatRule entity=request.toVatRule(id, String.valueOf(session.getId()));
         this.updateByPrimaryKeySelective(entity);
         this.recordLog(entity, String.valueOf(session.getId()));
+
+        List<VatRuleItem> vatRuleItems = vatRuleItemDao.selectByRuleId(id);
+        for (VatRuleItem vatRuleItem : vatRuleItems) {
+            String key = RedisKey.STRING_AREA_VAT_RULE + vatRuleItem.getAreaId();
+            redisTemplate.opsForValue().set(key,entity);
+            orderService.initOrderVatAmountByAreaId(vatRuleItem.getAreaId());
+        }
+
         return new VatRuleUpdateResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS);
     }
 }

@@ -241,4 +241,10 @@
         select count(1) from vat_rule_item where rule_id=#{ruleId}
     </select>
 
+    <select id="selectByRuleId" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from vat_rule_item
+        where rule_id = #{ruleId}
+    </select>
 </mapper>

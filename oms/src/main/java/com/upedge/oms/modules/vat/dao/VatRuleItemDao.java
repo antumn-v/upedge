@@ -12,6 +12,8 @@ import java.util.List;
  */
 public interface VatRuleItemDao{
 
+    List<VatRuleItem> selectByRuleId(Long ruleId);
+
     VatRuleItem selectByPrimaryKey(VatRuleItem record);
 
     int deleteByPrimaryKey(VatRuleItem record);
