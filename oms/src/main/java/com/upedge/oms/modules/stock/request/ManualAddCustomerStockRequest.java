@@ -17,6 +17,7 @@ public class ManualAddCustomerStockRequest {
     @NotNull
     Long customerId;
 
+    @NotNull
     String warehouseCode;
 
     @Size(min = 1)
