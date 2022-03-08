@@ -48,6 +48,7 @@ public class OrderShipRule{
     private Long shippingMethodId;
 
     private String shippingMethodName;
+
     private Long shipTemplateId;
 	/**
 	 * 

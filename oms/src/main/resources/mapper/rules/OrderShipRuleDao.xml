@@ -37,7 +37,7 @@
     </resultMap>
 
     <sql id="Base_Column_List">
-        `id`,`customer_id`,`title`,
+        `id`,`customer_id`,`title`,ship_template_id,
         `order_amount_min`,`order_amount_max`,`freight_min`,`freight_max`,
         `state`,`shipping_method_id`,`shipping_method_name`,`create_time`,`update_time`,`sequence`
     </sql>
@@ -47,7 +47,7 @@
         select
         r.`id`,r.`customer_id`,`title`,
         `order_amount_min`,`order_amount_max`,`freight_min`,`freight_max`,
-        `state`,`shipping_method_id`,`shipping_method_name`,`sequence`
+        `state`,`shipping_method_id`,`shipping_method_name`,`sequence`,ship_template_id
         from order_ship_rule r
         inner join order_ship_rule_country o
         on r.id = o.ship_rule_id
