@@ -10,10 +10,13 @@ import com.upedge.common.exception.CustomerException;
 import com.upedge.common.feign.PmsFeignClient;
 import com.upedge.common.feign.UmsFeignClient;
 import com.upedge.common.model.account.AccountOrderRefundedRequest;
+import com.upedge.common.model.product.ListVariantsRequest;
 import com.upedge.common.model.product.ProductSaiheInventoryVo;
+import com.upedge.common.model.product.ProductVariantTo;
 import com.upedge.common.model.user.vo.CustomerVo;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.utils.IdGenerate;
+import com.upedge.common.utils.ListUtils;
 import com.upedge.common.web.util.UserUtil;
 import com.upedge.oms.modules.statistics.request.OrderRefundDailyCountRequest;
 import com.upedge.oms.modules.stock.dao.*;
@@ -37,12 +40,14 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.LinkedHashMap;
 import java.util.List;
 
 @Service
@@ -188,10 +193,29 @@ public class AdminStockServiceImpl implements AdminStockService {
      * @param id
      * @return
      */
+    @Async
     @Transactional(rollbackFor = Exception.class)
     @Override
     public BaseResponse refreshSaiheSku(Long id) {
-        List<String> listGroupSku=stockOrderDao.listVariantSkuForRefresh(id);
+        List<Long> variantIds = new ArrayList<>();
+        List<StockOrderItem> items = stockOrderItemDao.selectByOrderId(id);
+        if (ListUtils.isEmpty(items)){
+            return BaseResponse.failed("订单ID错位");
+        }
+        for (StockOrderItem item : items) {
+            variantIds.add(item.getVariantId());
+        }
+
+        ListVariantsRequest request = new ListVariantsRequest();
+        request.setVariantIds(variantIds);
+        BaseResponse baseResponse = pmsFeignClient.listVariantByIds(request);
+        List<LinkedHashMap> variantDetailList = (List<LinkedHashMap>) baseResponse.getData();
+        List<String> listGroupSku = new ArrayList<>();
+        variantDetailList.forEach(v -> {
+            ProductVariantTo variantDetail = JSON.parseObject(JSON.toJSONString(v), ProductVariantTo.class);
+            listGroupSku.add(variantDetail.getVariantSku());
+        });
+
         for(String groupSku:listGroupSku) {
             ApiGetProductResponse response = SaiheService.getProductsByClientSKUs(groupSku,null);
             if (response.getGetProductsResult().getStatus().equals("OK")) {

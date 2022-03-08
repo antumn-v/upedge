@@ -13,6 +13,8 @@ import java.util.List;
  */
 public interface StockOrderItemDao{
 
+    List<StockOrderItem> selectByOrderId(Long orderId);
+
     List<StockOrderItemVo> selectItemVoByOrderIds(@Param("ids") List<Long> ids);
 
     int updatePriceByVariantId(@Param("variantId") Long variantId,

@@ -15,7 +15,7 @@ import com.upedge.oms.modules.cart.response.CartInfoResponse;
 import com.upedge.oms.modules.cart.response.CartListResponse;
 import com.upedge.oms.modules.cart.response.CartUpdateResponse;
 import com.upedge.oms.modules.cart.service.CartService;
-import com.upedge.oms.modules.stock.controller.StockOrderController;
+import com.upedge.oms.modules.stock.service.AdminStockService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -44,8 +44,9 @@ public class CartController {
     @Autowired
     RedisTemplate<String, Object> redisTemplate;
 
+
     @Autowired
-    StockOrderController stockOrderController;
+    AdminStockService adminStockService;
 
     @ApiOperation("详情")
     @RequestMapping(value="/info/{id}", method= RequestMethod.GET)
@@ -155,19 +156,7 @@ public class CartController {
         if(null == orderId){
             return BaseResponse.failed();
         }
-//        if(null != request.getPayMethod()){
-//            List<Long> orderIds = new ArrayList<>();
-//            orderIds.add(orderId);
-//            switch (request.getPayMethod()){
-//                case PayOrderMethod
-//                        .RECHARGE:
-//                    return stockOrderController.payByBalance(orderIds);
-//                case PayOrderMethod.PAYPAL:
-//                    return stockOrderController.payByPaypal(orderIds);
-//                default:
-//                    break;
-//            }
-//        }
+        adminStockService.refreshSaiheSku(orderId);
         return BaseResponse.success();
     }
 
