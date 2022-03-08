@@ -252,7 +252,7 @@ public class StoreOrderServiceImpl implements StoreOrderService {
             if (ListUtils.isNotEmpty(platItemIds)) {
                 storeOrderItemDao.updateRemoveState(storeOrderId, platItemIds);
             }
-            int i = storeOrderAddressDao.updateByPrimaryKeySelective(storeOrderAddress);
+            int i = storeOrderAddressDao.updateByPrimaryKey(storeOrderAddress);
             if (i == 1){
                 orderAddressService.updateByStoreOrderAddress(storeOrderAddress);
             }
