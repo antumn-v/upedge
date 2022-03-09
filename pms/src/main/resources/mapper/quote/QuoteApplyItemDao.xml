@@ -399,7 +399,7 @@
             <foreach collection="storeVariantIds" item="storeVariantId" open="(" close=")" separator=",">
                 #{storeVariantId}
             </foreach>
-        and quote_price is null
+        and state = '0'
     </select>
     <select id="selectUnQuoteItemByApplyId" resultType="com.upedge.pms.modules.quote.entity.QuoteApplyItem">
         select
