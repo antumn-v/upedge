@@ -260,12 +260,13 @@ public class ImportProductServiceImpl implements ImportProductService {
         String token = storeVo.getApiToken();
 
         JSONObject jsonObject = new JSONObject();
-        ImportProductDescription description = importProductDescriptionDao.selectByProductId(productId);
+
         ShopifyProduct product = new ShopifyProduct();
         product.setTitle(attribute.getTitle());
         product.setTags(attribute.getTags());
         product.setProduct_type(attribute.getType());
-        product.setBody_html(description.getDescription());
+//        ImportProductDescription description = importProductDescriptionDao.selectByProductId(productId);
+//        product.setBody_html(description.getDescription());
 
         List<ShopifyVariant> variants = new ArrayList<>();
         Map<String, BigDecimal> skuCost = new HashMap<>();
