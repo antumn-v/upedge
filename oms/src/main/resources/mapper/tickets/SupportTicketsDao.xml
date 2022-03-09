@@ -49,7 +49,12 @@
                     and  st.customer_id = #{t.customerId}
                 </if>
                 <if test="t.state != null">
-                    and st.state = #{t.state}
+                    <if test="t.state == 0">
+                        and st.state != '1'
+                    </if>
+                    <if test="t.state == 1">
+                        and st.state = '1'
+                    </if>
                 </if>
                 <if test="t.orderNumber != null">
                     and  sor.plat_order_name = #{t.orderNumber}

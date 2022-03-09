@@ -389,7 +389,7 @@ public class OrderServiceImpl implements OrderService {
         if (null == shippingTemplateRedis){
             return null;
         }
-        //查询符合条件的孕妇规则
+        //查询符合条件的运输规则
         ShipRuleConditionDto shipRuleConditionDto = new ShipRuleConditionDto();
         shipRuleConditionDto.setAreaId(order.getToAreaId());
         shipRuleConditionDto.setCustomerId(order.getCustomerId());
