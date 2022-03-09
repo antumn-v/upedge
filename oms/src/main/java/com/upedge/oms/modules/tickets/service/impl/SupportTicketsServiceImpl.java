@@ -116,6 +116,11 @@ public class SupportTicketsServiceImpl implements SupportTicketsService {
     }
 
     @Override
+    public Long selectCustomerTicketCount(CustomerTicketListRequest request) {
+        return supportTicketsDao.selectCustomerTicketCount(request);
+    }
+
+    @Override
     public SupportTicketsVo ticketDetail(Long id) {
         SupportTickets supportTickets = selectByPrimaryKey(id);
         if (null == supportTickets) {

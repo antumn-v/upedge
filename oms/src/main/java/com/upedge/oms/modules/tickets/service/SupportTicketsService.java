@@ -20,6 +20,8 @@ public interface SupportTicketsService{
 
     SupportTicketsVo selectOpenTicketDetailByOrderId(Long orderId);
 
+    Long selectCustomerTicketCount(CustomerTicketListRequest request);
+
     SupportTicketsVo ticketDetail(Long id);
 
     BaseResponse claimTicket(Long id,Session session);

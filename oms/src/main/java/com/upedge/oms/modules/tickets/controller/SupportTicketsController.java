@@ -45,6 +45,19 @@ public class SupportTicketsController {
         return supportTicketsService.customerTicketList(request);
     }
 
+    @ApiOperation("客户ticket数量")
+    @PostMapping("/customer/count")
+    public BaseResponse customerTicketCount(@RequestBody CustomerTicketListRequest request) {
+        Session session = UserUtil.getSession(redisTemplate);
+        if (null == request.getT()) {
+            request.setT(new CustomerTicketListDto());
+        }
+        request.getT().setCustomerId(session.getCustomerId());
+        Long count = supportTicketsService.selectCustomerTicketCount(request);
+        request.setTotal(count);
+        return BaseResponse.success(count,request);
+    }
+
     @ApiOperation("认领列表")
     @PostMapping("/claimList")
     public BaseResponse claimList(@RequestBody CustomerTicketListRequest request) {
