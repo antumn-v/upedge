@@ -663,6 +663,11 @@ public class ProductServiceImpl implements ProductService {
             //变体价格
             productVariant.setVariantPrice(productVariantVo.getVariantPrice());
             productVariant.setUsdPrice(PriceUtils.cnyToUsdByDefaultRate(productVariant.getVariantPrice()));
+            //变体体积
+            productVariant.setHeight(BigDecimal.ONE);
+            productVariant.setWidth(BigDecimal.ONE);
+            productVariant.setLength(BigDecimal.ONE);
+            productVariant.setVolumeWeight(BigDecimal.ONE);
             productVariantList.add(productVariant);
             productVariantVo.getVariantAttrVoList().forEach(productVariantAttrVo -> {
                 ProductVariantAttr productVariantAttr = new ProductVariantAttr();
