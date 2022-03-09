@@ -319,8 +319,8 @@ public class OrderController {
      * @param id
      * @return
      */
-//    @ApiOperation("订单匹配运输规则")
-//    @PostMapping("/{id}/shipRule/match")
+    @ApiOperation("订单匹配运输规则")
+    @PostMapping("/{id}/shipRule/match")
     public BaseResponse orderMatchShipRule(@PathVariable Long id) {
         OrderShipRuleDetail detail = orderService.matchShipRule(id);
         return new BaseResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS, detail);

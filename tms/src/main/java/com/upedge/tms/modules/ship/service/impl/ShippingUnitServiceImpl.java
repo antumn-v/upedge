@@ -91,8 +91,9 @@ public class ShippingUnitServiceImpl implements ShippingUnitService {
         List<ShippingUnit> shippingUnits = new ArrayList<>();
         Map<String,String> countryMap = new HashMap<>();
 
-        for (ShipUnitExitImportDto shipUnitExitImportDto : shipUnitExitImportDtos) {
-
+        BigDecimal startWeight = BigDecimal.ONE;
+        for (int i = 0; i < shipUnitExitImportDtos.size(); i++) {
+            ShipUnitExitImportDto shipUnitExitImportDto = shipUnitExitImportDtos.get(i);
             String areaId = countryMap.get(shipUnitExitImportDto.getCountry());
             if (null == areaId){
                 Area area = areaDao.getRegionByName(shipUnitExitImportDto.getCountry());
@@ -106,6 +107,8 @@ public class ShippingUnitServiceImpl implements ShippingUnitService {
                 ShippingUnit shippingUnit = shipUnitExitImportDto.toShipUnit(areaId);
                 shippingUnit.setMethodId(methodId);
                 shippingUnit.setMethodName(methodName);
+                shippingUnit.setStartWeight(startWeight);
+                startWeight = shippingUnit.getEndWeight().add(BigDecimal.ONE);
                 shippingUnits.add(shippingUnit);
             }
         }

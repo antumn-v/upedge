@@ -200,8 +200,6 @@ public class ShippingUnitController {
         }
         log.debug("获取锁:{}", key);
         try {
-//            ImportExcelUtil ei=new ImportExcelUtil(file,1,0);
-//            List<ShippingUnit> list = ei.getDataList(ShippingUnit.class);
             List<ShippingUnit> newList = new ArrayList<>();
             for (ShippingUnit shippingUnit : list) {
                 try {

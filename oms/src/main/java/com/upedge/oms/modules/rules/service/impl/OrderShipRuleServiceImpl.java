@@ -87,12 +87,8 @@ public class OrderShipRuleServiceImpl implements OrderShipRuleService {
     public void updateShipRules(OrderShipRuleUpdateRequest request, Long ruleId) {
         OrderShipRule entity=request.toOrderShipRule(ruleId);
         orderShipRuleDao.updateByPrimaryKeySelective(entity);
-
         orderShipRuleCountryDao.deleteByShipRuleId(ruleId);
         saveOrderShipRuleCountries(request.getCountries(),ruleId);
-
-
-
     }
 
     public void saveOrderShipRuleCountries(List<OrderShipRuleCountryVo> countryVos, Long ruleId){
