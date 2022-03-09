@@ -102,6 +102,17 @@ public class OrderShipRuleServiceImpl implements OrderShipRuleService {
         orderShipRuleCountryDao.insertByBatch(countries);
     }
 
+    void orderMatchShipRule(OrderShipRuleVo orderShipRuleVo){
+        List<OrderShipRuleCountryVo> countryVos = orderShipRuleVo.getCountries();
+        if (orderShipRuleVo.getSequence() != 1){
+
+        }
+        for (OrderShipRuleCountryVo countryVo : countryVos) {
+
+        }
+
+    }
+
     @Override
     public List<OrderShipRule> selectShipRulesByCondition(ShipRuleConditionDto shipRuleConditionDto) {
         return orderShipRuleDao.selectByCondition(shipRuleConditionDto);

@@ -330,8 +330,6 @@ public class ProductServiceImpl implements ProductService {
             }
             adminProductVo.setProductInfo(productInfo);
         }, threadPoolExecutor);
-
-
         //开启异步任务  获取产品描述
         List<Long> variantIds = new ArrayList<>();
         //属性-值列表
@@ -350,7 +348,6 @@ public class ProductServiceImpl implements ProductService {
             adminProductVo.setProductVariantList(productVariantList);
 
         }, threadPoolExecutor);
-
         //等到所有任务都完成
         try {
             CompletableFuture.allOf(productAttributeFuture, productImgListFuture, productInfoFuture, productVariantListFuture).get();
@@ -358,14 +355,12 @@ public class ProductServiceImpl implements ProductService {
             e.printStackTrace();
             return null;
         }
-
         //装载属性
         List<VariantAttrVo> variantAttrVoList = new ArrayList<>();
         for (VariantAttrVo v : attrMap.values()) {
             variantAttrVoList.add(v);
         }
         adminProductVo.setVariantAttrVos(variantAttrVoList);
-
         return adminProductVo;
     }
 
@@ -422,17 +417,12 @@ public class ProductServiceImpl implements ProductService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public BaseResponse addProduct(AddProductVo addProductVo, Session session) {
-
-
         if (addProductVo.getProductVariantList().size() == 0) {
             return new BaseResponse(ResultCode.FAIL_CODE, Constant.MESSAGE_FAIL);
         }
-
         Long productId = IdGenerate.nextId();
         //变体信息
         List<ProductVariant> productVariantList = addProductVo.getProductVariantList();
-
-
         List<ProductVariantAttr> productVariantAttrList = new ArrayList<>();
         for (ProductVariant productVariant : productVariantList) {
             Long variantId = IdGenerate.nextId();
@@ -452,7 +442,6 @@ public class ProductServiceImpl implements ProductService {
             }
             productVariant.setVariantType(0);
             List<ProductVariantAttr> variantAttrList = productVariant.getProductVariantAttrList();
-
             // product_variant  的中英文名{cn_name ,en_name}
             String cnName = "[";
             String enName = "[";
@@ -474,7 +463,6 @@ public class ProductServiceImpl implements ProductService {
                 } else {
                     cnName += variantAttrCvalue + ",";
                 }
-
                 strList.clear();
                 strList.add(variantAttrCvalue);
                 TranslateResult translateResult = TranslateService.translate(strList);
@@ -530,8 +518,6 @@ public class ProductServiceImpl implements ProductService {
         }
 
         productDao.insert(product);
-
-
         //产品属性
         ProductAttribute productAttribute = addProductVo.getProductAttribute();
         productAttribute.setId(IdGenerate.nextId());
@@ -554,7 +540,6 @@ public class ProductServiceImpl implements ProductService {
         productInfo.setId(IdGenerate.nextId());
         productInfo.setProductId(productId);
         productInfoService.insert(productInfo);
-
         //优化变体插入
         productVariantService.insertByBatch(productVariantList);
         productVariantAttrService.insertByBatch(productVariantAttrList);
@@ -608,7 +593,6 @@ public class ProductServiceImpl implements ProductService {
             product.setUserId(String.valueOf(session.getId()));
         }
         productDao.insert(product);
-
         ProductAttribute productAttribute = new ProductAttribute();
         BeanUtils.copyProperties(AlibabaProductVo.getProductAttributeVo(), productAttribute);
         productAttribute.setId(IdGenerate.nextId());
@@ -619,8 +603,6 @@ public class ProductServiceImpl implements ProductService {
         productAttribute.setTurnover(0);
         productAttribute.setWarehouseCode(SaiheConfig.UPEDGE_DEFAULT_WAREHOUSE_ID);
         productAttributeService.insert(productAttribute);
-
-
         //产品图片
         List<ProductImg> productImgList = new ArrayList<>();
         AlibabaProductVo.getProductImgVoList().forEach(productImgVo -> {
@@ -631,16 +613,12 @@ public class ProductServiceImpl implements ProductService {
             productImgList.add(productImg);
         });
         productImgService.insertByBatch(productImgList);
-
-
         //产品描述
         ProductInfo productInfo = new ProductInfo();
         BeanUtils.copyProperties(AlibabaProductVo.getProductInfoVo(), productInfo);
         productInfo.setId(IdGenerate.nextId());
         productInfo.setProductId(productId);
         productInfoService.insert(productInfo);
-
-
         //产品变体
         List<ProductVariant> productVariantList = new ArrayList<>();
         List<ProductVariantAttr> productVariantAttrList = new ArrayList<>();
@@ -1041,10 +1019,10 @@ public class ProductServiceImpl implements ProductService {
         Integer warehouseCode = saiheSkuVo.getWarehouseCode() == null ? SaiheConfig.UPEDGE_DEFAULT_WAREHOUSE_ID : saiheSkuVo.getWarehouseCode();
         apiImportProductInfo.setDefaultLocalWarehouse(warehouseCode);//默认本地发货仓库
 
-        ApiImportProductSupplier ProductSuppiler = new ApiImportProductSupplier();//产品供应商
-        ProductSuppiler.setSupplierName(saiheSkuVo.getSupplierName());//供应商名称
-        ProductSuppiler.setSupplierType(2);//供应商类型 2. 网络采购
-        apiImportProductInfo.setProductSuppiler(ProductSuppiler);
+        ApiImportProductSupplier productSupplier = new ApiImportProductSupplier();//产品供应商
+        productSupplier.setSupplierName(saiheSkuVo.getSupplierName());//供应商名称
+        productSupplier.setSupplierType(2);//供应商类型 2. 网络采购
+        apiImportProductInfo.setProductSuppiler(productSupplier);
 
         ApiImportProductSupplierPrice ProductSupplierPrice = new ApiImportProductSupplierPrice();//产品供应商报价
         ProductSupplierPrice.setSupplierSKU(saiheSkuVo.getSupplierCode());//供应商产品编码  //todo 货号

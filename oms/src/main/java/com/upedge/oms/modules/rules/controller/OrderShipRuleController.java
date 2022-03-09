@@ -59,9 +59,7 @@ public class OrderShipRuleController {
     @RequestMapping(value="/list", method=RequestMethod.POST)
     @Permission(permission = "order:shiprules:list")
     public OrderShipRuleListResponse list() {
-        
         Session session = UserUtil.getSession(redisTemplate);
-        
         List<OrderShipRuleVo> results = orderShipRulesService.selectCustomerShipRules(session.getCustomerId());
         for (OrderShipRuleVo result : results) {
             ShippingTemplateRedis shippingTemplateRedis = (ShippingTemplateRedis) redisTemplate.opsForHash().get(RedisKey.SHIPPING_TEMPLATE,String.valueOf(result.getShipTemplateId()));
@@ -69,7 +67,6 @@ public class OrderShipRuleController {
                 result.setShipTemplateName(shippingTemplateRedis.getName());
             }
         }
-        
         OrderShipRuleListResponse res = new OrderShipRuleListResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS,results);
         return res;
     }
@@ -101,7 +98,6 @@ public class OrderShipRuleController {
     @RequestMapping(value="/update/{id}", method=RequestMethod.POST)
     @Permission(permission = "order:shiprules:update")
     public OrderShipRuleUpdateResponse update(@PathVariable Long id, @RequestBody @Valid OrderShipRuleUpdateRequest request) {
-
         orderShipRulesService.updateShipRules(request,id);
         OrderShipRuleUpdateResponse res = new OrderShipRuleUpdateResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS);
         return res;
