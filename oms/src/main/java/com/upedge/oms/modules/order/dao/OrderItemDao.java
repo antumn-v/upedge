@@ -26,6 +26,8 @@ public interface OrderItemDao{
 
     List<Long> selectUnQuoteItemOrderIdByOrderIds(@Param("orderIds")List<Long> orderIds);
 
+    List<Long> selectOrderIdsByOrderIdsAndQuoteState(@Param("orderIds")List<Long> orderIds,@Param("quoteState")Integer quoteState);
+
     List<Long> selectUnpaidOrderIdByStoreVariantId(Long storeVariantId);
 
     int updateQuoteStateByIds(@Param("ids") List<Long> ids,

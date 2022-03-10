@@ -958,8 +958,8 @@
         <foreach collection="orderIds" item="orderId" open="(" close=")" separator=",">
             #{orderId}
         </foreach>
-        and quote_state in
-        ('0','5')
+        and quote_state &lt; '5'
+        and quote_state != '1'
     </select>
 
     <select id="selectItemByOrderId" resultMap="BaseResultMap">
@@ -998,5 +998,13 @@
         and o.pay_state &lt; '1'
     </update>
 
-
+    <select id="selectOrderIdsByOrderIdsAndQuoteState" resultType="java.lang.Long">
+        select distinct order_id
+        from order_item
+        where order_id in
+        <foreach collection="orderIds" item="orderId" open="(" close=")" separator=",">
+            #{orderId}
+        </foreach>
+        and quote_state = #{quoteState}
+    </select>
 </mapper>

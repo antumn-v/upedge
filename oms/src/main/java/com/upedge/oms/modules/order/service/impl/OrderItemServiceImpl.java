@@ -181,17 +181,28 @@ public class OrderItemServiceImpl implements OrderItemService {
         //查询该产品关联的未支付订单
         List<Long> orderIds = orderItemDao.selectUnpaidOrderIdByStoreVariantId(storeVariantId);
         if (ListUtils.isNotEmpty(orderIds)) {
-            //修改订单产品费用
-            orderDao.initProductAmountById(orderIds);
-            //查询订单中是否包含未报价的产品
+            //查询订单中是否包含报价中的产品
+            List<Long> quotingOrders = orderItemDao.selectOrderIdsByOrderIdsAndQuoteState(orderIds,OrderItem.QUOTE_STATE_QUOTING);
+            if (ListUtils.isNotEmpty(quotingOrders)) {//标记订单为部分报价
+                orderDao.updateQuoteStateByIds(quotingOrders, OrderConstant.QUOTE_STATE_QUOTING);
+            }
+            orderIds.removeAll(quotingOrders);
+            //查询订单中是否包含未报价或报价失败的产品
             List<Long> partQuoteOrderIds = orderItemDao.selectUnQuoteItemOrderIdByOrderIds(orderIds);
-            if (ListUtils.isNotEmpty(partQuoteOrderIds)) {//标记订单为部分报价
+            if (ListUtils.isNotEmpty(partQuoteOrderIds)){
                 orderDao.updateQuoteStateByIds(partQuoteOrderIds, OrderConstant.QUOTE_STATE_PART_UNQUOTED);
             }
-            orderIds.removeAll(partQuoteOrderIds);
+            orderIds.remove(partQuoteOrderIds);
+            //全部报价的订单修改订单产品费用并匹配运输方式
             if (ListUtils.isNotEmpty(orderIds)
                     && customerProductQuoteVo.getQuoteState() == 1) {//标记订单未全部报价
                 orderDao.updateQuoteStateByIds(orderIds, OrderConstant.QUOTE_STATE_QUOTED);
+                //修改订单产品费用
+                orderDao.initProductAmountById(orderIds);
+                //修改订单运输方式
+                for (Long orderId : orderIds) {
+                    orderService.matchShipRule(orderId);
+                }
             }
         }
     }

@@ -13,6 +13,14 @@ import java.math.BigDecimal;
 @Data
 public class OrderItem{
 
+	public static Integer QUOTE_STATE_UNQU0TED = 0;
+	public static Integer QUOTE_STATE_QUOTED = 1;
+	public static Integer QUOTE_STATE_NOT_FIND = 2;
+	public static Integer QUOTE_STATE_CANCELED = 3;
+	public static Integer QUOTE_STATE_NO_STOCK = 4;
+	public static Integer QUOTE_STATE_QUOTING= 5;
+	public static Integer QUOTE_STATE_UPEDGE= 6;
+
 	/**
 	 * 
 	 */
