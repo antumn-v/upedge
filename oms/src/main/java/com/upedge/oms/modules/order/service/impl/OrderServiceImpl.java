@@ -233,11 +233,13 @@ public class OrderServiceImpl implements OrderService {
         }
         List<Long> shippedOrderIds = new ArrayList<>();
         for (AppOrderVo orderVo : appOrderVos) {
-            if (1 == orderVo.getPayState()) {
+            if (orderVo.getShipMethodId() != null) {
                 ShippingMethodRedis shippingMethodRedis = (ShippingMethodRedis) redisTemplate.opsForHash().get(RedisKey.SHIPPING_METHOD, orderVo.getShipMethodId().toString());
                 if (null != shippingMethodRedis) {
                     orderVo.setShipMethodName(shippingMethodRedis.getName());
                 }
+            }else {
+                orderVo.setShipPrice(BigDecimal.ZERO);
             }
             if (1 == orderVo.getShipState()){
                 shippedOrderIds.add(orderVo.getId());
