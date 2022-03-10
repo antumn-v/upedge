@@ -93,7 +93,7 @@ public class CustomerProductQuoteServiceImpl implements CustomerProductQuoteServ
     }
 
     @Override
-    public BaseResponse cancelQuote(Long storeVariantId, Session session) {
+    public BaseResponse revokeQuote(Long storeVariantId, Session session) {
 
         CustomerProductQuote customerProductQuote = customerProductQuoteDao.selectByStoreVariantId(storeVariantId);
         if (null == customerProductQuote){
@@ -102,8 +102,14 @@ public class CustomerProductQuoteServiceImpl implements CustomerProductQuoteServ
         if (customerProductQuote.getQuoteState() == 0){
             return BaseResponse.success();
         }
+        customerProductQuote.setVariantSku(null);
+        customerProductQuote.setVariantImage(null);
+        customerProductQuote.setVariantName(null);
+        customerProductQuote.setVariantId(null);
         customerProductQuote.setQuoteState(0);
         updateByPrimaryKey(customerProductQuote);
+
+
         List<Long> storeVariantIds = new ArrayList<>();
         storeVariantIds.add(storeVariantId);
         sendCustomerProductQuoteUpdateMessage(storeVariantIds);
@@ -148,6 +154,7 @@ public class CustomerProductQuoteServiceImpl implements CustomerProductQuoteServ
         customerProductQuote.setVariantName(productVariant.getEnName());
         customerProductQuote.setVariantSku(productVariant.getVariantSku());
         customerProductQuote.setQuotePrice(request.getQuotePrice());
+        customerProductQuote.setQuoteState(1);
         customerProductQuoteDao.updateByPrimaryKeySelective(customerProductQuote);
 
         ProductQuoteRecord productQuoteRecord = new ProductQuoteRecord();

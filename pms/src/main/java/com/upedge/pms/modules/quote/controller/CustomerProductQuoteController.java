@@ -20,10 +20,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -93,6 +90,13 @@ public class CustomerProductQuoteController {
 //            customerProductQuoteService.sendCustomerProductQuoteUpdateMessage(storeVariantIds);
 //        }
         return baseResponse;
+    }
+
+    @ApiOperation("撤销报价")
+    @PostMapping("/revoke/{id}")
+    public BaseResponse revokeProductQuote(@PathVariable Long id){
+        Session session = UserUtil.getSession(redisTemplate);
+        return customerProductQuoteService.revokeQuote(id,session);
     }
 
     @PostMapping("/search")

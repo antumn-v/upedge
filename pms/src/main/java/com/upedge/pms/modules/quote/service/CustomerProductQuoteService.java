@@ -15,7 +15,9 @@ import java.util.List;
  */
 public interface CustomerProductQuoteService{
 
-    BaseResponse cancelQuote(Long id,Session session);
+
+
+    BaseResponse revokeQuote(Long id,Session session);
 
     BaseResponse updateCustomerProductQuote(CustomerProductQuoteUpdateRequest request, Session session);
 
