@@ -103,7 +103,7 @@ public class OrderItemServiceImpl implements OrderItemService {
         if (itemId != null){
             OrderItem orderItem = orderItemDao.selectByPrimaryKey(itemId);
             if (orderItem != null
-            && orderItem.getQuoteState() != 0){
+            && orderItem.getQuoteState() == 0){
                 storeVariantIds.add(orderItem.getStoreVariantId());
             }
         }
