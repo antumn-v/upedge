@@ -64,4 +64,6 @@ public class CustomerStockRecord{
     private String variantName;
 
 	private Integer revokeState;
+
+	private Integer customerShowState;
 }

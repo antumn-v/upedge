@@ -20,11 +20,12 @@
         <result property="variantSku" column="variant_sku"/>
         <result property="variantName" column="variant_name"/>
         <result property="revokeState" column="revoke_state"/>
+        <result property="customerShowState" column="customer_show_state"/>
     </resultMap>
 
     <sql id="Base_Column_List">
-        `id`,`customer_id`,`product_id`,`variant_id`,`warehouse_code`,`relate_id`,`type`,revoke_state,
-        `order_type`,`quantity`,`create_time`,`update_time`,`variant_image`,`variant_sku`,`variant_name`
+        `id`,`customer_id`,`product_id`,`variant_id`,`warehouse_code`,`relate_id`,`type`,`order_type`,`quantity`,
+        `create_time`,`update_time`,`variant_name`,`variant_sku`,`variant_image`,`revoke_state`,`customer_show_state`
     </sql>
 
     <select id="selectByPrimaryKey" parameterType="com.upedge.oms.modules.stock.entity.CustomerStockRecord"
@@ -85,6 +86,9 @@
             <if test="revokeState != null">
                 revoke_state = #{revokeState},
             </if>
+            <if test="customerShowState != null">
+                customer_show_state = #{customerShowState},
+            </if>
         </set>
         where id = #{id}
     </update>
@@ -107,6 +111,7 @@
             variant_sku = #{variantSku},
             variant_image = #{variantImage},
             revoke_state = #{revokeState},
+            customer_show_state = #{customerShowState},
         </set>
         where id = #{id}
     </update>
@@ -128,7 +133,8 @@
             variant_name,
             variant_sku,
             variant_image,
-            revoke_state
+            revoke_state,
+            customer_show_state
         </trim>
         values (
         #{id},
@@ -145,7 +151,8 @@
         #{variantName},
         #{variantSku},
         #{variantImage},
-        #{revokeState}
+        #{revokeState},
+        #{customerShowState}
         )
     </insert>
 
@@ -197,6 +204,9 @@
             <if test="revokeState != null" >
                 revoke_state
             </if>
+            <if test="customerShowState != null" >
+                customer_show_state
+            </if>
 
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
@@ -245,6 +255,9 @@
             <if test="revokeState != null" >
                 #{revokeState}
             </if>
+            <if test="customerShowState != null" >
+                #{customerShowState}
+            </if>
 
         </trim>
     </insert>
@@ -266,7 +279,8 @@
             variant_name,
             variant_sku,
             variant_image,
-            revoke_state
+            revoke_state,
+            customer_show_state
         </trim>
         values
         <foreach collection="list" item="item" index="index" separator=",">
@@ -285,7 +299,8 @@
                 #{item.variantName},
                 #{item.variantSku},
                 #{item.variantImage},
-                #{item.revokeState}
+                #{item.revokeState},
+                #{item.customerShowState}
             </trim>
         </foreach>
     </insert>
@@ -339,6 +354,9 @@
                 </if>
                 <if test="t.revokeState != null">
                     revoke_state = #{t.revokeState} and
+                </if>
+                <if test="t.customerShowState != null">
+                    customer_show_state = #{t.customerShowState} and
                 </if>
             </trim>
         </if>

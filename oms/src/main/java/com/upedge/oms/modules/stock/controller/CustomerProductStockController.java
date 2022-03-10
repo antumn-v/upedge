@@ -60,6 +60,9 @@ public class CustomerProductStockController {
         if (null == recordListRequest.getT()){
             recordListRequest.setT(new CustomerStockRecord());
         }
+        if (session.getApplicationId() == Constant.APP_APPLICATION_ID){
+            recordListRequest.getT().setCustomerShowState(1);
+        }
         recordListRequest.getT().setCustomerId(result.getCustomerId());
         recordListRequest.getT().setVariantId(result.getVariantId());
         recordListRequest.getT().setProductId(result.getProductId());

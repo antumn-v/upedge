@@ -83,6 +83,7 @@ public class CustomerProductStockServiceImpl implements CustomerProductStockServ
             return BaseResponse.failed("库存不足");
         }
         record.setRevokeState(1);
+        record.setCustomerShowState(0);
         customerStockRecordDao.updateByPrimaryKey(record);
 
         CustomerStockRecord customerStockRecord = new CustomerStockRecord();
@@ -92,6 +93,7 @@ public class CustomerProductStockServiceImpl implements CustomerProductStockServ
         customerStockRecord.setRevokeState(1);
         customerStockRecord.setCreateTime(new Date());
         customerStockRecord.setType(4);
+        customerStockRecord.setCustomerShowState(0);
         customerStockRecordDao.insert(customerStockRecord);
 
         customerProductStockDao.subStockForRefund(customerProductStock.getId(),record.getQuantity());
