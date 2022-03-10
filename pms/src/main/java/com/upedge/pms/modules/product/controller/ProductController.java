@@ -180,7 +180,7 @@ public class ProductController {
         }
         Product p=request.getT();
         p.setState(5);
-        request.setOrderBy("create_time desc");
+        request.setOrderBy("update_time desc");
         List<Product> results = productService.select(request);
         Long total = productService.count(request);
         request.setTotal(total);

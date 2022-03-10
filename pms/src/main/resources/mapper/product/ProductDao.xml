@@ -443,74 +443,76 @@
     </insert>
 
     <sql id="Query_Condition">
+        where 1 = 1
         <if test="t != null">
-            where
             <trim prefix=" " suffix=" " suffixOverrides=" and ">
-                1 = 1 and
                 <if test="t.id != null">
-                    id = #{t.id} and
+                    and  id = #{t.id}
                 </if>
                 <if test="t.originalId != null">
-                    original_id = #{t.originalId} and
+                    and  original_id = #{t.originalId}
                 </if>
                 <if test="t.productSku != null and t.productSku != ''">
-                    product_sku = #{t.productSku} and
+                    and product_sku = #{t.productSku}
                 </if>
                 <if test="t.originalTitle != null">
-                    original_title = #{t.originalTitle} and
+                    and original_title = #{t.originalTitle}
                 </if>
                 <if test="t.productTitle != null and t.productTitle != ''">
-                    product_title = #{t.productTitle} and
+                    and product_title = #{t.productTitle}
                 </if>
                 <if test="t.productImage != null">
-                    product_image = #{t.productImage} and
+                    and product_image = #{t.productImage}
                 </if>
                 <if test="t.supplierId != null">
-                    supplier_id = #{t.supplierId} and
+                    and supplier_id = #{t.supplierId}
                 </if>
                 <if test="t.shippingId != null">
-                    shipping_id = #{t.shippingId} and
+                    and shipping_id = #{t.shippingId}
                 </if>
                 <if test="t.categoryId != null">
-                    category_id = #{t.categoryId} and
+                    and category_id = #{t.categoryId}
                 </if>
                 <if test="t.state != null">
-                    state = #{t.state} and
+                    and `state` = #{t.state}
                 </if>
                 <if test="t.replaceState != null">
-                    replace_state = #{t.replaceState} and
+                    and replace_state = #{t.replaceState}
                 </if>
                 <if test="t.saiheState != null">
-                    saihe_state = #{t.saiheState} and
+                    and saihe_state = #{t.saiheState}
                 </if>
                 <if test="t.productSource != null">
-                    product_source = #{t.productSource} and
+                    and product_source = #{t.productSource}
                 </if>
                 <if test="t.productType != null">
-                    product_type = #{t.productType} and
+                    and product_type = #{t.productType}
                 </if>
                 <if test="t.cateType != null">
-                    cate_type = #{t.cateType} and
+                    and cate_type = #{t.cateType}
                 </if>
                 <if test="t.userId != null">
-                    user_id = #{t.userId} and
+                    and user_id = #{t.userId}
                 </if>
                 <if test="t.createTime != null">
-                    create_time = #{t.createTime} and
+                    and create_time = #{t.createTime}
                 </if>
                 <if test="t.updateTime != null">
-                    update_time = #{t.updateTime} and
+                    and update_time = #{t.updateTime}
                 </if>
                 <if test="t.priceRange != null">
-                    price_range = #{t.priceRange} and
+                    and price_range = #{t.priceRange}
                 </if>
                 <if test="t.maxPrice != null">
-                    max_price = #{t.maxPrice} and
+                    and max_price = #{t.maxPrice}
                 </if>
                 <if test="t.minPrice != null">
-                    min_price = #{t.minPrice} and
+                    and min_price = #{t.minPrice}
                 </if>
             </trim>
+        </if>
+        <if test="condition != null and condition != ''">
+            and ${condition}
         </if>
     </sql>
 
