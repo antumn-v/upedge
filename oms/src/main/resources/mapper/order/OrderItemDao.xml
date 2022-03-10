@@ -939,6 +939,7 @@
         </foreach>
         and o.pay_state &lt; 1
         and o.quote_state != '3'
+        and oi.quote_state = '0'
     </update>
 
     <select id="selectUnpaidOrderIdByStoreVariantId" resultType="java.lang.Long">

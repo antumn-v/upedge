@@ -35,6 +35,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -89,17 +90,27 @@ public class OrderItemServiceImpl implements OrderItemService {
     @Transactional
     @Override
     public BaseResponse orderItemApplyQuote(OrderItemQuoteRequest request, Session session) {
-
+        Long itemId = request.getItemId();
         List<Long> orderIds = request.getOrderIds();
-        if (ListUtils.isEmpty(orderIds)) {
+        if (ListUtils.isEmpty(orderIds)
+        && itemId == null) {
             return BaseResponse.failed();
         }
-        List<Long> storeVariantIds = orderItemDao.selectStoreVariantIdsByOrderIds(orderIds);
+        List<Long> storeVariantIds = new ArrayList<>();
+        if (ListUtils.isNotEmpty(orderIds)){
+            storeVariantIds.addAll(orderItemDao.selectStoreVariantIdsByOrderIds(orderIds));
+        }
+        if (itemId != null){
+            OrderItem orderItem = orderItemDao.selectByPrimaryKey(itemId);
+            if (orderItem != null
+            && orderItem.getQuoteState() != 0){
+                storeVariantIds.add(orderItem.getStoreVariantId());
+            }
+        }
         if (ListUtils.isEmpty(storeVariantIds)) {
             return BaseResponse.failed();
         }
         OrderQuoteApplyRequest orderQuoteApplyRequest = new OrderQuoteApplyRequest();
-//        orderQuoteApplyRequest.setOrderId(request.getOrderId());
         orderQuoteApplyRequest.setCustomerId(session.getCustomerId());
         orderQuoteApplyRequest.setUserId(session.getId());
         orderQuoteApplyRequest.setStoreVariantId(storeVariantIds);
