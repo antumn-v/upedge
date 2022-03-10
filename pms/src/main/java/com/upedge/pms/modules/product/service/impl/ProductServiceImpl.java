@@ -165,7 +165,7 @@ public class ProductServiceImpl implements ProductService {
             if (category != null){
                 product.setCategoryId(category.getId());
             }
-            if (StringUtils.isBlank(product.getProductSku())){
+            if (StringUtils.isBlank(product.getProductSku())&& StringUtils.isNotBlank(request.getProductSku())){
                 product.setProductSku(request.getProductSku());
             }
             product.setCateType(request.getCateType());
@@ -186,7 +186,6 @@ public class ProductServiceImpl implements ProductService {
                     productLog.setNewInfo(String.valueOf(request.getShippingId()));
                     productLogService.insert(productLog);
                 }
-
             }
             productDao.updateByPrimaryKeySelective(product);
         }

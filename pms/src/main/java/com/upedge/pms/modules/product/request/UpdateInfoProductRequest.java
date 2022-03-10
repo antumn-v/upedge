@@ -13,7 +13,7 @@ public class UpdateInfoProductRequest {
     /**
      * 商品标题
      */
-    @NotBlank
+    @NotBlank(message = "产品标题不能为空")
     private String productTitle;
     /**
      * 商品类目id
@@ -22,17 +22,17 @@ public class UpdateInfoProductRequest {
     /**
      * 0:普通商品 1:定制包装
      */
-    @NotNull
+    @NotNull(message = "商品类别不能为空")
     private Integer cateType;
     /**
      * 报关英文名
      */
-    @NotBlank
+    @NotBlank(message = "报关英文名不能为空")
     private String entryEname;
     /**
      * 报关中文名
      */
-    @NotBlank
+    @NotBlank(message = "报关中文名不能为空")
     private String entryCname;
     /**
      * 赛盒仓库id
@@ -41,7 +41,7 @@ public class UpdateInfoProductRequest {
     /**
      * 运输模板id
      */
-    @NotNull
+    @NotNull(message = "运输模板不能为空")
     private Long shippingId;
 
 }
