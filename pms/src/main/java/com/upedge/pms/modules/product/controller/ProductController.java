@@ -77,7 +77,7 @@ public class ProductController {
         if(StringUtils.isBlank(request.getOriginalProductId())){
             return new BaseResponse(ResultCode.FAIL_CODE,Constant.MESSAGE_FAIL);
         }
-        Product p=productService.selectByProductSku(request.getOriginalProductId());
+        Product p=productService.selectByOriginalId(request.getOriginalProductId());
         if(p!=null){
             return BaseResponse.failed("产品不可重复导入");
         }
