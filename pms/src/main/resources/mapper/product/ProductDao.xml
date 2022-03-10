@@ -401,7 +401,7 @@
             supplier_id,
             shipping_id,
             category_id,
-            state,
+            `state`,
             replace_state,
             saihe_state,
             product_source,

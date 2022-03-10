@@ -7,6 +7,9 @@ import javax.validation.constraints.NotNull;
 
 @Data
 public class UpdateInfoProductRequest {
+
+
+    private String productSku;
     /**
      * 商品标题
      */

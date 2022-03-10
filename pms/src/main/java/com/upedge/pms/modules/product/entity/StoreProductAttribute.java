@@ -94,7 +94,7 @@ public class StoreProductAttribute {
 
     public Product toProduct(Session session){
         Product product = new Product();
-        product.setProductSku(System.currentTimeMillis() + "");
+        product.setProductSku(null);
         product.setProductTitle(this.title);
         product.setProductImage(this.image);
         product.setOriginalId(this.id.toString());
