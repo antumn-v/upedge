@@ -3,6 +3,7 @@ package com.upedge.ums.modules.user.controller;
 import com.alibaba.fastjson.JSONObject;
 import com.upedge.common.base.BaseResponse;
 import com.upedge.common.component.annotation.Permission;
+import com.upedge.common.constant.BaseCode;
 import com.upedge.common.constant.Constant;
 import com.upedge.common.constant.ResultCode;
 import com.upedge.common.exception.CustomerException;
@@ -11,9 +12,11 @@ import com.upedge.common.utils.TokenUtil;
 import com.upedge.common.web.util.UserUtil;
 import com.upedge.ums.modules.store.entity.Store;
 import com.upedge.ums.modules.store.service.StoreService;
+import com.upedge.ums.modules.user.entity.Customer;
 import com.upedge.ums.modules.user.entity.User;
 import com.upedge.ums.modules.user.request.*;
 import com.upedge.ums.modules.user.response.*;
+import com.upedge.ums.modules.user.service.CustomerService;
 import com.upedge.ums.modules.user.service.UserService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -25,6 +28,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 
@@ -44,6 +48,9 @@ public class UserController {
 
     @Autowired
     RedisTemplate redisTemplate;
+
+    @Autowired
+    CustomerService customerService;
 
 
     @ApiOperation("注册")
@@ -161,6 +168,22 @@ public class UserController {
         userService.updateByPrimaryKeySelective(entity);
         UserUpdateResponse res = new UserUpdateResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS);
         return res;
+    }
+
+    @ApiOperation("获取app用户登陆token")
+    @PostMapping("/getToken/{customerId}")
+    public BaseResponse getCustometLoginToken(@PathVariable Long customerId){
+        Session session = UserUtil.getSession(redisTemplate);
+        if (session.getUserType() != BaseCode.USER_ROLE_SUPERADMIN){
+            return BaseResponse.failed("权限不足,超级管理员可操作");
+        }
+        Customer customer = customerService.selectByPrimaryKey(customerId);
+        if (customer == null){
+            return BaseResponse.failed("用户不存在");
+        }
+        User user = userService.selectByPrimaryKey(customer.getCustomerSignupUserId());
+        Map<String, Object> map = userService.userSignIn(user,Constant.APP_APPLICATION_ID,2);
+        return BaseResponse.success(map);
     }
 
 

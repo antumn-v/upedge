@@ -143,6 +143,7 @@ public class UserServiceImpl implements UserService {
         return userDao.insert(record);
     }
 
+
     @Override
     public User selectByLoginName(String loginName) {
         if (StringUtils.isBlank(loginName)){
@@ -381,6 +382,7 @@ public class UserServiceImpl implements UserService {
         return user;
     }
 
+
     public Map<String, Object> userSignIn(User user, Long applicationId) {
         Long userId = user.getId();
         Map<String, Object> result = new HashMap<>();
@@ -420,6 +422,46 @@ public class UserServiceImpl implements UserService {
         userDao.refreshLoginData(user);
         Boolean guideNotice = guideNotice(userId);
         result.put("guideNotice",guideNotice);
+        return result;
+    }
+
+    @Override
+    public Map<String, Object> userSignIn(User user, Long applicationId,Integer source) {
+        Long userId = user.getId();
+        Map<String, Object> result = new HashMap<>();
+        String token = String.valueOf(IdGenerate.nextId());
+        result.put("token", token);
+        UserVo userVo = new UserVo();
+        BeanUtils.copyProperties(user, userVo);
+        Session session = new Session(userVo);
+        //组织
+        List<Long> orgIds = organizationUserService.selectOrgIdsByUserId(userId);
+        session.setOrgIds(orgIds);
+        Organization organization = organizationUserService.selectUserParentOrganization(userId);
+        if (organization != null) {
+            OrganizationVo organizationVo = new OrganizationVo();
+            BeanUtils.copyProperties(organization, organizationVo);
+            session.setParentOrganization(organizationVo);
+        }
+        //角色权限
+        Role role = roleService.selectRoleByUser(userId);
+        RoleVo roleVo = new RoleVo();
+        BeanUtils.copyProperties(role, roleVo);
+        session.setApplicationId(applicationId);
+        session.setRole(roleVo);
+
+        List<String> permissions = rolePermissionService.selectPermissionByRole(role.getId());
+        session.setPermissions(permissions);
+
+        Account account = accountService.selectCustomerDefaultAccount(session.getCustomerId());
+        if (null != account) {
+            session.setAccountId(account.getId());
+        }
+        UserInfo userInfo = userInfoService.selectByPrimaryKey(userId);
+        session.setUserName(userInfo.getUsername());
+        session.setLoginpass(user.getLoginPass());
+        UserUtil.setUser(redisTemplate, token, session);
+        result.put("guideNotice",false);
         return result;
     }
 

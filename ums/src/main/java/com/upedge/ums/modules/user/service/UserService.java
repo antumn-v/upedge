@@ -13,11 +13,14 @@ import com.upedge.ums.modules.user.response.UserProfileResponse;
 import com.upedge.ums.modules.user.response.UserSignInResponse;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author gx
  */
 public interface UserService{
+
+    Map<String, Object> userSignIn(User user, Long applicationId,Integer source);
 
     User selectByLoginName(String loginName);
 
