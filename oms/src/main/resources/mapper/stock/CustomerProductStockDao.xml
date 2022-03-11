@@ -16,13 +16,14 @@
         <result property="updateTime" column="update_time"/>
         <result property="variantImage" column="variant_image"/>
         <result property="variantSku" column="variant_sku"/>
-        <result property="variantName" column="variant_name"/>
         <result property="productTitle" column="product_title"/>
+        <result property="variantName" column="variant_name"/>
+        <result property="stockType" column="stock_type"/>
+        <result property="customerShowState" column="customer_show_state"/>
     </resultMap>
 
     <sql id="Base_Column_List">
-        `id`,`customer_id`,`product_id`,`variant_id`,`stock`,`warehouse_code`,
-        `lock_stock`,`create_time`,`update_time`,`variant_image`,`variant_sku`,`product_title`,`variant_name`
+        `id`,`customer_id`,`product_id`,`variant_id`,`stock`,`warehouse_code`,`lock_stock`,`create_time`,`update_time`,`variant_image`,`variant_sku`,`product_title`,`variant_name`,`stock_type`,`customer_show_state`
     </sql>
 
     <select id="selectVariantStockByCustomer" resultType="java.lang.Integer">
@@ -43,7 +44,8 @@
         <foreach collection="stocks" item="s" separator=";">
             update customer_product_stock
             set stock = stock + #{s.stock},
-            variant_image = #{s.variantImage}
+            variant_image = #{s.variantImage},
+            customer_show_state = '1'
             where customer_id = #{s.customerId}
             and warehouse_code = #{s.warehouseCode}
             and variant_id = #{s.variantId}
@@ -137,6 +139,21 @@
             <if test="variantImage != null">
                 variant_image = #{variantImage},
             </if>
+            <if test="variantSku != null">
+                variant_sku = #{variantSku},
+            </if>
+            <if test="productTitle != null">
+                product_title = #{productTitle},
+            </if>
+            <if test="variantName != null">
+                variant_name = #{variantName},
+            </if>
+            <if test="stockType != null">
+                stock_type = #{stockType},
+            </if>
+            <if test="customerShowState != null">
+                customer_show_state = #{customerShowState},
+            </if>
         </set>
         where id = #{id}
     </update>
@@ -154,12 +171,16 @@
             create_time = #{createTime},
             update_time = #{updateTime},
             variant_image = #{variantImage},
+            variant_sku = #{variantSku},
+            product_title = #{productTitle},
+            variant_name = #{variantName},
+            stock_type = #{stockType},
+            customer_show_state = #{customerShowState},
         </set>
         where id = #{id}
     </update>
 
-    <insert id="insert" keyColumn="id" keyProperty="id"
-            parameterType="com.upedge.oms.modules.stock.entity.CustomerProductStock" useGeneratedKeys="true">
+    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.upedge.oms.modules.stock.entity.CustomerProductStock" useGeneratedKeys="true">
         insert into customer_product_stock
         <trim prefix="(" suffix=")" suffixOverrides=",">
             id,
@@ -172,8 +193,11 @@
             create_time,
             update_time,
             variant_image,
+            variant_sku,
             product_title,
-            variant_name
+            variant_name,
+            stock_type,
+            customer_show_state
         </trim>
         values (
         #{id},
@@ -186,77 +210,109 @@
         #{createTime},
         #{updateTime},
         #{variantImage},
+        #{variantSku},
         #{productTitle},
-        #{variantName}
+        #{variantName},
+        #{stockType},
+        #{customerShowState}
         )
     </insert>
 
-    <insert id="insertSelective" keyColumn="id" keyProperty="id"
-            parameterType="com.upedge.oms.modules.stock.entity.CustomerProductStock" useGeneratedKeys="true">
+    <insert id="insertSelective"  keyColumn="id" keyProperty="id"  parameterType="com.upedge.oms.modules.stock.entity.CustomerProductStock" useGeneratedKeys="true">
         insert into customer_product_stock
         <trim prefix="(" suffix=")" suffixOverrides=",">
-            <if test="id != null">
+            <if test="id != null" >
                 id
             </if>
-            <if test="customerId != null">
+            <if test="customerId != null" >
                 customer_id
             </if>
-            <if test="productId != null">
+            <if test="productId != null" >
                 product_id
             </if>
-            <if test="variantId != null">
+            <if test="variantId != null" >
                 variant_id
             </if>
-            <if test="stock != null">
+            <if test="stock != null" >
                 stock
             </if>
-            <if test="warehouseCode != null">
+            <if test="warehouseCode != null" >
                 warehouse_code
             </if>
-            <if test="lockStock != null">
+            <if test="lockStock != null" >
                 lock_stock
             </if>
-            <if test="createTime != null">
+            <if test="createTime != null" >
                 create_time
             </if>
-            <if test="updateTime != null">
+            <if test="updateTime != null" >
                 update_time
             </if>
-            <if test="variantImage != null">
+            <if test="variantImage != null" >
                 variant_image
+            </if>
+            <if test="variantSku != null" >
+                variant_sku
+            </if>
+            <if test="productTitle != null" >
+                product_title
+            </if>
+            <if test="variantName != null" >
+                variant_name
+            </if>
+            <if test="stockType != null" >
+                stock_type
+            </if>
+            <if test="customerShowState != null" >
+                customer_show_state
             </if>
 
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
-            <if test="id != null">
+            <if test="id != null" >
                 #{id}
             </if>
-            <if test="customerId != null">
+            <if test="customerId != null" >
                 #{customerId}
             </if>
-            <if test="productId != null">
+            <if test="productId != null" >
                 #{productId}
             </if>
-            <if test="variantId != null">
+            <if test="variantId != null" >
                 #{variantId}
             </if>
-            <if test="stock != null">
+            <if test="stock != null" >
                 #{stock}
             </if>
-            <if test="warehouseCode != null">
+            <if test="warehouseCode != null" >
                 #{warehouseCode}
             </if>
-            <if test="lockStock != null">
+            <if test="lockStock != null" >
                 #{lockStock}
             </if>
-            <if test="createTime != null">
+            <if test="createTime != null" >
                 #{createTime}
             </if>
-            <if test="updateTime != null">
+            <if test="updateTime != null" >
                 #{updateTime}
             </if>
-            <if test="variantImage != null">
+            <if test="variantImage != null" >
                 #{variantImage}
+            </if>
+            <if test="variantSku != null" >
+                #{variantSku}
+            </if>
+            <if test="productTitle != null" >
+                #{productTitle}
+            </if>
+            <if test="variantName != null" >
+                #{variantName}
+            </if>
+            <if test="stockType != null" >
+                #{stockType}
+            </if>
+            <if test="customerShowState != null" >
+                #{customerShowState}
             </if>
 
         </trim>
@@ -277,7 +333,9 @@
             variant_image,
             variant_sku,
             product_title,
-            variant_name
+            variant_name,
+            stock_type,
+            customer_show_state
         </trim>
         values
         <foreach collection="list" item="item" index="index" separator=",">
@@ -294,7 +352,9 @@
                 #{item.variantImage},
                 #{item.variantSku},
                 #{item.productTitle},
-                #{item.variantName}
+                #{item.variantName},
+                #{item.stockType},
+                #{item.customerShowState}
             </trim>
         </foreach>
     </insert>
@@ -334,16 +394,21 @@
                 <if test="t.variantImage != null">
                     variant_image = #{t.variantImage} and
                 </if>
-                <if test="t.variantSku != null and t.variantSku !='' ">
-                    variant_sku  = #{t.variantSku}
+                <if test="t.variantSku != null">
+                    variant_sku = #{t.variantSku} and
                 </if>
-                <if test="t.productTitle != null and t.productTitle !='' ">
-                    product_title  LIKE CONCAT('%',#{t.productTitle},'%')
+                <if test="t.productTitle != null">
+                    product_title = #{t.productTitle} and
                 </if>
-                <if test="condition != null">
-                    ${condition} and
+                <if test="t.variantName != null">
+                    variant_name = #{t.variantName} and
                 </if>
-
+                <if test="t.stockType != null">
+                    stock_type = #{t.stockType} and
+                </if>
+                <if test="t.customerShowState != null">
+                    customer_show_state = #{t.customerShowState} and
+                </if>
             </trim>
         </if>
     </sql>

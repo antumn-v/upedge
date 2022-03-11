@@ -59,4 +59,6 @@ public class CustomerProductStock{
 
 	private Integer stockType;
 
+	private Integer customerShowState;
+
 }

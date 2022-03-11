@@ -553,6 +553,7 @@ public class StockOrderServiceImpl implements StockOrderService {
                 stock.setLockStock(0);
                 stock.setCreateTime(date);
                 stock.setUpdateTime(date);
+                stock.setCustomerShowState(1);
                 insertStock.add(stock);
             }
         });

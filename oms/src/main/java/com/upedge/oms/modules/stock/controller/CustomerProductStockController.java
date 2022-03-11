@@ -10,10 +10,7 @@ import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.web.util.UserUtil;
 import com.upedge.oms.modules.stock.entity.CustomerProductStock;
 import com.upedge.oms.modules.stock.entity.CustomerStockRecord;
-import com.upedge.oms.modules.stock.request.CustomerProductStockListRequest;
-import com.upedge.oms.modules.stock.request.CustomerProductStockRevokeListRequest;
-import com.upedge.oms.modules.stock.request.CustomerStockRecordListRequest;
-import com.upedge.oms.modules.stock.request.ManualAddCustomerStockRequest;
+import com.upedge.oms.modules.stock.request.*;
 import com.upedge.oms.modules.stock.response.CustomerProductStockInfoResponse;
 import com.upedge.oms.modules.stock.response.CustomerProductStockListResponse;
 import com.upedge.oms.modules.stock.service.CustomerProductStockService;
@@ -28,6 +25,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 /**
  * 
@@ -94,6 +92,7 @@ public class CustomerProductStockController {
             request.setT(new CustomerProductStock());
         }
         request.getT().setCustomerId(session.getCustomerId());
+        request.getT().setCustomerShowState(1);
         List<CustomerProductStock> results = customerProductStockService.select(request);
         Long total = customerProductStockService.count(request);
         request.setTotal(total);
@@ -150,6 +149,24 @@ public class CustomerProductStockController {
     public BaseResponse revokeManualAddCustomerStock(@PathVariable Long recordId){
         Session session = UserUtil.getSession(redisTemplate);
         return customerProductStockService.revokeManualAddRecord(recordId,session);
+    }
+
+    @ApiOperation("更新客户库存展示状态")
+    @PostMapping("/updateShowState")
+    public BaseResponse updateShowState(@RequestBody@Valid CustomerProductStockUpdateShowStateRequest request){
+        CustomerProductStock customerProductStock = customerProductStockService.selectByPrimaryKey(request.getId());
+        if (customerProductStock == null){
+            return BaseResponse.failed("库存记录不存在");
+        }
+        if (customerProductStock.getCustomerShowState() == request.getState()){
+            return BaseResponse.success();
+        }
+        customerProductStock = new CustomerProductStock();
+        customerProductStock.setUpdateTime(new Date());
+        customerProductStock.setId(request.getId());
+        customerProductStock.setCustomerShowState(request.getState());
+        customerProductStockService.updateByPrimaryKeySelective(customerProductStock);
+        return BaseResponse.success();
     }
 
 }

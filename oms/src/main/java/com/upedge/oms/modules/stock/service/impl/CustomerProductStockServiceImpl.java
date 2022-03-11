@@ -137,6 +137,7 @@ public class CustomerProductStockServiceImpl implements CustomerProductStockServ
                 customerProductStock.setUpdateTime(date);
                 customerProductStock.setStockType(1);
                 customerProductStock.setWarehouseCode(warehouseCode);
+                customerProductStock.setCustomerShowState(1);
                 customerProductStocks.add(customerProductStock);
             }else {
                 customerProductStock.setCustomerId(customerId);
