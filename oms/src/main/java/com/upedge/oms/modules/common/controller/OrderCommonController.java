@@ -1,6 +1,7 @@
 package com.upedge.oms.modules.common.controller;
 
 
+import com.alibaba.fastjson.JSONObject;
 import com.upedge.common.base.BaseResponse;
 import com.upedge.common.exception.CustomerException;
 import com.upedge.common.model.order.vo.UplodaSaiheOnMqVo;
@@ -8,6 +9,7 @@ import com.upedge.oms.modules.common.service.MqOnSaiheService;
 import com.upedge.oms.modules.common.service.OrderCommonService;
 import com.upedge.oms.modules.order.entity.Order;
 import com.upedge.oms.modules.order.service.OrderService;
+import com.upedge.thirdparty.shopify.moudles.order.entity.ShopifyOrder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -25,6 +27,14 @@ public class OrderCommonController {
 
     @Autowired
     OrderService orderService;
+
+
+    @PostMapping("/jsonTest")
+    public BaseResponse jsonTest(@RequestBody String body){
+        JSONObject jsonObject = JSONObject.parseObject(body);
+        ShopifyOrder shopifyOrder = jsonObject.toJavaObject(ShopifyOrder.class);
+        return BaseResponse.success(shopifyOrder);
+    }
 
     /**
      * 刷新赛盒发货状态

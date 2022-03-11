@@ -1,7 +1,6 @@
 package com.upedge.thirdparty.shopify.moudles.order.entity;
 
 import lombok.Data;
-import lombok.ToString;
 
 import java.math.BigDecimal;
 import java.util.Date;
@@ -823,7 +822,6 @@ public class ShopifyOrder {
         private String marketing_opt_in_level;
         private String admin_graphql_api_id;
         private DefaultAddressBean default_address;
-        private List<?> tax_exemptions;
 
         public Long getId() {
             return id;
@@ -1007,14 +1005,6 @@ public class ShopifyOrder {
 
         public void setDefault_address(DefaultAddressBean default_address) {
             this.default_address = default_address;
-        }
-
-        public List<?> getTax_exemptions() {
-            return tax_exemptions;
-        }
-
-        public void setTax_exemptions(List<?> tax_exemptions) {
-            this.tax_exemptions = tax_exemptions;
         }
 
         public static class DefaultAddressBean {
@@ -1224,8 +1214,6 @@ public class ShopifyOrder {
         private String discounted_price;
         private PriceSetBeanX price_set;
         private DiscountedPriceSetBean discounted_price_set;
-        private List<?> discount_allocations;
-        private List<?> tax_lines;
 
         public Long getId() {
             return id;
@@ -1321,22 +1309,6 @@ public class ShopifyOrder {
 
         public void setDiscounted_price_set(DiscountedPriceSetBean discounted_price_set) {
             this.discounted_price_set = discounted_price_set;
-        }
-
-        public List<?> getDiscount_allocations() {
-            return discount_allocations;
-        }
-
-        public void setDiscount_allocations(List<?> discount_allocations) {
-            this.discount_allocations = discount_allocations;
-        }
-
-        public List<?> getTax_lines() {
-            return tax_lines;
-        }
-
-        public void setTax_lines(List<?> tax_lines) {
-            this.tax_lines = tax_lines;
         }
 
         public static class PriceSetBeanX {
