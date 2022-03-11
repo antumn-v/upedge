@@ -57,6 +57,8 @@ public class CustomerProductStockVo {
 
     private String customerName;
 
+    private Integer customerShowState;
+
 
    // private AdminSaiheInventory adminSaiheInventory=new AdminSaiheInventory();
     private ProductSaiheInventoryVo productSaiheInventoryVo=new ProductSaiheInventoryVo();

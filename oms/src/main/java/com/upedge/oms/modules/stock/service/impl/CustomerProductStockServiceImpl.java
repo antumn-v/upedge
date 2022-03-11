@@ -131,6 +131,7 @@ public class CustomerProductStockServiceImpl implements CustomerProductStockServ
             CustomerProductStock customerProductStock = new CustomerProductStock();
             if (!variantIds.contains(variantDetail.getVariantId())){
                 BeanUtils.copyProperties(variantDetail,customerProductStock);
+                customerProductStock.setVariantImage(variantDetail.getVariantImage());
                 customerProductStock.setCustomerId(request.getCustomerId());
                 customerProductStock.setStock(customerSkuStockVo.getStock());
                 customerProductStock.setCreateTime(date);
@@ -140,6 +141,7 @@ public class CustomerProductStockServiceImpl implements CustomerProductStockServ
                 customerProductStock.setCustomerShowState(1);
                 customerProductStocks.add(customerProductStock);
             }else {
+                customerProductStock.setVariantImage(variantDetail.getVariantImage());
                 customerProductStock.setCustomerId(customerId);
                 customerProductStock.setVariantId(customerSkuStockVo.getVariantId());
                 customerProductStock.setStock(customerSkuStockVo.getStock());
