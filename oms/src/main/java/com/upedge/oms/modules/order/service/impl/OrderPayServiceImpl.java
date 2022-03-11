@@ -288,6 +288,7 @@ public class OrderPayServiceImpl implements OrderPayService {
 
         CustomerProductStock customerProductStock = new CustomerProductStock();
         customerProductStock.setCustomerId(customerId);
+        customerProductStock.setWarehouseCode(warehouseCode);
         Page<CustomerProductStock> page = new Page<>();
         page.setT(customerProductStock);
         page.setCondition("stock > 0");
