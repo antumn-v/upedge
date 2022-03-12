@@ -171,7 +171,7 @@ public class ProductVariantServiceImpl implements ProductVariantService {
                 productLogList.add(productLog);
 
                 VariantDetail variantDetail = new VariantDetail();
-                variantDetail.setWeight(productVariant.getWeight());
+                variantDetail.setWeight(request.getWeight());
                 variantDetail.setVariantId(productVariant.getId());
                 variantDetails.add(variantDetail);
             }
@@ -180,9 +180,11 @@ public class ProductVariantServiceImpl implements ProductVariantService {
         if (productLogList.size() > 0) {
             productLogDao.insertByBatch(productLogList);
         }
-        boolean b = productService.sendUpdateVariantMessage(variantDetails,"weight");
-        if (!b){
-            throw new CustomerException("mq异常，请重新提交或联系IT!");
+        if (ListUtils.isNotEmpty(variantDetails)){
+            boolean b = productService.sendUpdateVariantMessage(variantDetails,"weight");
+            if (!b){
+                throw new CustomerException("mq异常，请重新提交或联系IT!");
+            }
         }
         return new ProductVariantUpdateWeightResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS);
     }
