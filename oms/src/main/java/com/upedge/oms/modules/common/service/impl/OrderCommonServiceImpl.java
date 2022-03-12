@@ -15,6 +15,7 @@ import com.upedge.common.model.log.MqMessageLog;
 import com.upedge.common.model.mq.ChangeManagerVo;
 import com.upedge.common.model.order.PaymentDetail;
 import com.upedge.common.model.order.TransactionDetail;
+import com.upedge.common.model.ship.vo.ShippingMethodRedis;
 import com.upedge.common.model.ship.vo.ShippingMethodVo;
 import com.upedge.common.model.user.vo.CustomerIossVo;
 import com.upedge.common.model.user.vo.CustomerVo;
@@ -440,7 +441,14 @@ public class OrderCommonServiceImpl implements OrderCommonService {
         apiUploadOrderInfo.setWareHouseID(SaiheConfig.UPEDGE_DEFAULT_WAREHOUSE_ID);
 
         //运输方式ID ShippingService
-        apiUploadOrderInfo.setTransportID(5);
+        ShippingMethodRedis shippingMethodRedis = (ShippingMethodRedis) redisTemplate.opsForHash().get(RedisKey.SHIPPING_METHOD,saiheOrder.getShipMethodId().toString());
+        if (null == shippingMethodRedis || null == shippingMethodRedis.getSaiheTransportId()){
+            saiheOrderRecord.setState(0);
+            saiheOrderRecord.setFailReason("订单运输方式未匹配赛盒");
+            saiheOrderRecordDao.insert(saiheOrderRecord);
+            return false;
+        }
+        apiUploadOrderInfo.setTransportID(shippingMethodRedis.getSaiheTransportId());
 
         //是否执行订单策略(默认为:true；如果为false，则必须传入warehouseCode和TransportID参数)
         apiUploadOrderInfo.setIsOperateMatch(false);
