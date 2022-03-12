@@ -60,10 +60,13 @@ public class StoreProductVariant {
         ProductVariant productVariant = new ProductVariant();
         productVariant.setId(id);
         productVariant.setProductId(productId);
+        productVariant.setWidth(BigDecimal.ONE);
+        productVariant.setHeight(BigDecimal.ONE);
+        productVariant.setLength(BigDecimal.ONE);
+        productVariant.setVolumeWeight(BigDecimal.ONE);
         productVariant.setVariantPrice(price);
         productVariant.setUsdPrice(price);
         productVariant.setWeight(BigDecimal.ZERO);
-        productVariant.setVolumeWeight(BigDecimal.ZERO);
         productVariant.setState(state);
         productVariant.setVariantImage(image);
         productVariant.setVariantSku(sku + ":" + System.currentTimeMillis());
