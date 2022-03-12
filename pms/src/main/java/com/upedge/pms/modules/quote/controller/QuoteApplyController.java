@@ -64,8 +64,8 @@ public class QuoteApplyController {
         }
     }
 
-    @ApiOperation("完结报价申请")
-    @PostMapping("/{quoteApplyId}/finish")
+//    @ApiOperation("完结报价申请")
+//    @PostMapping("/{quoteApplyId}/finish")
     public BaseResponse finishQuoteApply(@PathVariable Long quoteApplyId){
         Session session = UserUtil.getSession(redisTemplate);
         return quoteApplyService.finishQuoteApply(quoteApplyId,session);
