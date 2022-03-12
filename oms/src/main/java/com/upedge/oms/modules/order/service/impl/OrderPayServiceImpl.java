@@ -628,6 +628,7 @@ public class OrderPayServiceImpl implements OrderPayService {
         customerOrderDailyCountUpdateRequest.setPaymentId(paymentId);
         customerOrderDailyCountUpdateRequest.setPayTime(payTime);
         orderDailyPayCountService.updateCustomerOrderDailyCount(customerOrderDailyCountUpdateRequest);
+        payOrderAsync(session.getId(),session.getCustomerId(), paymentId,0);
 //        throw new NullPointerException("手动异常");
         return "success";
 
@@ -639,33 +640,20 @@ public class OrderPayServiceImpl implements OrderPayService {
 
     }
 
-    @Override
     public void payOrderAsync(Long userId, Long customerId, Long paymentId, Integer payMethod) {
-
-        Future<?> submit = threadPoolExecutor.submit(new Runnable() {
-            @Override
-            public void run() {
-                customerProductSalesLogService.saveProductSaleRecord(paymentId, OrderType.NORMAL, customerId, new Date());
-                customerStockRecordService.saveDischargeStockRecordByPaymentId(customerId, paymentId, OrderType.NORMAL);
-                List<AppOrderVo> orderVos = orderDao.selectPayOrderListByPaymentId(paymentId);
-                if (ListUtils.isNotEmpty(orderVos)) {
-                    for (AppOrderVo orderVo : orderVos) {
-                        if (orderVo.getPayState() == 1) {
-                            orderProfitService.updateOrderProfit(orderVo.getId());
-                        }
-                    }
+        customerProductSalesLogService.saveProductSaleRecord(paymentId, OrderType.NORMAL, customerId, new Date());
+        customerStockRecordService.saveDischargeStockRecordByPaymentId(customerId, paymentId, OrderType.NORMAL);
+        List<AppOrderVo> orderVos = orderDao.selectPayOrderListByPaymentId(paymentId);
+        if (ListUtils.isNotEmpty(orderVos)) {
+            for (AppOrderVo orderVo : orderVos) {
+                if (orderVo.getPayState() == 1) {
+                    orderProfitService.updateOrderProfit(orderVo.getId());
                 }
-                sendSaveTransactionRecordMessage(paymentId, customerId, userId, payMethod);
-                // 订单上传赛盒 放在 sendSaveTransactionRecordMessage的消費端
-                mqOnSaiheService.uploadPaymentIdOnMq(paymentId, OrderType.NORMAL);
             }
-        });
-        try {
-            submit.get();
-        } catch (Exception e) {
-            log.error("普通订单支付 ：paymentId：{},customerId:{}", paymentId, customerId);
-            e.printStackTrace();
         }
+        sendSaveTransactionRecordMessage(paymentId, customerId, userId, payMethod);
+        // 订单上传赛盒 放在 sendSaveTransactionRecordMessage的消費端
+        mqOnSaiheService.uploadPaymentIdOnMq(paymentId, OrderType.NORMAL);
     }
 
     //发送保存交易流水的消息
@@ -779,6 +767,7 @@ public class OrderPayServiceImpl implements OrderPayService {
         if (ListUtils.isNotEmpty(dischargeQuantityVos)) {
             customerProductStockDao.reduceFromLockStock(customerId, dischargeQuantityVos);
         }
+        payOrderAsync(userId,customerId,paymentId,1);
         return detail;
     }
 

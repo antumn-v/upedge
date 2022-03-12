@@ -152,7 +152,7 @@
         #{variantSku},
         #{variantImage},
         #{revokeState},
-        #{customerShowState}
+        '1'
         )
     </insert>
 
@@ -256,7 +256,7 @@
                 #{revokeState}
             </if>
             <if test="customerShowState != null" >
-                #{customerShowState}
+                '1'
             </if>
 
         </trim>
@@ -300,7 +300,7 @@
                 #{item.variantSku},
                 #{item.variantImage},
                 #{item.revokeState},
-                #{item.customerShowState}
+                '1'
             </trim>
         </foreach>
     </insert>
