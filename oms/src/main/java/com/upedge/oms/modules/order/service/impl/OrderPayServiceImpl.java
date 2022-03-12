@@ -59,6 +59,7 @@ import org.apache.rocketmq.client.producer.DefaultMQProducer;
 import org.apache.rocketmq.common.message.Message;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -640,6 +641,7 @@ public class OrderPayServiceImpl implements OrderPayService {
 
     }
 
+    @Async
     public void payOrderAsync(Long userId, Long customerId, Long paymentId, Integer payMethod) {
         sendSaveTransactionRecordMessage(paymentId, customerId, userId, payMethod);
         // 订单上传赛盒 放在 sendSaveTransactionRecordMessage的消費端
