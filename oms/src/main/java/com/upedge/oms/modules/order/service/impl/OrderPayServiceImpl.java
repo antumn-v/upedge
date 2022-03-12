@@ -641,7 +641,9 @@ public class OrderPayServiceImpl implements OrderPayService {
     }
 
     public void payOrderAsync(Long userId, Long customerId, Long paymentId, Integer payMethod) {
-        customerProductSalesLogService.saveProductSaleRecord(paymentId, OrderType.NORMAL, customerId, new Date());
+        sendSaveTransactionRecordMessage(paymentId, customerId, userId, payMethod);
+        // 订单上传赛盒 放在 sendSaveTransactionRecordMessage的消費端
+        mqOnSaiheService.uploadPaymentIdOnMq(paymentId, OrderType.NORMAL);
         customerStockRecordService.saveDischargeStockRecordByPaymentId(customerId, paymentId, OrderType.NORMAL);
         List<AppOrderVo> orderVos = orderDao.selectPayOrderListByPaymentId(paymentId);
         if (ListUtils.isNotEmpty(orderVos)) {
@@ -651,9 +653,7 @@ public class OrderPayServiceImpl implements OrderPayService {
                 }
             }
         }
-        sendSaveTransactionRecordMessage(paymentId, customerId, userId, payMethod);
-        // 订单上传赛盒 放在 sendSaveTransactionRecordMessage的消費端
-        mqOnSaiheService.uploadPaymentIdOnMq(paymentId, OrderType.NORMAL);
+        customerProductSalesLogService.saveProductSaleRecord(paymentId, OrderType.NORMAL, customerId, new Date());
     }
 
     //发送保存交易流水的消息

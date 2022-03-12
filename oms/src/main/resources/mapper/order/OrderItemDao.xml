@@ -128,7 +128,7 @@
     </sql>
 
     <select id="selectItemByPaymentId" resultMap="BaseResultMap">
-        select oi.`id`,`order_id`,`store_order_item_id`,`store_variant_id`,`admin_variant_id`,`admin_product_id`,`store_variant_name`,
+        select distinct oi.`id`,`order_id`,`store_order_item_id`,`store_variant_id`,`admin_variant_id`,`admin_product_id`,`store_variant_name`,
         `store_variant_sku`,`admin_variant_image`,`store_product_title`,`usd_price`,`quantity`,`discharge_quantity`,
         `admin_variant_weight`,`admin_variant_volume`,`item_type`
         from order_item oi
@@ -141,7 +141,7 @@
     <select id="selectStockRecordByPaymentId" resultMap="StockRecord">
         select cps.warehouse_code,cps.variant_image,cps.variant_sku,cps.variant_name,
         oi.discharge_quantity as `quantity`,'1' as `type`,'2' as `order_type`,
-        oi.order_id as `relate_id`,cps.variant_id,cps.product_id,cps.customer_id
+        oi.id as `relate_id`,cps.variant_id,cps.product_id,cps.customer_id
         from order_item oi
         inner join `order` o
         on oi.order_id = o.id
