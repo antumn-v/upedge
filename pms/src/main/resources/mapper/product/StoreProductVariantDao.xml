@@ -497,4 +497,11 @@
         </foreach>
     </select>
 
+    <select id="selectBySku" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from store_product_variant
+        where sku = #{sku}
+        and state = '1'
+    </select>
 </mapper>

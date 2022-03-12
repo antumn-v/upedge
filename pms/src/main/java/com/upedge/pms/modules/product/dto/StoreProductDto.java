@@ -14,6 +14,8 @@ public class StoreProductDto {
 
     private Long customerId;
 
+    private String storeVariantSku;
+
     private Long storeId;
 
     private Long orgId;
@@ -25,5 +27,7 @@ public class StoreProductDto {
     private Integer relateState;
 
     private List<Long> orgIds;
+
+    private List<Long> ids;
 
 }

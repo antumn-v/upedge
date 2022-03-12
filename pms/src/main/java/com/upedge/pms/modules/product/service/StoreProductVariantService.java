@@ -11,6 +11,8 @@ import java.util.List;
  */
 public interface StoreProductVariantService{
 
+    List<StoreProductVariant> selectBySku(String sku);
+
     List<CustomerProductQuoteVo> selectQuoteDetailByIds(List<Long> ids);
 
     StoreProductVariant selectByPrimaryKey(Long id);

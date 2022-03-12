@@ -53,6 +53,12 @@
             <if test="t.source != null and t.source != ''">
                 and p.source = #{t.source}
             </if>
+            <if test="t.ids != null and t.ids.size > 0">
+                and p.id in
+                <foreach collection="t.ids" item="productId" open="(" separator="," close=")">
+                    #{productId}
+                </foreach>
+            </if>
         </if>
         <if test="orderBy != null">
             order by ${orderBy}
@@ -81,6 +87,12 @@
             </if>
             <if test="t.source != null">
                 and p.source = #{t.source}
+            </if>
+            <if test="t.ids != null and t.ids.size > 0">
+                and p.id in
+                <foreach collection="t.ids" item="productId" open="(" separator="," close=")">
+                    #{productId}
+                </foreach>
             </if>
         </if>
     </select>

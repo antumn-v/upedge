@@ -5,6 +5,7 @@ import com.upedge.common.model.pms.quote.CustomerProductQuoteVo;
 import com.upedge.pms.modules.product.dao.StoreProductVariantDao;
 import com.upedge.pms.modules.product.entity.StoreProductVariant;
 import com.upedge.pms.modules.product.service.StoreProductVariantService;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -44,6 +45,14 @@ public class StoreProductVariantServiceImpl implements StoreProductVariantServic
     @Transactional
     public int insertSelective(StoreProductVariant record) {
         return storeProductVariantDao.insert(record);
+    }
+
+    @Override
+    public List<StoreProductVariant> selectBySku(String sku) {
+        if (StringUtils.isNotBlank(sku)){
+            return storeProductVariantDao.selectBySku(sku);
+        }
+        return null;
     }
 
     @Override

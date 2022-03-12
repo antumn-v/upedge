@@ -4,19 +4,24 @@ import com.upedge.common.base.BaseResponse;
 import com.upedge.common.constant.Constant;
 import com.upedge.common.constant.ResultCode;
 import com.upedge.common.model.user.vo.Session;
+import com.upedge.common.utils.ListUtils;
 import com.upedge.common.web.util.UserUtil;
 import com.upedge.pms.modules.product.entity.StoreProductAttribute;
+import com.upedge.pms.modules.product.entity.StoreProductVariant;
 import com.upedge.pms.modules.product.request.StoreProductListRequest;
 import com.upedge.pms.modules.product.response.StoreProductListResponse;
 import com.upedge.pms.modules.product.service.StoreProductAttributeService;
 import com.upedge.pms.modules.product.service.StoreProductService;
+import com.upedge.pms.modules.product.service.StoreProductVariantService;
 import com.upedge.pms.modules.product.vo.StoreProductRelateVo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -32,6 +37,9 @@ public class StoreProductController {
 
     @Autowired
     StoreProductAttributeService storeProductAttributeService;
+
+    @Autowired
+    StoreProductVariantService storeProductVariantService;
 
     @Autowired
     RedisTemplate redisTemplate;
@@ -64,6 +72,23 @@ public class StoreProductController {
     @ApiOperation("查看所有店铺产品")
     @PostMapping("/all")
     public BaseResponse allStoreProducts(@RequestBody StoreProductListRequest request){
+        if (null != request.getT()){
+            String sku = request.getT().getStoreVariantSku();
+            if (StringUtils.isNotBlank(sku)){
+                List<StoreProductVariant> storeProductVariants = storeProductVariantService.selectBySku(sku);
+                if (ListUtils.isNotEmpty(storeProductVariants)){
+                    if (storeProductVariants.size() == 1){
+                        request.getT().setId(storeProductVariants.get(0).getProductId());
+                    }else {
+                        List<Long> ids = new ArrayList<>();
+                        for (StoreProductVariant storeProductVariant : storeProductVariants) {
+                            ids.add(storeProductVariant.getProductId());
+                        }
+                        request.getT().setIds(ids);
+                    }
+                }
+            }
+        }
         List<StoreProductAttribute> attributes = storeProductAttributeService.selectStoreProduct(request);
         Long total = storeProductAttributeService.countStoreProduct(request);
         request.setTotal(total);
