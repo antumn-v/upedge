@@ -55,6 +55,7 @@ import com.upedge.oms.modules.redis.OmsRedisService;
 import com.upedge.oms.modules.rules.dto.ShipRuleConditionDto;
 import com.upedge.oms.modules.rules.entity.OrderShipRule;
 import com.upedge.oms.modules.rules.service.OrderShipRuleService;
+import com.upedge.oms.modules.rules.vo.OrderShipRuleVo;
 import com.upedge.oms.modules.stock.dao.CustomerProductStockDao;
 import com.upedge.oms.modules.vat.service.VatRuleService;
 import com.upedge.thirdparty.fpx.api.FpxCommonApi;
@@ -410,8 +411,7 @@ public class OrderServiceImpl implements OrderService {
             for (OrderShipRule rule : rules) {
                 //当运输规则里包含海外仓时，再查询海外仓的运输方式
                 if (rule.getShipTemplateId().equals(Constant.OVERSEA_WAREHOUSE) && !b){
-                    shipDetails.addAll(orderOverseaWarehouseShipMethods(id,order.getToAreaId(),Constant.OVERSEA_WAREHOUSE));
-                    b = true;
+                    continue;
                 }
                 for (ShipDetail ship : shipDetails) {
                     if (rule.getShippingMethodId().equals(ship.getMethodId())) {
@@ -438,6 +438,60 @@ public class OrderServiceImpl implements OrderService {
                     }
                 }
             }
+        }
+        return null;
+    }
+
+
+    @Override
+    public OrderShipRuleDetail matchShipRule(Long id, OrderShipRuleVo rule) {
+        Order order = orderDao.selectByPrimaryKey(id);
+        if (order.getPayState() != 0 && order.getOrderType() != 0) {
+            return null;
+        }
+
+        ShippingTemplateRedis shippingTemplateRedis = getOrderShipTemplate(id);
+        if (null == shippingTemplateRedis){
+            return null;
+        }
+
+        //查询本地吃运输方式
+        List<ShipDetail> shipDetails = orderLocalWarehouseShipMethods(order.getId(), order.getToAreaId());
+        if (ListUtils.isEmpty(shipDetails)){
+            shipDetails = new ArrayList<>();
+        }
+        boolean b = false;
+        if (ListUtils.isNotEmpty(shipDetails)) {
+
+            //当运输规则里包含海外仓时，再查询海外仓的运输方式
+            if (rule.getShipTemplateId().equals(Constant.OVERSEA_WAREHOUSE) && !b){
+                return null;
+            }
+            for (ShipDetail ship : shipDetails) {
+                if (rule.getShippingMethodId().equals(ship.getMethodId())) {
+                    order.setShipPrice(ship.getPrice());
+                    order.setTotalWeight(ship.getWeight());
+                    order.setShipMethodId(ship.getMethodId());
+
+                    ship = updateShipDetailById(id, ship);
+
+                    OrderAttr orderAttr = new OrderAttr();
+                    orderAttr.setOrderId(id);
+                    orderAttr.setAttrName(OrderAttrEnum.SHIP_RULE_ID.name());
+                    orderAttr.setAttrValue(String.valueOf(rule.getId()));
+                    orderAttr.setCreateTime(new Date());
+                    orderAttrDao.deleteByOrderIdAndName(id, OrderAttrEnum.SHIP_RULE_ID.name());
+                    orderAttrDao.insert(orderAttr);
+
+                    OrderShipRuleDetail detail = new OrderShipRuleDetail();
+                    detail.setOrderId(id);
+                    detail.setShipRuleId(rule.getId());
+                    detail.setShipRuleName(rule.getTitle());
+                    detail.setShipDetail(ship);
+                    return detail;
+                }
+            }
+
         }
         return null;
     }
@@ -776,6 +830,16 @@ public class OrderServiceImpl implements OrderService {
         return order;
     }
 
+
+    @Override
+    public List<Long> selectUnPaidIdsByShipRule(OrderShipRuleVo shipRuleVo, Long areaId) {
+
+        if (shipRuleVo == null
+        || areaId == null){
+            return null;
+        }
+        return orderDao.selectUnPaidIdsByShipRule(shipRuleVo,areaId);
+    }
 
     @Override
     public int cancelOrderByIds(List<Long> ids) {

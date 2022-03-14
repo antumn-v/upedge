@@ -2217,4 +2217,14 @@
                 #{areaId}
             </foreach>
     </update>
+
+    <select id="selectUnPaidIdsByShipRule" resultType="java.lang.Long">
+        select id
+        from `order`
+        where customer_id = #{rule.customerId}
+        and pay_state = '0'
+        and quote_state = '3'
+        and to_area_id = #{areaId}
+        and ship_method_id != #{rule.shippingMethodId}
+    </select>
 </mapper>

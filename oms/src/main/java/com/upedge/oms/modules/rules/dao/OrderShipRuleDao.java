@@ -4,13 +4,17 @@ import com.upedge.common.base.Page;
 import com.upedge.oms.modules.rules.dto.ShipRuleConditionDto;
 import com.upedge.oms.modules.rules.entity.OrderShipRule;
 import com.upedge.oms.modules.rules.vo.OrderShipRuleVo;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
 /**
  * @author author
  */
-public interface OrderShipRuleDao{
+public interface OrderShipRuleDao {
+
+
+    OrderShipRule selectCountryTopRule(@Param("customerId") Long customerId, @Param("areaId") Long areaId, @Param("methodId") Long methodId, @Param("seq") Integer seq);
 
     List<OrderShipRule> selectByCondition(ShipRuleConditionDto shipRuleConditionDto);
 

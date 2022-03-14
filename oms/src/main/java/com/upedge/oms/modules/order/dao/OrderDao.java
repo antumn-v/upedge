@@ -16,6 +16,7 @@ import com.upedge.oms.modules.order.entity.Order;
 import com.upedge.oms.modules.order.request.AppOrderListRequest;
 import com.upedge.oms.modules.order.request.OrderCogsSelectRequest;
 import com.upedge.oms.modules.order.vo.*;
+import com.upedge.oms.modules.rules.vo.OrderShipRuleVo;
 import com.upedge.oms.modules.statistics.dto.DashboardOrderDto;
 import com.upedge.oms.modules.statistics.dto.WaitTrackOrderData;
 import com.upedge.oms.modules.statistics.dto.WaitTrackOrderDataDetails;
@@ -37,6 +38,8 @@ import java.util.Set;
 public interface OrderDao{
 
     List<Order> selectUnPaidOrderByAreaId(Long areaId);
+
+    List<Long> selectUnPaidIdsByShipRule(@Param("rule")OrderShipRuleVo shipRuleVo, @Param("areaId") Long areaId);
 
     int updateOrderVatAmountByAreaId(@Param("areaIds") List<Long> areaIds,
                                      @Param("vatAmount") BigDecimal vatAmount);

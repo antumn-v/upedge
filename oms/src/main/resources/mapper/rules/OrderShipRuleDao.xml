@@ -403,5 +403,18 @@
         <include refid="Query_Condition"/>
     </select>
 
-
+    <select id="selectCountryTopRule" resultMap="BaseResultMap">
+        select  osr.`id`,osr.`customer_id`,osr.`title`,osr.ship_template_id,
+                osr.`order_amount_min`,osr.`order_amount_max`,osr.`freight_min`,osr.`freight_max`,
+                osr.`state`,osr.`shipping_method_id`,osr.`shipping_method_name`
+        from order_ship_rule osr
+        inner join order_ship_rule_country osrc
+        on osr.id = osrc.rule_id
+        where osr.customer_id = #{customerId}
+        and osrc.area_id = #{areaId}
+        and osr.shipping_method_id = #{methodId}
+        and osr.`sequence` &lt; #{seq}
+        and osr.state = '1'
+        limit 1
+    </select>
 </mapper>

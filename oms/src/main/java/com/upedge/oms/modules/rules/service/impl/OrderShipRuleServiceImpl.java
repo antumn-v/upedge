@@ -4,6 +4,7 @@ import com.upedge.common.base.Page;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.utils.IdGenerate;
 import com.upedge.common.web.util.UserUtil;
+import com.upedge.oms.modules.order.service.OrderService;
 import com.upedge.oms.modules.rules.dao.OrderShipRuleCountryDao;
 import com.upedge.oms.modules.rules.dao.OrderShipRuleDao;
 import com.upedge.oms.modules.rules.dto.ShipRuleConditionDto;
@@ -22,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ThreadPoolExecutor;
 
 
 @Service
@@ -34,7 +36,13 @@ public class OrderShipRuleServiceImpl implements OrderShipRuleService {
     OrderShipRuleCountryDao orderShipRuleCountryDao;
 
     @Autowired
+    OrderService orderService;
+
+    @Autowired
     RedisTemplate<String, Object> redisTemplate;
+
+    @Autowired
+    ThreadPoolExecutor threadPoolExecutor;
 
     /**
      *
@@ -79,6 +87,13 @@ public class OrderShipRuleServiceImpl implements OrderShipRuleService {
         OrderShipRuleVo shipRuleVo = new OrderShipRuleVo();
         BeanUtils.copyProperties(rule,shipRuleVo);
         shipRuleVo.setCountries(request.getCountries());
+        threadPoolExecutor.execute(new Runnable() {
+            @Override
+            public void run() {
+                orderMatchShipRule(shipRuleVo);
+            }
+        });
+
         return shipRuleVo;
     }
 
@@ -89,6 +104,11 @@ public class OrderShipRuleServiceImpl implements OrderShipRuleService {
         orderShipRuleDao.updateByPrimaryKeySelective(entity);
         orderShipRuleCountryDao.deleteByShipRuleId(ruleId);
         saveOrderShipRuleCountries(request.getCountries(),ruleId);
+        entity = selectByPrimaryKey(ruleId);
+        OrderShipRuleVo orderShipRuleVo = new OrderShipRuleVo();
+        BeanUtils.copyProperties(entity,orderShipRuleVo);
+        orderShipRuleVo.setCountries(request.getCountries());
+        orderMatchShipRule(orderShipRuleVo);
     }
 
     public void saveOrderShipRuleCountries(List<OrderShipRuleCountryVo> countryVos, Long ruleId){
@@ -104,13 +124,30 @@ public class OrderShipRuleServiceImpl implements OrderShipRuleService {
 
     void orderMatchShipRule(OrderShipRuleVo orderShipRuleVo){
         List<OrderShipRuleCountryVo> countryVos = orderShipRuleVo.getCountries();
-        if (orderShipRuleVo.getSequence() != 1){
-
+        if (orderShipRuleVo.getSequence() == 1){
+            for (OrderShipRuleCountryVo countryVo : countryVos) {
+                countryRuleMatchOrderShipMethod(orderShipRuleVo,countryVo.getAreaId());
+            }
+        }else {
+            for (OrderShipRuleCountryVo countryVo : countryVos) {
+                OrderShipRule orderShipRule = orderShipRuleDao.selectCountryTopRule(orderShipRuleVo.getCustomerId(), countryVo.getAreaId(), orderShipRuleVo.getShippingMethodId(), orderShipRuleVo.getSequence());
+                if (null != orderShipRule){
+                    OrderShipRuleVo ruleVo = new OrderShipRuleVo();
+                    BeanUtils.copyProperties(orderShipRule,ruleVo);
+                    countryRuleMatchOrderShipMethod(ruleVo, orderShipRuleVo.getId());
+                }else {
+                    countryRuleMatchOrderShipMethod(orderShipRuleVo, orderShipRuleVo.getId());
+                }
+            }
         }
-        for (OrderShipRuleCountryVo countryVo : countryVos) {
 
+    }
+
+    void countryRuleMatchOrderShipMethod(OrderShipRuleVo orderShipRuleVo,Long areaId){
+        List<Long> orderIds = orderService.selectUnPaidIdsByShipRule(orderShipRuleVo,areaId);
+        for (Long orderId : orderIds) {
+            orderService.matchShipRule(orderId,orderShipRuleVo);
         }
-
     }
 
     @Override

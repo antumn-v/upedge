@@ -16,6 +16,7 @@ import com.upedge.oms.modules.order.request.*;
 import com.upedge.oms.modules.order.response.OrderListResponse;
 import com.upedge.oms.modules.order.response.OrderUpdateResponse;
 import com.upedge.oms.modules.order.vo.*;
+import com.upedge.oms.modules.rules.vo.OrderShipRuleVo;
 import com.upedge.thirdparty.saihe.entity.SaiheOrder;
 import org.apache.ibatis.annotations.Param;
 
@@ -30,6 +31,8 @@ import java.util.Set;
  * @author author
  */
 public interface OrderService{
+
+    List<Long> selectUnPaidIdsByShipRule( OrderShipRuleVo shipRuleVo,  Long areaId);
 
     int cancelOrderByIds(@Param("ids") List<Long> ids);
 
@@ -240,5 +243,7 @@ public interface OrderService{
     void matchingShipInfoByVariantId(List<OrderItem> list);
 
     List<ShipDetail> orderOverseaWarehouseShipMethods(Long orderId, Long areaId,String warehouseCode);
+
+    OrderShipRuleDetail matchShipRule(Long orderId, OrderShipRuleVo orderShipRuleVo);
 }
 
