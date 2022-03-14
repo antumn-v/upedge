@@ -318,14 +318,7 @@ public class UserServiceImpl implements UserService {
         if (null == user) {
             return BaseResponse.failed("email error");
         }
-        String key = RedisKey.STRING_EMAIL_SEND_CODE + email;
-        Map<String, Object> map = (Map<String, Object>) redisTemplate.opsForValue().get(key);
-        if (null == map) {
-            return BaseResponse.failed("Verification information has expired");
-        }
-        if (!request.getCode().equals(map.get("code").toString())) {
-            return BaseResponse.failed("Verification code error");
-        }
+
         user = userDao.selectByPrimaryKey(user.getId());
         user.setLoginPass(UserUtil.encryptPassword(request.getNewPass(), user.getLoginName()));
         userDao.resetUserPassword(user);

@@ -31,7 +31,6 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -198,14 +197,6 @@ public class UserController {
     public BaseResponse sendUserEmailVerifyCode(@RequestBody @Valid UserEmailSendCodeRequest request) {
         String email = request.getEmail();
         String key = RedisKey.STRING_EMAIL_SEND_CODE + email;
-        long time = System.currentTimeMillis();
-        Map<String,Object> map = (Map<String, Object>) redisTemplate.opsForValue().get(key);
-        if(null != map){
-            long sendTime = (long) map.get("sendTime");
-            if((time - sendTime) < 30 * 1000L){
-                return BaseResponse.failed("The verification code cannot be sent repeatedly within 30 seconds");
-            }
-        }
 
         UserInfoSelectRequest infoSelectRequest = new UserInfoSelectRequest();
         infoSelectRequest.setEmail(email);
@@ -213,20 +204,17 @@ public class UserController {
         if (null == user) {
             return BaseResponse.failed("email error");
         }
-        map = new HashMap<>();
         char[] codeSeq = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9' };
         Random random = new Random();
-        StringBuilder s = new StringBuilder();
+        StringBuilder code = new StringBuilder();
         for (int i = 0; i < 6; i++) {
             String r = String.valueOf(codeSeq[random.nextInt(codeSeq.length)]);
-            s.append(r);
+            code.append(r);
         }
-        boolean b = EmailUtils.sendEmailByAli(email, "Verification code", EmailTemplate.Verification_Code.replace("verifyCode", s));
+        boolean b = EmailUtils.sendEmailByAli(email, "Verification code", EmailTemplate.Verification_Code.replace("verifyCode", code));
         if(b){
-            map.put("code",s);
-            map.put("sendTime",time);
-            redisTemplate.opsForValue().set(key,map,10, TimeUnit.MINUTES);
-            return new BaseResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS,map);
+            redisTemplate.opsForValue().set(key,code,1, TimeUnit.HOURS);
+            return new BaseResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS);
         }
         return BaseResponse.failed();
 
@@ -234,8 +222,20 @@ public class UserController {
 
     @ApiOperation("找回密码")
     @PostMapping("/recoverPassword")
-    public BaseResponse userRecoverPassword(@RequestBody UserRecoverPasswordRequest request){
+    public BaseResponse userRecoverPassword(@RequestBody@Valid UserRecoverPasswordRequest request){
         return userService.userRecoverPassword(request);
+    }
+
+    @ApiOperation("检查邮箱验证码")
+    @PostMapping("/emailCodeCheck")
+    public BaseResponse emailCodeCheck(@RequestBody@Valid EmailCodeCheckRequest request){
+        String key = RedisKey.STRING_EMAIL_SEND_CODE + request.getEmail();
+        String code = (String) redisTemplate.opsForValue().get(key);
+        if (code == null
+        || !code.equals(request.getCode())){
+            return BaseResponse.failed("code error");
+        }
+        return BaseResponse.success();
     }
 
 
