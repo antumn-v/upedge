@@ -2,8 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="com.upedge.oms.modules.order.dao.OrderProfitDao">
-
-	<!-- 可根据自己的需求，是否要使用 -->
+    <!-- 可根据自己的需求，是否要使用 -->
     <resultMap type="com.upedge.oms.modules.order.entity.OrderProfit" id="BaseResultMap">
         <result property="orderId" column="order_id"/>
         <result property="storeOrderItemAmount" column="store_order_item_amount"/>
@@ -16,14 +15,17 @@
     </resultMap>
 
     <sql id="Base_Column_List">
-        `order_id`,`store_order_item_amount`,`store_order_other_fee`,`store_order_refund_amount`,`order_refund_amount`,`order_pay_amount`,`create_time`,`update_time`
+        `order_id`
+                ,`store_order_item_amount`,`store_order_other_fee`,`store_order_refund_amount`,`order_refund_amount`,`order_pay_amount`,`create_time`,`update_time`
     </sql>
 
     <select id="selectCustomerOrderInsights" resultType="com.upedge.oms.modules.order.vo.OrderInsightsVo">
         select
         app.store_id as storeId,
         count(distinct v.order_id) as orderCount,
-        round(sum(ifnull(p.store_order_item_amount,'0') + ifnull(p.store_order_other_fee,'0') - ifnull(p.store_order_refund_amount,'0') - ifnull(p.order_pay_amount,'0') + ifnull(p.order_refund_amount,'0')),2) as profit,
+        round(sum(ifnull(p.store_order_item_amount,'0') + ifnull(p.store_order_other_fee,'0') -
+        ifnull(p.store_order_refund_amount,'0') - ifnull(p.order_pay_amount,'0') + ifnull(p.order_refund_amount,'0')),2)
+        as profit,
         sum(p.store_order_item_amount + p.store_order_other_fee) as income,
         sum(p.order_refund_amount) as orderRefundAmount,
         sum(p.store_order_refund_amount) as storeRefundAmount,
@@ -55,15 +57,17 @@
         group by app.store_id
     </select>
 
-    <select id="selectByPrimaryKey" parameterType="com.upedge.oms.modules.order.entity.OrderProfit" resultMap="BaseResultMap">
+    <select id="selectByPrimaryKey" parameterType="com.upedge.oms.modules.order.entity.OrderProfit"
+            resultMap="BaseResultMap">
         select
-        <include refid="Base_Column_List" />
+        <include refid="Base_Column_List"/>
         from order_profit
         where order_id = #{orderId}
     </select>
 
     <delete id="deleteByPrimaryKey" parameterType="com.upedge.oms.modules.order.entity.OrderProfit">
-        delete from order_profit
+        delete
+        from order_profit
         where id = #{id}
     </delete>
 
@@ -98,18 +102,19 @@
     <update id="updateByPrimaryKey" parameterType="com.upedge.oms.modules.order.entity.OrderProfit">
         update order_profit
         <set>
-        store_order_item_amount = #{storeOrderItemAmount},
-        store_order_other_fee = #{storeOrderOtherFee},
-        store_order_refund_amount = #{storeOrderRefundAmount},
-        order_refund_amount = #{orderRefundAmount},
-        order_pay_amount = #{orderPayAmount},
-        create_time = #{createTime},
-        update_time = #{updateTime},
+            store_order_item_amount = #{storeOrderItemAmount},
+            store_order_other_fee = #{storeOrderOtherFee},
+            store_order_refund_amount = #{storeOrderRefundAmount},
+            order_refund_amount = #{orderRefundAmount},
+            order_pay_amount = #{orderPayAmount},
+            create_time = #{createTime},
+            update_time = #{updateTime},
         </set>
         where order_id = #{orderId}
     </update>
 
-    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.upedge.oms.modules.order.entity.OrderProfit" useGeneratedKeys="true">
+    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.upedge.oms.modules.order.entity.OrderProfit"
+            useGeneratedKeys="true">
         insert into order_profit
         <trim prefix="(" suffix=")" suffixOverrides=",">
             order_id,
@@ -133,7 +138,8 @@
         )
     </insert>
 
-    <insert id="replaceOrderProfit" keyColumn="id" keyProperty="id" parameterType="com.upedge.oms.modules.order.entity.OrderProfit" useGeneratedKeys="true">
+    <insert id="replaceOrderProfit" keyColumn="id" keyProperty="id"
+            parameterType="com.upedge.oms.modules.order.entity.OrderProfit" useGeneratedKeys="true">
         replace into order_profit
         <trim prefix="(" suffix=")" suffixOverrides=",">
             order_id,
@@ -157,87 +163,86 @@
         )
     </insert>
 
-    <insert id="insertSelective"  keyColumn="id" keyProperty="id"  parameterType="com.upedge.oms.modules.order.entity.OrderProfit" useGeneratedKeys="true">
+    <insert id="insertSelective" keyColumn="id" keyProperty="id"
+            parameterType="com.upedge.oms.modules.order.entity.OrderProfit" useGeneratedKeys="true">
         insert into order_profit
         <trim prefix="(" suffix=")" suffixOverrides=",">
-            <if test="orderId != null" >
-              order_id
+            <if test="orderId != null">
+                order_id
             </if>
-            <if test="storeOrderItemAmount != null" >
-              store_order_item_amount
+            <if test="storeOrderItemAmount != null">
+                store_order_item_amount
             </if>
-            <if test="storeOrderOtherFee != null" >
-              store_order_other_fee
+            <if test="storeOrderOtherFee != null">
+                store_order_other_fee
             </if>
-            <if test="storeOrderRefundAmount != null" >
-              store_order_refund_amount
+            <if test="storeOrderRefundAmount != null">
+                store_order_refund_amount
             </if>
-            <if test="orderRefundAmount != null" >
-              order_refund_amount
+            <if test="orderRefundAmount != null">
+                order_refund_amount
             </if>
-            <if test="orderPayAmount != null" >
-              order_pay_amount
+            <if test="orderPayAmount != null">
+                order_pay_amount
             </if>
-            <if test="createTime != null" >
-              create_time
+            <if test="createTime != null">
+                create_time
             </if>
-            <if test="updateTime != null" >
-              update_time
+            <if test="updateTime != null">
+                update_time
             </if>
-
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
-            <if test="orderId != null" >
+            <if test="orderId != null">
                 #{orderId}
             </if>
-            <if test="storeOrderItemAmount != null" >
+            <if test="storeOrderItemAmount != null">
                 #{storeOrderItemAmount}
             </if>
-            <if test="storeOrderOtherFee != null" >
+            <if test="storeOrderOtherFee != null">
                 #{storeOrderOtherFee}
             </if>
-            <if test="storeOrderRefundAmount != null" >
+            <if test="storeOrderRefundAmount != null">
                 #{storeOrderRefundAmount}
             </if>
-            <if test="orderRefundAmount != null" >
+            <if test="orderRefundAmount != null">
                 #{orderRefundAmount}
             </if>
-            <if test="orderPayAmount != null" >
+            <if test="orderPayAmount != null">
                 #{orderPayAmount}
             </if>
-            <if test="createTime != null" >
+            <if test="createTime != null">
                 #{createTime}
             </if>
-            <if test="updateTime != null" >
+            <if test="updateTime != null">
                 #{updateTime}
             </if>
-
         </trim>
     </insert>
 
     <insert id="insertByBatch" parameterType="java.util.List">
         insert into order_profit
         <trim prefix="(" suffix=")" suffixOverrides=",">
-           order_id,
-           store_order_item_amount,
-           store_order_other_fee,
-           store_order_refund_amount,
-           order_refund_amount,
-           order_pay_amount,
-           create_time,
-           update_time
+            order_id,
+            store_order_item_amount,
+            store_order_other_fee,
+            store_order_refund_amount,
+            order_refund_amount,
+            order_pay_amount,
+            create_time,
+            update_time
         </trim>
         values
         <foreach collection="list" item="item" index="index" separator=",">
             <trim prefix="(" suffix=")" suffixOverrides=",">
-               #{item.orderId},
-               #{item.storeOrderItemAmount},
-               #{item.storeOrderOtherFee},
-               #{item.storeOrderRefundAmount},
-               #{item.orderRefundAmount},
-               #{item.orderPayAmount},
-               #{item.createTime},
-               #{item.updateTime}
+                #{item.orderId},
+                #{item.storeOrderItemAmount},
+                #{item.storeOrderOtherFee},
+                #{item.storeOrderRefundAmount},
+                #{item.orderRefundAmount},
+                #{item.orderPayAmount},
+                #{item.createTime},
+                #{item.updateTime}
             </trim>
         </foreach>
     </insert>
@@ -247,37 +252,37 @@
             where
             <trim prefix=" " suffix=" " suffixOverrides=" and ">
                 1 = 1 and
-                    <if test="t.orderId != null">
-                        order_id = #{t.orderId} and
-                    </if>
-                    <if test="t.storeOrderItemAmount != null">
-                        store_order_item_amount = #{t.storeOrderItemAmount} and
-                    </if>
-                    <if test="t.storeOrderOtherFee != null">
-                        store_order_other_fee = #{t.storeOrderOtherFee} and
-                    </if>
-                    <if test="t.storeOrderRefundAmount != null">
-                        store_order_refund_amount = #{t.storeOrderRefundAmount} and
-                    </if>
-                    <if test="t.orderRefundAmount != null">
-                        order_refund_amount = #{t.orderRefundAmount} and
-                    </if>
-                    <if test="t.orderPayAmount != null">
-                        order_pay_amount = #{t.orderPayAmount} and
-                    </if>
-                    <if test="t.createTime != null">
-                        create_time = #{t.createTime} and
-                    </if>
-                    <if test="t.updateTime != null">
-                        update_time = #{t.updateTime} and
-                    </if>
+                <if test="t.orderId != null">
+                    order_id = #{t.orderId} and
+                </if>
+                <if test="t.storeOrderItemAmount != null">
+                    store_order_item_amount = #{t.storeOrderItemAmount} and
+                </if>
+                <if test="t.storeOrderOtherFee != null">
+                    store_order_other_fee = #{t.storeOrderOtherFee} and
+                </if>
+                <if test="t.storeOrderRefundAmount != null">
+                    store_order_refund_amount = #{t.storeOrderRefundAmount} and
+                </if>
+                <if test="t.orderRefundAmount != null">
+                    order_refund_amount = #{t.orderRefundAmount} and
+                </if>
+                <if test="t.orderPayAmount != null">
+                    order_pay_amount = #{t.orderPayAmount} and
+                </if>
+                <if test="t.createTime != null">
+                    create_time = #{t.createTime} and
+                </if>
+                <if test="t.updateTime != null">
+                    update_time = #{t.updateTime} and
+                </if>
             </trim>
         </if>
     </sql>
 
     <select id="select" parameterType="com.upedge.common.base.Page" resultMap="BaseResultMap">
         select
-        <include refid="Base_Column_List" />
+        <include refid="Base_Column_List"/>
         from order_profit
         <include refid="Query_Condition"/>
         <if test="orderBy != null">
@@ -294,6 +299,4 @@
         from order_profit
         <include refid="Query_Condition"/>
     </select>
-
-
 </mapper>

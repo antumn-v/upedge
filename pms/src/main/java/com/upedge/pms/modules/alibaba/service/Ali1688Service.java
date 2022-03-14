@@ -29,14 +29,14 @@ public class Ali1688Service {
         String body = OkHttpRequest.commonRequest(url, HttpMethod.GET,null);
         if (StringUtils.isNotBlank(body)){
             long now = System.currentTimeMillis();
-            JSONObject jsonObject = JSONObject.parseObject(body);{
-                String accessToken = jsonObject.getString("access_token");
-                long expireTime = jsonObject.getLong("expires_in") * 1000;
-                alibabaApiVo.setAccessToken(accessToken);
-                alibabaApiVo.setAccessTokenCreateTime(now);
-                alibabaApiVo.setAccessTokenExpireTime(now + expireTime - 1000L);
-                return alibabaApiVo;
-            }
+            JSONObject jsonObject = JSONObject.parseObject(body);
+            String accessToken = jsonObject.getString("access_token");
+            long expireTime = jsonObject.getLong("expires_in") * 1000;
+            alibabaApiVo.setAccessToken(accessToken);
+            alibabaApiVo.setAccessTokenCreateTime(now);
+            alibabaApiVo.setAccessTokenExpireTime(now + expireTime - 1000L);
+            return alibabaApiVo;
+
         }
         return null;
     }

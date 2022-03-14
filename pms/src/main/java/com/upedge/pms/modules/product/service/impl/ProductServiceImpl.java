@@ -731,7 +731,6 @@ public class ProductServiceImpl implements ProductService {
         List<Long> productIds = new ArrayList<>();
         productIds.add(id);
         request.setProductIds(productIds);
-        uploadToSaihe(request);
         return new BaseResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS);
     }
 
