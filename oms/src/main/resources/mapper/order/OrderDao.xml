@@ -610,8 +610,6 @@
             pay_time           = #{payTime},
             pay_method         = #{payMethod},
             pay_amount         = (product_amount + ship_price + vat_amount + service_fee - product_discharge_amount),
-            fix_fee            = round((#{fixFeePercentage} * pay_amount + '0.3') / ('1' - #{fixFeePercentage}), 2),
-            fix_fee_percentage = #{fixFeePercentage},
             cny_rate           = #{cnyRate}
         where payment_id = #{paymentId}
           and pay_state = '2'

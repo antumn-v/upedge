@@ -1316,6 +1316,7 @@ public class OrderServiceImpl implements OrderService {
             Order order = orderDao.selectByPrimaryKey(id);
             OrderVo orderVo = new OrderVo();
             BeanUtils.copyProperties(order, orderVo);
+            orderVo.setShipPrice(order.getShipPrice().add(order.getServiceFee()));
             if (order.getShipState() == 1) {
                 OrderTracking orderTracking = orderTrackingService.queryOrderTrackingByOrderId(order.getId(), OrderType.NORMAL);
                 if (orderTracking != null) {
