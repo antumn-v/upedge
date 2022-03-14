@@ -32,7 +32,7 @@
         `username`,`avatar`,`mobile`,`email`,`country`,`whatsapp`,`wechat`,`fb_info`,`skype`,`sex`
     </sql>
 
-    <select id="selectByPrimaryKey" parameterType="com.upedge.ums.modules.user.entity.User" resultMap="BaseResultMap">
+    <select id="selectByPrimaryKey" resultMap="BaseResultMap">
         select
         <include refid="Base_Column_List" />
         from user
@@ -454,5 +454,8 @@
         where login_name = #{loginName}
     </select>
 
-
+    <update id="resetUserPassword">
+        update `user` set login_pass=#{loginPass},update_time=#{updateTime}
+        where id=#{id} and customer_id=#{customerId}
+    </update>
 </mapper>

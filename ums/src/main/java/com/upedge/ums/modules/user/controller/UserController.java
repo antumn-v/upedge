@@ -5,9 +5,13 @@ import com.upedge.common.base.BaseResponse;
 import com.upedge.common.component.annotation.Permission;
 import com.upedge.common.constant.BaseCode;
 import com.upedge.common.constant.Constant;
+import com.upedge.common.constant.EmailTemplate;
 import com.upedge.common.constant.ResultCode;
+import com.upedge.common.constant.key.RedisKey;
 import com.upedge.common.exception.CustomerException;
+import com.upedge.common.model.user.request.UserInfoSelectRequest;
 import com.upedge.common.model.user.vo.Session;
+import com.upedge.common.utils.EmailUtils;
 import com.upedge.common.utils.TokenUtil;
 import com.upedge.common.web.util.UserUtil;
 import com.upedge.ums.modules.store.entity.Store;
@@ -27,8 +31,11 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
+import java.util.concurrent.TimeUnit;
 
 /**
  * 
@@ -184,6 +191,51 @@ public class UserController {
         User user = userService.selectByPrimaryKey(customer.getCustomerSignupUserId());
         Map<String, Object> map = userService.userSignIn(user,Constant.APP_APPLICATION_ID,2);
         return BaseResponse.success(map);
+    }
+
+    @ApiOperation("邮箱发送验证码")
+    @PostMapping("/sendEmail/verifyCode")
+    public BaseResponse sendUserEmailVerifyCode(@RequestBody @Valid UserEmailSendCodeRequest request) {
+        String email = request.getEmail();
+        String key = RedisKey.STRING_EMAIL_SEND_CODE + email;
+        long time = System.currentTimeMillis();
+        Map<String,Object> map = (Map<String, Object>) redisTemplate.opsForValue().get(key);
+        if(null != map){
+            long sendTime = (long) map.get("sendTime");
+            if((time - sendTime) < 30 * 1000L){
+                return BaseResponse.failed("The verification code cannot be sent repeatedly within 30 seconds");
+            }
+        }
+
+        UserInfoSelectRequest infoSelectRequest = new UserInfoSelectRequest();
+        infoSelectRequest.setEmail(email);
+        User user = userService.selectByLoginName(email);
+        if (null == user) {
+            return BaseResponse.failed("email error");
+        }
+        map = new HashMap<>();
+        char[] codeSeq = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9' };
+        Random random = new Random();
+        StringBuilder s = new StringBuilder();
+        for (int i = 0; i < 6; i++) {
+            String r = String.valueOf(codeSeq[random.nextInt(codeSeq.length)]);
+            s.append(r);
+        }
+        boolean b = EmailUtils.sendEmailByAli(email, "Verification code", EmailTemplate.Verification_Code.replace("verifyCode", s));
+        if(b){
+            map.put("code",s);
+            map.put("sendTime",time);
+            redisTemplate.opsForValue().set(key,map,10, TimeUnit.MINUTES);
+            return new BaseResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS,map);
+        }
+        return BaseResponse.failed();
+
+    }
+
+    @ApiOperation("找回密码")
+    @PostMapping("/recoverPassword")
+    public BaseResponse userRecoverPassword(@RequestBody UserRecoverPasswordRequest request){
+        return userService.userRecoverPassword(request);
     }
 
 

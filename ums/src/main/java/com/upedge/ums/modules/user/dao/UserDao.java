@@ -1,10 +1,10 @@
 package com.upedge.ums.modules.user.dao;
 
-import com.upedge.ums.modules.user.entity.User;
-import org.apache.ibatis.annotations.Mapper;
-import java.util.List;
 import com.upedge.common.base.Page;
+import com.upedge.ums.modules.user.entity.User;
 import org.apache.ibatis.annotations.Param;
+
+import java.util.List;
 
 /**
  * @author gx
@@ -16,9 +16,11 @@ public interface UserDao{
 
     void refreshLoginData(User user);
 
+    int resetUserPassword(User user);
+
     User selectUserByLoginName(@Param("loginName") String loginName);
 
-    User selectByPrimaryKey(User record);
+    User selectByPrimaryKey(Long id);
 
     int deleteByPrimaryKey(User record);
 

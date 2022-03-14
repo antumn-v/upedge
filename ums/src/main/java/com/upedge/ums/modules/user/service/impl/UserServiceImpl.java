@@ -30,6 +30,7 @@ import com.upedge.ums.modules.organization.service.OrganizationUserService;
 import com.upedge.ums.modules.user.dao.UserDao;
 import com.upedge.ums.modules.user.entity.*;
 import com.upedge.ums.modules.user.request.CustomerSignUpRequest;
+import com.upedge.ums.modules.user.request.UserRecoverPasswordRequest;
 import com.upedge.ums.modules.user.request.UserSignInRequest;
 import com.upedge.ums.modules.user.request.UserUpdatePwdRequest;
 import com.upedge.ums.modules.user.response.CustomerSignUpResponse;
@@ -274,9 +275,7 @@ public class UserServiceImpl implements UserService {
      *
      */
     public User selectByPrimaryKey(Long id) {
-        User record = new User();
-        record.setId(id);
-        return userDao.selectByPrimaryKey(record);
+        return userDao.selectByPrimaryKey(id);
     }
 
     /**
@@ -308,6 +307,31 @@ public class UserServiceImpl implements UserService {
      */
     public long count(Page<User> record) {
         return userDao.count(record);
+    }
+
+    @Transactional
+    @Override
+    public BaseResponse userRecoverPassword(UserRecoverPasswordRequest request) {
+        String email = request.getEmail();
+
+        User user = userDao.selectUserByLoginName(email);
+        if (null == user) {
+            return BaseResponse.failed("email error");
+        }
+        String key = RedisKey.STRING_EMAIL_SEND_CODE + email;
+        Map<String, Object> map = (Map<String, Object>) redisTemplate.opsForValue().get(key);
+        if (null == map) {
+            return BaseResponse.failed("Verification information has expired");
+        }
+        if (!request.getCode().equals(map.get("code").toString())) {
+            return BaseResponse.failed("Verification code error");
+        }
+        user = userDao.selectByPrimaryKey(user.getId());
+        user.setLoginPass(UserUtil.encryptPassword(request.getNewPass(), user.getLoginName()));
+        userDao.resetUserPassword(user);
+        redisTemplate.opsForHash().delete(RedisKey.HASH_USER_NEED_RESET_PASSWTORD,user.getLoginName());
+        Map<String, Object> result = userSignIn(user, request.getApplicationId());
+        return new UserSignInResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS, result);
     }
 
 

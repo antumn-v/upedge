@@ -6,6 +6,7 @@ import com.upedge.common.model.user.vo.Session;
 import com.upedge.ums.modules.user.entity.User;
 import com.upedge.common.base.Page;
 import com.upedge.ums.modules.user.request.CustomerSignUpRequest;
+import com.upedge.ums.modules.user.request.UserRecoverPasswordRequest;
 import com.upedge.ums.modules.user.request.UserSignInRequest;
 import com.upedge.ums.modules.user.request.UserUpdatePwdRequest;
 import com.upedge.ums.modules.user.response.CustomerSignUpResponse;
@@ -47,5 +48,7 @@ public interface UserService{
     List<User> select(Page<User> record);
 
     long count(Page<User> record);
+
+    BaseResponse userRecoverPassword(UserRecoverPasswordRequest request);
 }
 
