@@ -168,7 +168,6 @@ public class ProductServiceImpl implements ProductService {
             if (StringUtils.isBlank(product.getProductSku())&& StringUtils.isNotBlank(request.getProductSku())){
                 product.setProductSku(request.getProductSku());
             }
-            product.setProductImage(request.getProductImage());
             product.setCateType(request.getCateType());
             product.setShippingId(request.getShippingId());
             if(request.getShippingId()!=null){

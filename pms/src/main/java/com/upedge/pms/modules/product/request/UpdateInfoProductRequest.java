@@ -10,9 +10,6 @@ public class UpdateInfoProductRequest {
 
 
     private String productSku;
-
-    @NotNull(message = "产品图片不能为空")
-    private String productImage;
     /**
      * 商品标题
      */
