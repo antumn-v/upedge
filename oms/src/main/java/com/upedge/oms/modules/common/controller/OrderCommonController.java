@@ -33,6 +33,8 @@ public class OrderCommonController {
     public BaseResponse jsonTest(@RequestBody String body){
         JSONObject jsonObject = JSONObject.parseObject(body);
         ShopifyOrder shopifyOrder = jsonObject.toJavaObject(ShopifyOrder.class);
+        System.out.println(!shopifyOrder.getFinancial_status().equals("paid")
+                || shopifyOrder.getFulfillment_status() != null);
         return BaseResponse.success(shopifyOrder);
     }
 

@@ -173,6 +173,10 @@ public class StoreOrderServiceImpl implements StoreOrderService {
             e.printStackTrace();
             return null;
         }
+        if (!shopifyOrder.getFinancial_status().equals("paid")
+        || shopifyOrder.getFulfillment_status() != null){
+            return null;
+        }
         String platOrderId = shopifyOrder.getId();
 
         String key = RedisKey.STRING_STORE_PALT_ORDER_UPDATE + storeVo.getId() + ":" + platOrderId;

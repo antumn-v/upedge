@@ -254,7 +254,7 @@ public class StoreAsync {
 
         StoreVo storeVo = new StoreVo();
         BeanUtils.copyProperties(store, storeVo);
-        JSONObject jsonObject = ShopifyOrderApi.getStoreOrder(shop, token, null, null, "financial_status=paid&limit=250");
+        JSONObject jsonObject = ShopifyOrderApi.getStoreOrder(shop, token, null, null, "fulfillment_status=unfulfilled&financial_status=paid&limit=250");
         String key = "orders";
 
         while (jsonObject != null && jsonObject.containsKey(key)) {
