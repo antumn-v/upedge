@@ -28,6 +28,8 @@ public interface SupportTicketsService{
 
     BaseResponse customerTicketList(CustomerTicketListRequest request);
 
+    BaseResponse processList(CustomerTicketListRequest request);
+
     SupportTickets selectByPrimaryKey(Long id);
 
     int deleteByPrimaryKey(Long id);

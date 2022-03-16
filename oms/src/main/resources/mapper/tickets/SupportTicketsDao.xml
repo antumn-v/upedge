@@ -52,8 +52,8 @@
                     <if test="t.state == 0">
                         and st.state != '1'
                     </if>
-                    <if test="t.state == 1">
-                        and st.state = '1'
+                    <if test="t.state != 0">
+                        and st.state = #{t.state}
                     </if>
                 </if>
                 <if test="t.orderNumber != null">
@@ -71,6 +71,7 @@
             </if>
         </where>
     </sql>
+
     <select id="selectCustomerTicketCount" resultType="java.lang.Long" parameterType="com.upedge.oms.modules.tickets.request.CustomerTicketListRequest">
         select count(st.id)
         from support_tickets st
@@ -425,4 +426,74 @@
         </if>
     </select>
 
+    <select id="selectProcessList" resultType="com.upedge.oms.modules.tickets.vo.CustomerTicketVo">
+        select st.state,st.result,st.create_time,st.manager_name as `managerName`,
+               st.customer_name as `customerName`,
+               st.create_time as `createTime`, st.id,st.order_id as `orderId`,st.describes,
+               sor.plat_order_name as `orderNumber`,sor.store_name as `storeName`
+        from support_tickets st
+        left join store_order_relate sor
+        on st.order_id = sor.order_id
+        <where>
+            st.state != '2'
+            <if test="t != null">
+                <if test="t.customerId != null">
+                    and  st.customer_id = #{t.customerId}
+                </if>
+                <if test="t.state != null">
+                    and st.state = #{t.state}
+                </if>
+                <if test="t.orderNumber != null">
+                    and  sor.plat_order_name = #{t.orderNumber}
+                </if>
+                <if test="t.storeName != null">
+                    and sor.store_name = #{t.storeName}
+                </if>
+                <if test="t.managerCustomerId != null">
+                    and st.manager_customer_id = #{t.managerCustomerId}
+                </if>
+                <if test="t.orderId != null">
+                    and sor.order_id = #{orderId}
+                </if>
+            </if>
+        </where>
+        order by st.state asc,st.create_time desc
+        <if test="pageNum != null and pageSize != null">
+            limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+        </if>
+    </select>
+
+    <select id="countProcessList" resultType="java.lang.Long">
+        select count(distinct st.id)
+        from support_tickets st
+        left join store_order_relate sor
+        on st.order_id = sor.order_id
+        <where>
+            st.state != '2'
+            <if test="t != null">
+                <if test="t.customerId != null">
+                    and  st.customer_id = #{t.customerId}
+                </if>
+                <if test="t.state != null">
+                    and st.state = #{t.state}
+                </if>
+                <if test="t.orderNumber != null">
+                    and  sor.plat_order_name = #{t.orderNumber}
+                </if>
+                <if test="t.storeName != null">
+                    and sor.store_name = #{t.storeName}
+                </if>
+                <if test="t.managerCustomerId != null">
+                    and st.manager_customer_id = #{t.managerCustomerId}
+                </if>
+                <if test="t.orderId != null">
+                    and sor.order_id = #{orderId}
+                </if>
+            </if>
+        </where>
+        order by st.state asc,st.create_time desc
+        <if test="pageNum != null and pageSize != null">
+            limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+        </if>
+    </select>
 </mapper>

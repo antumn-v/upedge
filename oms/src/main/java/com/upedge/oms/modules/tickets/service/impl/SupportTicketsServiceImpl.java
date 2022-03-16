@@ -166,6 +166,21 @@ public class SupportTicketsServiceImpl implements SupportTicketsService {
         return new BaseResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS, ticketVos, request);
     }
 
+    @Override
+    public BaseResponse processList(CustomerTicketListRequest request) {
+        request.initFromNum();
+        List<CustomerTicketVo> ticketVos = supportTicketsDao.selectProcessList(request);
+        if (ListUtils.isNotEmpty(ticketVos)) {
+            Date date = new Date();
+            ticketVos.forEach(customerTicketVo -> {
+                customerTicketVo.setProcessTime(DateUtils.getDistanceOfTwoDate(customerTicketVo.getCreateTime(), date));
+            });
+        }
+        Long count = supportTicketsDao.countProcessList(request);
+        request.setTotal(count);
+        return new BaseResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS, ticketVos, request);
+    }
+
     /**
      *
      */

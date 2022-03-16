@@ -6,10 +6,7 @@ import com.upedge.common.exception.CustomerException;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.web.util.UserUtil;
 import com.upedge.oms.modules.tickets.dto.CustomerTicketListDto;
-import com.upedge.oms.modules.tickets.request.CustomerTicketListRequest;
-import com.upedge.oms.modules.tickets.request.OpenTicketRequest;
-import com.upedge.oms.modules.tickets.request.SendImgMsgRequest;
-import com.upedge.oms.modules.tickets.request.SendTextMsgRequest;
+import com.upedge.oms.modules.tickets.request.*;
 import com.upedge.oms.modules.tickets.response.SupportTicketsInfoResponse;
 import com.upedge.oms.modules.tickets.service.SupportTicketsService;
 import com.upedge.oms.modules.tickets.vo.SupportTicketsVo;
@@ -124,7 +121,7 @@ public class SupportTicketsController {
             request.setT(new CustomerTicketListDto());
         }
         request.getT().setManagerCustomerId(session.getCustomerId());
-        return supportTicketsService.customerTicketList(request);
+        return supportTicketsService.processList(request);
     }
 
     @ApiOperation("开启support tickets")

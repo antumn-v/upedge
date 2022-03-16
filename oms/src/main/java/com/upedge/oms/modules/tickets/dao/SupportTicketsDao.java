@@ -13,6 +13,10 @@ import java.util.List;
  */
 public interface SupportTicketsDao{
 
+    List<CustomerTicketVo> selectProcessList(CustomerTicketListRequest request);
+
+    Long countProcessList(CustomerTicketListRequest request);
+
     List<CustomerTicketVo> selectCustomerTicketList(CustomerTicketListRequest request);
 
     Long selectCustomerTicketCount(CustomerTicketListRequest request);
