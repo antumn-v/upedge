@@ -188,11 +188,14 @@ public class OrderItemServiceImpl implements OrderItemService {
             }
             orderIds.removeAll(quotingOrders);
             //查询订单中是否包含未报价或报价失败的产品
+            if(ListUtils.isEmpty(orderIds)){
+                return;
+            }
             List<Long> partQuoteOrderIds = orderItemDao.selectUnQuoteItemOrderIdByOrderIds(orderIds);
             if (ListUtils.isNotEmpty(partQuoteOrderIds)){
                 orderDao.updateQuoteStateByIds(partQuoteOrderIds, OrderConstant.QUOTE_STATE_PART_UNQUOTED);
             }
-            orderIds.remove(partQuoteOrderIds);
+            orderIds.removeAll(partQuoteOrderIds);
             //全部报价的订单修改订单产品费用并匹配运输方式
             if (ListUtils.isNotEmpty(orderIds)
                     && customerProductQuoteVo.getQuoteState() == 1) {//标记订单未全部报价
