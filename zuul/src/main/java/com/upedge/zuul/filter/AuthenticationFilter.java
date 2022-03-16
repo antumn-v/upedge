@@ -33,11 +33,13 @@ public class AuthenticationFilter extends ZuulFilter {
 		freePaths.add("/ums/user/fb/signup");//登陆
 		freePaths.add("/ums/user/info/select");//邮箱（登录名）查询
 		freePaths.add("/ums/user/sendEmail/verifyCode");//邮箱验证码
+		freePaths.add("/ums/user/emailCodeCheck");//邮箱验证码
 		freePaths.add("/ums/user/recoverPassword");//找回密码
 		freePaths.add("/ums/store/connect/shopify");//shopify授权
 		freePaths.add("/ums/store/shopifyAuth");//shopify授权
 		freePaths.add("/ums/store/connectShopify");//shopify授权
 		freePaths.add("/cms/web");
+		freePaths.add("/pms/alibabaApi/auth");
 
 	}
 	
