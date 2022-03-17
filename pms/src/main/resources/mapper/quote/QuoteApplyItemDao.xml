@@ -3,7 +3,7 @@
 
 <mapper namespace="com.upedge.pms.modules.quote.dao.QuoteApplyItemDao">
 
-	<!-- 可根据自己的需求，是否要使用 -->
+    <!-- 可根据自己的需求，是否要使用 -->
     <resultMap type="com.upedge.pms.modules.quote.entity.QuoteApplyItem" id="BaseResultMap">
         <result property="id" column="id"/>
         <result property="productId" column="product_id"/>
@@ -19,12 +19,13 @@
         <result property="variantSku" column="variant_sku"/>
         <result property="variantImage" column="variant_image"/>
         <result property="quotePrice" column="quote_price"/>
+        <result property="quoteScale" column="quote_scale"/>
         <result property="quoteApplyId" column="quote_apply_id"/>
         <result property="state" column="state"/>
     </resultMap>
 
     <sql id="Base_Column_List">
-        `id`,`product_id`,`variant_id`,`store_product_id`,`store_variant_id`,`store_variant_name`,`store_product_title`,`store_variant_sku`,`store_variant_image`,`product_title`,`variant_name`,`variant_sku`,`variant_image`,`quote_price`,`quote_apply_id`,`state`
+        `id`,`product_id`,`variant_id`,`store_product_id`,`store_variant_id`,`store_variant_name`,`store_product_title`,`store_variant_sku`,`store_variant_image`,`product_title`,`variant_name`,`variant_sku`,`variant_image`,`quote_price`,`quote_scale`,`quote_apply_id`,`state`
     </sql>
 
     <select id="selectByPrimaryKey" parameterType="com.upedge.pms.modules.quote.entity.QuoteApplyItem" resultMap="BaseResultMap">
@@ -89,6 +90,9 @@
             <if test="quotePrice != null">
                 quote_price = #{quotePrice},
             </if>
+            <if test="quoteScale != null">
+                quote_scale = #{quoteScale},
+            </if>
             <if test="quoteApplyId != null">
                 quote_apply_id = #{quoteApplyId},
             </if>
@@ -116,8 +120,9 @@
             variant_sku = #{variantSku},
             variant_image = #{variantImage},
             quote_price = #{quotePrice},
+            quote_scale = #{quoteScale},
             quote_apply_id = #{quoteApplyId},
-            `state` = #{state},
+            state = #{state},
         </set>
         where id = #{id}
     </update>
@@ -139,8 +144,9 @@
             variant_sku,
             variant_image,
             quote_price,
+            quote_scale,
             quote_apply_id,
-            `state`
+            state
         </trim>
         values (
         #{id},
@@ -157,6 +163,7 @@
         #{variantSku},
         #{variantImage},
         #{quotePrice},
+        #{quoteScale},
         #{quoteApplyId},
         #{state}
         )
@@ -207,11 +214,14 @@
             <if test="quotePrice != null" >
                 quote_price
             </if>
+            <if test="quoteScale != null" >
+                quote_scale
+            </if>
             <if test="quoteApplyId != null" >
                 quote_apply_id
             </if>
             <if test="state != null" >
-                `state`
+                state
             </if>
 
         </trim>
@@ -258,6 +268,9 @@
             <if test="quotePrice != null" >
                 #{quotePrice}
             </if>
+            <if test="quoteScale != null" >
+                #{quoteScale}
+            </if>
             <if test="quoteApplyId != null" >
                 #{quoteApplyId}
             </if>
@@ -285,8 +298,9 @@
             variant_sku,
             variant_image,
             quote_price,
+            quote_scale,
             quote_apply_id,
-            `state`
+            state
         </trim>
         values
         <foreach collection="list" item="item" index="index" separator=",">
@@ -305,6 +319,7 @@
                 #{item.variantSku},
                 #{item.variantImage},
                 #{item.quotePrice},
+                #{item.quoteScale},
                 #{item.quoteApplyId},
                 #{item.state}
             </trim>
@@ -357,6 +372,9 @@
                 </if>
                 <if test="t.quotePrice != null">
                     quote_price = #{t.quotePrice} and
+                </if>
+                <if test="t.quoteScale != null">
+                    quote_scale = #{t.quoteScale} and
                 </if>
                 <if test="t.quoteApplyId != null">
                     quote_apply_id = #{t.quoteApplyId} and

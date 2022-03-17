@@ -136,6 +136,7 @@ public class QuoteApplyServiceImpl implements QuoteApplyService {
         }
         List<QuoteApplyProcessItem> quoteApplyProcessItems = request.getItems();
 
+        //想先将该报价请求的所有产品存入map
         List<QuoteApplyItem> quoteApplyItems = quoteApplyItemDao.selectByQuoteApplyId(quoteApplyId);
         Map<Long, QuoteApplyItem> quoteApplyItemMap = new HashMap<>();
         for (QuoteApplyItem quoteApplyItem : quoteApplyItems) {
@@ -148,6 +149,7 @@ public class QuoteApplyServiceImpl implements QuoteApplyService {
         Date date = new Date();
         List<ProductQuoteRecord> productQuoteRecords = new ArrayList<>();
 
+        //处理的报价信息挨个从map里取出对应的报价产品
         for (QuoteApplyProcessItem quoteApplyProcessItem : quoteApplyProcessItems) {
             QuoteApplyItem quoteApplyItem = quoteApplyItemMap.get(quoteApplyProcessItem.getQuoteApplyItemId());
             if (null == quoteApplyItem) {
@@ -156,6 +158,7 @@ public class QuoteApplyServiceImpl implements QuoteApplyService {
             CustomerProductQuote customerProductQuote = new CustomerProductQuote();
             BeanUtils.copyProperties(quoteApplyItem, customerProductQuote);
             customerProductQuote.setCustomerId(quoteApply.getCustomerId());
+            //取消报价的产品
             if (!quoteApplyProcessItem.isCanQuote()) {
                 ProductQuoteRecord productQuoteRecord = new ProductQuoteRecord();
                 productQuoteRecord.setStoreVariantId(quoteApplyItem.getStoreVariantId());
@@ -170,12 +173,12 @@ public class QuoteApplyServiceImpl implements QuoteApplyService {
                 storeVariantIds.add(quoteApplyItem.getStoreVariantId());
                 continue;
             }
+            //价格或sku为空的不能报价
             if (StringUtils.isBlank(quoteApplyProcessItem.getVariantSku())
-            || null == quoteApplyProcessItem.getPrice()
-                    || 0 == quoteApplyProcessItem.getPrice().compareTo(BigDecimal.ZERO)){
+            || null == quoteApplyProcessItem.getPrice()){
                 continue;
             }
-
+            //判读sku
             ProductVariant productVariant = productVariantDao.selectBySku(quoteApplyProcessItem.getVariantSku());
             if (null == productVariant
                     || null == productVariant.getWeight()
@@ -189,10 +192,12 @@ public class QuoteApplyServiceImpl implements QuoteApplyService {
                 quoteApplyItem.setVariantImage(productVariant.getVariantImage());
                 quoteApplyItem.setVariantName(productVariant.getEnName());
                 quoteApplyItem.setVariantSku(productVariant.getVariantSku());
-                quoteApplyItem.setQuotePrice(quoteApplyProcessItem.getPrice());
                 quoteApplyItem.setProductId(productVariant.getProductId());
+                quoteApplyItem.setQuotePrice(quoteApplyProcessItem.getPrice());
+                quoteApplyItem.setQuoteScale(quoteApplyProcessItem.getQuoteScale());
                 quoteApplyItem.setState(1);
                 quoteApplyItemDao.updateByPrimaryKey(quoteApplyItem);
+
                 //报价记录
                 ProductQuoteRecord productQuoteRecord = new ProductQuoteRecord();
                 BeanUtils.copyProperties(quoteApplyItem, productQuoteRecord);
@@ -216,6 +221,7 @@ public class QuoteApplyServiceImpl implements QuoteApplyService {
                 storeVariantIds.add(quoteApplyItem.getStoreVariantId());
             }
         }
+        //判断是否还有未报价的产品
         List<QuoteApplyItem> unQuoteItems = quoteApplyItemDao.selectUnQuoteItemByApplyId(quoteApplyId);
         quoteApply = new QuoteApply();
         quoteApply.setId(quoteApplyId);

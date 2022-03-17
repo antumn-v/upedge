@@ -66,6 +66,8 @@ public class QuoteApplyItem{
 	 * 
 	 */
     private BigDecimal quotePrice;
+
+	private Integer quoteScale;
 	/**
 	 * 
 	 */

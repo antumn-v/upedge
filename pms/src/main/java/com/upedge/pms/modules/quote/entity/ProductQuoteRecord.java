@@ -35,6 +35,8 @@ public class ProductQuoteRecord{
 	 * 
 	 */
     private BigDecimal quotePrice;
+
+	private Integer quoteScale;
 	/**
 	 * 
 	 */

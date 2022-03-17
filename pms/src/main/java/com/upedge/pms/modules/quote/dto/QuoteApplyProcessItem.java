@@ -12,5 +12,7 @@ public class QuoteApplyProcessItem {
 
     BigDecimal price;
 
+    Integer quoteScale;
+
     boolean canQuote;
 }

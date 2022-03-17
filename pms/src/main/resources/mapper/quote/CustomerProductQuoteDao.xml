@@ -4,8 +4,8 @@
 <mapper namespace="com.upedge.pms.modules.quote.dao.CustomerProductQuoteDao">
     <!-- 可根据自己的需求，是否要使用 -->
     <resultMap type="com.upedge.pms.modules.quote.entity.CustomerProductQuote" id="BaseResultMap">
-        <result property="customerId" column="customer_id"/>
         <result property="storeVariantId" column="store_variant_id"/>
+        <result property="customerId" column="customer_id"/>
         <result property="storeProductId" column="store_product_id"/>
         <result property="productId" column="product_id"/>
         <result property="variantId" column="variant_id"/>
@@ -20,11 +20,11 @@
         <result property="quotePrice" column="quote_price"/>
         <result property="quoteApplyId" column="quote_apply_id"/>
         <result property="quoteState" column="quote_state"/>
+        <result property="quoteScale" column="quote_scale"/>
     </resultMap>
 
     <sql id="Base_Column_List">
-        `customer_id`
-                ,`store_variant_id`,`store_product_id`,`product_id`,`variant_id`,`store_variant_name`,`store_product_title`,`store_variant_sku`,`store_variant_image`,`product_title`,`variant_name`,`variant_sku`,`variant_image`,`quote_price`,`quote_apply_id`,`quote_state`
+        `store_variant_id`,`customer_id`,`store_product_id`,`product_id`,`variant_id`,`store_variant_name`,`store_product_title`,`store_variant_sku`,`store_variant_image`,`product_title`,`variant_name`,`variant_sku`,`variant_image`,`quote_price`,`quote_apply_id`,`quote_state`,`quote_scale`
     </sql>
 
     <select id="selectByPrimaryKey"
@@ -89,6 +89,9 @@
             <if test="quoteState != null">
                 quote_state = #{quoteState},
             </if>
+            <if test="quoteScale != null">
+                quote_scale = #{quoteScale},
+            </if>
         </set>
         where store_variant_id = #{storeVariantId}
     </update>
@@ -96,8 +99,8 @@
     <update id="updateByPrimaryKey" parameterType="com.upedge.pms.modules.quote.entity.CustomerProductQuote">
         update customer_product_quote
         <set>
-            customer_id = #{customerId},
             store_variant_id = #{storeVariantId},
+            customer_id = #{customerId},
             store_product_id = #{storeProductId},
             product_id = #{productId},
             variant_id = #{variantId},
@@ -112,6 +115,7 @@
             quote_price = #{quotePrice},
             quote_apply_id = #{quoteApplyId},
             quote_state = #{quoteState},
+            quote_scale = #{quoteScale},
         </set>
         where store_variant_id = #{storeVariantId}
     </update>
@@ -119,8 +123,8 @@
     <insert id="insert" keyColumn="store_variant_id" keyProperty="storeVariantId" parameterType="com.upedge.pms.modules.quote.entity.CustomerProductQuote" useGeneratedKeys="true">
         insert into customer_product_quote
         <trim prefix="(" suffix=")" suffixOverrides=",">
-            customer_id,
             store_variant_id,
+            customer_id,
             store_product_id,
             product_id,
             variant_id,
@@ -134,11 +138,12 @@
             variant_image,
             quote_price,
             quote_apply_id,
-            quote_state
+            quote_state,
+            quote_scale
         </trim>
         values (
-        #{customerId},
         #{storeVariantId},
+        #{customerId},
         #{storeProductId},
         #{productId},
         #{variantId},
@@ -152,18 +157,19 @@
         #{variantImage},
         #{quotePrice},
         #{quoteApplyId},
-        #{quoteState}
+        #{quoteState},
+        #{quoteScale}
         )
     </insert>
 
     <insert id="insertSelective"  keyColumn="store_variant_id" keyProperty="storeVariantId"  parameterType="com.upedge.pms.modules.quote.entity.CustomerProductQuote" useGeneratedKeys="true">
         insert into customer_product_quote
         <trim prefix="(" suffix=")" suffixOverrides=",">
-            <if test="customerId != null" >
-                customer_id
-            </if>
             <if test="storeVariantId != null" >
                 store_variant_id
+            </if>
+            <if test="customerId != null" >
+                customer_id
             </if>
             <if test="storeProductId != null" >
                 store_product_id
@@ -207,14 +213,17 @@
             <if test="quoteState != null" >
                 quote_state
             </if>
+            <if test="quoteScale != null" >
+                quote_scale
+            </if>
 
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
-            <if test="customerId != null" >
-                #{customerId}
-            </if>
             <if test="storeVariantId != null" >
                 #{storeVariantId}
+            </if>
+            <if test="customerId != null" >
+                #{customerId}
             </if>
             <if test="storeProductId != null" >
                 #{storeProductId}
@@ -258,6 +267,9 @@
             <if test="quoteState != null" >
                 #{quoteState}
             </if>
+            <if test="quoteScale != null" >
+                #{quoteScale}
+            </if>
 
         </trim>
     </insert>
@@ -265,8 +277,8 @@
     <insert id="insertByBatch" parameterType="java.util.List">
         insert into customer_product_quote
         <trim prefix="(" suffix=")" suffixOverrides=",">
-            customer_id,
             store_variant_id,
+            customer_id,
             store_product_id,
             product_id,
             variant_id,
@@ -280,13 +292,14 @@
             variant_image,
             quote_price,
             quote_apply_id,
-            quote_state
+            quote_state,
+            quote_scale
         </trim>
         values
         <foreach collection="list" item="item" index="index" separator=",">
             <trim prefix="(" suffix=")" suffixOverrides=",">
-                #{item.customerId},
                 #{item.storeVariantId},
+                #{item.customerId},
                 #{item.storeProductId},
                 #{item.productId},
                 #{item.variantId},
@@ -300,7 +313,8 @@
                 #{item.variantImage},
                 #{item.quotePrice},
                 #{item.quoteApplyId},
-                #{item.quoteState}
+                #{item.quoteState},
+                #{item.quoteScale}
             </trim>
         </foreach>
     </insert>
@@ -310,11 +324,11 @@
             where
             <trim prefix=" " suffix=" " suffixOverrides=" and ">
                 1 = 1 and
-                <if test="t.customerId != null">
-                    customer_id = #{t.customerId} and
-                </if>
                 <if test="t.storeVariantId != null">
                     store_variant_id = #{t.storeVariantId} and
+                </if>
+                <if test="t.customerId != null">
+                    customer_id = #{t.customerId} and
                 </if>
                 <if test="t.storeProductId != null">
                     store_product_id = #{t.storeProductId} and
@@ -357,6 +371,9 @@
                 </if>
                 <if test="t.quoteState != null">
                     quote_state = #{t.quoteState} and
+                </if>
+                <if test="t.quoteScale != null">
+                    quote_scale = #{t.quoteScale} and
                 </if>
             </trim>
         </if>

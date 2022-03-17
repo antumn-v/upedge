@@ -73,4 +73,6 @@ public class CustomerProductQuote{
 
 	private Integer quoteState;
 
+	private Integer quoteScale;
+
 }

@@ -11,13 +11,15 @@
         <result property="storeVariantId" column="store_variant_id"/>
         <result property="storeProductId" column="store_product_id"/>
         <result property="quotePrice" column="quote_price"/>
+        <result property="quoteScale" column="quote_scale"/>
         <result property="userId" column="user_id"/>
         <result property="createTime" column="create_time"/>
     </resultMap>
 
     <sql id="Base_Column_List">
-        `id`,`product_id`,`variant_id`,`store_variant_id`,`store_product_id`,`quote_price`,`user_id`,`create_time`
+        `id`,`product_id`,`variant_id`,`store_variant_id`,`store_product_id`,`quote_price`,`quote_scale`,`user_id`,`create_time`
     </sql>
+
 
     <select id="selectByPrimaryKey" parameterType="com.upedge.pms.modules.quote.entity.ProductQuoteRecord" resultMap="BaseResultMap">
         select
@@ -49,6 +51,9 @@
             <if test="quotePrice != null">
                 quote_price = #{quotePrice},
             </if>
+            <if test="quoteScale != null">
+                quote_scale = #{quoteScale},
+            </if>
             <if test="userId != null">
                 user_id = #{userId},
             </if>
@@ -62,14 +67,15 @@
     <update id="updateByPrimaryKey" parameterType="com.upedge.pms.modules.quote.entity.ProductQuoteRecord">
         update product_quote_record
         <set>
-        id = #{id},
-        product_id = #{productId},
-        variant_id = #{variantId},
-        store_variant_id = #{storeVariantId},
-        store_product_id = #{storeProductId},
-        quote_price = #{quotePrice},
-        user_id = #{userId},
-        create_time = #{createTime},
+            id = #{id},
+            product_id = #{productId},
+            variant_id = #{variantId},
+            store_variant_id = #{storeVariantId},
+            store_product_id = #{storeProductId},
+            quote_price = #{quotePrice},
+            quote_scale = #{quoteScale},
+            user_id = #{userId},
+            create_time = #{createTime},
         </set>
         where id = #{id}
     </update>
@@ -83,6 +89,7 @@
             store_variant_id,
             store_product_id,
             quote_price,
+            quote_scale,
             user_id,
             create_time
         </trim>
@@ -93,6 +100,7 @@
         #{storeVariantId},
         #{storeProductId},
         #{quotePrice},
+        #{quoteScale},
         #{userId},
         #{createTime}
         )
@@ -102,28 +110,31 @@
         insert into product_quote_record
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="id != null" >
-              id
+                id
             </if>
             <if test="productId != null" >
-              product_id
+                product_id
             </if>
             <if test="variantId != null" >
-              variant_id
+                variant_id
             </if>
             <if test="storeVariantId != null" >
-              store_variant_id
+                store_variant_id
             </if>
             <if test="storeProductId != null" >
-              store_product_id
+                store_product_id
             </if>
             <if test="quotePrice != null" >
-              quote_price
+                quote_price
+            </if>
+            <if test="quoteScale != null" >
+                quote_scale
             </if>
             <if test="userId != null" >
-              user_id
+                user_id
             </if>
             <if test="createTime != null" >
-              create_time
+                create_time
             </if>
 
         </trim>
@@ -146,6 +157,9 @@
             <if test="quotePrice != null" >
                 #{quotePrice}
             </if>
+            <if test="quoteScale != null" >
+                #{quoteScale}
+            </if>
             <if test="userId != null" >
                 #{userId}
             </if>
@@ -159,26 +173,28 @@
     <insert id="insertByBatch" parameterType="java.util.List">
         insert into product_quote_record
         <trim prefix="(" suffix=")" suffixOverrides=",">
-           id,
-           product_id,
-           variant_id,
-           store_variant_id,
-           store_product_id,
-           quote_price,
-           user_id,
-           create_time
+            id,
+            product_id,
+            variant_id,
+            store_variant_id,
+            store_product_id,
+            quote_price,
+            quote_scale,
+            user_id,
+            create_time
         </trim>
         values
         <foreach collection="list" item="item" index="index" separator=",">
             <trim prefix="(" suffix=")" suffixOverrides=",">
-               #{item.id},
-               #{item.productId},
-               #{item.variantId},
-               #{item.storeVariantId},
-               #{item.storeProductId},
-               #{item.quotePrice},
-               #{item.userId},
-               #{item.createTime}
+                #{item.id},
+                #{item.productId},
+                #{item.variantId},
+                #{item.storeVariantId},
+                #{item.storeProductId},
+                #{item.quotePrice},
+                #{item.quoteScale},
+                #{item.userId},
+                #{item.createTime}
             </trim>
         </foreach>
     </insert>
@@ -188,30 +204,33 @@
             where
             <trim prefix=" " suffix=" " suffixOverrides=" and ">
                 1 = 1 and
-                    <if test="t.id != null">
-                        id = #{t.id} and
-                    </if>
-                    <if test="t.productId != null">
-                        product_id = #{t.productId} and
-                    </if>
-                    <if test="t.variantId != null">
-                        variant_id = #{t.variantId} and
-                    </if>
-                    <if test="t.storeVariantId != null">
-                        store_variant_id = #{t.storeVariantId} and
-                    </if>
-                    <if test="t.storeProductId != null">
-                        store_product_id = #{t.storeProductId} and
-                    </if>
-                    <if test="t.quotePrice != null">
-                        quote_price = #{t.quotePrice} and
-                    </if>
-                    <if test="t.userId != null">
-                        user_id = #{t.userId} and
-                    </if>
-                    <if test="t.createTime != null">
-                        create_time = #{t.createTime} and
-                    </if>
+                <if test="t.id != null">
+                    id = #{t.id} and
+                </if>
+                <if test="t.productId != null">
+                    product_id = #{t.productId} and
+                </if>
+                <if test="t.variantId != null">
+                    variant_id = #{t.variantId} and
+                </if>
+                <if test="t.storeVariantId != null">
+                    store_variant_id = #{t.storeVariantId} and
+                </if>
+                <if test="t.storeProductId != null">
+                    store_product_id = #{t.storeProductId} and
+                </if>
+                <if test="t.quotePrice != null">
+                    quote_price = #{t.quotePrice} and
+                </if>
+                <if test="t.quoteScale != null">
+                    quote_scale = #{t.quoteScale} and
+                </if>
+                <if test="t.userId != null">
+                    user_id = #{t.userId} and
+                </if>
+                <if test="t.createTime != null">
+                    create_time = #{t.createTime} and
+                </if>
             </trim>
         </if>
     </sql>
