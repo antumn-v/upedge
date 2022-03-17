@@ -106,6 +106,7 @@ public class CustomerProductQuoteServiceImpl implements CustomerProductQuoteServ
         customerProductQuote.setVariantImage(null);
         customerProductQuote.setVariantName(null);
         customerProductQuote.setVariantId(null);
+        customerProductQuote.setQuotePrice(null);
         customerProductQuote.setQuoteState(0);
         updateByPrimaryKey(customerProductQuote);
 
@@ -116,13 +117,13 @@ public class CustomerProductQuoteServiceImpl implements CustomerProductQuoteServ
         return BaseResponse.success();
     }
 
+    @Transactional
     @Override
     public BaseResponse updateCustomerProductQuote(CustomerProductQuoteUpdateRequest request, Session session) {
         Long storeVariantId = request.getStoreVariantId();
         if (null == storeVariantId
                 || StringUtil.isEmpty(request.getVariantSku())
-                || null == request.getQuotePrice()
-                || 1 != request.getQuotePrice().compareTo(BigDecimal.ZERO)) {
+                || null == request.getQuotePrice()) {
             return BaseResponse.failed();
         }
         CustomerProductQuote customerProductQuote = customerProductQuoteDao.selectByStoreVariantId(storeVariantId);
@@ -252,6 +253,9 @@ public class CustomerProductQuoteServiceImpl implements CustomerProductQuoteServ
         CustomerProductQuoteSearchRequest request = new CustomerProductQuoteSearchRequest();
         request.setStoreVariantIds(storeVariantIds);
         List<CustomerProductQuoteVo> customerProductQuoteVos = selectQuoteDetail(request);
+        if (ListUtils.isEmpty(customerProductQuoteVos)){
+            return false;
+        }
         String tag = "quote";
         String key = UUID.randomUUID().toString();
         Message message = new Message(RocketMqConfig.TOPIC_CUSTOMER_PRODUCT_QUOTE_UPDATE, tag, key, JSON.toJSONBytes(customerProductQuoteVos));

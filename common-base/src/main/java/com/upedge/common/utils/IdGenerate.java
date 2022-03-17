@@ -83,7 +83,7 @@ public class IdGenerate {
 
 
 	public static void main(String[] args) {
-		System.out.println(generateShortUuid());
+		System.out.println(generateUniqueId(8));
 	}
 
 }

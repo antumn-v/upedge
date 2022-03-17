@@ -16,6 +16,8 @@ import java.util.List;
  */
 public interface StoreProductVariantDao {
 
+    List<StoreProductVariant> selectSplitVariantByParentId(Long parentVariantId);
+
     List<StoreProductVariant> selectBySku(String sku);
 
     boolean updateAdminVariantIdByImportId(@Param("importProductId") Long importProductId, @Param("storeProductId") Long storeProductId);

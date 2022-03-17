@@ -3,6 +3,8 @@ package com.upedge.pms.modules.product.controller;
 import com.upedge.common.base.BaseResponse;
 import com.upedge.common.constant.Constant;
 import com.upedge.common.constant.ResultCode;
+import com.upedge.common.constant.key.RedisKey;
+import com.upedge.common.model.store.StoreVo;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.utils.ListUtils;
 import com.upedge.common.web.util.UserUtil;
@@ -14,6 +16,8 @@ import com.upedge.pms.modules.product.service.StoreProductAttributeService;
 import com.upedge.pms.modules.product.service.StoreProductService;
 import com.upedge.pms.modules.product.service.StoreProductVariantService;
 import com.upedge.pms.modules.product.vo.StoreProductRelateVo;
+import com.upedge.thirdparty.shopify.moudles.product.controller.ShopifyProductApi;
+import com.upedge.thirdparty.shopify.moudles.product.entity.ShopifyImage;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.apache.commons.lang3.StringUtils;
@@ -93,5 +97,17 @@ public class StoreProductController {
         Long total = storeProductAttributeService.countStoreProduct(request);
         request.setTotal(total);
         return BaseResponse.success(attributes,request);
+    }
+
+    @ApiOperation("获取店铺产品图片")
+    @GetMapping("/images/{id}")
+    public BaseResponse storeProductImages(@PathVariable Long id){
+        StoreProductAttribute storeProductAttribute = storeProductAttributeService.selectByPrimaryKey(id);
+        if (null == storeProductAttribute){
+            return BaseResponse.success(new ArrayList<>());
+        }
+        StoreVo storeVo = (StoreVo) redisTemplate.opsForValue().get(RedisKey.STRING_STORE + storeProductAttribute.getStoreId());
+        List<ShopifyImage> shopifyImages = ShopifyProductApi.getProductImage(storeVo.getApiToken(),storeVo.getStoreName(),Long.parseLong(storeProductAttribute.getPlatProductId()));
+        return BaseResponse.success(shopifyImages);
     }
 }

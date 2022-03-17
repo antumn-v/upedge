@@ -4,6 +4,7 @@ package com.upedge.thirdparty.shopify.moudles.product.controller;
 import com.alibaba.fastjson.JSONObject;
 import com.upedge.thirdparty.shopify.config.Shopify;
 import com.upedge.thirdparty.shopify.entity.Response;
+import com.upedge.thirdparty.shopify.moudles.product.entity.ShopifyImage;
 import com.upedge.thirdparty.shopify.moudles.product.entity.ShopifyProduct;
 import com.upedge.thirdparty.shopify.moudles.shop.entity.ShopifyRequestParam;
 import com.upedge.thirdparty.shopify.utils.RequestUtils;
@@ -12,6 +13,9 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author 海桐
@@ -111,6 +115,23 @@ public class ShopifyProductApi {
         jsonObject = entity.getBody();
         response.addData("image", jsonObject.getJSONObject("image"));
         return response.success();
+    }
+
+
+    public static List<ShopifyImage> getProductImage(String token, String shop, Long id) {
+        Response response = new Response();
+
+
+        String url = "https://" + shop + ".myshopify.com/admin/api/" + Shopify.version + "/products/" + id + "/images.json";
+
+        ResponseEntity<JSONObject> entity =
+                RequestUtils.sendRequest(url, token, null, HttpMethod.GET, null);
+        JSONObject jsonObject = entity.getBody();
+        if (!jsonObject.containsKey("images")){
+            return new ArrayList<>();
+        }
+        List<ShopifyImage> shopifyImages = jsonObject.getJSONArray("images").toJavaList(ShopifyImage.class);
+        return shopifyImages;
     }
 
     public static JSONObject updateProduct(JSONObject jsonObject, String token, String shop, @PathVariable String id) {

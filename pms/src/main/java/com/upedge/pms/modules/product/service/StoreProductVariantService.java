@@ -1,8 +1,13 @@
 package com.upedge.pms.modules.product.service;
 
+import com.upedge.common.base.BaseResponse;
 import com.upedge.common.base.Page;
 import com.upedge.common.model.pms.quote.CustomerProductQuoteVo;
+import com.upedge.common.model.user.vo.Session;
 import com.upedge.pms.modules.product.entity.StoreProductVariant;
+import com.upedge.pms.modules.product.request.StoreProductVariantQuoteRequest;
+import com.upedge.pms.modules.product.request.StoreProductVariantSplitRequest;
+import com.upedge.pms.modules.product.request.StoreSplitVariantUpdateRequest;
 
 import java.util.List;
 
@@ -10,6 +15,17 @@ import java.util.List;
  * @author author
  */
 public interface StoreProductVariantService{
+
+    BaseResponse variantQuote(StoreProductVariantQuoteRequest request, Session session);
+
+
+    BaseResponse splitVariantDelete(Long storeVariantId,Session session);
+
+    BaseResponse splitVariantUpdate(StoreSplitVariantUpdateRequest request,Session session);
+
+    List<StoreProductVariant> selectSplitVariantByParentId(Long parentVariantId);
+
+    BaseResponse variantSplit(StoreProductVariantSplitRequest request, Session session);
 
     List<StoreProductVariant> selectBySku(String sku);
 

@@ -15,11 +15,12 @@
         <result property="image" column="image"/>
         <result property="state" column="state"/>
         <result property="importTime" column="import_time"/>
+        <result property="splitType" column="split_type"/>
+        <result property="parentVariantId" column="parent_variant_id"/>
     </resultMap>
 
     <sql id="Base_Column_List">
-        `id`
-        ,`product_id`,`plat_variant_id`,`plat_product_id`,`title`,`price`,`sku`,`image`,`state`,`import_time`
+        `id`,`product_id`,`plat_variant_id`,`plat_product_id`,`title`,`price`,`sku`,`image`,`state`,`import_time`,`split_type`,`parent_variant_id`
     </sql>
 
     <!--    <select id="selectByPlatVariantId" resultType="com.upedge.common.model.product.StoreProductVariantVo">-->
@@ -155,9 +156,31 @@
         where id = #{id}
     </delete>
 
+    <update id="updateByBatch" parameterType="java.util.List">
+        <foreach collection="variants" item="v" separator=";">
+            update store_product_variant
+            set title = #{v.title},
+            price = #{v.price},
+            image = #{v.image},
+            sku = #{v.sku},
+            state = #{v.state}
+            where product_id = #{v.productId}
+            and plat_variant_id = #{v.platVariantId}
+        </foreach>
+    </update>
+
     <update id="updateByPrimaryKeySelective" parameterType="com.upedge.pms.modules.product.entity.StoreProductVariant">
         update store_product_variant
         <set>
+            <if test="productId != null">
+                product_id = #{productId},
+            </if>
+            <if test="platVariantId != null">
+                plat_variant_id = #{platVariantId},
+            </if>
+            <if test="platProductId != null">
+                plat_product_id = #{platProductId},
+            </if>
             <if test="title != null">
                 title = #{title},
             </if>
@@ -173,46 +196,43 @@
             <if test="state != null">
                 state = #{state},
             </if>
+            <if test="importTime != null">
+                import_time = #{importTime},
+            </if>
+            <if test="adminVariantId != null">
+                admin_variant_id = #{adminVariantId},
+            </if>
+            <if test="splitType != null">
+                split_type = #{splitType},
+            </if>
+            <if test="parentVariantId != null">
+                parent_variant_id = #{parentVariantId},
+            </if>
         </set>
         where id = #{id}
-    </update>
-
-    <update id="updateByBatch" parameterType="java.util.List">
-        <foreach collection="variants" item="v" separator=";">
-            update store_product_variant
-            set title = #{v.title},
-            price = #{v.price},
-            image = #{v.image},
-            sku = #{v.sku},
-            state = #{v.state}
-            where product_id = #{v.productId}
-            and plat_variant_id = #{v.platVariantId}
-        </foreach>
     </update>
 
     <update id="updateByPrimaryKey" parameterType="com.upedge.pms.modules.product.entity.StoreProductVariant">
         update store_product_variant
         <set>
+            id = #{id},
+            product_id = #{productId},
+            plat_variant_id = #{platVariantId},
+            plat_product_id = #{platProductId},
             title = #{title},
             price = #{price},
             sku = #{sku},
             image = #{image},
-            state = #{state}
+            state = #{state},
+            import_time = #{importTime},
+            admin_variant_id = #{adminVariantId},
+            split_type = #{splitType},
+            parent_variant_id = #{parentVariantId},
         </set>
         where id = #{id}
     </update>
-    <update id="updateAdminVariantIdByImportId">
-        update store_product_variant spv
-            left join import_product_variant ipv
-        on spv.plat_variant_id = ipv.plat_variant_id
-            set spv.admin_variant_id = ipv.source_variant_id
-        where spv.product_id = #{storeProductId}
-          and ipv.product_id = #{importProductId}
-          and spv.admin_variant_id is null
-    </update>
 
-    <insert id="insert" keyColumn="id" keyProperty="id"
-            parameterType="com.upedge.pms.modules.product.entity.StoreProductVariant" useGeneratedKeys="true">
+    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.upedge.pms.modules.product.entity.StoreProductVariant" useGeneratedKeys="true">
         insert into store_product_variant
         <trim prefix="(" suffix=")" suffixOverrides=",">
             id,
@@ -224,7 +244,10 @@
             sku,
             image,
             state,
-            import_time
+            import_time,
+            admin_variant_id,
+            split_type,
+            parent_variant_id
         </trim>
         values (
         #{id},
@@ -236,82 +259,96 @@
         #{sku},
         #{image},
         #{state},
-        #{importTime}
+        #{importTime},
+        #{adminVariantId},
+        #{splitType},
+        #{parentVariantId}
         )
     </insert>
 
-    <insert id="insertSelective" keyColumn="id" keyProperty="id"
-            parameterType="com.upedge.pms.modules.product.entity.StoreProductVariant" useGeneratedKeys="true">
+    <insert id="insertSelective"  keyColumn="id" keyProperty="id"  parameterType="com.upedge.pms.modules.product.entity.StoreProductVariant" useGeneratedKeys="true">
         insert into store_product_variant
         <trim prefix="(" suffix=")" suffixOverrides=",">
-            <if test="id != null">
+            <if test="id != null" >
                 id
             </if>
-            <if test="productId != null">
+            <if test="productId != null" >
                 product_id
             </if>
-            <if test="platVariantId != null and platVariantId != ''">
+            <if test="platVariantId != null" >
                 plat_variant_id
             </if>
-            <if test="platProductId != null and platProductId != ''">
+            <if test="platProductId != null" >
                 plat_product_id
             </if>
-            <if test="title != null and  title != ''">
+            <if test="title != null" >
                 title
             </if>
-            <if test="price != null">
+            <if test="price != null" >
                 price
             </if>
-            <if test="sku != null  and sku != '' ">
+            <if test="sku != null" >
                 sku
             </if>
-            <if test="image != null  and image != ''">
+            <if test="image != null" >
                 image
             </if>
-            <if test="adminVariantId != null">
-                admin_variant_id
-            </if>
-            <if test="state != null">
+            <if test="state != null" >
                 state
             </if>
-            <if test="importTime != null">
+            <if test="importTime != null" >
                 import_time
+            </if>
+            <if test="adminVariantId != null" >
+                admin_variant_id
+            </if>
+            <if test="splitType != null" >
+                split_type
+            </if>
+            <if test="parentVariantId != null" >
+                parent_variant_id
             </if>
 
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
-            <if test="id != null">
+            <if test="id != null" >
                 #{id}
             </if>
-            <if test="productId != null">
+            <if test="productId != null" >
                 #{productId}
             </if>
-            <if test="platVariantId != null and platVariantId != ''">
+            <if test="platVariantId != null" >
                 #{platVariantId}
             </if>
-            <if test="platProductId != null and platProductId != ''">
+            <if test="platProductId != null" >
                 #{platProductId}
             </if>
-            <if test="title != null and  title != ''">
+            <if test="title != null" >
                 #{title}
             </if>
-            <if test="price != null">
+            <if test="price != null" >
                 #{price}
             </if>
-            <if test="sku != null  and sku != '' ">
+            <if test="sku != null" >
                 #{sku}
             </if>
-            <if test="image != null  and image != ''">
+            <if test="image != null" >
                 #{image}
             </if>
-            <if test="adminVariantId != null">
-                #{adminVariantId}
-            </if>
-            <if test="state != null">
+            <if test="state != null" >
                 #{state}
             </if>
-            <if test="importTime != null">
+            <if test="importTime != null" >
                 #{importTime}
+            </if>
+            <if test="adminVariantId != null" >
+                #{adminVariantId}
+            </if>
+            <if test="splitType != null" >
+                #{splitType}
+            </if>
+            <if test="parentVariantId != null" >
+                #{parentVariantId}
             </if>
 
         </trim>
@@ -329,7 +366,10 @@
             sku,
             image,
             state,
-            import_time
+            import_time,
+            admin_variant_id,
+            split_type,
+            parent_variant_id
         </trim>
         values
         <foreach collection="list" item="item" index="index" separator=",">
@@ -343,10 +383,71 @@
                 #{item.sku},
                 #{item.image},
                 #{item.state},
-                #{item.importTime}
+                #{item.importTime},
+                #{item.adminVariantId},
+                #{item.splitType},
+                #{item.parentVariantId}
             </trim>
         </foreach>
     </insert>
+
+    <sql id="Query_Condition">
+        <if test="t != null">
+            where
+            <trim prefix=" " suffix=" " suffixOverrides=" and ">
+                1 = 1 and
+                <if test="t.id != null">
+                    id = #{t.id} and
+                </if>
+                <if test="t.productId != null">
+                    product_id = #{t.productId} and
+                </if>
+                <if test="t.platVariantId != null">
+                    plat_variant_id = #{t.platVariantId} and
+                </if>
+                <if test="t.platProductId != null">
+                    plat_product_id = #{t.platProductId} and
+                </if>
+                <if test="t.title != null">
+                    title = #{t.title} and
+                </if>
+                <if test="t.price != null">
+                    price = #{t.price} and
+                </if>
+                <if test="t.sku != null">
+                    sku like  concat(#{t.sku},'%') and
+                </if>
+                <if test="t.image != null">
+                    image = #{t.image} and
+                </if>
+                <if test="t.state != null">
+                    state = #{t.state} and
+                </if>
+                <if test="t.importTime != null">
+                    import_time = #{t.importTime} and
+                </if>
+                <if test="t.adminVariantId != null">
+                    admin_variant_id = #{t.adminVariantId} and
+                </if>
+                <if test="t.splitType != null">
+                    split_type = #{t.splitType} and
+                </if>
+                <if test="t.parentVariantId != null">
+                    parent_variant_id = #{t.parentVariantId} and
+                </if>
+            </trim>
+        </if>
+    </sql>
+
+    <update id="updateAdminVariantIdByImportId">
+        update store_product_variant spv
+                left join import_product_variant ipv
+        on spv.plat_variant_id = ipv.plat_variant_id
+                set spv.admin_variant_id = ipv.source_variant_id
+        where spv.product_id = #{storeProductId}
+          and ipv.product_id = #{importProductId}
+          and spv.admin_variant_id is null
+    </update>
 
     <insert id="insertReplace" keyColumn="id" keyProperty="id"
             parameterType="com.upedge.pms.modules.product.entity.StoreProductVariant" useGeneratedKeys="true">
@@ -377,53 +478,12 @@
         )
     </insert>
 
-    <sql id="Query_Condition">
-        <if test="t != null">
-            where
-            <trim prefix=" " suffix=" " suffixOverrides=" and ">
-                1 = 1 and
-                <if test="t.id != null">
-                    id = #{t.id} and
-                </if>
-                <if test="t.productId != null">
-                    product_id = #{t.productId} and
-                </if>
-                <if test="t.platVariantId != null">
-                    plat_variant_id = #{t.platVariantId} and
-                </if>
-                <if test="t.platProductId != null">
-                    plat_product_id = #{t.platProductId} and
-                </if>
-                <if test="t.title != null">
-                    title = #{t.title} and
-                </if>
-                <if test="t.price != null">
-                    price = #{t.price} and
-                </if>
-                <if test="t.sku != null">
-                    sku = #{t.sku} and
-                </if>
-                <if test="t.image != null">
-                    image = #{t.image} and
-                </if>
-                <if test="t.state != null">
-                    state = #{t.state} and
-                </if>
-                <if test="t.importTime != null">
-                    import_time = #{t.importTime} and
-                </if>
-            </trim>
-        </if>
-    </sql>
-
     <select id="select" parameterType="com.upedge.common.base.Page" resultMap="BaseResultMap">
         select
         <include refid="Base_Column_List"/>
         from store_product_variant
         <include refid="Query_Condition"/>
-        <if test="orderBy != null">
-            order by ${orderBy}
-        </if>
+        order by id desc
         <if test="pageNum != null and pageSize != null">
             limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
         </if>
@@ -503,5 +563,13 @@
         from store_product_variant
         where sku = #{sku}
         and state = '1'
+    </select>
+
+    <select id="selectSplitVariantByParentId" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from store_product_variant
+        where parent_variant_id = #{parentVariantId}
+        and split_type = '2'
     </select>
 </mapper>

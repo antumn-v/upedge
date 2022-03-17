@@ -1,5 +1,6 @@
 package com.upedge.pms.modules.product.entity;
 
+import com.upedge.common.utils.IdGenerate;
 import lombok.Data;
 
 import java.math.BigDecimal;
@@ -56,6 +57,10 @@ public class StoreProductVariant {
      */
     private Date importTime;
 
+    private Integer splitType;
+
+    private Long parentVariantId;
+
     public ProductVariant toProductVariant(Long productId,Long id){
         ProductVariant productVariant = new ProductVariant();
         productVariant.setId(id);
@@ -69,7 +74,7 @@ public class StoreProductVariant {
         productVariant.setWeight(BigDecimal.ZERO);
         productVariant.setState(state);
         productVariant.setVariantImage(image);
-        productVariant.setVariantSku(sku + ":" + System.currentTimeMillis());
+        productVariant.setVariantSku(sku + ":" + IdGenerate.generateUniqueId(8));
         productVariant.setEnName(title);
         productVariant.setCnName(title);
         productVariant.setOriginalVariantId(id);
