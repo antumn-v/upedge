@@ -11,6 +11,11 @@ import java.util.Date;
 @Data
 public class Order{
 
+	public static Integer QUOTE_UNQUOTED = 0;//未报价
+	public static Integer QUOTE_QUOTING = 1;//报价中
+	public static Integer QUOTE_PARTIAL = 2;//部分报价
+	public static Integer QUOTE_QUOTED = 3;//全部报价
+
 	/**
 	 * 
 	 */

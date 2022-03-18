@@ -759,24 +759,29 @@ public class OrderServiceImpl implements OrderService {
         List<Long> storeOrderItemIds = new ArrayList<>();
 
         Collection<String> strings = new ArrayList<>();
-        Integer quoteState = 0;
+        Integer itemSize = storeOrderItems.size();
+        Integer quotedItem = 0;
+        Integer unQuotedItem = 0;
+        Integer quotingItem = 0;
         for (StoreOrderItem item : storeOrderItems) {
             OrderItem orderItem = null;
             BigDecimal itemQuantity = new BigDecimal(item.getQuantity());
             if (map.containsKey(item.getStoreVariantId())) {
                 CustomerProductQuoteVo customerProductQuoteVo = map.get(item.getStoreVariantId());
-                //报价中
                 if (customerProductQuoteVo.getQuoteType() == 5) {
+                    //报价中
+                    quotingItem ++;
                     orderItem = new OrderItem();
                     orderItem.setQuoteState(5);
-                    //产品报价失败
                 } else if (customerProductQuoteVo.getQuoteState() == 0) {
+                    //产品报价失败
                     orderItem = new OrderItem();
                     orderItem.setQuoteState(4);
-                } else {//报价成功
+                } else {
+                    //报价成功
+                    quotedItem ++;
                     orderItem = new OrderItem(customerProductQuoteVo);
                     orderItem.setQuoteState(customerProductQuoteVo.getQuoteType());
-                    quoteState++;
                     try {
                         cnyProductAmount = cnyProductAmount.add(orderItem.getCnyPrice().multiply(itemQuantity));
                     } catch (Exception e) {
@@ -789,6 +794,7 @@ public class OrderServiceImpl implements OrderService {
             } else {
                 orderItem = new OrderItem();
                 orderItem.setQuoteState(0);
+                unQuotedItem ++;
             }
             BeanUtils.copyProperties(item, orderItem);
             orderItem.setOrderId(orderId);
@@ -799,18 +805,19 @@ public class OrderServiceImpl implements OrderService {
             strings.add(RedisKey.SHIPPING_TEMPLATED_METHODS + orderItem.getShippingId());
             items.add(orderItem);
         }
-        if (quoteState > 0 && quoteState == items.size()) {
-            order.setQuoteState(3);
-        } else if (quoteState == 0) {
-            order.setQuoteState(0);
-        } else {
-            order.setQuoteState(2);
+        order.setQuoteState(Order.QUOTE_PARTIAL);
+        if (quotedItem == itemSize){
+            order.setQuoteState(Order.QUOTE_QUOTED);
+        }
+        if (unQuotedItem == itemSize){
+            order.setQuoteState(Order.QUOTE_UNQUOTED);
+        }
+        if (quotingItem > 0){
+            order.setQuoteState(Order.QUOTE_UNQUOTED);
         }
         order.setCnyProductAmount(cnyProductAmount);
         order.setProductAmount(productAmount);
         order.setTotalWeight(totalWeight);
-
-
         orderDao.insert(order);
         orderItemDao.insertByBatch(items);
         orderAddressDao.insert(address);
