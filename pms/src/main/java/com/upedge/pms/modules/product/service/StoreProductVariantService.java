@@ -18,6 +18,7 @@ public interface StoreProductVariantService{
 
     BaseResponse variantQuote(StoreProductVariantQuoteRequest request, Session session);
 
+    List<Long> selectSplitVariantIds();
 
     BaseResponse splitVariantDelete(Long storeVariantId,Session session);
 

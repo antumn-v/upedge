@@ -16,6 +16,8 @@ import java.util.List;
  */
 public interface StoreProductVariantDao {
 
+    List<Long> selectSplitVariantIds();
+
     List<StoreProductVariant> selectSplitVariantByParentId(Long parentVariantId);
 
     List<StoreProductVariant> selectBySku(String sku);

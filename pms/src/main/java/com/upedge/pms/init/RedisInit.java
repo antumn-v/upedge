@@ -5,16 +5,22 @@ import com.upedge.common.model.product.AlibabaApiVo;
 import com.upedge.pms.modules.alibaba.entity.AlibabaApi;
 import com.upedge.pms.modules.alibaba.service.Ali1688Service;
 import com.upedge.pms.modules.alibaba.service.AlibabaApiService;
+import com.upedge.pms.modules.product.service.StoreProductVariantService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
+import java.util.List;
 
+@Slf4j
 @Component
-public class AlibabaConfigInit {
+public class RedisInit {
 
+    @Autowired
+    StoreProductVariantService storeProductVariantService;
 
     @Autowired
     AlibabaApiService alibabaApiService;
@@ -22,6 +28,9 @@ public class AlibabaConfigInit {
     @Autowired
     RedisTemplate redisTemplate;
 
+    /**
+     * 1688token
+     */
     @PostConstruct
     public void AlibabaConfigInit(){
         long now = System.currentTimeMillis();
@@ -38,6 +47,17 @@ public class AlibabaConfigInit {
             alibabaApiService.updateByPrimaryKey(alibabaApi);
         }
         redisTemplate.opsForValue().set(RedisKey.STRING_ALI1688_API,alibabaApiVo);
+    }
+
+    /**
+     * 拆分变体集合
+     */
+    @PostConstruct
+    public void splitVariantIdListInit(){
+        List<Long> splitVariantIds = storeProductVariantService.selectSplitVariantIds();
+        redisTemplate.delete(RedisKey.STRING_STORE_SPLIT_VARIANT);
+        redisTemplate.opsForList().leftPushAll(RedisKey.STRING_STORE_SPLIT_VARIANT,splitVariantIds);
+        log.warn("已拆分变体ID集合初始化完成-------------------------------------");
     }
 
 }

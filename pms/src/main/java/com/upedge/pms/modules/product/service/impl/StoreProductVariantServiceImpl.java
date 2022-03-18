@@ -2,6 +2,7 @@ package com.upedge.pms.modules.product.service.impl;
 
 import com.upedge.common.base.BaseResponse;
 import com.upedge.common.base.Page;
+import com.upedge.common.constant.key.RedisKey;
 import com.upedge.common.exception.CustomerException;
 import com.upedge.common.model.pms.quote.CustomerProductQuoteVo;
 import com.upedge.common.model.user.vo.Session;
@@ -22,6 +23,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -37,6 +39,9 @@ public class StoreProductVariantServiceImpl implements StoreProductVariantServic
 
     @Autowired
     CustomerProductQuoteService customerProductQuoteService;
+
+    @Autowired
+    RedisTemplate redisTemplate;
 
     @Value("${files.image.prefix}")
     String pmsImagePrefix;
@@ -93,6 +98,11 @@ public class StoreProductVariantServiceImpl implements StoreProductVariantServic
         }
     }
 
+    @Override
+    public List<Long> selectSplitVariantIds() {
+        return storeProductVariantDao.selectSplitVariantIds();
+    }
+
     @Transactional
     @Override
     public BaseResponse splitVariantDelete(Long storeVariantId, Session session) {
@@ -119,6 +129,8 @@ public class StoreProductVariantServiceImpl implements StoreProductVariantServic
             storeProductVariant.setId(storeVariantId);
             storeProductVariant.setSplitType(0);
             updateByPrimaryKeySelective(storeProductVariant);
+            //从redis中删除
+            redisDeleteIfSplitVariant(storeVariantId);
         }
         return customerProductQuoteService.revokeQuote(storeVariantId,session);
     }
@@ -204,6 +216,8 @@ public class StoreProductVariantServiceImpl implements StoreProductVariantServic
         storeProductVariant.setId(storeVariantId);
         storeProductVariant.setSplitType(1);
         updateByPrimaryKeySelective(storeProductVariant);
+        //redis保存已拆分的变体
+        redisAddIfSplitVariant(storeVariantId);
         return BaseResponse.success();
     }
 
@@ -258,4 +272,22 @@ public class StoreProductVariantServiceImpl implements StoreProductVariantServic
         return storeProductVariantDao.count(record);
     }
 
+    public boolean redisCheckIfSplitVariant(Long storeVariantId){
+        List<Long> splitVariantIds = (List<Long>) redisTemplate.opsForList().range(RedisKey.STRING_STORE_SPLIT_VARIANT,0,-1);
+        if(ListUtils.isEmpty(splitVariantIds)){
+            return false;
+        }
+        if (splitVariantIds.contains(storeVariantId)){
+            return true;
+        }
+        return false;
+    }
+
+    public void redisDeleteIfSplitVariant(Long storeVariantId){
+        redisTemplate.opsForList().remove(RedisKey.STRING_STORE_SPLIT_VARIANT,0,storeVariantId);
+    }
+
+    public void redisAddIfSplitVariant(Long storeVariantId){
+        redisTemplate.opsForList().leftPush(RedisKey.STRING_STORE_SPLIT_VARIANT,storeVariantId);
+    }
 }
