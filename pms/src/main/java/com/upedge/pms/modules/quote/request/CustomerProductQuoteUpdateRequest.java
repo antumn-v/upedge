@@ -3,6 +3,7 @@ package com.upedge.pms.modules.quote.request;
 import com.upedge.pms.modules.quote.entity.CustomerProductQuote;
 import lombok.Data;
 
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 /**
@@ -26,6 +27,9 @@ public class CustomerProductQuoteUpdateRequest{
      */
     @NotNull
     private BigDecimal quotePrice;
+
+    @Min(value = 1,message = "报价比例最少为1")
+    private Integer quoteScale;
 
     public CustomerProductQuote toCustomerProductQuote(Long customerId){
         CustomerProductQuote customerProductQuote=new CustomerProductQuote();

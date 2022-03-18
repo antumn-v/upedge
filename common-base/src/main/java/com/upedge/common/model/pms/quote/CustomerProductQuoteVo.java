@@ -65,6 +65,8 @@ public class CustomerProductQuoteVo extends VariantDetail {
     private String variantImage;
 
     private BigDecimal quotePrice;
+
+    private Integer quoteScale;
     /**
      *
      */

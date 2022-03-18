@@ -2,6 +2,7 @@ package com.upedge.pms.modules.quote.controller;
 
 import com.upedge.common.base.BaseResponse;
 import com.upedge.common.constant.Constant;
+import com.upedge.common.exception.CustomerException;
 import com.upedge.common.feign.OmsFeignClient;
 import com.upedge.common.model.cart.request.CartAddRequest;
 import com.upedge.common.model.pms.quote.CustomerProductQuoteVo;
@@ -83,12 +84,13 @@ public class CustomerProductQuoteController {
     @PostMapping("/update")
     public BaseResponse updateCustomerProductQuote(@RequestBody@Valid CustomerProductQuoteUpdateRequest request){
         Session session = UserUtil.getSession(redisTemplate);
-        BaseResponse baseResponse = customerProductQuoteService.updateCustomerProductQuote(request,session);
-//        if (baseResponse.getCode() == ResultCode.SUCCESS_CODE){
-//            List<Long> storeVariantIds = new ArrayList<>();
-//            storeVariantIds.add(request.getStoreVariantId());
-//            customerProductQuoteService.sendCustomerProductQuoteUpdateMessage(storeVariantIds);
-//        }
+        BaseResponse baseResponse = null;
+        try {
+            baseResponse = customerProductQuoteService.updateCustomerProductQuote(request,session);
+        } catch (CustomerException e) {
+            e.printStackTrace();
+            return BaseResponse.failed(e.getMessage());
+        }
         return baseResponse;
     }
 

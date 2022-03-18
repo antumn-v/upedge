@@ -2,6 +2,7 @@ package com.upedge.pms.modules.quote.service;
 
 import com.upedge.common.base.BaseResponse;
 import com.upedge.common.base.Page;
+import com.upedge.common.exception.CustomerException;
 import com.upedge.common.model.pms.quote.CustomerProductQuoteVo;
 import com.upedge.common.model.pms.request.CustomerProductQuoteSearchRequest;
 import com.upedge.common.model.user.vo.Session;
@@ -19,7 +20,7 @@ public interface CustomerProductQuoteService{
 
     BaseResponse revokeQuote(Long id,Session session);
 
-    BaseResponse updateCustomerProductQuote(CustomerProductQuoteUpdateRequest request, Session session);
+    BaseResponse updateCustomerProductQuote(CustomerProductQuoteUpdateRequest request, Session session) throws CustomerException;
 
     List<CustomerProductQuoteVo> selectQuoteDetail(CustomerProductQuoteSearchRequest request);
 

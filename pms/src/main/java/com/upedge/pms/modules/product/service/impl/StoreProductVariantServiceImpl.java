@@ -2,6 +2,7 @@ package com.upedge.pms.modules.product.service.impl;
 
 import com.upedge.common.base.BaseResponse;
 import com.upedge.common.base.Page;
+import com.upedge.common.exception.CustomerException;
 import com.upedge.common.model.pms.quote.CustomerProductQuoteVo;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.utils.FileUtil;
@@ -70,7 +71,6 @@ public class StoreProductVariantServiceImpl implements StoreProductVariantServic
         return storeProductVariantDao.insert(record);
     }
 
-    @Transactional
     @Override
     public BaseResponse variantQuote(StoreProductVariantQuoteRequest request, Session session) {
         Long storeVariantId = request.getStoreVariantId();
@@ -85,7 +85,12 @@ public class StoreProductVariantServiceImpl implements StoreProductVariantServic
         customerProductQuoteUpdateRequest.setQuotePrice(request.getQuotePrice());
         customerProductQuoteUpdateRequest.setStoreVariantId(storeVariantId);
         customerProductQuoteUpdateRequest.setVariantSku(request.getVariantSku());
-        return customerProductQuoteService.updateCustomerProductQuote(customerProductQuoteUpdateRequest,session);
+        try {
+            return customerProductQuoteService.updateCustomerProductQuote(customerProductQuoteUpdateRequest,session);
+        } catch (CustomerException e) {
+            e.printStackTrace();
+            return BaseResponse.failed(e.getMessage());
+        }
     }
 
     @Transactional

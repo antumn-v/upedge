@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.upedge.common.base.BaseResponse;
 import com.upedge.common.base.Page;
 import com.upedge.common.constant.key.RocketMqConfig;
+import com.upedge.common.exception.CustomerException;
 import com.upedge.common.model.pms.quote.CustomerProductQuoteVo;
 import com.upedge.common.model.pms.request.CustomerProductQuoteSearchRequest;
 import com.upedge.common.model.user.vo.Session;
@@ -119,7 +120,7 @@ public class CustomerProductQuoteServiceImpl implements CustomerProductQuoteServ
 
     @Transactional
     @Override
-    public BaseResponse updateCustomerProductQuote(CustomerProductQuoteUpdateRequest request, Session session) {
+    public BaseResponse updateCustomerProductQuote(CustomerProductQuoteUpdateRequest request, Session session) throws CustomerException {
         Long storeVariantId = request.getStoreVariantId();
         if (null == storeVariantId
                 || StringUtil.isEmpty(request.getVariantSku())
@@ -155,6 +156,7 @@ public class CustomerProductQuoteServiceImpl implements CustomerProductQuoteServ
         customerProductQuote.setVariantName(productVariant.getEnName());
         customerProductQuote.setVariantSku(productVariant.getVariantSku());
         customerProductQuote.setQuotePrice(request.getQuotePrice());
+        customerProductQuote.setQuoteScale(request.getQuoteScale());
         customerProductQuote.setQuoteState(1);
         customerProductQuoteDao.updateByPrimaryKeySelective(customerProductQuote);
 
@@ -166,7 +168,10 @@ public class CustomerProductQuoteServiceImpl implements CustomerProductQuoteServ
 
         List<Long> storeVariantIds = new ArrayList<>();
         storeVariantIds.add(request.getStoreVariantId());
-        sendCustomerProductQuoteUpdateMessage(storeVariantIds);
+        boolean b = sendCustomerProductQuoteUpdateMessage(storeVariantIds);
+        if (!b){
+            throw new CustomerException("mq异常，请重新提交或联系IT!");
+        }
         return BaseResponse.success();
     }
 
