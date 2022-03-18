@@ -105,6 +105,21 @@ public class StoreProductVariantServiceImpl implements StoreProductVariantServic
         storeProductVariant.setId(storeVariantId);
         storeProductVariant.setSplitType(3);
         updateByPrimaryKeySelective(storeProductVariant);
+        //验证父体下的拆分子体是否全都被删除
+        List<StoreProductVariant> storeProductVariants = selectSplitVariantByParentId(storeProductVariant.getParentVariantId());
+        boolean b= false;
+        for (StoreProductVariant productVariant : storeProductVariants) {
+            if (productVariant.getSplitType() == 2){
+                b = true;
+                break;
+            }
+        }
+        if (!b){
+            storeProductVariant = new StoreProductVariant();
+            storeProductVariant.setId(storeVariantId);
+            storeProductVariant.setSplitType(0);
+            updateByPrimaryKeySelective(storeProductVariant);
+        }
         return customerProductQuoteService.revokeQuote(storeVariantId,session);
     }
 

@@ -1,5 +1,6 @@
 package com.upedge.pms.modules.quote.entity;
 
+import com.upedge.pms.modules.product.entity.StoreProductVariant;
 import lombok.Data;
 
 import java.math.BigDecimal;
@@ -75,4 +76,15 @@ public class CustomerProductQuote{
 
 	private Integer quoteScale;
 
+	public CustomerProductQuote(StoreProductVariant storeProductVariant) {
+		this.storeProductId = storeProductVariant.getProductId();
+		this.storeProductTitle = storeProductVariant.getTitle();
+		this.storeVariantImage = storeProductVariant.getImage();
+		this.storeVariantName = storeProductVariant.getTitle();
+		this.storeVariantSku = storeProductVariant.getSku();
+		this.storeVariantId = storeProductVariant.getId();
+	}
+
+	public CustomerProductQuote() {
+	}
 }

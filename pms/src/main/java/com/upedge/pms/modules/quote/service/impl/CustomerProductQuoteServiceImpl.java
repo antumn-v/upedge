@@ -129,7 +129,8 @@ public class CustomerProductQuoteServiceImpl implements CustomerProductQuoteServ
         }
         CustomerProductQuote customerProductQuote = customerProductQuoteDao.selectByStoreVariantId(storeVariantId);
         if (null == customerProductQuote) {
-            return BaseResponse.failed("该产品未报价");
+            StoreProductVariant storeProductVariant = storeProductVariantDao.selectByPrimaryKey(storeVariantId);
+            customerProductQuote = new CustomerProductQuote(storeProductVariant);
         }
         if (customerProductQuote.getQuotePrice() != null &&
                 StringUtil.isNotBlank(customerProductQuote.getVariantSku()) &&
