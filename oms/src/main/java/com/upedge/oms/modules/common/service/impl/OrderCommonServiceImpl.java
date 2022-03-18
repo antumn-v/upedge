@@ -320,7 +320,6 @@ public class OrderCommonServiceImpl implements OrderCommonService {
         apiUploadOrderInfo.setClientOrderCode(saiheOrder.getClientOrderCode());
         //邮箱 Email
         apiUploadOrderInfo.setEmail(StringUtils.isBlank(saiheOrder.getEmail()) ? "" : saiheOrder.getEmail());
-
         //交易号
         apiUploadOrderInfo.setTransactionId(saiheOrder.getTransactionId());
         //币种 Currency
