@@ -19,6 +19,13 @@
         <result property="parentVariantId" column="parent_variant_id"/>
     </resultMap>
 
+    <resultMap type="com.upedge.pms.modules.product.vo.SplitVariantIdVo" id="SplitVariantId">
+        <id column="parent_variant_id" property="parentVariantId"/>
+        <collection property="splitVariantIds" ofType="java.lang.Long">
+            <id column="id" property="value"/>
+        </collection>
+    </resultMap>
+
     <sql id="Base_Column_List">
         `id`,`product_id`,`plat_variant_id`,`plat_product_id`,`title`,`price`,`sku`,`image`,`state`,`import_time`,`split_type`,`parent_variant_id`
     </sql>
@@ -573,9 +580,19 @@
         and split_type = '2'
     </select>
 
-    <select id="selectSplitVariantIds" resultType="java.lang.Long">
+    <select id="selectSplitVariantIds" resultMap="SplitVariantId">
+        select parent_variant_id,id
+        from store_product_variant
+        where split_type = '2'
+    </select>
+
+    <select id="selectSplitVariantIdsByParentIds" resultType="java.lang.Long">
         select id
         from store_product_variant
-        where split_type = '1'
+        where split_type = '2'
+        and parent_id in
+            <foreach collection="storeVariantIds" item="storeVariantId" open="(" close=")" separator=",">
+                #{storeVariantId}
+            </foreach>
     </select>
 </mapper>

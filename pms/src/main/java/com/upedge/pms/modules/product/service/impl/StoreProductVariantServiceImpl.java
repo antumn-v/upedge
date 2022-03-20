@@ -16,6 +16,7 @@ import com.upedge.pms.modules.product.request.StoreProductVariantQuoteRequest;
 import com.upedge.pms.modules.product.request.StoreProductVariantSplitRequest;
 import com.upedge.pms.modules.product.request.StoreSplitVariantUpdateRequest;
 import com.upedge.pms.modules.product.service.StoreProductVariantService;
+import com.upedge.pms.modules.product.vo.SplitVariantIdVo;
 import com.upedge.pms.modules.quote.entity.CustomerProductQuote;
 import com.upedge.pms.modules.quote.entity.QuoteApplyItem;
 import com.upedge.pms.modules.quote.request.CustomerProductQuoteUpdateRequest;
@@ -104,7 +105,7 @@ public class StoreProductVariantServiceImpl implements StoreProductVariantServic
     }
 
     @Override
-    public List<Long> selectSplitVariantIds() {
+    public List<SplitVariantIdVo> selectSplitVariantIds() {
         return storeProductVariantDao.selectSplitVariantIds();
     }
 
@@ -120,16 +121,15 @@ public class StoreProductVariantServiceImpl implements StoreProductVariantServic
         storeProductVariant.setId(storeVariantId);
         storeProductVariant.setSplitType(3);
         updateByPrimaryKeySelective(storeProductVariant);
+        //更新redis拆分子体信息
+        List<Long> splitVariantIds = getSplitVariantIdsByParentId(storeProductVariant.getParentVariantId());
+        if (ListUtils.isNotEmpty(splitVariantIds)){
+            splitVariantIds.remove(storeVariantId);
+            redisUpdateSplitVariant(storeProductVariant.getParentVariantId(),splitVariantIds);
+        }
         //验证父体下的拆分子体是否全都被删除
         List<StoreProductVariant> storeProductVariants = selectSplitVariantByParentId(storeProductVariant.getParentVariantId());
-        boolean b= false;
-        for (StoreProductVariant productVariant : storeProductVariants) {
-            if (productVariant.getSplitType() == 2){
-                b = true;
-                break;
-            }
-        }
-        if (!b){
+        if (ListUtils.isEmpty(storeProductVariants)){
             storeProductVariant = new StoreProductVariant();
             storeProductVariant.setId(storeVariantId);
             storeProductVariant.setSplitType(0);
@@ -200,6 +200,7 @@ public class StoreProductVariantServiceImpl implements StoreProductVariantServic
         if (StringUtils.isBlank(variantSku)){
             variantSku = String.valueOf(System.currentTimeMillis());
         }
+        List<Long> splitVariantIds = new ArrayList<>();
         List<StoreProductVariant> splitVariants = new ArrayList<>();
         for (int i = 1; i <= splitVos.size(); i++) {
             StoreProductVariantSplitVo storeProductVariantSplitVo = splitVos.get(i-1);
@@ -210,6 +211,7 @@ public class StoreProductVariantServiceImpl implements StoreProductVariantServic
                 }
                 image = FileUtil.uploadImage(storeProductVariantSplitVo.getImageBase64(),pmsImagePrefix,pmsImageLocal);
             }
+            Long splitVariantId = IdGenerate.nextId();
             StoreProductVariant splitVariant = new StoreProductVariant();
             BeanUtils.copyProperties(storeProductVariant,splitVariant);
             splitVariant.setImage(image);
@@ -217,7 +219,8 @@ public class StoreProductVariantServiceImpl implements StoreProductVariantServic
             splitVariant.setParentVariantId(storeVariantId);
             splitVariant.setSku(variantSku + "-" + i);
             splitVariant.setSplitType(2);
-            splitVariant.setId(IdGenerate.nextId());
+            splitVariant.setId(splitVariantId);
+            splitVariantIds.add(splitVariantId);
             splitVariants.add(splitVariant);
         }
         storeProductVariantDao.insertByBatch(splitVariants);
@@ -227,7 +230,7 @@ public class StoreProductVariantServiceImpl implements StoreProductVariantServic
         storeProductVariant.setSplitType(1);
         updateByPrimaryKeySelective(storeProductVariant);
         //redis保存已拆分的变体
-        redisAddIfSplitVariant(storeVariantId);
+        redisAddSplitVariant(storeVariantId,splitVariantIds);
         return BaseResponse.success();
     }
 
@@ -284,21 +287,39 @@ public class StoreProductVariantServiceImpl implements StoreProductVariantServic
 
     @Override
     public boolean redisCheckIfSplitVariant(Long storeVariantId){
-        List<Long> splitVariantIds = (List<Long>) redisTemplate.opsForList().range(RedisKey.STRING_STORE_SPLIT_VARIANT,0,-1);
-        if(ListUtils.isEmpty(splitVariantIds)){
+       List<Long> splitVariantIds = getSplitVariantIdsByParentId(storeVariantId);
+        if (ListUtils.isEmpty(splitVariantIds)){
             return false;
         }
-        if (splitVariantIds.contains(storeVariantId)){
-            return true;
-        }
-        return false;
+        return true;
+
+    }
+
+    public List<Long> getSplitVariantIdsByParentId(Long storeVariantId){
+        List<Long> splitVariantIds = (List<Long>) redisTemplate.opsForHash().get(RedisKey.HASH_STORE_SPLIT_VARIANT,storeVariantId);
+        return splitVariantIds;
     }
 
     public void redisDeleteIfSplitVariant(Long storeVariantId){
-        redisTemplate.opsForList().remove(RedisKey.STRING_STORE_SPLIT_VARIANT,0,storeVariantId);
+        redisTemplate.opsForHash().delete(RedisKey.HASH_STORE_SPLIT_VARIANT,storeVariantId);
     }
 
-    public void redisAddIfSplitVariant(Long storeVariantId){
-        redisTemplate.opsForList().leftPush(RedisKey.STRING_STORE_SPLIT_VARIANT,storeVariantId);
+    public void redisAddSplitVariant(Long storeVariantId,List<Long> splitVariantIds){
+        if (ListUtils.isEmpty(splitVariantIds)){
+            return;
+        }
+        List<Long> ids = getSplitVariantIdsByParentId(storeVariantId);
+        if (ListUtils.isNotEmpty(ids)){
+            splitVariantIds.addAll(ids);
+        }
+        redisTemplate.opsForHash().put(RedisKey.HASH_STORE_SPLIT_VARIANT,storeVariantId,splitVariantIds);
+    }
+
+    public void redisUpdateSplitVariant(Long storeVariantId,List<Long> splitVariantIds){
+        if (ListUtils.isEmpty(splitVariantIds)){
+            redisDeleteIfSplitVariant(storeVariantId);
+            return;
+        }
+        redisTemplate.opsForHash().put(RedisKey.HASH_STORE_SPLIT_VARIANT,storeVariantId,splitVariantIds);
     }
 }

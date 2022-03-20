@@ -5,6 +5,7 @@ import com.upedge.common.model.pms.quote.CustomerProductQuoteVo;
 import com.upedge.common.model.product.StoreProductVariantVo;
 import com.upedge.pms.modules.product.entity.StoreProductVariant;
 import com.upedge.pms.modules.product.vo.CustomerProductVariantRelateVo;
+import com.upedge.pms.modules.product.vo.SplitVariantIdVo;
 import com.upedge.pms.modules.product.vo.StoreProductRelateVo;
 import com.upedge.thirdparty.shopify.moudles.product.entity.ShopifyImage;
 import org.apache.ibatis.annotations.Param;
@@ -16,9 +17,13 @@ import java.util.List;
  */
 public interface StoreProductVariantDao {
 
-    List<Long> selectSplitVariantIds();
+
+
+    List<SplitVariantIdVo> selectSplitVariantIds();
 
     List<StoreProductVariant> selectSplitVariantByParentId(Long parentVariantId);
+
+    List<Long> selectSplitVariantIdsByParentIds(@Param("parentVariantIds") List<Long> parentVariantIds);
 
     List<StoreProductVariant> selectBySku(String sku);
 

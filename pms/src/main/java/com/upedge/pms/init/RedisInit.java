@@ -6,6 +6,7 @@ import com.upedge.pms.modules.alibaba.entity.AlibabaApi;
 import com.upedge.pms.modules.alibaba.service.Ali1688Service;
 import com.upedge.pms.modules.alibaba.service.AlibabaApiService;
 import com.upedge.pms.modules.product.service.StoreProductVariantService;
+import com.upedge.pms.modules.product.vo.SplitVariantIdVo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,7 +14,9 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @Component
@@ -54,9 +57,13 @@ public class RedisInit {
      */
     @PostConstruct
     public void splitVariantIdListInit(){
-        List<Long> splitVariantIds = storeProductVariantService.selectSplitVariantIds();
-        redisTemplate.delete(RedisKey.STRING_STORE_SPLIT_VARIANT);
-        redisTemplate.opsForList().leftPushAll(RedisKey.STRING_STORE_SPLIT_VARIANT,splitVariantIds);
+        List<SplitVariantIdVo> splitVariantIds = storeProductVariantService.selectSplitVariantIds();
+        Map<String,List<Long>> map = new HashMap<>();
+        for (SplitVariantIdVo splitVariantId : splitVariantIds) {
+            map.put(splitVariantId.getParentVariantId(), splitVariantId.getSplitVariantIds());
+        }
+        redisTemplate.delete(RedisKey.HASH_STORE_SPLIT_VARIANT);
+        redisTemplate.opsForHash().putAll(RedisKey.HASH_STORE_SPLIT_VARIANT,map);
         log.warn("已拆分变体ID集合初始化完成-------------------------------------");
     }
 

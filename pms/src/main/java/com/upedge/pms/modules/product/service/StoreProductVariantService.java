@@ -8,6 +8,7 @@ import com.upedge.pms.modules.product.entity.StoreProductVariant;
 import com.upedge.pms.modules.product.request.StoreProductVariantQuoteRequest;
 import com.upedge.pms.modules.product.request.StoreProductVariantSplitRequest;
 import com.upedge.pms.modules.product.request.StoreSplitVariantUpdateRequest;
+import com.upedge.pms.modules.product.vo.SplitVariantIdVo;
 
 import java.util.List;
 
@@ -18,7 +19,7 @@ public interface StoreProductVariantService{
 
     BaseResponse variantQuote(StoreProductVariantQuoteRequest request, Session session);
 
-    List<Long> selectSplitVariantIds();
+    List<SplitVariantIdVo> selectSplitVariantIds();
 
     BaseResponse splitVariantDelete(Long storeVariantId,Session session);
 
