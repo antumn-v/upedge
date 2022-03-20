@@ -121,7 +121,7 @@
     </update>
 
     <insert id="insert" keyColumn="store_variant_id" keyProperty="storeVariantId" parameterType="com.upedge.pms.modules.quote.entity.CustomerProductQuote" useGeneratedKeys="true">
-        insert into customer_product_quote
+        replace into customer_product_quote
         <trim prefix="(" suffix=")" suffixOverrides=",">
             store_variant_id,
             customer_id,
@@ -423,7 +423,7 @@
             resultType="com.upedge.common.model.pms.quote.CustomerProductQuoteVo"
             parameterType="com.upedge.common.model.pms.request.CustomerProductQuoteSearchRequest">
         select cpq.store_variant_id,cpq.store_product_id,cpq.quote_apply_id,
-        cpq.quote_price,cpq.customer_id,
+        cpq.quote_price,cpq.customer_id,cpq.store_variant_image,
         pv.id as variantId,pv.en_name as variantName,pv.variant_sku,
         pv.variant_image,pv.variant_price as `cny_price`,pv.usd_price,
         pv.weight,pv.volume_weight as `volume`,p.product_title as `productTitle`,

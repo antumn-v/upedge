@@ -1,9 +1,11 @@
 package com.upedge.oms.modules.order.controller;
 
+import com.alibaba.fastjson.JSONObject;
 import com.upedge.common.base.BaseResponse;
 import com.upedge.common.constant.Constant;
 import com.upedge.common.constant.ProductConstant;
 import com.upedge.common.constant.ResultCode;
+import com.upedge.common.constant.key.RedisKey;
 import com.upedge.common.model.store.StoreVo;
 import com.upedge.common.model.store.request.StoreApiRequest;
 import com.upedge.common.model.user.vo.Session;
@@ -16,6 +18,7 @@ import com.upedge.oms.modules.order.request.UnrecognizedStoreOrderListRequest;
 import com.upedge.oms.modules.order.response.StoreOrderListResponse;
 import com.upedge.oms.modules.order.service.OrderService;
 import com.upedge.oms.modules.order.service.StoreOrderService;
+import com.upedge.thirdparty.shopify.moudles.order.controller.ShopifyOrderApi;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -64,17 +67,22 @@ public class StoreOrderController {
         return BaseResponse.success();
     }
 
-    @PostMapping("/get/order")
-    public BaseResponse getOrder(){
-        List<Long> ids = storeOrderService.selectIdsByCreateTime();
-        for (Long id : ids) {
-            StoreOrder storeOrder = storeOrderService.selectByPrimaryKey(id);
-            if (storeOrder == null){
-                continue;
-            }
-            storeOrderService.completeStoreOrderItemDetail(storeOrder.getId());
-            orderService.createOrderByStoreOrder(storeOrder.getId());
+    @PostMapping("/getSingleOrder")
+    public BaseResponse getOrder(Long storeId,String orderId){
+
+        StoreVo storeVo = (StoreVo) redisTemplate.opsForValue().get(RedisKey.STRING_STORE + storeId);
+        JSONObject jsonObject = ShopifyOrderApi.getOrderDetailById(orderId,storeVo.getStoreName(),storeVo.getApiToken());
+        StoreApiRequest storeApiRequest = new StoreApiRequest();
+        storeApiRequest.setStoreVo(storeVo);
+        storeApiRequest.setJsonObject(jsonObject.getJSONObject("order"));
+
+        StoreOrder storeOrder = storeOrderService.shopifyOrderUpdate(storeApiRequest);
+        if (storeOrder == null){
+            return BaseResponse.success();
         }
+        storeOrderService.completeStoreOrderItemDetail(storeOrder.getId());
+        orderService.createOrderByStoreOrder(storeOrder.getId());
+
         return BaseResponse.success();
     }
 

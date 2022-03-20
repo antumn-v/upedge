@@ -96,6 +96,7 @@ public class StoreProductVariantServiceImpl implements StoreProductVariantServic
         customerProductQuoteUpdateRequest.setQuotePrice(request.getQuotePrice());
         customerProductQuoteUpdateRequest.setStoreVariantId(storeVariantId);
         customerProductQuoteUpdateRequest.setVariantSku(request.getVariantSku());
+        customerProductQuoteUpdateRequest.setQuoteScale(request.getQuoteScale());
         try {
             return customerProductQuoteService.updateCustomerProductQuote(customerProductQuoteUpdateRequest,session);
         } catch (CustomerException e) {

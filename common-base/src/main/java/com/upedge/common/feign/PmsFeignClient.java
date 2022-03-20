@@ -52,7 +52,7 @@ public interface PmsFeignClient {
     @PostMapping("/productVariant/listVariantDetailByIds")
     public BaseResponse listVariantDetailByIds(@RequestBody ListVariantsRequest request);
 
-    @PostMapping("/store/variant/selectByPlatId")
+    @PostMapping("/storeVariant/selectByPlatId")
     BaseResponse selectByPlatId(@RequestBody PlatIdSelectStoreVariantRequest request);
 
     @PostMapping("/relate/detail/search")

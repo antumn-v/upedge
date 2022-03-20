@@ -34,10 +34,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 
 @Service
@@ -167,7 +164,7 @@ public class CustomerProductQuoteServiceImpl implements CustomerProductQuoteServ
         customerProductQuote.setQuotePrice(request.getQuotePrice());
         customerProductQuote.setQuoteScale(request.getQuoteScale());
         customerProductQuote.setQuoteState(1);
-        customerProductQuoteDao.updateByPrimaryKeySelective(customerProductQuote);
+        customerProductQuoteDao.insert(customerProductQuote);
 
         ProductQuoteRecord productQuoteRecord = new ProductQuoteRecord();
         BeanUtils.copyProperties(customerProductQuote, productQuoteRecord);
@@ -175,9 +172,14 @@ public class CustomerProductQuoteServiceImpl implements CustomerProductQuoteServ
         productQuoteRecord.setCreateTime(new Date());
         productQuoteRecordService.insert(productQuoteRecord);
 
-        List<Long> storeVariantIds = new ArrayList<>();
-        storeVariantIds.add(request.getStoreVariantId());
-        b = sendCustomerProductQuoteUpdateMessage(storeVariantIds);
+        CustomerProductQuoteSearchRequest customerProductQuoteSearchRequest = new CustomerProductQuoteSearchRequest();
+        customerProductQuoteSearchRequest.setStoreVariantId(storeVariantId);
+        List<CustomerProductQuoteVo> customerProductQuoteVos = customerProductQuoteDao.selectQuoteDetail(customerProductQuoteSearchRequest);
+        String tag = "quote";
+        String key = UUID.randomUUID().toString();
+        Message message = new Message(RocketMqConfig.TOPIC_CUSTOMER_PRODUCT_QUOTE_UPDATE, tag, key, JSON.toJSONBytes(customerProductQuoteVos));
+        message.setDelayTimeLevel(0);
+        b = productMqProducer.sendMessage(message);
         if (!b){
             throw new CustomerException("mq异常，请重新提交或联系IT!");
         }
@@ -191,15 +193,18 @@ public class CustomerProductQuoteServiceImpl implements CustomerProductQuoteServ
         }
 
         List<Long> storeVariantIds = request.getStoreVariantIds();
+        List<Long> splitParentIds = new ArrayList<>();
+        List<Long> splitVariantIds = new ArrayList<>();
         //获取是组合产品的ID
         for (Long storeVariantId : storeVariantIds) {
             boolean b = storeProductVariantService.redisCheckIfSplitVariant(storeVariantId);
             if (b){
-                storeVariantIds.remove(storeVariantId);
-                List<Long> splitVariantIds = storeProductVariantService.getSplitVariantIdsByParentId(storeVariantId);
-                storeVariantIds.addAll(splitVariantIds);
+                splitVariantIds.addAll(storeProductVariantService.getSplitVariantIdsByParentId(storeVariantId));
+                splitParentIds.add(storeVariantId);
             }
         }
+        storeVariantIds.removeAll(splitParentIds);
+        storeVariantIds.addAll(splitVariantIds);
         //报价中的产品
         List<CustomerProductQuoteVo> quotingVariants = new ArrayList<>();
         if (ListUtils.isNotEmpty(storeVariantIds)) {
@@ -222,12 +227,6 @@ public class CustomerProductQuoteServiceImpl implements CustomerProductQuoteServ
         }
         //已报价的产品
         List<CustomerProductQuoteVo> customerProductQuoteVos = customerProductQuoteDao.selectQuoteDetail(request);
-        //验证是否还有没查询出来报价信息的产品
-//        storeVariantIds = request.getStoreVariantIds();
-        if (ListUtils.isEmpty(storeVariantIds)){
-            return customerProductQuoteVos;
-        }
-
         if (ListUtils.isNotEmpty(customerProductQuoteVos)){
             for (CustomerProductQuoteVo customerProductQuoteVo : customerProductQuoteVos) {
                 storeVariantIds.remove(customerProductQuoteVo.getStoreVariantId());
@@ -235,6 +234,13 @@ public class CustomerProductQuoteServiceImpl implements CustomerProductQuoteServ
         }else {
             customerProductQuoteVos = new ArrayList<>();
         }
+        //验证是否还有没查询出来报价信息的产品
+//        storeVariantIds = request.getStoreVariantIds();
+        if (ListUtils.isEmpty(storeVariantIds)){
+            return customerProductQuoteVos;
+        }
+
+
         //有未查询到报价信息的产品
         if (ListUtils.isNotEmpty(storeVariantIds)) {
             StoreProductVariant storeProductVariant = storeProductVariantDao.selectByPrimaryKey(storeVariantIds.get(0));
