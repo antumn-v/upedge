@@ -50,5 +50,7 @@ public interface StoreProductVariantService{
     long count(Page<StoreProductVariant> record);
 
     boolean redisCheckIfSplitVariant(Long storeVariantId);
+
+    List<Long> getSplitVariantIdsByParentId(Long storeVariantId);
 }
 

@@ -295,13 +295,14 @@ public class StoreProductVariantServiceImpl implements StoreProductVariantServic
 
     }
 
+    @Override
     public List<Long> getSplitVariantIdsByParentId(Long storeVariantId){
-        List<Long> splitVariantIds = (List<Long>) redisTemplate.opsForHash().get(RedisKey.HASH_STORE_SPLIT_VARIANT,storeVariantId);
+        List<Long> splitVariantIds = (List<Long>) redisTemplate.opsForHash().get(RedisKey.HASH_STORE_SPLIT_VARIANT,storeVariantId.toString());
         return splitVariantIds;
     }
 
     public void redisDeleteIfSplitVariant(Long storeVariantId){
-        redisTemplate.opsForHash().delete(RedisKey.HASH_STORE_SPLIT_VARIANT,storeVariantId);
+        redisTemplate.opsForHash().delete(RedisKey.HASH_STORE_SPLIT_VARIANT,storeVariantId.toString());
     }
 
     public void redisAddSplitVariant(Long storeVariantId,List<Long> splitVariantIds){
@@ -312,7 +313,7 @@ public class StoreProductVariantServiceImpl implements StoreProductVariantServic
         if (ListUtils.isNotEmpty(ids)){
             splitVariantIds.addAll(ids);
         }
-        redisTemplate.opsForHash().put(RedisKey.HASH_STORE_SPLIT_VARIANT,storeVariantId,splitVariantIds);
+        redisTemplate.opsForHash().put(RedisKey.HASH_STORE_SPLIT_VARIANT,storeVariantId.toString(),splitVariantIds);
     }
 
     public void redisUpdateSplitVariant(Long storeVariantId,List<Long> splitVariantIds){
@@ -320,6 +321,6 @@ public class StoreProductVariantServiceImpl implements StoreProductVariantServic
             redisDeleteIfSplitVariant(storeVariantId);
             return;
         }
-        redisTemplate.opsForHash().put(RedisKey.HASH_STORE_SPLIT_VARIANT,storeVariantId,splitVariantIds);
+        redisTemplate.opsForHash().put(RedisKey.HASH_STORE_SPLIT_VARIANT,storeVariantId.toString(),splitVariantIds);
     }
 }

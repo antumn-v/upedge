@@ -379,14 +379,15 @@ public class QuoteApplyServiceImpl implements QuoteApplyService {
     }
 
     public boolean redisCheckIfQuotingVariant(Long storeVariantId){
-        List<Long> splitVariantIds = getQuotingVariantIdsByParentId();
+        List<Long> splitVariantIds = getQuotingVariantIds();
         if (ListUtils.isEmpty(splitVariantIds)){
             return false;
         }
         return true;
     }
 
-    public List<Long> getQuotingVariantIdsByParentId(){
+    @Override
+    public List<Long> getQuotingVariantIds(){
         List<Long> splitVariantIds = (List<Long>) redisTemplate.opsForList().range(RedisKey.LIST_QUOTING_STORE_VARIANT,0,-1);
         return splitVariantIds;
     }

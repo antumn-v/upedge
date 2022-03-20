@@ -47,5 +47,7 @@ public interface QuoteApplyService{
     List<QuoteApply> select(Page<QuoteApply> record);
 
     long count(Page<QuoteApply> record);
+
+    List<Long> getQuotingVariantIds();
 }
 

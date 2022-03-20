@@ -19,12 +19,12 @@ import com.upedge.pms.modules.product.entity.StoreProductVariant;
 import com.upedge.pms.modules.product.service.ProductService;
 import com.upedge.pms.modules.product.service.StoreProductVariantService;
 import com.upedge.pms.modules.quote.dao.CustomerProductQuoteDao;
-import com.upedge.pms.modules.quote.dao.QuoteApplyItemDao;
 import com.upedge.pms.modules.quote.entity.CustomerProductQuote;
 import com.upedge.pms.modules.quote.entity.ProductQuoteRecord;
 import com.upedge.pms.modules.quote.request.CustomerProductQuoteUpdateRequest;
 import com.upedge.pms.modules.quote.service.CustomerProductQuoteService;
 import com.upedge.pms.modules.quote.service.ProductQuoteRecordService;
+import com.upedge.pms.modules.quote.service.QuoteApplyService;
 import com.upedge.pms.mq.producer.ProductMqProducer;
 import jodd.util.StringUtil;
 import org.apache.rocketmq.common.message.Message;
@@ -53,7 +53,7 @@ public class CustomerProductQuoteServiceImpl implements CustomerProductQuoteServ
     StoreProductAttributeDao storeProductAttributeDao;
 
     @Autowired
-    QuoteApplyItemDao quoteApplyItemDao;
+    QuoteApplyService quoteApplyService;
 
     @Autowired
     ProductMqProducer productMqProducer;
@@ -189,20 +189,33 @@ public class CustomerProductQuoteServiceImpl implements CustomerProductQuoteServ
         if (request == null) {
             return new ArrayList<>();
         }
+
+        List<Long> storeVariantIds = request.getStoreVariantIds();
+        //获取是组合产品的ID
+        for (Long storeVariantId : storeVariantIds) {
+            boolean b = storeProductVariantService.redisCheckIfSplitVariant(storeVariantId);
+            if (b){
+                storeVariantIds.remove(storeVariantId);
+                List<Long> splitVariantIds = storeProductVariantService.getSplitVariantIdsByParentId(storeVariantId);
+                storeVariantIds.addAll(splitVariantIds);
+            }
+        }
         //报价中的产品
         List<CustomerProductQuoteVo> quotingVariants = new ArrayList<>();
-        List<Long> storeVariantIds = new ArrayList<>();
-        if (ListUtils.isNotEmpty(request.getStoreVariantIds())) {
-            storeVariantIds = quoteApplyItemDao.selectQuotingStoreVariantIds(request.getStoreVariantIds());
-            if (ListUtils.isNotEmpty(storeVariantIds)) {
+        if (ListUtils.isNotEmpty(storeVariantIds)) {
+            List<Long> quotingVariantIds = quoteApplyService.getQuotingVariantIds();
+            if (ListUtils.isNotEmpty(quotingVariantIds)) {
                 for (Long storeVariantId : storeVariantIds) {
-                    CustomerProductQuoteVo customerProductQuoteVo = new CustomerProductQuoteVo();
-                    customerProductQuoteVo.setStoreVariantId(storeVariantId);
-                    customerProductQuoteVo.setQuoteType(5);
-                    quotingVariants.add(customerProductQuoteVo);
+                    //报价中的产品从请求列表里删除
+                    if (quotingVariantIds.contains(storeVariantId)){
+                        CustomerProductQuoteVo customerProductQuoteVo = new CustomerProductQuoteVo();
+                        customerProductQuoteVo.setStoreVariantId(storeVariantId);
+                        customerProductQuoteVo.setQuoteType(5);
+                        quotingVariants.add(customerProductQuoteVo);
+                        storeVariantIds.remove(storeVariantId);
+                    }
                 }
-                request.getStoreVariantIds().removeAll(storeVariantIds);
-                if (ListUtils.isEmpty(request.getStoreVariantIds())) {
+                if (ListUtils.isEmpty(storeVariantIds)) {
                     return quotingVariants;
                 }
             }
@@ -210,10 +223,11 @@ public class CustomerProductQuoteServiceImpl implements CustomerProductQuoteServ
         //已报价的产品
         List<CustomerProductQuoteVo> customerProductQuoteVos = customerProductQuoteDao.selectQuoteDetail(request);
         //验证是否还有没查询出来报价信息的产品
-        storeVariantIds = request.getStoreVariantIds();
+//        storeVariantIds = request.getStoreVariantIds();
         if (ListUtils.isEmpty(storeVariantIds)){
             return customerProductQuoteVos;
         }
+
         if (ListUtils.isNotEmpty(customerProductQuoteVos)){
             for (CustomerProductQuoteVo customerProductQuoteVo : customerProductQuoteVos) {
                 storeVariantIds.remove(customerProductQuoteVo.getStoreVariantId());
