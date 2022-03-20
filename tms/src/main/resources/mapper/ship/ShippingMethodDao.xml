@@ -24,7 +24,7 @@
 
     <sql id="Base_Column_List">
         `id`,`name`,`desc`,`saihe_transport_id`,`saihe_transport_name`,`tracking_url`,`weight_type`,`track_type`,`paypal_carrier_enum`,`state`,`create_time`,`update_time`,
-        `method_code`,`warehouse_code`
+        `method_code`,`warehouse_code`,`tracking_company`
     </sql>
 
     <select id="selectByPrimaryKey" parameterType="com.upedge.tms.modules.ship.entity.ShippingMethod" resultMap="BaseResultMap">

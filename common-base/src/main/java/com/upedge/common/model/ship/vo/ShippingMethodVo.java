@@ -17,6 +17,8 @@ public class ShippingMethodVo {
      * 运输方式名称
      */
     private String name;
+
+    private String trackingCompany;
     /**
      * 描述
      */

@@ -35,6 +35,7 @@ import com.upedge.thirdparty.woocommerce.moudles.order.api.WoocommerceOrderApi;
 import com.upedge.thirdparty.woocommerce.moudles.order.entity.WoocommerceOrderNote;
 import com.upedge.thirdparty.woocommerce.moudles.order.entity.WoocommerceOrderShipment;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
@@ -102,7 +103,11 @@ public class OrderFulfillmentServiceImpl implements OrderFulfillmentService {
         }
         ShippingMethodRedis shippingMethodRedis = getShipMethodByTransportId(orderTracking.getTransportId());
         if (null == shippingMethodRedis){
-            orderTracking.setTrackingCompany(shippingMethodRedis.getTrackingCompany());
+            if (StringUtils.isNotBlank(shippingMethodRedis.getTrackingCompany())){
+                orderTracking.setTrackingCompany(shippingMethodRedis.getTrackingCompany());
+            }else {
+                orderTracking.setTrackingCompany(shippingMethodRedis.getName());
+            }
             orderTracking.setState(0);
             orderTrackingDao.updateOrderTracking(orderTracking);
             return;

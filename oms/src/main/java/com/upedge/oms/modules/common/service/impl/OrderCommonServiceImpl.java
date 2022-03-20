@@ -610,6 +610,7 @@ public class OrderCommonServiceImpl implements OrderCommonService {
                         orderTracking.setLogisticsOrderNo(logisticsOrderNo);
                         orderTracking.setTrackType(shippingMethod.getTrackType());
                         orderTracking.setTrackingCode(logisticsOrderNo);
+                        orderTracking.setTrackingCompany(shippingMethod.getTrackingCompany());
                         if (shippingMethod.getTrackType() == 0){
                             trackNum = orderTracking.getTrackNumbers();
                         }

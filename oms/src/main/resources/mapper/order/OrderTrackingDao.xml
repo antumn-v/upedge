@@ -16,10 +16,12 @@
         <result property="trackType" column="track_type"/>
         <result property="transportId" column="transport_id"/>
         <result property="orderTrackingType" column="order_tracking_type"/>
+        <result property="trackingCompany" column="tracking_company"/>
     </resultMap>
 
     <sql id="Base_Column_List">
-        `id`,`tracking_code`,`track_numbers`,`logistics_order_no`,`update_time`,`order_id`,`shipping_method_name`,`state`,`track_type`,`transport_id`,`order_tracking_type`
+        `id`,`tracking_code`,`track_numbers`,`logistics_order_no`,`update_time`,
+        `order_id`,`shipping_method_name`,`state`,`track_type`,`transport_id`,`order_tracking_type`,`tracking_company`
     </sql>
 
     <select id="selectByPrimaryKey" parameterType="com.upedge.oms.modules.order.entity.OrderTracking" resultMap="BaseResultMap">
