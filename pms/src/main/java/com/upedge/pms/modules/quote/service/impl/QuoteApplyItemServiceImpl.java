@@ -46,6 +46,11 @@ public class QuoteApplyItemServiceImpl implements QuoteApplyItemService {
     }
 
     @Override
+    public List<Long> selectAllQuotingStoreVariantIds() {
+        return quoteApplyItemDao.selectAllQuotingStoreVariantIds();
+    }
+
+    @Override
     public QuoteApplyItem selectByStoreVariantId(Long storeVariantId) {
         if (null != storeVariantId){
             return quoteApplyItemDao.selectByStoreVariantId(storeVariantId);

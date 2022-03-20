@@ -15,7 +15,10 @@ public class RedisKey {
     public static final String HASH_CUSTOMER_SETTING = "customer:setting:";
 
     //包含拆分子体的店铺变体
-    public static final String HASH_STORE_SPLIT_VARIANT = "store:split:variant:hash";
+    public static final String HASH_STORE_SPLIT_VARIANT = "storeVariant:split:hash";
+
+    //报价中的店铺变体
+    public static final String LIST_QUOTING_STORE_VARIANT = "storeVariant:quoting:list";
 
     //待统计的退款订单信息
     public static final String LIST_CUSTOMER_ORDER_DAILY_REFUND_COUNT_UPDATE = "customer:order:daily:refund:count:update";

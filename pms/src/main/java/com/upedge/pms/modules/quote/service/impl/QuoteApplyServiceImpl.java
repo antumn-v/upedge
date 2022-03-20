@@ -2,6 +2,7 @@ package com.upedge.pms.modules.quote.service.impl;
 
 import com.upedge.common.base.BaseResponse;
 import com.upedge.common.base.Page;
+import com.upedge.common.constant.key.RedisKey;
 import com.upedge.common.exception.CustomerException;
 import com.upedge.common.model.pms.request.OrderQuoteApplyRequest;
 import com.upedge.common.model.user.vo.Session;
@@ -32,6 +33,7 @@ import com.upedge.pms.modules.quote.vo.QuoteApplyVo;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -41,6 +43,9 @@ import java.util.*;
 
 @Service
 public class QuoteApplyServiceImpl implements QuoteApplyService {
+
+    @Autowired
+    RedisTemplate redisTemplate;
 
     @Autowired
     private QuoteApplyDao quoteApplyDao;
@@ -253,6 +258,7 @@ public class QuoteApplyServiceImpl implements QuoteApplyService {
         if (!b) {
             throw new CustomerException("消息队列异常，请重新提交");
         }
+        redisDeleteQuotingVariant(storeVariantIds);
         return BaseResponse.success();
     }
 
@@ -302,7 +308,7 @@ public class QuoteApplyServiceImpl implements QuoteApplyService {
         }
         Long applyId = IdGenerate.nextId();
         List<QuoteApplyItem> quoteApplyItems = new ArrayList<>();
-
+        List<Long> quotingVariantIds = new ArrayList<>();
         List<StoreProductVariant> storeProductVariants = storeProductVariantDao.selectByIds(storeVariantIds);
         for (StoreProductVariant storeProductVariant : storeProductVariants) {
             QuoteApplyItem quoteApplyItem = new QuoteApplyItem();
@@ -315,6 +321,7 @@ public class QuoteApplyServiceImpl implements QuoteApplyService {
             quoteApplyItem.setQuoteApplyId(applyId);
             quoteApplyItem.setState(0);
             quoteApplyItems.add(quoteApplyItem);
+            quotingVariantIds.add(quoteApplyItem.getStoreVariantId());
         }
         quoteApplyItemDao.insertByBatch(quoteApplyItems);
         QuoteApply quoteApply = new QuoteApply();
@@ -327,7 +334,7 @@ public class QuoteApplyServiceImpl implements QuoteApplyService {
         quoteApply.setCreateTime(new Date());
         quoteApply.setUpdateTime(new Date());
         quoteApplyDao.insert(quoteApply);
-
+        redisAddQuotingVariant(quotingVariantIds);
         return BaseResponse.success();
     }
 
@@ -369,6 +376,35 @@ public class QuoteApplyServiceImpl implements QuoteApplyService {
      */
     public long count(Page<QuoteApply> record) {
         return quoteApplyDao.count(record);
+    }
+
+    public boolean redisCheckIfQuotingVariant(Long storeVariantId){
+        List<Long> splitVariantIds = getQuotingVariantIdsByParentId();
+        if (ListUtils.isEmpty(splitVariantIds)){
+            return false;
+        }
+        return true;
+    }
+
+    public List<Long> getQuotingVariantIdsByParentId(){
+        List<Long> splitVariantIds = (List<Long>) redisTemplate.opsForList().range(RedisKey.LIST_QUOTING_STORE_VARIANT,0,-1);
+        return splitVariantIds;
+    }
+
+    public void redisDeleteQuotingVariant(List<Long> storeVariantIds){
+        if(ListUtils.isEmpty(storeVariantIds)){
+            return;
+        }
+        for (Long storeVariantId : storeVariantIds) {
+            redisTemplate.opsForList().remove(RedisKey.LIST_QUOTING_STORE_VARIANT,0,storeVariantId);
+        }
+    }
+
+    public void redisAddQuotingVariant(List<Long> storeVariantIds){
+        if (ListUtils.isEmpty(storeVariantIds)){
+            return;
+        }
+        redisTemplate.opsForList().leftPushAll(RedisKey.LIST_QUOTING_STORE_VARIANT,storeVariantIds);
     }
 
 }

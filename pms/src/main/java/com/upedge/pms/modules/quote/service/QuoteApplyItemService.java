@@ -9,6 +9,8 @@ import java.util.List;
  */
 public interface QuoteApplyItemService{
 
+    List<Long> selectAllQuotingStoreVariantIds();
+
     QuoteApplyItem selectByStoreVariantId(Long storeVariantId);
 
     QuoteApplyItem selectByPrimaryKey(Long id);

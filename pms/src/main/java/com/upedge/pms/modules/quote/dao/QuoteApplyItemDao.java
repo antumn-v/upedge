@@ -11,6 +11,8 @@ import java.util.List;
  */
 public interface QuoteApplyItemDao{
 
+    List<Long> selectAllQuotingStoreVariantIds();
+
     QuoteApplyItem selectByStoreVariantId(Long storeVariantId);
 
     List<QuoteApplyItem> selectUnQuoteItemByApplyId(Long applyId);

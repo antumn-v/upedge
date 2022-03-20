@@ -434,4 +434,10 @@
         where store_variant_id = #{storeVariantId}
         limit 1
     </select>
+
+    <select id="selectAllQuotingStoreVariantIds" resultType="java.lang.Long">
+        select store_variant_id
+        from quote_apply_item
+        where state = '0'
+    </select>
 </mapper>
