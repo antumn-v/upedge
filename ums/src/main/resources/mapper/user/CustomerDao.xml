@@ -202,7 +202,7 @@
         <if test="t != null">
             <trim prefix=" " suffix=" " suffixOverrides=" and ">
                 <if test="t.id != null">
-                    and  c.id = {t.id}
+                    and  c.id = #{t.id}
                 </if>
                 <if test="t.username != null">
                     and u.username like concat('%',#{t.username},'%')
@@ -227,7 +227,7 @@
         <if test="t != null">
             <trim prefix=" " suffix=" " suffixOverrides=" and ">
                 <if test="t.id != null">
-                    and  c.id = {t.id}
+                    and  c.id = #{t.id}
                 </if>
                 <if test="t.username != null">
                     and u.username like concat('%',#{t.username},'%')

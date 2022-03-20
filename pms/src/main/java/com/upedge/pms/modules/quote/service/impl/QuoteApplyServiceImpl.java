@@ -15,6 +15,7 @@ import com.upedge.pms.modules.product.entity.StoreProductVariant;
 import com.upedge.pms.modules.product.request.ClaimQuoteApplyRequest;
 import com.upedge.pms.modules.product.request.QuoteApplyProcessRequest;
 import com.upedge.pms.modules.product.service.ProductService;
+import com.upedge.pms.modules.product.service.StoreProductVariantService;
 import com.upedge.pms.modules.quote.dao.CustomerProductQuoteDao;
 import com.upedge.pms.modules.quote.dao.QuoteApplyDao;
 import com.upedge.pms.modules.quote.dao.QuoteApplyItemDao;
@@ -64,6 +65,9 @@ public class QuoteApplyServiceImpl implements QuoteApplyService {
 
     @Autowired
     ProductQuoteRecordService productQuoteRecordService;
+
+    @Autowired
+    StoreProductVariantService storeProductVariantService;
 
 
     /**
@@ -154,6 +158,12 @@ public class QuoteApplyServiceImpl implements QuoteApplyService {
             QuoteApplyItem quoteApplyItem = quoteApplyItemMap.get(quoteApplyProcessItem.getQuoteApplyItemId());
             if (null == quoteApplyItem) {
                 continue;
+            }
+            //检查是否是已拆分变体
+            Long storeVariantId = quoteApplyItem.getStoreVariantId();
+            boolean b = storeProductVariantService.redisCheckIfSplitVariant(storeVariantId);
+            if (b){
+                return BaseResponse.failed("已拆分变体不能报价");
             }
             CustomerProductQuote customerProductQuote = new CustomerProductQuote();
             BeanUtils.copyProperties(quoteApplyItem, customerProductQuote);

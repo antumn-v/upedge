@@ -426,4 +426,12 @@
         where quote_apply_id = #{applyId}
         and state  = '0'
     </select>
+
+    <select id="selectByStoreVariantId" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from quote_apply_item
+        where store_variant_id = #{storeVariantId}
+        limit 1
+    </select>
 </mapper>

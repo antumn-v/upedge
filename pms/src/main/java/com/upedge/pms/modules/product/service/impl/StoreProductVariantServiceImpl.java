@@ -17,8 +17,10 @@ import com.upedge.pms.modules.product.request.StoreProductVariantSplitRequest;
 import com.upedge.pms.modules.product.request.StoreSplitVariantUpdateRequest;
 import com.upedge.pms.modules.product.service.StoreProductVariantService;
 import com.upedge.pms.modules.quote.entity.CustomerProductQuote;
+import com.upedge.pms.modules.quote.entity.QuoteApplyItem;
 import com.upedge.pms.modules.quote.request.CustomerProductQuoteUpdateRequest;
 import com.upedge.pms.modules.quote.service.CustomerProductQuoteService;
+import com.upedge.pms.modules.quote.service.QuoteApplyItemService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,6 +41,9 @@ public class StoreProductVariantServiceImpl implements StoreProductVariantServic
 
     @Autowired
     CustomerProductQuoteService customerProductQuoteService;
+
+    @Autowired
+    QuoteApplyItemService quoteApplyItemService;
 
     @Autowired
     RedisTemplate redisTemplate;
@@ -175,6 +180,11 @@ public class StoreProductVariantServiceImpl implements StoreProductVariantServic
         && customerProductQuote.getQuoteState() == 1){
             return BaseResponse.failed("已报价的变体不能拆分");
         }
+        QuoteApplyItem quoteApplyItem = quoteApplyItemService.selectByStoreVariantId(storeVariantId);
+        if (quoteApplyItem != null
+        && quoteApplyItem.getState() == 0){
+            return BaseResponse.failed("报价中的变体不能拆分");
+        }
 
         StoreProductVariant storeProductVariant = selectByPrimaryKey(storeVariantId);
         //未拆分的变体可以拆
@@ -272,6 +282,7 @@ public class StoreProductVariantServiceImpl implements StoreProductVariantServic
         return storeProductVariantDao.count(record);
     }
 
+    @Override
     public boolean redisCheckIfSplitVariant(Long storeVariantId){
         List<Long> splitVariantIds = (List<Long>) redisTemplate.opsForList().range(RedisKey.STRING_STORE_SPLIT_VARIANT,0,-1);
         if(ListUtils.isEmpty(splitVariantIds)){

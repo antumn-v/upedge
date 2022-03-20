@@ -1,13 +1,14 @@
 package com.upedge.pms.modules.quote.service.impl;
 
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import java.util.List;
 import com.upedge.common.base.Page;
-import org.springframework.beans.factory.annotation.Autowired;
 import com.upedge.pms.modules.quote.dao.QuoteApplyItemDao;
 import com.upedge.pms.modules.quote.entity.QuoteApplyItem;
 import com.upedge.pms.modules.quote.service.QuoteApplyItemService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 
 @Service
@@ -42,6 +43,14 @@ public class QuoteApplyItemServiceImpl implements QuoteApplyItemService {
     @Transactional
     public int insertSelective(QuoteApplyItem record) {
         return quoteApplyItemDao.insert(record);
+    }
+
+    @Override
+    public QuoteApplyItem selectByStoreVariantId(Long storeVariantId) {
+        if (null != storeVariantId){
+            return quoteApplyItemDao.selectByStoreVariantId(storeVariantId);
+        }
+        return null;
     }
 
     /**

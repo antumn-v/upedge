@@ -1489,7 +1489,7 @@
                od.address1                                                                     as address1,
                od.address2                                                                     as address2,
                od.country                                                                      as country,
-               od.country_code                             ``                                    as countryCode,
+               od.country_code                                                                 as countryCode,
                od.first_name                                                                   as firstName,
                od.last_name                                                                    as lastName,
                od.email                                                                        as email,
@@ -1501,12 +1501,12 @@
                manager_code                                                                    as `managerCode`
         from `order` o
                      left join order_address od on o.id = od.order_id
-        where o.pay_state = 1
-          and o.ship_state = 0
-          and o.refund_state = 0
-          and o.order_status = 0
-          and o.saihe_order_code is NULL
-          and o.id = #{id}
+        where o.id = #{id}
+        and o.pay_state = 1
+        and o.ship_state = 0
+        and o.refund_state = 0
+        and o.order_status = 0
+        and o.saihe_order_code is NULL
     </select>
 
     <update id="updateSaiheOrderCode">

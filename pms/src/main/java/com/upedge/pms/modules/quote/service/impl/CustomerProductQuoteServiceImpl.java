@@ -17,6 +17,7 @@ import com.upedge.pms.modules.product.entity.ProductVariant;
 import com.upedge.pms.modules.product.entity.StoreProductAttribute;
 import com.upedge.pms.modules.product.entity.StoreProductVariant;
 import com.upedge.pms.modules.product.service.ProductService;
+import com.upedge.pms.modules.product.service.StoreProductVariantService;
 import com.upedge.pms.modules.quote.dao.CustomerProductQuoteDao;
 import com.upedge.pms.modules.quote.dao.QuoteApplyItemDao;
 import com.upedge.pms.modules.quote.entity.CustomerProductQuote;
@@ -65,6 +66,9 @@ public class CustomerProductQuoteServiceImpl implements CustomerProductQuoteServ
 
     @Autowired
     ProductQuoteRecordService productQuoteRecordService;
+
+    @Autowired
+    StoreProductVariantService storeProductVariantService;
 
 
     /**
@@ -122,6 +126,10 @@ public class CustomerProductQuoteServiceImpl implements CustomerProductQuoteServ
     @Override
     public BaseResponse updateCustomerProductQuote(CustomerProductQuoteUpdateRequest request, Session session) throws CustomerException {
         Long storeVariantId = request.getStoreVariantId();
+        boolean b = storeProductVariantService.redisCheckIfSplitVariant(storeVariantId);
+        if (b){
+            return BaseResponse.failed("已拆分变体不能报价");
+        }
         if (null == storeVariantId
                 || StringUtil.isEmpty(request.getVariantSku())
                 || null == request.getQuotePrice()) {
@@ -169,7 +177,7 @@ public class CustomerProductQuoteServiceImpl implements CustomerProductQuoteServ
 
         List<Long> storeVariantIds = new ArrayList<>();
         storeVariantIds.add(request.getStoreVariantId());
-        boolean b = sendCustomerProductQuoteUpdateMessage(storeVariantIds);
+        b = sendCustomerProductQuoteUpdateMessage(storeVariantIds);
         if (!b){
             throw new CustomerException("mq异常，请重新提交或联系IT!");
         }
