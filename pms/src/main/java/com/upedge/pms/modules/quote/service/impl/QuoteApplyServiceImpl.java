@@ -172,6 +172,7 @@ public class QuoteApplyServiceImpl implements QuoteApplyService {
             }
             CustomerProductQuote customerProductQuote = new CustomerProductQuote();
             BeanUtils.copyProperties(quoteApplyItem, customerProductQuote);
+            customerProductQuote.setStoreParentVariantId(0L);
             customerProductQuote.setCustomerId(quoteApply.getCustomerId());
             //取消报价的产品
             if (!quoteApplyProcessItem.isCanQuote()) {
