@@ -101,6 +101,8 @@ public class OrderItem{
 
 	private BigDecimal length;
 
+	private Integer originalQuantity;
+
 
 	public OrderItem(StoreOrderItem storeOrderItem) {
 		this.storeVariantId = storeOrderItem.getStoreVariantId();
@@ -156,7 +158,27 @@ public class OrderItem{
 		this.height = variantVo.getHeight();
 	}
 
+	public OrderItem(Integer dischargeQuantity) {
+		this.dischargeQuantity = dischargeQuantity;
+	}
 
 	public OrderItem() {
+	}
+
+	public void quoteProductToItem(CustomerProductQuoteVo variantVo){
+		this.adminVariantId = variantVo.getVariantId();
+		this.adminProductId = variantVo.getProductId();
+		this.shippingId = variantVo.getProductShippingId();
+		this.cnyPrice = variantVo.getCnyPrice();
+		this.usdPrice = PriceUtils.cnyToUsdByDefaultRate(variantVo.getQuotePrice());
+		this.adminVariantVolume = variantVo.getVolume();
+		this.adminVariantWeight = variantVo.getWeight();
+		this.adminVariantImage = variantVo.getVariantImage();
+		this.adminVariantSku = variantVo.getVariantSku();
+		this.usdRate = new BigDecimal("6.3");
+		this.width = variantVo.getWidth();
+		this.length = variantVo.getLength();
+		this.height = variantVo.getHeight();
+		this.quantity = originalQuantity * variantVo.getQuoteScale();
 	}
 }

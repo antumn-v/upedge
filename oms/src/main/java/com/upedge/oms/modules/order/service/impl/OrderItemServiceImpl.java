@@ -5,6 +5,7 @@ import com.upedge.common.base.Page;
 import com.upedge.common.constant.OrderConstant;
 import com.upedge.common.constant.OrderType;
 import com.upedge.common.constant.ResultCode;
+import com.upedge.common.constant.key.RedisKey;
 import com.upedge.common.feign.PmsFeignClient;
 import com.upedge.common.model.pms.quote.CustomerProductQuoteVo;
 import com.upedge.common.model.pms.request.OrderQuoteApplyRequest;
@@ -31,6 +32,7 @@ import com.upedge.oms.modules.order.vo.ItemDischargeQuantityVo;
 import com.upedge.oms.modules.orderShippingUnit.service.OrderShippingUnitService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -59,6 +61,9 @@ public class OrderItemServiceImpl implements OrderItemService {
 
     @Autowired
     private OrderShippingUnitService orderShippingUnitService;
+
+    @Autowired
+    RedisTemplate redisTemplate;
 
 
     /**
@@ -180,32 +185,137 @@ public class OrderItemServiceImpl implements OrderItemService {
         Long storeVariantId = customerProductQuoteVo.getStoreVariantId();
         //查询该产品关联的未支付订单
         List<Long> orderIds = orderItemDao.selectUnpaidOrderIdByStoreVariantId(storeVariantId);
-        if (ListUtils.isNotEmpty(orderIds)) {
-            //查询订单中是否包含报价中的产品
-            List<Long> quotingOrders = orderItemDao.selectOrderIdsByOrderIdsAndQuoteState(orderIds,OrderItem.QUOTE_STATE_QUOTING);
-            if (ListUtils.isNotEmpty(quotingOrders)) {//标记订单为部分报价
-                orderDao.updateQuoteStateByIds(quotingOrders, OrderConstant.QUOTE_STATE_QUOTING);
+        if (ListUtils.isEmpty(orderIds)){
+            return;
+        }
+        //查询订单中是否包含报价中的产品
+        List<Long> quotingOrders = orderItemDao.selectOrderIdsByOrderIdsAndQuoteState(orderIds,OrderItem.QUOTE_STATE_QUOTING);
+        if (ListUtils.isNotEmpty(quotingOrders)) {//标记订单为部分报价
+            orderDao.updateQuoteStateByIds(quotingOrders, OrderConstant.QUOTE_STATE_QUOTING);
+        }
+        orderIds.removeAll(quotingOrders);
+        //查询订单中是否包含未报价或报价失败的产品
+        if(ListUtils.isEmpty(orderIds)){
+            return;
+        }
+        List<Long> partQuoteOrderIds = orderItemDao.selectUnQuoteItemOrderIdByOrderIds(orderIds);
+        if (ListUtils.isNotEmpty(partQuoteOrderIds)){
+            orderDao.updateQuoteStateByIds(partQuoteOrderIds, OrderConstant.QUOTE_STATE_PART_UNQUOTED);
+        }
+        orderIds.removeAll(partQuoteOrderIds);
+        //全部报价的订单修改订单产品费用并匹配运输方式
+        if (ListUtils.isNotEmpty(orderIds)
+                && customerProductQuoteVo.getQuoteState() == 1) {//标记订单未全部报价
+            orderDao.updateQuoteStateByIds(orderIds, OrderConstant.QUOTE_STATE_QUOTED);
+            //修改订单产品费用
+            orderDao.initProductAmountById(orderIds);
+            //修改订单运输方式
+            for (Long orderId : orderIds) {
+                orderService.matchShipRule(orderId);
             }
-            orderIds.removeAll(quotingOrders);
-            //查询订单中是否包含未报价或报价失败的产品
-            if(ListUtils.isEmpty(orderIds)){
-                return;
-            }
-            List<Long> partQuoteOrderIds = orderItemDao.selectUnQuoteItemOrderIdByOrderIds(orderIds);
-            if (ListUtils.isNotEmpty(partQuoteOrderIds)){
-                orderDao.updateQuoteStateByIds(partQuoteOrderIds, OrderConstant.QUOTE_STATE_PART_UNQUOTED);
-            }
-            orderIds.removeAll(partQuoteOrderIds);
-            //全部报价的订单修改订单产品费用并匹配运输方式
-            if (ListUtils.isNotEmpty(orderIds)
-                    && customerProductQuoteVo.getQuoteState() == 1) {//标记订单未全部报价
-                orderDao.updateQuoteStateByIds(orderIds, OrderConstant.QUOTE_STATE_QUOTED);
-                //修改订单产品费用
-                orderDao.initProductAmountById(orderIds);
-                //修改订单运输方式
-                for (Long orderId : orderIds) {
-                    orderService.matchShipRule(orderId);
+        }
+    }
+
+    @Transactional
+    @Override
+    public void updateSplitVariantItemQuoteDetail(CustomerProductQuoteVo customerProductQuoteVo) {
+        if(customerProductQuoteVo == null
+        || customerProductQuoteVo.getStoreParentVariantId().equals(0L)
+        || customerProductQuoteVo.getStoreParentVariantId() == null
+        || customerProductQuoteVo.getQuoteState() == null){
+            return;
+        }
+        //0=新增  1=修改 2=父体新增拆分变体
+        Integer type = 0;
+        //判断父体变体是否已报价  若已报价则无法操作
+        Long storeParentVariantId = customerProductQuoteVo.getStoreParentVariantId();
+        Long storeVariantId = customerProductQuoteVo.getStoreVariantId();
+        List<Long> splitVariantIds = (List<Long>) redisTemplate.opsForHash().get(RedisKey.HASH_STORE_SPLIT_VARIANT,String.valueOf(storeParentVariantId));
+        if (ListUtils.isEmpty(splitVariantIds)
+        || !splitVariantIds.contains(storeVariantId)){
+            return;
+        }
+        OrderItem quoteItem = orderItemDao.selectByStoreVariantIdAndQuoteState(storeParentVariantId,OrderItem.QUOTE_STATE_QUOTED);
+        if (null != quoteItem){
+            return;
+        }
+        OrderItem upedgeItem = orderItemDao.selectByStoreVariantIdAndQuoteState(storeParentVariantId,OrderItem.QUOTE_STATE_UPEDGE);
+        if (null != upedgeItem){
+            return;
+        }
+        //判断产品是否有订单
+        List<Long> orderIds = orderItemDao.selectUnpaidOrderIdByStoreVariantId(storeParentVariantId);
+        if (ListUtils.isEmpty(orderIds)){
+            orderIds = orderItemDao.selectUnpaidOrderIdByStoreVariantId(storeVariantId);
+            if (ListUtils.isNotEmpty(orderIds)){
+                //父变体无订单而子变体有订单，更新订单产品信息
+                type = 1;
+            }else {
+                splitVariantIds.remove(storeVariantId);
+                if (ListUtils.isEmpty(splitVariantIds)){
+                    return;
                 }
+                storeParentVariantId = splitVariantIds.get(0);
+                orderIds = orderItemDao.selectUnpaidOrderIdByStoreVariantId(storeParentVariantId);
+                if (ListUtils.isEmpty(orderIds)) {
+                    return;
+                }
+                type = 2;
+            }
+        }
+        switch (type){
+            case 0:
+                //父变体有订单，删除订单里的副产品，插入子产品
+                variantFirstSplit(orderIds,customerProductQuoteVo,storeParentVariantId,true);
+                break;
+            case 1://更新已报价的产品信息
+                //报价失败的产品
+                if (customerProductQuoteVo.getQuoteState() == 0) {
+                    orderItemDao.cancelItemQuoteDetail(customerProductQuoteVo);
+                    //报价成功的产品
+                }else if (customerProductQuoteVo.getQuoteState() == 1){
+                    if (null == customerProductQuoteVo.getQuotePrice()) {
+                        return;
+                    }
+                    BigDecimal usdPrice = PriceUtils.cnyToUsdByDefaultRate(customerProductQuoteVo.getQuotePrice());
+                    customerProductQuoteVo.setUsdPrice(usdPrice);
+                    orderItemDao.updateItemQuoteDetail(customerProductQuoteVo);
+                }else {
+                    //异常情况直接返回
+                    return;
+                }
+                break;
+            case 2:
+                variantFirstSplit(orderIds,customerProductQuoteVo,storeParentVariantId,false);
+                break;
+            default:
+                return;
+        }
+
+        //查询订单中是否包含报价中的产品
+        List<Long> quotingOrders = orderItemDao.selectOrderIdsByOrderIdsAndQuoteState(orderIds,OrderItem.QUOTE_STATE_QUOTING);
+        if (ListUtils.isNotEmpty(quotingOrders)) {//标记订单为部分报价
+            orderDao.updateQuoteStateByIds(quotingOrders, OrderConstant.QUOTE_STATE_QUOTING);
+        }
+        orderIds.removeAll(quotingOrders);
+        //查询订单中是否包含未报价或报价失败的产品
+        if(ListUtils.isEmpty(orderIds)){
+            return;
+        }
+        List<Long> partQuoteOrderIds = orderItemDao.selectUnQuoteItemOrderIdByOrderIds(orderIds);
+        if (ListUtils.isNotEmpty(partQuoteOrderIds)){
+            orderDao.updateQuoteStateByIds(partQuoteOrderIds, OrderConstant.QUOTE_STATE_PART_UNQUOTED);
+        }
+        orderIds.removeAll(partQuoteOrderIds);
+        //全部报价的订单修改订单产品费用并匹配运输方式
+        if (ListUtils.isNotEmpty(orderIds)
+                && customerProductQuoteVo.getQuoteState() == 1) {//标记订单未全部报价
+            orderDao.updateQuoteStateByIds(orderIds, OrderConstant.QUOTE_STATE_QUOTED);
+            //修改订单产品费用
+            orderDao.initProductAmountById(orderIds);
+            //修改订单运输方式
+            for (Long orderId : orderIds) {
+                orderService.matchShipRule(orderId);
             }
         }
     }
@@ -386,7 +496,37 @@ public class OrderItemServiceImpl implements OrderItemService {
     @Override
     public List<AirwallexVo> airwallex(AirwallexRequest airwallexRequest) {
         return orderItemDao.airwallex(airwallexRequest);
+    }
 
+
+    public List<Long> variantFirstSplit(List<Long> orderIds,CustomerProductQuoteVo customerProductQuoteVo,Long storeParentVariantId,boolean shouldDelete){
+        //若父变体拥有订单，代表是新增的拆分变体，删除订单下的父体变体，将拆分变体插入到订单里面
+        Page<OrderItem> page= new Page<>();
+        page.setT(new OrderItem());
+        page.getT().setStoreVariantId(storeParentVariantId);
+        page.setPageSize(-1);
+        page.initFromNum();
+        List<OrderItem> orderItems = select(page);
+        for (OrderItem orderItem : orderItems) {
+            if (!orderIds.contains(orderItem.getOrderId())){
+                continue;
+            }
+            if (shouldDelete){
+                //删除旧的item
+                Long oldId = orderItem.getId();
+                deleteByPrimaryKey(oldId);
+            }
+            //更新item对象，重新插入数据库
+            orderItem.quoteProductToItem(customerProductQuoteVo);
+            orderItem.setStoreVariantImage(customerProductQuoteVo.getStoreVariantImage());
+            orderItem.setStoreVariantName(customerProductQuoteVo.getStoreVariantName());
+            orderItem.setStoreVariantSku(customerProductQuoteVo.getStoreVariantSku());
+            orderItem.setStoreVariantId(customerProductQuoteVo.getStoreVariantId());
+            orderItem.setQuoteState(OrderItem.QUOTE_STATE_QUOTED);
+            orderItem.setId(IdGenerate.nextId());
+            insert(orderItem);
+        }
+        return orderIds;
     }
 
 }

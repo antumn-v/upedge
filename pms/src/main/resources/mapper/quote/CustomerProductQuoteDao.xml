@@ -126,7 +126,7 @@
     </update>
 
     <insert id="insert" keyColumn="store_variant_id" keyProperty="storeVariantId" parameterType="com.upedge.pms.modules.quote.entity.CustomerProductQuote" useGeneratedKeys="true">
-        insert into customer_product_quote
+        replace into customer_product_quote
         <trim prefix="(" suffix=")" suffixOverrides=",">
             store_variant_id,
             customer_id,

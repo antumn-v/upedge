@@ -18,17 +18,21 @@ import java.util.Map;
 /**
  * @author author
  */
-public interface OrderItemDao{
+public interface OrderItemDao {
+
+    OrderItem selectByOrderIdAndStoreVariantId(@Param("orderId") Long orderId, @Param("storeVariantId") Long storeVariantId);
 
     List<Long> selectStoreVariantIdsByOrderIds(@Param("orderIds") List<Long> orderIds);
 
     List<OrderItem> selectItemByOrderId(Long orderId);
 
-    List<Long> selectUnQuoteItemOrderIdByOrderIds(@Param("orderIds")List<Long> orderIds);
+    List<Long> selectUnQuoteItemOrderIdByOrderIds(@Param("orderIds") List<Long> orderIds);
 
-    List<Long> selectOrderIdsByOrderIdsAndQuoteState(@Param("orderIds")List<Long> orderIds,@Param("quoteState")Integer quoteState);
+    List<Long> selectOrderIdsByOrderIdsAndQuoteState(@Param("orderIds") List<Long> orderIds, @Param("quoteState") Integer quoteState);
 
     List<Long> selectUnpaidOrderIdByStoreVariantId(Long storeVariantId);
+
+    OrderItem selectByStoreVariantIdAndQuoteState(@Param("storeVariantId") Long storeVariantId, @Param("quoteState") Integer quoteState);
 
     int updateQuoteStateByIds(@Param("ids") List<Long> ids,
                               @Param("quoteState") Integer quoteState);
@@ -60,8 +64,8 @@ public interface OrderItemDao{
 
     List<ItemDischargeQuantityVo> selectDischargeQuantityByPaymentId(Long paymentId);
 
-    void  updateUsdPriceByAdminVariantId(@Param("adminVariantId") Long adminVariantId,
-                                         @Param("usdPrice") BigDecimal usdPrice);
+    void updateUsdPriceByAdminVariantId(@Param("adminVariantId") Long adminVariantId,
+                                        @Param("usdPrice") BigDecimal usdPrice);
 
     int updateOrderIdByOrderItemMap(@Param("orderItemMap") Map<Long, List<Long>> orderItemMap);
 

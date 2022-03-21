@@ -185,6 +185,7 @@ public class QuoteApplyServiceImpl implements QuoteApplyService {
                 quoteApplyItem.setState(2);
                 quoteApplyItemDao.updateByPrimaryKey(quoteApplyItem);
                 customerProductQuote.setQuoteState(0);
+                customerProductQuote.setQuoteScale(0);
                 customerProductQuotes.add(customerProductQuote);
                 storeVariantIds.add(quoteApplyItem.getStoreVariantId());
                 continue;

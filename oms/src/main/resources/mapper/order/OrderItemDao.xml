@@ -28,6 +28,7 @@
         <result property="itemType" column="item_type"/>
         <result property="shippingId" column="shipping_id"/>
         <result property="quoteState" column="quote_state"/>
+        <result property="originalQuantity" column="original_quantity"/>
     </resultMap>
 
 
@@ -124,7 +125,7 @@
         `admin_variant_id`,`store_product_id`,`admin_product_id`,
         `store_variant_name`,`store_variant_sku`,`store_product_title`,`store_variant_image`,
         `admin_variant_image`,`admin_variant_sku`,`usd_price`,`usd_rate`,`cny_price`,
-        `quantity`,`discharge_quantity`,`admin_variant_weight`,`admin_variant_volume`,`item_type`,`shipping_id`,`quote_state`
+        `quantity`,`discharge_quantity`,`admin_variant_weight`,`admin_variant_volume`,`item_type`,`shipping_id`,`quote_state`,`original_quantity`
     </sql>
 
     <select id="selectItemByPaymentId" resultMap="BaseResultMap">
@@ -311,6 +312,7 @@
         delete from order_item
         where id = #{id}
     </delete>
+
     <update id="updateByPrimaryKeySelective" parameterType="com.upedge.oms.modules.order.entity.OrderItem">
         update order_item
         <set>
@@ -383,6 +385,18 @@
             <if test="quoteState != null">
                 quote_state = #{quoteState},
             </if>
+            <if test="length != null">
+                length = #{length},
+            </if>
+            <if test="width != null">
+                width = #{width},
+            </if>
+            <if test="height != null">
+                height = #{height},
+            </if>
+            <if test="originalQuantity != null">
+                original_quantity = #{originalQuantity},
+            </if>
         </set>
         where id = #{id}
     </update>
@@ -414,6 +428,10 @@
             item_type = #{itemType},
             shipping_id = #{shippingId},
             quote_state = #{quoteState},
+            length = #{length},
+            width = #{width},
+            height = #{height},
+            original_quantity = #{originalQuantity},
         </set>
         where id = #{id}
     </update>
@@ -444,7 +462,11 @@
             admin_variant_volume,
             item_type,
             shipping_id,
-            quote_state
+            quote_state,
+            length,
+            width,
+            height,
+            original_quantity
         </trim>
         values (
         #{id},
@@ -470,7 +492,11 @@
         #{adminVariantVolume},
         #{itemType},
         #{shippingId},
-        #{quoteState}
+        #{quoteState},
+        #{length},
+        #{width},
+        #{height},
+        #{originalQuantity}
         )
     </insert>
 
@@ -549,6 +575,18 @@
             <if test="quoteState != null" >
                 quote_state
             </if>
+            <if test="length != null" >
+                length
+            </if>
+            <if test="width != null" >
+                width
+            </if>
+            <if test="height != null" >
+                height
+            </if>
+            <if test="originalQuantity != null" >
+                original_quantity
+            </if>
 
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
@@ -624,6 +662,18 @@
             <if test="quoteState != null" >
                 #{quoteState}
             </if>
+            <if test="length != null" >
+                #{length}
+            </if>
+            <if test="width != null" >
+                #{width}
+            </if>
+            <if test="height != null" >
+                #{height}
+            </if>
+            <if test="originalQuantity != null" >
+                #{originalQuantity}
+            </if>
 
         </trim>
     </insert>
@@ -654,7 +704,11 @@
             admin_variant_volume,
             item_type,
             shipping_id,
-            quote_state
+            quote_state,
+            length,
+            width,
+            height,
+            original_quantity
         </trim>
         values
         <foreach collection="list" item="item" index="index" separator=",">
@@ -682,7 +736,11 @@
                 #{item.adminVariantVolume},
                 #{item.itemType},
                 #{item.shippingId},
-                #{item.quoteState}
+                #{item.quoteState},
+                #{item.length},
+                #{item.width},
+                #{item.height},
+                #{item.originalQuantity}
             </trim>
         </foreach>
     </insert>
@@ -764,6 +822,18 @@
                 <if test="t.quoteState != null">
                     quote_state = #{t.quoteState} and
                 </if>
+                <if test="t.length != null">
+                    length = #{t.length} and
+                </if>
+                <if test="t.width != null">
+                    width = #{t.width} and
+                </if>
+                <if test="t.height != null">
+                    height = #{t.height} and
+                </if>
+                <if test="t.originalQuantity != null">
+                    original_quantity = #{t.originalQuantity} and
+                </if>
             </trim>
         </if>
     </sql>
@@ -814,7 +884,8 @@
             oi.quote_state = '1',
             oi.length = #{length},
             oi.width = #{width},
-            oi.height = #{height,jdbcType=DECIMAL}
+            oi.height = #{height,jdbcType=DECIMAL},
+            oi.quantity = (#{quoteScale} * original_quantity)
         where oi.store_variant_id = #{storeVariantId}
         and o.pay_state &lt; '1'
     </update>
@@ -1006,5 +1077,25 @@
             #{orderId}
         </foreach>
         and quote_state = #{quoteState}
+    </select>
+
+    <select id="selectByStoreVariantIdAndQuoteState" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from order_item
+        where store_variant_id = #{storeVariantId}
+        <if test="quoteState != null">
+            and quote_state = #{quoteState}
+        </if>
+        limit 1
+    </select>
+
+    <select id="selectByOrderIdAndStoreVariantId" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from order_item
+        when order_id = #{orderId}
+        and store_variant_id = #{storeVariantId}
+        limit 1
     </select>
 </mapper>

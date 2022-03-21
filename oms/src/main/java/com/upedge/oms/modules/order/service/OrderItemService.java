@@ -13,6 +13,7 @@ import com.upedge.oms.modules.order.request.OrderItemQuoteRequest;
 import com.upedge.oms.modules.order.request.OrderItemUpdateQuantityRequest;
 import com.upedge.oms.modules.order.vo.AirwallexVo;
 import com.upedge.oms.modules.order.vo.ItemDischargeQuantityVo;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -24,6 +25,9 @@ public interface OrderItemService{
     BaseResponse orderItemApplyQuote(OrderItemQuoteRequest request, Session session);
 
     void updateItemQuoteDetail(CustomerProductQuoteVo customerProductQuoteVo);
+
+    @Transactional
+    void updateSplitVariantItemQuoteDetail(CustomerProductQuoteVo customerProductQuoteVo);
 
     List<ItemDischargeQuantityVo> selectDischargeQuantityByPaymentId(Long paymentId);
 

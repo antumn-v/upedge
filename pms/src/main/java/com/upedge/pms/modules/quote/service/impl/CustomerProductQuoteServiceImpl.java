@@ -217,10 +217,11 @@ public class CustomerProductQuoteServiceImpl implements CustomerProductQuoteServ
                         CustomerProductQuoteVo customerProductQuoteVo = new CustomerProductQuoteVo();
                         customerProductQuoteVo.setStoreVariantId(storeVariantId);
                         customerProductQuoteVo.setQuoteType(5);
+                        customerProductQuoteVo.setStoreParentVariantId(0L);
                         quotingVariants.add(customerProductQuoteVo);
-                        storeVariantIds.remove(storeVariantId);
                     }
                 }
+                storeVariantIds.removeAll(quotingVariantIds);
                 if (ListUtils.isEmpty(storeVariantIds)) {
                     return quotingVariants;
                 }

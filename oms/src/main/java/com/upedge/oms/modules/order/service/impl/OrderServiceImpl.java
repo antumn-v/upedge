@@ -764,8 +764,6 @@ public class OrderServiceImpl implements OrderService {
         Integer quotingItem = 0;
 
         for (StoreOrderItem item : storeOrderItems) {
-
-            BigDecimal itemQuantity = new BigDecimal(item.getQuantity());
             //判断是否是拆分的变体
             List<Long> splitVariantIds = (List<Long>) redisTemplate.opsForHash().get(RedisKey.HASH_STORE_SPLIT_VARIANT,String.valueOf(item.getStoreVariantId()));
             if (ListUtils.isNotEmpty(splitVariantIds)){
@@ -773,13 +771,14 @@ public class OrderServiceImpl implements OrderService {
                 boolean quoted = false;
                 for (Long splitVariantId : splitVariantIds) {
                     CustomerProductQuoteVo customerProductQuoteVo = customerProductQuoteVoMap.get(splitVariantId);
+                    BigDecimal itemQuantity = new BigDecimal(item.getQuantity()).multiply(new BigDecimal(customerProductQuoteVo.getQuoteScale()));
                     if (customerProductQuoteVo != null){
                         quoted = true;
                     }else {
                         continue;
                     }
-                    itemQuantity = itemQuantity.multiply(new BigDecimal(customerProductQuoteVo.getQuoteScale()));
-                    OrderItem orderItem = new OrderItem(customerProductQuoteVo);
+                    OrderItem orderItem = new OrderItem();
+                    orderItem.quoteProductToItem(customerProductQuoteVo);
                     orderItem.setQuoteState(customerProductQuoteVo.getQuoteType());
                     try {
                         cnyProductAmount = cnyProductAmount.add(orderItem.getCnyPrice().multiply(itemQuantity));
@@ -790,10 +789,14 @@ public class OrderServiceImpl implements OrderService {
                     totalWeight = totalWeight.add(customerProductQuoteVo.getWeight().multiply(itemQuantity));
                     volume = volume.add(customerProductQuoteVo.getVolume().multiply(itemQuantity));
                     BeanUtils.copyProperties(item, orderItem);
+                    orderItem.setStoreVariantId(customerProductQuoteVo.getStoreVariantId());
+                    orderItem.setStoreProductId(customerProductQuoteVo.getStoreProductId());
+                    orderItem.setOriginalQuantity(item.getQuantity());
+                    orderItem.setQuantity(itemQuantity.intValue());
                     orderItem.setOrderId(orderId);
                     orderItem.setStoreOrderItemId(item.getId());
                     orderItem.setDischargeQuantity(0);
-                    orderItem.setItemType(0);
+                    orderItem.setItemType(2);
                     orderItem.setStoreVariantImage(customerProductQuoteVo.getStoreVariantImage());
                     orderItem.setId(IdGenerate.nextId());
                     strings.add(RedisKey.SHIPPING_TEMPLATED_METHODS + orderItem.getShippingId());
@@ -806,9 +809,11 @@ public class OrderServiceImpl implements OrderService {
                 }
                 continue;
             }
-            OrderItem orderItem = null;
+            OrderItem orderItem = new OrderItem();
+            BeanUtils.copyProperties(item, orderItem);
             if (customerProductQuoteVoMap.containsKey(item.getStoreVariantId())) {
                 CustomerProductQuoteVo customerProductQuoteVo = customerProductQuoteVoMap.get(item.getStoreVariantId());
+                BigDecimal itemQuantity = new BigDecimal(item.getQuantity()).multiply(new BigDecimal(customerProductQuoteVo.getQuoteScale()));
                 if (customerProductQuoteVo.getQuoteType() == 5) {
                     //报价中
                     quotingItem ++;
@@ -816,13 +821,13 @@ public class OrderServiceImpl implements OrderService {
                     orderItem.setQuoteState(5);
                 } else if (customerProductQuoteVo.getQuoteState() == 0) {
                     //产品报价失败
-                    orderItem = new OrderItem();
                     orderItem.setQuoteState(4);
                 } else {
                     //报价成功
                     quotedItem ++;
                     itemQuantity = itemQuantity.multiply(new BigDecimal(customerProductQuoteVo.getQuoteScale()));
-                    orderItem = new OrderItem(customerProductQuoteVo);
+                    orderItem.quoteProductToItem(customerProductQuoteVo);
+                    orderItem.setQuantity(itemQuantity.intValue());
                     orderItem.setQuoteState(customerProductQuoteVo.getQuoteType());
                     try {
                         cnyProductAmount = cnyProductAmount.add(orderItem.getCnyPrice().multiply(itemQuantity));
@@ -834,11 +839,12 @@ public class OrderServiceImpl implements OrderService {
                     volume = volume.add(customerProductQuoteVo.getVolume().multiply(itemQuantity));
                 }
             } else {
-                orderItem = new OrderItem();
+
                 orderItem.setQuoteState(0);
                 unQuotedItem ++;
             }
-            BeanUtils.copyProperties(item, orderItem);
+
+            orderItem.setOriginalQuantity(item.getQuantity());
             orderItem.setOrderId(orderId);
             orderItem.setStoreOrderItemId(item.getId());
             orderItem.setDischargeQuantity(0);

@@ -74,7 +74,13 @@ public class CustomerProductQuoteUpdateCustomer {
                     List<CustomerProductQuoteVo> customerProductQuoteVos = JSONArray.parseArray(body, CustomerProductQuoteVo.class);
                     if (ListUtils.isNotEmpty(customerProductQuoteVos)){
                         for (CustomerProductQuoteVo customerProductQuoteVo : customerProductQuoteVos) {
-                            orderItemService.updateItemQuoteDetail(customerProductQuoteVo);
+                            if (customerProductQuoteVo.getStoreParentVariantId() == null
+                            || customerProductQuoteVo.getStoreParentVariantId().equals(0L)){
+                                orderItemService.updateItemQuoteDetail(customerProductQuoteVo);
+                            }else {
+                                //组合产品更新报价信息
+                                orderItemService.updateSplitVariantItemQuoteDetail(customerProductQuoteVo);
+                            }
                         }
                     }
                     if (null == mqMessageLog) {
