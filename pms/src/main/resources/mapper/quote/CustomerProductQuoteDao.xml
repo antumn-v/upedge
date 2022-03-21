@@ -21,10 +21,11 @@
         <result property="quoteApplyId" column="quote_apply_id"/>
         <result property="quoteState" column="quote_state"/>
         <result property="quoteScale" column="quote_scale"/>
+        <result property="storeParentVariantId" column="store_parent_variant_id"/>
     </resultMap>
 
     <sql id="Base_Column_List">
-        `store_variant_id`,`customer_id`,`store_product_id`,`product_id`,`variant_id`,`store_variant_name`,`store_product_title`,`store_variant_sku`,`store_variant_image`,`product_title`,`variant_name`,`variant_sku`,`variant_image`,`quote_price`,`quote_apply_id`,`quote_state`,`quote_scale`
+        `store_variant_id`,`customer_id`,`store_product_id`,`product_id`,`variant_id`,`store_variant_name`,`store_product_title`,`store_variant_sku`,`store_variant_image`,`product_title`,`variant_name`,`variant_sku`,`variant_image`,`quote_price`,`quote_apply_id`,`quote_state`,`quote_scale`,`store_parent_variant_id`
     </sql>
 
     <select id="selectByPrimaryKey"
@@ -92,6 +93,9 @@
             <if test="quoteScale != null">
                 quote_scale = #{quoteScale},
             </if>
+            <if test="storeParentVariantId != null">
+                store_parent_variant_id = #{storeParentVariantId},
+            </if>
         </set>
         where store_variant_id = #{storeVariantId}
     </update>
@@ -116,12 +120,13 @@
             quote_apply_id = #{quoteApplyId},
             quote_state = #{quoteState},
             quote_scale = #{quoteScale},
+            store_parent_variant_id = #{storeParentVariantId},
         </set>
         where store_variant_id = #{storeVariantId}
     </update>
 
     <insert id="insert" keyColumn="store_variant_id" keyProperty="storeVariantId" parameterType="com.upedge.pms.modules.quote.entity.CustomerProductQuote" useGeneratedKeys="true">
-        replace into customer_product_quote
+        insert into customer_product_quote
         <trim prefix="(" suffix=")" suffixOverrides=",">
             store_variant_id,
             customer_id,
@@ -139,7 +144,8 @@
             quote_price,
             quote_apply_id,
             quote_state,
-            quote_scale
+            quote_scale,
+            store_parent_variant_id
         </trim>
         values (
         #{storeVariantId},
@@ -158,7 +164,8 @@
         #{quotePrice},
         #{quoteApplyId},
         #{quoteState},
-        #{quoteScale}
+        #{quoteScale},
+        #{storeParentVariantId}
         )
     </insert>
 
@@ -216,6 +223,9 @@
             <if test="quoteScale != null" >
                 quote_scale
             </if>
+            <if test="storeParentVariantId != null" >
+                store_parent_variant_id
+            </if>
 
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
@@ -270,6 +280,9 @@
             <if test="quoteScale != null" >
                 #{quoteScale}
             </if>
+            <if test="storeParentVariantId != null" >
+                #{storeParentVariantId}
+            </if>
 
         </trim>
     </insert>
@@ -293,7 +306,8 @@
             quote_price,
             quote_apply_id,
             quote_state,
-            quote_scale
+            quote_scale,
+            store_parent_variant_id
         </trim>
         values
         <foreach collection="list" item="item" index="index" separator=",">
@@ -314,7 +328,8 @@
                 #{item.quotePrice},
                 #{item.quoteApplyId},
                 #{item.quoteState},
-                #{item.quoteScale}
+                #{item.quoteScale},
+                #{item.storeParentVariantId}
             </trim>
         </foreach>
     </insert>
@@ -346,7 +361,7 @@
                     store_product_title = #{t.storeProductTitle} and
                 </if>
                 <if test="t.storeVariantSku != null">
-                    store_variant_sku = #{t.storeVariantSku} and
+                    store_variant_sku like concat(#{t.storeVariantSku},'%') and
                 </if>
                 <if test="t.storeVariantImage != null">
                     store_variant_image = #{t.storeVariantImage} and
@@ -374,6 +389,9 @@
                 </if>
                 <if test="t.quoteScale != null">
                     quote_scale = #{t.quoteScale} and
+                </if>
+                <if test="t.storeParentVariantId != null">
+                    store_parent_variant_id = #{t.storeParentVariantId} and
                 </if>
             </trim>
         </if>
@@ -429,7 +447,7 @@
         pv.weight,pv.volume_weight as `volume`,p.product_title as `productTitle`,
         p.shipping_id as productShippingId,p.id as productId,cpq.quote_scale,
         pv.width,pv.height,pv.length,ifnull(cpq.quote_scale,'1') as `quoteScale`,
-        '1' as quoteType,cpq.quote_state
+        '1' as quoteType,cpq.quote_state,store_parent_variant_id
         from customer_product_quote cpq
         left join product_variant pv
         on cpq.variant_id = pv.id

@@ -140,7 +140,8 @@ public class CustomerProductQuoteServiceImpl implements CustomerProductQuoteServ
         if (customerProductQuote.getQuotePrice() != null &&
                 StringUtil.isNotBlank(customerProductQuote.getVariantSku()) &&
                 customerProductQuote.getQuotePrice().compareTo(request.getQuotePrice()) == 0
-                && customerProductQuote.getVariantSku().equals(request.getVariantSku())) {
+                && customerProductQuote.getVariantSku().equals(request.getVariantSku())
+                && customerProductQuote.getQuoteScale().equals(request.getQuoteScale())) {
             return BaseResponse.success();
         }
         ProductVariant productVariant = productVariantDao.selectBySku(request.getVariantSku());
@@ -239,8 +240,6 @@ public class CustomerProductQuoteServiceImpl implements CustomerProductQuoteServ
         if (ListUtils.isEmpty(storeVariantIds)){
             return customerProductQuoteVos;
         }
-
-
         //有未查询到报价信息的产品
         if (ListUtils.isNotEmpty(storeVariantIds)) {
             StoreProductVariant storeProductVariant = storeProductVariantDao.selectByPrimaryKey(storeVariantIds.get(0));
