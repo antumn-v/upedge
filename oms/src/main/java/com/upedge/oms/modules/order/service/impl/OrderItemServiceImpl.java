@@ -6,6 +6,7 @@ import com.upedge.common.constant.OrderConstant;
 import com.upedge.common.constant.OrderType;
 import com.upedge.common.constant.ResultCode;
 import com.upedge.common.constant.key.RedisKey;
+import com.upedge.common.exception.CustomerException;
 import com.upedge.common.feign.PmsFeignClient;
 import com.upedge.common.model.pms.quote.CustomerProductQuoteVo;
 import com.upedge.common.model.pms.request.OrderQuoteApplyRequest;
@@ -16,6 +17,7 @@ import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.utils.IdGenerate;
 import com.upedge.common.utils.ListUtils;
 import com.upedge.common.utils.PriceUtils;
+import com.upedge.common.web.util.RedisUtil;
 import com.upedge.oms.modules.order.dao.OrderDao;
 import com.upedge.oms.modules.order.dao.OrderItemDao;
 import com.upedge.oms.modules.order.dao.StoreOrderItemDao;
@@ -218,7 +220,8 @@ public class OrderItemServiceImpl implements OrderItemService {
 
     @Transactional
     @Override
-    public void updateSplitVariantItemQuoteDetail(CustomerProductQuoteVo customerProductQuoteVo) {
+    public void updateSplitVariantItemQuoteDetail(CustomerProductQuoteVo customerProductQuoteVo) throws CustomerException {
+
         if(customerProductQuoteVo == null
         || customerProductQuoteVo.getStoreParentVariantId().equals(0L)
         || customerProductQuoteVo.getStoreParentVariantId() == null
@@ -229,6 +232,11 @@ public class OrderItemServiceImpl implements OrderItemService {
         Integer type = 0;
         //判断父体变体是否已报价  若已报价则无法操作
         Long storeParentVariantId = customerProductQuoteVo.getStoreParentVariantId();
+        String key = "storeVariant:split:update:item:parent:" + storeParentVariantId;
+        boolean b = RedisUtil.lock(redisTemplate,key,10L,120*1000L);
+        if (!b){
+            throw new CustomerException(key + "---->获取锁失败");
+        }
         Long storeVariantId = customerProductQuoteVo.getStoreVariantId();
         List<Long> splitVariantIds = (List<Long>) redisTemplate.opsForHash().get(RedisKey.HASH_STORE_SPLIT_VARIANT,String.valueOf(storeParentVariantId));
         if (ListUtils.isEmpty(splitVariantIds)
@@ -318,6 +326,7 @@ public class OrderItemServiceImpl implements OrderItemService {
                 orderService.matchShipRule(orderId);
             }
         }
+        RedisUtil.unLock(redisTemplate,key);
     }
 
     @Override

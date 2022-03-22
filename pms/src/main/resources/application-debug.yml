@@ -16,9 +16,9 @@ spring:
         heartbeat: true
   redis:
     database: 0
-    host: 192.168.2.110
+    host: 47.252.42.196
     port: 6379
-    password: 123456
+    password: HssMy@5Tygcs#7
     lettuce:
       pool:
         max-active: 8

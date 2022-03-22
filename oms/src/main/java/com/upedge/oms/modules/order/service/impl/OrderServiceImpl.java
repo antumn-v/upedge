@@ -778,7 +778,14 @@ public class OrderServiceImpl implements OrderService {
                         continue;
                     }
                     OrderItem orderItem = new OrderItem();
+                    BeanUtils.copyProperties(item, orderItem);
+                    orderItem.setOriginalQuantity(item.getQuantity());
                     orderItem.quoteProductToItem(customerProductQuoteVo);
+                    orderItem.setStoreVariantId(customerProductQuoteVo.getStoreVariantId());
+                    orderItem.setStoreProductId(customerProductQuoteVo.getStoreProductId());
+                    orderItem.setStoreVariantSku(customerProductQuoteVo.getStoreVariantSku());
+                    orderItem.setStoreVariantName(customerProductQuoteVo.getStoreVariantName());
+                    orderItem.setStoreVariantImage(customerProductQuoteVo.getStoreVariantImage());
                     orderItem.setQuoteState(customerProductQuoteVo.getQuoteType());
                     try {
                         cnyProductAmount = cnyProductAmount.add(orderItem.getCnyPrice().multiply(itemQuantity));
@@ -788,16 +795,10 @@ public class OrderServiceImpl implements OrderService {
                     productAmount = productAmount.add(orderItem.getUsdPrice().multiply(itemQuantity));
                     totalWeight = totalWeight.add(customerProductQuoteVo.getWeight().multiply(itemQuantity));
                     volume = volume.add(customerProductQuoteVo.getVolume().multiply(itemQuantity));
-                    BeanUtils.copyProperties(item, orderItem);
-                    orderItem.setStoreVariantId(customerProductQuoteVo.getStoreVariantId());
-                    orderItem.setStoreProductId(customerProductQuoteVo.getStoreProductId());
-                    orderItem.setOriginalQuantity(item.getQuantity());
-                    orderItem.setQuantity(itemQuantity.intValue());
                     orderItem.setOrderId(orderId);
                     orderItem.setStoreOrderItemId(item.getId());
                     orderItem.setDischargeQuantity(0);
                     orderItem.setItemType(2);
-                    orderItem.setStoreVariantImage(customerProductQuoteVo.getStoreVariantImage());
                     orderItem.setId(IdGenerate.nextId());
                     strings.add(RedisKey.SHIPPING_TEMPLATED_METHODS + orderItem.getShippingId());
                     items.add(orderItem);
@@ -811,6 +812,7 @@ public class OrderServiceImpl implements OrderService {
             }
             OrderItem orderItem = new OrderItem();
             BeanUtils.copyProperties(item, orderItem);
+            orderItem.setOriginalQuantity(item.getQuantity());
             if (customerProductQuoteVoMap.containsKey(item.getStoreVariantId())) {
                 CustomerProductQuoteVo customerProductQuoteVo = customerProductQuoteVoMap.get(item.getStoreVariantId());
                 BigDecimal itemQuantity = new BigDecimal(item.getQuantity()).multiply(new BigDecimal(customerProductQuoteVo.getQuoteScale()));
@@ -827,7 +829,6 @@ public class OrderServiceImpl implements OrderService {
                     quotedItem ++;
                     itemQuantity = itemQuantity.multiply(new BigDecimal(customerProductQuoteVo.getQuoteScale()));
                     orderItem.quoteProductToItem(customerProductQuoteVo);
-                    orderItem.setQuantity(itemQuantity.intValue());
                     orderItem.setQuoteState(customerProductQuoteVo.getQuoteType());
                     try {
                         cnyProductAmount = cnyProductAmount.add(orderItem.getCnyPrice().multiply(itemQuantity));

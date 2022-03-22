@@ -90,7 +90,7 @@ logging:
 
 files:
   image:
-    local: '/root/image/pms/'
+    local: '/root/image/'
     prefix: 'https://app.upedge.cn/image/'
 
 rocketmq:

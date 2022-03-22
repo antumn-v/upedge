@@ -353,34 +353,38 @@
 
     <update id="updateOrderTracking">
        update order_tracking
-       set
-       <if test="trackingCode != null and trackingCode !=''">
-            tracking_code = #{trackingCode},
-       </if>
-       <if test="logisticsOrderNo != null and logisticsOrderNo !=''">
-           logistics_order_no=#{logisticsOrderNo},
-       </if>
-       <if test="trackNumbers != null and trackNumbers !=''">
-           track_numbers=#{trackNumbers},
-       </if>
-       <if test="updateTime != null">
-            update_time=#{updateTime},
-       </if>
-       <if test="shippingMethodName != null and shippingMethodName !=''">
-           shipping_method_name=#{shippingMethodName},
-       </if>
-       <if test="state !=null">
-           state=#{state},
-       </if>
-       <if test="trackType != null">
-           track_type=#{trackType},
-       </if>
-       <if test="transportId != null">
-           transport_id=#{transportId},
-       </if>
-        <if test="orderTrackingType != null">
-           order_tracking_type = #{orderTrackingType}
-        </if>
+       <set>
+           <if test="trackingCode != null and trackingCode !=''">
+                tracking_code = #{trackingCode},
+           </if>
+           <if test="logisticsOrderNo != null and logisticsOrderNo !=''">
+               logistics_order_no=#{logisticsOrderNo},
+           </if>
+           <if test="trackNumbers != null and trackNumbers !=''">
+               track_numbers=#{trackNumbers},
+           </if>
+           <if test="updateTime != null">
+                update_time=#{updateTime},
+           </if>
+           <if test="shippingMethodName != null and shippingMethodName !=''">
+               shipping_method_name=#{shippingMethodName},
+           </if>
+           <if test="state !=null">
+               state=#{state},
+           </if>
+           <if test="trackType != null">
+               track_type=#{trackType},
+           </if>
+           <if test="transportId != null">
+               transport_id=#{transportId},
+           </if>
+            <if test="orderTrackingType != null">
+               order_tracking_type = #{orderTrackingType},
+            </if>
+            <if test="trackingCompany != null">
+                tracking_company = #{trackingCompany},
+            </if>
+       </set>
        where order_id=#{orderId} limit 1
     </update>
 

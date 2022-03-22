@@ -55,7 +55,7 @@ public class FileUtil {
 
 			DateFormat df = new SimpleDateFormat("yyyyMMddHHmmss");
 			Calendar calendar = Calendar.getInstance();
-			String dateName = df.format(calendar.getTime());
+			String dateName = df.format(calendar.getTime()) + IdGenerate.generateUniqueId(6);
 			String tempFileName = urlPrefix + dateName + suffix;
 			String localPath = imgPath + dateName + suffix;
 			//因为BASE64Decoder的jar问题，此处使用spring框架提供的工具包

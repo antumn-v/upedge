@@ -5,11 +5,12 @@ import com.alibaba.fastjson.JSONObject;
 import com.upedge.common.base.BaseResponse;
 import com.upedge.common.exception.CustomerException;
 import com.upedge.common.model.order.vo.UplodaSaiheOnMqVo;
+import com.upedge.common.model.pms.quote.CustomerProductQuoteVo;
 import com.upedge.oms.modules.common.service.MqOnSaiheService;
 import com.upedge.oms.modules.common.service.OrderCommonService;
 import com.upedge.oms.modules.order.entity.Order;
+import com.upedge.oms.modules.order.service.OrderItemService;
 import com.upedge.oms.modules.order.service.OrderService;
-import com.upedge.thirdparty.shopify.moudles.order.entity.ShopifyOrder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -26,16 +27,22 @@ public class OrderCommonController {
     private OrderCommonService orderCommonService;
 
     @Autowired
+    OrderItemService orderItemService;
+
+    @Autowired
     OrderService orderService;
 
 
     @PostMapping("/jsonTest")
     public BaseResponse jsonTest(@RequestBody String body){
         JSONObject jsonObject = JSONObject.parseObject(body);
-        ShopifyOrder shopifyOrder = jsonObject.toJavaObject(ShopifyOrder.class);
-        System.out.println(!shopifyOrder.getFinancial_status().equals("paid")
-                || shopifyOrder.getFulfillment_status() != null);
-        return BaseResponse.success(shopifyOrder);
+        CustomerProductQuoteVo customerProductQuoteVo = jsonObject.toJavaObject(CustomerProductQuoteVo.class);
+        try {
+            orderItemService.updateSplitVariantItemQuoteDetail(customerProductQuoteVo);
+        } catch (CustomerException e) {
+            e.printStackTrace();
+        }
+        return BaseResponse.success();
     }
 
     /**

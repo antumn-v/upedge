@@ -11,10 +11,12 @@ import com.upedge.common.utils.IdGenerate;
 import com.upedge.common.utils.ListUtils;
 import com.upedge.pms.modules.product.dao.StoreProductVariantDao;
 import com.upedge.pms.modules.product.dto.StoreProductVariantSplitVo;
+import com.upedge.pms.modules.product.entity.StoreProductAttribute;
 import com.upedge.pms.modules.product.entity.StoreProductVariant;
 import com.upedge.pms.modules.product.request.StoreProductVariantQuoteRequest;
 import com.upedge.pms.modules.product.request.StoreProductVariantSplitRequest;
 import com.upedge.pms.modules.product.request.StoreSplitVariantUpdateRequest;
+import com.upedge.pms.modules.product.service.StoreProductAttributeService;
 import com.upedge.pms.modules.product.service.StoreProductVariantService;
 import com.upedge.pms.modules.product.vo.SplitVariantIdVo;
 import com.upedge.pms.modules.quote.entity.CustomerProductQuote;
@@ -42,6 +44,9 @@ public class StoreProductVariantServiceImpl implements StoreProductVariantServic
 
     @Autowired
     CustomerProductQuoteService customerProductQuoteService;
+
+    @Autowired
+    StoreProductAttributeService storeProductAttributeService;
 
     @Autowired
     QuoteApplyItemService quoteApplyItemService;
@@ -92,11 +97,13 @@ public class StoreProductVariantServiceImpl implements StoreProductVariantServic
         if (null == storeProductVariant){
             return BaseResponse.failed("店铺子体不存在");
         }
+        StoreProductAttribute storeProductAttribute = storeProductAttributeService.selectByPrimaryKey(storeProductVariant.getProductId());
         CustomerProductQuoteUpdateRequest customerProductQuoteUpdateRequest = new CustomerProductQuoteUpdateRequest();
         customerProductQuoteUpdateRequest.setQuotePrice(request.getQuotePrice());
         customerProductQuoteUpdateRequest.setStoreVariantId(storeVariantId);
         customerProductQuoteUpdateRequest.setVariantSku(request.getVariantSku());
         customerProductQuoteUpdateRequest.setQuoteScale(request.getQuoteScale());
+        customerProductQuoteUpdateRequest.setCustomerId(storeProductAttribute.getCustomerId());
         try {
             return customerProductQuoteService.updateCustomerProductQuote(customerProductQuoteUpdateRequest,session);
         } catch (CustomerException e) {
@@ -203,8 +210,8 @@ public class StoreProductVariantServiceImpl implements StoreProductVariantServic
         }
         List<Long> splitVariantIds = new ArrayList<>();
         List<StoreProductVariant> splitVariants = new ArrayList<>();
-        for (int i = 1; i <= splitVos.size(); i++) {
-            StoreProductVariantSplitVo storeProductVariantSplitVo = splitVos.get(i-1);
+        int i = 1;
+        for (StoreProductVariantSplitVo storeProductVariantSplitVo : splitVos) {
             String image = storeProductVariantSplitVo.getImage();
             if (StringUtils.isBlank(image)){
                 if (StringUtils.isBlank(storeProductVariantSplitVo.getImageBase64())){
@@ -223,6 +230,7 @@ public class StoreProductVariantServiceImpl implements StoreProductVariantServic
             splitVariant.setId(splitVariantId);
             splitVariantIds.add(splitVariantId);
             splitVariants.add(splitVariant);
+            i++;
         }
         storeProductVariantDao.insertByBatch(splitVariants);
         //修改变体拆分状态

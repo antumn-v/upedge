@@ -447,7 +447,8 @@
         pv.weight,pv.volume_weight as `volume`,p.product_title as `productTitle`,
         p.shipping_id as productShippingId,p.id as productId,cpq.quote_scale,
         pv.width,pv.height,pv.length,ifnull(cpq.quote_scale,'1') as `quoteScale`,
-        '1' as quoteType,cpq.quote_state,store_parent_variant_id
+        '1' as quoteType,cpq.quote_state,store_parent_variant_id,
+        store_variant_name,store_variant_sku
         from customer_product_quote cpq
         left join product_variant pv
         on cpq.variant_id = pv.id

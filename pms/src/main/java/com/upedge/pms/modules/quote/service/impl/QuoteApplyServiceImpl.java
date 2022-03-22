@@ -1,9 +1,13 @@
 package com.upedge.pms.modules.quote.service.impl;
 
+import com.alibaba.fastjson.JSON;
 import com.upedge.common.base.BaseResponse;
 import com.upedge.common.base.Page;
 import com.upedge.common.constant.key.RedisKey;
+import com.upedge.common.constant.key.RocketMqConfig;
 import com.upedge.common.exception.CustomerException;
+import com.upedge.common.model.pms.quote.CustomerProductQuoteVo;
+import com.upedge.common.model.pms.request.CustomerProductQuoteSearchRequest;
 import com.upedge.common.model.pms.request.OrderQuoteApplyRequest;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.utils.IdGenerate;
@@ -30,7 +34,9 @@ import com.upedge.pms.modules.quote.service.CustomerProductQuoteService;
 import com.upedge.pms.modules.quote.service.ProductQuoteRecordService;
 import com.upedge.pms.modules.quote.service.QuoteApplyService;
 import com.upedge.pms.modules.quote.vo.QuoteApplyVo;
+import com.upedge.pms.mq.producer.ProductMqProducer;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.rocketmq.common.message.Message;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -74,6 +80,8 @@ public class QuoteApplyServiceImpl implements QuoteApplyService {
     @Autowired
     StoreProductVariantService storeProductVariantService;
 
+    @Autowired
+    ProductMqProducer productMqProducer;
 
     /**
      *
@@ -256,7 +264,15 @@ public class QuoteApplyServiceImpl implements QuoteApplyService {
         if (ListUtils.isNotEmpty(productQuoteRecords)) {
             productQuoteRecordService.insertByBatch(productQuoteRecords);
         }
-        boolean b = customerProductQuoteService.sendCustomerProductQuoteUpdateMessage(storeVariantIds);
+
+        CustomerProductQuoteSearchRequest customerProductQuoteSearchRequest = new CustomerProductQuoteSearchRequest();
+        customerProductQuoteSearchRequest.setStoreVariantIds(storeVariantIds);
+        List<CustomerProductQuoteVo> customerProductQuoteVos = customerProductQuoteDao.selectQuoteDetail(customerProductQuoteSearchRequest);
+        String tag = "quote";
+        String key = UUID.randomUUID().toString();
+        Message message = new Message(RocketMqConfig.TOPIC_CUSTOMER_PRODUCT_QUOTE_UPDATE, tag, key, JSON.toJSONBytes(customerProductQuoteVos));
+        message.setDelayTimeLevel(0);
+        boolean b =  productMqProducer.sendMessage(message);
         if (!b) {
             throw new CustomerException("消息队列异常，请重新提交");
         }

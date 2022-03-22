@@ -101,8 +101,8 @@ public class OrderFulfillmentServiceImpl implements OrderFulfillmentService {
             //无物流信息或物流信息已回传店铺
             return;
         }
-        ShippingMethodRedis shippingMethodRedis = getShipMethodByTransportId(orderTracking.getTransportId());
-        if (null == shippingMethodRedis){
+        ShippingMethodRedis shippingMethodRedis = (ShippingMethodRedis) redisTemplate.opsForHash().get(RedisKey.SHIPPING_METHOD,String.valueOf(order.getShipMethodId()));
+        if (null != shippingMethodRedis){
             if (StringUtils.isNotBlank(shippingMethodRedis.getTrackingCompany())){
                 orderTracking.setTrackingCompany(shippingMethodRedis.getTrackingCompany());
             }else {
@@ -110,6 +110,7 @@ public class OrderFulfillmentServiceImpl implements OrderFulfillmentService {
             }
             orderTracking.setState(0);
             orderTrackingDao.updateOrderTracking(orderTracking);
+        }else {
             return;
         }
         if (shippingMethodRedis.getTrackType() == 0){
@@ -233,7 +234,7 @@ public class OrderFulfillmentServiceImpl implements OrderFulfillmentService {
                 map.put("tracking_url","https://t.17track.net/en#nums=" + orderTracking.getTrackingCode());
                 fulfillment.put("fulfillment", map);
                 ShopifyFulfillment updateShopFulfillment = ShopifyOrderApi.orderFulfillmentUpdate(fulfillment, storeVo.getApiToken(), storeVo.getStoreName(), platOrderId, shopifyFulfillment.getId());
-                saveStoreOrderFulfillment(fulfillment,storeVo,orderTracking,platOrderId,fulfillment_post,storeOrderId);
+                saveStoreOrderFulfillment(updateShopFulfillment,storeVo,orderTracking,platOrderId,fulfillment_post,storeOrderId);
 
             }
         });

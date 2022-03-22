@@ -631,11 +631,14 @@ public class OrderCommonServiceImpl implements OrderCommonService {
                                 //标记订单为发货
                                 orderDao.updateOrderAsTracked(id,trackNum);
                                 orderTrackingService.insert(orderTracking);
-                                //处于待回传状态，继续更新运输信息
-                                orderFulfillmentService.orderFulfillment(id);
 //                                sendMqMessage(new Message(RocketMqConfig.TOPIC_ORDER_FULFILLMENT,"",UUID.randomUUID().toString(), JSONObject.toJSONBytes(id)));
                             } else {
                                 orderTrackingService.updateOrderTracking(orderTracking);
+                            }
+                            //处于待回传状态，继续更新运输信息
+                            if (orderTracking.getState() == null
+                            || orderTracking.getState() != 1){
+                                orderFulfillmentService.orderFulfillment(id);
                             }
                         }
                         if (orderType == OrderType.WHOLESALE) {

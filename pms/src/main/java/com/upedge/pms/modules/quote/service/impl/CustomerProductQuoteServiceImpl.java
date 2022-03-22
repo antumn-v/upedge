@@ -165,6 +165,10 @@ public class CustomerProductQuoteServiceImpl implements CustomerProductQuoteServ
         customerProductQuote.setQuotePrice(request.getQuotePrice());
         customerProductQuote.setQuoteScale(request.getQuoteScale());
         customerProductQuote.setQuoteState(1);
+        if (customerProductQuote.getCustomerId() == null
+        && request.getCustomerId() != null){
+            customerProductQuote.setCustomerId(request.getCustomerId());
+        }
         customerProductQuoteDao.insert(customerProductQuote);
 
         ProductQuoteRecord productQuoteRecord = new ProductQuoteRecord();

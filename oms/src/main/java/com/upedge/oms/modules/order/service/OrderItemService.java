@@ -2,6 +2,7 @@ package com.upedge.oms.modules.order.service;
 
 import com.upedge.common.base.BaseResponse;
 import com.upedge.common.base.Page;
+import com.upedge.common.exception.CustomerException;
 import com.upedge.common.model.pms.quote.CustomerProductQuoteVo;
 import com.upedge.common.model.product.RelateDetailVo;
 import com.upedge.common.model.product.RelateVariantVo;
@@ -27,7 +28,7 @@ public interface OrderItemService{
     void updateItemQuoteDetail(CustomerProductQuoteVo customerProductQuoteVo);
 
     @Transactional
-    void updateSplitVariantItemQuoteDetail(CustomerProductQuoteVo customerProductQuoteVo);
+    void updateSplitVariantItemQuoteDetail(CustomerProductQuoteVo customerProductQuoteVo) throws CustomerException;
 
     List<ItemDischargeQuantityVo> selectDischargeQuantityByPaymentId(Long paymentId);
 

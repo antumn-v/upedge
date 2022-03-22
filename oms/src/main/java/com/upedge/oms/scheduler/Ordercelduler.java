@@ -9,7 +9,6 @@ import com.upedge.oms.modules.common.service.SaiheOrderRecordService;
 import com.upedge.oms.modules.order.service.OrderService;
 import com.upedge.oms.modules.order.service.StoreOrderService;
 import com.upedge.oms.modules.statistics.service.OrderDailyPayCountService;
-import com.upedge.oms.modules.statistics.service.OrderDailyRefundCountService;
 import com.upedge.oms.modules.stock.service.AdminStockService;
 import com.upedge.oms.modules.wholesale.service.WholesaleOrderService;
 import lombok.extern.slf4j.Slf4j;
@@ -19,7 +18,6 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
-import java.util.concurrent.ThreadPoolExecutor;
 
 @Slf4j
 @Component
@@ -48,12 +46,6 @@ public class Ordercelduler {
 
     @Autowired
     RedisTemplate<String, Object> redisTemplate;
-
-    @Autowired
-    private ThreadPoolExecutor threadPoolExecutor;
-
-    @Autowired
-    private OrderDailyRefundCountService orderDailyRefundCountService;
 
 
     @Scheduled(cron = "0 */5 * ? * *")

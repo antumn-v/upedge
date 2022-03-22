@@ -31,6 +31,8 @@ public class CustomerProductQuoteUpdateRequest{
     @Min(value = 1,message = "报价比例最少为1")
     private Integer quoteScale;
 
+    private Long customerId;
+
     public CustomerProductQuote toCustomerProductQuote(Long customerId){
         CustomerProductQuote customerProductQuote=new CustomerProductQuote();
         customerProductQuote.setCustomerId(customerId);
