@@ -174,6 +174,7 @@ public class ProductVariantController {
         return res;
     }
 
+    @ApiOperation("新增变体")
     @RequestMapping(value="/add", method=RequestMethod.POST)
     @Permission(permission = "product:productvariant:add")
     public ProductVariantAddResponse add(@RequestBody @Valid ProductVariantAddRequest request) {
