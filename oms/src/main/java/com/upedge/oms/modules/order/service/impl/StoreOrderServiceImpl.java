@@ -26,11 +26,13 @@ import com.upedge.oms.modules.order.dto.UnrecognizedStoreOrderDto;
 import com.upedge.oms.modules.order.entity.StoreOrder;
 import com.upedge.oms.modules.order.entity.StoreOrderAddress;
 import com.upedge.oms.modules.order.entity.StoreOrderItem;
+import com.upedge.oms.modules.order.entity.StoreOrderRelate;
 import com.upedge.oms.modules.order.request.StoreDataListRequest;
 import com.upedge.oms.modules.order.request.StoreOrderListRequest;
 import com.upedge.oms.modules.order.request.UnrecognizedStoreOrderListRequest;
 import com.upedge.oms.modules.order.response.StoreOrderListResponse;
 import com.upedge.oms.modules.order.service.OrderAddressService;
+import com.upedge.oms.modules.order.service.OrderService;
 import com.upedge.oms.modules.order.service.StoreOrderService;
 import com.upedge.oms.modules.order.vo.StoreOrderVariantData;
 import com.upedge.oms.modules.order.vo.StoreOrderVo;
@@ -75,6 +77,9 @@ public class StoreOrderServiceImpl implements StoreOrderService {
 
     @Autowired
     OrderAddressService orderAddressService;
+
+    @Autowired
+    OrderService orderService;
 
     @Autowired
     TmsFeignClient tmsFeignClient;
@@ -696,9 +701,18 @@ public class StoreOrderServiceImpl implements StoreOrderService {
     }
 
     public void updateShopifyStoreOrder(StoreOrder storeOrder,ShopifyOrder shopifyOrder,StoreVo storeVo){
-        List<ShopifyLineItem> shopifyLineItems = shopifyOrder.getLine_items();
-        switch (shopifyOrder.getFinancial_status()){
-
+        Long storeOrderId = storeOrder.getId();
+        if (shopifyOrder.getFinancial_status().equals("refunded")){
+            List<StoreOrderRelate> storeOrderRelates = storeOrderRelateDao.selectByStoreOrderId(storeOrderId);
+            List<Long> orderIds = new ArrayList<>();
+            for (StoreOrderRelate storeOrderRelate : storeOrderRelates) {
+                orderIds.add(storeOrderRelate.getOrderId());
+            }
+            orderService.cancelOrderByIds(orderIds);
+            return;
         }
+        List<StoreOrderItem> storeOrderItems = storeOrderItemDao.selectByStoreOrderId(storeOrderId);
+        List<ShopifyLineItem> shopifyLineItems = shopifyOrder.getLine_items();
+
     }
 }

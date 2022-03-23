@@ -130,8 +130,6 @@ public class StoreProductVariantServiceImpl implements StoreProductVariantServic
         || storeProductVariant.getSplitType() != 2){
             return BaseResponse.failed("只能撤销拆分子体");
         }
-        storeProductVariant = new StoreProductVariant();
-        storeProductVariant.setId(storeVariantId);
         storeProductVariant.setSplitType(3);
         updateByPrimaryKeySelective(storeProductVariant);
         //更新redis拆分子体信息
@@ -209,7 +207,7 @@ public class StoreProductVariantServiceImpl implements StoreProductVariantServic
         StoreProductVariant storeProductVariant = selectByPrimaryKey(storeVariantId);
         //未拆分的变体可以拆
         if (null == storeProductVariant
-        || storeProductVariant.getSplitType() != 0){
+        || storeProductVariant.getSplitType() > 1){
             return BaseResponse.failed("变体不存在或拆分变体不允许拆分");
         }
         List<StoreProductVariantSplitVo> splitVos = request.getSplitVos();

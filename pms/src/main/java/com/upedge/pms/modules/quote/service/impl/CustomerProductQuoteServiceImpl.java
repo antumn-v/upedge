@@ -99,7 +99,7 @@ public class CustomerProductQuoteServiceImpl implements CustomerProductQuoteServ
 
         CustomerProductQuote customerProductQuote = customerProductQuoteDao.selectByStoreVariantId(storeVariantId);
         if (null == customerProductQuote){
-            return BaseResponse.failed("请求信息有误");
+            return BaseResponse.success();
         }
         if (customerProductQuote.getQuoteState() == 0){
             return BaseResponse.success();
