@@ -2,6 +2,7 @@ package com.upedge.common.feign;
 
 import com.upedge.common.base.BaseResponse;
 import com.upedge.common.constant.ServiceNameConstants;
+import com.upedge.common.exception.CustomerException;
 import com.upedge.common.feign.fallback.OmsFeignClientFallbackFactory;
 import com.upedge.common.model.account.PaypalOrder;
 import com.upedge.common.model.account.PaypalPayment;
@@ -9,13 +10,13 @@ import com.upedge.common.model.cart.request.CartAddRequest;
 import com.upedge.common.model.order.request.ManagerActualRequest;
 import com.upedge.common.model.order.request.OrderDailyCountRequest;
 import com.upedge.common.model.order.vo.AllOrderAmountVo;
+import com.upedge.common.model.order.vo.OrderItemUpdateImageNameRequest;
 import com.upedge.common.model.order.vo.UplodaSaiheOnMqVo;
 import com.upedge.common.model.statistics.request.ManagerPackageStatisticsRequest;
 import com.upedge.common.model.statistics.request.OrderStatisticsRequest;
 import com.upedge.common.model.statistics.response.ManagerOrderCountResponse;
 import com.upedge.common.model.statistics.response.ManagerPackageStatisticsResponse;
 import com.upedge.common.model.store.request.StoreApiRequest;
-import com.upedge.common.model.user.vo.Session;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.*;
 
@@ -26,6 +27,9 @@ import javax.validation.Valid;
  */
 @FeignClient(value = ServiceNameConstants.OMS_SERVICE,fallbackFactory = OmsFeignClientFallbackFactory.class,decode404 = true)
 public interface OmsFeignClient  {
+
+    @PostMapping("/orderItem/updateImageNameByStoreVariantId")
+    public BaseResponse updateImageNameByStoreVariantId(@RequestBody OrderItemUpdateImageNameRequest request);
 
     /**
      * 客户经理包裹统计

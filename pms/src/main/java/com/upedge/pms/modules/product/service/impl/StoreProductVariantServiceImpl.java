@@ -4,6 +4,8 @@ import com.upedge.common.base.BaseResponse;
 import com.upedge.common.base.Page;
 import com.upedge.common.constant.key.RedisKey;
 import com.upedge.common.exception.CustomerException;
+import com.upedge.common.feign.OmsFeignClient;
+import com.upedge.common.model.order.vo.OrderItemUpdateImageNameRequest;
 import com.upedge.common.model.pms.quote.CustomerProductQuoteVo;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.utils.FileUtil;
@@ -53,6 +55,9 @@ public class StoreProductVariantServiceImpl implements StoreProductVariantServic
 
     @Autowired
     RedisTemplate redisTemplate;
+
+    @Autowired
+    OmsFeignClient omsFeignClient;
 
     @Value("${files.image.prefix}")
     String pmsImagePrefix;
@@ -148,6 +153,7 @@ public class StoreProductVariantServiceImpl implements StoreProductVariantServic
         return customerProductQuoteService.revokeQuote(storeVariantId,session);
     }
 
+    @Transactional
     @Override
     public BaseResponse splitVariantUpdate(StoreSplitVariantUpdateRequest request, Session session) {
         Long storeVariantId = request.getStoreVariantId();
@@ -156,8 +162,6 @@ public class StoreProductVariantServiceImpl implements StoreProductVariantServic
         || storeProductVariant.getSplitType() != 2){
             return BaseResponse.failed("只能修改拆分子体");
         }
-        storeProductVariant = new StoreProductVariant();
-        storeProductVariant.setTitle(request.getName());
         String image = request.getImage();
         if (StringUtils.isBlank(image)){
             if (StringUtils.isBlank(request.getImageBase64())){
@@ -165,9 +169,17 @@ public class StoreProductVariantServiceImpl implements StoreProductVariantServic
             }
             image = FileUtil.uploadImage(request.getImageBase64(),pmsImagePrefix,pmsImageLocal);
         }
+        storeProductVariant = new StoreProductVariant();
+        storeProductVariant.setTitle(request.getName());
+        storeProductVariant.setId(storeVariantId);
         storeProductVariant.setImage(image);
         updateByPrimaryKeySelective(storeProductVariant);
-        return BaseResponse.success();
+        //更新订单产品信息
+        OrderItemUpdateImageNameRequest orderItemUpdateImageNameRequest = new OrderItemUpdateImageNameRequest();
+        orderItemUpdateImageNameRequest.setName(request.getName());
+        orderItemUpdateImageNameRequest.setImage(image);
+        orderItemUpdateImageNameRequest.setStoreVariantId(storeVariantId);
+        return omsFeignClient.updateImageNameByStoreVariantId(orderItemUpdateImageNameRequest);
     }
 
     @Override

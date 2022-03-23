@@ -74,7 +74,7 @@ public class StoreProductVariantController {
     }
 
     @ApiOperation("/修改拆分子体ID")
-    @PostMapping("/splitUpdate/{id}")
+    @PostMapping("/splitUpdate")
     public BaseResponse updateSplitVariant(@RequestBody StoreSplitVariantUpdateRequest request){
         Session session = UserUtil.getSession(redisTemplate);
         return storeProductVariantService.splitVariantUpdate(request,session);

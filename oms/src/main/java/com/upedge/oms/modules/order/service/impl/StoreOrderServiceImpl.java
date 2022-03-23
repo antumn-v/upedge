@@ -173,18 +173,21 @@ public class StoreOrderServiceImpl implements StoreOrderService {
             e.printStackTrace();
             return null;
         }
-        if (!shopifyOrder.getFinancial_status().equals("paid")
-        || shopifyOrder.getFulfillment_status() != null){
-            return null;
-        }
         String platOrderId = shopifyOrder.getId();
-
         String key = RedisKey.STRING_STORE_PALT_ORDER_UPDATE + storeVo.getId() + ":" + platOrderId;
         boolean flag = RedisUtil.lock(redisTemplate, key, 3L, 5 * 1000L);
         if (!flag) {
             return null;
         }
-        StoreOrder storeOrder = storeOrderDao.selectByStorePlatId(storeVo.getId(), platOrderId);
+        StoreOrder storeOrder = storeOrderDao.selectByStorePlatId(storeVo.getId(), shopifyOrder.getId());
+        if (null != storeOrder){
+
+        }
+        if (!shopifyOrder.getFinancial_status().equals("paid")
+        || shopifyOrder.getFulfillment_status() != null){
+            return null;
+        }
+
         Long storeAddressId = null;
         Long storeOrderId = null;
         boolean b = false;
@@ -690,5 +693,12 @@ public class StoreOrderServiceImpl implements StoreOrderService {
     @Override
     public Long listAppUserSortCount(AppUserSortRequest request) {
         return storeOrderDao.listAppUserSortCount(request);
+    }
+
+    public void updateShopifyStoreOrder(StoreOrder storeOrder,ShopifyOrder shopifyOrder,StoreVo storeVo){
+        List<ShopifyLineItem> shopifyLineItems = shopifyOrder.getLine_items();
+        switch (shopifyOrder.getFinancial_status()){
+
+        }
     }
 }

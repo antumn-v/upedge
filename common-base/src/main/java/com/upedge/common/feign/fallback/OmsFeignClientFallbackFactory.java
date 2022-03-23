@@ -10,6 +10,7 @@ import com.upedge.common.model.cart.request.CartAddRequest;
 import com.upedge.common.model.order.request.ManagerActualRequest;
 import com.upedge.common.model.order.request.OrderDailyCountRequest;
 import com.upedge.common.model.order.vo.AllOrderAmountVo;
+import com.upedge.common.model.order.vo.OrderItemUpdateImageNameRequest;
 import com.upedge.common.model.order.vo.UplodaSaiheOnMqVo;
 import com.upedge.common.model.statistics.request.ManagerPackageStatisticsRequest;
 import com.upedge.common.model.statistics.request.OrderStatisticsRequest;
@@ -29,6 +30,11 @@ public class OmsFeignClientFallbackFactory implements FallbackFactory<OmsFeignCl
     public OmsFeignClient create(Throwable cause) {
         return new OmsFeignClient() {
 
+
+            @Override
+            public BaseResponse updateImageNameByStoreVariantId(OrderItemUpdateImageNameRequest request){
+                return BaseResponse.failed();
+            }
 
             @Override
             public ManagerPackageStatisticsResponse managerPackageStatistics(ManagerPackageStatisticsRequest request) {

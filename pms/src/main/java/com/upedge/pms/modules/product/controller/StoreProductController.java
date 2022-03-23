@@ -107,7 +107,12 @@ public class StoreProductController {
             return BaseResponse.success(new ArrayList<>());
         }
         StoreVo storeVo = (StoreVo) redisTemplate.opsForValue().get(RedisKey.STRING_STORE + storeProductAttribute.getStoreId());
-        List<ShopifyImage> shopifyImages = ShopifyProductApi.getProductImage(storeVo.getApiToken(),storeVo.getStoreName(),Long.parseLong(storeProductAttribute.getPlatProductId()));
-        return BaseResponse.success(shopifyImages);
+        try {
+            List<ShopifyImage> shopifyImages = ShopifyProductApi.getProductImage(storeVo.getApiToken(),storeVo.getStoreName(),Long.parseLong(storeProductAttribute.getPlatProductId()));
+            return BaseResponse.success(shopifyImages);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return BaseResponse.success(new ArrayList<>());
     }
 }

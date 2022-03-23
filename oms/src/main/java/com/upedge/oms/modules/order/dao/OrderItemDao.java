@@ -1,6 +1,7 @@
 package com.upedge.oms.modules.order.dao;
 
 import com.upedge.common.base.Page;
+import com.upedge.common.model.order.vo.OrderItemUpdateImageNameRequest;
 import com.upedge.common.model.pms.quote.CustomerProductQuoteVo;
 import com.upedge.common.model.product.RelateVariantVo;
 import com.upedge.common.model.product.VariantDetail;
@@ -19,6 +20,8 @@ import java.util.Map;
  * @author author
  */
 public interface OrderItemDao {
+
+    int updateImageNameByStoreVariantId(OrderItemUpdateImageNameRequest request);
 
     OrderItem selectByOrderIdAndStoreVariantId(@Param("orderId") Long orderId, @Param("storeVariantId") Long storeVariantId);
 

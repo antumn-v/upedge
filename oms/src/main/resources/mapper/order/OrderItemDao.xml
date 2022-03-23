@@ -1098,4 +1098,17 @@
         and store_variant_id = #{storeVariantId}
         limit 1
     </select>
+
+    <update id="updateImageNameByStoreVariantId">
+        update order_item
+            <set>
+                <if test="image != null">
+                    store_variant_image = #{image},
+                </if>
+                <if test="name != null">
+                    store_variant_name = #{name},
+                </if>
+            </set>
+        where store_variant_id = #{storeVariantId}
+    </update>
 </mapper>

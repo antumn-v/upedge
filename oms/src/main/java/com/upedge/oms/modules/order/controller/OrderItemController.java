@@ -4,6 +4,7 @@ import com.upedge.common.base.BaseResponse;
 import com.upedge.common.enums.CustomerExceptionEnum;
 import com.upedge.common.exception.CustomerException;
 import com.upedge.common.feign.PmsFeignClient;
+import com.upedge.common.model.order.vo.OrderItemUpdateImageNameRequest;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.web.util.UserUtil;
 import com.upedge.oms.modules.order.request.AirwallexRequest;
@@ -48,6 +49,13 @@ public class OrderItemController {
             return BaseResponse.success();
         }
         return BaseResponse.failed();
+    }
+
+
+    @PostMapping("/updateImageNameByStoreVariantId")
+    public BaseResponse updateImageNameByStoreVariantId(@RequestBody OrderItemUpdateImageNameRequest request){
+        orderItemService.updateImageNameByStoreVariantId(request);
+        return BaseResponse.success();
     }
 
     @ApiOperation("提交报价申请")

@@ -628,7 +628,7 @@ public class SaiheService {
 //        System.out.println(apiGetProductResponse);
 
 
-        ApiGetOrderResponse apiGetOrderResponse =  getOrderByCode("20211231112020");
+        ApiGetOrderResponse apiGetOrderResponse =  getOrderByClientOrderCode("1504079038278926336 ");
         System.out.println(apiGetOrderResponse);
     }
 

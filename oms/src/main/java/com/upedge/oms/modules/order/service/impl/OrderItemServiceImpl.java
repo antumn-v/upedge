@@ -8,6 +8,7 @@ import com.upedge.common.constant.ResultCode;
 import com.upedge.common.constant.key.RedisKey;
 import com.upedge.common.exception.CustomerException;
 import com.upedge.common.feign.PmsFeignClient;
+import com.upedge.common.model.order.vo.OrderItemUpdateImageNameRequest;
 import com.upedge.common.model.pms.quote.CustomerProductQuoteVo;
 import com.upedge.common.model.pms.request.OrderQuoteApplyRequest;
 import com.upedge.common.model.product.RelateDetailVo;
@@ -32,6 +33,7 @@ import com.upedge.oms.modules.order.service.OrderService;
 import com.upedge.oms.modules.order.vo.AirwallexVo;
 import com.upedge.oms.modules.order.vo.ItemDischargeQuantityVo;
 import com.upedge.oms.modules.orderShippingUnit.service.OrderShippingUnitService;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -92,6 +94,18 @@ public class OrderItemServiceImpl implements OrderItemService {
     @Transactional
     public int insertSelective(OrderItem record) {
         return orderItemDao.insert(record);
+    }
+
+    @Override
+    public int updateImageNameByStoreVariantId(OrderItemUpdateImageNameRequest request) {
+        if (StringUtils.isBlank(request.getName())
+        && StringUtils.isBlank(request.getImage())){
+            return 0;
+        }
+        if (request.getStoreVariantId() == null){
+            return 0;
+        }
+        return orderItemDao.updateImageNameByStoreVariantId(request);
     }
 
     @Transactional
