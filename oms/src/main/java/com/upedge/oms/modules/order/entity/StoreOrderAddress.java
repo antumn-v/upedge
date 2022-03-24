@@ -94,7 +94,7 @@ public class StoreOrderAddress{
 		this.company = addressBean.getCompany();
 		this.countryCode = addressBean.getCountry_code();
 		this.provinceCode = addressBean.getProvince_code();
-		if (StringUtils.isNotBlank(this.province)){
+		if (StringUtils.isBlank(this.province)){
 			this.province = addressBean.getCity();
 		}
 	}
