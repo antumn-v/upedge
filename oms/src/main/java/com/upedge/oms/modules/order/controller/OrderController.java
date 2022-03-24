@@ -43,11 +43,9 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.math.BigDecimal;
 import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
@@ -405,6 +403,11 @@ public class OrderController {
         Order order = new Order();
         order.setId(id);
         order.setPayState(-1);
+        order.setShipPrice(BigDecimal.ZERO);
+        order.setVatAmount(BigDecimal.ZERO);
+        order.setServiceFee(BigDecimal.ZERO);
+        order.setShipMethodId(0L);
+        order.setUpdateTime(new Date());
         orderService.updateByPrimaryKeySelective(order);
         orderShippingUnitService.delByOrderId(id, OrderType.NORMAL);
         return BaseResponse.success();
@@ -427,6 +430,7 @@ public class OrderController {
             order.setId(id);
             order.setPayState(0);
             orderService.updateByPrimaryKeySelective(order);
+            orderService.matchShipRule(id);
         } else {
             switch (order.getOrderType()) {
                 case 2:

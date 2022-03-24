@@ -727,10 +727,15 @@ public class StoreOrderServiceImpl implements StoreOrderService {
 
             List<StoreOrderRelate> storeOrderRelates = storeOrderRelateDao.selectByStoreOrderId(storeOrderId);
             for (StoreOrderRelate storeOrderRelate : storeOrderRelates) {
-                if (shopifyOrder.getFinancial_status().equals("refunded")){
+                if (shopifyOrder.getFinancial_status().equals("refunded")
+                || shopifyOrder.getFulfillment_status().equals("fulfilled")){
                     Order order = new Order();
                     order.setId(storeOrderRelate.getOrderId());
                     order.setPayState(-1);
+                    order.setShipPrice(BigDecimal.ZERO);
+                    order.setVatAmount(BigDecimal.ZERO);
+                    order.setServiceFee(BigDecimal.ZERO);
+                    order.setShipMethodId(0L);
                     order.setUpdateTime(new Date());
                     orderService.updateByPrimaryKeySelective(order);
                     continue;

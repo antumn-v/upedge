@@ -2193,7 +2193,11 @@
 
     <update id="cancelOrderByIds">
         update `order`
-        set pay_state = '-1'
+        set pay_state = '-1',
+        ship_method_id = null,
+        ship_price = '0',
+        service_fee = '0',
+        vat_amount = '0'
         where id in
         <foreach collection="ids" item="id" open="(" separator="," close=")">
             #{id}
