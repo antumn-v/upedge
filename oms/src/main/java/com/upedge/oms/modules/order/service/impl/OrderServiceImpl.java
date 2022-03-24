@@ -787,6 +787,7 @@ public class OrderServiceImpl implements OrderService {
                     orderItem.setStoreVariantName(customerProductQuoteVo.getStoreVariantName());
                     orderItem.setStoreVariantImage(customerProductQuoteVo.getStoreVariantImage());
                     orderItem.setQuoteState(customerProductQuoteVo.getQuoteType());
+                    orderItem.setQuoteScale(customerProductQuoteVo.getQuoteScale());
                     try {
                         cnyProductAmount = cnyProductAmount.add(orderItem.getCnyPrice().multiply(itemQuantity));
                     } catch (Exception e) {
@@ -830,6 +831,7 @@ public class OrderServiceImpl implements OrderService {
                     itemQuantity = itemQuantity.multiply(new BigDecimal(customerProductQuoteVo.getQuoteScale()));
                     orderItem.quoteProductToItem(customerProductQuoteVo);
                     orderItem.setQuoteState(customerProductQuoteVo.getQuoteType());
+                    orderItem.setQuoteScale(customerProductQuoteVo.getQuoteScale());
                     try {
                         cnyProductAmount = cnyProductAmount.add(orderItem.getCnyPrice().multiply(itemQuantity));
                     } catch (Exception e) {
@@ -1070,8 +1072,8 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public boolean initOrderProductAmount(Long orderId) {
-        return false;
+    public int initOrderProductAmount(List<Long> orderIds) {
+        return orderDao.initProductAmountById(orderIds);
     }
 
     @Async
@@ -1195,7 +1197,7 @@ public class OrderServiceImpl implements OrderService {
     public void orderUpdateToAreaId(Long orderId, String country) {
         Long areaId = (Long) redisTemplate.opsForHash().get(RedisKey.HASH_COUNTRY_AREA_ID, country);
         orderDao.updateToAreaIdById(orderId, areaId);
-        orderInitShipDetail(orderId);
+        matchShipRule(orderId);
     }
 
     @Override

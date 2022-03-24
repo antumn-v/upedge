@@ -23,15 +23,13 @@ import com.upedge.common.utils.ListUtils;
 import com.upedge.common.web.util.RedisUtil;
 import com.upedge.oms.modules.order.dao.*;
 import com.upedge.oms.modules.order.dto.UnrecognizedStoreOrderDto;
-import com.upedge.oms.modules.order.entity.StoreOrder;
-import com.upedge.oms.modules.order.entity.StoreOrderAddress;
-import com.upedge.oms.modules.order.entity.StoreOrderItem;
-import com.upedge.oms.modules.order.entity.StoreOrderRelate;
+import com.upedge.oms.modules.order.entity.*;
 import com.upedge.oms.modules.order.request.StoreDataListRequest;
 import com.upedge.oms.modules.order.request.StoreOrderListRequest;
 import com.upedge.oms.modules.order.request.UnrecognizedStoreOrderListRequest;
 import com.upedge.oms.modules.order.response.StoreOrderListResponse;
 import com.upedge.oms.modules.order.service.OrderAddressService;
+import com.upedge.oms.modules.order.service.OrderItemService;
 import com.upedge.oms.modules.order.service.OrderService;
 import com.upedge.oms.modules.order.service.StoreOrderService;
 import com.upedge.oms.modules.order.vo.StoreOrderVariantData;
@@ -52,10 +50,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
 @Slf4j
 @Service
@@ -80,6 +75,9 @@ public class StoreOrderServiceImpl implements StoreOrderService {
 
     @Autowired
     OrderService orderService;
+
+    @Autowired
+    OrderItemService orderItemService;
 
     @Autowired
     TmsFeignClient tmsFeignClient;
@@ -186,7 +184,8 @@ public class StoreOrderServiceImpl implements StoreOrderService {
         }
         StoreOrder storeOrder = storeOrderDao.selectByStorePlatId(storeVo.getId(), shopifyOrder.getId());
         if (null != storeOrder){
-
+            updateShopifyStoreOrder(storeOrder,shopifyOrder,storeVo);
+            return null;
         }
         if (!shopifyOrder.getFinancial_status().equals("paid")
         || shopifyOrder.getFulfillment_status() != null){
@@ -701,18 +700,76 @@ public class StoreOrderServiceImpl implements StoreOrderService {
     }
 
     public void updateShopifyStoreOrder(StoreOrder storeOrder,ShopifyOrder shopifyOrder,StoreVo storeVo){
-        Long storeOrderId = storeOrder.getId();
-        if (shopifyOrder.getFinancial_status().equals("refunded")){
-            List<StoreOrderRelate> storeOrderRelates = storeOrderRelateDao.selectByStoreOrderId(storeOrderId);
-            List<Long> orderIds = new ArrayList<>();
-            for (StoreOrderRelate storeOrderRelate : storeOrderRelates) {
-                orderIds.add(storeOrderRelate.getOrderId());
-            }
-            orderService.cancelOrderByIds(orderIds);
-            return;
+        //更新店铺地址
+        StoreOrderAddress storeOrderAddress = new StoreOrderAddress(shopifyOrder.getShipping_address());
+        storeOrderAddress.setNote(shopifyOrder.getNote());
+        storeOrderAddress.setId(storeOrder.getStoreAddressId());
+        if (StringUtils.isNotBlank(shopifyOrder.getEmail())) {
+            storeOrderAddress.setEmail(shopifyOrder.getEmail());
+        } else if (StringUtils.isNotBlank(shopifyOrder.getContact_email())) {
+            storeOrderAddress.setEmail(shopifyOrder.getContact_email());
+        } else if (shopifyOrder.getCustomer() != null && StringUtils.isNotBlank(shopifyOrder.getCustomer().getEmail())) {
+            storeOrderAddress.setEmail(shopifyOrder.getCustomer().getEmail());
         }
-        List<StoreOrderItem> storeOrderItems = storeOrderItemDao.selectByStoreOrderId(storeOrderId);
-        List<ShopifyLineItem> shopifyLineItems = shopifyOrder.getLine_items();
+        int i = storeOrderAddressDao.updateByPrimaryKey(storeOrderAddress);
+        if (i == 1){
+            orderAddressService.updateByStoreOrderAddress(storeOrderAddress);
+        }
+        //更新店铺订单状态
+        Long storeOrderId = storeOrder.getId();
+        StoreOrder newStoreOrder = new StoreOrder(shopifyOrder);
 
+        if (!newStoreOrder.getFinancialStatus().equals(storeOrder.getFinancialStatus())
+        || !newStoreOrder.getFulfillmentStatus().equals(storeOrder.getFinancialStatus())){
+            newStoreOrder.setId(storeOrderId);
+            storeOrderDao.updateByPrimaryKeySelective(newStoreOrder);
+            storeOrderRelateDao.updateStoreStatusByStoreOrderId(newStoreOrder);
+
+            List<StoreOrderRelate> storeOrderRelates = storeOrderRelateDao.selectByStoreOrderId(storeOrderId);
+            for (StoreOrderRelate storeOrderRelate : storeOrderRelates) {
+                if (shopifyOrder.getFinancial_status().equals("refunded")){
+                    Order order = new Order();
+                    order.setId(storeOrderRelate.getOrderId());
+                    order.setPayState(-1);
+                    order.setUpdateTime(new Date());
+                    orderService.updateByPrimaryKeySelective(order);
+                    continue;
+                }
+            }
+            if (shopifyOrder.getFinancial_status().equals("refunded")){
+                return;
+            }
+        }
+
+        //更新店铺产品数量
+        Map<String,Integer> itemQuantityMap = new HashMap<>();
+        List<ShopifyLineItem> shopifyLineItems = shopifyOrder.getLine_items();
+        for (ShopifyLineItem shopifyLineItem : shopifyLineItems) {
+            Integer quantity = shopifyLineItem.getFulfillable_quantity();
+            itemQuantityMap.put(shopifyLineItem.getId(),quantity);
+        }
+        List<Long> storeOrderItemIds = new ArrayList<>();
+        List<StoreOrderItem> storeOrderItems = storeOrderItemDao.selectByStoreOrderId(storeOrderId);
+        for (StoreOrderItem storeOrderItem : storeOrderItems) {
+            if (!itemQuantityMap.containsKey(storeOrderItem.getPlatOrderItemId())){
+                //插入变体
+                continue;
+            }
+            Integer quantity = itemQuantityMap.get(storeOrderItem.getPlatOrderItemId());
+            if (quantity.equals(storeOrderItem.getQuantity())){
+                continue;
+            }
+            storeOrderItemIds.add(storeOrderItem.getId());
+            storeOrderItem.setQuantity(quantity);
+            storeOrderItemDao.updateByPrimaryKey(storeOrderItem);
+            orderItemService.updateQuantityByStoreOrderItemId(storeOrderItem.getId(),quantity);
+        }
+        if (ListUtils.isNotEmpty(storeOrderItemIds)){
+            List<Long> orderIds = orderItemService.selectOrderIdsByStoreOrderItemIds(storeOrderItemIds);
+            orderService.initOrderProductAmount(orderIds);
+            for (Long orderId : orderIds) {
+                orderService.matchShipRule(orderId);
+            }
+        }
     }
 }

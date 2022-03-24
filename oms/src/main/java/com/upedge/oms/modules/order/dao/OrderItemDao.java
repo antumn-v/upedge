@@ -21,7 +21,11 @@ import java.util.Map;
  */
 public interface OrderItemDao {
 
+    int updateQuantityByStoreOrderItemId(@Param("storeOrderItemId") Long storeOrderItemId, @Param("quantity") Integer quantity);
+
     int updateImageNameByStoreVariantId(OrderItemUpdateImageNameRequest request);
+
+    List<Long> selectOrderIdsByStoreOrderItemIds(@Param("storeOrderItemIds") List<Long> storeOrderItemIds);
 
     OrderItem selectByOrderIdAndStoreVariantId(@Param("orderId") Long orderId, @Param("storeVariantId") Long storeVariantId);
 

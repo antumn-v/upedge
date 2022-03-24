@@ -24,6 +24,12 @@ import java.util.List;
  */
 public interface OrderItemService{
 
+    List<Long> selectOrderIdsByStoreOrderItemIds(List<Long> storeOrderItemIds);
+
+    int updateQuantityByStoreOrderItemId(Long storeOrderItemId, Integer quantity);
+
+    List<OrderItem> selectByOrderId(Long orderId);
+
     int updateImageNameByStoreVariantId(OrderItemUpdateImageNameRequest request);
 
     BaseResponse orderItemApplyQuote(OrderItemQuoteRequest request, Session session);

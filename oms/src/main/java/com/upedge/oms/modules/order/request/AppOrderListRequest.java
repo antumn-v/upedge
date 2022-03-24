@@ -20,9 +20,6 @@ public class AppOrderListRequest extends Page<AppOrderListDto> {
         if(this.pageNum==null){
             this.pageNum=1;
         }
-        if(this.pageSize==null||this.pageSize==0){
-            this.pageSize=20;
-        }
         if (this.pageSize == -1){
             this.pageSize = null;
         }

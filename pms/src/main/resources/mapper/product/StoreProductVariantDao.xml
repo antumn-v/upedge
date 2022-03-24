@@ -173,6 +173,7 @@
             state = #{v.state}
             where product_id = #{v.productId}
             and plat_variant_id = #{v.platVariantId}
+            and split_type &lt; '2'
         </foreach>
     </update>
 

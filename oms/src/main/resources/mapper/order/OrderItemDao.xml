@@ -708,7 +708,8 @@
             length,
             width,
             height,
-            original_quantity
+            original_quantity,
+            quote_scale
         </trim>
         values
         <foreach collection="list" item="item" index="index" separator=",">
@@ -740,7 +741,8 @@
                 #{item.length},
                 #{item.width},
                 #{item.height},
-                #{item.originalQuantity}
+                #{item.originalQuantity},
+                #{item.quoteScale}
             </trim>
         </foreach>
     </insert>
@@ -885,7 +887,8 @@
             oi.length = #{length},
             oi.width = #{width},
             oi.height = #{height,jdbcType=DECIMAL},
-            oi.quantity = (#{quoteScale} * original_quantity)
+            oi.quantity = (#{quoteScale} * original_quantity),
+            oi.quote_scale = #{quoteScale}
         where oi.store_variant_id = #{storeVariantId}
         and o.pay_state &lt; '1'
     </update>
@@ -1111,4 +1114,22 @@
             </set>
         where store_variant_id = #{storeVariantId}
     </update>
+
+    <update id="updateQuantityByStoreOrderItemId">
+        update order_item oi
+            inner join `order` o
+        on o.id = oi.order_id
+        set oi.quantity = (#{quantity} * oi.quote_scale)
+        where o.pay_state &lt; '1'
+        and oi.store_order_item_id = #{storeOrderItemId}
+    </update>
+
+    <select id="selectOrderIdsByStoreOrderItemIds" resultType="java.lang.Long">
+        select distinct order_id
+        from order_item
+        where store_order_item_id in
+        <foreach collection="storeOrderItemIds" item="storeOrderItemId" open="(" separator="," close=")">
+            #{storeOrderItemId}
+        </foreach>
+    </select>
 </mapper>

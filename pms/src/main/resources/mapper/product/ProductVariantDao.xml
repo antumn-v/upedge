@@ -287,12 +287,12 @@
             usd_price,
             inventory,
             weight,
-            state,
+            `state`,
             volume_weight,
             variant_type,
             cn_name,
             en_name,
-            length,
+            `length`,
             width,
             height
         </trim>

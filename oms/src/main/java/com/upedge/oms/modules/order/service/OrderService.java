@@ -52,7 +52,7 @@ public interface OrderService{
     void updateSaiheOrderCode(String id,
                               String saiheOrderCode);
 
-    boolean initOrderProductAmount(Long orderId);
+    int initOrderProductAmount(List<Long> orderIds);
 
     void initOrderVatAmountByAreaId(Long areaId);
 

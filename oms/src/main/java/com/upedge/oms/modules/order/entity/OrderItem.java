@@ -103,6 +103,8 @@ public class OrderItem{
 
 	private Integer originalQuantity;
 
+	private Integer quoteScale;
+
 
 	public OrderItem(StoreOrderItem storeOrderItem) {
 		this.storeVariantId = storeOrderItem.getStoreVariantId();

@@ -760,6 +760,7 @@
             </if>
         </set>
         where id = #{id}
+        and pay_state &lt; '1'
     </update>
 
     <update id="updateByPrimaryKey" parameterType="com.upedge.oms.modules.order.entity.Order">
@@ -798,6 +799,7 @@
             manager_code = #{managerCode},
         </set>
         where id = #{id}
+        and pay_state &lt; '1'
     </update>
 
     <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.upedge.oms.modules.order.entity.Order"
@@ -2226,5 +2228,13 @@
         and quote_state = '3'
         and to_area_id = #{areaId}
         and ship_method_id != #{rule.shippingMethodId}
+        union all
+        select id
+        from `order`
+        where customer_id = #{rule.customerId}
+        and pay_state = '0'
+        and quote_state = '3'
+        and to_area_id = #{areaId}
+        and ship_method_id is null
     </select>
 </mapper>

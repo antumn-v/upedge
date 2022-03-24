@@ -97,6 +97,31 @@ public class OrderItemServiceImpl implements OrderItemService {
     }
 
     @Override
+    public List<Long> selectOrderIdsByStoreOrderItemIds(List<Long> storeOrderItemIds) {
+        if (ListUtils.isNotEmpty(storeOrderItemIds)){
+            return orderItemDao.selectOrderIdsByStoreOrderItemIds(storeOrderItemIds);
+        }
+        return null;
+    }
+
+    @Override
+    public int updateQuantityByStoreOrderItemId(Long storeOrderItemId, Integer quantity) {
+        if (null != storeOrderItemId
+        && null != quantity){
+            orderItemDao.updateQuantityByStoreOrderItemId(storeOrderItemId,quantity);
+        }
+        return 0;
+    }
+
+    @Override
+    public List<OrderItem> selectByOrderId(Long orderId) {
+        if(null == orderId){
+            return null;
+        }
+        return orderItemDao.selectItemByOrderId(orderId);
+    }
+
+    @Override
     public int updateImageNameByStoreVariantId(OrderItemUpdateImageNameRequest request) {
         if (StringUtils.isBlank(request.getName())
         && StringUtils.isBlank(request.getImage())){

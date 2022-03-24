@@ -140,7 +140,6 @@ public class OrderPayServiceImpl implements OrderPayService {
         appOrderListDto.setQuoteState(3);
         appOrderListRequest.setT(appOrderListDto);
         appOrderListRequest.setPageSize(-1);
-        appOrderListRequest.initFromNum();
         Long customerId = session.getCustomerId();
         List<AppOrderVo> orderVos = orderService.selectAppOrderList(appOrderListRequest);
         if (ListUtils.isEmpty(orderVos)) {
@@ -176,15 +175,6 @@ public class OrderPayServiceImpl implements OrderPayService {
                 if (!orderShipUnitIds.contains(orderVo.getId())) {
                     cantShipOrders.add(orderVo);
                     continue;
-//                    ShipDetail shipDetail = orderService.orderInitShipDetail(orderVo.getId(),warehouseCode);
-//                    if (shipDetail == null) {
-//
-//                    }
-//                    orderVo.setShipMethodName(shipDetail.getMethodName());
-//                    orderVo.setShipMethodId(shipDetail.getMethodId());
-//                    orderVo.setShipPrice(shipDetail.getPrice());
-//                    orderVo.setServiceFee(shipDetail.getServiceFee());
-//                    orderVo.setTotalWeight(shipDetail.getWeight());
                 }
             } else {
                 List<ShipDetail> shipDetails = orderService.orderOverseaWarehouseShipMethods(orderVo.getId(),orderVo.getToAreaId(),Constant.OVERSEA_WAREHOUSE);
@@ -218,6 +208,7 @@ public class OrderPayServiceImpl implements OrderPayService {
         if (MapUtils.isNotEmpty(vatAmountMap)) {
             orderDao.updateVatAmountByMap(vatAmountMap);
         }
+
         return BaseResponse.success(orderVos);
     }
 
