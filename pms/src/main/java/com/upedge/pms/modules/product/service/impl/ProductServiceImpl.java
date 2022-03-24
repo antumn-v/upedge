@@ -648,6 +648,9 @@ public class ProductServiceImpl implements ProductService {
             productVariant.setWidth(BigDecimal.ONE);
             productVariant.setLength(BigDecimal.ONE);
             productVariant.setVolumeWeight(BigDecimal.ONE);
+            if (null == productVariant.getWeight()){
+                productVariant.setWeight(BigDecimal.ZERO);
+            }
             productVariantList.add(productVariant);
             productVariantVo.getVariantAttrVoList().forEach(productVariantAttrVo -> {
                 ProductVariantAttr productVariantAttr = new ProductVariantAttr();
