@@ -700,6 +700,7 @@ public class StoreOrderServiceImpl implements StoreOrderService {
     }
 
     public void updateShopifyStoreOrder(StoreOrder storeOrder,ShopifyOrder shopifyOrder,StoreVo storeVo){
+        Long storeOrderId = storeOrder.getId();
         //更新店铺地址
         StoreOrderAddress storeOrderAddress = new StoreOrderAddress(shopifyOrder.getShipping_address());
         storeOrderAddress.setNote(shopifyOrder.getNote());
@@ -711,12 +712,12 @@ public class StoreOrderServiceImpl implements StoreOrderService {
         } else if (shopifyOrder.getCustomer() != null && StringUtils.isNotBlank(shopifyOrder.getCustomer().getEmail())) {
             storeOrderAddress.setEmail(shopifyOrder.getCustomer().getEmail());
         }
+        storeOrderAddress.setStoreOrderId(storeOrderId);
         int i = storeOrderAddressDao.updateByPrimaryKey(storeOrderAddress);
         if (i == 1){
             orderAddressService.updateByStoreOrderAddress(storeOrderAddress);
         }
         //更新店铺订单状态
-        Long storeOrderId = storeOrder.getId();
         StoreOrder newStoreOrder = new StoreOrder(shopifyOrder);
 
         if (!newStoreOrder.getFinancialStatus().equals(storeOrder.getFinancialStatus())
@@ -728,7 +729,7 @@ public class StoreOrderServiceImpl implements StoreOrderService {
             List<StoreOrderRelate> storeOrderRelates = storeOrderRelateDao.selectByStoreOrderId(storeOrderId);
             for (StoreOrderRelate storeOrderRelate : storeOrderRelates) {
                 if (shopifyOrder.getFinancial_status().equals("refunded")
-                || shopifyOrder.getFulfillment_status().equals("fulfilled")){
+                || (shopifyOrder.getFulfillment_status() != null && shopifyOrder.getFulfillment_status().equals("fulfilled"))){
                     Order order = new Order();
                     order.setId(storeOrderRelate.getOrderId());
                     order.setPayState(-1);
