@@ -70,8 +70,6 @@ public class RechargeController {
         return rechargeService.rechargeHistoryList(request);
     }
 
-
-
     /**
      * 充值申请列表
      *

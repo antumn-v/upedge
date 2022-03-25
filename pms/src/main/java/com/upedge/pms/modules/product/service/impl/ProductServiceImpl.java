@@ -730,10 +730,6 @@ public class ProductServiceImpl implements ProductService {
         product.setState(3);
         product.setUpdateTime(new Date());
         productDao.updateByPrimaryKeySelective(product);
-        ProductUoloadToSaiheRequest request = new ProductUoloadToSaiheRequest();
-        List<Long> productIds = new ArrayList<>();
-        productIds.add(id);
-        request.setProductIds(productIds);
         return new BaseResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS);
     }
 
