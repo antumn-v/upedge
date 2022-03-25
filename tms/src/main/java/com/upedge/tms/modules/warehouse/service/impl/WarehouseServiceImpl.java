@@ -56,6 +56,9 @@ public class WarehouseServiceImpl implements WarehouseService {
     @Override
     public void redisInit() {
         Page<Warehouse> page = new Page<>();
+        Warehouse ware = new Warehouse();
+        ware.setState(0);
+        page.setT(ware);
         page.setPageSize(-1);
         List<Warehouse> warehouses = select(page);
         if (ListUtils.isNotEmpty(warehouses)){

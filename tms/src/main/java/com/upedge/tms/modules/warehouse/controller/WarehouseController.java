@@ -40,6 +40,10 @@ public class WarehouseController {
     @RequestMapping(value="/list", method=RequestMethod.POST)
     @Permission(permission = "warehouse:warehouse:list")
     public WarehouseListResponse list(@RequestBody @Valid WarehouseListRequest request) {
+        if (request.getT() == null){
+            request.setT(new Warehouse());
+        }
+        request.getT().setState(0);
         List<Warehouse> results = warehouseService.select(request);
         Long total = warehouseService.count(request);
         request.setTotal(total);
