@@ -816,7 +816,7 @@ public class OrderServiceImpl implements OrderService {
             orderItem.setOriginalQuantity(item.getQuantity());
             if (customerProductQuoteVoMap.containsKey(item.getStoreVariantId())) {
                 CustomerProductQuoteVo customerProductQuoteVo = customerProductQuoteVoMap.get(item.getStoreVariantId());
-                BigDecimal itemQuantity = new BigDecimal(item.getQuantity()).multiply(new BigDecimal(customerProductQuoteVo.getQuoteScale()));
+
                 if (customerProductQuoteVo.getQuoteType() == 5) {
                     //报价中
                     quotingItem ++;
@@ -828,7 +828,7 @@ public class OrderServiceImpl implements OrderService {
                 } else {
                     //报价成功
                     quotedItem ++;
-                    itemQuantity = itemQuantity.multiply(new BigDecimal(customerProductQuoteVo.getQuoteScale()));
+                    BigDecimal itemQuantity = new BigDecimal(item.getQuantity()).multiply(new BigDecimal(customerProductQuoteVo.getQuoteScale()));
                     orderItem.quoteProductToItem(customerProductQuoteVo);
                     orderItem.setQuoteState(customerProductQuoteVo.getQuoteType());
                     orderItem.setQuoteScale(customerProductQuoteVo.getQuoteScale());
