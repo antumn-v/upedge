@@ -185,7 +185,7 @@ public class StoreOrderServiceImpl implements StoreOrderService {
         StoreOrder storeOrder = storeOrderDao.selectByStorePlatId(storeVo.getId(), shopifyOrder.getId());
         if (null != storeOrder){
             updateShopifyStoreOrder(storeOrder,shopifyOrder,storeVo);
-            return null;
+            return storeOrder;
         }
         if (!shopifyOrder.getFinancial_status().equals("paid")
         || shopifyOrder.getFulfillment_status() != null){

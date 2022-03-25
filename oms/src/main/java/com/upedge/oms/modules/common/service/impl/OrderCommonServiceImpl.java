@@ -577,6 +577,10 @@ public class OrderCommonServiceImpl implements OrderCommonService {
         if (apiGetOrderResponse.getGetOrdersResult().getStatus().equals("OK")) {
             List<ApiOrderInfo> l = apiGetOrderResponse.getGetOrdersResult().getOrderInfoList().getOrderInfoList();
             if (l != null && l.size() > 0) {
+                ApiOrderInfo apiOrderInfo = l.get(0);
+                if (apiOrderInfo.getOrderState() < 2){
+                     return false;
+                }
                 String trackNumbers = l.get(0).getTrackNumbers();
                 String orderCode = l.get(0).getOrderCode();
                 String logisticsOrderNo = l.get(0).getLogisticsOrderNo();
