@@ -34,7 +34,7 @@
     </sql>
 
     <select id="selectFixFeeByAmount" resultType="java.math.BigDecimal">
-        select round( ( #{percentage} * #{amount} + '0.3') / ('1' - #{percentage}),'2')
+        select round( #{amount}  * ('1' + #{percentage}),'2')
     </select>
 
     <select id="selectByPrimaryKey" resultMap="BaseResultMap">

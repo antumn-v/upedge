@@ -101,7 +101,7 @@ public class PaypalServiceImpl implements PaypalService {
         }
 
         BigDecimal amount = paypalOrder.getAmount();
-        BigDecimal fixfee = paypalPaymentDao.selectFixFeeByAmount(amount, Constant.PAYPAL_FEE_PERCENTAGE);
+        BigDecimal fixfee = amount.multiply(Constant.PAYPAL_FEE_PERCENTAGE);
 
         try {
             Payment payment = createPayment(
@@ -164,9 +164,7 @@ public class PaypalServiceImpl implements PaypalService {
             e.printStackTrace();
             return null;
         }
-
         Session session = paypalOrder.getSession();
-
         PaypalPayment paypalPayment = toPaypalPayment(paypalOrder.getId(),payment);
         paypalPayment.setToken(token);
         paypalPayment.setUserId(session.getId());
