@@ -41,4 +41,6 @@ public class CustomerDetailVo {
     List<StoreVo> stores;
 
     Integer status;
+
+    String remark;
 }

@@ -34,6 +34,9 @@
             <if test="cname != null">
                 cname = #{cname},
             </if>
+            <if test="remark != null">
+                remark = #{remark},
+            </if>
             <if test="cstatus != null">
                 cstatus = #{cstatus},
             </if>
@@ -194,6 +197,7 @@
                u.whatsapp,
                u.wechat,
                u.fb_info,
+                c.remark,
             a.balance
         FROM customer c
         LEFT JOIN `user` u ON u.id = c.customer_signup_user_id
@@ -209,6 +213,9 @@
                 </if>
                 <if test="t.email != null">
                     and u.email = #{t.email}
+                </if>
+                <if test="t.remark != null">
+                    and c.remark like concat('%',#{t.remark},'%')
                 </if>
             </trim>
         </if>
@@ -234,6 +241,9 @@
                 </if>
                 <if test="t.email != null">
                     and u.email = #{t.email}
+                </if>
+                <if test="t.remark != null">
+                    and c.remark like concat('%',#{t.remark},'%')
                 </if>
             </trim>
         </if>

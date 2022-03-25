@@ -31,4 +31,6 @@ public class Customer{
 	 */
     private Long customerSignupUserId;
 
+	private String remark;
+
 }

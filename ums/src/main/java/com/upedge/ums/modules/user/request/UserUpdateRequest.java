@@ -87,6 +87,8 @@ public class UserUpdateRequest{
      */
     private Date lastLoginTime;
 
+    private String remark;
+
     public User toUser(Long id){
         User user=new User();
         user.setId(id);
@@ -109,6 +111,7 @@ public class UserUpdateRequest{
         user.setCreateTime(createTime);
         user.setUpdateTime(updateTime);
         user.setLastLoginTime(lastLoginTime);
+        user.setRemark(remark);
         return user;
     }
 

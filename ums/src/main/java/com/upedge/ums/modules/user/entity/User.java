@@ -91,4 +91,6 @@ public class User{
 	 */
 	private Date lastLoginTime;
 
+	private String remark;
+
 }

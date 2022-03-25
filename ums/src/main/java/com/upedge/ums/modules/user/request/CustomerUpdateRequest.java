@@ -1,8 +1,9 @@
 package com.upedge.ums.modules.user.request;
 
 import com.upedge.ums.modules.user.entity.Customer;
-import java.util.Date;
 import lombok.Data;
+
+import java.util.Date;
 /**
  * @author gx
  */
@@ -26,6 +27,8 @@ public class CustomerUpdateRequest{
      */
     private Long customerSignupUserId;
 
+    private String remark;
+
     public Customer toCustomer(Long id){
         Customer customer=new Customer();
         customer.setId(id);
@@ -33,6 +36,7 @@ public class CustomerUpdateRequest{
         customer.setCstatus(cstatus);
         customer.setCreateTime(createTime);
         customer.setCustomerSignupUserId(customerSignupUserId);
+        customer.setRemark(remark);
         return customer;
     }
 
