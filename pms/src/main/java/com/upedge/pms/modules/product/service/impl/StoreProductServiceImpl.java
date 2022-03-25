@@ -323,6 +323,7 @@ public class StoreProductServiceImpl implements StoreProductService {
             } else {
                 Long storeVariantId = IdGenerate.nextId();
                 storeVariant.setId(storeVariantId);
+                storeVariant.setSplitType(0);
                 insertVariants.add(storeVariant);
             }
             platVariantIds.add(variant.getId());
