@@ -637,7 +637,6 @@ public class OrderServiceImpl implements OrderService {
             priceCalculator.setWidth("1");
             priceCalculator.setWeight(actualWeight.toString());
             priceCalculator.setService_code("FB4");
-            priceCalculator.setProduct_codes(methodCodes);
             priceCalculator.setWarehouse_code(warehouseCode);
             priceCalculator.setBilling_time(System.currentTimeMillis());
             priceCalculator.setDestination(destinationDTO);

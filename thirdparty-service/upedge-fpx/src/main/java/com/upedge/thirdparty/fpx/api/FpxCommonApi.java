@@ -12,6 +12,7 @@ import com.upedge.thirdparty.fpx.utils.ApiHttpClientUtils;
 import com.upedge.thirdparty.fpx.vo.PriceCalculatorResultVo;
 
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class FpxCommonApi {
@@ -38,5 +39,30 @@ public class FpxCommonApi {
         }
 
         return null;
+    }
+
+
+    public static void main(String[] args) {
+        ShipPriceCalculator.DestinationDTO destinationDTO = new ShipPriceCalculator.DestinationDTO();
+        destinationDTO.setCountry("US");
+
+        List<String> methodCodes = new ArrayList<>();
+        methodCodes.add("F129");
+
+        ShipPriceCalculator priceCalculator = new ShipPriceCalculator();
+        priceCalculator.setHeight("1");
+        priceCalculator.setLength("1");
+        priceCalculator.setWidth("1");
+        priceCalculator.setWeight("100");
+        priceCalculator.setService_code("FB4");
+        priceCalculator.setProduct_codes(methodCodes);
+        priceCalculator.setWarehouse_code("USLAXA");
+        priceCalculator.setBilling_time(System.currentTimeMillis());
+        priceCalculator.setDestination(destinationDTO);
+
+        List<PriceCalculatorDTO> priceCalculatorDTOS = FpxCommonApi.priceCalculator(priceCalculator);
+
+        System.out.println(priceCalculatorDTOS);
+
     }
 }

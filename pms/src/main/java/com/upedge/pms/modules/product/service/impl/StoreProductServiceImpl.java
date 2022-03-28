@@ -307,8 +307,9 @@ public class StoreProductServiceImpl implements StoreProductService {
         TreeSet<BigDecimal> variantPrices = new TreeSet<>();
         List<String> platVariantIds = new ArrayList<>();
         List<StoreProductVariant> updateVariants = new ArrayList<>();
-
+        List<String> newPlatVariantIds = new ArrayList<>();
         for (ShopifyVariant variant : variants) {
+            newPlatVariantIds.add(variant.getId());
             variantPrices.add(variant.getPrice());
             StoreProductVariant storeVariant = shopifyVariantToStoreVariant(variant, date, storeProductId, platProductId);
             if (null != variant.getImage_id()) {
@@ -332,24 +333,28 @@ public class StoreProductServiceImpl implements StoreProductService {
         if (insertVariants.size() > 0) {
             storeProductVariantDao.insertByBatch(insertVariants);
         }
-        if (updateVariants.size() > 0) {
-            storeProductVariantDao.updateByBatch(updateVariants);
+//        if (updateVariants.size() > 0) {
+//            storeProductVariantDao.updateByBatch(updateVariants);
+//        }
+        platVariantIds.removeAll(newPlatVariantIds);
+        if(ListUtils.isNotEmpty(platVariantIds)){
+            storeProductVariantDao.markStoreVariantAsRemovedByPlatId(storeProductId, platVariantIds);
         }
-        storeProductVariantDao.markStoreVariantAsRemovedByPlatId(storeProductId, platVariantIds);
+
 
         if (importAttribute != null) {
             storeProductVariantDao.updateAdminVariantIdByImportId(importAttribute.getId(), storeProductId);
         }
-        attribute = new StoreProductAttribute();
-        attribute.setId(storeProductId);
-        if (variantPrices.size() > 1) {
-            variantPrices.descendingSet();
-            attribute.setPrice(variantPrices.first() + "~" + variantPrices.last());
-        } else {
-            attribute.setPrice(variantPrices.last() + "");
-        }
-        storeProductAttributeDao.updateByPrimaryKeySelective(attribute);
-//        RedisUtil.unLock(redisTemplate, key);
+//        attribute = new StoreProductAttribute();
+//        attribute.setId(storeProductId);
+//        if (variantPrices.size() > 1) {
+//            variantPrices.descendingSet();
+//            attribute.setPrice(variantPrices.first() + "~" + variantPrices.last());
+//        } else {
+//            attribute.setPrice(variantPrices.last() + "");
+//        }
+//        storeProductAttributeDao.updateByPrimaryKeySelective(attribute);
+        RedisUtil.unLock(redisTemplate, key);
         return attribute.getId();
     }
 

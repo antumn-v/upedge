@@ -177,6 +177,13 @@ public class StoreProductVariantServiceImpl implements StoreProductVariantServic
         orderItemUpdateImageNameRequest.setName(request.getName());
         orderItemUpdateImageNameRequest.setImage(image);
         orderItemUpdateImageNameRequest.setStoreVariantId(storeVariantId);
+
+        CustomerProductQuote customerProductQuote = new CustomerProductQuote();
+        customerProductQuote.setStoreVariantId(storeVariantId);
+        customerProductQuote.setStoreVariantName(request.getName());
+        customerProductQuote.setStoreVariantImage(image);
+        customerProductQuoteService.updateByPrimaryKeySelective(customerProductQuote);
+
         return omsFeignClient.updateImageNameByStoreVariantId(orderItemUpdateImageNameRequest);
     }
 

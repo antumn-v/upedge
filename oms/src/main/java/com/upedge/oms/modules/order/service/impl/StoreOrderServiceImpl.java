@@ -759,6 +759,7 @@ public class StoreOrderServiceImpl implements StoreOrderService {
         for (StoreOrderItem storeOrderItem : storeOrderItems) {
             if (!itemQuantityMap.containsKey(storeOrderItem.getPlatOrderItemId())){
                 //插入变体
+
                 continue;
             }
             Integer quantity = itemQuantityMap.get(storeOrderItem.getPlatOrderItemId());

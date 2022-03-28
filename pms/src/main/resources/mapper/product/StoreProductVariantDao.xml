@@ -112,6 +112,7 @@
         select plat_variant_id
         from store_product_variant
         where product_id = #{productId}
+        and parent_variant_id = '0'
     </select>
 
     <update id="updateByPlatVariantId" parameterType="com.upedge.pms.modules.product.entity.StoreProductVariant">
@@ -173,7 +174,7 @@
             state = #{v.state}
             where product_id = #{v.productId}
             and plat_variant_id = #{v.platVariantId}
-            and split_type &lt; '2'
+            and parent_variant_id = '0'
         </foreach>
     </update>
 
