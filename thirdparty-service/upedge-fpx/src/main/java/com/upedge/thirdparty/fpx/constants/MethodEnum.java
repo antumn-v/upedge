@@ -6,6 +6,14 @@ public enum MethodEnum {
      */
     price_calculator("com.css.price_calculator"),
     /**
+     * 仓库查询
+     */
+    get_warehouse("com.basis.warehouse.getlist"),
+    /**
+     * 运输方式查询
+     */
+    get_methods("com.basis.logistics_product.getlist"),
+    /**
      * 库存查询
      */
     inventory_get("fu.wms.inventory.get"),
