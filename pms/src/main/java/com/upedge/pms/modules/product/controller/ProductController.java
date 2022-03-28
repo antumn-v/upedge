@@ -68,35 +68,35 @@ public class ProductController {
     RedisTemplate redisTemplate;
 
     @ApiOperation("1688导入产品")
-    @RequestMapping(value="/importFrom1688", method=RequestMethod.POST)
+    @RequestMapping(value = "/importFrom1688", method = RequestMethod.POST)
     public BaseResponse importFrom1688(@RequestBody ImportFrom1688Request request) {
-        if(!StringUtils.isBlank(request.getUrl())){
-            String aliProductId= UrlUtils.getNameByUrl(request.getUrl());
+        if (!StringUtils.isBlank(request.getUrl())) {
+            String aliProductId = UrlUtils.getNameByUrl(request.getUrl());
             request.setOriginalProductId(aliProductId);
         }
-        if(StringUtils.isBlank(request.getOriginalProductId())){
-            return new BaseResponse(ResultCode.FAIL_CODE,Constant.MESSAGE_FAIL);
+        if (StringUtils.isBlank(request.getOriginalProductId())) {
+            return new BaseResponse(ResultCode.FAIL_CODE, Constant.MESSAGE_FAIL);
         }
-        Product p=productService.selectByOriginalId(request.getOriginalProductId());
-        if(p!=null){
+        Product p = productService.selectByOriginalId(request.getOriginalProductId());
+        if (p != null) {
             return BaseResponse.failed("产品不可重复导入");
         }
         AlibabaApiVo alibabaApiVo = (AlibabaApiVo) redisTemplate.opsForValue().get(RedisKey.STRING_ALI1688_API);
-        AlibabaProductVo AlibabaProductVo= Ali1688Service.getProduct(request.getOriginalProductId(),alibabaApiVo);
+        AlibabaProductVo AlibabaProductVo = Ali1688Service.getProduct(request.getOriginalProductId(), alibabaApiVo);
         Session session = UserUtil.getSession(redisTemplate);
-        if(AlibabaProductVo==null){
-            return new BaseResponse(ResultCode.FAIL_CODE,Constant.MESSAGE_FAIL);
+        if (AlibabaProductVo == null) {
+            return new BaseResponse(ResultCode.FAIL_CODE, Constant.MESSAGE_FAIL);
         }
         try {
-            return productService.importFrom1688(AlibabaProductVo,session);
+            return productService.importFrom1688(AlibabaProductVo, session);
         } catch (Exception e) {
-            return new BaseResponse(ResultCode.FAIL_CODE,e.getMessage());
+            return new BaseResponse(ResultCode.FAIL_CODE, e.getMessage());
         }
     }
 
     @ApiOperation("产品展示详情")
     @GetMapping("/showDetail/{id}")
-    public BaseResponse productShowDetail(@PathVariable Long id){
+    public BaseResponse productShowDetail(@PathVariable Long id) {
         AppProductVo appProductVo = productService.showCustomerProductDetail(id);
         return BaseResponse.success(appProductVo);
     }
@@ -104,18 +104,19 @@ public class ProductController {
 
     /**
      * 选品池列表
+     *
      * @param request
      * @return
      */
     @ApiOperation("选品池列表")
-    @RequestMapping(value="/selectionList", method=RequestMethod.POST)
+    @RequestMapping(value = "/selectionList", method = RequestMethod.POST)
     public ProductListResponse list(@RequestBody @Valid ProductListRequest request) {
-        if(request.getT()==null){
-            Product product=new Product();
+        if (request.getT() == null) {
+            Product product = new Product();
             request.setT(product);
         }
-        Product p=request.getT();
-        if(!StringUtils.isBlank(p.getProductTitle())){
+        Product p = request.getT();
+        if (!StringUtils.isBlank(p.getProductTitle())) {
             p.setOriginalTitle(p.getProductTitle());
             p.setProductTitle(null);
         }
@@ -127,19 +128,20 @@ public class ProductController {
 
     /**
      * 导入收藏夹
+     *
      * @param request
      * @return
      */
     @ApiOperation("导入收藏夹")
-    @RequestMapping(value="/importFavorite", method=RequestMethod.POST)
+    @RequestMapping(value = "/importFavorite", method = RequestMethod.POST)
     public ImportFavoriteResponse importFavorite(@RequestBody @Valid ImportFavoriteRequest request) {
         Session session = UserUtil.getSession(redisTemplate);
-        return productService.importFavorite(request,session);
+        return productService.importFavorite(request, session);
     }
 
 
-    @RequestMapping(value="/ship/{shippingId}/count", method= RequestMethod.POST)
-    BaseResponse countProductByShippingId(@PathVariable Long shippingId){
+    @RequestMapping(value = "/ship/{shippingId}/count", method = RequestMethod.POST)
+    BaseResponse countProductByShippingId(@PathVariable Long shippingId) {
         Page<Product> page = new Page<>();
         Product product = new Product();
         product.setShippingId(shippingId);
@@ -150,18 +152,19 @@ public class ProductController {
 
     /**
      * 收藏夹列表
+     *
      * @param request
      * @return
      */
     @ApiOperation("收藏夹列表")
-    @RequestMapping(value="/favoriteList", method=RequestMethod.POST)
+    @RequestMapping(value = "/favoriteList", method = RequestMethod.POST)
     public ProductListResponse favoriteList(@RequestBody @Valid ProductListRequest request) {
         Session session = UserUtil.getSession(redisTemplate);
-        if(request.getT()==null){
-            Product product=new Product();
+        if (request.getT() == null) {
+            Product product = new Product();
             request.setT(product);
         }
-        Product p=request.getT();
+        Product p = request.getT();
         p.setUserId(String.valueOf(session.getId()));
         p.setState(1);
         request.setFields("p.id,p.product_sku,p.product_title,p.product_image,p.create_time,p.user_id,p.cate_type," +
@@ -174,45 +177,45 @@ public class ProductController {
     @PostMapping("/abandonList")
     public BaseResponse abandonProductList(@RequestBody @Valid ProductListRequest request) {
 
-        if(request.getT()==null){
-            Product product=new Product();
+        if (request.getT() == null) {
+            Product product = new Product();
             request.setT(product);
         }
-        Product p=request.getT();
+        Product p = request.getT();
         p.setState(5);
         request.setOrderBy("update_time desc");
         List<Product> results = productService.select(request);
         Long total = productService.count(request);
         request.setTotal(total);
-        return BaseResponse.success(results,request);
+        return BaseResponse.success(results, request);
     }
 
     /**
-     *释放产品到选品池
+     * 释放产品到选品池
      */
     @ApiOperation("释放产品到选品池")
 //    @RequestMapping(value="/multiRelease", method=RequestMethod.POST)
     public MultiReleaseResponse multiRelease(@RequestBody @Valid MultiReleaseRequest request) {
         Session session = UserUtil.getSession(redisTemplate);
-        return productService.multiRelease(request,session);
+        return productService.multiRelease(request, session);
     }
 
     /**
      * 废弃产品
      */
     @ApiOperation("废弃产品")
-    @RequestMapping(value="/abandonProduct/{id}", method=RequestMethod.POST)
+    @RequestMapping(value = "/abandonProduct/{id}", method = RequestMethod.POST)
     public AbandonProductResponse abandonProduct(@PathVariable Long id) {
         Session session = UserUtil.getSession(redisTemplate);
-        return productService.abandonProduct(id,session);
+        return productService.abandonProduct(id, session);
     }
 
     @ApiOperation("恢复产品")
-    @RequestMapping(value="/restoreProduct/{id}", method=RequestMethod.POST)
+    @RequestMapping(value = "/restoreProduct/{id}", method = RequestMethod.POST)
     public BaseResponse restoreProduct(@PathVariable Long id) throws Exception {
         Product product = productService.selectByPrimaryKey(id);
         if (product == null
-        || product.getState() != 5){
+                || product.getState() != 5) {
             return BaseResponse.failed();
         }
         product = new Product();
@@ -233,21 +236,21 @@ public class ProductController {
 
     @ApiOperation("产品变体运输方式")
     @PostMapping("/variant/ships")
-    public AppVariantShipsResponse variantShips(@RequestBody @Valid AppVariantShipsRequest request){
+    public AppVariantShipsResponse variantShips(@RequestBody @Valid AppVariantShipsRequest request) {
         Session session = UserUtil.getSession(redisTemplate);
 
-        return appProductService.variantShips(request,session);
+        return appProductService.variantShips(request, session);
     }
 
     /**
-     *产品上架
+     * 产品上架
      */
     @ApiOperation("产品上架")
-    @RequestMapping(value="/putaway/{id}",method = RequestMethod.POST)
-    public BaseResponse putawayProduct(@PathVariable Long id){
+    @RequestMapping(value = "/putaway/{id}", method = RequestMethod.POST)
+    public BaseResponse putawayProduct(@PathVariable Long id) {
         Session session = UserUtil.getSession(redisTemplate);
         try {
-            return productService.putawayProduct(id,session);
+            return productService.putawayProduct(id, session);
         } catch (CustomerException e) {
             e.printStackTrace();
             return BaseResponse.failed(e.getMessage());
@@ -255,72 +258,78 @@ public class ProductController {
     }
 
     @ApiOperation("修改产品信息")
-    @RequestMapping(value = "/updateInfo/{id}",method = RequestMethod.POST)
-    public BaseResponse updateInfo(@PathVariable Long id,@RequestBody @Valid UpdateInfoProductRequest request){
+    @RequestMapping(value = "/updateInfo/{id}", method = RequestMethod.POST)
+    public BaseResponse updateInfo(@PathVariable Long id, @RequestBody @Valid UpdateInfoProductRequest request) {
         Session session = UserUtil.getSession(redisTemplate);
         BaseResponse response = null;
         try {
-            response = productService.updateInfo(id,request,session);
+            response = productService.updateInfo(id, request, session);
         } catch (Exception e) {
             e.printStackTrace();
             return BaseResponse.failed(e.getMessage());
         }
-        if (response.getCode() == ResultCode.SUCCESS_CODE && null != request.getShippingId()){
+        if (response.getCode() == ResultCode.SUCCESS_CODE && null != request.getShippingId()) {
 
         }
         return response;
     }
 
     /**
-     *产品下架
+     * 产品下架
      */
     @ApiOperation("产品下架")
-    @RequestMapping(value="/unshelve/{id}",method = RequestMethod.POST)
-    public BaseResponse unshelveProduct(@PathVariable Long id){
+    @RequestMapping(value = "/unshelve/{id}", method = RequestMethod.POST)
+    public BaseResponse unshelveProduct(@PathVariable Long id) {
         Session session = UserUtil.getSession(redisTemplate);
-        return productService.unshelveProduct(id,session);
+        return productService.unshelveProduct(id, session);
     }
 
 
     /**
      * 添加个人产品
      */
-    @RequestMapping(value="/addProduct",method = RequestMethod.POST)
-    public BaseResponse addProduct(@RequestBody @Valid AddProductVo addProductVo){
+    @RequestMapping(value = "/addProduct", method = RequestMethod.POST)
+    public BaseResponse addProduct(@RequestBody @Valid AddProductVo addProductVo) {
         Session session = UserUtil.getSession(redisTemplate);
-        return productService.addProduct(addProductVo,session);
+        return productService.addProduct(addProductVo, session);
     }
 
     /**
      * 添加个人产品（上传图片）
      */
-    @RequestMapping(value = "/addProduct/uploadImg",method = RequestMethod.POST)
+    @RequestMapping(value = "/addProduct/uploadImg", method = RequestMethod.POST)
     public BaseResponse addProductUploadImg(@RequestParam("file") List<MultipartFile> files) {
-        List<String> imgList= UploadImgUtil.uploadImg(files,UploadImgUtil.IMGDIR.PRODUCT.getDir());
-        return new BaseResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS,imgList);
+        List<String> imgList = UploadImgUtil.uploadImg(files, UploadImgUtil.IMGDIR.PRODUCT.getDir());
+        return new BaseResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS, imgList);
     }
 
     /**
      * 产品导入赛盒
      */
     @ApiOperation("产品导入赛盒")
-    @RequestMapping(value = "/uploadToSaihe",method = RequestMethod.POST)
-    public BaseResponse uploadToSaihe(@RequestBody @Valid ProductUoloadToSaiheRequest request){
+    @RequestMapping(value = "/uploadToSaihe", method = RequestMethod.POST)
+    public BaseResponse uploadToSaihe(@RequestBody @Valid ProductUoloadToSaiheRequest request) {
 
-        try {
-            return productService.uploadToSaihe(request);
-        } catch (CustomerException e) {
-            e.printStackTrace();
-            return BaseResponse.failed(e.getMessage());
+
+        List<Long> productIds = request.getProductIds();
+        for (Long productId : productIds) {
+            try {
+                productService.uploadToSaihe(productId, null);
+            } catch (Exception e) {
+                e.printStackTrace();
+                return BaseResponse.failed(productId + " 上传赛盒失败：" + e.getMessage());
+            }
         }
+        return BaseResponse.success();
+
     }
 
     @ApiOperation("产品导入购物车")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "cateType",value = "备库=0，批发=1",required = true)
+            @ApiImplicitParam(name = "cateType", value = "备库=0，批发=1", required = true)
     })
     @PostMapping("/importCart")
-    public BaseResponse productImportCart(@RequestBody @Valid ProductImportCartRequest request){
+    public BaseResponse productImportCart(@RequestBody @Valid ProductImportCartRequest request) {
         Session session = UserUtil.getSession(redisTemplate);
 
         Product product = productService.selectByPrimaryKey(request.getProductId());
@@ -344,15 +353,15 @@ public class ProductController {
 
     }
 
-    @RequestMapping(value="/info/{id}", method=RequestMethod.GET)
+    @RequestMapping(value = "/info/{id}", method = RequestMethod.GET)
     @Permission(permission = "product:product:info:id")
     public ProductInfoResponse info(@PathVariable Long id) {
         Product result = productService.selectByPrimaryKey(id);
-        ProductInfoResponse res = new ProductInfoResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS,result,id);
+        ProductInfoResponse res = new ProductInfoResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS, result, id);
         return res;
     }
 
-    @RequestMapping(value="/list", method=RequestMethod.POST)
+    @RequestMapping(value = "/list", method = RequestMethod.POST)
     @Permission(permission = "product:product:list")
     public ProductListResponse productList(@RequestBody @Valid ProductListRequest request) {
         request.setCondition("state != '5'");
@@ -360,31 +369,31 @@ public class ProductController {
         List<Product> results = productService.select(request);
         Long total = productService.count(request);
         request.setTotal(total);
-        ProductListResponse res = new ProductListResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS,results,request);
+        ProductListResponse res = new ProductListResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS, results, request);
         return res;
     }
 
 
     @ApiOperation("修改产品信息")
-    @RequestMapping(value="/update/{id}", method=RequestMethod.POST)
+    @RequestMapping(value = "/update/{id}", method = RequestMethod.POST)
     @Permission(permission = "product:product:update")
-    public BaseResponse update(@PathVariable Long id,@RequestBody @Valid ProductUpdateRequest request) {
-        Product entity=request.toProduct(id);
+    public BaseResponse update(@PathVariable Long id, @RequestBody @Valid ProductUpdateRequest request) {
+        Product entity = request.toProduct(id);
         try {
             productService.updateByPrimaryKeySelective(entity);
         } catch (Exception e) {
             e.printStackTrace();
             return BaseResponse.failed(e.getMessage());
         }
-        BaseResponse res = new ProductUpdateResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS);
+        BaseResponse res = new ProductUpdateResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS);
         return res;
     }
 
 
     @GetMapping("/variantDetail/{id}")
-    public List<VariantDetail> getVariantDetail(@PathVariable Long id){
+    public List<VariantDetail> getVariantDetail(@PathVariable Long id) {
         Product product = productService.selectByPrimaryKey(id);
-        if (null == product){
+        if (null == product) {
             return null;
         }
         String productTitle = product.getProductTitle();
@@ -394,7 +403,7 @@ public class ProductController {
         List<VariantDetail> variantDetails = new ArrayList<>();
         for (ProductVariant productVariant : productVariants) {
             VariantDetail variantDetail = new VariantDetail();
-            BeanUtils.copyProperties(productVariant,variantDetail);
+            BeanUtils.copyProperties(productVariant, variantDetail);
             variantDetail.setCnyPrice(productVariant.getVariantPrice());
             variantDetail.setProductTitle(productTitle);
             variantDetail.setProductShippingId(shippingId);
@@ -409,7 +418,7 @@ public class ProductController {
 
     @ApiOperation("根据产品ID获取变体")
     @GetMapping("/variants/{id}")
-    public BaseResponse productVariants(@PathVariable Long id){
+    public BaseResponse productVariants(@PathVariable Long id) {
         List<ProductVariant> productVariants = productVariantService.selectByProductId(id);
         return BaseResponse.success(productVariants);
     }

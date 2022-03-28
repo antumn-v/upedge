@@ -42,6 +42,10 @@ public interface ProductVariantDao{
 
     List<SaiheSkuVo> listSaiheSkuVo(@Param("ids") List<Long> ids);
 
+    List<SaiheSkuVo> selectSaiheSkuVoByProductId(Long productId);
+
+    SaiheSkuVo selectSaiheSkuVoById(Long id);
+
     List<ProductVariant> selectByProductId(Long productId);
 
     ProductVariant selectByPrimaryKey(ProductVariant record);

@@ -49,7 +49,7 @@ public interface ProductService{
 
     BaseResponse unshelveProduct(Long id, Session session);
 
-    BaseResponse uploadToSaihe(ProductUoloadToSaiheRequest request) throws CustomerException;
+    BaseResponse uploadToSaihe(Long productId,Long variantId) throws Exception;
 
     BaseResponse publicProduct(Long id);
 

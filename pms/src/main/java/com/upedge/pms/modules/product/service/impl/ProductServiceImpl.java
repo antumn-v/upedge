@@ -754,9 +754,21 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public BaseResponse uploadToSaihe(ProductUoloadToSaiheRequest request) throws CustomerException {
+    public BaseResponse uploadToSaihe(Long productId,Long variantId) throws Exception {
+        List<SaiheSkuVo> list = new ArrayList<>();
+        if (null == productId && null == variantId){
+            return BaseResponse.failed("请求数据为空");
+        }
+        if (null != variantId){
+            SaiheSkuVo saiheSkuVo = productVariantService.selectSaiheSkuVoById(variantId);
+            if (null != saiheSkuVo){
+                list.add(saiheSkuVo);
+                productId = Long.parseLong(saiheSkuVo.getProductId());
+            }
 
-        List<SaiheSkuVo> list = productVariantService.listSaiheSkuVo(request.getProductIds());
+        }else {
+            list = productVariantService.selectSaiheSkuVoByProductId(productId);
+        }
         if (list == null || list.size() == 0) {
             return new BaseResponse(ResultCode.FAIL_CODE, "无可用变体!");
         }
@@ -812,12 +824,10 @@ public class ProductServiceImpl implements ProductService {
                 return new BaseResponse(ResultCode.FAIL_CODE, result.getApiUploadResult().getOperateMessage());
             } else {
                 //更新状态
-                productDao.updateSaiheState(request.getProductIds(), request.getProductIds().size());
-                /**
-                 * 产品导入赛盒，从未导入订单产品缓存集合中移除
-                 */
-                redisTemplate.opsForHash().delete(RedisKey.HASH_BAD_NORMAL_ORDER_PRODUCT, String.valueOf(request.getProductIds()));
-                redisTemplate.opsForHash().delete(RedisKey.HASH_BAD_WHOLESALE_ORDER_PRODUCT, String.valueOf(request.getProductIds()));
+                Product product = new Product();
+                product.setId(productId);
+                product.setSaiheState(1);
+                updateByPrimaryKeySelective(product);
                 return new BaseResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS);
             }
         } else {

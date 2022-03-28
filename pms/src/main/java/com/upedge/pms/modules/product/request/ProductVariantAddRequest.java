@@ -49,6 +49,7 @@ public class ProductVariantAddRequest{
 
     public ProductVariant toProductVariant(){
         ProductVariant productVariant=new ProductVariant();
+        productVariant.setId(IdGenerate.nextId());
         productVariant.setOriginalVariantId(0L);
         productVariant.setProductId(productId);
         productVariant.setVariantSku(IdGenerate.nextId().toString());

@@ -20,6 +20,10 @@ import java.util.Set;
  */
 public interface ProductVariantService{
 
+    List<SaiheSkuVo> selectSaiheSkuVoByProductId(Long productId);
+
+    SaiheSkuVo selectSaiheSkuVoById(Long id);
+
     ProductVariantUpdateWeightResponse updateWeight(ProductVariantUpdateWeightRequest request, Session session) throws CustomerException;
 
     ProductVariantUpdateVolumeWeightResponse updateVolumeWeight(ProductVariantUpdateVolumeWeightRequest request, Session session) throws CustomerException;
@@ -56,7 +60,7 @@ public interface ProductVariantService{
 
     int insert(ProductVariant record);
 
-    int insertSelective(ProductVariant record);
+    int insertSelective(ProductVariant record) throws Exception;
 
     List<ProductVariant> select(Page<ProductVariant> record);
 

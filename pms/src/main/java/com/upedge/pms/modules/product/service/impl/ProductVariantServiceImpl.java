@@ -11,6 +11,7 @@ import com.upedge.common.utils.ListUtils;
 import com.upedge.common.utils.PriceUtils;
 import com.upedge.pms.modules.product.dao.ProductLogDao;
 import com.upedge.pms.modules.product.dao.ProductVariantDao;
+import com.upedge.pms.modules.product.entity.Product;
 import com.upedge.pms.modules.product.entity.ProductLog;
 import com.upedge.pms.modules.product.entity.ProductVariant;
 import com.upedge.pms.modules.product.entity.ProductVariantAttr;
@@ -71,8 +72,15 @@ public class ProductVariantServiceImpl implements ProductVariantService {
      *
      */
     @Transactional
-    public int insertSelective(ProductVariant record) {
-        return productVariantDao.insert(record);
+    public int insertSelective(ProductVariant record) throws Exception {
+        int i = productVariantDao.insert(record);
+        if (i == 1 && record.getState() == 1){
+            Product product = productService.selectByPrimaryKey(record.getProductId());
+            if (product.getSaiheState() == 1){
+                productService.uploadToSaihe(null, record.getId());
+            }
+        }
+        return i;
     }
 
     /**
@@ -140,6 +148,22 @@ public class ProductVariantServiceImpl implements ProductVariantService {
         productVariantDao.updateByBatch(productVariantList);
         productVariantAttrService.updateByBatch(productVariantAttrList);
         return new ProductVariantUpdateAttrResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS);
+    }
+
+    @Override
+    public List<SaiheSkuVo> selectSaiheSkuVoByProductId(Long productId) {
+        if (null != productId){
+            return productVariantDao.selectSaiheSkuVoByProductId(productId);
+        }
+        return null;
+    }
+
+    @Override
+    public SaiheSkuVo selectSaiheSkuVoById(Long id) {
+        if (null != id){
+            return productVariantDao.selectSaiheSkuVoById(id);
+        }
+        return null;
     }
 
     /**

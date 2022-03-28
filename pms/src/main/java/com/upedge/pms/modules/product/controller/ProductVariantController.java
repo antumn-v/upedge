@@ -1,5 +1,6 @@
 package com.upedge.pms.modules.product.controller;
 
+import com.upedge.common.base.BaseResponse;
 import com.upedge.common.component.annotation.Permission;
 import com.upedge.common.constant.Constant;
 import com.upedge.common.constant.ResultCode;
@@ -177,9 +178,14 @@ public class ProductVariantController {
     @ApiOperation("新增变体")
     @RequestMapping(value="/add", method=RequestMethod.POST)
     @Permission(permission = "product:productvariant:add")
-    public ProductVariantAddResponse add(@RequestBody @Valid ProductVariantAddRequest request) {
+    public BaseResponse add(@RequestBody @Valid ProductVariantAddRequest request) {
         ProductVariant entity=request.toProductVariant();
-        productVariantService.insertSelective(entity);
+        try {
+            productVariantService.insertSelective(entity);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return BaseResponse.failed(e.getMessage());
+        }
         ProductVariantAddResponse res = new ProductVariantAddResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS,entity,request);
         return res;
     }
@@ -199,6 +205,18 @@ public class ProductVariantController {
         productVariantService.updateByPrimaryKeySelective(entity);
         ProductVariantUpdateResponse res = new ProductVariantUpdateResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS);
         return res;
+    }
+
+
+    @PostMapping("/uploadSaihe/{id}")
+    public BaseResponse variantUploadSaihe(@PathVariable Long id){
+        try {
+            productService.uploadToSaihe(null,id);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return BaseResponse.failed(e.getMessage());
+        }
+        return BaseResponse.success();
     }
 
 
