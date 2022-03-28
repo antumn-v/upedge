@@ -89,6 +89,8 @@ public class AppOrderVo {
      */
     private Integer orderType;
 
+    private String saiheOrderCode;
+
     private boolean hasPayFailed;
 
     private Long toAreaId;
