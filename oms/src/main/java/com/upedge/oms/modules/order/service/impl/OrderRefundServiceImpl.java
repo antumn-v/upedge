@@ -38,6 +38,7 @@ import io.seata.spring.annotation.GlobalTransactional;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -590,7 +591,7 @@ public class OrderRefundServiceImpl implements OrderRefundService {
             throw new CustomerException(ResultCode.FAIL_CODE, response.getMsg());
         }
         //作废赛盒订单，并同步赛盒发货状态
-        cancelSaiheOrderAndSynState(orderRefund.getId(), order.getSaiheOrderCode());
+//        cancelSaiheOrderAndSynState(orderRefund.getId(), order.getSaiheOrderCode());
         return new BaseResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS);
     }
 
@@ -625,6 +626,7 @@ public class OrderRefundServiceImpl implements OrderRefundService {
     /**
      * 取消赛盒订单，并同步发货状态
      */
+    @Async
     @Transactional(readOnly = false, rollbackFor = Exception.class)
     public void cancelSaiheOrderAndSynState(Long refundId, String saiheOrderCode) throws CustomerException {
         Integer orderState = null;
@@ -657,7 +659,7 @@ public class OrderRefundServiceImpl implements OrderRefundService {
                                 } else {
                                     //作废失败
                                     //throw newValidationException("赛盒未发货,订单作废失败!</br> ");
-                                    throw new CustomerException(ResultCode.FAIL_CODE, "赛盒未发货,订单作废失败!");
+                                    throw new CustomerException(ResultCode.FAIL_CODE, apiCancelOrderResponse.getCancelOrderResult().getMsg());
                                 }
                             }
                         }

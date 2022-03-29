@@ -770,14 +770,18 @@ public class OrderServiceImpl implements OrderService {
                 boolean quoted = false;
                 for (Long splitVariantId : splitVariantIds) {
                     CustomerProductQuoteVo customerProductQuoteVo = customerProductQuoteVoMap.get(splitVariantId);
-                    BigDecimal itemQuantity = new BigDecimal(item.getQuantity()).multiply(new BigDecimal(customerProductQuoteVo.getQuoteScale()));
                     if (customerProductQuoteVo != null){
                         quoted = true;
                     }else {
                         continue;
                     }
+                    if (customerProductQuoteVo.getQuoteState() == null){
+                        customerProductQuoteVo.setQuoteScale(1);
+                    }
+                    BigDecimal itemQuantity = new BigDecimal(item.getQuantity()).multiply(new BigDecimal(customerProductQuoteVo.getQuoteScale()));
                     OrderItem orderItem = new OrderItem();
                     BeanUtils.copyProperties(item, orderItem);
+                    orderItem.setQuantity(itemQuantity.intValue());
                     orderItem.setOriginalQuantity(item.getQuantity());
                     orderItem.quoteProductToItem(customerProductQuoteVo);
                     orderItem.setStoreVariantId(customerProductQuoteVo.getStoreVariantId());
@@ -815,11 +819,9 @@ public class OrderServiceImpl implements OrderService {
             orderItem.setOriginalQuantity(item.getQuantity());
             if (customerProductQuoteVoMap.containsKey(item.getStoreVariantId())) {
                 CustomerProductQuoteVo customerProductQuoteVo = customerProductQuoteVoMap.get(item.getStoreVariantId());
-
                 if (customerProductQuoteVo.getQuoteType() == 5) {
                     //报价中
                     quotingItem ++;
-                    orderItem = new OrderItem();
                     orderItem.setQuoteState(5);
                 } else if (customerProductQuoteVo.getQuoteState() == 0) {
                     //产品报价失败
@@ -827,7 +829,11 @@ public class OrderServiceImpl implements OrderService {
                 } else {
                     //报价成功
                     quotedItem ++;
+                    if (customerProductQuoteVo.getQuoteState() == null){
+                        customerProductQuoteVo.setQuoteScale(1);
+                    }
                     BigDecimal itemQuantity = new BigDecimal(item.getQuantity()).multiply(new BigDecimal(customerProductQuoteVo.getQuoteScale()));
+                    orderItem.setQuantity(itemQuantity.intValue());
                     orderItem.quoteProductToItem(customerProductQuoteVo);
                     orderItem.setQuoteState(customerProductQuoteVo.getQuoteType());
                     orderItem.setQuoteScale(customerProductQuoteVo.getQuoteScale());
@@ -841,11 +847,9 @@ public class OrderServiceImpl implements OrderService {
                     volume = volume.add(customerProductQuoteVo.getVolume().multiply(itemQuantity));
                 }
             } else {
-
                 orderItem.setQuoteState(0);
                 unQuotedItem ++;
             }
-
             orderItem.setOriginalQuantity(item.getQuantity());
             orderItem.setOrderId(orderId);
             orderItem.setStoreOrderItemId(item.getId());

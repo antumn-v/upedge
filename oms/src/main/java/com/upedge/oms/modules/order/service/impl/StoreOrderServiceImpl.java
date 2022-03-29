@@ -763,7 +763,7 @@ public class StoreOrderServiceImpl implements StoreOrderService {
                 continue;
             }
             Integer quantity = itemQuantityMap.get(storeOrderItem.getPlatOrderItemId());
-            if (quantity.equals(storeOrderItem.getQuantity())){
+            if (quantity == null || quantity.equals(storeOrderItem.getQuantity())){
                 continue;
             }
             storeOrderItemIds.add(storeOrderItem.getId());
@@ -773,10 +773,13 @@ public class StoreOrderServiceImpl implements StoreOrderService {
         }
         if (ListUtils.isNotEmpty(storeOrderItemIds)){
             List<Long> orderIds = orderItemService.selectOrderIdsByStoreOrderItemIds(storeOrderItemIds);
-            orderService.initOrderProductAmount(orderIds);
-            for (Long orderId : orderIds) {
-                orderService.matchShipRule(orderId);
+            if (ListUtils.isNotEmpty(orderIds)){
+                orderService.initOrderProductAmount(orderIds);
+                for (Long orderId : orderIds) {
+                    orderService.matchShipRule(orderId);
+                }
             }
+
         }
     }
 }

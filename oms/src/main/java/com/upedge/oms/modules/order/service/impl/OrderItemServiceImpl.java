@@ -272,7 +272,7 @@ public class OrderItemServiceImpl implements OrderItemService {
         //判断父体变体是否已报价  若已报价则无法操作
         Long storeParentVariantId = customerProductQuoteVo.getStoreParentVariantId();
         String key = "storeVariant:split:update:item:parent:" + storeParentVariantId;
-        boolean b = RedisUtil.lock(redisTemplate,key,10L,120*1000L);
+        boolean b = RedisUtil.lock(redisTemplate,key,10L,30*1000L);
         if (!b){
             throw new CustomerException(key + "---->获取锁失败");
         }
@@ -302,8 +302,13 @@ public class OrderItemServiceImpl implements OrderItemService {
                 if (ListUtils.isEmpty(splitVariantIds)){
                     return;
                 }
-                storeParentVariantId = splitVariantIds.get(0);
-                orderIds = orderItemDao.selectUnpaidOrderIdByStoreVariantId(storeParentVariantId);
+                for (Long splitVariantId : splitVariantIds) {
+                    orderIds = orderItemDao.selectUnpaidOrderIdByStoreVariantId(splitVariantId);
+                    if (ListUtils.isNotEmpty(orderIds)){
+                        storeParentVariantId = splitVariantId;
+                        break;
+                    }
+                }
                 if (ListUtils.isEmpty(orderIds)) {
                     return;
                 }

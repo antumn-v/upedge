@@ -571,6 +571,7 @@ public class StoreProductServiceImpl implements StoreProductService {
         storeVariant.setState(1);
         storeVariant.setTitle(variant.getTitle());
         storeVariant.setSku(variant.getSku());
+        storeVariant.setParentVariantId(0L);
         return storeVariant;
     }
 

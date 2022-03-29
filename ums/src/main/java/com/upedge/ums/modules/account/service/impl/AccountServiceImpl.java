@@ -39,7 +39,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ThreadPoolExecutor;
 
 /**
@@ -831,10 +830,6 @@ public class AccountServiceImpl implements AccountService {
             //退款
             accountMapper.addBalanceAndBenefits(account.getId(), newAmount, newBenefitsAmount);
 
-            log.debug("退款余额:{},退款返点:{}" + amount, benefitsAmount);
-            log.debug("还款信用额度:{}", repaymentAmount);
-            log.debug("实际退款余额:{},实际退款返点:{}", newAmount, newBenefitsAmount);
-
             //增加账户退款流水
             AccountLog refundFlow = new AccountLog();
             refundFlow.setAccountId(account.getId());
@@ -907,26 +902,10 @@ public class AccountServiceImpl implements AccountService {
         rechargeLog.setRechargeType(4);
         rechargeLog.setCreateTime(new Date());
         rechargeLog.setUpdateTime(new Date());
-        CompletableFuture future1= CompletableFuture.runAsync(()->{
-            rechargeLogMapper.insert(rechargeLog);
-        },threadPoolExecutor);
+        rechargeLogMapper.insert(rechargeLog);
+        refundRecordDao.insertByBatch(refundRecordList);
 
-        CompletableFuture future2= CompletableFuture.runAsync(()->{
-            //退款记录
-            refundRecordDao.insertByBatch(refundRecordList);
-        },threadPoolExecutor);
-
-        CompletableFuture future3= CompletableFuture.runAsync(()->{
-            //退款扣除佣金
-            subtractCommission(customerId,request.getOrderId(),request.getPayAmount(),benefitsAmountFlow,refundAmount,orderType);
-        },threadPoolExecutor);
-
-        try {
-            CompletableFuture.allOf(future1,future2,future3).get();
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new CustomerException(ResultCode.FAIL_CODE,e.getMessage());
-        }
+        subtractCommission(customerId,request.getOrderId(),request.getPayAmount(),benefitsAmountFlow,refundAmount,orderType);
 
         return new BaseResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS);
     }

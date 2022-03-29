@@ -15,7 +15,7 @@ spring:
         heartbeat: true
   redis:
     database: 0
-    host: 192.168.2.110
+    host: 192.168.2.14
     port: 6379
     password: 123456
     lettuce:
@@ -68,7 +68,7 @@ ribbon:        #设置ribbon的超时时间小于zuul的超时时间
 files:
   image:
     local: 'D:/developer/image/'
-    prefix: 'http://192.168.2.105:8611/image/'
+    prefix: 'http://192.168.2.8:8611/image/'
 
 
 management:

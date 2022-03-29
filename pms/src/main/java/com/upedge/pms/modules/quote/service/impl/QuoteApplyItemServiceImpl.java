@@ -1,6 +1,7 @@
 package com.upedge.pms.modules.quote.service.impl;
 
 import com.upedge.common.base.Page;
+import com.upedge.common.utils.ListUtils;
 import com.upedge.pms.modules.quote.dao.QuoteApplyItemDao;
 import com.upedge.pms.modules.quote.entity.QuoteApplyItem;
 import com.upedge.pms.modules.quote.service.QuoteApplyItemService;
@@ -35,6 +36,14 @@ public class QuoteApplyItemServiceImpl implements QuoteApplyItemService {
     @Transactional
     public int insert(QuoteApplyItem record) {
         return quoteApplyItemDao.insert(record);
+    }
+
+    @Override
+    public int insertBatch(List<QuoteApplyItem> records) {
+        if (ListUtils.isNotEmpty(records)){
+            return quoteApplyItemDao.insertByBatch(records);
+        }
+        return 0;
     }
 
     /**

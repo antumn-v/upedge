@@ -1122,6 +1122,7 @@
         set oi.quantity = (#{quantity} * oi.quote_scale)
         where o.pay_state &lt; '1'
         and oi.store_order_item_id = #{storeOrderItemId}
+        and quote_scale is not null
     </update>
 
     <select id="selectOrderIdsByStoreOrderItemIds" resultType="java.lang.Long">
@@ -1131,5 +1132,6 @@
         <foreach collection="storeOrderItemIds" item="storeOrderItemId" open="(" separator="," close=")">
             #{storeOrderItemId}
         </foreach>
+        and admin_variant_id is not null
     </select>
 </mapper>

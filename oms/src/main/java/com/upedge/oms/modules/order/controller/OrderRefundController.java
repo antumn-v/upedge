@@ -173,7 +173,10 @@ public class OrderRefundController {
         }
         Session session = UserUtil.getSession(redisTemplate);
         try {
-            return orderRefundService.confirmRefund(request,session);
+            BaseResponse response = orderRefundService.confirmRefund(request,session);
+
+
+            return response;
         } catch (CustomerException e) {
             return new BaseResponse(ResultCode.FAIL_CODE,e.getMessage());
         }finally {

@@ -178,9 +178,10 @@ public class QuoteApplyServiceImpl implements QuoteApplyService {
             if (b){
                 return BaseResponse.failed("已拆分变体不能报价");
             }
+            StoreProductVariant storeProductVariant = storeProductVariantService.selectByPrimaryKey(storeVariantId);
             CustomerProductQuote customerProductQuote = new CustomerProductQuote();
             BeanUtils.copyProperties(quoteApplyItem, customerProductQuote);
-            customerProductQuote.setStoreParentVariantId(0L);
+            customerProductQuote.setStoreParentVariantId(storeProductVariant.getParentVariantId());
             customerProductQuote.setCustomerId(quoteApply.getCustomerId());
             //取消报价的产品
             if (!quoteApplyProcessItem.isCanQuote()) {

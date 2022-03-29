@@ -23,6 +23,8 @@ public interface QuoteApplyItemService{
 
     int insert(QuoteApplyItem record);
 
+    int insertBatch(List<QuoteApplyItem> records);
+
     int insertSelective(QuoteApplyItem record);
 
     List<QuoteApplyItem> select(Page<QuoteApplyItem> record);

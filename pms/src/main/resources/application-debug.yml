@@ -91,7 +91,7 @@ logging:
 files:
   image:
     local: 'D:/developer/image/'
-    prefix: 'http://192.168.2.105:8611/image/'
+    prefix: 'http://192.168.2.8:8611/image/'
 
 rocketmq:
   name-server: localhost:9876

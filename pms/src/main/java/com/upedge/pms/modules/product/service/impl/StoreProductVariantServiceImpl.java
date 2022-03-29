@@ -205,11 +205,6 @@ public class StoreProductVariantServiceImpl implements StoreProductVariantServic
         && customerProductQuote.getQuoteState() == 1){
             return BaseResponse.failed("已报价的变体不能拆分");
         }
-        QuoteApplyItem quoteApplyItem = quoteApplyItemService.selectByStoreVariantId(storeVariantId);
-        if (quoteApplyItem != null
-        && quoteApplyItem.getState() == 0){
-            return BaseResponse.failed("报价中的变体不能拆分");
-        }
 
         StoreProductVariant storeProductVariant = selectByPrimaryKey(storeVariantId);
         //未拆分的变体可以拆
@@ -217,6 +212,8 @@ public class StoreProductVariantServiceImpl implements StoreProductVariantServic
         || storeProductVariant.getSplitType() > 1){
             return BaseResponse.failed("变体不存在或拆分变体不允许拆分");
         }
+        StoreProductAttribute storeProductAttribute = storeProductAttributeService.selectByPrimaryKey(storeProductVariant.getProductId());
+
         List<StoreProductVariantSplitVo> splitVos = request.getSplitVos();
         if (ListUtils.isEmpty(splitVos)){
             return BaseResponse.failed("子变体不能为空");
@@ -257,6 +254,26 @@ public class StoreProductVariantServiceImpl implements StoreProductVariantServic
         updateByPrimaryKeySelective(storeProductVariant);
         //redis保存已拆分的变体
         redisAddSplitVariant(storeVariantId,splitVariantIds);
+
+        QuoteApplyItem quoteApplyItem = quoteApplyItemService.selectByStoreVariantId(storeVariantId);
+        if (quoteApplyItem != null
+                && quoteApplyItem.getState() == 0){
+            List<QuoteApplyItem> newItems = new ArrayList<>();
+            for (StoreProductVariant splitVariant : splitVariants) {
+                QuoteApplyItem applyItem = new QuoteApplyItem();
+                BeanUtils.copyProperties(quoteApplyItem,applyItem);
+                applyItem.setStoreVariantId(splitVariant.getId());
+                applyItem.setStoreVariantSku(splitVariant.getSku());
+                applyItem.setStoreVariantName(splitVariant.getTitle());
+                applyItem.setStoreVariantImage(splitVariant.getImage());
+                applyItem.setStoreProductTitle(storeProductAttribute.getTitle());
+                applyItem.setId(IdGenerate.nextId());
+                newItems.add(applyItem);
+            }
+            quoteApplyItemService.insertBatch(newItems);
+            quoteApplyItem.setState(2);
+            quoteApplyItemService.updateByPrimaryKeySelective(quoteApplyItem);
+        }
         return BaseResponse.success();
     }
 
