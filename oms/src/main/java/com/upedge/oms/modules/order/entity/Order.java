@@ -140,5 +140,10 @@ public class Order{
 		this.vatAmount = BigDecimal.ZERO;
 		this.orderStatus = 0;
 		this.fixFee = BigDecimal.ZERO;
+		this.createTime = new Date();
+		this.updateTime = this.createTime;
+		this.payTime = null;
+		this.payMethod = null;
+		this.paymentId = null;
 	}
 }

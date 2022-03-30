@@ -44,6 +44,7 @@ import com.upedge.oms.modules.order.dto.OrderAnalysisDto;
 import com.upedge.oms.modules.order.dto.PandaOrderListDto;
 import com.upedge.oms.modules.order.entity.*;
 import com.upedge.oms.modules.order.request.*;
+import com.upedge.oms.modules.order.response.CreateReshipOrderResponse;
 import com.upedge.oms.modules.order.response.OrderListResponse;
 import com.upedge.oms.modules.order.response.OrderUpdateResponse;
 import com.upedge.oms.modules.order.service.OrderService;
@@ -930,18 +931,35 @@ public class OrderServiceImpl implements OrderService {
 
     @Transactional
     @Override
-    public BaseResponse createReshipOrder(Long id) {
+    public CreateReshipOrderResponse createReshipOrder(CreateReshipOrderRequest request, Session session) {
+
+        Long id = request.getOrderId();
+        List<Long> itemIds = request.getItemIds();
         Order order = orderDao.selectByPrimaryKey(id);
         if (order == null) {
-            return BaseResponse.failed("Order does not exist");
+            return CreateReshipOrderResponse.failed("订单不存在");
         }
         List<OrderItem> orderItems = orderItemDao.selectItemByOrderId(id);
         Long reshipOrderId = IdGenerate.nextId();
         Order reshipOrder = new Order();
         BeanUtils.copyProperties(order, reshipOrder);
         reshipOrder.initOrder();
+
+        reshipOrder.setOrderType(1);
+        if (!request.getNeedPay()){
+            if (null == request.getShipMethodId()
+            || null == request.getShipPrice()){
+                return CreateReshipOrderResponse.failed("需要支付的订单需选择运输方式");
+            }
+            reshipOrder.setPayState(1);
+            reshipOrder.setShipMethodId(request.getShipMethodId());
+            reshipOrder.setShipPrice(request.getShipPrice());
+        }
         reshipOrder.setQuoteState(order.getQuoteState());
         reshipOrder.setId(reshipOrderId);
+        reshipOrder.setCnyProductAmount(order.getCnyProductAmount());
+        reshipOrder.setProductAmount(order.getProductAmount());
+        reshipOrder.setTotalWeight(order.getTotalWeight());
 
         List<Long> storeVariantIds = new ArrayList<>();
         orderItems.forEach(item -> {
@@ -951,7 +969,6 @@ public class OrderServiceImpl implements OrderService {
         CustomerProductQuoteSearchRequest customerProductQuoteSearchRequest = new CustomerProductQuoteSearchRequest();
         customerProductQuoteSearchRequest.setStoreVariantIds(storeVariantIds);
         List<CustomerProductQuoteVo> customerProductQuoteVos = pmsFeignClient.searchCustomerProductQuote(customerProductQuoteSearchRequest);
-
         Map<Long, CustomerProductQuoteVo> map = new HashMap<>();
         if (ListUtils.isNotEmpty(customerProductQuoteVos)) {
             for (CustomerProductQuoteVo customerProductQuoteVo : customerProductQuoteVos) {
@@ -959,55 +976,38 @@ public class OrderServiceImpl implements OrderService {
                 storeVariantIds.remove(customerProductQuoteVo.getStoreVariantId());
             }
         }
-
         BigDecimal productAmount = BigDecimal.ZERO;
         BigDecimal cnyProductAmount = BigDecimal.ZERO;
         BigDecimal totalWeight = BigDecimal.ZERO;
-        BigDecimal volume = BigDecimal.ZERO;
-        Integer quoteState = 0;
         List<OrderItem> reshipOrderItems = new ArrayList<>();
         for (OrderItem orderItem : orderItems) {
+            if (!itemIds.contains(orderItem.getId())){
+                continue;
+            }
             OrderItem reshipOrderItem = new OrderItem();
             BeanUtils.copyProperties(orderItem, reshipOrderItem);
+            CustomerProductQuoteVo customerProductQuoteVo = map.get(orderItem.getStoreVariantId());
+            if (null == customerProductQuoteVo || customerProductQuoteVo.getQuoteState() != 1){
+                return CreateReshipOrderResponse.failed("sku: " + orderItem.getStoreVariantSku() + " 报价信息不存在");
+            }
             reshipOrderItem.setDischargeQuantity(0);
             reshipOrderItem.setOrderId(reshipOrderId);
             reshipOrderItem.setId(IdGenerate.nextId());
-            BigDecimal itemQuantity = new BigDecimal(orderItem.getQuantity());
-            CustomerProductQuoteVo customerProductQuoteVo = map.get(orderItem.getStoreVariantId());
-            if (null == customerProductQuoteVo) {
-                reshipOrderItem.setQuoteState(0);
-                reshipOrderItems.add(reshipOrderItem);
-                continue;
-            }
-            if (customerProductQuoteVo.getQuoteType() == 5) {
-                reshipOrderItem.setQuoteState(5);
-            } else {
-                reshipOrderItem.initItemQuoteDetail(customerProductQuoteVo);
-                reshipOrderItem.setQuoteState(customerProductQuoteVo.getQuoteType());
-                quoteState++;
-                try {
-                    cnyProductAmount = cnyProductAmount.add(orderItem.getCnyPrice().multiply(itemQuantity));
-                } catch (Exception e) {
-                    continue;
-                }
-                productAmount = productAmount.add(orderItem.getUsdPrice().multiply(itemQuantity));
-                totalWeight = totalWeight.add(customerProductQuoteVo.getWeight().multiply(itemQuantity));
-                volume = volume.add(customerProductQuoteVo.getVolume().multiply(itemQuantity));
-            }
-
+            reshipOrderItem.quoteProductToItem(customerProductQuoteVo);
+            reshipOrderItem.setQuantity(orderItem.getQuantity());
             reshipOrderItems.add(reshipOrderItem);
+
+            BigDecimal itemQuantity = new BigDecimal(orderItem.getQuantity());
+            productAmount = productAmount.add(reshipOrderItem.getUsdPrice().multiply(itemQuantity));
+            cnyProductAmount = cnyProductAmount.add(reshipOrderItem.getCnyPrice().multiply(itemQuantity));
+            totalWeight = totalWeight.add(reshipOrderItem.getAdminVariantWeight().multiply(itemQuantity));
         }
-        if (quoteState > 0 && quoteState == reshipOrderItems.size()) {
-            order.setQuoteState(3);
-        } else if (quoteState == 0) {
-            order.setQuoteState(0);
-        } else {
-            order.setQuoteState(2);
+        if (ListUtils.isEmpty(reshipOrderItems)){
+            return null;
         }
         reshipOrder.setCnyProductAmount(cnyProductAmount);
         reshipOrder.setProductAmount(productAmount);
         reshipOrder.setTotalWeight(totalWeight);
-
 
         orderDao.insert(reshipOrder);
         orderItemDao.insertByBatch(reshipOrderItems);
@@ -1023,7 +1023,15 @@ public class OrderServiceImpl implements OrderService {
         storeOrderRelate.setOrderCreateTime(new Date());
         storeOrderRelate.setId(null);
         storeOrderRelateDao.insert(storeOrderRelate);
-        return BaseResponse.success();
+
+        OrderReshipInfo orderReshipInfo = new OrderReshipInfo();
+        orderReshipInfo.setOrderId(reshipOrderId);
+        orderReshipInfo.setOriginalOrderId(id);
+        orderReshipInfo.setReason(request.getReshipReason());
+        orderReshipInfo.setReshipTimes(1);
+        orderReshipInfo.setNeedPay(request.getNeedPay());
+        orderReshipInfoDao.insert(orderReshipInfo);
+        return CreateReshipOrderResponse.success(reshipOrder,request);
     }
 
     @Override

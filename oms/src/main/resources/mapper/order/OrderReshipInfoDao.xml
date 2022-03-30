@@ -56,13 +56,15 @@
             order_id,
             original_order_id,
             reason,
-            reship_times
+            reship_times,
+            need_pay
         </trim>
         values (
         #{orderId},
         #{originalOrderId},
         #{reason},
-        #{reshipTimes}
+        #{reshipTimes},
+        #{needPay}
         )
     </insert>
 

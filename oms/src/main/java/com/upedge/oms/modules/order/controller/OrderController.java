@@ -20,6 +20,7 @@ import com.upedge.oms.modules.order.dto.PandaOrderListDto;
 import com.upedge.oms.modules.order.entity.Order;
 import com.upedge.oms.modules.order.entity.OrderAddress;
 import com.upedge.oms.modules.order.request.*;
+import com.upedge.oms.modules.order.response.CreateReshipOrderResponse;
 import com.upedge.oms.modules.order.response.OrderListResponse;
 import com.upedge.oms.modules.order.response.OrderUpdateResponse;
 import com.upedge.oms.modules.order.service.OrderActionService;
@@ -473,8 +474,17 @@ public class OrderController {
 
     @ApiOperation("创建补发订单")
     @PostMapping("/createReshipOrder/{id}")
-    public BaseResponse createReshipOrder(@PathVariable Long id) {
-        return orderService.createReshipOrder(id);
+    public BaseResponse createReshipOrder(@RequestBody@Valid CreateReshipOrderRequest request) {
+        Session session = UserUtil.getSession(redisTemplate);
+        CreateReshipOrderResponse response  = orderService.createReshipOrder(request,session);
+        if(response.getCode() == ResultCode.SUCCESS_CODE){
+            if (request.getNeedPay()) {
+                Order order = (Order) response.getData();
+                orderService.matchShipRule(order.getId());
+            }
+            return BaseResponse.success();
+        }
+        return BaseResponse.failed("订单不存在或包含未报价的产品");
     }
 
     /**

@@ -22,4 +22,6 @@ public class OrderReshipInfo{
     private String reason;
 
     private Integer reshipTimes;
+
+	private Boolean needPay;
 }
