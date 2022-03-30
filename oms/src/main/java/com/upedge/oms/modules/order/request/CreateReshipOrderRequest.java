@@ -2,8 +2,8 @@ package com.upedge.oms.modules.order.request;
 
 import lombok.Data;
 
-import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.math.BigDecimal;
 import java.util.List;
 
@@ -22,6 +22,6 @@ public class CreateReshipOrderRequest {
 
     String reshipReason;
 
-    @Min(value = 1,message = "订单里最少一个产品")
+    @Size(min = 1,message = "订单里最少一个产品")
     List<Long> itemIds;
 }

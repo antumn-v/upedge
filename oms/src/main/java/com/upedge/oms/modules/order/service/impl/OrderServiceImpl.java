@@ -44,7 +44,6 @@ import com.upedge.oms.modules.order.dto.OrderAnalysisDto;
 import com.upedge.oms.modules.order.dto.PandaOrderListDto;
 import com.upedge.oms.modules.order.entity.*;
 import com.upedge.oms.modules.order.request.*;
-import com.upedge.oms.modules.order.response.CreateReshipOrderResponse;
 import com.upedge.oms.modules.order.response.OrderListResponse;
 import com.upedge.oms.modules.order.response.OrderUpdateResponse;
 import com.upedge.oms.modules.order.service.OrderService;
@@ -68,6 +67,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -148,14 +148,14 @@ public class OrderServiceImpl implements OrderService {
 
     @Autowired
     OrderFulfillmentService orderFulfillmentService;
-
-
     /**
      * 冗余订单物流单元信息
      */
     @Autowired
     private OrderShippingUnitService orderShippingUnitService;
 
+    @Value("${ifUploadSaihe}")
+    Boolean ifUploadSaihe;
 
     /**
      *
@@ -931,13 +931,13 @@ public class OrderServiceImpl implements OrderService {
 
     @Transactional
     @Override
-    public CreateReshipOrderResponse createReshipOrder(CreateReshipOrderRequest request, Session session) {
+    public BaseResponse createReshipOrder(CreateReshipOrderRequest request, Session session) {
 
         Long id = request.getOrderId();
         List<Long> itemIds = request.getItemIds();
         Order order = orderDao.selectByPrimaryKey(id);
         if (order == null) {
-            return CreateReshipOrderResponse.failed("订单不存在");
+            return BaseResponse.failed("订单不存在");
         }
         List<OrderItem> orderItems = orderItemDao.selectItemByOrderId(id);
         Long reshipOrderId = IdGenerate.nextId();
@@ -949,7 +949,7 @@ public class OrderServiceImpl implements OrderService {
         if (!request.getNeedPay()){
             if (null == request.getShipMethodId()
             || null == request.getShipPrice()){
-                return CreateReshipOrderResponse.failed("需要支付的订单需选择运输方式");
+                return BaseResponse.failed("需要支付的订单需选择运输方式");
             }
             reshipOrder.setPayState(1);
             reshipOrder.setShipMethodId(request.getShipMethodId());
@@ -988,7 +988,7 @@ public class OrderServiceImpl implements OrderService {
             BeanUtils.copyProperties(orderItem, reshipOrderItem);
             CustomerProductQuoteVo customerProductQuoteVo = map.get(orderItem.getStoreVariantId());
             if (null == customerProductQuoteVo || customerProductQuoteVo.getQuoteState() != 1){
-                return CreateReshipOrderResponse.failed("sku: " + orderItem.getStoreVariantSku() + " 报价信息不存在");
+                return BaseResponse.failed("sku: " + orderItem.getStoreVariantSku() + " 报价信息不存在");
             }
             reshipOrderItem.setDischargeQuantity(0);
             reshipOrderItem.setOrderId(reshipOrderId);
@@ -1003,7 +1003,7 @@ public class OrderServiceImpl implements OrderService {
             totalWeight = totalWeight.add(reshipOrderItem.getAdminVariantWeight().multiply(itemQuantity));
         }
         if (ListUtils.isEmpty(reshipOrderItems)){
-            return null;
+            return BaseResponse.failed("产品信息异常");
         }
         reshipOrder.setCnyProductAmount(cnyProductAmount);
         reshipOrder.setProductAmount(productAmount);
@@ -1031,7 +1031,7 @@ public class OrderServiceImpl implements OrderService {
         orderReshipInfo.setReshipTimes(1);
         orderReshipInfo.setNeedPay(request.getNeedPay());
         orderReshipInfoDao.insert(orderReshipInfo);
-        return CreateReshipOrderResponse.success(reshipOrder,request);
+        return BaseResponse.success(reshipOrder,request);
     }
 
     @Override
@@ -1805,12 +1805,15 @@ public class OrderServiceImpl implements OrderService {
     @Override
     @Transactional
     public boolean importOrderToSaihe(Long id) {
+        if (!ifUploadSaihe){
+            return false;
+        }
         /**
          * 获取 已支付，未发货，订单状态正常，未退款
          * 并且没有赛盒orderCode的赛盒订单信息
          */
         SaiheOrder saiheOrder = orderDao.querySaiheOrder(id);
-        if (null == saiheOrder) {
+        if (null == saiheOrder || saiheOrder.getCustomerId().equals(1499564543207194625L)) {
             return false;
         }
         /**

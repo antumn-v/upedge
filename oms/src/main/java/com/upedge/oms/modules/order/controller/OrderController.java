@@ -1,7 +1,10 @@
 package com.upedge.oms.modules.order.controller;
 
 import com.upedge.common.base.BaseResponse;
-import com.upedge.common.constant.*;
+import com.upedge.common.constant.BaseCode;
+import com.upedge.common.constant.Constant;
+import com.upedge.common.constant.OrderType;
+import com.upedge.common.constant.ResultCode;
 import com.upedge.common.constant.key.RedisKey;
 import com.upedge.common.exception.CustomerException;
 import com.upedge.common.model.order.request.ManagerActualRequest;
@@ -20,7 +23,6 @@ import com.upedge.oms.modules.order.dto.PandaOrderListDto;
 import com.upedge.oms.modules.order.entity.Order;
 import com.upedge.oms.modules.order.entity.OrderAddress;
 import com.upedge.oms.modules.order.request.*;
-import com.upedge.oms.modules.order.response.CreateReshipOrderResponse;
 import com.upedge.oms.modules.order.response.OrderListResponse;
 import com.upedge.oms.modules.order.response.OrderUpdateResponse;
 import com.upedge.oms.modules.order.service.OrderActionService;
@@ -473,18 +475,20 @@ public class OrderController {
 
 
     @ApiOperation("创建补发订单")
-    @PostMapping("/createReshipOrder/{id}")
+    @PostMapping("/createReshipOrder")
     public BaseResponse createReshipOrder(@RequestBody@Valid CreateReshipOrderRequest request) {
         Session session = UserUtil.getSession(redisTemplate);
-        CreateReshipOrderResponse response  = orderService.createReshipOrder(request,session);
+        BaseResponse response  = orderService.createReshipOrder(request,session);
         if(response.getCode() == ResultCode.SUCCESS_CODE){
+            Order order = (Order) response.getData();
             if (request.getNeedPay()) {
-                Order order = (Order) response.getData();
                 orderService.matchShipRule(order.getId());
+            }else {
+                orderService.importOrderToSaihe(order.getId());
             }
-            return BaseResponse.success();
+            return response;
         }
-        return BaseResponse.failed("订单不存在或包含未报价的产品");
+        return response;
     }
 
     /**

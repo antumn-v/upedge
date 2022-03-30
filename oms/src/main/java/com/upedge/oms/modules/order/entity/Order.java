@@ -145,5 +145,7 @@ public class Order{
 		this.payTime = null;
 		this.payMethod = null;
 		this.paymentId = null;
+		this.saiheOrderCode = null;
+
 	}
 }

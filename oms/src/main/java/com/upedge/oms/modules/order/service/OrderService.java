@@ -13,7 +13,6 @@ import com.upedge.oms.modules.order.dto.OrderAnalysisDto;
 import com.upedge.oms.modules.order.dto.PandaOrderListDto;
 import com.upedge.oms.modules.order.entity.*;
 import com.upedge.oms.modules.order.request.*;
-import com.upedge.oms.modules.order.response.CreateReshipOrderResponse;
 import com.upedge.oms.modules.order.response.OrderListResponse;
 import com.upedge.oms.modules.order.response.OrderUpdateResponse;
 import com.upedge.oms.modules.order.vo.*;
@@ -42,7 +41,7 @@ public interface OrderService{
     int updateOrderVatAmountByAreaId(List<Long> areaIds,
                                      BigDecimal vatAmount);
 
-    CreateReshipOrderResponse createReshipOrder(CreateReshipOrderRequest request, Session session);
+    BaseResponse createReshipOrder(CreateReshipOrderRequest request, Session session);
 
     void initQuoteState(Long id);
 
