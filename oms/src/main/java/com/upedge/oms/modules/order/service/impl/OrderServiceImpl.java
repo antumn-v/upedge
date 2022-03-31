@@ -936,8 +936,8 @@ public class OrderServiceImpl implements OrderService {
         Long id = request.getOrderId();
         List<Long> itemIds = request.getItemIds();
         Order order = orderDao.selectByPrimaryKey(id);
-        if (order == null) {
-            return BaseResponse.failed("订单不存在");
+        if (order == null || order.getOrderType() == 1) {
+            return BaseResponse.failed("订单不存在或补发订单不能补发");
         }
         List<OrderItem> orderItems = orderItemDao.selectItemByOrderId(id);
         Long reshipOrderId = IdGenerate.nextId();

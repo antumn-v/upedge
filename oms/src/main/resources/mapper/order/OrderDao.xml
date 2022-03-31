@@ -269,7 +269,6 @@
                 <if test="t.fulfillmentStatus != null">
                     r.fulfillment_status = #{t.fulfillmentStatus} and
                 </if>
-
                 <if test="t.sku != null">
                     oi.store_variant_sku = #{t.sku} and
                 </if>
@@ -285,6 +284,15 @@
                 </if>
                 <if test="t.beginTime != null and t.endTime != null">
                     date(r.plat_order_create_time) between #{t.beginTime} and #{t.endTime} and
+                </if>
+                <if test="t.saiheState != null">
+                    <if test="t.saiheState == 1">
+                        o.saihe_order_code is not null and
+                    </if>
+                    <if test="t.saiheState == 0">
+                        o.saihe_order_code is null and
+                        o.pay_state > '0' and
+                    </if>
                 </if>
                 <if test="condition != null">
                     ${condition} and
@@ -1476,7 +1484,7 @@
         update `order`
         set refund_state=#{state}
         where id = #{id}
-          and refund_state = 1
+        and refund_state = 1
     </update>
 
     <select id="querySaiheOrder" resultType="com.upedge.thirdparty.saihe.entity.SaiheOrder">
