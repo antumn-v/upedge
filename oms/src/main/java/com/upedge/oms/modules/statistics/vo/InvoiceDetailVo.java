@@ -1,5 +1,6 @@
 package com.upedge.oms.modules.statistics.vo;
 
+import com.upedge.oms.modules.order.vo.AppOrderVo;
 import lombok.Data;
 
 import java.math.BigDecimal;
@@ -10,6 +11,8 @@ import java.util.List;
 public class InvoiceDetailVo {
 
     Long paymentId;
+
+    Long customerId;
 
 
     /**
@@ -45,4 +48,10 @@ public class InvoiceDetailVo {
     Date payTime;
 
     List<InvoiceProductVo> productVos;
+
+    String paymentNumber;
+
+    String storeOrderName;
+
+    List<AppOrderVo> appOrderVos;
 }

@@ -9,68 +9,87 @@
         select invoices.*
         from
         (
-        select upedge.payment_id,
-        upedge.pay_time, sum(upedge.pay_amount) as amount,
-        '2' as 'type','0' as 'status'
-        from `order` upedge
-        left join store_order_relate sor
-        on upedge.id = sor.order_id
-        where upedge.customer_id = #{t.customerId}
-        <if test="t.orderId != null">
-            and upedge.id = #{t.orderId}
-        </if>
-        <if test="t.platOrderName != null">
-            and sor.plat_order_name = #{t.platOrderName}
-        </if>
-        and upedge.pay_state > '0'
-        and upedge.order_type != '1'
-        and upedge.order_status = '0'
-        group by payment_id,pay_time
-        union
-        select payment_id,pay_time,sum(amount) as amount,'1' as 'type','0' as 'status'
-        from stock_order
-        where customer_id = #{t.customerId}
-        <if test="t.orderId != null">
-            and id = #{t.orderId}
-        </if>
-        and pay_state > '0'
-        group by payment_id,pay_time
-        union
-        select payment_id,pay_time,sum(pay_amount) as amount,'3' as 'type','0' as 'status'
-        from wholesale_order
-        where customer_id = #{t.customerId}
-        <if test="t.orderId != null">
-            and id = #{t.orderId}
-        </if>
-        and pay_state > '0'
-        group by payment_id,pay_time
+            select upedge.payment_id,
+            upedge.customer_id,
+            upedge.pay_time, sum(upedge.pay_amount) as amount,
+            '2' as 'type','0' as 'status'
+            from `order` upedge
+            left join store_order_relate sor
+            on upedge.id = sor.order_id
+            where upedge.customer_id = #{t.customerId}
+            <if test="t.orderId != null">
+                and upedge.id = #{t.orderId}
+            </if>
+            <if test="t.platOrderName != null">
+                and sor.plat_order_name = #{t.platOrderName}
+            </if>
+            and upedge.pay_state > '0'
+            and upedge.order_status = '0'
+            group by payment_id,pay_time,customer_id
         ) invoices
-        where 1 = 1
-        <if test="t.beginTime != null and t.endTime != null">
-            and date(invoices.pay_time)
-            between #{t.beginTime}
-            and #{t.endTime}
-        </if>
-        <if test="t.orderType != null">
-            and invoices.type = #{t.orderType}
-        </if>
-        <if test="t.paymentId != null">
-            and invoices.payment_id = #{t.paymentId}
-        </if>
         order by invoices.pay_time desc
         <if test="fromNum != null and pageSize != null">
             limit #{fromNum},#{pageSize}
         </if>
+
+<!--        select invoices.*-->
+<!--        from-->
+<!--        (-->
+<!--        select upedge.payment_id,-->
+<!--        upedge.pay_time, sum(upedge.pay_amount) as amount,-->
+<!--        '2' as 'type','0' as 'status'-->
+<!--        from `order` upedge-->
+<!--        left join store_order_relate sor-->
+<!--        on upedge.id = sor.order_id-->
+<!--        where upedge.customer_id = #{t.customerId}-->
+<!--        <if test="t.orderId != null">-->
+<!--            and upedge.id = #{t.orderId}-->
+<!--        </if>-->
+<!--        <if test="t.platOrderName != null">-->
+<!--            and sor.plat_order_name = #{t.platOrderName}-->
+<!--        </if>-->
+<!--        and upedge.pay_state > '0'-->
+<!--        and upedge.order_type != '1'-->
+<!--        and upedge.order_status = '0'-->
+<!--        group by payment_id,pay_time-->
+<!--        union-->
+<!--        select payment_id,pay_time,sum(amount) as amount,'1' as 'type','0' as 'status'-->
+<!--        from stock_order-->
+<!--        where customer_id = #{t.customerId}-->
+<!--        <if test="t.orderId != null">-->
+<!--            and id = #{t.orderId}-->
+<!--        </if>-->
+<!--        and pay_state > '0'-->
+<!--        group by payment_id,pay_time-->
+<!--        union-->
+<!--        select payment_id,pay_time,sum(pay_amount) as amount,'3' as 'type','0' as 'status'-->
+<!--        from wholesale_order-->
+<!--        where customer_id = #{t.customerId}-->
+<!--        <if test="t.orderId != null">-->
+<!--            and id = #{t.orderId}-->
+<!--        </if>-->
+<!--        and pay_state > '0'-->
+<!--        group by payment_id,pay_time-->
+<!--        ) invoices-->
+<!--        where 1 = 1-->
+<!--        <if test="t.beginTime != null and t.endTime != null">-->
+<!--            and date(invoices.pay_time)-->
+<!--            between #{t.beginTime}-->
+<!--            and #{t.endTime}-->
+<!--        </if>-->
+<!--        <if test="t.orderType != null">-->
+<!--            and invoices.type = #{t.orderType}-->
+<!--        </if>-->
+<!--        <if test="t.paymentId != null">-->
+<!--            and invoices.payment_id = #{t.paymentId}-->
+<!--        </if>-->
+
     </select>
 
     <select id="selectCustomerInvoiceCount" resultType="java.lang.Long"
             parameterType="com.upedge.oms.modules.statistics.request.InvoiceListRequest">
-        select count(invoices.payment_id)
-        from
-        (
-        select upedge.payment_id,
-        upedge.pay_time, sum(upedge.ship_price + upedge.product_amount) as amount,
-        '0' as 'type','0' as 'status'
+
+        select count(distinct upedge.payment_id)
         from `order` upedge
         left join store_order_relate sor
         on upedge.id = sor.order_id
@@ -82,38 +101,57 @@
             and sor.plat_order_name = #{t.platOrderName}
         </if>
         and upedge.pay_state > '0'
-        and upedge.order_type != '1'
         and upedge.order_status = '0'
-        group by payment_id,pay_time
-        union
-        select payment_id,pay_time,sum(amount) as amount,'1' as 'type','0' as 'status'
-        from stock_order
-        where customer_id = #{t.customerId}
-        <if test="t.orderId != null">
-            and id = #{t.orderId}
-        </if>
-        and pay_state > '0'
-        group by payment_id,pay_time
-        union
-        select payment_id,pay_time,sum(product_amount + ship_price) as amount,'2' as 'type','0' as 'status'
-        from wholesale_order
-        where customer_id = #{t.customerId}
-        <if test="t.orderId != null">
-            and id = #{t.orderId}
-        </if>
-        and pay_state > '0'
-        group by payment_id,pay_time
-        ) invoices
-        where invoices.pay_time
-        between #{t.beginTime}
-        and #{t.endTime}
-        <if test="t.orderType != null">
-            and invoices.type = #{t.orderType}
-        </if>
-        <if test="t.paymentId != null">
-            and invoices.payment_id = #{t.paymentId}
-        </if>
-        order by invoices.pay_time desc
+
+
+<!--        select count(invoices.payment_id)-->
+<!--        from-->
+<!--        (-->
+<!--        select upedge.payment_id,-->
+<!--        upedge.pay_time, sum(upedge.ship_price + upedge.product_amount) as amount,-->
+<!--        '0' as 'type','0' as 'status'-->
+<!--        from `order` upedge-->
+<!--        left join store_order_relate sor-->
+<!--        on upedge.id = sor.order_id-->
+<!--        where upedge.customer_id = #{t.customerId}-->
+<!--        <if test="t.orderId != null">-->
+<!--            and upedge.id = #{t.orderId}-->
+<!--        </if>-->
+<!--        <if test="t.platOrderName != null">-->
+<!--            and sor.plat_order_name = #{t.platOrderName}-->
+<!--        </if>-->
+<!--        and upedge.pay_state > '0'-->
+<!--        and upedge.order_type != '1'-->
+<!--        and upedge.order_status = '0'-->
+<!--        group by payment_id,pay_time-->
+<!--        union-->
+<!--        select payment_id,pay_time,sum(amount) as amount,'1' as 'type','0' as 'status'-->
+<!--        from stock_order-->
+<!--        where customer_id = #{t.customerId}-->
+<!--        <if test="t.orderId != null">-->
+<!--            and id = #{t.orderId}-->
+<!--        </if>-->
+<!--        and pay_state > '0'-->
+<!--        group by payment_id,pay_time-->
+<!--        union-->
+<!--        select payment_id,pay_time,sum(product_amount + ship_price) as amount,'2' as 'type','0' as 'status'-->
+<!--        from wholesale_order-->
+<!--        where customer_id = #{t.customerId}-->
+<!--        <if test="t.orderId != null">-->
+<!--            and id = #{t.orderId}-->
+<!--        </if>-->
+<!--        and pay_state > '0'-->
+<!--        group by payment_id,pay_time-->
+<!--        ) invoices-->
+<!--        where invoices.pay_time-->
+<!--        between #{t.beginTime}-->
+<!--        and #{t.endTime}-->
+<!--        <if test="t.orderType != null">-->
+<!--            and invoices.type = #{t.orderType}-->
+<!--        </if>-->
+<!--        <if test="t.paymentId != null">-->
+<!--            and invoices.payment_id = #{t.paymentId}-->
+<!--        </if>-->
     </select>
 
     <select id="selectOrderInvoiceDetailByPaymentId" resultType="com.upedge.oms.modules.statistics.vo.InvoiceDetailVo"
@@ -121,6 +159,7 @@
         select
             payment_id AS `paymentId`,
             pay_time AS `payTime`,
+            customer_id,
             IFNULL(sum( product_discharge_amount ), 0 )  AS `dischargeAmount`,
             IFNULL(sum( ship_price + service_fee ), 0 )  AS `shipPrice`,
             IFNULL(sum( product_amount ), 0 )  AS `productAmount`,
@@ -131,7 +170,7 @@
         where payment_id = #{paymentId}
         and pay_state > '0'
         and order_type !='1'
-        group by payment_id,pay_time
+        group by payment_id,pay_time,customer_id
     </select>
 
     <select id="selectOrderInvoiceDetailByTime" resultType="com.upedge.oms.modules.statistics.vo.InvoiceDetailVo"
@@ -153,9 +192,8 @@
 
     <select id="selectOrderInvoiceProductByPaymentId" resultType="com.upedge.oms.modules.statistics.vo.InvoiceProductVo"
             parameterType="com.upedge.oms.modules.statistics.request.InvoiceDetailRequest">
-        select oi.store_variant_id,oi.store_product_title as `title`,ifnull(oi.store_variant_name,'Default Title') as `variantTitle`,
+        select oi.store_variant_id,
         sum(oi.quantity) as `quantity`,
-        oi.store_variant_sku as `sku`,
         oi.usd_price as `price`,
         sum(oi.quantity * oi.usd_price) as `total`
         from `order` o
@@ -163,7 +201,7 @@
         on o.id = oi.order_id
         where o.payment_id = #{paymentId}
         and o.pay_state > '0'
-        group by oi.store_variant_id,oi.store_variant_sku,oi.usd_price,oi.store_product_title,oi.store_variant_name
+        group by oi.store_variant_id,oi.usd_price
     </select>
 
     <select id="selectOrderInvoiceProductByTime" resultType="com.upedge.oms.modules.statistics.vo.InvoiceProductVo"

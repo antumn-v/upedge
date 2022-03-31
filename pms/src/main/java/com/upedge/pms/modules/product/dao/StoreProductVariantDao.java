@@ -18,7 +18,6 @@ import java.util.List;
 public interface StoreProductVariantDao {
 
 
-
     List<SplitVariantIdVo> selectSplitVariantIds();
 
     List<StoreProductVariant> selectSplitVariantByParentId(Long parentVariantId);

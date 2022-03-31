@@ -593,8 +593,6 @@ public class StoreOrderServiceImpl implements StoreOrderService {
             }
         }
         RedisUtil.unLock(redisTemplate, key);
-
-
     }
 
     /**

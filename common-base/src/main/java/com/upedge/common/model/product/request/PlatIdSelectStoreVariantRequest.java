@@ -11,4 +11,8 @@ public class PlatIdSelectStoreVariantRequest {
     Long storeId;
 
     List<StoreProductVariantVo> variantVos;
+
+    List<Long> storeVariantIds;
+
+    Long storeVariantId;
 }

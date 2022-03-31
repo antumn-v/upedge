@@ -598,10 +598,6 @@ public class OrderPayServiceImpl implements OrderPayService {
         orderTransactionDto.setPayMethod(PayOrderMethod.RECHARGE);
         //获取人民币汇率
         BigDecimal cnyRate = new BigDecimal("6.3");
-//        BigDecimal cnyRate = (BigDecimal) redisTemplate.opsForHash().get("currency:rate:USD", "cnyRate");
-//        if (null == cnyRate) {
-//            cnyRate = new BigDecimal((Double) umsFeignClient.getCurrencyRate("USD").getData());
-//        }
         orderTransactionDto.setCnyRate(cnyRate);
         //余额支付订单
         BaseResponse response = umsFeignClient.accountPayment(request);
@@ -620,8 +616,9 @@ public class OrderPayServiceImpl implements OrderPayService {
         customerOrderDailyCountUpdateRequest.setPaymentId(paymentId);
         customerOrderDailyCountUpdateRequest.setPayTime(payTime);
         orderDailyPayCountService.updateCustomerOrderDailyCount(customerOrderDailyCountUpdateRequest);
-        payOrderAsync(session.getId(),session.getCustomerId(), paymentId,0);
-//        throw new NullPointerException("手动异常");
+
+        String key = RedisKey.LIST_CUSTOMER_NORMAL_ORDER_PAYMENT_ID + customerId;
+        redisTemplate.opsForList().leftPush(key,paymentId);
         return "success";
 
       /*  //队列计算客户每日支付订单数据
@@ -638,6 +635,7 @@ public class OrderPayServiceImpl implements OrderPayService {
         // 订单上传赛盒 放在 sendSaveTransactionRecordMessage的消費端
         mqOnSaiheService.uploadPaymentIdOnMq(paymentId, OrderType.NORMAL);
         customerStockRecordService.saveDischargeStockRecordByPaymentId(customerId, paymentId, OrderType.NORMAL);
+        customerProductSalesLogService.saveProductSaleRecord(paymentId, OrderType.NORMAL, customerId, new Date());
         List<AppOrderVo> orderVos = orderDao.selectPayOrderListByPaymentId(paymentId);
         if (ListUtils.isNotEmpty(orderVos)) {
             for (AppOrderVo orderVo : orderVos) {
@@ -646,7 +644,7 @@ public class OrderPayServiceImpl implements OrderPayService {
                 }
             }
         }
-        customerProductSalesLogService.saveProductSaleRecord(paymentId, OrderType.NORMAL, customerId, new Date());
+
     }
 
     //发送保存交易流水的消息

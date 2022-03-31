@@ -113,6 +113,7 @@ public class OrderPayController {
             OrderPayCheckResultVo   orderPayCheckResultVo = orderPayService.orderPayCheck(paymentId, amount, dischargeQuantityVos, session.getCustomerId(),"balance");
             if (orderPayCheckResultVo.getPayMessage().equals("success")) {
                     orderPayService.payOrderByBalance(session, amount, paymentId, dischargeQuantityVos);
+                    orderPayService.payOrderAsync(session.getId(),session.getCustomerId(), paymentId,0);
                     OrderPayResponse.PayResponse payResponse = new OrderPayResponse.PayResponse(paymentId,amount, TransactionConstant.PayMethod.ACCOUNT.getCode(),new Date(),orderPayCheckResultVo.getTradingDataVo());
                     return new OrderPayResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS,payResponse);
             }

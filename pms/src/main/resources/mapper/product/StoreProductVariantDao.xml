@@ -540,6 +540,7 @@
         <foreach collection="ids" item="id" open="(" close=")" separator=",">
             #{id}
         </foreach>
+        limit ${ids.size}
     </select>
 
     <select id="selectQuoteDetailByIds" resultType="com.upedge.common.model.pms.quote.CustomerProductQuoteVo">

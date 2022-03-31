@@ -40,6 +40,7 @@ import com.upedge.thirdparty.woocommerce.moudles.product.entity.WoocProduct;
 import com.upedge.thirdparty.woocommerce.moudles.product.entity.WoocVariant;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
@@ -153,34 +154,47 @@ public class StoreProductServiceImpl implements StoreProductService {
             StoreSearchRequest storeSearchRequest = new StoreSearchRequest();
             storeSearchRequest.setId(storeId);
         }
-        List<StoreProductVariantVo> variantVos = request.getVariantVos();
-
         List<StoreProductVariantVo> variantVoList = new ArrayList<>();
-        for (StoreProductVariantVo variantVo : variantVos) {
 
-            StoreProductVariantVo variant = storeProductVariantDao.selectByPlatVariantId(storeId, variantVo.getPlatVariantId(), variantVo.getPlatProductId());
-
-            if (null == variant) {
-
-                JSONObject jsonObject = null;
-                if (storeVo.getStoreType() == StoreType.SHOPIFY) {
-                    jsonObject = ShopifyProductApi.getProduct(variantVo.getPlatProductId(), storeVo.getApiToken(), storeVo.getStoreName());
-                    if (null == jsonObject) {
-                        break;
+        List<StoreProductVariantVo> variantVos = request.getVariantVos();
+        if (ListUtils.isNotEmpty(variantVos)){
+            for (StoreProductVariantVo variantVo : variantVos) {
+                StoreProductVariantVo variant = storeProductVariantDao.selectByPlatVariantId(storeId, variantVo.getPlatVariantId(), variantVo.getPlatProductId());
+                if (null == variant) {
+                    JSONObject jsonObject = null;
+                    if (storeVo.getStoreType() == StoreType.SHOPIFY) {
+                        jsonObject = ShopifyProductApi.getProduct(variantVo.getPlatProductId(), storeVo.getApiToken(), storeVo.getStoreName());
+                        if (null == jsonObject) {
+                            break;
+                        }
+                        ShopifyProduct shopifyProduct = jsonObject.getJSONObject("product").toJavaObject(ShopifyProduct.class);
+                        saveShopifyProduct(shopifyProduct, storeVo);
+                    } else if (storeVo.getStoreType() == StoreType.WOOCOMMERCE) {
+                        jsonObject = WoocommerceProductApi.getProduct(storeVo.getApiToken(), storeVo.getStoreUrl(), variantVo.getPlatProductId());
+                        if (null == jsonObject) {
+                            break;
+                        }
+                        WoocProduct woocProduct = jsonObject.toJavaObject(WoocProduct.class);
+                        saveWoocProduct(woocProduct, storeVo);
                     }
-                    ShopifyProduct shopifyProduct = jsonObject.getJSONObject("product").toJavaObject(ShopifyProduct.class);
-                    saveShopifyProduct(shopifyProduct, storeVo);
-                } else if (storeVo.getStoreType() == StoreType.WOOCOMMERCE) {
-                    jsonObject = WoocommerceProductApi.getProduct(storeVo.getApiToken(), storeVo.getStoreUrl(), variantVo.getPlatProductId());
-                    if (null == jsonObject) {
-                        break;
-                    }
-                    WoocProduct woocProduct = jsonObject.toJavaObject(WoocProduct.class);
-                    saveWoocProduct(woocProduct, storeVo);
+                    variant = storeProductVariantDao.selectByPlatVariantId(storeId, variantVo.getPlatVariantId(), variantVo.getPlatProductId());
                 }
-                variant = storeProductVariantDao.selectByPlatVariantId(storeId, variantVo.getPlatVariantId(), variantVo.getPlatProductId());
+                variantVoList.add(variant);
             }
-            variantVoList.add(variant);
+        }
+        if (null != request.getStoreVariantId()){
+            StoreProductVariant storeProductVariant = storeProductVariantDao.selectByPrimaryKey(request.getStoreVariantId());
+            StoreProductVariantVo storeProductVariantVo = new StoreProductVariantVo();
+            BeanUtils.copyProperties(storeProductVariant,storeProductVariantVo);
+            variantVoList.add(storeProductVariantVo);
+        }
+        if (ListUtils.isNotEmpty(request.getStoreVariantIds())){
+            List<StoreProductVariant> storeProductVariants = storeProductVariantDao.selectByIds(request.getStoreVariantIds());
+            for (StoreProductVariant storeProductVariant : storeProductVariants) {
+                StoreProductVariantVo storeProductVariantVo = new StoreProductVariantVo();
+                BeanUtils.copyProperties(storeProductVariant,storeProductVariantVo);
+                variantVoList.add(storeProductVariantVo);
+            }
         }
         return variantVoList;
     }

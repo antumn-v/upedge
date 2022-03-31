@@ -10,12 +10,21 @@ import com.upedge.common.config.HostConfig;
 import com.upedge.common.constant.Constant;
 import com.upedge.common.constant.OrderType;
 import com.upedge.common.constant.ResultCode;
+import com.upedge.common.constant.key.RedisKey;
 import com.upedge.common.exception.CustomerException;
+import com.upedge.common.feign.PmsFeignClient;
 import com.upedge.common.feign.UmsFeignClient;
+import com.upedge.common.model.pms.quote.CustomerProductQuoteVo;
+import com.upedge.common.model.pms.request.CustomerProductQuoteSearchRequest;
 import com.upedge.common.model.user.vo.AddressVo;
 import com.upedge.common.utils.DateUtils;
 import com.upedge.common.utils.ListUtils;
 import com.upedge.common.utils.ObjectUtils;
+import com.upedge.oms.modules.order.dto.AppOrderListDto;
+import com.upedge.oms.modules.order.request.AppOrderListRequest;
+import com.upedge.oms.modules.order.service.OrderService;
+import com.upedge.oms.modules.order.vo.AppOrderVo;
+import com.upedge.oms.modules.order.vo.AppStoreOrderVo;
 import com.upedge.oms.modules.statistics.dao.InvoiceDao;
 import com.upedge.oms.modules.statistics.entity.InvoiceExportRequest;
 import com.upedge.oms.modules.statistics.request.InvoiceDetailRequest;
@@ -30,10 +39,12 @@ import com.upedge.oms.modules.statistics.vo.InvoiceVo;
 import org.apache.commons.collections4.MapUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import javax.validation.constraints.NotNull;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class InvoiceServiceImpl implements InvoiceService {
@@ -46,12 +57,24 @@ public class InvoiceServiceImpl implements InvoiceService {
     private UmsFeignClient umsFeignClient;
 
     @Autowired
+    OrderService orderService;
+
+    @Autowired
     private InvoiceExportRequestService invoiceExportRequestService;
+
+    @Autowired
+    PmsFeignClient pmsFeignClient;
+
+    @Autowired
+    RedisTemplate redisTemplate;
 
     @Override
     public BaseResponse customerInvoiceList(InvoiceListRequest request) {
         List<InvoiceVo> invoiceVos = invoiceDao.selectCustomerInvoiceList(request);
-
+        for (InvoiceVo invoiceVo : invoiceVos) {
+            String paymentNumber = getCustomerPaymentNumber(invoiceVo.getPaymentId(),invoiceVo.getCustomerId());
+            invoiceVo.setPaymentNumber(paymentNumber);
+        }
         Long count = invoiceDao.selectCustomerInvoiceCount(request);
         request.setTotal(count);
         return new BaseResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS, invoiceVos, request);
@@ -66,6 +89,8 @@ public class InvoiceServiceImpl implements InvoiceService {
             case OrderType.NORMAL:
                 invoiceDetailVo = invoiceDao.selectOrderInvoiceDetailByPaymentId(paymentId);
                 invoiceProductVos = invoiceDao.selectOrderInvoiceProductByPaymentId(paymentId);
+                completeNormalOrderInvoiceProductDetail(invoiceProductVos);
+                completeNormalOrderInvoiceDetail(invoiceDetailVo);
                 break;
             case OrderType.STOCK:
                 invoiceDetailVo = invoiceDao.selectStockInvoiceDetailByPaymentId(paymentId);
@@ -77,8 +102,80 @@ public class InvoiceServiceImpl implements InvoiceService {
                 break;
         }
         invoiceDetailVo.setProductVos(invoiceProductVos);
-
         return invoiceDetailVo;
+    }
+
+    InvoiceDetailVo completeNormalOrderInvoiceDetail(InvoiceDetailVo invoiceDetailVo){
+        Long paymentId = invoiceDetailVo.getPaymentId();
+        //订单信息
+        AppOrderListRequest appOrderListRequest = new AppOrderListRequest();
+        appOrderListRequest.setT(new AppOrderListDto());
+        appOrderListRequest.getT().setPaymentId(paymentId);
+        appOrderListRequest.setPageSize(-1);
+        List<AppOrderVo> appOrderVos = orderService.selectAppOrderList(appOrderListRequest);
+        invoiceDetailVo.setAppOrderVos(appOrderVos);
+        //店铺订单名
+        Set<String> orderNames = new HashSet<>();
+        for (AppOrderVo appOrderVo : appOrderVos) {
+            Set<AppStoreOrderVo> appStoreOrderVos = appOrderVo.getStoreOrderVos();
+            for (AppStoreOrderVo appStoreOrderVo : appStoreOrderVos) {
+                orderNames.add(appStoreOrderVo.getPlatOrderName());
+            }
+        }
+        List<String> collect = orderNames.stream().sorted(Comparator.reverseOrder()).collect(Collectors.toList());
+        String name = "";
+        if (collect.size() == 1){
+            name = collect.get(0);
+        }else {
+            name = collect.get(collect.size() - 1) + "~" + collect.get(0);
+        }
+        invoiceDetailVo.setStoreOrderName(name);
+        String paymentNumber = getCustomerPaymentNumber(paymentId, invoiceDetailVo.getCustomerId());
+        invoiceDetailVo.setPaymentNumber(paymentNumber);
+        return invoiceDetailVo;
+    }
+
+    private String getCustomerPaymentNumber(Long paymentId,Long customerId){
+        Integer index = 1;
+        String key = RedisKey.LIST_CUSTOMER_NORMAL_ORDER_PAYMENT_ID + customerId;
+        List<Long> paymentIds = redisTemplate.opsForList().range(key,0,-1);
+        if (ListUtils.isEmpty(paymentIds)){
+            redisTemplate.opsForList().leftPush(key,paymentId);
+        }else {
+            if (paymentIds.contains(paymentId)){
+                index = paymentIds.indexOf(paymentId) + 1;
+            }else {
+                redisTemplate.opsForList().leftPush(key,paymentId);
+                index = paymentIds.size() + 1;
+            }
+        }
+    return "NO.#" + index;
+    }
+
+    List<InvoiceProductVo> completeNormalOrderInvoiceProductDetail(List<InvoiceProductVo> invoiceProductVos){
+        List<Long> storeVariantIds = new ArrayList<>();
+        for (InvoiceProductVo invoiceProductVo : invoiceProductVos) {
+            if (storeVariantIds.contains(invoiceProductVo.getStoreVariantId())){
+                continue;
+            }
+            storeVariantIds.add(invoiceProductVo.getStoreVariantId());
+        }
+        if (ListUtils.isEmpty(storeVariantIds)){
+            return null;
+        }
+        CustomerProductQuoteSearchRequest customerProductQuoteSearchRequest = new CustomerProductQuoteSearchRequest();
+        customerProductQuoteSearchRequest.setStoreVariantIds(storeVariantIds);
+        List<CustomerProductQuoteVo> customerProductQuoteVos = pmsFeignClient.searchCustomerProductQuote(customerProductQuoteSearchRequest);
+        for (InvoiceProductVo invoiceProductVo : invoiceProductVos) {
+            for (CustomerProductQuoteVo customerProductQuoteVo : customerProductQuoteVos) {
+                if (customerProductQuoteVo.getStoreVariantId().equals(invoiceProductVo.getStoreVariantId())){
+                    invoiceProductVo.setImage(customerProductQuoteVo.getStoreVariantImage());
+                    invoiceProductVo.setSku(customerProductQuoteVo.getStoreVariantSku());
+                    invoiceProductVo.setVariantTitle(customerProductQuoteVo.getStoreVariantName());
+                }
+            }
+        }
+        return invoiceProductVos;
     }
 
     @Override

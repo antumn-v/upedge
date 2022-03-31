@@ -12,6 +12,8 @@ public class RedisKey {
 
     public static final String STRING_WAREHOUSE = "warehouse:code:";
 
+    public static final String LIST_CUSTOMER_NORMAL_ORDER_PAYMENT_ID = "normal:order：payment:id:list:customer:";
+
     public static final String HASH_CUSTOMER_SETTING = "customer:setting:";
 
     //包含拆分子体的店铺变体

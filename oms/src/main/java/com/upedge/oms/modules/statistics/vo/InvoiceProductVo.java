@@ -7,6 +7,8 @@ import java.math.BigDecimal;
 @Data
 public class InvoiceProductVo {
 
+    private Long storeVariantId;
+
 //    @ExcelProperty(index = 0,value = "Title")
     private String title;
 
@@ -27,4 +29,5 @@ public class InvoiceProductVo {
 
 //    @ExcelProperty(index = 5,value = "Total")
     private BigDecimal total;
+
 }

@@ -8,10 +8,13 @@ import java.util.Date;
 @Data
 public class InvoiceVo {
 
-    private String paymentId;
+    private Long paymentId;
+    private Long customerId;
     private Date payTime;
     private BigDecimal amount;
     private Integer type;
     private Integer status;
+
+    private String paymentNumber;
 
 }
