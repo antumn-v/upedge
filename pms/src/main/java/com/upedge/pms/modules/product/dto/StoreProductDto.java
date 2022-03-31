@@ -16,6 +16,12 @@ public class StoreProductDto {
 
     private String storeVariantSku;
 
+    private String storeName;
+    /**
+     *0:未转换  1:已转换
+     */
+    private Integer transformState;
+
     private Long storeId;
 
     private Long orgId;

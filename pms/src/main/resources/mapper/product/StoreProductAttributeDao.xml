@@ -47,6 +47,12 @@
             <if test="t.storeId != null and t.storeId != ''">
                 and p.store_id = #{t.storeId}
             </if>
+            <if test="t.storeName != null and t.storeName != ''">
+                and p.store_name = #{t.storeName}
+            </if>
+            <if test="t.transformState != null">
+                and p.transform_state = #{t.transformState}
+            </if>
             <if test="t.title != null and t.title != ''">
                 and p.title like CONCAT('%',#{t.title},'%')
             </if>
@@ -81,6 +87,12 @@
             </if>
             <if test="t.storeId != null">
                 and p.store_id = #{t.storeId}
+            </if>
+            <if test="t.storeName != null and t.storeName != ''">
+                and p.store_name = #{t.storeName}
+            </if>
+            <if test="t.transformState != null">
+                and p.transform_state = #{t.transformState}
             </if>
             <if test="t.title != null and t.title != ''">
                 and p.title like CONCAT('%',#{t.title},'%')
