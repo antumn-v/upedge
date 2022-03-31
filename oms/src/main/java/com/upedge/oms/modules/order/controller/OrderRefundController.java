@@ -195,4 +195,16 @@ public class OrderRefundController {
         return orderRefundService.refundOrderHistory(request);
     }
 
+
+//    @PostMapping("/cancelSaihe")
+//    public BaseResponse cancelSaihe(Long id,String clientOrderCode){
+//        try {
+//            orderRefundService.cancelSaiheOrderAndSynState(id,clientOrderCode);
+//        } catch (CustomerException e) {
+//            e.printStackTrace();
+//            return BaseResponse.failed(e.getMessage());
+//        }
+//        return BaseResponse.success();
+//    }
+
 }

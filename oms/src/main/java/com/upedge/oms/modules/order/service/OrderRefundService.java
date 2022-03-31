@@ -15,6 +15,8 @@ import java.util.List;
  */
 public interface OrderRefundService{
 
+    void cancelSaiheOrderAndSynState(Long id, String clientOrderCode) throws CustomerException;
+
     OrderRefund selectByPrimaryKey(Long id);
 
     BaseResponse appApplyRefund(ApplyOrderRefundRequest request, Session session);

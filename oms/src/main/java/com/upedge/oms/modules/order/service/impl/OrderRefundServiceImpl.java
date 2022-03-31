@@ -29,6 +29,7 @@ import com.upedge.oms.modules.order.service.OrderRefundItemService;
 import com.upedge.oms.modules.order.service.OrderRefundService;
 import com.upedge.oms.modules.order.vo.AppOrderItemVo;
 import com.upedge.oms.modules.order.vo.OrderRefundVo;
+import com.upedge.oms.modules.statistics.request.OrderRefundDailyCountRequest;
 import com.upedge.oms.modules.statistics.service.OrderDailyRefundCountService;
 import com.upedge.thirdparty.saihe.entity.cancelOrderInfo.ApiCancelOrderResponse;
 import com.upedge.thirdparty.saihe.entity.getOrderByCode.ApiGetOrderResponse;
@@ -38,7 +39,6 @@ import io.seata.spring.annotation.GlobalTransactional;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -571,11 +571,11 @@ public class OrderRefundServiceImpl implements OrderRefundService {
             throw new CustomerException(ResultCode.FAIL_CODE, "修改退款单状态异常");
         }
         // 统计退款信息
-//        OrderRefundDailyCountRequest orderRefundDailyCountRequest = new OrderRefundDailyCountRequest();
-//        orderRefundDailyCountRequest.setRefundId(request.getId());
-//        orderRefundDailyCountRequest.setOrderType(OrderType.NORMAL);
-//        orderRefundDailyCountRequest.setRefundTime(new Date());
-//        orderDailyRefundCountService.OrderDailyRefundCount(orderRefundDailyCountRequest);
+        OrderRefundDailyCountRequest orderRefundDailyCountRequest = new OrderRefundDailyCountRequest();
+        orderRefundDailyCountRequest.setRefundId(request.getId());
+        orderRefundDailyCountRequest.setOrderType(OrderType.NORMAL);
+        orderRefundDailyCountRequest.setRefundTime(new Date());
+        orderDailyRefundCountService.OrderDailyRefundCount(orderRefundDailyCountRequest);
 
         AccountOrderRefundedRequest accountOrderRefundedRequest = new AccountOrderRefundedRequest();
         accountOrderRefundedRequest.setOrderId(order.getId());
@@ -591,7 +591,7 @@ public class OrderRefundServiceImpl implements OrderRefundService {
             throw new CustomerException(ResultCode.FAIL_CODE, response.getMsg());
         }
         //作废赛盒订单，并同步赛盒发货状态
-//        cancelSaiheOrderAndSynState(orderRefund.getId(), order.getSaiheOrderCode());
+        cancelSaiheOrderAndSynState(orderRefund.getId(), order.getSaiheOrderCode());
         return new BaseResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS);
     }
 
@@ -626,8 +626,7 @@ public class OrderRefundServiceImpl implements OrderRefundService {
     /**
      * 取消赛盒订单，并同步发货状态
      */
-    @Async
-    @Transactional(readOnly = false, rollbackFor = Exception.class)
+    @Override
     public void cancelSaiheOrderAndSynState(Long refundId, String saiheOrderCode) throws CustomerException {
         Integer orderState = null;
         Integer orderSourceId = null;
