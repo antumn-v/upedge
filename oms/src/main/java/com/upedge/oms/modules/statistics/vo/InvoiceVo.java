@@ -15,6 +15,8 @@ public class InvoiceVo {
     private Integer type;
     private Integer status;
 
+    private Integer orderCount;
+
     private String paymentNumber;
 
 }

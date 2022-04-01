@@ -78,7 +78,7 @@ public class InvoiceServiceImpl implements InvoiceService {
         invoiceVos.sort(new Comparator<InvoiceVo>() {
             @Override
             public int compare(InvoiceVo o1, InvoiceVo o2) {
-                return o1.getPaymentNumber().compareTo(o2.getPaymentNumber());
+                return o1.getPaymentNumber().compareTo(o2.getPaymentNumber()) * -1;
             }
         });
         Long count = invoiceDao.selectCustomerInvoiceCount(request);
