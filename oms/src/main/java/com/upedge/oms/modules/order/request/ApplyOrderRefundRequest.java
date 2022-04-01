@@ -22,6 +22,8 @@ public class ApplyOrderRefundRequest {
 
     String remark;
 
+    boolean directRefund;
+
     List<OrderRefundItem> refundItemList=new ArrayList<>();
 
 

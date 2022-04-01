@@ -355,8 +355,7 @@ public class StoreProductServiceImpl implements StoreProductService {
             storeProductVariantDao.markStoreVariantAsRemovedByPlatId(storeProductId, platVariantIds);
         }
 
-
-        if (importAttribute != null) {
+        if (importAttribute != null && insertVariants.size() > 0) {
             storeProductVariantDao.updateAdminVariantIdByImportId(importAttribute.getId(), storeProductId);
         }
 //        attribute = new StoreProductAttribute();
@@ -602,6 +601,7 @@ public class StoreProductServiceImpl implements StoreProductService {
         if (null != variant.getImage() && null != variant.getImage().getSrc()) {
             storeVariant.setImage(variant.getImage().getSrc());
         }
+        storeVariant.setParentVariantId(0L);
         return storeVariant;
     }
 
@@ -681,6 +681,7 @@ public class StoreProductServiceImpl implements StoreProductService {
         variant.setPrice(new BigDecimal(product.getPrice()));
         variant.setProductId(product.getId());
         variant.setState(1);
+        variant.setParentVariantId(0L);
         return variant;
     }
 
@@ -704,6 +705,7 @@ public class StoreProductServiceImpl implements StoreProductService {
         variant.setProductId(storeProductId);
         variant.setImportTime(importTime);
         variant.setState(1);
+        variant.setParentVariantId(0L);
 
         return variant;
     }

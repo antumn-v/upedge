@@ -125,7 +125,16 @@ public class OrderRefundController {
         }
         Session session = UserUtil.getSession(redisTemplate);
         try {
-            return orderRefundService.applyRefund(request,session);
+            BaseResponse response = orderRefundService.applyRefund(request,session);
+            if (response.getCode() == ResultCode.SUCCESS_CODE
+            && request.isDirectRefund()){
+                OrderRefund orderRefund = (OrderRefund) response.getData();
+                ConfirmRefundRequest confirmRefundRequest = new ConfirmRefundRequest();
+                confirmRefundRequest.setId(orderRefund.getId());
+                confirmRefundRequest.setActualRefundAmount(orderRefund.getRefundAmount());
+                return orderRefundService.confirmRefund(confirmRefundRequest,session);
+            }
+            return response;
         } catch (CustomerException e) {
             return new BaseResponse(ResultCode.FAIL_CODE,e.getMessage());
         }finally {
@@ -174,8 +183,6 @@ public class OrderRefundController {
         Session session = UserUtil.getSession(redisTemplate);
         try {
             BaseResponse response = orderRefundService.confirmRefund(request,session);
-
-
             return response;
         } catch (CustomerException e) {
             return new BaseResponse(ResultCode.FAIL_CODE,e.getMessage());

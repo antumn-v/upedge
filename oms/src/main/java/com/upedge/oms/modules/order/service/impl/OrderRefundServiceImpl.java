@@ -406,7 +406,7 @@ public class OrderRefundServiceImpl implements OrderRefundService {
             //添加退款产品信息
             orderRefundItemDao.insertByBatch(refundItemList);
         }
-        return new BaseResponse(ResultCode.SUCCESS_CODE, "申请退款成功!");
+        return new BaseResponse(ResultCode.SUCCESS_CODE, "申请退款成功!",appRefund);
     }
 
     /**

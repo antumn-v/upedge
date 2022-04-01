@@ -75,6 +75,12 @@ public class InvoiceServiceImpl implements InvoiceService {
             String paymentNumber = getCustomerPaymentNumber(invoiceVo.getPaymentId(),invoiceVo.getCustomerId());
             invoiceVo.setPaymentNumber(paymentNumber);
         }
+        invoiceVos.sort(new Comparator<InvoiceVo>() {
+            @Override
+            public int compare(InvoiceVo o1, InvoiceVo o2) {
+                return o1.getPaymentNumber().compareTo(o2.getPaymentNumber());
+            }
+        });
         Long count = invoiceDao.selectCustomerInvoiceCount(request);
         request.setTotal(count);
         return new BaseResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS, invoiceVos, request);
@@ -88,6 +94,9 @@ public class InvoiceServiceImpl implements InvoiceService {
         switch (request.getOrderType()) {
             case OrderType.NORMAL:
                 invoiceDetailVo = invoiceDao.selectOrderInvoiceDetailByPaymentId(paymentId);
+                if (invoiceDetailVo == null){
+                    return null;
+                }
                 invoiceProductVos = invoiceDao.selectOrderInvoiceProductByPaymentId(paymentId);
                 completeNormalOrderInvoiceProductDetail(invoiceProductVos);
                 completeNormalOrderInvoiceDetail(invoiceDetailVo);

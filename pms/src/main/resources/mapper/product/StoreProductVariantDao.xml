@@ -136,6 +136,7 @@
         <foreach collection="platVariantIds" item="id" separator="," open="(" close=")">
             #{id}
         </foreach>
+        and split_type &lt; '2'
     </update>
 
     <update id="updateVariantImageByShopifyImage">
@@ -555,7 +556,8 @@
         pv.width,pv.height,pv.length,
         p.shipping_id as productShippingId,p.id as productId,
         p.product_title as `productTitle`,
-        '6' as quoteType,'1' as `quoteState`,'1' as `quoteScale`
+        '6' as quoteType,'1' as `quoteState`,'1' as `quoteScale`,
+        spv.parent_variant_id as `storeParentVariantId`
         from store_product_variant spv
         inner join product_variant pv
         on spv.admin_variant_id = pv.id
