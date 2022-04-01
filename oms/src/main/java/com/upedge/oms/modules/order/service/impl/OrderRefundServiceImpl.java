@@ -6,7 +6,6 @@ import com.upedge.common.base.Page;
 import com.upedge.common.constant.Constant;
 import com.upedge.common.constant.OrderType;
 import com.upedge.common.constant.ResultCode;
-import com.upedge.common.constant.key.RedisKey;
 import com.upedge.common.exception.CustomerException;
 import com.upedge.common.feign.UmsFeignClient;
 import com.upedge.common.model.account.AccountOrderRefundedRequest;
@@ -15,14 +14,8 @@ import com.upedge.common.model.user.vo.CustomerVo;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.utils.IdGenerate;
 import com.upedge.common.utils.ListUtils;
-import com.upedge.oms.modules.order.dao.OrderDao;
-import com.upedge.oms.modules.order.dao.OrderItemDao;
-import com.upedge.oms.modules.order.dao.OrderRefundDao;
-import com.upedge.oms.modules.order.dao.OrderRefundItemDao;
-import com.upedge.oms.modules.order.entity.Order;
-import com.upedge.oms.modules.order.entity.OrderItem;
-import com.upedge.oms.modules.order.entity.OrderRefund;
-import com.upedge.oms.modules.order.entity.OrderRefundItem;
+import com.upedge.oms.modules.order.dao.*;
+import com.upedge.oms.modules.order.entity.*;
 import com.upedge.oms.modules.order.request.*;
 import com.upedge.oms.modules.order.response.OrderRefundListResponse;
 import com.upedge.oms.modules.order.service.OrderRefundItemService;
@@ -73,6 +66,9 @@ public class OrderRefundServiceImpl implements OrderRefundService {
 
     @Autowired
     OrderDailyRefundCountService orderDailyRefundCountService;
+
+    @Autowired
+    OrderReshipInfoDao orderReshipInfoDao;
 
     /**
      *
@@ -243,27 +239,6 @@ public class OrderRefundServiceImpl implements OrderRefundService {
             }
         }, threadPoolExecutor);
 
-        // 客户经理信息
-        CompletableFuture<Void> managerFuture = CompletableFuture.runAsync(() -> {
-            for (OrderRefundVo orderRefundVo : results) {
-                String managerCode = (String) redisTemplate.opsForHash().get(RedisKey.HASH_CUSTOMER_MANAGER_RELATE, orderRefundVo.getCustomerId().toString());
-                orderRefundVo.setManagerCode(managerCode);
-            }
-        }, threadPoolExecutor);
-
-        // 推荐人信息
-        CompletableFuture<Void> affiliateFuture = CompletableFuture.runAsync(() -> {
-            for (OrderRefundVo orderRefundVo : results) {
-                BaseResponse customerAffiliateResponse = umsFeignClient.customerAffiliateInfo(orderRefundVo.getCustomerId());
-                if (customerAffiliateResponse.getCode() == ResultCode.SUCCESS_CODE) {
-                    CustomerAffiliateVo customerAffiliateVo = JSON.parseObject(JSON.toJSONString(customerAffiliateResponse.getData()), CustomerAffiliateVo.class);
-                    if (customerAffiliateVo != null) {
-                        orderRefundVo.setCustomerAffiliateName(customerAffiliateVo.getAffiliateName());
-                    }
-                }
-            }
-        }, threadPoolExecutor);
-
         // 获取订单的赛盒状态
         // OrderStatus
         //订单状态(正常 = 0,待审查 = 1,作废 = 2,锁定 = 3,只锁定发货 = 4,已完成 = 5)
@@ -287,7 +262,7 @@ public class OrderRefundServiceImpl implements OrderRefundService {
         }, threadPoolExecutor);
 
         try {
-            CompletableFuture.allOf(customerFuture,managerFuture,affiliateFuture,saiheFuture).get();
+            CompletableFuture.allOf(customerFuture,saiheFuture).get();
         } catch (Exception e) {
             e.printStackTrace();
             return (OrderRefundListResponse) OrderRefundListResponse.failed();
@@ -304,6 +279,13 @@ public class OrderRefundServiceImpl implements OrderRefundService {
     @Transactional(readOnly = false, rollbackFor = Exception.class)
     public BaseResponse applyRefund(ApplyOrderRefundRequest request, Session session) throws CustomerException {
         Long orderId = request.getOrderId();
+
+        OrderRefundVo orderRefundVo = orderRefundDao.selectUnderReviewRefundOrder(orderId);
+        if (orderRefundVo != null){
+            return BaseResponse.failed("该订单尚有未处理的退款申请");
+        }
+        OrderRefund appRefund = new OrderRefund();
+
         String refundReason = request.getRefundReason();
         BigDecimal refundShippingPrice = request.getShippingPrice();
         BigDecimal refundVatAmount = request.getVatAmount();
@@ -321,7 +303,10 @@ public class OrderRefundServiceImpl implements OrderRefundService {
             return new BaseResponse(ResultCode.FAIL_CODE, "订单状态不满足退款条件!");
         }
         if (appPandaOrder.getOrderType() == 1) {
-            return new BaseResponse(ResultCode.FAIL_CODE, "补发订单不能退款!");
+            OrderReshipInfo orderReshipInfo = orderReshipInfoDao.selectByPrimaryKey(orderId);
+            if (orderReshipInfo == null
+            || !orderReshipInfo.getNeedPay())
+            return new BaseResponse(ResultCode.FAIL_CODE, "补发订单未支付");
         }
         BigDecimal refundAmount = BigDecimal.ZERO;
         BigDecimal refundProductAmount = BigDecimal.ZERO;
@@ -333,10 +318,6 @@ public class OrderRefundServiceImpl implements OrderRefundService {
                 return new BaseResponse(ResultCode.FAIL_CODE, "数量异常!");
             }
             if (refundItem.getOrderItemId() == null) {
-                return new BaseResponse(ResultCode.FAIL_CODE, "参数异常!");
-            }
-            if (StringUtils.isBlank(refundItem.getVariantImage())
-                    || StringUtils.isBlank(refundItem.getVariantSku())) {
                 return new BaseResponse(ResultCode.FAIL_CODE, "参数异常!");
             }
             refundItem.setOrderId(orderId);
@@ -351,7 +332,10 @@ public class OrderRefundServiceImpl implements OrderRefundService {
                     multiply(new BigDecimal(refundItem.getQuantity())));
             refundItem.setPrice(old.getUsdPrice());
             refundItem.setRefundId(refundId);
+            refundItem.setVariantImage(old.getStoreVariantImage());
+            refundItem.setVariantSku(old.getStoreVariantSku());
         }
+
         if (refundShippingPrice.compareTo(BigDecimal.ZERO) <= 0 && refundProductAmount.compareTo(BigDecimal.ZERO) <= 0
                 && refundVatAmount.compareTo(BigDecimal.ZERO) <= 0) {
             return new BaseResponse(ResultCode.FAIL_CODE, "无效退款!");
@@ -367,19 +351,19 @@ public class OrderRefundServiceImpl implements OrderRefundService {
         if (refundVatAmount.compareTo(vatAmount) > 0) {
             return new BaseResponse(ResultCode.FAIL_CODE, "退款VAT税费超过限制!");
         }
-        if (refundShippingPrice.compareTo(appPandaOrder.getShipPrice()) > 0) {
+        if (refundShippingPrice.compareTo(appPandaOrder.getShipPrice().add(appPandaOrder.getServiceFee())) > 0) {
             return new BaseResponse(ResultCode.FAIL_CODE, "退款运费超过限制!");
         }
         //可退最大金额
         BigDecimal maxAmount = appPandaOrder.getShipPrice().
-                add(appPandaOrder.getProductAmount()).add(vatAmount);
+                add(appPandaOrder.getProductAmount()).add(vatAmount).add(appPandaOrder.getServiceFee());
         if (refundAmount.compareTo(maxAmount) > 0) {
             return new BaseResponse(ResultCode.FAIL_CODE, "申请退款金额大于可退金额!");
         }
         //申请退款
         //String userCode=String.valueOf(session.getId());
 
-        OrderRefund appRefund = new OrderRefund();
+
         appRefund.setId(refundId);
         appRefund.setOrderId(orderId);
         appRefund.setCustomerId(appPandaOrder.getCustomerId());
@@ -621,6 +605,11 @@ public class OrderRefundServiceImpl implements OrderRefundService {
                 }
             }
         }
+    }
+
+    @Override
+    public OrderRefundVo selectByOrderId(Long orderId) {
+        return orderRefundDao.selectUnderReviewRefundOrder(orderId);
     }
 
     /**

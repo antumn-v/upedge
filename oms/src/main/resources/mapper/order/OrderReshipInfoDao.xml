@@ -8,11 +8,11 @@
         <result property="orderId" column="order_id"/>
         <result property="originalOrderId" column="original_order_id"/>
         <result property="reason" column="reason"/>
-        <result property="reship_times" column="reshipTimes"/>
+        <result property="needPay" column="need_pay"/>
     </resultMap>
 
     <sql id="Base_Column_List">
-        `order_id`,`original_order_id`,`reason`,`reship_times`
+        `order_id`,`original_order_id`,`reason`,need_pay
     </sql>
 
     <select id="selectByPrimaryKey" parameterType="com.upedge.oms.modules.order.entity.OrderReshipInfo" resultMap="BaseResultMap">

@@ -45,6 +45,14 @@ public class OrderRefundItemServiceImpl implements OrderRefundItemService {
         return orderRefundItemDao.insert(record);
     }
 
+    @Override
+    public List<OrderRefundItem> selectByRefundId(Long refundId) {
+        if (null != refundId){
+            return orderRefundItemDao.selectOrderRefundItemListbByRefundId(refundId);
+        }
+        return null;
+    }
+
     /**
      *
      */

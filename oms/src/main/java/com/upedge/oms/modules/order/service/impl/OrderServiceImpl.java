@@ -932,7 +932,6 @@ public class OrderServiceImpl implements OrderService {
     @Transactional
     @Override
     public BaseResponse createReshipOrder(CreateReshipOrderRequest request, Session session) {
-
         Long id = request.getOrderId();
         List<Long> itemIds = request.getItemIds();
         Order order = orderDao.selectByPrimaryKey(id);
@@ -948,13 +947,14 @@ public class OrderServiceImpl implements OrderService {
         reshipOrder.setOrderType(1);
         if (!request.getNeedPay()){
             if (null == request.getShipMethodId()
-            || null == request.getShipPrice()){
+            || null == request.getShipPrice()
+            || null == request.getShipUnitId()){
                 return BaseResponse.failed("需要支付的订单需选择运输方式");
             }
             reshipOrder.setPayState(1);
-            reshipOrder.setShipMethodId(request.getShipMethodId());
-            reshipOrder.setShipPrice(request.getShipPrice());
         }
+        reshipOrder.setShipMethodId(request.getShipMethodId());
+        reshipOrder.setShipPrice(request.getShipPrice());
         reshipOrder.setQuoteState(order.getQuoteState());
         reshipOrder.setId(reshipOrderId);
         reshipOrder.setCnyProductAmount(order.getCnyProductAmount());
@@ -1031,6 +1031,10 @@ public class OrderServiceImpl implements OrderService {
         orderReshipInfo.setReshipTimes(1);
         orderReshipInfo.setNeedPay(request.getNeedPay());
         orderReshipInfoDao.insert(orderReshipInfo);
+        if (null != reshipOrder.getShipMethodId()
+                && null != request.getShipUnitId()){
+            updateOrderShipUnit(reshipOrderId,request.getShipUnitId());
+        }
         return BaseResponse.success(reshipOrder,request);
     }
 

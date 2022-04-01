@@ -481,7 +481,7 @@ public class OrderController {
         BaseResponse response  = orderService.createReshipOrder(request,session);
         if(response.getCode() == ResultCode.SUCCESS_CODE){
             Order order = (Order) response.getData();
-            if (request.getNeedPay()) {
+            if (request.getNeedPay() && order.getShipMethodId() == null) {
                 orderService.matchShipRule(order.getId());
             }else {
                 orderService.importOrderToSaihe(order.getId());

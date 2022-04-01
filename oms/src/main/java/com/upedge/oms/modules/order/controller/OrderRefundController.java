@@ -9,15 +9,19 @@ import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.web.util.RedisUtil;
 import com.upedge.common.web.util.UserUtil;
 import com.upedge.oms.modules.order.entity.OrderRefund;
+import com.upedge.oms.modules.order.entity.OrderRefundItem;
 import com.upedge.oms.modules.order.request.*;
 import com.upedge.oms.modules.order.response.OrderRefundAddResponse;
 import com.upedge.oms.modules.order.response.OrderRefundInfoResponse;
 import com.upedge.oms.modules.order.response.OrderRefundListResponse;
 import com.upedge.oms.modules.order.response.OrderRefundUpdateResponse;
+import com.upedge.oms.modules.order.service.OrderRefundItemService;
 import com.upedge.oms.modules.order.service.OrderRefundService;
+import com.upedge.oms.modules.order.vo.OrderRefundVo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.*;
@@ -40,12 +44,35 @@ public class OrderRefundController {
     @Autowired
     RedisTemplate<String, Object> redisTemplate;
 
+    @Autowired
+    OrderRefundItemService orderRefundItemService;
 
+    @ApiOperation("退款详情")
     @RequestMapping(value="/info/{id}", method=RequestMethod.GET)
     @Permission(permission = "order:orderrefund:info:id")
-    public OrderRefundInfoResponse info(@PathVariable Long id) {
+    public BaseResponse info(@PathVariable Long id) {
         OrderRefund result = orderRefundService.selectByPrimaryKey(id);
-        OrderRefundInfoResponse res = new OrderRefundInfoResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS,result,id);
+        if (null == result){
+            return BaseResponse.failed();
+        }
+        OrderRefundVo orderRefundVo = new OrderRefundVo();
+        BeanUtils.copyProperties(result,orderRefundVo);
+        List<OrderRefundItem> orderRefundItems = orderRefundItemService.selectOrderRefundItemListbByRefundId(id);
+        orderRefundVo.setOrderRefundItemList(orderRefundItems);
+        OrderRefundInfoResponse res = new OrderRefundInfoResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS,orderRefundVo,id);
+        return res;
+    }
+
+    @ApiOperation("订单ID查询退款详情")
+    @GetMapping("/orderDetail/{orderId}")
+    public BaseResponse orderRefundDetail(@PathVariable Long orderId){
+        OrderRefundVo orderRefundVo = orderRefundService.selectByOrderId(orderId);
+        if (orderRefundVo == null){
+            return BaseResponse.failed("订单不存在处理中的退款请求");
+        }
+        List<OrderRefundItem> orderRefundItems = orderRefundItemService.selectOrderRefundItemListbByRefundId(orderRefundVo.getId());
+        orderRefundVo.setOrderRefundItemList(orderRefundItems);
+        OrderRefundInfoResponse res = new OrderRefundInfoResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS,orderRefundVo,orderId);
         return res;
     }
 

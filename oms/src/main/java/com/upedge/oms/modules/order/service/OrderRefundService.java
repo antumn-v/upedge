@@ -7,6 +7,7 @@ import com.upedge.common.model.user.vo.Session;
 import com.upedge.oms.modules.order.entity.OrderRefund;
 import com.upedge.oms.modules.order.request.*;
 import com.upedge.oms.modules.order.response.OrderRefundListResponse;
+import com.upedge.oms.modules.order.vo.OrderRefundVo;
 
 import java.util.List;
 
@@ -14,6 +15,8 @@ import java.util.List;
  * @author author
  */
 public interface OrderRefundService{
+
+    OrderRefundVo selectByOrderId(Long orderId);
 
     void cancelSaiheOrderAndSynState(Long id, String clientOrderCode) throws CustomerException;
 

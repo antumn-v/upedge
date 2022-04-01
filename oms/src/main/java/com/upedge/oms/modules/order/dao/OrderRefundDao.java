@@ -14,6 +14,8 @@ import java.util.List;
  */
 public interface OrderRefundDao{
 
+    OrderRefundVo selectUnderReviewRefundOrder(Long orderId);
+
     BigDecimal selectRefundAmountByOrderId(Long orderId);
 
     OrderRefund selectByPrimaryKey(Long id);

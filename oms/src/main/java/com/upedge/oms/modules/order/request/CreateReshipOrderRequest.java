@@ -20,6 +20,8 @@ public class CreateReshipOrderRequest {
 
     BigDecimal shipPrice;
 
+    Long shipUnitId;
+
     String reshipReason;
 
     @Size(min = 1,message = "订单里最少一个产品")

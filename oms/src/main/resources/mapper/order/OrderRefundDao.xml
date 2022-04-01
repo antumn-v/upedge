@@ -512,4 +512,38 @@
         </if>
     </select>
 
+    <select id="selectUnderReviewRefundOrder" resultMap="OrderRefundVo">
+        select
+                r.`id`,
+                r.`reason`,
+                r.`order_id`,
+                r.`customer_id`,
+                r.`create_time`,
+                r.`update_time`,
+                r.`reject_info`,
+                r.`manager_code`,
+                r.`refund_amount`,
+                r.`refund_vat_amount`,
+                r.`refund_product_amount`,
+                r.`refund_shipping_price`,
+                r.`state`,`source`,
+                r.`tracking_state`,
+                r.`remark`,
+                ifnull(o.`product_amount`,'0') as `product_amount`,
+                o.`product_discharge_amount`,
+                o.`fix_fee`,
+                o.`pay_method`,
+                ifnull(o.`vat_amount`,'0') as `vat_amount`,
+                ifnull(o.`ship_price` + o.service_fee,'0') as `ship_price`,
+                o.`pay_amount`,
+                o.`ship_state`,
+                o.`payment_id`,
+                o.`saihe_order_code`,
+                o.`cny_product_amount`
+        from order_refund r
+        left join `order` o
+        on o.id = r.order_id
+        where r.order_id = #{orderId}
+        and r.`state` = 0;
+    </select>
 </mapper>

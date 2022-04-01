@@ -4,7 +4,6 @@ import com.upedge.common.base.BaseResponse;
 import com.upedge.common.exception.CustomerException;
 import com.upedge.common.model.order.PaymentDetail;
 import com.upedge.common.model.user.vo.Session;
-import com.upedge.oms.modules.common.vo.OrderPayCheckResultVo;
 import com.upedge.oms.modules.order.vo.AppOrderVo;
 import com.upedge.oms.modules.order.vo.ItemDischargeQuantityVo;
 
@@ -25,7 +24,7 @@ public interface OrderPayService {
     boolean orderPayRollback(Long paymentId, Long customerId, List<ItemDischargeQuantityVo> dischargeQuantityVos);
 
     //检查库存，运费
-    OrderPayCheckResultVo orderPayCheck(Long paymentId, BigDecimal amount, List<ItemDischargeQuantityVo> dischargeQuantityVos, Long customerId, String payType);
+    BaseResponse orderPayCheck(Long paymentId, BigDecimal amount, List<ItemDischargeQuantityVo> dischargeQuantityVos, Long customerId, String payType);
 
     String payOrderByBalance(Session session, BigDecimal amount, Long paymentId, List<ItemDischargeQuantityVo> dischargeQuantityVos);
 

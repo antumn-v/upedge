@@ -93,7 +93,7 @@ public class OrderPayController {
 
     @ApiOperation("余额支付订单")
     @PostMapping("/balance")
-    public OrderPayResponse payOrderByBalance(@RequestBody @Valid OrderPayRequest request) {
+    public BaseResponse payOrderByBalance(@RequestBody @Valid OrderPayRequest request) {
         Session session = UserUtil.getSession(redisTemplate);
         List<Long> orderIds = request.getOrderIds();
         for (Long id : orderIds) {
@@ -110,14 +110,15 @@ public class OrderPayController {
         if (i == orderIds.size()) {
             //库存检查
             List<ItemDischargeQuantityVo> dischargeQuantityVos = orderItemService.selectDischargeQuantityByPaymentId(paymentId);
-            OrderPayCheckResultVo   orderPayCheckResultVo = orderPayService.orderPayCheck(paymentId, amount, dischargeQuantityVos, session.getCustomerId(),"balance");
-            if (orderPayCheckResultVo.getPayMessage().equals("success")) {
+            BaseResponse response = orderPayService.orderPayCheck(paymentId, amount, dischargeQuantityVos, session.getCustomerId(),"balance");
+            if (response.getCode() == ResultCode.SUCCESS_CODE) {
                     orderPayService.payOrderByBalance(session, amount, paymentId, dischargeQuantityVos);
                     orderPayService.payOrderAsync(session.getId(),session.getCustomerId(), paymentId,0);
-                    OrderPayResponse.PayResponse payResponse = new OrderPayResponse.PayResponse(paymentId,amount, TransactionConstant.PayMethod.ACCOUNT.getCode(),new Date(),orderPayCheckResultVo.getTradingDataVo());
+                    OrderPayResponse.PayResponse payResponse = new OrderPayResponse.PayResponse(paymentId,amount, TransactionConstant.PayMethod.ACCOUNT.getCode(),new Date());
                     return new OrderPayResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS,payResponse);
             }
             orderPayService.orderPayRollback(paymentId, session.getCustomerId(), dischargeQuantityVos);
+            return response;
         }
         return new OrderPayResponse(ResultCode.FAIL_CODE,"Order error!");
     }
@@ -139,15 +140,15 @@ public class OrderPayController {
         if (i > 0) {
             List<ItemDischargeQuantityVo> dischargeQuantityVos = orderItemService.selectDischargeQuantityByPaymentId(paymentId);
 
-            OrderPayCheckResultVo orderPayCheckResultVo = orderPayService.orderPayCheck(paymentId, request.getAmount(), dischargeQuantityVos, session.getCustomerId(),"paypal");
-            if (orderPayCheckResultVo.getPayMessage().equals("success")) {
-                BaseResponse response =  orderPayService.createPaypalOrder(session, request.getAmount(), paymentId, dischargeQuantityVos);
+            BaseResponse response = orderPayService.orderPayCheck(paymentId, request.getAmount(), dischargeQuantityVos, session.getCustomerId(),"paypal");
+            if (response.getCode() == ResultCode.SUCCESS_CODE) {
+                response =  orderPayService.createPaypalOrder(session, request.getAmount(), paymentId, dischargeQuantityVos);
                 if(response.getCode() == ResultCode.SUCCESS_CODE){
                     return response;
                 }
             }
             orderPayService.orderPayRollback(paymentId, session.getCustomerId(), dischargeQuantityVos);
-
+            return response;
         }
         return BaseResponse.failed();
 

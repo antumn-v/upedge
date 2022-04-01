@@ -406,10 +406,10 @@ public class OrderPayServiceImpl implements OrderPayService {
      */
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public OrderPayCheckResultVo orderPayCheck(Long paymentId, BigDecimal amount, List<ItemDischargeQuantityVo> dischargeQuantityVos, Long customerId, String payType) {
+    public BaseResponse orderPayCheck(Long paymentId, BigDecimal amount, List<ItemDischargeQuantityVo> dischargeQuantityVos, Long customerId, String payType) {
         boolean a = customerProductStockService.orderItemStockCheck(dischargeQuantityVos, customerId);
         if (!a) {
-            return creatOrderPayCheckResultVo(new ArrayList<>(), paymentId, "stock error");
+            return BaseResponse.failed("stock error");
         }
         orderDao.updateProductAmountByPaymentId(paymentId);
 
@@ -426,7 +426,7 @@ public class OrderPayServiceImpl implements OrderPayService {
         List<Long> orderIds = orderShippingUnitService.selectOrderIdByOrderPaymentId(paymentId, OrderType.NORMAL);
         for (AppOrderVo order : orders) {
             if (!orderIds.contains(order.getId())) {
-                return creatOrderPayCheckResultVo(new ArrayList<>(), paymentId, "ship error");
+                return BaseResponse.failed("ship error");
             }
         }
 
@@ -439,17 +439,17 @@ public class OrderPayServiceImpl implements OrderPayService {
             OrderProductAmountVo orderProductAmountVo = orderProductAmountVoMap.get(order.getId());
             if (null == orderProductAmountVo
                     || orderProductAmountVo.getProductAmount().compareTo(order.getProductAmount()) != 0) {
-                return creatOrderPayCheckResultVo(new ArrayList<>(), paymentId, "product amount error");
+                return BaseResponse.failed( "product amount error");
             }
             BigDecimal vatAmount = vatRuleService.getOrderVatAmount(order.getProductAmount(), order.getShipPrice(), order.getToAreaId(), order.getCustomerId());
             if (vatAmount.compareTo(order.getVatAmount()) != 0) {
                 orderDao.updateOrderVatAmountById(order.getId(), vatAmount);
-                return creatOrderPayCheckResultVo(new ArrayList<>(), paymentId, "vat error");
+                return BaseResponse.failed("vat error");
             }
         }
         BigDecimal payAmount = orderDao.selectPayAmountByPaymentId(paymentId);
         if (0 != amount.compareTo(payAmount)) {
-            return creatOrderPayCheckResultVo(new ArrayList<>(), paymentId, "amount error");
+            return BaseResponse.failed("amount error");
         }
         int i = orderDao.updatePayStateByPaymentId(paymentId, 2);
         if (i == orders.size()) {
@@ -457,12 +457,12 @@ public class OrderPayServiceImpl implements OrderPayService {
                 customerProductStockDao.increaseCustomerLockStock(customerId, dischargeQuantityVos);
             }
             if (StringUtils.equals("paypal", payType)) {
-                return creatOrderPayCheckResultVo(new ArrayList<>(), paymentId, "success");
+                return BaseResponse.success();
             } else {
-                return creatOrderPayCheckResultVo(orders, paymentId, "success");
+                return BaseResponse.success();
             }
         }
-        return creatOrderPayCheckResultVo(new ArrayList<>(), paymentId, "order error");
+        return BaseResponse.failed("order error");
     }
 
 

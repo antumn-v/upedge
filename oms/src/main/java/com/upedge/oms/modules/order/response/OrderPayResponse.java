@@ -56,6 +56,7 @@ public class OrderPayResponse extends BaseResponse {
             this.payTime = payTime;
             this.tradingDataVo = tradingDataVo;
         }
+
     }
 
 
