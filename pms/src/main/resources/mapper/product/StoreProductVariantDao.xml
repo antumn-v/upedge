@@ -109,10 +109,9 @@
     </select>
 
     <select id="selectPlatVariantIdByProductId" resultType="java.lang.String">
-        select plat_variant_id
+        select distinct plat_variant_id
         from store_product_variant
         where product_id = #{productId}
-        and parent_variant_id = '0'
     </select>
 
     <update id="updateByPlatVariantId" parameterType="com.upedge.pms.modules.product.entity.StoreProductVariant">
@@ -375,7 +374,7 @@
             price,
             sku,
             image,
-            state,
+            `state`,
             import_time,
             admin_variant_id,
             split_type,

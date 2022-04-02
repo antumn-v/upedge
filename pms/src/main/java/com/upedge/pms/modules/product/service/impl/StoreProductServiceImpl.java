@@ -339,6 +339,7 @@ public class StoreProductServiceImpl implements StoreProductService {
                 Long storeVariantId = IdGenerate.nextId();
                 storeVariant.setId(storeVariantId);
                 storeVariant.setSplitType(0);
+                storeVariant.setParentVariantId(0L);
                 insertVariants.add(storeVariant);
             }
             platVariantIds.add(variant.getId());
@@ -358,15 +359,20 @@ public class StoreProductServiceImpl implements StoreProductService {
         if (importAttribute != null && insertVariants.size() > 0) {
             storeProductVariantDao.updateAdminVariantIdByImportId(importAttribute.getId(), storeProductId);
         }
-//        attribute = new StoreProductAttribute();
-//        attribute.setId(storeProductId);
-//        if (variantPrices.size() > 1) {
-//            variantPrices.descendingSet();
-//            attribute.setPrice(variantPrices.first() + "~" + variantPrices.last());
-//        } else {
-//            attribute.setPrice(variantPrices.last() + "");
-//        }
-//        storeProductAttributeDao.updateByPrimaryKeySelective(attribute);
+        String price = attribute.getPrice();
+        attribute = new StoreProductAttribute();
+        attribute.setId(storeProductId);
+        if (variantPrices.size() > 1) {
+            variantPrices.descendingSet();
+            attribute.setPrice(variantPrices.first() + "~" + variantPrices.last());
+        } else {
+            attribute.setPrice(variantPrices.last() + "");
+        }
+        if (price == null
+        || !attribute.getPrice().equals(price)){
+            storeProductAttributeDao.updateByPrimaryKeySelective(attribute);
+        }
+
         RedisUtil.unLock(redisTemplate, key);
         return attribute.getId();
     }

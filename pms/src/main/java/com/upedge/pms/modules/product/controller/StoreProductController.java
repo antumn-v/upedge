@@ -1,5 +1,6 @@
 package com.upedge.pms.modules.product.controller;
 
+import com.alibaba.fastjson.JSONObject;
 import com.upedge.common.base.BaseResponse;
 import com.upedge.common.constant.Constant;
 import com.upedge.common.constant.ResultCode;
@@ -18,6 +19,7 @@ import com.upedge.pms.modules.product.service.StoreProductVariantService;
 import com.upedge.pms.modules.product.vo.StoreProductRelateVo;
 import com.upedge.thirdparty.shopify.moudles.product.controller.ShopifyProductApi;
 import com.upedge.thirdparty.shopify.moudles.product.entity.ShopifyImage;
+import com.upedge.thirdparty.shopify.moudles.product.entity.ShopifyProduct;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.apache.commons.lang3.StringUtils;
@@ -114,5 +116,16 @@ public class StoreProductController {
             e.printStackTrace();
         }
         return BaseResponse.success(new ArrayList<>());
+    }
+
+
+    @GetMapping("/getSingleShopifyProduct")
+    public BaseResponse getSingleShopifyProduct(Long storeId,String productId){
+        StoreVo storeVo = (StoreVo) redisTemplate.opsForValue().get(RedisKey.STRING_STORE + storeId);
+        JSONObject jsonObject = ShopifyProductApi.getProduct(productId,storeVo.getApiToken(),storeVo.getStoreName());
+
+        ShopifyProduct shopifyProduct = jsonObject.getJSONObject("product").toJavaObject(ShopifyProduct.class);
+        storeProductService.saveShopifyProduct(shopifyProduct, storeVo);
+        return BaseResponse.success();
     }
 }

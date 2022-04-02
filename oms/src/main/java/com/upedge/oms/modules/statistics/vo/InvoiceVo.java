@@ -17,6 +17,6 @@ public class InvoiceVo {
 
     private Integer orderCount;
 
-    private String paymentNumber;
+    private Integer paymentNumber;
 
 }

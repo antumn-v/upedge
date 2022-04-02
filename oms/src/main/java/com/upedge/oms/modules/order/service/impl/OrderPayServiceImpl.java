@@ -618,7 +618,7 @@ public class OrderPayServiceImpl implements OrderPayService {
         orderDailyPayCountService.updateCustomerOrderDailyCount(customerOrderDailyCountUpdateRequest);
 
         String key = RedisKey.LIST_CUSTOMER_NORMAL_ORDER_PAYMENT_ID + customerId;
-        redisTemplate.opsForList().leftPush(key,paymentId);
+        redisTemplate.opsForList().rightPush(key,paymentId);
         return "success";
 
       /*  //队列计算客户每日支付订单数据

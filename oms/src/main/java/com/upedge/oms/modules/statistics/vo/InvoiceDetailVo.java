@@ -49,7 +49,7 @@ public class InvoiceDetailVo {
 
     List<InvoiceProductVo> productVos;
 
-    String paymentNumber;
+    Integer paymentNumber;
 
     String storeOrderName;
 

@@ -279,7 +279,6 @@ public class OrderRefundServiceImpl implements OrderRefundService {
     @Transactional(readOnly = false, rollbackFor = Exception.class)
     public BaseResponse applyRefund(ApplyOrderRefundRequest request, Session session) throws CustomerException {
         Long orderId = request.getOrderId();
-
         OrderRefundVo orderRefundVo = orderRefundDao.selectUnderReviewRefundOrder(orderId);
         if (orderRefundVo != null){
             return BaseResponse.failed("该订单尚有未处理的退款申请");
@@ -362,8 +361,6 @@ public class OrderRefundServiceImpl implements OrderRefundService {
         }
         //申请退款
         //String userCode=String.valueOf(session.getId());
-
-
         appRefund.setId(refundId);
         appRefund.setOrderId(orderId);
         appRefund.setCustomerId(appPandaOrder.getCustomerId());

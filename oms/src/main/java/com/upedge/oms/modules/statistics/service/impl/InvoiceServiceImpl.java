@@ -72,7 +72,7 @@ public class InvoiceServiceImpl implements InvoiceService {
     public BaseResponse customerInvoiceList(InvoiceListRequest request) {
         List<InvoiceVo> invoiceVos = invoiceDao.selectCustomerInvoiceList(request);
         for (InvoiceVo invoiceVo : invoiceVos) {
-            String paymentNumber = getCustomerPaymentNumber(invoiceVo.getPaymentId(),invoiceVo.getCustomerId());
+            Integer paymentNumber = getCustomerPaymentNumber(invoiceVo.getPaymentId(),invoiceVo.getCustomerId());
             invoiceVo.setPaymentNumber(paymentNumber);
         }
         invoiceVos.sort(new Comparator<InvoiceVo>() {
@@ -139,12 +139,12 @@ public class InvoiceServiceImpl implements InvoiceService {
             name = collect.get(collect.size() - 1) + "~" + collect.get(0);
         }
         invoiceDetailVo.setStoreOrderName(name);
-        String paymentNumber = getCustomerPaymentNumber(paymentId, invoiceDetailVo.getCustomerId());
+        Integer paymentNumber = getCustomerPaymentNumber(paymentId, invoiceDetailVo.getCustomerId());
         invoiceDetailVo.setPaymentNumber(paymentNumber);
         return invoiceDetailVo;
     }
 
-    private String getCustomerPaymentNumber(Long paymentId,Long customerId){
+    private Integer getCustomerPaymentNumber(Long paymentId,Long customerId){
         Integer index = 1;
         String key = RedisKey.LIST_CUSTOMER_NORMAL_ORDER_PAYMENT_ID + customerId;
         List<Long> paymentIds = redisTemplate.opsForList().range(key,0,-1);
@@ -158,7 +158,7 @@ public class InvoiceServiceImpl implements InvoiceService {
                 index = paymentIds.size() + 1;
             }
         }
-    return "NO.#" + index;
+        return index;
     }
 
     List<InvoiceProductVo> completeNormalOrderInvoiceProductDetail(List<InvoiceProductVo> invoiceProductVos){
