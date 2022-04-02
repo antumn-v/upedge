@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.upedge.tms.modules.warehouse.dao.CountryAvailableWarehouseDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.upedge.tms.modules.warehouse.entity.CountryAvailableWarehouse" id="BaseResultMap">
+        <result property="warehouseCode" column="warehouse_code"/>
+        <result property="areaId" column="area_id"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        `warehouse_code`,`area_id`
+    </sql>
+
+    <select id="selectByPrimaryKey" parameterType="com.upedge.tms.modules.warehouse.entity.CountryAvailableWarehouse" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from country_available_warehouse
+        where warehouse_code = #{warehouseCode}
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="com.upedge.tms.modules.warehouse.entity.CountryAvailableWarehouse">
+        delete from country_available_warehouse
+        where warehouse_code = #{warehouseCode}
+    </delete>
+
+    <update id="updateByPrimaryKeySelective" parameterType="com.upedge.tms.modules.warehouse.entity.CountryAvailableWarehouse">
+        update country_available_warehouse
+        <set>
+            <if test="areaId != null">
+                area_id = #{areaId},
+            </if>
+        </set>
+        where warehouse_code = #{warehouseCode}
+    </update>
+
+    <update id="updateByPrimaryKey" parameterType="com.upedge.tms.modules.warehouse.entity.CountryAvailableWarehouse">
+        update country_available_warehouse
+        <set>
+        warehouse_code = #{warehouseCode},
+        area_id = #{areaId},
+        </set>
+        where warehouse_code = #{warehouseCode}
+    </update>
+
+    <insert id="insert" keyColumn="warehouse_code" keyProperty="warehouseCode" parameterType="com.upedge.tms.modules.warehouse.entity.CountryAvailableWarehouse" useGeneratedKeys="true">
+        insert into country_available_warehouse
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            warehouse_code,
+            area_id
+        </trim>
+        values (
+        #{warehouseCode},
+        #{areaId}
+        )
+    </insert>
+
+    <insert id="insertSelective"  keyColumn="warehouse_code" keyProperty="warehouseCode"  parameterType="com.upedge.tms.modules.warehouse.entity.CountryAvailableWarehouse" useGeneratedKeys="true">
+        insert into country_available_warehouse
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="warehouseCode != null" >
+              warehouse_code
+            </if>
+            <if test="areaId != null" >
+              area_id
+            </if>
+
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="warehouseCode != null" >
+                #{warehouseCode}
+            </if>
+            <if test="areaId != null" >
+                #{areaId}
+            </if>
+
+        </trim>
+    </insert>
+
+    <insert id="insertByBatch" parameterType="java.util.List">
+        insert into country_available_warehouse
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+           warehouse_code,
+           area_id
+        </trim>
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+               #{item.warehouseCode},
+               #{item.areaId}
+            </trim>
+        </foreach>
+    </insert>
+
+    <sql id="Query_Condition">
+        <if test="t != null">
+            where
+            <trim prefix=" " suffix=" " suffixOverrides=" and ">
+                1 = 1 and
+                    <if test="t.warehouseCode != null">
+                        warehouse_code = #{t.warehouseCode} and
+                    </if>
+                    <if test="t.areaId != null">
+                        area_id = #{t.areaId} and
+                    </if>
+            </trim>
+        </if>
+    </sql>
+
+    <select id="select" parameterType="com.upedge.common.base.Page" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from country_available_warehouse
+        <include refid="Query_Condition"/>
+        <if test="orderBy != null">
+            order by ${orderBy}
+        </if>
+        <if test="pageNum != null and pageSize != null">
+            limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+        </if>
+    </select>
+
+    <select id="count" parameterType="com.upedge.common.base.Page" resultType="java.lang.Long">
+        select
+        count(1)
+        from country_available_warehouse
+        <include refid="Query_Condition"/>
+    </select>
+
+
+</mapper>

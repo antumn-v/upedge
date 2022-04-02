@@ -8,6 +8,7 @@ import com.upedge.tms.modules.ship.entity.ShippingTemplate;
 import com.upedge.tms.modules.ship.service.ShippingMethodService;
 import com.upedge.tms.modules.ship.service.ShippingMethodTemplateService;
 import com.upedge.tms.modules.ship.service.ShippingTemplateService;
+import com.upedge.tms.modules.warehouse.service.CountryAvailableWarehouseService;
 import com.upedge.tms.modules.warehouse.service.WarehouseService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
@@ -37,6 +38,9 @@ public class ShippingRedisInit {
     @Autowired
     WarehouseService warehouseService;
 
+    @Autowired
+    CountryAvailableWarehouseService countryAvailableWarehouseService;
+
     @PostConstruct
     public void initData(){
         List<ShippingMethod> shippingMethodList=shippingMethodService.allShippingMethod();
@@ -55,6 +59,8 @@ public class ShippingRedisInit {
 
         warehouseService.redisInit();
         log.info("仓库数据初始化成功。。。。。。。。。");
+
+        countryAvailableWarehouseService.redisInit();
 
         log.info("运输模板表开始初始化…………");
         List<ShippingTemplate> templateList  = shippingTemplateService.getAll();

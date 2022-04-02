@@ -2,11 +2,17 @@ package com.upedge.tms.modules.warehouse.service.impl;
 
 import com.upedge.common.base.Page;
 import com.upedge.common.constant.key.RedisKey;
+import com.upedge.common.model.ship.request.AreaSelectRequest;
+import com.upedge.common.model.ship.vo.AreaVo;
 import com.upedge.common.model.tms.WarehouseVo;
 import com.upedge.common.utils.ListUtils;
+import com.upedge.tms.modules.area.service.AreaService;
 import com.upedge.tms.modules.warehouse.dao.WarehouseDao;
+import com.upedge.tms.modules.warehouse.entity.CountryAvailableWarehouse;
 import com.upedge.tms.modules.warehouse.entity.Warehouse;
+import com.upedge.tms.modules.warehouse.service.CountryAvailableWarehouseService;
 import com.upedge.tms.modules.warehouse.service.WarehouseService;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -21,6 +27,12 @@ public class WarehouseServiceImpl implements WarehouseService {
 
     @Autowired
     private WarehouseDao warehouseDao;
+
+    @Autowired
+    AreaService areaService;
+
+    @Autowired
+    CountryAvailableWarehouseService countryAvailableWarehouseService;
 
     @Autowired
     RedisTemplate redisTemplate;
@@ -50,7 +62,19 @@ public class WarehouseServiceImpl implements WarehouseService {
      */
     @Transactional
     public int insertSelective(Warehouse record) {
-        return warehouseDao.insert(record);
+        int i = warehouseDao.insert(record);
+        if (StringUtils.isNotBlank(record.getCountry())){
+            AreaSelectRequest areaSelectRequest = new AreaSelectRequest();
+            areaSelectRequest.setName(record.getCountry());
+            AreaVo areaVo = areaService.selectByEntity(areaSelectRequest);
+            if (null != areaVo){
+                CountryAvailableWarehouse countryAvailableWarehouse = new CountryAvailableWarehouse();
+                countryAvailableWarehouse.setWarehouseCode(record.getWarehouseCode());
+                countryAvailableWarehouse.setAreaId(areaVo.getId());;
+                countryAvailableWarehouseService.insert(countryAvailableWarehouse);
+            }
+        }
+        return i;
     }
 
     @Override
@@ -101,7 +125,8 @@ public class WarehouseServiceImpl implements WarehouseService {
     */
     public List<Warehouse> select(Page<Warehouse> record){
         record.initFromNum();
-        return warehouseDao.select(record);
+        List<Warehouse> warehouses = warehouseDao.select(record);
+        return warehouses;
     }
 
     /**
