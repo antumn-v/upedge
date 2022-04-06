@@ -2,6 +2,7 @@ package com.upedge.oms.modules.stock.service.impl;
 
 import com.upedge.common.base.BaseResponse;
 import com.upedge.common.base.Page;
+import com.upedge.common.constant.key.RedisKey;
 import com.upedge.common.enums.CustomerExceptionEnum;
 import com.upedge.common.exception.CustomerException;
 import com.upedge.common.feign.PmsFeignClient;
@@ -26,6 +27,7 @@ import com.upedge.thirdparty.saihe.service.SaiheService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -43,6 +45,9 @@ public class CustomerProductStockServiceImpl implements CustomerProductStockServ
 
     @Autowired
     private PmsFeignClient pmsFeignClient;
+
+    @Autowired
+    RedisTemplate redisTemplate;
 
     /**
      *
@@ -336,13 +341,46 @@ public class CustomerProductStockServiceImpl implements CustomerProductStockServ
             productSaiheInventoryVo.setLockNum(apiProductInventory.getLockNum());
             productSaiheInventoryVo.setUpdateTime(apiProductInventory.getUpdateTime());
             pmsFeignClient.insertProductSaiheInventory(productSaiheInventoryVo);
-
         }
         return BaseResponse.success();
 
 
     }
 
+
+    public void redisAddCustomerVariantStock(Long customerId,Long variantId,String warehouseCode,long stock){
+        String key = RedisKey.STRING_CUSTOMER_VARIANT_STOCK + customerId + ":" + warehouseCode + ":" + variantId;
+        if (redisTemplate.hasKey(key)){
+            redisTemplate.opsForValue().increment(key,stock);
+        }else {
+            redisTemplate.opsForValue().set(key,stock);
+        }
+
+    }
+
+    public void redisReduceCustomerVariantStock(Long customerId,Long variantId,String warehouseCode,long stock){
+        String key = RedisKey.STRING_CUSTOMER_VARIANT_STOCK + customerId + ":" + warehouseCode + ":" + variantId;
+        redisTemplate.opsForValue().decrement(key,stock);
+    }
+
+    public long redisGetCustomerVariantStock(Long customerId,Long variantId,String warehouseCode){
+        String key = RedisKey.STRING_CUSTOMER_VARIANT_STOCK + customerId + ":" + warehouseCode + ":" + variantId;
+        return (long) redisTemplate.opsForValue().get(key);
+    }
+
+    public boolean redisCheckCustomerVariantStock(Long customerId,Long variantId,String warehouseCode,long stock){
+        String key = RedisKey.STRING_CUSTOMER_VARIANT_STOCK + customerId + ":" + warehouseCode + ":" + variantId;
+        if (redisTemplate.hasKey(key)) {
+            long nowStock = (long) redisTemplate.opsForValue().get(key);
+            if (nowStock >= stock){
+                return true;
+            }else {
+                return false;
+            }
+        }else {
+            return false;
+        }
+    }
 
 
 }
