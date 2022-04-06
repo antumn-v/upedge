@@ -845,12 +845,7 @@
         <include refid="Base_Column_List" />
         from order_item
         <include refid="Query_Condition"/>
-        <if test="orderBy != null">
-            order by ${orderBy}
-        </if>
-        <if test="pageNum != null and pageSize != null">
-            limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
-        </if>
+        order by id desc
     </select>
 
     <select id="count" parameterType="com.upedge.common.base.Page" resultType="java.lang.Long">

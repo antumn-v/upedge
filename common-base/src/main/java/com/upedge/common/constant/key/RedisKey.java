@@ -19,6 +19,9 @@ public class RedisKey {
     //包含拆分子体的店铺变体
     public static final String HASH_STORE_SPLIT_VARIANT = "storeVariant:split:hash";
 
+    //客户产品库存
+    public static final String STRING_CUSTOMER_VARIANT_STOCK = "warehouse:variant:stock:";
+
     //国家可用的海外仓
     public static final String HASH_COUNTRY_AVAILABLE_OVERSEA_WAREHOUSE = "country:available:oversea:warehouse";
 

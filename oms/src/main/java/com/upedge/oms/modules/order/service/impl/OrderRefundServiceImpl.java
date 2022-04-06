@@ -29,6 +29,7 @@ import com.upedge.thirdparty.saihe.entity.getOrderByCode.ApiGetOrderResponse;
 import com.upedge.thirdparty.saihe.entity.getOrderByCode.ApiOrderInfo;
 import com.upedge.thirdparty.saihe.service.SaiheService;
 import io.seata.spring.annotation.GlobalTransactional;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -43,7 +44,7 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ThreadPoolExecutor;
 
-
+@Slf4j
 @Service
 public class OrderRefundServiceImpl implements OrderRefundService {
 
@@ -642,6 +643,7 @@ public class OrderRefundServiceImpl implements OrderRefundService {
                                         apiCancelOrderResponse.getCancelOrderResult().getSuccess()) {
                                     //message.append("赛盒未发货,订单作废成功!</br> ");
                                 } else {
+                                    log.warn("退款ID:{},赛盒订单号:{},作废失败原因:{}",refundId,saiheOrderCode,apiCancelOrderResponse.getCancelOrderResult().getMsg());
                                     //作废失败
                                     //throw newValidationException("赛盒未发货,订单作废失败!</br> ");
                                     throw new CustomerException(ResultCode.FAIL_CODE, apiCancelOrderResponse.getCancelOrderResult().getMsg());

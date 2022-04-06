@@ -894,6 +894,11 @@ public class OrderServiceImpl implements OrderService {
 
 
     @Override
+    public List<Long> selectUploadSaiheFailedIds() {
+        return orderDao.selectUploadSaiheFailedIds();
+    }
+
+    @Override
     public List<Long> selectUnPaidIdsByShipRule(OrderShipRuleVo shipRuleVo, Long areaId) {
 
         if (shipRuleVo == null

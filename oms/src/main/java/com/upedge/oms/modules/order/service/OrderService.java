@@ -32,6 +32,8 @@ import java.util.Set;
  */
 public interface OrderService{
 
+    List<Long> selectUploadSaiheFailedIds();
+
     List<Long> selectUnPaidIdsByShipRule( OrderShipRuleVo shipRuleVo,  Long areaId);
 
     int cancelOrderByIds(@Param("ids") List<Long> ids);

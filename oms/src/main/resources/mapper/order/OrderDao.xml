@@ -2250,4 +2250,13 @@
         and to_area_id = #{areaId}
         and ship_method_id is null
     </select>
+
+    <select id="selectUploadSaiheFailedIds" resultType="java.lang.Long">
+        select id
+        from `order`
+        where pay_state = '1'
+        and saihe_order_code is null
+        and order_status = '0'
+        limit 100
+    </select>
 </mapper>

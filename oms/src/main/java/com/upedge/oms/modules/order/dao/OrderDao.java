@@ -37,6 +37,8 @@ import java.util.Set;
  */
 public interface OrderDao{
 
+    List<Long> selectUploadSaiheFailedIds();
+
     List<Order> selectUnPaidOrderByAreaId(Long areaId);
 
     List<Long> selectUnPaidIdsByShipRule(@Param("rule")OrderShipRuleVo shipRuleVo, @Param("areaId") Long areaId);

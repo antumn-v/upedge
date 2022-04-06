@@ -1,9 +1,6 @@
 package com.upedge.oms.scheduler;
 
-import com.upedge.common.base.Page;
-import com.upedge.common.constant.OrderType;
 import com.upedge.common.utils.ListUtils;
-import com.upedge.oms.modules.common.entity.SaiheOrderRecord;
 import com.upedge.oms.modules.common.service.OrderCommonService;
 import com.upedge.oms.modules.common.service.SaiheOrderRecordService;
 import com.upedge.oms.modules.order.service.OrderService;
@@ -50,33 +47,17 @@ public class Ordercelduler {
 
     @Scheduled(cron = "0 */5 * ? * *")
     public void reUploadOrderToSaihe(){
-        Page<SaiheOrderRecord> page = new Page<>();
-        SaiheOrderRecord saiheOrderRecord = new SaiheOrderRecord();
-        saiheOrderRecord.setState(0);
-        page.setT(saiheOrderRecord);
-        page.setPageSize(200);
-        page.setOrderBy("import_time desc");
-        List<SaiheOrderRecord> saiheOrderRecords = saiheOrderRecordService.select(page);
-        if (ListUtils.isNotEmpty(saiheOrderRecords)){
-            for (SaiheOrderRecord orderRecord : saiheOrderRecords) {
+        List<Long> ids = orderService.selectUploadSaiheFailedIds();
+        if (ListUtils.isNotEmpty(ids)){
+            for (Long id : ids) {
                 try {
-                    Long id = Long.parseLong(orderRecord.getClientOrderCode());
-                    switch (orderRecord.getOrderType()){
-                        case OrderType.NORMAL:
-                            orderService.importOrderToSaihe(id);
-                            break;
-                        default:
-                            continue;
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    continue;
+                    orderService.importOrderToSaihe(id);
+                }catch (Exception e){
+                    log.warn("订单ID：{}，失败原因：{}",id,e.getMessage());
                 }
+
             }
         }
 
     }
-
-
-
 }

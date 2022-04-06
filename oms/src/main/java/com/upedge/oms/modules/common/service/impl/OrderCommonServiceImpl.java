@@ -160,16 +160,11 @@ public class OrderCommonServiceImpl implements OrderCommonService {
             return saiheOrderRecord;
         }
         //根据运输方式获取赛盒运输信息
-        BaseResponse rsShipMethod = tmsFeignClient.shippingMethodInfo(saiheOrder.getShipMethodId());
-        if (rsShipMethod.getCode() != 1 || rsShipMethod.getData() == null) {
-            saiheOrderRecord.setState(0);
-            saiheOrderRecord.setFailReason("没有找到匹配的赛盒运输方式");
-            return saiheOrderRecord;
-        }
+        ShippingMethodRedis shippingMethodRedis = (ShippingMethodRedis) redisTemplate.opsForHash().get(RedisKey.SHIPPING_METHOD,String.valueOf(saiheOrder.getShipMethodId()));
+
 //        ShippingMethodVo shippingMethodVo = (ShippingMethodVo) rsShipMethod.getData();
-        ShippingMethodVo shippingMethodVo = JSON.parseObject(JSON.toJSONString(rsShipMethod.getData()), ShippingMethodVo.class);
-        saiheOrder.setTransportID(shippingMethodVo.getSaiheTransportId());
-        saiheOrderRecord.setTransportId(shippingMethodVo.getSaiheTransportId());
+        saiheOrder.setTransportID(shippingMethodRedis.getSaiheTransportId());
+        saiheOrderRecord.setTransportId(shippingMethodRedis.getSaiheTransportId());
         //没有找到匹配的赛盒运输方式
         if (saiheOrder.getTransportID() == null || saiheOrder.getTransportID() == -1) {
             saiheOrderRecord.setState(0);
@@ -357,7 +352,7 @@ public class OrderCommonServiceImpl implements OrderCommonService {
                 WholesaleReshipInfo reshipInfo = wholesaleReshipInfoDao.selectByPrimaryKey(Long.parseLong(saiheOrder.getClientOrderCode()));
                 BeanUtils.copyProperties(reshipInfo, orderReshipInfo);
             }
-            if (orderReshipInfo != null && orderReshipInfo.getReshipTimes() > 0) {
+            if (orderReshipInfo != null) {
                 againInfo = againInfo + " " + orderReshipInfo.getOriginalOrderId() + "-" + orderReshipInfo.getReshipTimes();
             }
         }
