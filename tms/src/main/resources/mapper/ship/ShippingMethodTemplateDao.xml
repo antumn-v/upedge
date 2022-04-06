@@ -23,6 +23,7 @@
         <result property="state" column="state"/>
         <result property="createTime" column="create_time"/>
         <result property="updateTime" column="update_time"/>
+        <result property="warehouseCode" column="warehouse_code"/>
     </resultMap>
 
     <resultMap id="MethodIdTemplateName" type="com.upedge.tms.modules.ship.vo.MethodIdTemplateNameVo">
@@ -39,7 +40,7 @@
     </sql>
 
     <select id="selectMethodIdsByTemplate" resultMap="ShippingMethod">
-        select m.id, m.name, m.weight_type
+        select m.id, m.name, m.weight_type,m.warehouse_code
         from shipping_method_template t
                      left join shipping_method m
                 on t.method_id = m.id

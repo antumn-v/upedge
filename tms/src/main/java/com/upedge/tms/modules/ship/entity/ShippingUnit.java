@@ -84,4 +84,6 @@ public class ShippingUnit{
 	 */
     private Integer state;
 
+	private String warehouseCode;
+
 }

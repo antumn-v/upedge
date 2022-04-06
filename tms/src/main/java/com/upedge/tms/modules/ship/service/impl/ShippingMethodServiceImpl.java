@@ -165,6 +165,7 @@ public class ShippingMethodServiceImpl implements ShippingMethodService {
             for (ShippingMethod shippingMethod : methods) {
                 ShipDetail shipDetail = null;
                 shipDetail = shippingUnitService.selectByCondition(shippingMethod.getId(), request.getToAreaId(), request.getWeight());
+                shipDetail.setWarehouseCode(shippingMethod.getWarehouseCode());
                 if (null != shipDetail) {
                     shipDetail.setWeightType(0);
                     shipDetails.add(shipDetail);

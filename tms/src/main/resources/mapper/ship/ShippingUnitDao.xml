@@ -23,6 +23,7 @@
         <result property="remarks" column="remarks"/>
         <result property="createTime" column="create_time"/>
         <result property="state" column="state"/>
+        <result property="warehouseCode" column="warehouse_code"/>
     </resultMap>
 
     <resultMap id="MethodCountryUnitVo" type="com.upedge.tms.modules.ship.vo.ShipMethodCountryVo">
@@ -82,7 +83,7 @@
         su.`start_weight`,su.`end_weight`,su.`fixed_fee`,su.`first_weight`,su.`first_freight`,
         su.`continue_unit_weight`,su.`continue_unit_price`,
         su.`delivery_min_day`,su.`delivery_max_day`,su.`discount`,su.`remarks`,
-        su.`create_time`,su.`state`
+        su.`create_time`,su.`state`,sm.warehouse_code
         from shipping_method sm
         inner join shipping_unit su
         on su.method_id = sm.id

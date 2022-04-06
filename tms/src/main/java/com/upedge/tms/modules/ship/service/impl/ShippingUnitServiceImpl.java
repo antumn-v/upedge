@@ -305,6 +305,7 @@ public class ShippingUnitServiceImpl implements ShippingUnitService {
         shipDetail.setServiceFee(BigDecimal.ONE);
         shipDetail.setPrice(price);
         shipDetail.setWeightType(0);
+        shipDetail.setWarehouseCode(shippingUnit.getWarehouseCode());
         return shipDetail;
     }
 }
