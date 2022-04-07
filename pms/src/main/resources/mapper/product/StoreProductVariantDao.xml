@@ -2,7 +2,6 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="com.upedge.pms.modules.product.dao.StoreProductVariantDao">
-
     <!-- 可根据自己的需求，是否要使用 -->
     <resultMap type="com.upedge.pms.modules.product.entity.StoreProductVariant" id="BaseResultMap">
         <result property="id" column="id"/>
@@ -27,7 +26,8 @@
     </resultMap>
 
     <sql id="Base_Column_List">
-        `id`,`product_id`,`plat_variant_id`,`plat_product_id`,`title`,`price`,`sku`,`image`,`state`,`import_time`,`split_type`,`parent_variant_id`
+        `id`
+                ,`product_id`,`plat_variant_id`,`plat_product_id`,`title`,`price`,`sku`,`image`,`state`,`import_time`,`split_type`,`parent_variant_id`
     </sql>
 
     <!--    <select id="selectByPlatVariantId" resultType="com.upedge.common.model.product.StoreProductVariantVo">-->
@@ -51,8 +51,8 @@
                pv.en_name       as `variantName`,
                pv.variant_image as `variantImage`
         FROM store_product_variant spv
-                 LEFT JOIN product_relate pr ON spv.id = pr.store_variant_id
-                 LEFT JOIN product_variant pv ON pr.admin_variant_id = pv.id
+                     LEFT JOIN product_relate pr ON spv.id = pr.store_variant_id
+                     LEFT JOIN product_variant pv ON pr.admin_variant_id = pv.id
         WHERE spv.product_id = #{storeProductId}
         UNION
         SELECT spv.id           as `storeVariantId`,
@@ -65,9 +65,9 @@
                pv.en_name       as `variantName`,
                pv.variant_image as `variantImage`
         FROM store_product_variant spv
-                 LEFT JOIN product_relate pr ON spv.id = pr.store_variant_id
-                 LEFT JOIN product_group_variant pgv ON pgv.group_variant_id = pr.admin_variant_id
-                 LEFT JOIN product_variant pv ON pgv.variant_id = pv.id
+                     LEFT JOIN product_relate pr ON spv.id = pr.store_variant_id
+                     LEFT JOIN product_group_variant pgv ON pgv.group_variant_id = pr.admin_variant_id
+                     LEFT JOIN product_variant pv ON pgv.variant_id = pv.id
         WHERE spv.product_id = #{storeProductId}
     </select>
 
@@ -81,11 +81,12 @@
                v.`sku`,
                v.`image`
         from store_product_variant v
-                 inner join store_product_attribute a
-                            on v.product_id = a.id
+                     inner join store_product_attribute a
+                on v.product_id = a.id
         where a.store_id = #{storeId}
           and a.plat_product_id = #{platProductId}
-          and v.plat_variant_id = #{platVariantId} limit 1
+          and v.plat_variant_id = #{platVariantId}
+          and v.parent_variant_id = '0' limit 1
     </select>
 
     <select id="selectUnRelateVariantByProduct" resultMap="BaseResultMap">
@@ -241,7 +242,8 @@
         where id = #{id}
     </update>
 
-    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.upedge.pms.modules.product.entity.StoreProductVariant" useGeneratedKeys="true">
+    <insert id="insert" keyColumn="id" keyProperty="id"
+            parameterType="com.upedge.pms.modules.product.entity.StoreProductVariant" useGeneratedKeys="true">
         insert into store_product_variant
         <trim prefix="(" suffix=")" suffixOverrides=",">
             id,
@@ -275,91 +277,90 @@
         )
     </insert>
 
-    <insert id="insertSelective"  keyColumn="id" keyProperty="id"  parameterType="com.upedge.pms.modules.product.entity.StoreProductVariant" useGeneratedKeys="true">
+    <insert id="insertSelective" keyColumn="id" keyProperty="id"
+            parameterType="com.upedge.pms.modules.product.entity.StoreProductVariant" useGeneratedKeys="true">
         insert into store_product_variant
         <trim prefix="(" suffix=")" suffixOverrides=",">
-            <if test="id != null" >
+            <if test="id != null">
                 id
             </if>
-            <if test="productId != null" >
+            <if test="productId != null">
                 product_id
             </if>
-            <if test="platVariantId != null" >
+            <if test="platVariantId != null">
                 plat_variant_id
             </if>
-            <if test="platProductId != null" >
+            <if test="platProductId != null">
                 plat_product_id
             </if>
-            <if test="title != null" >
+            <if test="title != null">
                 title
             </if>
-            <if test="price != null" >
+            <if test="price != null">
                 price
             </if>
-            <if test="sku != null" >
+            <if test="sku != null">
                 sku
             </if>
-            <if test="image != null" >
+            <if test="image != null">
                 image
             </if>
-            <if test="state != null" >
+            <if test="state != null">
                 state
             </if>
-            <if test="importTime != null" >
+            <if test="importTime != null">
                 import_time
             </if>
-            <if test="adminVariantId != null" >
+            <if test="adminVariantId != null">
                 admin_variant_id
             </if>
-            <if test="splitType != null" >
+            <if test="splitType != null">
                 split_type
             </if>
-            <if test="parentVariantId != null" >
+            <if test="parentVariantId != null">
                 parent_variant_id
             </if>
-
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
-            <if test="id != null" >
+            <if test="id != null">
                 #{id}
             </if>
-            <if test="productId != null" >
+            <if test="productId != null">
                 #{productId}
             </if>
-            <if test="platVariantId != null" >
+            <if test="platVariantId != null">
                 #{platVariantId}
             </if>
-            <if test="platProductId != null" >
+            <if test="platProductId != null">
                 #{platProductId}
             </if>
-            <if test="title != null" >
+            <if test="title != null">
                 #{title}
             </if>
-            <if test="price != null" >
+            <if test="price != null">
                 #{price}
             </if>
-            <if test="sku != null" >
+            <if test="sku != null">
                 #{sku}
             </if>
-            <if test="image != null" >
+            <if test="image != null">
                 #{image}
             </if>
-            <if test="state != null" >
+            <if test="state != null">
                 #{state}
             </if>
-            <if test="importTime != null" >
+            <if test="importTime != null">
                 #{importTime}
             </if>
-            <if test="adminVariantId != null" >
+            <if test="adminVariantId != null">
                 #{adminVariantId}
             </if>
-            <if test="splitType != null" >
+            <if test="splitType != null">
                 #{splitType}
             </if>
-            <if test="parentVariantId != null" >
+            <if test="parentVariantId != null">
                 #{parentVariantId}
             </if>
-
         </trim>
     </insert>
 
@@ -424,7 +425,7 @@
                     price = #{t.price} and
                 </if>
                 <if test="t.sku != null">
-                    sku like  concat(#{t.sku},'%') and
+                    sku like concat(#{t.sku},'%') and
                 </if>
                 <if test="t.image != null">
                     image = #{t.image} and
@@ -528,8 +529,8 @@
                pr.variant_type       as variantType,
                pr.`scale`            as `scale`
         from store_product_variant spv
-                 left join product_relate pr on pr.store_variant_id = spv.id
-                 left join product_variant pv on pv.id = pr.admin_variant_id
+                     left join product_relate pr on pr.store_variant_id = spv.id
+                     left join product_variant pv on pv.id = pr.admin_variant_id
         where spv.product_id = #{productId}
     </select>
     <select id="selectByIds" resultType="com.upedge.pms.modules.product.entity.StoreProductVariant">
@@ -562,7 +563,7 @@
         on spv.admin_variant_id = pv.id
         left join product p
         on p.id = pv.product_id
-        where spv.id  in
+        where spv.id in
         <foreach collection="ids" item="id" open="(" close=")" separator=",">
             #{id}
         </foreach>
@@ -585,7 +586,7 @@
     </select>
 
     <select id="selectSplitVariantIds" resultMap="SplitVariantId">
-        select parent_variant_id,id
+        select parent_variant_id, id
         from store_product_variant
         where split_type = '2'
     </select>
@@ -595,8 +596,8 @@
         from store_product_variant
         where split_type = '2'
         and parent_id in
-            <foreach collection="storeVariantIds" item="storeVariantId" open="(" close=")" separator=",">
-                #{storeVariantId}
-            </foreach>
+        <foreach collection="storeVariantIds" item="storeVariantId" open="(" close=")" separator=",">
+            #{storeVariantId}
+        </foreach>
     </select>
 </mapper>
