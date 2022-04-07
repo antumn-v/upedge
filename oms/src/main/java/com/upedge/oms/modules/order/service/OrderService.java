@@ -116,7 +116,7 @@ public interface OrderService{
 
     int updateOrderAttr(OrderAttr orderAttr);
 
-    List<ShipDetail> orderShipList(Long id,String warehouseCode);
+    List<ShipDetail> orderShipList(Long id);
 
     OrderShipRuleDetail matchShipRule(Long id);
 
@@ -244,7 +244,7 @@ public interface OrderService{
 
     void matchingShipInfoByVariantId(List<OrderItem> list);
 
-    List<ShipDetail> orderOverseaWarehouseShipMethods(Long orderId, Long areaId,String warehouseCode);
+    List<ShipDetail> orderOverseaWarehouseShipMethods(Long orderId, Long areaId);
 
     OrderShipRuleDetail matchShipRule(Long orderId, OrderShipRuleVo orderShipRuleVo);
 }

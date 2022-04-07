@@ -124,6 +124,8 @@ public class Order{
 
     private String managerCode;
 
+	private String shippingWarehouse;
+
 
 	public Order() {
 	}
@@ -146,6 +148,6 @@ public class Order{
 		this.payMethod = null;
 		this.paymentId = null;
 		this.saiheOrderCode = null;
-
+		this.shippingWarehouse = null;
 	}
 }

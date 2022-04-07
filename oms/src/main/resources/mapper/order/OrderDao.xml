@@ -551,7 +551,8 @@
             vat_amount     = #{ship.vatAmount},
             service_fee    = #{ship.serviceFee},
             total_weight   = #{ship.weight},
-            ship_method_id = #{ship.methodId}
+            ship_method_id = #{ship.methodId},
+            shipping_warehouse = #{ship.warehouseCode}
         where id = #{id}
           and pay_state = '0'
     </update>

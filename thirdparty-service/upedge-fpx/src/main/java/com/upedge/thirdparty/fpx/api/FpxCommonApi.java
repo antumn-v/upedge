@@ -15,6 +15,7 @@ import com.upedge.thirdparty.fpx.vo.FpxApiResultVo;
 import com.upedge.thirdparty.fpx.vo.FpxMethodVo;
 import com.upedge.thirdparty.fpx.vo.FpxWarehouseVo;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class FpxCommonApi {
@@ -45,7 +46,9 @@ public class FpxCommonApi {
         }
         FpxApiResultVo resultVo = JSONObject.parseObject(result,FpxApiResultVo.class);
         if (resultVo.getResult().equals("1")){
-            return (List<PriceCalculatorDTO>) resultVo.getData();
+            jsonObject = JSON.parseObject(JSON.toJSONString(resultVo));
+            List<PriceCalculatorDTO> priceCalculatorDTOS = jsonObject.getJSONArray("data").toJavaList(PriceCalculatorDTO.class);
+            return priceCalculatorDTOS;
         }
 
         return null;
@@ -93,38 +96,40 @@ public class FpxCommonApi {
 
 
     public static void main(String[] args) {
-//        ShipPriceCalculator.DestinationDTO destinationDTO = new ShipPriceCalculator.DestinationDTO();
-//        destinationDTO.setCountry("US");
 
-//        List<String> methodCodes = new ArrayList<>();
-//        methodCodes.add("F129");
 
-//        ShipPriceCalculator priceCalculator = new ShipPriceCalculator();
-//        priceCalculator.setHeight("1");
-//        priceCalculator.setLength("1");
-//        priceCalculator.setWidth("1");
-//        priceCalculator.setWeight("100");
-//        priceCalculator.setService_code("FB4");
+        List<String> methodCodes = new ArrayList<>();
+        methodCodes.add("F129");
+
+        ShipPriceCalculator.DestinationDTO destinationDTO = new ShipPriceCalculator.DestinationDTO();
+        destinationDTO.setCountry("US");
+        destinationDTO.setPost_code("76002");
+        ShipPriceCalculator priceCalculator = new ShipPriceCalculator();
+        priceCalculator.setHeight("1");
+        priceCalculator.setLength("1");
+        priceCalculator.setWidth("1");
+        priceCalculator.setWeight("120");
+        priceCalculator.setService_code("FB4");
 //        priceCalculator.setProduct_codes(methodCodes);
-//        priceCalculator.setWarehouse_code("USLAXA");
-//        priceCalculator.setBilling_time(System.currentTimeMillis());
-//        priceCalculator.setDestination(destinationDTO);
-//
-//        List<PriceCalculatorDTO> priceCalculatorDTOS = FpxCommonApi.priceCalculator(priceCalculator);
-//
-//        System.out.println(priceCalculatorDTOS);
+        priceCalculator.setWarehouse_code("USLAXB");
+        priceCalculator.setBilling_time(System.currentTimeMillis());
+        priceCalculator.setDestination(destinationDTO);
+
+        List<PriceCalculatorDTO> priceCalculatorDTOS = FpxCommonApi.priceCalculator(priceCalculator);
+
+        System.out.println(priceCalculatorDTOS);
 
 //        GetFpxWarehouseRequest getFpxWarehouseRequest = new GetFpxWarehouseRequest();
 //        getFpxWarehouseRequest.setCountry("US");
 //        getFpxWarehouseRequest.setServiceCode("F");
 //        System.out.println(getFpxWarehouse(getFpxWarehouseRequest));
 
-        FpxWarehouseMethodListRequest fpxWarehouseMethodListRequest = new FpxWarehouseMethodListRequest();
-        fpxWarehouseMethodListRequest.setSourcePositionCode("USLAXA");
-        fpxWarehouseMethodListRequest.setCategoryCode("end");
-        fpxWarehouseMethodListRequest.setServiceCode("F");
-        fpxWarehouseMethodListRequest.setDestCountryCode("US");
-        System.out.println(getFpxMethods(fpxWarehouseMethodListRequest));
+//        FpxWarehouseMethodListRequest fpxWarehouseMethodListRequest = new FpxWarehouseMethodListRequest();
+//        fpxWarehouseMethodListRequest.setSourcePositionCode("USLAXA");
+//        fpxWarehouseMethodListRequest.setCategoryCode("end");
+//        fpxWarehouseMethodListRequest.setServiceCode("F");
+//        fpxWarehouseMethodListRequest.setDestCountryCode("US");
+//        System.out.println(getFpxMethods(fpxWarehouseMethodListRequest));
 
     }
 }

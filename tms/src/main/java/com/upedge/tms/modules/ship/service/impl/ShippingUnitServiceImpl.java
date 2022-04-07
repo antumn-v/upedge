@@ -287,7 +287,7 @@ public class ShippingUnitServiceImpl implements ShippingUnitService {
         shipDetail.setShippingUtilId(shippingUnit.getId());
         shipDetail.setMethodId(shippingUnit.getMethodId());
         shipDetail.setMethodName(shippingUnit.getMethodName());
-        shipDetail.setDays(shippingUnit.getDeliveryMinDay() + "~" + shippingUnit.getDeliveryMaxDay());
+        shipDetail.setDays(shippingUnit.getDeliveryMinDay() + "-" + shippingUnit.getDeliveryMaxDay());
         shipDetail.setWeight(weight);
         BigDecimal price = BigDecimal.ZERO;
         if (weight.compareTo(shippingUnit.getFirstWeight()) < 1){
@@ -305,6 +305,7 @@ public class ShippingUnitServiceImpl implements ShippingUnitService {
         shipDetail.setServiceFee(BigDecimal.ONE);
         shipDetail.setPrice(price);
         shipDetail.setWeightType(0);
+        shipDetail.setCouldShip(true);
         shipDetail.setWarehouseCode(shippingUnit.getWarehouseCode());
         return shipDetail;
     }

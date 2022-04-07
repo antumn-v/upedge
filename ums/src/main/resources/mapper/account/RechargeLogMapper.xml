@@ -99,8 +99,7 @@
     delete from recharge_log
     where id = #{id,jdbcType=INTEGER}
   </delete>
-    <insert id="insert" parameterType="com.upedge.ums.modules.account.entity.RechargeLog" useGeneratedKeys="true"
-            keyProperty="id">
+    <insert id="insert" parameterType="com.upedge.ums.modules.account.entity.RechargeLog" >
     insert into recharge_log (id, account_id, relate_id,
       amount, rebate, payed,recharge_type,
       recharge_status, create_time, update_time

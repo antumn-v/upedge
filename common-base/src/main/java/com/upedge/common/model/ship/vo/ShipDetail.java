@@ -38,6 +38,8 @@ public class ShipDetail {
 
     private BigDecimal serviceFee;
 
+    private Boolean couldShip;
+
     @Override
     public boolean equals(Object o) {
         ShipDetail that = (ShipDetail) o;

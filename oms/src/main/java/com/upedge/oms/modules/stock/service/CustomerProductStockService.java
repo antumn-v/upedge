@@ -16,6 +16,11 @@ import java.util.List;
  */
 public interface CustomerProductStockService{
 
+    void redisReduceCustomerVariantStock(Long customerId,Long variantId,String warehouseCode,long stock);
+
+    long redisGetCustomerVariantStock(Long customerId,Long variantId,String warehouseCode);
+
+    boolean redisCheckCustomerVariantStock(Long customerId,Long variantId,String warehouseCode,long stock);
 
     BaseResponse revokeManualAddRecord(Long recordId,Session session);
 

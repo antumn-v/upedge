@@ -20,6 +20,7 @@ public class SaiheConfig {
     public static final Integer UPEDGE_ORDER_SOURCE_TYPE=0;
     //
     public static final Integer UPEDGE_DEFAULT_WAREHOUSE_ID=3;
+    public static final Integer UPEDGE_OVERSEA_WAREHOUSE_ID=5;
     //
     public static final Integer UPEDGE_DEFAULT_ORDER_SOURCE_ID=1;
 

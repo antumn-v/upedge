@@ -18,6 +18,7 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -43,15 +44,27 @@ public class ShippingRedisInit {
 
     @PostConstruct
     public void initData(){
+        Map<String,List<Long>> warehouseMethodHash = new HashMap<>();
+
         List<ShippingMethod> shippingMethodList=shippingMethodService.allShippingMethod();
         Map<String, ShippingMethodRedis> map=new HashMap<>();
         for(ShippingMethod shippingMethod:shippingMethodList){
+            if (warehouseMethodHash.containsKey(shippingMethod.getWarehouseCode())){
+                warehouseMethodHash.get(shippingMethod.getWarehouseCode()).add(shippingMethod.getId());
+            }else {
+                List<Long> methodIds = new ArrayList<>();
+                methodIds.add(shippingMethod.getId());
+                warehouseMethodHash.put(shippingMethod.getWarehouseCode(),methodIds);
+            }
             ShippingMethodRedis shippingMethodRedis=new ShippingMethodRedis();
             BeanUtils.copyProperties(shippingMethod,shippingMethodRedis);
             map.put(String.valueOf(shippingMethod.getId()),shippingMethodRedis);
         }
         redisTemplate.delete(RedisKey.SHIPPING_METHOD);
         redisTemplate.opsForHash().putAll(RedisKey.SHIPPING_METHOD,map);
+
+        redisTemplate.delete(RedisKey.HASH_WAREHOUSE_METHOD);
+        redisTemplate.opsForHash().putAll(RedisKey.HASH_WAREHOUSE_METHOD,warehouseMethodHash);
         log.info("运输方式数据初始化成功。。。");
 
         shippingMethodTemplateService.redisInit();

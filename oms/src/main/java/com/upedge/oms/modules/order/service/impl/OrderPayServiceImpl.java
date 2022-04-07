@@ -177,7 +177,7 @@ public class OrderPayServiceImpl implements OrderPayService {
                     continue;
                 }
             } else {
-                List<ShipDetail> shipDetails = orderService.orderOverseaWarehouseShipMethods(orderVo.getId(),orderVo.getToAreaId(),Constant.OVERSEA_WAREHOUSE);
+                List<ShipDetail> shipDetails = orderService.orderOverseaWarehouseShipMethods(orderVo.getId(),orderVo.getToAreaId());
                 if (ListUtils.isEmpty(shipDetails)){
                     cantShipOrders.add(orderVo);
                     continue;

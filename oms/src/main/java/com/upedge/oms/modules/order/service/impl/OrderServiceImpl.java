@@ -35,6 +35,7 @@ import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.utils.DateTools;
 import com.upedge.common.utils.IdGenerate;
 import com.upedge.common.utils.ListUtils;
+import com.upedge.common.utils.PriceUtils;
 import com.upedge.common.web.util.RedisUtil;
 import com.upedge.oms.enums.OrderAttrEnum;
 import com.upedge.oms.modules.common.service.OrderCommonService;
@@ -56,7 +57,7 @@ import com.upedge.oms.modules.rules.dto.ShipRuleConditionDto;
 import com.upedge.oms.modules.rules.entity.OrderShipRule;
 import com.upedge.oms.modules.rules.service.OrderShipRuleService;
 import com.upedge.oms.modules.rules.vo.OrderShipRuleVo;
-import com.upedge.oms.modules.stock.dao.CustomerProductStockDao;
+import com.upedge.oms.modules.stock.service.CustomerProductStockService;
 import com.upedge.oms.modules.vat.service.VatRuleService;
 import com.upedge.thirdparty.fpx.api.FpxCommonApi;
 import com.upedge.thirdparty.fpx.dto.PriceCalculatorDTO;
@@ -109,7 +110,7 @@ public class OrderServiceImpl implements OrderService {
     OrderAttrDao orderAttrDao;
 
     @Autowired
-    CustomerProductStockDao customerProductStockDao;
+    CustomerProductStockService customerProductStockService;
 
     @Autowired
     OrderShipRuleService orderShipRuleService;
@@ -324,7 +325,7 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public ShipDetail updateShipDetail(Long id, ShipDetail shipDetail,String warehouseCode) {
 
-        List<ShipDetail> shipDetails = orderShipList(id,warehouseCode);
+        List<ShipDetail> shipDetails = orderShipList(id);
         for (ShipDetail detail : shipDetails) {
             if (detail.getMethodId().equals(shipDetail.getMethodId())) {
                 return updateShipDetailById(id, detail);
@@ -362,7 +363,7 @@ public class OrderServiceImpl implements OrderService {
 //    }
 
     @Override
-    public List<ShipDetail> orderShipList(Long id,String warehouseCode) {
+    public List<ShipDetail> orderShipList(Long id) {
         Order order = orderDao.selectByPrimaryKey(id);
         if (order.getToAreaId() == null) {
             OrderAddress orderAddress = orderAddressDao.selectByOrderId(id);
@@ -374,7 +375,8 @@ public class OrderServiceImpl implements OrderService {
                 return new ArrayList<>();
             }
         }
-        List<ShipDetail> shipDetails = orderShipMethods(order.getId(), order.getToAreaId(),warehouseCode);
+        List<ShipDetail> shipDetails = orderShipMethods(order.getId(), order.getToAreaId());
+        shipDetails.addAll(orderOverseaWarehouseShipMethods(order.getId(),order.getToAreaId()));
         if (ListUtils.isEmpty(shipDetails)) {
             shipDetails = new ArrayList<>();
         }
@@ -499,14 +501,8 @@ public class OrderServiceImpl implements OrderService {
 
 
 
-    List<ShipDetail> orderShipMethods(Long orderId, Long areaId,String warehouseCode) {
-        WarehouseVo warehouseVo = (WarehouseVo) redisTemplate.opsForValue().get(RedisKey.STRING_WAREHOUSE + warehouseCode);
-        if (null == warehouseVo
-        || warehouseVo.getWarehouseType() == WarehouseVo.LOCAL){
-            return orderLocalWarehouseShipMethods(orderId,areaId);
-        }
-        return orderOverseaWarehouseShipMethods(orderId,areaId,warehouseCode);
-
+    List<ShipDetail> orderShipMethods(Long orderId, Long areaId) {
+        return orderLocalWarehouseShipMethods(orderId,areaId);
     }
 
     List<ShipDetail> orderLocalWarehouseShipMethods(Long orderId, Long areaId) {
@@ -571,16 +567,25 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public List<ShipDetail> orderOverseaWarehouseShipMethods(Long orderId, Long areaId,String warehouseCode){
+    public List<ShipDetail> orderOverseaWarehouseShipMethods(Long orderId, Long areaId){
         try {
-            Page<OrderItem> page = new Page<>();
-            OrderItem orderItem = new OrderItem();
-            orderItem.setOrderId(orderId);
-            page.setT(orderItem);
-            List<OrderItem> items = orderItemDao.select(page);
+            String warehouseCode = (String) redisTemplate.opsForHash().get(RedisKey.HASH_COUNTRY_AVAILABLE_OVERSEA_WAREHOUSE,areaId.toString());
+            if (null == warehouseCode){
+                return new ArrayList<>();
+            }
+            List<Long> methodIds = (List<Long>) redisTemplate.opsForHash().get(RedisKey.HASH_WAREHOUSE_METHOD,warehouseCode);
+            if (ListUtils.isEmpty(methodIds)){
+                return new ArrayList<>();
+            }
+            OrderAddress orderAddress = orderAddressDao.selectByOrderId(orderId);
+            if (orderAddress.getZip() == null){
+                return new ArrayList<>();
+            }
+            Order order = selectByPrimaryKey(orderId);
+            Long customerId = order.getCustomerId();
+            List<OrderItem> items = orderItemDao.selectItemByOrderId(orderId);
             BigDecimal weight = BigDecimal.ZERO;
-            BigDecimal volume = BigDecimal.ZERO;
-            ShippingTemplateRedis shippingTemplateRedis = null;
+            boolean couldShip = true;
             for (OrderItem item : items) {
                 if (null == item.getAdminVariantWeight()
                         || null == item.getAdminVariantVolume()
@@ -589,54 +594,35 @@ public class OrderServiceImpl implements OrderService {
                     return null;
                 }
                 weight = weight.add(item.getAdminVariantWeight().multiply(new BigDecimal(item.getQuantity())));
-                volume = volume.add(item.getAdminVariantVolume().multiply(new BigDecimal(item.getQuantity())));
-                ShippingTemplateRedis templateRedis = (ShippingTemplateRedis) redisTemplate.opsForHash().get(RedisKey.SHIPPING_TEMPLATE,String.valueOf(item.getShippingId()));
-                if (null != templateRedis){
-                    if (null == shippingTemplateRedis){
-                        shippingTemplateRedis = templateRedis;
-                    }else {
-                        if (templateRedis.getSeq() < shippingTemplateRedis.getSeq()){
-                            shippingTemplateRedis = templateRedis;
-                        }
-                    }
+                boolean b = customerProductStockService.redisCheckCustomerVariantStock(customerId,item.getAdminVariantId(),warehouseCode,item.getQuantity());
+                if (!b){
+                    couldShip = false;
                 }
-            }
-            if (null == shippingTemplateRedis){
-                return null;
-            }
-            Set<Object> shipMethodIds = redisTemplate.opsForSet().members(RedisKey.SHIPPING_TEMPLATED_METHODS + shippingTemplateRedis.getId());
-            if (shipMethodIds == null
-                    || shipMethodIds.size() == 0){
-                return null;
-            }
-            BigDecimal actualWeight = BigDecimal.ZERO;
-            if (weight.compareTo(volume) == -1){
-                actualWeight = volume;
-            }else {
-                actualWeight = weight;
             }
 
             Map<String,ShippingMethodRedis> codeShipMethodMap = new HashMap<>();
             List<String> methodCodes = new ArrayList<>();
-            for (Object shipMethodId : shipMethodIds) {
-                ShippingMethodRedis shippingMethodRedis = (ShippingMethodRedis) redisTemplate.opsForHash().get(RedisKey.SHIPPING_METHOD,shipMethodId);
-                if (shippingMethodRedis.getWarehouseCode().equals(warehouseCode)){
+            for (Long methodId : methodIds) {
+                ShippingMethodRedis shippingMethodRedis = (ShippingMethodRedis) redisTemplate.opsForHash().get(RedisKey.SHIPPING_METHOD,String.valueOf(methodId));
+                if (StringUtils.isNotBlank(shippingMethodRedis.getMethodCode())){
                     methodCodes.add(shippingMethodRedis.getMethodCode());
+                    codeShipMethodMap.put(shippingMethodRedis.getMethodCode(),shippingMethodRedis);
                 }
             }
+
             if (ListUtils.isEmpty(methodCodes)){
                 return null;
             }
 
-            ArearedisVo arearedisVo = (ArearedisVo) redisTemplate.opsForHash().get(RedisKey.AREA,String.valueOf(areaId));
+            int w = weight.intValue();
             ShipPriceCalculator.DestinationDTO destinationDTO = new ShipPriceCalculator.DestinationDTO();
-            destinationDTO.setCountry(arearedisVo.getAreaCode());
-
+            destinationDTO.setCountry(orderAddress.getCountryCode());
+            destinationDTO.setPost_code(orderAddress.getZip());
             ShipPriceCalculator priceCalculator = new ShipPriceCalculator();
             priceCalculator.setHeight("1");
             priceCalculator.setLength("1");
             priceCalculator.setWidth("1");
-            priceCalculator.setWeight(actualWeight.toString());
+            priceCalculator.setWeight(String.valueOf(w));
             priceCalculator.setService_code("FB4");
             priceCalculator.setWarehouse_code(warehouseCode);
             priceCalculator.setBilling_time(System.currentTimeMillis());
@@ -646,24 +632,26 @@ public class OrderServiceImpl implements OrderService {
             if (ListUtils.isNotEmpty(priceCalculatorDTOS)){
                 List<ShipDetail> shipDetails = new ArrayList<>();
                 for (PriceCalculatorDTO priceCalculatorDTO : priceCalculatorDTOS) {
-                    List<PriceCalculatorDTO.FeesDTO> feesDTOS = priceCalculatorDTO.getFees();
-                    BigDecimal price = BigDecimal.ZERO;
-                    for (PriceCalculatorDTO.FeesDTO feesDTO : feesDTOS) {
-                        price = price.add(feesDTO.getAmount());
+                    BigDecimal price = new BigDecimal(priceCalculatorDTO.getTotalAmount());
+                    if (priceCalculatorDTO.getCurrency().equals("CNY")){
+                        price = PriceUtils.cnyToUsdByDefaultRate(price);
                     }
-                    for (PriceCalculatorDTO.FeesDTO feesDTO : feesDTOS) {
-                        ShippingMethodRedis shippingMethodRedis = codeShipMethodMap.get(priceCalculatorDTO);
-                        ShipDetail shipDetail = new ShipDetail(shippingMethodRedis);
-                        shipDetail.setWeight(actualWeight);
-                        shipDetail.setDays(priceCalculatorDTO.getTimely());
-                        shipDetail.setPrice(feesDTO.getAmount().divide(new BigDecimal("6.3"),2,BigDecimal.ROUND_UP));
-                        shipDetail.setWarehouseCode(warehouseCode);
-                        shipDetails.add(shipDetail);
+                    ShippingMethodRedis shippingMethodRedis = codeShipMethodMap.get(priceCalculatorDTO.getProductCode());
+                    if (shippingMethodRedis == null){
+                        continue;
                     }
+                    ShipDetail shipDetail = new ShipDetail(shippingMethodRedis);
+
+                    shipDetail.setWeight(weight);
+                    shipDetail.setDays(priceCalculatorDTO.getTimely().replace("天",""));
+                    shipDetail.setPrice(price);
+                    shipDetail.setServiceFee(BigDecimal.ONE);
+                    shipDetail.setWarehouseCode(warehouseCode);
+                    shipDetail.setCouldShip(couldShip);
+                    shipDetails.add(shipDetail);
                 }
                 return shipDetails;
             }
-
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -1161,7 +1149,7 @@ public class OrderServiceImpl implements OrderService {
         }
         OrderShipRuleDetail shipRuleDetail = matchShipRule(orderId);
         if (null == shipRuleDetail) {
-            List<ShipDetail> shipDetails = orderShipMethods(order.getId(), order.getToAreaId(),ProductConstant.DEFAULT_WAREHOUSE_ID);
+            List<ShipDetail> shipDetails = orderShipMethods(order.getId(), order.getToAreaId());
             if (ListUtils.isNotEmpty(shipDetails)) {
                 ShipDetail shipDetail = shipDetails.get(0);
                 shipDetail = updateShipDetailById(orderId, shipDetail);
@@ -1201,7 +1189,7 @@ public class OrderServiceImpl implements OrderService {
         }
         OrderShipRuleDetail shipRuleDetail = matchShipRule(orderId);
         if (null == shipRuleDetail) {
-            List<ShipDetail> shipDetails = orderShipMethods(order.getId(), order.getToAreaId(),warehouseCode);
+            List<ShipDetail> shipDetails = orderShipMethods(order.getId(), order.getToAreaId());
             if (ListUtils.isNotEmpty(shipDetails)) {
                 ShipDetail shipDetail = shipDetails.get(0);
                 shipDetail = updateShipDetailById(orderId, shipDetail);

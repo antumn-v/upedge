@@ -358,16 +358,19 @@ public class CustomerProductStockServiceImpl implements CustomerProductStockServ
 
     }
 
+    @Override
     public void redisReduceCustomerVariantStock(Long customerId,Long variantId,String warehouseCode,long stock){
         String key = RedisKey.STRING_CUSTOMER_VARIANT_STOCK + customerId + ":" + warehouseCode + ":" + variantId;
         redisTemplate.opsForValue().decrement(key,stock);
     }
 
+    @Override
     public long redisGetCustomerVariantStock(Long customerId,Long variantId,String warehouseCode){
         String key = RedisKey.STRING_CUSTOMER_VARIANT_STOCK + customerId + ":" + warehouseCode + ":" + variantId;
         return (long) redisTemplate.opsForValue().get(key);
     }
 
+    @Override
     public boolean redisCheckCustomerVariantStock(Long customerId,Long variantId,String warehouseCode,long stock){
         String key = RedisKey.STRING_CUSTOMER_VARIANT_STOCK + customerId + ":" + warehouseCode + ":" + variantId;
         if (redisTemplate.hasKey(key)) {

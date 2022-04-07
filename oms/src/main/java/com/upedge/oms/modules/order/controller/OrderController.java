@@ -354,8 +354,7 @@ public class OrderController {
     @ApiOperation("订单运输方式")
     @GetMapping("/{id}/ship/list")
     public BaseResponse orderShipList(@PathVariable Long id) {
-        String warehouseCode = RequestUtil.getWarehouseCode();
-        List<ShipDetail> shipDetails = orderService.orderShipList(id,warehouseCode);
+        List<ShipDetail> shipDetails = orderService.orderShipList(id);
         for (ShipDetail shipDetail : shipDetails) {
             shipDetail.setPrice(shipDetail.getPrice().add(shipDetail.getServiceFee()));
         }

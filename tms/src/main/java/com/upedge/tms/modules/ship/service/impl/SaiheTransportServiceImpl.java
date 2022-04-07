@@ -126,7 +126,7 @@ public class SaiheTransportServiceImpl implements SaiheTransportService {
     public SaiheTransportUpdateResponse refreshSaihe() {
         //获取运输方式列表
         List<SaiheTransport> saiheTransportList=new ArrayList<>();
-        ApiGetTransportResponse apiGetTransportResponse= SaiheService.getTransportList(SaiheConfig.UPEDGE_DEFAULT_WAREHOUSE_ID);
+        ApiGetTransportResponse apiGetTransportResponse= SaiheService.getTransportList(SaiheConfig.UPEDGE_OVERSEA_WAREHOUSE_ID);
         if(apiGetTransportResponse.getGetTransportListResult().getStatus().equals("OK")){
             List<ApiTransport> transportList=apiGetTransportResponse.getGetTransportListResult().
                     getTransportList().getApiTransport();
@@ -138,7 +138,6 @@ public class SaiheTransportServiceImpl implements SaiheTransportService {
                 saiheTransport.setTransportNameEn(a.getTransportNameEn());
                 saiheTransport.setIsRegistered(a.getRegistered());
                 saiheTransportList.add(saiheTransport);
-
             }
         }
         saiheTransportDao.saveSaiheTransport(saiheTransportList);

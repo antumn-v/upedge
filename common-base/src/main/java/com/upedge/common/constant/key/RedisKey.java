@@ -76,6 +76,8 @@ public class RedisKey {
     public static final String HASH_CUSTOMER_MANAGER_RELATE = "customer:manager:relate";
     //运输方式信息  map
     public static final String SHIPPING_METHOD="shipping:method";
+
+    public static final String HASH_WAREHOUSE_METHOD = "warehouse:method";
     //运输模板与运输方式关联信息
     public static final String SHIPPING_TEMPLATED_METHODS="shipping:template:methods:";
     // 运输模板信息
