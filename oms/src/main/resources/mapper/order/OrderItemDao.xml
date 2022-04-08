@@ -29,6 +29,7 @@
         <result property="shippingId" column="shipping_id"/>
         <result property="quoteState" column="quote_state"/>
         <result property="originalQuantity" column="original_quantity"/>
+        <result property="shippingWarehouse" column="shipping_warehouse"/>
     </resultMap>
 
 
@@ -131,12 +132,11 @@
     <select id="selectItemByPaymentId" resultMap="BaseResultMap">
         select distinct oi.`id`,`order_id`,`store_order_item_id`,`store_variant_id`,`admin_variant_id`,`admin_product_id`,`store_variant_name`,
         `store_variant_sku`,`admin_variant_image`,`store_product_title`,`usd_price`,`quantity`,`discharge_quantity`,
-        `admin_variant_weight`,`admin_variant_volume`,`item_type`
+        `admin_variant_weight`,`admin_variant_volume`,`item_type`,o.shipping_warehouse
         from order_item oi
         inner join `order` o
         on oi.order_id = o.id
         where o.payment_id = #{paymentId}
-        and o.pay_state = '1'
     </select>
 
     <select id="selectStockRecordByPaymentId" resultMap="StockRecord">

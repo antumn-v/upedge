@@ -2116,7 +2116,8 @@
             resultType="com.upedge.oms.modules.order.vo.OrderProductAmountVo">
         select o.id,
                sum(quantity * usd_price) as `productAmount`,
-               sum(quantity * cny_price) as `cnyProductAmount`
+               sum(quantity * cny_price) as `cnyProductAmount`,
+               sum(diacharge_quantity * usd_price) as `dischargeAmount`
         from order_item oi
                      inner join `order` o
                 on oi.order_id = o.id

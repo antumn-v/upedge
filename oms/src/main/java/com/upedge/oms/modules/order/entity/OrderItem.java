@@ -105,6 +105,8 @@ public class OrderItem{
 
 	private Integer quoteScale;
 
+	private String shippingWarehouse;
+
 
 	public OrderItem(StoreOrderItem storeOrderItem) {
 		this.storeVariantId = storeOrderItem.getStoreVariantId();
