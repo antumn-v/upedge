@@ -324,11 +324,22 @@ public class OrderServiceImpl implements OrderService {
     @Transactional
     @Override
     public ShipDetail updateShipDetail(Long id, ShipDetail shipDetail,String warehouseCode) {
-
-        List<ShipDetail> shipDetails = orderShipList(id);
+        Order order = selectByPrimaryKey(id);
+        if (order == null || order.getPayState() != 0){
+            return null;
+        }
+        if (!shipDetail.getCouldShip()){
+            return null;
+        }
+        List<ShipDetail> shipDetails = null;
+        if (warehouseCode.equals("CNHZ")){
+            shipDetails = orderLocalWarehouseShipMethods(order.getId(),order.getToAreaId());
+        }else {
+            shipDetails = orderOverseaWarehouseShipMethods(order.getId(),order.getToAreaId());
+        }
         for (ShipDetail detail : shipDetails) {
             if (detail.getMethodId().equals(shipDetail.getMethodId())) {
-                return updateShipDetailById(id, detail);
+                return updateShipDetailById(id, shipDetail);
             }
         }
         return null;
@@ -363,7 +374,7 @@ public class OrderServiceImpl implements OrderService {
 //    }
 
     @Override
-    public List<ShipDetail> orderShipList(Long id) {
+    public List<OrderShipMethodVo> orderShipList(Long id) {
         Order order = orderDao.selectByPrimaryKey(id);
         if (order.getToAreaId() == null) {
             OrderAddress orderAddress = orderAddressDao.selectByOrderId(id);
@@ -375,12 +386,30 @@ public class OrderServiceImpl implements OrderService {
                 return new ArrayList<>();
             }
         }
-        List<ShipDetail> shipDetails = orderShipMethods(order.getId(), order.getToAreaId());
-        shipDetails.addAll(orderOverseaWarehouseShipMethods(order.getId(),order.getToAreaId()));
-        if (ListUtils.isEmpty(shipDetails)) {
-            shipDetails = new ArrayList<>();
+        List<OrderShipMethodVo> orderShipMethodVos = new ArrayList<>();
+        CompletableFuture<Void> local = CompletableFuture.runAsync(() -> {
+            List<ShipDetail> localMethods = orderLocalWarehouseShipMethods(order.getId(),order.getToAreaId());
+            OrderShipMethodVo orderShipMethodVo = new OrderShipMethodVo(0,localMethods);
+            orderShipMethodVos.add(orderShipMethodVo);
+        },threadPoolExecutor);
+        CompletableFuture<Void> oversea = CompletableFuture.runAsync(() -> {
+            List<ShipDetail> shipDetails = orderOverseaWarehouseShipMethods(order.getId(),order.getToAreaId());
+            OrderShipMethodVo orderShipMethodVo = new OrderShipMethodVo(1,shipDetails);
+            orderShipMethodVos.add(orderShipMethodVo);
+        },threadPoolExecutor);
+        try {
+            CompletableFuture.allOf(local,oversea).get();
+            return orderShipMethodVos;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ArrayList<>();
         }
-        return shipDetails;
+//        List<ShipDetail> shipDetails = orderShipMethods(order.getId(), order.getToAreaId());
+//        shipDetails.addAll(orderOverseaWarehouseShipMethods(order.getId(),order.getToAreaId()));
+//        if (ListUtils.isEmpty(shipDetails)) {
+//            shipDetails = new ArrayList<>();
+//        }
+//        return shipDetails;
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -520,7 +549,7 @@ public class OrderServiceImpl implements OrderService {
                         || null == item.getAdminVariantVolume()
                         || BigDecimal.ZERO.compareTo(item.getAdminVariantWeight()) == 0
                         || BigDecimal.ZERO.compareTo(item.getAdminVariantVolume()) == 0) {
-                    return null;
+                    return new ArrayList<>();
                 }
                 weight = weight.add(item.getAdminVariantWeight().multiply(new BigDecimal(item.getQuantity())));
                 volume = volume.add(item.getAdminVariantVolume().multiply(new BigDecimal(item.getQuantity())));
@@ -536,7 +565,7 @@ public class OrderServiceImpl implements OrderService {
                 }
             }
             if (null == shippingTemplateRedis){
-                return null;
+                return new ArrayList<>();
             }
             Set<Object> shipMethodIds = redisTemplate.opsForSet().members(RedisKey.SHIPPING_TEMPLATED_METHODS + shippingTemplateRedis.getId());
             if (ListUtils.isNotEmpty(shipMethodIds)) {
@@ -548,7 +577,6 @@ public class OrderServiceImpl implements OrderService {
                 searchRequest.setToAreaId(areaId);
                 searchRequest.setWeight(weight);
                 searchRequest.setVolumeWeight(volume);
-
                 searchRequest.setMethodIds(methodIds);
                 ShipMethodSearchResponse searchResponse = tmsFeignClient.shipSearch(searchRequest);
                 if (searchResponse.getCode() == ResultCode.SUCCESS_CODE) {
@@ -562,7 +590,7 @@ public class OrderServiceImpl implements OrderService {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return null;
+        return new ArrayList<>();
 
     }
 
@@ -633,8 +661,13 @@ public class OrderServiceImpl implements OrderService {
                 List<ShipDetail> shipDetails = new ArrayList<>();
                 for (PriceCalculatorDTO priceCalculatorDTO : priceCalculatorDTOS) {
                     BigDecimal price = new BigDecimal(priceCalculatorDTO.getTotalAmount());
+                    if (StringUtils.isBlank(priceCalculatorDTO.getCurrency())){
+                        continue;
+                    }
                     if (priceCalculatorDTO.getCurrency().equals("CNY")){
                         price = PriceUtils.cnyToUsdByDefaultRate(price);
+                    }else if (!priceCalculatorDTO.getCurrency().equals("USD")){
+                        continue;
                     }
                     ShippingMethodRedis shippingMethodRedis = codeShipMethodMap.get(priceCalculatorDTO.getProductCode());
                     if (shippingMethodRedis == null){
@@ -644,12 +677,18 @@ public class OrderServiceImpl implements OrderService {
 
                     shipDetail.setWeight(weight);
                     shipDetail.setDays(priceCalculatorDTO.getTimely().replace("天",""));
-                    shipDetail.setPrice(price);
+                    shipDetail.setPrice(price.add(BigDecimal.ONE));
                     shipDetail.setServiceFee(BigDecimal.ONE);
                     shipDetail.setWarehouseCode(warehouseCode);
                     shipDetail.setCouldShip(couldShip);
                     shipDetails.add(shipDetail);
                 }
+                shipDetails.sort(new Comparator<ShipDetail>() {
+                    @Override
+                    public int compare(ShipDetail o1, ShipDetail o2) {
+                        return o1.getPrice().compareTo(o2.getPrice());
+                    }
+                });
                 return shipDetails;
             }
         } catch (Exception e) {

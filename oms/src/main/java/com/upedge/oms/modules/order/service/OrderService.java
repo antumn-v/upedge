@@ -116,7 +116,7 @@ public interface OrderService{
 
     int updateOrderAttr(OrderAttr orderAttr);
 
-    List<ShipDetail> orderShipList(Long id);
+    List<OrderShipMethodVo> orderShipList(Long id);
 
     OrderShipRuleDetail matchShipRule(Long id);
 

@@ -354,10 +354,8 @@ public class OrderController {
     @ApiOperation("订单运输方式")
     @GetMapping("/{id}/ship/list")
     public BaseResponse orderShipList(@PathVariable Long id) {
-        List<ShipDetail> shipDetails = orderService.orderShipList(id);
-        for (ShipDetail shipDetail : shipDetails) {
-            shipDetail.setPrice(shipDetail.getPrice().add(shipDetail.getServiceFee()));
-        }
+        List<OrderShipMethodVo> shipDetails = orderService.orderShipList(id);
+
         return new BaseResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS, shipDetails, id);
     }
 
@@ -366,6 +364,9 @@ public class OrderController {
     public BaseResponse orderUpdateShipDetail(@PathVariable Long id, @RequestBody ShipDetail shipDetail) {
         String warehouseCode = RequestUtil.getWarehouseCode();
         shipDetail = orderService.updateShipDetail(id,shipDetail,warehouseCode);
+        if (null == shipDetail){
+            return BaseResponse.failed();
+        }
         return BaseResponse.success(shipDetail);
     }
 
