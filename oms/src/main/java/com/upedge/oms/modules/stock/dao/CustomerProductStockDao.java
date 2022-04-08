@@ -4,6 +4,7 @@ import com.upedge.common.base.Page;
 import com.upedge.common.model.order.vo.CustomerProductStockNumVo;
 import com.upedge.oms.modules.order.vo.ItemDischargeQuantityVo;
 import com.upedge.oms.modules.stock.entity.CustomerProductStock;
+import com.upedge.oms.modules.stock.vo.CustomerWarehouseVariantStockVo;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
@@ -12,6 +13,8 @@ import java.util.List;
  * @author author
  */
 public interface CustomerProductStockDao{
+
+    List<CustomerWarehouseVariantStockVo> selectCustomerWarehouseVariantStock(Long customerId);
 
     int selectVariantStockByCustomer(@Param("customerId") Long customerId,
                                      @Param("variantId") Long variantId);

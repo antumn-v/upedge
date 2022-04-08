@@ -7,5 +7,7 @@ public class ItemDischargeQuantityVo {
 
     Long variantId;
 
+    String shippingWarehouse;
+
     Integer dischargeQuantity;
 }

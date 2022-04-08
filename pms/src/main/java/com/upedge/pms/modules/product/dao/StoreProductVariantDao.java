@@ -17,6 +17,7 @@ import java.util.List;
  */
 public interface StoreProductVariantDao {
 
+    Long selectParentIdByPlatId(@Param("productId") Long productId, @Param("platVariantId") Long platVariantId);
 
     List<SplitVariantIdVo> selectSplitVariantIds();
 

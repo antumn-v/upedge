@@ -221,13 +221,13 @@
     </select>
 
     <select id="selectDischargeQuantityByPaymentId" resultType="com.upedge.oms.modules.order.vo.ItemDischargeQuantityVo">
-        select oi.admin_variant_id as `variantId`,sum(oi.discharge_quantity) as `dischargeQuantity`
+        select oi.admin_variant_id as `variantId`,sum(oi.discharge_quantity) as `dischargeQuantity`,o.shipping_warehouse
         from order_item oi
         inner join `order` o
         on oi.order_id = o.id
         where o.payment_id = #{paymentId}
         and oi.discharge_quantity > '0'
-        group by oi.admin_variant_id
+        group by oi.admin_variant_id,o.shipping_warehouse
     </select>
 
     <update id="updateDischargeQuantityByMap">

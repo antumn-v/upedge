@@ -113,6 +113,7 @@
         select distinct plat_variant_id
         from store_product_variant
         where product_id = #{productId}
+        and parent_variant_id = '0'
     </select>
 
     <update id="updateByPlatVariantId" parameterType="com.upedge.pms.modules.product.entity.StoreProductVariant">
@@ -599,5 +600,14 @@
         <foreach collection="storeVariantIds" item="storeVariantId" open="(" close=")" separator=",">
             #{storeVariantId}
         </foreach>
+    </select>
+
+    <select id="selectParentIdByPlatId" resultType="java.lang.Long">
+        select parent_variant_id
+        from store_product_variant
+        where product_id = #{productId}
+        and plat_variant_id = #{platVariantId}
+        and parent_variant_id != '0'
+        limit 1
     </select>
 </mapper>

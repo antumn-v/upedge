@@ -20,6 +20,7 @@ import com.upedge.oms.modules.stock.entity.CustomerStockRecord;
 import com.upedge.oms.modules.stock.request.ManualAddCustomerStockRequest;
 import com.upedge.oms.modules.stock.service.CustomerProductStockService;
 import com.upedge.oms.modules.stock.vo.CustomerSkuStockVo;
+import com.upedge.oms.modules.stock.vo.CustomerWarehouseVariantStockVo;
 import com.upedge.thirdparty.saihe.entity.GetProductInventory.ApiProductInventory;
 import com.upedge.thirdparty.saihe.entity.GetProductInventory.ProductInventoryList;
 import com.upedge.thirdparty.saihe.response.GetProductInventoryResponse;
@@ -198,30 +199,54 @@ public class CustomerProductStockServiceImpl implements CustomerProductStockServ
      * @param customerId
      * @return
      */
+//    public boolean orderItemStockCheck(List<ItemDischargeQuantityVo> dischargeQuantityVos, Long customerId) {
+//        if (ListUtils.isNotEmpty(dischargeQuantityVos)) {
+//            CustomerProductStock customerProductStock = new CustomerProductStock();
+//            customerProductStock.setCustomerId(customerId);
+//            Page<CustomerProductStock> page = new Page<>();
+//            page.setT(customerProductStock);
+//            page.setCondition("stock > 0");
+//            List<CustomerProductStock> productStocks = customerProductStockDao.select(page);
+//            if (ListUtils.isNotEmpty(productStocks)) {
+//                Map<Long, Integer> map = new HashMap<>();
+//                for (CustomerProductStock productStock : productStocks) {
+//                    map.put(productStock.getVariantId(), productStock.getStock());
+//                }
+//                for (ItemDischargeQuantityVo itemDischargeQuantityVo : dischargeQuantityVos) {
+//                    Integer stock = map.get(itemDischargeQuantityVo.getVariantId());
+//                    if (null == stock || stock < itemDischargeQuantityVo.getDischargeQuantity()) {
+//                        return false;
+//                    }
+//                }
+//            }else {
+//                return false;
+//            }
+//        }
+//        return true;
+//    }
     @Override
     public boolean orderItemStockCheck(List<ItemDischargeQuantityVo> dischargeQuantityVos, Long customerId) {
-        if (ListUtils.isNotEmpty(dischargeQuantityVos)) {
-            CustomerProductStock customerProductStock = new CustomerProductStock();
-            customerProductStock.setCustomerId(customerId);
-            Page<CustomerProductStock> page = new Page<>();
-            page.setT(customerProductStock);
-            page.setCondition("stock > 0");
-            List<CustomerProductStock> productStocks = customerProductStockDao.select(page);
-            if (ListUtils.isNotEmpty(productStocks)) {
-                Map<Long, Integer> map = new HashMap<>();
-                for (CustomerProductStock productStock : productStocks) {
-                    map.put(productStock.getVariantId(), productStock.getStock());
-                }
-                for (ItemDischargeQuantityVo itemDischargeQuantityVo : dischargeQuantityVos) {
-                    Integer stock = map.get(itemDischargeQuantityVo.getVariantId());
-                    if (null == stock || stock < itemDischargeQuantityVo.getDischargeQuantity()) {
+        if (ListUtils.isEmpty(dischargeQuantityVos)){
+            return true;
+        }
+        List<CustomerWarehouseVariantStockVo> customerWarehouseVariantStockVos = customerProductStockDao.selectCustomerWarehouseVariantStock(customerId);
+        if (ListUtils.isEmpty(customerWarehouseVariantStockVos)){
+            return false;
+        }
+        a:
+        for (ItemDischargeQuantityVo dischargeQuantityVo : dischargeQuantityVos) {
+            b:
+            for (CustomerWarehouseVariantStockVo customerWarehouseVariantStockVo : customerWarehouseVariantStockVos) {
+                if (dischargeQuantityVo.getVariantId().equals(customerWarehouseVariantStockVo.getVariantId())
+                && dischargeQuantityVo.getShippingWarehouse().equals(customerWarehouseVariantStockVo.getWarehouseCode())){
+                    if (customerWarehouseVariantStockVo.getStock() < dischargeQuantityVo.getDischargeQuantity()){
                         return false;
+                    }else {
+                        continue a;
                     }
                 }
-            }else {
-                return false;
             }
-
+            return false;
         }
         return true;
     }
@@ -251,7 +276,8 @@ public class CustomerProductStockServiceImpl implements CustomerProductStockServ
                 return false;
             }
         }
-        return customerProductStockDao.increaseCustomerLockStock(customerId, items);
+        boolean b = customerProductStockDao.increaseCustomerLockStock(customerId, items);
+        return b;
     }
 
     @Override
