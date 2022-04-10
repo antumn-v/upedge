@@ -30,6 +30,19 @@
         <include refid="Base_Column_List"/>
         from saihe_order_record
         where client_order_code = #{clientOrderCode}
+        limit 1
+    </select>
+
+
+    <select id="selectTwiceUploadOrder" resultMap="BaseResultMap">
+        select <include refid="Base_Column_List"/>
+				from saihe_order_record
+				where saihe_order_code not in
+				(
+				select saihe_order_code
+				from `order`
+				where saihe_order_code is not null
+				)
     </select>
 
     <select id="selectByPrimaryKey" parameterType="com.upedge.oms.modules.common.entity.SaiheOrderRecord"

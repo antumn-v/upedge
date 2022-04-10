@@ -354,9 +354,17 @@ public class OrderController {
     @ApiOperation("订单运输方式")
     @GetMapping("/{id}/ship/list")
     public BaseResponse orderShipList(@PathVariable Long id) {
-        List<OrderShipMethodVo> shipDetails = orderService.orderShipList(id);
+        Order order = orderService.selectByPrimaryKey(id);
+        if (order!= null){
+            List<ShipDetail> shipDetails = orderService.orderLocalWarehouseShipMethods(order.getId(),order.getToAreaId());
+            for (ShipDetail shipDetail : shipDetails) {
+                shipDetail.setPrice(shipDetail.getServiceFee().add(shipDetail.getPrice()));
+            }
+            return BaseResponse.success(shipDetails,id);
+        }
+//        List<OrderShipMethodVo> shipDetails = orderService.orderShipList(id);
 
-        return new BaseResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS, shipDetails, id);
+        return new BaseResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS, new ArrayList<>(), id);
     }
 
     @ApiOperation("订单修改运输方式")
@@ -483,7 +491,7 @@ public class OrderController {
             Order order = (Order) response.getData();
             if (request.getNeedPay() && order.getShipMethodId() == null) {
                 orderService.matchShipRule(order.getId());
-            }else {
+            }else if (!request.getNeedPay()){
                 orderService.importOrderToSaihe(order.getId());
             }
             return response;

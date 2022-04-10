@@ -10,6 +10,8 @@ import java.util.List;
  */
 public interface SaiheOrderRecordService{
 
+    List<SaiheOrderRecord> selectTwiceUploadOrder();
+
     SaiheOrderRecord selectByPrimaryKey(Long id);
 
     int deleteByPrimaryKey(Long id);

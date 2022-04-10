@@ -63,8 +63,8 @@ public class ShippingRedisInit {
         redisTemplate.delete(RedisKey.SHIPPING_METHOD);
         redisTemplate.opsForHash().putAll(RedisKey.SHIPPING_METHOD,map);
 
-        redisTemplate.delete(RedisKey.HASH_WAREHOUSE_METHOD);
-        redisTemplate.opsForHash().putAll(RedisKey.HASH_WAREHOUSE_METHOD,warehouseMethodHash);
+//        redisTemplate.delete(RedisKey.HASH_WAREHOUSE_METHOD);
+//        redisTemplate.opsForHash().putAll(RedisKey.HASH_WAREHOUSE_METHOD,warehouseMethodHash);
         log.info("运输方式数据初始化成功。。。");
 
         shippingMethodTemplateService.redisInit();

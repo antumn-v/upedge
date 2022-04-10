@@ -535,6 +535,8 @@ public class OrderRefundServiceImpl implements OrderRefundService {
             state = 3;//AppStockOrderEnum.REFUNDED.getValue();
         }
 
+        //作废赛盒订单，并同步赛盒发货状态
+        cancelSaiheOrderAndSynState(orderRefund.getId(), order.getSaiheOrderCode());
         //退款状态:0=未退款，1=申请中 2=部分退款，3=全部退款
         //修改订单状态
         int res = orderDao.updateOrderAsRefund(order.getId(), state);
@@ -572,8 +574,7 @@ public class OrderRefundServiceImpl implements OrderRefundService {
         if (response.getCode() != 1) {
             throw new CustomerException(ResultCode.FAIL_CODE, response.getMsg());
         }
-        //作废赛盒订单，并同步赛盒发货状态
-        cancelSaiheOrderAndSynState(orderRefund.getId(), order.getSaiheOrderCode());
+
         return new BaseResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS);
     }
 

@@ -244,6 +244,8 @@ public interface OrderService{
 
     void matchingShipInfoByVariantId(List<OrderItem> list);
 
+    List<ShipDetail> orderLocalWarehouseShipMethods(Long orderId, Long areaId);
+
     List<ShipDetail> orderOverseaWarehouseShipMethods(Long orderId, Long areaId);
 
     OrderShipRuleDetail matchShipRule(Long orderId, OrderShipRuleVo orderShipRuleVo);

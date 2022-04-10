@@ -45,7 +45,7 @@ public class Ordercelduler {
     RedisTemplate<String, Object> redisTemplate;
 
 
-    @Scheduled(cron = "0 */5 * ? * *")
+    @Scheduled(cron = "0 */10 * ? * *")
     public void reUploadOrderToSaihe(){
         List<Long> ids = orderService.selectUploadSaiheFailedIds();
         if (ListUtils.isNotEmpty(ids)){

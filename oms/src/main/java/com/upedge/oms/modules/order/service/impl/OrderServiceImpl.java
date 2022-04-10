@@ -339,7 +339,7 @@ public class OrderServiceImpl implements OrderService {
         }
         for (ShipDetail detail : shipDetails) {
             if (detail.getMethodId().equals(shipDetail.getMethodId())) {
-                return updateShipDetailById(id, shipDetail);
+                return updateShipDetailById(id, detail);
             }
         }
         return null;
@@ -534,7 +534,8 @@ public class OrderServiceImpl implements OrderService {
         return orderLocalWarehouseShipMethods(orderId,areaId);
     }
 
-    List<ShipDetail> orderLocalWarehouseShipMethods(Long orderId, Long areaId) {
+    @Override
+    public List<ShipDetail> orderLocalWarehouseShipMethods(Long orderId, Long areaId) {
         try {
             Page<OrderItem> page = new Page<>();
             OrderItem orderItem = new OrderItem();
@@ -1844,6 +1845,11 @@ public class OrderServiceImpl implements OrderService {
         if (!ifUploadSaihe){
             return false;
         }
+        String key = "order:upload:saihe:" + id;
+        boolean b = RedisUtil.lock(redisTemplate,key,10L,20 * 1000L);
+        if (!b){
+            return false;
+        }
         /**
          * 获取 已支付，未发货，订单状态正常，未退款
          * 并且没有赛盒orderCode的赛盒订单信息
@@ -1858,6 +1864,7 @@ public class OrderServiceImpl implements OrderService {
          */
         Boolean isUpload = orderCommonService.checkAndSaveOrderCodeFromSaihe(saiheOrder.getClientOrderCode(), OrderType.NORMAL);
         if (isUpload) {
+            RedisUtil.unLock(redisTemplate,key);
             return true;
         }
         /**
@@ -1868,6 +1875,7 @@ public class OrderServiceImpl implements OrderService {
         for (SaiheOrderItem saiheOrderItem : orderItemList) {
             if (saiheOrderItem.getProductNum() == null
                     || saiheOrderItem.getSalePrice() == null) {
+                RedisUtil.unLock(redisTemplate,key);
                 return false;
             }
         }
@@ -1879,7 +1887,9 @@ public class OrderServiceImpl implements OrderService {
         /**
          * 上传订单信息实体封装 并且上传赛盒
          */
-        return orderCommonService.upLoadOrderToSaiHe(saiheOrder, OrderType.NORMAL);
+        b = orderCommonService.upLoadOrderToSaiHe(saiheOrder, OrderType.NORMAL);
+        RedisUtil.unLock(redisTemplate,key);
+        return b;
     }
 
     /**

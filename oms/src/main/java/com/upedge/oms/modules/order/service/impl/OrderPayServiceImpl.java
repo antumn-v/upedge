@@ -451,7 +451,7 @@ public class OrderPayServiceImpl implements OrderPayService {
         if (!a) {
             return BaseResponse.failed("stock error");
         }
-//        orderDao.updateProductAmountByPaymentId(paymentId);
+        orderDao.updateProductAmountByPaymentId(paymentId);
 
         AppOrderListRequest appOrderListRequest = new AppOrderListRequest();
         AppOrderListDto appOrderListDto = new AppOrderListDto();

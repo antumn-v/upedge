@@ -45,6 +45,11 @@ public class SaiheOrderRecordServiceImpl implements SaiheOrderRecordService {
         return saiheOrderRecordDao.insert(record);
     }
 
+    @Override
+    public List<SaiheOrderRecord> selectTwiceUploadOrder() {
+        return saiheOrderRecordDao.selectTwiceUploadOrder();
+    }
+
     /**
      *
      */

@@ -10,6 +10,8 @@ import java.util.List;
  */
 public interface SaiheOrderRecordDao{
 
+    List<SaiheOrderRecord> selectTwiceUploadOrder();
+
     SaiheOrderRecord selectByClientOrderCode(String clientOrderCode);
 
     SaiheOrderRecord selectByPrimaryKey(SaiheOrderRecord record);
