@@ -337,6 +337,10 @@ public class StoreProductServiceImpl implements StoreProductService {
                 updateVariants.add(storeVariant);
             } else {
                 Long storeVariantId = IdGenerate.nextId();
+//                List<StoreProductVariant> storeProductVariants = storeProductVariantDao.selectSplitVariantsByPlatVariantId(variant.getId());
+//                if (ListUtils.isNotEmpty(storeProductVariants)){
+//                    storeVariantId = storeProductVariants.get(0).getId();
+//                }
                 storeVariant.setId(storeVariantId);
                 storeVariant.setSplitType(0);
                 storeVariant.setParentVariantId(0L);

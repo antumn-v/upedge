@@ -17,6 +17,14 @@ import java.util.List;
  */
 public interface StoreProductVariantService{
 
+    StoreProductVariant selectByPlatId(String platVariantId);
+
+    int updateId(Long oldId, Long newId);
+
+    List<StoreProductVariant> selectSplitVariantsByPlatVariantId(String platVariantId);
+
+    List<StoreProductVariant> selectWrongParentVariants();
+
     BaseResponse variantQuote(StoreProductVariantQuoteRequest request, Session session);
 
     List<SplitVariantIdVo> selectSplitVariantIds();

@@ -470,7 +470,7 @@
             resultType="com.upedge.oms.modules.stock.vo.CustomerWarehouseVariantStockVo">
         select warehouse_code,variant_id,sum(stock) as stock
             from customer_product_stock
-        where custoemr_id = #{customerId}
+        where customer_id = #{customerId}
         group  by warehouse_code,variant_id
     </select>
 </mapper>

@@ -5,6 +5,7 @@ import com.upedge.common.constant.ResultCode;
 import com.upedge.common.model.product.StoreProductVariantVo;
 import com.upedge.common.model.product.request.PlatIdSelectStoreVariantRequest;
 import com.upedge.common.model.user.vo.Session;
+import com.upedge.common.utils.ListUtils;
 import com.upedge.common.web.util.UserUtil;
 import com.upedge.pms.modules.product.entity.StoreProductVariant;
 import com.upedge.pms.modules.product.request.StoreProductVariantListRequest;
@@ -20,7 +21,9 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 
@@ -92,6 +95,29 @@ public class StoreProductVariantController {
     public BaseResponse variantQuote(@RequestBody@Valid StoreProductVariantQuoteRequest request){
         Session session = UserUtil.getSession(redisTemplate);
         return storeProductVariantService.variantQuote(request,session);
+    }
+
+
+    @PostMapping("/test")
+    public BaseResponse test(){
+        Map<Long,Long> map = new HashMap<>();
+        List<StoreProductVariant> storeProductVariants = storeProductVariantService.selectWrongParentVariants();
+        for (StoreProductVariant storeProductVariant : storeProductVariants) {
+            List<StoreProductVariant> variants = storeProductVariantService.selectSplitVariantsByPlatVariantId(storeProductVariant.getPlatVariantId());
+            if (ListUtils.isEmpty(variants)){
+                continue;
+            }
+            StoreProductVariant parent = storeProductVariantService.selectByPlatId(storeProductVariant.getPlatVariantId());
+            if (parent == null){
+                continue;
+            }
+            StoreProductVariant variant = variants.get(0);
+            if (!variant.getParentVariantId().equals(parent.getId())){
+                map.put(storeProductVariant.getId(),variant.getParentVariantId());
+                storeProductVariantService.updateId(parent.getId(),variant.getParentVariantId());
+            }
+        }
+        return BaseResponse.success(map);
     }
 
 

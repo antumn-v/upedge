@@ -93,6 +93,26 @@ public class StoreProductVariantServiceImpl implements StoreProductVariantServic
     }
 
     @Override
+    public StoreProductVariant selectByPlatId(String platVariantId) {
+        return storeProductVariantDao.selectByPlatId(platVariantId);
+    }
+
+    @Override
+    public int updateId(Long oldId, Long newId) {
+        return storeProductVariantDao.updateId(oldId,newId);
+    }
+
+    @Override
+    public List<StoreProductVariant> selectSplitVariantsByPlatVariantId(String platVariantId) {
+        return storeProductVariantDao.selectSplitVariantsByPlatVariantId(platVariantId);
+    }
+
+    @Override
+    public List<StoreProductVariant> selectWrongParentVariants() {
+        return storeProductVariantDao.selectWrongParentVariants();
+    }
+
+    @Override
     public BaseResponse variantQuote(StoreProductVariantQuoteRequest request, Session session) {
         Long storeVariantId = request.getStoreVariantId();
         if (null == storeVariantId){

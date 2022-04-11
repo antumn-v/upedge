@@ -610,4 +610,39 @@
         and parent_variant_id != '0'
         limit 1
     </select>
+
+    <select id="selectWrongParentVariants" resultMap="BaseResultMap">
+        select DISTINCT plat_product_id,plat_variant_id
+        from store_product_variant
+        where split_type = '2'
+        and parent_variant_id not in
+        (
+            select id
+            from store_product_variant
+        )
+    </select>
+
+    <select id="selectSplitVariantsByPlatVariantId" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from store_product_variant
+        where plat_variant_id = #{platVariantId}
+        and split_type = '2'
+    </select>
+
+    <update id="updateId">
+        update store_product_variant
+            set id = #{newId},
+                split_type = '1'
+        where id = #{oldId}
+    </update>
+
+    <select id="selectByPlatId" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from store_product_variant
+        where plat_variant_id = #{platVariantId}
+        and split_type = '0'
+        limit 1
+    </select>
 </mapper>
