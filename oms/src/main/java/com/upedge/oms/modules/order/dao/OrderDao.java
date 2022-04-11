@@ -88,9 +88,10 @@ public interface OrderDao{
 
     Long selectAppOrderCount(AppOrderListRequest request);
 
-    int updateOrderProductAmount(@Param("id") Long id,
+    int updateOrderProductAmount(OrderProductAmountVo orderProductAmountVo);
+/*    int updateOrderProductAmount(@Param("id") Long id,
                                  @Param("productAmount") BigDecimal productAmount,
-                                 @Param("cnyProductAmount") BigDecimal cnyProductAmount);
+                                 @Param("cnyProductAmount") BigDecimal cnyProductAmount);*/
 
     int updateProductAmountByPaymentId(Long paymentId);
 

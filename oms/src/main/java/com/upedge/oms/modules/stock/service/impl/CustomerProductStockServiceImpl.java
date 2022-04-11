@@ -28,7 +28,10 @@ import com.upedge.thirdparty.saihe.service.SaiheService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
+import org.springframework.data.redis.core.RedisOperations;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.SessionCallback;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -255,26 +258,27 @@ public class CustomerProductStockServiceImpl implements CustomerProductStockServ
     @Override
     public boolean increaseCustomerLockStock(Long customerId, List<ItemDischargeQuantityVo> items) {
         if (ListUtils.isNotEmpty(items)) {
-            CustomerProductStock customerProductStock = new CustomerProductStock();
-            customerProductStock.setCustomerId(customerId);
-            Page<CustomerProductStock> page = new Page<>();
-            page.setT(customerProductStock);
-            page.setCondition("stock > 0");
-            List<CustomerProductStock> productStocks = customerProductStockDao.select(page);
-            if (ListUtils.isNotEmpty(productStocks)) {
-                Map<Long, Integer> map = new HashMap<>();
-                for (CustomerProductStock productStock : productStocks) {
-                    map.put(productStock.getVariantId(), productStock.getStock());
-                }
-                for (ItemDischargeQuantityVo itemDischargeQuantityVo : items) {
-                    Integer stock = map.get(itemDischargeQuantityVo.getVariantId());
-                    if (null == stock || stock < itemDischargeQuantityVo.getDischargeQuantity()) {
-                        return false;
+            //redis事务修改产品库存
+            SessionCallback<Object> callback = new SessionCallback<Object>() {
+                @Override
+                public <K, V> Object execute(RedisOperations<K, V> redisOperations) throws DataAccessException {
+                    redisOperations.multi();
+                    for (ItemDischargeQuantityVo item : items) {
+                        boolean a = redisCheckCustomerVariantStock(customerId,item.getVariantId(),item.getShippingWarehouse(),item.getDischargeQuantity());
+                        if (a){
+                           redisReduceCustomerVariantStock(customerId,item.getVariantId(),item.getShippingWarehouse(),item.getDischargeQuantity());
+                        }else {
+                            throw new DataAccessException("Insufficient inventory of overseas warehouse products") {
+                                @Override
+                                public String getMessage() {
+                                    return super.getMessage();
+                                }
+                            };
+                        }
                     }
+                    return redisOperations.exec();
                 }
-            }else {
-                return false;
-            }
+            };
         }
         boolean b = customerProductStockDao.increaseCustomerLockStock(customerId, items);
         return b;
@@ -282,6 +286,9 @@ public class CustomerProductStockServiceImpl implements CustomerProductStockServ
 
     @Override
     public int reduceFromLockStock(Long customerId, List<ItemDischargeQuantityVo> items) {
+        for (ItemDischargeQuantityVo item : items) {
+            redisReduceCustomerVariantStock(customerId,item.getVariantId(),item.getShippingWarehouse(),item.getDischargeQuantity());
+        }
         return customerProductStockDao.reduceFromLockStock(customerId, items);
     }
 

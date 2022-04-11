@@ -29,6 +29,7 @@ public class RedisConfig {
         template.setHashKeySerializer(new StringRedisSerializer());
         template.setHashValueSerializer(new GenericFastJsonRedisSerializer());
         template.afterPropertiesSet();
+        template.setEnableTransactionSupport(true);
         return template;
     }
 

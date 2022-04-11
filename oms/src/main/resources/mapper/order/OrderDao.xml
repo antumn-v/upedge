@@ -1558,9 +1558,10 @@
     <update id="updateOrderProductAmount">
         update `order`
         set product_amount     = #{productAmount},
-            cny_product_amount = #{cnyProductAmount}
+            cny_product_amount = #{cnyProductAmount},
+            product_discharge_amount = #{dischargeAmount}
         where id = #{id}
-          and pay_state = '0'
+        and pay_state = '0'
     </update>
     <update id="updateToAreaIdById">
         update `order`
@@ -2120,7 +2121,8 @@
             resultType="com.upedge.oms.modules.order.vo.OrderProductAmountVo">
         select o.id,
                sum(quantity * usd_price) as `productAmount`,
-               sum(quantity * cny_price) as `cnyProductAmount`
+               sum(quantity * cny_price) as `cnyProductAmount`,
+                sum(discharge_quantity * usd_price) as `dischargeAmount`
         from order_item oi
                      inner join `order` o
                 on oi.order_id = o.id

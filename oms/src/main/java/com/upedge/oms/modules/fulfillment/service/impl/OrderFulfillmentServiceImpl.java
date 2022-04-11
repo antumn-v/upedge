@@ -230,7 +230,7 @@ public class OrderFulfillmentServiceImpl implements OrderFulfillmentService {
                 Map<String, Object> map = new HashMap<>();
                 map.put("tracking_number", orderTracking.getTrackingCode());
                 map.put("tracking_company", orderTracking.getTrackingCompany());
-                map.put("notify_customer", storeVo.isEmailPrompt());
+                map.put("notify_customer", true);
                 map.put("tracking_url","https://t.17track.net/en#nums=" + orderTracking.getTrackingCode());
                 fulfillment.put("fulfillment", map);
                 ShopifyFulfillment updateShopFulfillment = ShopifyOrderApi.orderFulfillmentUpdate(fulfillment, storeVo.getApiToken(), storeVo.getStoreName(), platOrderId, shopifyFulfillment.getId());

@@ -12,4 +12,6 @@ public class OrderProductAmountVo {
     BigDecimal productAmount;
 
     BigDecimal cnyProductAmount;
+
+    BigDecimal dischargeAmount;
 }

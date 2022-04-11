@@ -37,8 +37,6 @@ public class StoreInit {
             redisTemplate.opsForValue().set(RedisKey.STRING_STORE + store.getId(),storeVo);
         });
         log.warn("-------------------店铺信息加载完毕-----------------");
-
-
     }
 
 }
