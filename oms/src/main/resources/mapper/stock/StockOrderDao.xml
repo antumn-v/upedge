@@ -37,6 +37,7 @@
         <result property="paypalFee" column="paypal_fee"/>
         <result property="payState" column="pay_state"/>
         <result property="refundState" column="refund_state"/>
+        <result property="shipReview" column="ship_review"/>
         <result property="payTime" column="pay_time"/>
         <result property="createTime" column="create_time"/>
         <result property="updateTime" column="update_time"/>
@@ -190,7 +191,7 @@
         o.pay_state,o.refund_state,o.pay_time,o.create_time,o.update_time,
         item.id as itemId,item.product_id,item.variant_id,item.order_id,
         item.price,item.quantity,item.product_title,item.variant_name,
-        item.variant_sku,item.variant_image
+        item.variant_sku,item.variant_image,o.ship_review
         from stock_order o
         inner join stock_order_item item
         on o.id = item.order_id

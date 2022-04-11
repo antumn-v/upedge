@@ -48,6 +48,8 @@ public class StockOrderVo {
      * 退款状态:0=未退款，1=申请中，2=驳回，3=部分退款，4=全部退款
      */
     private Integer refundState;
+
+    private Integer shipReview;
     /**
      * 支付时间
      */

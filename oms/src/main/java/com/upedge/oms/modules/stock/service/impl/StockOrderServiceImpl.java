@@ -45,6 +45,7 @@ import com.upedge.oms.modules.stock.request.StockOrderItemUpdatePurchaseNoReques
 import com.upedge.oms.modules.stock.request.StockOrderListRequest;
 import com.upedge.oms.modules.stock.request.StockOrderUpdateShipRequest;
 import com.upedge.oms.modules.stock.request.StockOrderUpdateTrackRequest;
+import com.upedge.oms.modules.stock.service.CustomerProductStockService;
 import com.upedge.oms.modules.stock.service.StockOrderService;
 import com.upedge.oms.modules.stock.vo.StockOrderItemVo;
 import com.upedge.oms.modules.stock.vo.StockOrderVo;
@@ -78,6 +79,9 @@ public class StockOrderServiceImpl implements StockOrderService {
 
     @Autowired
     CustomerStockRecordDao customerStockRecordDao;
+
+    @Autowired
+    CustomerProductStockService customerProductStockService;
 
     @Autowired
     CartDao cartDao;
@@ -564,6 +568,11 @@ public class StockOrderServiceImpl implements StockOrderService {
 
         if (ListUtils.isNotEmpty(updateStock)) {
             customerProductStockDao.increaseVariantStock(updateStock);
+        }
+        if (stockOrderVo.getPayState() == 1
+        && stockOrderVo.getShipReview() == 3)
+        for (StockOrderItem variantQuantity : variantQuantities) {
+            customerProductStockService.redisAddCustomerVariantStock(customerId, variantQuantity.getVariantId(), warehouseCode, variantQuantity.getQuantity());
         }
         return true;
     }

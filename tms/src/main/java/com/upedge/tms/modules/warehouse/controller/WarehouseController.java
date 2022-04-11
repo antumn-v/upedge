@@ -58,7 +58,7 @@ public class WarehouseController {
         }
         request.getT().setState(0);
         List<Warehouse> results = warehouseService.select(request);
-        Long total = warehouseService.count(request);
+        Long total = Long.parseLong(results.size()+"");
         request.setTotal(total);
         WarehouseListResponse res = new WarehouseListResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS,results,request);
         return res;

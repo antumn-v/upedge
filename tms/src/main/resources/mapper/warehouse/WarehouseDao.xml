@@ -332,9 +332,6 @@
         <if test="orderBy != null">
             order by ${orderBy}
         </if>
-        <if test="pageNum != null and pageSize != null">
-            limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
-        </if>
     </select>
 
     <select id="count" parameterType="com.upedge.common.base.Page" resultType="java.lang.Long">

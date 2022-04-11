@@ -91,6 +91,8 @@ public class CustomerProductStockServiceImpl implements CustomerProductStockServ
         if (customerProductStock.getStock() < record.getQuantity()){
             return BaseResponse.failed("库存不足");
         }
+        redisReduceCustomerVariantStock(customerProductStock.getCustomerId(),customerProductStock.getVariantId(),customerProductStock.getWarehouseCode(),record.getQuantity());
+
         record.setRevokeState(1);
         record.setCustomerShowState(0);
         customerStockRecordDao.updateByPrimaryKey(record);
@@ -183,7 +185,9 @@ public class CustomerProductStockServiceImpl implements CustomerProductStockServ
         if (ListUtils.isNotEmpty(updateStock)) {
             customerProductStockDao.increaseVariantStock(updateStock);
         }
-
+        for (CustomerSkuStockVo customerSkuStockVo : customerSkuStockVos) {
+            redisAddCustomerVariantStock(customerId,customerSkuStockVo.getVariantId(),warehouseCode,customerSkuStockVo.getStock());
+        }
         return BaseResponse.success();
     }
 
@@ -380,10 +384,11 @@ public class CustomerProductStockServiceImpl implements CustomerProductStockServ
 
     }
 
-
+    @Override
     public void redisAddCustomerVariantStock(Long customerId,Long variantId,String warehouseCode,long stock){
         String key = RedisKey.STRING_CUSTOMER_VARIANT_STOCK + customerId + ":" + warehouseCode + ":" + variantId;
-        if (redisTemplate.hasKey(key)){
+        boolean b = redisTemplate.hasKey(key);
+        if (b) {
             redisTemplate.opsForValue().increment(key,stock);
         }else {
             redisTemplate.opsForValue().set(key,stock);
@@ -406,7 +411,8 @@ public class CustomerProductStockServiceImpl implements CustomerProductStockServ
     @Override
     public boolean redisCheckCustomerVariantStock(Long customerId,Long variantId,String warehouseCode,long stock){
         String key = RedisKey.STRING_CUSTOMER_VARIANT_STOCK + customerId + ":" + warehouseCode + ":" + variantId;
-        if (redisTemplate.hasKey(key)) {
+        boolean b = redisTemplate.hasKey(key);
+        if (b) {
             long nowStock = (long) redisTemplate.opsForValue().get(key);
             if (nowStock >= stock){
                 return true;
