@@ -112,7 +112,7 @@ public interface OrderService{
      * @param shipDetail
      * @return vat
      */
-    ShipDetail updateShipDetail(Long id,ShipDetail shipDetail,String warehouseCode);
+    ShipDetail updateShipDetail(Long id,ShipDetail shipDetail);
 
     int updateOrderAttr(OrderAttr orderAttr);
 

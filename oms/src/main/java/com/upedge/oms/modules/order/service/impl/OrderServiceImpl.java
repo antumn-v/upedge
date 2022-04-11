@@ -323,7 +323,7 @@ public class OrderServiceImpl implements OrderService {
 
     @Transactional
     @Override
-    public ShipDetail updateShipDetail(Long id, ShipDetail shipDetail,String warehouseCode) {
+    public ShipDetail updateShipDetail(Long id, ShipDetail shipDetail) {
         Order order = selectByPrimaryKey(id);
         if (order == null || order.getPayState() != 0){
             return null;
@@ -332,7 +332,7 @@ public class OrderServiceImpl implements OrderService {
             return null;
         }
         List<ShipDetail> shipDetails = null;
-        if (warehouseCode.equals(ProductConstant.DEFAULT_WAREHOUSE_ID)){
+        if (shipDetail.getWarehouseCode().equals(ProductConstant.DEFAULT_WAREHOUSE_ID)){
             shipDetails = orderLocalWarehouseShipMethods(order.getId(),order.getToAreaId());
         }else {
             shipDetails = orderOverseaWarehouseShipMethods(order.getId(),order.getToAreaId());
@@ -390,11 +390,17 @@ public class OrderServiceImpl implements OrderService {
         List<OrderShipMethodVo> orderShipMethodVos = new ArrayList<>();
         CompletableFuture<Void> local = CompletableFuture.runAsync(() -> {
             List<ShipDetail> localMethods = orderLocalWarehouseShipMethods(order.getId(),order.getToAreaId());
+            for (ShipDetail localMethod : localMethods) {
+                localMethod.setPrice(localMethod.getPrice().add(localMethod.getServiceFee()));
+            }
             OrderShipMethodVo orderShipMethodVo = new OrderShipMethodVo(0,localMethods);
             orderShipMethodVos.add(orderShipMethodVo);
         },threadPoolExecutor);
         CompletableFuture<Void> oversea = CompletableFuture.runAsync(() -> {
             List<ShipDetail> shipDetails = orderOverseaWarehouseShipMethods(order.getId(),order.getToAreaId());
+            for (ShipDetail shipDetail : shipDetails) {
+                shipDetail.setPrice(shipDetail.getPrice().add(shipDetail.getServiceFee()));
+            }
             OrderShipMethodVo orderShipMethodVo = new OrderShipMethodVo(1,shipDetails);
             orderShipMethodVos.add(orderShipMethodVo);
         },threadPoolExecutor);
@@ -679,7 +685,7 @@ public class OrderServiceImpl implements OrderService {
 
                     shipDetail.setWeight(weight);
                     shipDetail.setDays(priceCalculatorDTO.getTimely().replace("天",""));
-                    shipDetail.setPrice(price.add(BigDecimal.ONE));
+                    shipDetail.setPrice(price);
                     shipDetail.setServiceFee(BigDecimal.ONE);
                     shipDetail.setWarehouseCode(warehouseCode);
                     shipDetail.setCouldShip(couldShip);

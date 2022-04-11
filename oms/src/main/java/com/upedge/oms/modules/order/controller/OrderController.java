@@ -371,7 +371,7 @@ public class OrderController {
     @PostMapping("/{id}/ship/update")
     public BaseResponse orderUpdateShipDetail(@PathVariable Long id, @RequestBody ShipDetail shipDetail) {
         String warehouseCode = RequestUtil.getWarehouseCode();
-        shipDetail = orderService.updateShipDetail(id,shipDetail,warehouseCode);
+        shipDetail = orderService.updateShipDetail(id,shipDetail);
         if (null == shipDetail){
             return BaseResponse.failed();
         }
