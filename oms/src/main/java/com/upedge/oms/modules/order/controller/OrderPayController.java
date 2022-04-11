@@ -95,10 +95,16 @@ public class OrderPayController {
     @PostMapping("/balance")
     public BaseResponse payOrderByBalance(@RequestBody @Valid OrderPayRequest request) {
         Session session = UserUtil.getSession(redisTemplate);
+        String customerPayOrderLockKey = RedisKey.CUSTOMER_PAY_ORDER_LOCK + session.getCustomerId();
+        boolean b = RedisUtil.lock(redisTemplate,customerPayOrderLockKey,10L,10 * 1000L);
+        if (!b){
+            return BaseResponse.failed("There is a transaction in progress");
+        }
         List<Long> orderIds = request.getOrderIds();
         for (Long id : orderIds) {
             String key = RedisKey.STRING_ORDER_ID_PENDING + id;
             if (null != redisTemplate.opsForValue().get(key)) {
+                RedisUtil.unLock(redisTemplate,customerPayOrderLockKey);
                 return new OrderPayResponse(ResultCode.FAIL_CODE,"Orders cannot be submitted repeatedly within 3 seconds");
             } else {
                 redisTemplate.opsForValue().set(key, System.currentTimeMillis(), 3, TimeUnit.SECONDS);
@@ -115,11 +121,14 @@ public class OrderPayController {
                     orderPayService.payOrderByBalance(session, amount, paymentId, dischargeQuantityVos);
                     orderPayService.payOrderAsync(session.getId(),session.getCustomerId(), paymentId,0);
                     OrderPayResponse.PayResponse payResponse = new OrderPayResponse.PayResponse(paymentId,amount, TransactionConstant.PayMethod.ACCOUNT.getCode(),new Date());
+                    RedisUtil.unLock(redisTemplate,customerPayOrderLockKey);
                     return new OrderPayResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS,payResponse);
             }
+            RedisUtil.unLock(redisTemplate,customerPayOrderLockKey);
             orderPayService.orderPayRollback(paymentId, session.getCustomerId(), dischargeQuantityVos);
             return response;
         }
+        RedisUtil.unLock(redisTemplate,customerPayOrderLockKey);
         return new OrderPayResponse(ResultCode.FAIL_CODE,"Order error!");
     }
 

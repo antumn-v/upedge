@@ -108,4 +108,8 @@ public class RedisKey {
      * redis锁    提现申请通过
      */
     public static final  String WITHDRAWAL_APPLICATION_PASSED = "withdrawal:apply:passed";
+    /**
+     * redis 锁  客户同时只能进行一笔交易
+     */
+    public static final String CUSTOMER_PAY_ORDER_LOCK = "customer:pay:order:lock:";
 }
