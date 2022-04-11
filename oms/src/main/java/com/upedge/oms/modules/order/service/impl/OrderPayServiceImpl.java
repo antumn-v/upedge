@@ -55,7 +55,6 @@ import io.seata.spring.annotation.GlobalTransactional;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.rocketmq.client.producer.DefaultMQProducer;
 import org.apache.rocketmq.common.message.Message;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -465,8 +464,15 @@ public class OrderPayServiceImpl implements OrderPayService {
 
         List<Long> orderIds = orderShippingUnitService.selectOrderIdByOrderPaymentId(paymentId, OrderType.NORMAL);
         for (AppOrderVo order : orders) {
-            if (!orderIds.contains(order.getId())) {
-                return BaseResponse.failed("ship error");
+            if (order.getShippingWarehouse().equals(ProductConstant.DEFAULT_WAREHOUSE_ID)){
+                if (!orderIds.contains(order.getId())) {
+                    return BaseResponse.failed("ship error");
+                }
+            }else {
+                boolean b = checkOrderOverseaShipMethod(order);
+                if (!b){
+                    return BaseResponse.failed("Insufficient inventory of overseas warehouse products");
+                }
             }
         }
 
@@ -496,13 +502,23 @@ public class OrderPayServiceImpl implements OrderPayService {
             if (ListUtils.isNotEmpty(dischargeQuantityVos)) {
                 customerProductStockDao.increaseCustomerLockStock(customerId, dischargeQuantityVos);
             }
-            if (StringUtils.equals("paypal", payType)) {
-                return BaseResponse.success();
-            } else {
-                return BaseResponse.success();
-            }
+            return BaseResponse.success();
         }
         return BaseResponse.failed("order error");
+    }
+
+    boolean checkOrderOverseaShipMethod(AppOrderVo appOrderVo){
+        Set<AppStoreOrderVo> appStoreOrderVos = appOrderVo.getStoreOrderVos();
+        for (AppStoreOrderVo appStoreOrderVo : appStoreOrderVos) {
+            Set<AppOrderItemVo> itemVos = appStoreOrderVo.getItemVos();
+            for (AppOrderItemVo itemVo : itemVos) {
+                boolean b = customerProductStockService.redisCheckCustomerVariantStock(appOrderVo.getCustomerId(),itemVo.getAdminVariantId(),appOrderVo.getShippingWarehouse(),itemVo.getQuantity());
+                if (!b){
+                    return b;
+                }
+            }
+        }
+        return true;
     }
 
 

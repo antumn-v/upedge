@@ -354,17 +354,17 @@ public class OrderController {
     @ApiOperation("订单运输方式")
     @GetMapping("/{id}/ship/list")
     public BaseResponse orderShipList(@PathVariable Long id) {
-        Order order = orderService.selectByPrimaryKey(id);
-        if (order!= null){
-            List<ShipDetail> shipDetails = orderService.orderLocalWarehouseShipMethods(order.getId(),order.getToAreaId());
-            for (ShipDetail shipDetail : shipDetails) {
-                shipDetail.setPrice(shipDetail.getServiceFee().add(shipDetail.getPrice()));
-            }
-            return BaseResponse.success(shipDetails,id);
-        }
-//        List<OrderShipMethodVo> shipDetails = orderService.orderShipList(id);
+//        Order order = orderService.selectByPrimaryKey(id);
+//        if (order!= null){
+//            List<ShipDetail> shipDetails = orderService.orderLocalWarehouseShipMethods(order.getId(),order.getToAreaId());
+//            for (ShipDetail shipDetail : shipDetails) {
+//                shipDetail.setPrice(shipDetail.getServiceFee().add(shipDetail.getPrice()));
+//            }
+//            return BaseResponse.success(shipDetails,id);
+//        }
+        List<OrderShipMethodVo> shipDetails = orderService.orderShipList(id);
 
-        return new BaseResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS, new ArrayList<>(), id);
+        return new BaseResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS, shipDetails, id);
     }
 
     @ApiOperation("订单修改运输方式")

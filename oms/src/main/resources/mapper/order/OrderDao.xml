@@ -34,6 +34,7 @@
         <result property="vatAmount" column="vat_amount"/>
         <result property="orderStatus" column="order_status"/>
         <result property="managerCode" column="manager_code"/>
+        <result property="shippingWarehouse" column="shipping_warehouse"/>
     </resultMap>
 
     <resultMap type="com.upedge.oms.modules.order.vo.AppOrderVo" id="AppOrderVo">
@@ -61,6 +62,7 @@
         <result property="toAreaId" column="to_area_id"/>
         <result property="vatAmount" column="vat_amount"/>
         <result property="createTime" column="create_time"/>
+        <result property="shippingWarehouse" column="shipping_warehouse"/>
         <collection ofType="com.upedge.oms.modules.order.vo.AppStoreOrderVo" property="storeOrderVos">
             <id property="storeOrderId" column="store_order_id"/>
             <result property="platOrderName" column="plat_order_name"/>
@@ -94,6 +96,7 @@
         <result property="vatAmount" column="vat_amount"/>
         <result property="createTime" column="create_time"/>
         <result property="orderCustomerName" column="order_customer_name"/>
+        <result property="shippingWarehouse" column="shipping_warehouse"/>
         <collection ofType="com.upedge.oms.modules.order.vo.AppStoreOrderVo" property="storeOrderVos">
             <id property="storeOrderId" column="store_order_id"/>
             <result property="platOrderCreateTime" column="plat_order_create_time"/>
@@ -125,11 +128,11 @@
     </resultMap>
 
     <sql id="Base_Column_List">
-        `id`
-                ,`customer_id`,`org_id`,`org_path`,`store_id`,`pay_amount`,`ship_method_id`,`ship_price`,
+        `id`,`customer_id`,`org_id`,`org_path`,`store_id`,`pay_amount`,`ship_method_id`,`ship_price`,
         `total_weight`,`product_amount`,`product_discharge_amount`,`fix_fee`,`fix_fee_percentage`,`service_fee`,
         `pay_method`,`pay_time`,`payment_id`,`pay_state`,`refund_state`,`ship_state`,`order_type`,quote_state,
-        `to_area_id`,`cny_rate`,`create_time`,`update_time`,`saihe_order_code`,`vat_amount`,`order_status`,`manager_code`
+        `to_area_id`,`cny_rate`,`create_time`,`update_time`,`saihe_order_code`,`vat_amount`,`order_status`,`manager_code`,
+        `shipping_warehouse`
     </sql>
 
 
@@ -453,7 +456,8 @@
         (o.ship_price+o.service_fee) as ship_price,
         o.total_weight,o.product_amount,o.product_discharge_amount,o.fix_fee,o.pay_method,
         o.pay_time,o.payment_id,o.pay_state,o.refund_state,o.ship_state,o.order_type,o.to_area_id,
-        o.vat_amount,o.create_time,o.store_id,r.plat_order_create_time,o.quote_state,o.saihe_order_code
+        o.vat_amount,o.create_time,o.store_id,r.plat_order_create_time,o.quote_state,o.saihe_order_code,
+        o.shipping_warehouse
         from `order` o
         inner join store_order_relate r
         on o.id = r.order_id

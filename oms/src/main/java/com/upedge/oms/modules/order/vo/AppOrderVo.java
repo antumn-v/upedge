@@ -103,6 +103,8 @@ public class AppOrderVo {
 
     private BigDecimal vatAmount = BigDecimal.ZERO;
 
+    private String shippingWarehouse;
+
     private Set<AppStoreOrderVo> storeOrderVos;
 
     private OrderAddress orderAddress;

@@ -278,7 +278,6 @@ public class StoreServiceImpl implements StoreService {
         StoreVo storeVo = new StoreVo();
         BeanUtils.copyProperties(store,storeVo);
         redisTemplate.opsForValue().set(RedisKey.STRING_STORE + store.getId(),storeVo);
-        storeAsync.getStoreData(store);
         return store;
     }
 

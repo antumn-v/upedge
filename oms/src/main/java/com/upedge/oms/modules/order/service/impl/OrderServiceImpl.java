@@ -332,13 +332,14 @@ public class OrderServiceImpl implements OrderService {
             return null;
         }
         List<ShipDetail> shipDetails = null;
-        if (warehouseCode.equals("CNHZ")){
+        if (warehouseCode.equals(ProductConstant.DEFAULT_WAREHOUSE_ID)){
             shipDetails = orderLocalWarehouseShipMethods(order.getId(),order.getToAreaId());
         }else {
             shipDetails = orderOverseaWarehouseShipMethods(order.getId(),order.getToAreaId());
         }
         for (ShipDetail detail : shipDetails) {
-            if (detail.getMethodId().equals(shipDetail.getMethodId())) {
+            if (detail.getMethodId().equals(shipDetail.getMethodId())
+            && detail.getCouldShip()) {
                 return updateShipDetailById(id, detail);
             }
         }
