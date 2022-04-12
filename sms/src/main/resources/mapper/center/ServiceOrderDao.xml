@@ -1,0 +1,276 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.upedge.sms.modules.center.dao.ServiceOrderDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.upedge.sms.modules.center.entity.ServiceOrder" id="BaseResultMap">
+        <result property="id" column="id"/>
+        <result property="serviceType" column="service_type"/>
+        <result property="customerId" column="customer_id"/>
+        <result property="serviceState" column="service_state"/>
+        <result property="payState" column="pay_state"/>
+        <result property="payAmount" column="pay_amount"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="finishTime" column="finish_time"/>
+        <result property="managerId" column="manager_id"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        `id`,`service_type`,`customer_id`,`service_state`,`pay_state`,`pay_amount`,`create_time`,`update_time`,`finish_time`,`manager_id`
+    </sql>
+
+    <select id="selectByPrimaryKey" parameterType="com.upedge.sms.modules.center.entity.ServiceOrder" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from service_order
+        where id = #{id}
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="com.upedge.sms.modules.center.entity.ServiceOrder">
+        delete from service_order
+        where id = #{id}
+    </delete>
+
+    <update id="updateByPrimaryKeySelective" parameterType="com.upedge.sms.modules.center.entity.ServiceOrder">
+        update service_order
+        <set>
+            <if test="serviceType != null">
+                service_type = #{serviceType},
+            </if>
+            <if test="customerId != null">
+                customer_id = #{customerId},
+            </if>
+            <if test="serviceState != null">
+                service_state = #{serviceState},
+            </if>
+            <if test="payState != null">
+                pay_state = #{payState},
+            </if>
+            <if test="payAmount != null">
+                pay_amount = #{payAmount},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime},
+            </if>
+            <if test="updateTime != null">
+                update_time = #{updateTime},
+            </if>
+            <if test="finishTime != null">
+                finish_time = #{finishTime},
+            </if>
+            <if test="managerId != null">
+                manager_id = #{managerId},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <update id="updateByPrimaryKey" parameterType="com.upedge.sms.modules.center.entity.ServiceOrder">
+        update service_order
+        <set>
+        id = #{id},
+        service_type = #{serviceType},
+        customer_id = #{customerId},
+        service_state = #{serviceState},
+        pay_state = #{payState},
+        pay_amount = #{payAmount},
+        create_time = #{createTime},
+        update_time = #{updateTime},
+        finish_time = #{finishTime},
+        manager_id = #{managerId},
+        </set>
+        where id = #{id}
+    </update>
+
+    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.upedge.sms.modules.center.entity.ServiceOrder" useGeneratedKeys="true">
+        insert into service_order
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            id,
+            service_type,
+            customer_id,
+            service_state,
+            pay_state,
+            pay_amount,
+            create_time,
+            update_time,
+            finish_time,
+            manager_id
+        </trim>
+        values (
+        #{id},
+        #{serviceType},
+        #{customerId},
+        #{serviceState},
+        #{payState},
+        #{payAmount},
+        #{createTime},
+        #{updateTime},
+        #{finishTime},
+        #{managerId}
+        )
+    </insert>
+
+    <insert id="insertSelective"  keyColumn="id" keyProperty="id"  parameterType="com.upedge.sms.modules.center.entity.ServiceOrder" useGeneratedKeys="true">
+        insert into service_order
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null" >
+              id
+            </if>
+            <if test="serviceType != null" >
+              service_type
+            </if>
+            <if test="customerId != null" >
+              customer_id
+            </if>
+            <if test="serviceState != null" >
+              service_state
+            </if>
+            <if test="payState != null" >
+              pay_state
+            </if>
+            <if test="payAmount != null" >
+              pay_amount
+            </if>
+            <if test="createTime != null" >
+              create_time
+            </if>
+            <if test="updateTime != null" >
+              update_time
+            </if>
+            <if test="finishTime != null" >
+              finish_time
+            </if>
+            <if test="managerId != null" >
+              manager_id
+            </if>
+
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null" >
+                #{id}
+            </if>
+            <if test="serviceType != null" >
+                #{serviceType}
+            </if>
+            <if test="customerId != null" >
+                #{customerId}
+            </if>
+            <if test="serviceState != null" >
+                #{serviceState}
+            </if>
+            <if test="payState != null" >
+                #{payState}
+            </if>
+            <if test="payAmount != null" >
+                #{payAmount}
+            </if>
+            <if test="createTime != null" >
+                #{createTime}
+            </if>
+            <if test="updateTime != null" >
+                #{updateTime}
+            </if>
+            <if test="finishTime != null" >
+                #{finishTime}
+            </if>
+            <if test="managerId != null" >
+                #{managerId}
+            </if>
+
+        </trim>
+    </insert>
+
+    <insert id="insertByBatch" parameterType="java.util.List">
+        insert into service_order
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+           id,
+           service_type,
+           customer_id,
+           service_state,
+           pay_state,
+           pay_amount,
+           create_time,
+           update_time,
+           finish_time,
+           manager_id
+        </trim>
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+               #{item.id},
+               #{item.serviceType},
+               #{item.customerId},
+               #{item.serviceState},
+               #{item.payState},
+               #{item.payAmount},
+               #{item.createTime},
+               #{item.updateTime},
+               #{item.finishTime},
+               #{item.managerId}
+            </trim>
+        </foreach>
+    </insert>
+
+    <sql id="Query_Condition">
+        <if test="t != null">
+            where
+            <trim prefix=" " suffix=" " suffixOverrides=" and ">
+                1 = 1 and
+                    <if test="t.id != null">
+                        id = #{t.id} and
+                    </if>
+                    <if test="t.serviceType != null">
+                        service_type = #{t.serviceType} and
+                    </if>
+                    <if test="t.customerId != null">
+                        customer_id = #{t.customerId} and
+                    </if>
+                    <if test="t.serviceState != null">
+                        service_state = #{t.serviceState} and
+                    </if>
+                    <if test="t.payState != null">
+                        pay_state = #{t.payState} and
+                    </if>
+                    <if test="t.payAmount != null">
+                        pay_amount = #{t.payAmount} and
+                    </if>
+                    <if test="t.createTime != null">
+                        create_time = #{t.createTime} and
+                    </if>
+                    <if test="t.updateTime != null">
+                        update_time = #{t.updateTime} and
+                    </if>
+                    <if test="t.finishTime != null">
+                        finish_time = #{t.finishTime} and
+                    </if>
+                    <if test="t.managerId != null">
+                        manager_id = #{t.managerId} and
+                    </if>
+            </trim>
+        </if>
+    </sql>
+
+    <select id="select" parameterType="com.upedge.common.base.Page" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from service_order
+        <include refid="Query_Condition"/>
+        <if test="orderBy != null">
+            order by ${orderBy}
+        </if>
+        <if test="pageNum != null and pageSize != null">
+            limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+        </if>
+    </select>
+
+    <select id="count" parameterType="com.upedge.common.base.Page" resultType="java.lang.Long">
+        select
+        count(1)
+        from service_order
+        <include refid="Query_Condition"/>
+    </select>
+
+
+</mapper>

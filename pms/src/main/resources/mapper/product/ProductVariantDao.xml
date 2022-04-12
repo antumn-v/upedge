@@ -643,6 +643,7 @@
         select <include refid="Base_Column_List"/>
         from product_variant
         where product_id = #{productId}
+        order by state desc
     </select>
     <select id="selectVariantPriceRange" resultType="java.util.Map">
         select min(variant_price) as minPrice,

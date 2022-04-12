@@ -24,6 +24,7 @@
         <option value="$PROJECT_DIR$/tms/pom.xml" />
         <option value="$PROJECT_DIR$/thirdparty-service/upedge-trackingmore/pom.xml" />
         <option value="$PROJECT_DIR$/cms/pom.xml" />
+        <option value="$PROJECT_DIR$/sms/pom.xml" />
       </list>
     </option>
     <option name="ignoredFiles">

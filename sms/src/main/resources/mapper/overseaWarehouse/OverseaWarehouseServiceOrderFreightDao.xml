@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.upedge.sms.modules.overseaWarehouse.dao.OverseaWarehouseServiceOrderFreightDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.upedge.sms.modules.overseaWarehouse.entity.OverseaWarehouseServiceOrderFreight" id="BaseResultMap">
+        <result property="orderId" column="order_id"/>
+        <result property="shipType" column="ship_type"/>
+        <result property="shipPrice" column="ship_price"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        `order_id`,`ship_type`,`ship_price`
+    </sql>
+
+    <select id="selectByPrimaryKey" parameterType="com.upedge.sms.modules.overseaWarehouse.entity.OverseaWarehouseServiceOrderFreight" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from oversea_warehouse_service_order_freight
+        where order_id = #{orderId}
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="com.upedge.sms.modules.overseaWarehouse.entity.OverseaWarehouseServiceOrderFreight">
+        delete from oversea_warehouse_service_order_freight
+        where order_id = #{orderId}
+    </delete>
+
+    <update id="updateByPrimaryKeySelective" parameterType="com.upedge.sms.modules.overseaWarehouse.entity.OverseaWarehouseServiceOrderFreight">
+        update oversea_warehouse_service_order_freight
+        <set>
+            <if test="shipType != null">
+                ship_type = #{shipType},
+            </if>
+            <if test="shipPrice != null">
+                ship_price = #{shipPrice},
+            </if>
+        </set>
+        where order_id = #{orderId}
+    </update>
+
+    <update id="updateByPrimaryKey" parameterType="com.upedge.sms.modules.overseaWarehouse.entity.OverseaWarehouseServiceOrderFreight">
+        update oversea_warehouse_service_order_freight
+        <set>
+        order_id = #{orderId},
+        ship_type = #{shipType},
+        ship_price = #{shipPrice},
+        </set>
+        where order_id = #{orderId}
+    </update>
+
+    <insert id="insert" keyColumn="order_id" keyProperty="orderId" parameterType="com.upedge.sms.modules.overseaWarehouse.entity.OverseaWarehouseServiceOrderFreight" useGeneratedKeys="true">
+        insert into oversea_warehouse_service_order_freight
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            order_id,
+            ship_type,
+            ship_price
+        </trim>
+        values (
+        #{orderId},
+        #{shipType},
+        #{shipPrice}
+        )
+    </insert>
+
+    <insert id="insertSelective"  keyColumn="order_id" keyProperty="orderId"  parameterType="com.upedge.sms.modules.overseaWarehouse.entity.OverseaWarehouseServiceOrderFreight" useGeneratedKeys="true">
+        insert into oversea_warehouse_service_order_freight
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="orderId != null" >
+              order_id
+            </if>
+            <if test="shipType != null" >
+              ship_type
+            </if>
+            <if test="shipPrice != null" >
+              ship_price
+            </if>
+
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="orderId != null" >
+                #{orderId}
+            </if>
+            <if test="shipType != null" >
+                #{shipType}
+            </if>
+            <if test="shipPrice != null" >
+                #{shipPrice}
+            </if>
+
+        </trim>
+    </insert>
+
+    <insert id="insertByBatch" parameterType="java.util.List">
+        insert into oversea_warehouse_service_order_freight
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+           order_id,
+           ship_type,
+           ship_price
+        </trim>
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+               #{item.orderId},
+               #{item.shipType},
+               #{item.shipPrice}
+            </trim>
+        </foreach>
+    </insert>
+
+    <sql id="Query_Condition">
+        <if test="t != null">
+            where
+            <trim prefix=" " suffix=" " suffixOverrides=" and ">
+                1 = 1 and
+                    <if test="t.orderId != null">
+                        order_id = #{t.orderId} and
+                    </if>
+                    <if test="t.shipType != null">
+                        ship_type = #{t.shipType} and
+                    </if>
+                    <if test="t.shipPrice != null">
+                        ship_price = #{t.shipPrice} and
+                    </if>
+            </trim>
+        </if>
+    </sql>
+
+    <select id="select" parameterType="com.upedge.common.base.Page" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from oversea_warehouse_service_order_freight
+        <include refid="Query_Condition"/>
+        <if test="orderBy != null">
+            order by ${orderBy}
+        </if>
+        <if test="pageNum != null and pageSize != null">
+            limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+        </if>
+    </select>
+
+    <select id="count" parameterType="com.upedge.common.base.Page" resultType="java.lang.Long">
+        select
+        count(1)
+        from oversea_warehouse_service_order_freight
+        <include refid="Query_Condition"/>
+    </select>
+
+
+</mapper>

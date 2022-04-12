@@ -51,7 +51,7 @@ public class CustomerProductStockServiceImpl implements CustomerProductStockServ
     private PmsFeignClient pmsFeignClient;
 
     @Autowired
-    RedisTemplate<String,Object> redisTemplate;
+    RedisTemplate redisTemplate;
 
     /**
      *
@@ -185,9 +185,9 @@ public class CustomerProductStockServiceImpl implements CustomerProductStockServ
         if (ListUtils.isNotEmpty(updateStock)) {
             customerProductStockDao.increaseVariantStock(updateStock);
         }
-        for (CustomerSkuStockVo customerSkuStockVo : customerSkuStockVos) {
-            redisAddCustomerVariantStock(customerId,customerSkuStockVo.getVariantId(),warehouseCode,customerSkuStockVo.getStock());
-        }
+//        for (CustomerSkuStockVo customerSkuStockVo : customerSkuStockVos) {
+//            redisAddCustomerVariantStock(customerId,customerSkuStockVo.getVariantId(),warehouseCode,customerSkuStockVo.getStock());
+//        }
         return BaseResponse.success();
     }
 
@@ -385,7 +385,7 @@ public class CustomerProductStockServiceImpl implements CustomerProductStockServ
     }
 
     @Override
-    public void redisAddCustomerVariantStock(Long customerId,Long variantId,String warehouseCode,long stock){
+    public void redisAddCustomerVariantStock(Long customerId, Long variantId, String warehouseCode, long stock){
         String key = RedisKey.STRING_CUSTOMER_VARIANT_STOCK + customerId + ":" + warehouseCode + ":" + variantId;
         boolean b = redisTemplate.hasKey(key);
         if (b) {

@@ -1,0 +1,294 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.upedge.sms.modules.overseaWarehouse.dao.OverseaWarehouseServiceOrderItemDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.upedge.sms.modules.overseaWarehouse.entity.OverseaWarehouseServiceOrderItem" id="BaseResultMap">
+        <result property="id" column="id"/>
+        <result property="orderId" column="order_id"/>
+        <result property="variantId" column="variant_id"/>
+        <result property="productId" column="product_id"/>
+        <result property="variantName" column="variant_name"/>
+        <result property="variantSku" column="variant_sku"/>
+        <result property="variantImage" column="variant_image"/>
+        <result property="productTitle" column="product_title"/>
+        <result property="quantity" column="quantity"/>
+        <result property="price" column="price"/>
+        <result property="wareshouseSku" column="wareshouse_sku"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        `id`,`order_id`,`variant_id`,`product_id`,`variant_name`,`variant_sku`,`variant_image`,`product_title`,`quantity`,`price`,`wareshouse_sku`
+    </sql>
+
+    <select id="selectByPrimaryKey" parameterType="com.upedge.sms.modules.overseaWarehouse.entity.OverseaWarehouseServiceOrderItem" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from oversea_warehouse_service_order_item
+        where id = #{id}
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="com.upedge.sms.modules.overseaWarehouse.entity.OverseaWarehouseServiceOrderItem">
+        delete from oversea_warehouse_service_order_item
+        where id = #{id}
+    </delete>
+
+    <update id="updateByPrimaryKeySelective" parameterType="com.upedge.sms.modules.overseaWarehouse.entity.OverseaWarehouseServiceOrderItem">
+        update oversea_warehouse_service_order_item
+        <set>
+            <if test="orderId != null">
+                order_id = #{orderId},
+            </if>
+            <if test="variantId != null">
+                variant_id = #{variantId},
+            </if>
+            <if test="productId != null">
+                product_id = #{productId},
+            </if>
+            <if test="variantName != null">
+                variant_name = #{variantName},
+            </if>
+            <if test="variantSku != null">
+                variant_sku = #{variantSku},
+            </if>
+            <if test="variantImage != null">
+                variant_image = #{variantImage},
+            </if>
+            <if test="productTitle != null">
+                product_title = #{productTitle},
+            </if>
+            <if test="quantity != null">
+                quantity = #{quantity},
+            </if>
+            <if test="price != null">
+                price = #{price},
+            </if>
+            <if test="wareshouseSku != null">
+                wareshouse_sku = #{wareshouseSku},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <update id="updateByPrimaryKey" parameterType="com.upedge.sms.modules.overseaWarehouse.entity.OverseaWarehouseServiceOrderItem">
+        update oversea_warehouse_service_order_item
+        <set>
+        id = #{id},
+        order_id = #{orderId},
+        variant_id = #{variantId},
+        product_id = #{productId},
+        variant_name = #{variantName},
+        variant_sku = #{variantSku},
+        variant_image = #{variantImage},
+        product_title = #{productTitle},
+        quantity = #{quantity},
+        price = #{price},
+        wareshouse_sku = #{wareshouseSku},
+        </set>
+        where id = #{id}
+    </update>
+
+    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.upedge.sms.modules.overseaWarehouse.entity.OverseaWarehouseServiceOrderItem" useGeneratedKeys="true">
+        insert into oversea_warehouse_service_order_item
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            id,
+            order_id,
+            variant_id,
+            product_id,
+            variant_name,
+            variant_sku,
+            variant_image,
+            product_title,
+            quantity,
+            price,
+            wareshouse_sku
+        </trim>
+        values (
+        #{id},
+        #{orderId},
+        #{variantId},
+        #{productId},
+        #{variantName},
+        #{variantSku},
+        #{variantImage},
+        #{productTitle},
+        #{quantity},
+        #{price},
+        #{wareshouseSku}
+        )
+    </insert>
+
+    <insert id="insertSelective"  keyColumn="id" keyProperty="id"  parameterType="com.upedge.sms.modules.overseaWarehouse.entity.OverseaWarehouseServiceOrderItem" useGeneratedKeys="true">
+        insert into oversea_warehouse_service_order_item
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null" >
+              id
+            </if>
+            <if test="orderId != null" >
+              order_id
+            </if>
+            <if test="variantId != null" >
+              variant_id
+            </if>
+            <if test="productId != null" >
+              product_id
+            </if>
+            <if test="variantName != null" >
+              variant_name
+            </if>
+            <if test="variantSku != null" >
+              variant_sku
+            </if>
+            <if test="variantImage != null" >
+              variant_image
+            </if>
+            <if test="productTitle != null" >
+              product_title
+            </if>
+            <if test="quantity != null" >
+              quantity
+            </if>
+            <if test="price != null" >
+              price
+            </if>
+            <if test="wareshouseSku != null" >
+              wareshouse_sku
+            </if>
+
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null" >
+                #{id}
+            </if>
+            <if test="orderId != null" >
+                #{orderId}
+            </if>
+            <if test="variantId != null" >
+                #{variantId}
+            </if>
+            <if test="productId != null" >
+                #{productId}
+            </if>
+            <if test="variantName != null" >
+                #{variantName}
+            </if>
+            <if test="variantSku != null" >
+                #{variantSku}
+            </if>
+            <if test="variantImage != null" >
+                #{variantImage}
+            </if>
+            <if test="productTitle != null" >
+                #{productTitle}
+            </if>
+            <if test="quantity != null" >
+                #{quantity}
+            </if>
+            <if test="price != null" >
+                #{price}
+            </if>
+            <if test="wareshouseSku != null" >
+                #{wareshouseSku}
+            </if>
+
+        </trim>
+    </insert>
+
+    <insert id="insertByBatch" parameterType="java.util.List">
+        insert into oversea_warehouse_service_order_item
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+           id,
+           order_id,
+           variant_id,
+           product_id,
+           variant_name,
+           variant_sku,
+           variant_image,
+           product_title,
+           quantity,
+           price,
+           wareshouse_sku
+        </trim>
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+               #{item.id},
+               #{item.orderId},
+               #{item.variantId},
+               #{item.productId},
+               #{item.variantName},
+               #{item.variantSku},
+               #{item.variantImage},
+               #{item.productTitle},
+               #{item.quantity},
+               #{item.price},
+               #{item.wareshouseSku}
+            </trim>
+        </foreach>
+    </insert>
+
+    <sql id="Query_Condition">
+        <if test="t != null">
+            where
+            <trim prefix=" " suffix=" " suffixOverrides=" and ">
+                1 = 1 and
+                    <if test="t.id != null">
+                        id = #{t.id} and
+                    </if>
+                    <if test="t.orderId != null">
+                        order_id = #{t.orderId} and
+                    </if>
+                    <if test="t.variantId != null">
+                        variant_id = #{t.variantId} and
+                    </if>
+                    <if test="t.productId != null">
+                        product_id = #{t.productId} and
+                    </if>
+                    <if test="t.variantName != null">
+                        variant_name = #{t.variantName} and
+                    </if>
+                    <if test="t.variantSku != null">
+                        variant_sku = #{t.variantSku} and
+                    </if>
+                    <if test="t.variantImage != null">
+                        variant_image = #{t.variantImage} and
+                    </if>
+                    <if test="t.productTitle != null">
+                        product_title = #{t.productTitle} and
+                    </if>
+                    <if test="t.quantity != null">
+                        quantity = #{t.quantity} and
+                    </if>
+                    <if test="t.price != null">
+                        price = #{t.price} and
+                    </if>
+                    <if test="t.wareshouseSku != null">
+                        wareshouse_sku = #{t.wareshouseSku} and
+                    </if>
+            </trim>
+        </if>
+    </sql>
+
+    <select id="select" parameterType="com.upedge.common.base.Page" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from oversea_warehouse_service_order_item
+        <include refid="Query_Condition"/>
+        <if test="orderBy != null">
+            order by ${orderBy}
+        </if>
+        <if test="pageNum != null and pageSize != null">
+            limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+        </if>
+    </select>
+
+    <select id="count" parameterType="com.upedge.common.base.Page" resultType="java.lang.Long">
+        select
+        count(1)
+        from oversea_warehouse_service_order_item
+        <include refid="Query_Condition"/>
+    </select>
+
+
+</mapper>

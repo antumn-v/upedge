@@ -1,0 +1,420 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.upedge.sms.modules.overseaWarehouse.dao.OverseaWarehouseServiceOrderDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.upedge.sms.modules.overseaWarehouse.entity.OverseaWarehouseServiceOrder" id="BaseResultMap">
+        <result property="id" column="id"/>
+        <result property="customerId" column="customer_id"/>
+        <result property="productAmount" column="product_amount"/>
+        <result property="shipPrice" column="ship_price"/>
+        <result property="shipType" column="ship_type"/>
+        <result property="payAmount" column="pay_amount"/>
+        <result property="payState" column="pay_state"/>
+        <result property="shipState" column="ship_state"/>
+        <result property="refundState" column="refund_state"/>
+        <result property="paymentId" column="payment_id"/>
+        <result property="warehouseCode" column="warehouse_code"/>
+        <result property="warehouseOrderId" column="warehouse_order_id"/>
+        <result property="warehouseOrderState" column="warehouse_order_state"/>
+        <result property="trackingCode" column="tracking_code"/>
+        <result property="payTime" column="pay_time"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="managerId" column="manager_id"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        `id`,`customer_id`,`product_amount`,`ship_price`,`ship_type`,`pay_amount`,`pay_state`,`ship_state`,`refund_state`,`payment_id`,`warehouse_code`,`warehouse_order_id`,`warehouse_order_state`,`tracking_code`,`pay_time`,`create_time`,`update_time`,`manager_id`
+    </sql>
+
+    <select id="selectByPrimaryKey" parameterType="com.upedge.sms.modules.overseaWarehouse.entity.OverseaWarehouseServiceOrder" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from oversea_warehouse_service_order
+        where id = #{id}
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="com.upedge.sms.modules.overseaWarehouse.entity.OverseaWarehouseServiceOrder">
+        delete from oversea_warehouse_service_order
+        where id = #{id}
+    </delete>
+
+    <update id="updateByPrimaryKeySelective" parameterType="com.upedge.sms.modules.overseaWarehouse.entity.OverseaWarehouseServiceOrder">
+        update oversea_warehouse_service_order
+        <set>
+            <if test="customerId != null">
+                customer_id = #{customerId},
+            </if>
+            <if test="productAmount != null">
+                product_amount = #{productAmount},
+            </if>
+            <if test="shipPrice != null">
+                ship_price = #{shipPrice},
+            </if>
+            <if test="shipType != null">
+                ship_type = #{shipType},
+            </if>
+            <if test="payAmount != null">
+                pay_amount = #{payAmount},
+            </if>
+            <if test="payState != null">
+                pay_state = #{payState},
+            </if>
+            <if test="shipState != null">
+                ship_state = #{shipState},
+            </if>
+            <if test="refundState != null">
+                refund_state = #{refundState},
+            </if>
+            <if test="paymentId != null">
+                payment_id = #{paymentId},
+            </if>
+            <if test="warehouseCode != null">
+                warehouse_code = #{warehouseCode},
+            </if>
+            <if test="warehouseOrderId != null">
+                warehouse_order_id = #{warehouseOrderId},
+            </if>
+            <if test="warehouseOrderState != null">
+                warehouse_order_state = #{warehouseOrderState},
+            </if>
+            <if test="trackingCode != null">
+                tracking_code = #{trackingCode},
+            </if>
+            <if test="payTime != null">
+                pay_time = #{payTime},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime},
+            </if>
+            <if test="updateTime != null">
+                update_time = #{updateTime},
+            </if>
+            <if test="managerId != null">
+                manager_id = #{managerId},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <update id="updateByPrimaryKey" parameterType="com.upedge.sms.modules.overseaWarehouse.entity.OverseaWarehouseServiceOrder">
+        update oversea_warehouse_service_order
+        <set>
+        id = #{id},
+        customer_id = #{customerId},
+        product_amount = #{productAmount},
+        ship_price = #{shipPrice},
+        ship_type = #{shipType},
+        pay_amount = #{payAmount},
+        pay_state = #{payState},
+        ship_state = #{shipState},
+        refund_state = #{refundState},
+        payment_id = #{paymentId},
+        warehouse_code = #{warehouseCode},
+        warehouse_order_id = #{warehouseOrderId},
+        warehouse_order_state = #{warehouseOrderState},
+        tracking_code = #{trackingCode},
+        pay_time = #{payTime},
+        create_time = #{createTime},
+        update_time = #{updateTime},
+        manager_id = #{managerId},
+        </set>
+        where id = #{id}
+    </update>
+
+    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.upedge.sms.modules.overseaWarehouse.entity.OverseaWarehouseServiceOrder" useGeneratedKeys="true">
+        insert into oversea_warehouse_service_order
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            id,
+            customer_id,
+            product_amount,
+            ship_price,
+            ship_type,
+            pay_amount,
+            pay_state,
+            ship_state,
+            refund_state,
+            payment_id,
+            warehouse_code,
+            warehouse_order_id,
+            warehouse_order_state,
+            tracking_code,
+            pay_time,
+            create_time,
+            update_time,
+            manager_id
+        </trim>
+        values (
+        #{id},
+        #{customerId},
+        #{productAmount},
+        #{shipPrice},
+        #{shipType},
+        #{payAmount},
+        #{payState},
+        #{shipState},
+        #{refundState},
+        #{paymentId},
+        #{warehouseCode},
+        #{warehouseOrderId},
+        #{warehouseOrderState},
+        #{trackingCode},
+        #{payTime},
+        #{createTime},
+        #{updateTime},
+        #{managerId}
+        )
+    </insert>
+
+    <insert id="insertSelective"  keyColumn="id" keyProperty="id"  parameterType="com.upedge.sms.modules.overseaWarehouse.entity.OverseaWarehouseServiceOrder" useGeneratedKeys="true">
+        insert into oversea_warehouse_service_order
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null" >
+              id
+            </if>
+            <if test="customerId != null" >
+              customer_id
+            </if>
+            <if test="productAmount != null" >
+              product_amount
+            </if>
+            <if test="shipPrice != null" >
+              ship_price
+            </if>
+            <if test="shipType != null" >
+              ship_type
+            </if>
+            <if test="payAmount != null" >
+              pay_amount
+            </if>
+            <if test="payState != null" >
+              pay_state
+            </if>
+            <if test="shipState != null" >
+              ship_state
+            </if>
+            <if test="refundState != null" >
+              refund_state
+            </if>
+            <if test="paymentId != null" >
+              payment_id
+            </if>
+            <if test="warehouseCode != null" >
+              warehouse_code
+            </if>
+            <if test="warehouseOrderId != null" >
+              warehouse_order_id
+            </if>
+            <if test="warehouseOrderState != null" >
+              warehouse_order_state
+            </if>
+            <if test="trackingCode != null" >
+              tracking_code
+            </if>
+            <if test="payTime != null" >
+              pay_time
+            </if>
+            <if test="createTime != null" >
+              create_time
+            </if>
+            <if test="updateTime != null" >
+              update_time
+            </if>
+            <if test="managerId != null" >
+              manager_id
+            </if>
+
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null" >
+                #{id}
+            </if>
+            <if test="customerId != null" >
+                #{customerId}
+            </if>
+            <if test="productAmount != null" >
+                #{productAmount}
+            </if>
+            <if test="shipPrice != null" >
+                #{shipPrice}
+            </if>
+            <if test="shipType != null" >
+                #{shipType}
+            </if>
+            <if test="payAmount != null" >
+                #{payAmount}
+            </if>
+            <if test="payState != null" >
+                #{payState}
+            </if>
+            <if test="shipState != null" >
+                #{shipState}
+            </if>
+            <if test="refundState != null" >
+                #{refundState}
+            </if>
+            <if test="paymentId != null" >
+                #{paymentId}
+            </if>
+            <if test="warehouseCode != null" >
+                #{warehouseCode}
+            </if>
+            <if test="warehouseOrderId != null" >
+                #{warehouseOrderId}
+            </if>
+            <if test="warehouseOrderState != null" >
+                #{warehouseOrderState}
+            </if>
+            <if test="trackingCode != null" >
+                #{trackingCode}
+            </if>
+            <if test="payTime != null" >
+                #{payTime}
+            </if>
+            <if test="createTime != null" >
+                #{createTime}
+            </if>
+            <if test="updateTime != null" >
+                #{updateTime}
+            </if>
+            <if test="managerId != null" >
+                #{managerId}
+            </if>
+
+        </trim>
+    </insert>
+
+    <insert id="insertByBatch" parameterType="java.util.List">
+        insert into oversea_warehouse_service_order
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+           id,
+           customer_id,
+           product_amount,
+           ship_price,
+           ship_type,
+           pay_amount,
+           pay_state,
+           ship_state,
+           refund_state,
+           payment_id,
+           warehouse_code,
+           warehouse_order_id,
+           warehouse_order_state,
+           tracking_code,
+           pay_time,
+           create_time,
+           update_time,
+           manager_id
+        </trim>
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+               #{item.id},
+               #{item.customerId},
+               #{item.productAmount},
+               #{item.shipPrice},
+               #{item.shipType},
+               #{item.payAmount},
+               #{item.payState},
+               #{item.shipState},
+               #{item.refundState},
+               #{item.paymentId},
+               #{item.warehouseCode},
+               #{item.warehouseOrderId},
+               #{item.warehouseOrderState},
+               #{item.trackingCode},
+               #{item.payTime},
+               #{item.createTime},
+               #{item.updateTime},
+               #{item.managerId}
+            </trim>
+        </foreach>
+    </insert>
+
+    <sql id="Query_Condition">
+        <if test="t != null">
+            where
+            <trim prefix=" " suffix=" " suffixOverrides=" and ">
+                1 = 1 and
+                    <if test="t.id != null">
+                        id = #{t.id} and
+                    </if>
+                    <if test="t.customerId != null">
+                        customer_id = #{t.customerId} and
+                    </if>
+                    <if test="t.productAmount != null">
+                        product_amount = #{t.productAmount} and
+                    </if>
+                    <if test="t.shipPrice != null">
+                        ship_price = #{t.shipPrice} and
+                    </if>
+                    <if test="t.shipType != null">
+                        ship_type = #{t.shipType} and
+                    </if>
+                    <if test="t.payAmount != null">
+                        pay_amount = #{t.payAmount} and
+                    </if>
+                    <if test="t.payState != null">
+                        pay_state = #{t.payState} and
+                    </if>
+                    <if test="t.shipState != null">
+                        ship_state = #{t.shipState} and
+                    </if>
+                    <if test="t.refundState != null">
+                        refund_state = #{t.refundState} and
+                    </if>
+                    <if test="t.paymentId != null">
+                        payment_id = #{t.paymentId} and
+                    </if>
+                    <if test="t.warehouseCode != null">
+                        warehouse_code = #{t.warehouseCode} and
+                    </if>
+                    <if test="t.warehouseOrderId != null">
+                        warehouse_order_id = #{t.warehouseOrderId} and
+                    </if>
+                    <if test="t.warehouseOrderState != null">
+                        warehouse_order_state = #{t.warehouseOrderState} and
+                    </if>
+                    <if test="t.trackingCode != null">
+                        tracking_code = #{t.trackingCode} and
+                    </if>
+                    <if test="t.payTime != null">
+                        pay_time = #{t.payTime} and
+                    </if>
+                    <if test="t.createTime != null">
+                        create_time = #{t.createTime} and
+                    </if>
+                    <if test="t.updateTime != null">
+                        update_time = #{t.updateTime} and
+                    </if>
+                    <if test="t.managerId != null">
+                        manager_id = #{t.managerId} and
+                    </if>
+            </trim>
+        </if>
+    </sql>
+
+    <select id="select" parameterType="com.upedge.common.base.Page" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from oversea_warehouse_service_order
+        <include refid="Query_Condition"/>
+        <if test="orderBy != null">
+            order by ${orderBy}
+        </if>
+        <if test="pageNum != null and pageSize != null">
+            limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+        </if>
+    </select>
+
+    <select id="count" parameterType="com.upedge.common.base.Page" resultType="java.lang.Long">
+        select
+        count(1)
+        from oversea_warehouse_service_order
+        <include refid="Query_Condition"/>
+    </select>
+
+
+</mapper>

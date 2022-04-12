@@ -21,6 +21,7 @@
         <module name="oms" />
         <module name="upedge-fpx" />
         <module name="pms" />
+        <module name="sms" />
         <module name="panda-trackingmore" />
         <module name="ums" />
         <module name="common-web" />
@@ -49,6 +50,7 @@
       <module name="oms" options="-parameters" />
       <module name="panda-trackingmore" options="-parameters" />
       <module name="pms" options="-parameters" />
+      <module name="sms" options="-parameters" />
       <module name="thirdparty-service" options="-parameters" />
       <module name="tms" options="-parameters" />
       <module name="ums" options="-parameters" />
