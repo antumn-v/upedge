@@ -51,7 +51,7 @@ public class CustomerProductStockServiceImpl implements CustomerProductStockServ
     private PmsFeignClient pmsFeignClient;
 
     @Autowired
-    RedisTemplate redisTemplate;
+    RedisTemplate<String,Object> redisTemplate;
 
     /**
      *
@@ -389,7 +389,11 @@ public class CustomerProductStockServiceImpl implements CustomerProductStockServ
         String key = RedisKey.STRING_CUSTOMER_VARIANT_STOCK + customerId + ":" + warehouseCode + ":" + variantId;
         boolean b = redisTemplate.hasKey(key);
         if (b) {
-            redisTemplate.opsForValue().increment(key,stock);
+            if (stock == 1L){
+                redisTemplate.opsForValue().increment(key);
+            }else {
+                redisTemplate.opsForValue().increment(key,stock);
+            }
         }else {
             redisTemplate.opsForValue().set(key,stock);
         }
@@ -399,7 +403,11 @@ public class CustomerProductStockServiceImpl implements CustomerProductStockServ
     @Override
     public void redisReduceCustomerVariantStock(Long customerId,Long variantId,String warehouseCode,long stock){
         String key = RedisKey.STRING_CUSTOMER_VARIANT_STOCK + customerId + ":" + warehouseCode + ":" + variantId;
-        redisTemplate.opsForValue().decrement(key,stock);
+        if (stock == 1L){
+            redisTemplate.opsForValue().decrement(key);
+        }else {
+            redisTemplate.opsForValue().decrement(key,stock);
+        }
     }
 
     @Override

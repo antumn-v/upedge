@@ -145,72 +145,60 @@ public class OrderPayServiceImpl implements OrderPayService {
         if (ListUtils.isEmpty(orderVos)) {
             return BaseResponse.failed("The order does not meet the payment conditions");
         }
-        CompletableFuture<Void> checkStock = CompletableFuture.runAsync(new Runnable() {
-            @Override
-            public void run() {
-                refreshOrderStockDischarge(customerId, paymentId);
-            }
-        },threadPoolExecutor);
 
-        CompletableFuture<Void> checkShip = CompletableFuture.runAsync(new Runnable() {
-            @Override
-            public void run() {
-                List<OrderProductAmountVo> orderProductAmountVos = orderDao.selectOrderItemAmountByPaymentId(paymentId);
-                Map<Long, OrderProductAmountVo> orderProductAmountVoMap = new HashMap<>();
-                orderProductAmountVos.forEach(orderProductAmountVo -> {
-                    orderProductAmountVoMap.put(orderProductAmountVo.getId(), orderProductAmountVo);
-                });
-                List<Long> orderShipUnitIds = orderShippingUnitService.selectOrderIdByOrderPaymentId(paymentId, OrderType.NORMAL);
-                List<AppOrderVo> cantShipOrders = new ArrayList<>();
-                Map<Long, BigDecimal> vatAmountMap = new ConcurrentHashMap<>();
-                for (AppOrderVo orderVo : orderVos) {
-                    Long shipMethodId = orderVo.getShipMethodId();
-                    OrderProductAmountVo orderProductAmountVo = orderProductAmountVoMap.get(orderVo.getId());
-                    if (null == shipMethodId || null == orderProductAmountVo) {
+        refreshOrderStockDischarge(customerId, paymentId);
+
+        List<OrderProductAmountVo> orderProductAmountVos = orderDao.selectOrderItemAmountByPaymentId(paymentId);
+        Map<Long, OrderProductAmountVo> orderProductAmountVoMap = new HashMap<>();
+        orderProductAmountVos.forEach(orderProductAmountVo -> {
+            orderProductAmountVoMap.put(orderProductAmountVo.getId(), orderProductAmountVo);
+        });
+        List<Long> orderShipUnitIds = orderShippingUnitService.selectOrderIdByOrderPaymentId(paymentId, OrderType.NORMAL);
+        List<AppOrderVo> cantShipOrders = new ArrayList<>();
+        Map<Long, BigDecimal> vatAmountMap = new ConcurrentHashMap<>();
+        for (AppOrderVo orderVo : orderVos) {
+            Long shipMethodId = orderVo.getShipMethodId();
+            OrderProductAmountVo orderProductAmountVo = orderProductAmountVoMap.get(orderVo.getId());
+            if (null == shipMethodId || null == orderProductAmountVo) {
 //                return BaseResponse.failed("The order "+orderVo.getId()+" has no shipping method selected");
-                        cantShipOrders.add(orderVo);
-                        continue;
-                    }
-                    //验证产品费
-                    if (orderVo.getProductAmount().compareTo(orderProductAmountVo.getProductAmount()) != 0
-                            || orderVo.getProductDischargeAmount().compareTo(orderProductAmountVo.getDischargeAmount()) != 0 ) {
-                        orderVo.setProductAmount(orderProductAmountVo.getProductAmount());
-                        orderVo.setProductDischargeAmount(orderProductAmountVo.getDischargeAmount());
-                        orderDao.updateOrderProductAmount(orderProductAmountVo);
-                    }
-                    //检查运输方式
-                    if ( orderVo.getShippingWarehouse().equals(ProductConstant.DEFAULT_WAREHOUSE_ID)) {
-                        if (!orderShipUnitIds.contains(orderVo.getId())) {
-                            cantShipOrders.add(orderVo);
-                            continue;
-                        }
-                    }else {
-                        boolean b = checkOrderOverseaShipMethod(orderVo);
-                        if (!b){
-                            cantShipOrders.add(orderVo);
-                            continue;
-                        }
-                    }
-                    ShippingMethodRedis shippingMethodRedis = (ShippingMethodRedis) redisTemplate.opsForHash().get(RedisKey.SHIPPING_METHOD, orderVo.getShipMethodId().toString());
-                    if (null != shippingMethodRedis) {
-                        orderVo.setShipMethodName(shippingMethodRedis.getName());
-                    }
-                    //检查vat
-                    BigDecimal vatAmount = vatRuleService.getOrderVatAmount(orderVo.getProductAmount(), orderVo.getShipPrice(), orderVo.getToAreaId(), orderVo.getCustomerId());
-                    if (null == orderVo.getVatAmount() || vatAmount.compareTo(orderVo.getVatAmount()) != 0) {
-                        orderVo.setVatAmount(vatAmount);
-                        vatAmountMap.put(orderVo.getId(), vatAmount);
-                    }
+                cantShipOrders.add(orderVo);
+                continue;
+            }
+            //验证产品费
+            if (orderVo.getProductAmount().compareTo(orderProductAmountVo.getProductAmount()) != 0
+                    || orderVo.getProductDischargeAmount().compareTo(orderProductAmountVo.getDischargeAmount()) != 0 ) {
+                orderVo.setProductAmount(orderProductAmountVo.getProductAmount());
+                orderVo.setProductDischargeAmount(orderProductAmountVo.getDischargeAmount());
+                orderDao.updateOrderProductAmount(orderProductAmountVo);
+            }
+            //检查运输方式
+            if ( orderVo.getShippingWarehouse().equals(ProductConstant.DEFAULT_WAREHOUSE_ID)) {
+                if (!orderShipUnitIds.contains(orderVo.getId())) {
+                    cantShipOrders.add(orderVo);
+                    continue;
                 }
-                orderVos.removeAll(cantShipOrders);
-                if (MapUtils.isNotEmpty(vatAmountMap)) {
-                    orderDao.updateVatAmountByMap(vatAmountMap);
+            }else {
+                boolean b = checkOrderOverseaShipMethod(orderVo);
+                if (!b){
+                    cantShipOrders.add(orderVo);
+                    continue;
                 }
             }
-        },threadPoolExecutor);
-
-        CompletableFuture.allOf(checkShip,checkStock).get();
-
+            ShippingMethodRedis shippingMethodRedis = (ShippingMethodRedis) redisTemplate.opsForHash().get(RedisKey.SHIPPING_METHOD, orderVo.getShipMethodId().toString());
+            if (null != shippingMethodRedis) {
+                orderVo.setShipMethodName(shippingMethodRedis.getName());
+            }
+            //检查vat
+            BigDecimal vatAmount = vatRuleService.getOrderVatAmount(orderVo.getProductAmount(), orderVo.getShipPrice(), orderVo.getToAreaId(), orderVo.getCustomerId());
+            if (null == orderVo.getVatAmount() || vatAmount.compareTo(orderVo.getVatAmount()) != 0) {
+                orderVo.setVatAmount(vatAmount);
+                vatAmountMap.put(orderVo.getId(), vatAmount);
+            }
+        }
+        orderVos.removeAll(cantShipOrders);
+        if (MapUtils.isNotEmpty(vatAmountMap)) {
+            orderDao.updateVatAmountByMap(vatAmountMap);
+        }
         return BaseResponse.success(orderVos);
     }
 
