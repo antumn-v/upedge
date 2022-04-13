@@ -18,6 +18,7 @@
         <module>pms</module>
         <module>oms</module>
         <module>tms</module>
+        <module>sms</module>
         <module>zuul</module>
         <!--        <module>cms</module>-->
     </modules>

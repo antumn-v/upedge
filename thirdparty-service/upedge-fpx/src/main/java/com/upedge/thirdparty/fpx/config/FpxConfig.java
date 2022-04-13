@@ -1,6 +1,19 @@
 package com.upedge.thirdparty.fpx.config;
 
+import com.upedge.thirdparty.fpx.model.AffterentParam;
+
 public class FpxConfig {
+
+    public static AffterentParam param = new AffterentParam();
+
+    static {
+        param.setAppKey(FpxConfig.API_KEY);
+        param.setAppSecret(FpxConfig.API_SECRET);
+        param.setVersion(FpxConfig.VERSION);
+        param.setFormat("json");
+        param.setLanguage("cn");
+        param.setAccessToken("");
+    }
 
 //    public static final String API_KEY = "4a4dcb47-31af-447a-90be-3800f678ff92";
     public static final String API_KEY = "df03a067-0870-480e-95a8-7cbb29a6a9eb";

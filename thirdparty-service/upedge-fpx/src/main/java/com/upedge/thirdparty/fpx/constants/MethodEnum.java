@@ -20,7 +20,15 @@ public enum MethodEnum {
     /**
      * 查询库存流水
      */
-    inventory_getlog("fu.wms.inventory.getlog")
+    inventory_getlog("fu.wms.inventory.getlog"),
+    /**
+     * 创建sku
+     */
+    create_sku("fu.wms.sku.create"),
+    /**
+     * 创建入库委托
+     */
+    create_inbound("fu.wms.inbound.create")
     ;
 
     String method;

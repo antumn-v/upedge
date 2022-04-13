@@ -2,12 +2,10 @@ package com.upedge.thirdparty.fpx.api;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.upedge.thirdparty.fpx.config.FpxConfig;
 import com.upedge.thirdparty.fpx.constants.AmbientEnum;
 import com.upedge.thirdparty.fpx.constants.MethodEnum;
 import com.upedge.thirdparty.fpx.dto.PriceCalculatorDTO;
 import com.upedge.thirdparty.fpx.dto.ShipPriceCalculator;
-import com.upedge.thirdparty.fpx.model.AffterentParam;
 import com.upedge.thirdparty.fpx.request.FpxWarehouseMethodListRequest;
 import com.upedge.thirdparty.fpx.request.GetFpxWarehouseRequest;
 import com.upedge.thirdparty.fpx.utils.ApiHttpClientUtils;
@@ -18,18 +16,11 @@ import com.upedge.thirdparty.fpx.vo.FpxWarehouseVo;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.upedge.thirdparty.fpx.config.FpxConfig.param;
+
 public class FpxCommonApi {
 
-    static AffterentParam param = new AffterentParam();
 
-    static {
-        param.setAppKey(FpxConfig.API_KEY);
-        param.setAppSecret(FpxConfig.API_SECRET);
-        param.setVersion(FpxConfig.VERSION);
-        param.setFormat("json");
-        param.setLanguage("cn");
-        param.setAccessToken("");
-    }
 
 
     /**
