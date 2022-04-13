@@ -50,7 +50,7 @@ public class OverseaWarehouseServiceOrderItemAddRequest{
     /**
     * 
     */
-    private String wareshouseSku;
+    private String warehouseSku;
 
     public OverseaWarehouseServiceOrderItem toOverseaWarehouseServiceOrderItem(){
         OverseaWarehouseServiceOrderItem overseaWarehouseServiceOrderItem=new OverseaWarehouseServiceOrderItem();
@@ -63,7 +63,7 @@ public class OverseaWarehouseServiceOrderItemAddRequest{
         overseaWarehouseServiceOrderItem.setProductTitle(productTitle);
         overseaWarehouseServiceOrderItem.setQuantity(quantity);
         overseaWarehouseServiceOrderItem.setPrice(price);
-        overseaWarehouseServiceOrderItem.setWareshouseSku(wareshouseSku);
+        overseaWarehouseServiceOrderItem.setwarehouseSku(warehouseSku);
         return overseaWarehouseServiceOrderItem;
     }
 

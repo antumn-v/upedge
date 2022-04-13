@@ -1,9 +1,9 @@
 package com.upedge.sms.modules.overseaWarehouse.entity;
 
-import java.math.BigDecimal;
-import java.io.Serializable;
-import java.util.Date;
 import lombok.Data;
+
+import java.math.BigDecimal;
+import java.util.Date;
 
 /**
  * @author gx
@@ -84,4 +84,11 @@ public class OverseaWarehouseServiceOrder{
 	 */
     private Long managerId;
 
+	public OverseaWarehouseServiceOrder() {
+		this.payState = 0;
+		this.refundState = 0;
+		this.shipState = 0;
+		this.createTime = new Date();
+		this.updateTime = createTime;
+	}
 }

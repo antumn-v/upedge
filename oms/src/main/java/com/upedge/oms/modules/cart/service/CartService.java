@@ -9,7 +9,6 @@ import com.upedge.oms.modules.cart.entity.Cart;
 import com.upedge.oms.modules.cart.request.CartSubmitOrderRequest;
 import com.upedge.oms.modules.cart.request.CartSubmitWholesaleRequest;
 import com.upedge.oms.modules.cart.request.DelCarts;
-import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -30,8 +29,9 @@ public interface CartService{
      * @param cartType 备库=0，批发=1
      * @return
      */
-    List<Cart> selectByIdsAndType(@Param("ids") List<Long> ids,
-                                  @Param("cartType") Integer cartType);
+    List<Cart> selectByIdsAndType(List<Long> ids,
+                                  Integer cartType,
+                                  Long customerId);
 
     void updateCartByVariant(VariantDetail variantDetail, String tag);
 

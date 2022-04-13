@@ -5,6 +5,7 @@ import com.upedge.common.component.annotation.Permission;
 import com.upedge.common.constant.Constant;
 import com.upedge.common.constant.ResultCode;
 import com.upedge.common.model.cart.request.CartAddRequest;
+import com.upedge.common.model.cart.request.CartVo;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.utils.ListUtils;
 import com.upedge.common.web.util.UserUtil;
@@ -20,12 +21,14 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -47,6 +50,9 @@ public class CartController {
 
     @Autowired
     AdminStockService adminStockService;
+
+
+
 
     @ApiOperation("详情")
     @RequestMapping(value="/info/{id}", method= RequestMethod.GET)
@@ -136,7 +142,8 @@ public class CartController {
     @ApiOperation("购物车提交列表")
     @PostMapping("/submit/list")
     public BaseResponse cartSubmitList(@RequestBody CartSubmitListRequest request){
-        List<Cart> carts = cartService.selectByIdsAndType(request.getIds(),request.getCartType());
+        Session session = UserUtil.getSession(redisTemplate);
+        List<Cart> carts = cartService.selectByIdsAndType(request.getIds(),request.getCartType(),session.getCustomerId());
         if(ListUtils.isEmpty(carts)){
             return new BaseResponse(ResultCode.FAIL_CODE,Constant.MESSAGE_FAIL);
         }
@@ -180,6 +187,19 @@ public class CartController {
     public BaseResponse delIds(@RequestBody @Validated DelCarts delCarts) {
         cartService.delIds(delCarts);
         return BaseResponse.success();
+    }
+
+
+    @PostMapping("/selectByIds")
+    public List<CartVo> selectByIds(List<Long> ids,Integer cartType,Long customerId){
+        List<Cart> carts = cartService.selectByIdsAndType(ids, cartType, customerId);
+        List<CartVo> cartVos = new ArrayList<>();
+        for (Cart cart : carts) {
+            CartVo cartVo = new CartVo();
+            BeanUtils.copyProperties(cart,cartVo);
+            cartVos.add(cartVo);
+        }
+        return cartVos;
     }
 
 }

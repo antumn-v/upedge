@@ -230,9 +230,14 @@ public class CartServiceImpl implements CartService {
 
     @Override
     public List<Cart> selectByIdsAndType(List<Long> ids,
-                                         Integer cartType) {
-        Session session = UserUtil.getSession(redisTemplate);
-        return cartDao.selectByIdsAndType(ids, cartType, session.getCustomerId());
+                                         Integer cartType,
+                                         Long customerId) {
+        if (ListUtils.isEmpty(ids)
+        || null == cartType
+        || null == customerId){
+            return new ArrayList<>();
+        }
+        return cartDao.selectByIdsAndType(ids, cartType, customerId);
     }
 
     @Override

@@ -1,13 +1,19 @@
 package com.upedge.sms.modules.overseaWarehouse.service;
 
+import com.upedge.common.base.BaseResponse;
+import com.upedge.common.model.user.vo.Session;
 import com.upedge.sms.modules.overseaWarehouse.entity.OverseaWarehouseServiceOrder;
 import com.upedge.common.base.Page;
+import com.upedge.sms.modules.overseaWarehouse.request.OverseaWarehouseServiceOrderCreateRequest;
+
 import java.util.List;
 
 /**
  * @author gx
  */
 public interface OverseaWarehouseServiceOrderService{
+
+    BaseResponse create(OverseaWarehouseServiceOrderCreateRequest request, Session session);
 
     OverseaWarehouseServiceOrder selectByPrimaryKey(Long id);
 

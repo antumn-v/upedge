@@ -7,6 +7,7 @@ import com.upedge.common.feign.OmsFeignClient;
 import com.upedge.common.model.account.PaypalOrder;
 import com.upedge.common.model.account.PaypalPayment;
 import com.upedge.common.model.cart.request.CartAddRequest;
+import com.upedge.common.model.cart.request.CartVo;
 import com.upedge.common.model.order.request.ManagerActualRequest;
 import com.upedge.common.model.order.request.OrderDailyCountRequest;
 import com.upedge.common.model.order.vo.AllOrderAmountVo;
@@ -22,6 +23,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import javax.validation.Valid;
+import java.util.ArrayList;
+import java.util.List;
 
 @Slf4j
 @Component
@@ -55,6 +58,11 @@ public class OmsFeignClientFallbackFactory implements FallbackFactory<OmsFeignCl
             public BaseResponse cartAdd(CartAddRequest request) {
                 log.warn(request + "--->添加购物车失败" );
                 return new BaseResponse(ResultCode.FAIL_CODE, Constant.MESSAGE_FAIL);
+            }
+
+            @Override
+            public List<CartVo> selectByIds(List<Long> ids, Integer cartType, Long customerId) {
+                return new ArrayList<>();
             }
 
             @Override

@@ -2,11 +2,11 @@ package com.upedge.common.feign;
 
 import com.upedge.common.base.BaseResponse;
 import com.upedge.common.constant.ServiceNameConstants;
-import com.upedge.common.exception.CustomerException;
 import com.upedge.common.feign.fallback.OmsFeignClientFallbackFactory;
 import com.upedge.common.model.account.PaypalOrder;
 import com.upedge.common.model.account.PaypalPayment;
 import com.upedge.common.model.cart.request.CartAddRequest;
+import com.upedge.common.model.cart.request.CartVo;
 import com.upedge.common.model.order.request.ManagerActualRequest;
 import com.upedge.common.model.order.request.OrderDailyCountRequest;
 import com.upedge.common.model.order.vo.AllOrderAmountVo;
@@ -21,6 +21,7 @@ import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.List;
 
 /**
  * @author 海桐
@@ -53,6 +54,9 @@ public interface OmsFeignClient  {
 
     @PostMapping("/cart/add")
     public BaseResponse cartAdd(@RequestBody @Valid CartAddRequest request);
+
+    @PostMapping("/cart/selectByIds")
+    public List<CartVo> selectByIds(List<Long> ids, Integer cartType, Long customerId);
 
     @PostMapping("/storeOrder/shopify/update")
     public BaseResponse updateShopifyOrder(@RequestBody StoreApiRequest request);

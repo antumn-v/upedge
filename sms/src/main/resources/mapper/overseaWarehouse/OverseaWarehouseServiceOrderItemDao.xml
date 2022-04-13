@@ -15,11 +15,15 @@
         <result property="productTitle" column="product_title"/>
         <result property="quantity" column="quantity"/>
         <result property="price" column="price"/>
-        <result property="wareshouseSku" column="wareshouse_sku"/>
+        <result property="warehouseSku" column="warehouse_sku"/>
+        <result property="variantWeight" column="variant_weight"/>
+        <result property="length" column="length"/>
+        <result property="height" column="height"/>
+        <result property="width" column="width"/>
     </resultMap>
 
     <sql id="Base_Column_List">
-        `id`,`order_id`,`variant_id`,`product_id`,`variant_name`,`variant_sku`,`variant_image`,`product_title`,`quantity`,`price`,`wareshouse_sku`
+        `id`,`order_id`,`variant_id`,`product_id`,`variant_name`,`variant_sku`,`variant_image`,`product_title`,`quantity`,`price`,`warehouse_sku`,`variant_weight`,`length`,`height`,`width`
     </sql>
 
     <select id="selectByPrimaryKey" parameterType="com.upedge.sms.modules.overseaWarehouse.entity.OverseaWarehouseServiceOrderItem" resultMap="BaseResultMap">
@@ -64,8 +68,20 @@
             <if test="price != null">
                 price = #{price},
             </if>
-            <if test="wareshouseSku != null">
-                wareshouse_sku = #{wareshouseSku},
+            <if test="warehouseSku != null">
+                warehouse_sku = #{warehouseSku},
+            </if>
+            <if test="variantWeight != null">
+                variant_weight = #{variantWeight},
+            </if>
+            <if test="length != null">
+                length = #{length},
+            </if>
+            <if test="height != null">
+                height = #{height},
+            </if>
+            <if test="width != null">
+                width = #{width},
             </if>
         </set>
         where id = #{id}
@@ -84,7 +100,11 @@
         product_title = #{productTitle},
         quantity = #{quantity},
         price = #{price},
-        wareshouse_sku = #{wareshouseSku},
+        warehouse_sku = #{warehouseSku},
+        variant_weight = #{variantWeight},
+        length = #{length},
+        height = #{height},
+        width = #{width},
         </set>
         where id = #{id}
     </update>
@@ -102,7 +122,11 @@
             product_title,
             quantity,
             price,
-            wareshouse_sku
+            warehouse_sku,
+            variant_weight,
+            length,
+            height,
+            width
         </trim>
         values (
         #{id},
@@ -115,7 +139,11 @@
         #{productTitle},
         #{quantity},
         #{price},
-        #{wareshouseSku}
+        #{warehouseSku},
+        #{variantWeight},
+        #{length},
+        #{height},
+        #{width}
         )
     </insert>
 
@@ -152,8 +180,20 @@
             <if test="price != null" >
               price
             </if>
-            <if test="wareshouseSku != null" >
-              wareshouse_sku
+            <if test="warehouseSku != null" >
+              warehouse_sku
+            </if>
+            <if test="variantWeight != null" >
+              variant_weight
+            </if>
+            <if test="length != null" >
+              length
+            </if>
+            <if test="height != null" >
+              height
+            </if>
+            <if test="width != null" >
+              width
             </if>
 
         </trim>
@@ -188,8 +228,20 @@
             <if test="price != null" >
                 #{price}
             </if>
-            <if test="wareshouseSku != null" >
-                #{wareshouseSku}
+            <if test="warehouseSku != null" >
+                #{warehouseSku}
+            </if>
+            <if test="variantWeight != null" >
+                #{variantWeight}
+            </if>
+            <if test="length != null" >
+                #{length}
+            </if>
+            <if test="height != null" >
+                #{height}
+            </if>
+            <if test="width != null" >
+                #{width}
             </if>
 
         </trim>
@@ -208,7 +260,11 @@
            product_title,
            quantity,
            price,
-           wareshouse_sku
+           warehouse_sku,
+           variant_weight,
+           length,
+           height,
+           width
         </trim>
         values
         <foreach collection="list" item="item" index="index" separator=",">
@@ -223,7 +279,11 @@
                #{item.productTitle},
                #{item.quantity},
                #{item.price},
-               #{item.wareshouseSku}
+               #{item.warehouseSku},
+               #{item.variantWeight},
+               #{item.length},
+               #{item.height},
+               #{item.width}
             </trim>
         </foreach>
     </insert>
@@ -263,8 +323,20 @@
                     <if test="t.price != null">
                         price = #{t.price} and
                     </if>
-                    <if test="t.wareshouseSku != null">
-                        wareshouse_sku = #{t.wareshouseSku} and
+                    <if test="t.warehouseSku != null">
+                        warehouse_sku = #{t.warehouseSku} and
+                    </if>
+                    <if test="t.variantWeight != null">
+                        variant_weight = #{t.variantWeight} and
+                    </if>
+                    <if test="t.length != null">
+                        length = #{t.length} and
+                    </if>
+                    <if test="t.height != null">
+                        height = #{t.height} and
+                    </if>
+                    <if test="t.width != null">
+                        width = #{t.width} and
                     </if>
             </trim>
         </if>
