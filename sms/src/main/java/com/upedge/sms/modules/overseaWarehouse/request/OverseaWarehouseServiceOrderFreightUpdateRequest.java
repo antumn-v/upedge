@@ -13,6 +13,10 @@ public class OverseaWarehouseServiceOrderFreightUpdateRequest{
     /**
      * 
      */
+    private Long orderId;
+    /**
+     * 
+     */
     private Integer shipType;
     /**
      * 
@@ -21,6 +25,7 @@ public class OverseaWarehouseServiceOrderFreightUpdateRequest{
 
     public OverseaWarehouseServiceOrderFreight toOverseaWarehouseServiceOrderFreight(Long id){
         OverseaWarehouseServiceOrderFreight overseaWarehouseServiceOrderFreight=new OverseaWarehouseServiceOrderFreight();
+        overseaWarehouseServiceOrderFreight.setId(id);
         overseaWarehouseServiceOrderFreight.setOrderId(orderId);
         overseaWarehouseServiceOrderFreight.setShipType(shipType);
         overseaWarehouseServiceOrderFreight.setShipPrice(shipPrice);

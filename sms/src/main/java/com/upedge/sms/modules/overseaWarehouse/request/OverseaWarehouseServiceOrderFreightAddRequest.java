@@ -1,9 +1,8 @@
 package com.upedge.sms.modules.overseaWarehouse.request;
 
-import com.upedge.common.base.Page;
 import com.upedge.sms.modules.overseaWarehouse.entity.OverseaWarehouseServiceOrderFreight;
-import java.util.Date;
 import lombok.Data;
+
 import java.math.BigDecimal;
 /**
  * @author gx
@@ -11,6 +10,10 @@ import java.math.BigDecimal;
 @Data
 public class OverseaWarehouseServiceOrderFreightAddRequest{
 
+    /**
+    * 
+    */
+    private Long orderId;
     /**
     * 
     */
@@ -22,6 +25,7 @@ public class OverseaWarehouseServiceOrderFreightAddRequest{
 
     public OverseaWarehouseServiceOrderFreight toOverseaWarehouseServiceOrderFreight(){
         OverseaWarehouseServiceOrderFreight overseaWarehouseServiceOrderFreight=new OverseaWarehouseServiceOrderFreight();
+        overseaWarehouseServiceOrderFreight.setOrderId(orderId);
         overseaWarehouseServiceOrderFreight.setShipType(shipType);
         overseaWarehouseServiceOrderFreight.setShipPrice(shipPrice);
         return overseaWarehouseServiceOrderFreight;

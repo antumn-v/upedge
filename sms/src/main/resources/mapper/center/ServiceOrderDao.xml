@@ -311,5 +311,21 @@
         <include refid="Query_Condition"/>
     </select>
 
+    <select id="selectByRelateId" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from service_order
+        where relate_id = #{relateId}
+        and service_type = #{serviceType}
+        limit 1
+    </select>
 
+    <update id="updateToPaidByRelateId">
+        update service_order
+            set pay_state = '1',
+                update_time = #{updateTime},
+                pay_amount = #{payAmount}
+        where relate_id = #{relateId}
+        and service_type = #{serviceType};
+    </update>
 </mapper>

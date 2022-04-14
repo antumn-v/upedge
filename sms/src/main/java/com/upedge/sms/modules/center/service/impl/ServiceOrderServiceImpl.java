@@ -1,13 +1,16 @@
 package com.upedge.sms.modules.center.service.impl;
 
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import java.util.List;
 import com.upedge.common.base.Page;
-import org.springframework.beans.factory.annotation.Autowired;
 import com.upedge.sms.modules.center.dao.ServiceOrderDao;
 import com.upedge.sms.modules.center.entity.ServiceOrder;
 import com.upedge.sms.modules.center.service.ServiceOrderService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.math.BigDecimal;
+import java.util.Date;
+import java.util.List;
 
 
 @Service
@@ -42,6 +45,16 @@ public class ServiceOrderServiceImpl implements ServiceOrderService {
     @Transactional
     public int insertSelective(ServiceOrder record) {
         return serviceOrderDao.insert(record);
+    }
+
+    @Override
+    public int updateToPaidByRelateId(Long relateId, Integer serviceType, BigDecimal payAmount, Date updateTime) {
+        return serviceOrderDao.updateToPaidByRelateId(relateId, serviceType, payAmount, updateTime);
+    }
+
+    @Override
+    public ServiceOrder selectByRelateId(Long relateId, Integer serviceType) {
+        return serviceOrderDao.selectByRelateId(relateId, serviceType);
     }
 
     /**

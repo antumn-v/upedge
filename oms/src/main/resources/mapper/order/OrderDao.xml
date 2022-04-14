@@ -341,7 +341,7 @@
         select id as orderId, '2' as orderType, pay_amount as `amount`, payment_id as payment_id, pay_time as payTime
         from `order`
         where payment_id = #{paymentId}
-          and pay_state = '1'
+        and pay_state = '1'
     </select>
 
     <select id="selectPayAmountByPaymentId" resultType="java.math.BigDecimal">

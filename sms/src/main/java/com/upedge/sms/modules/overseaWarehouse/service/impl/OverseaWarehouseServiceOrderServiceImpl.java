@@ -1,9 +1,17 @@
 package com.upedge.sms.modules.overseaWarehouse.service.impl;
 
+import com.alibaba.fastjson.JSON;
 import com.upedge.common.base.BaseResponse;
 import com.upedge.common.base.Page;
+import com.upedge.common.constant.OrderType;
+import com.upedge.common.constant.ResultCode;
+import com.upedge.common.constant.key.RocketMqConfig;
 import com.upedge.common.feign.OmsFeignClient;
+import com.upedge.common.feign.UmsFeignClient;
+import com.upedge.common.model.account.AccountPaymentRequest;
 import com.upedge.common.model.cart.request.CartVo;
+import com.upedge.common.model.order.PaymentDetail;
+import com.upedge.common.model.order.TransactionDetail;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.utils.IdGenerate;
 import com.upedge.common.utils.ListUtils;
@@ -14,10 +22,13 @@ import com.upedge.sms.modules.overseaWarehouse.entity.OverseaWarehouseServiceOrd
 import com.upedge.sms.modules.overseaWarehouse.entity.OverseaWarehouseServiceOrderFreight;
 import com.upedge.sms.modules.overseaWarehouse.entity.OverseaWarehouseServiceOrderItem;
 import com.upedge.sms.modules.overseaWarehouse.request.OverseaWarehouseServiceOrderCreateRequest;
+import com.upedge.sms.modules.overseaWarehouse.request.OverseaWarehouseServiceOrderPayRequest;
 import com.upedge.sms.modules.overseaWarehouse.service.OverseaWarehouseServiceOrderFreightService;
 import com.upedge.sms.modules.overseaWarehouse.service.OverseaWarehouseServiceOrderItemService;
 import com.upedge.sms.modules.overseaWarehouse.service.OverseaWarehouseServiceOrderService;
 import com.upedge.sms.modules.overseaWarehouse.vo.OverseaWarehouseServiceOrderVo;
+import io.seata.spring.annotation.GlobalTransactional;
+import org.apache.rocketmq.common.message.Message;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -47,6 +58,9 @@ public class OverseaWarehouseServiceOrderServiceImpl implements OverseaWarehouse
     @Autowired
     OmsFeignClient omsFeignClient;
 
+    @Autowired
+    UmsFeignClient umsFeignClient;
+
 
     /**
      *
@@ -72,6 +86,51 @@ public class OverseaWarehouseServiceOrderServiceImpl implements OverseaWarehouse
     @Transactional
     public int insertSelective(OverseaWarehouseServiceOrder record) {
         return overseaWarehouseServiceOrderDao.insert(record);
+    }
+
+    @GlobalTransactional
+    @Override
+    public BaseResponse orderPay(OverseaWarehouseServiceOrderPayRequest request, Session session) {
+        //检查状态
+        Long orderId = request.getOrderId();
+        OverseaWarehouseServiceOrder overseaWarehouseServiceOrder = selectByPrimaryKey(orderId);
+        if (null == overseaWarehouseServiceOrder
+        || overseaWarehouseServiceOrder.getPayState() != 0){
+            return BaseResponse.failed("Order does not exist or has been paid!");
+        }
+        //检查运费
+        Integer shipType = request.getShipType();
+        BigDecimal shipPrice = request.getShipPrice();
+        OverseaWarehouseServiceOrderFreight overseaWarehouseServiceOrderFreight = overseaWarehouseServiceOrderFreightService.selectByOrderIdAndShipType(orderId, shipType);
+        if (null == overseaWarehouseServiceOrderFreight
+        || shipPrice.compareTo(overseaWarehouseServiceOrderFreight.getShipPrice()) != 0){
+            return BaseResponse.failed("Shipping has been updated, please refresh the page");
+        }
+        //检查支付金额
+        BigDecimal payAmount = request.getPayAmount();
+        BigDecimal productAmount = overseaWarehouseServiceOrder.getProductAmount();
+        if (payAmount.compareTo(productAmount.add(shipPrice)) != 0){
+            return BaseResponse.failed("Incorrect payment amount!");
+        }
+        //账户支付
+        Long paymentId = IdGenerate.nextId();
+        AccountPaymentRequest accountPaymentRequest = new AccountPaymentRequest(paymentId,session.getId(),session.getAccountId(),session.getCustomerId(),OrderType.EXTRA_SERVICE_OVERSEA_WAREHOUSE,payAmount,BigDecimal.ZERO,0);
+        BaseResponse paymentResponse = umsFeignClient.accountPayment(accountPaymentRequest);
+        if (paymentResponse.getCode() != ResultCode.SUCCESS_CODE){
+            return paymentResponse;
+        }
+        //修改状态
+        Date payTime = new Date();
+        overseaWarehouseServiceOrder.setPaymentId(paymentId);
+        overseaWarehouseServiceOrder.setPayAmount(payAmount);
+        overseaWarehouseServiceOrder.setPayTime(payTime);
+        overseaWarehouseServiceOrder.setShipPrice(shipPrice);
+        overseaWarehouseServiceOrder.setShipType(shipType);
+        overseaWarehouseServiceOrderDao.updateOrderAsPaid(overseaWarehouseServiceOrder);
+        serviceOrderService.updateToPaidByRelateId(orderId,OrderType.EXTRA_SERVICE_OVERSEA_WAREHOUSE,payAmount,payTime);
+        //发送消息
+        sendSaveTransactionRecordMessage(session.getId(),overseaWarehouseServiceOrder);
+        return BaseResponse.success();
     }
 
     @Override
@@ -187,6 +246,35 @@ public class OverseaWarehouseServiceOrderServiceImpl implements OverseaWarehouse
     */
     public long count(Page<OverseaWarehouseServiceOrder> record){
         return overseaWarehouseServiceOrderDao.count(record);
+    }
+
+
+    public void sendSaveTransactionRecordMessage(Long userId, OverseaWarehouseServiceOrder order) {
+        PaymentDetail detail = new PaymentDetail();
+        detail.setPaymentId(order.getPaymentId());
+        detail.setUserId(userId);
+        detail.setCustomerId(order.getCustomerId());
+        detail.setPayMethod(0);
+        detail.setPayAmount(order.getPayAmount());
+        detail.setOrderType(OrderType.EXTRA_SERVICE_OVERSEA_WAREHOUSE);
+        detail.setPayTime(order.getPayTime());
+
+        List<TransactionDetail> transactionDetails = new ArrayList<>();
+        TransactionDetail transactionDetail = new TransactionDetail();
+        transactionDetail.setOrderId(order.getId());
+        transactionDetail.setPaymentId(order.getPaymentId());
+        transactionDetail.setPayTime(order.getPayTime());
+        transactionDetail.setAmount(order.getPayAmount());
+        transactionDetail.setOrderType(OrderType.EXTRA_SERVICE_OVERSEA_WAREHOUSE);
+        transactionDetails.add(transactionDetail);
+
+
+        detail.setOrderTransactions(transactionDetails);
+
+        Message message = new Message(RocketMqConfig.TOPIC_SAVE_ORDER_TRANSACTION, "oversea_warehouse_service_order", "oversea:warehouse:service:order:" + order.getPaymentId(), JSON.toJSONBytes(detail));
+        message.setDelayTimeLevel(1);
+        umsFeignClient.sendMessage(message);
+
     }
 
 }

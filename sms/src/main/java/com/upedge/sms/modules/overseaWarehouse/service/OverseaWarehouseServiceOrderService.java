@@ -5,6 +5,7 @@ import com.upedge.common.model.user.vo.Session;
 import com.upedge.sms.modules.overseaWarehouse.entity.OverseaWarehouseServiceOrder;
 import com.upedge.common.base.Page;
 import com.upedge.sms.modules.overseaWarehouse.request.OverseaWarehouseServiceOrderCreateRequest;
+import com.upedge.sms.modules.overseaWarehouse.request.OverseaWarehouseServiceOrderPayRequest;
 import com.upedge.sms.modules.overseaWarehouse.vo.OverseaWarehouseServiceOrderVo;
 
 import java.util.List;
@@ -14,6 +15,8 @@ import java.util.List;
  */
 public interface OverseaWarehouseServiceOrderService{
 
+
+    BaseResponse orderPay(OverseaWarehouseServiceOrderPayRequest request,Session session);
 
     OverseaWarehouseServiceOrderVo orderDetail(Long orderId);
 

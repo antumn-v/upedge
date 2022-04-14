@@ -2,13 +2,16 @@ package com.upedge.sms.modules.overseaWarehouse.dao;
 
 import com.upedge.common.base.Page;
 import com.upedge.sms.modules.overseaWarehouse.entity.OverseaWarehouseServiceOrderFreight;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
 /**
  * @author gx
  */
-public interface OverseaWarehouseServiceOrderFreightDao{
+public interface OverseaWarehouseServiceOrderFreightDao {
+
+    OverseaWarehouseServiceOrderFreight selectByOrderIdAndShipType(@Param("orderId") Long orderId, @Param("shipType") Integer shipType);
 
     List<OverseaWarehouseServiceOrderFreight> selectByOrderId(Long orderId);
 

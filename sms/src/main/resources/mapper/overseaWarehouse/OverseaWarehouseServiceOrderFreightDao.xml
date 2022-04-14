@@ -5,30 +5,34 @@
 
 	<!-- 可根据自己的需求，是否要使用 -->
     <resultMap type="com.upedge.sms.modules.overseaWarehouse.entity.OverseaWarehouseServiceOrderFreight" id="BaseResultMap">
+        <result property="id" column="id"/>
         <result property="orderId" column="order_id"/>
         <result property="shipType" column="ship_type"/>
         <result property="shipPrice" column="ship_price"/>
     </resultMap>
 
     <sql id="Base_Column_List">
-        `order_id`,`ship_type`,`ship_price`
+        `id`,`order_id`,`ship_type`,`ship_price`
     </sql>
 
     <select id="selectByPrimaryKey" parameterType="com.upedge.sms.modules.overseaWarehouse.entity.OverseaWarehouseServiceOrderFreight" resultMap="BaseResultMap">
         select
         <include refid="Base_Column_List" />
         from oversea_warehouse_service_order_freight
-        where order_id = #{orderId}
+        where id = #{id}
     </select>
 
     <delete id="deleteByPrimaryKey" parameterType="com.upedge.sms.modules.overseaWarehouse.entity.OverseaWarehouseServiceOrderFreight">
         delete from oversea_warehouse_service_order_freight
-        where order_id = #{orderId}
+        where id = #{id}
     </delete>
 
     <update id="updateByPrimaryKeySelective" parameterType="com.upedge.sms.modules.overseaWarehouse.entity.OverseaWarehouseServiceOrderFreight">
         update oversea_warehouse_service_order_freight
         <set>
+            <if test="orderId != null">
+                order_id = #{orderId},
+            </if>
             <if test="shipType != null">
                 ship_type = #{shipType},
             </if>
@@ -36,36 +40,42 @@
                 ship_price = #{shipPrice},
             </if>
         </set>
-        where order_id = #{orderId}
+        where id = #{id}
     </update>
 
     <update id="updateByPrimaryKey" parameterType="com.upedge.sms.modules.overseaWarehouse.entity.OverseaWarehouseServiceOrderFreight">
         update oversea_warehouse_service_order_freight
         <set>
+        id = #{id},
         order_id = #{orderId},
         ship_type = #{shipType},
         ship_price = #{shipPrice},
         </set>
-        where order_id = #{orderId}
+        where id = #{id}
     </update>
 
-    <insert id="insert" keyColumn="order_id" keyProperty="orderId" parameterType="com.upedge.sms.modules.overseaWarehouse.entity.OverseaWarehouseServiceOrderFreight" useGeneratedKeys="true">
+    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.upedge.sms.modules.overseaWarehouse.entity.OverseaWarehouseServiceOrderFreight" useGeneratedKeys="true">
         insert into oversea_warehouse_service_order_freight
         <trim prefix="(" suffix=")" suffixOverrides=",">
+            id,
             order_id,
             ship_type,
             ship_price
         </trim>
         values (
+        #{id},
         #{orderId},
         #{shipType},
         #{shipPrice}
         )
     </insert>
 
-    <insert id="insertSelective"  keyColumn="order_id" keyProperty="orderId"  parameterType="com.upedge.sms.modules.overseaWarehouse.entity.OverseaWarehouseServiceOrderFreight" useGeneratedKeys="true">
+    <insert id="insertSelective"  keyColumn="id" keyProperty="id"  parameterType="com.upedge.sms.modules.overseaWarehouse.entity.OverseaWarehouseServiceOrderFreight" useGeneratedKeys="true">
         insert into oversea_warehouse_service_order_freight
         <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null" >
+              id
+            </if>
             <if test="orderId != null" >
               order_id
             </if>
@@ -78,6 +88,9 @@
 
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null" >
+                #{id}
+            </if>
             <if test="orderId != null" >
                 #{orderId}
             </if>
@@ -94,6 +107,7 @@
     <insert id="insertByBatch" parameterType="java.util.List">
         insert into oversea_warehouse_service_order_freight
         <trim prefix="(" suffix=")" suffixOverrides=",">
+           id,
            order_id,
            ship_type,
            ship_price
@@ -101,6 +115,7 @@
         values
         <foreach collection="list" item="item" index="index" separator=",">
             <trim prefix="(" suffix=")" suffixOverrides=",">
+               #{item.id},
                #{item.orderId},
                #{item.shipType},
                #{item.shipPrice}
@@ -113,6 +128,9 @@
             where
             <trim prefix=" " suffix=" " suffixOverrides=" and ">
                 1 = 1 and
+                    <if test="t.id != null">
+                        id = #{t.id} and
+                    </if>
                     <if test="t.orderId != null">
                         order_id = #{t.orderId} and
                     </if>
@@ -144,6 +162,15 @@
         count(1)
         from oversea_warehouse_service_order_freight
         <include refid="Query_Condition"/>
+    </select>
+
+    <select id="selectByOrderIdAndShipType" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from oversea_warehouse_service_order_freight
+        where order_id = #{orderId}
+        and ship_type = #{shipType}
+        limit 1
     </select>
 
     <select id="selectByOrderId" resultMap="BaseResultMap">

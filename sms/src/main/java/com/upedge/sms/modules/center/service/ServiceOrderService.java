@@ -1,13 +1,20 @@
 package com.upedge.sms.modules.center.service;
 
-import com.upedge.sms.modules.center.entity.ServiceOrder;
 import com.upedge.common.base.Page;
+import com.upedge.sms.modules.center.entity.ServiceOrder;
+
+import java.math.BigDecimal;
+import java.util.Date;
 import java.util.List;
 
 /**
  * @author gx
  */
 public interface ServiceOrderService{
+
+    int updateToPaidByRelateId(Long relateId, Integer serviceType, BigDecimal payAmount, Date updateTime);
+
+    ServiceOrder selectByRelateId(Long relateId, Integer serviceType);
 
     ServiceOrder selectByPrimaryKey(Long id);
 

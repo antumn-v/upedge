@@ -14,5 +14,4 @@ public interface ServiceNameConstants {
 
     String OMS_SERVICE = "oms";
 
-    String OLD_SERVICE = "old";
 }

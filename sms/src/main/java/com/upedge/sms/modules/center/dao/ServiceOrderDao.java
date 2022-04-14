@@ -1,14 +1,21 @@
 package com.upedge.sms.modules.center.dao;
 
-import com.upedge.sms.modules.center.entity.ServiceOrder;
-import org.apache.ibatis.annotations.Mapper;
-import java.util.List;
 import com.upedge.common.base.Page;
+import com.upedge.sms.modules.center.entity.ServiceOrder;
+import org.apache.ibatis.annotations.Param;
+
+import java.math.BigDecimal;
+import java.util.Date;
+import java.util.List;
 
 /**
  * @author gx
  */
-public interface ServiceOrderDao{
+public interface ServiceOrderDao {
+
+    ServiceOrder selectByRelateId(@Param("relateId") Long relateId, @Param("serviceType") Integer serviceType);
+
+    int updateToPaidByRelateId(@Param("relateId") Long relateId, @Param("serviceType") Integer serviceType, @Param("payAmount") BigDecimal payAmount, @Param("updateTime") Date updateTime);
 
     ServiceOrder selectByPrimaryKey(ServiceOrder record);
 

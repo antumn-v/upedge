@@ -1,13 +1,16 @@
 package com.upedge.sms.modules.overseaWarehouse.service;
 
-import com.upedge.sms.modules.overseaWarehouse.entity.OverseaWarehouseServiceOrderFreight;
 import com.upedge.common.base.Page;
+import com.upedge.sms.modules.overseaWarehouse.entity.OverseaWarehouseServiceOrderFreight;
+
 import java.util.List;
 
 /**
  * @author gx
  */
 public interface OverseaWarehouseServiceOrderFreightService{
+
+    OverseaWarehouseServiceOrderFreight selectByOrderIdAndShipType(Long orderId, Integer shipType);
 
     List<OverseaWarehouseServiceOrderFreight> selectByOrderId(Long orderId);
 

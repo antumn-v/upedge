@@ -1,9 +1,13 @@
 package com.upedge.common.model.account;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 
+@AllArgsConstructor
+@NoArgsConstructor
 @Data
 public class AccountPaymentRequest {
 
@@ -36,4 +40,6 @@ public class AccountPaymentRequest {
      * 支付方式：0=recharge 1=paypal
      */
     private Integer payType;
+
+
 }
