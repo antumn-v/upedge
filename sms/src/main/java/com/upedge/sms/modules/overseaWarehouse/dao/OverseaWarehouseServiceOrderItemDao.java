@@ -1,14 +1,16 @@
 package com.upedge.sms.modules.overseaWarehouse.dao;
 
-import com.upedge.sms.modules.overseaWarehouse.entity.OverseaWarehouseServiceOrderItem;
-import org.apache.ibatis.annotations.Mapper;
-import java.util.List;
 import com.upedge.common.base.Page;
+import com.upedge.sms.modules.overseaWarehouse.entity.OverseaWarehouseServiceOrderItem;
+
+import java.util.List;
 
 /**
  * @author gx
  */
 public interface OverseaWarehouseServiceOrderItemDao{
+
+    List<OverseaWarehouseServiceOrderItem> selectByOrderId(Long orderId);
 
     OverseaWarehouseServiceOrderItem selectByPrimaryKey(OverseaWarehouseServiceOrderItem record);
 

@@ -248,6 +248,9 @@
             where
             <trim prefix=" " suffix=" " suffixOverrides=" and ">
                 1 = 1 and
+                    <if test="condition != null and condition != ''">
+                        ${condition} and
+                    </if>
                     <if test="t.id != null">
                         id = #{t.id} and
                     </if>

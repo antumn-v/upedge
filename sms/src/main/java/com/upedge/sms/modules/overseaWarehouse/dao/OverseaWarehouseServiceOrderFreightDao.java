@@ -10,6 +10,8 @@ import java.util.List;
  */
 public interface OverseaWarehouseServiceOrderFreightDao{
 
+    List<OverseaWarehouseServiceOrderFreight> selectByOrderId(Long orderId);
+
     OverseaWarehouseServiceOrderFreight selectByPrimaryKey(OverseaWarehouseServiceOrderFreight record);
 
     int deleteByPrimaryKey(OverseaWarehouseServiceOrderFreight record);

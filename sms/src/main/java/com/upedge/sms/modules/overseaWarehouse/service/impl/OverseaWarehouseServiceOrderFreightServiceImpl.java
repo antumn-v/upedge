@@ -54,6 +54,11 @@ public class OverseaWarehouseServiceOrderFreightServiceImpl implements OverseaWa
         return overseaWarehouseServiceOrderFreightDao.insert(record);
     }
 
+    @Override
+    public List<OverseaWarehouseServiceOrderFreight> selectByOrderId(Long orderId) {
+        return overseaWarehouseServiceOrderFreightDao.selectByOrderId(orderId);
+    }
+
     /**
      *
      */

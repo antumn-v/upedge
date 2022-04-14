@@ -17,6 +17,7 @@ import com.upedge.sms.modules.overseaWarehouse.request.OverseaWarehouseServiceOr
 import com.upedge.sms.modules.overseaWarehouse.service.OverseaWarehouseServiceOrderFreightService;
 import com.upedge.sms.modules.overseaWarehouse.service.OverseaWarehouseServiceOrderItemService;
 import com.upedge.sms.modules.overseaWarehouse.service.OverseaWarehouseServiceOrderService;
+import com.upedge.sms.modules.overseaWarehouse.vo.OverseaWarehouseServiceOrderVo;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -71,6 +72,23 @@ public class OverseaWarehouseServiceOrderServiceImpl implements OverseaWarehouse
     @Transactional
     public int insertSelective(OverseaWarehouseServiceOrder record) {
         return overseaWarehouseServiceOrderDao.insert(record);
+    }
+
+    @Override
+    public OverseaWarehouseServiceOrderVo orderDetail(Long orderId) {
+        OverseaWarehouseServiceOrder overseaWarehouseServiceOrder = selectByPrimaryKey(orderId);
+        if (null == overseaWarehouseServiceOrder){
+            return null;
+        }
+        OverseaWarehouseServiceOrderVo overseaWarehouseServiceOrderVo = new OverseaWarehouseServiceOrderVo();
+        BeanUtils.copyProperties(overseaWarehouseServiceOrder,overseaWarehouseServiceOrderVo);
+
+        List<OverseaWarehouseServiceOrderItem> orderItems = overseaWarehouseServiceOrderItemService.selectByOrderId(orderId);
+        overseaWarehouseServiceOrderVo.setOrderItems(orderItems);
+
+        List<OverseaWarehouseServiceOrderFreight> orderFreights = overseaWarehouseServiceOrderFreightService.selectByOrderId(orderId);
+        overseaWarehouseServiceOrderVo.setOrderFreights(orderFreights);
+        return overseaWarehouseServiceOrderVo;
     }
 
     @Transactional

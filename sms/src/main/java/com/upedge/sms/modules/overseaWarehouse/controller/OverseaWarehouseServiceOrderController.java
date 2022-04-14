@@ -1,45 +1,54 @@
 package com.upedge.sms.modules.overseaWarehouse.controller;
 
-import java.util.Arrays;
-import java.util.Map;
-
-import com.upedge.common.constant.ResultCode;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.upedge.common.base.BaseResponse;
 import com.upedge.common.component.annotation.Permission;
-import com.upedge.sms.modules.overseaWarehouse.entity.OverseaWarehouseServiceOrder;
-import com.upedge.sms.modules.overseaWarehouse.service.OverseaWarehouseServiceOrderService;
-import org.springframework.web.bind.annotation.*;
-import java.util.List;
 import com.upedge.common.constant.Constant;
-import com.upedge.sms.modules.overseaWarehouse.request.OverseaWarehouseServiceOrderAddRequest;
+import com.upedge.common.constant.ResultCode;
+import com.upedge.common.model.user.vo.Session;
+import com.upedge.common.web.util.UserUtil;
+import com.upedge.sms.modules.overseaWarehouse.entity.OverseaWarehouseServiceOrder;
+import com.upedge.sms.modules.overseaWarehouse.request.OverseaWarehouseServiceOrderCreateRequest;
 import com.upedge.sms.modules.overseaWarehouse.request.OverseaWarehouseServiceOrderListRequest;
-import com.upedge.sms.modules.overseaWarehouse.request.OverseaWarehouseServiceOrderUpdateRequest;
-
-import com.upedge.sms.modules.overseaWarehouse.response.OverseaWarehouseServiceOrderAddResponse;
-import com.upedge.sms.modules.overseaWarehouse.response.OverseaWarehouseServiceOrderDelResponse;
-import com.upedge.sms.modules.overseaWarehouse.response.OverseaWarehouseServiceOrderInfoResponse;
 import com.upedge.sms.modules.overseaWarehouse.response.OverseaWarehouseServiceOrderListResponse;
-import com.upedge.sms.modules.overseaWarehouse.response.OverseaWarehouseServiceOrderUpdateResponse;
+import com.upedge.sms.modules.overseaWarehouse.service.OverseaWarehouseServiceOrderService;
+import com.upedge.sms.modules.overseaWarehouse.vo.OverseaWarehouseServiceOrderVo;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.web.bind.annotation.*;
+
 import javax.validation.Valid;
+import java.util.List;
 
 /**
  * 
  *
  * @author gx
  */
+@Api(tags = "海外仓订单")
 @RestController
 @RequestMapping("/overseaWarehouseServiceOrder")
 public class OverseaWarehouseServiceOrderController {
     @Autowired
     private OverseaWarehouseServiceOrderService overseaWarehouseServiceOrderService;
 
+    @Autowired
+    RedisTemplate redisTemplate;
 
-    @RequestMapping(value="/info/{id}", method=RequestMethod.GET)
-    @Permission(permission = "overseaWarehouse:overseawarehouseserviceorder:info:id")
-    public OverseaWarehouseServiceOrderInfoResponse info(@PathVariable Long id) {
-        OverseaWarehouseServiceOrder result = overseaWarehouseServiceOrderService.selectByPrimaryKey(id);
-        OverseaWarehouseServiceOrderInfoResponse res = new OverseaWarehouseServiceOrderInfoResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS,result,id);
-        return res;
+
+    @ApiOperation("订单详情")
+    @GetMapping("/detail/{id}")
+    public BaseResponse orderDetail(@PathVariable Long id){
+        OverseaWarehouseServiceOrderVo overseaWarehouseServiceOrderVo = overseaWarehouseServiceOrderService.orderDetail(id);
+        return BaseResponse.success(overseaWarehouseServiceOrderVo);
+    }
+
+    @ApiOperation("创建海外仓服务订单")
+    @PostMapping("/create")
+    public BaseResponse createOverseaWarehouseService(@RequestBody@Valid OverseaWarehouseServiceOrderCreateRequest request){
+        Session session = UserUtil.getSession(redisTemplate);
+        return overseaWarehouseServiceOrderService.create(request,session);
     }
 
     @RequestMapping(value="/list", method=RequestMethod.POST)
@@ -52,31 +61,7 @@ public class OverseaWarehouseServiceOrderController {
         return res;
     }
 
-    @RequestMapping(value="/add", method=RequestMethod.POST)
-    @Permission(permission = "overseaWarehouse:overseawarehouseserviceorder:add")
-    public OverseaWarehouseServiceOrderAddResponse add(@RequestBody @Valid OverseaWarehouseServiceOrderAddRequest request) {
-        OverseaWarehouseServiceOrder entity=request.toOverseaWarehouseServiceOrder();
-        overseaWarehouseServiceOrderService.insertSelective(entity);
-        OverseaWarehouseServiceOrderAddResponse res = new OverseaWarehouseServiceOrderAddResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS,entity,request);
-        return res;
-    }
 
-    @RequestMapping(value="/del/{id}", method=RequestMethod.POST)
-    @Permission(permission = "overseaWarehouse:overseawarehouseserviceorder:del:id")
-    public OverseaWarehouseServiceOrderDelResponse del(@PathVariable Long id) {
-        overseaWarehouseServiceOrderService.deleteByPrimaryKey(id);
-        OverseaWarehouseServiceOrderDelResponse res = new OverseaWarehouseServiceOrderDelResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS);
-        return res;
-    }
-
-    @RequestMapping(value="/update/{id}", method=RequestMethod.POST)
-    @Permission(permission = "overseaWarehouse:overseawarehouseserviceorder:update")
-    public OverseaWarehouseServiceOrderUpdateResponse update(@PathVariable Long id,@RequestBody @Valid OverseaWarehouseServiceOrderUpdateRequest request) {
-        OverseaWarehouseServiceOrder entity=request.toOverseaWarehouseServiceOrder(id);
-        overseaWarehouseServiceOrderService.updateByPrimaryKeySelective(entity);
-        OverseaWarehouseServiceOrderUpdateResponse res = new OverseaWarehouseServiceOrderUpdateResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS);
-        return res;
-    }
 
 
 }

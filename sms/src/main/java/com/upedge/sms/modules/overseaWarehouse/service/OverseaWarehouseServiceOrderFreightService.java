@@ -9,6 +9,8 @@ import java.util.List;
  */
 public interface OverseaWarehouseServiceOrderFreightService{
 
+    List<OverseaWarehouseServiceOrderFreight> selectByOrderId(Long orderId);
+
     OverseaWarehouseServiceOrderFreight selectByPrimaryKey(Long orderId);
 
     int deleteByPrimaryKey(Long orderId);
