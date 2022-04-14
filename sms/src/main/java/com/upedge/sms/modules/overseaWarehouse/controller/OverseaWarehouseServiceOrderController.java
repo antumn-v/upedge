@@ -7,9 +7,12 @@ import com.upedge.common.constant.ResultCode;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.web.util.UserUtil;
 import com.upedge.sms.modules.overseaWarehouse.entity.OverseaWarehouseServiceOrder;
+import com.upedge.sms.modules.overseaWarehouse.entity.OverseaWarehouseServiceOrderFreight;
 import com.upedge.sms.modules.overseaWarehouse.request.OverseaWarehouseServiceOrderCreateRequest;
 import com.upedge.sms.modules.overseaWarehouse.request.OverseaWarehouseServiceOrderListRequest;
+import com.upedge.sms.modules.overseaWarehouse.request.OverseaWarehouseServiceOrderUpdateFreightRequest;
 import com.upedge.sms.modules.overseaWarehouse.response.OverseaWarehouseServiceOrderListResponse;
+import com.upedge.sms.modules.overseaWarehouse.service.OverseaWarehouseServiceOrderFreightService;
 import com.upedge.sms.modules.overseaWarehouse.service.OverseaWarehouseServiceOrderService;
 import com.upedge.sms.modules.overseaWarehouse.vo.OverseaWarehouseServiceOrderVo;
 import io.swagger.annotations.Api;
@@ -32,6 +35,9 @@ import java.util.List;
 public class OverseaWarehouseServiceOrderController {
     @Autowired
     private OverseaWarehouseServiceOrderService overseaWarehouseServiceOrderService;
+
+    @Autowired
+    private OverseaWarehouseServiceOrderFreightService overseaWarehouseServiceOrderFreightService;
 
     @Autowired
     RedisTemplate redisTemplate;
@@ -61,7 +67,19 @@ public class OverseaWarehouseServiceOrderController {
         return res;
     }
 
-
-
+    @ApiOperation("修改订单运费")
+    @PostMapping("/updateFreight")
+    public BaseResponse updateFreight(@RequestBody OverseaWarehouseServiceOrderUpdateFreightRequest request){
+        OverseaWarehouseServiceOrder overseaWarehouseServiceOrder = overseaWarehouseServiceOrderService.selectByPrimaryKey(request.getOrderId());
+        if (null == overseaWarehouseServiceOrder
+        || overseaWarehouseServiceOrder.getPayState() != 0){
+            return BaseResponse.failed("订单不存在或订单已支付");
+        }
+        List<OverseaWarehouseServiceOrderFreight> orderFreights = request.getOrderFreights();;
+        for (OverseaWarehouseServiceOrderFreight orderFreight : orderFreights) {
+            overseaWarehouseServiceOrderFreightService.updateByPrimaryKeySelective(orderFreight);
+        }
+        return BaseResponse.success();
+    }
 
 }
