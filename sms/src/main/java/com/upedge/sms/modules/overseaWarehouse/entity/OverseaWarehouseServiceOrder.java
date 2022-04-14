@@ -83,6 +83,14 @@ public class OverseaWarehouseServiceOrder{
 	 * 
 	 */
     private Long managerId;
+	/**
+	 * 
+	 */
+    private BigDecimal totalWeight;
+	/**
+	 * 
+	 */
+    private BigDecimal totalVolume;
 
 	public OverseaWarehouseServiceOrder() {
 		this.payState = 0;

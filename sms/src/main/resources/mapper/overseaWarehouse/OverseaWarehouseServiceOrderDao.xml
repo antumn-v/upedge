@@ -23,10 +23,12 @@
         <result property="createTime" column="create_time"/>
         <result property="updateTime" column="update_time"/>
         <result property="managerId" column="manager_id"/>
+        <result property="totalWeight" column="total_weight"/>
+        <result property="totalVolume" column="total_volume"/>
     </resultMap>
 
     <sql id="Base_Column_List">
-        `id`,`customer_id`,`product_amount`,`ship_price`,`ship_type`,`pay_amount`,`pay_state`,`ship_state`,`refund_state`,`payment_id`,`warehouse_code`,`warehouse_order_id`,`warehouse_order_state`,`tracking_code`,`pay_time`,`create_time`,`update_time`,`manager_id`
+        `id`,`customer_id`,`product_amount`,`ship_price`,`ship_type`,`pay_amount`,`pay_state`,`ship_state`,`refund_state`,`payment_id`,`warehouse_code`,`warehouse_order_id`,`warehouse_order_state`,`tracking_code`,`pay_time`,`create_time`,`update_time`,`manager_id`,`total_weight`,`total_volume`
     </sql>
 
     <select id="selectByPrimaryKey" parameterType="com.upedge.sms.modules.overseaWarehouse.entity.OverseaWarehouseServiceOrder" resultMap="BaseResultMap">
@@ -95,6 +97,12 @@
             <if test="managerId != null">
                 manager_id = #{managerId},
             </if>
+            <if test="totalWeight != null">
+                total_weight = #{totalWeight},
+            </if>
+            <if test="totalVolume != null">
+                total_volume = #{totalVolume},
+            </if>
         </set>
         where id = #{id}
     </update>
@@ -120,6 +128,8 @@
         create_time = #{createTime},
         update_time = #{updateTime},
         manager_id = #{managerId},
+        total_weight = #{totalWeight},
+        total_volume = #{totalVolume},
         </set>
         where id = #{id}
     </update>
@@ -144,7 +154,9 @@
             pay_time,
             create_time,
             update_time,
-            manager_id
+            manager_id,
+            total_weight,
+            total_volume
         </trim>
         values (
         #{id},
@@ -164,7 +176,9 @@
         #{payTime},
         #{createTime},
         #{updateTime},
-        #{managerId}
+        #{managerId},
+        #{totalWeight},
+        #{totalVolume}
         )
     </insert>
 
@@ -225,6 +239,12 @@
             <if test="managerId != null" >
               manager_id
             </if>
+            <if test="totalWeight != null" >
+              total_weight
+            </if>
+            <if test="totalVolume != null" >
+              total_volume
+            </if>
 
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
@@ -282,6 +302,12 @@
             <if test="managerId != null" >
                 #{managerId}
             </if>
+            <if test="totalWeight != null" >
+                #{totalWeight}
+            </if>
+            <if test="totalVolume != null" >
+                #{totalVolume}
+            </if>
 
         </trim>
     </insert>
@@ -306,7 +332,9 @@
            pay_time,
            create_time,
            update_time,
-           manager_id
+           manager_id,
+           total_weight,
+           total_volume
         </trim>
         values
         <foreach collection="list" item="item" index="index" separator=",">
@@ -328,7 +356,9 @@
                #{item.payTime},
                #{item.createTime},
                #{item.updateTime},
-               #{item.managerId}
+               #{item.managerId},
+               #{item.totalWeight},
+               #{item.totalVolume}
             </trim>
         </foreach>
     </insert>
@@ -391,6 +421,12 @@
                     </if>
                     <if test="t.managerId != null">
                         manager_id = #{t.managerId} and
+                    </if>
+                    <if test="t.totalWeight != null">
+                        total_weight = #{t.totalWeight} and
+                    </if>
+                    <if test="t.totalVolume != null">
+                        total_volume = #{t.totalVolume} and
                     </if>
             </trim>
         </if>

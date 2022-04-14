@@ -1,9 +1,9 @@
 package com.upedge.sms.modules.center.entity;
 
-import java.math.BigDecimal;
-import java.io.Serializable;
-import java.util.Date;
 import lombok.Data;
+
+import java.math.BigDecimal;
+import java.util.Date;
 
 /**
  * @author gx
@@ -19,6 +19,8 @@ public class ServiceOrder{
 	 * 
 	 */
     private Integer serviceType;
+
+	private Long relateId;
 	/**
 	 * 
 	 */
@@ -31,6 +33,8 @@ public class ServiceOrder{
 	 * 
 	 */
     private Integer payState;
+
+	private Integer refundState;
 	/**
 	 * 
 	 */

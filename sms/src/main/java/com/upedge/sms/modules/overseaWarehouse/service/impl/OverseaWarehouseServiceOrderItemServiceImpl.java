@@ -1,13 +1,15 @@
 package com.upedge.sms.modules.overseaWarehouse.service.impl;
 
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import java.util.List;
 import com.upedge.common.base.Page;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.upedge.common.utils.ListUtils;
 import com.upedge.sms.modules.overseaWarehouse.dao.OverseaWarehouseServiceOrderItemDao;
 import com.upedge.sms.modules.overseaWarehouse.entity.OverseaWarehouseServiceOrderItem;
 import com.upedge.sms.modules.overseaWarehouse.service.OverseaWarehouseServiceOrderItemService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 
 @Service
@@ -34,6 +36,14 @@ public class OverseaWarehouseServiceOrderItemServiceImpl implements OverseaWareh
     @Transactional
     public int insert(OverseaWarehouseServiceOrderItem record) {
         return overseaWarehouseServiceOrderItemDao.insert(record);
+    }
+
+    @Override
+    public int insertByBatch(List<OverseaWarehouseServiceOrderItem> orderItems) {
+        if (ListUtils.isNotEmpty(orderItems)){
+            return overseaWarehouseServiceOrderItemDao.insertByBatch(orderItems);
+        }
+        return 0;
     }
 
     /**

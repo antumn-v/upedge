@@ -39,6 +39,7 @@
       <module name="servlets" target="1.8" />
       <module name="upedge-ums" target="1.8" />
       <module name="upedge_ums" target="1.8" />
+      <module name="wrapper" target="1.8" />
     </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">

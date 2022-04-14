@@ -7,9 +7,11 @@
     <resultMap type="com.upedge.sms.modules.center.entity.ServiceOrder" id="BaseResultMap">
         <result property="id" column="id"/>
         <result property="serviceType" column="service_type"/>
+        <result property="relateId" column="relate_id"/>
         <result property="customerId" column="customer_id"/>
         <result property="serviceState" column="service_state"/>
         <result property="payState" column="pay_state"/>
+        <result property="refundState" column="refund_state"/>
         <result property="payAmount" column="pay_amount"/>
         <result property="createTime" column="create_time"/>
         <result property="updateTime" column="update_time"/>
@@ -18,7 +20,7 @@
     </resultMap>
 
     <sql id="Base_Column_List">
-        `id`,`service_type`,`customer_id`,`service_state`,`pay_state`,`pay_amount`,`create_time`,`update_time`,`finish_time`,`manager_id`
+        `id`,`service_type`,`relate_id`,`customer_id`,`service_state`,`pay_state`,`refund_state`,`pay_amount`,`create_time`,`update_time`,`finish_time`,`manager_id`
     </sql>
 
     <select id="selectByPrimaryKey" parameterType="com.upedge.sms.modules.center.entity.ServiceOrder" resultMap="BaseResultMap">
@@ -39,6 +41,9 @@
             <if test="serviceType != null">
                 service_type = #{serviceType},
             </if>
+            <if test="relateId != null">
+                relate_id = #{relateId},
+            </if>
             <if test="customerId != null">
                 customer_id = #{customerId},
             </if>
@@ -47,6 +52,9 @@
             </if>
             <if test="payState != null">
                 pay_state = #{payState},
+            </if>
+            <if test="refundState != null">
+                refund_state = #{refundState},
             </if>
             <if test="payAmount != null">
                 pay_amount = #{payAmount},
@@ -72,9 +80,11 @@
         <set>
         id = #{id},
         service_type = #{serviceType},
+        relate_id = #{relateId},
         customer_id = #{customerId},
         service_state = #{serviceState},
         pay_state = #{payState},
+        refund_state = #{refundState},
         pay_amount = #{payAmount},
         create_time = #{createTime},
         update_time = #{updateTime},
@@ -89,9 +99,11 @@
         <trim prefix="(" suffix=")" suffixOverrides=",">
             id,
             service_type,
+            relate_id,
             customer_id,
             service_state,
             pay_state,
+            refund_state,
             pay_amount,
             create_time,
             update_time,
@@ -101,9 +113,11 @@
         values (
         #{id},
         #{serviceType},
+        #{relateId},
         #{customerId},
         #{serviceState},
         #{payState},
+        #{refundState},
         #{payAmount},
         #{createTime},
         #{updateTime},
@@ -121,6 +135,9 @@
             <if test="serviceType != null" >
               service_type
             </if>
+            <if test="relateId != null" >
+              relate_id
+            </if>
             <if test="customerId != null" >
               customer_id
             </if>
@@ -129,6 +146,9 @@
             </if>
             <if test="payState != null" >
               pay_state
+            </if>
+            <if test="refundState != null" >
+              refund_state
             </if>
             <if test="payAmount != null" >
               pay_amount
@@ -154,6 +174,9 @@
             <if test="serviceType != null" >
                 #{serviceType}
             </if>
+            <if test="relateId != null" >
+                #{relateId}
+            </if>
             <if test="customerId != null" >
                 #{customerId}
             </if>
@@ -162,6 +185,9 @@
             </if>
             <if test="payState != null" >
                 #{payState}
+            </if>
+            <if test="refundState != null" >
+                #{refundState}
             </if>
             <if test="payAmount != null" >
                 #{payAmount}
@@ -187,9 +213,11 @@
         <trim prefix="(" suffix=")" suffixOverrides=",">
            id,
            service_type,
+           relate_id,
            customer_id,
            service_state,
            pay_state,
+           refund_state,
            pay_amount,
            create_time,
            update_time,
@@ -201,9 +229,11 @@
             <trim prefix="(" suffix=")" suffixOverrides=",">
                #{item.id},
                #{item.serviceType},
+               #{item.relateId},
                #{item.customerId},
                #{item.serviceState},
                #{item.payState},
+               #{item.refundState},
                #{item.payAmount},
                #{item.createTime},
                #{item.updateTime},
@@ -224,6 +254,9 @@
                     <if test="t.serviceType != null">
                         service_type = #{t.serviceType} and
                     </if>
+                    <if test="t.relateId != null">
+                        relate_id = #{t.relateId} and
+                    </if>
                     <if test="t.customerId != null">
                         customer_id = #{t.customerId} and
                     </if>
@@ -232,6 +265,9 @@
                     </if>
                     <if test="t.payState != null">
                         pay_state = #{t.payState} and
+                    </if>
+                    <if test="t.refundState != null">
+                        refund_state = #{t.refundState} and
                     </if>
                     <if test="t.payAmount != null">
                         pay_amount = #{t.payAmount} and

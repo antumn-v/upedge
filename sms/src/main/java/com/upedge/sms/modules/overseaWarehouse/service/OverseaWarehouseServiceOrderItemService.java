@@ -19,6 +19,8 @@ public interface OverseaWarehouseServiceOrderItemService{
 
     int insert(OverseaWarehouseServiceOrderItem record);
 
+    int insertByBatch(List<OverseaWarehouseServiceOrderItem> orderItems);
+
     int insertSelective(OverseaWarehouseServiceOrderItem record);
 
     List<OverseaWarehouseServiceOrderItem> select(Page<OverseaWarehouseServiceOrderItem> record);

@@ -29,6 +29,7 @@
     </option>
     <option name="ignoredFiles">
       <set>
+        <option value="$PROJECT_DIR$/sms/.mvn/wrapper/maven-wrapper.properties" />
         <option value="$PROJECT_DIR$/untitled/pom.xml" />
         <option value="$PROJECT_DIR$/upedge-ums/pom.xml" />
         <option value="$PROJECT_DIR$/upedge_ums/pom.xml" />
