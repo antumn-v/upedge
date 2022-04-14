@@ -4,12 +4,15 @@ import com.upedge.common.base.BaseResponse;
 import com.upedge.common.component.annotation.Permission;
 import com.upedge.common.constant.Constant;
 import com.upedge.common.constant.ResultCode;
+import com.upedge.common.constant.key.RedisKey;
 import com.upedge.common.model.user.vo.Session;
+import com.upedge.common.web.util.RedisUtil;
 import com.upedge.common.web.util.UserUtil;
 import com.upedge.sms.modules.overseaWarehouse.entity.OverseaWarehouseServiceOrder;
 import com.upedge.sms.modules.overseaWarehouse.entity.OverseaWarehouseServiceOrderFreight;
 import com.upedge.sms.modules.overseaWarehouse.request.OverseaWarehouseServiceOrderCreateRequest;
 import com.upedge.sms.modules.overseaWarehouse.request.OverseaWarehouseServiceOrderListRequest;
+import com.upedge.sms.modules.overseaWarehouse.request.OverseaWarehouseServiceOrderPayRequest;
 import com.upedge.sms.modules.overseaWarehouse.request.OverseaWarehouseServiceOrderUpdateFreightRequest;
 import com.upedge.sms.modules.overseaWarehouse.response.OverseaWarehouseServiceOrderListResponse;
 import com.upedge.sms.modules.overseaWarehouse.service.OverseaWarehouseServiceOrderFreightService;
@@ -69,7 +72,7 @@ public class OverseaWarehouseServiceOrderController {
 
     @ApiOperation("修改订单运费")
     @PostMapping("/updateFreight")
-    public BaseResponse updateFreight(@RequestBody OverseaWarehouseServiceOrderUpdateFreightRequest request){
+    public BaseResponse updateFreight(@RequestBody@Valid OverseaWarehouseServiceOrderUpdateFreightRequest request){
         OverseaWarehouseServiceOrder overseaWarehouseServiceOrder = overseaWarehouseServiceOrderService.selectByPrimaryKey(request.getOrderId());
         if (null == overseaWarehouseServiceOrder
         || overseaWarehouseServiceOrder.getPayState() != 0){
@@ -82,4 +85,17 @@ public class OverseaWarehouseServiceOrderController {
         return BaseResponse.success();
     }
 
+    @ApiOperation("支付订单")
+    @PostMapping("/pay")
+    public BaseResponse payOrder(@RequestBody@Valid OverseaWarehouseServiceOrderPayRequest request){
+        Session session = UserUtil.getSession(redisTemplate);
+        String key = RedisKey.CUSTOMER_PAY_ORDER_LOCK + session.getCustomerId();
+        boolean b = RedisUtil.lock(redisTemplate,key,10L,20 *1000L);
+        if (!b){
+            return BaseResponse.failed("There is a transaction in progress");
+        }
+        BaseResponse response = overseaWarehouseServiceOrderService.orderPay(request,session);
+        RedisUtil.unLock(redisTemplate,key);
+        return response;
+    }
 }
