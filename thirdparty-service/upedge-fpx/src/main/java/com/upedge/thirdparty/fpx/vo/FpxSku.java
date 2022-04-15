@@ -26,6 +26,10 @@ public class FpxSku {
     private String specification;
     @JsonProperty("uom")
     private String uom;
+    @JsonProperty("pcs")
+    private Integer pcs;
+    @JsonProperty("single_sku_code")
+    private String singleSkuCode;
     @JsonProperty("wrapping")
     private String wrapping;
     @JsonProperty("appearance")

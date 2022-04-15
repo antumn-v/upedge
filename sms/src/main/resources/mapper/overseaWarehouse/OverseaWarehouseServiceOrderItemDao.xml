@@ -368,4 +368,18 @@
         from oversea_warehouse_service_order_item
         where order_id = #{orderId}
     </select>
+
+    <update id="updateWarehouseSkuByVariantId">
+        update oversea_warehouse_service_order_item
+            set warehouse_sku = #{warehouseSku}
+        where variant_id = #{variantId}
+    </update>
+
+    <update id="updateWarehouseSkuByOrderId">
+        update oversea_warehouse_service_order_item owsoi
+            inner join oversea_warehouse_sku ows
+        on owsoi.variant_id = ows.variant_id
+        set owsoi.warehouse_sku = ows.warehouse_sku_code
+        where owsoi.order_id = #{orderId}
+    </update>
 </mapper>

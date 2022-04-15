@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.upedge.sms.modules.overseaWarehouse.dao.OverseaWarehouseSkuDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.upedge.sms.modules.overseaWarehouse.entity.OverseaWarehouseSku" id="BaseResultMap">
+        <result property="variantId" column="variant_id"/>
+        <result property="variantSku" column="variant_sku"/>
+        <result property="warehouseSkuId" column="warehouse_sku_id"/>
+        <result property="warehouseSkuCode" column="warehouse_sku_code"/>
+        <result property="createTime" column="create_time"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        `variant_id`,`variant_sku`,`warehouse_sku_id`,`warehouse_sku_code`,`create_time`
+    </sql>
+
+    <select id="selectByPrimaryKey" parameterType="com.upedge.sms.modules.overseaWarehouse.entity.OverseaWarehouseSku" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from oversea_warehouse_sku
+        where variant_id = #{variantId}
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="com.upedge.sms.modules.overseaWarehouse.entity.OverseaWarehouseSku">
+        delete from oversea_warehouse_sku
+        where variant_id = #{variantId}
+    </delete>
+
+    <update id="updateByPrimaryKeySelective" parameterType="com.upedge.sms.modules.overseaWarehouse.entity.OverseaWarehouseSku">
+        update oversea_warehouse_sku
+        <set>
+            <if test="variantSku != null">
+                variant_sku = #{variantSku},
+            </if>
+            <if test="warehouseSkuId != null">
+                warehouse_sku_id = #{warehouseSkuId},
+            </if>
+            <if test="warehouseSkuCode != null">
+                warehouse_sku_code = #{warehouseSkuCode},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime},
+            </if>
+        </set>
+        where variant_id = #{variantId}
+    </update>
+
+    <update id="updateByPrimaryKey" parameterType="com.upedge.sms.modules.overseaWarehouse.entity.OverseaWarehouseSku">
+        update oversea_warehouse_sku
+        <set>
+        variant_id = #{variantId},
+        variant_sku = #{variantSku},
+        warehouse_sku_id = #{warehouseSkuId},
+        warehouse_sku_code = #{warehouseSkuCode},
+        create_time = #{createTime},
+        </set>
+        where variant_id = #{variantId}
+    </update>
+
+    <insert id="insert" keyColumn="variant_id" keyProperty="variantId" parameterType="com.upedge.sms.modules.overseaWarehouse.entity.OverseaWarehouseSku" useGeneratedKeys="true">
+        insert into oversea_warehouse_sku
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            variant_id,
+            variant_sku,
+            warehouse_sku_id,
+            warehouse_sku_code,
+            create_time
+        </trim>
+        values (
+        #{variantId},
+        #{variantSku},
+        #{warehouseSkuId},
+        #{warehouseSkuCode},
+        #{createTime}
+        )
+    </insert>
+
+    <insert id="insertSelective"  keyColumn="variant_id" keyProperty="variantId"  parameterType="com.upedge.sms.modules.overseaWarehouse.entity.OverseaWarehouseSku" useGeneratedKeys="true">
+        insert into oversea_warehouse_sku
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="variantId != null" >
+              variant_id
+            </if>
+            <if test="variantSku != null" >
+              variant_sku
+            </if>
+            <if test="warehouseSkuId != null" >
+              warehouse_sku_id
+            </if>
+            <if test="warehouseSkuCode != null" >
+              warehouse_sku_code
+            </if>
+            <if test="createTime != null" >
+              create_time
+            </if>
+
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="variantId != null" >
+                #{variantId}
+            </if>
+            <if test="variantSku != null" >
+                #{variantSku}
+            </if>
+            <if test="warehouseSkuId != null" >
+                #{warehouseSkuId}
+            </if>
+            <if test="warehouseSkuCode != null" >
+                #{warehouseSkuCode}
+            </if>
+            <if test="createTime != null" >
+                #{createTime}
+            </if>
+
+        </trim>
+    </insert>
+
+    <insert id="insertByBatch" parameterType="java.util.List">
+        insert into oversea_warehouse_sku
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+           variant_id,
+           variant_sku,
+           warehouse_sku_id,
+           warehouse_sku_code,
+           create_time
+        </trim>
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+               #{item.variantId},
+               #{item.variantSku},
+               #{item.warehouseSkuId},
+               #{item.warehouseSkuCode},
+               #{item.createTime}
+            </trim>
+        </foreach>
+    </insert>
+
+    <sql id="Query_Condition">
+        <if test="t != null">
+            where
+            <trim prefix=" " suffix=" " suffixOverrides=" and ">
+                1 = 1 and
+                    <if test="t.variantId != null">
+                        variant_id = #{t.variantId} and
+                    </if>
+                    <if test="t.variantSku != null">
+                        variant_sku = #{t.variantSku} and
+                    </if>
+                    <if test="t.warehouseSkuId != null">
+                        warehouse_sku_id = #{t.warehouseSkuId} and
+                    </if>
+                    <if test="t.warehouseSkuCode != null">
+                        warehouse_sku_code = #{t.warehouseSkuCode} and
+                    </if>
+                    <if test="t.createTime != null">
+                        create_time = #{t.createTime} and
+                    </if>
+            </trim>
+        </if>
+    </sql>
+
+    <select id="select" parameterType="com.upedge.common.base.Page" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from oversea_warehouse_sku
+        <include refid="Query_Condition"/>
+        <if test="orderBy != null">
+            order by ${orderBy}
+        </if>
+        <if test="pageNum != null and pageSize != null">
+            limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+        </if>
+    </select>
+
+    <select id="count" parameterType="com.upedge.common.base.Page" resultType="java.lang.Long">
+        select
+        count(1)
+        from oversea_warehouse_sku
+        <include refid="Query_Condition"/>
+    </select>
+
+
+</mapper>

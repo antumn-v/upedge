@@ -2,13 +2,18 @@ package com.upedge.sms.modules.overseaWarehouse.dao;
 
 import com.upedge.common.base.Page;
 import com.upedge.sms.modules.overseaWarehouse.entity.OverseaWarehouseServiceOrderItem;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
 /**
  * @author gx
  */
-public interface OverseaWarehouseServiceOrderItemDao{
+public interface OverseaWarehouseServiceOrderItemDao {
+
+    int updateWarehouseSkuByOrderId(Long orderId);
+
+    int updateWarehouseSkuByVariantId(@Param("variantId") Long variantId, @Param("warehouseSku") String warehouseSku);
 
     List<OverseaWarehouseServiceOrderItem> selectByOrderId(Long orderId);
 

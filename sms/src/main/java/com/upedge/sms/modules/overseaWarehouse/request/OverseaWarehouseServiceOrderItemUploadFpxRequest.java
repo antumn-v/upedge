@@ -14,6 +14,8 @@ public class OverseaWarehouseServiceOrderItemUploadFpxRequest {
     boolean ifBox;
     //每箱个数
     Integer pcs;
+    @NotNull
+    String uom;
     //包装属性
     @NotNull
     String wrapping;

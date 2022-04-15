@@ -138,6 +138,7 @@ public class OverseaWarehouseServiceOrderServiceImpl implements OverseaWarehouse
         overseaWarehouseServiceOrder.setShipType(shipType);
         overseaWarehouseServiceOrderDao.updateOrderAsPaid(overseaWarehouseServiceOrder);
         serviceOrderService.updateToPaidByRelateId(orderId,OrderType.EXTRA_SERVICE_OVERSEA_WAREHOUSE,payAmount,payTime);
+        overseaWarehouseServiceOrderItemService.updateWarehouseSkuByOrderId(orderId);
         //发送消息
         sendSaveTransactionRecordMessage(session.getId(),overseaWarehouseServiceOrder);
         return BaseResponse.success();

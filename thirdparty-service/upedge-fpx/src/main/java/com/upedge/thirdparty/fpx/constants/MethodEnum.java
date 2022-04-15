@@ -28,7 +28,11 @@ public enum MethodEnum {
     /**
      * 创建入库委托
      */
-    create_inbound("fu.wms.inbound.create")
+    create_inbound("fu.wms.inbound.create"),
+    /**
+     * 查询计量单位
+     */
+    measure_unit_list("com.basis.measureunit.getlist")
     ;
 
     String method;

@@ -6,12 +6,19 @@ import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.utils.ListUtils;
 import com.upedge.sms.modules.overseaWarehouse.dao.OverseaWarehouseServiceOrderItemDao;
 import com.upedge.sms.modules.overseaWarehouse.entity.OverseaWarehouseServiceOrderItem;
+import com.upedge.sms.modules.overseaWarehouse.entity.OverseaWarehouseSku;
 import com.upedge.sms.modules.overseaWarehouse.request.OverseaWarehouseServiceOrderItemUploadFpxRequest;
 import com.upedge.sms.modules.overseaWarehouse.service.OverseaWarehouseServiceOrderItemService;
+import com.upedge.sms.modules.overseaWarehouse.service.OverseaWarehouseSkuService;
+import com.upedge.thirdparty.fpx.api.FpxWmsApi;
+import com.upedge.thirdparty.fpx.vo.FpxSku;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 
@@ -20,6 +27,9 @@ public class OverseaWarehouseServiceOrderItemServiceImpl implements OverseaWareh
 
     @Autowired
     private OverseaWarehouseServiceOrderItemDao overseaWarehouseServiceOrderItemDao;
+
+    @Autowired
+    OverseaWarehouseSkuService overseaWarehouseSkuService;
 
 
 
@@ -60,7 +70,38 @@ public class OverseaWarehouseServiceOrderItemServiceImpl implements OverseaWareh
     @Override
     public BaseResponse uploadFpx(OverseaWarehouseServiceOrderItemUploadFpxRequest request, Session session) {
         OverseaWarehouseServiceOrderItem orderItem = selectByPrimaryKey(request.getItemId());
-        return null;
+        if (orderItem == null){
+            return BaseResponse.failed();
+        }
+        FpxSku fpxSku = new FpxSku();
+        BeanUtils.copyProperties(request,fpxSku);
+        if (request.isIfBox()){
+            fpxSku.setSingleSkuCode(orderItem.getVariantSku());
+            fpxSku.setSkuCode(System.currentTimeMillis() + "");
+        }else {
+            fpxSku.setSkuCode(orderItem.getVariantSku());
+        }
+        List<String> images = new ArrayList<>();
+        images.add(orderItem.getVariantImage());
+        fpxSku.setPictureUrl(images);
+        try {
+            fpxSku = FpxWmsApi.createSku(fpxSku);
+            OverseaWarehouseSku overseaWarehouseSku = new OverseaWarehouseSku();
+            overseaWarehouseSku.setWarehouseSkuId(fpxSku.getSkuId());
+            overseaWarehouseSku.setWarehouseSkuCode(fpxSku.getSkuCode());
+            overseaWarehouseSku.setCreateTime(new Date());
+            overseaWarehouseSku.setVariantId(orderItem.getVariantId());
+            overseaWarehouseSku.setVariantSku(orderItem.getVariantSku());
+            overseaWarehouseSkuService.insert(overseaWarehouseSku);
+        } catch (Exception e) {
+            return BaseResponse.failed(e.getMessage());
+        }
+        return BaseResponse.success();
+    }
+
+    @Override
+    public int updateWarehouseSkuByOrderId(Long orderId) {
+        return overseaWarehouseServiceOrderItemDao.updateWarehouseSkuByOrderId(orderId);
     }
 
     @Override

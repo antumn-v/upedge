@@ -15,6 +15,8 @@ public interface OverseaWarehouseServiceOrderItemService{
 
     BaseResponse uploadFpx(OverseaWarehouseServiceOrderItemUploadFpxRequest request, Session session);
 
+    int updateWarehouseSkuByOrderId(Long orderId);
+
     List<OverseaWarehouseServiceOrderItem> selectByOrderId(Long orderId);
 
     OverseaWarehouseServiceOrderItem selectByPrimaryKey(Long id);
