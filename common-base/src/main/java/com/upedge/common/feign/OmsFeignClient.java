@@ -56,7 +56,7 @@ public interface OmsFeignClient  {
     public BaseResponse cartAdd(@RequestBody @Valid CartAddRequest request);
 
     @PostMapping("/cart/selectByIds")
-    public List<CartVo> selectByIds(List<Long> ids, Integer cartType, Long customerId);
+    public List<CartVo> selectByIds(@RequestParam List<Long> ids, @RequestParam Integer cartType, @RequestParam Long customerId);
 
     @PostMapping("/storeOrder/shopify/update")
     public BaseResponse updateShopifyOrder(@RequestBody StoreApiRequest request);

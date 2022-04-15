@@ -1,9 +1,12 @@
 package com.upedge.sms.modules.overseaWarehouse.service.impl;
 
+import com.upedge.common.base.BaseResponse;
 import com.upedge.common.base.Page;
+import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.utils.ListUtils;
 import com.upedge.sms.modules.overseaWarehouse.dao.OverseaWarehouseServiceOrderItemDao;
 import com.upedge.sms.modules.overseaWarehouse.entity.OverseaWarehouseServiceOrderItem;
+import com.upedge.sms.modules.overseaWarehouse.request.OverseaWarehouseServiceOrderItemUploadFpxRequest;
 import com.upedge.sms.modules.overseaWarehouse.service.OverseaWarehouseServiceOrderItemService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -52,6 +55,12 @@ public class OverseaWarehouseServiceOrderItemServiceImpl implements OverseaWareh
     @Transactional
     public int insertSelective(OverseaWarehouseServiceOrderItem record) {
         return overseaWarehouseServiceOrderItemDao.insert(record);
+    }
+
+    @Override
+    public BaseResponse uploadFpx(OverseaWarehouseServiceOrderItemUploadFpxRequest request, Session session) {
+        OverseaWarehouseServiceOrderItem orderItem = selectByPrimaryKey(request.getItemId());
+        return null;
     }
 
     @Override

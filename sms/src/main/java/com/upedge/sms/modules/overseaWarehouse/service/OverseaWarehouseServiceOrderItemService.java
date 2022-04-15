@@ -1,13 +1,19 @@
 package com.upedge.sms.modules.overseaWarehouse.service;
 
-import com.upedge.sms.modules.overseaWarehouse.entity.OverseaWarehouseServiceOrderItem;
+import com.upedge.common.base.BaseResponse;
 import com.upedge.common.base.Page;
+import com.upedge.common.model.user.vo.Session;
+import com.upedge.sms.modules.overseaWarehouse.entity.OverseaWarehouseServiceOrderItem;
+import com.upedge.sms.modules.overseaWarehouse.request.OverseaWarehouseServiceOrderItemUploadFpxRequest;
+
 import java.util.List;
 
 /**
  * @author gx
  */
 public interface OverseaWarehouseServiceOrderItemService{
+
+    BaseResponse uploadFpx(OverseaWarehouseServiceOrderItemUploadFpxRequest request, Session session);
 
     List<OverseaWarehouseServiceOrderItem> selectByOrderId(Long orderId);
 

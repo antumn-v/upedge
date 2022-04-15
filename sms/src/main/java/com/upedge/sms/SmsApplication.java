@@ -1,9 +1,24 @@
 package com.upedge.sms;
 
+import io.seata.spring.annotation.datasource.EnableAutoDataSourceProxy;
+import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
+import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
+import org.springframework.cloud.openfeign.EnableFeignClients;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
 
-@SpringBootApplication
+@EnableTransactionManagement
+@EnableScheduling
+@EnableFeignClients(basePackages = "com.upedge.common.feign")
+@EnableDiscoveryClient
+@SpringBootApplication(exclude = DataSourceAutoConfiguration.class)
+@EnableAutoDataSourceProxy
+@ComponentScan(basePackages = {"com.upedge.sms.*","com.upedge.redis.*","com.upedge.common.*"})
+@MapperScan( "com.upedge.sms.modules.*.dao")
 public class SmsApplication {
 
     public static void main(String[] args) {

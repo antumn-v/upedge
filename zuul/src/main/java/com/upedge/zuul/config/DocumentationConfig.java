@@ -40,6 +40,7 @@ public class DocumentationConfig implements SwaggerResourcesProvider {
         resources.add(swaggerResource("运输模块tms", "/tms/v2/api-docs", "1.0"));
         resources.add(swaggerResource("订单模块oms", "/oms/v2/api-docs", "1.0"));
         resources.add(swaggerResource("内容模块cms", "/cms/v2/api-docs", "1.0"));
+        resources.add(swaggerResource("服务模块sms", "/sms/v2/api-docs", "1.0"));
         List<Route> routes = routeLocator.getRoutes();
         //通过RouteLocator获取路由配置，遍历获取所配置服务的接口文档，这样不需要手动添加，实现动态获取
         for (Route route : routes) {

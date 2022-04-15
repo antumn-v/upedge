@@ -63,7 +63,7 @@ public class OverseaWarehouseServiceOrderItemUpdateRequest{
         overseaWarehouseServiceOrderItem.setProductTitle(productTitle);
         overseaWarehouseServiceOrderItem.setQuantity(quantity);
         overseaWarehouseServiceOrderItem.setPrice(price);
-        overseaWarehouseServiceOrderItem.setwarehouseSku(warehouseSku);
+        overseaWarehouseServiceOrderItem.setWarehouseSku(warehouseSku);
         return overseaWarehouseServiceOrderItem;
     }
 

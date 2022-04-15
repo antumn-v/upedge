@@ -1,9 +1,8 @@
 package com.upedge.sms.modules.overseaWarehouse.request;
 
-import com.upedge.common.base.Page;
 import com.upedge.sms.modules.overseaWarehouse.entity.OverseaWarehouseServiceOrderItem;
-import java.util.Date;
 import lombok.Data;
+
 import java.math.BigDecimal;
 /**
  * @author gx
@@ -63,7 +62,7 @@ public class OverseaWarehouseServiceOrderItemAddRequest{
         overseaWarehouseServiceOrderItem.setProductTitle(productTitle);
         overseaWarehouseServiceOrderItem.setQuantity(quantity);
         overseaWarehouseServiceOrderItem.setPrice(price);
-        overseaWarehouseServiceOrderItem.setwarehouseSku(warehouseSku);
+        overseaWarehouseServiceOrderItem.setWarehouseSku(warehouseSku);
         return overseaWarehouseServiceOrderItem;
     }
 

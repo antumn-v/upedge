@@ -54,16 +54,7 @@ public class ServiceOrderController {
         return res;
     }
 
-    @ApiOperation("审核列表")
-    @PostMapping("/reviewList")
-    public BaseResponse reviewList(@RequestBody @Valid ServiceOrderListRequest request){
-        request.setCondition("ship_type is null");
-        List<ServiceOrder> results = serviceOrderService.select(request);
-        Long total = serviceOrderService.count(request);
-        request.setTotal(total);
-        ServiceOrderListResponse res = new ServiceOrderListResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS,results,request);
-        return res;
-    }
+
 
 
     @RequestMapping(value="/info/{id}", method=RequestMethod.GET)

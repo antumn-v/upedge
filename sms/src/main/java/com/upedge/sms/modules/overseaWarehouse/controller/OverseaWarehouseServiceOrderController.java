@@ -98,4 +98,16 @@ public class OverseaWarehouseServiceOrderController {
         RedisUtil.unLock(redisTemplate,key);
         return response;
     }
+
+
+    @ApiOperation("审核列表")
+    @PostMapping("/reviewList")
+    public BaseResponse reviewList(@RequestBody @Valid OverseaWarehouseServiceOrderListRequest request){
+        request.setCondition("ship_type is null");
+        List<OverseaWarehouseServiceOrder> results = overseaWarehouseServiceOrderService.select(request);
+        Long total = overseaWarehouseServiceOrderService.count(request);
+        request.setTotal(total);
+        BaseResponse res = new BaseResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS,results,request);
+        return res;
+    }
 }
