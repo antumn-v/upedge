@@ -10,6 +10,8 @@ import java.util.List;
 @Data
 public class OverseaWarehouseServiceOrderVo extends OverseaWarehouseServiceOrder {
 
+    private String warehouseName;
+
     List<OverseaWarehouseServiceOrderItem> orderItems;
 
     List<OverseaWarehouseServiceOrderFreight> orderFreights;

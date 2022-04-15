@@ -93,6 +93,10 @@ public class OverseaWarehouseServiceOrder{
     private BigDecimal totalVolume;
 
 	public OverseaWarehouseServiceOrder() {
+
+	}
+
+	public void init(){
 		this.payState = 0;
 		this.refundState = 0;
 		this.shipState = 0;

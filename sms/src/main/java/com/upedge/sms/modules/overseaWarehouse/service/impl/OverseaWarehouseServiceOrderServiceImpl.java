@@ -5,6 +5,7 @@ import com.upedge.common.base.BaseResponse;
 import com.upedge.common.base.Page;
 import com.upedge.common.constant.OrderType;
 import com.upedge.common.constant.ResultCode;
+import com.upedge.common.constant.key.RedisKey;
 import com.upedge.common.constant.key.RocketMqConfig;
 import com.upedge.common.feign.OmsFeignClient;
 import com.upedge.common.feign.UmsFeignClient;
@@ -13,6 +14,7 @@ import com.upedge.common.model.cart.request.CartSelectByIdsRequest;
 import com.upedge.common.model.cart.request.CartVo;
 import com.upedge.common.model.order.PaymentDetail;
 import com.upedge.common.model.order.TransactionDetail;
+import com.upedge.common.model.tms.WarehouseVo;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.utils.IdGenerate;
 import com.upedge.common.utils.ListUtils;
@@ -23,6 +25,7 @@ import com.upedge.sms.modules.overseaWarehouse.entity.OverseaWarehouseServiceOrd
 import com.upedge.sms.modules.overseaWarehouse.entity.OverseaWarehouseServiceOrderFreight;
 import com.upedge.sms.modules.overseaWarehouse.entity.OverseaWarehouseServiceOrderItem;
 import com.upedge.sms.modules.overseaWarehouse.request.OverseaWarehouseServiceOrderCreateRequest;
+import com.upedge.sms.modules.overseaWarehouse.request.OverseaWarehouseServiceOrderListRequest;
 import com.upedge.sms.modules.overseaWarehouse.request.OverseaWarehouseServiceOrderPayRequest;
 import com.upedge.sms.modules.overseaWarehouse.service.OverseaWarehouseServiceOrderFreightService;
 import com.upedge.sms.modules.overseaWarehouse.service.OverseaWarehouseServiceOrderItemService;
@@ -40,6 +43,8 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ThreadPoolExecutor;
 
 
 @Service
@@ -56,6 +61,9 @@ public class OverseaWarehouseServiceOrderServiceImpl implements OverseaWarehouse
 
     @Autowired
     ServiceOrderService serviceOrderService;
+
+    @Autowired
+    ThreadPoolExecutor threadPoolExecutor;
 
     @Autowired
     OmsFeignClient omsFeignClient;
@@ -96,6 +104,31 @@ public class OverseaWarehouseServiceOrderServiceImpl implements OverseaWarehouse
     @Override
     public List<OverseaWarehouseServiceOrderVo> selectAllUnPaidList() {
         return overseaWarehouseServiceOrderDao.selectAllUnPaidList();
+    }
+
+    @Override
+    public List<OverseaWarehouseServiceOrderVo> orderList(OverseaWarehouseServiceOrderListRequest request) {
+        List<OverseaWarehouseServiceOrder> overseaWarehouseServiceOrders = select(request);
+        if (ListUtils.isEmpty(overseaWarehouseServiceOrders)){
+            return new ArrayList<>();
+        }
+        List<CompletableFuture> completableFutures = new ArrayList<>();
+        List<OverseaWarehouseServiceOrderVo> overseaWarehouseServiceOrderVos = new ArrayList<>();
+        for (OverseaWarehouseServiceOrder overseaWarehouseServiceOrder : overseaWarehouseServiceOrders) {
+            CompletableFuture<Void> future = CompletableFuture.runAsync(new Runnable() {
+                @Override
+                public void run() {
+                    overseaWarehouseServiceOrderVos.add(orderDetail(overseaWarehouseServiceOrder.getId()));
+                }
+            },threadPoolExecutor);
+            completableFutures.add(future);
+        }
+        try {
+            Thread.sleep(100L);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        return overseaWarehouseServiceOrderVos;
     }
 
     @GlobalTransactional
@@ -158,6 +191,9 @@ public class OverseaWarehouseServiceOrderServiceImpl implements OverseaWarehouse
 
         List<OverseaWarehouseServiceOrderFreight> orderFreights = overseaWarehouseServiceOrderFreightService.selectByOrderId(orderId);
         overseaWarehouseServiceOrderVo.setOrderFreights(orderFreights);
+
+        WarehouseVo warehouseVo = (WarehouseVo) redisTemplate.opsForValue().get(RedisKey.STRING_WAREHOUSE + overseaWarehouseServiceOrder.getWarehouseCode());
+        overseaWarehouseServiceOrderVo.setWarehouseName(warehouseVo.getWarehouseEnEame());
         return overseaWarehouseServiceOrderVo;
     }
 
@@ -191,6 +227,8 @@ public class OverseaWarehouseServiceOrderServiceImpl implements OverseaWarehouse
         overseaWarehouseServiceOrderItemService.insertByBatch(orderItems);
 
         OverseaWarehouseServiceOrder overseaWarehouseServiceOrder = new OverseaWarehouseServiceOrder();
+        overseaWarehouseServiceOrder.init();
+        overseaWarehouseServiceOrder.setWarehouseCode(request.getWarehouseCode());
         overseaWarehouseServiceOrder.setCustomerId(session.getCustomerId());
         overseaWarehouseServiceOrder.setId(orderId);
         overseaWarehouseServiceOrder.setTotalWeight(totalWeight);
@@ -205,7 +243,6 @@ public class OverseaWarehouseServiceOrderServiceImpl implements OverseaWarehouse
             overseaWarehouseServiceOrderFreight.setId(IdGenerate.nextId());
             overseaWarehouseServiceOrderFreight.setOrderId(orderId);
             overseaWarehouseServiceOrderFreight.setShipType(shipType);
-            overseaWarehouseServiceOrderFreight.setShipPrice(BigDecimal.ZERO);
             orderFreights.add(overseaWarehouseServiceOrderFreight);
         }
         overseaWarehouseServiceOrderFreightService.insertByBatch(orderFreights);
