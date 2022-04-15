@@ -6,6 +6,7 @@ import com.upedge.common.feign.fallback.OmsFeignClientFallbackFactory;
 import com.upedge.common.model.account.PaypalOrder;
 import com.upedge.common.model.account.PaypalPayment;
 import com.upedge.common.model.cart.request.CartAddRequest;
+import com.upedge.common.model.cart.request.CartSelectByIdsRequest;
 import com.upedge.common.model.cart.request.CartVo;
 import com.upedge.common.model.order.request.ManagerActualRequest;
 import com.upedge.common.model.order.request.OrderDailyCountRequest;
@@ -56,7 +57,10 @@ public interface OmsFeignClient  {
     public BaseResponse cartAdd(@RequestBody @Valid CartAddRequest request);
 
     @PostMapping("/cart/selectByIds")
-    public List<CartVo> selectByIds(@RequestParam List<Long> ids, @RequestParam Integer cartType, @RequestParam Long customerId);
+    public List<CartVo> selectByIds(@RequestBody CartSelectByIdsRequest request);
+
+    @PostMapping("/cart/submitByIds")
+    public BaseResponse submitByIds(@RequestBody List<Long> cartIds);
 
     @PostMapping("/storeOrder/shopify/update")
     public BaseResponse updateShopifyOrder(@RequestBody StoreApiRequest request);

@@ -17,6 +17,9 @@ import java.util.List;
  */
 public interface CartService{
 
+    int updateStateByIds(List<Long> ids,
+                         Integer state);
+
     BaseResponse addStockCart(CartAddRequest request);
 
     Long cartSubmitStockOrder(CartSubmitOrderRequest request, Session session);

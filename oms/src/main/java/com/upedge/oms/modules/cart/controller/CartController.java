@@ -5,6 +5,7 @@ import com.upedge.common.component.annotation.Permission;
 import com.upedge.common.constant.Constant;
 import com.upedge.common.constant.ResultCode;
 import com.upedge.common.model.cart.request.CartAddRequest;
+import com.upedge.common.model.cart.request.CartSelectByIdsRequest;
 import com.upedge.common.model.cart.request.CartVo;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.utils.ListUtils;
@@ -191,8 +192,8 @@ public class CartController {
 
 
     @PostMapping("/selectByIds")
-    public List<CartVo> selectByIds(List<Long> ids,Integer cartType,Long customerId){
-        List<Cart> carts = cartService.selectByIdsAndType(ids, cartType, customerId);
+    public List<CartVo> selectByIds(@RequestBody CartSelectByIdsRequest request){
+        List<Cart> carts = cartService.selectByIdsAndType(request.getIds(), request.getCartType(), request.getCustomerId());
         List<CartVo> cartVos = new ArrayList<>();
         for (Cart cart : carts) {
             CartVo cartVo = new CartVo();
@@ -200,6 +201,12 @@ public class CartController {
             cartVos.add(cartVo);
         }
         return cartVos;
+    }
+
+    @PostMapping("/submitByIds")
+    public BaseResponse submitByIds(@RequestBody List<Long> cartIds){
+        cartService.updateStateByIds(cartIds,1);
+        return BaseResponse.success();
     }
 
 }

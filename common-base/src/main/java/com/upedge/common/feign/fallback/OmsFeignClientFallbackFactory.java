@@ -7,6 +7,7 @@ import com.upedge.common.feign.OmsFeignClient;
 import com.upedge.common.model.account.PaypalOrder;
 import com.upedge.common.model.account.PaypalPayment;
 import com.upedge.common.model.cart.request.CartAddRequest;
+import com.upedge.common.model.cart.request.CartSelectByIdsRequest;
 import com.upedge.common.model.cart.request.CartVo;
 import com.upedge.common.model.order.request.ManagerActualRequest;
 import com.upedge.common.model.order.request.OrderDailyCountRequest;
@@ -61,8 +62,13 @@ public class OmsFeignClientFallbackFactory implements FallbackFactory<OmsFeignCl
             }
 
             @Override
-            public List<CartVo> selectByIds(List<Long> ids, Integer cartType, Long customerId) {
+            public List<CartVo> selectByIds(CartSelectByIdsRequest request) {
                 return new ArrayList<>();
+            }
+
+            @Override
+            public BaseResponse submitByIds(List<Long> cartIds) {
+                return BaseResponse.failed();
             }
 
             @Override

@@ -67,7 +67,7 @@
             </foreach>
         </if>
         and `state` = '0'
-        and cart_type = #{cartType};
+        and cart_type = #{cartType}
         and customer_id = #{customerId}
     </select>
 

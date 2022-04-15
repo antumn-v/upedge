@@ -77,6 +77,11 @@ public class CartServiceImpl implements CartService {
 
 
     @Override
+    public int updateStateByIds(List<Long> ids, Integer state) {
+        return cartDao.updateStateByIds(ids, state);
+    }
+
+    @Override
     public BaseResponse addStockCart(CartAddRequest request) {
         if (null == request.getVariantId()){
             return BaseResponse.failed();
