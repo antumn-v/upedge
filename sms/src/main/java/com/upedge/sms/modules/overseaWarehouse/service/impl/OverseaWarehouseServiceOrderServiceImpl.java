@@ -9,6 +9,7 @@ import com.upedge.common.constant.key.RocketMqConfig;
 import com.upedge.common.feign.OmsFeignClient;
 import com.upedge.common.feign.UmsFeignClient;
 import com.upedge.common.model.account.AccountPaymentRequest;
+import com.upedge.common.model.cart.request.CartSelectByIdsRequest;
 import com.upedge.common.model.cart.request.CartVo;
 import com.upedge.common.model.order.PaymentDetail;
 import com.upedge.common.model.order.TransactionDetail;
@@ -162,7 +163,11 @@ public class OverseaWarehouseServiceOrderServiceImpl implements OverseaWarehouse
     @Transactional
     @Override
     public BaseResponse create(OverseaWarehouseServiceOrderCreateRequest request, Session session) {
-        List<CartVo> cartVos = omsFeignClient.selectByIds(request.getCartIds(),0,session.getCustomerId());
+        CartSelectByIdsRequest cartSelectByIdsRequest = new CartSelectByIdsRequest();
+        cartSelectByIdsRequest.setIds(request.getCartIds());
+        cartSelectByIdsRequest.setCartType(0);
+        cartSelectByIdsRequest.setCustomerId(session.getCustomerId());
+        List<CartVo> cartVos = omsFeignClient.selectByIds(cartSelectByIdsRequest);
         if (ListUtils.isEmpty(cartVos)){
             return BaseResponse.failed();
         }
@@ -196,8 +201,10 @@ public class OverseaWarehouseServiceOrderServiceImpl implements OverseaWarehouse
         List<Integer> shipTypes = request.getLogistics();;
         for (Integer shipType : shipTypes) {
             OverseaWarehouseServiceOrderFreight overseaWarehouseServiceOrderFreight = new OverseaWarehouseServiceOrderFreight();
+            overseaWarehouseServiceOrderFreight.setId(IdGenerate.nextId());
             overseaWarehouseServiceOrderFreight.setOrderId(orderId);
             overseaWarehouseServiceOrderFreight.setShipType(shipType);
+            overseaWarehouseServiceOrderFreight.setShipPrice(BigDecimal.ZERO);
             orderFreights.add(overseaWarehouseServiceOrderFreight);
         }
         overseaWarehouseServiceOrderFreightService.insertByBatch(orderFreights);
@@ -210,9 +217,10 @@ public class OverseaWarehouseServiceOrderServiceImpl implements OverseaWarehouse
         serviceOrder.setCreateTime(new Date());
         serviceOrder.setPayState(0);
         serviceOrder.setRefundState(0);
-        serviceOrder.setServiceType(0);
+        serviceOrder.setServiceType(OrderType.EXTRA_SERVICE_OVERSEA_WAREHOUSE);
         serviceOrder.setUpdateTime(new Date());
         serviceOrderService.insert(serviceOrder);
+        omsFeignClient.submitByIds(request.getCartIds());
         return BaseResponse.success();
     }
 
