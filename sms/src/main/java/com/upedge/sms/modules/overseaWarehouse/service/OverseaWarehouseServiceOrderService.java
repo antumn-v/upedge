@@ -15,6 +15,7 @@ import java.util.List;
  */
 public interface OverseaWarehouseServiceOrderService{
 
+    List<OverseaWarehouseServiceOrderVo> selectAllUnPaidList();
 
     BaseResponse orderPay(OverseaWarehouseServiceOrderPayRequest request,Session session);
 

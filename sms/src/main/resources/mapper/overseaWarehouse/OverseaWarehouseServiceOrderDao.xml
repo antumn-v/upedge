@@ -27,6 +27,52 @@
         <result property="totalVolume" column="total_volume"/>
     </resultMap>
 
+    <resultMap type="com.upedge.sms.modules.overseaWarehouse.vo.OverseaWarehouseServiceOrderVo" id="OverseaWarehouseServiceOrderVo">
+        <id property="id" column="id"/>
+        <result property="customerId" column="customer_id"/>
+        <result property="productAmount" column="product_amount"/>
+        <result property="shipPrice" column="ship_price"/>
+        <result property="shipType" column="ship_type"/>
+        <result property="payAmount" column="pay_amount"/>
+        <result property="payState" column="pay_state"/>
+        <result property="shipState" column="ship_state"/>
+        <result property="refundState" column="refund_state"/>
+        <result property="paymentId" column="payment_id"/>
+        <result property="warehouseCode" column="warehouse_code"/>
+        <result property="warehouseOrderId" column="warehouse_order_id"/>
+        <result property="warehouseOrderState" column="warehouse_order_state"/>
+        <result property="trackingCode" column="tracking_code"/>
+        <result property="payTime" column="pay_time"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="managerId" column="manager_id"/>
+        <result property="totalWeight" column="total_weight"/>
+        <result property="totalVolume" column="total_volume"/>
+        <collection property="orderItems" ofType="com.upedge.sms.modules.overseaWarehouse.entity.OverseaWarehouseServiceOrderItem">
+            <id property="id" column="id"/>
+            <result property="orderId" column="order_id"/>
+            <result property="variantId" column="variant_id"/>
+            <result property="productId" column="product_id"/>
+            <result property="variantName" column="variant_name"/>
+            <result property="variantSku" column="variant_sku"/>
+            <result property="variantImage" column="variant_image"/>
+            <result property="productTitle" column="product_title"/>
+            <result property="quantity" column="quantity"/>
+            <result property="price" column="price"/>
+            <result property="warehouseSku" column="warehouse_sku"/>
+            <result property="variantWeight" column="variant_weight"/>
+            <result property="length" column="length"/>
+            <result property="height" column="height"/>
+            <result property="width" column="width"/>
+        </collection>
+        <collection property="orderFreights" ofType="com.upedge.sms.modules.overseaWarehouse.entity.OverseaWarehouseServiceOrderFreight">
+            <id property="id" column="id"/>
+            <result property="orderId" column="order_id"/>
+            <result property="shipType" column="ship_type"/>
+            <result property="shipPrice" column="ship_price"/>
+        </collection>
+    </resultMap>
+
     <sql id="Base_Column_List">
         `id`,`customer_id`,`product_amount`,`ship_price`,`ship_type`,`pay_amount`,`pay_state`,`ship_state`,`refund_state`,`payment_id`,`warehouse_code`,`warehouse_order_id`,`warehouse_order_state`,`tracking_code`,`pay_time`,`create_time`,`update_time`,`manager_id`,`total_weight`,`total_volume`
     </sql>
@@ -463,4 +509,15 @@
         where id = #{id}
         and pay_state = '0';
     </update>
+
+    <select id="selectAllUnPaidList"
+            resultType="com.upedge.sms.modules.overseaWarehouse.vo.OverseaWarehouseServiceOrderVo">
+        select owso.*,owsoi.*,owsof.*
+            from oversea_warehouse_service_order owso
+        inner join oversea_warehouse_service_order_item owsoi
+        on owso.id = owsoi.order_id
+        inner join oversea_warehouse_service_order_freight owsof
+        on owso.id = owsof.order_id
+        where owso.ship_type is null;
+    </select>
 </mapper>

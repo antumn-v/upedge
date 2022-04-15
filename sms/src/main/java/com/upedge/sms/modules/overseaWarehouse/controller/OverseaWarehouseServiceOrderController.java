@@ -104,10 +104,10 @@ public class OverseaWarehouseServiceOrderController {
     @PostMapping("/reviewList")
     public BaseResponse reviewList(@RequestBody @Valid OverseaWarehouseServiceOrderListRequest request){
         request.setCondition("ship_type is null");
-        List<OverseaWarehouseServiceOrder> results = overseaWarehouseServiceOrderService.select(request);
-        Long total = overseaWarehouseServiceOrderService.count(request);
+        List<OverseaWarehouseServiceOrderVo> overseaWarehouseServiceOrderVos = overseaWarehouseServiceOrderService.selectAllUnPaidList();
+        Long total = Long.parseLong(overseaWarehouseServiceOrderVos.size() + "");
         request.setTotal(total);
-        BaseResponse res = new BaseResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS,results,request);
+        BaseResponse res = new BaseResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS,overseaWarehouseServiceOrderVos,request);
         return res;
     }
 }

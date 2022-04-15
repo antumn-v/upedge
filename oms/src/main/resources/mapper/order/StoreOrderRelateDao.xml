@@ -13,8 +13,8 @@
         <result property="fulfillmentStatus" column="fulfillment_status"/>
         <result property="platOrderCreateTime" column="plat_order_create_time"/>
         <result property="orderCreateTime" column="order_create_time"/>
-        <result property="store_name" column="storeName"/>
-        <result property="order_customer_name" column="orderCustomerName"/>
+        <result property="storeName" column="store_name"/>
+        <result property="orderCustomerName" column="order_customer_name"/>
     </resultMap>
 
     <sql id="Base_Column_List">

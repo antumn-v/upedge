@@ -112,4 +112,9 @@ public class RedisKey {
      * redis 锁  客户同时只能进行一笔交易
      */
     public static final String CUSTOMER_PAY_ORDER_LOCK = "customer:pay:order:lock:";
+
+    /**
+     * 审核中的海外仓服务订单
+     */
+    public static final String LIST_SERVICE_OVERSEA_WAREHOUSE_ORDER_REVIEW = "extraService:oversea:warehouse:order:review:list";
 }

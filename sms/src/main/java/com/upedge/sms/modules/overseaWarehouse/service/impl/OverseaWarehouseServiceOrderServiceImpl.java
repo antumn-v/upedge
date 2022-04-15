@@ -31,6 +31,7 @@ import io.seata.spring.annotation.GlobalTransactional;
 import org.apache.rocketmq.common.message.Message;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -61,6 +62,9 @@ public class OverseaWarehouseServiceOrderServiceImpl implements OverseaWarehouse
     @Autowired
     UmsFeignClient umsFeignClient;
 
+    @Autowired
+    RedisTemplate redisTemplate;
+
 
     /**
      *
@@ -86,6 +90,11 @@ public class OverseaWarehouseServiceOrderServiceImpl implements OverseaWarehouse
     @Transactional
     public int insertSelective(OverseaWarehouseServiceOrder record) {
         return overseaWarehouseServiceOrderDao.insert(record);
+    }
+
+    @Override
+    public List<OverseaWarehouseServiceOrderVo> selectAllUnPaidList() {
+        return overseaWarehouseServiceOrderDao.selectAllUnPaidList();
     }
 
     @GlobalTransactional
@@ -194,7 +203,7 @@ public class OverseaWarehouseServiceOrderServiceImpl implements OverseaWarehouse
         overseaWarehouseServiceOrderFreightService.insertByBatch(orderFreights);
 
         ServiceOrder serviceOrder = new ServiceOrder();
-        serviceOrder.setId(IdGenerate.nextId());
+        serviceOrder.setId(orderId);
         serviceOrder.setRelateId(orderId);
         serviceOrder.setServiceState(0);
         serviceOrder.setCustomerId(session.getCustomerId());
@@ -204,7 +213,6 @@ public class OverseaWarehouseServiceOrderServiceImpl implements OverseaWarehouse
         serviceOrder.setServiceType(0);
         serviceOrder.setUpdateTime(new Date());
         serviceOrderService.insert(serviceOrder);
-
         return BaseResponse.success();
     }
 

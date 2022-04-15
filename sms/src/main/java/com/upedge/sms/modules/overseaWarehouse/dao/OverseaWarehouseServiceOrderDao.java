@@ -2,6 +2,7 @@ package com.upedge.sms.modules.overseaWarehouse.dao;
 
 import com.upedge.common.base.Page;
 import com.upedge.sms.modules.overseaWarehouse.entity.OverseaWarehouseServiceOrder;
+import com.upedge.sms.modules.overseaWarehouse.vo.OverseaWarehouseServiceOrderVo;
 
 import java.util.List;
 
@@ -9,6 +10,8 @@ import java.util.List;
  * @author gx
  */
 public interface OverseaWarehouseServiceOrderDao {
+
+    List<OverseaWarehouseServiceOrderVo> selectAllUnPaidList();
 
     OverseaWarehouseServiceOrder selectByPrimaryKey(OverseaWarehouseServiceOrder record);
 
