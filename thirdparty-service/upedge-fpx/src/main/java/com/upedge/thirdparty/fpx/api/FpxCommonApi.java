@@ -1,6 +1,7 @@
 package com.upedge.thirdparty.fpx.api;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.upedge.thirdparty.fpx.constants.AmbientEnum;
 import com.upedge.thirdparty.fpx.constants.MethodEnum;
@@ -10,6 +11,7 @@ import com.upedge.thirdparty.fpx.request.FpxWarehouseMethodListRequest;
 import com.upedge.thirdparty.fpx.request.GetFpxWarehouseRequest;
 import com.upedge.thirdparty.fpx.utils.ApiHttpClientUtils;
 import com.upedge.thirdparty.fpx.vo.FpxApiResultVo;
+import com.upedge.thirdparty.fpx.vo.FpxMeasureUnit;
 import com.upedge.thirdparty.fpx.vo.FpxMethodVo;
 import com.upedge.thirdparty.fpx.vo.FpxWarehouseVo;
 
@@ -79,6 +81,24 @@ public class FpxCommonApi {
         FpxApiResultVo resultVo = JSONObject.parseObject(result,FpxApiResultVo.class);
         if (resultVo.getResult().equals("1")){
             return (List<FpxMethodVo>) resultVo.getData();
+        }
+        return null;
+    }
+
+    /**
+     * 选择计量单位
+     */
+    public static List<FpxMeasureUnit> selectMeasureUnit(){
+        param.setMethod(MethodEnum.measure_unit_list.getMethod());
+
+        String result = ApiHttpClientUtils.apiJsongPost(param,new JSONObject(), AmbientEnum.FORMAT_ADDRESS);
+        if (null == result){
+            return null;
+        }
+        FpxApiResultVo resultVo = JSONObject.parseObject(result,FpxApiResultVo.class);
+        if (resultVo.getResult().equals("1")){
+            JSONArray jsonArray = JSONArray.parseArray(JSON.toJSONString(resultVo.getData()));
+            return jsonArray.toJavaList(FpxMeasureUnit.class);
         }
         return null;
     }

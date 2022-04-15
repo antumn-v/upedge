@@ -1,26 +1,27 @@
 package com.upedge.sms.modules.overseaWarehouse.controller;
 
-import java.util.Arrays;
-import java.util.Map;
-
-import com.upedge.common.constant.ResultCode;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.upedge.common.base.BaseResponse;
 import com.upedge.common.component.annotation.Permission;
-import com.upedge.sms.modules.overseaWarehouse.entity.OverseaWarehouseServiceOrderItem;
-import com.upedge.sms.modules.overseaWarehouse.service.OverseaWarehouseServiceOrderItemService;
-import org.springframework.web.bind.annotation.*;
-import java.util.List;
 import com.upedge.common.constant.Constant;
+import com.upedge.common.constant.ResultCode;
+import com.upedge.common.model.user.vo.Session;
+import com.upedge.common.web.util.UserUtil;
+import com.upedge.sms.modules.overseaWarehouse.entity.OverseaWarehouseServiceOrderItem;
 import com.upedge.sms.modules.overseaWarehouse.request.OverseaWarehouseServiceOrderItemAddRequest;
 import com.upedge.sms.modules.overseaWarehouse.request.OverseaWarehouseServiceOrderItemListRequest;
 import com.upedge.sms.modules.overseaWarehouse.request.OverseaWarehouseServiceOrderItemUpdateRequest;
+import com.upedge.sms.modules.overseaWarehouse.request.OverseaWarehouseServiceOrderItemUploadFpxRequest;
+import com.upedge.sms.modules.overseaWarehouse.response.*;
+import com.upedge.sms.modules.overseaWarehouse.service.OverseaWarehouseServiceOrderItemService;
+import com.upedge.thirdparty.fpx.api.FpxCommonApi;
+import com.upedge.thirdparty.fpx.vo.FpxMeasureUnit;
+import io.swagger.annotations.ApiOperation;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.web.bind.annotation.*;
 
-import com.upedge.sms.modules.overseaWarehouse.response.OverseaWarehouseServiceOrderItemAddResponse;
-import com.upedge.sms.modules.overseaWarehouse.response.OverseaWarehouseServiceOrderItemDelResponse;
-import com.upedge.sms.modules.overseaWarehouse.response.OverseaWarehouseServiceOrderItemInfoResponse;
-import com.upedge.sms.modules.overseaWarehouse.response.OverseaWarehouseServiceOrderItemListResponse;
-import com.upedge.sms.modules.overseaWarehouse.response.OverseaWarehouseServiceOrderItemUpdateResponse;
 import javax.validation.Valid;
+import java.util.List;
 
 /**
  * 
@@ -33,6 +34,22 @@ public class OverseaWarehouseServiceOrderItemController {
     @Autowired
     private OverseaWarehouseServiceOrderItemService overseaWarehouseServiceOrderItemService;
 
+    @Autowired
+    RedisTemplate redisTemplate;
+
+    @ApiOperation("产品上传fpx")
+    @PostMapping("/uploadFpx")
+    public BaseResponse skuUploadFpx(@RequestBody@Valid OverseaWarehouseServiceOrderItemUploadFpxRequest request){
+        Session session = UserUtil.getSession(redisTemplate);
+        return overseaWarehouseServiceOrderItemService.uploadFpx(request,session);
+    }
+
+    @ApiOperation("获取FPX计量单位")
+    @GetMapping("/listMeasureUnit")
+    public BaseResponse listMeasureUnit(){
+        List<FpxMeasureUnit> fpxMeasureUnits = FpxCommonApi.selectMeasureUnit();
+        return BaseResponse.success(fpxMeasureUnits);
+    }
 
     @RequestMapping(value="/info/{id}", method=RequestMethod.GET)
     @Permission(permission = "overseaWarehouse:overseawarehouseserviceorderitem:info:id")

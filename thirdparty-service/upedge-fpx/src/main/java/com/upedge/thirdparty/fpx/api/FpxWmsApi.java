@@ -57,21 +57,5 @@ public class FpxWmsApi {
         return null;
     }
 
-    /**
-     * 选择计量单位
-     */
-    public static List<FpxMeasureUnit> selectMeasureUnit(){
-        param.setMethod(MethodEnum.measure_unit_list.getMethod());
 
-        String result = ApiHttpClientUtils.apiJsongPost(param,new JSONObject(), AmbientEnum.FORMAT_ADDRESS);
-        if (null == result){
-            return null;
-        }
-        FpxApiResultVo resultVo = JSONObject.parseObject(result,FpxApiResultVo.class);
-        if (resultVo.getResult().equals("1")){
-            JSONArray jsonArray = JSONArray.parseArray(JSON.toJSONString(resultVo.getData()));
-            return jsonArray.toJavaList(FpxMeasureUnit.class);
-        }
-        return null;
-    }
 }
