@@ -1,17 +1,13 @@
 package com.upedge.thirdparty.fpx.api;
 
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.upedge.thirdparty.fpx.constants.AmbientEnum;
 import com.upedge.thirdparty.fpx.constants.MethodEnum;
+import com.upedge.thirdparty.fpx.request.CreateFpxInboundRequest;
 import com.upedge.thirdparty.fpx.utils.ApiHttpClientUtils;
 import com.upedge.thirdparty.fpx.vo.FpxApiResultVo;
-import com.upedge.thirdparty.fpx.vo.FpxInbound;
-import com.upedge.thirdparty.fpx.vo.FpxMeasureUnit;
 import com.upedge.thirdparty.fpx.vo.FpxSku;
-
-import java.util.List;
 
 import static com.upedge.thirdparty.fpx.config.FpxConfig.param;
 
@@ -42,9 +38,9 @@ public class FpxWmsApi {
      * @param fpxInbound
      * @return 委托单号
      */
-    public static String createInbound(FpxInbound fpxInbound){
+    public static String createInbound(CreateFpxInboundRequest request){
         param.setMethod(MethodEnum.create_inbound.getMethod());
-        JSONObject jsonObject = JSONObject.parseObject(JSON.toJSONString(fpxInbound));
+        JSONObject jsonObject = JSONObject.parseObject(JSON.toJSONString(request));
         String result = ApiHttpClientUtils.apiJsongPost(param,jsonObject, AmbientEnum.FORMAT_ADDRESS);
         if (null == result){
             return null;

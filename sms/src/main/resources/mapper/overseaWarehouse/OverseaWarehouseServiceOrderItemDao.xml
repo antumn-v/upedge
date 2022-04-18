@@ -370,16 +370,21 @@
     </select>
 
     <update id="updateWarehouseSkuByVariantId">
-        update oversea_warehouse_service_order_item
-            set warehouse_sku = #{warehouseSku}
-        where variant_id = #{variantId}
+        update oversea_warehouse_service_order owso
+            inner join oversea_warehouse_service_order_item owsoi
+            on owso.id = owsoi.order_id
+            set owsoi.warehouse_sku = #{warehouseSku}
+        where owsoi.variant_id = #{variantId}
+        and owso.ship_state = '0'
     </update>
 
     <update id="updateWarehouseSkuByOrderId">
         update oversea_warehouse_service_order_item owsoi
             inner join oversea_warehouse_sku ows
         on owsoi.variant_id = ows.variant_id
-        set owsoi.warehouse_sku = ows.warehouse_sku_code
+            <set>
+                owsoi.warehouse_sku = ows.warehouse_sku_code
+            </set>
         where owsoi.order_id = #{orderId}
     </update>
 </mapper>

@@ -10,10 +10,7 @@ import com.upedge.common.web.util.RedisUtil;
 import com.upedge.common.web.util.UserUtil;
 import com.upedge.sms.modules.overseaWarehouse.entity.OverseaWarehouseServiceOrder;
 import com.upedge.sms.modules.overseaWarehouse.entity.OverseaWarehouseServiceOrderFreight;
-import com.upedge.sms.modules.overseaWarehouse.request.OverseaWarehouseServiceOrderCreateRequest;
-import com.upedge.sms.modules.overseaWarehouse.request.OverseaWarehouseServiceOrderListRequest;
-import com.upedge.sms.modules.overseaWarehouse.request.OverseaWarehouseServiceOrderPayRequest;
-import com.upedge.sms.modules.overseaWarehouse.request.OverseaWarehouseServiceOrderUpdateFreightRequest;
+import com.upedge.sms.modules.overseaWarehouse.request.*;
 import com.upedge.sms.modules.overseaWarehouse.response.OverseaWarehouseServiceOrderListResponse;
 import com.upedge.sms.modules.overseaWarehouse.service.OverseaWarehouseServiceOrderFreightService;
 import com.upedge.sms.modules.overseaWarehouse.service.OverseaWarehouseServiceOrderService;
@@ -104,11 +101,23 @@ public class OverseaWarehouseServiceOrderController {
     @PostMapping("/reviewList")
     public BaseResponse reviewList(@RequestBody @Valid OverseaWarehouseServiceOrderListRequest request){
         request.setCondition("ship_type is null");
-//        List<OverseaWarehouseServiceOrder> overseaWarehouseServiceOrders = overseaWarehouseServiceOrderService.select(request);
-        List<OverseaWarehouseServiceOrderVo> overseaWarehouseServiceOrderVos = overseaWarehouseServiceOrderService.orderList(request);
+        List<OverseaWarehouseServiceOrder> overseaWarehouseServiceOrders = overseaWarehouseServiceOrderService.select(request);
+//        List<OverseaWarehouseServiceOrderVo> overseaWarehouseServiceOrderVos = overseaWarehouseServiceOrderService.orderList(request);
         Long total = overseaWarehouseServiceOrderService.count(request);
         request.setTotal(total);
-        BaseResponse res = new BaseResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS,overseaWarehouseServiceOrderVos,request);
+        BaseResponse res = new BaseResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS,overseaWarehouseServiceOrders,request);
         return res;
+    }
+
+//    @ApiOperation("创建fpx入库委托单")
+//    @PostMapping("/createFpxInbound/{orderId}")
+    public BaseResponse createFpxInbound(@PathVariable Long orderId){
+        Session session = UserUtil.getSession(redisTemplate);
+        return overseaWarehouseServiceOrderService.createFpxInbound(orderId,session);
+    }
+
+    @PostMapping("/updateTracking")
+    public BaseResponse updateTracking(@RequestBody@Valid OverseaWarehouseServiceOrderUpdateTrackingRequest request){
+        return overseaWarehouseServiceOrderService.updateTrackingCode(request);
     }
 }

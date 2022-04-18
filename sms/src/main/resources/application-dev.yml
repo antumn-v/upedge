@@ -119,5 +119,5 @@ seata:
     enable-degrade: false
     disable-global-transaction: false
     grouplist:
-      default: 192.168.2.8:8091
+      default: localhost:8091
 

@@ -7,8 +7,11 @@ import com.upedge.common.base.Page;
 import com.upedge.sms.modules.overseaWarehouse.request.OverseaWarehouseServiceOrderCreateRequest;
 import com.upedge.sms.modules.overseaWarehouse.request.OverseaWarehouseServiceOrderListRequest;
 import com.upedge.sms.modules.overseaWarehouse.request.OverseaWarehouseServiceOrderPayRequest;
+import com.upedge.sms.modules.overseaWarehouse.request.OverseaWarehouseServiceOrderUpdateTrackingRequest;
 import com.upedge.sms.modules.overseaWarehouse.vo.OverseaWarehouseServiceOrderVo;
+import org.springframework.web.bind.annotation.RequestBody;
 
+import javax.validation.Valid;
 import java.util.List;
 
 /**
@@ -16,6 +19,10 @@ import java.util.List;
  */
 public interface OverseaWarehouseServiceOrderService{
 
+
+    BaseResponse updateTrackingCode(@RequestBody@Valid OverseaWarehouseServiceOrderUpdateTrackingRequest request);
+
+    BaseResponse createFpxInbound(Long id,Session session);
 
     List<OverseaWarehouseServiceOrderVo> selectAllUnPaidList();
 

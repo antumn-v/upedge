@@ -7,11 +7,13 @@ import com.upedge.common.utils.ListUtils;
 import com.upedge.sms.modules.overseaWarehouse.dao.OverseaWarehouseServiceOrderItemDao;
 import com.upedge.sms.modules.overseaWarehouse.entity.OverseaWarehouseServiceOrderItem;
 import com.upedge.sms.modules.overseaWarehouse.entity.OverseaWarehouseSku;
+import com.upedge.sms.modules.overseaWarehouse.request.OverseaWarehouseServiceOrderItemUpdateFpxSkuRequest;
 import com.upedge.sms.modules.overseaWarehouse.request.OverseaWarehouseServiceOrderItemUploadFpxRequest;
 import com.upedge.sms.modules.overseaWarehouse.service.OverseaWarehouseServiceOrderItemService;
 import com.upedge.sms.modules.overseaWarehouse.service.OverseaWarehouseSkuService;
 import com.upedge.thirdparty.fpx.api.FpxWmsApi;
 import com.upedge.thirdparty.fpx.vo.FpxSku;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -65,6 +67,33 @@ public class OverseaWarehouseServiceOrderItemServiceImpl implements OverseaWareh
     @Transactional
     public int insertSelective(OverseaWarehouseServiceOrderItem record) {
         return overseaWarehouseServiceOrderItemDao.insert(record);
+    }
+
+    @Transactional
+    @Override
+    public BaseResponse updateFpxSku(OverseaWarehouseServiceOrderItemUpdateFpxSkuRequest request) {
+        OverseaWarehouseServiceOrderItem orderItem = selectByPrimaryKey(request.getItemId());
+        if (null == orderItem){
+            return BaseResponse.failed("订单产品不存在");
+        }
+        if (StringUtils.isBlank(request.getWarehouseSku())){
+            return BaseResponse.failed("海外仓sku不能为空");
+        }
+        if (request.getOtherOrderValid()){
+            overseaWarehouseServiceOrderItemDao.updateWarehouseSkuByVariantId(orderItem.getVariantId(), request.getWarehouseSku());
+            OverseaWarehouseSku overseaWarehouseSku = new OverseaWarehouseSku();
+            overseaWarehouseSku.setWarehouseSkuCode(request.getWarehouseSku());
+            overseaWarehouseSku.setCreateTime(new Date());
+            overseaWarehouseSku.setVariantId(orderItem.getVariantId());
+            overseaWarehouseSku.setVariantSku(orderItem.getVariantSku());
+            overseaWarehouseSkuService.insert(overseaWarehouseSku);
+        }else {
+            orderItem = new OverseaWarehouseServiceOrderItem();
+            orderItem.setId(request.getItemId());
+            orderItem.setWarehouseSku(request.getWarehouseSku());
+            updateByPrimaryKeySelective(orderItem);
+        }
+        return BaseResponse.success();
     }
 
     @Override

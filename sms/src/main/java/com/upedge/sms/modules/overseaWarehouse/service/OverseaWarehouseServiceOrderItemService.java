@@ -4,6 +4,7 @@ import com.upedge.common.base.BaseResponse;
 import com.upedge.common.base.Page;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.sms.modules.overseaWarehouse.entity.OverseaWarehouseServiceOrderItem;
+import com.upedge.sms.modules.overseaWarehouse.request.OverseaWarehouseServiceOrderItemUpdateFpxSkuRequest;
 import com.upedge.sms.modules.overseaWarehouse.request.OverseaWarehouseServiceOrderItemUploadFpxRequest;
 
 import java.util.List;
@@ -12,6 +13,8 @@ import java.util.List;
  * @author gx
  */
 public interface OverseaWarehouseServiceOrderItemService{
+
+    BaseResponse updateFpxSku(OverseaWarehouseServiceOrderItemUpdateFpxSkuRequest request);
 
     BaseResponse uploadFpx(OverseaWarehouseServiceOrderItemUploadFpxRequest request, Session session);
 

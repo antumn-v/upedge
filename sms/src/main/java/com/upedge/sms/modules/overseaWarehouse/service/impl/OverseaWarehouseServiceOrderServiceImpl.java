@@ -27,11 +27,16 @@ import com.upedge.sms.modules.overseaWarehouse.entity.OverseaWarehouseServiceOrd
 import com.upedge.sms.modules.overseaWarehouse.request.OverseaWarehouseServiceOrderCreateRequest;
 import com.upedge.sms.modules.overseaWarehouse.request.OverseaWarehouseServiceOrderListRequest;
 import com.upedge.sms.modules.overseaWarehouse.request.OverseaWarehouseServiceOrderPayRequest;
+import com.upedge.sms.modules.overseaWarehouse.request.OverseaWarehouseServiceOrderUpdateTrackingRequest;
 import com.upedge.sms.modules.overseaWarehouse.service.OverseaWarehouseServiceOrderFreightService;
 import com.upedge.sms.modules.overseaWarehouse.service.OverseaWarehouseServiceOrderItemService;
 import com.upedge.sms.modules.overseaWarehouse.service.OverseaWarehouseServiceOrderService;
 import com.upedge.sms.modules.overseaWarehouse.vo.OverseaWarehouseServiceOrderVo;
+import com.upedge.thirdparty.fpx.api.FpxWmsApi;
+import com.upedge.thirdparty.fpx.request.CreateFpxInboundRequest;
+import com.upedge.thirdparty.fpx.request.CreateFpxInboundRequest.IconsignmentSkuDTO;
 import io.seata.spring.annotation.GlobalTransactional;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.rocketmq.common.message.Message;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -99,6 +104,52 @@ public class OverseaWarehouseServiceOrderServiceImpl implements OverseaWarehouse
     @Transactional
     public int insertSelective(OverseaWarehouseServiceOrder record) {
         return overseaWarehouseServiceOrderDao.insert(record);
+    }
+
+    @Override
+    public BaseResponse updateTrackingCode(OverseaWarehouseServiceOrderUpdateTrackingRequest request) {
+        OverseaWarehouseServiceOrder overseaWarehouseServiceOrder = selectByPrimaryKey(request.getOrderId());
+        if (null == overseaWarehouseServiceOrder){
+            return BaseResponse.failed("订单不存在");
+        }
+        Integer shipState = overseaWarehouseServiceOrder.getShipState();
+        overseaWarehouseServiceOrder = new OverseaWarehouseServiceOrder();
+        overseaWarehouseServiceOrder.setTrackingCode(request.getTrackingCode());
+        if (0 == shipState){
+            overseaWarehouseServiceOrder.setShipState(1);
+        }
+        updateByPrimaryKeySelective(overseaWarehouseServiceOrder);
+        return BaseResponse.success();
+    }
+
+    @Override
+    public BaseResponse createFpxInbound(Long id, Session session) {
+        OverseaWarehouseServiceOrder overseaWarehouseServiceOrder = selectByPrimaryKey(id);
+        if (null == overseaWarehouseServiceOrder
+        || 1 != overseaWarehouseServiceOrder.getPayState()){
+            return BaseResponse.failed("订单不存在或订单未支付");
+        }
+        List<OverseaWarehouseServiceOrderItem> orderItems = overseaWarehouseServiceOrderItemService.selectByOrderId(id);
+
+        CreateFpxInboundRequest createFpxInboundRequest = new CreateFpxInboundRequest();
+        createFpxInboundRequest.setRefNo(id.toString());
+        createFpxInboundRequest.setToWarehouseCode(overseaWarehouseServiceOrder.getWarehouseCode());
+        List<IconsignmentSkuDTO> iconsignmentSkus = new ArrayList<>();
+        String boxNo = IdGenerate.uuid();
+        String boxCode = IdGenerate.nextId().toString();
+        for (OverseaWarehouseServiceOrderItem orderItem : orderItems) {
+            if (StringUtils.isBlank(orderItem.getWarehouseSku())){
+                return BaseResponse.failed("有产品未上传海外仓");
+            }
+            IconsignmentSkuDTO skuDTO = new IconsignmentSkuDTO();
+            skuDTO.setBoxNo(boxNo);
+            skuDTO.setBoxBarcode(boxCode);
+            skuDTO.setSkuCode(orderItem.getWarehouseSku());
+            skuDTO.setPlanQty(orderItem.getQuantity());
+            iconsignmentSkus.add(skuDTO);
+        }
+        String result = FpxWmsApi.createInbound(createFpxInboundRequest);
+        return BaseResponse.success();
     }
 
     @Override
@@ -171,7 +222,7 @@ public class OverseaWarehouseServiceOrderServiceImpl implements OverseaWarehouse
         overseaWarehouseServiceOrder.setShipType(shipType);
         overseaWarehouseServiceOrderDao.updateOrderAsPaid(overseaWarehouseServiceOrder);
         serviceOrderService.updateToPaidByRelateId(orderId,OrderType.EXTRA_SERVICE_OVERSEA_WAREHOUSE,payAmount,payTime);
-        overseaWarehouseServiceOrderItemService.updateWarehouseSkuByOrderId(orderId);
+//        overseaWarehouseServiceOrderItemService.updateWarehouseSkuByOrderId(orderId);
         //发送消息
         sendSaveTransactionRecordMessage(session.getId(),overseaWarehouseServiceOrder);
         return BaseResponse.success();

@@ -7,14 +7,12 @@ import com.upedge.common.constant.ResultCode;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.web.util.UserUtil;
 import com.upedge.sms.modules.overseaWarehouse.entity.OverseaWarehouseServiceOrderItem;
-import com.upedge.sms.modules.overseaWarehouse.request.OverseaWarehouseServiceOrderItemAddRequest;
-import com.upedge.sms.modules.overseaWarehouse.request.OverseaWarehouseServiceOrderItemListRequest;
-import com.upedge.sms.modules.overseaWarehouse.request.OverseaWarehouseServiceOrderItemUpdateRequest;
-import com.upedge.sms.modules.overseaWarehouse.request.OverseaWarehouseServiceOrderItemUploadFpxRequest;
+import com.upedge.sms.modules.overseaWarehouse.request.*;
 import com.upedge.sms.modules.overseaWarehouse.response.*;
 import com.upedge.sms.modules.overseaWarehouse.service.OverseaWarehouseServiceOrderItemService;
 import com.upedge.thirdparty.fpx.api.FpxCommonApi;
 import com.upedge.thirdparty.fpx.vo.FpxMeasureUnit;
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -28,17 +26,25 @@ import java.util.List;
  *
  * @author gx
  */
+@Api(tags = "海外仓服务订单产品")
 @RestController
 @RequestMapping("/overseaWarehouseServiceOrderItem")
 public class OverseaWarehouseServiceOrderItemController {
+
     @Autowired
     private OverseaWarehouseServiceOrderItemService overseaWarehouseServiceOrderItemService;
 
     @Autowired
     RedisTemplate redisTemplate;
 
-    @ApiOperation("产品上传fpx")
-    @PostMapping("/uploadFpx")
+    @ApiOperation("产品修改海外仓sku")
+    @PostMapping("/updateFpxSku")
+    public BaseResponse updateFpxSku(@RequestBody@Valid OverseaWarehouseServiceOrderItemUpdateFpxSkuRequest request){
+        return overseaWarehouseServiceOrderItemService.updateFpxSku(request);
+    }
+
+//    @ApiOperation("产品上传fpx")
+//    @PostMapping("/uploadFpx")
     public BaseResponse skuUploadFpx(@RequestBody@Valid OverseaWarehouseServiceOrderItemUploadFpxRequest request){
         Session session = UserUtil.getSession(redisTemplate);
         return overseaWarehouseServiceOrderItemService.uploadFpx(request,session);
