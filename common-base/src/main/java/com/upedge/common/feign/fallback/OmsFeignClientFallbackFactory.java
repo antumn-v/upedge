@@ -9,6 +9,7 @@ import com.upedge.common.model.account.PaypalPayment;
 import com.upedge.common.model.cart.request.CartAddRequest;
 import com.upedge.common.model.cart.request.CartSelectByIdsRequest;
 import com.upedge.common.model.cart.request.CartVo;
+import com.upedge.common.model.oms.stock.StockOrderVo;
 import com.upedge.common.model.order.request.ManagerActualRequest;
 import com.upedge.common.model.order.request.OrderDailyCountRequest;
 import com.upedge.common.model.order.vo.AllOrderAmountVo;
@@ -34,6 +35,11 @@ public class OmsFeignClientFallbackFactory implements FallbackFactory<OmsFeignCl
     public OmsFeignClient create(Throwable cause) {
         return new OmsFeignClient() {
 
+
+            @Override
+            public BaseResponse orderConfirmReceipt(StockOrderVo stockOrderVo) {
+                return BaseResponse.failed();
+            }
 
             @Override
             public BaseResponse updateImageNameByStoreVariantId(OrderItemUpdateImageNameRequest request){

@@ -116,8 +116,15 @@ public class OverseaWarehouseServiceOrderController {
         return overseaWarehouseServiceOrderService.createFpxInbound(orderId,session);
     }
 
+    @ApiOperation("更新物流信息")
     @PostMapping("/updateTracking")
     public BaseResponse updateTracking(@RequestBody@Valid OverseaWarehouseServiceOrderUpdateTrackingRequest request){
         return overseaWarehouseServiceOrderService.updateTrackingCode(request);
+    }
+
+    @ApiOperation("确认收货")
+    @PostMapping("/confirmReceipt/{orderId}")
+    public BaseResponse confirmReceipt(@PathVariable Long orderId){
+        return overseaWarehouseServiceOrderService.confirmReceipt(orderId);
     }
 }

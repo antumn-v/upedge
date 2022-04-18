@@ -2,7 +2,7 @@ package com.upedge.oms.modules.stock.dao;
 
 import com.upedge.common.base.Page;
 import com.upedge.oms.modules.stock.entity.StockOrderItem;
-import com.upedge.oms.modules.stock.vo.StockOrderItemVo;
+import com.upedge.common.model.oms.stock.StockOrderItemVo;
 import org.apache.ibatis.annotations.Param;
 
 import java.math.BigDecimal;

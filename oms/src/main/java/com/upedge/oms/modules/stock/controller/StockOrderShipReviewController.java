@@ -12,7 +12,7 @@ import com.upedge.oms.modules.stock.request.StockOrderListRequest;
 import com.upedge.oms.modules.stock.request.StockOrderUpdateShipRequest;
 import com.upedge.oms.modules.stock.response.StockOrderListResponse;
 import com.upedge.oms.modules.stock.service.StockOrderService;
-import com.upedge.oms.modules.stock.vo.StockOrderVo;
+import com.upedge.common.model.oms.stock.StockOrderVo;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;

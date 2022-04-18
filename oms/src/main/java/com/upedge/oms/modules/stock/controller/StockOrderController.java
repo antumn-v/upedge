@@ -25,7 +25,7 @@ import com.upedge.oms.modules.stock.request.StockOrderUpdateTrackRequest;
 import com.upedge.oms.modules.stock.response.StockOrderInfoResponse;
 import com.upedge.oms.modules.stock.response.StockOrderListResponse;
 import com.upedge.oms.modules.stock.service.StockOrderService;
-import com.upedge.oms.modules.stock.vo.StockOrderVo;
+import com.upedge.common.model.oms.stock.StockOrderVo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
@@ -284,11 +284,10 @@ public class StockOrderController {
         return stockOrderService.updateTrack(request, session);
     }
 
-    @ApiOperation("确认收货")
-    @PostMapping("/confirmReceipt/{orderId}")
-    public BaseResponse orderConfirmReceipt(@PathVariable Long orderId) {
-        Session session = UserUtil.getSession(redisTemplate);
-        return stockOrderService.orderConfirmReceipt(orderId, session);
+    @ApiOperation("海外仓确认收货")
+    @PostMapping("/overseaWarehouseReceipt")
+    public BaseResponse orderConfirmReceipt(@RequestBody StockOrderVo stockOrderVo) {
+        return stockOrderService.orderConfirmReceipt(stockOrderVo);
     }
 
 }

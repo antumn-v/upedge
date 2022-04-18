@@ -3,6 +3,7 @@ package com.upedge.sms.modules.overseaWarehouse.service.impl;
 import com.alibaba.fastjson.JSON;
 import com.upedge.common.base.BaseResponse;
 import com.upedge.common.base.Page;
+import com.upedge.common.constant.OrderConstant;
 import com.upedge.common.constant.OrderType;
 import com.upedge.common.constant.ResultCode;
 import com.upedge.common.constant.key.RedisKey;
@@ -12,6 +13,8 @@ import com.upedge.common.feign.UmsFeignClient;
 import com.upedge.common.model.account.AccountPaymentRequest;
 import com.upedge.common.model.cart.request.CartSelectByIdsRequest;
 import com.upedge.common.model.cart.request.CartVo;
+import com.upedge.common.model.oms.stock.StockOrderItemVo;
+import com.upedge.common.model.oms.stock.StockOrderVo;
 import com.upedge.common.model.order.PaymentDetail;
 import com.upedge.common.model.order.TransactionDetail;
 import com.upedge.common.model.tms.WarehouseVo;
@@ -107,6 +110,37 @@ public class OverseaWarehouseServiceOrderServiceImpl implements OverseaWarehouse
     }
 
     @Override
+    public BaseResponse confirmReceipt(Long orderId) {
+        OverseaWarehouseServiceOrder overseaWarehouseServiceOrder = selectByPrimaryKey(orderId);
+        if (null == overseaWarehouseServiceOrder
+        || overseaWarehouseServiceOrder.getPayState() != OrderConstant.PAY_STATE_PAID){
+            return BaseResponse.failed("订单不存在或订单未支付");
+        }
+        List<OverseaWarehouseServiceOrderItem> orderItems = overseaWarehouseServiceOrderItemService.selectByOrderId(orderId);
+
+        StockOrderVo stockOrderVo = new StockOrderVo();
+        BeanUtils.copyProperties(overseaWarehouseServiceOrder,stockOrderVo);
+        stockOrderVo.setAmount(overseaWarehouseServiceOrder.getPayAmount());
+        stockOrderVo.setPurchaseState(3);
+
+        List<StockOrderItemVo> stockOrderItemVos = new ArrayList<>();
+        for (OverseaWarehouseServiceOrderItem orderItem : orderItems) {
+            StockOrderItemVo stockOrderItemVo = new StockOrderItemVo();
+            BeanUtils.copyProperties(orderItem,stockOrderItemVo);
+            stockOrderItemVos.add(stockOrderItemVo);
+        }
+        BaseResponse baseResponse = omsFeignClient.orderConfirmReceipt(stockOrderVo);
+        if (baseResponse.getCode() != ResultCode.SUCCESS_CODE){
+            return baseResponse;
+        }
+        overseaWarehouseServiceOrder = new OverseaWarehouseServiceOrder();
+        overseaWarehouseServiceOrder.setId(orderId);
+        overseaWarehouseServiceOrder.setShipState(OrderConstant.SHIP_STATE_RECEIPTED);
+        updateByPrimaryKeySelective(overseaWarehouseServiceOrder);
+        return baseResponse;
+    }
+
+    @Override
     public BaseResponse updateTrackingCode(OverseaWarehouseServiceOrderUpdateTrackingRequest request) {
         OverseaWarehouseServiceOrder overseaWarehouseServiceOrder = selectByPrimaryKey(request.getOrderId());
         if (null == overseaWarehouseServiceOrder){
@@ -114,6 +148,7 @@ public class OverseaWarehouseServiceOrderServiceImpl implements OverseaWarehouse
         }
         Integer shipState = overseaWarehouseServiceOrder.getShipState();
         overseaWarehouseServiceOrder = new OverseaWarehouseServiceOrder();
+        overseaWarehouseServiceOrder.setId(request.getOrderId());
         overseaWarehouseServiceOrder.setTrackingCode(request.getTrackingCode());
         if (0 == shipState){
             overseaWarehouseServiceOrder.setShipState(1);

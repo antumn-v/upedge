@@ -1,5 +1,6 @@
 package com.upedge.sms.modules.overseaWarehouse.entity;
 
+import com.upedge.common.model.oms.stock.StockOrderVo;
 import lombok.Data;
 
 import java.math.BigDecimal;
@@ -103,4 +104,14 @@ public class OverseaWarehouseServiceOrder{
 		this.createTime = new Date();
 		this.updateTime = createTime;
 	}
+
+	public StockOrderVo toStockOrder(){
+		StockOrderVo stockOrderVo = new StockOrderVo();
+		stockOrderVo.setId(this.id);
+		stockOrderVo.setAmount(this.payAmount);
+		stockOrderVo.setPayState(this.payState);
+		return stockOrderVo;
+	}
 }
+
+

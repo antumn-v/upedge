@@ -11,7 +11,7 @@ import com.upedge.oms.modules.stock.request.StockOrderItemUpdatePurchaseNoReques
 import com.upedge.oms.modules.stock.request.StockOrderListRequest;
 import com.upedge.oms.modules.stock.request.StockOrderUpdateShipRequest;
 import com.upedge.oms.modules.stock.request.StockOrderUpdateTrackRequest;
-import com.upedge.oms.modules.stock.vo.StockOrderVo;
+import com.upedge.common.model.oms.stock.StockOrderVo;
 
 import java.util.List;
 
@@ -25,6 +25,8 @@ public interface StockOrderService{
     BaseResponse updateTrack(StockOrderUpdateTrackRequest request, Session session);
 
     BaseResponse orderConfirmReceipt(Long orderId,Session session);
+
+    BaseResponse orderConfirmReceipt(StockOrderVo stockOrderVo);
 
     BaseResponse rejectShipReview(Long orderId,Session session);
 

@@ -47,13 +47,14 @@ import com.upedge.oms.modules.stock.request.StockOrderUpdateShipRequest;
 import com.upedge.oms.modules.stock.request.StockOrderUpdateTrackRequest;
 import com.upedge.oms.modules.stock.service.CustomerProductStockService;
 import com.upedge.oms.modules.stock.service.StockOrderService;
-import com.upedge.oms.modules.stock.vo.StockOrderItemVo;
-import com.upedge.oms.modules.stock.vo.StockOrderVo;
+import com.upedge.common.model.oms.stock.StockOrderItemVo;
+import com.upedge.common.model.oms.stock.StockOrderVo;
 import io.seata.spring.annotation.GlobalTransactional;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.rocketmq.client.producer.DefaultMQProducer;
 import org.apache.rocketmq.client.producer.SendStatus;
 import org.apache.rocketmq.common.message.Message;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
@@ -197,6 +198,26 @@ public class StockOrderServiceImpl implements StockOrderService {
             return BaseResponse.failed("订单未支付或运费为审核");
         }
         orderPaidByPaymentId(orderId, stockOrder.getCustomerId(), stockOrder.getWarehouseCode());
+        return BaseResponse.success();
+    }
+
+    @Transactional
+    @Override
+    public BaseResponse orderConfirmReceipt(StockOrderVo stockOrderVo) {
+        StockOrder stockOrder = new StockOrder();
+        BeanUtils.copyProperties(stockOrderVo,stockOrder);
+        insert(stockOrder);
+
+        List<StockOrderItemVo> stockOrderItemVos = stockOrderVo.getItems();
+        List<StockOrderItem> stockOrderItems = new ArrayList<>();
+        for (StockOrderItemVo stockOrderItemVo : stockOrderItemVos) {
+            StockOrderItem stockOrderItem = new StockOrderItem();
+            BeanUtils.copyProperties(stockOrderItemVo,stockOrderItem);
+            stockOrderItems.add(stockOrderItem);
+        }
+        stockOrderItemDao.insertByBatch(stockOrderItems);
+
+        orderPaidByPaymentId(stockOrderVo);
         return BaseResponse.success();
     }
 
@@ -502,6 +523,87 @@ public class StockOrderServiceImpl implements StockOrderService {
     public synchronized boolean orderPaidByPaymentId(Long orderId, Long customerId, String warehouseCode) {
 
         StockOrderVo stockOrderVo = stockOrderDao.selectOrderById(orderId);
+        List<CustomerStockRecord> records = new ArrayList<>();
+
+        Date date = new Date();
+
+        List<StockOrderItemVo> itemVos = stockOrderVo.getItems();
+        itemVos.forEach(stockOrderItem -> {
+            CustomerStockRecord record = new CustomerStockRecord();
+            record.setCustomerId(customerId);
+            record.setOrderType(OrderType.STOCK);
+            record.setProductId(stockOrderItem.getProductId());
+            record.setQuantity(stockOrderItem.getQuantity());
+            record.setRelateId(stockOrderItem.getId());
+            record.setVariantId(stockOrderItem.getVariantId());
+            record.setVariantImage(stockOrderItem.getVariantImage());
+            record.setType(0);
+            record.setWarehouseCode(stockOrderVo.getWarehouseCode());
+            record.setCreateTime(date);
+            record.setUpdateTime(date);
+            record.setVariantSku(stockOrderItem.getVariantSku());
+            record.setVariantName(stockOrderItem.getVariantName());
+            record.setRevokeState(0);
+            records.add(record);
+        });
+        customerStockRecordDao.insertByBatch(records);
+
+        List<StockOrderItem> variantQuantities = stockOrderItemDao.countVariantQuantityByOrderId(orderId);
+
+        List<Long> variantIds = customerProductStockDao.selectWarehouseVariantIdsByCustomer(customerId, warehouseCode);
+
+        List<CustomerProductStock> insertStock = new ArrayList<>();
+
+        List<CustomerProductStock> updateStock = new ArrayList<>();
+
+        variantQuantities.forEach(variantQuantity -> {
+            CustomerProductStock stock = new CustomerProductStock();
+            stock.setWarehouseCode(warehouseCode);
+            if (variantIds.contains(variantQuantity.getVariantId())) {
+                stock.setCustomerId(customerId);
+                stock.setVariantId(variantQuantity.getVariantId());
+                stock.setVariantImage(variantQuantity.getVariantImage());
+                stock.setVariantName(variantQuantity.getVariantName());
+                stock.setStock(variantQuantity.getQuantity());
+                updateStock.add(stock);
+            } else {
+                stock.setProductTitle(variantQuantity.getProductTitle());
+                stock.setVariantSku(variantQuantity.getVariantSku());
+                stock.setVariantId(variantQuantity.getVariantId());
+                stock.setProductId(variantQuantity.getProductId());
+                stock.setVariantImage(variantQuantity.getVariantImage());
+                stock.setVariantName(variantQuantity.getVariantName());
+                stock.setCustomerId(customerId);
+                stock.setStock(variantQuantity.getQuantity());
+                stock.setLockStock(0);
+                stock.setCreateTime(date);
+                stock.setUpdateTime(date);
+                stock.setCustomerShowState(1);
+                insertStock.add(stock);
+            }
+        });
+
+        if (ListUtils.isNotEmpty(insertStock)) {
+            customerProductStockDao.insertByBatch(insertStock);
+        }
+
+        if (ListUtils.isNotEmpty(updateStock)) {
+            customerProductStockDao.increaseVariantStock(updateStock);
+        }
+        if (stockOrderVo.getPayState() == 1
+        && stockOrderVo.getShipReview() == 3)
+        for (StockOrderItem variantQuantity : variantQuantities) {
+            customerProductStockService.redisAddCustomerVariantStock(customerId, variantQuantity.getVariantId(), warehouseCode, variantQuantity.getQuantity());
+        }
+        return true;
+    }
+
+    public boolean orderPaidByPaymentId(StockOrderVo stockOrderVo) {
+
+        Long customerId = stockOrderVo.getCustomerId();
+        Long orderId = stockOrderVo.getId();
+        String warehouseCode = stockOrderVo.getWarehouseCode();
+
         List<CustomerStockRecord> records = new ArrayList<>();
 
         Date date = new Date();

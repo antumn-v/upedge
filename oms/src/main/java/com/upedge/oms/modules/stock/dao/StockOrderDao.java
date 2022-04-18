@@ -8,7 +8,7 @@ import com.upedge.oms.modules.stock.dto.StockOrderListDto;
 import com.upedge.oms.modules.stock.entity.StockOrder;
 import com.upedge.oms.modules.stock.request.AdminStockOrderListRequest;
 import com.upedge.oms.modules.stock.vo.AdminStockOrderVo;
-import com.upedge.oms.modules.stock.vo.StockOrderVo;
+import com.upedge.common.model.oms.stock.StockOrderVo;
 import org.apache.ibatis.annotations.Param;
 
 import java.math.BigDecimal;

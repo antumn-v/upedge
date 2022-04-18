@@ -8,6 +8,7 @@ import com.upedge.common.model.account.PaypalPayment;
 import com.upedge.common.model.cart.request.CartAddRequest;
 import com.upedge.common.model.cart.request.CartSelectByIdsRequest;
 import com.upedge.common.model.cart.request.CartVo;
+import com.upedge.common.model.oms.stock.StockOrderVo;
 import com.upedge.common.model.order.request.ManagerActualRequest;
 import com.upedge.common.model.order.request.OrderDailyCountRequest;
 import com.upedge.common.model.order.vo.AllOrderAmountVo;
@@ -29,6 +30,9 @@ import java.util.List;
  */
 @FeignClient(value = ServiceNameConstants.OMS_SERVICE,fallbackFactory = OmsFeignClientFallbackFactory.class,decode404 = true)
 public interface OmsFeignClient  {
+
+    @PostMapping("/stock/order/overseaWarehouseReceipt")
+    public BaseResponse orderConfirmReceipt(@RequestBody StockOrderVo stockOrderVo);
 
     @PostMapping("/orderItem/updateImageNameByStoreVariantId")
     public BaseResponse updateImageNameByStoreVariantId(@RequestBody OrderItemUpdateImageNameRequest request);

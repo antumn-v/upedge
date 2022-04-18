@@ -1,4 +1,4 @@
-package com.upedge.oms.modules.stock.vo;
+package com.upedge.common.model.oms.stock;
 
 import lombok.Data;
 

@@ -27,7 +27,7 @@
         <result property="purchaseState" column="purchase_state"/>
     </resultMap>
 
-    <resultMap type="com.upedge.oms.modules.stock.vo.StockOrderVo" id="StockOrderVo">
+    <resultMap type="com.upedge.common.model.oms.stock.vock.StockOrderVo" id="StockOrderVo">
         <result property="id" column="id"/>
         <result property="warehouseCode" column="warehouse_code"/>
         <result property="customerId" column="customer_id"/>
@@ -41,7 +41,7 @@
         <result property="payTime" column="pay_time"/>
         <result property="createTime" column="create_time"/>
         <result property="updateTime" column="update_time"/>
-        <collection property="items" ofType="com.upedge.oms.modules.stock.vo.StockOrderItemVo">
+        <collection property="items" ofType="com.upedge.common.model.oms.stock.StockOrderItemVo">
             <result property="id" column="itemId"/>
             <result property="productId" column="product_id"/>
             <result property="variantId" column="variant_id"/>
