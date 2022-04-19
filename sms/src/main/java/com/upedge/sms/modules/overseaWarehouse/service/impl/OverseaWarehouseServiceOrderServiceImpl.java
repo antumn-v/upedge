@@ -51,7 +51,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ThreadPoolExecutor;
 
 
@@ -198,19 +198,23 @@ public class OverseaWarehouseServiceOrderServiceImpl implements OverseaWarehouse
         if (ListUtils.isEmpty(overseaWarehouseServiceOrders)){
             return new ArrayList<>();
         }
-        List<CompletableFuture> completableFutures = new ArrayList<>();
         List<OverseaWarehouseServiceOrderVo> overseaWarehouseServiceOrderVos = new ArrayList<>();
+        CountDownLatch latch = new CountDownLatch(overseaWarehouseServiceOrders.size());
         for (OverseaWarehouseServiceOrder overseaWarehouseServiceOrder : overseaWarehouseServiceOrders) {
-            CompletableFuture<Void> future = CompletableFuture.runAsync(new Runnable() {
+            threadPoolExecutor.submit(new Runnable() {
                 @Override
                 public void run() {
-                    overseaWarehouseServiceOrderVos.add(orderDetail(overseaWarehouseServiceOrder.getId()));
+                    try {
+                        overseaWarehouseServiceOrderVos.add(orderDetail(overseaWarehouseServiceOrder.getId()));
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        latch.countDown();
+                    }
                 }
-            },threadPoolExecutor);
-            completableFutures.add(future);
+            });
         }
         try {
-            Thread.sleep(100L);
+            latch.await();
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
