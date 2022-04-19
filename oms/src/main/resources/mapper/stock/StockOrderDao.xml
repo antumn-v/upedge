@@ -27,7 +27,7 @@
         <result property="purchaseState" column="purchase_state"/>
     </resultMap>
 
-    <resultMap type="com.upedge.common.model.oms.stock.vock.StockOrderVo" id="StockOrderVo">
+    <resultMap type="com.upedge.common.model.oms.stock.StockOrderVo" id="StockOrderVo">
         <result property="id" column="id"/>
         <result property="warehouseCode" column="warehouse_code"/>
         <result property="customerId" column="customer_id"/>

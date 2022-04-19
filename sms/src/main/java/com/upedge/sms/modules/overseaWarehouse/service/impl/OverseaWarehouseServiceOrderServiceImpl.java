@@ -338,6 +338,7 @@ public class OverseaWarehouseServiceOrderServiceImpl implements OverseaWarehouse
         overseaWarehouseServiceOrderFreightService.insertByBatch(orderFreights);
 
         ServiceOrder serviceOrder = new ServiceOrder();
+        serviceOrder.setServiceTitle(request.getServiceTitle());
         serviceOrder.setId(orderId);
         serviceOrder.setRelateId(orderId);
         serviceOrder.setServiceState(0);

@@ -20,6 +20,8 @@ public class ServiceOrder{
 	 */
     private Integer serviceType;
 
+	private String serviceTitle;
+
 	private Long relateId;
 	/**
 	 * 

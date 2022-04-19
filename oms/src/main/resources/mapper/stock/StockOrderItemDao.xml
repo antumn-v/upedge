@@ -384,7 +384,7 @@
        where id=#{id} and order_id=#{orderId}
     </select>
 
-    <select id="selectItemVoByOrderIds" resultType="com.upedge.common.model.oms.stock.vock.StockOrderItemVo">
+    <select id="selectItemVoByOrderIds" resultType="com.upedge.common.model.oms.stock.StockOrderItemVo">
         select
                 item.id as itemId,item.product_id,item.variant_id,item.order_id,
                 item.price,item.quantity,item.product_title,item.variant_name,

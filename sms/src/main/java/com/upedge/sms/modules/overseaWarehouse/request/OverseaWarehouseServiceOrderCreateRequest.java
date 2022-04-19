@@ -17,4 +17,7 @@ public class OverseaWarehouseServiceOrderCreateRequest {
 
     @Size(min = 1,message = "Select at least one logistic!")
     List<Integer> logistics;
+
+    @NotNull(message = "Title can't be null")
+    String serviceTitle;
 }

@@ -7,6 +7,7 @@
     <resultMap type="com.upedge.sms.modules.center.entity.ServiceOrder" id="BaseResultMap">
         <result property="id" column="id"/>
         <result property="serviceType" column="service_type"/>
+        <result property="serviceTitle" column="service_title"/>
         <result property="relateId" column="relate_id"/>
         <result property="customerId" column="customer_id"/>
         <result property="serviceState" column="service_state"/>
@@ -20,7 +21,7 @@
     </resultMap>
 
     <sql id="Base_Column_List">
-        `id`,`service_type`,`relate_id`,`customer_id`,`service_state`,`pay_state`,`refund_state`,`pay_amount`,`create_time`,`update_time`,`finish_time`,`manager_id`
+        `id`,`service_type`,`service_title`,`relate_id`,`customer_id`,`service_state`,`pay_state`,`refund_state`,`pay_amount`,`create_time`,`update_time`,`finish_time`,`manager_id`
     </sql>
 
     <select id="selectByPrimaryKey" parameterType="com.upedge.sms.modules.center.entity.ServiceOrder" resultMap="BaseResultMap">
@@ -40,6 +41,9 @@
         <set>
             <if test="serviceType != null">
                 service_type = #{serviceType},
+            </if>
+            <if test="serviceTitle != null">
+                service_title = #{serviceTitle},
             </if>
             <if test="relateId != null">
                 relate_id = #{relateId},
@@ -80,6 +84,7 @@
         <set>
         id = #{id},
         service_type = #{serviceType},
+        service_title = #{serviceTitle},
         relate_id = #{relateId},
         customer_id = #{customerId},
         service_state = #{serviceState},
@@ -99,6 +104,7 @@
         <trim prefix="(" suffix=")" suffixOverrides=",">
             id,
             service_type,
+            service_title,
             relate_id,
             customer_id,
             service_state,
@@ -113,6 +119,7 @@
         values (
         #{id},
         #{serviceType},
+        #{serviceTitle},
         #{relateId},
         #{customerId},
         #{serviceState},
@@ -134,6 +141,9 @@
             </if>
             <if test="serviceType != null" >
               service_type
+            </if>
+            <if test="serviceTitle != null" >
+              service_title
             </if>
             <if test="relateId != null" >
               relate_id
@@ -174,6 +184,9 @@
             <if test="serviceType != null" >
                 #{serviceType}
             </if>
+            <if test="serviceTitle != null" >
+                #{serviceTitle}
+            </if>
             <if test="relateId != null" >
                 #{relateId}
             </if>
@@ -213,6 +226,7 @@
         <trim prefix="(" suffix=")" suffixOverrides=",">
            id,
            service_type,
+           service_title,
            relate_id,
            customer_id,
            service_state,
@@ -229,6 +243,7 @@
             <trim prefix="(" suffix=")" suffixOverrides=",">
                #{item.id},
                #{item.serviceType},
+               #{item.serviceTitle},
                #{item.relateId},
                #{item.customerId},
                #{item.serviceState},
@@ -256,6 +271,9 @@
                     </if>
                     <if test="t.serviceType != null">
                         service_type = #{t.serviceType} and
+                    </if>
+                    <if test="t.serviceTitle != null">
+                        service_title = #{t.serviceTitle} and
                     </if>
                     <if test="t.relateId != null">
                         relate_id = #{t.relateId} and
