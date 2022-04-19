@@ -19,7 +19,7 @@ import java.util.List;
  */
 public interface OverseaWarehouseServiceOrderService{
 
-    BaseResponse confirmReceipt(Long orderId);
+    BaseResponse confirmReceipt(Long orderId,Session session);
 
     BaseResponse updateTrackingCode(@RequestBody@Valid OverseaWarehouseServiceOrderUpdateTrackingRequest request);
 

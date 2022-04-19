@@ -109,8 +109,9 @@ public class OverseaWarehouseServiceOrderServiceImpl implements OverseaWarehouse
         return overseaWarehouseServiceOrderDao.insert(record);
     }
 
+    @GlobalTransactional
     @Override
-    public BaseResponse confirmReceipt(Long orderId) {
+    public BaseResponse confirmReceipt(Long orderId,Session session) {
         OverseaWarehouseServiceOrder overseaWarehouseServiceOrder = selectByPrimaryKey(orderId);
         if (null == overseaWarehouseServiceOrder
         || overseaWarehouseServiceOrder.getPayState() != OrderConstant.PAY_STATE_PAID){
@@ -137,6 +138,14 @@ public class OverseaWarehouseServiceOrderServiceImpl implements OverseaWarehouse
         overseaWarehouseServiceOrder.setId(orderId);
         overseaWarehouseServiceOrder.setShipState(OrderConstant.SHIP_STATE_RECEIPTED);
         updateByPrimaryKeySelective(overseaWarehouseServiceOrder);
+
+        ServiceOrder serviceOrder = new ServiceOrder();
+        serviceOrder.setId(orderId);
+        serviceOrder.setServiceState(1);
+        serviceOrder.setUpdateTime(new Date());
+        serviceOrder.setFinishTime(new Date());
+        serviceOrder.setManagerId(session.getId());
+        serviceOrderService.updateByPrimaryKeySelective(serviceOrder);
         return baseResponse;
     }
 

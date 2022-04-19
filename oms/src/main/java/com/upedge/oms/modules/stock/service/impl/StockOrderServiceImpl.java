@@ -201,7 +201,7 @@ public class StockOrderServiceImpl implements StockOrderService {
         return BaseResponse.success();
     }
 
-    @Transactional
+    @GlobalTransactional
     @Override
     public BaseResponse orderConfirmReceipt(StockOrderVo stockOrderVo) {
         StockOrder stockOrder = new StockOrder();
