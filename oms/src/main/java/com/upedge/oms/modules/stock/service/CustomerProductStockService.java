@@ -16,6 +16,8 @@ import java.util.List;
  */
 public interface CustomerProductStockService{
 
+    void redisInit();
+
     void redisAddCustomerVariantStock(Long customerId, Long variantId, String warehouseCode, long stock);
 
     void redisReduceCustomerVariantStock(Long customerId, Long variantId, String warehouseCode, long stock);

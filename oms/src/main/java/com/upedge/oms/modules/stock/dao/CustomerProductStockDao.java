@@ -14,10 +14,13 @@ import java.util.List;
  */
 public interface CustomerProductStockDao{
 
+    List<CustomerProductStock> selectAllCustomerStocks();
+
     List<CustomerWarehouseVariantStockVo> selectCustomerWarehouseVariantStock(Long customerId);
 
-    int selectVariantStockByCustomer(@Param("customerId") Long customerId,
-                                     @Param("variantId") Long variantId);
+    long selectVariantStockByCustomer(@Param("customerId") Long customerId,
+                                     @Param("variantId") Long variantId,
+                                     @Param("warehouseCode")String warehouseCode);
 
     int increaseVariantStock(@Param("stocks") List<CustomerProductStock> stocks);
 

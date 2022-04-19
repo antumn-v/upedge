@@ -12,6 +12,7 @@ import com.upedge.common.model.product.VariantDetail;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.utils.IdGenerate;
 import com.upedge.common.utils.ListUtils;
+import com.upedge.common.web.util.RedisUtil;
 import com.upedge.oms.modules.order.vo.ItemDischargeQuantityVo;
 import com.upedge.oms.modules.stock.dao.CustomerProductStockDao;
 import com.upedge.oms.modules.stock.dao.CustomerStockRecordDao;
@@ -28,10 +29,7 @@ import com.upedge.thirdparty.saihe.service.SaiheService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataAccessException;
-import org.springframework.data.redis.core.RedisOperations;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.core.SessionCallback;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -169,7 +167,7 @@ public class CustomerProductStockServiceImpl implements CustomerProductStockServ
             customerStockRecord.setType(3);
             customerStockRecord.setQuantity(customerSkuStockVo.getStock());
             customerStockRecord.setWarehouseCode(warehouseCode);
-            customerStockRecord.setRelateId(System.currentTimeMillis());
+            customerStockRecord.setRelateId(IdGenerate.nextId());
             customerStockRecord.setVariantImage(variantDetail.getVariantImage());
             customerStockRecord.setUpdateTime(date);
             customerStockRecord.setRevokeState(0);
@@ -185,9 +183,9 @@ public class CustomerProductStockServiceImpl implements CustomerProductStockServ
         if (ListUtils.isNotEmpty(updateStock)) {
             customerProductStockDao.increaseVariantStock(updateStock);
         }
-//        for (CustomerSkuStockVo customerSkuStockVo : customerSkuStockVos) {
-//            redisAddCustomerVariantStock(customerId,customerSkuStockVo.getVariantId(),warehouseCode,customerSkuStockVo.getStock());
-//        }
+        for (CustomerSkuStockVo customerSkuStockVo : customerSkuStockVos) {
+            redisAddCustomerVariantStock(customerId,customerSkuStockVo.getVariantId(),warehouseCode,customerSkuStockVo.getStock());
+        }
         return BaseResponse.success();
     }
 
@@ -261,28 +259,8 @@ public class CustomerProductStockServiceImpl implements CustomerProductStockServ
     @Transactional(rollbackFor = Exception.class)
     @Override
     public boolean increaseCustomerLockStock(Long customerId, List<ItemDischargeQuantityVo> items) {
-        if (ListUtils.isNotEmpty(items)) {
-            //redis事务修改产品库存
-            SessionCallback<Object> callback = new SessionCallback<Object>() {
-                @Override
-                public <K, V> Object execute(RedisOperations<K, V> redisOperations) throws DataAccessException {
-                    redisOperations.multi();
-                    for (ItemDischargeQuantityVo item : items) {
-                        boolean a = redisCheckCustomerVariantStock(customerId,item.getVariantId(),item.getShippingWarehouse(),item.getDischargeQuantity());
-                        if (a){
-                           redisReduceCustomerVariantStock(customerId,item.getVariantId(),item.getShippingWarehouse(),item.getDischargeQuantity());
-                        }else {
-                            throw new DataAccessException("Insufficient inventory of overseas warehouse products") {
-                                @Override
-                                public String getMessage() {
-                                    return super.getMessage();
-                                }
-                            };
-                        }
-                    }
-                    return redisOperations.exec();
-                }
-            };
+        for (ItemDischargeQuantityVo item : items) {
+            redisReduceCustomerVariantStock(customerId,item.getVariantId(),item.getShippingWarehouse(),item.getDischargeQuantity());
         }
         boolean b = customerProductStockDao.increaseCustomerLockStock(customerId, items);
         return b;
@@ -290,15 +268,16 @@ public class CustomerProductStockServiceImpl implements CustomerProductStockServ
 
     @Override
     public int reduceFromLockStock(Long customerId, List<ItemDischargeQuantityVo> items) {
-        for (ItemDischargeQuantityVo item : items) {
-            redisReduceCustomerVariantStock(customerId,item.getVariantId(),item.getShippingWarehouse(),item.getDischargeQuantity());
-        }
         return customerProductStockDao.reduceFromLockStock(customerId, items);
     }
 
     @Override
     public int increaseFromLockStock(Long customerId, List<ItemDischargeQuantityVo> items) {
-        return customerProductStockDao.increaseFromLockStock(customerId, items);
+        int i = customerProductStockDao.increaseFromLockStock(customerId, items);
+        for (ItemDischargeQuantityVo item : items) {
+            redisAddCustomerVariantStock(customerId,item.getVariantId(),item.getShippingWarehouse(),item.getDischargeQuantity());
+        }
+        return i;
     }
 
     /**
@@ -385,35 +364,79 @@ public class CustomerProductStockServiceImpl implements CustomerProductStockServ
     }
 
     @Override
-    public void redisAddCustomerVariantStock(Long customerId, Long variantId, String warehouseCode, long stock){
-        String key = RedisKey.STRING_CUSTOMER_VARIANT_STOCK + customerId + ":" + warehouseCode + ":" + variantId;
-        boolean b = redisTemplate.hasKey(key);
-        if (b) {
-            if (stock == 1L){
-                redisTemplate.opsForValue().increment(key);
-            }else {
-                redisTemplate.opsForValue().increment(key,stock);
-            }
-        }else {
+    public void redisInit() {
+        List<CustomerProductStock> customerProductStocks = customerProductStockDao.selectAllCustomerStocks();
+        for (CustomerProductStock customerProductStock : customerProductStocks) {
+            Long customerId = customerProductStock.getCustomerId();
+            Long variantId = customerProductStock.getVariantId();
+            String warehouseCode = customerProductStock.getWarehouseCode();
+            long stock = customerProductStock.getStock();
+            String key = RedisKey.STRING_CUSTOMER_VARIANT_STOCK + customerId + ":" + warehouseCode + ":" + variantId;
             redisTemplate.opsForValue().set(key,stock);
         }
+    }
 
+    @Override
+    public void redisAddCustomerVariantStock(Long customerId, Long variantId, String warehouseCode, long stock){
+        String lockKey = RedisKey.LOCK_CUSTOMER_PRODUCT_STOCK_UPDATE + customerId + ":" + warehouseCode + ":" + variantId;
+        boolean b = RedisUtil.lock(redisTemplate,lockKey,1000L,1000L);
+        if (!b){
+            long nowStock = customerProductStockDao.selectVariantStockByCustomer(customerId, variantId, warehouseCode);
+            redisTemplate.opsForValue().set(redisTemplate,nowStock);
+            //从数据库读取最新数据更新
+            return;
+        }
+        String key = RedisKey.STRING_CUSTOMER_VARIANT_STOCK + customerId + ":" + warehouseCode + ":" + variantId;
+        b = redisTemplate.hasKey(key);
+        if (b) {
+            long nowStock = (long) redisTemplate.opsForValue().get(key);
+            stock = stock + nowStock;
+        }
+        redisTemplate.opsForValue().set(key,stock);
+        RedisUtil.unLock(redisTemplate,lockKey);
     }
 
     @Override
     public void redisReduceCustomerVariantStock(Long customerId,Long variantId,String warehouseCode,long stock){
         String key = RedisKey.STRING_CUSTOMER_VARIANT_STOCK + customerId + ":" + warehouseCode + ":" + variantId;
-        if (stock == 1L){
-            redisTemplate.opsForValue().decrement(key);
-        }else {
-            redisTemplate.opsForValue().decrement(key,stock);
+        if (!redisTemplate.hasKey(key)){
+            return;
         }
+        String lockKey = RedisKey.LOCK_CUSTOMER_PRODUCT_STOCK_UPDATE + customerId + ":" + warehouseCode + ":" + variantId;
+        boolean b = RedisUtil.lock(redisTemplate,lockKey,1000L,1000L);
+
+        long nowStock = 0;
+        if (!b){
+            nowStock = customerProductStockDao.selectVariantStockByCustomer(customerId, variantId, warehouseCode);
+        }else {
+            nowStock = (long) redisTemplate.opsForValue().get(key);
+        }
+        nowStock = nowStock - stock;
+        if(nowStock <= 0){
+            redisTemplate.delete(key);
+        }else {
+            redisTemplate.opsForValue().set(key,nowStock);
+        }
+        RedisUtil.unLock(redisTemplate,lockKey);
     }
+
 
     @Override
     public long redisGetCustomerVariantStock(Long customerId,Long variantId,String warehouseCode){
+        String lockKey = RedisKey.LOCK_CUSTOMER_PRODUCT_STOCK_UPDATE + customerId + ":" + warehouseCode + ":" + variantId;
         String key = RedisKey.STRING_CUSTOMER_VARIANT_STOCK + customerId + ":" + warehouseCode + ":" + variantId;
-        return (long) redisTemplate.opsForValue().get(key);
+        //加锁保证获取的是最新值
+        boolean b = RedisUtil.lock(redisTemplate,lockKey,1000L,1000L);
+        if (!b){
+            //锁获取失败
+            //从数据库读取最新数据更新
+            long stock = customerProductStockDao.selectVariantStockByCustomer(customerId, variantId, warehouseCode);
+            redisTemplate.opsForValue().set(key,stock);
+            return stock;
+        }
+        long stock = (long) redisTemplate.opsForValue().get(key);
+        RedisUtil.unLock(redisTemplate,lockKey);
+        return stock;
     }
 
     @Override
@@ -421,7 +444,7 @@ public class CustomerProductStockServiceImpl implements CustomerProductStockServ
         String key = RedisKey.STRING_CUSTOMER_VARIANT_STOCK + customerId + ":" + warehouseCode + ":" + variantId;
         boolean b = redisTemplate.hasKey(key);
         if (b) {
-            long nowStock = (long) redisTemplate.opsForValue().get(key);
+            long nowStock = redisGetCustomerVariantStock(customerId, variantId, warehouseCode);
             if (nowStock >= stock){
                 return true;
             }else {

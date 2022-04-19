@@ -122,6 +122,7 @@ public class OverseaWarehouseServiceOrderServiceImpl implements OverseaWarehouse
         StockOrderVo stockOrderVo = new StockOrderVo();
         BeanUtils.copyProperties(overseaWarehouseServiceOrder,stockOrderVo);
         stockOrderVo.setAmount(overseaWarehouseServiceOrder.getPayAmount());
+        stockOrderVo.setShipReview(3);
         stockOrderVo.setPurchaseState(3);
 
         List<StockOrderItemVo> stockOrderItemVos = new ArrayList<>();
@@ -130,6 +131,7 @@ public class OverseaWarehouseServiceOrderServiceImpl implements OverseaWarehouse
             BeanUtils.copyProperties(orderItem,stockOrderItemVo);
             stockOrderItemVos.add(stockOrderItemVo);
         }
+        stockOrderVo.setItems(stockOrderItemVos);
         BaseResponse baseResponse = omsFeignClient.orderConfirmReceipt(stockOrderVo);
         if (baseResponse.getCode() != ResultCode.SUCCESS_CODE){
             return baseResponse;

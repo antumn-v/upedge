@@ -414,7 +414,7 @@ public class OrderPayServiceImpl implements OrderPayService {
         });
         if (i > 0) {
             if (ListUtils.isNotEmpty(dischargeQuantityVos)) {
-                customerProductStockDao.increaseFromLockStock(customerId, dischargeQuantityVos);
+                customerProductStockService.increaseFromLockStock(customerId, dischargeQuantityVos);
             }
             RedisUtil.unLock(redisTemplate, key);
             return true;
@@ -492,7 +492,7 @@ public class OrderPayServiceImpl implements OrderPayService {
         int i = orderDao.updatePayStateByPaymentId(paymentId, 2);
         if (i == orders.size()) {
             if (ListUtils.isNotEmpty(dischargeQuantityVos)) {
-                customerProductStockDao.increaseCustomerLockStock(customerId, dischargeQuantityVos);
+                customerProductStockService.increaseCustomerLockStock(customerId, dischargeQuantityVos);
             }
             return BaseResponse.success();
         }

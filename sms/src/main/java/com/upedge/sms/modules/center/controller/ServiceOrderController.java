@@ -11,6 +11,7 @@ import com.upedge.sms.modules.center.request.ServiceOrderListRequest;
 import com.upedge.sms.modules.center.response.ServiceOrderInfoResponse;
 import com.upedge.sms.modules.center.response.ServiceOrderListResponse;
 import com.upedge.sms.modules.center.service.ServiceOrderService;
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -24,6 +25,7 @@ import java.util.List;
  *
  * @author gx
  */
+@Api(tags = "服务中心")
 @RestController
 @RequestMapping("/serviceOrder")
 public class ServiceOrderController {

@@ -483,9 +483,7 @@
         <include refid="Base_Column_List" />
         from oversea_warehouse_service_order
         <include refid="Query_Condition"/>
-        <if test="orderBy != null">
-            order by ${orderBy}
-        </if>
+        order by create_time desc
         <if test="pageNum != null and pageSize != null">
             limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
         </if>

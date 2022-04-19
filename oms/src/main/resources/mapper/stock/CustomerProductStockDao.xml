@@ -26,11 +26,13 @@
         `id`,`customer_id`,`product_id`,`variant_id`,`stock`,`warehouse_code`,`lock_stock`,`create_time`,`update_time`,`variant_image`,`variant_sku`,`product_title`,`variant_name`,`stock_type`,`customer_show_state`
     </sql>
 
-    <select id="selectVariantStockByCustomer" resultType="java.lang.Integer">
+    <select id="selectVariantStockByCustomer" resultType="java.lang.Long">
         select stock
         from customer_product_stock
         where customer_id = #{customerId}
         and variant_id = #{variantId}
+        and warehouse_code = #{warehouseCode}
+        limit 1
     </select>
 
     <select id="selectWarehouseVariantIdsByCustomer" resultType="java.lang.Long">
@@ -472,5 +474,12 @@
             from customer_product_stock
         where customer_id = #{customerId}
         group  by warehouse_code,variant_id
+    </select>
+
+    <select id="selectAllCustomerStocks" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from customer_product_stock
+        where stock > '0'
     </select>
 </mapper>

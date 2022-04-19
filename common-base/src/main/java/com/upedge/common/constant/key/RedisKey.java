@@ -11,8 +11,14 @@ public class RedisKey {
     public static final String STRING_TRACKING_COMPANY = "tracking:company:list";
 
     public static final String STRING_WAREHOUSE = "warehouse:code:";
-
+    /**
+     * 海外仓订单确认收货加锁
+     */
     public static final String LOCK_OVERSEA_WAREHOUSE_SERVICE_ORDER_RECEIPT = "oversea:warehouse:service:order:receipt:";
+    /**
+     * 客户产品库存更新加锁
+     */
+    public static final String LOCK_CUSTOMER_PRODUCT_STOCK_UPDATE = "customer:product:stock:lock:";
 
     public static final String LIST_CUSTOMER_NORMAL_ORDER_PAYMENT_ID = "normal:order:payment:id:list:customer:";
 
@@ -23,6 +29,8 @@ public class RedisKey {
 
     //客户产品库存
     public static final String STRING_CUSTOMER_VARIANT_STOCK = "warehouse:variant:stock:";
+
+    public static final String STRING_CUSTOMER_VARIANT_STOCK_READ_LOCK = "warehouse:variant:stock:read:lock:";
 
     //国家可用的海外仓
     public static final String HASH_COUNTRY_AVAILABLE_OVERSEA_WAREHOUSE = "country:available:oversea:warehouse";
@@ -115,8 +123,4 @@ public class RedisKey {
      */
     public static final String CUSTOMER_PAY_ORDER_LOCK = "customer:pay:order:lock:";
 
-    /**
-     * 审核中的海外仓服务订单
-     */
-    public static final String LIST_SERVICE_OVERSEA_WAREHOUSE_ORDER_REVIEW = "extraService:oversea:warehouse:order:review:list";
 }

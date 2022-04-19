@@ -671,11 +671,11 @@ public class StockOrderServiceImpl implements StockOrderService {
         if (ListUtils.isNotEmpty(updateStock)) {
             customerProductStockDao.increaseVariantStock(updateStock);
         }
-        if (stockOrderVo.getPayState() == 1
-        && stockOrderVo.getShipReview() == 3)
-        for (StockOrderItem variantQuantity : variantQuantities) {
-            customerProductStockService.redisAddCustomerVariantStock(customerId, variantQuantity.getVariantId(), warehouseCode, variantQuantity.getQuantity());
-        }
+//        if (stockOrderVo.getPayState() == 1
+//        && stockOrderVo.getShipReview() == 3)
+//        for (StockOrderItem variantQuantity : variantQuantities) {
+//            customerProductStockService.redisAddCustomerVariantStock(customerId, variantQuantity.getVariantId(), warehouseCode, variantQuantity.getQuantity());
+//        }
         return true;
     }
 
