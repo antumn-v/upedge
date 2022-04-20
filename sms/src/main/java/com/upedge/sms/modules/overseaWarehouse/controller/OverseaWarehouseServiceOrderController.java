@@ -123,15 +123,15 @@ public class OverseaWarehouseServiceOrderController {
     }
 
     @ApiOperation("确认收货")
-    @PostMapping("/confirmReceipt/{orderId}")
-    public BaseResponse confirmReceipt(@PathVariable Long orderId){
-        String key = RedisKey.LOCK_OVERSEA_WAREHOUSE_SERVICE_ORDER_RECEIPT + orderId;
+    @PostMapping("/confirmReceipt")
+    public BaseResponse confirmReceipt(@RequestBody@Valid OverseaWarehouseServiceOrderReceiptRequest request){
+        String key = RedisKey.LOCK_OVERSEA_WAREHOUSE_SERVICE_ORDER_RECEIPT + request.getOrderId();
         boolean b = RedisUtil.lock(redisTemplate,key,10L,10 * 1000L);
         if (!b){
             return BaseResponse.failed("订单操作中，请稍候");
         }
         Session session = UserUtil.getSession(redisTemplate);
-        BaseResponse response = overseaWarehouseServiceOrderService.confirmReceipt(orderId,session);
+        BaseResponse response = overseaWarehouseServiceOrderService.confirmReceipt(request,session);
         RedisUtil.unLock(redisTemplate,key);
         return response;
     }

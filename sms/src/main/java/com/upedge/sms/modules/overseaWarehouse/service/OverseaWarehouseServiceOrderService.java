@@ -1,13 +1,10 @@
 package com.upedge.sms.modules.overseaWarehouse.service;
 
 import com.upedge.common.base.BaseResponse;
+import com.upedge.common.base.Page;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.sms.modules.overseaWarehouse.entity.OverseaWarehouseServiceOrder;
-import com.upedge.common.base.Page;
-import com.upedge.sms.modules.overseaWarehouse.request.OverseaWarehouseServiceOrderCreateRequest;
-import com.upedge.sms.modules.overseaWarehouse.request.OverseaWarehouseServiceOrderListRequest;
-import com.upedge.sms.modules.overseaWarehouse.request.OverseaWarehouseServiceOrderPayRequest;
-import com.upedge.sms.modules.overseaWarehouse.request.OverseaWarehouseServiceOrderUpdateTrackingRequest;
+import com.upedge.sms.modules.overseaWarehouse.request.*;
 import com.upedge.sms.modules.overseaWarehouse.vo.OverseaWarehouseServiceOrderVo;
 import org.springframework.web.bind.annotation.RequestBody;
 
@@ -19,7 +16,7 @@ import java.util.List;
  */
 public interface OverseaWarehouseServiceOrderService{
 
-    BaseResponse confirmReceipt(Long orderId,Session session);
+    BaseResponse confirmReceipt(OverseaWarehouseServiceOrderReceiptRequest request, Session session);
 
     BaseResponse updateTrackingCode(@RequestBody@Valid OverseaWarehouseServiceOrderUpdateTrackingRequest request);
 

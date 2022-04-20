@@ -27,10 +27,7 @@ import com.upedge.sms.modules.overseaWarehouse.dao.OverseaWarehouseServiceOrderD
 import com.upedge.sms.modules.overseaWarehouse.entity.OverseaWarehouseServiceOrder;
 import com.upedge.sms.modules.overseaWarehouse.entity.OverseaWarehouseServiceOrderFreight;
 import com.upedge.sms.modules.overseaWarehouse.entity.OverseaWarehouseServiceOrderItem;
-import com.upedge.sms.modules.overseaWarehouse.request.OverseaWarehouseServiceOrderCreateRequest;
-import com.upedge.sms.modules.overseaWarehouse.request.OverseaWarehouseServiceOrderListRequest;
-import com.upedge.sms.modules.overseaWarehouse.request.OverseaWarehouseServiceOrderPayRequest;
-import com.upedge.sms.modules.overseaWarehouse.request.OverseaWarehouseServiceOrderUpdateTrackingRequest;
+import com.upedge.sms.modules.overseaWarehouse.request.*;
 import com.upedge.sms.modules.overseaWarehouse.service.OverseaWarehouseServiceOrderFreightService;
 import com.upedge.sms.modules.overseaWarehouse.service.OverseaWarehouseServiceOrderItemService;
 import com.upedge.sms.modules.overseaWarehouse.service.OverseaWarehouseServiceOrderService;
@@ -111,11 +108,14 @@ public class OverseaWarehouseServiceOrderServiceImpl implements OverseaWarehouse
 
     @GlobalTransactional
     @Override
-    public BaseResponse confirmReceipt(Long orderId,Session session) {
+    public BaseResponse confirmReceipt(OverseaWarehouseServiceOrderReceiptRequest request, Session session) {
+        Long orderId = request.getOrderId();
+        String trackingCode = request.getTrackingCode();
         OverseaWarehouseServiceOrder overseaWarehouseServiceOrder = selectByPrimaryKey(orderId);
         if (null == overseaWarehouseServiceOrder
-        || overseaWarehouseServiceOrder.getPayState() != OrderConstant.PAY_STATE_PAID){
-            return BaseResponse.failed("订单不存在或订单未支付");
+        || overseaWarehouseServiceOrder.getPayState() != OrderConstant.PAY_STATE_PAID
+        || overseaWarehouseServiceOrder.getShipState() == 2){
+            return BaseResponse.failed("订单不存在或订单未支付或已确认收货");
         }
         List<OverseaWarehouseServiceOrderItem> orderItems = overseaWarehouseServiceOrderItemService.selectByOrderId(orderId);
 
@@ -139,6 +139,8 @@ public class OverseaWarehouseServiceOrderServiceImpl implements OverseaWarehouse
         overseaWarehouseServiceOrder = new OverseaWarehouseServiceOrder();
         overseaWarehouseServiceOrder.setId(orderId);
         overseaWarehouseServiceOrder.setShipState(OrderConstant.SHIP_STATE_RECEIPTED);
+        overseaWarehouseServiceOrder.setTrackingCode(trackingCode);
+        overseaWarehouseServiceOrder.setUpdateTime(new Date());
         updateByPrimaryKeySelective(overseaWarehouseServiceOrder);
 
         ServiceOrder serviceOrder = new ServiceOrder();
