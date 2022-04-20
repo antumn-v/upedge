@@ -6,6 +6,7 @@ import com.upedge.common.component.annotation.Permission;
 import com.upedge.common.constant.Constant;
 import com.upedge.common.constant.ResultCode;
 import com.upedge.common.exception.CustomerException;
+import com.upedge.common.model.tms.WarehouseVo;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.web.util.UserUtil;
 import com.upedge.oms.modules.stock.entity.CustomerProductStock;
@@ -82,12 +83,18 @@ public class CustomerProductStockController {
         return res;
     }
 
+    @ApiOperation("客户库存所在仓库列表")
+    @GetMapping("/warehouses/{customerId}")
+    public BaseResponse customerStockWarehouses(@PathVariable Long customerId){
+        List<WarehouseVo> warehouseVos = customerProductStockService.selectCustomerStockWarehouses(customerId);
+        return BaseResponse.success(warehouseVos);
+    }
+
     @ApiOperation("库存列表")
     @RequestMapping(value="/list", method=RequestMethod.POST)
     @Permission(permission = "stock:customerproductstock:list")
     public CustomerProductStockListResponse list(@RequestBody @Valid CustomerProductStockListRequest request) {
         Session session = UserUtil.getSession(redisTemplate);
-
         if(null == request.getT()){
             request.setT(new CustomerProductStock());
         }

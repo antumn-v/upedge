@@ -9,6 +9,7 @@ import com.upedge.common.feign.PmsFeignClient;
 import com.upedge.common.model.order.vo.CustomerProductStockNumVo;
 import com.upedge.common.model.product.ProductSaiheInventoryVo;
 import com.upedge.common.model.product.VariantDetail;
+import com.upedge.common.model.tms.WarehouseVo;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.utils.IdGenerate;
 import com.upedge.common.utils.ListUtils;
@@ -301,7 +302,14 @@ public class CustomerProductStockServiceImpl implements CustomerProductStockServ
     */
     public List<CustomerProductStock> select(Page<CustomerProductStock> record){
         record.initFromNum();
-        return customerProductStockDao.select(record);
+        List<CustomerProductStock> customerProductStocks = customerProductStockDao.select(record);
+        for (CustomerProductStock customerProductStock : customerProductStocks) {
+            WarehouseVo warehouseVo = (WarehouseVo) redisTemplate.opsForValue().get(RedisKey.STRING_WAREHOUSE + customerProductStock.getWarehouseCode());
+            if(null != warehouseVo){
+                customerProductStock.setWarehouseName(warehouseVo.getWarehouseEnEame());
+            }
+        }
+        return customerProductStocks;
     }
 
     /**
@@ -361,6 +369,17 @@ public class CustomerProductStockServiceImpl implements CustomerProductStockServ
         return BaseResponse.success();
 
 
+    }
+
+    @Override
+    public List<WarehouseVo> selectCustomerStockWarehouses(Long customerId) {
+        List<WarehouseVo> warehouseVos = new ArrayList<>();
+        List<String> warehouseCodes = customerProductStockDao.selectCustomerStockWarehouses(customerId);
+        for (String warehouseCode : warehouseCodes) {
+            WarehouseVo warehouseVo = (WarehouseVo) redisTemplate.opsForValue().get(RedisKey.STRING_WAREHOUSE + warehouseCode);
+            warehouseVos.add(warehouseVo);
+        }
+        return warehouseVos;
     }
 
     @Override

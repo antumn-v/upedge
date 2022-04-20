@@ -482,4 +482,10 @@
         from customer_product_stock
         where stock > '0'
     </select>
+
+    <select id="selectCustomerStockWarehouses" resultType="java.lang.String">
+        select distinct warehouse_code
+        from customer_product_stock
+        where customer_id = #{customerId}
+    </select>
 </mapper>

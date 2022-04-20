@@ -1,12 +1,21 @@
 package com.upedge.thirdparty.saihe.entity.processUpdateProduct;
 
-import javax.xml.bind.annotation.XmlElement;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-/**
- * Created by cjq on 2019/4/4.
- */
+import javax.xml.bind.annotation.XmlElement;
+import java.util.List;
+
+
+@Data
 public class ProcessUpdateProductResult {
 
+
+    @XmlElement(name="SkuUpdateList")
+    private SkuUpdateListDTO skuUpdateList;
+
+    @XmlElement(name="skuAddList")
+    private SkuUpdateListDTO skuAddList;
 
     public ProcessUpdateProductResult() {
     }
@@ -17,6 +26,8 @@ public class ProcessUpdateProductResult {
 
     String Status;
     Presult presult=new Presult();
+
+
 
     @XmlElement(name="Result")
     public Presult getPresult() {
@@ -36,4 +47,19 @@ public class ProcessUpdateProductResult {
         Status = status;
     }
 
+    @NoArgsConstructor
+    @Data
+    public static class SkuUpdateListDTO {
+        @XmlElement(name = "SkuResult")
+        private List<SkuResultDTO> skuResult;
+    }
+
+    @NoArgsConstructor
+    @Data
+    public static class SkuResultDTO {
+        @XmlElement(name ="Sku")
+        private String sku;
+        @XmlElement(name ="ClientSku")
+        private String clientSku;
+    }
 }

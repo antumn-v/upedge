@@ -4,6 +4,7 @@ import com.upedge.common.base.BaseResponse;
 import com.upedge.common.base.Page;
 import com.upedge.common.exception.CustomerException;
 import com.upedge.common.model.order.vo.CustomerProductStockNumVo;
+import com.upedge.common.model.tms.WarehouseVo;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.oms.modules.order.vo.ItemDischargeQuantityVo;
 import com.upedge.oms.modules.stock.entity.CustomerProductStock;
@@ -15,6 +16,8 @@ import java.util.List;
  * @author author
  */
 public interface CustomerProductStockService{
+
+    List<WarehouseVo> selectCustomerStockWarehouses(Long customerId);
 
     void redisInit();
 

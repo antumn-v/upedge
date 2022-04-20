@@ -14,6 +14,8 @@ import java.util.List;
  */
 public interface CustomerProductStockDao{
 
+    List<String> selectCustomerStockWarehouses(Long customerId);
+
     List<CustomerProductStock> selectAllCustomerStocks();
 
     List<CustomerWarehouseVariantStockVo> selectCustomerWarehouseVariantStock(Long customerId);

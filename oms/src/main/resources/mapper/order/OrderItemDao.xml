@@ -152,6 +152,7 @@
         and cps.customer_id = #{customerId}
         and oi.discharge_quantity > '0'
         and o.pay_state = '1'
+        and o.shipping_warehouse = cps.warehouse_code
     </select>
 
     <select id="selectStoreOrderIdById" resultType="java.lang.Long">

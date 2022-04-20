@@ -677,14 +677,14 @@ public class OrderPayServiceImpl implements OrderPayService {
         mqOnSaiheService.uploadPaymentIdOnMq(paymentId, OrderType.NORMAL);
         customerStockRecordService.saveDischargeStockRecordByPaymentId(customerId, paymentId, OrderType.NORMAL);
         customerProductSalesLogService.saveProductSaleRecord(paymentId, OrderType.NORMAL, customerId, new Date());
-        List<AppOrderVo> orderVos = orderDao.selectPayOrderListByPaymentId(paymentId);
-        if (ListUtils.isNotEmpty(orderVos)) {
-            for (AppOrderVo orderVo : orderVos) {
-                if (orderVo.getPayState() == 1) {
-                    orderProfitService.updateOrderProfit(orderVo.getId());
-                }
-            }
-        }
+//        List<AppOrderVo> orderVos = orderDao.selectPayOrderListByPaymentId(paymentId);
+//        if (ListUtils.isNotEmpty(orderVos)) {
+//            for (AppOrderVo orderVo : orderVos) {
+//                if (orderVo.getPayState() == 1) {
+//                    orderProfitService.updateOrderProfit(orderVo.getId());
+//                }
+//            }
+//        }
 
     }
 
