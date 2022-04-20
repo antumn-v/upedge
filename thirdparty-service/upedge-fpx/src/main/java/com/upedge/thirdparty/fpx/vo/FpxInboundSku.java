@@ -24,11 +24,11 @@ public class FpxInboundSku {
     @JsonProperty("logistics_package")
     private String logisticsPackage;
     @JsonProperty("plan_qty")
-    private String planQty;
+    private Integer planQty;
     @JsonProperty("received_qty")
-    private String receivedQty;
+    private Integer receivedQty;
     @JsonProperty("exception_qty")
-    private String exceptionQty;
+    private Integer exceptionQty;
     @JsonProperty("batch_no")
     private String batchNo;
     @JsonProperty("weight")

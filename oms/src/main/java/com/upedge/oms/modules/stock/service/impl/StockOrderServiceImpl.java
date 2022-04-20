@@ -14,6 +14,8 @@ import com.upedge.common.model.account.AccountPaymentRequest;
 import com.upedge.common.model.account.PaypalOrder;
 import com.upedge.common.model.account.PaypalOrder.PaypalOrderItem;
 import com.upedge.common.model.log.MqMessageLog;
+import com.upedge.common.model.oms.stock.StockOrderItemVo;
+import com.upedge.common.model.oms.stock.StockOrderVo;
 import com.upedge.common.model.order.PaymentDetail;
 import com.upedge.common.model.order.TransactionDetail;
 import com.upedge.common.model.order.request.CustomerOrderDailyCountUpdateRequest;
@@ -47,14 +49,11 @@ import com.upedge.oms.modules.stock.request.StockOrderUpdateShipRequest;
 import com.upedge.oms.modules.stock.request.StockOrderUpdateTrackRequest;
 import com.upedge.oms.modules.stock.service.CustomerProductStockService;
 import com.upedge.oms.modules.stock.service.StockOrderService;
-import com.upedge.common.model.oms.stock.StockOrderItemVo;
-import com.upedge.common.model.oms.stock.StockOrderVo;
 import io.seata.spring.annotation.GlobalTransactional;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.rocketmq.client.producer.DefaultMQProducer;
 import org.apache.rocketmq.client.producer.SendStatus;
 import org.apache.rocketmq.common.message.Message;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
@@ -204,18 +203,18 @@ public class StockOrderServiceImpl implements StockOrderService {
     @GlobalTransactional
     @Override
     public BaseResponse orderConfirmReceipt(StockOrderVo stockOrderVo) {
-        StockOrder stockOrder = new StockOrder();
-        BeanUtils.copyProperties(stockOrderVo,stockOrder);
-        insert(stockOrder);
+//        StockOrder stockOrder = new StockOrder();
+//        BeanUtils.copyProperties(stockOrderVo,stockOrder);
+//        insert(stockOrder);
 
-        List<StockOrderItemVo> stockOrderItemVos = stockOrderVo.getItems();
-        List<StockOrderItem> stockOrderItems = new ArrayList<>();
-        for (StockOrderItemVo stockOrderItemVo : stockOrderItemVos) {
-            StockOrderItem stockOrderItem = new StockOrderItem();
-            BeanUtils.copyProperties(stockOrderItemVo,stockOrderItem);
-            stockOrderItems.add(stockOrderItem);
-        }
-        stockOrderItemDao.insertByBatch(stockOrderItems);
+//        List<StockOrderItemVo> stockOrderItemVos = stockOrderVo.getItems();
+//        List<StockOrderItem> stockOrderItems = new ArrayList<>();
+//        for (StockOrderItemVo stockOrderItemVo : stockOrderItemVos) {
+//            StockOrderItem stockOrderItem = new StockOrderItem();
+//            BeanUtils.copyProperties(stockOrderItemVo,stockOrderItem);
+//            stockOrderItems.add(stockOrderItem);
+//        }
+//        stockOrderItemDao.insertByBatch(stockOrderItems);
 
         orderPaidByPaymentId(stockOrderVo);
         return BaseResponse.success();
@@ -629,7 +628,7 @@ public class StockOrderServiceImpl implements StockOrderService {
         });
         customerStockRecordDao.insertByBatch(records);
 
-        List<StockOrderItem> variantQuantities = stockOrderItemDao.countVariantQuantityByOrderId(orderId);
+        List<StockOrderItemVo> variantQuantities = stockOrderVo.getItems();
 
         List<Long> variantIds = customerProductStockDao.selectWarehouseVariantIdsByCustomer(customerId, warehouseCode);
 
@@ -671,11 +670,11 @@ public class StockOrderServiceImpl implements StockOrderService {
         if (ListUtils.isNotEmpty(updateStock)) {
             customerProductStockDao.increaseVariantStock(updateStock);
         }
-//        if (stockOrderVo.getPayState() == 1
-//        && stockOrderVo.getShipReview() == 3)
-//        for (StockOrderItem variantQuantity : variantQuantities) {
-//            customerProductStockService.redisAddCustomerVariantStock(customerId, variantQuantity.getVariantId(), warehouseCode, variantQuantity.getQuantity());
-//        }
+        if (stockOrderVo.getPayState() == 1
+        && stockOrderVo.getShipReview() == 3)
+        for (StockOrderItemVo variantQuantity : variantQuantities) {
+            customerProductStockService.redisAddCustomerVariantStock(customerId, variantQuantity.getVariantId(), warehouseCode, variantQuantity.getQuantity());
+        }
         return true;
     }
 

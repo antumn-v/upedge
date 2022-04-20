@@ -4,6 +4,7 @@ import com.upedge.common.base.BaseResponse;
 import com.upedge.common.base.Page;
 import com.upedge.common.constant.OrderConstant;
 import com.upedge.common.constant.OrderType;
+import com.upedge.common.constant.ProductConstant;
 import com.upedge.common.constant.ResultCode;
 import com.upedge.common.constant.key.RedisKey;
 import com.upedge.common.feign.OmsFeignClient;
@@ -25,7 +26,10 @@ import com.upedge.sms.modules.overseaWarehouse.dao.OverseaWarehouseServiceOrderD
 import com.upedge.sms.modules.overseaWarehouse.entity.OverseaWarehouseServiceOrder;
 import com.upedge.sms.modules.overseaWarehouse.entity.OverseaWarehouseServiceOrderFreight;
 import com.upedge.sms.modules.overseaWarehouse.entity.OverseaWarehouseServiceOrderItem;
-import com.upedge.sms.modules.overseaWarehouse.request.*;
+import com.upedge.sms.modules.overseaWarehouse.request.OverseaWarehouseServiceOrderCreateRequest;
+import com.upedge.sms.modules.overseaWarehouse.request.OverseaWarehouseServiceOrderListRequest;
+import com.upedge.sms.modules.overseaWarehouse.request.OverseaWarehouseServiceOrderPayRequest;
+import com.upedge.sms.modules.overseaWarehouse.request.OverseaWarehouseServiceOrderUpdateTrackingRequest;
 import com.upedge.sms.modules.overseaWarehouse.service.OverseaWarehouseServiceOrderFreightService;
 import com.upedge.sms.modules.overseaWarehouse.service.OverseaWarehouseServiceOrderItemService;
 import com.upedge.sms.modules.overseaWarehouse.service.OverseaWarehouseServiceOrderService;
@@ -33,6 +37,8 @@ import com.upedge.sms.modules.overseaWarehouse.vo.OverseaWarehouseServiceOrderVo
 import com.upedge.thirdparty.fpx.api.FpxWmsApi;
 import com.upedge.thirdparty.fpx.request.CreateFpxInboundRequest;
 import com.upedge.thirdparty.fpx.request.CreateFpxInboundRequest.IconsignmentSkuDTO;
+import com.upedge.thirdparty.fpx.vo.FpxInbound;
+import com.upedge.thirdparty.fpx.vo.FpxInboundSku;
 import io.seata.spring.annotation.GlobalTransactional;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
@@ -42,9 +48,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ThreadPoolExecutor;
 
@@ -105,15 +109,24 @@ public class OverseaWarehouseServiceOrderServiceImpl implements OverseaWarehouse
 
     @GlobalTransactional
     @Override
-    public BaseResponse confirmReceipt(OverseaWarehouseServiceOrderReceiptRequest request, Session session) {
-        Long orderId = request.getOrderId();
-        String trackingCode = request.getTrackingCode();
+    public BaseResponse confirmReceipt(Long orderId, Session session) {
         OverseaWarehouseServiceOrder overseaWarehouseServiceOrder = selectByPrimaryKey(orderId);
         if (null == overseaWarehouseServiceOrder
         || overseaWarehouseServiceOrder.getPayState() != OrderConstant.PAY_STATE_PAID
         || overseaWarehouseServiceOrder.getShipState() == 2){
             return BaseResponse.failed("订单不存在或订单未支付或已确认收货");
         }
+
+        FpxInbound fpxInbound = FpxWmsApi.selectInboundByOrderId(orderId);
+        if (null == fpxInbound){
+            return BaseResponse.failed("fpx委托单不存在");
+        }
+        List<FpxInboundSku> fpxInboundSkus = fpxInbound.getLstsku();
+        Map<String,Integer> skuQuantity = new HashMap<>();
+        for (FpxInboundSku inboundSkus : fpxInboundSkus) {
+            skuQuantity.put(inboundSkus.getSkuCode(),inboundSkus.getReceivedQty());
+        }
+
         List<OverseaWarehouseServiceOrderItem> orderItems = overseaWarehouseServiceOrderItemService.selectByOrderId(orderId);
 
         StockOrderVo stockOrderVo = new StockOrderVo();
@@ -124,8 +137,16 @@ public class OverseaWarehouseServiceOrderServiceImpl implements OverseaWarehouse
 
         List<StockOrderItemVo> stockOrderItemVos = new ArrayList<>();
         for (OverseaWarehouseServiceOrderItem orderItem : orderItems) {
+            if(StringUtils.isBlank(orderItem.getWarehouseSku())){
+                return BaseResponse.failed("订单产品缺失sku");
+            }
+            Integer stock = skuQuantity.get(orderItem.getWarehouseSku());
+            if(null == stock){
+                return BaseResponse.failed("订单产品匹配海外仓sku异常");
+            }
             StockOrderItemVo stockOrderItemVo = new StockOrderItemVo();
             BeanUtils.copyProperties(orderItem,stockOrderItemVo);
+            stockOrderItemVo.setQuantity(stock);
             stockOrderItemVos.add(stockOrderItemVo);
         }
         stockOrderVo.setItems(stockOrderItemVos);
@@ -136,7 +157,6 @@ public class OverseaWarehouseServiceOrderServiceImpl implements OverseaWarehouse
         overseaWarehouseServiceOrder = new OverseaWarehouseServiceOrder();
         overseaWarehouseServiceOrder.setId(orderId);
         overseaWarehouseServiceOrder.setShipState(OrderConstant.SHIP_STATE_RECEIPTED);
-        overseaWarehouseServiceOrder.setTrackingCode(trackingCode);
         overseaWarehouseServiceOrder.setUpdateTime(new Date());
         updateByPrimaryKeySelective(overseaWarehouseServiceOrder);
 
@@ -300,6 +320,14 @@ public class OverseaWarehouseServiceOrderServiceImpl implements OverseaWarehouse
     @Transactional
     @Override
     public BaseResponse create(OverseaWarehouseServiceOrderCreateRequest request, Session session) {
+        String warehouseCode = request.getWarehouseCode();
+        if (warehouseCode.equals(ProductConstant.DEFAULT_WAREHOUSE_ID)){
+            return BaseResponse.failed();
+        }
+        WarehouseVo warehouseVo = (WarehouseVo) redisTemplate.opsForValue().get(RedisKey.STRING_WAREHOUSE + warehouseCode);
+        if (null == warehouseVo){
+            return BaseResponse.failed("Warehouse error!");
+        }
         CartSelectByIdsRequest cartSelectByIdsRequest = new CartSelectByIdsRequest();
         cartSelectByIdsRequest.setIds(request.getCartIds());
         cartSelectByIdsRequest.setCartType(0);

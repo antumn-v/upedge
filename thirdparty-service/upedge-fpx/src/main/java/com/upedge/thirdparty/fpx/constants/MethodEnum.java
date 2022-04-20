@@ -30,6 +30,10 @@ public enum MethodEnum {
      */
     create_inbound("fu.wms.inbound.create"),
     /**
+     * 查询入库委托
+     */
+    select_inbound("fu.wms.inbound.getlist"),
+    /**
      * 查询计量单位
      */
     measure_unit_list("com.basis.measureunit.getlist")

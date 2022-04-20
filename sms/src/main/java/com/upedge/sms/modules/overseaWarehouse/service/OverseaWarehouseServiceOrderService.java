@@ -16,7 +16,7 @@ import java.util.List;
  */
 public interface OverseaWarehouseServiceOrderService{
 
-    BaseResponse confirmReceipt(OverseaWarehouseServiceOrderReceiptRequest request, Session session);
+    BaseResponse confirmReceipt(Long orderId, Session session);
 
     BaseResponse updateTrackingCode(@RequestBody@Valid OverseaWarehouseServiceOrderUpdateTrackingRequest request);
 

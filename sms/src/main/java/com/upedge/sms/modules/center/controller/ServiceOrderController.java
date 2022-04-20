@@ -8,6 +8,7 @@ import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.web.util.UserUtil;
 import com.upedge.sms.modules.center.entity.ServiceOrder;
 import com.upedge.sms.modules.center.request.ServiceOrderListRequest;
+import com.upedge.sms.modules.center.request.ServiceOrderUpdateRequest;
 import com.upedge.sms.modules.center.response.ServiceOrderInfoResponse;
 import com.upedge.sms.modules.center.response.ServiceOrderListResponse;
 import com.upedge.sms.modules.center.service.ServiceOrderService;
@@ -75,6 +76,14 @@ public class ServiceOrderController {
         request.setTotal(total);
         ServiceOrderListResponse res = new ServiceOrderListResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS,results,request);
         return res;
+    }
+
+    @ApiOperation("修改服务标题")
+    @PostMapping("/updateTitle")
+    public BaseResponse update(@RequestBody ServiceOrderUpdateRequest request){
+        ServiceOrder serviceOrder = request.toServiceOrder();
+        serviceOrderService.updateByPrimaryKeySelective(serviceOrder);
+        return BaseResponse.success();
     }
 
 
