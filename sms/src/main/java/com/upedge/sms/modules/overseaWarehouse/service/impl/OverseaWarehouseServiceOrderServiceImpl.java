@@ -1,13 +1,11 @@
 package com.upedge.sms.modules.overseaWarehouse.service.impl;
 
-import com.alibaba.fastjson.JSON;
 import com.upedge.common.base.BaseResponse;
 import com.upedge.common.base.Page;
 import com.upedge.common.constant.OrderConstant;
 import com.upedge.common.constant.OrderType;
 import com.upedge.common.constant.ResultCode;
 import com.upedge.common.constant.key.RedisKey;
-import com.upedge.common.constant.key.RocketMqConfig;
 import com.upedge.common.feign.OmsFeignClient;
 import com.upedge.common.feign.UmsFeignClient;
 import com.upedge.common.model.account.AccountPaymentRequest;
@@ -37,7 +35,6 @@ import com.upedge.thirdparty.fpx.request.CreateFpxInboundRequest;
 import com.upedge.thirdparty.fpx.request.CreateFpxInboundRequest.IconsignmentSkuDTO;
 import io.seata.spring.annotation.GlobalTransactional;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.rocketmq.common.message.Message;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -426,12 +423,9 @@ public class OverseaWarehouseServiceOrderServiceImpl implements OverseaWarehouse
         transactionDetail.setOrderType(OrderType.EXTRA_SERVICE_OVERSEA_WAREHOUSE);
         transactionDetails.add(transactionDetail);
 
-
         detail.setOrderTransactions(transactionDetails);
 
-        Message message = new Message(RocketMqConfig.TOPIC_SAVE_ORDER_TRANSACTION, "oversea_warehouse_service_order", "oversea:warehouse:service:order:" + order.getPaymentId(), JSON.toJSONBytes(detail));
-        message.setDelayTimeLevel(1);
-        umsFeignClient.sendMessage(message);
+        umsFeignClient.saveTransactionDetails(detail);
 
     }
 

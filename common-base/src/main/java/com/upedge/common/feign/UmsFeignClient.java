@@ -12,6 +12,7 @@ import com.upedge.common.model.account.PaypalOrder;
 import com.upedge.common.model.account.request.PaypalExecuteRequest;
 import com.upedge.common.model.account.request.ReturnOrderPayAmountToAccountRequest;
 import com.upedge.common.model.log.MqMessageLog;
+import com.upedge.common.model.order.PaymentDetail;
 import com.upedge.common.model.order.TransactionDetail;
 import com.upedge.common.model.store.request.StoreSearchRequest;
 import com.upedge.common.model.user.request.*;
@@ -30,6 +31,9 @@ public interface UmsFeignClient {
 
     @PostMapping("/account/returnOrderPayAmount")
     public BaseResponse returnOrderPayAmount(@RequestBody ReturnOrderPayAmountToAccountRequest request);
+
+    @PostMapping("/account/saveTransactionDetails")
+    public BaseResponse saveTransactionDetails(@RequestBody PaymentDetail detail);
 
     /**
      * 获取客户的客户经理信息

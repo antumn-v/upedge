@@ -34,6 +34,9 @@ public enum TransactionType {
     //余额支付批发订单
     BALANCE_PAY_WHOLESALE(0,3,0),
 
+    //余额支付批发订单
+    BALANCE_PAY_OVERSEA_WAREHOUSE_SERVICE_ORDER(0,4,0),
+
     //paypal支付批发订单
     PAYPAL_PAY_WHOLESALE(0,3,1),
 

@@ -1,6 +1,5 @@
 package com.upedge.oms.modules.order.service.impl;
 
-import com.alibaba.fastjson.JSON;
 import com.upedge.common.base.BaseResponse;
 import com.upedge.common.base.Page;
 import com.upedge.common.constant.*;
@@ -359,8 +358,9 @@ public class OrderPayServiceImpl implements OrderPayService {
         List<OrderItem> orderItems = orderItemDao.selectItemByPaymentId(paymentId);
         for (OrderItem orderItem : orderItems) {
             String key = orderItem.getAdminVariantId() + orderItem.getShippingWarehouse();
-            int stock = variantWarehouseStockMap.get(key);
-            if (stock == 0){
+            Integer stock = variantWarehouseStockMap.get(key);
+            if (stock == null
+            || stock == 0){
                 continue;
             }
             Integer dischargeQuantity = 0;
@@ -708,10 +708,7 @@ public class OrderPayServiceImpl implements OrderPayService {
 
         detail.setOrderTransactions(transactionDetails);
 
-        Message message = new Message(RocketMqConfig.TOPIC_SAVE_ORDER_TRANSACTION, "normal_order", "normal:order:transaction:" + paymentId, JSON.toJSONBytes(detail));
-        message.setDelayTimeLevel(1);
-        umsFeignClient.sendMessage(message);
-
+        umsFeignClient.saveTransactionDetails(detail);
     }
 
 

@@ -494,6 +494,9 @@ public class AccountServiceImpl implements AccountService {
             case OrderType.WHOLESALE:
                 transactionType = TransactionType.BALANCE_PAY_WHOLESALE;
                 break;
+            case OrderType.EXTRA_SERVICE_OVERSEA_WAREHOUSE:
+                transactionType = TransactionType.BALANCE_PAY_OVERSEA_WAREHOUSE_SERVICE_ORDER;
+                break;
             default:
                 throw new IllegalStateException("Unexpected value: " + orderType);
         }

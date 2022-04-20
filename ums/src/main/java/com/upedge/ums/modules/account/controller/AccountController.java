@@ -7,6 +7,7 @@ import com.upedge.common.exception.CustomerException;
 import com.upedge.common.model.account.AccountOrderRefundedRequest;
 import com.upedge.common.model.account.AccountPaymentRequest;
 import com.upedge.common.model.account.request.ReturnOrderPayAmountToAccountRequest;
+import com.upedge.common.model.order.PaymentDetail;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.web.util.UserUtil;
 import com.upedge.ums.modules.account.entity.Account;
@@ -62,6 +63,12 @@ public class AccountController {
             return BaseResponse.failed();
         }
         return BaseResponse.success(account);
+    }
+
+    @PostMapping("/saveTransactionDetails")
+    public BaseResponse saveTransactionDetails(@RequestBody PaymentDetail detail){
+        accountService.accountPayOrders(detail);
+        return BaseResponse.success();
     }
 
 
