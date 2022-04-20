@@ -93,6 +93,8 @@ public class OverseaWarehouseServiceOrder{
 	 */
     private BigDecimal totalVolume;
 
+	private String remark;
+
 	public OverseaWarehouseServiceOrder() {
 
 	}

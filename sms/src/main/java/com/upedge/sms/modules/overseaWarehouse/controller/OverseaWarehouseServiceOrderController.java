@@ -135,4 +135,12 @@ public class OverseaWarehouseServiceOrderController {
         RedisUtil.unLock(redisTemplate,key);
         return response;
     }
+
+    @ApiOperation("修改订单备注")
+    @PostMapping("/updateRemark")
+    public BaseResponse updateRemark(@RequestBody OverseaWarehouseServiceOrderUpdateRequest request){
+        OverseaWarehouseServiceOrder overseaWarehouseServiceOrder = request.toOverseaWarehouseServiceOrder();
+        overseaWarehouseServiceOrderService.updateByPrimaryKeySelective(overseaWarehouseServiceOrder);
+        return BaseResponse.success();
+    }
 }

@@ -25,6 +25,7 @@
         <result property="managerId" column="manager_id"/>
         <result property="totalWeight" column="total_weight"/>
         <result property="totalVolume" column="total_volume"/>
+        <result property="remark" column="remark"/>
     </resultMap>
 
     <resultMap type="com.upedge.sms.modules.overseaWarehouse.vo.OverseaWarehouseServiceOrderVo" id="OverseaWarehouseServiceOrderVo">
@@ -74,7 +75,9 @@
     </resultMap>
 
     <sql id="Base_Column_List">
-        `id`,`customer_id`,`product_amount`,`ship_price`,`ship_type`,`pay_amount`,`pay_state`,`ship_state`,`refund_state`,`payment_id`,`warehouse_code`,`warehouse_order_id`,`warehouse_order_state`,`tracking_code`,`pay_time`,`create_time`,`update_time`,`manager_id`,`total_weight`,`total_volume`
+        `id`,`customer_id`,`product_amount`,`ship_price`,`ship_type`,`pay_amount`,`pay_state`,`ship_state`,`refund_state`,
+        `payment_id`,`warehouse_code`,`warehouse_order_id`,`warehouse_order_state`,`tracking_code`,`pay_time`,`create_time`,
+        `update_time`,`manager_id`,`total_weight`,`total_volume`,`remark`
     </sql>
 
     <select id="selectByPrimaryKey" parameterType="com.upedge.sms.modules.overseaWarehouse.entity.OverseaWarehouseServiceOrder" resultMap="BaseResultMap">
@@ -149,6 +152,9 @@
             <if test="totalVolume != null">
                 total_volume = #{totalVolume},
             </if>
+            <if test="remark != null">
+                remark = #{remark},
+            </if>
         </set>
         where id = #{id}
     </update>
@@ -176,6 +182,7 @@
         manager_id = #{managerId},
         total_weight = #{totalWeight},
         total_volume = #{totalVolume},
+        remark = #{remark},
         </set>
         where id = #{id}
     </update>
@@ -202,7 +209,8 @@
             update_time,
             manager_id,
             total_weight,
-            total_volume
+            total_volume,
+            remark
         </trim>
         values (
         #{id},
@@ -224,7 +232,8 @@
         #{updateTime},
         #{managerId},
         #{totalWeight},
-        #{totalVolume}
+        #{totalVolume},
+        #{remark}
         )
     </insert>
 
@@ -291,6 +300,9 @@
             <if test="totalVolume != null" >
               total_volume
             </if>
+            <if test="remark != null" >
+                remark
+            </if>
 
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
@@ -354,6 +366,9 @@
             <if test="totalVolume != null" >
                 #{totalVolume}
             </if>
+            <if test="remark != null" >
+                #{remark}
+            </if>
 
         </trim>
     </insert>
@@ -380,7 +395,8 @@
            update_time,
            manager_id,
            total_weight,
-           total_volume
+           total_volume,
+           remark
         </trim>
         values
         <foreach collection="list" item="item" index="index" separator=",">
@@ -404,7 +420,8 @@
                #{item.updateTime},
                #{item.managerId},
                #{item.totalWeight},
-               #{item.totalVolume}
+               #{item.totalVolume},
+               #{item.remark}
             </trim>
         </foreach>
     </insert>
@@ -473,6 +490,9 @@
                     </if>
                     <if test="t.totalVolume != null">
                         total_volume = #{t.totalVolume} and
+                    </if>
+                    <if test="t.remark != null">
+                        remark = #{remark} and
                     </if>
             </trim>
         </if>
