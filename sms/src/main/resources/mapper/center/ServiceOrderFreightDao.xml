@@ -1,34 +1,35 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="com.upedge.sms.modules.overseaWarehouse.dao.OverseaWarehouseServiceOrderFreightDao">
+<mapper namespace="com.upedge.sms.modules.center.dao.ServiceOrderFreightDao">
 
 	<!-- 可根据自己的需求，是否要使用 -->
-    <resultMap type="com.upedge.sms.modules.overseaWarehouse.entity.OverseaWarehouseServiceOrderFreight" id="BaseResultMap">
+    <resultMap type="com.upedge.sms.modules.center.entity.ServiceOrderFreight" id="BaseResultMap">
         <result property="id" column="id"/>
         <result property="orderId" column="order_id"/>
         <result property="shipType" column="ship_type"/>
         <result property="shipPrice" column="ship_price"/>
+        <result property="serviceType" column="service_type"/>
     </resultMap>
 
     <sql id="Base_Column_List">
-        `id`,`order_id`,`ship_type`,`ship_price`
+        `id`,`order_id`,`ship_type`,`ship_price`,service_type
     </sql>
 
-    <select id="selectByPrimaryKey" parameterType="com.upedge.sms.modules.overseaWarehouse.entity.OverseaWarehouseServiceOrderFreight" resultMap="BaseResultMap">
+    <select id="selectByPrimaryKey" parameterType="com.upedge.sms.modules.center.entity.ServiceOrderFreight" resultMap="BaseResultMap">
         select
         <include refid="Base_Column_List" />
-        from oversea_warehouse_service_order_freight
+        from service_order_freight
         where id = #{id}
     </select>
 
-    <delete id="deleteByPrimaryKey" parameterType="com.upedge.sms.modules.overseaWarehouse.entity.OverseaWarehouseServiceOrderFreight">
-        delete from oversea_warehouse_service_order_freight
+    <delete id="deleteByPrimaryKey" parameterType="com.upedge.sms.modules.center.entity.ServiceOrderFreight">
+        delete from service_order_freight
         where id = #{id}
     </delete>
 
-    <update id="updateByPrimaryKeySelective" parameterType="com.upedge.sms.modules.overseaWarehouse.entity.OverseaWarehouseServiceOrderFreight">
-        update oversea_warehouse_service_order_freight
+    <update id="updateByPrimaryKeySelective" parameterType="com.upedge.sms.modules.center.entity.ServiceOrderFreight">
+        update service_order_freight
         <set>
             <if test="orderId != null">
                 order_id = #{orderId},
@@ -39,39 +40,45 @@
             <if test="shipPrice != null">
                 ship_price = #{shipPrice},
             </if>
+            <if test="serviceType != null">
+                service_type = #{serviceType},
+            </if>
         </set>
         where id = #{id}
     </update>
 
-    <update id="updateByPrimaryKey" parameterType="com.upedge.sms.modules.overseaWarehouse.entity.OverseaWarehouseServiceOrderFreight">
-        update oversea_warehouse_service_order_freight
+    <update id="updateByPrimaryKey" parameterType="com.upedge.sms.modules.center.entity.ServiceOrderFreight">
+        update service_order_freight
         <set>
         id = #{id},
         order_id = #{orderId},
         ship_type = #{shipType},
         ship_price = #{shipPrice},
+        service_type = #{serviceType},
         </set>
         where id = #{id}
     </update>
 
-    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.upedge.sms.modules.overseaWarehouse.entity.OverseaWarehouseServiceOrderFreight" useGeneratedKeys="true">
-        insert into oversea_warehouse_service_order_freight
+    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.upedge.sms.modules.center.entity.ServiceOrderFreight" useGeneratedKeys="true">
+        insert into service_order_freight
         <trim prefix="(" suffix=")" suffixOverrides=",">
             id,
             order_id,
             ship_type,
-            ship_price
+            ship_price,
+            service_type
         </trim>
         values (
         #{id},
         #{orderId},
         #{shipType},
-        #{shipPrice}
+        #{shipPrice},
+        #{serviceType}
         )
     </insert>
 
-    <insert id="insertSelective"  keyColumn="id" keyProperty="id"  parameterType="com.upedge.sms.modules.overseaWarehouse.entity.OverseaWarehouseServiceOrderFreight" useGeneratedKeys="true">
-        insert into oversea_warehouse_service_order_freight
+    <insert id="insertSelective"  keyColumn="id" keyProperty="id"  parameterType="com.upedge.sms.modules.center.entity.ServiceOrderFreight" useGeneratedKeys="true">
+        insert into service_order_freight
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="id != null" >
               id
@@ -84,6 +91,9 @@
             </if>
             <if test="shipPrice != null" >
               ship_price
+            </if>
+            <if test="serviceType != null" >
+              service_type
             </if>
 
         </trim>
@@ -100,17 +110,21 @@
             <if test="shipPrice != null" >
                 #{shipPrice}
             </if>
+            <if test="serviceType != null" >
+                #{serviceType}
+            </if>
 
         </trim>
     </insert>
 
     <insert id="insertByBatch" parameterType="java.util.List">
-        insert into oversea_warehouse_service_order_freight
+        insert into service_order_freight
         <trim prefix="(" suffix=")" suffixOverrides=",">
            id,
            order_id,
            ship_type,
-           ship_price
+           ship_price,
+            service_type
         </trim>
         values
         <foreach collection="list" item="item" index="index" separator=",">
@@ -118,7 +132,8 @@
                #{item.id},
                #{item.orderId},
                #{item.shipType},
-               #{item.shipPrice}
+               #{item.shipPrice},
+               #{item.serviceType}
             </trim>
         </foreach>
     </insert>
@@ -140,6 +155,9 @@
                     <if test="t.shipPrice != null">
                         ship_price = #{t.shipPrice} and
                     </if>
+                    <if test="t.serviceType != null">
+                        service_type = #{serviceType} and
+                    </if>
             </trim>
         </if>
     </sql>
@@ -147,7 +165,7 @@
     <select id="select" parameterType="com.upedge.common.base.Page" resultMap="BaseResultMap">
         select
         <include refid="Base_Column_List" />
-        from oversea_warehouse_service_order_freight
+        from service_order_freight
         <include refid="Query_Condition"/>
         <if test="orderBy != null">
             order by ${orderBy}
@@ -160,14 +178,14 @@
     <select id="count" parameterType="com.upedge.common.base.Page" resultType="java.lang.Long">
         select
         count(1)
-        from oversea_warehouse_service_order_freight
+        from service_order_freight
         <include refid="Query_Condition"/>
     </select>
 
     <select id="selectByOrderIdAndShipType" resultMap="BaseResultMap">
         select
         <include refid="Base_Column_List"/>
-        from oversea_warehouse_service_order_freight
+        from service_order_freight
         where order_id = #{orderId}
         and ship_type = #{shipType}
         limit 1
@@ -176,7 +194,7 @@
     <select id="selectByOrderId" resultMap="BaseResultMap">
         select
         <include refid="Base_Column_List"/>
-        from oversea_warehouse_service_order_freight
+        from service_order_freight
         where order_id = #{orderId}
     </select>
 </mapper>

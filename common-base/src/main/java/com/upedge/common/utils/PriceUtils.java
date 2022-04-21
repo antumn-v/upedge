@@ -4,7 +4,7 @@ import java.math.BigDecimal;
 
 public class PriceUtils {
 
-    public static BigDecimal defaultEurRate = new BigDecimal("1.1");
+    public static BigDecimal defaultEurRate = new BigDecimal("1.11");
 
     private static BigDecimal defaultUsdRate = new BigDecimal("6.3");
 

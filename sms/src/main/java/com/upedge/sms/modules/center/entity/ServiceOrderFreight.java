@@ -1,4 +1,4 @@
-package com.upedge.sms.modules.overseaWarehouse.entity;
+package com.upedge.sms.modules.center.entity;
 
 import lombok.Data;
 
@@ -8,7 +8,7 @@ import java.math.BigDecimal;
  * @author gx
  */
 @Data
-public class OverseaWarehouseServiceOrderFreight{
+public class ServiceOrderFreight{
 
 	/**
 	 * 
@@ -26,5 +26,7 @@ public class OverseaWarehouseServiceOrderFreight{
 	 * 
 	 */
     private BigDecimal shipPrice;
+
+	private Integer serviceType;
 
 }

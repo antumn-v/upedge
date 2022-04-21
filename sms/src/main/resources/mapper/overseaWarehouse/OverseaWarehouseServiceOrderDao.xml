@@ -66,7 +66,7 @@
             <result property="height" column="height"/>
             <result property="width" column="width"/>
         </collection>
-        <collection property="orderFreights" ofType="com.upedge.sms.modules.overseaWarehouse.entity.OverseaWarehouseServiceOrderFreight">
+        <collection property="orderFreights" ofType="com.upedge.sms.modules.center.entity.ServiceOrderFreight">
             <id property="id" column="id"/>
             <result property="orderId" column="order_id"/>
             <result property="shipType" column="ship_type"/>
@@ -534,7 +534,7 @@
             from oversea_warehouse_service_order owso
         inner join oversea_warehouse_service_order_item owsoi
         on owso.id = owsoi.order_id
-        inner join oversea_warehouse_service_order_freight owsof
+        inner join service_order_freight owsof
         on owso.id = owsof.order_id
         where owso.ship_type is null;
     </select>

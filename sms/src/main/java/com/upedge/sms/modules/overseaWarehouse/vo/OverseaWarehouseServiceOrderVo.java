@@ -1,7 +1,7 @@
 package com.upedge.sms.modules.overseaWarehouse.vo;
 
 import com.upedge.sms.modules.overseaWarehouse.entity.OverseaWarehouseServiceOrder;
-import com.upedge.sms.modules.overseaWarehouse.entity.OverseaWarehouseServiceOrderFreight;
+import com.upedge.sms.modules.center.entity.ServiceOrderFreight;
 import com.upedge.sms.modules.overseaWarehouse.entity.OverseaWarehouseServiceOrderItem;
 import lombok.Data;
 
@@ -14,5 +14,5 @@ public class OverseaWarehouseServiceOrderVo extends OverseaWarehouseServiceOrder
 
     List<OverseaWarehouseServiceOrderItem> orderItems;
 
-    List<OverseaWarehouseServiceOrderFreight> orderFreights;
+    List<ServiceOrderFreight> orderFreights;
 }

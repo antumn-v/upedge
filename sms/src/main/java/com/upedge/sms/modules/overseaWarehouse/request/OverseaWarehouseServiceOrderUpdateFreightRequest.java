@@ -1,6 +1,6 @@
 package com.upedge.sms.modules.overseaWarehouse.request;
 
-import com.upedge.sms.modules.overseaWarehouse.entity.OverseaWarehouseServiceOrderFreight;
+import com.upedge.sms.modules.center.entity.ServiceOrderFreight;
 import lombok.Data;
 
 import javax.validation.constraints.NotNull;
@@ -14,6 +14,6 @@ public class OverseaWarehouseServiceOrderUpdateFreightRequest {
     Long orderId;
 
     @Size(min = 1)
-    List<OverseaWarehouseServiceOrderFreight> orderFreights;
+    List<ServiceOrderFreight> orderFreights;
 
 }
