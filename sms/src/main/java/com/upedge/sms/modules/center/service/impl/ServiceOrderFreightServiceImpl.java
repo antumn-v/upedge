@@ -55,13 +55,13 @@ public class ServiceOrderFreightServiceImpl implements ServiceOrderFreightServic
     }
 
     @Override
-    public ServiceOrderFreight selectByOrderIdAndShipType(Long orderId, Integer shipType) {
-        return ServiceOrderFreightDao.selectByOrderIdAndShipType(orderId, shipType);
+    public ServiceOrderFreight selectByOrderIdAndShipType(Long orderId, Integer shipType,Integer serviceType) {
+        return ServiceOrderFreightDao.selectByOrderIdAndShipType(orderId, shipType,serviceType);
     }
 
     @Override
-    public List<ServiceOrderFreight> selectByOrderId(Long orderId) {
-        return ServiceOrderFreightDao.selectByOrderId(orderId);
+    public List<ServiceOrderFreight> selectByOrderId(Long orderId,Integer serviceType) {
+        return ServiceOrderFreightDao.selectByOrderId(orderId,serviceType);
     }
 
     /**

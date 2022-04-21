@@ -264,7 +264,7 @@ public class OverseaWarehouseServiceOrderServiceImpl implements OverseaWarehouse
         //检查运费
         Integer shipType = request.getShipType();
         BigDecimal shipPrice = request.getShipPrice();
-        ServiceOrderFreight ServiceOrderFreight = ServiceOrderFreightService.selectByOrderIdAndShipType(orderId, shipType);
+        ServiceOrderFreight ServiceOrderFreight = ServiceOrderFreightService.selectByOrderIdAndShipType(orderId, shipType,OrderType.EXTRA_SERVICE_OVERSEA_WAREHOUSE);
         if (null == ServiceOrderFreight
         || shipPrice.compareTo(ServiceOrderFreight.getShipPrice()) != 0){
             return BaseResponse.failed("Shipping has been updated, please refresh the page");
@@ -309,7 +309,7 @@ public class OverseaWarehouseServiceOrderServiceImpl implements OverseaWarehouse
         List<OverseaWarehouseServiceOrderItem> orderItems = overseaWarehouseServiceOrderItemService.selectByOrderId(orderId);
         overseaWarehouseServiceOrderVo.setOrderItems(orderItems);
 
-        List<ServiceOrderFreight> orderFreights = ServiceOrderFreightService.selectByOrderId(orderId);
+        List<ServiceOrderFreight> orderFreights = ServiceOrderFreightService.selectByOrderId(orderId,OrderType.EXTRA_SERVICE_OVERSEA_WAREHOUSE);
         overseaWarehouseServiceOrderVo.setOrderFreights(orderFreights);
 
         WarehouseVo warehouseVo = (WarehouseVo) redisTemplate.opsForValue().get(RedisKey.STRING_WAREHOUSE + overseaWarehouseServiceOrder.getWarehouseCode());

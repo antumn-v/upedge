@@ -11,9 +11,9 @@ import java.util.List;
  */
 public interface ServiceOrderFreightDao {
 
-    ServiceOrderFreight selectByOrderIdAndShipType(@Param("orderId") Long orderId, @Param("shipType") Integer shipType);
+    ServiceOrderFreight selectByOrderIdAndShipType(@Param("orderId") Long orderId, @Param("shipType") Integer shipType, @Param("serviceType") Integer serviceType);
 
-    List<ServiceOrderFreight> selectByOrderId(Long orderId);
+    List<ServiceOrderFreight> selectByOrderId(@Param("orderId") Long orderId, @Param("serviceType") Integer serviceType);
 
     ServiceOrderFreight selectByPrimaryKey(ServiceOrderFreight record);
 
