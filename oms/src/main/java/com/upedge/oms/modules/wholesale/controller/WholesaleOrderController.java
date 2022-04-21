@@ -73,7 +73,7 @@ public class WholesaleOrderController {
     private OrderShippingUnitService orderShippingUnitService;
 
     @ApiOperation("订单列表")
-    @PostMapping("/app/list")
+    @PostMapping("/list")
     public BaseResponse wholesaleOrderAppList(@RequestBody WholesaleOrderAppListRequest request) {
         Session session = UserUtil.getSession(redisTemplate);
         List<WholesaleOrderAppVo> orderAppVos = wholesaleOrderService.orderAppList(request, session);
@@ -81,7 +81,7 @@ public class WholesaleOrderController {
     }
 
     @ApiOperation("订单数量")
-    @PostMapping("/app/count")
+    @PostMapping("/count")
     public BaseResponse wholesaleOrderAppCount(@RequestBody WholesaleOrderAppListRequest request) {
         Session session = UserUtil.getSession(redisTemplate);
         Map<String, Long> count = wholesaleOrderService.orderAppCount(request, session);

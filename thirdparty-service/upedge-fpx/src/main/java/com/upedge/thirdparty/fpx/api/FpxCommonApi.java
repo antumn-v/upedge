@@ -15,6 +15,7 @@ import com.upedge.thirdparty.fpx.vo.FpxMeasureUnit;
 import com.upedge.thirdparty.fpx.vo.FpxMethodVo;
 import com.upedge.thirdparty.fpx.vo.FpxWarehouseVo;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static com.upedge.thirdparty.fpx.config.FpxConfig.param;
@@ -107,33 +108,33 @@ public class FpxCommonApi {
 
     public static void main(String[] args) {
 
-        FpxWarehouseMethodListRequest fpxWarehouseMethodListRequest = new FpxWarehouseMethodListRequest();
-        fpxWarehouseMethodListRequest.setSourcePositionCode("USLAXA");
-        fpxWarehouseMethodListRequest.setCategoryCode("end");
-        fpxWarehouseMethodListRequest.setServiceCode("F");
-        List<FpxMethodVo> fpxMethodVos = FpxCommonApi.getFpxMethods(fpxWarehouseMethodListRequest);
-        System.out.println(fpxMethodVos);
+//        FpxWarehouseMethodListRequest fpxWarehouseMethodListRequest = new FpxWarehouseMethodListRequest();
+//        fpxWarehouseMethodListRequest.setSourcePositionCode("USLAXA");
+//        fpxWarehouseMethodListRequest.setCategoryCode("end");
+//        fpxWarehouseMethodListRequest.setServiceCode("F");
+//        List<FpxMethodVo> fpxMethodVos = FpxCommonApi.getFpxMethods(fpxWarehouseMethodListRequest);
+//        System.out.println(fpxMethodVos);
 
-//        List<String> methodCodes = new ArrayList<>();
-//        methodCodes.add("F129");
-//
-//        ShipPriceCalculator.DestinationDTO destinationDTO = new ShipPriceCalculator.DestinationDTO();
-//        destinationDTO.setCountry("US");
-//        destinationDTO.setPost_code("76002");
-//        ShipPriceCalculator priceCalculator = new ShipPriceCalculator();
-//        priceCalculator.setHeight("1");
-//        priceCalculator.setLength("1");
-//        priceCalculator.setWidth("1");
-//        priceCalculator.setWeight("120");
-//        priceCalculator.setService_code("FB4");
-////        priceCalculator.setProduct_codes(methodCodes);
-//        priceCalculator.setWarehouse_code("USLAXB");
-//        priceCalculator.setBilling_time(System.currentTimeMillis());
-//        priceCalculator.setDestination(destinationDTO);
-//
-//        List<PriceCalculatorDTO> priceCalculatorDTOS = FpxCommonApi.priceCalculator(priceCalculator);
-//
-//        System.out.println(priceCalculatorDTOS);
+        List<String> methodCodes = new ArrayList<>();
+        methodCodes.add("F129");
+
+        ShipPriceCalculator.DestinationDTO destinationDTO = new ShipPriceCalculator.DestinationDTO();
+        destinationDTO.setCountry("DE");
+        destinationDTO.setPost_code("67808");
+        ShipPriceCalculator priceCalculator = new ShipPriceCalculator();
+        priceCalculator.setHeight("1");
+        priceCalculator.setLength("1");
+        priceCalculator.setWidth("1");
+        priceCalculator.setWeight("400");
+        priceCalculator.setService_code("FB4");
+//        priceCalculator.setProduct_codes(methodCodes);
+        priceCalculator.setWarehouse_code("DEFRAA");
+        priceCalculator.setBilling_time(System.currentTimeMillis());
+        priceCalculator.setDestination(destinationDTO);
+
+        List<PriceCalculatorDTO> priceCalculatorDTOS = FpxCommonApi.priceCalculator(priceCalculator);
+
+        System.out.println(priceCalculatorDTOS);
 
 //        GetFpxWarehouseRequest getFpxWarehouseRequest = new GetFpxWarehouseRequest();
 //        getFpxWarehouseRequest.setCountry("US");

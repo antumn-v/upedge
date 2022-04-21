@@ -4,7 +4,6 @@ import com.upedge.common.base.Page;
 import com.upedge.common.constant.Constant;
 import com.upedge.common.constant.ResultCode;
 import com.upedge.common.constant.key.RedisKey;
-import com.upedge.thirdparty.saihe.config.SaiheConfig;
 import com.upedge.thirdparty.saihe.entity.getTransportList.ApiGetTransportResponse;
 import com.upedge.thirdparty.saihe.entity.getTransportList.ApiTransport;
 import com.upedge.thirdparty.saihe.service.SaiheService;
@@ -126,7 +125,8 @@ public class SaiheTransportServiceImpl implements SaiheTransportService {
     public SaiheTransportUpdateResponse refreshSaihe() {
         //获取运输方式列表
         List<SaiheTransport> saiheTransportList=new ArrayList<>();
-        ApiGetTransportResponse apiGetTransportResponse= SaiheService.getTransportList(SaiheConfig.UPEDGE_OVERSEA_WAREHOUSE_ID);
+//        ApiGetTransportResponse apiGetTransportResponse= SaiheService.getTransportList(SaiheConfig.UPEDGE_OVERSEA_WAREHOUSE_ID);
+        ApiGetTransportResponse apiGetTransportResponse= SaiheService.getTransportList(6);
         if(apiGetTransportResponse.getGetTransportListResult().getStatus().equals("OK")){
             List<ApiTransport> transportList=apiGetTransportResponse.getGetTransportListResult().
                     getTransportList().getApiTransport();

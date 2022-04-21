@@ -672,10 +672,17 @@ public class OrderServiceImpl implements OrderService {
                     if (StringUtils.isBlank(priceCalculatorDTO.getCurrency())){
                         continue;
                     }
-                    if (priceCalculatorDTO.getCurrency().equals("CNY")){
-                        price = PriceUtils.cnyToUsdByDefaultRate(price);
-                    }else if (!priceCalculatorDTO.getCurrency().equals("USD")){
-                        continue;
+                    switch (priceCalculatorDTO.getCurrency()){
+                        case "CNY":
+                            price = PriceUtils.cnyToUsdByDefaultRate(price);
+                            break;
+                        case "USD":
+                            break;
+                        case "EUR":
+                            price = PriceUtils.eurToUsdByDefaultRate(price);
+                            break;
+                        default:
+                            continue;
                     }
                     ShippingMethodRedis shippingMethodRedis = codeShipMethodMap.get(priceCalculatorDTO.getProductCode());
                     if (shippingMethodRedis == null){

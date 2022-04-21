@@ -201,7 +201,7 @@ public class SaiheService {
             request.setPassword(SaiheConfig.PASSWORD);
             request.setCustomer_ID(SaiheConfig.CUSTOMER_ID);
             //仓库类型（默认值：1）
-            request.setWareHouseType(1);
+//            request.setWareHouseType(1);
 
             apiGetWareHouseRequest.setRequest(request);
             SaiheRequestEntity requestEntity = new SaiheRequestEntity();
@@ -628,7 +628,10 @@ public class SaiheService {
 
 //        ApiGetOrderResponse apiGetOrderResponse =  getOrderByClientOrderCode("1504079038278926336 ");
 //        System.out.println(apiGetOrderResponse);
-        System.out.println(getProductsByClientSKUs("The Beard Roller:1646923580001",null));
+//        System.out.println(getProductsByClientSKUs("The Beard Roller:1646923580001",null));
+
+        ApiGetWareHouseResponse apiGetWareHouseResponse = getWareHouseList();
+        System.out.println(apiGetWareHouseResponse.getGetWareHouseListResult().getWareHouseList());
     }
 
 
