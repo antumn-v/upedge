@@ -224,9 +224,9 @@ public class OrderCommonServiceImpl implements OrderCommonService {
                 continue;
             } else {
                 //加入缓存 产品未导入产品列表
-                BaseResponse rs = pmsFeignClient.userInfo(saiheOrderItem.getAdminProductId());
-                String userId = (String) rs.getData();
-                redisTemplate.opsForHash().put(RedisKey.HASH_BAD_WHOLESALE_ORDER_PRODUCT, String.valueOf(saiheOrderItem.getAdminProductId()), userId);
+//                BaseResponse rs = pmsFeignClient.userInfo(saiheOrderItem.getAdminProductId());
+//                String userId = (String) rs.getData();
+//                redisTemplate.opsForHash().put(RedisKey.HASH_BAD_WHOLESALE_ORDER_PRODUCT, String.valueOf(saiheOrderItem.getAdminProductId()), userId);
                 return false;
             }
         }

@@ -37,6 +37,7 @@ import com.upedge.tms.modules.ship.service.ShippingMethodTemplateService;
 import com.upedge.tms.modules.ship.service.ShippingUnitService;
 import com.upedge.tms.modules.ship.vo.MethodIdTemplateNameVo;
 import com.upedge.tms.mq.TmsProducerService;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -211,6 +212,15 @@ public class ShippingMethodServiceImpl implements ShippingMethodService {
         //更新缓存数据
         updateRedisShipMethod(methodId);
         shippingMethodTemplateService.redisInit();
+
+        if (StringUtils.isNotBlank(shippingMethod.getWarehouseCode())){
+            List<Long> methodIds = (List<Long>) redisTemplate.opsForHash().get(RedisKey.HASH_WAREHOUSE_METHOD,shippingMethod.getWarehouseCode());
+            if (ListUtils.isEmpty(methodIds)){
+                methodIds = new ArrayList<>();
+            }
+            methodIds.add(methodId);
+            redisTemplate.opsForHash().put(RedisKey.HASH_WAREHOUSE_METHOD,shippingMethod.getWarehouseCode(),methodIds);
+        }
         return BaseResponse.success();
     }
 
@@ -221,6 +231,18 @@ public class ShippingMethodServiceImpl implements ShippingMethodService {
         if (null == shippingMethod) {
             return BaseResponse.failed("运输方式不存在");
         }
+        if (null != shippingMethod.getWarehouseCode()){
+            List<Long> methodIds = (List<Long>) redisTemplate.opsForHash().get(RedisKey.HASH_WAREHOUSE_METHOD,shippingMethod.getWarehouseCode());
+            if (ListUtils.isNotEmpty(methodIds)){
+                methodIds.remove(methodId);
+                if (ListUtils.isNotEmpty(methodIds)){
+                    redisTemplate.opsForHash().put(RedisKey.HASH_WAREHOUSE_METHOD,shippingMethod.getWarehouseCode(),methodIds);
+                }else {
+                    redisTemplate.opsForHash().delete(RedisKey.HASH_WAREHOUSE_METHOD,shippingMethod.getWarehouseCode());
+                }
+            }
+        }
+
         shippingMethod = request.toShippingMethod(methodId);
         shippingMethod.setId(methodId);
         updateByPrimaryKeySelective(shippingMethod);
@@ -250,6 +272,14 @@ public class ShippingMethodServiceImpl implements ShippingMethodService {
             }
         }
         shippingMethodTemplateService.redisInit();
+        if (StringUtils.isNotBlank(shippingMethod.getWarehouseCode())){
+            List<Long> methodIds = (List<Long>) redisTemplate.opsForHash().get(RedisKey.HASH_WAREHOUSE_METHOD,shippingMethod.getWarehouseCode());
+            if (ListUtils.isEmpty(methodIds)){
+                methodIds = new ArrayList<>();
+            }
+            methodIds.add(methodId);
+            redisTemplate.opsForHash().put(RedisKey.HASH_WAREHOUSE_METHOD,shippingMethod.getWarehouseCode(),methodIds);
+        }
         return BaseResponse.success();
     }
 

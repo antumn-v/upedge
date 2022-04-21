@@ -944,7 +944,7 @@
     </select>
 
     <select id="listSaiheOrderItemByOrderId" resultType="com.upedge.thirdparty.saihe.entity.SaiheOrderItem">
-        select
+        select distinct
 		oi.quantity as productNum,
 		oi.usd_price as salePrice,
 		oi.admin_variant_sku as sellerSku,
@@ -953,7 +953,6 @@
 		so.plat_order_name as orderName,
 		so.store_id as storeId
 		from order_item oi
-		left join store_order_item soi on soi.id=oi.store_order_item_id
 		left join store_order so on so.id=oi.store_order_id
 		where  oi.order_id=#{orderId}
     </select>

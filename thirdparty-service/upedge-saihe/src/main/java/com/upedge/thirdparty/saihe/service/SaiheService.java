@@ -113,9 +113,7 @@ public class SaiheService {
             requestBody.setGetProducts(apiGetProductRequest);
             requestEntity.setBody(requestBody);
             String xmlStr = XmlAndJavaObjectConvert.convertToXml(requestEntity);
-            log.debug("xmlStr:{}",xmlStr);
             String result = PostUtils.sendPostV(SaiheConfig.PRODUCT_URL, xmlStr);
-            log.debug("result:{}",result);
             SaiheResponseEntity responseEntity= (SaiheResponseEntity) XmlAndJavaObjectConvert.convertXmlStrToObject(SaiheResponseEntity.class, result);
             return  responseEntity.getBody().getApiGetProductResponse();
         }catch (Exception e){
@@ -628,8 +626,9 @@ public class SaiheService {
 //        System.out.println(apiGetProductResponse);
 
 
-        ApiGetOrderResponse apiGetOrderResponse =  getOrderByClientOrderCode("1504079038278926336 ");
-        System.out.println(apiGetOrderResponse);
+//        ApiGetOrderResponse apiGetOrderResponse =  getOrderByClientOrderCode("1504079038278926336 ");
+//        System.out.println(apiGetOrderResponse);
+        System.out.println(getProductsByClientSKUs("The Beard Roller:1646923580001",null));
     }
 
 

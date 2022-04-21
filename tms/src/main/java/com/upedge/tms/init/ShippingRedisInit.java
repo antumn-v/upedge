@@ -11,6 +11,7 @@ import com.upedge.tms.modules.ship.service.ShippingTemplateService;
 import com.upedge.tms.modules.warehouse.service.CountryAvailableWarehouseService;
 import com.upedge.tms.modules.warehouse.service.WarehouseService;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections.MapUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -51,7 +52,7 @@ public class ShippingRedisInit {
         for(ShippingMethod shippingMethod:shippingMethodList){
             if (warehouseMethodHash.containsKey(shippingMethod.getWarehouseCode())){
                 warehouseMethodHash.get(shippingMethod.getWarehouseCode()).add(shippingMethod.getId());
-            }else {
+            }else if(null != shippingMethod.getWarehouseCode()){
                 List<Long> methodIds = new ArrayList<>();
                 methodIds.add(shippingMethod.getId());
                 warehouseMethodHash.put(shippingMethod.getWarehouseCode(),methodIds);
@@ -63,8 +64,10 @@ public class ShippingRedisInit {
         redisTemplate.delete(RedisKey.SHIPPING_METHOD);
         redisTemplate.opsForHash().putAll(RedisKey.SHIPPING_METHOD,map);
 
-//        redisTemplate.delete(RedisKey.HASH_WAREHOUSE_METHOD);
-//        redisTemplate.opsForHash().putAll(RedisKey.HASH_WAREHOUSE_METHOD,warehouseMethodHash);
+        redisTemplate.delete(RedisKey.HASH_WAREHOUSE_METHOD);
+        if (MapUtils.isNotEmpty(warehouseMethodHash)){
+            redisTemplate.opsForHash().putAll(RedisKey.HASH_WAREHOUSE_METHOD,warehouseMethodHash);
+        }
         log.info("运输方式数据初始化成功。。。");
 
         shippingMethodTemplateService.redisInit();

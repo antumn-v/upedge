@@ -1878,7 +1878,6 @@ public class OrderServiceImpl implements OrderService {
          * 查询该订单的订单产品
          */
         List<SaiheOrderItem> orderItemList = orderItemDao.listSaiheOrderItemByOrderId(id);
-        log.warn("saihe订单上传产品：{}", orderItemList);
         for (SaiheOrderItem saiheOrderItem : orderItemList) {
             if (saiheOrderItem.getProductNum() == null
                     || saiheOrderItem.getSalePrice() == null) {
