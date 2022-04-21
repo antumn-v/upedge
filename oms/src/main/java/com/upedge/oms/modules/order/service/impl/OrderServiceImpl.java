@@ -640,7 +640,8 @@ public class OrderServiceImpl implements OrderService {
             List<String> methodCodes = new ArrayList<>();
             for (Long methodId : methodIds) {
                 ShippingMethodRedis shippingMethodRedis = (ShippingMethodRedis) redisTemplate.opsForHash().get(RedisKey.SHIPPING_METHOD,String.valueOf(methodId));
-                if (StringUtils.isNotBlank(shippingMethodRedis.getMethodCode())){
+                if (shippingMethodRedis != null
+                && StringUtils.isNotBlank(shippingMethodRedis.getMethodCode())){
                     methodCodes.add(shippingMethodRedis.getMethodCode());
                     codeShipMethodMap.put(shippingMethodRedis.getMethodCode(),shippingMethodRedis);
                 }
@@ -691,9 +692,9 @@ public class OrderServiceImpl implements OrderService {
                     ShipDetail shipDetail = new ShipDetail(shippingMethodRedis);
 
                     shipDetail.setWeight(weight);
-                    shipDetail.setDays(priceCalculatorDTO.getTimely().replace("天",""));
+                    shipDetail.setDays(priceCalculatorDTO.getTimely().replace("天","").replace("个工作日",""));
                     shipDetail.setPrice(price);
-                    shipDetail.setServiceFee(BigDecimal.ONE);
+                    shipDetail.setServiceFee(new BigDecimal("1.5"));
                     shipDetail.setWarehouseCode(warehouseCode);
                     shipDetail.setCouldShip(couldShip);
                     shipDetails.add(shipDetail);
