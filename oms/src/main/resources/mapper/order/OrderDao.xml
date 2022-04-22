@@ -558,7 +558,7 @@
             ship_method_id = #{ship.methodId},
             shipping_warehouse = #{ship.warehouseCode}
         where id = #{id}
-          and pay_state = '0'
+          and pay_state != '1'
     </update>
 
     <update id="updateShipDetailByMap">
@@ -568,7 +568,7 @@
             total_weight = #{ship.weight},
             ship_method_id = #{ship.methodId}
             where id = #{orderId}
-            and pay_state = '0'
+            and pay_state != '1'
         </foreach>
     </update>
 

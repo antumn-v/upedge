@@ -337,13 +337,22 @@ public class OrderServiceImpl implements OrderService {
         }else {
             shipDetails = orderOverseaWarehouseShipMethods(order.getId(),order.getToAreaId());
         }
+
         for (ShipDetail detail : shipDetails) {
             if (detail.getMethodId().equals(shipDetail.getMethodId())
             && detail.getCouldShip()) {
                 return updateShipDetailById(id, detail);
             }
         }
-        return null;
+        ShipDetail detail = new ShipDetail();
+        detail.setPrice(BigDecimal.ZERO);
+        detail.setWarehouseCode(null);
+        detail.setMethodId(null);
+        detail.setServiceFee(BigDecimal.ZERO);
+        detail.setVatAmount(BigDecimal.ZERO);
+        orderShippingUnitService.delByOrderId(id, OrderType.NORMAL);
+        orderDao.updateShipDetailById(shipDetail, id);
+        return detail;
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -477,6 +486,15 @@ public class OrderServiceImpl implements OrderService {
                     }
                 }
             }
+        }else {
+            ShipDetail detail = new ShipDetail();
+            detail.setPrice(BigDecimal.ZERO);
+            detail.setWarehouseCode(null);
+            detail.setMethodId(null);
+            detail.setServiceFee(BigDecimal.ZERO);
+            detail.setVatAmount(BigDecimal.ZERO);
+            orderShippingUnitService.delByOrderId(id, OrderType.NORMAL);
+            orderDao.updateShipDetailById(detail, id);
         }
         return null;
     }
