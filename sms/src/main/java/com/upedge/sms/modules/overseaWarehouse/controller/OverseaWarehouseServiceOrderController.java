@@ -8,11 +8,10 @@ import com.upedge.common.constant.key.RedisKey;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.web.util.RedisUtil;
 import com.upedge.common.web.util.UserUtil;
+import com.upedge.sms.modules.center.service.ServiceOrderFreightService;
 import com.upedge.sms.modules.overseaWarehouse.entity.OverseaWarehouseServiceOrder;
-import com.upedge.sms.modules.center.entity.ServiceOrderFreight;
 import com.upedge.sms.modules.overseaWarehouse.request.*;
 import com.upedge.sms.modules.overseaWarehouse.response.OverseaWarehouseServiceOrderListResponse;
-import com.upedge.sms.modules.center.service.ServiceOrderFreightService;
 import com.upedge.sms.modules.overseaWarehouse.service.OverseaWarehouseServiceOrderService;
 import com.upedge.sms.modules.overseaWarehouse.vo.OverseaWarehouseServiceOrderVo;
 import io.swagger.annotations.Api;
@@ -37,7 +36,7 @@ public class OverseaWarehouseServiceOrderController {
     private OverseaWarehouseServiceOrderService overseaWarehouseServiceOrderService;
 
     @Autowired
-    private ServiceOrderFreightService ServiceOrderFreightService;
+    private ServiceOrderFreightService serviceOrderFreightService;
 
     @Autowired
     RedisTemplate redisTemplate;
@@ -67,20 +66,20 @@ public class OverseaWarehouseServiceOrderController {
         return res;
     }
 
-    @ApiOperation("修改订单运费")
-    @PostMapping("/updateFreight")
-    public BaseResponse updateFreight(@RequestBody@Valid OverseaWarehouseServiceOrderUpdateFreightRequest request){
-        OverseaWarehouseServiceOrder overseaWarehouseServiceOrder = overseaWarehouseServiceOrderService.selectByPrimaryKey(request.getOrderId());
-        if (null == overseaWarehouseServiceOrder
-        || overseaWarehouseServiceOrder.getPayState() != 0){
-            return BaseResponse.failed("订单不存在或订单已支付");
-        }
-        List<ServiceOrderFreight> orderFreights = request.getOrderFreights();;
-        for (ServiceOrderFreight orderFreight : orderFreights) {
-            ServiceOrderFreightService.updateByPrimaryKeySelective(orderFreight);
-        }
-        return BaseResponse.success();
-    }
+//    @ApiOperation("修改订单运费")
+//    @PostMapping("/updateFreight")
+//    public BaseResponse updateFreight(@RequestBody@Valid OverseaWarehouseServiceOrderUpdateFreightRequest request){
+//        OverseaWarehouseServiceOrder overseaWarehouseServiceOrder = overseaWarehouseServiceOrderService.selectByPrimaryKey(request.getOrderId());
+//        if (null == overseaWarehouseServiceOrder
+//        || overseaWarehouseServiceOrder.getPayState() != 0){
+//            return BaseResponse.failed("订单不存在或订单已支付");
+//        }
+//        List<ServiceOrderFreight> orderFreights = request.getOrderFreights();;
+//        for (ServiceOrderFreight orderFreight : orderFreights) {
+//            serviceOrderFreightService.updateByPrimaryKeySelective(orderFreight);
+//        }
+//        return BaseResponse.success();
+//    }
 
     @ApiOperation("支付订单")
     @PostMapping("/pay")

@@ -1,16 +1,17 @@
 package com.upedge.sms.modules.center.controller;
 
-import com.upedge.common.component.annotation.Permission;
-import com.upedge.common.constant.Constant;
-import com.upedge.common.constant.ResultCode;
+import com.upedge.common.base.BaseResponse;
+import com.upedge.sms.modules.center.entity.ServiceOrder;
 import com.upedge.sms.modules.center.entity.ServiceOrderFreight;
-import com.upedge.sms.modules.center.response.*;
-import com.upedge.sms.modules.center.request.ServiceOrderFreightAddRequest;
-import com.upedge.sms.modules.center.request.ServiceOrderFreightListRequest;
-import com.upedge.sms.modules.center.request.ServiceOrderFreightUpdateRequest;
 import com.upedge.sms.modules.center.service.ServiceOrderFreightService;
+import com.upedge.sms.modules.center.service.ServiceOrderService;
+import com.upedge.sms.modules.overseaWarehouse.request.OverseaWarehouseServiceOrderUpdateFreightRequest;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -21,55 +22,32 @@ import java.util.List;
  * @author gx
  */
 @RestController
-@RequestMapping("/ServiceOrderFreight")
+@RequestMapping("/serviceOrderFreight")
 public class ServiceOrderFreightController {
     @Autowired
-    private ServiceOrderFreightService ServiceOrderFreightService;
+    private ServiceOrderFreightService serviceOrderFreightService;
 
 
-    @RequestMapping(value="/info/{id}", method=RequestMethod.GET)
-    @Permission(permission = "overseaWarehouse:ServiceOrderFreight:info:id")
-    public ServiceOrderFreightInfoResponse info(@PathVariable Long id) {
-        ServiceOrderFreight result = ServiceOrderFreightService.selectByPrimaryKey(id);
-        ServiceOrderFreightInfoResponse res = new ServiceOrderFreightInfoResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS,result,id);
-        return res;
+    @Autowired
+    ServiceOrderService serviceOrderService;
+
+
+
+    @ApiOperation("修改订单运费")
+    @PostMapping("/update")
+    public BaseResponse updateFreight(@RequestBody@Valid OverseaWarehouseServiceOrderUpdateFreightRequest request){
+        ServiceOrder serviceOrder = serviceOrderService.selectByPrimaryKey(request.getOrderId());
+        if (null == serviceOrder
+                || serviceOrder.getPayState() != 0){
+            return BaseResponse.failed("订单不存在或订单已支付");
+        }
+        List<ServiceOrderFreight> orderFreights = request.getOrderFreights();;
+        for (ServiceOrderFreight orderFreight : orderFreights) {
+            serviceOrderFreightService.updateByPrimaryKeySelective(orderFreight);
+        }
+        return BaseResponse.success();
     }
 
-    @RequestMapping(value="/list", method=RequestMethod.POST)
-    @Permission(permission = "overseaWarehouse:ServiceOrderFreight:list")
-    public ServiceOrderFreightListResponse list(@RequestBody @Valid ServiceOrderFreightListRequest request) {
-        List<ServiceOrderFreight> results = ServiceOrderFreightService.select(request);
-        Long total = ServiceOrderFreightService.count(request);
-        request.setTotal(total);
-        ServiceOrderFreightListResponse res = new ServiceOrderFreightListResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS,results,request);
-        return res;
-    }
-
-    @RequestMapping(value="/add", method=RequestMethod.POST)
-    @Permission(permission = "overseaWarehouse:ServiceOrderFreight:add")
-    public ServiceOrderFreightAddResponse add(@RequestBody @Valid ServiceOrderFreightAddRequest request) {
-        ServiceOrderFreight entity=request.toServiceOrderFreight();
-        ServiceOrderFreightService.insertSelective(entity);
-        ServiceOrderFreightAddResponse res = new ServiceOrderFreightAddResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS,entity,request);
-        return res;
-    }
-
-    @RequestMapping(value="/del/{id}", method=RequestMethod.POST)
-    @Permission(permission = "overseaWarehouse:ServiceOrderFreight:del:id")
-    public ServiceOrderFreightDelResponse del(@PathVariable Long id) {
-        ServiceOrderFreightService.deleteByPrimaryKey(id);
-        ServiceOrderFreightDelResponse res = new ServiceOrderFreightDelResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS);
-        return res;
-    }
-
-    @RequestMapping(value="/update/{id}", method=RequestMethod.POST)
-    @Permission(permission = "overseaWarehouse:ServiceOrderFreight:update")
-    public ServiceOrderFreightUpdateResponse update(@PathVariable Long id, @RequestBody @Valid ServiceOrderFreightUpdateRequest request) {
-        ServiceOrderFreight entity=request.toServiceOrderFreight(id);
-        ServiceOrderFreightService.updateByPrimaryKeySelective(entity);
-        ServiceOrderFreightUpdateResponse res = new ServiceOrderFreightUpdateResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS);
-        return res;
-    }
 
 
 }
