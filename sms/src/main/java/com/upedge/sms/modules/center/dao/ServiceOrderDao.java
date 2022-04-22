@@ -15,7 +15,7 @@ public interface ServiceOrderDao {
 
     ServiceOrder selectByRelateId(@Param("relateId") Long relateId, @Param("serviceType") Integer serviceType);
 
-    int updateToPaidByRelateId(@Param("relateId") Long relateId, @Param("serviceType") Integer serviceType, @Param("payAmount") BigDecimal payAmount, @Param("updateTime") Date updateTime);
+    int updateToPaidByRelateId(@Param("id") Long id, @Param("serviceType") Integer serviceType, @Param("payAmount") BigDecimal payAmount, @Param("updateTime") Date updateTime);
 
     ServiceOrder selectByPrimaryKey(ServiceOrder record);
 

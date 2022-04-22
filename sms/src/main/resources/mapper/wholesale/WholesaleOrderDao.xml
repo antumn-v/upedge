@@ -416,5 +416,15 @@
         <include refid="Query_Condition"/>
     </select>
 
-
+    <update id="updateOrderAsPaid">
+        update oversea_warehouse_service_order
+        set pay_state = '1',
+            pay_amount = #{payAmount},
+            payment_id = #{paymentId},
+            pay_time = #{payTime},
+            ship_price = #{shipPrice},
+            ship_type = #{shipType}
+        where id = #{id}
+          and pay_state = '0';
+    </update>
 </mapper>

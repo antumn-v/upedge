@@ -64,7 +64,7 @@ public class OverseaWarehouseServiceOrderServiceImpl implements OverseaWarehouse
     OverseaWarehouseServiceOrderItemService overseaWarehouseServiceOrderItemService;
 
     @Autowired
-    ServiceOrderFreightService ServiceOrderFreightService;
+    ServiceOrderFreightService serviceOrderFreightService;
 
     @Autowired
     ServiceOrderService serviceOrderService;
@@ -265,7 +265,7 @@ public class OverseaWarehouseServiceOrderServiceImpl implements OverseaWarehouse
         //检查运费
         Integer shipType = request.getShipType();
         BigDecimal shipPrice = request.getShipPrice();
-        ServiceOrderFreight ServiceOrderFreight = ServiceOrderFreightService.selectByOrderIdAndShipType(orderId, shipType);
+        ServiceOrderFreight ServiceOrderFreight = serviceOrderFreightService.selectByOrderIdAndShipType(orderId, shipType);
         if (null == ServiceOrderFreight
         || shipPrice.compareTo(ServiceOrderFreight.getShipPrice()) != 0){
             return BaseResponse.failed("Shipping has been updated, please refresh the page");
@@ -310,7 +310,7 @@ public class OverseaWarehouseServiceOrderServiceImpl implements OverseaWarehouse
         List<OverseaWarehouseServiceOrderItem> orderItems = overseaWarehouseServiceOrderItemService.selectByOrderId(orderId);
         overseaWarehouseServiceOrderVo.setOrderItems(orderItems);
 
-        List<ServiceOrderFreight> orderFreights = ServiceOrderFreightService.selectByOrderId(orderId);
+        List<ServiceOrderFreight> orderFreights = serviceOrderFreightService.selectByOrderId(orderId);
         overseaWarehouseServiceOrderVo.setOrderFreights(orderFreights);
 
         WarehouseVo warehouseVo = (WarehouseVo) redisTemplate.opsForValue().get(RedisKey.STRING_WAREHOUSE + overseaWarehouseServiceOrder.getWarehouseCode());
@@ -375,7 +375,7 @@ public class OverseaWarehouseServiceOrderServiceImpl implements OverseaWarehouse
             serviceOrderFreight.setServiceType(OrderType.EXTRA_SERVICE_OVERSEA_WAREHOUSE);
             orderFreights.add(serviceOrderFreight);
         }
-        ServiceOrderFreightService.insertByBatch(orderFreights);
+        serviceOrderFreightService.insertByBatch(orderFreights);
 
         ServiceOrder serviceOrder = new ServiceOrder();
         serviceOrder.setServiceTitle(request.getServiceTitle());

@@ -6,6 +6,7 @@ import com.upedge.common.model.user.vo.Session;
 import com.upedge.sms.modules.wholesale.WholesaleOrderVo;
 import com.upedge.sms.modules.wholesale.entity.WholesaleOrder;
 import com.upedge.sms.modules.wholesale.request.WholesaleOrderCreateRequest;
+import com.upedge.sms.modules.wholesale.request.WholesaleOrderPayRequest;
 
 import java.util.List;
 
@@ -13,6 +14,8 @@ import java.util.List;
  * @author gx
  */
 public interface WholesaleOrderService{
+
+    BaseResponse payOrder(WholesaleOrderPayRequest request,Session session);
 
     WholesaleOrderVo orderDetail(Long orderId);
 

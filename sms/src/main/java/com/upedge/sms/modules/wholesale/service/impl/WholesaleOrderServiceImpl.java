@@ -3,10 +3,15 @@ package com.upedge.sms.modules.wholesale.service.impl;
 import com.upedge.common.base.BaseResponse;
 import com.upedge.common.base.Page;
 import com.upedge.common.constant.OrderType;
+import com.upedge.common.constant.ResultCode;
 import com.upedge.common.feign.OmsFeignClient;
+import com.upedge.common.feign.UmsFeignClient;
+import com.upedge.common.model.account.AccountPaymentRequest;
 import com.upedge.common.model.cart.request.CartSelectByIdsRequest;
 import com.upedge.common.model.cart.request.CartSubmitRequest;
 import com.upedge.common.model.cart.request.CartVo;
+import com.upedge.common.model.order.PaymentDetail;
+import com.upedge.common.model.order.TransactionDetail;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.utils.IdGenerate;
 import com.upedge.common.utils.ListUtils;
@@ -20,9 +25,11 @@ import com.upedge.sms.modules.wholesale.entity.WholesaleOrder;
 import com.upedge.sms.modules.wholesale.entity.WholesaleOrderAddress;
 import com.upedge.sms.modules.wholesale.entity.WholesaleOrderItem;
 import com.upedge.sms.modules.wholesale.request.WholesaleOrderCreateRequest;
+import com.upedge.sms.modules.wholesale.request.WholesaleOrderPayRequest;
 import com.upedge.sms.modules.wholesale.service.WholesaleOrderAddressService;
 import com.upedge.sms.modules.wholesale.service.WholesaleOrderItemService;
 import com.upedge.sms.modules.wholesale.service.WholesaleOrderService;
+import io.seata.spring.annotation.GlobalTransactional;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -55,6 +62,9 @@ public class WholesaleOrderServiceImpl implements WholesaleOrderService {
     @Autowired
     ServiceOrderFreightService serviceOrderFreightService;
 
+    @Autowired
+    UmsFeignClient umsFeignClient;
+
 
 
     /**
@@ -81,6 +91,51 @@ public class WholesaleOrderServiceImpl implements WholesaleOrderService {
     @Transactional
     public int insertSelective(WholesaleOrder record) {
         return wholesaleOrderDao.insert(record);
+    }
+
+    @GlobalTransactional
+    @Override
+    public BaseResponse payOrder(WholesaleOrderPayRequest request, Session session) {
+        //检查状态
+        Long orderId = request.getOrderId();
+        WholesaleOrder wholesaleOrder = selectByPrimaryKey(orderId);
+        if (null == wholesaleOrder
+                || wholesaleOrder.getPayState() != 0){
+            return BaseResponse.failed("Order does not exist or has been paid!");
+        }
+        //检查运费
+        Integer shipType = request.getShipType();
+        BigDecimal shipPrice = request.getShipPrice();
+        ServiceOrderFreight ServiceOrderFreight = serviceOrderFreightService.selectByOrderIdAndShipType(orderId, shipType);
+        if (null == ServiceOrderFreight
+                || shipPrice.compareTo(ServiceOrderFreight.getShipPrice()) != 0){
+            return BaseResponse.failed("Shipping has been updated, please refresh the page");
+        }
+        //检查支付金额
+        BigDecimal payAmount = request.getPayAmount();
+        BigDecimal productAmount = wholesaleOrder.getProductAmount();
+        if (payAmount.compareTo(productAmount.add(shipPrice)) != 0){
+            return BaseResponse.failed("Incorrect payment amount!");
+        }
+        //账户支付
+        Long paymentId = IdGenerate.nextId();
+        AccountPaymentRequest accountPaymentRequest = new AccountPaymentRequest(paymentId,session.getId(),session.getAccountId(),session.getCustomerId(),OrderType.EXTRA_SERVICE_OVERSEA_WAREHOUSE,payAmount,BigDecimal.ZERO,0);
+        BaseResponse paymentResponse = umsFeignClient.accountPayment(accountPaymentRequest);
+        if (paymentResponse.getCode() != ResultCode.SUCCESS_CODE){
+            return paymentResponse;
+        }
+        //修改状态
+        Date payTime = new Date();
+        wholesaleOrder.setPaymentId(paymentId);
+        wholesaleOrder.setPayAmount(payAmount);
+        wholesaleOrder.setPayTime(payTime);
+        wholesaleOrder.setShipPrice(shipPrice);
+        wholesaleOrder.setShipType(shipType);
+        wholesaleOrderDao.updateOrderAsPaid(wholesaleOrder);
+        serviceOrderService.updateToPaidByRelateId(orderId,OrderType.EXTRA_SERVICE_WHOLESALE,payAmount,payTime);
+        //发送消息
+        sendSaveTransactionRecordMessage(session.getId(),wholesaleOrder);
+        return BaseResponse.success();
     }
 
     @Override
@@ -219,6 +274,31 @@ public class WholesaleOrderServiceImpl implements WholesaleOrderService {
     */
     public long count(Page<WholesaleOrder> record){
         return wholesaleOrderDao.count(record);
+    }
+
+    public void sendSaveTransactionRecordMessage(Long userId, WholesaleOrder order) {
+        PaymentDetail detail = new PaymentDetail();
+        detail.setPaymentId(order.getPaymentId());
+        detail.setUserId(userId);
+        detail.setCustomerId(order.getCustomerId());
+        detail.setPayMethod(0);
+        detail.setPayAmount(order.getPayAmount());
+        detail.setOrderType(OrderType.EXTRA_SERVICE_OVERSEA_WAREHOUSE);
+        detail.setPayTime(order.getPayTime());
+
+        List<TransactionDetail> transactionDetails = new ArrayList<>();
+        TransactionDetail transactionDetail = new TransactionDetail();
+        transactionDetail.setOrderId(order.getId());
+        transactionDetail.setPaymentId(order.getPaymentId());
+        transactionDetail.setPayTime(order.getPayTime());
+        transactionDetail.setAmount(order.getPayAmount());
+        transactionDetail.setOrderType(OrderType.EXTRA_SERVICE_OVERSEA_WAREHOUSE);
+        transactionDetails.add(transactionDetail);
+
+        detail.setOrderTransactions(transactionDetails);
+
+        umsFeignClient.saveTransactionDetails(detail);
+
     }
 
 }

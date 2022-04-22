@@ -3,15 +3,13 @@ package com.upedge.sms.modules.wholesale.controller;
 import com.upedge.common.base.BaseResponse;
 import com.upedge.common.component.annotation.Permission;
 import com.upedge.common.constant.Constant;
+import com.upedge.common.constant.OrderConstant;
 import com.upedge.common.constant.ResultCode;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.web.util.UserUtil;
 import com.upedge.sms.modules.wholesale.WholesaleOrderVo;
 import com.upedge.sms.modules.wholesale.entity.WholesaleOrder;
-import com.upedge.sms.modules.wholesale.request.WholesaleOrderAddRequest;
-import com.upedge.sms.modules.wholesale.request.WholesaleOrderCreateRequest;
-import com.upedge.sms.modules.wholesale.request.WholesaleOrderListRequest;
-import com.upedge.sms.modules.wholesale.request.WholesaleOrderUpdateRequest;
+import com.upedge.sms.modules.wholesale.request.*;
 import com.upedge.sms.modules.wholesale.response.*;
 import com.upedge.sms.modules.wholesale.service.WholesaleOrderService;
 import io.swagger.annotations.Api;
@@ -81,13 +79,22 @@ public class WholesaleOrderController {
         return res;
     }
 
+    @ApiOperation("修改订单物流单号")
     @RequestMapping(value="/update/{id}", method=RequestMethod.POST)
     @Permission(permission = "wholesale:wholesaleorder:update")
     public WholesaleOrderUpdateResponse update(@PathVariable Long id,@RequestBody @Valid WholesaleOrderUpdateRequest request) {
         WholesaleOrder entity=request.toWholesaleOrder(id);
+        entity.setShipState(OrderConstant.SHIP_STATE_SHIPPED);
         wholesaleOrderService.updateByPrimaryKeySelective(entity);
         WholesaleOrderUpdateResponse res = new WholesaleOrderUpdateResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS);
         return res;
+    }
+
+    @ApiOperation("支付批发订单")
+    @PostMapping("/pay")
+    public BaseResponse payOrder(@RequestBody@Valid WholesaleOrderPayRequest request){
+        Session session = UserUtil.getSession(redisTemplate);
+        return wholesaleOrderService.payOrder(request,session);
     }
 
 
