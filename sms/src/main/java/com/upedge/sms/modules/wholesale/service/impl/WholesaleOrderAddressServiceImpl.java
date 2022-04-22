@@ -2,8 +2,10 @@ package com.upedge.sms.modules.wholesale.service.impl;
 
 import com.upedge.common.base.Page;
 import com.upedge.sms.modules.wholesale.dao.WholesaleOrderAddressDao;
+import com.upedge.sms.modules.wholesale.entity.WholesaleOrder;
 import com.upedge.sms.modules.wholesale.entity.WholesaleOrderAddress;
 import com.upedge.sms.modules.wholesale.service.WholesaleOrderAddressService;
+import com.upedge.sms.modules.wholesale.service.WholesaleOrderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,6 +18,9 @@ public class WholesaleOrderAddressServiceImpl implements WholesaleOrderAddressSe
 
     @Autowired
     private WholesaleOrderAddressDao wholesaleOrderAddressDao;
+
+    @Autowired
+    WholesaleOrderService wholesaleOrderService;
 
 
 
@@ -62,8 +67,16 @@ public class WholesaleOrderAddressServiceImpl implements WholesaleOrderAddressSe
     /**
     *
     */
-    @Transactional
+    @Override
     public int updateByPrimaryKeySelective(WholesaleOrderAddress record) {
+        WholesaleOrderAddress wholesaleOrderAddress = selectByPrimaryKey(record.getId());
+        if (null == wholesaleOrderAddress){
+            return 0;
+        }
+        WholesaleOrder wholesaleOrder = wholesaleOrderService.selectByPrimaryKey(record.getOrderId());
+        if (wholesaleOrder.getPayState() == 1){
+            return 0;
+        }
         return wholesaleOrderAddressDao.updateByPrimaryKeySelective(record);
     }
 

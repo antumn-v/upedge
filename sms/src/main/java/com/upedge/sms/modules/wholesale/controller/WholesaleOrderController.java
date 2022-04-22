@@ -14,6 +14,7 @@ import com.upedge.sms.modules.wholesale.request.WholesaleOrderListRequest;
 import com.upedge.sms.modules.wholesale.request.WholesaleOrderUpdateRequest;
 import com.upedge.sms.modules.wholesale.response.*;
 import com.upedge.sms.modules.wholesale.service.WholesaleOrderService;
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -27,6 +28,7 @@ import java.util.List;
  *
  * @author gx
  */
+@Api(tags = "批发订单")
 @RestController
 @RequestMapping("/wholesaleOrder")
 public class WholesaleOrderController {

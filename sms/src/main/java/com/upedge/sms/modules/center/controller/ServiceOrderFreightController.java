@@ -6,6 +6,7 @@ import com.upedge.sms.modules.center.entity.ServiceOrderFreight;
 import com.upedge.sms.modules.center.service.ServiceOrderFreightService;
 import com.upedge.sms.modules.center.service.ServiceOrderService;
 import com.upedge.sms.modules.overseaWarehouse.request.OverseaWarehouseServiceOrderUpdateFreightRequest;
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -21,6 +22,7 @@ import java.util.List;
  *
  * @author gx
  */
+@Api(tags = "服务订单运费")
 @RestController
 @RequestMapping("/serviceOrderFreight")
 public class ServiceOrderFreightController {
