@@ -11,6 +11,7 @@ import com.upedge.common.feign.OmsFeignClient;
 import com.upedge.common.feign.UmsFeignClient;
 import com.upedge.common.model.account.AccountPaymentRequest;
 import com.upedge.common.model.cart.request.CartSelectByIdsRequest;
+import com.upedge.common.model.cart.request.CartSubmitRequest;
 import com.upedge.common.model.cart.request.CartVo;
 import com.upedge.common.model.oms.stock.StockOrderItemVo;
 import com.upedge.common.model.oms.stock.StockOrderVo;
@@ -21,16 +22,16 @@ import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.utils.IdGenerate;
 import com.upedge.common.utils.ListUtils;
 import com.upedge.sms.modules.center.entity.ServiceOrder;
+import com.upedge.sms.modules.center.entity.ServiceOrderFreight;
+import com.upedge.sms.modules.center.service.ServiceOrderFreightService;
 import com.upedge.sms.modules.center.service.ServiceOrderService;
 import com.upedge.sms.modules.overseaWarehouse.dao.OverseaWarehouseServiceOrderDao;
 import com.upedge.sms.modules.overseaWarehouse.entity.OverseaWarehouseServiceOrder;
-import com.upedge.sms.modules.center.entity.ServiceOrderFreight;
 import com.upedge.sms.modules.overseaWarehouse.entity.OverseaWarehouseServiceOrderItem;
 import com.upedge.sms.modules.overseaWarehouse.request.OverseaWarehouseServiceOrderCreateRequest;
 import com.upedge.sms.modules.overseaWarehouse.request.OverseaWarehouseServiceOrderListRequest;
 import com.upedge.sms.modules.overseaWarehouse.request.OverseaWarehouseServiceOrderPayRequest;
 import com.upedge.sms.modules.overseaWarehouse.request.OverseaWarehouseServiceOrderUpdateTrackingRequest;
-import com.upedge.sms.modules.center.service.ServiceOrderFreightService;
 import com.upedge.sms.modules.overseaWarehouse.service.OverseaWarehouseServiceOrderItemService;
 import com.upedge.sms.modules.overseaWarehouse.service.OverseaWarehouseServiceOrderService;
 import com.upedge.sms.modules.overseaWarehouse.vo.OverseaWarehouseServiceOrderVo;
@@ -264,7 +265,7 @@ public class OverseaWarehouseServiceOrderServiceImpl implements OverseaWarehouse
         //检查运费
         Integer shipType = request.getShipType();
         BigDecimal shipPrice = request.getShipPrice();
-        ServiceOrderFreight ServiceOrderFreight = ServiceOrderFreightService.selectByOrderIdAndShipType(orderId, shipType,OrderType.EXTRA_SERVICE_OVERSEA_WAREHOUSE);
+        ServiceOrderFreight ServiceOrderFreight = ServiceOrderFreightService.selectByOrderIdAndShipType(orderId, shipType);
         if (null == ServiceOrderFreight
         || shipPrice.compareTo(ServiceOrderFreight.getShipPrice()) != 0){
             return BaseResponse.failed("Shipping has been updated, please refresh the page");
@@ -309,7 +310,7 @@ public class OverseaWarehouseServiceOrderServiceImpl implements OverseaWarehouse
         List<OverseaWarehouseServiceOrderItem> orderItems = overseaWarehouseServiceOrderItemService.selectByOrderId(orderId);
         overseaWarehouseServiceOrderVo.setOrderItems(orderItems);
 
-        List<ServiceOrderFreight> orderFreights = ServiceOrderFreightService.selectByOrderId(orderId,OrderType.EXTRA_SERVICE_OVERSEA_WAREHOUSE);
+        List<ServiceOrderFreight> orderFreights = ServiceOrderFreightService.selectByOrderId(orderId);
         overseaWarehouseServiceOrderVo.setOrderFreights(orderFreights);
 
         WarehouseVo warehouseVo = (WarehouseVo) redisTemplate.opsForValue().get(RedisKey.STRING_WAREHOUSE + overseaWarehouseServiceOrder.getWarehouseCode());
@@ -367,11 +368,12 @@ public class OverseaWarehouseServiceOrderServiceImpl implements OverseaWarehouse
         List<ServiceOrderFreight> orderFreights = new ArrayList<>();
         List<Integer> shipTypes = request.getLogistics();;
         for (Integer shipType : shipTypes) {
-            ServiceOrderFreight ServiceOrderFreight = new ServiceOrderFreight();
-            ServiceOrderFreight.setId(IdGenerate.nextId());
-            ServiceOrderFreight.setOrderId(orderId);
-            ServiceOrderFreight.setShipType(shipType);
-            orderFreights.add(ServiceOrderFreight);
+            ServiceOrderFreight serviceOrderFreight = new ServiceOrderFreight();
+            serviceOrderFreight.setId(IdGenerate.nextId());
+            serviceOrderFreight.setOrderId(orderId);
+            serviceOrderFreight.setShipType(shipType);
+            serviceOrderFreight.setServiceType(OrderType.EXTRA_SERVICE_OVERSEA_WAREHOUSE);
+            orderFreights.add(serviceOrderFreight);
         }
         ServiceOrderFreightService.insertByBatch(orderFreights);
 
@@ -387,7 +389,11 @@ public class OverseaWarehouseServiceOrderServiceImpl implements OverseaWarehouse
         serviceOrder.setServiceType(OrderType.EXTRA_SERVICE_OVERSEA_WAREHOUSE);
         serviceOrder.setUpdateTime(new Date());
         serviceOrderService.insert(serviceOrder);
-        omsFeignClient.submitByIds(request.getCartIds());
+
+        CartSubmitRequest cartSubmitRequest = new CartSubmitRequest();
+        cartSubmitRequest.setType(0);
+        cartSubmitRequest.setIds(request.getCartIds());
+        omsFeignClient.submitByIds(cartSubmitRequest);
         return BaseResponse.success();
     }
 

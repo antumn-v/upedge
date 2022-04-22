@@ -1,0 +1,31 @@
+package com.upedge.sms.modules.wholesale.dao;
+
+import com.upedge.sms.modules.wholesale.entity.WholesaleOrder;
+import org.apache.ibatis.annotations.Mapper;
+import java.util.List;
+import com.upedge.common.base.Page;
+
+/**
+ * @author gx
+ */
+public interface WholesaleOrderDao{
+
+    WholesaleOrder selectByPrimaryKey(WholesaleOrder record);
+
+    int deleteByPrimaryKey(WholesaleOrder record);
+
+    int updateByPrimaryKey(WholesaleOrder record);
+
+    int updateByPrimaryKeySelective(WholesaleOrder record);
+
+    int insert(WholesaleOrder record);
+
+    int insertSelective(WholesaleOrder record);
+
+    int insertByBatch(List<WholesaleOrder> list);
+
+    List<WholesaleOrder> select(Page<WholesaleOrder> record);
+
+    long count(Page<WholesaleOrder> record);
+
+}

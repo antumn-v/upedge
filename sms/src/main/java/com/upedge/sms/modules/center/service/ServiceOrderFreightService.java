@@ -10,9 +10,9 @@ import java.util.List;
  */
 public interface ServiceOrderFreightService{
 
-    ServiceOrderFreight selectByOrderIdAndShipType(Long orderId, Integer shipType,Integer serviceType);
+    ServiceOrderFreight selectByOrderIdAndShipType(Long orderId, Integer shipType);
 
-    List<ServiceOrderFreight> selectByOrderId(Long orderId,Integer serviceType);
+    List<ServiceOrderFreight> selectByOrderId(Long orderId);
 
     ServiceOrderFreight selectByPrimaryKey(Long orderId);
 

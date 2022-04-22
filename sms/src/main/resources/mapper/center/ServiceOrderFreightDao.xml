@@ -188,7 +188,6 @@
         from service_order_freight
         where order_id = #{orderId}
         and ship_type = #{shipType}
-        and service_type = #{serviceType}
         limit 1
     </select>
 
@@ -197,6 +196,5 @@
         <include refid="Base_Column_List"/>
         from service_order_freight
         where order_id = #{orderId}
-        and service_type = #{serviceType}
     </select>
 </mapper>

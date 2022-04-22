@@ -7,6 +7,7 @@ import com.upedge.common.model.account.PaypalOrder;
 import com.upedge.common.model.account.PaypalPayment;
 import com.upedge.common.model.cart.request.CartAddRequest;
 import com.upedge.common.model.cart.request.CartSelectByIdsRequest;
+import com.upedge.common.model.cart.request.CartSubmitRequest;
 import com.upedge.common.model.cart.request.CartVo;
 import com.upedge.common.model.oms.stock.StockOrderVo;
 import com.upedge.common.model.order.request.ManagerActualRequest;
@@ -64,7 +65,7 @@ public interface OmsFeignClient  {
     public List<CartVo> selectByIds(@RequestBody CartSelectByIdsRequest request);
 
     @PostMapping("/cart/submitByIds")
-    public BaseResponse submitByIds(@RequestBody List<Long> cartIds);
+    public BaseResponse submitByIds(@RequestBody CartSubmitRequest request);
 
     @PostMapping("/storeOrder/shopify/update")
     public BaseResponse updateShopifyOrder(@RequestBody StoreApiRequest request);

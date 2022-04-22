@@ -1,0 +1,224 @@
+package com.upedge.sms.modules.wholesale.service.impl;
+
+import com.upedge.common.base.BaseResponse;
+import com.upedge.common.base.Page;
+import com.upedge.common.constant.OrderType;
+import com.upedge.common.feign.OmsFeignClient;
+import com.upedge.common.model.cart.request.CartSelectByIdsRequest;
+import com.upedge.common.model.cart.request.CartSubmitRequest;
+import com.upedge.common.model.cart.request.CartVo;
+import com.upedge.common.model.user.vo.Session;
+import com.upedge.common.utils.IdGenerate;
+import com.upedge.common.utils.ListUtils;
+import com.upedge.sms.modules.center.entity.ServiceOrder;
+import com.upedge.sms.modules.center.entity.ServiceOrderFreight;
+import com.upedge.sms.modules.center.service.ServiceOrderFreightService;
+import com.upedge.sms.modules.center.service.ServiceOrderService;
+import com.upedge.sms.modules.wholesale.WholesaleOrderVo;
+import com.upedge.sms.modules.wholesale.dao.WholesaleOrderDao;
+import com.upedge.sms.modules.wholesale.entity.WholesaleOrder;
+import com.upedge.sms.modules.wholesale.entity.WholesaleOrderAddress;
+import com.upedge.sms.modules.wholesale.entity.WholesaleOrderItem;
+import com.upedge.sms.modules.wholesale.request.WholesaleOrderCreateRequest;
+import com.upedge.sms.modules.wholesale.service.WholesaleOrderAddressService;
+import com.upedge.sms.modules.wholesale.service.WholesaleOrderItemService;
+import com.upedge.sms.modules.wholesale.service.WholesaleOrderService;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+
+@Service
+public class WholesaleOrderServiceImpl implements WholesaleOrderService {
+
+    @Autowired
+    private WholesaleOrderDao wholesaleOrderDao;
+
+    @Autowired
+    OmsFeignClient omsFeignClient;
+
+    @Autowired
+    WholesaleOrderItemService wholesaleOrderItemService;
+
+    @Autowired
+    WholesaleOrderAddressService wholesaleOrderAddressService;
+
+    @Autowired
+    ServiceOrderService serviceOrderService;
+
+    @Autowired
+    ServiceOrderFreightService serviceOrderFreightService;
+
+
+
+    /**
+     *
+     */
+    @Transactional
+    public int deleteByPrimaryKey(Long id) {
+        WholesaleOrder record = new WholesaleOrder();
+        record.setId(id);
+        return wholesaleOrderDao.deleteByPrimaryKey(record);
+    }
+
+    /**
+     *
+     */
+    @Transactional
+    public int insert(WholesaleOrder record) {
+        return wholesaleOrderDao.insert(record);
+    }
+
+    /**
+     *
+     */
+    @Transactional
+    public int insertSelective(WholesaleOrder record) {
+        return wholesaleOrderDao.insert(record);
+    }
+
+    @Override
+    public WholesaleOrderVo orderDetail(Long orderId) {
+        WholesaleOrder wholesaleOrder = selectByPrimaryKey(orderId);
+        if (null == wholesaleOrder){
+            return null;
+        }
+        WholesaleOrderVo wholesaleOrderVo = new WholesaleOrderVo();
+        BeanUtils.copyProperties(wholesaleOrder,wholesaleOrderVo);
+
+        WholesaleOrderAddress wholesaleOrderAddress = wholesaleOrderAddressService.selectByOrderId(orderId);
+        wholesaleOrderVo.setAddress(wholesaleOrderAddress);
+
+        List<WholesaleOrderItem> orderItems = wholesaleOrderItemService.selectByOrderId(orderId);
+        wholesaleOrderVo.setWholesaleOrderItems(orderItems);
+
+        List<ServiceOrderFreight> freights = serviceOrderFreightService.selectByOrderId(orderId);
+        wholesaleOrderVo.setOrderFreights(freights);
+        return wholesaleOrderVo;
+    }
+
+    @Transactional
+    @Override
+    public BaseResponse create(WholesaleOrderCreateRequest request, Session session) {
+
+        CartSelectByIdsRequest cartSelectByIdsRequest = new CartSelectByIdsRequest();
+        cartSelectByIdsRequest.setIds(request.getCartIds());
+        cartSelectByIdsRequest.setCartType(0);
+        cartSelectByIdsRequest.setCustomerId(session.getCustomerId());
+        List<CartVo> cartVos = omsFeignClient.selectByIds(cartSelectByIdsRequest);
+        if (ListUtils.isEmpty(cartVos)){
+            return BaseResponse.failed();
+        }
+        Long orderId = IdGenerate.nextId();
+        BigDecimal productAmount = BigDecimal.ZERO;
+        BigDecimal totalWeight = BigDecimal.ZERO;
+        BigDecimal totalVolume = BigDecimal.ZERO;
+        List<WholesaleOrderItem> orderItems = new ArrayList<>();
+        for (CartVo cartVo : cartVos) {
+            BigDecimal quantity = new BigDecimal(cartVo.getQuantity());
+            WholesaleOrderItem orderItem = new WholesaleOrderItem();
+            BeanUtils.copyProperties(cartVo,orderItem);
+            orderItem.setOrderId(orderId);
+            orderItem.setId(IdGenerate.nextId());
+            orderItem.setCartId(cartVo.getId());
+            orderItems.add(orderItem);
+            productAmount = productAmount.add(quantity.multiply(cartVo.getPrice()));
+            totalWeight = totalWeight.add(quantity.multiply(cartVo.getVariantWeight()));
+            totalVolume = totalVolume.add(quantity.multiply(cartVo.getVariantVolume()));
+        }
+        wholesaleOrderItemService.insertByBatch(orderItems);
+
+        WholesaleOrder wholesaleOrder = new WholesaleOrder();
+        wholesaleOrder.init();
+        wholesaleOrder.setCustomerId(session.getCustomerId());
+        wholesaleOrder.setId(orderId);
+        wholesaleOrder.setTotalWeight(totalWeight);
+        wholesaleOrder.setVolumeWeight(totalVolume);
+        wholesaleOrder.setProductAmount(productAmount);
+        wholesaleOrderDao.insert(wholesaleOrder);
+
+        WholesaleOrderAddress wholesaleOrderAddress = request.getAddress();
+        wholesaleOrderAddress.setOrderId(orderId);
+        wholesaleOrderAddress.setId(IdGenerate.nextId());
+        wholesaleOrderAddressService.insert(wholesaleOrderAddress);
+
+        List<ServiceOrderFreight> orderFreights = new ArrayList<>();
+        List<Integer> shipTypes = request.getLogistics();;
+        for (Integer shipType : shipTypes) {
+            ServiceOrderFreight serviceOrderFreight = new ServiceOrderFreight();
+            serviceOrderFreight.setId(IdGenerate.nextId());
+            serviceOrderFreight.setOrderId(orderId);
+            serviceOrderFreight.setShipType(shipType);
+            serviceOrderFreight.setServiceType(OrderType.EXTRA_SERVICE_WHOLESALE);
+            orderFreights.add(serviceOrderFreight);
+        }
+        serviceOrderFreightService.insertByBatch(orderFreights);
+
+        ServiceOrder serviceOrder = new ServiceOrder();
+        serviceOrder.setServiceTitle(request.getServiceTitle());
+        serviceOrder.setId(orderId);
+        serviceOrder.setRelateId(orderId);
+        serviceOrder.setServiceState(0);
+        serviceOrder.setCustomerId(session.getCustomerId());
+        serviceOrder.setCreateTime(new Date());
+        serviceOrder.setPayState(0);
+        serviceOrder.setRefundState(0);
+        serviceOrder.setServiceType(OrderType.EXTRA_SERVICE_WHOLESALE);
+        serviceOrder.setUpdateTime(new Date());
+        serviceOrderService.insert(serviceOrder);
+
+        CartSubmitRequest cartSubmitRequest = new CartSubmitRequest();
+        cartSubmitRequest.setType(1);
+        cartSubmitRequest.setIds(request.getCartIds());
+        omsFeignClient.submitByIds(cartSubmitRequest);
+
+        return BaseResponse.success(wholesaleOrder);
+    }
+
+    /**
+     *
+     */
+    public WholesaleOrder selectByPrimaryKey(Long id){
+        WholesaleOrder record = new WholesaleOrder();
+        record.setId(id);
+        return wholesaleOrderDao.selectByPrimaryKey(record);
+    }
+
+    /**
+    *
+    */
+    @Transactional
+    public int updateByPrimaryKeySelective(WholesaleOrder record) {
+        return wholesaleOrderDao.updateByPrimaryKeySelective(record);
+    }
+
+    /**
+    *
+    */
+    @Transactional
+    public int updateByPrimaryKey(WholesaleOrder record) {
+        return wholesaleOrderDao.updateByPrimaryKey(record);
+    }
+
+    /**
+    *
+    */
+    public List<WholesaleOrder> select(Page<WholesaleOrder> record){
+        record.initFromNum();
+        return wholesaleOrderDao.select(record);
+    }
+
+    /**
+    *
+    */
+    public long count(Page<WholesaleOrder> record){
+        return wholesaleOrderDao.count(record);
+    }
+
+}

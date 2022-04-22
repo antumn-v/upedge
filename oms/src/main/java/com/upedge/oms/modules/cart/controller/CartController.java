@@ -6,6 +6,7 @@ import com.upedge.common.constant.Constant;
 import com.upedge.common.constant.ResultCode;
 import com.upedge.common.model.cart.request.CartAddRequest;
 import com.upedge.common.model.cart.request.CartSelectByIdsRequest;
+import com.upedge.common.model.cart.request.CartSubmitRequest;
 import com.upedge.common.model.cart.request.CartVo;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.utils.ListUtils;
@@ -204,8 +205,8 @@ public class CartController {
     }
 
     @PostMapping("/submitByIds")
-    public BaseResponse submitByIds(@RequestBody List<Long> cartIds){
-        cartService.updateStateByIds(cartIds,1);
+    public BaseResponse submitByIds(@RequestBody CartSubmitRequest request){
+        cartService.updateStateByIds(request.getIds(), request.getType());
         return BaseResponse.success();
     }
 
