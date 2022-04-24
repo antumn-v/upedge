@@ -85,6 +85,8 @@ public class WholesaleOrder{
 	 */
     private String trackingCode;
 
+	private String remark;
+
 	public void init(){
 		this.payState = 0;
 		this.refundState = 0;

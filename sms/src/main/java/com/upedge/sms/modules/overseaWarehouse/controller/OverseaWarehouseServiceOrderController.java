@@ -8,7 +8,6 @@ import com.upedge.common.constant.key.RedisKey;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.web.util.RedisUtil;
 import com.upedge.common.web.util.UserUtil;
-import com.upedge.sms.modules.center.service.ServiceOrderFreightService;
 import com.upedge.sms.modules.overseaWarehouse.entity.OverseaWarehouseServiceOrder;
 import com.upedge.sms.modules.overseaWarehouse.request.*;
 import com.upedge.sms.modules.overseaWarehouse.response.OverseaWarehouseServiceOrderListResponse;
@@ -22,6 +21,8 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ThreadPoolExecutor;
 
 /**
  * 
@@ -36,10 +37,10 @@ public class OverseaWarehouseServiceOrderController {
     private OverseaWarehouseServiceOrderService overseaWarehouseServiceOrderService;
 
     @Autowired
-    private ServiceOrderFreightService serviceOrderFreightService;
+    RedisTemplate redisTemplate;
 
     @Autowired
-    RedisTemplate redisTemplate;
+    ThreadPoolExecutor threadPoolExecutor;
 
 
     @ApiOperation("订单详情")
@@ -98,6 +99,14 @@ public class OverseaWarehouseServiceOrderController {
             return BaseResponse.failed("There is a transaction in progress");
         }
         BaseResponse response = overseaWarehouseServiceOrderService.orderPay(request,session);
+        if (response.getCode() == ResultCode.SUCCESS_CODE){
+            CompletableFuture.runAsync(new Runnable() {
+                @Override
+                public void run() {
+                    overseaWarehouseServiceOrderService.saveTransactionRecord(session.getId(), request.getOrderId());
+                }
+            },threadPoolExecutor);
+        }
         RedisUtil.unLock(redisTemplate,key);
         return response;
     }

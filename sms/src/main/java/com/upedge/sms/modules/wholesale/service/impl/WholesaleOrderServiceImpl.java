@@ -2,6 +2,7 @@ package com.upedge.sms.modules.wholesale.service.impl;
 
 import com.upedge.common.base.BaseResponse;
 import com.upedge.common.base.Page;
+import com.upedge.common.constant.OrderConstant;
 import com.upedge.common.constant.OrderType;
 import com.upedge.common.constant.ResultCode;
 import com.upedge.common.feign.OmsFeignClient;
@@ -134,7 +135,7 @@ public class WholesaleOrderServiceImpl implements WholesaleOrderService {
         wholesaleOrderDao.updateOrderAsPaid(wholesaleOrder);
         serviceOrderService.updateToPaidByRelateId(orderId,OrderType.EXTRA_SERVICE_WHOLESALE,payAmount,payTime);
         //发送消息
-        sendSaveTransactionRecordMessage(session.getId(),wholesaleOrder);
+//        sendSaveTransactionRecordMessage(session.getId(),wholesaleOrder);
         return BaseResponse.success();
     }
 
@@ -276,7 +277,13 @@ public class WholesaleOrderServiceImpl implements WholesaleOrderService {
         return wholesaleOrderDao.count(record);
     }
 
-    public void sendSaveTransactionRecordMessage(Long userId, WholesaleOrder order) {
+
+    @Override
+    public void saveTransactionRecordMessage(Long userId, Long orderId) {
+        WholesaleOrder order = selectByPrimaryKey(orderId);
+        if (order.getPayState() != OrderConstant.PAY_STATE_PAID){
+            return;
+        }
         PaymentDetail detail = new PaymentDetail();
         detail.setPaymentId(order.getPaymentId());
         detail.setUserId(userId);

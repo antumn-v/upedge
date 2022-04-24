@@ -47,5 +47,7 @@ public interface OverseaWarehouseServiceOrderService{
     List<OverseaWarehouseServiceOrder> select(Page<OverseaWarehouseServiceOrder> record);
 
     long count(Page<OverseaWarehouseServiceOrder> record);
+
+    void saveTransactionRecord(Long userId, Long orderId);
 }
 

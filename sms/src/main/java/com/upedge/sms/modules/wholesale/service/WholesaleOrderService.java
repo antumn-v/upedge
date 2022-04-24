@@ -36,5 +36,7 @@ public interface WholesaleOrderService{
     List<WholesaleOrder> select(Page<WholesaleOrder> record);
 
     long count(Page<WholesaleOrder> record);
+    
+    void saveTransactionRecordMessage(Long userId, Long orderId);
 }
 

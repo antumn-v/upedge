@@ -293,8 +293,6 @@ public class OverseaWarehouseServiceOrderServiceImpl implements OverseaWarehouse
         overseaWarehouseServiceOrderDao.updateOrderAsPaid(overseaWarehouseServiceOrder);
         serviceOrderService.updateToPaidByRelateId(orderId,OrderType.EXTRA_SERVICE_OVERSEA_WAREHOUSE,payAmount,payTime);
 //        overseaWarehouseServiceOrderItemService.updateWarehouseSkuByOrderId(orderId);
-        //发送消息
-        sendSaveTransactionRecordMessage(session.getId(),overseaWarehouseServiceOrder);
         return BaseResponse.success();
     }
 
@@ -437,8 +435,12 @@ public class OverseaWarehouseServiceOrderServiceImpl implements OverseaWarehouse
         return overseaWarehouseServiceOrderDao.count(record);
     }
 
-
-    public void sendSaveTransactionRecordMessage(Long userId, OverseaWarehouseServiceOrder order) {
+    @Override
+    public void saveTransactionRecord(Long userId, Long orderId) {
+        OverseaWarehouseServiceOrder order = selectByPrimaryKey(orderId);
+        if (order.getPayState() != OrderConstant.PAY_STATE_PAID){
+            return;
+        }
         PaymentDetail detail = new PaymentDetail();
         detail.setPaymentId(order.getPaymentId());
         detail.setUserId(userId);
