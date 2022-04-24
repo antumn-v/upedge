@@ -16,7 +16,7 @@ import java.util.List;
  */
 public interface CustomerProductQuoteService{
 
-
+    List<CustomerProductQuoteVo> selectAllQuoteDetail();
 
     BaseResponse revokeQuote(Long id,Session session);
 

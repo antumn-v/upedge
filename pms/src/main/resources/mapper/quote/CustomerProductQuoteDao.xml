@@ -25,7 +25,8 @@
     </resultMap>
 
     <sql id="Base_Column_List">
-        `store_variant_id`,`customer_id`,`store_product_id`,`product_id`,`variant_id`,`store_variant_name`,`store_product_title`,`store_variant_sku`,`store_variant_image`,`product_title`,`variant_name`,`variant_sku`,`variant_image`,`quote_price`,`quote_apply_id`,`quote_state`,`quote_scale`,`store_parent_variant_id`
+        `store_variant_id`
+                ,`customer_id`,`store_product_id`,`product_id`,`variant_id`,`store_variant_name`,`store_product_title`,`store_variant_sku`,`store_variant_image`,`product_title`,`variant_name`,`variant_sku`,`variant_image`,`quote_price`,`quote_apply_id`,`quote_state`,`quote_scale`,`store_parent_variant_id`
     </sql>
 
     <select id="selectByPrimaryKey"
@@ -125,7 +126,8 @@
         where store_variant_id = #{storeVariantId}
     </update>
 
-    <insert id="insert" keyColumn="store_variant_id" keyProperty="storeVariantId" parameterType="com.upedge.pms.modules.quote.entity.CustomerProductQuote" useGeneratedKeys="true">
+    <insert id="insert" keyColumn="store_variant_id" keyProperty="storeVariantId"
+            parameterType="com.upedge.pms.modules.quote.entity.CustomerProductQuote" useGeneratedKeys="true">
         replace into customer_product_quote
         <trim prefix="(" suffix=")" suffixOverrides=",">
             store_variant_id,
@@ -169,121 +171,120 @@
         )
     </insert>
 
-    <insert id="insertSelective"  keyColumn="store_variant_id" keyProperty="storeVariantId"  parameterType="com.upedge.pms.modules.quote.entity.CustomerProductQuote" useGeneratedKeys="true">
+    <insert id="insertSelective" keyColumn="store_variant_id" keyProperty="storeVariantId"
+            parameterType="com.upedge.pms.modules.quote.entity.CustomerProductQuote" useGeneratedKeys="true">
         insert into customer_product_quote
         <trim prefix="(" suffix=")" suffixOverrides=",">
-            <if test="storeVariantId != null" >
+            <if test="storeVariantId != null">
                 store_variant_id
             </if>
-            <if test="customerId != null" >
+            <if test="customerId != null">
                 customer_id
             </if>
-            <if test="storeProductId != null" >
+            <if test="storeProductId != null">
                 store_product_id
             </if>
-            <if test="productId != null" >
+            <if test="productId != null">
                 product_id
             </if>
-            <if test="variantId != null" >
+            <if test="variantId != null">
                 variant_id
             </if>
-            <if test="storeVariantName != null" >
+            <if test="storeVariantName != null">
                 store_variant_name
             </if>
-            <if test="storeProductTitle != null" >
+            <if test="storeProductTitle != null">
                 store_product_title
             </if>
-            <if test="storeVariantSku != null" >
+            <if test="storeVariantSku != null">
                 store_variant_sku
             </if>
-            <if test="storeVariantImage != null" >
+            <if test="storeVariantImage != null">
                 store_variant_image
             </if>
-            <if test="productTitle != null" >
+            <if test="productTitle != null">
                 product_title
             </if>
-            <if test="variantName != null" >
+            <if test="variantName != null">
                 variant_name
             </if>
-            <if test="variantSku != null" >
+            <if test="variantSku != null">
                 variant_sku
             </if>
-            <if test="variantImage != null" >
+            <if test="variantImage != null">
                 variant_image
             </if>
-            <if test="quotePrice != null" >
+            <if test="quotePrice != null">
                 quote_price
             </if>
-            <if test="quoteApplyId != null" >
+            <if test="quoteApplyId != null">
                 quote_apply_id
             </if>
-            <if test="quoteState != null" >
+            <if test="quoteState != null">
                 quote_state
             </if>
-            <if test="quoteScale != null" >
+            <if test="quoteScale != null">
                 quote_scale
             </if>
-            <if test="storeParentVariantId != null" >
+            <if test="storeParentVariantId != null">
                 store_parent_variant_id
             </if>
-
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
-            <if test="storeVariantId != null" >
+            <if test="storeVariantId != null">
                 #{storeVariantId}
             </if>
-            <if test="customerId != null" >
+            <if test="customerId != null">
                 #{customerId}
             </if>
-            <if test="storeProductId != null" >
+            <if test="storeProductId != null">
                 #{storeProductId}
             </if>
-            <if test="productId != null" >
+            <if test="productId != null">
                 #{productId}
             </if>
-            <if test="variantId != null" >
+            <if test="variantId != null">
                 #{variantId}
             </if>
-            <if test="storeVariantName != null" >
+            <if test="storeVariantName != null">
                 #{storeVariantName}
             </if>
-            <if test="storeProductTitle != null" >
+            <if test="storeProductTitle != null">
                 #{storeProductTitle}
             </if>
-            <if test="storeVariantSku != null" >
+            <if test="storeVariantSku != null">
                 #{storeVariantSku}
             </if>
-            <if test="storeVariantImage != null" >
+            <if test="storeVariantImage != null">
                 #{storeVariantImage}
             </if>
-            <if test="productTitle != null" >
+            <if test="productTitle != null">
                 #{productTitle}
             </if>
-            <if test="variantName != null" >
+            <if test="variantName != null">
                 #{variantName}
             </if>
-            <if test="variantSku != null" >
+            <if test="variantSku != null">
                 #{variantSku}
             </if>
-            <if test="variantImage != null" >
+            <if test="variantImage != null">
                 #{variantImage}
             </if>
-            <if test="quotePrice != null" >
+            <if test="quotePrice != null">
                 #{quotePrice}
             </if>
-            <if test="quoteApplyId != null" >
+            <if test="quoteApplyId != null">
                 #{quoteApplyId}
             </if>
-            <if test="quoteState != null" >
+            <if test="quoteState != null">
                 #{quoteState}
             </if>
-            <if test="quoteScale != null" >
+            <if test="quoteScale != null">
                 #{quoteScale}
             </if>
-            <if test="storeParentVariantId != null" >
+            <if test="storeParentVariantId != null">
                 #{storeParentVariantId}
             </if>
-
         </trim>
     </insert>
 
@@ -434,7 +435,7 @@
         select
         <include refid="Base_Column_List"/>
         from customer_product_quote
-        where  store_variant_id = #{storeVariantId}
+        where store_variant_id = #{storeVariantId}
     </select>
 
     <select id="selectQuoteDetail"
@@ -463,7 +464,7 @@
                 and cpq.quote_apply_id = #{quoteApplyId}
             </if>
             <if test="variantId != null">
-                and cpq.variant_id =  #{variantId}
+                and cpq.variant_id = #{variantId}
             </if>
             <if test="storeVariantId != null">
                 and cpq.store_variant_id = #{storeVariantId}
@@ -484,5 +485,40 @@
                 </foreach>
             </if>
         </where>
+    </select>
+
+    <select id="selectAllQuoteDetail" resultType="com.upedge.common.model.pms.quote.CustomerProductQuoteVo">
+        select cpq.store_variant_id,
+               cpq.store_product_id,
+               cpq.quote_apply_id,
+               cpq.quote_price,
+               cpq.customer_id,
+               cpq.store_variant_image,
+               pv.id                        as variantId,
+               pv.en_name                   as variantName,
+               pv.variant_sku,
+               pv.variant_image,
+               pv.variant_price             as `cny_price`,
+               pv.usd_price,
+               pv.weight,
+               pv.volume_weight             as `volume`,
+               p.product_title              as `productTitle`,
+               p.shipping_id                as productShippingId,
+               p.id                         as productId,
+               cpq.quote_scale,
+               pv.width,
+               pv.height,
+               pv.length,
+               ifnull(cpq.quote_scale, '1') as `quoteScale`,
+               '1'                          as quoteType,
+               cpq.quote_state,
+               store_parent_variant_id,
+               store_variant_name,
+               store_variant_sku
+        from customer_product_quote cpq
+        left join product_variant pv
+        on cpq.variant_id = pv.id
+        left join product p
+        on p.id = pv.product_id
     </select>
 </mapper>

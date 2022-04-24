@@ -13,6 +13,7 @@ import java.util.List;
  */
 public interface CustomerProductQuoteDao{
 
+    List<CustomerProductQuoteVo> selectAllQuoteDetail();
 
     List<CustomerProductQuoteVo> selectQuoteDetail(CustomerProductQuoteSearchRequest request);
 

@@ -95,6 +95,11 @@ public class CustomerProductQuoteServiceImpl implements CustomerProductQuoteServ
     }
 
     @Override
+    public List<CustomerProductQuoteVo> selectAllQuoteDetail() {
+        return customerProductQuoteDao.selectAllQuoteDetail();
+    }
+
+    @Override
     public BaseResponse revokeQuote(Long storeVariantId, Session session) {
 
         CustomerProductQuote customerProductQuote = customerProductQuoteDao.selectByStoreVariantId(storeVariantId);

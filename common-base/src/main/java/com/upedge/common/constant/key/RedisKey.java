@@ -38,6 +38,9 @@ public class RedisKey {
     //报价中的店铺变体
     public static final String LIST_QUOTING_STORE_VARIANT = "storeVariant:quoting:list";
 
+    //已报价的产品信息
+    public static final String STRING_QUOTED_STORE_VARIANT = "storeVariant:quoted:detail:";
+
     //待统计的退款订单信息
     public static final String LIST_CUSTOMER_ORDER_DAILY_REFUND_COUNT_UPDATE = "customer:order:daily:refund:count:update";
     //客户登陆提示
