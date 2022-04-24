@@ -49,10 +49,7 @@ import javax.validation.Valid;
 import java.math.BigDecimal;
 import java.text.ParseException;
 import java.util.*;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.*;
 
 /**
  * @author author
@@ -495,6 +492,35 @@ public class OrderController {
                 orderService.importOrderToSaihe(order.getId());
             }
             return response;
+        }
+        return response;
+    }
+
+    @ApiOperation("订单添加产品")
+    @PostMapping("/addItem")
+    public BaseResponse orderAddItem(@RequestBody@Valid OrderAddItemRequest request){
+        Session session = UserUtil.getSession(redisTemplate);
+        BaseResponse response = orderService.orderAddItem(request,session);
+        if (response.getCode() == ResultCode.SUCCESS_CODE){
+            CompletableFuture<Void> updateProductAmount = CompletableFuture.runAsync(new Runnable() {
+                @Override
+                public void run() {
+                    List<Long> orderIds = new ArrayList<>();
+                    orderIds.add(request.getOrderId());
+                    orderService.initOrderProductAmount(orderIds);
+                }
+            },threadPoolExecutor);
+            CompletableFuture<Void> initShip = CompletableFuture.runAsync(new Runnable() {
+                @Override
+                public void run() {
+                    orderService.matchShipRule(request.getOrderId());
+                }
+            },threadPoolExecutor);
+            try {
+                CompletableFuture.allOf(updateProductAmount,initShip).get();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
         return response;
     }

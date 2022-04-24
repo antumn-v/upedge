@@ -645,4 +645,21 @@
         and split_type = '0'
         limit 1
     </select>
+
+    <select id="selectCustomerUnSplitVariant" resultMap="BaseResultMap" parameterType="com.upedge.pms.modules.product.request.StoreProductVariantUnSplitListRequest">
+        select spv.`id`,spv.`product_id`,spv.`plat_variant_id`,spv.`plat_product_id`,
+        spv.`title`,spv.`price`,spv.`sku`,spv.`image`,spv.`state`,spv.`import_time`,
+        spv.`split_type`,spv.`parent_variant_id`
+        from store_product_attribute spa
+        inner join store_product_variant spv
+        on spa.id = spv.product_id
+        where spa.customer_id = #{customerId}
+        <if test="sku != null">
+            and spv.sku = #{sku}
+        </if>
+        <if test="title != null">
+            and spv.title = #{title}
+        </if>
+        and split_type = '0'
+    </select>
 </mapper>

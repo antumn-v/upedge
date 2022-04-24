@@ -7,6 +7,7 @@ import com.upedge.common.model.user.vo.Session;
 import com.upedge.pms.modules.product.entity.StoreProductVariant;
 import com.upedge.pms.modules.product.request.StoreProductVariantQuoteRequest;
 import com.upedge.pms.modules.product.request.StoreProductVariantSplitRequest;
+import com.upedge.pms.modules.product.request.StoreProductVariantUnSplitListRequest;
 import com.upedge.pms.modules.product.request.StoreSplitVariantUpdateRequest;
 import com.upedge.pms.modules.product.vo.SplitVariantIdVo;
 
@@ -16,6 +17,8 @@ import java.util.List;
  * @author author
  */
 public interface StoreProductVariantService{
+
+    List<StoreProductVariant> selectCustomerUnSplitVariant(StoreProductVariantUnSplitListRequest request);
 
     StoreProductVariant selectByPlatId(String platVariantId);
 

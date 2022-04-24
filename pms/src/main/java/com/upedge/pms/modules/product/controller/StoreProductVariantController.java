@@ -8,10 +8,7 @@ import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.utils.ListUtils;
 import com.upedge.common.web.util.UserUtil;
 import com.upedge.pms.modules.product.entity.StoreProductVariant;
-import com.upedge.pms.modules.product.request.StoreProductVariantListRequest;
-import com.upedge.pms.modules.product.request.StoreProductVariantQuoteRequest;
-import com.upedge.pms.modules.product.request.StoreProductVariantSplitRequest;
-import com.upedge.pms.modules.product.request.StoreSplitVariantUpdateRequest;
+import com.upedge.pms.modules.product.request.*;
 import com.upedge.pms.modules.product.service.StoreProductService;
 import com.upedge.pms.modules.product.service.StoreProductVariantService;
 import io.swagger.annotations.Api;
@@ -48,6 +45,15 @@ public class StoreProductVariantController {
     public BaseResponse selectByPlatId(@RequestBody PlatIdSelectStoreVariantRequest request){
         List<StoreProductVariantVo> variantVos = storeProductService.selectVariantByPlatId(request);
         return new BaseResponse(ResultCode.SUCCESS_CODE,variantVos);
+    }
+
+    @ApiOperation("查询客户未拆分的变体")
+    @PostMapping("/unSplitList")
+    public BaseResponse listCustomerUnSplitVariant(@RequestBody StoreProductVariantUnSplitListRequest request){
+        Session session = UserUtil.getSession(redisTemplate);
+        request.setCustomerId(session.getCustomerId());
+        List<StoreProductVariant> variants = storeProductVariantService.selectCustomerUnSplitVariant(request);
+        return BaseResponse.success(variants);
     }
 
     @ApiOperation("店铺产品子体列表")

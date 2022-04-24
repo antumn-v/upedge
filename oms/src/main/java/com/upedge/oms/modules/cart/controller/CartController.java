@@ -74,10 +74,6 @@ public class CartController {
     @Permission(permission = "cart:cart:list")
     public CartListResponse list(@RequestBody @Valid CartListRequest request) {
         Session session = UserUtil.getSession(redisTemplate);
-
-        if(null == request.getT() || null == request.getT().getCartType()){
-            return new CartListResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_FAIL);
-        }
         request.getT().setCustomerId(session.getCustomerId());
 
         List<Cart> results = cartService.select(request);

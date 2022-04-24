@@ -133,7 +133,7 @@ public class OrderServiceImpl implements OrderService {
     private ThreadPoolExecutor threadPoolExecutor;
 
     @Autowired
-    RedisTemplate<String, Object> redisTemplate;
+    RedisTemplate redisTemplate;
 
     @Autowired
     OmsRedisService omsRedisService;
@@ -350,6 +350,7 @@ public class OrderServiceImpl implements OrderService {
         detail.setMethodId(null);
         detail.setServiceFee(BigDecimal.ZERO);
         detail.setVatAmount(BigDecimal.ZERO);
+        detail.setWeight(BigDecimal.ZERO);
         orderShippingUnitService.delByOrderId(id, OrderType.NORMAL);
         orderDao.updateShipDetailById(shipDetail, id);
         return detail;
@@ -493,6 +494,7 @@ public class OrderServiceImpl implements OrderService {
             detail.setMethodId(null);
             detail.setServiceFee(BigDecimal.ZERO);
             detail.setVatAmount(BigDecimal.ZERO);
+            detail.setWeight(BigDecimal.ZERO);
             orderShippingUnitService.delByOrderId(id, OrderType.NORMAL);
             orderDao.updateShipDetailById(detail, id);
         }
@@ -954,6 +956,54 @@ public class OrderServiceImpl implements OrderService {
     }
 
 
+    @Transactional
+    @Override
+    public BaseResponse orderAddItem(OrderAddItemRequest request, Session session) {
+        Long orderId = request.getOrderId();
+        Order order = selectByPrimaryKey(orderId);
+        if (null == order
+        || order.getPayState() != OrderConstant.PAY_STATE_UNPAID){
+            return BaseResponse.failed();
+        }
+        Long storeVariantId = request.getStoreVariantId();
+        OrderItem orderItem = request.toOrderItem(IdGenerate.nextId());
+
+        CustomerProductQuoteVo customerProductQuoteVo = (CustomerProductQuoteVo) redisTemplate.opsForValue().get(RedisKey.STRING_QUOTED_STORE_VARIANT + storeVariantId);
+        if (null == customerProductQuoteVo){
+            List<Long> splitVariantIds = redisTemplate.opsForList().range(RedisKey.LIST_QUOTING_STORE_VARIANT,0,-1);
+            //报价中的产品将报价状态改为报价中
+            if (splitVariantIds.contains(storeVariantId)){
+                order.setQuoteState(OrderConstant.QUOTE_STATE_QUOTING);
+            }else {
+                //未报价的产品将已报价的产品改为部分报价
+                if (order.getQuoteState() == OrderConstant.QUOTE_STATE_QUOTED){
+                    order.setQuoteState(OrderConstant.QUOTE_STATE_PART_UNQUOTED);
+                }
+            }
+        }else {
+            //报价成功，未报价订单改为部分报价
+            if (customerProductQuoteVo.getQuoteState() == 1){
+                orderItem.quoteProductToItem(customerProductQuoteVo);
+                if (order.getQuoteState() == OrderConstant.QUOTE_STATE_UNQUOTED){
+                    order.setQuoteState(OrderConstant.QUOTE_STATE_PART_UNQUOTED);
+                }
+            //报价失败，已报价订单改为部分报价
+            }else {
+                if (order.getQuoteState() == OrderConstant.QUOTE_STATE_QUOTED){
+                    order.setQuoteState(OrderConstant.QUOTE_STATE_PART_UNQUOTED);
+                }
+            }
+        }
+        orderItemDao.insert(orderItem);
+        Integer quoteState = order.getQuoteState();
+        order = new Order();
+        order.setId(orderId);
+        order.setQuoteState(quoteState);
+        order.setUpdateTime(new Date());
+        updateByPrimaryKeySelective(order);
+        return BaseResponse.success();
+    }
+
     @Override
     public List<Long> selectUploadSaiheFailedIds() {
         return orderDao.selectUploadSaiheFailedIds();
@@ -1215,8 +1265,8 @@ public class OrderServiceImpl implements OrderService {
     public ShipDetail orderInitShipDetail(Long orderId) {
         Order order = orderDao.selectByPrimaryKey(orderId);
         if (null == order
-                || order.getPayState() != 0
-                || order.getOrderType() == 1) {
+                || order.getPayState() != OrderConstant.PAY_STATE_UNPAID
+                || order.getQuoteState() != OrderConstant.QUOTE_STATE_QUOTED) {
             return null;
         }
         if (order.getToAreaId() == null) {

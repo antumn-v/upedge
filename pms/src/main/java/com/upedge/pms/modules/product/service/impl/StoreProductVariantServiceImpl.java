@@ -17,6 +17,7 @@ import com.upedge.pms.modules.product.entity.StoreProductAttribute;
 import com.upedge.pms.modules.product.entity.StoreProductVariant;
 import com.upedge.pms.modules.product.request.StoreProductVariantQuoteRequest;
 import com.upedge.pms.modules.product.request.StoreProductVariantSplitRequest;
+import com.upedge.pms.modules.product.request.StoreProductVariantUnSplitListRequest;
 import com.upedge.pms.modules.product.request.StoreSplitVariantUpdateRequest;
 import com.upedge.pms.modules.product.service.StoreProductAttributeService;
 import com.upedge.pms.modules.product.service.StoreProductVariantService;
@@ -90,6 +91,11 @@ public class StoreProductVariantServiceImpl implements StoreProductVariantServic
     @Transactional
     public int insertSelective(StoreProductVariant record) {
         return storeProductVariantDao.insert(record);
+    }
+
+    @Override
+    public List<StoreProductVariant> selectCustomerUnSplitVariant(StoreProductVariantUnSplitListRequest request) {
+        return storeProductVariantDao.selectCustomerUnSplitVariant(request);
     }
 
     @Override

@@ -341,7 +341,7 @@ public class ProductController {
         cartAddRequest.setQuantity(request.getQuantity());
         cartAddRequest.setVariantId(variant.getId());
         cartAddRequest.setUsdPrice(variant.getUsdPrice());
-        cartAddRequest.setVariantImage(request.getImage());
+        cartAddRequest.setVariantImage(variant.getVariantImage());
         cartAddRequest.setVariantName(variant.getEnName());
         cartAddRequest.setVariantSku(variant.getVariantSku());
         cartAddRequest.setProductId(product.getId());

@@ -172,6 +172,9 @@ public class StoreOrderServiceImpl implements StoreOrderService {
         try {
             JSONObject jsonObject = request.getJsonObject();
             shopifyOrder = jsonObject.toJavaObject(ShopifyOrder.class);
+            if (shopifyOrder == null){
+                return null;
+            }
         } catch (Exception e) {
             e.printStackTrace();
             return null;
@@ -700,6 +703,9 @@ public class StoreOrderServiceImpl implements StoreOrderService {
     public void updateShopifyStoreOrder(StoreOrder storeOrder,ShopifyOrder shopifyOrder,StoreVo storeVo){
         Long storeOrderId = storeOrder.getId();
         //更新店铺地址
+        if (null == shopifyOrder.getShipping_address()){
+            return;
+        }
         StoreOrderAddress storeOrderAddress = new StoreOrderAddress(shopifyOrder.getShipping_address());
         storeOrderAddress.setNote(shopifyOrder.getNote());
         storeOrderAddress.setId(storeOrder.getStoreAddressId());
