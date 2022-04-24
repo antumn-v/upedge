@@ -328,7 +328,7 @@ public class OrderServiceImpl implements OrderService {
         if (order == null || order.getPayState() != 0){
             return null;
         }
-        if (!shipDetail.getCouldShip()){
+        if (!shipDetail.isCouldShip()){
             return null;
         }
         List<ShipDetail> shipDetails = null;
@@ -340,7 +340,7 @@ public class OrderServiceImpl implements OrderService {
 
         for (ShipDetail detail : shipDetails) {
             if (detail.getMethodId().equals(shipDetail.getMethodId())
-            && detail.getCouldShip()) {
+            && detail.isCouldShip()) {
                 return updateShipDetailById(id, detail);
             }
         }
@@ -1011,16 +1011,24 @@ public class OrderServiceImpl implements OrderService {
         reshipOrder.initOrder();
 
         reshipOrder.setOrderType(1);
-        if (!request.getNeedPay()){
-            if (null == request.getShipMethodId()
-            || null == request.getShipPrice()
-            || null == request.getShipUnitId()){
+        ShipDetail shipDetail = request.getShipDetail();
+        if (null != shipDetail
+        && shipDetail.isCouldShip()){
+            reshipOrder.setShipMethodId(shipDetail.getMethodId());
+            reshipOrder.setShipPrice(shipDetail.getPrice());
+            reshipOrder.setServiceFee(shipDetail.getServiceFee());
+            reshipOrder.setShippingWarehouse(shipDetail.getWarehouseCode());
+            reshipOrder.setTotalWeight(shipDetail.getWeight());
+            if (!request.getNeedPay()){
+                reshipOrder.setPayState(1);
+            }
+        }else {
+            if (request.getNeedPay()){
                 return BaseResponse.failed("需要支付的订单需选择运输方式");
             }
-            reshipOrder.setPayState(1);
         }
-        reshipOrder.setShipMethodId(request.getShipMethodId());
-        reshipOrder.setShipPrice(request.getShipPrice());
+
+
         reshipOrder.setQuoteState(order.getQuoteState());
         reshipOrder.setId(reshipOrderId);
         reshipOrder.setCnyProductAmount(order.getCnyProductAmount());
@@ -1097,8 +1105,9 @@ public class OrderServiceImpl implements OrderService {
         orderReshipInfo.setReshipTimes(1);
         orderReshipInfo.setNeedPay(request.getNeedPay());
         orderReshipInfoDao.insert(orderReshipInfo);
-        if (null != reshipOrder.getShipMethodId()
-                && null != request.getShipUnitId()){
+        if (null != shipDetail
+        && shipDetail.isCouldShip()
+        && shipDetail.getWarehouseCode().equals(ProductConstant.DEFAULT_WAREHOUSE_ID)){
             updateOrderShipUnit(reshipOrderId,request.getShipUnitId());
         }
         return BaseResponse.success(reshipOrder,request);

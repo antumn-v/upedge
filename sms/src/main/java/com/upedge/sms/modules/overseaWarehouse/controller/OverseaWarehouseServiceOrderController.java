@@ -59,6 +59,13 @@ public class OverseaWarehouseServiceOrderController {
     @RequestMapping(value="/list", method=RequestMethod.POST)
     @Permission(permission = "overseaWarehouse:overseawarehouseserviceorder:list")
     public OverseaWarehouseServiceOrderListResponse list(@RequestBody @Valid OverseaWarehouseServiceOrderListRequest request) {
+        Session session = UserUtil.getSession(redisTemplate);
+        if (session.getApplicationId() != Constant.ADMIN_APPLICATION_ID){
+            if (null == request.getT()){
+                request.setT(new OverseaWarehouseServiceOrder());
+            }
+            request.getT().setCustomerId(session.getCustomerId());
+        }
         List<OverseaWarehouseServiceOrder> results = overseaWarehouseServiceOrderService.select(request);
         Long total = overseaWarehouseServiceOrderService.count(request);
         request.setTotal(total);

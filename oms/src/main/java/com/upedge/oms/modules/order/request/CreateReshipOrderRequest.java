@@ -1,5 +1,6 @@
 package com.upedge.oms.modules.order.request;
 
+import com.upedge.common.model.ship.vo.ShipDetail;
 import lombok.Data;
 
 import javax.validation.constraints.NotNull;
@@ -23,6 +24,8 @@ public class CreateReshipOrderRequest {
     Long shipUnitId;
 
     String reshipReason;
+
+    ShipDetail shipDetail;
 
     @Size(min = 1,message = "订单里最少一个产品")
     List<Long> itemIds;

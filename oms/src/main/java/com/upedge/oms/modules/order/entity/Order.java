@@ -149,5 +149,6 @@ public class Order{
 		this.paymentId = null;
 		this.saiheOrderCode = null;
 		this.shippingWarehouse = null;
+		this.shipMethodId = null;
 	}
 }

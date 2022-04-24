@@ -38,7 +38,7 @@ public class ShipDetail {
 
     private BigDecimal serviceFee;
 
-    private Boolean couldShip;
+    private boolean couldShip;
 
     @Override
     public boolean equals(Object o) {

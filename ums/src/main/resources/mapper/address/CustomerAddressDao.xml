@@ -404,12 +404,8 @@
         <include refid="Base_Column_List" />
         from customer_address
         <include refid="Query_Condition"/>
-        <if test="orderBy != null">
-            order by ${orderBy}
-        </if>
-        <if test="pageNum != null and pageSize != null">
-            limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
-        </if>
+        order by is_default asc,create_time desc,address_type asc
+
     </select>
 
     <select id="count" parameterType="com.upedge.common.base.Page" resultType="java.lang.Long">

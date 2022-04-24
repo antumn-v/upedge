@@ -52,9 +52,17 @@ public class WholesaleOrderController {
         return res;
     }
 
+    @ApiOperation("批发订单列表")
     @RequestMapping(value="/list", method=RequestMethod.POST)
     @Permission(permission = "wholesale:wholesaleorder:list")
     public WholesaleOrderListResponse list(@RequestBody @Valid WholesaleOrderListRequest request) {
+        Session session = UserUtil.getSession(redisTemplate);
+        if (session.getApplicationId() != Constant.ADMIN_APPLICATION_ID){
+            if (null == request.getT()){
+                request.setT(new WholesaleOrder());
+            }
+            request.getT().setCustomerId(session.getCustomerId());
+        }
         List<WholesaleOrder> results = wholesaleOrderService.select(request);
         Long total = wholesaleOrderService.count(request);
         request.setTotal(total);
@@ -62,22 +70,6 @@ public class WholesaleOrderController {
         return res;
     }
 
-    @RequestMapping(value="/add", method=RequestMethod.POST)
-    @Permission(permission = "wholesale:wholesaleorder:add")
-    public WholesaleOrderAddResponse add(@RequestBody @Valid WholesaleOrderAddRequest request) {
-        WholesaleOrder entity=request.toWholesaleOrder();
-        wholesaleOrderService.insertSelective(entity);
-        WholesaleOrderAddResponse res = new WholesaleOrderAddResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS,entity,request);
-        return res;
-    }
-
-    @RequestMapping(value="/del/{id}", method=RequestMethod.POST)
-    @Permission(permission = "wholesale:wholesaleorder:del:id")
-    public WholesaleOrderDelResponse del(@PathVariable Long id) {
-        wholesaleOrderService.deleteByPrimaryKey(id);
-        WholesaleOrderDelResponse res = new WholesaleOrderDelResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS);
-        return res;
-    }
 
     @ApiOperation("修改订单物流单号")
     @RequestMapping(value="/update/{id}", method=RequestMethod.POST)
