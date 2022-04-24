@@ -54,6 +54,7 @@ import io.seata.spring.annotation.GlobalTransactional;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.rocketmq.client.producer.DefaultMQProducer;
 import org.apache.rocketmq.common.message.Message;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -171,7 +172,16 @@ public class OrderPayServiceImpl implements OrderPayService {
                 orderDao.updateOrderProductAmount(orderProductAmountVo);
             }
             //检查运输方式
-            if ( orderVo.getShippingWarehouse().equals(ProductConstant.DEFAULT_WAREHOUSE_ID)) {
+            if (StringUtils.isBlank(orderVo.getShippingWarehouse())){
+                cantShipOrders.add(orderVo);
+                continue;
+            }
+            WarehouseVo warehouseVo = (WarehouseVo) redisTemplate.opsForValue().get(RedisKey.STRING_WAREHOUSE + orderVo.getShippingWarehouse());
+            if (null == warehouseVo){
+                cantShipOrders.add(orderVo);
+                continue;
+            }
+            if (orderVo.getShippingWarehouse().equals(ProductConstant.DEFAULT_WAREHOUSE_ID)) {
                 if (!orderShipUnitIds.contains(orderVo.getId())) {
                     cantShipOrders.add(orderVo);
                     continue;

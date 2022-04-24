@@ -30,6 +30,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Date;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ThreadPoolExecutor;
 
 /**
  * @author 海桐
@@ -50,6 +51,9 @@ public class WebhookController {
 
     @Autowired
     RedisTemplate<String, Object> redisTemplate;
+
+    @Autowired
+    ThreadPoolExecutor threadPoolExecutor;
 
     @RequestMapping(value = "/webhook", method = RequestMethod.POST)
     public HttpStatus shopifyWebhook() {
@@ -74,25 +78,32 @@ public class WebhookController {
         StoreVo storeVo = new StoreVo();
         BeanUtils.copyProperties(store, storeVo);
         if (hashStr.equals(originalStr)) {
-            JSONObject jsonObject = JSONObject.parseObject(resultData);
-            StoreApiRequest apiRequest = new StoreApiRequest();
-            apiRequest.setStoreVo(storeVo);
-            apiRequest.setJsonObject(jsonObject);
-            switch (topic) {
-                case "products/update":
-                    pmsFeignClient.updateShopifyProduct(apiRequest);
-                    break;
-                case "orders/updated":
-                    omsFeignClient.updateShopifyOrder(apiRequest);
-                    break;
-                case "app/uninstalled":
-                    store.setStatus(0);
-                    store.setUpdateTime(new Date());
-                    storeService.updateByPrimaryKeySelective(store);
-                    break;
-                default:
-                    break;
-            }
+            Store finalStore = store;
+            CompletableFuture.runAsync(new Runnable() {
+                @Override
+                public void run() {
+                    JSONObject jsonObject = JSONObject.parseObject(resultData);
+                    StoreApiRequest apiRequest = new StoreApiRequest();
+                    apiRequest.setStoreVo(storeVo);
+                    apiRequest.setJsonObject(jsonObject);
+                    switch (topic) {
+                        case "products/update":
+                            pmsFeignClient.updateShopifyProduct(apiRequest);
+                            break;
+                        case "orders/updated":
+                            omsFeignClient.updateShopifyOrder(apiRequest);
+                            break;
+                        case "app/uninstalled":
+                            finalStore.setStatus(0);
+                            finalStore.setUpdateTime(new Date());
+                            storeService.updateByPrimaryKeySelective(finalStore);
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            },threadPoolExecutor);
+
             return HttpStatus.OK;
         }
         response.setStatus(401);
