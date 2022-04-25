@@ -184,5 +184,6 @@ public class OrderItem{
 		this.length = variantVo.getLength();
 		this.height = variantVo.getHeight();
 		this.quantity = originalQuantity * variantVo.getQuoteScale();
+		this.quoteState = QUOTE_STATE_QUOTED;
 	}
 }

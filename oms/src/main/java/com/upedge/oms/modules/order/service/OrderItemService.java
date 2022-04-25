@@ -24,6 +24,8 @@ import java.util.List;
  */
 public interface OrderItemService{
 
+    Integer selectCountQuantityByOrderId(Long orderId);
+
     List<Long> selectOrderIdsByStoreOrderItemIds(List<Long> storeOrderItemIds);
 
     int updateQuantityByStoreOrderItemId(Long storeOrderItemId, Integer quantity);

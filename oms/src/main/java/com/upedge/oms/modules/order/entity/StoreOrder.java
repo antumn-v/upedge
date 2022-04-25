@@ -127,7 +127,7 @@ public class StoreOrder {
                 this.financialStatus = 0;
                 break;
         }
-        switch (shopifyOrder.getFinancial_status()) {
+        switch (shopifyOrder.getFulfillment_status()) {
             case "fulfilled":
                 this.fulfillmentStatus = 2;
                 break;

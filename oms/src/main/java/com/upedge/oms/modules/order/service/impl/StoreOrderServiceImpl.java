@@ -190,8 +190,9 @@ public class StoreOrderServiceImpl implements StoreOrderService {
             updateShopifyStoreOrder(storeOrder,shopifyOrder,storeVo);
             return storeOrder;
         }
-        if (!shopifyOrder.getFinancial_status().equals("paid")
-        || shopifyOrder.getFulfillment_status() != null){
+        if (shopifyOrder.getFinancial_status() == null
+            || !shopifyOrder.getFinancial_status().equals("paid")
+            || shopifyOrder.getFulfillment_status() != null){
             return null;
         }
 
@@ -703,50 +704,39 @@ public class StoreOrderServiceImpl implements StoreOrderService {
     public void updateShopifyStoreOrder(StoreOrder storeOrder,ShopifyOrder shopifyOrder,StoreVo storeVo){
         Long storeOrderId = storeOrder.getId();
         //更新店铺地址
-        if (null == shopifyOrder.getShipping_address()){
-            return;
+        if (null != shopifyOrder.getShipping_address()){
+            StoreOrderAddress storeOrderAddress = new StoreOrderAddress(shopifyOrder.getShipping_address());
+            storeOrderAddress.setNote(shopifyOrder.getNote());
+            storeOrderAddress.setId(storeOrder.getStoreAddressId());
+            if (StringUtils.isNotBlank(shopifyOrder.getEmail())) {
+                storeOrderAddress.setEmail(shopifyOrder.getEmail());
+            } else if (StringUtils.isNotBlank(shopifyOrder.getContact_email())) {
+                storeOrderAddress.setEmail(shopifyOrder.getContact_email());
+            } else if (shopifyOrder.getCustomer() != null && StringUtils.isNotBlank(shopifyOrder.getCustomer().getEmail())) {
+                storeOrderAddress.setEmail(shopifyOrder.getCustomer().getEmail());
+            }
+            storeOrderAddress.setStoreOrderId(storeOrderId);
+            int i = storeOrderAddressDao.updateByPrimaryKey(storeOrderAddress);
+            if (i == 1){
+                orderAddressService.updateByStoreOrderAddress(storeOrderAddress);
+            }
         }
-        StoreOrderAddress storeOrderAddress = new StoreOrderAddress(shopifyOrder.getShipping_address());
-        storeOrderAddress.setNote(shopifyOrder.getNote());
-        storeOrderAddress.setId(storeOrder.getStoreAddressId());
-        if (StringUtils.isNotBlank(shopifyOrder.getEmail())) {
-            storeOrderAddress.setEmail(shopifyOrder.getEmail());
-        } else if (StringUtils.isNotBlank(shopifyOrder.getContact_email())) {
-            storeOrderAddress.setEmail(shopifyOrder.getContact_email());
-        } else if (shopifyOrder.getCustomer() != null && StringUtils.isNotBlank(shopifyOrder.getCustomer().getEmail())) {
-            storeOrderAddress.setEmail(shopifyOrder.getCustomer().getEmail());
-        }
-        storeOrderAddress.setStoreOrderId(storeOrderId);
-        int i = storeOrderAddressDao.updateByPrimaryKey(storeOrderAddress);
-        if (i == 1){
-            orderAddressService.updateByStoreOrderAddress(storeOrderAddress);
-        }
+
         //更新店铺订单状态
         StoreOrder newStoreOrder = new StoreOrder(shopifyOrder);
-
         if (!newStoreOrder.getFinancialStatus().equals(storeOrder.getFinancialStatus())
-        || !newStoreOrder.getFulfillmentStatus().equals(storeOrder.getFinancialStatus())){
+        || !newStoreOrder.getFulfillmentStatus().equals(storeOrder.getFulfillmentStatus())){
             newStoreOrder.setId(storeOrderId);
             storeOrderDao.updateByPrimaryKeySelective(newStoreOrder);
             storeOrderRelateDao.updateStoreStatusByStoreOrderId(newStoreOrder);
-
             List<StoreOrderRelate> storeOrderRelates = storeOrderRelateDao.selectByStoreOrderId(storeOrderId);
-            for (StoreOrderRelate storeOrderRelate : storeOrderRelates) {
-                if (shopifyOrder.getFinancial_status().equals("refunded")
-                || (shopifyOrder.getFulfillment_status() != null && shopifyOrder.getFulfillment_status().equals("fulfilled"))){
-                    Order order = new Order();
-                    order.setId(storeOrderRelate.getOrderId());
-                    order.setPayState(-1);
-                    order.setShipPrice(BigDecimal.ZERO);
-                    order.setVatAmount(BigDecimal.ZERO);
-                    order.setServiceFee(BigDecimal.ZERO);
-                    order.setShipMethodId(0L);
-                    order.setUpdateTime(new Date());
-                    orderService.updateByPrimaryKeySelective(order);
-                    continue;
+            if (shopifyOrder.getFinancial_status().equals("refunded")
+                    || (shopifyOrder.getFulfillment_status() != null && shopifyOrder.getFulfillment_status().equals("fulfilled"))){
+                List<Long> cancelIds = new ArrayList<>();
+                for (StoreOrderRelate storeOrderRelate : storeOrderRelates) {
+                    cancelIds.add(storeOrderRelate.getOrderId());
                 }
-            }
-            if (shopifyOrder.getFinancial_status().equals("refunded")){
+                orderService.cancelOrderByIds(cancelIds);
                 return;
             }
         }
@@ -763,7 +753,6 @@ public class StoreOrderServiceImpl implements StoreOrderService {
         for (StoreOrderItem storeOrderItem : storeOrderItems) {
             if (!itemQuantityMap.containsKey(storeOrderItem.getPlatOrderItemId())){
                 //插入变体
-
                 continue;
             }
             Integer quantity = itemQuantityMap.get(storeOrderItem.getPlatOrderItemId());
@@ -779,11 +768,19 @@ public class StoreOrderServiceImpl implements StoreOrderService {
             List<Long> orderIds = orderItemService.selectOrderIdsByStoreOrderItemIds(storeOrderItemIds);
             if (ListUtils.isNotEmpty(orderIds)){
                 orderService.initOrderProductAmount(orderIds);
+                List<Long> cancelIds = new ArrayList<>();
                 for (Long orderId : orderIds) {
-                    orderService.matchShipRule(orderId);
+                    int countItemQuantity = orderItemService.selectCountQuantityByOrderId(orderId);
+                    if (countItemQuantity == 0){
+                        cancelIds.add(orderId);
+                    }else {
+                        orderService.matchShipRule(orderId);
+                    }
+                }
+                if (ListUtils.isNotEmpty(cancelIds)){
+                    orderService.cancelOrderByIds(orderIds);
                 }
             }
-
         }
     }
 }

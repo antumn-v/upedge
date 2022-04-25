@@ -97,6 +97,11 @@ public class OrderItemServiceImpl implements OrderItemService {
     }
 
     @Override
+    public Integer selectCountQuantityByOrderId(Long orderId) {
+        return orderItemDao.selectCountQuantityByOrderId(orderId);
+    }
+
+    @Override
     public List<Long> selectOrderIdsByStoreOrderItemIds(List<Long> storeOrderItemIds) {
         if (ListUtils.isNotEmpty(storeOrderItemIds)){
             return orderItemDao.selectOrderIdsByStoreOrderItemIds(storeOrderItemIds);

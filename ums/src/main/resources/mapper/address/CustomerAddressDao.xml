@@ -415,5 +415,12 @@
         <include refid="Query_Condition"/>
     </select>
 
-
+    <select id="selectCustomerNormalAddress" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from customer_address
+        where customer_id = #{customerId}
+        and address_type = '0'
+        order by is_default asc,create_time desc
+    </select>
 </mapper>

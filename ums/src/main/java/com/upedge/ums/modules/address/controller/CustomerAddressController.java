@@ -73,6 +73,7 @@ public class CustomerAddressController {
     public BaseResponse addBillingAddress(@RequestBody CustomerAddressAddRequest request){
         Session session = UserUtil.getSession(redisTemplate);
         CustomerAddress address=customerAddressService.selectCustomerBillingAddress(session.getCustomerId());
+        address.setIsDefault(false);
         CustomerAddress entity = request.toCustomerAddress(1,session.getCustomerId());
         if (address == null){
             customerAddressService.insertSelective(entity);

@@ -53,14 +53,19 @@ public class CustomerAddressServiceImpl implements CustomerAddressService {
     @Override
     public int insertSelective(CustomerAddress record) {
         Session session = UserUtil.getSession(redisTemplate);
-        Page page = new Page();
-        page.setPageSize(-1);
-        Long count = customerAddressDao.count(page);
-        if (count == 10){
+        if (record.getAddressType() == 0){
+            List<CustomerAddress> customerAddresses = customerAddressDao.selectCustomerNormalAddress(session.getCustomerId());
+            if (ListUtils.isEmpty(customerAddresses)){
+                record.setIsDefault(true);
+            }
+        }else if (record.getAddressType() == 1){
+            CustomerAddress address = selectCustomerBillingAddress(session.getCustomerId());
+            if (address != null){
+                record.setId(address.getId());
+                return updateByPrimaryKey(record);
+            }
+        }else {
             return 0;
-        }
-        if (count == null || count == 0){
-            record.setIsDefault(true);
         }
         int i = customerAddressDao.insert(record);
         if (i == 1){
