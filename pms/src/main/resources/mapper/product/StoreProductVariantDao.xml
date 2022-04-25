@@ -654,12 +654,31 @@
         inner join store_product_variant spv
         on spa.id = spv.product_id
         where spa.customer_id = #{customerId}
-        <if test="sku != null">
-            and spv.sku = #{sku}
-        </if>
-        <if test="title != null">
-            and spv.title = #{title}
-        </if>
         and split_type = '0'
+        <if test="t.sku != null and t.sku != ''">
+            and spv.sku = #{t.sku}
+        </if>
+        <if test="t.title != null and t.title != ''">
+            and spv.title = #{t.title}
+        </if>
+        order by plat_variant_id desc
+        <if test="pageNum != null and pageSize != null">
+            limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+        </if>
+    </select>
+
+    <select id="countCustomerUnSplitVariant" resultType="java.lang.Long" parameterType="com.upedge.pms.modules.product.request.StoreProductVariantUnSplitListRequest">
+        select count(spv.id)
+        from store_product_attribute spa
+        inner join store_product_variant spv
+        on spa.id = spv.product_id
+        where spa.customer_id = #{customerId}
+        and split_type = '0'
+        <if test="t.sku != null and t.sku != ''">
+            and spv.sku = #{t.sku}
+        </if>
+        <if test="t.title != null and t.title != ''">
+            and spv.title = #{t.title}
+        </if>
     </select>
 </mapper>

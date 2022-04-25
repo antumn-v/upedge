@@ -20,6 +20,8 @@ public interface StoreProductVariantDao {
 
     List<StoreProductVariant> selectCustomerUnSplitVariant(StoreProductVariantUnSplitListRequest request);
 
+    Long countCustomerUnSplitVariant(StoreProductVariantUnSplitListRequest request);
+
 
     StoreProductVariant selectByPlatId(String platVariantId);
 

@@ -681,6 +681,7 @@ public class OrderServiceImpl implements OrderService {
             priceCalculator.setWidth("1");
             priceCalculator.setWeight(String.valueOf(w));
             priceCalculator.setService_code("FB4");
+            priceCalculator.setProduct_codes(methodCodes);
             priceCalculator.setWarehouse_code(warehouseCode);
             priceCalculator.setBilling_time(System.currentTimeMillis());
             priceCalculator.setDestination(destinationDTO);
@@ -914,6 +915,9 @@ public class OrderServiceImpl implements OrderService {
                 orderItem.setQuoteState(0);
                 unQuotedItem ++;
             }
+            if (null == orderItem.getQuoteScale()){
+                orderItem.setQuoteScale(1);
+            }
             orderItem.setOriginalQuantity(item.getQuantity());
             orderItem.setOrderId(orderId);
             orderItem.setStoreOrderItemId(item.getId());
@@ -955,52 +959,59 @@ public class OrderServiceImpl implements OrderService {
         return order;
     }
 
-
-    @Transactional
     @Override
     public BaseResponse orderAddItem(OrderAddItemRequest request, Session session) {
         Long orderId = request.getOrderId();
         Order order = selectByPrimaryKey(orderId);
         if (null == order
-        || order.getPayState() != OrderConstant.PAY_STATE_UNPAID){
+        || order.getPayState() != OrderConstant.PAY_STATE_UNPAID
+        || order.getOrderType() > 1){
             return BaseResponse.failed();
         }
-        Long storeVariantId = request.getStoreVariantId();
-        OrderItem orderItem = request.toOrderItem(IdGenerate.nextId());
-
-        CustomerProductQuoteVo customerProductQuoteVo = (CustomerProductQuoteVo) redisTemplate.opsForValue().get(RedisKey.STRING_QUOTED_STORE_VARIANT + storeVariantId);
-        if (null == customerProductQuoteVo){
-            List<Long> splitVariantIds = redisTemplate.opsForList().range(RedisKey.LIST_QUOTING_STORE_VARIANT,0,-1);
-            //报价中的产品将报价状态改为报价中
-            if (splitVariantIds.contains(storeVariantId)){
-                order.setQuoteState(OrderConstant.QUOTE_STATE_QUOTING);
-            }else {
-                //未报价的产品将已报价的产品改为部分报价
-                if (order.getQuoteState() == OrderConstant.QUOTE_STATE_QUOTED){
-                    order.setQuoteState(OrderConstant.QUOTE_STATE_PART_UNQUOTED);
-                }
-            }
-        }else {
-            //报价成功，未报价订单改为部分报价
-            if (customerProductQuoteVo.getQuoteState() == 1){
-                orderItem.quoteProductToItem(customerProductQuoteVo);
-                if (order.getQuoteState() == OrderConstant.QUOTE_STATE_UNQUOTED){
-                    order.setQuoteState(OrderConstant.QUOTE_STATE_PART_UNQUOTED);
-                }
-            //报价失败，已报价订单改为部分报价
-            }else {
-                if (order.getQuoteState() == OrderConstant.QUOTE_STATE_QUOTED){
-                    order.setQuoteState(OrderConstant.QUOTE_STATE_PART_UNQUOTED);
-                }
-            }
+        List<OrderItem> items = orderItemDao.selectItemByOrderId(orderId);
+        List<Long> storeVariantIds = new ArrayList<>();
+        for (OrderItem item : items) {
+            storeVariantIds.add(item.getStoreVariantId());
         }
-        orderItemDao.insert(orderItem);
-        Integer quoteState = order.getQuoteState();
-        order = new Order();
-        order.setId(orderId);
-        order.setQuoteState(quoteState);
-        order.setUpdateTime(new Date());
-        updateByPrimaryKeySelective(order);
+        List<OrderItem> addItems = new ArrayList<>();
+        OrderItem item = items.get(0);
+        List<OrderItem> orderItems = request.getItems();
+        for (OrderItem orderItem : orderItems) {
+            if (storeVariantIds.contains(orderItem.getStoreVariantId())){
+                continue;
+            }
+            orderItem.setStoreOrderItemId(0L);
+            orderItem.setStoreOrderId(item.getStoreOrderId());
+            orderItem.setId(IdGenerate.nextId());
+            orderItem.setOrderId(orderId);
+            orderItem.setOriginalQuantity(1);
+            orderItem.setQuoteScale(1);
+            orderItem.setStoreProductTitle(orderItem.getStoreVariantName());
+            Long storeVariantId = orderItem.getStoreVariantId();
+            CustomerProductQuoteVo customerProductQuoteVo = (CustomerProductQuoteVo) redisTemplate.opsForValue().get(RedisKey.STRING_QUOTED_STORE_VARIANT + storeVariantId);
+            if (null == customerProductQuoteVo){
+                List<Long> splitVariantIds = redisTemplate.opsForList().range(RedisKey.LIST_QUOTING_STORE_VARIANT,0,-1);
+                if (splitVariantIds.contains(storeVariantId)){
+                    orderItem.setQuoteState(OrderItem.QUOTE_STATE_QUOTING);
+                }else {
+                    orderItem.setQuoteState(OrderItem.QUOTE_STATE_UNQU0TED);
+                }
+            }else {
+                //报价成功，未报价订单改为部分报价
+                if (customerProductQuoteVo.getQuoteState() == 1){
+                    orderItem.quoteProductToItem(customerProductQuoteVo);
+                    //报价失败，已报价订单改为部分报价
+                }else {
+                    orderItem.setQuoteState(OrderItem.QUOTE_STATE_NO_STOCK);
+                }
+            }
+            orderItem.setItemType(1);
+            addItems.add(orderItem);
+        }
+        if (ListUtils.isEmpty(addItems)){
+            return BaseResponse.failed();
+        }
+        orderItemDao.insertByBatch(addItems);
         return BaseResponse.success();
     }
 
@@ -1168,25 +1179,32 @@ public class OrderServiceImpl implements OrderService {
         List<OrderItem> orderItems = orderItemDao.selectItemByOrderId(id);
         Integer quoteProducts = 0;
         Integer quoteState = 0;
+        Integer quoteFailed = 0;
         if (ListUtils.isNotEmpty(orderItems)) {
             for (OrderItem orderItem : orderItems) {
-                if (orderItem.getQuoteState() == 5) {
+                if (orderItem.getQuoteState() == OrderItem.QUOTE_STATE_QUOTING) {
                     quoteState = OrderConstant.QUOTE_STATE_QUOTING;
                     break;
                 }
-                if (orderItem.getQuoteState() != 1
-                        && orderItem.getQuoteState() != 6) {
+                if (orderItem.getQuoteState() == OrderItem.QUOTE_STATE_QUOTED
+                        || orderItem.getQuoteState() == OrderItem.QUOTE_STATE_UPEDGE) {
                     quoteProducts++;
+                }else {
+                    quoteFailed++;
                 }
             }
         }
         if (quoteState != OrderConstant.QUOTE_STATE_QUOTING) {
-            if (quoteProducts == 0) {
-                quoteState = OrderConstant.QUOTE_STATE_QUOTED;
-            } else if (quoteProducts == orderItems.size()) {
-                quoteState = OrderConstant.QUOTE_STATE_UNQUOTED;
-            } else {
+            if (quoteFailed == orderItems.size()){
                 quoteState = OrderConstant.QUOTE_STATE_PART_UNQUOTED;
+            }else {
+                if (quoteProducts == 0) {
+                    quoteState = OrderConstant.QUOTE_STATE_UNQUOTED;
+                } else if (quoteProducts == orderItems.size()) {
+                    quoteState = OrderConstant.QUOTE_STATE_QUOTED;
+                } else {
+                    quoteState = OrderConstant.QUOTE_STATE_PART_UNQUOTED;
+                }
             }
         }
         Order order = new Order();

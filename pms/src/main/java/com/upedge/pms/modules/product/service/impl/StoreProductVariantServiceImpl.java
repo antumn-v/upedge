@@ -94,6 +94,11 @@ public class StoreProductVariantServiceImpl implements StoreProductVariantServic
     }
 
     @Override
+    public Long countCustomerUnSplitVariant(StoreProductVariantUnSplitListRequest request) {
+        return storeProductVariantDao.countCustomerUnSplitVariant(request);
+    }
+
+    @Override
     public List<StoreProductVariant> selectCustomerUnSplitVariant(StoreProductVariantUnSplitListRequest request) {
         return storeProductVariantDao.selectCustomerUnSplitVariant(request);
     }

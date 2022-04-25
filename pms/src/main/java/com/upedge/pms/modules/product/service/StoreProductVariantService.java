@@ -18,6 +18,8 @@ import java.util.List;
  */
 public interface StoreProductVariantService{
 
+    Long countCustomerUnSplitVariant(StoreProductVariantUnSplitListRequest request);
+
     List<StoreProductVariant> selectCustomerUnSplitVariant(StoreProductVariantUnSplitListRequest request);
 
     StoreProductVariant selectByPlatId(String platVariantId);

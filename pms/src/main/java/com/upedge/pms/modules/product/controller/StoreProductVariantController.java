@@ -53,7 +53,9 @@ public class StoreProductVariantController {
         Session session = UserUtil.getSession(redisTemplate);
         request.setCustomerId(session.getCustomerId());
         List<StoreProductVariant> variants = storeProductVariantService.selectCustomerUnSplitVariant(request);
-        return BaseResponse.success(variants);
+        Long total = storeProductVariantService.countCustomerUnSplitVariant(request);
+        request.setTotal(total);
+        return BaseResponse.success(variants,request);
     }
 
     @ApiOperation("店铺产品子体列表")
@@ -104,7 +106,7 @@ public class StoreProductVariantController {
     }
 
 
-    @PostMapping("/test")
+//    @PostMapping("/test")
     public BaseResponse test(){
         Map<Long,Long> map = new HashMap<>();
         List<StoreProductVariant> storeProductVariants = storeProductVariantService.selectWrongParentVariants();

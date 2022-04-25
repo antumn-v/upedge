@@ -502,6 +502,7 @@ public class OrderController {
         Session session = UserUtil.getSession(redisTemplate);
         BaseResponse response = orderService.orderAddItem(request,session);
         if (response.getCode() == ResultCode.SUCCESS_CODE){
+            orderService.initQuoteState(request.getOrderId());
             CompletableFuture<Void> updateProductAmount = CompletableFuture.runAsync(new Runnable() {
                 @Override
                 public void run() {
