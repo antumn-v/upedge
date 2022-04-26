@@ -44,6 +44,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -78,6 +80,9 @@ public class StoreController {
 
     @Autowired
     StoreAsync storeAsync;
+
+    @Autowired
+    ThreadPoolExecutor threadPoolExecutor;
 
     @ApiOperation("请求授权shopify店铺")
     @PostMapping("/shopifyConnect")
@@ -132,7 +137,13 @@ public class StoreController {
             store = storeService.updateShopifyStore(shop, token, session);
             if (store != null) {
                 try {
-                    storeAsync.getStoreData(store);
+                    Store finalStore = store;
+                    CompletableFuture.runAsync(new Runnable() {
+                        @Override
+                        public void run() {
+                            storeAsync.getStoreData(finalStore);
+                        }
+                    },threadPoolExecutor);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -196,7 +207,18 @@ public class StoreController {
         Session session = UserUtil.getSession(redisTemplate);
         String shop = request.getShop();
         String token = request.getToken();
-        storeService.updateShopifyStore(shop, token, session);
+        Store store = storeService.updateShopifyStore(shop, token, session);
+        try {
+            Store finalStore = store;
+            CompletableFuture.runAsync(new Runnable() {
+                @Override
+                public void run() {
+                    storeAsync.getStoreData(finalStore);
+                }
+            },threadPoolExecutor);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         return new ShopifyAuthResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS);
     }
 
