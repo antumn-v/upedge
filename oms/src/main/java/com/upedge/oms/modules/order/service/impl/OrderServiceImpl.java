@@ -969,16 +969,18 @@ public class OrderServiceImpl implements OrderService {
             return BaseResponse.failed();
         }
         List<OrderItem> items = orderItemDao.selectItemByOrderId(orderId);
-        List<Long> storeVariantIds = new ArrayList<>();
-        for (OrderItem item : items) {
-            storeVariantIds.add(item.getStoreVariantId());
-        }
+
         List<OrderItem> addItems = new ArrayList<>();
         OrderItem item = items.get(0);
         List<OrderItem> orderItems = request.getItems();
+        a:
         for (OrderItem orderItem : orderItems) {
-            if (storeVariantIds.contains(orderItem.getStoreVariantId())){
-                continue;
+            b:
+            for (OrderItem oItem : items) {
+                if (oItem.getStoreVariantId().equals(orderItem.getStoreVariantId())){
+                    orderItemDao.increaseQuantityById(oItem.getId(),orderItem.getQuantity());
+                    continue a;
+                }
             }
             orderItem.setStoreOrderItemId(0L);
             orderItem.setStoreOrderId(item.getStoreOrderId());
@@ -1008,10 +1010,9 @@ public class OrderServiceImpl implements OrderService {
             orderItem.setItemType(1);
             addItems.add(orderItem);
         }
-        if (ListUtils.isEmpty(addItems)){
-            return BaseResponse.failed();
+        if (ListUtils.isNotEmpty(addItems)){
+            orderItemDao.insertByBatch(addItems);
         }
-        orderItemDao.insertByBatch(addItems);
         return BaseResponse.success();
     }
 
@@ -1088,8 +1089,6 @@ public class OrderServiceImpl implements OrderService {
                 return BaseResponse.failed("需要支付的订单需选择运输方式");
             }
         }
-
-
         reshipOrder.setQuoteState(order.getQuoteState());
         reshipOrder.setId(reshipOrderId);
         reshipOrder.setCnyProductAmount(order.getCnyProductAmount());

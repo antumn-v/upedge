@@ -1131,4 +1131,10 @@
             #{storeOrderItemId}
         </foreach>
     </select>
+
+    <update id="increaseQuantityById">
+        update order_item
+            set quantity = quantity + #{quantity}
+        where id = #{id}
+    </update>
 </mapper>
