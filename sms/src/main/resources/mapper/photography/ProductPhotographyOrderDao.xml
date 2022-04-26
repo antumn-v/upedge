@@ -1,0 +1,338 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.upedge.sms.modules.photography.dao.ProductPhotographyOrderDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.upedge.sms.modules.photography.entity.ProductPhotographyOrder" id="BaseResultMap">
+        <result property="id" column="id"/>
+        <result property="customerId" column="customer_id"/>
+        <result property="referenceLink" column="reference_link"/>
+        <result property="referenceImage" column="reference_image"/>
+        <result property="photographyLink" column="photography_link"/>
+        <result property="photographyType" column="photography_type"/>
+        <result property="payAmount" column="pay_amount"/>
+        <result property="payState" column="pay_state"/>
+        <result property="refundState" column="refund_state"/>
+        <result property="payTime" column="pay_time"/>
+        <result property="paymentId" column="payment_id"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        `id`,`customer_id`,`reference_link`,`reference_image`,`photography_link`,`photography_type`,`pay_amount`,`pay_state`,`refund_state`,`pay_time`,`payment_id`,`create_time`,`update_time`
+    </sql>
+
+    <select id="selectByPrimaryKey" parameterType="com.upedge.sms.modules.photography.entity.ProductPhotographyOrder" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from product_photography_order
+        where id = #{id}
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="com.upedge.sms.modules.photography.entity.ProductPhotographyOrder">
+        delete from product_photography_order
+        where id = #{id}
+    </delete>
+
+    <update id="updateByPrimaryKeySelective" parameterType="com.upedge.sms.modules.photography.entity.ProductPhotographyOrder">
+        update product_photography_order
+        <set>
+            <if test="customerId != null">
+                customer_id = #{customerId},
+            </if>
+            <if test="referenceLink != null">
+                reference_link = #{referenceLink},
+            </if>
+            <if test="referenceImage != null">
+                reference_image = #{referenceImage},
+            </if>
+            <if test="photographyLink != null">
+                photography_link = #{photographyLink},
+            </if>
+            <if test="photographyType != null">
+                photography_type = #{photographyType},
+            </if>
+            <if test="payAmount != null">
+                pay_amount = #{payAmount},
+            </if>
+            <if test="payState != null">
+                pay_state = #{payState},
+            </if>
+            <if test="refundState != null">
+                refund_state = #{refundState},
+            </if>
+            <if test="payTime != null">
+                pay_time = #{payTime},
+            </if>
+            <if test="paymentId != null">
+                payment_id = #{paymentId},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime},
+            </if>
+            <if test="updateTime != null">
+                update_time = #{updateTime},
+            </if>
+        </set>
+        where id = #{id}
+        and pay_state = '0'
+    </update>
+
+    <update id="updateByPrimaryKey" parameterType="com.upedge.sms.modules.photography.entity.ProductPhotographyOrder">
+        update product_photography_order
+        <set>
+        id = #{id},
+        customer_id = #{customerId},
+        reference_link = #{referenceLink},
+        reference_image = #{referenceImage},
+        photography_link = #{photographyLink},
+        photography_type = #{photographyType},
+        pay_amount = #{payAmount},
+        pay_state = #{payState},
+        refund_state = #{refundState},
+        pay_time = #{payTime},
+        payment_id = #{paymentId},
+        create_time = #{createTime},
+        update_time = #{updateTime},
+        </set>
+        where id = #{id}
+    </update>
+
+    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.upedge.sms.modules.photography.entity.ProductPhotographyOrder" useGeneratedKeys="true">
+        insert into product_photography_order
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            id,
+            customer_id,
+            reference_link,
+            reference_image,
+            photography_link,
+            photography_type,
+            pay_amount,
+            pay_state,
+            refund_state,
+            pay_time,
+            payment_id,
+            create_time,
+            update_time
+        </trim>
+        values (
+        #{id},
+        #{customerId},
+        #{referenceLink},
+        #{referenceImage},
+        #{photographyLink},
+        #{photographyType},
+        #{payAmount},
+        #{payState},
+        #{refundState},
+        #{payTime},
+        #{paymentId},
+        #{createTime},
+        #{updateTime}
+        )
+    </insert>
+
+    <insert id="insertSelective"  keyColumn="id" keyProperty="id"  parameterType="com.upedge.sms.modules.photography.entity.ProductPhotographyOrder" useGeneratedKeys="true">
+        insert into product_photography_order
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null" >
+              id
+            </if>
+            <if test="customerId != null" >
+              customer_id
+            </if>
+            <if test="referenceLink != null" >
+              reference_link
+            </if>
+            <if test="referenceImage != null" >
+              reference_image
+            </if>
+            <if test="photographyLink != null" >
+              photography_link
+            </if>
+            <if test="photographyType != null" >
+              photography_type
+            </if>
+            <if test="payAmount != null" >
+              pay_amount
+            </if>
+            <if test="payState != null" >
+              pay_state
+            </if>
+            <if test="refundState != null" >
+              refund_state
+            </if>
+            <if test="payTime != null" >
+              pay_time
+            </if>
+            <if test="paymentId != null" >
+              payment_id
+            </if>
+            <if test="createTime != null" >
+              create_time
+            </if>
+            <if test="updateTime != null" >
+              update_time
+            </if>
+
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null" >
+                #{id}
+            </if>
+            <if test="customerId != null" >
+                #{customerId}
+            </if>
+            <if test="referenceLink != null" >
+                #{referenceLink}
+            </if>
+            <if test="referenceImage != null" >
+                #{referenceImage}
+            </if>
+            <if test="photographyLink != null" >
+                #{photographyLink}
+            </if>
+            <if test="photographyType != null" >
+                #{photographyType}
+            </if>
+            <if test="payAmount != null" >
+                #{payAmount}
+            </if>
+            <if test="payState != null" >
+                #{payState}
+            </if>
+            <if test="refundState != null" >
+                #{refundState}
+            </if>
+            <if test="payTime != null" >
+                #{payTime}
+            </if>
+            <if test="paymentId != null" >
+                #{paymentId}
+            </if>
+            <if test="createTime != null" >
+                #{createTime}
+            </if>
+            <if test="updateTime != null" >
+                #{updateTime}
+            </if>
+
+        </trim>
+    </insert>
+
+    <insert id="insertByBatch" parameterType="java.util.List">
+        insert into product_photography_order
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+           id,
+           customer_id,
+           reference_link,
+           reference_image,
+           photography_link,
+           photography_type,
+           pay_amount,
+           pay_state,
+           refund_state,
+           pay_time,
+           payment_id,
+           create_time,
+           update_time
+        </trim>
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+               #{item.id},
+               #{item.customerId},
+               #{item.referenceLink},
+               #{item.referenceImage},
+               #{item.photographyLink},
+               #{item.photographyType},
+               #{item.payAmount},
+               #{item.payState},
+               #{item.refundState},
+               #{item.payTime},
+               #{item.paymentId},
+               #{item.createTime},
+               #{item.updateTime}
+            </trim>
+        </foreach>
+    </insert>
+
+    <sql id="Query_Condition">
+        <if test="t != null">
+            where
+            <trim prefix=" " suffix=" " suffixOverrides=" and ">
+                1 = 1 and
+                    <if test="t.id != null">
+                        id = #{t.id} and
+                    </if>
+                    <if test="t.customerId != null">
+                        customer_id = #{t.customerId} and
+                    </if>
+                    <if test="t.referenceLink != null">
+                        reference_link = #{t.referenceLink} and
+                    </if>
+                    <if test="t.referenceImage != null">
+                        reference_image = #{t.referenceImage} and
+                    </if>
+                    <if test="t.photographyLink != null">
+                        photography_link = #{t.photographyLink} and
+                    </if>
+                    <if test="t.photographyType != null">
+                        photography_type = #{t.photographyType} and
+                    </if>
+                    <if test="t.payAmount != null">
+                        pay_amount = #{t.payAmount} and
+                    </if>
+                    <if test="t.payState != null">
+                        pay_state = #{t.payState} and
+                    </if>
+                    <if test="t.refundState != null">
+                        refund_state = #{t.refundState} and
+                    </if>
+                    <if test="t.payTime != null">
+                        pay_time = #{t.payTime} and
+                    </if>
+                    <if test="t.paymentId != null">
+                        payment_id = #{t.paymentId} and
+                    </if>
+                    <if test="t.createTime != null">
+                        create_time = #{t.createTime} and
+                    </if>
+                    <if test="t.updateTime != null">
+                        update_time = #{t.updateTime} and
+                    </if>
+            </trim>
+        </if>
+    </sql>
+
+    <select id="select" parameterType="com.upedge.common.base.Page" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from product_photography_order
+        <include refid="Query_Condition"/>
+        <if test="orderBy != null">
+            order by ${orderBy}
+        </if>
+        <if test="pageNum != null and pageSize != null">
+            limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+        </if>
+    </select>
+
+    <select id="count" parameterType="com.upedge.common.base.Page" resultType="java.lang.Long">
+        select
+        count(1)
+        from product_photography_order
+        <include refid="Query_Condition"/>
+    </select>
+
+    <update id="updateOrderAsPaid">
+        update product_photography_order
+            set pay_state = '1',
+                payment_id = #{paymentId},
+                pay_time = #{payTime}
+        where id = #{id}
+        and pay_state = '0';
+    </update>
+</mapper>
