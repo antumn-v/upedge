@@ -107,8 +107,6 @@ public class ShippingUnitServiceImpl implements ShippingUnitService {
                 ShippingUnit shippingUnit = shipUnitExitImportDto.toShipUnit(areaId);
                 shippingUnit.setMethodId(methodId);
                 shippingUnit.setMethodName(methodName);
-                shippingUnit.setStartWeight(startWeight);
-                startWeight = shippingUnit.getEndWeight().add(BigDecimal.ONE);
                 shippingUnits.add(shippingUnit);
             }
         }

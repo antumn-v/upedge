@@ -127,17 +127,22 @@ public class StoreOrder {
                 this.financialStatus = 0;
                 break;
         }
-        switch (shopifyOrder.getFulfillment_status()) {
-            case "fulfilled":
-                this.fulfillmentStatus = 2;
-                break;
-            case "partial":
-                this.fulfillmentStatus = 1;
-                break;
-            default:
-                this.fulfillmentStatus = 0;
-                break;
+        if (shopifyOrder.getFulfillment_status() != null){
+            switch (shopifyOrder.getFulfillment_status()) {
+                case "fulfilled":
+                    this.fulfillmentStatus = 2;
+                    break;
+                case "partial":
+                    this.fulfillmentStatus = 1;
+                    break;
+                default:
+                    this.fulfillmentStatus = 0;
+                    break;
+            }
+        }else {
+            this.fulfillmentStatus = 0;
         }
+
     }
 
     public StoreOrder(ShoplazzaOrder shoplazzaOrder) {

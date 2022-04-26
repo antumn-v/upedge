@@ -34,7 +34,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -203,6 +207,9 @@ public class CustomerProductQuoteServiceImpl implements CustomerProductQuoteServ
         }
 
         List<Long> storeVariantIds = request.getStoreVariantIds();
+        if (storeVariantIds == null){
+            storeVariantIds = new ArrayList<>();
+        }
         List<Long> splitParentIds = new ArrayList<>();
         List<Long> splitVariantIds = new ArrayList<>();
         //获取是组合产品的ID
@@ -215,6 +222,8 @@ public class CustomerProductQuoteServiceImpl implements CustomerProductQuoteServ
         }
         storeVariantIds.removeAll(splitParentIds);
         storeVariantIds.addAll(splitVariantIds);
+        storeVariantIds = storeVariantIds.stream().distinct().collect(Collectors.toList());
+
         //报价中的产品
         List<CustomerProductQuoteVo> quotingVariants = new ArrayList<>();
         if (ListUtils.isNotEmpty(storeVariantIds)) {
@@ -236,6 +245,7 @@ public class CustomerProductQuoteServiceImpl implements CustomerProductQuoteServ
                 }
             }
         }
+        request.setStoreVariantIds(storeVariantIds);
         //已报价的产品
         List<CustomerProductQuoteVo> customerProductQuoteVos = customerProductQuoteDao.selectQuoteDetail(request);
         if (ListUtils.isNotEmpty(customerProductQuoteVos)){
