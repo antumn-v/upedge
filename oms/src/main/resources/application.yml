@@ -4,3 +4,6 @@ spring:
   jackson:
     date-format: yyyy-MM-dd
     time-zone: GMT+8
+
+logging:
+  config: classpath:logback-boot.xml
