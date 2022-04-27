@@ -4,6 +4,7 @@ import com.upedge.pms.modules.product.entity.StoreProductVariant;
 import lombok.Data;
 
 import java.math.BigDecimal;
+import java.util.Date;
 
 /**
  * @author gx
@@ -78,6 +79,8 @@ public class CustomerProductQuote{
 
 	private Long storeParentVariantId;
 
+	private Date updateTime;
+
 	public CustomerProductQuote(StoreProductVariant storeProductVariant) {
 		this.storeProductId = storeProductVariant.getProductId();
 		this.storeProductTitle = storeProductVariant.getTitle();
@@ -86,6 +89,7 @@ public class CustomerProductQuote{
 		this.storeVariantSku = storeProductVariant.getSku();
 		this.storeVariantId = storeProductVariant.getId();
 		this.storeParentVariantId = storeProductVariant.getParentVariantId();
+		this.updateTime = new Date();
 	}
 
 	public CustomerProductQuote() {

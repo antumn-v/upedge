@@ -3,8 +3,8 @@ package com.upedge.pms.modules.quote.service.impl;
 import com.alibaba.fastjson.JSON;
 import com.upedge.common.base.BaseResponse;
 import com.upedge.common.base.Page;
+import com.upedge.common.constant.key.RedisKey;
 import com.upedge.common.constant.key.RocketMqConfig;
-import com.upedge.common.exception.CustomerException;
 import com.upedge.common.model.pms.quote.CustomerProductQuoteVo;
 import com.upedge.common.model.pms.request.CustomerProductQuoteSearchRequest;
 import com.upedge.common.model.user.vo.Session;
@@ -30,6 +30,7 @@ import jodd.util.StringUtil;
 import org.apache.rocketmq.common.message.Message;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -70,6 +71,9 @@ public class CustomerProductQuoteServiceImpl implements CustomerProductQuoteServ
 
     @Autowired
     StoreProductVariantService storeProductVariantService;
+
+    @Autowired
+    RedisTemplate redisTemplate;
 
 
     /**
@@ -119,6 +123,7 @@ public class CustomerProductQuoteServiceImpl implements CustomerProductQuoteServ
         customerProductQuote.setVariantId(null);
         customerProductQuote.setQuotePrice(null);
         customerProductQuote.setQuoteState(0);
+        customerProductQuote.setUpdateTime(new Date());
         updateByPrimaryKey(customerProductQuote);
 
 
@@ -130,7 +135,7 @@ public class CustomerProductQuoteServiceImpl implements CustomerProductQuoteServ
 
     @Transactional
     @Override
-    public BaseResponse updateCustomerProductQuote(CustomerProductQuoteUpdateRequest request, Session session) throws CustomerException {
+    public BaseResponse updateCustomerProductQuote(CustomerProductQuoteUpdateRequest request, Session session) {
         Long storeVariantId = request.getStoreVariantId();
         boolean b = storeProductVariantService.redisCheckIfSplitVariant(storeVariantId);
         if (b){
@@ -174,6 +179,7 @@ public class CustomerProductQuoteServiceImpl implements CustomerProductQuoteServ
         customerProductQuote.setQuotePrice(request.getQuotePrice());
         customerProductQuote.setQuoteScale(request.getQuoteScale());
         customerProductQuote.setQuoteState(1);
+        customerProductQuote.setUpdateTime(new Date());
         if (customerProductQuote.getCustomerId() == null
         && request.getCustomerId() != null){
             customerProductQuote.setCustomerId(request.getCustomerId());
@@ -186,17 +192,10 @@ public class CustomerProductQuoteServiceImpl implements CustomerProductQuoteServ
         productQuoteRecord.setCreateTime(new Date());
         productQuoteRecordService.insert(productQuoteRecord);
 
-        CustomerProductQuoteSearchRequest customerProductQuoteSearchRequest = new CustomerProductQuoteSearchRequest();
-        customerProductQuoteSearchRequest.setStoreVariantId(storeVariantId);
-        List<CustomerProductQuoteVo> customerProductQuoteVos = customerProductQuoteDao.selectQuoteDetail(customerProductQuoteSearchRequest);
-        String tag = "quote";
-        String key = UUID.randomUUID().toString();
-        Message message = new Message(RocketMqConfig.TOPIC_CUSTOMER_PRODUCT_QUOTE_UPDATE, tag, key, JSON.toJSONBytes(customerProductQuoteVos));
-        message.setDelayTimeLevel(0);
-        b = productMqProducer.sendMessage(message);
-        if (!b){
-            throw new CustomerException("mq异常，请重新提交或联系IT!");
-        }
+        List<Long> storeVariantIds = new ArrayList<>();
+        storeVariantIds.add(storeVariantId);
+        sendCustomerProductQuoteUpdateMessage(storeVariantIds);
+
         return BaseResponse.success();
     }
 
@@ -223,7 +222,6 @@ public class CustomerProductQuoteServiceImpl implements CustomerProductQuoteServ
         storeVariantIds.removeAll(splitParentIds);
         storeVariantIds.addAll(splitVariantIds);
         storeVariantIds = storeVariantIds.stream().distinct().collect(Collectors.toList());
-
         //报价中的产品
         List<CustomerProductQuoteVo> quotingVariants = new ArrayList<>();
         if (ListUtils.isNotEmpty(storeVariantIds)) {
@@ -255,6 +253,7 @@ public class CustomerProductQuoteServiceImpl implements CustomerProductQuoteServ
         }else {
             customerProductQuoteVos = new ArrayList<>();
         }
+        customerProductQuoteVos.addAll(quotingVariants);
         //验证是否还有没查询出来报价信息的产品
 //        storeVariantIds = request.getStoreVariantIds();
         if (ListUtils.isEmpty(storeVariantIds)){
@@ -276,13 +275,12 @@ public class CustomerProductQuoteServiceImpl implements CustomerProductQuoteServ
                         BeanUtils.copyProperties(customerProductQuoteVo,customerProductQuote);
                         customerProductQuote.setCustomerId(customerId);
                         customerProductQuotes.add(customerProductQuote);
-                        customerProductQuoteDao.insertByBatch(customerProductQuotes);
                     }
+                    customerProductQuoteDao.insertByBatch(customerProductQuotes);
                     customerProductQuoteVos.addAll(customerProductQuoteVoList);
                 }
             }
         }
-        customerProductQuoteVos.addAll(quotingVariants);
         return customerProductQuoteVos;
     }
 
@@ -308,6 +306,10 @@ public class CustomerProductQuoteServiceImpl implements CustomerProductQuoteServ
         List<CustomerProductQuoteVo> customerProductQuoteVos = selectQuoteDetail(request);
         if (ListUtils.isEmpty(customerProductQuoteVos)){
             return false;
+        }
+        for (CustomerProductQuoteVo customerProductQuoteVo : customerProductQuoteVos) {
+            String key = RedisKey.STRING_QUOTED_STORE_VARIANT + customerProductQuoteVo.getStoreVariantId();
+            redisTemplate.opsForValue().set(key,customerProductQuoteVo);
         }
         String tag = "quote";
         String key = UUID.randomUUID().toString();
@@ -345,6 +347,32 @@ public class CustomerProductQuoteServiceImpl implements CustomerProductQuoteServ
      */
     public long count(Page<CustomerProductQuote> record) {
         return customerProductQuoteDao.count(record);
+    }
+
+    @Override
+    public int updateBatchByStoreProductVariant(List<StoreProductVariant> variants) {
+        if (ListUtils.isNotEmpty(variants)){
+            for (StoreProductVariant variant : variants) {
+                String key = RedisKey.STRING_QUOTED_STORE_VARIANT + variant.getId();
+                CustomerProductQuoteVo customerProductQuoteVo = (CustomerProductQuoteVo) redisTemplate.opsForValue().get(key);
+                if (null == customerProductQuoteVo){
+                    continue;
+                }
+                customerProductQuoteVo.setStoreVariantName(variant.getTitle());
+                customerProductQuoteVo.setStoreVariantSku(variant.getSku());
+                customerProductQuoteVo.setStoreVariantImage(variant.getImage());
+                redisTemplate.opsForValue().set(key,customerProductQuoteVo);
+
+                CustomerProductQuote customerProductQuote = new CustomerProductQuote();
+                customerProductQuote.setStoreVariantName(variant.getTitle());
+                customerProductQuote.setStoreVariantSku(variant.getSku());
+                customerProductQuote.setStoreVariantImage(variant.getImage());
+                customerProductQuote.setStoreVariantId(variant.getId());
+                updateByPrimaryKeySelective(customerProductQuote);
+            }
+            return 1;
+        }
+        return 0;
     }
 
 }

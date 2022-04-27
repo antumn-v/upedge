@@ -3,6 +3,7 @@ package com.upedge.pms.modules.quote.dao;
 import com.upedge.common.base.Page;
 import com.upedge.common.model.pms.quote.CustomerProductQuoteVo;
 import com.upedge.common.model.pms.request.CustomerProductQuoteSearchRequest;
+import com.upedge.pms.modules.product.entity.StoreProductVariant;
 import com.upedge.pms.modules.quote.entity.CustomerProductQuote;
 import org.apache.ibatis.annotations.Param;
 
@@ -11,15 +12,15 @@ import java.util.List;
 /**
  * @author gx
  */
-public interface CustomerProductQuoteDao{
+public interface CustomerProductQuoteDao {
 
     List<CustomerProductQuoteVo> selectAllQuoteDetail();
 
     List<CustomerProductQuoteVo> selectQuoteDetail(CustomerProductQuoteSearchRequest request);
 
-    CustomerProductQuote selectByStoreVariantId(@Param("storeVariantId")Long storeVariantId);
+    CustomerProductQuote selectByStoreVariantId(@Param("storeVariantId") Long storeVariantId);
 
-    List<CustomerProductQuote> selectByCustomerAndStoreVariantIds(@Param("customerId")Long customerId,
+    List<CustomerProductQuote> selectByCustomerAndStoreVariantIds(@Param("customerId") Long customerId,
                                                                   @Param("storeVariantIds") List<Long> storeVariantIds);
 
     CustomerProductQuote selectByPrimaryKey(Long storeVariantId);
@@ -39,5 +40,7 @@ public interface CustomerProductQuoteDao{
     List<CustomerProductQuote> select(Page<CustomerProductQuote> record);
 
     long count(Page<CustomerProductQuote> record);
+
+    int updateBatchByStoreProductVariant(@Param("variants") List<StoreProductVariant> variants);
 
 }

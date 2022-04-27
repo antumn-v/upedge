@@ -97,6 +97,9 @@
             <if test="storeParentVariantId != null">
                 store_parent_variant_id = #{storeParentVariantId},
             </if>
+            <if test="updateTime != null">
+                update_time = #{updateTime},
+            </if>
         </set>
         where store_variant_id = #{storeVariantId}
     </update>
@@ -147,7 +150,8 @@
             quote_apply_id,
             quote_state,
             quote_scale,
-            store_parent_variant_id
+            store_parent_variant_id,
+            update_time
         </trim>
         values (
         #{storeVariantId},
@@ -167,7 +171,8 @@
         #{quoteApplyId},
         #{quoteState},
         #{quoteScale},
-        #{storeParentVariantId}
+        #{storeParentVariantId},
+        #{updateTime}
         )
     </insert>
 
@@ -308,7 +313,8 @@
             quote_apply_id,
             quote_state,
             quote_scale,
-            store_parent_variant_id
+            store_parent_variant_id,
+            update_time
         </trim>
         values
         <foreach collection="list" item="item" index="index" separator=",">
@@ -330,7 +336,8 @@
                 #{item.quoteApplyId},
                 #{item.quoteState},
                 #{item.quoteScale},
-                #{item.storeParentVariantId}
+                #{item.storeParentVariantId},
+                #{item.updateTime}
             </trim>
         </foreach>
     </insert>
@@ -403,9 +410,8 @@
         <include refid="Base_Column_List"/>
         from customer_product_quote
         <include refid="Query_Condition"/>
-        <if test="orderBy != null">
-            order by ${orderBy}
-        </if>
+        order by update_time desc
+
         <if test="pageNum != null and pageSize != null">
             limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
         </if>
@@ -521,4 +527,14 @@
         left join product p
         on p.id = pv.product_id
     </select>
+
+    <update id="updateBatchByStoreProductVariant">
+        <foreach collection="variants" item="v" separator=";">
+            update customer_product_quote
+            set store_variant_name = #{v.title},
+            store_variant_image = #{v.image},
+            store_variant_sku = #{v.sku}
+            where store_variant_id = #{v.id}
+        </foreach>
+    </update>
 </mapper>

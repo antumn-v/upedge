@@ -91,9 +91,18 @@ public class RedisInit {
             public void run() {
                 //所有报价中的店铺产品ID
                 List<Long> quotingVariantIds = quoteApplyItemService.selectAllQuotingStoreVariantIds();
+                if (ListUtils.isNotEmpty(quotingVariantIds)){
+                    for (Long quotingVariantId : quotingVariantIds) {
+                        String key = RedisKey.STRING_QUOTED_STORE_VARIANT + quotingVariantId;
+                        CustomerProductQuoteVo customerProductQuoteVo = new CustomerProductQuoteVo();
+                        customerProductQuoteVo.setStoreVariantId(quotingVariantId);
+                        customerProductQuoteVo.setQuoteType(5);
+                        customerProductQuoteVo.setStoreParentVariantId(0L);
+                        redisTemplate.opsForValue().set(key,customerProductQuoteVo);
+                    }
+                }
                 redisTemplate.delete(RedisKey.LIST_QUOTING_STORE_VARIANT);
-                if (ListUtils.isNotEmpty(quotingVariantIds))
-                    redisTemplate.opsForList().leftPushAll(RedisKey.LIST_QUOTING_STORE_VARIANT,quotingVariantIds);
+                redisTemplate.opsForList().leftPushAll(RedisKey.LIST_QUOTING_STORE_VARIANT,quotingVariantIds);
                 log.warn("报价中变体ID集合初始化完成-------------------------------------");
             }
         },threadPoolExecutor);

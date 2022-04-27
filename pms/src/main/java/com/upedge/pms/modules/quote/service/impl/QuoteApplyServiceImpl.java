@@ -1,10 +1,8 @@
 package com.upedge.pms.modules.quote.service.impl;
 
-import com.alibaba.fastjson.JSON;
 import com.upedge.common.base.BaseResponse;
 import com.upedge.common.base.Page;
 import com.upedge.common.constant.key.RedisKey;
-import com.upedge.common.constant.key.RocketMqConfig;
 import com.upedge.common.exception.CustomerException;
 import com.upedge.common.model.pms.quote.CustomerProductQuoteVo;
 import com.upedge.common.model.pms.request.CustomerProductQuoteSearchRequest;
@@ -36,7 +34,6 @@ import com.upedge.pms.modules.quote.service.QuoteApplyService;
 import com.upedge.pms.modules.quote.vo.QuoteApplyVo;
 import com.upedge.pms.mq.producer.ProductMqProducer;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.rocketmq.common.message.Message;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -243,6 +240,7 @@ public class QuoteApplyServiceImpl implements QuoteApplyService {
                 BeanUtils.copyProperties(quoteApplyItem, customerProductQuote);
                 customerProductQuote.setProductTitle(product.getProductTitle());
                 customerProductQuote.setQuoteState(1);
+                customerProductQuote.setUpdateTime(new Date());
                 customerProductQuotes.add(customerProductQuote);
                 storeVariantIds.add(quoteApplyItem.getStoreVariantId());
             }
@@ -268,15 +266,7 @@ public class QuoteApplyServiceImpl implements QuoteApplyService {
 
         CustomerProductQuoteSearchRequest customerProductQuoteSearchRequest = new CustomerProductQuoteSearchRequest();
         customerProductQuoteSearchRequest.setStoreVariantIds(storeVariantIds);
-        List<CustomerProductQuoteVo> customerProductQuoteVos = customerProductQuoteDao.selectQuoteDetail(customerProductQuoteSearchRequest);
-        String tag = "quote";
-        String key = UUID.randomUUID().toString();
-        Message message = new Message(RocketMqConfig.TOPIC_CUSTOMER_PRODUCT_QUOTE_UPDATE, tag, key, JSON.toJSONBytes(customerProductQuoteVos));
-        message.setDelayTimeLevel(0);
-        boolean b =  productMqProducer.sendMessage(message);
-        if (!b) {
-            throw new CustomerException("消息队列异常，请重新提交");
-        }
+        customerProductQuoteService.sendCustomerProductQuoteUpdateMessage(storeVariantIds);
         redisDeleteQuotingVariant(storeVariantIds);
         return BaseResponse.success();
     }
@@ -307,29 +297,40 @@ public class QuoteApplyServiceImpl implements QuoteApplyService {
         List<Long> storeVariantIds = request.getStoreVariantId();
         Long customerId = request.getCustomerId();
 
-        List<CustomerProductQuote> customerProductQuotes = customerProductQuoteDao.selectByCustomerAndStoreVariantIds(customerId, storeVariantIds);
-        if (ListUtils.isNotEmpty(customerProductQuotes)) {
-            for (CustomerProductQuote customerProductQuote : customerProductQuotes) {
-                if (storeVariantIds.contains(customerProductQuote.getStoreVariantId())) {
-                    storeVariantIds.remove(customerProductQuote.getStoreVariantId());
-                }
-            }
-        }
-        if (ListUtils.isEmpty(storeVariantIds)) {
-            return BaseResponse.failed();
-        }
-        List<Long> quotingStoreVariantIds = quoteApplyItemDao.selectQuotingStoreVariantIds(storeVariantIds);
-        if (ListUtils.isNotEmpty(quotingStoreVariantIds)) {
-            storeVariantIds.removeAll(quotingStoreVariantIds);
-        }
-        if (ListUtils.isEmpty(storeVariantIds)) {
-            return BaseResponse.failed();
-        }
+//        List<CustomerProductQuote> customerProductQuotes = customerProductQuoteDao.selectByCustomerAndStoreVariantIds(customerId, storeVariantIds);
+//        if (ListUtils.isNotEmpty(customerProductQuotes)) {
+//            for (CustomerProductQuote customerProductQuote : customerProductQuotes) {
+//                if (storeVariantIds.contains(customerProductQuote.getStoreVariantId())) {
+//                    storeVariantIds.remove(customerProductQuote.getStoreVariantId());
+//                }
+//            }
+//        }
+//        if (ListUtils.isEmpty(storeVariantIds)) {
+//            return BaseResponse.failed();
+//        }
+//        List<Long> quotingStoreVariantIds = quoteApplyItemDao.selectQuotingStoreVariantIds(storeVariantIds);
+//        if (ListUtils.isNotEmpty(quotingStoreVariantIds)) {
+//            storeVariantIds.removeAll(quotingStoreVariantIds);
+//        }
+//        if (ListUtils.isEmpty(storeVariantIds)) {
+//            return BaseResponse.failed();
+//        }
         Long applyId = IdGenerate.nextId();
         List<QuoteApplyItem> quoteApplyItems = new ArrayList<>();
         List<Long> quotingVariantIds = new ArrayList<>();
         List<StoreProductVariant> storeProductVariants = storeProductVariantDao.selectByIds(storeVariantIds);
         for (StoreProductVariant storeProductVariant : storeProductVariants) {
+            //判断产品是否已报价
+            String key = RedisKey.STRING_QUOTED_STORE_VARIANT + storeProductVariant.getId();
+            if (redisTemplate.hasKey(key)){
+                continue;
+            }
+            CustomerProductQuoteVo customerProductQuoteVo = new CustomerProductQuoteVo();
+            customerProductQuoteVo.setStoreVariantId(storeProductVariant.getId());
+            customerProductQuoteVo.setQuoteType(5);
+            customerProductQuoteVo.setStoreParentVariantId(0L);
+            redisTemplate.opsForValue().set(key,customerProductQuoteVo);
+
             QuoteApplyItem quoteApplyItem = new QuoteApplyItem();
             quoteApplyItem.setStoreProductId(storeProductVariant.getProductId());
             quoteApplyItem.setStoreVariantSku(storeProductVariant.getSku());
@@ -341,6 +342,9 @@ public class QuoteApplyServiceImpl implements QuoteApplyService {
             quoteApplyItem.setState(0);
             quoteApplyItems.add(quoteApplyItem);
             quotingVariantIds.add(quoteApplyItem.getStoreVariantId());
+        }
+        if(ListUtils.isEmpty(quoteApplyItems)){
+            return BaseResponse.failed();
         }
         quoteApplyItemDao.insertByBatch(quoteApplyItems);
         QuoteApply quoteApply = new QuoteApply();

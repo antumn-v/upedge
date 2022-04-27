@@ -2,6 +2,7 @@ package com.upedge.pms.modules.quote.controller;
 
 import com.upedge.common.base.BaseResponse;
 import com.upedge.common.constant.Constant;
+import com.upedge.common.constant.key.RedisKey;
 import com.upedge.common.exception.CustomerException;
 import com.upedge.common.feign.OmsFeignClient;
 import com.upedge.common.model.cart.request.CartAddRequest;
@@ -104,6 +105,10 @@ public class CustomerProductQuoteController {
     @PostMapping("/search")
     public List<CustomerProductQuoteVo> searchCustomerProductQuote(@RequestBody CustomerProductQuoteSearchRequest request){
         List<CustomerProductQuoteVo> customerProductQuoteVos = customerProductQuoteService.selectQuoteDetail(request);
+        for (CustomerProductQuoteVo customerProductQuoteVo : customerProductQuoteVos) {
+            String key = RedisKey.STRING_QUOTED_STORE_VARIANT + customerProductQuoteVo.getStoreVariantId();
+            redisTemplate.opsForValue().set(key,customerProductQuoteVo);
+        }
         return customerProductQuoteVos;
     }
 
