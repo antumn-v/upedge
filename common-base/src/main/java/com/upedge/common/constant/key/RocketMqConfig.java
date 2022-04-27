@@ -45,7 +45,9 @@ public class RocketMqConfig {
      * 订单物流回传店铺
      */
     public final static String TOPIC_ORDER_FULFILLMENT = "order_fulfillment";
-
-
+    //店铺订单更新webhook
+    public final static String TOPIC_STORE_ORDER_UPDATE_WEBHOOK = "store_order_update_webhook";
+    //店铺产品更新webhook
+    public final static String TOPIC_STORE_PRODUCT_UPDATE_WEBHOOK = "store_product_update_webhook";
 
 }

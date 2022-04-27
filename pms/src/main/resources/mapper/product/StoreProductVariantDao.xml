@@ -174,9 +174,7 @@
             image = #{v.image},
             sku = #{v.sku},
             state = #{v.state}
-            where product_id = #{v.productId}
-            and plat_variant_id = #{v.platVariantId}
-            and parent_variant_id = '0'
+            where id = #{v.id}
         </foreach>
     </update>
 

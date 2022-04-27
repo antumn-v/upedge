@@ -28,6 +28,7 @@ import com.upedge.pms.modules.product.service.ProductInfoService;
 import com.upedge.pms.modules.product.service.ProductService;
 import com.upedge.pms.modules.product.service.StoreProductService;
 import com.upedge.pms.modules.product.vo.StoreProductRelateVo;
+import com.upedge.pms.modules.quote.service.CustomerProductQuoteService;
 import com.upedge.thirdparty.saihe.config.SaiheConfig;
 import com.upedge.thirdparty.shopify.moudles.product.controller.ShopifyProductApi;
 import com.upedge.thirdparty.shopify.moudles.product.entity.ShopifyImage;
@@ -86,6 +87,8 @@ public class StoreProductServiceImpl implements StoreProductService {
     @Autowired
     ProductVariantAttrDao productVariantAttrDao;
 
+    @Autowired
+    CustomerProductQuoteService customerProductQuoteService;
 
     @Override
     public List<StoreProductRelateVo> selectStoreVariantRelateDetail(Long storeProductId) {
@@ -307,7 +310,14 @@ public class StoreProductServiceImpl implements StoreProductService {
             mainImage = product.getImage().getSrc();
         }
         //已保存的店铺变体
-        List<String> variantPlatIds = storeProductVariantDao.selectPlatVariantIdByProductId(storeProductId);
+        List<StoreProductVariant> storeProductVariants = storeProductVariantDao.listUseVariantProductId(storeProductId);
+        Map<String,StoreProductVariant> storeProductVariantMap = new HashMap<>();
+        for (StoreProductVariant storeProductVariant : storeProductVariants) {
+            if (storeProductVariant.getSplitType() < 2){
+                storeProductVariantMap.put(storeProductVariant.getPlatVariantId(),storeProductVariant);
+            }
+        }
+
         List<ShopifyVariant> variants = product.getVariants();
         List<ShopifyImage> images = product.getImages();
         HashMap<String, String> imageMap = new HashMap<>();
@@ -333,14 +343,20 @@ public class StoreProductServiceImpl implements StoreProductService {
             if (StringUtils.isBlank(storeVariant.getImage())) {
                 storeVariant.setImage(mainImage);
             }
-            if (variantPlatIds.contains(variant.getId())) {
-                updateVariants.add(storeVariant);
+            if (storeProductVariantMap.containsKey(variant.getId())) {
+                //比较新老变体图片属性名sku
+                StoreProductVariant oldVariant = storeProductVariantMap.get(variant.getId());
+                if (StringUtils.isBlank(oldVariant.getImage())
+                    || StringUtils.isBlank(oldVariant.getTitle())
+                    || StringUtils.isBlank(oldVariant.getSku())
+                    || !oldVariant.getTitle().equals(storeVariant.getTitle())
+                    || !oldVariant.getImage().equals(storeVariant.getImage())
+                    || !oldVariant.getSku().equals(storeVariant.getSku())){
+                    storeVariant.setId(oldVariant.getId());
+                    updateVariants.add(storeVariant);
+                }
             } else {
                 Long storeVariantId = IdGenerate.nextId();
-//                List<StoreProductVariant> storeProductVariants = storeProductVariantDao.selectSplitVariantsByPlatVariantId(variant.getId());
-//                if (ListUtils.isNotEmpty(storeProductVariants)){
-//                    storeVariantId = storeProductVariants.get(0).getId();
-//                }
                 storeVariant.setId(storeVariantId);
                 storeVariant.setSplitType(0);
                 storeVariant.setParentVariantId(0L);
@@ -352,9 +368,10 @@ public class StoreProductServiceImpl implements StoreProductService {
         if (insertVariants.size() > 0) {
             storeProductVariantDao.insertByBatch(insertVariants);
         }
-//        if (updateVariants.size() > 0) {
-//            storeProductVariantDao.updateByBatch(updateVariants);
-//        }
+        if (updateVariants.size() > 0) {
+            storeProductVariantDao.updateByBatch(updateVariants);
+            customerProductQuoteService.updateBatchByStoreProductVariant(updateVariants);
+        }
         platVariantIds.removeAll(newPlatVariantIds);
         if(ListUtils.isNotEmpty(platVariantIds)){
             storeProductVariantDao.markStoreVariantAsRemovedByPlatId(storeProductId, platVariantIds);
@@ -380,6 +397,8 @@ public class StoreProductServiceImpl implements StoreProductService {
         RedisUtil.unLock(redisTemplate, key);
         return attribute.getId();
     }
+
+
 
     @Transactional(rollbackFor = Exception.class)
     @Override
