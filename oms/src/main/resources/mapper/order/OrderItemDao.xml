@@ -955,6 +955,7 @@
 		from order_item oi
 		left join store_order so on so.id=oi.store_order_id
 		where  oi.order_id=#{orderId}
+        and quantity > '0'
     </select>
     <select id="airwallex" resultType="com.upedge.oms.modules.order.vo.AirwallexVo">
         	select

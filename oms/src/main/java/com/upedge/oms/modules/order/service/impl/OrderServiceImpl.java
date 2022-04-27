@@ -840,7 +840,7 @@ public class OrderServiceImpl implements OrderService {
                     }else {
                         continue;
                     }
-                    if (customerProductQuoteVo.getQuoteState() == null){
+                    if (customerProductQuoteVo.getQuoteScale() == null){
                         customerProductQuoteVo.setQuoteScale(1);
                     }
                     BigDecimal itemQuantity = new BigDecimal(item.getQuantity()).multiply(new BigDecimal(customerProductQuoteVo.getQuoteScale()));
@@ -894,7 +894,7 @@ public class OrderServiceImpl implements OrderService {
                 } else {
                     //报价成功
                     quotedItem ++;
-                    if (customerProductQuoteVo.getQuoteState() == null){
+                    if (customerProductQuoteVo.getQuoteScale() == null){
                         customerProductQuoteVo.setQuoteScale(1);
                     }
                     BigDecimal itemQuantity = new BigDecimal(item.getQuantity()).multiply(new BigDecimal(customerProductQuoteVo.getQuoteScale()));
