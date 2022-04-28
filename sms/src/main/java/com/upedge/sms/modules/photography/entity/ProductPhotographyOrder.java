@@ -19,6 +19,8 @@ public class ProductPhotographyOrder{
 	 * 
 	 */
     private Long customerId;
+
+	private String description;
 	/**
 	 * 参考链接
 	 */

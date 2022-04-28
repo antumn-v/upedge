@@ -1,7 +1,7 @@
 package com.upedge.pms.modules.alibaba.entity.supplier;
 
 /**
- * Created by jiaqi on 2020/6/9.
+ * Created by guoxing on 2020/6/9.
  */
 public class AlibabaAccountAgentCrossBasicResult {
 

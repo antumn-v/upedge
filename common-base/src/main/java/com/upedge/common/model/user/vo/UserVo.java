@@ -5,7 +5,7 @@ import lombok.Data;
 import java.util.Date;
 
 /**
- * Created by jiaqi on 2020/11/9.
+ * Created by guoxing on 2020/11/9.
  */
 @Data
 public class UserVo {

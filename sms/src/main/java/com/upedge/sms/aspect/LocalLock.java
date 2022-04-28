@@ -1,4 +1,4 @@
-package com.upedge.tms.aspect;
+package com.upedge.sms.aspect;
 
 import java.lang.annotation.*;
 

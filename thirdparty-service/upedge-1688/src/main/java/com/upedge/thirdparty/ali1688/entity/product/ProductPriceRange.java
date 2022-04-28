@@ -1,7 +1,7 @@
 package com.upedge.thirdparty.ali1688.entity.product;
 
 /**
- * Created by jiaqi on 2020/6/15.
+ * Created by guoxing on 2020/6/15.
  */
 public class ProductPriceRange {
 

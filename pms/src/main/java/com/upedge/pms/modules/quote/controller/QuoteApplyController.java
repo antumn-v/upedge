@@ -57,7 +57,8 @@ public class QuoteApplyController {
     public BaseResponse processQuoteApply(@RequestBody QuoteApplyProcessRequest request,@PathVariable Long quoteApplyId){
         Session session = UserUtil.getSession(redisTemplate);
         try {
-            return quoteApplyService.processQuoteApply(request,quoteApplyId,session);
+            BaseResponse response = quoteApplyService.processQuoteApply(request,quoteApplyId,session);
+            return response;
         } catch (CustomerException e) {
             e.printStackTrace();
             return BaseResponse.failed(e.getMessage());

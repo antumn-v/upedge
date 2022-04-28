@@ -12,12 +12,13 @@ import com.upedge.common.model.order.TransactionDetail;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.utils.FileUtil;
 import com.upedge.common.utils.IdGenerate;
+import com.upedge.common.utils.ListUtils;
 import com.upedge.sms.modules.center.entity.ServiceOrder;
 import com.upedge.sms.modules.center.service.ServiceOrderService;
-import com.upedge.sms.modules.photography.controller.ProductPhotographyOrderCreateRequest;
 import com.upedge.sms.modules.photography.dao.ProductPhotographyOrderDao;
 import com.upedge.sms.modules.photography.entity.ProductPhotographyOrder;
 import com.upedge.sms.modules.photography.entity.ProductPhotographyOrderItem;
+import com.upedge.sms.modules.photography.request.ProductPhotographyOrderCreateRequest;
 import com.upedge.sms.modules.photography.request.ProductPhotographyOrderPayRequest;
 import com.upedge.sms.modules.photography.service.ProductPhotographyOrderItemService;
 import com.upedge.sms.modules.photography.service.ProductPhotographyOrderService;
@@ -132,8 +133,20 @@ public class ProductPhotographyOrderServiceImpl implements ProductPhotographyOrd
         ProductPhotographyOrder productPhotographyOrder = new ProductPhotographyOrder();
         productPhotographyOrder.setReferenceLink(request.getReferenceLink());
         productPhotographyOrder.setPhotographyType(request.getPhotographyType());
-        if (StringUtils.isNotBlank(request.getReferenceImageBase64())){
-            String referenceImage = FileUtil.uploadImage(request.getReferenceImageBase64(),imageUrlPrefix,localPath);
+        List<String> images = request.getReferenceImageBase64();
+        if (ListUtils.isNotEmpty(images)){
+            String referenceImage = null;
+            for (String image : images) {
+                String uploadImage = FileUtil.uploadImage(image,imageUrlPrefix,localPath);
+                if (uploadImage == null){
+                    continue;
+                }
+                if (StringUtils.isBlank(referenceImage)){
+                    referenceImage = uploadImage;
+                }else {
+                    referenceImage = "," + uploadImage;
+                }
+            }
             productPhotographyOrder.setReferenceImage(referenceImage);
         }
         Long orderId = IdGenerate.nextId();
@@ -141,6 +154,7 @@ public class ProductPhotographyOrderServiceImpl implements ProductPhotographyOrd
         productPhotographyOrder.setCreateTime(new Date());
         productPhotographyOrder.setUpdateTime(new Date());
         productPhotographyOrder.setCustomerId(session.getCustomerId());
+        productPhotographyOrder.setDescription(request.getDescription());
 
         List<ProductPhotographyOrderItem> orderItems = request.getItems();
         for (ProductPhotographyOrderItem orderItem : orderItems) {
@@ -164,6 +178,7 @@ public class ProductPhotographyOrderServiceImpl implements ProductPhotographyOrd
         serviceOrderService.insert(serviceOrder);
         return BaseResponse.success(productPhotographyOrder);
     }
+
 
     /**
      *

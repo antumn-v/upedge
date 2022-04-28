@@ -1,4 +1,4 @@
-package com.upedge.oms.ascept;
+package com.upedge.sms.aspect;
 
 import com.google.gson.Gson;
 import lombok.extern.slf4j.Slf4j;
@@ -21,9 +21,9 @@ import javax.servlet.http.HttpServletRequest;
 @Aspect
 @Component
 @Slf4j
-public class SysLogAspect {
+public class ApiOperationAspect {
 
-    @Pointcut("execution(public * com.upedge.oms.modules.*.controller.*.*(..))")
+    @Pointcut("execution(public * com.upedge.sms.modules.*.controller.*.*(..))")
     public void logPointCut() {
 
     }

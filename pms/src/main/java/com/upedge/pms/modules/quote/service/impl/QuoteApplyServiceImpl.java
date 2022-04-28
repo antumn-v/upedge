@@ -42,6 +42,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ThreadPoolExecutor;
 
 
 @Service
@@ -79,6 +81,9 @@ public class QuoteApplyServiceImpl implements QuoteApplyService {
 
     @Autowired
     ProductMqProducer productMqProducer;
+
+    @Autowired
+    ThreadPoolExecutor threadPoolExecutor;
 
     /**
      *
@@ -156,7 +161,7 @@ public class QuoteApplyServiceImpl implements QuoteApplyService {
         for (QuoteApplyItem quoteApplyItem : quoteApplyItems) {
             quoteApplyItemMap.put(quoteApplyItem.getId(), quoteApplyItem);
         }
-
+        List<CustomerProductQuoteVo> customerProductQuoteVos = new ArrayList<>();
         List<CustomerProductQuote> customerProductQuotes = new ArrayList<>();
         Map<Long, Product> map = new HashMap<>();
         List<Long> storeVariantIds = new ArrayList<>();
@@ -263,10 +268,20 @@ public class QuoteApplyServiceImpl implements QuoteApplyService {
         if (ListUtils.isNotEmpty(productQuoteRecords)) {
             productQuoteRecordService.insertByBatch(productQuoteRecords);
         }
+        CompletableFuture.runAsync(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    Thread.sleep(3 * 1000L);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                CustomerProductQuoteSearchRequest customerProductQuoteSearchRequest = new CustomerProductQuoteSearchRequest();
+                customerProductQuoteSearchRequest.setStoreVariantIds(storeVariantIds);
+                customerProductQuoteService.sendCustomerProductQuoteUpdateMessage(storeVariantIds);
+            }
+        },threadPoolExecutor);
 
-        CustomerProductQuoteSearchRequest customerProductQuoteSearchRequest = new CustomerProductQuoteSearchRequest();
-        customerProductQuoteSearchRequest.setStoreVariantIds(storeVariantIds);
-        customerProductQuoteService.sendCustomerProductQuoteUpdateMessage(storeVariantIds);
         redisDeleteQuotingVariant(storeVariantIds);
         return BaseResponse.success();
     }

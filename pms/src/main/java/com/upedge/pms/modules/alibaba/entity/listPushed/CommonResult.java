@@ -1,7 +1,7 @@
 package com.upedge.pms.modules.alibaba.entity.listPushed;
 
 /**
- * Created by jiaqi on 2020/6/15.
+ * Created by guoxing on 2020/6/15.
  */
 public class CommonResult {
     /**

@@ -6,8 +6,11 @@ import com.upedge.common.constant.Constant;
 import com.upedge.common.constant.OrderConstant;
 import com.upedge.common.constant.ResultCode;
 import com.upedge.common.model.user.vo.Session;
+import com.upedge.common.utils.ListUtils;
 import com.upedge.common.web.util.UserUtil;
 import com.upedge.sms.modules.photography.entity.ProductPhotographyOrder;
+import com.upedge.sms.modules.photography.entity.ProductPhotographyOrderItem;
+import com.upedge.sms.modules.photography.request.ProductPhotographyOrderCreateRequest;
 import com.upedge.sms.modules.photography.request.ProductPhotographyOrderListRequest;
 import com.upedge.sms.modules.photography.request.ProductPhotographyOrderPayRequest;
 import com.upedge.sms.modules.photography.request.ProductPhotographyOrderUpdateRequest;
@@ -19,10 +22,14 @@ import com.upedge.sms.modules.photography.vo.ProductPhotographyOrderVo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
+import java.io.File;
+import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -45,11 +52,44 @@ public class ProductPhotographyOrderController {
     @Autowired
     ThreadPoolExecutor threadPoolExecutor;
 
+    @Value("${files.image.local}")
+    private String localPath;
+    @Value("${files.image.prefix}")
+    private String imageUrlPrefix;
+
     @ApiOperation("创建订单")
     @PostMapping("/create")
     public BaseResponse create(@RequestBody@Valid ProductPhotographyOrderCreateRequest request){
         Session session = UserUtil.getSession(redisTemplate);
         return productPhotographyOrderService.create(request,session);
+    }
+
+    @PostMapping("/testImage")
+    public BaseResponse testImage(MultipartFile file,List<MultipartFile> files,String sss,ProductPhotographyOrderItem[] items){
+
+        if (file != null
+        && !file.isEmpty()){
+            String fileName=file.getOriginalFilename();
+            //文件上传
+            try {
+                file.transferTo(new File(localPath+fileName));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        if (ListUtils.isNotEmpty(files)){
+            for (MultipartFile m: files) {
+                try {
+                    m.transferTo(new File(localPath+m.getOriginalFilename()));
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        System.out.println(sss);
+        System.out.println(items);
+        return BaseResponse.success();
     }
 
     @ApiOperation("订单详情")

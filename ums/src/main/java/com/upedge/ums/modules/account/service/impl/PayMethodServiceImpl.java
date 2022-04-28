@@ -22,7 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 /**
- * Created by jiaqi on 2020/10/28.
+ * Created by guoxing on 2020/10/28.
  */
 @Service
 public class PayMethodServiceImpl implements PayMethodService {

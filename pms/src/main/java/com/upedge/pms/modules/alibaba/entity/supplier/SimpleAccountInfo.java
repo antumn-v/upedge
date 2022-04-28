@@ -3,7 +3,7 @@ package com.upedge.pms.modules.alibaba.entity.supplier;
 import com.upedge.pms.modules.alibaba.vo.SupplierVo;
 
 /**
- * Created by jiaqi on 2020/6/9.
+ * Created by guoxing on 2020/6/9.
  */
 public class SimpleAccountInfo {
 

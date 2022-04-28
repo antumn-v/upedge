@@ -4,7 +4,7 @@ import javax.xml.bind.annotation.XmlElement;
 import java.util.Date;
 
 /**
- * Created by jiaqi on 2019/9/9.
+ * Created by guoxing on 2019/9/9.
  */
 public class ApiProductInventory {
 

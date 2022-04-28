@@ -3,7 +3,7 @@ package com.upedge.thirdparty.saihe.entity.GetPurchasePutInLogList;
 import javax.xml.bind.annotation.XmlElement;
 
 /**
- * Created by jiaqi on 2020/2/21.
+ * Created by guoxing on 2020/2/21.
  */
 public class PurchaseDetailRequest {
 

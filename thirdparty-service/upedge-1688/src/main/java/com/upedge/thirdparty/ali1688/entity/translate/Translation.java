@@ -1,7 +1,7 @@
 package com.upedge.thirdparty.ali1688.entity.translate;
 
 /**
- * Created by jiaqi on 2019/11/27.
+ * Created by guoxing on 2019/11/27.
  */
 public class Translation {
 

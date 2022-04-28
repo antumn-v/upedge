@@ -1,4 +1,4 @@
-package com.upedge.tms.aspect;
+package com.upedge.sms.aspect;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
@@ -35,7 +35,7 @@ public class LockMethodInterceptor {
             .expireAfterWrite(120, TimeUnit.SECONDS)
             .build();
 
-    @Around("execution(public * *(..)) && @annotation(com.upedge.tms.aspect.LocalLock)")
+    @Around("execution(public * *(..)) && @annotation(com.upedge.sms.aspect.LocalLock)")
     public Object interceptor(ProceedingJoinPoint pjp) throws CustomerException {
         MethodSignature signature = (MethodSignature) pjp.getSignature();
         Method method = signature.getMethod();
@@ -67,8 +67,6 @@ public class LockMethodInterceptor {
     private String getKey(String keyExpress, Object[] args) throws CustomerException {
         Session session = UserUtil.getSession(redisTemplate);
         switch (keyExpress){
-            case "shippingUnitImport":
-                return keyExpress+session.getId();
             default:
                 return keyExpress;
         }

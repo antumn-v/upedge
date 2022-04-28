@@ -3,7 +3,7 @@ package com.upedge.thirdparty.saihe.entity.getProducts;
 import javax.xml.bind.annotation.XmlElement;
 
 /**
- * Created by jiaqi on 2019/9/2.
+ * Created by guoxing on 2019/9/2.
  */
 public class GetProductsResult {
 

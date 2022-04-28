@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by jiaqi on 2019/9/2.
+ * Created by guoxing on 2019/9/2.
  */
 public class ProductInfoList {
 

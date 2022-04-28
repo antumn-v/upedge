@@ -16,7 +16,7 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 import javax.servlet.http.HttpServletRequest;
 
 /**
- * Created by jiaqi on 2020/10/21.
+ * Created by guoxing on 2020/10/21.
  */
 @Aspect
 @Component

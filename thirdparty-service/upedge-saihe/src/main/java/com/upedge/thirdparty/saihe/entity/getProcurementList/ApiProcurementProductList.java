@@ -4,7 +4,7 @@ import javax.xml.bind.annotation.XmlElement;
 import java.math.BigDecimal;
 
 /**
- * Created by jiaqi on 2020/7/21.
+ * Created by guoxing on 2020/7/21.
  */
 public class ApiProcurementProductList {
 

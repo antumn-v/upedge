@@ -4,7 +4,7 @@ import com.alibaba.ocean.rawsdk.client.APIId;
 import com.alibaba.ocean.rawsdk.common.AbstractAPIRequest;
 
 /**
- * Created by jiaqi on 2020/6/15.
+ * Created by guoxing on 2020/6/15.
  */
 public class AlibabaCrossSyncProductListPushedParam  extends AbstractAPIRequest<AlibabaCrossSyncProductListPushedResult> {
 

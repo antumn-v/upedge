@@ -1,4 +1,4 @@
-package com.upedge.sms.modules.photography.controller;
+package com.upedge.sms.modules.photography.request;
 
 import com.upedge.sms.modules.photography.entity.ProductPhotographyOrderItem;
 import lombok.Data;
@@ -13,12 +13,16 @@ public class ProductPhotographyOrderCreateRequest {
     @NotNull
     private String serviceTitle;
 
+    private String description;
+
     /**
      * 参考链接
      */
     private String referenceLink;
 
-    private String referenceImageBase64;
+    private String base64;
+
+    private List<String> referenceImageBase64;
 
     private Integer photographyType = 0;
 

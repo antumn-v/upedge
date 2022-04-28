@@ -5,7 +5,7 @@ import java.math.BigDecimal;
 import java.util.Date;
 
 /**
- * Created by jiaqi on 2020/2/21.
+ * Created by guoxing on 2020/2/21.
  */
 public class ApiInPurchaseDetail {
 

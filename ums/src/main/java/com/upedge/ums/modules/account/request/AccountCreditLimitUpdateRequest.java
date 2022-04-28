@@ -4,7 +4,7 @@ import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 
 /**
- * Created by jiaqi on 2020/11/3.
+ * Created by guoxing on 2020/11/3.
  */
 public class AccountCreditLimitUpdateRequest {
     @NotNull

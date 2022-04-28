@@ -7,6 +7,7 @@
     <resultMap type="com.upedge.sms.modules.photography.entity.ProductPhotographyOrder" id="BaseResultMap">
         <result property="id" column="id"/>
         <result property="customerId" column="customer_id"/>
+        <result property="description" column="description"/>
         <result property="referenceLink" column="reference_link"/>
         <result property="referenceImage" column="reference_image"/>
         <result property="photographyLink" column="photography_link"/>
@@ -21,7 +22,7 @@
     </resultMap>
 
     <sql id="Base_Column_List">
-        `id`,`customer_id`,`reference_link`,`reference_image`,`photography_link`,`photography_type`,`pay_amount`,`pay_state`,`refund_state`,`pay_time`,`payment_id`,`create_time`,`update_time`
+        `id`,`customer_id`,`description`,`reference_link`,`reference_image`,`photography_link`,`photography_type`,`pay_amount`,`pay_state`,`refund_state`,`pay_time`,`payment_id`,`create_time`,`update_time`
     </sql>
 
     <select id="selectByPrimaryKey" parameterType="com.upedge.sms.modules.photography.entity.ProductPhotographyOrder" resultMap="BaseResultMap">
@@ -75,6 +76,9 @@
             <if test="updateTime != null">
                 update_time = #{updateTime},
             </if>
+            <if test="description != null">
+                description = #{description},
+            </if>
         </set>
         where id = #{id}
         and pay_state = '0'
@@ -94,6 +98,7 @@
         refund_state = #{refundState},
         pay_time = #{payTime},
         payment_id = #{paymentId},
+            description = #{description},
         create_time = #{createTime},
         update_time = #{updateTime},
         </set>
@@ -112,6 +117,7 @@
             pay_amount,
             pay_state,
             refund_state,
+            description,
             pay_time,
             payment_id,
             create_time,
@@ -127,6 +133,7 @@
         #{payAmount},
         #{payState},
         #{refundState},
+        #{description},
         #{payTime},
         #{paymentId},
         #{createTime},
@@ -176,6 +183,9 @@
             <if test="updateTime != null" >
               update_time
             </if>
+            <if test="description != null" >
+                description
+            </if>
 
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
@@ -218,6 +228,9 @@
             <if test="updateTime != null" >
                 #{updateTime}
             </if>
+            <if test="description != null" >
+                #{description}
+            </if>
 
         </trim>
     </insert>
@@ -234,6 +247,7 @@
            pay_amount,
            pay_state,
            refund_state,
+            description,
            pay_time,
            payment_id,
            create_time,
@@ -251,6 +265,7 @@
                #{item.payAmount},
                #{item.payState},
                #{item.refundState},
+               #{item.description},
                #{item.payTime},
                #{item.paymentId},
                #{item.createTime},
@@ -302,6 +317,9 @@
                     </if>
                     <if test="t.updateTime != null">
                         update_time = #{t.updateTime} and
+                    </if>
+                    <if test="t.description != null">
+                        description = #{description} and
                     </if>
             </trim>
         </if>

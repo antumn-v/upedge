@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by jiaqi on 2020/2/21.
+ * Created by guoxing on 2020/2/21.
  */
 public class PurchaseInDetailList {
 

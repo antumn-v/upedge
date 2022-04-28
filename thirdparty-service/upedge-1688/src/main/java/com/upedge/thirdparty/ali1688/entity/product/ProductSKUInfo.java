@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by jiaqi on 2020/6/15.
+ * Created by guoxing on 2020/6/15.
  */
 public class ProductSKUInfo {
 

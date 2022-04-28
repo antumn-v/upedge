@@ -4,7 +4,7 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 
 /**
- * Created by jiaqi on 2020/2/21.
+ * Created by guoxing on 2020/2/21.
  */
 public class ApiGetInPurchaseDetailResponse {
 

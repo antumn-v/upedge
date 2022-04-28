@@ -4,7 +4,7 @@ import com.alibaba.ocean.rawsdk.client.APIId;
 import com.alibaba.ocean.rawsdk.common.AbstractAPIRequest;
 
 /**
- * Created by jiaqi on 2020/6/9.
+ * Created by guoxing on 2020/6/9.
  */
 public class AlibabaAccountAgentCrossBasicParam extends AbstractAPIRequest<AlibabaAccountAgentCrossBasicResult> {
 

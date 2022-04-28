@@ -1,7 +1,7 @@
 package com.upedge.pms.modules.alibaba.entity.translate;
 
 /**
- * Created by jiaqi on 2019/11/27.
+ * Created by guoxing on 2019/11/27.
  */
 public class TranslateRes {
 

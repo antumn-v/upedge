@@ -1,13 +1,14 @@
 package com.upedge.sms.modules.photography.entity;
 
-import java.math.BigDecimal;
-import java.io.Serializable;
-import java.util.Date;
 import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.math.BigDecimal;
 
 /**
  * @author gx
  */
+@NoArgsConstructor
 @Data
 public class ProductPhotographyOrderItem{
 

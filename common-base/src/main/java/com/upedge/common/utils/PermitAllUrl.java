@@ -5,7 +5,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * Created by jiaqi on 2019/9/12.
+ * Created by guoxing on 2019/9/12.
  */
 public class PermitAllUrl {
 
