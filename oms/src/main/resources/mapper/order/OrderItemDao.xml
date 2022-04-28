@@ -121,6 +121,7 @@
     </resultMap>
 
 
+
     <sql id="Base_Column_List">
         `id`,`order_id`,`store_order_id`,`store_order_item_id`,`store_variant_id`,
         `admin_variant_id`,`store_product_id`,`admin_product_id`,
@@ -289,7 +290,7 @@
         and o.pay_state = '0'
     </update>
 
-    <update id="updateOrderIdByOrderItemMap">
+    <update id="    updateOrderIdByOrderItemMap">
         <foreach collection="orderItemMap" index="orderId" item="itemIds" separator=";">
             update order_item
             set order_id = #{orderId}
@@ -1093,7 +1094,7 @@
         select
         <include refid="Base_Column_List"/>
         from order_item
-        when order_id = #{orderId}
+        where order_id = #{orderId}
         and store_variant_id = #{storeVariantId}
         limit 1
     </select>
@@ -1138,4 +1139,25 @@
             set quantity = quantity + #{quantity}
         where id = #{id}
     </update>
+
+    <resultMap id="OrderStoreVariantIdsVo" type="com.upedge.oms.modules.order.vo.OrderStoreVariantIdsVo">
+        <id column="id" property="orderId"/>
+        <collection property="storeVariantIds" ofType="java.lang.Long">
+            <id property="value" column="store_variant_id"/>
+        </collection>
+    </resultMap>
+
+    <select id="selectOrderStoreVariantIdsByStoreVariantIds"
+            resultMap="OrderStoreVariantIdsVo">
+        select  o.id,oi.store_variant_id
+        from `order` o
+                     inner join order_item oi
+                on o.id = oi.order_id
+        where o.pay_state &lt; '1'
+        and o.order_type != '1'
+        and oi.store_variant_id in
+            <foreach collection="storeVariantIds" item="storeVariantId" open="(" close=")" separator=",">
+                #{storeVariantId}
+            </foreach>
+    </select>
 </mapper>

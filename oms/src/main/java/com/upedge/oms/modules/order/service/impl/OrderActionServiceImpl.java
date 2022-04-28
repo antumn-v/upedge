@@ -150,8 +150,22 @@ public class OrderActionServiceImpl implements OrderActionService {
                 if (null == orderItem) {
                     continue;
                 }
-                totalQuantity += itemQuantity.getQuantity();
                 Long newItemId = IdGenerate.nextId();
+                OrderActionLog actionLog = new OrderActionLog();
+                actionLog.setActionType(OrderActionType.SPLIT_NORMAL_ORDER);
+                actionLog.setCreateTime(date);
+                actionLog.setNewItemId(newItemId);
+                actionLog.setNewOrderId(newOrderId);
+                actionLog.setNewQuantity(itemQuantity.getQuantity());
+                actionLog.setOldItemId(itemId);
+                actionLog.setOldOrderId(orderId);
+                actionLog.setOldQuantity(orderItem.getQuantity());
+                actionLogs.add(actionLog);
+
+                if (itemQuantity.getQuantity() < 1){
+                    continue;
+                }
+                totalQuantity += itemQuantity.getQuantity();
                 OrderItem newItem = new OrderItem();
                 BeanUtils.copyProperties(orderItem, newItem);
                 newItem.setId(newItemId);
@@ -168,20 +182,11 @@ public class OrderActionServiceImpl implements OrderActionService {
                 if (null != orderItem.getCnyPrice()) {
                     cnyProductAmount = cnyProductAmount.add(new BigDecimal(newItem.getQuantity()).multiply(orderItem.getCnyPrice()));
                 }
-                OrderActionLog actionLog = new OrderActionLog();
-                actionLog.setActionType(OrderActionType.SPLIT_NORMAL_ORDER);
-                actionLog.setCreateTime(date);
-                actionLog.setNewItemId(newItemId);
-                actionLog.setNewOrderId(newOrderId);
-                actionLog.setNewQuantity(itemQuantity.getQuantity());
-                actionLog.setOldItemId(itemId);
-                actionLog.setOldOrderId(orderId);
-                actionLog.setOldQuantity(orderItem.getQuantity());
-                actionLogs.add(actionLog);
+
             }
             BeanUtils.copyProperties(order, newOrder);
             if (totalQuantity < 1){
-                newOrder.setPayState(-1);
+                continue;
             }
             newOrder.setId(newOrderId);
             newOrder.setCreateTime(date);
@@ -264,7 +269,7 @@ public class OrderActionServiceImpl implements OrderActionService {
             }else {
                 newOrder = orderMap.get(newOrderId);
             }
-            if (0 != newOrder.getPayState() || 2 != order.getOrderType()) {
+            if (null == newOrder ||0 != newOrder.getPayState() || 2 != order.getOrderType()) {
                 continue;
             }
             OrderItem orderItem = null;

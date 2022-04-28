@@ -33,6 +33,8 @@ import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ThreadPoolExecutor;
 
 /**
  * 
@@ -52,6 +54,9 @@ public class CartController {
 
     @Autowired
     AdminStockService adminStockService;
+
+    @Autowired
+    ThreadPoolExecutor threadPoolExecutor;
 
 
 
@@ -161,7 +166,12 @@ public class CartController {
         if(null == orderId){
             return BaseResponse.failed();
         }
-        adminStockService.refreshSaiheSku(orderId);
+        CompletableFuture.runAsync(new Runnable() {
+            @Override
+            public void run() {
+                adminStockService.refreshSaiheSku(orderId);
+            }
+        },threadPoolExecutor);
         return BaseResponse.success();
     }
 
