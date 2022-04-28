@@ -1,0 +1,348 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.upedge.sms.modules.winningProduct.dao.WinningProductServiceOrderDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.upedge.sms.modules.winningProduct.entity.WinningProductServiceOrder" id="BaseResultMap">
+        <result property="id" column="id"/>
+        <result property="customerId" column="customer_id"/>
+        <result property="serviceOption" column="service_option"/>
+        <result property="category" column="category"/>
+        <result property="description" column="description"/>
+        <result property="productFileLink" column="product_file_link"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="payAmount" column="pay_amount"/>
+        <result property="payTime" column="pay_time"/>
+        <result property="paymentId" column="payment_id"/>
+        <result property="payState" column="pay_state"/>
+        <result property="refundState" column="refund_state"/>
+        <result property="orderState" column="order_state"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        `id`,`customer_id`,`service_option`,`category`,`description`,`product_file_link`,`create_time`,`update_time`,`pay_amount`,`pay_time`,`payment_id`,`pay_state`,`refund_state`,`order_state`
+    </sql>
+
+    <select id="selectByPrimaryKey" parameterType="com.upedge.sms.modules.winningProduct.entity.WinningProductServiceOrder" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from winning_product_service_order
+        where id = #{id}
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="com.upedge.sms.modules.winningProduct.entity.WinningProductServiceOrder">
+        delete from winning_product_service_order
+        where id = #{id}
+    </delete>
+
+    <update id="updateByPrimaryKeySelective" parameterType="com.upedge.sms.modules.winningProduct.entity.WinningProductServiceOrder">
+        update winning_product_service_order
+        <set>
+            <if test="customerId != null">
+                customer_id = #{customerId},
+            </if>
+            <if test="serviceOption != null">
+                service_option = #{serviceOption},
+            </if>
+            <if test="category != null">
+                category = #{category},
+            </if>
+            <if test="description != null">
+                description = #{description},
+            </if>
+            <if test="productFileLink != null">
+                product_file_link = #{productFileLink},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime},
+            </if>
+            <if test="updateTime != null">
+                update_time = #{updateTime},
+            </if>
+            <if test="payAmount != null">
+                pay_amount = #{payAmount},
+            </if>
+            <if test="payTime != null">
+                pay_time = #{payTime},
+            </if>
+            <if test="paymentId != null">
+                payment_id = #{paymentId},
+            </if>
+            <if test="payState != null">
+                pay_state = #{payState},
+            </if>
+            <if test="refundState != null">
+                refund_state = #{refundState},
+            </if>
+            <if test="orderState != null">
+                order_state = #{orderState},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <update id="updateByPrimaryKey" parameterType="com.upedge.sms.modules.winningProduct.entity.WinningProductServiceOrder">
+        update winning_product_service_order
+        <set>
+        id = #{id},
+        customer_id = #{customerId},
+        service_option = #{serviceOption},
+        category = #{category},
+        description = #{description},
+        product_file_link = #{productFileLink},
+        create_time = #{createTime},
+        update_time = #{updateTime},
+        pay_amount = #{payAmount},
+        pay_time = #{payTime},
+        payment_id = #{paymentId},
+        pay_state = #{payState},
+        refund_state = #{refundState},
+        order_state = #{orderState},
+        </set>
+        where id = #{id}
+    </update>
+
+    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.upedge.sms.modules.winningProduct.entity.WinningProductServiceOrder" useGeneratedKeys="true">
+        insert into winning_product_service_order
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            id,
+            customer_id,
+            service_option,
+            category,
+            description,
+            product_file_link,
+            create_time,
+            update_time,
+            pay_amount,
+            pay_time,
+            payment_id,
+            pay_state,
+            refund_state,
+            order_state
+        </trim>
+        values (
+        #{id},
+        #{customerId},
+        #{serviceOption},
+        #{category},
+        #{description},
+        #{productFileLink},
+        #{createTime},
+        #{updateTime},
+        #{payAmount},
+        #{payTime},
+        #{paymentId},
+        #{payState},
+        #{refundState},
+        #{orderState}
+        )
+    </insert>
+
+    <insert id="insertSelective"  keyColumn="id" keyProperty="id"  parameterType="com.upedge.sms.modules.winningProduct.entity.WinningProductServiceOrder" useGeneratedKeys="true">
+        insert into winning_product_service_order
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null" >
+              id
+            </if>
+            <if test="customerId != null" >
+              customer_id
+            </if>
+            <if test="serviceOption != null" >
+              service_option
+            </if>
+            <if test="category != null" >
+              category
+            </if>
+            <if test="description != null" >
+              description
+            </if>
+            <if test="productFileLink != null" >
+              product_file_link
+            </if>
+            <if test="createTime != null" >
+              create_time
+            </if>
+            <if test="updateTime != null" >
+              update_time
+            </if>
+            <if test="payAmount != null" >
+              pay_amount
+            </if>
+            <if test="payTime != null" >
+              pay_time
+            </if>
+            <if test="paymentId != null" >
+              payment_id
+            </if>
+            <if test="payState != null" >
+              pay_state
+            </if>
+            <if test="refundState != null" >
+              refund_state
+            </if>
+            <if test="orderState != null" >
+              order_state
+            </if>
+
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null" >
+                #{id}
+            </if>
+            <if test="customerId != null" >
+                #{customerId}
+            </if>
+            <if test="serviceOption != null" >
+                #{serviceOption}
+            </if>
+            <if test="category != null" >
+                #{category}
+            </if>
+            <if test="description != null" >
+                #{description}
+            </if>
+            <if test="productFileLink != null" >
+                #{productFileLink}
+            </if>
+            <if test="createTime != null" >
+                #{createTime}
+            </if>
+            <if test="updateTime != null" >
+                #{updateTime}
+            </if>
+            <if test="payAmount != null" >
+                #{payAmount}
+            </if>
+            <if test="payTime != null" >
+                #{payTime}
+            </if>
+            <if test="paymentId != null" >
+                #{paymentId}
+            </if>
+            <if test="payState != null" >
+                #{payState}
+            </if>
+            <if test="refundState != null" >
+                #{refundState}
+            </if>
+            <if test="orderState != null" >
+                #{orderState}
+            </if>
+
+        </trim>
+    </insert>
+
+    <insert id="insertByBatch" parameterType="java.util.List">
+        insert into winning_product_service_order
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+           id,
+           customer_id,
+           service_option,
+           category,
+           description,
+           product_file_link,
+           create_time,
+           update_time,
+           pay_amount,
+           pay_time,
+           payment_id,
+           pay_state,
+           refund_state,
+           order_state
+        </trim>
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+               #{item.id},
+               #{item.customerId},
+               #{item.serviceOption},
+               #{item.category},
+               #{item.description},
+               #{item.productFileLink},
+               #{item.createTime},
+               #{item.updateTime},
+               #{item.payAmount},
+               #{item.payTime},
+               #{item.paymentId},
+               #{item.payState},
+               #{item.refundState},
+               #{item.orderState}
+            </trim>
+        </foreach>
+    </insert>
+
+    <sql id="Query_Condition">
+        <if test="t != null">
+            where
+            <trim prefix=" " suffix=" " suffixOverrides=" and ">
+                1 = 1 and
+                    <if test="t.id != null">
+                        id = #{t.id} and
+                    </if>
+                    <if test="t.customerId != null">
+                        customer_id = #{t.customerId} and
+                    </if>
+                    <if test="t.serviceOption != null">
+                        service_option = #{t.serviceOption} and
+                    </if>
+                    <if test="t.category != null">
+                        category = #{t.category} and
+                    </if>
+                    <if test="t.description != null">
+                        description = #{t.description} and
+                    </if>
+                    <if test="t.productFileLink != null">
+                        product_file_link = #{t.productFileLink} and
+                    </if>
+                    <if test="t.createTime != null">
+                        create_time = #{t.createTime} and
+                    </if>
+                    <if test="t.updateTime != null">
+                        update_time = #{t.updateTime} and
+                    </if>
+                    <if test="t.payAmount != null">
+                        pay_amount = #{t.payAmount} and
+                    </if>
+                    <if test="t.payTime != null">
+                        pay_time = #{t.payTime} and
+                    </if>
+                    <if test="t.paymentId != null">
+                        payment_id = #{t.paymentId} and
+                    </if>
+                    <if test="t.payState != null">
+                        pay_state = #{t.payState} and
+                    </if>
+                    <if test="t.refundState != null">
+                        refund_state = #{t.refundState} and
+                    </if>
+                    <if test="t.orderState != null">
+                        order_state = #{t.orderState} and
+                    </if>
+            </trim>
+        </if>
+    </sql>
+
+    <select id="select" parameterType="com.upedge.common.base.Page" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from winning_product_service_order
+        <include refid="Query_Condition"/>
+        <if test="orderBy != null">
+            order by ${orderBy}
+        </if>
+        <if test="pageNum != null and pageSize != null">
+            limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+        </if>
+    </select>
+
+    <select id="count" parameterType="com.upedge.common.base.Page" resultType="java.lang.Long">
+        select
+        count(1)
+        from winning_product_service_order
+        <include refid="Query_Condition"/>
+    </select>
+
+
+</mapper>
