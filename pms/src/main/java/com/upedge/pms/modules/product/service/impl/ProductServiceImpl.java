@@ -3,20 +3,27 @@ package com.upedge.pms.modules.product.service.impl;
 import com.alibaba.fastjson.JSON;
 import com.upedge.common.base.BaseResponse;
 import com.upedge.common.base.Page;
-import com.upedge.common.constant.key.RocketMqConfig;
 import com.upedge.common.constant.Constant;
 import com.upedge.common.constant.ProductConstant;
 import com.upedge.common.constant.ResultCode;
 import com.upedge.common.constant.key.RedisKey;
+import com.upedge.common.constant.key.RocketMqConfig;
 import com.upedge.common.exception.CustomerException;
 import com.upedge.common.feign.UmsFeignClient;
 import com.upedge.common.model.log.MqMessageLog;
+import com.upedge.common.model.product.AlibabaApiVo;
 import com.upedge.common.model.product.VariantDetail;
 import com.upedge.common.model.ship.vo.ShippingTemplateRedis;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.utils.IdGenerate;
 import com.upedge.common.utils.ListUtils;
 import com.upedge.common.utils.PriceUtils;
+import com.upedge.common.utils.UrlUtils;
+import com.upedge.pms.modules.alibaba.entity.translate.TranslateResult;
+import com.upedge.pms.modules.alibaba.service.Ali1688Service;
+import com.upedge.pms.modules.alibaba.service.TranslateService;
+import com.upedge.pms.modules.alibaba.vo.AlibabaProductVo;
+import com.upedge.pms.modules.alibaba.vo.ProductVariantAttrVo;
 import com.upedge.pms.modules.category.entity.Category;
 import com.upedge.pms.modules.category.entity.CategoryMapping;
 import com.upedge.pms.modules.category.service.CategoryMappingService;
@@ -34,10 +41,6 @@ import com.upedge.pms.modules.product.service.*;
 import com.upedge.pms.modules.product.vo.*;
 import com.upedge.pms.modules.supplier.entity.Supplier;
 import com.upedge.pms.modules.supplier.service.SupplierService;
-import com.upedge.pms.modules.alibaba.entity.translate.TranslateResult;
-import com.upedge.pms.modules.alibaba.service.TranslateService;
-import com.upedge.pms.modules.alibaba.vo.AlibabaProductVo;
-import com.upedge.pms.modules.alibaba.vo.ProductVariantAttrVo;
 import com.upedge.thirdparty.saihe.config.SaiheConfig;
 import com.upedge.thirdparty.saihe.entity.processUpdateProduct.*;
 import com.upedge.thirdparty.saihe.service.SaiheService;
@@ -187,8 +190,10 @@ public class ProductServiceImpl implements ProductService {
                     productLogService.insert(productLog);
                 }
             }
-            productDao.updateByPrimaryKeySelective(product);
         }
+        String productSku = request.getProductSku();
+        updateProductSku(product,productSku);
+        productDao.updateByPrimaryKeySelective(product);
         if(!StringUtils.isBlank(request.getEntryCname())||!StringUtils.isBlank(request.getEntryCname())
                 ||request.getWarehouseCode()!=null){
             ProductAttribute attribute=new ProductAttribute();
@@ -213,7 +218,31 @@ public class ProductServiceImpl implements ProductService {
             }
         }
 
+
+
         return new BaseResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS);
+    }
+
+    void updateProductSku(Product product,String productSku){
+        if (StringUtils.isNotBlank(productSku)){
+            productSku = UrlUtils.getNameByUrl(productSku);
+            if (StringUtils.isNotBlank(productSku)){
+                AlibabaApiVo alibabaApiVo = (AlibabaApiVo) redisTemplate.opsForValue().get(RedisKey.STRING_ALI1688_API);
+                AlibabaProductVo alibabaProductVo = Ali1688Service.getProduct(productSku, alibabaApiVo);
+                if (null != alibabaProductVo){
+                    Supplier supplier = supplierService.selectByLoginId(alibabaProductVo.getSupplierVo().getLoginId());
+                    if (supplier == null) {
+                        supplier = new Supplier();
+                        BeanUtils.copyProperties(alibabaProductVo.getSupplierVo(), supplier);
+                        supplier.setUpdateTime(new Date());
+                        supplier.setCreateTime(new Date());
+                        supplierService.insert(supplier);
+                    }
+                    product.setProductSku(productSku);
+                    product.setSupplierId(Integer.toUnsignedLong(supplier.getId()));
+                }
+            }
+        }
     }
 
     @Override
