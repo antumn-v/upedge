@@ -375,7 +375,9 @@ public class OrderItemServiceImpl implements OrderItemService {
 //            default:
 //                return;
 //        }
-
+        if (ListUtils.isEmpty(orderIds)){
+            return;
+        }
         //查询订单中是否包含报价中的产品
         List<Long> quotingOrders = orderItemDao.selectOrderIdsByOrderIdsAndQuoteState(orderIds,OrderItem.QUOTE_STATE_QUOTING);
         if (ListUtils.isNotEmpty(quotingOrders)) {//标记订单为部分报价

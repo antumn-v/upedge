@@ -30,6 +30,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.validation.Valid;
 import java.io.File;
 import java.io.IOException;
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -149,6 +150,35 @@ public class ProductPhotographyOrderController {
         }
         return response;
     }
+
+
+    @ApiOperation("上传产品文件")
+    @PostMapping("/uploadFile/{id}")
+    public BaseResponse uploadProductFile(@PathVariable Long id, MultipartFile file){
+        ProductPhotographyOrder order = productPhotographyOrderService.selectByPrimaryKey(id);
+        if (null == order){
+            return BaseResponse.failed("订单不存在");
+        }
+        if (file == null
+                || file.isEmpty()){
+            return BaseResponse.failed("空文件");
+        }
+        String fileName=file.getOriginalFilename();
+        //文件上传
+        try {
+            file.transferTo(new File(localPath+fileName));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        String path = imageUrlPrefix + fileName;
+        order = new ProductPhotographyOrder();
+        order.setPhotographyLink(path);
+        order.setId(id);
+        order.setUpdateTime(new Date());
+        productPhotographyOrderService.updateByPrimaryKeySelective(order);
+        return BaseResponse.success();
+    }
+
 
 
 }

@@ -4,13 +4,16 @@ import com.upedge.common.base.Page;
 import com.upedge.common.constant.Constant;
 import com.upedge.common.constant.ResultCode;
 import com.upedge.common.constant.key.RedisKey;
+import com.upedge.common.utils.ListUtils;
 import com.upedge.thirdparty.saihe.entity.getTransportList.ApiGetTransportResponse;
 import com.upedge.thirdparty.saihe.entity.getTransportList.ApiTransport;
 import com.upedge.thirdparty.saihe.service.SaiheService;
 import com.upedge.tms.modules.ship.dao.SaiheTransportDao;
+import com.upedge.tms.modules.ship.entity.AdminWarehouse;
 import com.upedge.tms.modules.ship.entity.SaiheTransport;
 import com.upedge.tms.modules.ship.response.SaiheTransportListResponse;
 import com.upedge.tms.modules.ship.response.SaiheTransportUpdateResponse;
+import com.upedge.tms.modules.ship.service.AdminWarehouseService;
 import com.upedge.tms.modules.ship.service.SaiheTransportService;
 import com.upedge.tms.modules.ship.service.ShippingMethodService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +31,9 @@ public class SaiheTransportServiceImpl implements SaiheTransportService {
 
     @Autowired
     private SaiheTransportDao saiheTransportDao;
+
+    @Autowired
+    AdminWarehouseService adminWarehouseService;
 
     @Autowired
     private ShippingMethodService shippingMethodService;
@@ -123,30 +129,37 @@ public class SaiheTransportServiceImpl implements SaiheTransportService {
 
     @Override
     public SaiheTransportUpdateResponse refreshSaihe() {
-        //获取运输方式列表
-        List<SaiheTransport> saiheTransportList=new ArrayList<>();
-//        ApiGetTransportResponse apiGetTransportResponse= SaiheService.getTransportList(SaiheConfig.UPEDGE_OVERSEA_WAREHOUSE_ID);
-        ApiGetTransportResponse apiGetTransportResponse= SaiheService.getTransportList(6);
-        if(apiGetTransportResponse.getGetTransportListResult().getStatus().equals("OK")){
-            List<ApiTransport> transportList=apiGetTransportResponse.getGetTransportListResult().
-                    getTransportList().getApiTransport();
-            for(ApiTransport a:transportList){
-                SaiheTransport saiheTransport=new SaiheTransport();
-                saiheTransport.setId(a.getID());
-                saiheTransport.setCarrierName(a.getCarrierName());
-                saiheTransport.setTransportName(a.getTransportName());
-                saiheTransport.setTransportNameEn(a.getTransportNameEn());
-                saiheTransport.setIsRegistered(a.getRegistered());
-                saiheTransportList.add(saiheTransport);
+//        adminWarehouseService.refreshSaihe();
+        List<AdminWarehouse> adminWarehouses = adminWarehouseService.allUseWarehouses();
+        for (AdminWarehouse adminWarehouse : adminWarehouses) {
+            //获取运输方式列表
+            List<SaiheTransport> saiheTransportList=new ArrayList<>();
+            ApiGetTransportResponse apiGetTransportResponse= SaiheService.getTransportList(adminWarehouse.getId());
+            if(apiGetTransportResponse.getGetTransportListResult().getStatus().equals("OK")){
+                List<ApiTransport> transportList=apiGetTransportResponse.getGetTransportListResult().
+                        getTransportList().getApiTransport();
+                for(ApiTransport a:transportList){
+                    SaiheTransport saiheTransport=new SaiheTransport();
+                    saiheTransport.setId(a.getID());
+                    saiheTransport.setCarrierName(a.getCarrierName());
+                    saiheTransport.setTransportName(a.getTransportName());
+                    saiheTransport.setTransportNameEn(a.getTransportNameEn());
+                    saiheTransport.setIsRegistered(a.getRegistered());
+                    saiheTransportList.add(saiheTransport);
+                }
+            }
+            if (ListUtils.isEmpty(saiheTransportList)){
+                continue;
+            }
+            saiheTransportDao.saveSaiheTransport(saiheTransportList);
+            for (SaiheTransport saiheTransport : saiheTransportList) {
+                redisTemplate.opsForValue().set(
+                        RedisKey.STRING_SAIHE_TRANSPORT_IDKEY+saiheTransport.getId(),
+                        saiheTransport
+                );
             }
         }
-        saiheTransportDao.saveSaiheTransport(saiheTransportList);
-        for (SaiheTransport saiheTransport : saiheTransportList) {
-            redisTemplate.opsForValue().set(
-                    RedisKey.STRING_SAIHE_TRANSPORT_IDKEY+saiheTransport.getId(),
-                    saiheTransport
-            );
-        }
+
         return new SaiheTransportUpdateResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS);
     }
 }

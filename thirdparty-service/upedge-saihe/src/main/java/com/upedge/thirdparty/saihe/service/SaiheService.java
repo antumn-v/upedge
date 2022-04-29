@@ -201,7 +201,7 @@ public class SaiheService {
             request.setPassword(SaiheConfig.PASSWORD);
             request.setCustomer_ID(SaiheConfig.CUSTOMER_ID);
             //仓库类型（默认值：1）
-//            request.setWareHouseType(1);
+            request.setWareHouseType(1);
 
             apiGetWareHouseRequest.setRequest(request);
             SaiheRequestEntity requestEntity = new SaiheRequestEntity();

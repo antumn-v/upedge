@@ -16,7 +16,6 @@ import com.upedge.common.model.mq.ChangeManagerVo;
 import com.upedge.common.model.order.PaymentDetail;
 import com.upedge.common.model.order.TransactionDetail;
 import com.upedge.common.model.ship.vo.ShippingMethodRedis;
-import com.upedge.common.model.ship.vo.ShippingMethodVo;
 import com.upedge.common.model.user.vo.CustomerIossVo;
 import com.upedge.common.model.user.vo.CustomerVo;
 import com.upedge.common.utils.IdGenerate;
@@ -582,15 +581,7 @@ public class OrderCommonServiceImpl implements OrderCommonService {
                 Integer transportId = l.get(0).getTransportID();//获取运输id
                 //logger.debug("orderCode:{},trackNumbers:{},logisticsOrderNo:{}",orderCode,trackNumbers,logisticsOrderNo);
                 Long shippingMethodId = a.getShipMethodId();
-                ShippingMethodVo shippingMethod = null;
-                //优先根据赛盒运输id查询Admin运输方式
-                ShippingMethodVo paramVo = new ShippingMethodVo();
-                paramVo.setId(shippingMethodId);
-                paramVo.setSaiheTransportId(transportId);
-                BaseResponse response = tmsFeignClient.getShippingMethodByTransportId(paramVo);
-                if (response.getCode() == ResultCode.SUCCESS_CODE && response.getData() != null) {
-                    shippingMethod = JSON.parseObject(JSON.toJSONString(response.getData()), ShippingMethodVo.class);
-                }
+                ShippingMethodRedis shippingMethod = (ShippingMethodRedis) redisTemplate.opsForHash().get(RedisKey.SHIPPING_METHOD,String.valueOf(shippingMethodId));
                 //获取admin的运输方式
                 String shippingMethodName = "";
 

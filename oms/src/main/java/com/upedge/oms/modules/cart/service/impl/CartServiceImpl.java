@@ -238,7 +238,6 @@ public class CartServiceImpl implements CartService {
                                          Integer cartType,
                                          Long customerId) {
         if (ListUtils.isEmpty(ids)
-        || null == cartType
         || null == customerId){
             return new ArrayList<>();
         }

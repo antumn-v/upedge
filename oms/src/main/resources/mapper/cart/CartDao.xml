@@ -55,8 +55,8 @@
         select
         <include refid="Base_Column_List"/>
         from cart
-        where
-        1=1
+        where customer_id = #{customerId}
+        and `state` = '0'
         <if test="ids == null">
             and 1 != 1
         </if>
@@ -66,9 +66,6 @@
                 #{id}
             </foreach>
         </if>
-        and `state` = '0'
-        and cart_type = #{cartType}
-        and customer_id = #{customerId}
     </select>
 
     <update id="updateStateByIds">

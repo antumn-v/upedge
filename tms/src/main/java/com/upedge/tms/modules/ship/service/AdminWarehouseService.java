@@ -2,7 +2,6 @@ package com.upedge.tms.modules.ship.service;
 
 import com.upedge.common.base.Page;
 import com.upedge.tms.modules.ship.entity.AdminWarehouse;
-import com.upedge.tms.modules.ship.response.AdminWarehouseListResponse;
 import com.upedge.tms.modules.ship.response.AdminWarehouseUpdateResponse;
 
 import java.util.List;
@@ -32,7 +31,7 @@ public interface AdminWarehouseService{
 
     AdminWarehouseUpdateResponse disableWarehouse(Integer id);
 
-    AdminWarehouseListResponse allUseWarehouses();
+    List<AdminWarehouse> allUseWarehouses();
 
     AdminWarehouseUpdateResponse refreshSaihe();
 }

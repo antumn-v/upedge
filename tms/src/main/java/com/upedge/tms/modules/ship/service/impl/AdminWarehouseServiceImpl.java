@@ -9,7 +9,6 @@ import com.upedge.thirdparty.saihe.entity.getWareHouseList.WareHouseList;
 import com.upedge.thirdparty.saihe.service.SaiheService;
 import com.upedge.tms.modules.ship.dao.AdminWarehouseDao;
 import com.upedge.tms.modules.ship.entity.AdminWarehouse;
-import com.upedge.tms.modules.ship.response.AdminWarehouseListResponse;
 import com.upedge.tms.modules.ship.response.AdminWarehouseUpdateResponse;
 import com.upedge.tms.modules.ship.service.AdminWarehouseService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -78,9 +77,9 @@ public class AdminWarehouseServiceImpl implements AdminWarehouseService {
     }
 
     @Override
-    public AdminWarehouseListResponse allUseWarehouses() {
+    public List<AdminWarehouse> allUseWarehouses() {
         List<AdminWarehouse> results = adminWarehouseDao.allUseWarehouses();
-        return new AdminWarehouseListResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS,results,null);
+        return results;
     }
 
     /**
@@ -141,7 +140,7 @@ public class AdminWarehouseServiceImpl implements AdminWarehouseService {
         for(ApiWareHouse a:wareHouses){
             AdminWarehouse warehouse=new AdminWarehouse();
             warehouse.setId(a.getID());
-            warehouse.setState(0);
+            warehouse.setState(1);
             warehouse.setWarehouseEname(a.getWareHouseName());
             warehouse.setWarehouseName(a.getWareHouseName());
             warehouse.setWarehouseType(a.getWareHouseType());

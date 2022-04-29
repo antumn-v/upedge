@@ -165,7 +165,6 @@ public class WholesaleOrderServiceImpl implements WholesaleOrderService {
 
         CartSelectByIdsRequest cartSelectByIdsRequest = new CartSelectByIdsRequest();
         cartSelectByIdsRequest.setIds(request.getCartIds());
-        cartSelectByIdsRequest.setCartType(0);
         cartSelectByIdsRequest.setCustomerId(session.getCustomerId());
         List<CartVo> cartVos = omsFeignClient.selectByIds(cartSelectByIdsRequest);
         if (ListUtils.isEmpty(cartVos)){

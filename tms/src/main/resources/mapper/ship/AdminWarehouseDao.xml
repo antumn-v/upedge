@@ -181,7 +181,7 @@
     <select id="allUseWarehouses" resultMap="BaseResultMap">
         select
         `id`,`warehouse_name`,`warehouse_ename`
-        from admin_warehouse where state=1
+        from admin_warehouse
     </select>
 
     <update id="updateWarehouseState">

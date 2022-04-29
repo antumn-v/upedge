@@ -109,6 +109,7 @@ public class OrderFulfillmentServiceImpl implements OrderFulfillmentService {
                 orderTracking.setTrackingCompany(shippingMethodRedis.getName());
             }
             orderTracking.setState(0);
+            orderTracking.setShippingMethodName(shippingMethodRedis.getName());
             orderTrackingDao.updateOrderTracking(orderTracking);
         }else {
             return;
@@ -119,7 +120,7 @@ public class OrderFulfillmentServiceImpl implements OrderFulfillmentService {
         if (shippingMethodRedis.getTrackType() == 1){
             orderTracking.setTrackingCode(orderTracking.getLogisticsOrderNo());
         }
-        if (null == orderTracking.getTrackingCode()){
+        if (StringUtils.isBlank(orderTracking.getTrackingCode())){
             orderTracking.setState(4);
             orderTrackingDao.updateOrderTracking(orderTracking);
             return;

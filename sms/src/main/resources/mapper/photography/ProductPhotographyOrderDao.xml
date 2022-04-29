@@ -81,7 +81,6 @@
             </if>
         </set>
         where id = #{id}
-        and pay_state = '0'
     </update>
 
     <update id="updateByPrimaryKey" parameterType="com.upedge.sms.modules.photography.entity.ProductPhotographyOrder">

@@ -144,7 +144,7 @@ public class ProductPhotographyOrderServiceImpl implements ProductPhotographyOrd
                 if (StringUtils.isBlank(referenceImage)){
                     referenceImage = uploadImage;
                 }else {
-                    referenceImage = "," + uploadImage;
+                    referenceImage = referenceImage + "," + uploadImage;
                 }
             }
             productPhotographyOrder.setReferenceImage(referenceImage);
@@ -153,6 +153,8 @@ public class ProductPhotographyOrderServiceImpl implements ProductPhotographyOrd
         productPhotographyOrder.setId(orderId);
         productPhotographyOrder.setCreateTime(new Date());
         productPhotographyOrder.setUpdateTime(new Date());
+        productPhotographyOrder.setPayState(0);
+        productPhotographyOrder.setRefundState(0);
         productPhotographyOrder.setCustomerId(session.getCustomerId());
         productPhotographyOrder.setDescription(request.getDescription());
 
