@@ -6,7 +6,9 @@ import com.upedge.common.base.Page;
 import com.upedge.common.constant.Constant;
 import com.upedge.common.constant.ResultCode;
 import com.upedge.common.constant.key.RedisKey;
+import com.upedge.common.constant.key.RocketMqConfig;
 import com.upedge.common.enums.StoreSettingEnum;
+import com.upedge.common.model.log.MqMessageLog;
 import com.upedge.common.model.old.ums.StoreNameAndUserVo;
 import com.upedge.common.model.store.StoreVo;
 import com.upedge.common.model.store.config.ShopifyConfig;
@@ -23,6 +25,7 @@ import com.upedge.thirdparty.woocommerce.moudles.shop.api.WoocommerceShopApi;
 import com.upedge.ums.async.StoreAsync;
 import com.upedge.ums.enums.ShopifyAttr;
 import com.upedge.ums.enums.WoocommerceAttr;
+import com.upedge.ums.modules.log.service.MqMessageLogService;
 import com.upedge.ums.modules.manager.entity.CustomerManager;
 import com.upedge.ums.modules.manager.service.CustomerManagerService;
 import com.upedge.ums.modules.organization.dao.OrganizationDao;
@@ -37,7 +40,9 @@ import com.upedge.ums.modules.store.config.StoreConfig;
 import com.upedge.ums.modules.store.dao.StoreAttrDao;
 import com.upedge.ums.modules.store.dao.StoreDao;
 import com.upedge.ums.modules.store.dao.StoreSettingDao;
-import com.upedge.ums.modules.store.entity.*;
+import com.upedge.ums.modules.store.entity.Store;
+import com.upedge.ums.modules.store.entity.StoreAttr;
+import com.upedge.ums.modules.store.entity.StoreSetting;
 import com.upedge.ums.modules.store.request.ShoplazzaAuthRequest;
 import com.upedge.ums.modules.store.request.WoocommerceAuthRequest;
 import com.upedge.ums.modules.store.response.ShopifyAuthResponse;
@@ -49,7 +54,11 @@ import com.upedge.ums.modules.user.entity.User;
 import com.upedge.ums.modules.user.request.CustomerSignUpRequest;
 import com.upedge.ums.modules.user.service.CustomerService;
 import com.upedge.ums.modules.user.service.impl.UserServiceImpl;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.rocketmq.client.producer.DefaultMQProducer;
+import org.apache.rocketmq.client.producer.SendStatus;
+import org.apache.rocketmq.common.message.Message;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -60,7 +69,7 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-
+@Slf4j
 @Service
 public class StoreServiceImpl implements StoreService {
 
@@ -102,6 +111,12 @@ public class StoreServiceImpl implements StoreService {
 
     @Autowired
     RedisTemplate<String, Object> redisTemplate;
+
+    @Autowired
+    DefaultMQProducer defaultMQProducer;
+
+    @Autowired
+    MqMessageLogService mqMessageLogService;
 
 
     /**
@@ -264,7 +279,6 @@ public class StoreServiceImpl implements StoreService {
             organizationDao.updateByPrimaryKeySelective(organization);
             storeDao.updateByPrimaryKey(store);
         } else {
-
             String orgPath = session.getParentOrganization().getId() + "|" + orgId;
             organization.setOrgParent(session.getParentOrganization().getId());
             organization.setOrgPath(orgPath);
@@ -278,7 +292,47 @@ public class StoreServiceImpl implements StoreService {
         StoreVo storeVo = new StoreVo();
         BeanUtils.copyProperties(store,storeVo);
         redisTemplate.opsForValue().set(RedisKey.STRING_STORE + store.getId(),storeVo);
+
+        getStoreData(store);
+
         return store;
+    }
+
+    void getStoreData(Store store){
+        Message message = new Message(RocketMqConfig.TOPIC_GET_STORE_DATA,"store",IdGenerate.uuid(),JSONObject.toJSONBytes(store));
+        try {
+            sendMessage(message);
+        } catch (Exception e) {
+            storeAsync.getStoreData(store);
+        }
+    }
+
+    public Boolean sendMessage(Message message)  {
+        String key = message.getKeys();
+
+        MqMessageLog messageLog = MqMessageLog.toMqMessageLog(message,null);
+        boolean b = false;
+        String status = "failed";
+        int i = 1;
+        while (i < 4 && !status.equals(SendStatus.SEND_OK.name())){
+            try {
+                status =  defaultMQProducer.send(message).getSendStatus().name();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }finally {
+                i += 1;
+            }
+        }
+        if(status.equals(SendStatus.SEND_OK.name())){
+            messageLog.setIsSendSuccess(1);
+            log.warn("topic:{},发送消息，key:{},发送成功,发送次数:{}",message.getTopic(),key,i);
+            b = true;
+        }else {
+            messageLog.setIsSendSuccess(0);
+            log.warn("topic:{},发送消息，key:{},发送失败,发送次数:{}",message.getTopic(),key,i);
+        }
+        mqMessageLogService.insert(messageLog);
+        return b;
     }
 
 
@@ -383,11 +437,7 @@ public class StoreServiceImpl implements StoreService {
         StoreVo storeVo = new StoreVo();
         BeanUtils.copyProperties(store,storeVo);
         redisTemplate.opsForValue().set(RedisKey.STRING_STORE + store.getId(),storeVo);
-        try {
-            storeAsync.getStoreData(store);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        getStoreData(store);
         return new WoocommerceAuthResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS, store);
     }
 
@@ -509,12 +559,7 @@ public class StoreServiceImpl implements StoreService {
         StoreVo storeVo = new StoreVo();
         BeanUtils.copyProperties(store,storeVo);
         redisTemplate.opsForValue().set(RedisKey.STRING_STORE + store.getId(),storeVo);
-
-        try {
-            storeAsync.getStoreData(store);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        getStoreData(store);
         return new BaseResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS, store);
     }
 

@@ -29,7 +29,6 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpMethod;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
 import java.util.function.BiConsumer;
@@ -49,7 +48,6 @@ public class StoreAsync {
 
 
     //获取店铺数据
-    @Async
     public void getStoreData(Store store) {
         createStoreWebhook(store);
         switch (store.getStoreType()) {

@@ -49,5 +49,7 @@ public class RocketMqConfig {
     public final static String TOPIC_STORE_ORDER_UPDATE_WEBHOOK = "store_order_update_webhook";
     //店铺产品更新webhook
     public final static String TOPIC_STORE_PRODUCT_UPDATE_WEBHOOK = "store_product_update_webhook";
+    //获取店铺数据
+    public final static String TOPIC_GET_STORE_DATA = "get_store_data";
 
 }

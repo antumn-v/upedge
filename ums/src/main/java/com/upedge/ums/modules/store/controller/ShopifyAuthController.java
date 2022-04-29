@@ -69,11 +69,6 @@ public class ShopifyAuthController {
             String token = jsonObject.getJSONObject("data").getString("token");
             Store store = storeService.updateShopifyStore(shop, token, session);
             if (store != null){
-                try {
-                    storeAsync.getStoreData(store);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
                 return BaseResponse.success();
             }
             return BaseResponse.failed();

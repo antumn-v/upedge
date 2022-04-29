@@ -44,7 +44,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
@@ -135,18 +134,8 @@ public class StoreController {
                 return BaseResponse.success(map);
             }
             store = storeService.updateShopifyStore(shop, token, session);
+
             if (store != null) {
-                try {
-                    Store finalStore = store;
-                    CompletableFuture.runAsync(new Runnable() {
-                        @Override
-                        public void run() {
-                            storeAsync.getStoreData(finalStore);
-                        }
-                    },threadPoolExecutor);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
                 if (session == null){
                     Customer customer = customerService.selectByPrimaryKey(store.getCustomerId());
                     User user = userService.selectByPrimaryKey(customer.getCustomerSignupUserId());
@@ -207,18 +196,7 @@ public class StoreController {
         Session session = UserUtil.getSession(redisTemplate);
         String shop = request.getShop();
         String token = request.getToken();
-        Store store = storeService.updateShopifyStore(shop, token, session);
-        try {
-            Store finalStore = store;
-            CompletableFuture.runAsync(new Runnable() {
-                @Override
-                public void run() {
-                    storeAsync.getStoreData(finalStore);
-                }
-            },threadPoolExecutor);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        storeService.updateShopifyStore(shop, token, session);
         return new ShopifyAuthResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS);
     }
 
