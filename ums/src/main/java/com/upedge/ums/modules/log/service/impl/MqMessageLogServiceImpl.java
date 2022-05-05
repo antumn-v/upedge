@@ -3,6 +3,7 @@ package com.upedge.ums.modules.log.service.impl;
 import com.upedge.common.base.BaseResponse;
 import com.upedge.common.base.Page;
 import com.upedge.common.model.log.MqMessageLog;
+import com.upedge.common.utils.ListUtils;
 import com.upedge.ums.modules.log.dao.MqMessageLogDao;
 import com.upedge.ums.modules.log.service.MqMessageLogService;
 import lombok.extern.slf4j.Slf4j;
@@ -41,6 +42,14 @@ public class MqMessageLogServiceImpl implements MqMessageLogService {
     @Transactional
     public int insert(MqMessageLog record) {
         return mqMessageLogDao.insert(record);
+    }
+
+    @Override
+    public int insertByBatch(List<MqMessageLog> mqMessageLogs) {
+        if (ListUtils.isEmpty(mqMessageLogs)){
+            return 0;
+        }
+        return mqMessageLogDao.insertByBatch(mqMessageLogs);
     }
 
     /**

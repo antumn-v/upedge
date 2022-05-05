@@ -14,6 +14,7 @@ import com.upedge.common.model.store.StoreVo;
 import com.upedge.common.model.store.config.ShopifyConfig;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.utils.IdGenerate;
+import com.upedge.common.utils.ListUtils;
 import com.upedge.common.utils.TokenUtil;
 import com.upedge.common.web.util.UserUtil;
 import com.upedge.thirdparty.shopify.entity.shop.Shop;
@@ -293,46 +294,67 @@ public class StoreServiceImpl implements StoreService {
         BeanUtils.copyProperties(store,storeVo);
         redisTemplate.opsForValue().set(RedisKey.STRING_STORE + store.getId(),storeVo);
 
-        getStoreData(store);
+        getStoreData(store,null);
 
         return store;
     }
 
-    void getStoreData(Store store){
+    @Override
+    public void getStoreData(Store store, List<Store> stores){
+        List<Message> messages = new ArrayList<>();
+
+        if (ListUtils.isNotEmpty(stores)){
+            for (Store store1 : stores) {
+                Message message = new Message(RocketMqConfig.TOPIC_GET_STORE_DATA,"store",IdGenerate.uuid(),JSONObject.toJSONBytes(store1));
+                messages.add(message);
+            }
+        }
         Message message = new Message(RocketMqConfig.TOPIC_GET_STORE_DATA,"store",IdGenerate.uuid(),JSONObject.toJSONBytes(store));
         try {
-            sendMessage(message);
+            Integer i = sendMessage(message,messages);
+            if (i == 1){
+                return;
+            }
         } catch (Exception e) {
+            e.printStackTrace();
+        }
+        if (store != null){
             storeAsync.getStoreData(store);
         }
     }
 
-    public Boolean sendMessage(Message message)  {
-        String key = message.getKeys();
-
-        MqMessageLog messageLog = MqMessageLog.toMqMessageLog(message,null);
-        boolean b = false;
+    public Integer sendMessage(Message message,List<Message> messages)  {
+        Integer sendStatus = 0;
+        if (ListUtils.isEmpty(messages)){
+            messages = new ArrayList<>();
+        }
+        messages.add(message);
+        if (messages.size() == 0){
+            return sendStatus;
+        }
         String status = "failed";
         int i = 1;
         while (i < 4 && !status.equals(SendStatus.SEND_OK.name())){
             try {
-                status =  defaultMQProducer.send(message).getSendStatus().name();
+                status =  defaultMQProducer.send(messages).getSendStatus().name();
             } catch (Exception e) {
                 e.printStackTrace();
             }finally {
                 i += 1;
             }
         }
+
         if(status.equals(SendStatus.SEND_OK.name())){
-            messageLog.setIsSendSuccess(1);
-            log.warn("topic:{},发送消息，key:{},发送成功,发送次数:{}",message.getTopic(),key,i);
-            b = true;
-        }else {
-            messageLog.setIsSendSuccess(0);
-            log.warn("topic:{},发送消息，key:{},发送失败,发送次数:{}",message.getTopic(),key,i);
+            sendStatus = 1;
         }
-        mqMessageLogService.insert(messageLog);
-        return b;
+        List<MqMessageLog> mqMessageLogs = new ArrayList<>();
+        for (Message message1 : messages) {
+            MqMessageLog messageLog = MqMessageLog.toMqMessageLog(message1,null);
+            messageLog.setIsSendSuccess(sendStatus);
+            mqMessageLogs.add(messageLog);
+        }
+        mqMessageLogService.insertByBatch(mqMessageLogs);
+        return sendStatus;
     }
 
 
@@ -437,7 +459,7 @@ public class StoreServiceImpl implements StoreService {
         StoreVo storeVo = new StoreVo();
         BeanUtils.copyProperties(store,storeVo);
         redisTemplate.opsForValue().set(RedisKey.STRING_STORE + store.getId(),storeVo);
-        getStoreData(store);
+        getStoreData(store,null);
         return new WoocommerceAuthResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS, store);
     }
 
@@ -559,7 +581,7 @@ public class StoreServiceImpl implements StoreService {
         StoreVo storeVo = new StoreVo();
         BeanUtils.copyProperties(store,storeVo);
         redisTemplate.opsForValue().set(RedisKey.STRING_STORE + store.getId(),storeVo);
-        getStoreData(store);
+        getStoreData(store,null);
         return new BaseResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS, store);
     }
 

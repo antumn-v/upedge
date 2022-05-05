@@ -33,6 +33,8 @@ public interface StoreService{
 
     Store updateShopifyStore(String storeUrl, String token, Session session);
 
+    void getStoreData(Store store, List<Store> stores);
+
     WoocommerceAuthResponse woocommerceAuth(WoocommerceAuthRequest request);
 
     ShopifyAuthResponse shopifyAuthRequest(String storeUrl);

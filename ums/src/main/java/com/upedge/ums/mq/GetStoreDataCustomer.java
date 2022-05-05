@@ -69,7 +69,6 @@ public class GetStoreDataCustomer {
                 }
             } catch (Exception e) {
                 e.printStackTrace();
-                return ConsumeConcurrentlyStatus.RECONSUME_LATER;
             }
             return ConsumeConcurrentlyStatus.CONSUME_SUCCESS;
         });

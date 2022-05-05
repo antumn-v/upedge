@@ -28,6 +28,8 @@ public interface MqMessageLogService{
 
     int insert(MqMessageLog record);
 
+    int insertByBatch(List<MqMessageLog> mqMessageLogs);
+
     int insertSelective(MqMessageLog record);
 
     List<MqMessageLog> select(Page<MqMessageLog> record);
