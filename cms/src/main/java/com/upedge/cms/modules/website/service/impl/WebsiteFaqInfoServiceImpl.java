@@ -125,7 +125,7 @@ public class WebsiteFaqInfoServiceImpl implements WebsiteFaqInfoService {
     @Override
     @Transactional(readOnly = false)
     public WebsiteFaqInfoAddResponse addFaqInfo(WebsiteFaqInfoAddRequest request, Session session) {
-        WebsiteFaqInfo entity=request.toWebsiteFaqInfo(String.valueOf(session.getId()));
+        WebsiteFaqInfo entity=request.toWebsiteFaqInfo(session);
         entity.setId(IdGenerate.nextId());
         websiteFaqInfoDao.insert(entity);
         return new WebsiteFaqInfoAddResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS,entity,request);
@@ -138,9 +138,8 @@ public class WebsiteFaqInfoServiceImpl implements WebsiteFaqInfoService {
      * @return
      */
     @Override
-    @Transactional(readOnly = false)
     public WebsiteFaqInfoUpdateResponse updateFaqInfo(WebsiteFaqInfoUpdateRequest request, Session session) {
-        WebsiteFaqInfo entity=request.toWebsiteFaqInfo(request.getId(),String.valueOf(session.getId()));
+        WebsiteFaqInfo entity=request.toWebsiteFaqInfo();
         websiteFaqInfoDao.updateByPrimaryKeySelective(entity);
         return new WebsiteFaqInfoUpdateResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS);
     }

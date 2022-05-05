@@ -38,7 +38,7 @@ public class WebsiteBlogInfoController {
      * @param request
      * @return
      */
-    @RequestMapping(value="/admin/list", method=RequestMethod.POST)
+    @RequestMapping(value="/list", method=RequestMethod.POST)
     public WebsiteBlogInfoListResponse list(@RequestBody @Valid WebsiteBlogInfoListRequest request) {
         return websiteBlogInfoService.adminList(request);
     }
@@ -48,7 +48,7 @@ public class WebsiteBlogInfoController {
      * @param id
      * @return
      */
-    @RequestMapping(value="/admin/info/{id}", method=RequestMethod.POST)
+    @RequestMapping(value="/info/{id}", method=RequestMethod.POST)
     public WebsiteBlogInfoInfoResponse adminInfo(@PathVariable Long id) {
         return websiteBlogInfoService.adminInfo(id);
     }
@@ -58,7 +58,7 @@ public class WebsiteBlogInfoController {
      * @param request
      * @return
      */
-    @RequestMapping(value="/admin/add", method=RequestMethod.POST)
+    @RequestMapping(value="/add", method=RequestMethod.POST)
     public WebsiteBlogInfoAddResponse addBlogInfo(@RequestBody @Valid WebsiteBlogInfoAddRequest request) {
         Session session = UserUtil.getSession(redisTemplate);
         return websiteBlogInfoService.addBlogInfo(request,session);
@@ -69,7 +69,7 @@ public class WebsiteBlogInfoController {
      * @param request
      * @return
      */
-    @RequestMapping(value="/admin/update", method=RequestMethod.POST)
+    @RequestMapping(value="/update", method=RequestMethod.POST)
     public WebsiteBlogInfoUpdateResponse updateBlogInfo(@RequestBody @Valid WebsiteBlogInfoUpdateRequest request) {
         Session session = UserUtil.getSession(redisTemplate);
         return websiteBlogInfoService.updateBlogInfo(request,session);
@@ -80,7 +80,7 @@ public class WebsiteBlogInfoController {
      * @param id
      * @return
      */
-    @RequestMapping(value="/admin/enable/{id}", method=RequestMethod.POST)
+    @RequestMapping(value="/enable/{id}", method=RequestMethod.POST)
     public WebsiteBlogInfoUpdateResponse enableBlogInfo(@PathVariable Long id) {
         Session session = UserUtil.getSession(redisTemplate);
         return websiteBlogInfoService.enableBlogInfo(id,session);
@@ -91,7 +91,7 @@ public class WebsiteBlogInfoController {
      * @param id
      * @return
      */
-    @RequestMapping(value="/admin/disable/{id}", method=RequestMethod.POST)
+    @RequestMapping(value="/disable/{id}", method=RequestMethod.POST)
     public WebsiteBlogInfoUpdateResponse disableBlogInfo(@PathVariable Long id) {
         Session session = UserUtil.getSession(redisTemplate);
         return websiteBlogInfoService.disableBlogInfo(id,session);

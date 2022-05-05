@@ -22,7 +22,7 @@ import javax.validation.Valid;
  * @author author
  */
 @RestController
-@RequestMapping("/remark")
+@RequestMapping("/websiteRemark")
 public class WebsiteRemarkController {
     @Autowired
     private WebsiteRemarkService websiteRemarkService;
@@ -30,13 +30,11 @@ public class WebsiteRemarkController {
     @Autowired
     RedisTemplate<String,Object> redisTemplate;
 
-    //=============================admin===========================
-
     /**
      * 好评列表
      * @return
      */
-    @RequestMapping(value="/admin/list", method=RequestMethod.POST)
+    @RequestMapping(value="/list", method=RequestMethod.POST)
     public WebsiteRemarkListResponse adminList(@RequestBody WebsiteRemarkListRequest request) {
         return websiteRemarkService.adminList(request);
     }
@@ -47,7 +45,7 @@ public class WebsiteRemarkController {
      * @param id
      * @return
      */
-    @RequestMapping(value="/admin/info/{id}", method=RequestMethod.POST)
+    @RequestMapping(value="/info/{id}", method=RequestMethod.POST)
     public WebsiteRemarkInfoResponse adminInfo(@PathVariable Long id) {
         return websiteRemarkService.adminInfo(id);
     }
@@ -57,7 +55,7 @@ public class WebsiteRemarkController {
      * @param request
      * @return
      */
-    @RequestMapping(value="/admin/add", method=RequestMethod.POST)
+    @RequestMapping(value="/add", method=RequestMethod.POST)
     public WebsiteRemarkAddResponse addRemark(@RequestBody @Valid WebsiteRemarkAddRequest request) {
         Session session = UserUtil.getSession(redisTemplate);
         return websiteRemarkService.addRemark(request,session);
@@ -68,7 +66,7 @@ public class WebsiteRemarkController {
      * @param request
      * @return
      */
-    @RequestMapping(value="/admin/update", method=RequestMethod.POST)
+    @RequestMapping(value="/update", method=RequestMethod.POST)
     public WebsiteRemarkUpdateResponse updateRemark(@RequestBody @Valid WebsiteRemarkUpdateRequest request) {
         Session session = UserUtil.getSession(redisTemplate);
         return websiteRemarkService.updateRemark(request,session);
@@ -79,7 +77,7 @@ public class WebsiteRemarkController {
      * @param id
      * @return
      */
-    @RequestMapping(value="/admin/enable/{id}", method=RequestMethod.POST)
+    @RequestMapping(value="/enable/{id}", method=RequestMethod.POST)
     public WebsiteRemarkUpdateResponse enableRemark(@PathVariable Long id) {
         Session session = UserUtil.getSession(redisTemplate);
         return websiteRemarkService.enableRemark(id,session);
@@ -90,7 +88,7 @@ public class WebsiteRemarkController {
      * @param id
      * @return
      */
-    @RequestMapping(value="/admin/disable/{id}", method=RequestMethod.POST)
+    @RequestMapping(value="/disable/{id}", method=RequestMethod.POST)
     public WebsiteRemarkUpdateResponse disableRemark(@PathVariable Long id) {
         Session session = UserUtil.getSession(redisTemplate);
         return websiteRemarkService.disableRemark(id,session);
@@ -101,7 +99,7 @@ public class WebsiteRemarkController {
      * @param id
      * @return
      */
-    @RequestMapping(value="/admin/del/{id}", method=RequestMethod.POST)
+    @RequestMapping(value="/del/{id}", method=RequestMethod.POST)
     public WebsiteRemarkUpdateResponse delWebsiteRemark(@PathVariable Long id) {
         Session session = UserUtil.getSession(redisTemplate);
         return websiteRemarkService.delWebsiteRemark(id,session);

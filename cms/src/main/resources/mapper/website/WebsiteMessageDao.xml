@@ -13,7 +13,8 @@
         <result property="skype" column="skype"/>
         <result property="message" column="message"/>
         <result property="createTime" column="create_time"/>
-        <result property="adminUser" column="admin_user"/>
+        <result property="customerId" column="customer_id"/>
+        <result property="userId" column="user_id"/>
         <result property="remark" column="remark"/>
         <result property="remoteAddr" column="remote_addr"/>
         <result property="deviceName" column="device_name"/>
@@ -21,10 +22,10 @@
     </resultMap>
 
     <sql id="Base_Column_List">
-        `id`,`name`,`email`,`whatsapp`,`facebook`,`skype`,`message`,`create_time`,`admin_user`,`remark`,`remote_addr`,`device_name`,`state`
+        `id`,`name`,`email`,`whatsapp`,`facebook`,`skype`,`message`,`create_time`,`customer_id`,`user_id`,`remark`,`remote_addr`,`device_name`,`state`
     </sql>
 
-    <select id="selectByPrimaryKey" resultMap="BaseResultMap">
+    <select id="selectByPrimaryKey" parameterType="com.upedge.cms.modules.website.entity.WebsiteMessage" resultMap="BaseResultMap">
         select
         <include refid="Base_Column_List" />
         from website_message
@@ -60,8 +61,11 @@
             <if test="createTime != null">
                 create_time = #{createTime},
             </if>
-            <if test="adminUser != null">
-                admin_user = #{adminUser},
+            <if test="customerId != null">
+                customer_id = #{customerId},
+            </if>
+            <if test="userId != null">
+                user_id = #{userId},
             </if>
             <if test="remark != null">
                 remark = #{remark},
@@ -90,7 +94,8 @@
         skype = #{skype},
         message = #{message},
         create_time = #{createTime},
-        admin_user = #{adminUser},
+        customer_id = #{customerId},
+        user_id = #{userId},
         remark = #{remark},
         remote_addr = #{remoteAddr},
         device_name = #{deviceName},
@@ -110,7 +115,8 @@
             skype,
             message,
             create_time,
-            admin_user,
+            customer_id,
+            user_id,
             remark,
             remote_addr,
             device_name,
@@ -125,7 +131,8 @@
         #{skype},
         #{message},
         #{createTime},
-        #{adminUser},
+        #{customerId},
+        #{userId},
         #{remark},
         #{remoteAddr},
         #{deviceName},
@@ -160,8 +167,11 @@
             <if test="createTime != null" >
               create_time
             </if>
-            <if test="adminUser != null" >
-              admin_user
+            <if test="customerId != null" >
+              customer_id
+            </if>
+            <if test="userId != null" >
+              user_id
             </if>
             <if test="remark != null" >
               remark
@@ -202,8 +212,11 @@
             <if test="createTime != null" >
                 #{createTime}
             </if>
-            <if test="adminUser != null" >
-                #{adminUser}
+            <if test="customerId != null" >
+                #{customerId}
+            </if>
+            <if test="userId != null" >
+                #{userId}
             </if>
             <if test="remark != null" >
                 #{remark}
@@ -232,7 +245,8 @@
            skype,
            message,
            create_time,
-           admin_user,
+           customer_id,
+           user_id,
            remark,
            remote_addr,
            device_name,
@@ -249,7 +263,8 @@
                #{item.skype},
                #{item.message},
                #{item.createTime},
-               #{item.adminUser},
+               #{item.customerId},
+               #{item.userId},
                #{item.remark},
                #{item.remoteAddr},
                #{item.deviceName},
@@ -287,8 +302,11 @@
                     <if test="t.createTime != null">
                         create_time = #{t.createTime} and
                     </if>
-                    <if test="t.adminUser != null">
-                        admin_user = #{t.adminUser} and
+                    <if test="t.customerId != null">
+                        customer_id = #{t.customerId} and
+                    </if>
+                    <if test="t.userId != null">
+                        user_id = #{t.userId} and
                     </if>
                     <if test="t.remark != null">
                         remark = #{t.remark} and
@@ -314,7 +332,7 @@
         <if test="orderBy != null">
             order by ${orderBy}
         </if>
-        <if test="pageNum != null and pageSize != null and fields==null">
+        <if test="pageNum != null and pageSize != null">
             limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
         </if>
     </select>

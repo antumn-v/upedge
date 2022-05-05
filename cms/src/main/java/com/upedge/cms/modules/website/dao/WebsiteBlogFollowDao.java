@@ -30,5 +30,5 @@ public interface WebsiteBlogFollowDao{
     long count(Page<WebsiteBlogFollow> record);
 
     WebsiteBlogFollow queryWebsiteBlogFollow(@Param("blogId")Long blogId,
-         @Param("appUserId")String appUserId);
+         @Param("userId")Long userId);
 }

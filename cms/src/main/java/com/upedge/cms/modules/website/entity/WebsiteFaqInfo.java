@@ -5,7 +5,7 @@ import lombok.Data;
 import java.util.Date;
 
 /**
- * @author author
+ * @author gx
  */
 @Data
 public class WebsiteFaqInfo{
@@ -33,7 +33,11 @@ public class WebsiteFaqInfo{
 	/**
 	 * 
 	 */
-    private String adminUser;
+    private Long customerId;
+	/**
+	 * 
+	 */
+    private Long userId;
 	/**
 	 * 
 	 */
@@ -42,7 +46,5 @@ public class WebsiteFaqInfo{
 	 * 
 	 */
     private Integer state;
-
-    private String cateName;
 
 }

@@ -1,11 +1,11 @@
 package com.upedge.cms.modules.website.entity;
 
+import java.io.Serializable;
+import java.util.Date;
 import lombok.Data;
 
-import java.util.Date;
-
 /**
- * @author author
+ * @author gx
  */
 @Data
 public class WebsiteCommentFollow{
@@ -21,7 +21,11 @@ public class WebsiteCommentFollow{
 	/**
 	 * 
 	 */
-    private String appUserId;
+    private Long customerId;
+	/**
+	 * 
+	 */
+    private Long userId;
 	/**
 	 * 
 	 */
@@ -30,9 +34,9 @@ public class WebsiteCommentFollow{
 	 * 
 	 */
     private Date updateTime;
-
 	/**
-	 *
+	 * 
 	 */
-	private String userName;
+    private String userName;
+
 }

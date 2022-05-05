@@ -86,7 +86,7 @@ public class WebsiteBlogFollowServiceImpl implements WebsiteBlogFollowService {
     }
 
     @Override
-    public WebsiteBlogFollow queryWebsiteBlogFollow(Long blogId, String appUserId) {
-        return websiteBlogFollowDao.queryWebsiteBlogFollow(blogId,appUserId);
+    public WebsiteBlogFollow queryWebsiteBlogFollow(Long blogId, Long userId) {
+        return websiteBlogFollowDao.queryWebsiteBlogFollow(blogId,userId);
     }
 }

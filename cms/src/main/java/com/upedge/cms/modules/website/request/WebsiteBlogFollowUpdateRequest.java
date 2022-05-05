@@ -1,12 +1,10 @@
 package com.upedge.cms.modules.website.request;
 
 import com.upedge.cms.modules.website.entity.WebsiteBlogFollow;
-import lombok.Data;
-
 import java.util.Date;
-
+import lombok.Data;
 /**
- * @author author
+ * @author gx
  */
 @Data
 public class WebsiteBlogFollowUpdateRequest{
@@ -18,7 +16,11 @@ public class WebsiteBlogFollowUpdateRequest{
     /**
      * 
      */
-    private String appUserId;
+    private Long customerId;
+    /**
+     * 
+     */
+    private Long userId;
     /**
      * 
      */
@@ -27,14 +29,20 @@ public class WebsiteBlogFollowUpdateRequest{
      * 
      */
     private Date updateTime;
+    /**
+     * 
+     */
+    private String userName;
 
     public WebsiteBlogFollow toWebsiteBlogFollow(Long id){
         WebsiteBlogFollow websiteBlogFollow=new WebsiteBlogFollow();
         websiteBlogFollow.setId(id);
         websiteBlogFollow.setBlogId(blogId);
-        websiteBlogFollow.setAppUserId(appUserId);
+        websiteBlogFollow.setCustomerId(customerId);
+        websiteBlogFollow.setUserId(userId);
         websiteBlogFollow.setState(state);
         websiteBlogFollow.setUpdateTime(updateTime);
+        websiteBlogFollow.setUserName(userName);
         return websiteBlogFollow;
     }
 

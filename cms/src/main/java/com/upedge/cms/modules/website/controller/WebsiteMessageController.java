@@ -22,7 +22,7 @@ import javax.validation.Valid;
  * @author author
  */
 @RestController
-@RequestMapping("/message")
+@RequestMapping("/websiteMessage")
 public class WebsiteMessageController {
     @Autowired
     private WebsiteMessageService websiteMessageService;
@@ -37,7 +37,7 @@ public class WebsiteMessageController {
      * @param request
      * @return
      */
-    @RequestMapping(value="/admin/list", method=RequestMethod.POST)
+    @RequestMapping(value="/list", method=RequestMethod.POST)
     public WebsiteMessageListResponse list(@RequestBody @Valid WebsiteMessageListRequest request) {
         return websiteMessageService.adminList(request);
     }
@@ -47,7 +47,7 @@ public class WebsiteMessageController {
      * @param id
      * @return
      */
-    @RequestMapping(value="/admin/del/{id}", method=RequestMethod.POST)
+    @RequestMapping(value="/del/{id}", method=RequestMethod.POST)
     public WebsiteMessageDelResponse delWebsiteMessage(@PathVariable Long id) {
         Session session = UserUtil.getSession(redisTemplate);
         return websiteMessageService.delWebsiteMessage(id,session);
@@ -58,7 +58,7 @@ public class WebsiteMessageController {
      * @param request
      * @return
      */
-    @RequestMapping(value="/admin/updateRemark", method=RequestMethod.POST)
+    @RequestMapping(value="/updateRemark", method=RequestMethod.POST)
     public WebsiteMessageUpdateResponse updateRemark(@RequestBody @Valid WebsiteMessageUpdateRequest request) {
         Session session = UserUtil.getSession(redisTemplate);
         return websiteMessageService.updateRemark(request,session);
@@ -69,7 +69,7 @@ public class WebsiteMessageController {
      * @param request
      * @return
      */
-    @RequestMapping(value="/admin/allocate", method=RequestMethod.POST)
+    @RequestMapping(value="/allocate", method=RequestMethod.POST)
     public WebsiteMessageUpdateResponse allocate(@RequestBody @Valid WebsiteMessageAllocateRequest request) {
         Session session = UserUtil.getSession(redisTemplate);
         return websiteMessageService.allocate(request,session);
@@ -79,7 +79,7 @@ public class WebsiteMessageController {
      * 客户信息导出
      * @return
      */
-    @RequestMapping(value ="/admin/export",method = RequestMethod.POST)
+    @RequestMapping(value ="/export",method = RequestMethod.POST)
     public BaseResponse export(){
         return websiteMessageService.export();
     }

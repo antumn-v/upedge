@@ -143,7 +143,7 @@ public class WebsiteFaqCateServiceImpl implements WebsiteFaqCateService {
     @Transactional(readOnly = false)
     @Override
     public WebsiteFaqCateUpdateResponse updateFaqCate(WebsiteFaqCateUpdateRequest request, Session session) {
-        WebsiteFaqCate entity=request.toWebsiteFaqCate(request.getId());
+        WebsiteFaqCate entity=request.toWebsiteFaqCate();
         websiteFaqCateDao.updateByPrimaryKeySelective(entity);
         return new WebsiteFaqCateUpdateResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS);
     }

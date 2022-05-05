@@ -1,11 +1,11 @@
 package com.upedge.cms.modules.website.entity;
 
+import java.io.Serializable;
+import java.util.Date;
 import lombok.Data;
 
-import java.util.Date;
-
 /**
- * @author author
+ * @author gx
  */
 @Data
 public class WebsiteRemark{
@@ -19,7 +19,7 @@ public class WebsiteRemark{
 	 */
     private Integer sort;
 	/**
-	 * 
+	 * 0:客户 1:客户经理
 	 */
     private Integer type;
 	/**

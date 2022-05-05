@@ -26,6 +26,6 @@ public interface WebsiteBlogFollowService{
 
     long count(Page<WebsiteBlogFollow> record);
 
-    WebsiteBlogFollow queryWebsiteBlogFollow(Long blogId, String appUserId);
+    WebsiteBlogFollow queryWebsiteBlogFollow(Long blogId, Long userId);
 }
 

@@ -26,6 +26,6 @@ public interface WebsiteCommentFollowService{
 
     long count(Page<WebsiteCommentFollow> record);
 
-    WebsiteCommentFollow queryWebsiteCommentFollow(Long commentId, String appUserId);
+    WebsiteCommentFollow queryWebsiteCommentFollow(Long commentId, Long userId);
 }
 

@@ -7,7 +7,7 @@ import java.util.Date;
 import java.util.List;
 
 /**
- * @author author
+ * @author gx
  */
 @Data
 public class WebsiteBlogInfo{
@@ -43,7 +43,11 @@ public class WebsiteBlogInfo{
 	/**
 	 * 
 	 */
-    private String adminUser;
+    private Long customerId;
+	/**
+	 * 
+	 */
+    private Long userId;
 	/**
 	 * 
 	 */
@@ -76,8 +80,6 @@ public class WebsiteBlogInfo{
     //============================
 
 	private Long commentNum;
-
-	private String appUserId;
 
 	private List<WebsiteBlogComment> commentList=new ArrayList<>();
 

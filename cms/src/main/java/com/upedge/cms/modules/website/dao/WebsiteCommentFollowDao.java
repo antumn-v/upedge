@@ -30,5 +30,5 @@ public interface WebsiteCommentFollowDao{
     long count(Page<WebsiteCommentFollow> record);
 
     WebsiteCommentFollow queryWebsiteCommentFollow(@Param("commentId") Long commentId,
-            @Param("appUserId")String appUserId);
+            @Param("userId")Long userId);
 }

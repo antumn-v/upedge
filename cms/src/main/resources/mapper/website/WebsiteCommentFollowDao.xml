@@ -7,14 +7,15 @@
     <resultMap type="com.upedge.cms.modules.website.entity.WebsiteCommentFollow" id="BaseResultMap">
         <result property="id" column="id"/>
         <result property="commentId" column="comment_id"/>
-        <result property="appUserId" column="app_user_id"/>
+        <result property="customerId" column="customer_id"/>
+        <result property="userId" column="user_id"/>
         <result property="state" column="state"/>
         <result property="updateTime" column="update_time"/>
         <result property="userName" column="user_name"/>
     </resultMap>
 
     <sql id="Base_Column_List">
-        `id`,`comment_id`,`app_user_id`,`state`,`update_time`,`user_name`
+        `id`,`comment_id`,`customer_id`,`user_id`,`state`,`update_time`,`user_name`
     </sql>
 
     <select id="selectByPrimaryKey" parameterType="com.upedge.cms.modules.website.entity.WebsiteCommentFollow" resultMap="BaseResultMap">
@@ -35,8 +36,11 @@
             <if test="commentId != null">
                 comment_id = #{commentId},
             </if>
-            <if test="appUserId != null">
-                app_user_id = #{appUserId},
+            <if test="customerId != null">
+                customer_id = #{customerId},
+            </if>
+            <if test="userId != null">
+                user_id = #{userId},
             </if>
             <if test="state != null">
                 state = #{state},
@@ -56,10 +60,11 @@
         <set>
         id = #{id},
         comment_id = #{commentId},
-        app_user_id = #{appUserId},
+        customer_id = #{customerId},
+        user_id = #{userId},
         state = #{state},
         update_time = #{updateTime},
-        user_name = #{userName}
+        user_name = #{userName},
         </set>
         where id = #{id}
     </update>
@@ -69,7 +74,8 @@
         <trim prefix="(" suffix=")" suffixOverrides=",">
             id,
             comment_id,
-            app_user_id,
+            customer_id,
+            user_id,
             state,
             update_time,
             user_name
@@ -77,7 +83,8 @@
         values (
         #{id},
         #{commentId},
-        #{appUserId},
+        #{customerId},
+        #{userId},
         #{state},
         #{updateTime},
         #{userName}
@@ -93,8 +100,11 @@
             <if test="commentId != null" >
               comment_id
             </if>
-            <if test="appUserId != null" >
-              app_user_id
+            <if test="customerId != null" >
+              customer_id
+            </if>
+            <if test="userId != null" >
+              user_id
             </if>
             <if test="state != null" >
               state
@@ -103,7 +113,7 @@
               update_time
             </if>
             <if test="userName != null" >
-                user_name
+              user_name
             </if>
 
         </trim>
@@ -114,8 +124,11 @@
             <if test="commentId != null" >
                 #{commentId}
             </if>
-            <if test="appUserId != null" >
-                #{appUserId}
+            <if test="customerId != null" >
+                #{customerId}
+            </if>
+            <if test="userId != null" >
+                #{userId}
             </if>
             <if test="state != null" >
                 #{state}
@@ -135,17 +148,19 @@
         <trim prefix="(" suffix=")" suffixOverrides=",">
            id,
            comment_id,
-           app_user_id,
+           customer_id,
+           user_id,
            state,
            update_time,
-            user_name
+           user_name
         </trim>
         values
         <foreach collection="list" item="item" index="index" separator=",">
             <trim prefix="(" suffix=")" suffixOverrides=",">
                #{item.id},
                #{item.commentId},
-               #{item.appUserId},
+               #{item.customerId},
+               #{item.userId},
                #{item.state},
                #{item.updateTime},
                #{item.userName}
@@ -164,8 +179,11 @@
                     <if test="t.commentId != null">
                         comment_id = #{t.commentId} and
                     </if>
-                    <if test="t.appUserId != null">
-                        app_user_id = #{t.appUserId} and
+                    <if test="t.customerId != null">
+                        customer_id = #{t.customerId} and
+                    </if>
+                    <if test="t.userId != null">
+                        user_id = #{t.userId} and
                     </if>
                     <if test="t.state != null">
                         state = #{t.state} and
@@ -204,6 +222,6 @@
 		select
         <include refid="Base_Column_List" />
 		from website_comment_follow
-        where comment_id=#{commentId} and app_user_id=#{appUserId}
+        where comment_id=#{commentId} and user_id=#{userId}
 	</select>
 </mapper>

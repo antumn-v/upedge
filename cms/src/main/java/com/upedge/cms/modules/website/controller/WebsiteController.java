@@ -20,7 +20,7 @@ import java.util.Date;
 import java.util.List;
 
 @RestController
-@RequestMapping("/web/")
+@RequestMapping("/website/")
 public class WebsiteController {
 
     @Autowired
@@ -99,7 +99,7 @@ public class WebsiteController {
     public WebsiteBlogInfo blogInfo(@RequestBody WebsiteBlogInfo blogInfo) throws CustomerException {
         Session session = UserUtil.getSession(redisTemplate);
         if (null != session){
-            blogInfo.setAppUserId(session.getId().toString());
+            blogInfo.setUserId(session.getId());
         }
         WebsiteBlogInfo websiteBlogInfo = websiteBlogInfoService.queryBlogByUrlSuf(blogInfo.getUrlSuf());
         if(websiteBlogInfo==null){
@@ -109,8 +109,8 @@ public class WebsiteController {
         List<WebsiteBlogComment> commentList= websiteBlogCommentService.listComment(websiteBlogInfo.getId());
         //评论点赞状态
         for(WebsiteBlogComment comment:commentList){
-            if(!StringUtils.isBlank(blogInfo.getAppUserId())){
-                WebsiteCommentFollow follow=websiteCommentFollowService.queryWebsiteCommentFollow(comment.getId(),blogInfo.getAppUserId());
+            if(blogInfo.getUserId() != null){
+                WebsiteCommentFollow follow=websiteCommentFollowService.queryWebsiteCommentFollow(comment.getId(),blogInfo.getUserId());
                 if(follow!=null&&follow.getState()!=null&&follow.getState()==1){
                     comment.setFollowState(1);
                 }
@@ -121,8 +121,8 @@ public class WebsiteController {
         }
         websiteBlogInfo.setCommentList(commentList);
         websiteBlogInfo.setCommentNum((long) commentList.size());
-        if(!StringUtils.isBlank(blogInfo.getAppUserId())){
-            WebsiteBlogFollow follow=websiteBlogFollowService.queryWebsiteBlogFollow(websiteBlogInfo.getId(),blogInfo.getAppUserId());
+        if(blogInfo.getUserId() != null){
+            WebsiteBlogFollow follow=websiteBlogFollowService.queryWebsiteBlogFollow(websiteBlogInfo.getId(),blogInfo.getUserId());
             if(follow!=null&&follow.getState()!=null&&follow.getState()==1){
                 websiteBlogInfo.setFollowState(1);
             }
@@ -178,7 +178,7 @@ public class WebsiteController {
             return "error";
         }
         Session session = getSession();
-        websiteBlogComment.setAppUserId(session.getId());
+        websiteBlogComment.setUserId(session.getId());
         websiteBlogComment.setUserName(session.getUserName());
         websiteBlogComment.setUpdateTime(new Date());
         websiteBlogComment.setCreateTime(new Date());
@@ -198,12 +198,12 @@ public class WebsiteController {
             return "error";
         }
         Session session = getSession();
-        websiteBlogComment.setAppUserId(session.getId());
+        websiteBlogComment.setUserId(session.getId());
         WebsiteBlogComment comment=websiteBlogCommentService.selectByPrimaryKey(websiteBlogComment.getId());
         if(comment==null){
             return "error";
         }
-        if(!comment.getAppUserId().equals(websiteBlogComment.getAppUserId())){
+        if(!comment.getUserId().equals(websiteBlogComment.getUserId())){
             return "error";
         }
         comment.setUpdateTime(new Date());
@@ -221,12 +221,12 @@ public class WebsiteController {
             return "error";
         }
         Session session = getSession();
-        websiteBlogComment.setAppUserId(session.getId());
+        websiteBlogComment.setUserId(session.getId());
         WebsiteBlogComment comment=websiteBlogCommentService.selectByPrimaryKey(websiteBlogComment.getId());
         if(comment==null){
             return "error";
         }
-        if(!comment.getAppUserId().equals(websiteBlogComment.getAppUserId())){
+        if(!comment.getUserId().equals(websiteBlogComment.getUserId())){
             return "error";
         }
         comment.setUpdateTime(new Date());
@@ -248,10 +248,10 @@ public class WebsiteController {
             return "error";
         }
         Session session = getSession();
-        websiteBlogFollow.setAppUserId(session.getId().toString());
+        websiteBlogFollow.setUserId(session.getId());
         websiteBlogFollow.setUserName(session.getUserName());
         WebsiteBlogFollow old=websiteBlogFollowService.queryWebsiteBlogFollow(websiteBlogFollow.getBlogId(),
-                websiteBlogFollow.getAppUserId());
+                websiteBlogFollow.getUserId());
         if(old!=null  &&  old.getState() == 0){
             old.setState(1);
             websiteBlogFollowService.updateByPrimaryKeySelective(old);
@@ -279,9 +279,9 @@ public class WebsiteController {
             return "error";
         }
         Session session = getSession();
-        websiteBlogFollow.setAppUserId(session.getId().toString());
+        websiteBlogFollow.setUserId(session.getId());
         WebsiteBlogFollow old=websiteBlogFollowService.queryWebsiteBlogFollow(websiteBlogFollow.getBlogId(),
-                websiteBlogFollow.getAppUserId());
+                websiteBlogFollow.getUserId());
         if(old!=null  &&  old.getState() == 1 ){
             old.setState(0);
             websiteBlogFollowService.updateByPrimaryKeySelective(old);
@@ -303,10 +303,10 @@ public class WebsiteController {
             return "error";
         }
         Session session = getSession();
-        websiteCommentFollow.setAppUserId(session.getId().toString());
+        websiteCommentFollow.setUserId(session.getId());
         websiteCommentFollow.setUserName(session.getUserName());
         WebsiteCommentFollow old=websiteCommentFollowService.queryWebsiteCommentFollow(websiteCommentFollow.getCommentId(),
-                websiteCommentFollow.getAppUserId());
+                websiteCommentFollow.getUserId());
         if(old!=null){
             old.setState(1);
             websiteCommentFollowService.updateByPrimaryKeySelective(old);
@@ -332,9 +332,9 @@ public class WebsiteController {
             return "error";
         }
         Session session = getSession();
-        websiteCommentFollow.setAppUserId(session.getId().toString());
+        websiteCommentFollow.setUserId(session.getId());
         WebsiteCommentFollow old=websiteCommentFollowService.queryWebsiteCommentFollow(websiteCommentFollow.getCommentId(),
-                websiteCommentFollow.getAppUserId());
+                websiteCommentFollow.getUserId());
         if(old!=null){
             old.setState(0);
             websiteCommentFollowService.updateByPrimaryKeySelective(old);

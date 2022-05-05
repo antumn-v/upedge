@@ -1,13 +1,12 @@
 package com.upedge.cms.modules.website.request;
 
 import com.upedge.cms.modules.website.entity.WebsiteBlogInfo;
+import com.upedge.common.model.user.vo.Session;
 import lombok.Data;
 
-import javax.validation.constraints.NotBlank;
 import java.util.Date;
-
 /**
- * @author author
+ * @author gx
  */
 @Data
 public class WebsiteBlogInfoAddRequest{
@@ -15,12 +14,10 @@ public class WebsiteBlogInfoAddRequest{
     /**
     * 
     */
-    @NotBlank
     private String title;
     /**
     * 
     */
-    @NotBlank
     private String urlSuf;
     /**
     * 
@@ -33,13 +30,35 @@ public class WebsiteBlogInfoAddRequest{
     /**
     * 
     */
-    @NotBlank
     private String shortInfo;
     /**
     * 
     */
-    @NotBlank
     private String content;
+    /**
+    * 
+    */
+    private Long customerId;
+    /**
+    * 
+    */
+    private Long userId;
+    /**
+    * 
+    */
+    private Date createTime;
+    /**
+    * 
+    */
+    private Date updateTime;
+    /**
+    * 
+    */
+    private Integer viewNum;
+    /**
+    * 
+    */
+    private Integer followNum;
     /**
     * 
     */
@@ -48,8 +67,12 @@ public class WebsiteBlogInfoAddRequest{
     * 
     */
     private String description;
+    /**
+    * 
+    */
+    private Integer state;
 
-    public WebsiteBlogInfo toWebsiteBlogInfo(String adminUser){
+    public WebsiteBlogInfo toWebsiteBlogInfo(Session session){
         WebsiteBlogInfo websiteBlogInfo=new WebsiteBlogInfo();
         websiteBlogInfo.setTitle(title);
         websiteBlogInfo.setUrlSuf(urlSuf);
@@ -57,14 +80,15 @@ public class WebsiteBlogInfoAddRequest{
         websiteBlogInfo.setImg(img);
         websiteBlogInfo.setShortInfo(shortInfo);
         websiteBlogInfo.setContent(content);
-        websiteBlogInfo.setAdminUser(adminUser);
-        websiteBlogInfo.setCreateTime(new Date());
-        websiteBlogInfo.setUpdateTime(new Date());
-        websiteBlogInfo.setViewNum(0);
-        websiteBlogInfo.setFollowNum(0);
+        websiteBlogInfo.setCustomerId(customerId);
+        websiteBlogInfo.setUserId(session.getId());
+        websiteBlogInfo.setCreateTime(createTime);
+        websiteBlogInfo.setUpdateTime(updateTime);
+        websiteBlogInfo.setViewNum(viewNum);
+        websiteBlogInfo.setFollowNum(followNum);
         websiteBlogInfo.setKeywords(keywords);
         websiteBlogInfo.setDescription(description);
-        websiteBlogInfo.setState(1);
+        websiteBlogInfo.setState(state);
         return websiteBlogInfo;
     }
 

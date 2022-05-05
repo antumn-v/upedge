@@ -339,9 +339,9 @@ public class UserServiceImpl implements UserService {
 
     public User userSignUp(CustomerSignUpRequest request) {
         Long applicationId = request.getApplicationId();
-        Long userId = IdGenerate.nextId();
-        Customer customer = request.toCustomer(needApprove);
 
+        Customer customer = request.toCustomer(needApprove);
+        Long userId = customer.getId();
         customer.setCustomerSignupUserId(userId);
         customerService.insert(customer);
 

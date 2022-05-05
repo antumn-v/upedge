@@ -86,7 +86,7 @@ public class WebsiteCommentFollowServiceImpl implements WebsiteCommentFollowServ
     }
 
     @Override
-    public WebsiteCommentFollow queryWebsiteCommentFollow(Long commentId, String appUserId) {
-        return websiteCommentFollowDao.queryWebsiteCommentFollow(commentId,appUserId);
+    public WebsiteCommentFollow queryWebsiteCommentFollow(Long commentId, Long userId) {
+        return websiteCommentFollowDao.queryWebsiteCommentFollow(commentId,userId);
     }
 }

@@ -10,16 +10,17 @@
         <result property="answerInfo" column="answer_info"/>
         <result property="createTime" column="create_time"/>
         <result property="updateTime" column="update_time"/>
-        <result property="adminUser" column="admin_user"/>
+        <result property="customerId" column="customer_id"/>
+        <result property="userId" column="user_id"/>
         <result property="cateId" column="cate_id"/>
         <result property="state" column="state"/>
     </resultMap>
 
     <sql id="Base_Column_List">
-        `id`,`ask_title`,`answer_info`,`create_time`,`update_time`,`admin_user`,`cate_id`,`state`
+        `id`,`ask_title`,`answer_info`,`create_time`,`update_time`,`customer_id`,`user_id`,`cate_id`,`state`
     </sql>
 
-    <select id="selectByPrimaryKey" resultMap="BaseResultMap">
+    <select id="selectByPrimaryKey" parameterType="com.upedge.cms.modules.website.entity.WebsiteFaqInfo" resultMap="BaseResultMap">
         select
         <include refid="Base_Column_List" />
         from website_faq_info
@@ -46,8 +47,11 @@
             <if test="updateTime != null">
                 update_time = #{updateTime},
             </if>
-            <if test="adminUser != null">
-                admin_user = #{adminUser},
+            <if test="customerId != null">
+                customer_id = #{customerId},
+            </if>
+            <if test="userId != null">
+                user_id = #{userId},
             </if>
             <if test="cateId != null">
                 cate_id = #{cateId},
@@ -67,7 +71,8 @@
         answer_info = #{answerInfo},
         create_time = #{createTime},
         update_time = #{updateTime},
-        admin_user = #{adminUser},
+        customer_id = #{customerId},
+        user_id = #{userId},
         cate_id = #{cateId},
         state = #{state},
         </set>
@@ -82,7 +87,8 @@
             answer_info,
             create_time,
             update_time,
-            admin_user,
+            customer_id,
+            user_id,
             cate_id,
             state
         </trim>
@@ -92,7 +98,8 @@
         #{answerInfo},
         #{createTime},
         #{updateTime},
-        #{adminUser},
+        #{customerId},
+        #{userId},
         #{cateId},
         #{state}
         )
@@ -116,8 +123,11 @@
             <if test="updateTime != null" >
               update_time
             </if>
-            <if test="adminUser != null" >
-              admin_user
+            <if test="customerId != null" >
+              customer_id
+            </if>
+            <if test="userId != null" >
+              user_id
             </if>
             <if test="cateId != null" >
               cate_id
@@ -143,8 +153,11 @@
             <if test="updateTime != null" >
                 #{updateTime}
             </if>
-            <if test="adminUser != null" >
-                #{adminUser}
+            <if test="customerId != null" >
+                #{customerId}
+            </if>
+            <if test="userId != null" >
+                #{userId}
             </if>
             <if test="cateId != null" >
                 #{cateId}
@@ -164,7 +177,8 @@
            answer_info,
            create_time,
            update_time,
-           admin_user,
+           customer_id,
+           user_id,
            cate_id,
            state
         </trim>
@@ -176,7 +190,8 @@
                #{item.answerInfo},
                #{item.createTime},
                #{item.updateTime},
-               #{item.adminUser},
+               #{item.customerId},
+               #{item.userId},
                #{item.cateId},
                #{item.state}
             </trim>
@@ -189,41 +204,42 @@
             <trim prefix=" " suffix=" " suffixOverrides=" and ">
                 1 = 1 and
                     <if test="t.id != null">
-                        w.id = #{t.id} and
+                        id = #{t.id} and
                     </if>
                     <if test="t.askTitle != null">
-                        w.ask_title = #{t.askTitle} and
+                        ask_title = #{t.askTitle} and
                     </if>
-                    <if test="t.adminUser != null">
-                        w.admin_user = #{t.adminUser} and
+                    <if test="t.answerInfo != null">
+                        answer_info = #{t.answerInfo} and
+                    </if>
+                    <if test="t.createTime != null">
+                        create_time = #{t.createTime} and
+                    </if>
+                    <if test="t.updateTime != null">
+                        update_time = #{t.updateTime} and
+                    </if>
+                    <if test="t.customerId != null">
+                        customer_id = #{t.customerId} and
+                    </if>
+                    <if test="t.userId != null">
+                        user_id = #{t.userId} and
                     </if>
                     <if test="t.cateId != null">
-                        w.cate_id = #{t.cateId} and
+                        cate_id = #{t.cateId} and
                     </if>
                     <if test="t.state != null">
-                        w.state = #{t.state} and
+                        state = #{t.state} and
                     </if>
             </trim>
         </if>
     </sql>
 
-    <select id="select" parameterType="com.upedge.common.base.Page" resultType="com.upedge.cms.modules.website.entity.WebsiteFaqInfo">
+    <select id="select" parameterType="com.upedge.common.base.Page" resultMap="BaseResultMap">
         select
-        w.`id` as id,
-        w.`ask_title` as askTitle,
-        w.`answer_info` as answerInfo,
-        w.`create_time` as createTime,
-        w.`update_time` as updateTime,
-        w.`admin_user` as adminUser,
-        w.`cate_id` as cateId,
-        w.`state` as state,
-        c.`name` as cateName
-        from website_faq_info w
-        left join website_faq_cate c on c.id=w.cate_id
+        <include refid="Base_Column_List" />
+        from website_faq_info
         <include refid="Query_Condition"/>
-        <if test="orderBy != null">
-            order by w.update_time desc
-        </if>
+        order by create_time desc
         <if test="pageNum != null and pageSize != null">
             limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
         </if>
@@ -232,8 +248,7 @@
     <select id="count" parameterType="com.upedge.common.base.Page" resultType="java.lang.Long">
         select
         count(1)
-        from website_faq_info w
-        left join website_faq_cate c on c.id=w.cate_id
+        from website_faq_info
         <include refid="Query_Condition"/>
     </select>
 

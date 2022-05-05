@@ -5,7 +5,7 @@ import lombok.Data;
 import java.util.Date;
 
 /**
- * @author author
+ * @author gx
  */
 @Data
 public class WebsiteBlogComment{
@@ -21,7 +21,11 @@ public class WebsiteBlogComment{
 	/**
 	 * 
 	 */
-    private Long appUserId;
+    private Long customerId;
+	/**
+	 * 
+	 */
+    private Long userId;
 	/**
 	 * 
 	 */
@@ -35,7 +39,7 @@ public class WebsiteBlogComment{
 	 */
     private Date updateTime;
 	/**
-	 * 
+	 * 0:已禁用 1:已启用 2:已删除
 	 */
     private Integer state;
 	/**

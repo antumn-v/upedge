@@ -18,7 +18,7 @@ import javax.validation.Valid;
  * @author author
  */
 @RestController
-@RequestMapping("/email")
+@RequestMapping("/websiteEmail")
 public class WebsiteEmailController {
     @Autowired
     private WebsiteEmailService websiteEmailService;
@@ -33,7 +33,7 @@ public class WebsiteEmailController {
      * @param request
      * @return
      */
-    @RequestMapping(value="/admin/list", method=RequestMethod.POST)
+    @RequestMapping(value="/list", method=RequestMethod.POST)
     public WebsiteEmailListResponse list(@RequestBody @Valid WebsiteEmailListRequest request) {
         return websiteEmailService.adminList(request);
     }
@@ -43,7 +43,7 @@ public class WebsiteEmailController {
      * @param id
      * @return
      */
-    @RequestMapping(value="/admin/del/{id}", method=RequestMethod.POST)
+    @RequestMapping(value="/del/{id}", method=RequestMethod.POST)
     public WebsiteEmailDelResponse delWebsiteEmail(@PathVariable Long id) {
         Session session = UserUtil.getSession(redisTemplate);
         return websiteEmailService.delWebsiteEmail(id,session);

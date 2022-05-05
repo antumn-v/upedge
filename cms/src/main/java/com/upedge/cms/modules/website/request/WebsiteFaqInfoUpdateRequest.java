@@ -3,12 +3,10 @@ package com.upedge.cms.modules.website.request;
 import com.upedge.cms.modules.website.entity.WebsiteFaqInfo;
 import lombok.Data;
 
-import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.util.Date;
-
 /**
- * @author author
+ * @author gx
  */
 @Data
 public class WebsiteFaqInfoUpdateRequest{
@@ -18,31 +16,28 @@ public class WebsiteFaqInfoUpdateRequest{
     /**
      * 
      */
-    @NotBlank
     private String askTitle;
     /**
      * 
      */
-    @NotBlank
     private String answerInfo;
     /**
      * 
      */
-    private String adminUser;
+    private Long cateId;
     /**
      * 
      */
-    @NotNull
-    private Long cateId;
+    private Integer state;
 
-    public WebsiteFaqInfo toWebsiteFaqInfo(Long id,String adminUser){
+    public WebsiteFaqInfo toWebsiteFaqInfo(){
         WebsiteFaqInfo websiteFaqInfo=new WebsiteFaqInfo();
         websiteFaqInfo.setId(id);
         websiteFaqInfo.setAskTitle(askTitle);
         websiteFaqInfo.setAnswerInfo(answerInfo);
         websiteFaqInfo.setUpdateTime(new Date());
-        websiteFaqInfo.setAdminUser(adminUser);
         websiteFaqInfo.setCateId(cateId);
+        websiteFaqInfo.setState(state);
         return websiteFaqInfo;
     }
 

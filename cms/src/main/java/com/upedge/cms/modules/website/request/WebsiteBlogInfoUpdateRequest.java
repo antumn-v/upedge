@@ -3,27 +3,24 @@ package com.upedge.cms.modules.website.request;
 import com.upedge.cms.modules.website.entity.WebsiteBlogInfo;
 import lombok.Data;
 
-import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.util.Date;
-
 /**
- * @author author
+ * @author gx
  */
 @Data
 public class WebsiteBlogInfoUpdateRequest{
 
     @NotNull
     private Long id;
+
     /**
      * 
      */
-    @NotBlank
     private String title;
     /**
      * 
      */
-    @NotBlank
     private String urlSuf;
     /**
      * 
@@ -36,13 +33,28 @@ public class WebsiteBlogInfoUpdateRequest{
     /**
      * 
      */
-    @NotBlank
     private String shortInfo;
     /**
      * 
      */
-    @NotBlank
     private String content;
+
+    /**
+     * 
+     */
+    private Date createTime;
+    /**
+     * 
+     */
+    private Date updateTime;
+    /**
+     * 
+     */
+    private Integer viewNum;
+    /**
+     * 
+     */
+    private Integer followNum;
     /**
      * 
      */
@@ -51,8 +63,12 @@ public class WebsiteBlogInfoUpdateRequest{
      * 
      */
     private String description;
+    /**
+     * 
+     */
+    private Integer state;
 
-    public WebsiteBlogInfo toWebsiteBlogInfo(Long id,String adminUser){
+    public WebsiteBlogInfo toWebsiteBlogInfo(Long userId){
         WebsiteBlogInfo websiteBlogInfo=new WebsiteBlogInfo();
         websiteBlogInfo.setId(id);
         websiteBlogInfo.setTitle(title);
@@ -61,10 +77,14 @@ public class WebsiteBlogInfoUpdateRequest{
         websiteBlogInfo.setImg(img);
         websiteBlogInfo.setShortInfo(shortInfo);
         websiteBlogInfo.setContent(content);
-        websiteBlogInfo.setAdminUser(adminUser);
-        websiteBlogInfo.setUpdateTime(new Date());
+        websiteBlogInfo.setUserId(userId);
+        websiteBlogInfo.setCreateTime(createTime);
+        websiteBlogInfo.setUpdateTime(updateTime);
+        websiteBlogInfo.setViewNum(viewNum);
+        websiteBlogInfo.setFollowNum(followNum);
         websiteBlogInfo.setKeywords(keywords);
         websiteBlogInfo.setDescription(description);
+        websiteBlogInfo.setState(state);
         return websiteBlogInfo;
     }
 

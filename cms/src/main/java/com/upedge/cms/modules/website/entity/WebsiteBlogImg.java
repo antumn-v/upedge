@@ -1,9 +1,11 @@
 package com.upedge.cms.modules.website.entity;
 
+import java.io.Serializable;
+import java.util.Date;
 import lombok.Data;
 
 /**
- * @author author
+ * @author gx
  */
 @Data
 public class WebsiteBlogImg{

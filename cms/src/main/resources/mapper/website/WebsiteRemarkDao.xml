@@ -19,14 +19,14 @@
         `id`,`sort`,`type`,`msg`,`create_time`,`image`,`index`,`state`
     </sql>
 
-    <select id="selectByPrimaryKey" resultMap="BaseResultMap">
+    <select id="selectByPrimaryKey" parameterType="com.upedge.cms.modules.website.entity.WebsiteRemark" resultMap="BaseResultMap">
         select
         <include refid="Base_Column_List" />
         from website_remark
         where id = #{id}
     </select>
 
-    <delete id="deleteByPrimaryKey">
+    <delete id="deleteByPrimaryKey" parameterType="com.upedge.cms.modules.website.entity.WebsiteRemark">
         delete from website_remark
         where id = #{id}
     </delete>
@@ -35,10 +35,10 @@
         update website_remark
         <set>
             <if test="sort != null">
-                `sort` = #{sort},
+                sort = #{sort},
             </if>
             <if test="type != null">
-                `type` = #{type},
+                type = #{type},
             </if>
             <if test="msg != null">
                 msg = #{msg},
@@ -50,7 +50,7 @@
                 image = #{image},
             </if>
             <if test="index != null">
-                `index` = #{index},
+                index = #{index},
             </if>
             <if test="state != null">
                 state = #{state},
@@ -63,12 +63,12 @@
         update website_remark
         <set>
         id = #{id},
-        `sort` = #{sort},
-        `type` = #{type},
+        sort = #{sort},
+        type = #{type},
         msg = #{msg},
         create_time = #{createTime},
         image = #{image},
-        `index` = #{index},
+        index = #{index},
         state = #{state},
         </set>
         where id = #{id}
@@ -78,12 +78,12 @@
         insert into website_remark
         <trim prefix="(" suffix=")" suffixOverrides=",">
             id,
-            `sort`,
-            `type`,
+            sort,
+            type,
             msg,
             create_time,
             image,
-            `index`,
+            index,
             state
         </trim>
         values (
@@ -105,10 +105,10 @@
               id
             </if>
             <if test="sort != null" >
-              `sort`
+              sort
             </if>
             <if test="type != null" >
-              `type`
+              type
             </if>
             <if test="msg != null" >
               msg
@@ -120,7 +120,7 @@
               image
             </if>
             <if test="index != null" >
-              `index`
+              index
             </if>
             <if test="state != null" >
               state
@@ -160,12 +160,12 @@
         insert into website_remark
         <trim prefix="(" suffix=")" suffixOverrides=",">
            id,
-           `sort`,
-           `type`,
+           sort,
+           type,
            msg,
            create_time,
            image,
-           `index`,
+           index,
            state
         </trim>
         values
@@ -221,7 +221,9 @@
         <include refid="Base_Column_List" />
         from website_remark
         <include refid="Query_Condition"/>
-        order by `sort`,`index`
+        <if test="orderBy != null">
+            order by ${orderBy}
+        </if>
         <if test="pageNum != null and pageSize != null">
             limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
         </if>

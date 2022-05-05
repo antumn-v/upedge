@@ -3,11 +3,10 @@ package com.upedge.cms.modules.website.request;
 import com.upedge.cms.modules.website.entity.WebsiteRemark;
 import lombok.Data;
 
-import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
-
+import java.util.Date;
 /**
- * @author author
+ * @author gx
  */
 @Data
 public class WebsiteRemarkUpdateRequest{
@@ -17,31 +16,42 @@ public class WebsiteRemarkUpdateRequest{
     /**
      * 
      */
-    @NotNull
     private Integer sort;
     /**
-     * 
+     * 0:客户 1:客户经理
      */
-    @NotNull
     private Integer type;
     /**
      * 
      */
-    @NotBlank
     private String msg;
     /**
      * 
      */
-    @NotNull
+    private Date createTime;
+    /**
+     * 
+     */
+    private String image;
+    /**
+     * 
+     */
     private Integer index;
+    /**
+     * 
+     */
+    private Integer state;
 
-    public WebsiteRemark toWebsiteRemark(Long id){
+    public WebsiteRemark toWebsiteRemark(){
         WebsiteRemark websiteRemark=new WebsiteRemark();
         websiteRemark.setId(id);
         websiteRemark.setSort(sort);
         websiteRemark.setType(type);
         websiteRemark.setMsg(msg);
+        websiteRemark.setCreateTime(createTime);
+        websiteRemark.setImage(image);
         websiteRemark.setIndex(index);
+        websiteRemark.setState(state);
         return websiteRemark;
     }
 

@@ -1,10 +1,10 @@
 package com.upedge.cms.modules.website.request;
 
-import com.upedge.cms.modules.website.entity.WebsiteEmail;
 import com.upedge.common.base.Page;
+import com.upedge.cms.modules.website.entity.WebsiteEmail;
 
 /**
- * @author author
+ * @author gx
  */
 public class WebsiteEmailListRequest extends Page<WebsiteEmail> {
 }

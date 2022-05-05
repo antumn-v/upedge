@@ -10,6 +10,8 @@ import com.upedge.cms.modules.website.response.WebsiteFaqCateUpdateResponse;
 import com.upedge.cms.modules.website.service.WebsiteFaqCateService;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.web.util.UserUtil;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.*;
@@ -21,6 +23,7 @@ import javax.validation.Valid;
  *
  * @author author
  */
+@Api(tags = "faq类目管理")
 @RestController
 @RequestMapping("/faqCate")
 public class WebsiteFaqCateController {
@@ -37,7 +40,8 @@ public class WebsiteFaqCateController {
      * @param request
      * @return
      */
-    @RequestMapping(value="/admin/list", method=RequestMethod.POST)
+    @ApiOperation("FaqCate列表")
+    @RequestMapping(value="/list", method=RequestMethod.POST)
     public WebsiteFaqCateListResponse list(@RequestBody @Valid WebsiteFaqCateListRequest request) {
         return websiteFaqCateService.adminList(request);
     }
@@ -47,7 +51,8 @@ public class WebsiteFaqCateController {
      * @param id
      * @return
      */
-    @RequestMapping(value="/admin/info/{id}", method=RequestMethod.POST)
+    @ApiOperation("FaqCate详情")
+    @RequestMapping(value="/info/{id}", method=RequestMethod.POST)
     public WebsiteFaqCateInfoResponse adminInfo(@PathVariable Long id) {
         return websiteFaqCateService.adminInfo(id);
     }
@@ -57,7 +62,8 @@ public class WebsiteFaqCateController {
      * @param request
      * @return
      */
-    @RequestMapping(value="/admin/add", method=RequestMethod.POST)
+    @ApiOperation("新增FaqCate")
+    @RequestMapping(value="/add", method=RequestMethod.POST)
     public WebsiteFaqCateAddResponse addFaqCate(@RequestBody @Valid WebsiteFaqCateAddRequest request) {
         Session session = UserUtil.getSession(redisTemplate);
         return websiteFaqCateService.addFaqCate(request,session);
@@ -68,7 +74,8 @@ public class WebsiteFaqCateController {
      * @param request
      * @return
      */
-    @RequestMapping(value="/admin/update", method=RequestMethod.POST)
+    @ApiOperation("更新FaqCate")
+    @RequestMapping(value="/update", method=RequestMethod.POST)
     public WebsiteFaqCateUpdateResponse updateFaqCate(@RequestBody @Valid WebsiteFaqCateUpdateRequest request) {
         Session session = UserUtil.getSession(redisTemplate);
         return websiteFaqCateService.updateFaqCate(request,session);
@@ -79,7 +86,8 @@ public class WebsiteFaqCateController {
      * @param id
      * @return
      */
-    @RequestMapping(value="/admin/enable/{id}", method=RequestMethod.POST)
+    @ApiOperation("启用FaqCate")
+    @RequestMapping(value="/enable/{id}", method=RequestMethod.POST)
     public WebsiteFaqCateUpdateResponse enableFaqCate(@PathVariable Long id) {
         Session session = UserUtil.getSession(redisTemplate);
         return websiteFaqCateService.enableFaqCate(id,session);
@@ -90,7 +98,8 @@ public class WebsiteFaqCateController {
      * @param id
      * @return
      */
-    @RequestMapping(value="/admin/disable/{id}", method=RequestMethod.POST)
+    @ApiOperation("禁用FaqCate")
+    @RequestMapping(value="/disable/{id}", method=RequestMethod.POST)
     public WebsiteFaqCateUpdateResponse disableFaqCate(@PathVariable Long id) {
         Session session = UserUtil.getSession(redisTemplate);
         return websiteFaqCateService.disableFaqCate(id,session);
@@ -100,7 +109,8 @@ public class WebsiteFaqCateController {
      * FaqCate下拉列表
      * @return
      */
-    @RequestMapping(value="/admin/all", method=RequestMethod.POST)
+    @ApiOperation("FaqCate下拉列表")
+    @RequestMapping(value="/all", method=RequestMethod.POST)
     public WebsiteFaqCateListResponse allFaqCate() {
         return websiteFaqCateService.allFaqCate();
     }

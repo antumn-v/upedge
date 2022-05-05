@@ -19,7 +19,6 @@ import com.upedge.common.utils.IdGenerate;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,7 +35,7 @@ public class WebsiteBlogInfoServiceImpl implements WebsiteBlogInfoService {
     /**
      *
      */
-    @Transactional
+
     public int deleteByPrimaryKey(Long id) {
         WebsiteBlogInfo record = new WebsiteBlogInfo();
         record.setId(id);
@@ -46,7 +45,7 @@ public class WebsiteBlogInfoServiceImpl implements WebsiteBlogInfoService {
     /**
      *
      */
-    @Transactional
+
     public int insert(WebsiteBlogInfo record) {
         return websiteBlogInfoDao.insert(record);
     }
@@ -54,7 +53,7 @@ public class WebsiteBlogInfoServiceImpl implements WebsiteBlogInfoService {
     /**
      *
      */
-    @Transactional
+
     public int insertSelective(WebsiteBlogInfo record) {
         return websiteBlogInfoDao.insert(record);
     }
@@ -69,7 +68,7 @@ public class WebsiteBlogInfoServiceImpl implements WebsiteBlogInfoService {
     /**
     *
     */
-    @Transactional
+
     public int updateByPrimaryKeySelective(WebsiteBlogInfo record) {
         return websiteBlogInfoDao.updateByPrimaryKeySelective(record);
     }
@@ -77,7 +76,7 @@ public class WebsiteBlogInfoServiceImpl implements WebsiteBlogInfoService {
     /**
     *
     */
-    @Transactional
+
     public int updateByPrimaryKey(WebsiteBlogInfo record) {
         return websiteBlogInfoDao.updateByPrimaryKey(record);
     }
@@ -135,10 +134,9 @@ public class WebsiteBlogInfoServiceImpl implements WebsiteBlogInfoService {
      * @param session
      * @return
      */
-    @Transactional
     @Override
     public WebsiteBlogInfoAddResponse addBlogInfo(WebsiteBlogInfoAddRequest request, Session session) {
-        WebsiteBlogInfo entity=request.toWebsiteBlogInfo(String.valueOf(session.getId()));
+        WebsiteBlogInfo entity=request.toWebsiteBlogInfo(session);
         entity.setId(IdGenerate.nextId());
         websiteBlogInfoDao.insert(entity);
         return new WebsiteBlogInfoAddResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS,entity,request);
@@ -150,10 +148,9 @@ public class WebsiteBlogInfoServiceImpl implements WebsiteBlogInfoService {
      * @param session
      * @return
      */
-    @Transactional
     @Override
     public WebsiteBlogInfoUpdateResponse updateBlogInfo(WebsiteBlogInfoUpdateRequest request, Session session) {
-        WebsiteBlogInfo entity=request.toWebsiteBlogInfo(request.getId(),String.valueOf(session.getId()));
+        WebsiteBlogInfo entity=request.toWebsiteBlogInfo(session.getId());
         websiteBlogInfoDao.updateByPrimaryKeySelective(entity);
         return new WebsiteBlogInfoUpdateResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS);
     }
@@ -164,7 +161,6 @@ public class WebsiteBlogInfoServiceImpl implements WebsiteBlogInfoService {
      * @param session
      * @return
      */
-    @Transactional
     @Override
     public WebsiteBlogInfoUpdateResponse enableBlogInfo(Long id, Session session) {
         WebsiteBlogInfo websiteBlogInfo=new WebsiteBlogInfo();
@@ -180,7 +176,6 @@ public class WebsiteBlogInfoServiceImpl implements WebsiteBlogInfoService {
      * @param session
      * @return
      */
-    @Transactional
     @Override
     public WebsiteBlogInfoUpdateResponse disableBlogInfo(Long id, Session session) {
         WebsiteBlogInfo websiteBlogInfo=new WebsiteBlogInfo();
@@ -202,7 +197,6 @@ public class WebsiteBlogInfoServiceImpl implements WebsiteBlogInfoService {
     }
 
     @Override
-    @Transactional
     public void followBlog(Long id) {
         websiteBlogInfoDao.followBlog(id);
     }
@@ -218,7 +212,6 @@ public class WebsiteBlogInfoServiceImpl implements WebsiteBlogInfoService {
     }
 
     @Override
-    @Transactional
     public WebsiteBlogInfo viewBlog(Long id) {
         websiteBlogInfoDao.viewBlog(id);
         return websiteBlogInfoDao.queryBlog(id);

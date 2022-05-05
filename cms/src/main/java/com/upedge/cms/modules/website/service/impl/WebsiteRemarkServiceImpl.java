@@ -75,7 +75,7 @@ public class WebsiteRemarkServiceImpl implements WebsiteRemarkService {
     @Transactional
     @Override
     public WebsiteRemarkUpdateResponse updateRemark(WebsiteRemarkUpdateRequest request, Session session) {
-        WebsiteRemark entity=request.toWebsiteRemark(request.getId());
+        WebsiteRemark entity=request.toWebsiteRemark();
         websiteRemarkDao.updateByPrimaryKeySelective(entity);
         return new WebsiteRemarkUpdateResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS);
     }

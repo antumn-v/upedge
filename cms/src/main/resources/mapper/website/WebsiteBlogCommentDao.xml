@@ -7,7 +7,8 @@
     <resultMap type="com.upedge.cms.modules.website.entity.WebsiteBlogComment" id="BaseResultMap">
         <result property="id" column="id"/>
         <result property="blogId" column="blog_id"/>
-        <result property="appUserId" column="app_user_id"/>
+        <result property="customerId" column="customer_id"/>
+        <result property="userId" column="user_id"/>
         <result property="comment" column="comment"/>
         <result property="createTime" column="create_time"/>
         <result property="updateTime" column="update_time"/>
@@ -17,7 +18,7 @@
     </resultMap>
 
     <sql id="Base_Column_List">
-        `id`,`blog_id`,`app_user_id`,`comment`,`create_time`,`update_time`,`state`,`follow_num`,`user_name`
+        `id`,`blog_id`,`customer_id`,`user_id`,`comment`,`create_time`,`update_time`,`state`,`follow_num`,`user_name`
     </sql>
 
     <select id="selectByPrimaryKey" parameterType="com.upedge.cms.modules.website.entity.WebsiteBlogComment" resultMap="BaseResultMap">
@@ -38,8 +39,11 @@
             <if test="blogId != null">
                 blog_id = #{blogId},
             </if>
-            <if test="appUserId != null">
-                app_user_id = #{appUserId},
+            <if test="customerId != null">
+                customer_id = #{customerId},
+            </if>
+            <if test="userId != null">
+                user_id = #{userId},
             </if>
             <if test="comment != null">
                 comment = #{comment},
@@ -57,7 +61,7 @@
                 follow_num = #{followNum},
             </if>
             <if test="userName != null">
-                 user_name = #{userName},
+                user_name = #{userName},
             </if>
         </set>
         where id = #{id}
@@ -68,13 +72,14 @@
         <set>
         id = #{id},
         blog_id = #{blogId},
-        app_user_id = #{appUserId},
+        customer_id = #{customerId},
+        user_id = #{userId},
         comment = #{comment},
         create_time = #{createTime},
         update_time = #{updateTime},
         state = #{state},
         follow_num = #{followNum},
-        user_name = #{userName}
+        user_name = #{userName},
         </set>
         where id = #{id}
     </update>
@@ -84,7 +89,8 @@
         <trim prefix="(" suffix=")" suffixOverrides=",">
             id,
             blog_id,
-            app_user_id,
+            customer_id,
+            user_id,
             comment,
             create_time,
             update_time,
@@ -95,7 +101,8 @@
         values (
         #{id},
         #{blogId},
-        #{appUserId},
+        #{customerId},
+        #{userId},
         #{comment},
         #{createTime},
         #{updateTime},
@@ -114,8 +121,11 @@
             <if test="blogId != null" >
               blog_id
             </if>
-            <if test="appUserId != null" >
-              app_user_id
+            <if test="customerId != null" >
+              customer_id
+            </if>
+            <if test="userId != null" >
+              user_id
             </if>
             <if test="comment != null" >
               comment
@@ -135,6 +145,7 @@
             <if test="userName != null" >
               user_name
             </if>
+
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="id != null" >
@@ -143,8 +154,11 @@
             <if test="blogId != null" >
                 #{blogId}
             </if>
-            <if test="appUserId != null" >
-                #{appUserId}
+            <if test="customerId != null" >
+                #{customerId}
+            </if>
+            <if test="userId != null" >
+                #{userId}
             </if>
             <if test="comment != null" >
                 #{comment}
@@ -164,6 +178,7 @@
             <if test="userName != null" >
                 #{userName}
             </if>
+
         </trim>
     </insert>
 
@@ -172,7 +187,8 @@
         <trim prefix="(" suffix=")" suffixOverrides=",">
            id,
            blog_id,
-           app_user_id,
+           customer_id,
+           user_id,
            comment,
            create_time,
            update_time,
@@ -185,7 +201,8 @@
             <trim prefix="(" suffix=")" suffixOverrides=",">
                #{item.id},
                #{item.blogId},
-               #{item.appUserId},
+               #{item.customerId},
+               #{item.userId},
                #{item.comment},
                #{item.createTime},
                #{item.updateTime},
@@ -207,8 +224,11 @@
                     <if test="t.blogId != null">
                         blog_id = #{t.blogId} and
                     </if>
-                    <if test="t.appUserId != null">
-                        app_user_id = #{t.appUserId} and
+                    <if test="t.customerId != null">
+                        customer_id = #{t.customerId} and
+                    </if>
+                    <if test="t.userId != null">
+                        user_id = #{t.userId} and
                     </if>
                     <if test="t.comment != null">
                         comment = #{t.comment} and
@@ -271,7 +291,7 @@
 		wbc.comment as comment,
 		wbc.follow_num as followNum,
 		wbc.update_time as updateTime,
-		wbc.app_user_id as appUserId,
+		wbc.user_id as userId,
 		wbc.user_name as userName
 		from website_blog_comment wbc
 		where blog_id=#{blogId} and wbc.state=1

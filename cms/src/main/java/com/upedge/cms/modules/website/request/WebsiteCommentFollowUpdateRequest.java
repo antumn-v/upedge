@@ -1,12 +1,10 @@
 package com.upedge.cms.modules.website.request;
 
 import com.upedge.cms.modules.website.entity.WebsiteCommentFollow;
-import lombok.Data;
-
 import java.util.Date;
-
+import lombok.Data;
 /**
- * @author author
+ * @author gx
  */
 @Data
 public class WebsiteCommentFollowUpdateRequest{
@@ -18,7 +16,11 @@ public class WebsiteCommentFollowUpdateRequest{
     /**
      * 
      */
-    private String appUserId;
+    private Long customerId;
+    /**
+     * 
+     */
+    private Long userId;
     /**
      * 
      */
@@ -27,14 +29,20 @@ public class WebsiteCommentFollowUpdateRequest{
      * 
      */
     private Date updateTime;
+    /**
+     * 
+     */
+    private String userName;
 
     public WebsiteCommentFollow toWebsiteCommentFollow(Long id){
         WebsiteCommentFollow websiteCommentFollow=new WebsiteCommentFollow();
         websiteCommentFollow.setId(id);
         websiteCommentFollow.setCommentId(commentId);
-        websiteCommentFollow.setAppUserId(appUserId);
+        websiteCommentFollow.setCustomerId(customerId);
+        websiteCommentFollow.setUserId(userId);
         websiteCommentFollow.setState(state);
         websiteCommentFollow.setUpdateTime(updateTime);
+        websiteCommentFollow.setUserName(userName);
         return websiteCommentFollow;
     }
 

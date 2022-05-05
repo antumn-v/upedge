@@ -16,7 +16,7 @@
         `id`,`name`,`sort`,`create_time`,`state`
     </sql>
 
-    <select id="selectByPrimaryKey" resultMap="BaseResultMap">
+    <select id="selectByPrimaryKey" parameterType="com.upedge.cms.modules.website.entity.WebsiteFaqCate" resultMap="BaseResultMap">
         select
         <include refid="Base_Column_List" />
         from website_faq_cate
@@ -32,7 +32,7 @@
         update website_faq_cate
         <set>
             <if test="name != null">
-                `name` = #{name},
+                name = #{name},
             </if>
             <if test="sort != null">
                 sort = #{sort},
@@ -51,7 +51,7 @@
         update website_faq_cate
         <set>
         id = #{id},
-        `name` = #{name},
+        name = #{name},
         sort = #{sort},
         create_time = #{createTime},
         state = #{state},
@@ -63,7 +63,7 @@
         insert into website_faq_cate
         <trim prefix="(" suffix=")" suffixOverrides=",">
             id,
-            `name`,
+            name,
             sort,
             create_time,
             state
@@ -84,7 +84,7 @@
               id
             </if>
             <if test="name != null" >
-              `name`
+              name
             </if>
             <if test="sort != null" >
               sort
@@ -121,7 +121,7 @@
         insert into website_faq_cate
         <trim prefix="(" suffix=")" suffixOverrides=",">
            id,
-           `name`,
+           name,
            sort,
            create_time,
            state
@@ -147,7 +147,7 @@
                         id = #{t.id} and
                     </if>
                     <if test="t.name != null">
-                        `name` = #{t.name} and
+                        name = #{t.name} and
                     </if>
                     <if test="t.sort != null">
                         sort = #{t.sort} and
@@ -167,12 +167,7 @@
         <include refid="Base_Column_List" />
         from website_faq_cate
         <include refid="Query_Condition"/>
-        <if test="orderBy != null">
-            order by ${orderBy}
-        </if>
-        <if test="pageNum != null and pageSize != null">
-            limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
-        </if>
+        order by id desc
     </select>
 
     <select id="count" parameterType="com.upedge.common.base.Page" resultType="java.lang.Long">

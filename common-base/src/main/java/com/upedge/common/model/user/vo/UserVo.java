@@ -8,7 +8,7 @@ import java.util.Date;
  * Created by guoxing on 2020/11/9.
  */
 @Data
-public class UserVo {
+public class UserVo extends UserInfoVo {
     private Long id;
 
     private Long customerId;

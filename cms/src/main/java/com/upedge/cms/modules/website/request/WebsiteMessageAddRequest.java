@@ -1,12 +1,11 @@
 package com.upedge.cms.modules.website.request;
 
+import com.upedge.common.base.Page;
 import com.upedge.cms.modules.website.entity.WebsiteMessage;
-import lombok.Data;
-
 import java.util.Date;
-
+import lombok.Data;
 /**
- * @author author
+ * @author gx
  */
 @Data
 public class WebsiteMessageAddRequest{
@@ -42,7 +41,11 @@ public class WebsiteMessageAddRequest{
     /**
     * 
     */
-    private String adminUser;
+    private Long customerId;
+    /**
+    * 
+    */
+    private Long userId;
     /**
     * 
     */
@@ -69,7 +72,8 @@ public class WebsiteMessageAddRequest{
         websiteMessage.setSkype(skype);
         websiteMessage.setMessage(message);
         websiteMessage.setCreateTime(createTime);
-        websiteMessage.setAdminUser(adminUser);
+        websiteMessage.setCustomerId(customerId);
+        websiteMessage.setUserId(userId);
         websiteMessage.setRemark(remark);
         websiteMessage.setRemoteAddr(remoteAddr);
         websiteMessage.setDeviceName(deviceName);
