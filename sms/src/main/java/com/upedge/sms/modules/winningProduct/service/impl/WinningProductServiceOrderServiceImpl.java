@@ -26,7 +26,6 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ThreadPoolExecutor;
 
 
@@ -83,6 +82,7 @@ public class WinningProductServiceOrderServiceImpl implements WinningProductServ
             return BaseResponse.failed();
         }
         order.setId(orderId);
+        order.setCustomerId(session.getCustomerId());
         AccountPaymentRequest accountPaymentRequest = new AccountPaymentRequest(order.getPaymentId(),session.getId(),session.getAccountId(),session.getCustomerId(), OrderType.EXTRA_SERVICE_WINNING_PRODUCT,order.getPayAmount(), BigDecimal.ZERO,0);
         BaseResponse paymentResponse = umsFeignClient.accountPayment(accountPaymentRequest);
         if (paymentResponse.getCode() != ResultCode.SUCCESS_CODE){
@@ -102,17 +102,7 @@ public class WinningProductServiceOrderServiceImpl implements WinningProductServ
         serviceOrder.setServiceType(OrderType.EXTRA_SERVICE_WINNING_PRODUCT);
         serviceOrder.setUpdateTime(new Date());
         serviceOrderService.insert(serviceOrder);
-        CompletableFuture.runAsync(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    Thread.sleep(3 * 1000L);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                saveTransactionRecordMessage(session.getId(),orderId);
-            }
-        },threadPoolExecutor);
+        saveTransactionRecordMessage(session.getId(),orderId);
         return BaseResponse.success();
     }
 
