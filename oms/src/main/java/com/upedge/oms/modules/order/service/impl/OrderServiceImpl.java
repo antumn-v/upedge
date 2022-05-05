@@ -960,6 +960,17 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
+    public BaseResponse updateOrderShippingWarehouse(Long shipMethodId) {
+
+        ShippingMethodRedis shippingMethodVo = (ShippingMethodRedis) redisTemplate.opsForHash().get(RedisKey.SHIPPING_METHOD,String.valueOf(shipMethodId));
+        if (null == shippingMethodVo){
+            return BaseResponse.failed();
+        }
+        orderDao.updateWarehouseByMethodId(shipMethodId,shippingMethodVo.getWarehouseCode());
+        return BaseResponse.success();
+    }
+
+    @Override
     public BaseResponse orderAddItem(OrderAddItemRequest request, Session session) {
         Long orderId = request.getOrderId();
         Order order = selectByPrimaryKey(orderId);

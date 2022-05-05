@@ -2267,4 +2267,11 @@
         order by pay_time asc
         limit 100
     </select>
+
+    <update id="updateWarehouseByMethodId">
+        update `order`
+        set shipping_warehouse = #{warehouseCode}
+        where ship_method_id = #{methodId}
+        and pay_state != '1';
+    </update>
 </mapper>

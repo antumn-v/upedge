@@ -32,6 +32,8 @@ import java.util.Set;
  */
 public interface OrderService{
 
+    BaseResponse updateOrderShippingWarehouse(Long shipMethodId);
+
     BaseResponse orderAddItem(OrderAddItemRequest request,Session session);
 
     List<Long> selectUploadSaiheFailedIds();

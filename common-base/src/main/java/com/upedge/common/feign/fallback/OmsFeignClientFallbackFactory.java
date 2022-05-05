@@ -38,6 +38,11 @@ public class OmsFeignClientFallbackFactory implements FallbackFactory<OmsFeignCl
 
 
             @Override
+            public BaseResponse updateWarehouseByMethod(Long methodId) {
+                return BaseResponse.failed();
+            }
+
+            @Override
             public BaseResponse orderConfirmReceipt(StockOrderVo stockOrderVo) {
                 return BaseResponse.failed();
             }

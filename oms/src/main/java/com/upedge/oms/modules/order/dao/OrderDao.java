@@ -35,13 +35,15 @@ import java.util.Set;
 /**
  * @author author
  */
-public interface OrderDao{
+public interface OrderDao {
+
+    int updateWarehouseByMethodId(@Param("methodId") Long methodId, @Param("warehouseCode") String warehouseCode);
 
     List<Long> selectUploadSaiheFailedIds();
 
     List<Order> selectUnPaidOrderByAreaId(Long areaId);
 
-    List<Long> selectUnPaidIdsByShipRule(@Param("rule")OrderShipRuleVo shipRuleVo, @Param("areaId") Long areaId);
+    List<Long> selectUnPaidIdsByShipRule(@Param("rule") OrderShipRuleVo shipRuleVo, @Param("areaId") Long areaId);
 
     int updateOrderVatAmountByAreaId(@Param("areaIds") List<Long> areaIds,
                                      @Param("vatAmount") BigDecimal vatAmount);
@@ -145,6 +147,7 @@ public interface OrderDao{
 
 
     List<Order> historySelect(Page<OrderManageQuery> record);
+
     long historyCount(Page<OrderManageQuery> record);
 
     int updatePendingOrderStatus(@Param("ids") List<Long> ids,
@@ -152,18 +155,23 @@ public interface OrderDao{
                                  @Param("userCode") String userCode);
 
     int existPendingOrderByOriginal(Long originalOrderId);
+
     int existReshipOrderWaitTrackByOriginal(Long originalOrderId);
+
     int reshipOrderTimesByOriginal(Long originalOrderId);
 
     //更新订单状态为退款中
     int updateOrderAsRefunding(Long id);
+
     //驳回退款，恢复订单退款状态
     int restoreOrderRefundState(Long id);
+
     //修改订单状态为已退款
     int updateOrderAsRefund(@Param("id") Long id, @Param("state") Integer state);
 
     /**
      * 查询赛盒订单信息
+     *
      * @param id
      * @return
      */
@@ -177,42 +185,53 @@ public interface OrderDao{
 
     /**
      * 更新订单为已发货
+     *
      * @param id
      * @return
      */
     int updateOrderAsTracked(@Param("id") Long id,
-                             @Param("trackNum")String trackNum);
+                             @Param("trackNum") String trackNum);
 
     /**
      * 普通订单未导入赛盒
+     *
      * @return
      */
     long orderHandleImportData(@Param("userManager") String userManager);
 
     /**
      * 普通订单补发待审核
+     *
      * @return
      */
     long orderHandleReshipData(@Param("userManager") String userManager);
 
     /**
      * 未付款普通订单SKU统计
+     *
      * @param request
      * @return
      */
     List<ToOrderSkuVo> selectToOrderSkuData(ToOrderSkuDataRequest request);
+
     Long countToOrderSkuData(ToOrderSkuDataRequest request);
 
     /**
      * 普通订单
      * 已支付订单总数  已支付订单已发货数 已支付订单未发货数 待支付订单数 已取消订单数
+     *
      * @return
      */
     long normalOrderPaidTotalNum(Long customerId);
+
     long normalOrderPaidShipYesNum(Long customerId);
+
     long normalOrderPaidShipNoNum(Long customerId);
+
     long normalOrderToPayNum(Long customerId);
+
     long normalOrderCancelNum(Long customerId);
+
     BigDecimal normalOrderPaidAmount(Long customerId);
 
     //今日付款普通订单数
@@ -260,6 +279,7 @@ public interface OrderDao{
 
     /**
      * 客户潘达订单
+     *
      * @param record
      * @return
      */
@@ -269,6 +289,7 @@ public interface OrderDao{
 
     /**
      * 客户该时间区间内下单数量
+     *
      * @param query
      * @return
      */
@@ -276,6 +297,7 @@ public interface OrderDao{
 
     /**
      * 客户该时间区间内下单未发货数量
+     *
      * @param query
      * @return
      */
@@ -284,6 +306,7 @@ public interface OrderDao{
 
     /**
      * 客户该时间区间内下单已发货数量
+     *
      * @param query
      * @return
      */
@@ -292,6 +315,7 @@ public interface OrderDao{
 
     /**
      * 客户该时间区间内订单地区分布
+     *
      * @query
      */
     List<EchartsPieVo> orderDistributionByTime(@Param("query") OrderAnalysisDto query);
@@ -299,6 +323,7 @@ public interface OrderDao{
 
     /**
      * 客户该月内 订单和金额
+     *
      * @param customerId
      * @param startDay
      * @param endDay
@@ -334,6 +359,7 @@ public interface OrderDao{
 
     /**
      * 通过枚举修改各表的managerCode  不是修改一张order表  请勿随意调用
+     *
      * @param changeManagerVo
      * @param tableName
      */

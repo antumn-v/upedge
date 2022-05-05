@@ -3,6 +3,7 @@ package com.upedge.tms.modules.ship.service.impl;
 import com.upedge.common.base.BaseResponse;
 import com.upedge.common.base.Page;
 import com.upedge.common.constant.Constant;
+import com.upedge.common.constant.ProductConstant;
 import com.upedge.common.constant.ResultCode;
 import com.upedge.common.constant.key.RedisKey;
 import com.upedge.common.exception.CustomerException;
@@ -304,7 +305,11 @@ public class ShippingUnitServiceImpl implements ShippingUnitService {
         shipDetail.setPrice(price);
         shipDetail.setWeightType(0);
         shipDetail.setCouldShip(true);
-        shipDetail.setWarehouseCode(shippingUnit.getWarehouseCode());
+        if(StringUtils.isBlank(shippingUnit.getWarehouseCode())){
+            shipDetail.setWarehouseCode(ProductConstant.DEFAULT_WAREHOUSE_ID);
+        }else {
+            shipDetail.setWarehouseCode(shippingUnit.getWarehouseCode());
+        }
         return shipDetail;
     }
 }

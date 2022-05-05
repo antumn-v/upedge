@@ -751,4 +751,9 @@ public class OrderController {
 
         return orderService.getCustomerOrderStatistical(customerId);
     }
+
+    @PostMapping("/updateWarehouse/{methodId}")
+    public BaseResponse updateWarehouseByMethod(@PathVariable Long methodId){
+        return orderService.updateOrderShippingWarehouse(methodId);
+    }
 }

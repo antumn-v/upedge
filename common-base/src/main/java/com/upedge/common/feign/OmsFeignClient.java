@@ -32,6 +32,9 @@ import java.util.List;
 @FeignClient(value = ServiceNameConstants.OMS_SERVICE,fallbackFactory = OmsFeignClientFallbackFactory.class,decode404 = true)
 public interface OmsFeignClient  {
 
+    @PostMapping("/order/updateWarehouse/{methodId}")
+    public BaseResponse updateWarehouseByMethod(@PathVariable Long methodId);
+
     @PostMapping("/stock/order/overseaWarehouseReceipt")
     public BaseResponse orderConfirmReceipt(@RequestBody StockOrderVo stockOrderVo);
 

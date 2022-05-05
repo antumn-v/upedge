@@ -1,8 +1,11 @@
 package com.upedge.tms.modules.ship.request;
 
+import com.upedge.common.constant.ProductConstant;
 import com.upedge.tms.modules.ship.entity.ShippingMethod;
 import lombok.Data;
+import org.apache.commons.lang3.StringUtils;
 
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 import java.util.Date;
 import java.util.List;
@@ -64,6 +67,7 @@ public class ShippingMethodUpdateRequest{
     /**
      * 仓库代码
      */
+    @NotBlank(message = "仓库不能为空")
     private String warehouseCode;
     /**
      * 运输方式代码
@@ -88,7 +92,11 @@ public class ShippingMethodUpdateRequest{
         shippingMethod.setState(state);
         shippingMethod.setCreateTime(createTime);
         shippingMethod.setUpdateTime(updateTime);
-        shippingMethod.setWarehouseCode(warehouseCode);
+        if (StringUtils.isNotBlank(warehouseCode)){
+            shippingMethod.setWarehouseCode(warehouseCode);
+        }else {
+            shippingMethod.setWarehouseCode(ProductConstant.DEFAULT_WAREHOUSE_ID);
+        }
         shippingMethod.setMethodCode(methodCode);
         return shippingMethod;
     }

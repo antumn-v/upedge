@@ -6,6 +6,7 @@ import com.upedge.common.constant.Constant;
 import com.upedge.common.constant.ResultCode;
 import com.upedge.common.constant.key.RedisKey;
 import com.upedge.common.exception.CustomerException;
+import com.upedge.common.feign.OmsFeignClient;
 import com.upedge.common.model.ship.dto.ShipMethodSelectDto;
 import com.upedge.common.model.ship.request.ShipMethodBatchSearchRequest;
 import com.upedge.common.model.ship.request.ShipMethodBatchSearchRequest.BatchShipMethodSelectDto;
@@ -16,6 +17,7 @@ import com.upedge.common.model.ship.response.ShipMethodBatchSearchResponse;
 import com.upedge.common.model.ship.response.ShipMethodBatchSearchResponse.BatchShipMethodSelectVo;
 import com.upedge.common.model.ship.vo.*;
 import com.upedge.common.model.tms.ShippingTemplateVo;
+import com.upedge.common.model.tms.WarehouseVo;
 import com.upedge.common.utils.IdGenerate;
 import com.upedge.common.utils.ListUtils;
 import com.upedge.tms.modules.area.dao.AreaDao;
@@ -81,6 +83,9 @@ public class ShippingMethodServiceImpl implements ShippingMethodService {
 
     @Autowired
     RedisTemplate redisTemplate;
+
+    @Autowired
+    OmsFeignClient omsFeignClient;
 
     @Override
     public List<ShippingMethod> allShippingMethod() {
@@ -184,6 +189,10 @@ public class ShippingMethodServiceImpl implements ShippingMethodService {
 
     @Override
     public BaseResponse addShipMethod(ShippingMethodAddRequest request) throws CustomerException {
+        WarehouseVo warehouseVo = (WarehouseVo) redisTemplate.opsForValue().get(RedisKey.STRING_WAREHOUSE+request.getWarehouseCode());
+        if (null == warehouseVo){
+            return BaseResponse.failed("仓库不存在");
+        }
         ShippingMethod shippingMethod = shippingMethodDao.getShippingMethodByName(request.getName());
         if (null != shippingMethod) {
             return BaseResponse.failed("运输方式名称不能重复");
@@ -226,29 +235,56 @@ public class ShippingMethodServiceImpl implements ShippingMethodService {
 
     @Override
     public BaseResponse updateShipMethod(ShippingMethodUpdateRequest request, Long methodId) throws CustomerException {
+        WarehouseVo warehouseVo = (WarehouseVo) redisTemplate.opsForValue().get(RedisKey.STRING_WAREHOUSE+request.getWarehouseCode());
+        if (null == warehouseVo){
+            return BaseResponse.failed("仓库不存在");
+        }
         ShippingMethod shippingMethod = shippingMethodDao.selectByPrimaryKey(methodId);
-        Integer weightType = shippingMethod.getWeightType();
+
         if (null == shippingMethod) {
             return BaseResponse.failed("运输方式不存在");
         }
-        if (null != shippingMethod.getWarehouseCode()){
-            List<Long> methodIds = (List<Long>) redisTemplate.opsForHash().get(RedisKey.HASH_WAREHOUSE_METHOD,shippingMethod.getWarehouseCode());
+        List<Long> methodIds = (List<Long>) redisTemplate.opsForHash().get(RedisKey.HASH_WAREHOUSE_METHOD,shippingMethod.getWarehouseCode());
+        if (ListUtils.isNotEmpty(methodIds)){
+            methodIds.remove(methodId);
             if (ListUtils.isNotEmpty(methodIds)){
-                methodIds.remove(methodId);
-                if (ListUtils.isNotEmpty(methodIds)){
-                    redisTemplate.opsForHash().put(RedisKey.HASH_WAREHOUSE_METHOD,shippingMethod.getWarehouseCode(),methodIds);
-                }else {
-                    redisTemplate.opsForHash().delete(RedisKey.HASH_WAREHOUSE_METHOD,shippingMethod.getWarehouseCode());
-                }
+                redisTemplate.opsForHash().put(RedisKey.HASH_WAREHOUSE_METHOD,shippingMethod.getWarehouseCode(),methodIds);
+            }else {
+                redisTemplate.opsForHash().delete(RedisKey.HASH_WAREHOUSE_METHOD,shippingMethod.getWarehouseCode());
             }
         }
+        boolean b = shippingMethod.getWarehouseCode().equals(request.getWarehouseCode());
 
         shippingMethod = request.toShippingMethod(methodId);
         shippingMethod.setId(methodId);
         updateByPrimaryKeySelective(shippingMethod);
+        //修改运输模板关联表
+        updateMethodTemplate(request.getTemplateIds(), methodId);
+//        Integer weightType = shippingMethod.getWeightType();
+//        if (request.getWeightType() != null
+//                && weightType != request.getWeightType()) {
+//            boolean sendMq = sendMq(shippingMethod.getId());
+//            if (!sendMq) {
+//                throw new CustomerException("mq异常，请重新提交或联系IT");
+//            }
+//        }
+        shippingMethodTemplateService.redisInit();
+        if (StringUtils.isNotBlank(shippingMethod.getWarehouseCode())){
+            methodIds = (List<Long>) redisTemplate.opsForHash().get(RedisKey.HASH_WAREHOUSE_METHOD,shippingMethod.getWarehouseCode());
+            if (ListUtils.isEmpty(methodIds)){
+                methodIds = new ArrayList<>();
+            }
+            methodIds.add(methodId);
+            redisTemplate.opsForHash().put(RedisKey.HASH_WAREHOUSE_METHOD,shippingMethod.getWarehouseCode(),methodIds);
+        }
+        if (!b){
+            omsFeignClient.updateWarehouseByMethod(methodId);
+        }
+        return BaseResponse.success();
+    }
 
+    void updateMethodTemplate(List<Long> templateIds,Long methodId) throws CustomerException {
         List<ShippingMethodTemplate> shippingMethodTemplates = new ArrayList<>();
-        List<Long> templateIds = request.getTemplateIds();
         for (Long templateId : templateIds) {
             ShippingTemplateRedis shippingTemplateRedis = (ShippingTemplateRedis) redisTemplate.opsForHash().get(RedisKey.SHIPPING_TEMPLATE, String.valueOf(templateId));
             if (null == shippingTemplateRedis) {
@@ -264,23 +300,6 @@ public class ShippingMethodServiceImpl implements ShippingMethodService {
         }
         shippingMethodTemplateDao.deleteByShipMethodId(methodId);
         shippingMethodTemplateDao.insertByBatch(shippingMethodTemplates);
-        if (request.getWeightType() != null
-                && weightType != request.getWeightType()) {
-            boolean b = sendMq(shippingMethod.getId());
-            if (!b) {
-                throw new CustomerException("mq异常，请重新提交或联系IT");
-            }
-        }
-        shippingMethodTemplateService.redisInit();
-        if (StringUtils.isNotBlank(shippingMethod.getWarehouseCode())){
-            List<Long> methodIds = (List<Long>) redisTemplate.opsForHash().get(RedisKey.HASH_WAREHOUSE_METHOD,shippingMethod.getWarehouseCode());
-            if (ListUtils.isEmpty(methodIds)){
-                methodIds = new ArrayList<>();
-            }
-            methodIds.add(methodId);
-            redisTemplate.opsForHash().put(RedisKey.HASH_WAREHOUSE_METHOD,shippingMethod.getWarehouseCode(),methodIds);
-        }
-        return BaseResponse.success();
     }
 
     @Override
