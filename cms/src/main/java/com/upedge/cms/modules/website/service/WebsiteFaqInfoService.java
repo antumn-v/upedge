@@ -8,6 +8,7 @@ import com.upedge.cms.modules.website.response.WebsiteFaqInfoAddResponse;
 import com.upedge.cms.modules.website.response.WebsiteFaqInfoInfoResponse;
 import com.upedge.cms.modules.website.response.WebsiteFaqInfoListResponse;
 import com.upedge.cms.modules.website.response.WebsiteFaqInfoUpdateResponse;
+import com.upedge.cms.modules.website.vo.WebSiteSearch;
 import com.upedge.common.base.Page;
 import com.upedge.common.model.user.vo.Session;
 
@@ -48,6 +49,6 @@ public interface WebsiteFaqInfoService{
 
     List<WebsiteFaqInfo> listFaqInfo(String cateId);
 
-    List<WebsiteFaqInfo> searchFaqInfo(String info);
+    List<WebsiteFaqInfo> searchFaqInfo(WebSiteSearch webSiteSearch);
 }
 

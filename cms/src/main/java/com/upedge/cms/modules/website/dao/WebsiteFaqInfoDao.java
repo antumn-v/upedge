@@ -1,6 +1,7 @@
 package com.upedge.cms.modules.website.dao;
 
 import com.upedge.cms.modules.website.entity.WebsiteFaqInfo;
+import com.upedge.cms.modules.website.vo.WebSiteSearch;
 import com.upedge.common.base.Page;
 
 import java.util.List;
@@ -32,5 +33,5 @@ public interface WebsiteFaqInfoDao{
 
     List<WebsiteFaqInfo> listFaqInfo(String cateId);
 
-    List<WebsiteFaqInfo> searchFaqInfo(String info);
+    List<WebsiteFaqInfo> searchFaqInfo(WebSiteSearch webSiteSearch);
 }

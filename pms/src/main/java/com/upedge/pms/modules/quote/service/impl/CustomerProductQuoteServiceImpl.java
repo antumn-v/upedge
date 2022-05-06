@@ -14,7 +14,6 @@ import com.upedge.pms.modules.product.dao.StoreProductAttributeDao;
 import com.upedge.pms.modules.product.dao.StoreProductVariantDao;
 import com.upedge.pms.modules.product.entity.Product;
 import com.upedge.pms.modules.product.entity.ProductVariant;
-import com.upedge.pms.modules.product.entity.StoreProductAttribute;
 import com.upedge.pms.modules.product.entity.StoreProductVariant;
 import com.upedge.pms.modules.product.service.ProductService;
 import com.upedge.pms.modules.product.service.StoreProductVariantService;
@@ -256,31 +255,31 @@ public class CustomerProductQuoteServiceImpl implements CustomerProductQuoteServ
         customerProductQuoteVos.addAll(quotingVariants);
         //验证是否还有没查询出来报价信息的产品
 //        storeVariantIds = request.getStoreVariantIds();
-        if (ListUtils.isEmpty(storeVariantIds)){
-            return customerProductQuoteVos;
-        }
+//        if (ListUtils.isEmpty(storeVariantIds)){
+//            return customerProductQuoteVos;
+//        }
         //有未查询到报价信息的产品
-        if (ListUtils.isNotEmpty(storeVariantIds)) {
-            StoreProductVariant storeProductVariant = storeProductVariantDao.selectByPrimaryKey(storeVariantIds.get(0));
-            StoreProductAttribute storeProductAttribute = storeProductAttributeDao.selectByPrimaryKey(storeProductVariant.getProductId());
-            Long customerId = storeProductAttribute.getCustomerId();
-            request.setStoreVariantIds(storeVariantIds);
-            if (ListUtils.isNotEmpty(request.getStoreVariantIds())) {
-                storeVariantIds = request.getStoreVariantIds();
-                List<CustomerProductQuoteVo> customerProductQuoteVoList = storeProductVariantDao.selectQuoteDetailByIds(storeVariantIds);
-                if (ListUtils.isNotEmpty(customerProductQuoteVoList)){
-                    List<CustomerProductQuote> customerProductQuotes = new ArrayList<>();
-                    for (CustomerProductQuoteVo customerProductQuoteVo : customerProductQuoteVoList) {
-                        CustomerProductQuote customerProductQuote = new CustomerProductQuote();
-                        BeanUtils.copyProperties(customerProductQuoteVo,customerProductQuote);
-                        customerProductQuote.setCustomerId(customerId);
-                        customerProductQuotes.add(customerProductQuote);
-                    }
-                    customerProductQuoteDao.insertByBatch(customerProductQuotes);
-                    customerProductQuoteVos.addAll(customerProductQuoteVoList);
-                }
-            }
-        }
+//        if (ListUtils.isNotEmpty(storeVariantIds)) {
+//            StoreProductVariant storeProductVariant = storeProductVariantDao.selectByPrimaryKey(storeVariantIds.get(0));
+//            StoreProductAttribute storeProductAttribute = storeProductAttributeDao.selectByPrimaryKey(storeProductVariant.getProductId());
+//            Long customerId = storeProductAttribute.getCustomerId();
+//            request.setStoreVariantIds(storeVariantIds);
+//            if (ListUtils.isNotEmpty(request.getStoreVariantIds())) {
+//                storeVariantIds = request.getStoreVariantIds();
+//                List<CustomerProductQuoteVo> customerProductQuoteVoList = storeProductVariantDao.selectQuoteDetailByIds(storeVariantIds);
+//                if (ListUtils.isNotEmpty(customerProductQuoteVoList)){
+//                    List<CustomerProductQuote> customerProductQuotes = new ArrayList<>();
+//                    for (CustomerProductQuoteVo customerProductQuoteVo : customerProductQuoteVoList) {
+//                        CustomerProductQuote customerProductQuote = new CustomerProductQuote();
+//                        BeanUtils.copyProperties(customerProductQuoteVo,customerProductQuote);
+//                        customerProductQuote.setCustomerId(customerId);
+//                        customerProductQuotes.add(customerProductQuote);
+//                    }
+//                    customerProductQuoteDao.insertByBatch(customerProductQuotes);
+//                    customerProductQuoteVos.addAll(customerProductQuoteVoList);
+//                }
+//            }
+//        }
         return customerProductQuoteVos;
     }
 

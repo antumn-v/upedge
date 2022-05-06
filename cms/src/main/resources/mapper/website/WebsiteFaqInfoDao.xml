@@ -180,7 +180,7 @@
            customer_id,
            user_id,
            cate_id,
-           state
+           `state`
         </trim>
         values
         <foreach collection="list" item="item" index="index" separator=",">
@@ -228,7 +228,7 @@
                         cate_id = #{t.cateId} and
                     </if>
                     <if test="t.state != null">
-                        state = #{t.state} and
+                        `state` = #{t.state} and
                     </if>
             </trim>
         </if>
@@ -262,9 +262,15 @@
        order by update_time desc
 	</select>
 
-    <select id="searchFaqInfo" resultType="com.upedge.cms.modules.website.entity.WebsiteFaqInfo">
+    <select id="searchFaqInfo" resultType="com.upedge.cms.modules.website.entity.WebsiteFaqInfo" parameterType="com.upedge.cms.modules.website.vo.WebSiteSearch">
         select ask_title as askTitle,answer_info as answerInfo
-       from website_faq_info where state=1 and ask_title like concat('%',#{info},'%')
+       from website_faq_info where state=1
+        <if test="info != null and info != ''">
+            and ask_title like concat('%',#{info},'%')
+        </if>
+        <if test="cateId != null">
+            and cate_id=#{cateId}
+        </if>
        order by update_time desc
     </select>
 

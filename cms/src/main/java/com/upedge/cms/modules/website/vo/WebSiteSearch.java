@@ -5,5 +5,7 @@ import lombok.Data;
 @Data
 public class WebSiteSearch {
 
+    Long cateId;
+
     String info;
 }

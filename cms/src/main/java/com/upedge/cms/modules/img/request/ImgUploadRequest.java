@@ -11,7 +11,4 @@ public class ImgUploadRequest {
     @NotNull
     MultipartFile file;
 
-    @NotNull
-    Integer type;
-
 }

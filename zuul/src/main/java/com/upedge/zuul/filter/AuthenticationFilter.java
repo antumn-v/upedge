@@ -38,7 +38,7 @@ public class AuthenticationFilter extends ZuulFilter {
 		freePaths.add("/ums/store/connect/shopify");//shopify授权
 		freePaths.add("/ums/store/shopifyAuth");//shopify授权
 		freePaths.add("/ums/store/connectShopify");//shopify授权
-		freePaths.add("/cms/web");
+		freePaths.add("/cms/website/");
 		freePaths.add("/pms/alibabaApi/auth");
 
 	}

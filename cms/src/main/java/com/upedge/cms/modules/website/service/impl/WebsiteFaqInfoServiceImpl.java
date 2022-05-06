@@ -5,8 +5,12 @@ import com.upedge.cms.modules.website.entity.WebsiteFaqInfo;
 import com.upedge.cms.modules.website.request.WebsiteFaqInfoAddRequest;
 import com.upedge.cms.modules.website.request.WebsiteFaqInfoListRequest;
 import com.upedge.cms.modules.website.request.WebsiteFaqInfoUpdateRequest;
-import com.upedge.cms.modules.website.response.*;
+import com.upedge.cms.modules.website.response.WebsiteFaqInfoAddResponse;
+import com.upedge.cms.modules.website.response.WebsiteFaqInfoInfoResponse;
+import com.upedge.cms.modules.website.response.WebsiteFaqInfoListResponse;
+import com.upedge.cms.modules.website.response.WebsiteFaqInfoUpdateResponse;
 import com.upedge.cms.modules.website.service.WebsiteFaqInfoService;
+import com.upedge.cms.modules.website.vo.WebSiteSearch;
 import com.upedge.common.base.Page;
 import com.upedge.common.constant.Constant;
 import com.upedge.common.constant.ResultCode;
@@ -182,7 +186,7 @@ public class WebsiteFaqInfoServiceImpl implements WebsiteFaqInfoService {
     }
 
     @Override
-    public List<WebsiteFaqInfo> searchFaqInfo(String info) {
-        return websiteFaqInfoDao.searchFaqInfo(info);
+    public List<WebsiteFaqInfo> searchFaqInfo(WebSiteSearch webSiteSearch) {
+        return websiteFaqInfoDao.searchFaqInfo(webSiteSearch);
     }
 }

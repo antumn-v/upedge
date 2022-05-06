@@ -4,11 +4,13 @@ package com.upedge.cms.modules.website.controller;
 import com.upedge.cms.modules.website.entity.*;
 import com.upedge.cms.modules.website.service.*;
 import com.upedge.cms.modules.website.vo.WebSiteSearch;
+import com.upedge.common.base.BaseResponse;
 import com.upedge.common.enums.CustomerExceptionEnum;
 import com.upedge.common.exception.CustomerException;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.utils.IdGenerate;
 import com.upedge.common.web.util.UserUtil;
+import io.swagger.annotations.ApiOperation;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -44,6 +46,7 @@ public class WebsiteController {
     @Autowired
     RedisTemplate<String, Object> redisTemplate;
 
+    @ApiOperation("faq类别")
     @PostMapping(value= "faqCate")
     @ResponseBody
     public List<WebsiteFaqCate> faqCate() {
@@ -51,30 +54,24 @@ public class WebsiteController {
         return list;
     }
 
-    @PostMapping(value = "faqInfo/{cateId}")
-    @ResponseBody
-    public List<WebsiteFaqInfo> faqInfo(@PathVariable(value = "cateId") String cateId) {
-        List<WebsiteFaqInfo> list = websiteFaqInfoService.listFaqInfo(cateId);
-        return list;
-    }
+//    @PostMapping(value = "faqInfo/{cateId}")
+//    @ResponseBody
+//    public List<WebsiteFaqInfo> faqInfo(@PathVariable(value = "cateId") String cateId) {
+//        List<WebsiteFaqInfo> list = websiteFaqInfoService.listFaqInfo(cateId);
+//        return list;
+//    }
 
     //搜索faq 根据问题关键词搜搜
     @PostMapping(value = "faqInfo/search")
     @ResponseBody
-    public List<WebsiteFaqInfo> faqInfoSearch(@RequestBody WebSiteSearch webSiteSearch) {
-        if(StringUtils.isBlank(webSiteSearch.getInfo())){
-            return new ArrayList<>();
-        }
-        List<WebsiteFaqInfo> list = websiteFaqInfoService.searchFaqInfo(webSiteSearch.getInfo());
-        return list;
+    public BaseResponse faqInfoSearch(@RequestBody WebSiteSearch webSiteSearch) {
+        List<WebsiteFaqInfo> list = websiteFaqInfoService.searchFaqInfo(webSiteSearch);
+        return BaseResponse.success(list);
     }
 
     @PostMapping(value = "blog/search")
     @ResponseBody
     public List<WebsiteBlogInfo> blogSearch(@RequestBody WebSiteSearch webSiteSearch) {
-        if(StringUtils.isBlank(webSiteSearch.getInfo())){
-            return new ArrayList<>();
-        }
         List<WebsiteBlogInfo> list = websiteBlogInfoService.blogSearch(webSiteSearch.getInfo());
         for(WebsiteBlogInfo websiteBlogInfo:list){
             Long commentNum= websiteBlogCommentService.countWebsiteRemarkByBlogId(websiteBlogInfo.getId());
