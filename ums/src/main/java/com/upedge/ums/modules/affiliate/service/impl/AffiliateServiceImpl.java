@@ -248,6 +248,9 @@ public class AffiliateServiceImpl implements AffiliateService {
             return new AffiliateAddResponse(ResultCode.SUCCESS_CODE,"被推荐人已经加入了联盟！");
         }
         Affiliate affiliate=request.toAffiliate();
+        if (affiliate.getRefereeCommission() == null){
+            affiliate.setRefereeCommission(new BigDecimal("0.2"));
+        }
         insert(affiliate);
 
         return new AffiliateAddResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS);

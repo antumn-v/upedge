@@ -26,11 +26,13 @@ public class AffiliateAddRequest{
 
     Integer source;
 
+    BigDecimal refereeCommission;
+
     public Affiliate toAffiliate(){
         Affiliate affiliate=new Affiliate();
         affiliate.setReferrerId(referrerId);
         affiliate.setRefereeId(refereeId);
-        affiliate.setRefereeCommission(BigDecimal.ZERO);
+        affiliate.setRefereeCommission(refereeCommission);
         affiliate.setCreateTime(new Date());
         affiliate.setUpdateTime(new Date());
         affiliate.setSource(source);
