@@ -44,4 +44,6 @@ public interface AffiliateDao{
                                 @Param("updateTime") Date updateTime);
 
     Affiliate selectAffiliateVoByRefereeId(@Param("customerId") Long customerId);
+
+    List<Affiliate> allAffiliates();
 }

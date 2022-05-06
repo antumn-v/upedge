@@ -255,4 +255,9 @@ public class AffiliateServiceImpl implements AffiliateService {
 
         return new AffiliateAddResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS);
     }
+
+    @Override
+    public List<Affiliate> allAffiliates() {
+        return affiliateDao.allAffiliates();
+    }
 }

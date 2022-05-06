@@ -62,6 +62,7 @@ public class WebsiteController {
 //    }
 
     //搜索faq 根据问题关键词搜搜
+    @ApiOperation("faq类别")
     @PostMapping(value = "faqInfo/search")
     @ResponseBody
     public BaseResponse faqInfoSearch(@RequestBody WebSiteSearch webSiteSearch) {

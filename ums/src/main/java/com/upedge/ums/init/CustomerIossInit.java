@@ -15,7 +15,7 @@ import javax.annotation.PostConstruct;
 import java.util.List;
 
 @Slf4j
-@Component
+//@Component
 public class CustomerIossInit {
 
     @Autowired

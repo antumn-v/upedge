@@ -251,5 +251,9 @@
 		where id=#{id}
 	</update>
 
-
+    <select id="allAffiliates" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from affiliate
+    </select>
 </mapper>

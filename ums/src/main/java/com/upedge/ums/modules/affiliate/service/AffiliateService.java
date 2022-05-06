@@ -51,5 +51,7 @@ public interface AffiliateService{
     Affiliate selectAffiliateVoByRefereeId(@Param("customerId") Long customerId);
 
     AffiliateAddResponse addAffiliate(AffiliateAddRequest request);
+
+    List<Affiliate> allAffiliates();
 }
 

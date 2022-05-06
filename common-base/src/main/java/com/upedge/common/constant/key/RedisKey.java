@@ -24,6 +24,8 @@ public class RedisKey {
 
     public static final String HASH_CUSTOMER_SETTING = "customer:setting:";
 
+    public static final String HASH_AFFILIATE_REFEREE = "affiliate:referee";
+
     //包含拆分子体的店铺变体
     public static final String HASH_STORE_SPLIT_VARIANT = "storeVariant:split:hash";
 
