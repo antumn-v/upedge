@@ -22,8 +22,6 @@ import com.upedge.ums.modules.affiliate.vo.AdminAffiliateVo;
 import com.upedge.ums.modules.affiliate.vo.AdminCommissionRecordVo;
 import com.upedge.ums.modules.affiliate.vo.AdminWithdrawalVo;
 import com.upedge.ums.modules.user.dao.UserInfoDao;
-import com.upedge.ums.modules.user.dto.UserInfoDto;
-import com.upedge.ums.modules.user.entity.Customer;
 import com.upedge.ums.modules.user.entity.UserInfo;
 import com.upedge.ums.modules.user.service.CustomerService;
 import org.springframework.beans.BeanUtils;
@@ -35,6 +33,8 @@ import java.util.List;
 
 @Service
 public class AdminAffiliateServiceImpl implements AdminAffiliateService {
+
+    public static String key = "f167105ef452466f80c97c3b355658a4";
 
     @Autowired
     AffiliateService affiliateService;
@@ -153,7 +153,7 @@ public class AdminAffiliateServiceImpl implements AdminAffiliateService {
      */
     @Override
     public CustomerAffiliateVo customerAffiliateInfo(Long customerId) {
-        Affiliate affiliate  =   affiliateService.selectAffiliateVoByrefereeId(customerId);
+        Affiliate affiliate  =   affiliateService.selectAffiliateVoByRefereeId(customerId);
 
         return null;
 //        UserInfoDto userInfoDto = userInfoMapper.queryCustomerUserInfo(affiliate.getReferrerId());

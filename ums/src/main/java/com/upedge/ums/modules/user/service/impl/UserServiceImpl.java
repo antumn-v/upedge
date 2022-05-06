@@ -17,6 +17,7 @@ import com.upedge.ums.modules.account.dao.AccountUserMapper;
 import com.upedge.ums.modules.account.entity.Account;
 import com.upedge.ums.modules.account.entity.AccountUser;
 import com.upedge.ums.modules.account.service.AccountService;
+import com.upedge.ums.modules.affiliate.service.AffiliateService;
 import com.upedge.ums.modules.application.entity.Application;
 import com.upedge.ums.modules.application.entity.Menu;
 import com.upedge.ums.modules.application.service.ApplicationService;
@@ -118,6 +119,9 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     StoreService storeService;
+
+    @Autowired
+    AffiliateService affiliateService;
 
     @Autowired
     RedisTemplate redisTemplate;
@@ -224,6 +228,11 @@ public class UserServiceImpl implements UserService {
         }
         user = userSignUp(request);
 
+        try {
+            affiliateService.affiliateBind(request.getReferrerToken(),user.getCustomerId());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         if (request.getAutoLogin()) {
             Map<String, Object> result = userSignIn(user, request.getApplicationId());
             return new CustomerSignUpResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS, result);
@@ -418,31 +427,31 @@ public class UserServiceImpl implements UserService {
         BeanUtils.copyProperties(user, userVo);
         Session session = new Session(userVo);
         //组织
-        List<Long> orgIds = organizationUserService.selectOrgIdsByUserId(userId);
-        session.setOrgIds(orgIds);
-        Organization organization = organizationUserService.selectUserParentOrganization(userId);
-        if (organization != null) {
-            OrganizationVo organizationVo = new OrganizationVo();
-            BeanUtils.copyProperties(organization, organizationVo);
-            session.setParentOrganization(organizationVo);
-        }
+//        List<Long> orgIds = organizationUserService.selectOrgIdsByUserId(userId);
+//        session.setOrgIds(orgIds);
+//        Organization organization = organizationUserService.selectUserParentOrganization(userId);
+//        if (organization != null) {
+//            OrganizationVo organizationVo = new OrganizationVo();
+//            BeanUtils.copyProperties(organization, organizationVo);
+//            session.setParentOrganization(organizationVo);
+//        }
         //角色权限
-        Role role = roleService.selectRoleByUser(userId);
-        RoleVo roleVo = new RoleVo();
-        BeanUtils.copyProperties(role, roleVo);
+//        Role role = roleService.selectRoleByUser(userId);
+//        RoleVo roleVo = new RoleVo();
+//        BeanUtils.copyProperties(role, roleVo);
         session.setApplicationId(applicationId);
-        session.setRole(roleVo);
+//        session.setRole(roleVo);
 
-        List<String> permissions = rolePermissionService.selectPermissionByRole(role.getId());
-        session.setPermissions(permissions);
+//        List<String> permissions = rolePermissionService.selectPermissionByRole(role.getId());
+//        session.setPermissions(permissions);
 
         Account account = accountService.selectCustomerDefaultAccount(session.getCustomerId());
         if (null != account) {
             session.setAccountId(account.getId());
         }
-        UserInfo userInfo = userInfoService.selectByPrimaryKey(userId);
-        session.setUserName(userInfo.getUsername());
-        session.setLoginpass(user.getLoginPass());
+//        UserInfo userInfo = userInfoService.selectByPrimaryKey(userId);
+//        session.setUserName(userInfo.getUsername());
+//        session.setLoginpass(user.getLoginPass());
         UserUtil.setUser(redisTemplate, token, session);
         user.setLastLoginTime(new Date());
         userDao.refreshLoginData(user);

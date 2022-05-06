@@ -43,5 +43,5 @@ public interface AffiliateDao{
                                 @Param("commission") BigDecimal commission,
                                 @Param("updateTime") Date updateTime);
 
-    Affiliate selectAffiliateVoByrefereeId(@Param("customerId") Long customerId);
+    Affiliate selectAffiliateVoByRefereeId(@Param("customerId") Long customerId);
 }

@@ -24,6 +24,8 @@ public class AffiliateAddRequest{
     @NotNull
     private Long refereeId;
 
+    Integer source;
+
     public Affiliate toAffiliate(){
         Affiliate affiliate=new Affiliate();
         affiliate.setReferrerId(referrerId);
@@ -31,7 +33,7 @@ public class AffiliateAddRequest{
         affiliate.setRefereeCommission(BigDecimal.ZERO);
         affiliate.setCreateTime(new Date());
         affiliate.setUpdateTime(new Date());
-        affiliate.setSource(1);
+        affiliate.setSource(source);
         return affiliate;
     }
 

@@ -5,13 +5,15 @@ import com.upedge.common.component.annotation.Permission;
 import com.upedge.common.constant.Constant;
 import com.upedge.common.constant.ResultCode;
 import com.upedge.common.model.user.vo.Session;
-import com.upedge.common.utils.CookieUtils;
-import com.upedge.common.utils.EncryptUtil;
 import com.upedge.common.web.util.RequestUtil;
 import com.upedge.common.web.util.UserUtil;
 import com.upedge.ums.modules.affiliate.entity.Affiliate;
+import com.upedge.ums.modules.affiliate.request.AffiliateAddRequest;
 import com.upedge.ums.modules.affiliate.request.AffiliateListRequest;
-import com.upedge.ums.modules.affiliate.response.*;
+import com.upedge.ums.modules.affiliate.response.AffiliateAddResponse;
+import com.upedge.ums.modules.affiliate.response.AffiliateCommissionRecordListResponse;
+import com.upedge.ums.modules.affiliate.response.AffiliateInfoResponse;
+import com.upedge.ums.modules.affiliate.response.AffiliateListResponse;
 import com.upedge.ums.modules.affiliate.service.AffiliateService;
 import com.upedge.ums.modules.user.service.CustomerService;
 import io.swagger.annotations.Api;
@@ -36,7 +38,7 @@ import java.util.List;
 @RequestMapping("/affiliate")
 public class AffiliateController {
 
-    private String key = "f167105ef452466f80c97c3b355658a4";
+
 
     @Autowired
     RedisTemplate<String, Object> redisTemplate;
@@ -71,40 +73,40 @@ public class AffiliateController {
     public BaseResponse getAffiliateBindUrl(){
         Session session = UserUtil.getSession(redisTemplate);
 
-        String token = EncryptUtil.XORencode(String.valueOf(session.getCustomerId()), key);
+        String token =affiliateService.customerReferrerToken(session.getCustomerId());
 
         HttpServletRequest request = RequestUtil.getRequest();
 
-        String url = request.getHeader("Referer") + "?"+ token;
+        String url = request.getHeader("Referer") + "/"+ token;
 
         return new BaseResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS,url);
     }
 
-    @ApiOperation("联盟绑定")
-    @GetMapping("/bind/{token}")
-    public BaseResponse affiliateBind(@PathVariable String token){
-        log.warn("联盟注册，推荐人token：" + token);
-
-        Long customerId = null;
-        try {
-            customerId = (Long.valueOf(EncryptUtil.XORdecode(token, key)));
-        } catch (Exception e) {
-            return new BaseResponse(ResultCode.FAIL_CODE, "Affiliate Code Error");
-        }
-        log.warn("联盟注册，推荐人ID：" + customerId);
-
-        HttpServletRequest request = RequestUtil.getRequest();
-
-        boolean b = CookieUtils.addCookie(request, RequestUtil.getResponse(), String.valueOf(customerId));
-        if (!b) {
-            return new BaseResponse(ResultCode.FAIL_CODE, Constant.MESSAGE_FAIL);
-        }
-
-        request.getSession().setAttribute("referrer", customerId);
-
-        return new BaseResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS);
-
-    }
+//    @ApiOperation("联盟绑定")
+//    @GetMapping("/bind/{token}")
+//    public BaseResponse affiliateBind(@PathVariable String token){
+//        log.warn("联盟注册，推荐人token：" + token);
+//
+//        Long customerId = null;
+//        try {
+//            customerId = (Long.valueOf(EncryptUtil.XORdecode(token, key)));
+//        } catch (Exception e) {
+//            return new BaseResponse(ResultCode.FAIL_CODE, "Affiliate Code Error");
+//        }
+//        log.warn("联盟注册，推荐人ID：" + customerId);
+//
+//        HttpServletRequest request = RequestUtil.getRequest();
+//
+//        boolean b = CookieUtils.addCookie(request, RequestUtil.getResponse(), String.valueOf(customerId));
+//        if (!b) {
+//            return new BaseResponse(ResultCode.FAIL_CODE, Constant.MESSAGE_FAIL);
+//        }
+//
+//        request.getSession().setAttribute("referrer", customerId);
+//
+//        return new BaseResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS);
+//
+//    }
 
 
     /**
@@ -147,6 +149,13 @@ public class AffiliateController {
         request.setTotal(total);
         AffiliateListResponse res = new AffiliateListResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS,results,request);
         return res;
+    }
+
+    @ApiOperation("手动增加联盟")
+    @RequestMapping(value="/addAffiliate", method=RequestMethod.POST)
+    public AffiliateAddResponse save(@RequestBody @Valid AffiliateAddRequest request) {
+        request.setSource(1);
+        return affiliateService.addAffiliate(request);
     }
 
 

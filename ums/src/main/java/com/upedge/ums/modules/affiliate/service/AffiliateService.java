@@ -3,12 +3,9 @@ package com.upedge.ums.modules.affiliate.service;
 import com.upedge.common.base.Page;
 import com.upedge.common.model.user.vo.CommissionRecordVo;
 import com.upedge.ums.modules.affiliate.entity.Affiliate;
+import com.upedge.ums.modules.affiliate.request.AffiliateAddRequest;
 import com.upedge.ums.modules.affiliate.request.AffiliateCommissionWithdrawalAddRequest;
-import com.upedge.ums.modules.affiliate.response.AffiliateCommissionRecordListResponse;
-import com.upedge.ums.modules.affiliate.response.AffiliateCommissionWithdrawalAddResponse;
-import com.upedge.ums.modules.affiliate.response.AffiliateCommissionWithdrawalListResponse;
-import com.upedge.ums.modules.affiliate.response.AffiliateListResponse;
-import com.upedge.ums.modules.user.entity.Customer;
+import com.upedge.ums.modules.affiliate.response.*;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
@@ -18,6 +15,7 @@ import java.util.List;
  */
 public interface AffiliateService{
 
+    String customerReferrerToken(Long customerId);
 
     AffiliateCommissionWithdrawalListResponse withdrawalList(Long customerId);
 
@@ -26,7 +24,7 @@ public interface AffiliateService{
 
     AffiliateListResponse refereeCommissionList(Long customerId);
 
-    void affiliateBind(Customer customer);
+    void affiliateBind(String referrerToken,Long refereeId);
 
     Affiliate selectByPrimaryKey(Long id);
 
@@ -50,6 +48,8 @@ public interface AffiliateService{
 
     Affiliate queryAffiliateByReferee(Long refereeId);
 
-    Affiliate selectAffiliateVoByrefereeId(@Param("customerId") Long customerId);
+    Affiliate selectAffiliateVoByRefereeId(@Param("customerId") Long customerId);
+
+    AffiliateAddResponse addAffiliate(AffiliateAddRequest request);
 }
 

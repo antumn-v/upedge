@@ -5,35 +5,32 @@ import com.upedge.common.constant.Constant;
 import com.upedge.common.constant.ResultCode;
 import com.upedge.common.model.user.vo.CommissionRecordVo;
 import com.upedge.common.model.user.vo.Session;
-import com.upedge.common.web.util.RequestUtil;
+import com.upedge.common.utils.EncryptUtil;
 import com.upedge.common.web.util.UserUtil;
-import com.upedge.ums.modules.account.dao.AccountMapper;
 import com.upedge.ums.modules.account.dao.AccountUserMapper;
 import com.upedge.ums.modules.account.entity.Account;
+import com.upedge.ums.modules.account.service.AccountService;
 import com.upedge.ums.modules.affiliate.dao.AffiliateCommissionRecordDao;
 import com.upedge.ums.modules.affiliate.dao.AffiliateCommissionWithdrawalDao;
 import com.upedge.ums.modules.affiliate.dao.AffiliateDao;
 import com.upedge.ums.modules.affiliate.entity.Affiliate;
 import com.upedge.ums.modules.affiliate.entity.AffiliateCommissionRecord;
 import com.upedge.ums.modules.affiliate.entity.AffiliateCommissionWithdrawal;
+import com.upedge.ums.modules.affiliate.request.AffiliateAddRequest;
 import com.upedge.ums.modules.affiliate.request.AffiliateCommissionWithdrawalAddRequest;
-import com.upedge.ums.modules.affiliate.response.AffiliateCommissionRecordListResponse;
-import com.upedge.ums.modules.affiliate.response.AffiliateCommissionWithdrawalAddResponse;
-import com.upedge.ums.modules.affiliate.response.AffiliateCommissionWithdrawalListResponse;
-import com.upedge.ums.modules.affiliate.response.AffiliateListResponse;
+import com.upedge.ums.modules.affiliate.response.*;
 import com.upedge.ums.modules.affiliate.service.AffiliateService;
 import com.upedge.ums.modules.affiliate.vo.RefereeCommissionVo;
 import com.upedge.ums.modules.affiliate.vo.RefereeMonthCommissionVo;
 import com.upedge.ums.modules.affiliate.vo.WithdrawalVo;
 import com.upedge.ums.modules.user.dao.UserInfoDao;
-import com.upedge.ums.modules.user.entity.Customer;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.servlet.http.HttpServletRequest;
 import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
@@ -55,7 +52,7 @@ public class AffiliateServiceImpl implements AffiliateService {
     AccountUserMapper accountUserMapper;
 
     @Autowired
-    AccountMapper accountMapper;
+    AccountService accountService;
 
     @Autowired
     UserInfoDao userInfoMapper;
@@ -63,7 +60,7 @@ public class AffiliateServiceImpl implements AffiliateService {
     @Autowired
     RedisTemplate<String, Object> redisTemplate;
 
-
+    public static String key = "f167105ef452466f80c97c3b355658a4";
 
 
     /**
@@ -93,6 +90,11 @@ public class AffiliateServiceImpl implements AffiliateService {
     }
 
     @Override
+    public String customerReferrerToken(Long customerId) {
+        return EncryptUtil.XORencode(String.valueOf(customerId), key);
+    }
+
+    @Override
     public AffiliateCommissionWithdrawalListResponse withdrawalList(Long customerId) {
         List<WithdrawalVo> withdrawalVos = affiliateCommissionWithdrawalDao.selectWithdrawalList(customerId);
         return new AffiliateCommissionWithdrawalListResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS,withdrawalVos);
@@ -114,22 +116,24 @@ public class AffiliateServiceImpl implements AffiliateService {
     }
 
     @Override
-    public void affiliateBind(Customer customer) {
-        HttpServletRequest request = RequestUtil.getRequest();
+    public void affiliateBind(String referrerToken,Long refereeId) {
+        if (StringUtils.isBlank(referrerToken)
+        || null == refereeId){
+            return;
+        }
 
-        Long referrerId = (Long) request.getSession().getAttribute("referrer");
+        Long referrerId = (Long.valueOf(EncryptUtil.XORdecode(referrerToken, key)));
 
         if(null == referrerId){
             return;
         }
 
-        Affiliate affiliate = new Affiliate();
-        affiliate.setReferrerId(referrerId);
-        affiliate.setRefereeId(customer.getId());
-        affiliate.setCreateTime(new Date());
-        affiliate.setRefereeCommission(BigDecimal.ZERO);
-        affiliate.setSource(0);
-        affiliateDao.insert(affiliate);
+        AffiliateAddRequest request = new AffiliateAddRequest();
+        request.setRefereeId(refereeId);
+        request.setReferrerId(referrerId);
+        request.setSource(0);
+        addAffiliate(request);
+
     }
 
     /**
@@ -164,14 +168,17 @@ public class AffiliateServiceImpl implements AffiliateService {
     @Override
     public void addAffiliateCommissionRecord(CommissionRecordVo commissionRecordVo) {
 
+        Account account = accountService.selectCustomerDefaultAccount(commissionRecordVo.getReferrerId());
+
         AffiliateCommissionRecord commissionRecord = toAffiliateCommissionRecord(commissionRecordVo);
 
         affiliateCommissionRecordDao.insert(commissionRecord);
 
         if(1 != commissionRecord.getState()){
-            affiliateDao.updateRefereeCommission(commissionRecord.getRefereeId(),commissionRecord.getCommission().multiply(new BigDecimal("-1")));
+//            affiliateDao.updateRefereeCommission(commissionRecord.getRefereeId(),commissionRecord.getCommission().multiply(new BigDecimal("-1")));
         }else {
             affiliateDao.updateRefereeCommission(commissionRecord.getRefereeId(),commissionRecord.getCommission());
+            accountService.addBalanceAndBenefits(account.getId(),BigDecimal.ZERO,commissionRecord.getCommission());
         }
 
     }
@@ -226,7 +233,23 @@ public class AffiliateServiceImpl implements AffiliateService {
     }
 
     @Override
-    public Affiliate selectAffiliateVoByrefereeId(Long customerId) {
-        return affiliateDao.selectAffiliateVoByrefereeId(customerId);
+    public Affiliate selectAffiliateVoByRefereeId(Long customerId) {
+        return affiliateDao.selectAffiliateVoByRefereeId(customerId);
+    }
+
+    @Override
+    public AffiliateAddResponse addAffiliate(AffiliateAddRequest request) {
+        if(request.getReferrerId().equals(request.getRefereeId())){
+            return new AffiliateAddResponse(ResultCode.FAIL_CODE,"推荐人和被推荐人相同！");
+        }
+        //检查被推荐人是否已经加入了联盟
+        Affiliate a=queryAffiliateByReferee(request.getRefereeId());
+        if(a!=null){
+            return new AffiliateAddResponse(ResultCode.SUCCESS_CODE,"被推荐人已经加入了联盟！");
+        }
+        Affiliate affiliate=request.toAffiliate();
+        insert(affiliate);
+
+        return new AffiliateAddResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS);
     }
 }

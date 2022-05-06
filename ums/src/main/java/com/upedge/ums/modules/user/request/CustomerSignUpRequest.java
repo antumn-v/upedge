@@ -91,6 +91,8 @@ public class CustomerSignUpRequest {
 
     private String managerCode;
 
+    private String referrerToken;
+
     /**
      * 获取注册用的Customer对象
      * @return

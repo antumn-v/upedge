@@ -47,6 +47,9 @@ public interface AccountService {
      */
     AccountAddResponse addAccount(AccountAddRequest request);
 
+    void addBalanceAndBenefits( Long id,
+                                BigDecimal amount, BigDecimal benefitsAmount);
+
     /**
      * 逻辑删除账户
      * @param accountId 账户ID

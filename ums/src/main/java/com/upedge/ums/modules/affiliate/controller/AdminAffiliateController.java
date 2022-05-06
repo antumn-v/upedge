@@ -22,8 +22,8 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 
 @Slf4j
-@RestController
-@RequestMapping("/adminAffiliate")
+//@RestController
+//@RequestMapping("/adminAffiliate")
 public class AdminAffiliateController {
     @Autowired
     RedisTemplate<String, Object> redisTemplate;

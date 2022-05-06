@@ -14,6 +14,7 @@ import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.utils.EmailUtils;
 import com.upedge.common.utils.TokenUtil;
 import com.upedge.common.web.util.UserUtil;
+import com.upedge.ums.modules.affiliate.service.AffiliateService;
 import com.upedge.ums.modules.store.entity.Store;
 import com.upedge.ums.modules.store.service.StoreService;
 import com.upedge.ums.modules.user.entity.Customer;
@@ -58,6 +59,9 @@ public class UserController {
     @Autowired
     CustomerService customerService;
 
+    @Autowired
+    AffiliateService affiliateService;
+
 
     @ApiOperation("注册")
     @PostMapping("/signup")
@@ -81,6 +85,7 @@ public class UserController {
                     storeService.updateShopifyStore(store.getStoreUrl(),store.getApiToken(),session);
                 }
             }
+
         } catch (Exception e) {
             e.printStackTrace();
         }

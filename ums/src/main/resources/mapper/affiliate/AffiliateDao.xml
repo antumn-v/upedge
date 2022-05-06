@@ -239,7 +239,7 @@
         from affiliate
         where referee_id = #{refereeId}
     </select>
-    <select id="selectAffiliateVoByrefereeId" resultType="com.upedge.ums.modules.affiliate.entity.Affiliate">
+    <select id="selectAffiliateVoByRefereeId" resultType="com.upedge.ums.modules.affiliate.entity.Affiliate">
         select    <include refid="Base_Column_List" />
         from affiliate
         where referee_id = #{customerId}

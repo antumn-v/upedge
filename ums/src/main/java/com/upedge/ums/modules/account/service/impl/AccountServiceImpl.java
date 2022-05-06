@@ -176,6 +176,18 @@ public class AccountServiceImpl implements AccountService {
         return new AccountAddResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS);
     }
 
+    @Override
+    public void addBalanceAndBenefits(Long id, BigDecimal amount, BigDecimal benefitsAmount) {
+        if (id != null
+                && amount  != null
+        && benefitsAmount != null){
+            if (amount.compareTo(BigDecimal.ZERO) == 1 && benefitsAmount.compareTo(BigDecimal.ZERO) == 1){
+                return;
+            }
+            accountMapper.addBalanceAndBenefits(id,amount,benefitsAmount);
+        }
+    }
+
     /**
      * 禁用账户，账户不能有余额或未还款的信用额度，禁用后删掉所有账户用户的关联信息
      *
