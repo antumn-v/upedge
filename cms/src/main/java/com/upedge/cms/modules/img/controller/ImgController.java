@@ -2,8 +2,8 @@ package com.upedge.cms.modules.img.controller;
 
 
 import com.upedge.cms.modules.img.request.ImgUploadRequest;
+import com.upedge.cms.modules.img.response.UploadImgResponse;
 import com.upedge.cms.modules.img.service.ImgService;
-import com.upedge.common.base.BaseResponse;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,7 +27,7 @@ public class ImgController {
      */
     @ApiOperation("图片上传")
     @RequestMapping(value = "/upload",method = RequestMethod.POST)
-    public BaseResponse uploadImg(@RequestParam("file")MultipartFile file) {
+    public UploadImgResponse uploadImg(@RequestParam("file")MultipartFile file) {
         ImgUploadRequest request=new ImgUploadRequest();
         request.setFile(file);
         return imgService.uploadImg(request);

@@ -1,8 +1,8 @@
 package com.upedge.cms.modules.img.service.impl;
 
 import com.upedge.cms.modules.img.request.ImgUploadRequest;
+import com.upedge.cms.modules.img.response.UploadImgResponse;
 import com.upedge.cms.modules.img.service.ImgService;
-import com.upedge.common.base.BaseResponse;
 import com.upedge.common.constant.Constant;
 import com.upedge.common.constant.ResultCode;
 import com.upedge.common.utils.IdGenerate;
@@ -11,6 +11,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
 
 @Service
 public class ImgServiceImpl implements ImgService {
@@ -21,7 +23,7 @@ public class ImgServiceImpl implements ImgService {
     private String imageUrlPrefix;
 
     @Override
-    public BaseResponse uploadImg(ImgUploadRequest request) {
+    public UploadImgResponse uploadImg(ImgUploadRequest request) {
         MultipartFile file=request.getFile();
         //设置图片为唯一的id
         String originalFilename=file.getOriginalFilename();
@@ -38,8 +40,10 @@ public class ImgServiceImpl implements ImgService {
             file.transferTo(new File(localPath + pictureName));
         } catch (Exception e) {
             e.printStackTrace();
-            return new BaseResponse(ResultCode.FAIL_CODE, Constant.MESSAGE_FAIL);
+            return new UploadImgResponse( Constant.MESSAGE_FAIL,1);
         }
-        return new BaseResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS,imageUrlPrefix+pictureName);
+        Map<String,String> map = new HashMap<>();
+        map.put("url",imageUrlPrefix+pictureName);
+        return new UploadImgResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS,map,0);
     }
 }
