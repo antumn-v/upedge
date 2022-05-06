@@ -427,6 +427,9 @@ public class QuoteApplyServiceImpl implements QuoteApplyService {
     @Override
     public List<Long> getQuotingVariantIds(){
         List<Long> splitVariantIds = (List<Long>) redisTemplate.opsForList().range(RedisKey.LIST_QUOTING_STORE_VARIANT,0,-1);
+        if (null == splitVariantIds){
+            return new ArrayList<>();
+        }
         return splitVariantIds;
     }
 

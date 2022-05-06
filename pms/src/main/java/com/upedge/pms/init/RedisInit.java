@@ -18,6 +18,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -100,6 +101,8 @@ public class RedisInit {
                         customerProductQuoteVo.setStoreParentVariantId(0L);
                         redisTemplate.opsForValue().set(key,customerProductQuoteVo);
                     }
+                }else {
+                    quotingVariantIds =new ArrayList<>();
                 }
                 redisTemplate.delete(RedisKey.LIST_QUOTING_STORE_VARIANT);
                 redisTemplate.opsForList().leftPushAll(RedisKey.LIST_QUOTING_STORE_VARIANT,quotingVariantIds);

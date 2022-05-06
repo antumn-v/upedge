@@ -1003,8 +1003,8 @@ public class OrderServiceImpl implements OrderService {
             Long storeVariantId = orderItem.getStoreVariantId();
             CustomerProductQuoteVo customerProductQuoteVo = (CustomerProductQuoteVo) redisTemplate.opsForValue().get(RedisKey.STRING_QUOTED_STORE_VARIANT + storeVariantId);
             if (null == customerProductQuoteVo){
-                List<Long> splitVariantIds = redisTemplate.opsForList().range(RedisKey.LIST_QUOTING_STORE_VARIANT,0,-1);
-                if (splitVariantIds.contains(storeVariantId)){
+                List<Long> splitVariantIds = redisTemplate.opsForList().range(RedisKey. LIST_QUOTING_STORE_VARIANT,0,-1);
+                if (splitVariantIds != null && splitVariantIds.contains(storeVariantId)){
                     orderItem.setQuoteState(OrderItem.QUOTE_STATE_QUOTING);
                 }else {
                     orderItem.setQuoteState(OrderItem.QUOTE_STATE_UNQU0TED);
