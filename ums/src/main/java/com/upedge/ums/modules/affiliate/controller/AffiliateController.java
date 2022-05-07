@@ -4,6 +4,7 @@ import com.upedge.common.base.BaseResponse;
 import com.upedge.common.component.annotation.Permission;
 import com.upedge.common.constant.Constant;
 import com.upedge.common.constant.ResultCode;
+import com.upedge.common.model.user.vo.CommissionRecordVo;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.web.util.RequestUtil;
 import com.upedge.common.web.util.UserUtil;
@@ -156,6 +157,13 @@ public class AffiliateController {
     public AffiliateAddResponse save(@RequestBody @Valid AffiliateAddRequest request) {
         request.setSource(1);
         return affiliateService.addAffiliate(request);
+    }
+
+    @ApiOperation("添加佣金记录，feign调用")
+    @PostMapping("/addCommissionRecord")
+    public BaseResponse addAffiliateCommissionRecord(@RequestBody@Valid CommissionRecordVo commissionRecordVo){
+        affiliateService.addAffiliateCommissionRecord(commissionRecordVo);
+        return BaseResponse.success();
     }
 
 

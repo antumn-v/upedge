@@ -26,6 +26,7 @@ import com.upedge.ums.modules.affiliate.vo.WithdrawalVo;
 import com.upedge.ums.modules.user.dao.UserInfoDao;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
@@ -168,29 +169,27 @@ public class AffiliateServiceImpl implements AffiliateService {
     @Override
     public void addAffiliateCommissionRecord(CommissionRecordVo commissionRecordVo) {
 
-        Account account = accountService.selectCustomerDefaultAccount(commissionRecordVo.getReferrerId());
+        AffiliateCommissionRecord commissionRecord = affiliateCommissionRecordDao.queryPayRecordByOrderId(commissionRecordVo.getOrderId());
+        if (null != commissionRecord){
+            return;
+        }
 
-        AffiliateCommissionRecord commissionRecord = toAffiliateCommissionRecord(commissionRecordVo);
+        commissionRecord = toAffiliateCommissionRecord(commissionRecordVo);
 
         affiliateCommissionRecordDao.insert(commissionRecord);
 
         if(1 != commissionRecord.getState()){
 //            affiliateDao.updateRefereeCommission(commissionRecord.getRefereeId(),commissionRecord.getCommission().multiply(new BigDecimal("-1")));
         }else {
+            Account account = accountService.selectCustomerDefaultAccount(commissionRecordVo.getReferrerId());
             affiliateDao.updateRefereeCommission(commissionRecord.getRefereeId(),commissionRecord.getCommission());
             accountService.addBalanceAndBenefits(account.getId(),BigDecimal.ZERO,commissionRecord.getCommission());
         }
-
     }
 
     public AffiliateCommissionRecord toAffiliateCommissionRecord(CommissionRecordVo commissionRecordVo){
         AffiliateCommissionRecord affiliateCommissionRecord=new AffiliateCommissionRecord();
-        affiliateCommissionRecord.setRefereeId(commissionRecordVo.getRefereeId());
-        affiliateCommissionRecord.setReferrerId(commissionRecordVo.getReferrerId());
-        affiliateCommissionRecord.setOrderId(commissionRecordVo.getOrderId());
-        affiliateCommissionRecord.setOrderType(commissionRecordVo.getOrderType());
-        affiliateCommissionRecord.setCommission(commissionRecordVo.getOrderAmount().multiply(new BigDecimal("0.01")));
-        affiliateCommissionRecord.setState(commissionRecordVo.getState());
+        BeanUtils.copyProperties(commissionRecordVo,affiliateCommissionRecord);
         affiliateCommissionRecord.setCreateTime(new Date());
         return affiliateCommissionRecord;
     }

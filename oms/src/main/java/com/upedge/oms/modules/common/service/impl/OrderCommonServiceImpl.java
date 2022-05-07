@@ -16,6 +16,8 @@ import com.upedge.common.model.mq.ChangeManagerVo;
 import com.upedge.common.model.order.PaymentDetail;
 import com.upedge.common.model.order.TransactionDetail;
 import com.upedge.common.model.ship.vo.ShippingMethodRedis;
+import com.upedge.common.model.user.vo.AffiliateVo;
+import com.upedge.common.model.user.vo.CommissionRecordVo;
 import com.upedge.common.model.user.vo.CustomerIossVo;
 import com.upedge.common.model.user.vo.CustomerVo;
 import com.upedge.common.utils.IdGenerate;
@@ -40,7 +42,6 @@ import com.upedge.oms.modules.redis.OmsRedisService;
 import com.upedge.oms.modules.wholesale.dao.WholesaleOrderDao;
 import com.upedge.oms.modules.wholesale.dao.WholesaleRefundDao;
 import com.upedge.oms.modules.wholesale.dao.WholesaleReshipInfoDao;
-import com.upedge.oms.modules.wholesale.entity.WholesaleOrder;
 import com.upedge.oms.modules.wholesale.entity.WholesaleReshipInfo;
 import com.upedge.oms.modules.wholesale.service.WholesaleOrderService;
 import com.upedge.thirdparty.saihe.config.SaiheConfig;
@@ -545,20 +546,19 @@ public class OrderCommonServiceImpl implements OrderCommonService {
     @Override
     public boolean getTrackingFromSaihe(Long id, Integer orderType) {
         OrderTrackingCommerVo a = new OrderTrackingCommerVo();
-
-        if (orderType == OrderType.NORMAL) {
-            Order order = orderService.selectByPrimaryKey(id);
-            a = a.NormalOrderTrackingCommerVo(order, a);
-        }
-        if (orderType == OrderType.WHOLESALE) {
-            WholesaleOrder wholesaleOrder = wholesaleOrderService.selectByPrimaryKey(id);
-            a = a.wholesaleOrderTrackingCommerVo(wholesaleOrder, a);
-
-            if (a.getShipPrice() == null || a.getShipState() != 0) {
-                return false;
-            }
-        }
-
+        Order order = orderService.selectByPrimaryKey(id);
+        a = a.NormalOrderTrackingCommerVo(order, a);
+//        if (orderType == OrderType.NORMAL) {
+//
+//        }
+//        if (orderType == OrderType.WHOLESALE) {
+//            WholesaleOrder wholesaleOrder = wholesaleOrderService.selectByPrimaryKey(id);
+//            a = a.wholesaleOrderTrackingCommerVo(wholesaleOrder, a);
+//
+//            if (a.getShipPrice() == null || a.getShipState() != 0) {
+//                return false;
+//            }
+//        }
         if (a == null || a.getSaiheOrderCode() == null || a.getShipMethodId() == null) {
             return false;
         }
@@ -614,13 +614,14 @@ public class OrderCommonServiceImpl implements OrderCommonService {
                         // 根据orderId和 order_tracking_type查询订单
                         OrderTracking old = orderTrackingService.queryOrderTrackingByOrderId(a.getId(), orderType);
                         if (orderType == OrderType.NORMAL) {
+                            orderDao.updateOrderAsTracked(id,trackNum);
                             if (old == null) {
                                 orderTracking.setState(0);
                                 orderTracking.setId(IdGenerate.nextId());
                                 orderTracking.setCreateTime(new Date());
                                 //标记订单为发货
-                                orderDao.updateOrderAsTracked(id,trackNum);
                                 orderTrackingService.insert(orderTracking);
+                                addAffiliateCommission(id,order.getCustomerId());
 //                                sendMqMessage(new Message(RocketMqConfig.TOPIC_ORDER_FULFILLMENT,"",UUID.randomUUID().toString(), JSONObject.toJSONBytes(id)));
                             } else {
                                 orderTrackingService.updateOrderTracking(orderTracking);
@@ -649,6 +650,21 @@ public class OrderCommonServiceImpl implements OrderCommonService {
             }
         }
         return false;
+    }
+
+    public void addAffiliateCommission(Long orderId,Long customerId){
+        AffiliateVo affiliateVo = (AffiliateVo) redisTemplate.opsForHash().get(RedisKey.HASH_AFFILIATE_REFEREE,customerId.toString());
+        if (null == affiliateVo)
+            return;
+
+        CommissionRecordVo commissionRecordVo = new CommissionRecordVo();
+        commissionRecordVo.setOrderId(orderId);
+        commissionRecordVo.setCommission(affiliateVo.getRefereeCommission());
+        commissionRecordVo.setRefereeId(affiliateVo.getRefereeId());
+        commissionRecordVo.setReferrerId(affiliateVo.getReferrerId());
+        commissionRecordVo.setOrderType(OrderType.NORMAL);
+        commissionRecordVo.setState(1);
+        umsFeignClient.addAffiliateCommissionRecord(commissionRecordVo);
     }
 
 

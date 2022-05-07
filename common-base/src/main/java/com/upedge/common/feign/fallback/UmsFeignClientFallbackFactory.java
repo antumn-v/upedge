@@ -16,6 +16,7 @@ import com.upedge.common.model.order.PaymentDetail;
 import com.upedge.common.model.order.TransactionDetail;
 import com.upedge.common.model.store.request.StoreSearchRequest;
 import com.upedge.common.model.user.request.*;
+import com.upedge.common.model.user.vo.CommissionRecordVo;
 import feign.hystrix.FallbackFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.rocketmq.common.message.Message;
@@ -32,6 +33,11 @@ public class UmsFeignClientFallbackFactory implements FallbackFactory<UmsFeignCl
     @Override
     public UmsFeignClient create(Throwable cause) {
         return new UmsFeignClient() {
+
+            @Override
+            public BaseResponse addAffiliateCommissionRecord(CommissionRecordVo commissionRecordVo) {
+                return BaseResponse.failed();
+            }
 
             @Override
             public BaseResponse returnOrderPayAmount(ReturnOrderPayAmountToAccountRequest request) {

@@ -16,6 +16,7 @@ import com.upedge.common.model.order.PaymentDetail;
 import com.upedge.common.model.order.TransactionDetail;
 import com.upedge.common.model.store.request.StoreSearchRequest;
 import com.upedge.common.model.user.request.*;
+import com.upedge.common.model.user.vo.CommissionRecordVo;
 import org.apache.rocketmq.common.message.Message;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.validation.annotation.Validated;
@@ -28,6 +29,9 @@ import javax.validation.Valid;
  */
 @FeignClient(name = ServiceNameConstants.USER_SERVICE,fallbackFactory = UmsFeignClientFallbackFactory.class,decode404 = true)
 public interface UmsFeignClient {
+
+    @PostMapping("/affiliate/addCommissionRecord")
+    public BaseResponse addAffiliateCommissionRecord(@RequestBody@Valid CommissionRecordVo commissionRecordVo);
 
     @PostMapping("/account/returnOrderPayAmount")
     public BaseResponse returnOrderPayAmount(@RequestBody ReturnOrderPayAmountToAccountRequest request);
