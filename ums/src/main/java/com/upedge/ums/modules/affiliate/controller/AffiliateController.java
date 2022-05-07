@@ -6,7 +6,6 @@ import com.upedge.common.constant.Constant;
 import com.upedge.common.constant.ResultCode;
 import com.upedge.common.model.user.vo.CommissionRecordVo;
 import com.upedge.common.model.user.vo.Session;
-import com.upedge.common.web.util.RequestUtil;
 import com.upedge.common.web.util.UserUtil;
 import com.upedge.ums.modules.affiliate.entity.Affiliate;
 import com.upedge.ums.modules.affiliate.request.AffiliateAddRequest;
@@ -24,8 +23,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+import java.math.BigDecimal;
 import java.util.List;
 
 /**
@@ -76,11 +75,18 @@ public class AffiliateController {
 
         String token =affiliateService.customerReferrerToken(session.getCustomerId());
 
-        HttpServletRequest request = RequestUtil.getRequest();
+        return new BaseResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS,token);
+    }
 
-        String url = request.getHeader("Referer") + "/"+ token;
 
-        return new BaseResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS,url);
+    @GetMapping("/totalCommission")
+    public BaseResponse affiliateDetail(){
+        Session session = UserUtil.getSession(redisTemplate);
+        BigDecimal commission = affiliateService.selectTotalByReferrerId(session.getCustomerId());
+        if (commission == null){
+            commission = BigDecimal.ZERO;
+        }
+        return BaseResponse.success(commission);
     }
 
 //    @ApiOperation("联盟绑定")

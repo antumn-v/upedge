@@ -91,6 +91,11 @@ public class AffiliateServiceImpl implements AffiliateService {
     }
 
     @Override
+    public BigDecimal selectTotalByReferrerId(Long customerId) {
+        return affiliateDao.selectTotalByReferrerId(customerId);
+    }
+
+    @Override
     public String customerReferrerToken(Long customerId) {
         return EncryptUtil.XORencode(String.valueOf(customerId), key);
     }

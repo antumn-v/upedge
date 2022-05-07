@@ -45,5 +45,7 @@ public interface AffiliateDao{
 
     Affiliate selectAffiliateVoByRefereeId(@Param("customerId") Long customerId);
 
+    BigDecimal selectTotalByReferrerId( Long customerId);
+
     List<Affiliate> allAffiliates();
 }

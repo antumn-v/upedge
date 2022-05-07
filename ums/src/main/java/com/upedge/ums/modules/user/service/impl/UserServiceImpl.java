@@ -19,7 +19,6 @@ import com.upedge.ums.modules.account.entity.AccountUser;
 import com.upedge.ums.modules.account.service.AccountService;
 import com.upedge.ums.modules.affiliate.service.AffiliateService;
 import com.upedge.ums.modules.application.entity.Application;
-import com.upedge.ums.modules.application.entity.Menu;
 import com.upedge.ums.modules.application.service.ApplicationService;
 import com.upedge.ums.modules.application.service.MenuService;
 import com.upedge.ums.modules.organization.entity.Organization;
@@ -53,7 +52,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 
 @Service
@@ -170,18 +168,18 @@ public class UserServiceImpl implements UserService {
             return new UserProfileResponse(ResultCode.FAIL_CODE, "user is disabled!");
         }
         UserInfo userInfo = userInfoService.selectByPrimaryKey(session.getId());
-        List<Menu> menus = roleMenuService.selectRoleMenuByApplication(session.getRole().getId(), session.getApplicationId());
+//        List<Menu> menus = roleMenuService.selectRoleMenuByApplication(session.getRole().getId(), session.getApplicationId());
         UserProfileVo userData = new UserProfileVo();
         UserInfoVo userInfoVo = new UserInfoVo();
         BeanUtils.copyProperties(userInfo, userInfoVo);
         userData.setUserinfo(userInfoVo);
-        userData.setRoleVo(session.getRole());
-        List<MenuVo> menuVos = menus.stream().map(menu -> {
-            MenuVo menuVo = new MenuVo();
-            BeanUtils.copyProperties(menu, menuVo);
-            return menuVo;
-        }).collect(Collectors.toList());
-        userData.setMenus(menuVos);
+//        userData.setRoleVo(session.getRole());
+//        List<MenuVo> menuVos = menus.stream().map(menu -> {
+//            MenuVo menuVo = new MenuVo();
+//            BeanUtils.copyProperties(menu, menuVo);
+//            return menuVo;
+//        }).collect(Collectors.toList());
+//        userData.setMenus(menuVos);
 
         userData.setPermissions(session.getPermissions());
         return new UserProfileResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS, userData);

@@ -8,12 +8,15 @@ import com.upedge.ums.modules.affiliate.request.AffiliateCommissionWithdrawalAdd
 import com.upedge.ums.modules.affiliate.response.*;
 import org.apache.ibatis.annotations.Param;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 /**
  * @author author
  */
 public interface AffiliateService{
+
+    BigDecimal selectTotalByReferrerId(Long customerId);
 
     String customerReferrerToken(Long customerId);
 
