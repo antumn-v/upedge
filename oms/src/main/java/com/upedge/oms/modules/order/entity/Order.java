@@ -126,6 +126,8 @@ public class Order{
 
 	private String shippingWarehouse;
 
+	private String trackingCode;
+
 
 	public Order() {
 	}

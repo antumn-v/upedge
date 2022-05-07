@@ -305,11 +305,17 @@ public class StoreServiceImpl implements StoreService {
 
         if (ListUtils.isNotEmpty(stores)){
             for (Store store1 : stores) {
-                Message message = new Message(RocketMqConfig.TOPIC_GET_STORE_DATA,"store",IdGenerate.uuid(),JSONObject.toJSONBytes(store1));
-                messages.add(message);
+                if (store1.getStatus() == 1){
+                    Message message = new Message(RocketMqConfig.TOPIC_GET_STORE_DATA,"store",IdGenerate.uuid(),JSONObject.toJSONBytes(store1));
+                    messages.add(message);
+                }
             }
         }
-        Message message = new Message(RocketMqConfig.TOPIC_GET_STORE_DATA,"store",IdGenerate.uuid(),JSONObject.toJSONBytes(store));
+        Message message = null;
+        if (store != null && store.getStatus() == 1){
+             message = new Message(RocketMqConfig.TOPIC_GET_STORE_DATA,"store",IdGenerate.uuid(),JSONObject.toJSONBytes(store));
+        }
+
         try {
             Integer i = sendMessage(message,messages);
             if (i == 1){
@@ -328,7 +334,9 @@ public class StoreServiceImpl implements StoreService {
         if (ListUtils.isEmpty(messages)){
             messages = new ArrayList<>();
         }
-        messages.add(message);
+        if (message != null){
+            messages.add(message);
+        }
         if (messages.size() == 0){
             return sendStatus;
         }

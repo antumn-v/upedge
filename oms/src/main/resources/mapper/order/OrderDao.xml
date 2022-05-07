@@ -35,6 +35,7 @@
         <result property="orderStatus" column="order_status"/>
         <result property="managerCode" column="manager_code"/>
         <result property="shippingWarehouse" column="shipping_warehouse"/>
+        <result property="trackingCode" column="tracking_code"/>
     </resultMap>
 
     <resultMap type="com.upedge.oms.modules.order.vo.AppOrderVo" id="AppOrderVo">
@@ -63,6 +64,7 @@
         <result property="vatAmount" column="vat_amount"/>
         <result property="createTime" column="create_time"/>
         <result property="shippingWarehouse" column="shipping_warehouse"/>
+        <result property="trackingCode" column="tracking_code"/>
         <collection ofType="com.upedge.oms.modules.order.vo.AppStoreOrderVo" property="storeOrderVos">
             <id property="storeOrderId" column="store_order_id"/>
             <result property="platOrderName" column="plat_order_name"/>
@@ -97,6 +99,7 @@
         <result property="createTime" column="create_time"/>
         <result property="orderCustomerName" column="order_customer_name"/>
         <result property="shippingWarehouse" column="shipping_warehouse"/>
+        <result property="trackingCode" column="tracking_code"/>
         <collection ofType="com.upedge.oms.modules.order.vo.AppStoreOrderVo" property="storeOrderVos">
             <id property="storeOrderId" column="store_order_id"/>
             <result property="platOrderCreateTime" column="plat_order_create_time"/>
@@ -132,7 +135,7 @@
         `total_weight`,`product_amount`,`product_discharge_amount`,`fix_fee`,`fix_fee_percentage`,`service_fee`,
         `pay_method`,`pay_time`,`payment_id`,`pay_state`,`refund_state`,`ship_state`,`order_type`,quote_state,
         `to_area_id`,`cny_rate`,`create_time`,`update_time`,`saihe_order_code`,`vat_amount`,`order_status`,`manager_code`,
-        `shipping_warehouse`
+        `shipping_warehouse`,`tracking_code`
     </sql>
 
 
@@ -278,9 +281,8 @@
                 <if test="t.productTitle">
                     oi.store_product_title like "%"#{t.productTitle}"%" and
                 </if>
-
                 <if test="t.shipNumber != null">
-                    ot.tracking_code = #{t.shipNumber} and
+                    o.tracking_code = #{t.shipNumber} and
                 </if>
                 <if test="t.customer != null">
                     r.order_customer_name = #{t.customer} and
@@ -457,17 +459,13 @@
         o.total_weight,o.product_amount,o.product_discharge_amount,o.fix_fee,o.pay_method,
         o.pay_time,o.payment_id,o.pay_state,o.refund_state,o.ship_state,o.order_type,o.to_area_id,
         o.vat_amount,o.create_time,o.store_id,r.plat_order_create_time,o.quote_state,o.saihe_order_code,
-        o.shipping_warehouse
+        o.shipping_warehouse,o.tracking_code
         from `order` o
         inner join store_order_relate r
         on o.id = r.order_id
         <if test="t.productTitle != null or t.sku != null">
             inner join order_item oi
             on oi.order_id = o.id
-        </if>
-        <if test="t.shipNumber != null">
-            inner join order_tracking ot
-            on ot.order_id = o.id
         </if>
         <include refid="App_Order_Condition"/>
         order by r.plat_order_create_time desc

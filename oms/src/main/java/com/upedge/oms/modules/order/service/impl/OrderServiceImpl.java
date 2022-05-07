@@ -260,7 +260,7 @@ public class OrderServiceImpl implements OrderService {
             }
             completeOrderStoreUrl(orderVo);
         }
-        completeOrderTrackingCode(appOrderVos);
+//        completeOrderTrackingCode(appOrderVos);
         return appOrderVos;
     }
 
