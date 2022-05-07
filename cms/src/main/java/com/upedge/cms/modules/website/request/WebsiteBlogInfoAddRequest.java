@@ -54,14 +54,6 @@ public class WebsiteBlogInfoAddRequest{
     /**
     * 
     */
-    private Integer viewNum;
-    /**
-    * 
-    */
-    private Integer followNum;
-    /**
-    * 
-    */
     private String keywords;
     /**
     * 
@@ -80,12 +72,12 @@ public class WebsiteBlogInfoAddRequest{
         websiteBlogInfo.setImg(img);
         websiteBlogInfo.setShortInfo(shortInfo);
         websiteBlogInfo.setContent(content);
-        websiteBlogInfo.setCustomerId(customerId);
+        websiteBlogInfo.setCustomerId(session.getCustomerId());
         websiteBlogInfo.setUserId(session.getId());
-        websiteBlogInfo.setCreateTime(createTime);
-        websiteBlogInfo.setUpdateTime(updateTime);
-        websiteBlogInfo.setViewNum(viewNum);
-        websiteBlogInfo.setFollowNum(followNum);
+        websiteBlogInfo.setCreateTime(new Date());
+        websiteBlogInfo.setUpdateTime(new Date());
+        websiteBlogInfo.setViewNum(0);
+        websiteBlogInfo.setFollowNum(0);
         websiteBlogInfo.setKeywords(keywords);
         websiteBlogInfo.setDescription(description);
         websiteBlogInfo.setState(state);

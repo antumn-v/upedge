@@ -390,8 +390,7 @@
 	</select>
 
     <select id="listBlog" resultType="com.upedge.cms.modules.website.entity.WebsiteBlogInfo">
-       select id as id,title as title,short_info as shortInfo,img as img,url_suf as urlSuf,
-       admin_user as adminUser,create_time as createTime,
+       select id as id,title as title,short_info as shortInfo,img as img,url_suf as urlSuf,create_time as createTime,
        update_time as updateTime,view_num as viewNum,keywords as keywords,description as description,
        follow_num as followNum from website_blog_info where state=1
        order by update_time desc
@@ -407,7 +406,7 @@
 
     <select id="blogSearch" resultType="com.upedge.cms.modules.website.entity.WebsiteBlogInfo">
 		select id as id,title as title,short_info as shortInfo,img as img,url_suf as urlSuf,
-		admin_user as adminUser,create_time as createTime,
+		create_time as createTime,
 		update_time as updateTime,view_num as viewNum,
 		follow_num as followNum from website_blog_info where state=1 and title like concat('%',#{info},'%')
 		order by update_time desc
