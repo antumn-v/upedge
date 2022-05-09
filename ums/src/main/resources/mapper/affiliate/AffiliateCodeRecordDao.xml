@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.upedge.ums.modules.affiliate.dao.AffiliateCodeRecordDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.upedge.ums.modules.affiliate.entity.AffiliateCodeRecord" id="BaseResultMap">
+        <result property="affiliateCode" column="affiliate_code"/>
+        <result property="customerId" column="customer_id"/>
+        <result property="createTime" column="create_time"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        `affiliate_code`,`customer_id`,`create_time`
+    </sql>
+
+    <select id="selectByPrimaryKey" parameterType="com.upedge.ums.modules.affiliate.entity.AffiliateCodeRecord" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from affiliate_code_record
+        where affiliate_code = #{affiliateCode}
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="com.upedge.ums.modules.affiliate.entity.AffiliateCodeRecord">
+        delete from affiliate_code_record
+        where affiliate_code = #{affiliateCode}
+    </delete>
+
+    <update id="updateByPrimaryKeySelective" parameterType="com.upedge.ums.modules.affiliate.entity.AffiliateCodeRecord">
+        update affiliate_code_record
+        <set>
+            <if test="customerId != null">
+                customer_id = #{customerId},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime},
+            </if>
+        </set>
+        where affiliate_code = #{affiliateCode}
+    </update>
+
+    <update id="updateByPrimaryKey" parameterType="com.upedge.ums.modules.affiliate.entity.AffiliateCodeRecord">
+        update affiliate_code_record
+        <set>
+        affiliate_code = #{affiliateCode},
+        customer_id = #{customerId},
+        create_time = #{createTime},
+        </set>
+        where affiliate_code = #{affiliateCode}
+    </update>
+
+    <insert id="insert" keyColumn="affiliate_code" keyProperty="affiliateCode" parameterType="com.upedge.ums.modules.affiliate.entity.AffiliateCodeRecord" useGeneratedKeys="true">
+        insert into affiliate_code_record
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            affiliate_code,
+            customer_id,
+            create_time
+        </trim>
+        values (
+        #{affiliateCode},
+        #{customerId},
+        #{createTime}
+        )
+    </insert>
+
+    <insert id="insertSelective"  keyColumn="affiliate_code" keyProperty="affiliateCode"  parameterType="com.upedge.ums.modules.affiliate.entity.AffiliateCodeRecord" useGeneratedKeys="true">
+        insert into affiliate_code_record
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="affiliateCode != null" >
+              affiliate_code
+            </if>
+            <if test="customerId != null" >
+              customer_id
+            </if>
+            <if test="createTime != null" >
+              create_time
+            </if>
+
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="affiliateCode != null" >
+                #{affiliateCode}
+            </if>
+            <if test="customerId != null" >
+                #{customerId}
+            </if>
+            <if test="createTime != null" >
+                #{createTime}
+            </if>
+
+        </trim>
+    </insert>
+
+    <insert id="insertByBatch" parameterType="java.util.List">
+        insert into affiliate_code_record
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+           affiliate_code,
+           customer_id,
+           create_time
+        </trim>
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+               #{item.affiliateCode},
+               #{item.customerId},
+               #{item.createTime}
+            </trim>
+        </foreach>
+    </insert>
+
+    <sql id="Query_Condition">
+        <if test="t != null">
+            where
+            <trim prefix=" " suffix=" " suffixOverrides=" and ">
+                1 = 1 and
+                    <if test="t.affiliateCode != null">
+                        affiliate_code = #{t.affiliateCode} and
+                    </if>
+                    <if test="t.customerId != null">
+                        customer_id = #{t.customerId} and
+                    </if>
+                    <if test="t.createTime != null">
+                        create_time = #{t.createTime} and
+                    </if>
+            </trim>
+        </if>
+    </sql>
+
+    <select id="select" parameterType="com.upedge.common.base.Page" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from affiliate_code_record
+        <include refid="Query_Condition"/>
+        order by create_time desc
+        <if test="pageNum != null and pageSize != null">
+            limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+        </if>
+    </select>
+
+    <select id="count" parameterType="com.upedge.common.base.Page" resultType="java.lang.Long">
+        select
+        count(1)
+        from affiliate_code_record
+        <include refid="Query_Condition"/>
+    </select>
+
+    <select id="selectCustomerLatestAffiliateCode" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from affiliate_code_record
+        where customer_id = #{customerId}
+        order by create_time desc
+        limit 1
+    </select>
+</mapper>

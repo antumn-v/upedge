@@ -29,6 +29,8 @@ public class Affiliate{
     private BigDecimal refereeCommission;
 
 	private BigDecimal commissionAmount;
+
+	private Integer orderCount;
 	/**
 	 * 
 	 */

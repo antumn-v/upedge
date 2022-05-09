@@ -5,7 +5,6 @@ import com.upedge.common.constant.Constant;
 import com.upedge.common.constant.ResultCode;
 import com.upedge.common.model.user.vo.CommissionRecordVo;
 import com.upedge.common.model.user.vo.Session;
-import com.upedge.common.utils.EncryptUtil;
 import com.upedge.common.web.util.UserUtil;
 import com.upedge.ums.modules.account.dao.AccountUserMapper;
 import com.upedge.ums.modules.account.entity.Account;
@@ -14,11 +13,13 @@ import com.upedge.ums.modules.affiliate.dao.AffiliateCommissionRecordDao;
 import com.upedge.ums.modules.affiliate.dao.AffiliateCommissionWithdrawalDao;
 import com.upedge.ums.modules.affiliate.dao.AffiliateDao;
 import com.upedge.ums.modules.affiliate.entity.Affiliate;
+import com.upedge.ums.modules.affiliate.entity.AffiliateCodeRecord;
 import com.upedge.ums.modules.affiliate.entity.AffiliateCommissionRecord;
 import com.upedge.ums.modules.affiliate.entity.AffiliateCommissionWithdrawal;
 import com.upedge.ums.modules.affiliate.request.AffiliateAddRequest;
 import com.upedge.ums.modules.affiliate.request.AffiliateCommissionWithdrawalAddRequest;
 import com.upedge.ums.modules.affiliate.response.*;
+import com.upedge.ums.modules.affiliate.service.AffiliateCodeRecordService;
 import com.upedge.ums.modules.affiliate.service.AffiliateService;
 import com.upedge.ums.modules.affiliate.vo.RefereeCommissionVo;
 import com.upedge.ums.modules.affiliate.vo.RefereeMonthCommissionVo;
@@ -59,9 +60,10 @@ public class AffiliateServiceImpl implements AffiliateService {
     UserInfoDao userInfoMapper;
 
     @Autowired
-    RedisTemplate<String, Object> redisTemplate;
+    AffiliateCodeRecordService affiliateCodeRecordService;
 
-    public static String key = "f167105ef452466f80c97c3b355658a4";
+    @Autowired
+    RedisTemplate<String, Object> redisTemplate;
 
 
     /**
@@ -97,7 +99,8 @@ public class AffiliateServiceImpl implements AffiliateService {
 
     @Override
     public String customerReferrerToken(Long customerId) {
-        return EncryptUtil.XORencode(String.valueOf(customerId), key);
+        AffiliateCodeRecord affiliateCodeRecord = affiliateCodeRecordService.selectCustomerLatestAffiliateCode(customerId);
+        return affiliateCodeRecord.getAffiliateCode();
     }
 
     @Override
@@ -127,16 +130,15 @@ public class AffiliateServiceImpl implements AffiliateService {
         || null == refereeId){
             return;
         }
+        AffiliateCodeRecord affiliateCodeRecord = affiliateCodeRecordService.selectByPrimaryKey(referrerToken);
 
-        Long referrerId = (Long.valueOf(EncryptUtil.XORdecode(referrerToken, key)));
-
-        if(null == referrerId){
+        if(null == affiliateCodeRecord){
             return;
         }
 
         AffiliateAddRequest request = new AffiliateAddRequest();
         request.setRefereeId(refereeId);
-        request.setReferrerId(referrerId);
+        request.setReferrerId(affiliateCodeRecord.getCustomerId());
         request.setSource(0);
         addAffiliate(request);
 

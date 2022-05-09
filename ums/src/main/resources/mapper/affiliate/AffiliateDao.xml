@@ -10,13 +10,14 @@
         <result property="refereeId" column="referee_id"/>
         <result property="refereeCommission" column="referee_commission"/>
         <result property="commissionAmount" column="commission_amount"/>
+        <result property="orderCount" column="order_count"/>
         <result property="createTime" column="create_time"/>
         <result property="updateTime" column="update_time"/>
         <result property="source" column="source"/>
     </resultMap>
 
     <sql id="Base_Column_List">
-        `id`,`referrer_id`,`referee_id`,`referee_commission`,`commission_amount`,`create_time`,`update_time`,`source`
+        `id`,`referrer_id`,`referee_id`,`referee_commission`,`commission_amount`,`order_count`,`create_time`,`update_time`,`source`
     </sql>
 
     <select id="searchCommissionByReferee" resultType="com.upedge.ums.modules.affiliate.vo.RefereeCommissionVo">
@@ -30,7 +31,7 @@
 
     <update id="updateRefereeCommission">
         update affiliate
-        set commission_amount = commission_amount + #{commission}
+        set commission_amount = commission_amount + #{commission},order_count = order_count + '1'
         where referee_id = #{refereeId}
     </update>
 
@@ -93,6 +94,7 @@
             referee_id,
             referee_commission,
             commission_amount,
+            order_count,
             create_time,
             update_time,
             source
@@ -102,6 +104,7 @@
         #{referrerId},
         #{refereeId},
         #{refereeCommission},
+        '0',
         '0',
         #{createTime},
         #{createTime},
