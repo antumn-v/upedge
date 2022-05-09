@@ -10,10 +10,12 @@
         <result property="cstatus" column="cstatus"/>
         <result property="createTime" column="create_time"/>
         <result property="customerSignupUserId" column="customer_signup_user_id"/>
+        <result property="vipLevel" column="vip_level"/>
+        <result property="remark" column="remark"/>
     </resultMap>
 
     <sql id="Base_Column_List">
-        `id`,`cname`,`cstatus`,`create_time`,`customer_signup_user_id`
+        `id`,`cname`,`cstatus`,`create_time`,`customer_signup_user_id`,remark,vip_level
     </sql>
 
     <select id="selectByPrimaryKey" parameterType="com.upedge.ums.modules.user.entity.Customer" resultMap="BaseResultMap">
@@ -69,14 +71,16 @@
             cname,
             cstatus,
             create_time,
-            customer_signup_user_id
+            customer_signup_user_id,
+            vip_level
         </trim>
         values (
         #{id},
         #{cname},
         #{cstatus},
         #{createTime},
-        #{customerSignupUserId}
+        #{customerSignupUserId},
+        #{vipLevel}
         )
     </insert>
 
@@ -98,6 +102,9 @@
             <if test="customerSignupUserId != null" >
               customer_signup_user_id
             </if>
+            <if test="vipLevel != null" >
+                vip_level
+            </if>
 
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
@@ -116,6 +123,9 @@
             <if test="customerSignupUserId != null" >
                 #{customerSignupUserId}
             </if>
+            <if test="vipLevel != null" >
+                #{vipLevel}
+            </if>
 
         </trim>
     </insert>
@@ -127,7 +137,8 @@
            cname,
            cstatus,
            create_time,
-           customer_signup_user_id
+           customer_signup_user_id,
+            vip_level
         </trim>
         values
         <foreach collection="list" item="item" index="index" separator=",">
@@ -136,7 +147,8 @@
                #{item.cname},
                #{item.cstatus},
                #{item.createTime},
-               #{item.customerSignupUserId}
+               #{item.customerSignupUserId},
+                #{item.vipLevel}
             </trim>
         </foreach>
     </insert>
@@ -160,6 +172,9 @@
                     </if>
                     <if test="t.customerSignupUserId != null">
                         customer_signup_user_id = #{t.customerSignupUserId} and
+                    </if>
+                    <if test="t.vipLevel != null">
+                        vip_level = #{t.vipLevel}
                     </if>
             </trim>
         </if>
@@ -198,7 +213,9 @@
                u.wechat,
                u.fb_info,
                 c.remark,
-            a.balance
+                c.vip_level,
+            a.balance,
+            a.rebate
         FROM customer c
         LEFT JOIN `user` u ON u.id = c.customer_signup_user_id
         left join account a on a.customer_id = c.id
@@ -216,6 +233,9 @@
                 </if>
                 <if test="t.remark != null">
                     and c.remark like concat('%',#{t.remark},'%')
+                </if>
+                <if test="t.vipLevel != null">
+                    and c.vip_level = #{t.vipLevel}
                 </if>
             </trim>
         </if>

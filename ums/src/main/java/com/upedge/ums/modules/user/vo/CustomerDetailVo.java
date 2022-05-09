@@ -24,6 +24,8 @@ public class CustomerDetailVo {
 
     BigDecimal balance;
 
+    BigDecimal rebate;
+
     private String whatsapp;
     /**
      *
@@ -43,4 +45,6 @@ public class CustomerDetailVo {
     Integer status;
 
     String remark;
+
+    Integer vipLevel;
 }

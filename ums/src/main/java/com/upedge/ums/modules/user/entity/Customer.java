@@ -33,4 +33,6 @@ public class Customer{
 
 	private String remark;
 
+	private Integer vipLevel;
+
 }
