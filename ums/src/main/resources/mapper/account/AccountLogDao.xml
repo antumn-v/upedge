@@ -326,9 +326,7 @@
         GROUP BY
             transaction_id
     </select>
-    <select id="selectDateByCustomerId" resultType="com.upedge.ums.modules.account.entity.Account">
 
-    </select>
     <select id="selectAccountLog" resultType="java.lang.Integer">
         select count(1) from  account_log where   transaction_type = 0 and  order_type =#{orderType} and  transaction_id = #{orderId}
     </select>

@@ -30,7 +30,6 @@ import com.upedge.ums.modules.user.dao.UserDao;
 import com.upedge.ums.modules.user.entity.User;
 import io.seata.spring.annotation.GlobalTransactional;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -479,19 +478,19 @@ public class AccountServiceImpl implements AccountService {
             Long orderId = next.getOrderId();
             Integer count = accountLogDao.selectAccountLog(orderId,paymentDetail.getOrderType());
             if (count > 0){
-                iterator.remove();
+                return false;
             }
         }
-
         Account account = accountUserMapper.selectAccountByUser(paymentDetail.getUserId());
-
-        Long customerId = paymentDetail.getCustomerId();
-
         PaymentLog paymentLog = paymentLogDao.selectByPrimaryKey(paymentDetail.getPaymentId());
 
         if (null == paymentLog) {
             return false;
         }
+        //------------记录本次支付消耗的余额返点信用额度信息------------
+        BigDecimal balance = paymentLog.getAmount();
+
+        BigDecimal rebate = paymentLog.getRebate();
 
         TransactionType transactionType = null;
 
@@ -512,56 +511,16 @@ public class AccountServiceImpl implements AccountService {
             default:
                 throw new IllegalStateException("Unexpected value: " + orderType);
         }
-
         Date date = new Date();
-
-        //------------记录本次支付消耗的余额返点信用额度信息------------
-        BigDecimal balance = BigDecimal.ZERO;
-
-        BigDecimal rebate = BigDecimal.ZERO;
-
-        BigDecimal credit = BigDecimal.ZERO;
-        //----------------------------------------------------------
-
         //----------------支付的订单-----------------------
         List<TransactionDetail> transactionDetails = paymentDetail.getOrderTransactions();
-
         Iterator<TransactionDetail> transactionDetailIterator = transactionDetails.iterator();
-
-        //------------------------------------------------
-        //--------------充值记录---------------------
-        RechargeLog recharge = new RechargeLog();
-        recharge.setRechargeType(0);
-        recharge.setAccountId(account.getId());
-        RechargeListRequest rechargeListRequest = new RechargeListRequest();
-        rechargeListRequest.setCustomerId(account.getCustomerId());
-        rechargeListRequest.setPageSize(null);
-        rechargeListRequest.setT(recharge);
-        rechargeListRequest.setCondition("recharge_status != '2'");
-
-        List<RechargeLog> rechargeLogs = rechargeLogMapper.selectRechargeList(rechargeListRequest);
-        if (null == rechargeLogs) {
-            rechargeLogs = new ArrayList<>();
-        }
-        RechargeLog rechargeLog = null;
-        Iterator<RechargeLog> rechargeLogIterator = rechargeLogs.iterator();
-        if(rechargeLogIterator.hasNext()){
-            rechargeLog = rechargeLogIterator.next();
-        }
         //------------------------------------------
-        //-------记录被修改的充值记录----------------
-        Map<Long, RechargeLog> rechargeLogMap = new HashMap<>();
         List<AccountLog> accountLogs = new ArrayList<>();
-
-        List<RechargeRecord> records = new ArrayList<>();
         //---------------------------------
         while (transactionDetailIterator.hasNext()) {
-            Integer i = 1;
-
             AccountLog accountLog = new AccountLog();
-
             TransactionDetail detail = transactionDetailIterator.next();
-
             accountLog.setAccountId(account.getId());
             accountLog.setCustomerId(account.getCustomerId());
             accountLog.setTransactionId(detail.getOrderId());
@@ -574,135 +533,39 @@ public class AccountServiceImpl implements AccountService {
 
             BigDecimal transactionRebate = BigDecimal.ZERO;
 
-            BigDecimal transactionCredit = BigDecimal.ZERO;
             //-------------------------------------------------------------------------
             //订单总额
             BigDecimal orderAmount = detail.getAmount();
-
-            if (null != rechargeLog )  {
-                while (orderAmount.compareTo(BigDecimal.ZERO) == 1 ) {
-
-                    BigDecimal payed = rechargeLog.getPayed();
-                    BigDecimal rechargeBalance = rechargeLog.getAmount();
-                    BigDecimal rechargeRebate = rechargeLog.getRebate();
-                    Long rechargeId = rechargeLog.getId();
-                    /**
-                     * 余额大于订单金额
-                     * 订单金额等于0
-                     */
-                    if (rechargeBalance.compareTo(orderAmount) > -1) {
-                        payed = payed.add(orderAmount);
-                        transactionBalance = transactionBalance.add(orderAmount);
-                        rechargeBalance = rechargeBalance.subtract(orderAmount);
-                        records.add(new RechargeRecord(rechargeId, customerId, detail.getOrderId(), orderType, orderAmount, 0, date,i++));
-                        orderAmount = BigDecimal.ZERO;
-                        /**
-                         * 余额+返点大于订单金额
-                         * 余额，订单金额归0
-                         * 返点=返点+余额-订单金额
-                         */
-                    } else if (rechargeBalance.add(rechargeBalance).compareTo(orderAmount) > -1) {
-                        payed = payed.add(orderAmount);
-                        transactionBalance = transactionBalance.add(rechargeBalance);
-
-                        records.add(new RechargeRecord(rechargeId, customerId, detail.getOrderId(), orderType, rechargeBalance, 0, date,i++));
-                        orderAmount = orderAmount.subtract(rechargeBalance);
-
-                        transactionRebate = transactionRebate.add(orderAmount);//订单支付用掉的返点
-                        rechargeRebate = rechargeRebate.subtract(orderAmount);//当前充值记录剩余返点
-                        records.add(new RechargeRecord(rechargeId, customerId, detail.getOrderId(), orderType, orderAmount, 1, date,i++));
-                        orderAmount = BigDecimal.ZERO;
-                        rechargeBalance = BigDecimal.ZERO;
-                        /**
-                         * 订单金额大于余额加返点
-                         * 余额，返点归0
-                         * 订单金额 = 余额+返点
-                         */
-                    } else {
-                        payed = payed.add(rechargeBalance).add(rechargeRebate);
-                        transactionBalance = transactionBalance.add(rechargeBalance);
-                        transactionRebate = transactionRebate.add(rechargeRebate);
-                        if(rechargeBalance.compareTo(BigDecimal.ZERO)  > 0) {
-                            records.add(new RechargeRecord(rechargeId, customerId, detail.getOrderId(), orderType, rechargeBalance, 0, date,i++));
-                        }
-                        if(rechargeRebate.compareTo(BigDecimal.ZERO) > 0)
-                        records.add(new RechargeRecord(rechargeId, customerId, detail.getOrderId(), orderType, rechargeRebate, 1, date,i++));
-                        orderAmount = orderAmount.subtract(rechargeBalance).subtract(rechargeRebate);
-                        rechargeBalance = BigDecimal.ZERO;
-                        rechargeRebate = BigDecimal.ZERO;
-                    }
-                    rechargeLog.setAmount(rechargeBalance);
-                    rechargeLog.setRebate(rechargeRebate);
-                    rechargeLog.setPayed(payed);
-                    rechargeLog.setUpdateTime(date);
-                    /**
-                     * 若充值记录已永远，跳出循环，否则用于支付下一个订单
-                     */
-                    if (rechargeRebate.add(rechargeBalance).compareTo(BigDecimal.ZERO) == 0) {
-                        rechargeLog.setRechargeStatus(2);
-                        rechargeLogMap.put(rechargeId, rechargeLog);
-                        rechargeLogIterator.remove();
-                        if(rechargeLogIterator.hasNext()){
-                            rechargeLog = rechargeLogIterator.next();
-                        }else {
-                            rechargeLog = null;
-                            break;
-                        }
-                    } else {
-                        rechargeLog.setRechargeStatus(1);
-                        rechargeLogMap.put(rechargeId, rechargeLog);
-                    }
-                }
+            /**
+             * 余额大于订单金额
+             * 订单金额等于0
+             */
+            if (balance.compareTo(orderAmount) > -1) {
+                transactionBalance = orderAmount;
+                balance = balance.subtract(orderAmount);
                 /**
-                 * 无充值记录，订单还没支付完成
-                 * 信用额度支付
+                 * 余额+返点大于订单金额
+                 * 余额，订单金额归0
+                 * 返点=返点+余额-订单金额
                  */
-                if (orderAmount.compareTo(BigDecimal.ZERO) > 0) {
-                    RechargeRecord record = new RechargeRecord(0L, customerId, detail.getOrderId(), detail.getOrderType(), orderAmount, 2, date,i++);
-                    records.add(record);
-                    transactionCredit = orderAmount;
-                    orderAmount = BigDecimal.ZERO;
-                }
-            } else {
-                RechargeRecord record = new RechargeRecord(0L, customerId, detail.getOrderId(), detail.getOrderType(), orderAmount, 2, date,i++);
-                records.add(record);
-                transactionCredit = orderAmount;
-                orderAmount = BigDecimal.ZERO;
+            } else  {
+                transactionBalance = balance;
+                orderAmount = orderAmount.subtract(balance);
+                transactionRebate = orderAmount;//订单支付用掉的返点
+                rebate = rebate.subtract(orderAmount);//当前充值记录剩余返点
+                balance = BigDecimal.ZERO;
             }
             //一个订单支付对应一条accountLog
-            balance = balance.add(transactionBalance);
-            rebate = rebate.add(transactionRebate);
-            credit = credit.add(transactionCredit);
-
             accountLog.setBalance(transactionBalance);
             accountLog.setRebate(transactionRebate);
-            accountLog.setCredit(transactionCredit);
             accountLogs.add(accountLog);
         }
 
-        if(balance.compareTo(paymentLog.getAmount()) != 0
-        || rebate.compareTo(paymentLog.getRebate()) != 0
-        || credit.compareTo(paymentLog.getCredit()) != 0){
+        if(balance.compareTo(BigDecimal.ZERO) != 0
+        || rebate.compareTo(BigDecimal.ZERO) != 0){
             return false;
         }
-        rechargeRecordDao.insertByBatch(records);
         accountLogDao.insertByBatch(accountLogs);
-        if (MapUtils.isNotEmpty(rechargeLogMap)) {
-            rechargeLogMapper.updateByMap(rechargeLogMap);
-        }
-
-        /**
-         * 隊列計算   客户每日支付订单数据
-         */
-//        CustomerOrderDailyCountUpdateRequest customerOrderDailyCountUpdateRequest = new CustomerOrderDailyCountUpdateRequest();
-//        customerOrderDailyCountUpdateRequest.setBalance(balance);
-//        customerOrderDailyCountUpdateRequest.setRebate(rebate);
-//        customerOrderDailyCountUpdateRequest.setCredit(credit);
-//        customerOrderDailyCountUpdateRequest.setCustomerId(paymentDetail.getCustomerId());
-//        customerOrderDailyCountUpdateRequest.setPaymentId(paymentDetail.getPaymentId());
-//        customerOrderDailyCountUpdateRequest.setOrderType(orderType);
-//        customerOrderDailyCountUpdateRequest.setPayTime(paymentDetail.getPayTime());
-//        redisTemplate.opsForList().leftPush(RedisKey.LIST_CUSTOMER_ORDER_DAILY_COUNT_UPDATE,customerOrderDailyCountUpdateRequest);
         return true;
     }
 

@@ -31,6 +31,7 @@ public interface AccountLogDao{
     long count(Page<AccountLog> record);
 
     AccountLog selectPayedAccountLogByTransactionId(@Param("transactionId") Long transactionId, @Param("transactionType") Integer transactionType);
+
     List<AccountLog> listAccountLogByTransactionId(@Param("transactionId") Long transactionId);
 
 

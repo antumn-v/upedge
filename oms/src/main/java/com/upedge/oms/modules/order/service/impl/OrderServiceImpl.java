@@ -1094,6 +1094,8 @@ public class OrderServiceImpl implements OrderService {
             reshipOrder.setTotalWeight(shipDetail.getWeight());
             if (!request.getNeedPay()){
                 reshipOrder.setPayState(1);
+                reshipOrder.setPayTime(new Date());
+                reshipOrder.setPayMethod(0);
             }
         }else {
             if (request.getNeedPay()){

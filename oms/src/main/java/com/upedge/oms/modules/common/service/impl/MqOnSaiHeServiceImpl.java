@@ -1,11 +1,13 @@
 package com.upedge.oms.modules.common.service.impl;
 
 import com.alibaba.fastjson.JSON;
-import com.upedge.common.constant.key.RocketMqConfig;
 import com.upedge.common.constant.OrderType;
-
+import com.upedge.common.constant.key.RedisKey;
+import com.upedge.common.constant.key.RocketMqConfig;
 import com.upedge.common.feign.UmsFeignClient;
 import com.upedge.common.model.log.MqMessageLog;
+import com.upedge.common.model.user.vo.AffiliateVo;
+import com.upedge.common.model.user.vo.CommissionRecordVo;
 import com.upedge.common.utils.IdGenerate;
 import com.upedge.oms.modules.common.service.MqOnSaiheService;
 import com.upedge.oms.modules.order.entity.Order;
@@ -19,6 +21,7 @@ import org.apache.rocketmq.client.producer.DefaultMQProducer;
 import org.apache.rocketmq.client.producer.SendStatus;
 import org.apache.rocketmq.common.message.Message;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
@@ -64,6 +67,9 @@ public class MqOnSaiHeServiceImpl implements MqOnSaiheService {
 
     @Autowired
     UmsFeignClient umsFeignClient;
+
+    @Autowired
+    RedisTemplate redisTemplate;
 
 
     /**

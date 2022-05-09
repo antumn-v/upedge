@@ -92,6 +92,7 @@ public class RedisInit {
             BeanUtils.copyProperties(affiliate,affiliateVo);
             map.put(affiliate.getRefereeId().toString(),affiliateVo);
         }
+        redisTemplate.delete(RedisKey.HASH_AFFILIATE_REFEREE);
         redisTemplate.opsForHash().putAll(RedisKey.HASH_AFFILIATE_REFEREE,map);
     }
 

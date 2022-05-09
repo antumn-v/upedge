@@ -425,23 +425,23 @@ public class UserServiceImpl implements UserService {
         BeanUtils.copyProperties(user, userVo);
         Session session = new Session(userVo);
         //组织
-//        List<Long> orgIds = organizationUserService.selectOrgIdsByUserId(userId);
-//        session.setOrgIds(orgIds);
-//        Organization organization = organizationUserService.selectUserParentOrganization(userId);
-//        if (organization != null) {
-//            OrganizationVo organizationVo = new OrganizationVo();
-//            BeanUtils.copyProperties(organization, organizationVo);
-//            session.setParentOrganization(organizationVo);
-//        }
+        List<Long> orgIds = organizationUserService.selectOrgIdsByUserId(userId);
+        session.setOrgIds(orgIds);
+        Organization organization = organizationUserService.selectUserParentOrganization(userId);
+        if (organization != null) {
+            OrganizationVo organizationVo = new OrganizationVo();
+            BeanUtils.copyProperties(organization, organizationVo);
+            session.setParentOrganization(organizationVo);
+        }
         //角色权限
-//        Role role = roleService.selectRoleByUser(userId);
-//        RoleVo roleVo = new RoleVo();
-//        BeanUtils.copyProperties(role, roleVo);
+        Role role = roleService.selectRoleByUser(userId);
+        RoleVo roleVo = new RoleVo();
+        BeanUtils.copyProperties(role, roleVo);
         session.setApplicationId(applicationId);
-//        session.setRole(roleVo);
+        session.setRole(roleVo);
 
-//        List<String> permissions = rolePermissionService.selectPermissionByRole(role.getId());
-//        session.setPermissions(permissions);
+        List<String> permissions = rolePermissionService.selectPermissionByRole(role.getId());
+        session.setPermissions(permissions);
 
         Account account = accountService.selectCustomerDefaultAccount(session.getCustomerId());
         if (null != account) {

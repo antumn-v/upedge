@@ -3,6 +3,7 @@ package com.upedge.ums.mq;
 import com.alibaba.fastjson.JSONObject;
 import com.upedge.common.constant.key.RocketMqConfig;
 import com.upedge.common.model.log.MqMessageLog;
+import com.upedge.common.web.util.RedisUtil;
 import com.upedge.ums.async.StoreAsync;
 import com.upedge.ums.modules.log.service.MqMessageLogService;
 import com.upedge.ums.modules.store.entity.Store;
@@ -14,6 +15,7 @@ import org.apache.rocketmq.client.exception.MQClientException;
 import org.apache.rocketmq.common.consumer.ConsumeFromWhere;
 import org.apache.rocketmq.common.message.Message;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
 import java.util.Date;
@@ -29,6 +31,9 @@ public class GetStoreDataCustomer {
 
     @Autowired
     StoreAsync storeAsync;
+
+    @Autowired
+    RedisTemplate redisTemplate;
 
     public GetStoreDataCustomer() throws MQClientException {
         consumer = new DefaultMQPushConsumer("get_store_data");
@@ -46,6 +51,10 @@ public class GetStoreDataCustomer {
                     if(null == message.getBody()){
                         log.warn("消息内容有误：{}",message);
                         continue;
+                    }
+                    boolean b = RedisUtil.lock(redisTemplate,message.getKeys(),10L,60 * 60 * 1000L);
+                    if (!b){
+                        return ConsumeConcurrentlyStatus.CONSUME_SUCCESS;
                     }
                     MqMessageLog mqMessageLog = mqMessageLogService.selectByMsgKey(message.getKeys());
                     if(mqMessageLog != null && mqMessageLog.getIsConsumeSuccess() == 1){

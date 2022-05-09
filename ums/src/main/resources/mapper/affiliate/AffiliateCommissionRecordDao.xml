@@ -95,7 +95,7 @@
         <trim prefix="(" suffix=")" suffixOverrides=",">
             id,
             referee_id,
-            referrer_id
+            referrer_id,
             order_id,
             order_type,
             commission,

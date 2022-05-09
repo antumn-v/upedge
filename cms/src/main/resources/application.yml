@@ -1,6 +1,10 @@
 spring:
   profiles:
     active: dev
+  servlet:
+    multipart:
+      max-file-size: 50MB #设置允许单个文件上传的大小
+      max-request-size: 50MB #设置允许上传的总的文件的大小
   jackson:
     date-format: yyyy-MM-dd
     time-zone: GMT+8

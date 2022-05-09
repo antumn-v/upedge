@@ -65,12 +65,7 @@
 
     <select id="selectAccountByPage" resultMap="BaseResultMap" parameterType="com.upedge.common.base.Page">
         select
-        <if test="fields != null">
-            ${fields}
-        </if>
-        <if test="fields == null">
-            <include refid="Base_Column_List"/>
-        </if>
+        <include refid="Base_Column_List"/>
         from account
         <include refid="Query_Condition"/>
         <if test="orderBy != null">
