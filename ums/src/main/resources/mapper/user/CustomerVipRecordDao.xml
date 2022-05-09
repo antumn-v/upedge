@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.upedge.ums.modules.user.dao.CustomerVipRecordDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.upedge.ums.modules.user.entity.CustomerVipRecord" id="BaseResultMap">
+        <result property="id" column="id"/>
+        <result property="customerId" column="customer_id"/>
+        <result property="vipType" column="vip_type"/>
+        <result property="createTime" column="create_time"/>
+        <result property="managerId" column="manager_id"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        `id`,`customer_id`,`vip_type`,`create_time`,`manager_id`
+    </sql>
+
+    <select id="selectByPrimaryKey" parameterType="com.upedge.ums.modules.user.entity.CustomerVipRecord" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from customer_vip_record
+        where id = #{id}
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="com.upedge.ums.modules.user.entity.CustomerVipRecord">
+        delete from customer_vip_record
+        where id = #{id}
+    </delete>
+
+    <update id="updateByPrimaryKeySelective" parameterType="com.upedge.ums.modules.user.entity.CustomerVipRecord">
+        update customer_vip_record
+        <set>
+            <if test="customerId != null">
+                customer_id = #{customerId},
+            </if>
+            <if test="vipType != null">
+                vip_type = #{vipType},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime},
+            </if>
+            <if test="managerId != null">
+                manager_id = #{managerId},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <update id="updateByPrimaryKey" parameterType="com.upedge.ums.modules.user.entity.CustomerVipRecord">
+        update customer_vip_record
+        <set>
+        id = #{id},
+        customer_id = #{customerId},
+        vip_type = #{vipType},
+        create_time = #{createTime},
+        manager_id = #{managerId},
+        </set>
+        where id = #{id}
+    </update>
+
+    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.upedge.ums.modules.user.entity.CustomerVipRecord" useGeneratedKeys="true">
+        insert into customer_vip_record
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            id,
+            customer_id,
+            vip_type,
+            create_time,
+            manager_id
+        </trim>
+        values (
+        #{id},
+        #{customerId},
+        #{vipType},
+        #{createTime},
+        #{managerId}
+        )
+    </insert>
+
+    <insert id="insertSelective"  keyColumn="id" keyProperty="id"  parameterType="com.upedge.ums.modules.user.entity.CustomerVipRecord" useGeneratedKeys="true">
+        insert into customer_vip_record
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null" >
+              id
+            </if>
+            <if test="customerId != null" >
+              customer_id
+            </if>
+            <if test="vipType != null" >
+              vip_type
+            </if>
+            <if test="createTime != null" >
+              create_time
+            </if>
+            <if test="managerId != null" >
+              manager_id
+            </if>
+
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null" >
+                #{id}
+            </if>
+            <if test="customerId != null" >
+                #{customerId}
+            </if>
+            <if test="vipType != null" >
+                #{vipType}
+            </if>
+            <if test="createTime != null" >
+                #{createTime}
+            </if>
+            <if test="managerId != null" >
+                #{managerId}
+            </if>
+
+        </trim>
+    </insert>
+
+    <insert id="insertByBatch" parameterType="java.util.List">
+        insert into customer_vip_record
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+           id,
+           customer_id,
+           vip_type,
+           create_time,
+           manager_id
+        </trim>
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+               #{item.id},
+               #{item.customerId},
+               #{item.vipType},
+               #{item.createTime},
+               #{item.managerId}
+            </trim>
+        </foreach>
+    </insert>
+
+    <sql id="Query_Condition">
+        <if test="t != null">
+            where
+            <trim prefix=" " suffix=" " suffixOverrides=" and ">
+                1 = 1 and
+                    <if test="t.id != null">
+                        id = #{t.id} and
+                    </if>
+                    <if test="t.customerId != null">
+                        customer_id = #{t.customerId} and
+                    </if>
+                    <if test="t.vipType != null">
+                        vip_type = #{t.vipType} and
+                    </if>
+                    <if test="t.createTime != null">
+                        create_time = #{t.createTime} and
+                    </if>
+                    <if test="t.managerId != null">
+                        manager_id = #{t.managerId} and
+                    </if>
+            </trim>
+        </if>
+    </sql>
+
+    <select id="select" parameterType="com.upedge.common.base.Page" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from customer_vip_record
+        <include refid="Query_Condition"/>
+        <if test="orderBy != null">
+            order by ${orderBy}
+        </if>
+        <if test="pageNum != null and pageSize != null">
+            limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+        </if>
+    </select>
+
+    <select id="count" parameterType="com.upedge.common.base.Page" resultType="java.lang.Long">
+        select
+        count(1)
+        from customer_vip_record
+        <include refid="Query_Condition"/>
+    </select>
+
+
+</mapper>
