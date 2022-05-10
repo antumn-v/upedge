@@ -25,7 +25,6 @@ public interface AccountMapper {
 
     AccountStatisticsVo selectAccountStatistics(@Param("userManager") String userManager);
 
-    int updateBalanceByCustomerId(Account account);
 
     int increaseAccountCommission(Long id, BigDecimal commission);
 

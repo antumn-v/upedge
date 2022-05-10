@@ -11,7 +11,8 @@
         <result property="orderType" column="order_type"/>
         <result property="amount" column="amount"/>
         <result property="credit" column="credit"/>
-        <result property="rebate" column="rebate"/>
+        <result property="affiliateRebate" column="affiliate_rebate"/>
+        <result property="vipRebate" column="vip_rebate"/>
         <result property="fee" column="fee"/>
         <result property="payStatus" column="pay_status"/>
         <result property="payType" column="pay_type"/>
@@ -20,7 +21,7 @@
     </resultMap>
 
     <sql id="Base_Column_List">
-        `id`,`account_id`,`customer_id`,`order_type`,`amount`,`credit`,`rebate`,`fee`,`pay_status`,`pay_type`,`create_time`,`update_time`
+        `id`,`account_id`,`customer_id`,`order_type`,`amount`,`credit`,`affiliate_rebate`,`fee`,`pay_status`,`pay_type`,`create_time`,`update_time`
     </sql>
 
 
@@ -61,8 +62,11 @@
             <if test="credit != null">
                 credit = #{credit},
             </if>
-            <if test="rebate != null">
-                rebate = #{rebate},
+            <if test="affiliateRebate != null">
+                affiliate_rebate = #{affiliateRebate},
+            </if>
+            <if test="vipRebate != null">
+                vip_rebate = #{vipRebate},
             </if>
             <if test="fee != null">
                 fee = #{fee},
@@ -86,18 +90,19 @@
     <update id="updateByPrimaryKey" parameterType="com.upedge.ums.modules.account.entity.PaymentLog">
         update payment_log
         <set>
-        id = #{id},
-        account_id = #{accountId},
-        customer_id = #{customerId},
-        order_type = #{orderType},
-        amount = #{amount},
-        credit = #{credit},
-        rebate = #{rebate},
-        fee = #{fee},
-        pay_status = #{payStatus},
-        pay_type = #{payType},
-        create_time = #{createTime},
-        update_time = #{updateTime},
+            id = #{id},
+            account_id = #{accountId},
+            customer_id = #{customerId},
+            order_type = #{orderType},
+            amount = #{amount},
+            credit = #{credit},
+            affiliate_rebate = #{affiliateRebate},
+            vip_rebate = #{vipRebate},
+            fee = #{fee},
+            pay_status = #{payStatus},
+            pay_type = #{payType},
+            create_time = #{createTime},
+            update_time = #{updateTime},
         </set>
         where id = #{id}
     </update>
@@ -111,7 +116,8 @@
             order_type,
             amount,
             credit,
-            rebate,
+            affiliate_rebate,
+            vip_rebate,
             fee,
             pay_status,
             pay_type,
@@ -125,12 +131,13 @@
         #{orderType},
         #{amount},
         #{credit},
-        #{rebate},
+        #{affiliateRebate},
+        #{vipRebate},
         #{fee},
         #{payStatus},
         #{payType},
         #{createTime},
-        #{createTime}
+        #{updateTime}
         )
     </insert>
 
@@ -138,40 +145,43 @@
         insert into payment_log
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="id != null" >
-              id
+                id
             </if>
             <if test="accountId != null" >
-              account_id
+                account_id
             </if>
             <if test="customerId != null" >
-              customer_id
+                customer_id
             </if>
             <if test="orderType != null" >
-              order_type
+                order_type
             </if>
             <if test="amount != null" >
-              amount
+                amount
             </if>
             <if test="credit != null" >
-              credit
+                credit
             </if>
-            <if test="rebate != null" >
-              rebate
+            <if test="affiliateRebate != null" >
+                affiliate_rebate
+            </if>
+            <if test="vipRebate != null" >
+                vip_rebate
             </if>
             <if test="fee != null" >
-              fee
+                fee
             </if>
             <if test="payStatus != null" >
-              pay_status
+                pay_status
             </if>
             <if test="payType != null" >
-              pay_type
+                pay_type
             </if>
             <if test="createTime != null" >
-              create_time
+                create_time
             </if>
             <if test="updateTime != null" >
-              update_time
+                update_time
             </if>
 
         </trim>
@@ -194,8 +204,11 @@
             <if test="credit != null" >
                 #{credit}
             </if>
-            <if test="rebate != null" >
-                #{rebate}
+            <if test="affiliateRebate != null" >
+                #{affiliateRebate}
+            </if>
+            <if test="vipRebate != null" >
+                #{vipRebate}
             </if>
             <if test="fee != null" >
                 #{fee}
@@ -219,34 +232,36 @@
     <insert id="insertByBatch" parameterType="java.util.List">
         insert into payment_log
         <trim prefix="(" suffix=")" suffixOverrides=",">
-           id,
-           account_id,
-           customer_id,
-           order_type,
-           amount,
-           credit,
-           rebate,
-           fee,
-           pay_status,
-           pay_type,
-           create_time,
-           update_time
+            id,
+            account_id,
+            customer_id,
+            order_type,
+            amount,
+            credit,
+            affiliate_rebate,
+            vip_rebate,
+            fee,
+            pay_status,
+            pay_type,
+            create_time,
+            update_time
         </trim>
         values
         <foreach collection="list" item="item" index="index" separator=",">
             <trim prefix="(" suffix=")" suffixOverrides=",">
-               #{item.id},
-               #{item.accountId},
-               #{item.customerId},
-               #{item.orderType},
-               #{item.amount},
-               #{item.credit},
-               #{item.rebate},
-               #{item.fee},
-               #{item.payStatus},
-               #{item.payType},
-               #{item.createTime},
-               #{item.updateTime}
+                #{item.id},
+                #{item.accountId},
+                #{item.customerId},
+                #{item.orderType},
+                #{item.amount},
+                #{item.credit},
+                #{item.affiliateRebate},
+                #{item.vipRebate},
+                #{item.fee},
+                #{item.payStatus},
+                #{item.payType},
+                #{item.createTime},
+                #{item.updateTime}
             </trim>
         </foreach>
     </insert>
@@ -256,42 +271,45 @@
             where
             <trim prefix=" " suffix=" " suffixOverrides=" and ">
                 1 = 1 and
-                    <if test="t.id != null">
-                        id = #{t.id} and
-                    </if>
-                    <if test="t.accountId != null">
-                        account_id = #{t.accountId} and
-                    </if>
-                    <if test="t.customerId != null">
-                        customer_id = #{t.customerId} and
-                    </if>
-                    <if test="t.orderType != null">
-                        order_type = #{t.orderType} and
-                    </if>
-                    <if test="t.amount != null">
-                        amount = #{t.amount} and
-                    </if>
-                    <if test="t.credit != null">
-                        credit = #{t.credit} and
-                    </if>
-                    <if test="t.rebate != null">
-                        rebate = #{t.rebate} and
-                    </if>
-                    <if test="t.fee != null">
-                        fee = #{t.fee} and
-                    </if>
-                    <if test="t.payStatus != null">
-                        pay_status = #{t.payStatus} and
-                    </if>
-                    <if test="t.payType != null">
-                        pay_type = #{t.payType} and
-                    </if>
-                    <if test="t.createTime != null">
-                        create_time = #{t.createTime} and
-                    </if>
-                    <if test="t.updateTime != null">
-                        update_time = #{t.updateTime} and
-                    </if>
+                <if test="t.id != null">
+                    id = #{t.id} and
+                </if>
+                <if test="t.accountId != null">
+                    account_id = #{t.accountId} and
+                </if>
+                <if test="t.customerId != null">
+                    customer_id = #{t.customerId} and
+                </if>
+                <if test="t.orderType != null">
+                    order_type = #{t.orderType} and
+                </if>
+                <if test="t.amount != null">
+                    amount = #{t.amount} and
+                </if>
+                <if test="t.credit != null">
+                    credit = #{t.credit} and
+                </if>
+                <if test="t.affiliateRebate != null">
+                    affiliate_rebate = #{t.affiliateRebate} and
+                </if>
+                <if test="t.vipRebate != null">
+                    vip_rebate = #{t.vipRebate} and
+                </if>
+                <if test="t.fee != null">
+                    fee = #{t.fee} and
+                </if>
+                <if test="t.payStatus != null">
+                    pay_status = #{t.payStatus} and
+                </if>
+                <if test="t.payType != null">
+                    pay_type = #{t.payType} and
+                </if>
+                <if test="t.createTime != null">
+                    create_time = #{t.createTime} and
+                </if>
+                <if test="t.updateTime != null">
+                    update_time = #{t.updateTime} and
+                </if>
             </trim>
         </if>
     </sql>

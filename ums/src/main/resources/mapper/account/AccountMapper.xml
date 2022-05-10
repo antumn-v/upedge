@@ -38,19 +38,6 @@
         </where>
     </sql>
 
-    <update id="updateBalanceByCustomerId">
-        update account
-        set
-          balance = #{balance,jdbcType=DECIMAL},
-          affiliate_rebate = #{affiliateRebate},
-          credit = #{credit,jdbcType=DECIMAL},
-          credit_limit = #{creditLimit,jdbcType=DECIMAL},
-          commission = #{commission,jdbcType=DECIMAL}
-        where customer_id = #{customerId,jdbcType=BIGINT}
-        and is_default = '1'
-        limit 1
-    </update>
-
 
     <select id="selectAccountStatusById" resultType="java.lang.Integer">
     select status

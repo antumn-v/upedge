@@ -38,7 +38,10 @@ public class PaymentLog{
 	/**
 	 * 
 	 */
-    private BigDecimal rebate;
+    private BigDecimal affiliateRebate;
+
+
+    private BigDecimal vipRebate;
 	/**
 	 * 手续费
 	 */

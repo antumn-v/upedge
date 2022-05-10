@@ -1,7 +1,6 @@
 package com.upedge.ums.modules.account.controller;
 
 import com.upedge.common.base.BaseResponse;
-import com.upedge.common.constant.Constant;
 import com.upedge.common.constant.ResultCode;
 import com.upedge.common.exception.CustomerException;
 import com.upedge.common.model.account.AccountOrderRefundedRequest;
@@ -11,10 +10,8 @@ import com.upedge.common.model.order.PaymentDetail;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.web.util.UserUtil;
 import com.upedge.ums.modules.account.entity.Account;
-import com.upedge.ums.modules.account.entity.AccountPayMethod;
 import com.upedge.ums.modules.account.request.AccountAddRequest;
 import com.upedge.ums.modules.account.request.AccountListRequest;
-import com.upedge.ums.modules.account.request.AccountPayMethodAddRequest;
 import com.upedge.ums.modules.account.response.*;
 import com.upedge.ums.modules.account.service.AccountService;
 import io.swagger.annotations.ApiOperation;
@@ -24,7 +21,6 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.UUID;
 
 /**
  * @author 海桐
@@ -101,35 +97,35 @@ public class AccountController {
      * @param request
      * @return
      */
-    @ApiOperation("账户添加支付方式")
-    @PostMapping("/paymethod/add")
-    public AccountPayMethodAddResponse accountAddPayMethod(@RequestBody AccountPayMethodAddRequest request){
-        return accountService.addAccountPayMethod(request);
-    }
+//    @ApiOperation("账户添加支付方式")
+//    @PostMapping("/paymethod/add")
+//    public AccountPayMethodAddResponse accountAddPayMethod(@RequestBody AccountPayMethodAddRequest request){
+//        return accountService.addAccountPayMethod(request);
+//    }
 
     @GetMapping("/paymethod/{accountPaymethodId}/attrs")
     public AccountPaymethodAttrListResponse listAccountPaymethodAttr(@PathVariable Integer accountPaymethodId){
         return accountService.accountPaymethodAttrList(accountPaymethodId);
     }
 
-    @ApiOperation("账户添加payoneer")
-    @PostMapping("/paymethod/add/payoneer")
-    public BaseResponse getPayoneerAuthUrl(@RequestBody AccountPayMethodAddRequest request){
-
-        AccountPayMethod payMethod = accountService.selectByAccountBankNum(request.getAccountId(),request.getBankNum());
-
-        if(payMethod != null){
-            return new AccountPayMethodAddResponse(ResultCode.FAIL_CODE,"Cannot add the same payment method");
-        }
-
-        String state = UUID.randomUUID().toString().replace("-","");
-
-        redisTemplate.opsForValue().set(state,request,30 * 60 * 1000);
-
-        String url = payoneerAuthUrl.replace("{state}",state);
-
-        return new BaseResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS,url);
-    }
+//    @ApiOperation("账户添加payoneer")
+//    @PostMapping("/paymethod/add/payoneer")
+//    public BaseResponse getPayoneerAuthUrl(@RequestBody AccountPayMethodAddRequest request){
+//
+//        AccountPayMethod payMethod = accountService.selectByAccountBankNum(request.getAccountId(),request.getBankNum());
+//
+//        if(payMethod != null){
+//            return new AccountPayMethodAddResponse(ResultCode.FAIL_CODE,"Cannot add the same payment method");
+//        }
+//
+//        String state = UUID.randomUUID().toString().replace("-","");
+//
+//        redisTemplate.opsForValue().set(state,request,30 * 60 * 1000);
+//
+//        String url = payoneerAuthUrl.replace("{state}",state);
+//
+//        return new BaseResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS,url);
+//    }
 
 
 

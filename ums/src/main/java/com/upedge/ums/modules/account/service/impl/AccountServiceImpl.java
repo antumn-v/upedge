@@ -420,7 +420,7 @@ public class AccountServiceImpl implements AccountService {
             credit = orderAmount;
         }
         log.setCredit(credit);
-        log.setRebate(rebate);
+        log.setAffiliateRebate(rebate);
         log.setAmount(balance);
         log.setPayStatus(1);
         paymentLogDao.insert(log);
@@ -490,7 +490,7 @@ public class AccountServiceImpl implements AccountService {
         //------------记录本次支付消耗的余额返点信用额度信息------------
         BigDecimal balance = paymentLog.getAmount();
 
-        BigDecimal rebate = paymentLog.getRebate();
+        BigDecimal rebate = paymentLog.getAffiliateRebate();
 
         TransactionType transactionType = null;
 
