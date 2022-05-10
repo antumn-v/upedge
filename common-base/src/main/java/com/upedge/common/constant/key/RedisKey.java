@@ -20,6 +20,8 @@ public class RedisKey {
      */
     public static final String LOCK_CUSTOMER_PRODUCT_STOCK_UPDATE = "customer:product:stock:lock:";
 
+    public static final String HASH_CUSTOMER_VIP_REBATE = "customer:vip:rebate";
+
     public static final String LIST_CUSTOMER_NORMAL_ORDER_PAYMENT_ID = "normal:order:payment:id:list:customer:";
 
     public static final String HASH_CUSTOMER_SETTING = "customer:setting:";

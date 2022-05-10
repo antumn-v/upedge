@@ -10,6 +10,11 @@ import java.util.Date;
 @Data
 public class CustomerVipRecord{
 
+	//授权
+	public static final int VIP_AUTHORIZE = 1;
+	//撤销
+	public static final int VIP_REVOKE = 0;
+
 	/**
 	 * 
 	 */

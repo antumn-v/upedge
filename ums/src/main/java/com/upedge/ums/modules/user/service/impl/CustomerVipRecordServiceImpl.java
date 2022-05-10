@@ -1,13 +1,15 @@
 package com.upedge.ums.modules.user.service.impl;
 
 import com.upedge.common.base.Page;
+import com.upedge.common.constant.key.RedisKey;
 import com.upedge.ums.modules.user.dao.CustomerVipRecordDao;
 import com.upedge.ums.modules.user.entity.CustomerVipRecord;
 import com.upedge.ums.modules.user.service.CustomerVipRecordService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 
@@ -17,12 +19,15 @@ public class CustomerVipRecordServiceImpl implements CustomerVipRecordService {
     @Autowired
     private CustomerVipRecordDao customerVipRecordDao;
 
+    @Autowired
+    RedisTemplate redisTemplate;
+
 
 
     /**
      *
      */
-    @Transactional
+    
     public int deleteByPrimaryKey(Integer id) {
         CustomerVipRecord record = new CustomerVipRecord();
         record.setId(id);
@@ -32,17 +37,22 @@ public class CustomerVipRecordServiceImpl implements CustomerVipRecordService {
     /**
      *
      */
-    @Transactional
+    
     public int insert(CustomerVipRecord record) {
-        return customerVipRecordDao.insert(record);
+        return insertSelective(record);
     }
 
     /**
      *
      */
-    @Transactional
     public int insertSelective(CustomerVipRecord record) {
-        return customerVipRecordDao.insert(record);
+        int i = customerVipRecordDao.insert(record);
+        if(record.getVipType() == CustomerVipRecord.VIP_AUTHORIZE){
+            redisTemplate.opsForHash().put(RedisKey.HASH_CUSTOMER_VIP_REBATE,record.getCustomerId(),new BigDecimal("0.2"));
+        }else{
+            redisTemplate.opsForHash().delete(RedisKey.HASH_CUSTOMER_VIP_REBATE,record.getCustomerId()); 
+        }
+        return i;
     }
 
     /**
@@ -57,7 +67,7 @@ public class CustomerVipRecordServiceImpl implements CustomerVipRecordService {
     /**
     *
     */
-    @Transactional
+    
     public int updateByPrimaryKeySelective(CustomerVipRecord record) {
         return customerVipRecordDao.updateByPrimaryKeySelective(record);
     }
@@ -65,7 +75,7 @@ public class CustomerVipRecordServiceImpl implements CustomerVipRecordService {
     /**
     *
     */
-    @Transactional
+    
     public int updateByPrimaryKey(CustomerVipRecord record) {
         return customerVipRecordDao.updateByPrimaryKey(record);
     }
