@@ -5,6 +5,7 @@ import com.upedge.common.constant.Constant;
 import com.upedge.common.constant.OrderType;
 import com.upedge.common.constant.ResultCode;
 import com.upedge.common.constant.key.RedisKey;
+import com.upedge.common.enums.TransactionConstant;
 import com.upedge.common.enums.TransactionType;
 import com.upedge.common.exception.CustomerException;
 import com.upedge.common.model.account.AccountOrderRefundedRequest;
@@ -610,22 +611,33 @@ public class AccountServiceImpl implements AccountService {
         //支付流水列表
         //交易类型 transaction_type  支付/扣款 = 0，退款/收款 = 1，还款 = 2
         //支付资金流水
-//        AccountLog accountLog= accountLogDao.selectPayedAccountLogByTransactionId(request.getOrderId(), transactionTypePay);
-//        if(accountLog==null){
-//            return new BaseResponse(ResultCode.FAIL_CODE, "流水异常!");
-//        }
+        AccountLog accountLog= accountLogDao.selectPayedAccountLogByTransactionId(request.getOrderId(), TransactionConstant.TransactionType.PAY_CUT_PAYMENT.getCode());
+        if(accountLog==null){
+            return new BaseResponse(ResultCode.FAIL_CODE, "流水异常!");
+        }
 
         //获取支付流水返点
-//        BigDecimal benefitsAmountFlow = accountLog.getRebate() == null ? BigDecimal.ZERO : accountLog.getRebate().abs();
-//
-////        //获取支付流水金额
-//        BigDecimal amountFlow = accountLog.getBalance() == null ? BigDecimal.ZERO : accountLog.getBalance().abs();
-////        //获取支付流水信用额度
-//        BigDecimal creditFlow=account.getCredit()==null?BigDecimal.ZERO:account.getCredit().abs();
-//        if(refundAmount.compareTo(amountFlow.add(benefitsAmountFlow).add(creditFlow))>0){
-//            return new BaseResponse(ResultCode.FAIL_CODE, "申请退款金额，不能大于流水总金额!!");
-//        }
+        BigDecimal payRebate = accountLog.getRebate() == null ? BigDecimal.ZERO : accountLog.getRebate().abs();
+        //获取支付流水金额
+        BigDecimal payBalance = accountLog.getBalance() == null ? BigDecimal.ZERO : accountLog.getBalance().abs();
 
+        if(refundAmount.compareTo(payBalance.add(payRebate))>0){
+            return new BaseResponse(ResultCode.FAIL_CODE, "申请退款金额，不能大于流水总金额!!");
+        }
+        //退款返点
+        BigDecimal refundRebate = BigDecimal.ZERO;
+        //退款余额
+        BigDecimal refundBalance = BigDecimal.ZERO;
+        if (payRebate.compareTo(BigDecimal.ZERO) > 0){
+            if (payRebate.compareTo(refundAmount) > 0){
+                refundRebate = refundAmount;
+            }else {
+                refundRebate = payRebate;
+                refundBalance = refundAmount.subtract(payRebate);
+            }
+        }else {
+            refundBalance = refundAmount;
+        }
 
         //计算退款累计金额
 //        List<RefundRecord> refundRecordList=new ArrayList<>();
@@ -634,10 +646,9 @@ public class AccountServiceImpl implements AccountService {
 
         log.info("id:{},customerId:{},用户当前数据:余额{},返点{},已用额度{},额度上限{}", account.getId(), account.getCustomerId(), account.getBalance(), account.getRebate(), account.getCredit(), account.getCreditLimit());
 
-        accountMapper.addBalanceAndBenefits(account.getId(), refundAmount, BigDecimal.ZERO);
+        accountMapper.addBalanceAndBenefits(account.getId(), refundBalance, refundRebate);
 
-        log.debug("实际退款余额:{},实际退款返点:{}", refundAmount, BigDecimal.ZERO);
-
+        log.debug("实际退款余额:{},实际退款返点:{}", refundBalance, refundRebate);
         //增加退款流水
         AccountLog refundFlow = new AccountLog();
         refundFlow.setAccountId(account.getId());
@@ -649,25 +660,25 @@ public class AccountServiceImpl implements AccountService {
         refundFlow.setOrderType(orderType);
         //账户 = 0，paypal = 1，payoneer = 2，佣金 = 3
         refundFlow.setPayMethod(0);
-        refundFlow.setBalance(refundAmount);
-        refundFlow.setRebate(BigDecimal.ZERO);
+        refundFlow.setBalance(refundBalance);
+        refundFlow.setRebate(refundRebate);
         refundFlow.setCredit(BigDecimal.ZERO);
         refundFlow.setCreateTime(new Date());
         accountLogDao.insert(refundFlow);
 
         //增加退款充值
-        RechargeLog rechargeLog=new RechargeLog();
-        rechargeLog.setAccountId(account.getId());
-        rechargeLog.setRelateId(request.getRefundId());
-        rechargeLog.setAmount(refundAmount);
-        rechargeLog.setRebate(BigDecimal.ZERO);
-        rechargeLog.setPayed(BigDecimal.ZERO);
-        rechargeLog.setRechargeStatus(0);
-        //0:电汇 1:paypal充值 2:payoneer充值，3=订单支付充值 4.退款充值
-        rechargeLog.setRechargeType(4);
-        rechargeLog.setCreateTime(new Date());
-        rechargeLog.setUpdateTime(new Date());
-        rechargeLogMapper.insert(rechargeLog);
+//        RechargeLog rechargeLog=new RechargeLog();
+//        rechargeLog.setAccountId(account.getId());
+//        rechargeLog.setRelateId(request.getRefundId());
+//        rechargeLog.setAmount(refundAmount);
+//        rechargeLog.setRebate(BigDecimal.ZERO);
+//        rechargeLog.setPayed(BigDecimal.ZERO);
+//        rechargeLog.setRechargeStatus(0);
+//        //0:电汇 1:paypal充值 2:payoneer充值，3=订单支付充值 4.退款充值
+//        rechargeLog.setRechargeType(4);
+//        rechargeLog.setCreateTime(new Date());
+//        rechargeLog.setUpdateTime(new Date());
+//        rechargeLogMapper.insert(rechargeLog);
 //        refundRecordDao.insertByBatch(refundRecordList);
 
         return new BaseResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS);
