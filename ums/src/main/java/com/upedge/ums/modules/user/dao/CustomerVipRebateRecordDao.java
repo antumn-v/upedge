@@ -10,6 +10,8 @@ import java.util.List;
  */
 public interface CustomerVipRebateRecordDao{
 
+    CustomerVipRebateRecord selectByOrderId(Long orderId);
+
     CustomerVipRebateRecord selectByPrimaryKey(CustomerVipRebateRecord record);
 
     int deleteByPrimaryKey(CustomerVipRebateRecord record);

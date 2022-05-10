@@ -30,6 +30,9 @@ import javax.validation.Valid;
 @FeignClient(name = ServiceNameConstants.USER_SERVICE,fallbackFactory = UmsFeignClientFallbackFactory.class,decode404 = true)
 public interface UmsFeignClient {
 
+    @RequestMapping(value="/customerVipRebateRecord/add", method=RequestMethod.POST)
+    public BaseResponse customerAddVipRebate(@RequestBody @Valid CustomerVipAddRebateRequest request);
+
     @PostMapping("/affiliate/addCommissionRecord")
     public BaseResponse addAffiliateCommissionRecord(@RequestBody@Valid CommissionRecordVo commissionRecordVo);
 

@@ -53,7 +53,7 @@
                `name`,
                a.customer_id,
                balance,
-               affilate_rebate,
+               affiliate_rebate,
                vip_rebate,
                credit,
                credit_limit,

@@ -1,0 +1,228 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.upedge.ums.modules.user.dao.CustomerVipRebateRecordDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.upedge.ums.modules.user.entity.CustomerVipRebateRecord" id="BaseResultMap">
+        <result property="id" column="id"/>
+        <result property="customerId" column="customer_id"/>
+        <result property="accountId" column="account_id"/>
+        <result property="orderId" column="order_id"/>
+        <result property="rebate" column="rebate"/>
+        <result property="rebateType" column="rebate_type"/>
+        <result property="createTime" column="create_time"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        `id`,`customer_id`,`account_id`,`order_id`,`rebate`,`rebate_type`,`create_time`
+    </sql>
+
+    <select id="selectByPrimaryKey" parameterType="com.upedge.ums.modules.user.entity.CustomerVipRebateRecord" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from customer_vip_rebate_record
+        where id = #{id}
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="com.upedge.ums.modules.user.entity.CustomerVipRebateRecord">
+        delete from customer_vip_rebate_record
+        where id = #{id}
+    </delete>
+
+    <update id="updateByPrimaryKeySelective" parameterType="com.upedge.ums.modules.user.entity.CustomerVipRebateRecord">
+        update customer_vip_rebate_record
+        <set>
+            <if test="customerId != null">
+                customer_id = #{customerId},
+            </if>
+            <if test="accountId != null">
+                account_id = #{accountId},
+            </if>
+            <if test="orderId != null">
+                order_id = #{orderId},
+            </if>
+            <if test="rebate != null">
+                rebate = #{rebate},
+            </if>
+            <if test="rebateType != null">
+                rebate_type = #{rebateType},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <update id="updateByPrimaryKey" parameterType="com.upedge.ums.modules.user.entity.CustomerVipRebateRecord">
+        update customer_vip_rebate_record
+        <set>
+        id = #{id},
+        customer_id = #{customerId},
+        account_id = #{accountId},
+        order_id = #{orderId},
+        rebate = #{rebate},
+        rebate_type = #{rebateType},
+        create_time = #{createTime},
+        </set>
+        where id = #{id}
+    </update>
+
+    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.upedge.ums.modules.user.entity.CustomerVipRebateRecord" useGeneratedKeys="true">
+        insert into customer_vip_rebate_record
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            id,
+            customer_id,
+            account_id,
+            order_id,
+            rebate,
+            rebate_type,
+            create_time
+        </trim>
+        values (
+        #{id},
+        #{customerId},
+        #{accountId},
+        #{orderId},
+        #{rebate},
+        #{rebateType},
+        #{createTime}
+        )
+    </insert>
+
+    <insert id="insertSelective"  keyColumn="id" keyProperty="id"  parameterType="com.upedge.ums.modules.user.entity.CustomerVipRebateRecord" useGeneratedKeys="true">
+        insert into customer_vip_rebate_record
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null" >
+              id
+            </if>
+            <if test="customerId != null" >
+              customer_id
+            </if>
+            <if test="accountId != null" >
+              account_id
+            </if>
+            <if test="orderId != null" >
+              order_id
+            </if>
+            <if test="rebate != null" >
+              rebate
+            </if>
+            <if test="rebateType != null" >
+              rebate_type
+            </if>
+            <if test="createTime != null" >
+              create_time
+            </if>
+
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null" >
+                #{id}
+            </if>
+            <if test="customerId != null" >
+                #{customerId}
+            </if>
+            <if test="accountId != null" >
+                #{accountId}
+            </if>
+            <if test="orderId != null" >
+                #{orderId}
+            </if>
+            <if test="rebate != null" >
+                #{rebate}
+            </if>
+            <if test="rebateType != null" >
+                #{rebateType}
+            </if>
+            <if test="createTime != null" >
+                #{createTime}
+            </if>
+
+        </trim>
+    </insert>
+
+    <insert id="insertByBatch" parameterType="java.util.List">
+        insert into customer_vip_rebate_record
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+           id,
+           customer_id,
+           account_id,
+           order_id,
+           rebate,
+           rebate_type,
+           create_time
+        </trim>
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+               #{item.id},
+               #{item.customerId},
+               #{item.accountId},
+               #{item.orderId},
+               #{item.rebate},
+               #{item.rebateType},
+               #{item.createTime}
+            </trim>
+        </foreach>
+    </insert>
+
+    <sql id="Query_Condition">
+        <if test="t != null">
+            where
+            <trim prefix=" " suffix=" " suffixOverrides=" and ">
+                1 = 1 and
+                    <if test="t.id != null">
+                        id = #{t.id} and
+                    </if>
+                    <if test="t.customerId != null">
+                        customer_id = #{t.customerId} and
+                    </if>
+                    <if test="t.accountId != null">
+                        account_id = #{t.accountId} and
+                    </if>
+                    <if test="t.orderId != null">
+                        order_id = #{t.orderId} and
+                    </if>
+                    <if test="t.rebate != null">
+                        rebate = #{t.rebate} and
+                    </if>
+                    <if test="t.rebateType != null">
+                        rebate_type = #{t.rebateType} and
+                    </if>
+                    <if test="t.createTime != null">
+                        create_time = #{t.createTime} and
+                    </if>
+            </trim>
+        </if>
+    </sql>
+
+    <select id="select" parameterType="com.upedge.common.base.Page" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from customer_vip_rebate_record
+        <include refid="Query_Condition"/>
+        <if test="orderBy != null">
+            order by ${orderBy}
+        </if>
+        <if test="pageNum != null and pageSize != null">
+            limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+        </if>
+    </select>
+
+    <select id="count" parameterType="com.upedge.common.base.Page" resultType="java.lang.Long">
+        select
+        count(1)
+        from customer_vip_rebate_record
+        <include refid="Query_Condition"/>
+    </select>
+
+    <select id="selectByOrderId" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from customer_vip_rebate_record
+        where order_id = #{orderId}
+        limit 1
+    </select>
+</mapper>

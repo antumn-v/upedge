@@ -16,6 +16,7 @@ import com.upedge.common.model.mq.ChangeManagerVo;
 import com.upedge.common.model.order.PaymentDetail;
 import com.upedge.common.model.order.TransactionDetail;
 import com.upedge.common.model.ship.vo.ShippingMethodRedis;
+import com.upedge.common.model.user.request.CustomerVipAddRebateRequest;
 import com.upedge.common.model.user.vo.AffiliateVo;
 import com.upedge.common.model.user.vo.CommissionRecordVo;
 import com.upedge.common.model.user.vo.CustomerIossVo;
@@ -621,7 +622,7 @@ public class OrderCommonServiceImpl implements OrderCommonService {
                                 orderTracking.setCreateTime(new Date());
                                 //标记订单为发货
                                 orderTrackingService.insert(orderTracking);
-                                addAffiliateCommission(id,order.getCustomerId());
+                                addCustomerCommission(id,order.getCustomerId());
 //                                sendMqMessage(new Message(RocketMqConfig.TOPIC_ORDER_FULFILLMENT,"",UUID.randomUUID().toString(), JSONObject.toJSONBytes(id)));
                             } else {
                                 orderTrackingService.updateOrderTracking(orderTracking);
@@ -650,6 +651,24 @@ public class OrderCommonServiceImpl implements OrderCommonService {
             }
         }
         return false;
+    }
+
+
+    public void addCustomerCommission(Long orderId,Long customerId){
+
+        addAffiliateCommission(orderId,customerId);
+
+        addVipRebate(orderId,customerId);
+    }
+
+    public void addVipRebate(Long orderId,Long customerId){
+        boolean b = redisTemplate.opsForHash().hasKey(RedisKey.HASH_CUSTOMER_VIP_REBATE,customerId);
+        if (b){
+            CustomerVipAddRebateRequest request = new CustomerVipAddRebateRequest();
+            request.setOrderId(orderId);
+            request.setCustomerId(customerId);
+            umsFeignClient.customerAddVipRebate(request);
+        }
     }
 
     public void addAffiliateCommission(Long orderId,Long customerId){

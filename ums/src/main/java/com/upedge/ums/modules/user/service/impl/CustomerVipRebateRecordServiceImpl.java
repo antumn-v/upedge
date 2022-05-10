@@ -63,6 +63,10 @@ public class CustomerVipRebateRecordServiceImpl implements CustomerVipRebateReco
         if (rebate == null){
             return;
         }
+        CustomerVipRebateRecord record = customerVipRebateRecordDao.selectByOrderId(orderId);
+        if (null != record){
+            return;
+        }
         Account account = accountService.selectCustomerDefaultAccount(customerId);
         CustomerVipRebateRecord customerVipRebateRecord = new CustomerVipRebateRecord(customerId, account.getId(),orderId,rebate,1,new Date());
         insert(customerVipRebateRecord);
