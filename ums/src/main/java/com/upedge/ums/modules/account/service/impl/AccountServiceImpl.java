@@ -481,12 +481,11 @@ public class AccountServiceImpl implements AccountService {
                 return false;
             }
         }
-        Account account = accountUserMapper.selectAccountByUser(paymentDetail.getUserId());
         PaymentLog paymentLog = paymentLogDao.selectByPrimaryKey(paymentDetail.getPaymentId());
-
         if (null == paymentLog) {
             return false;
         }
+        Account account = selectById(paymentLog.getAccountId());
         //------------记录本次支付消耗的余额返点信用额度信息------------
         BigDecimal balance = paymentLog.getAmount();
 
@@ -610,15 +609,14 @@ public class AccountServiceImpl implements AccountService {
 
         //支付流水列表
         //交易类型 transaction_type  支付/扣款 = 0，退款/收款 = 1，还款 = 2
-        Integer transactionTypePay = 0;
         //支付资金流水
-        AccountLog accountLog= accountLogDao.selectPayedAccountLogByTransactionId(request.getOrderId(), transactionTypePay);
-        if(accountLog==null){
-            return new BaseResponse(ResultCode.FAIL_CODE, "流水异常!");
-        }
+//        AccountLog accountLog= accountLogDao.selectPayedAccountLogByTransactionId(request.getOrderId(), transactionTypePay);
+//        if(accountLog==null){
+//            return new BaseResponse(ResultCode.FAIL_CODE, "流水异常!");
+//        }
 
         //获取支付流水返点
-        BigDecimal benefitsAmountFlow = accountLog.getRebate() == null ? BigDecimal.ZERO : accountLog.getRebate().abs();
+//        BigDecimal benefitsAmountFlow = accountLog.getRebate() == null ? BigDecimal.ZERO : accountLog.getRebate().abs();
 //
 ////        //获取支付流水金额
 //        BigDecimal amountFlow = accountLog.getBalance() == null ? BigDecimal.ZERO : accountLog.getBalance().abs();
@@ -628,152 +626,41 @@ public class AccountServiceImpl implements AccountService {
 //            return new BaseResponse(ResultCode.FAIL_CODE, "申请退款金额，不能大于流水总金额!!");
 //        }
 
-        //支付记录列表
-        List<RechargeRecord> recordList = rechargeRecordDao.listRechargeRecordRefundSeqByOrderId(request.getOrderId(), request.getOrderType());
-        if(recordList==null||recordList.size()==0){
-            return new BaseResponse(ResultCode.FAIL_CODE, "RechargeRecord异常!");
-        }
-        BigDecimal amount= BigDecimal.ZERO;
-        BigDecimal benefitsAmount= BigDecimal.ZERO;
+
         //计算退款累计金额
-        BigDecimal tempAmount= BigDecimal.ZERO;
-        List<RefundRecord> refundRecordList=new ArrayList<>();
-        int seq=1;
-        for(RechargeRecord rechargeRecord:recordList){
-            //0=balance 1=rebate 2=credit
-            BigDecimal amountRecord=rechargeRecord.getAmount();
-            //退款金额已经足够
-            if(tempAmount.compareTo(refundAmount)>=0){
-               break;
-            }
-            //该笔记录只用退款一部分
-            if(tempAmount.add(amountRecord).compareTo(refundAmount)>0){
-                amountRecord=refundAmount.subtract(tempAmount);
-            }
-//            //余额或信用额度支付
-            if(rechargeRecord.getSource()==2
-                    ||rechargeRecord.getSource()==0){
-                amount=amount.add(amountRecord);
-            }
-//            //返点支付
-            if(rechargeRecord.getSource()==1){
-                benefitsAmount=benefitsAmount.add(amountRecord);
-            }
-            tempAmount=tempAmount.add(amountRecord);
-
-            RefundRecord refundRecord=new RefundRecord();
-            refundRecord.setRechargeRecordId(rechargeRecord.getId().longValue());
-            refundRecord.setCustomerId(rechargeRecord.getCustomerId());
-            refundRecord.setOrderId(rechargeRecord.getOrderId());
-            refundRecord.setOrderType(rechargeRecord.getOrderType());
-            refundRecord.setAmount(amountRecord);
-            //0=balance 1=rebate 2=credit
-            refundRecord.setSource(rechargeRecord.getSource()==1?1:0);
-            refundRecord.setCreateTime(new Date());
-            refundRecord.setSeq(seq);
-            refundRecordList.add(refundRecord);
-            seq++;
-        }
-
-        if(amount.add(benefitsAmount).compareTo(refundAmount)!=0){
-            amount = refundAmount.subtract(benefitsAmount);
-//            return new BaseResponse(ResultCode.FAIL_CODE, "RechargeRecord退款计算异常!");
-        }
+//        List<RefundRecord> refundRecordList=new ArrayList<>();
 
         log.info("订单id:{},订单类型:{},申请退款金额:{}", request.getOrderId(), request.getOrderType(), request.getRefundAmount());
 
         log.info("id:{},customerId:{},用户当前数据:余额{},返点{},已用额度{},额度上限{}", account.getId(), account.getCustomerId(), account.getBalance(), account.getRebate(), account.getCredit(), account.getCreditLimit());
 
-        BigDecimal newAmount = amount;//实际要加的余额
-        BigDecimal newBenefitsAmount = benefitsAmount;//实际要加的返点
-        //如果有信用额度要还 已用信用额度大于0
-        if (account.getCredit() != null && account.getCredit().compareTo(BigDecimal.ZERO) > 0) {
+        accountMapper.addBalanceAndBenefits(account.getId(), refundAmount, BigDecimal.ZERO);
 
-            BigDecimal repaymentAmount = BigDecimal.ZERO;//要减去的信用额度 还款金额
-            //金额>=信用额度
-            if(amount.compareTo(account.getCredit())>=0){
-                newAmount=amount.subtract(repaymentAmount);
-                repaymentAmount=account.getCredit();
-            }else {
-                newAmount= BigDecimal.ZERO;
-                repaymentAmount=amount;
-            }
+        log.debug("实际退款余额:{},实际退款返点:{}", refundAmount, BigDecimal.ZERO);
 
-            //修改已用信用额度 还款
-            //还款信用额度
-            Integer res = accountMapper.repaymentCredit(account.getId(), repaymentAmount);
-            if (res == null) {
-                throw new CustomerException(ResultCode.FAIL_CODE, "还款信用额度失败!");
-            }
-            //退款
-            accountMapper.addBalanceAndBenefits(account.getId(), newAmount, newBenefitsAmount);
-
-            //增加账户退款流水
-            AccountLog refundFlow = new AccountLog();
-            refundFlow.setAccountId(account.getId());
-            refundFlow.setCustomerId(customerId);
-            //退款流水关联id为订单id
-            refundFlow.setTransactionId(request.getOrderId());
-            //transaction_type 支付/扣款 = 0，退款/收款 = 1，还款 = 2
-            refundFlow.setTransactionType(1);
-            refundFlow.setOrderType(orderType);
-            //账户 = 0，paypal = 1，payoneer = 2，佣金 = 3
-            refundFlow.setPayMethod(0);
-            refundFlow.setBalance(amount);
-            refundFlow.setRebate(benefitsAmount);
-            refundFlow.setCredit(BigDecimal.ZERO);
-            refundFlow.setCreateTime(new Date());
-            accountLogDao.insert(refundFlow);
-            //增加还款流水
-            AccountLog repaymentFlow = new AccountLog();
-            refundFlow.setAccountId(account.getId());
-            refundFlow.setCustomerId(customerId);
-            //退款流水关联id为新的订单id
-            refundFlow.setTransactionId(request.getOrderId());
-            //transaction_type 支付/扣款 = 0，退款/收款 = 1，还款 = 2
-            refundFlow.setTransactionType(2);
-            refundFlow.setOrderType(orderType);
-            //账户 = 0，paypal = 1，payoneer = 2，佣金 = 3
-            refundFlow.setPayMethod(0);
-            //还款金额 流水为负的
-            repaymentFlow.setBalance(BigDecimal.ZERO.subtract(repaymentAmount));
-            //用返点还信用额度
-            repaymentFlow.setRebate(BigDecimal.ZERO);
-            repaymentFlow.setCredit(BigDecimal.ZERO);
-            repaymentFlow.setCreateTime(new Date());
-            accountLogDao.insert(repaymentFlow);
-
-        } else {
-
-            accountMapper.addBalanceAndBenefits(account.getId(), amount, benefitsAmount);
-
-            log.debug("实际退款余额:{},实际退款返点:{}", amount, benefitsAmount);
-
-            //增加退款流水
-            AccountLog refundFlow = new AccountLog();
-            refundFlow.setAccountId(account.getId());
-            refundFlow.setCustomerId(customerId);
-            //退款流水关联id为订单id
-            refundFlow.setTransactionId(request.getOrderId());
-            //transaction_type 支付/扣款 = 0，退款/收款 = 1，还款 = 2
-            refundFlow.setTransactionType(1);
-            refundFlow.setOrderType(orderType);
-            //账户 = 0，paypal = 1，payoneer = 2，佣金 = 3
-            refundFlow.setPayMethod(0);
-            refundFlow.setBalance(amount);
-            refundFlow.setRebate(benefitsAmount);
-            refundFlow.setCredit(BigDecimal.ZERO);
-            refundFlow.setCreateTime(new Date());
-            accountLogDao.insert(refundFlow);
-
-        }
+        //增加退款流水
+        AccountLog refundFlow = new AccountLog();
+        refundFlow.setAccountId(account.getId());
+        refundFlow.setCustomerId(customerId);
+        //退款流水关联id为订单id
+        refundFlow.setTransactionId(request.getOrderId());
+        //transaction_type 支付/扣款 = 0，退款/收款 = 1，还款 = 2
+        refundFlow.setTransactionType(1);
+        refundFlow.setOrderType(orderType);
+        //账户 = 0，paypal = 1，payoneer = 2，佣金 = 3
+        refundFlow.setPayMethod(0);
+        refundFlow.setBalance(refundAmount);
+        refundFlow.setRebate(BigDecimal.ZERO);
+        refundFlow.setCredit(BigDecimal.ZERO);
+        refundFlow.setCreateTime(new Date());
+        accountLogDao.insert(refundFlow);
 
         //增加退款充值
         RechargeLog rechargeLog=new RechargeLog();
         rechargeLog.setAccountId(account.getId());
         rechargeLog.setRelateId(request.getRefundId());
-        rechargeLog.setAmount(newAmount);
-        rechargeLog.setRebate(newBenefitsAmount);
+        rechargeLog.setAmount(refundAmount);
+        rechargeLog.setRebate(BigDecimal.ZERO);
         rechargeLog.setPayed(BigDecimal.ZERO);
         rechargeLog.setRechargeStatus(0);
         //0:电汇 1:paypal充值 2:payoneer充值，3=订单支付充值 4.退款充值
@@ -781,9 +668,7 @@ public class AccountServiceImpl implements AccountService {
         rechargeLog.setCreateTime(new Date());
         rechargeLog.setUpdateTime(new Date());
         rechargeLogMapper.insert(rechargeLog);
-        refundRecordDao.insertByBatch(refundRecordList);
-
-        subtractCommission(customerId,request.getOrderId(),request.getPayAmount(),benefitsAmountFlow,refundAmount,orderType);
+//        refundRecordDao.insertByBatch(refundRecordList);
 
         return new BaseResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS);
     }

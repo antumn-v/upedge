@@ -37,6 +37,8 @@ import java.util.Set;
  */
 public interface OrderDao {
 
+    List<Order> selectAllPaymentId();
+
     int updateWarehouseByMethodId(@Param("methodId") Long methodId, @Param("warehouseCode") String warehouseCode);
 
     List<Long> selectUploadSaiheFailedIds();

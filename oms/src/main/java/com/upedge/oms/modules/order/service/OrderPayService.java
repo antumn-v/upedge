@@ -13,6 +13,8 @@ import java.util.concurrent.ExecutionException;
 
 public interface OrderPayService {
 
+    void checkOrderAccountLog();
+
     List<AppOrderVo> selectPayOrderListByPaymentId(Long paymentId);
 
     boolean orderShipPriceCheck(List<AppOrderVo> orders);

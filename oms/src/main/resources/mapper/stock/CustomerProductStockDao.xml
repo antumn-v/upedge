@@ -473,6 +473,7 @@
         select warehouse_code,variant_id,sum(stock) as stock
             from customer_product_stock
         where customer_id = #{customerId}
+            and stock > '0'
         group  by warehouse_code,variant_id
     </select>
 

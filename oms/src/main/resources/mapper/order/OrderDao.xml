@@ -2272,4 +2272,10 @@
         where ship_method_id = #{methodId}
         and pay_state != '1';
     </update>
+
+    <select id="selectAllPaymentId" resultMap="BaseResultMap">
+        select DISTINCT payment_id,customer_id,pay_method
+        from `order`
+        where pay_state = '1'
+    </select>
 </mapper>

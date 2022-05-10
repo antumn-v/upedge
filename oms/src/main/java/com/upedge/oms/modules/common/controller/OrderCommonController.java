@@ -1,15 +1,14 @@
 package com.upedge.oms.modules.common.controller;
 
 
-import com.alibaba.fastjson.JSONObject;
 import com.upedge.common.base.BaseResponse;
 import com.upedge.common.exception.CustomerException;
 import com.upedge.common.model.order.vo.UplodaSaiheOnMqVo;
-import com.upedge.common.model.pms.quote.CustomerProductQuoteVo;
 import com.upedge.oms.modules.common.service.MqOnSaiheService;
 import com.upedge.oms.modules.common.service.OrderCommonService;
 import com.upedge.oms.modules.order.entity.Order;
 import com.upedge.oms.modules.order.service.OrderItemService;
+import com.upedge.oms.modules.order.service.OrderPayService;
 import com.upedge.oms.modules.order.service.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -32,16 +31,12 @@ public class OrderCommonController {
     @Autowired
     OrderService orderService;
 
+    @Autowired
+    OrderPayService orderPayService;
 
     @PostMapping("/jsonTest")
-    public BaseResponse jsonTest(@RequestBody String body){
-        JSONObject jsonObject = JSONObject.parseObject(body);
-        CustomerProductQuoteVo customerProductQuoteVo = jsonObject.toJavaObject(CustomerProductQuoteVo.class);
-        try {
-            orderItemService.updateSplitVariantItemQuoteDetail(customerProductQuoteVo);
-        } catch (CustomerException e) {
-            e.printStackTrace();
-        }
+    public BaseResponse jsonTest(){
+        orderPayService.checkOrderAccountLog();
         return BaseResponse.success();
     }
 

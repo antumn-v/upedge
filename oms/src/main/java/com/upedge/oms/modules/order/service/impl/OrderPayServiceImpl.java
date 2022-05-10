@@ -59,7 +59,6 @@ import org.apache.rocketmq.client.producer.DefaultMQProducer;
 import org.apache.rocketmq.common.message.Message;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -356,6 +355,7 @@ public class OrderPayServiceImpl implements OrderPayService {
     public void refreshOrderStockDischarge(Long customerId, Long paymentId) {
         List<CustomerWarehouseVariantStockVo> customerWarehouseVariantStockVos = customerProductStockDao.selectCustomerWarehouseVariantStock(customerId);
         if (ListUtils.isEmpty(customerWarehouseVariantStockVos)){
+            orderItemDao.initDischargeQuantityByPaymentId(paymentId);
             return;
         }
         //需修改订单产品抵扣数量的集合
@@ -371,6 +371,10 @@ public class OrderPayServiceImpl implements OrderPayService {
             Integer stock = variantWarehouseStockMap.get(key);
             if (stock == null
             || stock == 0){
+                if (orderItem.getDischargeQuantity() != 0){
+                    orderItem.setDischargeQuantity(0);
+                    itemDischargeMap.put(orderItem.getId(),0);
+                }
                 continue;
             }
             Integer dischargeQuantity = 0;
@@ -390,6 +394,14 @@ public class OrderPayServiceImpl implements OrderPayService {
         }
         if (MapUtils.isNotEmpty(itemDischargeMap)){
             orderItemDao.updateDischargeQuantityByMap(itemDischargeMap);
+        }
+    }
+
+    @Override
+    public void checkOrderAccountLog() {
+        List<Order> orders = orderDao.selectAllPaymentId();
+        for (Order order : orders) {
+            sendSaveTransactionRecordMessage(order.getPaymentId(),order.getCustomerId(),null,order.getPayMethod());
         }
     }
 
@@ -668,6 +680,9 @@ public class OrderPayServiceImpl implements OrderPayService {
         if (ListUtils.isNotEmpty(dischargeQuantityVos)) {
             customerProductStockService.reduceFromLockStock(customerId, dischargeQuantityVos);
         }
+
+        payOrderAsync(session.getId(),session.getCustomerId(),paymentId,0);
+
         CustomerOrderDailyCountUpdateRequest customerOrderDailyCountUpdateRequest = new CustomerOrderDailyCountUpdateRequest();
         customerOrderDailyCountUpdateRequest.setCustomerId(customerId);
         customerOrderDailyCountUpdateRequest.setOrderType(TransactionConstant.OrderType.NORMAL_ORDER.getCode());
@@ -680,13 +695,12 @@ public class OrderPayServiceImpl implements OrderPayService {
         return "success";
     }
 
-    @Async
     public void payOrderAsync(Long userId, Long customerId, Long paymentId, Integer payMethod) {
         sendSaveTransactionRecordMessage(paymentId, customerId, userId, payMethod);
         // 订单上传赛盒 放在 sendSaveTransactionRecordMessage的消費端
-        mqOnSaiheService.uploadPaymentIdOnMq(paymentId, OrderType.NORMAL);
+//        mqOnSaiheService.uploadPaymentIdOnMq(paymentId, OrderType.NORMAL);
         customerStockRecordService.saveDischargeStockRecordByPaymentId(customerId, paymentId, OrderType.NORMAL);
-        customerProductSalesLogService.saveProductSaleRecord(paymentId, OrderType.NORMAL, customerId, new Date());
+//        customerProductSalesLogService.saveProductSaleRecord(paymentId, OrderType.NORMAL, customerId, new Date());
 //        List<AppOrderVo> orderVos = orderDao.selectPayOrderListByPaymentId(paymentId);
 //        if (ListUtils.isNotEmpty(orderVos)) {
 //            for (AppOrderVo orderVo : orderVos) {

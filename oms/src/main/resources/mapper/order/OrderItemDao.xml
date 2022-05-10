@@ -1160,4 +1160,13 @@
                 #{storeVariantId}
             </foreach>
     </select>
+
+    <update id="initDischargeQuantityByPaymentId">
+        update order_item oi
+            inner join `order` o
+        on oi.order_id = o.id
+        set oi.discharge_quantity = '0'
+        where o.payment_id = #{paymentId}
+        and o.pay_state = '0'
+    </update>
 </mapper>
