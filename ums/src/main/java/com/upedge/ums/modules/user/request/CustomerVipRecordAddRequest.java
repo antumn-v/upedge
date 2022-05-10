@@ -1,9 +1,10 @@
 package com.upedge.ums.modules.user.request;
 
-import com.upedge.common.base.Page;
+import com.upedge.common.model.user.vo.Session;
 import com.upedge.ums.modules.user.entity.CustomerVipRecord;
-import java.util.Date;
 import lombok.Data;
+
+import java.util.Date;
 /**
  * @author gx
  */
@@ -18,21 +19,14 @@ public class CustomerVipRecordAddRequest{
     * 1=授权  0=撤销
     */
     private Integer vipType;
-    /**
-    * 
-    */
-    private Date createTime;
-    /**
-    * 
-    */
-    private Long managerId;
 
-    public CustomerVipRecord toCustomerVipRecord(){
+
+    public CustomerVipRecord toCustomerVipRecord(Session session){
         CustomerVipRecord customerVipRecord=new CustomerVipRecord();
         customerVipRecord.setCustomerId(customerId);
         customerVipRecord.setVipType(vipType);
-        customerVipRecord.setCreateTime(createTime);
-        customerVipRecord.setManagerId(managerId);
+        customerVipRecord.setCreateTime(new Date());
+        customerVipRecord.setManagerId(session.getId());
         return customerVipRecord;
     }
 
