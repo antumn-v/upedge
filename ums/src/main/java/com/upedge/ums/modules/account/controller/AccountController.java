@@ -62,7 +62,7 @@ public class AccountController {
         if (null == account){
             return BaseResponse.failed();
         }
-        account.setBalance(account.getBalance().add(account.getRebate()));
+        account.setBalance(account.getBalance().add(account.getAffiliateRebate()).add(account.getVipRebate()));
         return BaseResponse.success(account);
     }
 

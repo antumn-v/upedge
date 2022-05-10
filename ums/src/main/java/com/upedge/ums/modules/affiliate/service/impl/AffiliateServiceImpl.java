@@ -190,7 +190,7 @@ public class AffiliateServiceImpl implements AffiliateService {
         }else {
             Account account = accountService.selectCustomerDefaultAccount(commissionRecordVo.getReferrerId());
             affiliateDao.updateRefereeCommission(commissionRecord.getRefereeId(),commissionRecord.getCommission());
-            accountService.addBalanceAndBenefits(account.getId(),BigDecimal.ZERO,commissionRecord.getCommission());
+            accountService.addAccountAffiliateRebate(account.getId(),commissionRecord.getCommission());
         }
     }
 
@@ -266,4 +266,6 @@ public class AffiliateServiceImpl implements AffiliateService {
     public List<Affiliate> allAffiliates() {
         return affiliateDao.allAffiliates();
     }
+
+
 }

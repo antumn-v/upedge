@@ -380,7 +380,7 @@ public class AccountServiceImpl implements AccountService {
 
         BigDecimal accountBalance = account.getBalance();
 
-        BigDecimal accountRebate = account.getRebate();
+        BigDecimal accountRebate = account.getAffiliateRebate();
 
         BigDecimal accountAmount = accountBalance.add(accountRebate).add(accountCredit);
 
@@ -644,7 +644,7 @@ public class AccountServiceImpl implements AccountService {
 
         log.info("订单id:{},订单类型:{},申请退款金额:{}", request.getOrderId(), request.getOrderType(), request.getRefundAmount());
 
-        log.info("id:{},customerId:{},用户当前数据:余额{},返点{},已用额度{},额度上限{}", account.getId(), account.getCustomerId(), account.getBalance(), account.getRebate(), account.getCredit(), account.getCreditLimit());
+        log.info("id:{},customerId:{},用户当前数据:余额{},返点{},已用额度{},额度上限{}", account.getId(), account.getCustomerId(), account.getBalance(), account.getAffiliateRebate(), account.getCredit(), account.getCreditLimit());
 
         accountMapper.addBalanceAndBenefits(account.getId(), refundBalance, refundRebate);
 
@@ -758,6 +758,26 @@ public class AccountServiceImpl implements AccountService {
                 affiliateCommissionRecordDao.insert(appRecord);
             }
         }
+    }
+
+    @Override
+    public int addAccountVipRebate(Long accountId, BigDecimal vipRebate) {
+        if (null == accountId
+                || null == vipRebate
+                || BigDecimal.ZERO == vipRebate){
+            return 0;
+        }
+        return accountMapper.addAccountVipRebate(accountId,vipRebate);
+    }
+
+    @Override
+    public int addAccountAffiliateRebate(Long accountId, BigDecimal affiliateRebate) {
+        if (null == accountId
+                || null == affiliateRebate
+                || BigDecimal.ZERO == affiliateRebate){
+            return 0;
+        }
+        return accountMapper.addAccountAffiliateRebate(accountId,affiliateRebate);
     }
 
 }

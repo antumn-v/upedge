@@ -7,4 +7,6 @@ public class RefereeMonthCommissionVo {
 
     private String createTime;
     private Double commission;
+
+    private long orderCount;
 }

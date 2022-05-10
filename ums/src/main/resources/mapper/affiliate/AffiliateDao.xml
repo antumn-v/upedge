@@ -22,7 +22,7 @@
 
     <select id="searchCommissionByReferee" resultType="com.upedge.ums.modules.affiliate.vo.RefereeCommissionVo">
         select concat(LEFT (c.cname, 1),'****',RIGHT (c.cname, 1)) as username,
-        aff.commission_amount as commission,aff.create_time as createTime
+        aff.commission_amount as commission,aff.create_time as createTime,aff.order_count
         from affiliate aff
         left join customer c
         on aff.referee_id = c.id

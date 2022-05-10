@@ -17,7 +17,9 @@ public class Account {
 
     private BigDecimal balance;
 
-    private BigDecimal rebate;
+    private BigDecimal affiliateRebate;
+
+    private BigDecimal vipRebate;
 
     private BigDecimal credit;
 

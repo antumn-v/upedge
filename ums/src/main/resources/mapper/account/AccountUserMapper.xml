@@ -21,11 +21,13 @@
         <result column="name" property="name" jdbcType="VARCHAR"/>
         <result column="customer_id" property="customerId" jdbcType="BIGINT"/>
         <result column="balance" property="balance" jdbcType="DECIMAL"/>
-        <result column="rebate" property="rebate" jdbcType="DECIMAL"/>
+        <result column="affiliate_rebate" property="affiliateRebate" jdbcType="DECIMAL"/>
+        <result column="vip_rebate" property="vipRebate" jdbcType="DECIMAL"/>
         <result column="credit" property="credit" jdbcType="DECIMAL"/>
         <result column="credit_limit" property="creditLimit" jdbcType="DECIMAL"/>
         <result column="commission" property="commission" jdbcType="DECIMAL"/>
         <result column="status" property="status" jdbcType="INTEGER"/>
+        <result column="is_default" property="isDefault"/>
     </resultMap>
 
     <sql id="UserColumn">
@@ -34,8 +36,7 @@
     </sql>
 
     <sql id="AccountColumn">
-        id
-                ,`name`, customer_id, balance, rebate, credit,credit_limit, commission,status
+        id,`name`, customer_id, balance, affiliate_rebate, credit,credit_limit, commission,status,is_default,vip_rebate
     </sql>
 
     <select id="selectUserByAccount" resultMap="User">
@@ -52,7 +53,8 @@
                `name`,
                a.customer_id,
                balance,
-               rebate,
+               affilate_rebate,
+               vip_rebate,
                credit,
                credit_limit,
                commission,

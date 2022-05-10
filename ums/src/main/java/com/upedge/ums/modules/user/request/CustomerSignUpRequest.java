@@ -193,7 +193,8 @@ public class CustomerSignUpRequest {
         account.setCustomerId(customer.getId());
         account.setBalance(new BigDecimal(0));
         account.setCredit(new BigDecimal(0));
-        account.setRebate(new BigDecimal(0));
+        account.setAffiliateRebate(new BigDecimal(0));
+        account.setVipRebate(BigDecimal.ZERO);
         return account;
     }
 

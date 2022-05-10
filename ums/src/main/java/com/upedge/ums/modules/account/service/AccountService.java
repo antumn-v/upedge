@@ -126,4 +126,8 @@ public interface AccountService {
      * @return
      */
     AccountLog selectAccountLogById(Long id);
+
+    int addAccountVipRebate(Long accountId, BigDecimal vipRebate);
+
+    int addAccountAffiliateRebate(Long accountId, BigDecimal affiliateRebate);
 }

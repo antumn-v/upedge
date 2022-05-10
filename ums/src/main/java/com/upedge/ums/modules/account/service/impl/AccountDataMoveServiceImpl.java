@@ -21,7 +21,7 @@ public class AccountDataMoveServiceImpl implements AccountDataMoveService {
     public void accountUpdateByAppUser(AppUser appUser, UserCommission userCommission) {
         Account account = new Account();
         account.setBalance(appUser.getBalance());
-        account.setRebate(appUser.getBenefitsMoney());
+        account.setAffiliateRebate(appUser.getBenefitsMoney());
         account.setCredit(appUser.getCredit());
         account.setCreditLimit(appUser.getCreditLimit());
         account.setCustomerId(appUser.getId());

@@ -17,6 +17,7 @@ public interface AccountMapper {
 
     /**
      * 客户默认账户，默认账户只有一个
+     *
      * @param customerId
      * @return
      */
@@ -32,6 +33,7 @@ public interface AccountMapper {
 
     /**
      * 分页查询账户列表
+     *
      * @param page
      * @return
      */
@@ -39,6 +41,7 @@ public interface AccountMapper {
 
     /**
      * 条件查询账户数量
+     *
      * @param page
      * @return
      */
@@ -46,6 +49,7 @@ public interface AccountMapper {
 
     /**
      * 获取账户可用余额
+     *
      * @param id
      * @return
      */
@@ -53,6 +57,7 @@ public interface AccountMapper {
 
     /**
      * 查询账户状态
+     *
      * @param id
      * @return
      */
@@ -60,6 +65,7 @@ public interface AccountMapper {
 
     /**
      * 更新账户信用额度
+     *
      * @param id
      * @param creditLimit
      * @return
@@ -69,19 +75,21 @@ public interface AccountMapper {
 
     /**
      * 增加账户余额
+     *
      * @param id
      * @param balance
-     * @param rebate
+     * @param affiliateRebate
      * @param credit
      * @return
      */
     int accountIncreaseBalance(@Param("id") Long id,
                                @Param("balance") BigDecimal balance,
-                               @Param("rebate") BigDecimal rebate,
+                               @Param("affiliateRebate") BigDecimal affiliateRebate,
                                @Param("credit") BigDecimal credit);
 
     /**
      * 减少账户余额
+     *
      * @param id
      * @param balance
      * @param rebate
@@ -90,7 +98,7 @@ public interface AccountMapper {
      */
     int accountReduceBalance(@Param("id") Long id,
                              @Param("balance") BigDecimal balance,
-                             @Param("rebate") BigDecimal rebate,
+                             @Param("affiliateRebate") BigDecimal affiliateRebate,
                              @Param("credit") BigDecimal credit);
 
     int accountRepaymentCredit(@Param("id") Long id,
@@ -138,5 +146,9 @@ public interface AccountMapper {
      * 开放信用额度
      */
     BigDecimal openCredit(String userManager);
+
+    int addAccountVipRebate(@Param("accountId") Long accountId, @Param("vipRebate") BigDecimal vipRebate);
+
+    int addAccountAffiliateRebate(@Param("accountId") Long accountId, @Param("affiliateRebate") BigDecimal affiliateRebate);
 
 }
