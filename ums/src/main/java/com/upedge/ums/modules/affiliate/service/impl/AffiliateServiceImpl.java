@@ -185,7 +185,7 @@ public class AffiliateServiceImpl implements AffiliateService {
 
         affiliateCommissionRecordDao.insert(commissionRecord);
 
-        if(1 != commissionRecord.getState()){
+        if(AffiliateCommissionRecord.RECEIVE_REBATE != commissionRecord.getState()){
 //            affiliateDao.updateRefereeCommission(commissionRecord.getRefereeId(),commissionRecord.getCommission().multiply(new BigDecimal("-1")));
         }else {
             Account account = accountService.selectCustomerDefaultAccount(commissionRecordVo.getReferrerId());

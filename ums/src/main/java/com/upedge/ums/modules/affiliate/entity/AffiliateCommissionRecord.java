@@ -11,6 +11,11 @@ import java.util.Date;
 @Data
 public class AffiliateCommissionRecord{
 
+	public static Integer RECEIVE_REBATE = 1;
+	public static Integer ORDER_PAY = 0;
+	public static Integer ORDER_REFUND = 2;
+
+
 	/**
 	 * 
 	 */
@@ -35,7 +40,7 @@ public class AffiliateCommissionRecord{
 	 */
     private BigDecimal commission;
 	/**
-	 * 退款=0，支付=1 现在提现=2 余额提现=3 批发退款=4
+	 * 付款=0，入账=1退款=2
 	 */
     private Integer state;
 	/**

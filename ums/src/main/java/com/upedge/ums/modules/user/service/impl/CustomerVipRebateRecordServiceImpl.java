@@ -77,7 +77,7 @@ public class CustomerVipRebateRecordServiceImpl implements CustomerVipRebateReco
             return;
         }
         Account account = accountService.selectCustomerDefaultAccount(customerId);
-        CustomerVipRebateRecord customerVipRebateRecord = new CustomerVipRebateRecord(customerId, account.getId(),orderId,rebate,1,new Date());
+        CustomerVipRebateRecord customerVipRebateRecord = new CustomerVipRebateRecord(customerId, account.getId(),orderId,rebate,CustomerVipRebateRecord.RECEIVE_REBATE,new Date());
         insert(customerVipRebateRecord);
         accountService.addAccountVipRebate(account.getId(), rebate);
     }

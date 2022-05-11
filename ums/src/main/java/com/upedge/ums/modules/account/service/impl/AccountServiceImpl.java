@@ -40,10 +40,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
 /**
  * @author 海桐
@@ -539,12 +536,12 @@ public class AccountServiceImpl implements AccountService {
                 balance = BigDecimal.ZERO;
                 affiliateRebate = BigDecimal.ZERO;
                 //会员返点使用记录
-                CustomerVipRebateRecord customerVipRebateRecord = new CustomerVipRebateRecord(account.getCustomerId(),account.getId(), detail.getOrderId(), transactionVipRebate,0,detail.getPayTime());
+                CustomerVipRebateRecord customerVipRebateRecord = new CustomerVipRebateRecord(account.getCustomerId(),account.getId(), detail.getOrderId(), transactionVipRebate,CustomerVipRebateRecord.ORDER_PAY,detail.getPayTime());
                 customerVipRebateRecords.add(customerVipRebateRecord);
             }
             //联盟佣金返点使用记录
             if (transactionAffiliateRebate.compareTo(BigDecimal.ZERO) > 0){
-                AffiliateCommissionRecord affiliateCommissionRecord = new AffiliateCommissionRecord(0L,account.getCustomerId(), detail.getOrderId(), OrderType.NORMAL,transactionAffiliateRebate,0,detail.getPayTime(),detail.getPayTime());
+                AffiliateCommissionRecord affiliateCommissionRecord = new AffiliateCommissionRecord(0L,account.getCustomerId(), detail.getOrderId(), OrderType.NORMAL,transactionAffiliateRebate,AffiliateCommissionRecord.ORDER_PAY,detail.getPayTime(),detail.getPayTime());
                 affiliateCommissionRecords.add(affiliateCommissionRecord);
             }
             //一个订单支付对应一条accountLog
@@ -582,9 +579,9 @@ public class AccountServiceImpl implements AccountService {
         }
         //校验订单类型
         Integer orderType = request.getOrderType();
-        if (!orderType.equals(OrderType.STOCK)
-                && !orderType.equals(OrderType.NORMAL)
-                && !orderType.equals(OrderType.WHOLESALE)) {
+        TransactionConstant.OrderType[] orderTypes = TransactionConstant.OrderType.values();
+        boolean b = Arrays.asList(orderTypes).contains(orderType);
+        if (!b) {
             return new BaseResponse(ResultCode.FAIL_CODE, "订单类型异常!");
         }
         //订单支付金额
@@ -597,10 +594,6 @@ public class AccountServiceImpl implements AccountService {
         //检验支付金额![](C:/Users/A/AppData/Local/Temp/WeChat Files/28a0aa39d4d4715b5b2f018c5d243d6.png)
         if (payAmount == null || payAmount.compareTo(BigDecimal.ZERO) <= 0) {
             return new BaseResponse(ResultCode.FAIL_CODE, "订单支付金额异常!");
-        }
-        //检查申请退款金额  不能大于支付总金额
-        if (refundAmount.compareTo(payAmount) > 0) {
-            return new BaseResponse(ResultCode.FAIL_CODE, "申请退款金额，不能大于支付总金额!");
         }
         //支付流水列表
         //交易类型 transaction_type  支付/扣款 = 0，退款/收款 = 1，还款 = 2
@@ -649,22 +642,37 @@ public class AccountServiceImpl implements AccountService {
 
         log.debug("实际退款余额:{},实际退款联盟返点:{}，vip返点：{}", refundBalance, refundAffiliateRebate,refundVipRebate);
         //增加退款流水
-        AccountLog refundFlow = new AccountLog();
-        refundFlow.setAccountId(account.getId());
-        refundFlow.setCustomerId(customerId);
-        //退款流水关联id为订单id
-        refundFlow.setTransactionId(request.getOrderId());
-        //transaction_type 支付/扣款 = 0，退款/收款 = 1，还款 = 2
-        refundFlow.setTransactionType(1);
-        refundFlow.setOrderType(orderType);
-        //账户 = 0，paypal = 1，payoneer = 2，佣金 = 3
-        refundFlow.setPayMethod(0);
-        refundFlow.setBalance(refundBalance);
-        refundFlow.setAffiliateRebate(refundAffiliateRebate);
-        refundFlow.setVipRebate(refundVipRebate);
-        refundFlow.setCredit(BigDecimal.ZERO);
-        refundFlow.setCreateTime(new Date());
+        AccountLog refundFlow = new AccountLog(account.getId(),
+                customerId,
+                TransactionConstant.TransactionType.REFUND_GAIN_AMOUNT.getCode(),
+                TransactionConstant.OrderType.NORMAL_ORDER.getCode(),
+                TransactionConstant.PayMethod.ACCOUNT.getCode(),
+                request.getOrderId(),
+                refundBalance,
+                refundAffiliateRebate,
+                refundVipRebate,
+                BigDecimal.ZERO,
+                BigDecimal.ZERO,
+                new Date() );
         accountLogDao.insert(refundFlow);
+        //保存联盟佣金退款记录
+        if (refundAffiliateRebate.compareTo(BigDecimal.ZERO) > 0){
+            AffiliateCommissionRecord affiliateCommissionRecord = new AffiliateCommissionRecord(0L,customerId, request.getOrderId(),
+                    TransactionConstant.OrderType.NORMAL_ORDER.getCode(),
+                    refundAffiliateRebate,AffiliateCommissionRecord.ORDER_REFUND,new Date(),new Date());
+            affiliateCommissionRecordDao.insert(affiliateCommissionRecord);
+        }
+        //保存vip佣金退款记录
+        if (refundVipRebate.compareTo(BigDecimal.ZERO) > 0){
+            CustomerVipRebateRecord customerVipRebateRecord =
+                    new CustomerVipRebateRecord(customerId,
+                            account.getId(),
+                            request.getOrderId(),
+                            refundVipRebate,
+                            CustomerVipRebateRecord.ORDER_REFUND,
+                            new Date());
+            customerVipRebateRecordService.insert(customerVipRebateRecord);
+        }
 
         return new BaseResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS);
     }

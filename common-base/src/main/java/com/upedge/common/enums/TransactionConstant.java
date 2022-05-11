@@ -8,11 +8,11 @@ public class TransactionConstant {
         REFUND_GAIN_AMOUNT(1,"退款/收款"),
         REPAYMENT(2,"还款");
 
-        private int code;
+        private Integer code;
 
         private String msg;
 
-        public int getCode() {
+        public Integer getCode() {
             return code;
         }
 
@@ -20,7 +20,7 @@ public class TransactionConstant {
             return msg;
         }
 
-        TransactionType(int code, String msg) {
+        TransactionType(Integer code, String msg) {
             this.code = code;
             this.msg = msg;
         }
@@ -37,11 +37,11 @@ public class TransactionConstant {
         EXTRA_SERVICE_PRODUCT_PHOTOGRAPHY(6,"产品拍照"),
         EXTRA_SERVICE_WINNING_PRODUCT(7,"热卖品");
 
-        private int code;
+        private Integer code;
 
         private String msg;
 
-        public int getCode() {
+        public Integer getCode() {
             return code;
         }
 
@@ -49,7 +49,7 @@ public class TransactionConstant {
             return msg;
         }
 
-        OrderType(int code, String msg) {
+        OrderType(Integer code, String msg) {
             this.code = code;
             this.msg = msg;
         }
@@ -62,7 +62,7 @@ public class TransactionConstant {
         PAYONEER(2,"payoneer"),
         COMMISSION(3,"佣金");
 
-        private int code;
+        private Integer code;
 
         private String msg;
 
@@ -74,7 +74,7 @@ public class TransactionConstant {
             return msg;
         }
 
-        PayMethod(int code, String msg) {
+        PayMethod(Integer code, String msg) {
             this.code = code;
             this.msg = msg;
         }

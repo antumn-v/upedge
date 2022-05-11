@@ -11,6 +11,10 @@ import java.util.Date;
 @Data
 public class CustomerVipRebateRecord{
 
+	public static Integer RECEIVE_REBATE = 1;
+	public static Integer ORDER_PAY = 0;
+	public static Integer ORDER_REFUND = 2;
+
 	/**
 	 * 
 	 */
@@ -32,7 +36,7 @@ public class CustomerVipRebateRecord{
 	 */
     private BigDecimal rebate;
 	/**
-	 * 1=增加  0=减少
+	 * 1=增加  0=支付订单，2=订单退款
 	 */
     private Integer rebateType;
 	/**
