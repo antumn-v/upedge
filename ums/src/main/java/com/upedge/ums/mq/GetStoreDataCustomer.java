@@ -52,7 +52,7 @@ public class GetStoreDataCustomer {
                         log.warn("消息内容有误：{}",message);
                         continue;
                     }
-                    boolean b = RedisUtil.lock(redisTemplate,message.getKeys(),10L,60 * 60 * 1000L);
+                    boolean b = RedisUtil.lock(redisTemplate,message.getKeys(),10L,60 * 1000L);
                     if (!b){
                         return ConsumeConcurrentlyStatus.CONSUME_SUCCESS;
                     }

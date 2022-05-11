@@ -21,7 +21,7 @@
     </resultMap>
 
     <sql id="Base_Column_List">
-        `id`,`account_id`,`customer_id`,`order_type`,`amount`,`credit`,`affiliate_rebate`,`fee`,`pay_status`,`pay_type`,`create_time`,`update_time`
+        `id`,`account_id`,`customer_id`,`order_type`,`amount`,`credit`,`affiliate_rebate`,`vip_rebate`,`fee`,`pay_status`,`pay_type`,`create_time`,`update_time`
     </sql>
 
 
