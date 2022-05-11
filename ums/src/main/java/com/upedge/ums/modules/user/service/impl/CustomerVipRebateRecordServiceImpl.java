@@ -59,7 +59,7 @@ public class CustomerVipRebateRecordServiceImpl implements CustomerVipRebateReco
 
     @Override
     public void addCustomerVipRebate(Long customerId,Long orderId) {
-        BigDecimal rebate = (BigDecimal) redisTemplate.opsForHash().get(RedisKey.HASH_CUSTOMER_VIP_REBATE,customerId);
+        BigDecimal rebate = (BigDecimal) redisTemplate.opsForHash().get(RedisKey.HASH_CUSTOMER_VIP_REBATE,customerId.toString());
         if (rebate == null){
             return;
         }

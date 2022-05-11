@@ -662,7 +662,7 @@ public class OrderCommonServiceImpl implements OrderCommonService {
     }
 
     public void addVipRebate(Long orderId,Long customerId){
-        boolean b = redisTemplate.opsForHash().hasKey(RedisKey.HASH_CUSTOMER_VIP_REBATE,customerId);
+        boolean b = redisTemplate.opsForHash().hasKey(RedisKey.HASH_CUSTOMER_VIP_REBATE,customerId.toString());
         if (b){
             CustomerVipAddRebateRequest request = new CustomerVipAddRebateRequest();
             request.setOrderId(orderId);

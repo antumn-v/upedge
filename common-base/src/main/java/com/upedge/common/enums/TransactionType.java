@@ -1,5 +1,7 @@
 package com.upedge.common.enums;
 
+import com.upedge.common.constant.OrderType;
+
 public enum TransactionType {
 
     //交易类型：支付/扣款 = 0，退款/收款 = 1，还款 = 2
@@ -34,8 +36,14 @@ public enum TransactionType {
     //余额支付批发订单
     BALANCE_PAY_WHOLESALE(0,3,0),
 
-    //余额支付批发订单
-    BALANCE_PAY_OVERSEA_WAREHOUSE_SERVICE_ORDER(0,4,0),
+    //余额支付海外仓备库订单
+    BALANCE_PAY_OVERSEA_WAREHOUSE_SERVICE_ORDER(0,OrderType.EXTRA_SERVICE_OVERSEA_WAREHOUSE,0),
+    //余额支付产品拍摄服务
+    BALANCE_PAY_PRODUCT_PHOTOGRAPHY(0, OrderType.EXTRA_SERVICE_PRODUCT_PHOTOGRAPHY,0),
+    //余额支付批发服务订单
+    BALANCE_PAY_EXTRA_SERVICE_WHOLESALE(0, OrderType.EXTRA_SERVICE_WHOLESALE,0),
+    //余额支付热卖品服务订单
+    BALANCE_PAY_EXTRA_SERVICE_WINNING_PRODUCT(0, OrderType.EXTRA_SERVICE_WINNING_PRODUCT,0),
 
     //paypal支付批发订单
     PAYPAL_PAY_WHOLESALE(0,3,1),

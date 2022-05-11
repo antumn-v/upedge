@@ -91,7 +91,7 @@ public class TransactionRecordCustomer {
                     boolean b = false;
                     switch (detail.getPayMethod()){
                         case 0:
-                            b = accountService.accountPayOrders(detail);
+                            b = accountService.saveTransactionDetails(detail);
                             break;
                         case 1:
                             b = paypalService.paypalPayOrders(detail);

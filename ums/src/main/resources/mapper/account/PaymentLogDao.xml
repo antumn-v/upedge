@@ -130,7 +130,7 @@
         #{customerId},
         #{orderType},
         #{amount},
-        #{credit},
+        '0',
         #{affiliateRebate},
         #{vipRebate},
         #{fee},

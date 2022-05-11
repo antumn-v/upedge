@@ -116,8 +116,11 @@
     update account
     set balance = balance - #{balance},
     affiliate_rebate = affiliate_rebate - #{affiliateRebate},
-    credit = credit + #{credit}
+    vip_rebate = vip_rebate - #{vipRebate}
     where id = #{id}
+        and balance >= #{balance}
+        and affiliate_rebate >= #{affiliateRebate}
+        and vip_rebate >= #{vipRebate}
   </update>
 
     <update id="accountRepaymentCredit">

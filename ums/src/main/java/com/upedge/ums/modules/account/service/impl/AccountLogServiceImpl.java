@@ -169,7 +169,7 @@ public class AccountLogServiceImpl implements AccountLogService {
         //交易类型 transaction_type  支付/扣款 = 0，退款/收款 = 1，还款 = 2
         log.error("订单支付日志信息:{}",transactionId);
         AccountLog accountLog= accountLogDao.selectPayedAccountLogByTransactionId(Long.parseLong(transactionId),0);
-        return new BaseResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS,accountLog.getRebate());
+        return new BaseResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS,accountLog.getAffiliateRebate());
     }
 
     @Override

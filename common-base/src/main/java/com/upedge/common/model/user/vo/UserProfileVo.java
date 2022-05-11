@@ -10,6 +10,8 @@ import java.util.List;
  */
 @Data
 public class UserProfileVo {
+
+    private Integer vipLevel;
     /**
      * 用户个人信息
      */

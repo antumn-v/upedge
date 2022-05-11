@@ -24,7 +24,9 @@ public class CustomerDetailVo {
 
     BigDecimal balance;
 
-    BigDecimal rebate;
+    BigDecimal affiliateRebate;
+
+    BigDecimal vipRebate;
 
     private String whatsapp;
     /**

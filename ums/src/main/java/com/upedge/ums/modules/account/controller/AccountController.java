@@ -64,7 +64,7 @@ public class AccountController {
 
     @PostMapping("/saveTransactionDetails")
     public BaseResponse saveTransactionDetails(@RequestBody PaymentDetail detail){
-        accountService.accountPayOrders(detail);
+        accountService.saveTransactionDetails(detail);
         return BaseResponse.success();
     }
 
@@ -184,7 +184,13 @@ public class AccountController {
     @ApiOperation("账户支付订单")
     @PostMapping("/payment")
     public BaseResponse accountPayment(@RequestBody AccountPaymentRequest request){
-        boolean b = accountService.accountPayment(request);
+        boolean b = false;
+        try {
+            b = accountService.accountPayment(request);
+        } catch (CustomerException e) {
+            e.printStackTrace();
+            return BaseResponse.failed(e.getMessage());
+        }
         if(b){
             return BaseResponse.success();
         }

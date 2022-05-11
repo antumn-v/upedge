@@ -98,7 +98,7 @@ public interface AccountMapper {
     int accountReduceBalance(@Param("id") Long id,
                              @Param("balance") BigDecimal balance,
                              @Param("affiliateRebate") BigDecimal affiliateRebate,
-                             @Param("credit") BigDecimal credit);
+                             @Param("vipRebate") BigDecimal vipRebate);
 
     int accountRepaymentCredit(@Param("id") Long id,
                                @Param("amount") BigDecimal amount);

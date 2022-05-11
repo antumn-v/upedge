@@ -999,6 +999,7 @@ public class OrderServiceImpl implements OrderService {
             orderItem.setOrderId(orderId);
             orderItem.setOriginalQuantity(1);
             orderItem.setQuoteScale(1);
+            orderItem.setDischargeQuantity(0);
             orderItem.setStoreProductTitle(orderItem.getStoreVariantName());
             Long storeVariantId = orderItem.getStoreVariantId();
             CustomerProductQuoteVo customerProductQuoteVo = (CustomerProductQuoteVo) redisTemplate.opsForValue().get(RedisKey.STRING_QUOTED_STORE_VARIANT + storeVariantId);

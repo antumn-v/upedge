@@ -48,6 +48,9 @@
             <if test="customerSignupUserId != null">
                 customer_signup_user_id = #{customerSignupUserId},
             </if>
+            <if test="vipLevel != null">
+                vip_level = #{vipLevel},
+            </if>
         </set>
         where id = #{id}
     </update>
@@ -215,7 +218,8 @@
                 c.remark,
                 c.vip_level,
             a.balance,
-            a.rebate
+            a.affiliate_rebate,
+            a.vip_rebate
         FROM customer c
         LEFT JOIN `user` u ON u.id = c.customer_signup_user_id
         left join account a on a.customer_id = c.id

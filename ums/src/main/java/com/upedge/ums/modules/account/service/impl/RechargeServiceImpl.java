@@ -395,7 +395,7 @@ public class RechargeServiceImpl implements RechargeService {
         repaymentLog.setCustomerId(account.getCustomerId());
         repaymentLog.setCreateTime(new Date());
         repaymentLog.setCredit(BigDecimal.ZERO);
-        repaymentLog.setRebate(BigDecimal.ZERO);
+        repaymentLog.setAffiliateRebate(BigDecimal.ZERO);
         repaymentLog.setFixFee(BigDecimal.ZERO);
         TransactionType transactionType = null;
         switch (rechargeLog.getRechargeType()) {
@@ -449,7 +449,7 @@ public class RechargeServiceImpl implements RechargeService {
         AccountLog accountLog = new AccountLog();
         accountLog.setAccountId(rechargeLog.getAccountId());
         accountLog.setBalance(rechargeLog.getAmount());
-        accountLog.setRebate(rechargeLog.getRebate());
+        accountLog.setAffiliateRebate(rechargeLog.getRebate());
         TransactionType transactionType = null;
         switch (rechargeLog.getRechargeType()) {
             case PayOrderMethod

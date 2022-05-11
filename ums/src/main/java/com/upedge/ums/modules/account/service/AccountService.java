@@ -112,9 +112,9 @@ public interface AccountService {
 
     int insert(Account account);
 
-    boolean accountPayment(AccountPaymentRequest request);
+    boolean accountPayment(AccountPaymentRequest request) throws CustomerException;
 
-    boolean accountPayOrders(PaymentDetail paymentDetail);
+    boolean saveTransactionDetails(PaymentDetail paymentDetail);
 
     BaseResponse accountOrderRefunded(AccountOrderRefundedRequest request) throws CustomerException;
 

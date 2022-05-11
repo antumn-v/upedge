@@ -35,7 +35,7 @@ public class UmsFeignClientFallbackFactory implements FallbackFactory<UmsFeignCl
         return new UmsFeignClient() {
 
             @Override
-            public BaseResponse add(CustomerVipAddRebateRequest request) {
+            public BaseResponse customerAddVipRebate(CustomerVipAddRebateRequest request) {
                 return BaseResponse.failed();
             }
 

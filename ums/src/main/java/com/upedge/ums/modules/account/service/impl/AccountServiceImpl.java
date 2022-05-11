@@ -363,7 +363,7 @@ public class AccountServiceImpl implements AccountService {
 
     @GlobalTransactional
     @Override
-    public boolean accountPayment(AccountPaymentRequest request) {
+    public boolean accountPayment(AccountPaymentRequest request) throws CustomerException {
         Long accountId = request.getAccountId();
 
         String key = RedisKey.KEY_USER_ACCOUNT_PAY + accountId;
@@ -376,13 +376,13 @@ public class AccountServiceImpl implements AccountService {
 
         Account account = accountMapper.selectByPrimaryKey(accountId);
 
-        BigDecimal accountCredit = account.getCreditLimit().subtract(account.getCredit());
-
         BigDecimal accountBalance = account.getBalance();
 
-        BigDecimal accountRebate = account.getAffiliateRebate();
+        BigDecimal accountAffiliateRebate = account.getAffiliateRebate();
 
-        BigDecimal accountAmount = accountBalance.add(accountRebate).add(accountCredit);
+        BigDecimal accountVipRebate = account.getVipRebate();
+
+        BigDecimal accountAmount = accountBalance.add(accountAffiliateRebate).add(accountVipRebate);
 
         BigDecimal orderAmount = request.getPayAmount();
 
@@ -393,9 +393,9 @@ public class AccountServiceImpl implements AccountService {
 
         BigDecimal balance = BigDecimal.ZERO;
 
-        BigDecimal rebate = BigDecimal.ZERO;
+        BigDecimal affiliateRebate = BigDecimal.ZERO;
 
-        BigDecimal credit = BigDecimal.ZERO;
+        BigDecimal vipRebate = BigDecimal.ZERO;
 
         PaymentLog log = new PaymentLog();
         log.setId(request.getId());
@@ -407,25 +407,25 @@ public class AccountServiceImpl implements AccountService {
         log.setOrderType(request.getOrderType());
         if (accountBalance.compareTo(orderAmount) > -1) {
             balance = orderAmount;
-
-        } else if (accountBalance.add(accountRebate).compareTo(orderAmount) > -1) {
-            orderAmount = orderAmount.subtract(accountBalance);
-            accountRebate = accountRebate.subtract(orderAmount);
+        } else if (accountBalance.add(accountAffiliateRebate).compareTo(orderAmount) > -1) {
             balance = accountBalance;
-            rebate = orderAmount;
+            affiliateRebate = orderAmount.subtract(accountBalance);
         } else {
             balance = accountBalance;
-            rebate = accountRebate;
-            orderAmount = orderAmount.subtract(balance).subtract(rebate);
-            credit = orderAmount;
+            affiliateRebate = accountAffiliateRebate;
+            vipRebate = orderAmount.subtract(balance).subtract(affiliateRebate);
         }
-        log.setCredit(credit);
-        log.setAffiliateRebate(rebate);
+        log.setVipRebate(vipRebate);
+        log.setAffiliateRebate(affiliateRebate);
         log.setAmount(balance);
         log.setPayStatus(1);
         paymentLogDao.insert(log);
 
-        accountMapper.accountReduceBalance(account.getId(), balance, rebate, credit);
+        int i = accountMapper.accountReduceBalance(account.getId(), balance, affiliateRebate, vipRebate);
+        if (i != 1){
+            RedisUtil.unLock(redisTemplate,key);
+            throw new CustomerException("Account error!");
+        }
         RedisUtil.unLock(redisTemplate,key);
         return true;
     }
@@ -471,7 +471,7 @@ public class AccountServiceImpl implements AccountService {
 
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public  boolean accountPayOrders(PaymentDetail paymentDetail) {
+    public  boolean saveTransactionDetails(PaymentDetail paymentDetail) {
 
         Iterator<TransactionDetail> iterator = paymentDetail.getOrderTransactions().iterator();
         while (iterator.hasNext()){
@@ -490,7 +490,9 @@ public class AccountServiceImpl implements AccountService {
         //------------记录本次支付消耗的余额返点信用额度信息------------
         BigDecimal balance = paymentLog.getAmount();
 
-        BigDecimal rebate = paymentLog.getAffiliateRebate();
+        BigDecimal affiliateRebate = paymentLog.getAffiliateRebate();
+
+        BigDecimal vipRebate = paymentLog.getVipRebate();
 
         TransactionType transactionType = null;
 
@@ -502,11 +504,17 @@ public class AccountServiceImpl implements AccountService {
             case OrderType.STOCK:
                 transactionType = TransactionType.BALANCE_PAY_STOCK;
                 break;
-            case OrderType.WHOLESALE:
-                transactionType = TransactionType.BALANCE_PAY_WHOLESALE;
+            case OrderType.EXTRA_SERVICE_WHOLESALE:
+                transactionType = TransactionType.BALANCE_PAY_EXTRA_SERVICE_WHOLESALE;
                 break;
             case OrderType.EXTRA_SERVICE_OVERSEA_WAREHOUSE:
                 transactionType = TransactionType.BALANCE_PAY_OVERSEA_WAREHOUSE_SERVICE_ORDER;
+                break;
+            case OrderType.EXTRA_SERVICE_PRODUCT_PHOTOGRAPHY:
+                transactionType = TransactionType.BALANCE_PAY_PRODUCT_PHOTOGRAPHY;
+                break;
+            case OrderType.EXTRA_SERVICE_WINNING_PRODUCT:
+                transactionType = TransactionType.BALANCE_PAY_EXTRA_SERVICE_WINNING_PRODUCT;
                 break;
             default:
                 throw new IllegalStateException("Unexpected value: " + orderType);
@@ -530,9 +538,8 @@ public class AccountServiceImpl implements AccountService {
             accountLog.setCreateTime(date);
             //----------------AccountLog保存每笔订单使用的余额返点信用额度-----------------
             BigDecimal transactionBalance = BigDecimal.ZERO;
-
-            BigDecimal transactionRebate = BigDecimal.ZERO;
-
+            BigDecimal transactionAffiliateRebate = BigDecimal.ZERO;
+            BigDecimal transactionVipRebate = BigDecimal.ZERO;
             //-------------------------------------------------------------------------
             //订单总额
             BigDecimal orderAmount = detail.getAmount();
@@ -548,21 +555,32 @@ public class AccountServiceImpl implements AccountService {
                  * 余额，订单金额归0
                  * 返点=返点+余额-订单金额
                  */
-            } else  {
+            } else if (balance.add(affiliateRebate).compareTo(orderAmount) > -1) {
                 transactionBalance = balance;
                 orderAmount = orderAmount.subtract(balance);
-                transactionRebate = orderAmount;//订单支付用掉的返点
-                rebate = rebate.subtract(orderAmount);//当前充值记录剩余返点
+                transactionAffiliateRebate = orderAmount;//订单支付用掉的返点
+                affiliateRebate = affiliateRebate.subtract(orderAmount);//当前充值记录剩余返点
                 balance = BigDecimal.ZERO;
+            }else {
+                orderAmount = orderAmount.subtract(balance).subtract(affiliateRebate);
+                transactionBalance = balance;
+                transactionAffiliateRebate = affiliateRebate;
+                transactionVipRebate = orderAmount;
+                vipRebate = vipRebate.subtract(orderAmount);
+                balance = BigDecimal.ZERO;
+                affiliateRebate = BigDecimal.ZERO;
+
             }
             //一个订单支付对应一条accountLog
             accountLog.setBalance(transactionBalance);
-            accountLog.setRebate(transactionRebate);
+            accountLog.setAffiliateRebate(transactionAffiliateRebate);
+            accountLog.setVipRebate(transactionVipRebate);
             accountLogs.add(accountLog);
         }
 
         if(balance.compareTo(BigDecimal.ZERO) != 0
-        || rebate.compareTo(BigDecimal.ZERO) != 0){
+        || affiliateRebate.compareTo(BigDecimal.ZERO) != 0
+        || vipRebate.compareTo(BigDecimal.ZERO) != 0){
             return false;
         }
         accountLogDao.insertByBatch(accountLogs);
@@ -617,7 +635,7 @@ public class AccountServiceImpl implements AccountService {
         }
 
         //获取支付流水返点
-        BigDecimal payRebate = accountLog.getRebate() == null ? BigDecimal.ZERO : accountLog.getRebate().abs();
+        BigDecimal payRebate = accountLog.getAffiliateRebate() == null ? BigDecimal.ZERO : accountLog.getAffiliateRebate().abs();
         //获取支付流水金额
         BigDecimal payBalance = accountLog.getBalance() == null ? BigDecimal.ZERO : accountLog.getBalance().abs();
 
@@ -661,7 +679,7 @@ public class AccountServiceImpl implements AccountService {
         //账户 = 0，paypal = 1，payoneer = 2，佣金 = 3
         refundFlow.setPayMethod(0);
         refundFlow.setBalance(refundBalance);
-        refundFlow.setRebate(refundRebate);
+        refundFlow.setAffiliateRebate(refundRebate);
         refundFlow.setCredit(BigDecimal.ZERO);
         refundFlow.setCreateTime(new Date());
         accountLogDao.insert(refundFlow);

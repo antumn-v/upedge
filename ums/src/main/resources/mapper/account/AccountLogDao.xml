@@ -13,14 +13,15 @@
         <result property="payMethod" column="pay_method"/>
         <result property="transactionId" column="transaction_id"/>
         <result property="balance" column="balance"/>
-        <result property="rebate" column="rebate"/>
+        <result property="vipRebate" column="vip_rebate"/>
+        <result property="affiliateRebate" column="affiliate_rebate"/>
         <result property="credit" column="credit"/>
         <result property="fixFee" column="fix_fee"/>
         <result property="createTime" column="create_time"/>
     </resultMap>
 
     <sql id="Base_Column_List">
-        `id`,`account_id`,`customer_id`,`transaction_type`,`order_type`,`pay_method`,`transaction_id`,`balance`,`rebate`,`credit`,`fix_fee`,`create_time`
+        `id`,`account_id`,`customer_id`,`transaction_type`,`order_type`,`pay_method`,`transaction_id`,`balance`,`vip_rebate`,`affiliate_rebate`,`credit`,`fix_fee`,`create_time`
     </sql>
 
     <select id="selectByPrimaryKey" parameterType="com.upedge.ums.modules.account.entity.AccountLog"
@@ -42,8 +43,17 @@
             <if test="accountId != null">
                 account_id = #{accountId},
             </if>
+            <if test="customerId != null">
+                customer_id = #{customerId},
+            </if>
             <if test="transactionType != null">
                 transaction_type = #{transactionType},
+            </if>
+            <if test="orderType != null">
+                order_type = #{orderType},
+            </if>
+            <if test="payMethod != null">
+                pay_method = #{payMethod},
             </if>
             <if test="transactionId != null">
                 transaction_id = #{transactionId},
@@ -51,11 +61,17 @@
             <if test="balance != null">
                 balance = #{balance},
             </if>
-            <if test="rebate != null">
-                rebate = #{rebate},
+            <if test="vipRebate != null">
+                vip_rebate = #{vipRebate},
+            </if>
+            <if test="affiliateRebate != null">
+                affiliate_rebate = #{affiliateRebate},
             </if>
             <if test="credit != null">
                 credit = #{credit},
+            </if>
+            <if test="fixFee != null">
+                fix_fee = #{fixFee},
             </if>
             <if test="createTime != null">
                 create_time = #{createTime},
@@ -69,18 +85,22 @@
         <set>
             id = #{id},
             account_id = #{accountId},
+            customer_id = #{customerId},
             transaction_type = #{transactionType},
+            order_type = #{orderType},
+            pay_method = #{payMethod},
             transaction_id = #{transactionId},
             balance = #{balance},
-            rebate = #{rebate},
+            vip_rebate = #{vipRebate},
+            affiliate_rebate = #{affiliateRebate},
             credit = #{credit},
-            create_time = #{createTime}
+            fix_fee = #{fixFee},
+            create_time = #{createTime},
         </set>
         where id = #{id}
     </update>
 
-    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.upedge.ums.modules.account.entity.AccountLog"
-            useGeneratedKeys="true">
+    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.upedge.ums.modules.account.entity.AccountLog" useGeneratedKeys="true">
         insert into account_log
         <trim prefix="(" suffix=")" suffixOverrides=",">
             id,
@@ -91,8 +111,10 @@
             pay_method,
             transaction_id,
             balance,
-            rebate,
+            vip_rebate,
+            affiliate_rebate,
             credit,
+            fix_fee,
             create_time
         </trim>
         values (
@@ -104,72 +126,96 @@
         #{payMethod},
         #{transactionId},
         #{balance},
-        #{rebate},
+        #{vipRebate},
+        #{affiliateRebate},
         #{credit},
+        #{fixFee},
         #{createTime}
         )
     </insert>
 
-    <insert id="insertSelective" keyColumn="id" keyProperty="id"
-            parameterType="com.upedge.ums.modules.account.entity.AccountLog" useGeneratedKeys="true">
+    <insert id="insertSelective"  keyColumn="id" keyProperty="id"  parameterType="com.upedge.ums.modules.account.entity.AccountLog" useGeneratedKeys="true">
         insert into account_log
         <trim prefix="(" suffix=")" suffixOverrides=",">
-            <if test="id != null">
+            <if test="id != null" >
                 id
             </if>
-            <if test="accountId != null">
+            <if test="accountId != null" >
                 account_id
             </if>
-            <if test="t.customerId != null">
+            <if test="customerId != null" >
                 customer_id
             </if>
-            <if test="transactionType != null">
+            <if test="transactionType != null" >
                 transaction_type
             </if>
-            <if test="transactionId != null">
+            <if test="orderType != null" >
+                order_type
+            </if>
+            <if test="payMethod != null" >
+                pay_method
+            </if>
+            <if test="transactionId != null" >
                 transaction_id
             </if>
-            <if test="balance != null">
+            <if test="balance != null" >
                 balance
             </if>
-            <if test="rebate != null">
-                rebate
+            <if test="vipRebate != null" >
+                vip_rebate
             </if>
-            <if test="credit != null">
+            <if test="affiliateRebate != null" >
+                affiliate_rebate
+            </if>
+            <if test="credit != null" >
                 credit
             </if>
-            <if test="createTime != null">
+            <if test="fixFee != null" >
+                fix_fee
+            </if>
+            <if test="createTime != null" >
                 create_time
             </if>
 
-
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
-            <if test="id != null">
+            <if test="id != null" >
                 #{id}
             </if>
-            <if test="accountId != null">
+            <if test="accountId != null" >
                 #{accountId}
             </if>
-            <if test="t.customerId != null">
+            <if test="customerId != null" >
                 #{customerId}
             </if>
-            <if test="transactionType != null">
+            <if test="transactionType != null" >
                 #{transactionType}
             </if>
-            <if test="transactionId != null">
+            <if test="orderType != null" >
+                #{orderType}
+            </if>
+            <if test="payMethod != null" >
+                #{payMethod}
+            </if>
+            <if test="transactionId != null" >
                 #{transactionId}
             </if>
-            <if test="balance != null">
+            <if test="balance != null" >
                 #{balance}
             </if>
-            <if test="rebate != null">
-                #{rebate}
+            <if test="vipRebate != null" >
+                #{vipRebate}
             </if>
-            <if test="credit != null">
+            <if test="affiliateRebate != null" >
+                #{affiliateRebate}
+            </if>
+            <if test="credit != null" >
                 #{credit}
             </if>
-            <if test="createTime != null">
+            <if test="fixFee != null" >
+                #{fixFee}
+            </if>
+            <if test="createTime != null" >
                 #{createTime}
             </if>
 
@@ -187,8 +233,10 @@
             pay_method,
             transaction_id,
             balance,
-            rebate,
+            vip_rebate,
+            affiliate_rebate,
             credit,
+            fix_fee,
             create_time
         </trim>
         values
@@ -202,12 +250,62 @@
                 #{item.payMethod},
                 #{item.transactionId},
                 #{item.balance},
-                #{item.rebate},
+                #{item.vipRebate},
+                #{item.affiliateRebate},
                 #{item.credit},
+                #{item.fixFee},
                 #{item.createTime}
             </trim>
         </foreach>
     </insert>
+
+    <sql id="Query_Condition">
+        <if test="t != null">
+            where
+            <trim prefix=" " suffix=" " suffixOverrides=" and ">
+                1 = 1 and
+                <if test="t.id != null">
+                    id = #{t.id} and
+                </if>
+                <if test="t.accountId != null">
+                    account_id = #{t.accountId} and
+                </if>
+                <if test="t.customerId != null">
+                    customer_id = #{t.customerId} and
+                </if>
+                <if test="t.transactionType != null">
+                    transaction_type = #{t.transactionType} and
+                </if>
+                <if test="t.orderType != null">
+                    order_type = #{t.orderType} and
+                </if>
+                <if test="t.payMethod != null">
+                    pay_method = #{t.payMethod} and
+                </if>
+                <if test="t.transactionId != null">
+                    transaction_id = #{t.transactionId} and
+                </if>
+                <if test="t.balance != null">
+                    balance = #{t.balance} and
+                </if>
+                <if test="t.vipRebate != null">
+                    vip_rebate = #{t.vipRebate} and
+                </if>
+                <if test="t.affiliateRebate != null">
+                    affiliate_rebate = #{t.affiliateRebate} and
+                </if>
+                <if test="t.credit != null">
+                    credit = #{t.credit} and
+                </if>
+                <if test="t.fixFee != null">
+                    fix_fee = #{t.fixFee} and
+                </if>
+                <if test="t.createTime != null">
+                    create_time = #{t.createTime} and
+                </if>
+            </trim>
+        </if>
+    </sql>
 
     <select id="select" parameterType="com.upedge.common.base.Page" resultMap="BaseResultMap">
         select
