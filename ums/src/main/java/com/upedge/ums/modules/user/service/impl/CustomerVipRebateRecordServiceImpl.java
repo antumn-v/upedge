@@ -72,7 +72,7 @@ public class CustomerVipRebateRecordServiceImpl implements CustomerVipRebateReco
         if (rebate == null){
             return;
         }
-        CustomerVipRebateRecord record = customerVipRebateRecordDao.selectByOrderId(orderId);
+        CustomerVipRebateRecord record = customerVipRebateRecordDao.selectByOrderIdAndType(orderId,CustomerVipRebateRecord.RECEIVE_REBATE);
         if (null != record){
             return;
         }

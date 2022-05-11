@@ -176,7 +176,7 @@ public class AffiliateServiceImpl implements AffiliateService {
     @Override
     public void addAffiliateCommissionRecord(CommissionRecordVo commissionRecordVo) {
 
-        AffiliateCommissionRecord commissionRecord = affiliateCommissionRecordDao.queryPayRecordByOrderId(commissionRecordVo.getOrderId());
+        AffiliateCommissionRecord commissionRecord = affiliateCommissionRecordDao.selectByOrderIdAndState(commissionRecordVo.getOrderId(),AffiliateCommissionRecord.RECEIVE_REBATE);
         if (null != commissionRecord){
             return;
         }

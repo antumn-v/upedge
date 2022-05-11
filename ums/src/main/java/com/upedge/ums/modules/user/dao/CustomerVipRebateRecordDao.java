@@ -2,15 +2,16 @@ package com.upedge.ums.modules.user.dao;
 
 import com.upedge.common.base.Page;
 import com.upedge.ums.modules.user.entity.CustomerVipRebateRecord;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
 /**
  * @author gx
  */
-public interface CustomerVipRebateRecordDao{
+public interface CustomerVipRebateRecordDao {
 
-    CustomerVipRebateRecord selectByOrderId(Long orderId);
+    CustomerVipRebateRecord selectByOrderIdAndType(@Param("orderId") Long orderId, @Param("rebateType") Integer rebateType);
 
     CustomerVipRebateRecord selectByPrimaryKey(CustomerVipRebateRecord record);
 

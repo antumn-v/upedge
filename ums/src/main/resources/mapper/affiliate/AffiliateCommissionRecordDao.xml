@@ -266,11 +266,12 @@
         <include refid="Query_Condition"/>
     </select>
 
-    <select id="queryPayRecordByOrderId" resultMap="BaseResultMap">
+    <select id="selectByOrderIdAndState" resultMap="BaseResultMap">
         select
         <include refid="Base_Column_List"/>
         from affiliate_commission_record
         where order_id=#{orderId}
+        and state = #{state}
         limit 1
     </select>
     <select id="getBenefitsList" resultType="com.upedge.common.model.user.vo.OrderBenefitsVo">

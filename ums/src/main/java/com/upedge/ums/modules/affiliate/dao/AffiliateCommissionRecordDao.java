@@ -11,8 +11,7 @@ import java.util.List;
 /**
  * @author author
  */
-public interface AffiliateCommissionRecordDao{
-
+public interface AffiliateCommissionRecordDao {
 
 
     List<RefereeMonthCommissionVo> searchCommissionByMonth(Long referrerId);
@@ -35,7 +34,7 @@ public interface AffiliateCommissionRecordDao{
 
     long count(Page<AffiliateCommissionRecord> record);
 
-    AffiliateCommissionRecord queryPayRecordByOrderId(Long orderId);
+    AffiliateCommissionRecord selectByOrderIdAndState(@Param("orderId") Long orderId, @Param("state") Integer state);
 
 
     List<OrderBenefitsVo> getBenefitsList(

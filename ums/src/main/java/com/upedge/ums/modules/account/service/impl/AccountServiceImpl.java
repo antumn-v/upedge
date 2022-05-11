@@ -25,7 +25,6 @@ import com.upedge.ums.modules.account.response.*;
 import com.upedge.ums.modules.account.service.AccountService;
 import com.upedge.ums.modules.affiliate.dao.AffiliateCommissionRecordDao;
 import com.upedge.ums.modules.affiliate.dao.AffiliateDao;
-import com.upedge.ums.modules.affiliate.entity.Affiliate;
 import com.upedge.ums.modules.affiliate.entity.AffiliateCommissionRecord;
 import com.upedge.ums.modules.user.dao.UserDao;
 import com.upedge.ums.modules.user.entity.CustomerVipRebateRecord;
@@ -691,67 +690,6 @@ public class AccountServiceImpl implements AccountService {
         return accountLogDao.selectByPrimaryKey(record);
     }
 
-    //退款减佣金
-    @Transactional(readOnly = false)
-    public void subtractCommission(Long customerId, Long orderId, BigDecimal payAmount,
-                                   BigDecimal benefitsAmount, BigDecimal refundAmount, Integer orderType)  {
-        if (!orderType.equals(OrderType.NORMAL)
-                && !orderType.equals(OrderType.WHOLESALE)) {
-            return;
-        }
-        //查询该订单用户的推荐人
-        Affiliate affiliate=affiliateDao.queryAffiliateByReferee(customerId);
-
-        //如果有推荐人 扣除佣金
-        if(affiliate!=null) {
-
-            //交易id
-            //检查该订单交易是否产生过佣金
-            AffiliateCommissionRecord appRecord=affiliateCommissionRecordDao.queryPayRecordByOrderId(orderId);
-            if(appRecord==null){
-                return;
-            }
-            //产生佣金的实际金额
-            BigDecimal totalAmount = payAmount.subtract(benefitsAmount);
-
-            //申请金额
-            BigDecimal applyAmount = refundAmount;
-
-            //如果申请金额超过实际佣金金额 只扣取最大佣金
-            if (applyAmount.compareTo(totalAmount) > 0) {
-                applyAmount = totalAmount;
-            }
-            //扣取的佣金
-            BigDecimal commission = applyAmount.multiply(new BigDecimal("0.01")).setScale(2, BigDecimal.ROUND_HALF_UP);
-
-            if(commission.compareTo(BigDecimal.ZERO)>0) {
-                //扣除被推荐人为推荐人产生的佣金 app_affiliate
-                log.info("联盟佣金 affiliateId:" + affiliate.getId() + ",refereeCommission:" + affiliate.getRefereeCommission() + ",扣除佣金:" + commission);
-                affiliateDao.subAffiliateCommission(affiliate.getId(), commission, new Date());
-
-                Account userCommission = accountMapper.selectByPrimaryKey(affiliate.getReferrerId());
-                if (userCommission != null) {
-                    log.info("客户账户佣金 customerId:" + affiliate.getReferrerId() + ",commission:" + userCommission.getCommission() + ",扣除佣金:" + commission);
-                }
-                //扣除推荐人佣金 account_commission
-                accountMapper.subAccountCommission(affiliate.getReferrerId(), commission);
-                //增加佣金流水
-                AffiliateCommissionRecord commissionRecord = new AffiliateCommissionRecord();
-                //被推荐人
-                commissionRecord.setRefereeId(affiliate.getRefereeId());
-                commissionRecord.setReferrerId(affiliate.getReferrerId());
-                commissionRecord.setOrderId(orderId);
-                commissionRecord.setOrderType(orderType);
-                BigDecimal subCommission = BigDecimal.ZERO.subtract(commission);
-                commissionRecord.setCommission(subCommission);
-                //退款=0，支付=1 提现=2
-                commissionRecord.setState(0);
-                commissionRecord.setCreateTime(new Date());
-                commissionRecord.setUpdateTime(new Date());
-                affiliateCommissionRecordDao.insert(appRecord);
-            }
-        }
-    }
 
     @Override
     public int addAccountVipRebate(Long accountId, BigDecimal vipRebate) {
