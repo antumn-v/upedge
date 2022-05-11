@@ -245,8 +245,9 @@
     </select>
 
     <update id="addBalanceAndBenefits">
-        update account set balance=balance+#{amount},
-        affiliate_rebate=affiliate_rebate+#{benefitsAmount}
+        update account set balance=balance+#{balance},
+        affiliate_rebate=affiliate_rebate+#{affiliateRebate},
+            vip_rebate = vip_rebate + #{vipReBate}
         where id=#{id}
     </update>
 

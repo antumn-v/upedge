@@ -170,12 +170,12 @@ public class UserServiceImpl implements UserService {
             return new UserProfileResponse(ResultCode.FAIL_CODE, "user is disabled!");
         }
         Customer customer = customerService.selectByPrimaryKey(session.getCustomerId());
-//        UserInfo userInfo = userInfoService.selectByPrimaryKey(session.getId());
+        UserInfo userInfo = userInfoService.selectByPrimaryKey(session.getId());
         List<Menu> menus = roleMenuService.selectRoleMenuByApplication(session.getRole().getId(), session.getApplicationId());
         UserProfileVo userData = new UserProfileVo();
         userData.setVipLevel(customer.getVipLevel());
         UserInfoVo userInfoVo = new UserInfoVo();
-        BeanUtils.copyProperties(session, userInfoVo);
+        BeanUtils.copyProperties(userInfo, userInfoVo);
         userData.setUserinfo(userInfoVo);
         userData.setRoleVo(session.getRole());
         List<MenuVo> menuVos = menus.stream().map(menu -> {

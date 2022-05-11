@@ -122,7 +122,9 @@ public interface AccountMapper {
     Account customerAccount(Long customerId);
 
     void addBalanceAndBenefits(@Param("id") Long id,
-                               @Param("amount") BigDecimal amount, @Param("benefitsAmount") BigDecimal benefitsAmount);
+                               @Param("balance") BigDecimal balance,
+                               @Param("affiliateRebate") BigDecimal affiliateRebate,
+                               @Param("vipReBate")BigDecimal vipRebate);
 
     int repaymentCredit(@Param("id") Long id,
                         @Param("totalRepaymentAmount") BigDecimal totalRepaymentAmount);

@@ -178,14 +178,7 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public void addBalanceAndBenefits(Long id, BigDecimal amount, BigDecimal benefitsAmount) {
-        if (id != null
-                && amount  != null
-        && benefitsAmount != null){
-            if (amount.compareTo(BigDecimal.ZERO) == 1 && benefitsAmount.compareTo(BigDecimal.ZERO) == 1){
-                return;
-            }
-            accountMapper.addBalanceAndBenefits(id,amount,benefitsAmount);
-        }
+
     }
 
     /**
@@ -563,13 +556,14 @@ public class AccountServiceImpl implements AccountService {
                 balance = BigDecimal.ZERO;
             }else {
                 orderAmount = orderAmount.subtract(balance).subtract(affiliateRebate);
+                vipRebate = vipRebate.subtract(orderAmount);
+
                 transactionBalance = balance;
                 transactionAffiliateRebate = affiliateRebate;
                 transactionVipRebate = orderAmount;
-                vipRebate = vipRebate.subtract(orderAmount);
+
                 balance = BigDecimal.ZERO;
                 affiliateRebate = BigDecimal.ZERO;
-
             }
             //一个订单支付对应一条accountLog
             accountLog.setBalance(transactionBalance);
@@ -596,7 +590,6 @@ public class AccountServiceImpl implements AccountService {
     @GlobalTransactional
     @Override
     public BaseResponse accountOrderRefunded(AccountOrderRefundedRequest request) throws CustomerException{
-
         //客户
         Long customerId = request.getCustomerId();
         Account account = accountMapper.customerAccount(customerId);
@@ -617,7 +610,7 @@ public class AccountServiceImpl implements AccountService {
         if (refundAmount == null || refundAmount.compareTo(BigDecimal.ZERO) <= 0) {
             return new BaseResponse(ResultCode.FAIL_CODE, "退款金额异常!");
         }
-        //检验支付金额
+        //检验支付金额![](C:/Users/A/AppData/Local/Temp/WeChat Files/28a0aa39d4d4715b5b2f018c5d243d6.png)
         if (payAmount == null || payAmount.compareTo(BigDecimal.ZERO) <= 0) {
             return new BaseResponse(ResultCode.FAIL_CODE, "订单支付金额异常!");
         }
@@ -625,7 +618,6 @@ public class AccountServiceImpl implements AccountService {
         if (refundAmount.compareTo(payAmount) > 0) {
             return new BaseResponse(ResultCode.FAIL_CODE, "申请退款金额，不能大于支付总金额!");
         }
-
         //支付流水列表
         //交易类型 transaction_type  支付/扣款 = 0，退款/收款 = 1，还款 = 2
         //支付资金流水
@@ -633,40 +625,45 @@ public class AccountServiceImpl implements AccountService {
         if(accountLog==null){
             return new BaseResponse(ResultCode.FAIL_CODE, "流水异常!");
         }
-
         //获取支付流水返点
-        BigDecimal payRebate = accountLog.getAffiliateRebate() == null ? BigDecimal.ZERO : accountLog.getAffiliateRebate().abs();
+        BigDecimal payAffiliateRebate = accountLog.getAffiliateRebate() == null ? BigDecimal.ZERO : accountLog.getAffiliateRebate().abs();
+        BigDecimal payVipRebate = accountLog.getVipRebate() == null ? BigDecimal.ZERO : accountLog.getVipRebate().abs();
         //获取支付流水金额
         BigDecimal payBalance = accountLog.getBalance() == null ? BigDecimal.ZERO : accountLog.getBalance().abs();
 
-        if(refundAmount.compareTo(payBalance.add(payRebate))>0){
+        if(refundAmount.compareTo(payBalance.add(payAffiliateRebate).add(payVipRebate))>0){
             return new BaseResponse(ResultCode.FAIL_CODE, "申请退款金额，不能大于流水总金额!!");
         }
         //退款返点
-        BigDecimal refundRebate = BigDecimal.ZERO;
+        BigDecimal refundAffiliateRebate = BigDecimal.ZERO;
+        BigDecimal refundVipRebate = BigDecimal.ZERO;
         //退款余额
         BigDecimal refundBalance = BigDecimal.ZERO;
-        if (payRebate.compareTo(BigDecimal.ZERO) > 0){
-            if (payRebate.compareTo(refundAmount) > 0){
-                refundRebate = refundAmount;
-            }else {
-                refundRebate = payRebate;
-                refundBalance = refundAmount.subtract(payRebate);
-            }
+        //判断vip返点退款金额
+        if (payVipRebate.compareTo(refundAmount) >= 0){
+            refundVipRebate = refundAmount;
+            refundAmount = BigDecimal.ZERO;
         }else {
-            refundBalance = refundAmount;
+            refundVipRebate = payVipRebate;
+            refundAmount = refundAmount.subtract(payVipRebate);
         }
-
-        //计算退款累计金额
-//        List<RefundRecord> refundRecordList=new ArrayList<>();
+        //判断联盟返点退款金额
+        if (payAffiliateRebate.compareTo(refundAmount) >= 0){
+            refundAffiliateRebate = refundAmount;
+            refundAmount = BigDecimal.ZERO;
+        }else {
+            refundAffiliateRebate = payAffiliateRebate;
+            refundAmount = refundAmount.subtract(payAffiliateRebate);
+        }
+        refundBalance = refundAmount;
 
         log.info("订单id:{},订单类型:{},申请退款金额:{}", request.getOrderId(), request.getOrderType(), request.getRefundAmount());
 
         log.info("id:{},customerId:{},用户当前数据:余额{},返点{},已用额度{},额度上限{}", account.getId(), account.getCustomerId(), account.getBalance(), account.getAffiliateRebate(), account.getCredit(), account.getCreditLimit());
 
-        accountMapper.addBalanceAndBenefits(account.getId(), refundBalance, refundRebate);
+        accountMapper.addBalanceAndBenefits(account.getId(), refundBalance, refundAffiliateRebate,refundVipRebate);
 
-        log.debug("实际退款余额:{},实际退款返点:{}", refundBalance, refundRebate);
+        log.debug("实际退款余额:{},实际退款联盟返点:{}，vip返点：{}", refundBalance, refundAffiliateRebate,refundVipRebate);
         //增加退款流水
         AccountLog refundFlow = new AccountLog();
         refundFlow.setAccountId(account.getId());
@@ -679,25 +676,11 @@ public class AccountServiceImpl implements AccountService {
         //账户 = 0，paypal = 1，payoneer = 2，佣金 = 3
         refundFlow.setPayMethod(0);
         refundFlow.setBalance(refundBalance);
-        refundFlow.setAffiliateRebate(refundRebate);
+        refundFlow.setAffiliateRebate(refundAffiliateRebate);
+        refundFlow.setVipRebate(refundVipRebate);
         refundFlow.setCredit(BigDecimal.ZERO);
         refundFlow.setCreateTime(new Date());
         accountLogDao.insert(refundFlow);
-
-        //增加退款充值
-//        RechargeLog rechargeLog=new RechargeLog();
-//        rechargeLog.setAccountId(account.getId());
-//        rechargeLog.setRelateId(request.getRefundId());
-//        rechargeLog.setAmount(refundAmount);
-//        rechargeLog.setRebate(BigDecimal.ZERO);
-//        rechargeLog.setPayed(BigDecimal.ZERO);
-//        rechargeLog.setRechargeStatus(0);
-//        //0:电汇 1:paypal充值 2:payoneer充值，3=订单支付充值 4.退款充值
-//        rechargeLog.setRechargeType(4);
-//        rechargeLog.setCreateTime(new Date());
-//        rechargeLog.setUpdateTime(new Date());
-//        rechargeLogMapper.insert(rechargeLog);
-//        refundRecordDao.insertByBatch(refundRecordList);
 
         return new BaseResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS);
     }
