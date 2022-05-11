@@ -68,4 +68,19 @@ public class AccountLog {
 
     public AccountLog() {
     }
+
+    public AccountLog(Long accountId, Long customerId, Integer transactionType, Integer orderType, Integer payMethod, Long transactionId, BigDecimal balance, BigDecimal affiliateRebate, BigDecimal vipRebate, BigDecimal credit, BigDecimal fixFee, Date createTime) {
+        this.accountId = accountId;
+        this.customerId = customerId;
+        this.transactionType = transactionType;
+        this.orderType = orderType;
+        this.payMethod = payMethod;
+        this.transactionId = transactionId;
+        this.balance = balance;
+        this.affiliateRebate = affiliateRebate;
+        this.vipRebate = vipRebate;
+        this.credit = credit;
+        this.fixFee = fixFee;
+        this.createTime = createTime;
+    }
 }

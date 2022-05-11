@@ -2,6 +2,7 @@ package com.upedge.ums.modules.user.service.impl;
 
 import com.upedge.common.base.Page;
 import com.upedge.common.constant.key.RedisKey;
+import com.upedge.common.utils.ListUtils;
 import com.upedge.ums.modules.account.entity.Account;
 import com.upedge.ums.modules.account.service.AccountService;
 import com.upedge.ums.modules.user.dao.CustomerVipRebateRecordDao;
@@ -47,6 +48,14 @@ public class CustomerVipRebateRecordServiceImpl implements CustomerVipRebateReco
     @Transactional
     public int insert(CustomerVipRebateRecord record) {
         return customerVipRebateRecordDao.insert(record);
+    }
+
+    @Override
+    public int insertByBatch(List<CustomerVipRebateRecord> records) {
+        if (ListUtils.isNotEmpty(records)){
+            return customerVipRebateRecordDao.insertByBatch(records);
+        }
+        return 0;
     }
 
     /**

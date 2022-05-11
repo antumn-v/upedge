@@ -22,6 +22,8 @@ public interface CustomerVipRebateRecordService{
 
     int insert(CustomerVipRebateRecord record);
 
+    int insertByBatch(List<CustomerVipRebateRecord> records);
+
     int insertSelective(CustomerVipRebateRecord record);
 
     List<CustomerVipRebateRecord> select(Page<CustomerVipRebateRecord> record);

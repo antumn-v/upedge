@@ -28,7 +28,9 @@ import com.upedge.ums.modules.affiliate.dao.AffiliateDao;
 import com.upedge.ums.modules.affiliate.entity.Affiliate;
 import com.upedge.ums.modules.affiliate.entity.AffiliateCommissionRecord;
 import com.upedge.ums.modules.user.dao.UserDao;
+import com.upedge.ums.modules.user.entity.CustomerVipRebateRecord;
 import com.upedge.ums.modules.user.entity.User;
+import com.upedge.ums.modules.user.service.CustomerVipRebateRecordService;
 import io.seata.spring.annotation.GlobalTransactional;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -38,8 +40,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.util.*;
-import java.util.concurrent.ThreadPoolExecutor;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * @author 海桐
@@ -94,8 +98,9 @@ public class AccountServiceImpl implements AccountService {
     AffiliateDao affiliateDao;
     @Autowired
     AffiliateCommissionRecordDao affiliateCommissionRecordDao;
+
     @Autowired
-    private ThreadPoolExecutor threadPoolExecutor;
+    CustomerVipRebateRecordService customerVipRebateRecordService;
 
     @Override
     public Account selectCustomerDefaultAccount(Long customerId) {
@@ -465,7 +470,6 @@ public class AccountServiceImpl implements AccountService {
     @Transactional(rollbackFor = Exception.class)
     @Override
     public  boolean saveTransactionDetails(PaymentDetail paymentDetail) {
-
         Iterator<TransactionDetail> iterator = paymentDetail.getOrderTransactions().iterator();
         while (iterator.hasNext()){
             TransactionDetail next = iterator.next();
@@ -487,48 +491,18 @@ public class AccountServiceImpl implements AccountService {
 
         BigDecimal vipRebate = paymentLog.getVipRebate();
 
-        TransactionType transactionType = null;
+        TransactionType transactionType = OrderType.getOrderPayTransactionType(paymentDetail.getOrderType());
 
-        Integer orderType = paymentDetail.getOrderType();
-        switch (orderType) {
-            case OrderType.NORMAL:
-                transactionType = TransactionType.BALANCE_PAY_ORDER;
-                break;
-            case OrderType.STOCK:
-                transactionType = TransactionType.BALANCE_PAY_STOCK;
-                break;
-            case OrderType.EXTRA_SERVICE_WHOLESALE:
-                transactionType = TransactionType.BALANCE_PAY_EXTRA_SERVICE_WHOLESALE;
-                break;
-            case OrderType.EXTRA_SERVICE_OVERSEA_WAREHOUSE:
-                transactionType = TransactionType.BALANCE_PAY_OVERSEA_WAREHOUSE_SERVICE_ORDER;
-                break;
-            case OrderType.EXTRA_SERVICE_PRODUCT_PHOTOGRAPHY:
-                transactionType = TransactionType.BALANCE_PAY_PRODUCT_PHOTOGRAPHY;
-                break;
-            case OrderType.EXTRA_SERVICE_WINNING_PRODUCT:
-                transactionType = TransactionType.BALANCE_PAY_EXTRA_SERVICE_WINNING_PRODUCT;
-                break;
-            default:
-                throw new IllegalStateException("Unexpected value: " + orderType);
-        }
-        Date date = new Date();
         //----------------支付的订单-----------------------
         List<TransactionDetail> transactionDetails = paymentDetail.getOrderTransactions();
         Iterator<TransactionDetail> transactionDetailIterator = transactionDetails.iterator();
         //------------------------------------------
         List<AccountLog> accountLogs = new ArrayList<>();
+        List<CustomerVipRebateRecord> customerVipRebateRecords = new ArrayList<>();
+        List<AffiliateCommissionRecord> affiliateCommissionRecords = new ArrayList<>();
         //---------------------------------
         while (transactionDetailIterator.hasNext()) {
-            AccountLog accountLog = new AccountLog();
             TransactionDetail detail = transactionDetailIterator.next();
-            accountLog.setAccountId(account.getId());
-            accountLog.setCustomerId(account.getCustomerId());
-            accountLog.setTransactionId(detail.getOrderId());
-            accountLog.setTransactionType(transactionType.getTransactionType());
-            accountLog.setOrderType(transactionType.getOrderType());
-            accountLog.setPayMethod(transactionType.getPayMethod());
-            accountLog.setCreateTime(date);
             //----------------AccountLog保存每笔订单使用的余额返点信用额度-----------------
             BigDecimal transactionBalance = BigDecimal.ZERO;
             BigDecimal transactionAffiliateRebate = BigDecimal.ZERO;
@@ -564,11 +538,17 @@ public class AccountServiceImpl implements AccountService {
 
                 balance = BigDecimal.ZERO;
                 affiliateRebate = BigDecimal.ZERO;
+                //会员返点使用记录
+                CustomerVipRebateRecord customerVipRebateRecord = new CustomerVipRebateRecord(account.getCustomerId(),account.getId(), detail.getOrderId(), transactionVipRebate,0,detail.getPayTime());
+                customerVipRebateRecords.add(customerVipRebateRecord);
+            }
+            //联盟佣金返点使用记录
+            if (transactionAffiliateRebate.compareTo(BigDecimal.ZERO) > 0){
+                AffiliateCommissionRecord affiliateCommissionRecord = new AffiliateCommissionRecord(0L,account.getCustomerId(), detail.getOrderId(), OrderType.NORMAL,transactionAffiliateRebate,0,detail.getPayTime(),detail.getPayTime());
+                affiliateCommissionRecords.add(affiliateCommissionRecord);
             }
             //一个订单支付对应一条accountLog
-            accountLog.setBalance(transactionBalance);
-            accountLog.setAffiliateRebate(transactionAffiliateRebate);
-            accountLog.setVipRebate(transactionVipRebate);
+            AccountLog accountLog = new AccountLog(account.getId(),account.getCustomerId(),transactionType.getTransactionType(),transactionType.getOrderType(),transactionType.getPayMethod(), detail.getOrderId(), transactionBalance,transactionAffiliateRebate,transactionVipRebate,BigDecimal.ZERO,BigDecimal.ZERO,detail.getPayTime());
             accountLogs.add(accountLog);
         }
 
@@ -578,6 +558,10 @@ public class AccountServiceImpl implements AccountService {
             return false;
         }
         accountLogDao.insertByBatch(accountLogs);
+        customerVipRebateRecordService.insertByBatch(customerVipRebateRecords);
+        if (ListUtils.isNotEmpty(affiliateCommissionRecords)){
+            affiliateCommissionRecordDao.insertByBatch(affiliateCommissionRecords);
+        }
         return true;
     }
 

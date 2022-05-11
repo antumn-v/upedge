@@ -47,4 +47,18 @@ public class AffiliateCommissionRecord{
 	 */
     private Date updateTime;
 
+
+	public AffiliateCommissionRecord(Long refereeId, Long referrerId, Long orderId, Integer orderType, BigDecimal commission, Integer state, Date createTime, Date updateTime) {
+		this.refereeId = refereeId;
+		this.referrerId = referrerId;
+		this.orderId = orderId;
+		this.orderType = orderType;
+		this.commission = commission;
+		this.state = state;
+		this.createTime = createTime;
+		this.updateTime = updateTime;
+	}
+
+	public AffiliateCommissionRecord() {
+	}
 }
