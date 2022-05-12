@@ -15,10 +15,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -37,6 +34,14 @@ public class CustomerVipRebateRecordController {
 
     @Autowired
     RedisTemplate redisTemplate;
+
+
+    @PostMapping("/statistics")
+    public BaseResponse statistics(){
+        Session session = UserUtil.getSession(redisTemplate);
+        return customerVipRebateRecordService.selectCustomerCountRebate(session.getCustomerId());
+    }
+
 
     @ApiOperation("vip佣金记录")
     @RequestMapping(value="/list", method=RequestMethod.POST)

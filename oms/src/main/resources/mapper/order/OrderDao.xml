@@ -1532,7 +1532,7 @@
     <update id="updateOrderAsTracked">
         update `order`
         set ship_state=1,
-            tracking_num = #{trackNum}
+            tracking_code = #{trackNum}
         where id = #{id}
     </update>
     <update id="updateOrderShipMethod">

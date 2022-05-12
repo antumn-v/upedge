@@ -35,9 +35,9 @@ hystrix:
       execution:
         isolation:
           thread:
-            timeoutInMilliseconds: 60000
+            timeoutInMilliseconds: 1800000
 ribbon:        #设置ribbon的超时时间小于zuul的超时时间
-  ReadTimeout: 25000
+  ReadTimeout: 60000
   ConnectTimeout: 25000
 
 

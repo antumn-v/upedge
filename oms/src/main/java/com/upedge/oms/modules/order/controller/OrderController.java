@@ -33,6 +33,7 @@ import com.upedge.oms.modules.orderShippingUnit.service.OrderShippingUnitService
 import com.upedge.oms.modules.orderShippingUnit.vo.OrderShippingUnitVo;
 import com.upedge.oms.modules.tickets.service.SupportTicketsService;
 import com.upedge.oms.modules.tickets.vo.SupportTicketsVo;
+import com.upedge.oms.scheduler.PackageScheduler;
 import com.upedge.thirdparty.saihe.config.SaiheConfig;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -77,6 +78,9 @@ public class OrderController {
     private OrderShippingUnitService orderShippingUnitService;
     @Autowired
     private ThreadPoolExecutor threadPoolExecutor;
+
+    @Autowired
+    PackageScheduler packageScheduler;
 
     @ApiOperation("订单搜索")
     @ApiImplicitParams({
@@ -755,5 +759,11 @@ public class OrderController {
     @PostMapping("/updateWarehouse/{methodId}")
     public BaseResponse updateWarehouseByMethod(@PathVariable Long methodId){
         return orderService.updateOrderShippingWarehouse(methodId);
+    }
+
+    @PostMapping("/pullNormalTracking")
+    public BaseResponse pullNormalTracking(){
+        packageScheduler.pullNormalTracking();
+        return BaseResponse.success();
     }
 }

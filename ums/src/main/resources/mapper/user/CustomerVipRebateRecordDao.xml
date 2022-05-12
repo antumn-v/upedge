@@ -224,4 +224,29 @@
         and rebate_type = #{rebateType}
         limit 1
     </select>
+
+    <select id="selectCustomerCountRebateByDay" resultType="com.upedge.ums.modules.user.vo.CustomerVipRebateCountVo">
+        select customer_id,DATE_FORMAT(create_time,'%Y-%m-%d') as `date`,count(order_id) as `orderCount`,sum(rebate) as `totalRebate`
+            from customer_vip_rebate_record
+        where customer_id = #{customerId}
+        and rebate_type = '1'
+        group by customer_id,`date`
+        order by `date` desc
+    </select>
+
+    <select id="selectCustomerCountRebateByMonth" resultType="com.upedge.ums.modules.user.vo.CustomerVipRebateCountVo">
+        select customer_id,DATE_FORMAT(create_time,'%Y-%m') as `date`,count(order_id) as `orderCount`,sum(rebate) as `totalRebate`
+            from customer_vip_rebate_record
+        where customer_id = #{customerId}
+        and rebate_type = '1'
+        group by customer_id,`date`
+        order by `date` desc
+    </select>
+
+    <select id="selectCustomerTotalVipRebate" resultType="java.math.BigDecimal">
+        select sum(rebate) as `totalRebate`
+        from customer_vip_rebate_record
+        where customer_id = #{customerId}
+        and rebate_type = '1'
+    </select>
 </mapper>

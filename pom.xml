@@ -20,7 +20,7 @@
         <module>tms</module>
         <module>sms</module>
         <module>zuul</module>
-        <!--        <module>cms</module>-->
+        <module>cms</module>
     </modules>
 
 

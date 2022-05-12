@@ -1,5 +1,6 @@
 package com.upedge.ums.modules.user.service;
 
+import com.upedge.common.base.BaseResponse;
 import com.upedge.common.base.Page;
 import com.upedge.ums.modules.user.entity.CustomerVipRebateRecord;
 
@@ -9,6 +10,8 @@ import java.util.List;
  * @author gx
  */
 public interface CustomerVipRebateRecordService{
+
+    BaseResponse selectCustomerCountRebate(Long customerId);
 
     void addCustomerVipRebate(Long customerId,Long orderId);
 

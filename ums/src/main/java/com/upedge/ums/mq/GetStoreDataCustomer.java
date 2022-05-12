@@ -52,15 +52,17 @@ public class GetStoreDataCustomer {
                         log.warn("消息内容有误：{}",message);
                         continue;
                     }
-                    boolean b = RedisUtil.lock(redisTemplate,message.getKeys(),10L,60 * 1000L);
-                    if (!b){
-                        return ConsumeConcurrentlyStatus.CONSUME_SUCCESS;
-                    }
+
                     MqMessageLog mqMessageLog = mqMessageLogService.selectByMsgKey(message.getKeys());
                     if(mqMessageLog != null && mqMessageLog.getIsConsumeSuccess() == 1){
                         return ConsumeConcurrentlyStatus.CONSUME_SUCCESS;
                     }
                     Store store = JSONObject.parseObject(new String(message.getBody())).toJavaObject(Store.class);
+                    String key = RocketMqConfig.TOPIC_GET_STORE_DATA + store.getId();
+                    boolean b = RedisUtil.lock(redisTemplate,key,10L,60 *60 * 1000L);
+                    if (!b){
+                        return ConsumeConcurrentlyStatus.CONSUME_SUCCESS;
+                    }
                     storeAsync.getStoreData(store);
 
                     if(null == mqMessageLog){

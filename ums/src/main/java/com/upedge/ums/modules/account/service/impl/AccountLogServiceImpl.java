@@ -1,7 +1,6 @@
 package com.upedge.ums.modules.account.service.impl;
 
 import com.upedge.common.base.BaseResponse;
-import com.upedge.common.base.Page;
 import com.upedge.common.constant.Constant;
 import com.upedge.common.constant.ResultCode;
 import com.upedge.common.enums.TransactionConstant;
@@ -104,20 +103,20 @@ public class AccountLogServiceImpl implements AccountLogService {
     *
     */
     @Override
-    public List<AccountLog> select(Page<AccountLog> record){
-        record.initFromNum();
+    public List<AccountLog> select(AccountLogListRequest request){
+        request.initFromNum();
 
-        return accountLogDao.select(record);
+        return accountLogDao.select(request);
     }
 
     /**
     *
     */
     @Override
-    public long count(Page<AccountLog> record){
+    public long count(AccountLogListRequest request){
 
 
-        return accountLogDao.count(record);
+        return accountLogDao.count(request);
     }
 
     /**

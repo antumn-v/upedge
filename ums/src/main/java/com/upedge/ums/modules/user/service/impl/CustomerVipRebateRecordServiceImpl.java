@@ -1,5 +1,6 @@
 package com.upedge.ums.modules.user.service.impl;
 
+import com.upedge.common.base.BaseResponse;
 import com.upedge.common.base.Page;
 import com.upedge.common.constant.key.RedisKey;
 import com.upedge.common.utils.ListUtils;
@@ -8,14 +9,14 @@ import com.upedge.ums.modules.account.service.AccountService;
 import com.upedge.ums.modules.user.dao.CustomerVipRebateRecordDao;
 import com.upedge.ums.modules.user.entity.CustomerVipRebateRecord;
 import com.upedge.ums.modules.user.service.CustomerVipRebateRecordService;
+import com.upedge.ums.modules.user.vo.CustomerVipRebateCountVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 
 @Service
@@ -64,6 +65,30 @@ public class CustomerVipRebateRecordServiceImpl implements CustomerVipRebateReco
     @Transactional
     public int insertSelective(CustomerVipRebateRecord record) {
         return customerVipRebateRecordDao.insert(record);
+    }
+
+    @Override
+    public BaseResponse selectCustomerCountRebate(Long customerId) {
+        BigDecimal totalRebate = customerVipRebateRecordDao.selectCustomerTotalVipRebate(customerId);
+        if (null == totalRebate){
+            totalRebate = BigDecimal.ZERO;
+        }
+
+        Map<String,Object> map = new HashMap<>();
+
+        List<CustomerVipRebateCountVo> customerVipRebateRecords = customerVipRebateRecordDao.selectCustomerCountRebateByDay(customerId);
+        if (ListUtils.isEmpty(customerVipRebateRecords)){
+            customerVipRebateRecords = new ArrayList<>();
+        }
+        List<CustomerVipRebateCountVo> customerVipRebateCountVos = customerVipRebateRecordDao.selectCustomerCountRebateByMonth(customerId);
+        if (ListUtils.isEmpty(customerVipRebateCountVos)){
+            customerVipRebateCountVos = new ArrayList<>();
+        }
+        map.put("totalRebate",totalRebate);
+        map.put("day",customerVipRebateRecords);
+        map.put("month",customerVipRebateCountVos);
+
+        return BaseResponse.success(map);
     }
 
     @Override

@@ -576,13 +576,6 @@ public class AccountServiceImpl implements AccountService {
         if (account == null) {
             return new BaseResponse(ResultCode.FAIL_CODE, "用户不存在!");
         }
-        //校验订单类型
-        Integer orderType = request.getOrderType();
-        TransactionConstant.OrderType[] orderTypes = TransactionConstant.OrderType.values();
-        boolean b = Arrays.asList(orderTypes).contains(orderType);
-        if (!b) {
-            return new BaseResponse(ResultCode.FAIL_CODE, "订单类型异常!");
-        }
         //订单支付金额
         BigDecimal payAmount = request.getPayAmount();
         BigDecimal refundAmount = request.getRefundAmount();

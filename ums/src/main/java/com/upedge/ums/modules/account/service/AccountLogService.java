@@ -1,7 +1,6 @@
 package com.upedge.ums.modules.account.service;
 
 import com.upedge.common.base.BaseResponse;
-import com.upedge.common.base.Page;
 import com.upedge.common.model.order.TransactionDetail;
 import com.upedge.common.model.user.request.OrderAccountLogRequest;
 import com.upedge.common.model.user.vo.OrderAccountLogVo;
@@ -27,9 +26,9 @@ public interface AccountLogService{
 
     int insertSelective(AccountLog record);
 
-    List<AccountLog> select(Page<AccountLog> record);
+    List<AccountLog> select(AccountLogListRequest request);
 
-    long count(Page<AccountLog> record);
+    long count(AccountLogListRequest request);
 
     BaseResponse orderInfoAccountFlow(Long transactionId);
 

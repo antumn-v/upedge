@@ -1,8 +1,8 @@
 package com.upedge.ums.modules.account.dao;
 
-import com.upedge.common.base.Page;
 import com.upedge.common.model.user.vo.OrderAccountLogVo;
 import com.upedge.ums.modules.account.entity.AccountLog;
+import com.upedge.ums.modules.account.request.AccountLogListRequest;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
@@ -26,9 +26,9 @@ public interface AccountLogDao{
 
     int insertByBatch(List<AccountLog> list);
 
-    List<AccountLog> select(Page<AccountLog> record);
+    List<AccountLog> select(AccountLogListRequest request);
 
-    long count(Page<AccountLog> record);
+    long count(AccountLogListRequest request);
 
     AccountLog selectPayedAccountLogByTransactionId(@Param("transactionId") Long transactionId, @Param("transactionType") Integer transactionType);
 

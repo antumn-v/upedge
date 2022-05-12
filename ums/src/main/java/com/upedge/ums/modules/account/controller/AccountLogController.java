@@ -2,7 +2,6 @@ package com.upedge.ums.modules.account.controller;
 
 import com.upedge.common.base.BaseResponse;
 import com.upedge.common.component.annotation.Permission;
-import com.upedge.common.constant.BaseCode;
 import com.upedge.common.constant.Constant;
 import com.upedge.common.constant.ResultCode;
 import com.upedge.common.enums.CustomerExceptionEnum;
@@ -60,7 +59,7 @@ public class AccountLogController {
             request.setT(new AccountLog());
         }
         Session session = UserUtil.getSession(redisTemplate);
-        if(session.getUserType() != BaseCode.USER_ROLE_SUPERADMIN){
+        if(session.getApplicationId() != Constant.ADMIN_APPLICATION_ID){
             request.getT().setCustomerId(session.getCustomerId());
         }
         if(request.getBeginTime()!=null){

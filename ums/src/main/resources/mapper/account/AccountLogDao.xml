@@ -307,7 +307,7 @@
         </if>
     </sql>
 
-    <select id="select" parameterType="com.upedge.common.base.Page" resultMap="BaseResultMap">
+    <select id="select" parameterType="com.upedge.ums.modules.account.request.AccountLogListRequest" resultMap="BaseResultMap">
         select
         <include refid="Base_Column_List"/>
         from account_log
@@ -348,7 +348,7 @@
                 </if>
             </trim>
         </where>
-        order by create_time desc
+        order by id desc
         <if test="pageNum != null and pageSize != null">
             limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
         </if>

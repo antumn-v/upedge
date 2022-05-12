@@ -88,9 +88,9 @@ public class PackageScheduler {
                    log.error("从赛盒获取物流pullNormalTracking信息出错：order:{},exception:{}",order,e);
                }
            }
-           page.setCondition("id > " + orderList.get(orderList.size()-1).getId() +"and saihe_order_code is NOT NULL");
-           orderList.clear();
-           orderList = orderService.selectPage(page);
+//           page.setCondition("id > " + orderList.get(orderList.size()-1).getId() +" and saihe_order_code is NOT NULL");
+//           orderList.clear();
+//           orderList = orderService.selectPage(page);
        }
 
     }
