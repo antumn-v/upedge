@@ -66,6 +66,9 @@ public class OrderActionServiceImpl implements OrderActionService {
     VatRuleService vatRuleService;
 
     @Autowired
+    OrderReshipInfoDao orderReshipInfoDao;
+
+    @Autowired
     PmsFeignClient pmsFeignClient;
 
     @Override
@@ -106,7 +109,7 @@ public class OrderActionServiceImpl implements OrderActionService {
 
         Order order = orderDao.selectByPrimaryKey(orderId);
 
-        if (null == order || order.getPayState() != 0 || order.getOrderType() != 0) {
+        if (null == order || order.getPayState() != 0 || order.getOrderType() > 1) {
             return "Only unpaid ordinary orders can be combined";
         }
         OrderAddress orderAddress = orderAddressDao.selectByOrderId(orderId);
@@ -306,6 +309,11 @@ public class OrderActionServiceImpl implements OrderActionService {
         if (ListUtils.isEmpty(orderIds)) {
             return "No matching order";
         }
+        OrderReshipInfo orderReshipInfo = orderReshipInfoDao.selectByPrimaryKey(oldOrderId);
+        if (null != orderReshipInfo){
+            order.setOrderType(1);
+        }
+
         OrderAddress orderAddress = orderAddressDao.selectByOrderId(orderId);
         List<StoreOrderRelate> storeOrderRelates = storeOrderRelateDao.selectByOrderId(orderId);
         log.info("订单拆分即将删除的原订单：{}", orderIds);
