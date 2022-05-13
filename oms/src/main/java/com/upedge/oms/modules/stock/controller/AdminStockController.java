@@ -26,7 +26,7 @@ import javax.validation.Valid;
 @Api(tags = "后台备库订单管理")
 @RestController
 @RequestMapping("/stock")
-public class AdminStockController {
+public class  AdminStockController {
     @Autowired
     RedisTemplate<String, Object> redisTemplate;
     @Autowired

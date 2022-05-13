@@ -103,6 +103,7 @@ public class UserController {
         }
         String token = (String) redisTemplate.opsForHash().get(RedisKey.HASH_IP_REFERRER_TOKEN,ip);
         request.setReferrerToken(token);
+        redisTemplate.opsForHash().delete(RedisKey.HASH_IP_REFERRER_TOKEN,ip);
         return request;
     }
 

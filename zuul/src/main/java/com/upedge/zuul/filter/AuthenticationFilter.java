@@ -31,6 +31,7 @@ public class AuthenticationFilter extends ZuulFilter {
 		freePaths.add("/ums/user/signin");//注册
 		freePaths.add("/ums/user/signup");//登陆
 		freePaths.add("/ums/user/fb/signup");//登陆
+		freePaths.add("/ums/affiliate/bind/");//登陆
 		freePaths.add("/ums/user/info/select");//邮箱（登录名）查询
 		freePaths.add("/ums/user/sendEmail/verifyCode");//邮箱验证码
 		freePaths.add("/ums/user/emailCodeCheck");//邮箱验证码
@@ -73,6 +74,7 @@ public class AuthenticationFilter extends ZuulFilter {
 					|| path.contains("/auth")
 					|| path.contains("/image")
 					|| path.contains("/excel")
+					|| path.contains("/ums/affiliate/bind/")
 					|| path.contains("/cms/web")) {
         		log.warn("FREE|"+RequestUtil.getIpAddress(request)+"|"+path+"| generator ");
             	return null;
