@@ -130,4 +130,6 @@ public class RedisKey {
      */
     public static final String CUSTOMER_PAY_ORDER_LOCK = "customer:pay:order:lock:";
 
+    public static final String HASH_IP_REFERRER_TOKEN = "ip:referrer:token";
+
 }

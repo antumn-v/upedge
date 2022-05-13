@@ -4,16 +4,20 @@ import com.upedge.common.base.BaseResponse;
 import com.upedge.common.component.annotation.Permission;
 import com.upedge.common.constant.Constant;
 import com.upedge.common.constant.ResultCode;
+import com.upedge.common.constant.key.RedisKey;
 import com.upedge.common.model.user.vo.CommissionRecordVo;
 import com.upedge.common.model.user.vo.Session;
+import com.upedge.common.web.util.RequestUtil;
 import com.upedge.common.web.util.UserUtil;
 import com.upedge.ums.modules.affiliate.entity.Affiliate;
+import com.upedge.ums.modules.affiliate.entity.AffiliateCodeRecord;
 import com.upedge.ums.modules.affiliate.request.AffiliateAddRequest;
 import com.upedge.ums.modules.affiliate.request.AffiliateListRequest;
 import com.upedge.ums.modules.affiliate.response.AffiliateAddResponse;
 import com.upedge.ums.modules.affiliate.response.AffiliateCommissionRecordListResponse;
 import com.upedge.ums.modules.affiliate.response.AffiliateInfoResponse;
 import com.upedge.ums.modules.affiliate.response.AffiliateListResponse;
+import com.upedge.ums.modules.affiliate.service.AffiliateCodeRecordService;
 import com.upedge.ums.modules.affiliate.service.AffiliateService;
 import com.upedge.ums.modules.user.service.CustomerService;
 import io.swagger.annotations.Api;
@@ -23,6 +27,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.math.BigDecimal;
 import java.util.List;
@@ -45,6 +50,9 @@ public class AffiliateController {
 
     @Autowired
     private AffiliateService affiliateService;
+
+    @Autowired
+    AffiliateCodeRecordService affiliateCodeRecordService;
 
     @Autowired
     CustomerService customerService;
@@ -89,31 +97,26 @@ public class AffiliateController {
         return BaseResponse.success(commission);
     }
 
-//    @ApiOperation("联盟绑定")
-//    @GetMapping("/bind/{token}")
-//    public BaseResponse affiliateBind(@PathVariable String token){
-//        log.warn("联盟注册，推荐人token：" + token);
-//
-//        Long customerId = null;
-//        try {
-//            customerId = (Long.valueOf(EncryptUtil.XORdecode(token, key)));
-//        } catch (Exception e) {
-//            return new BaseResponse(ResultCode.FAIL_CODE, "Affiliate Code Error");
-//        }
-//        log.warn("联盟注册，推荐人ID：" + customerId);
-//
-//        HttpServletRequest request = RequestUtil.getRequest();
-//
-//        boolean b = CookieUtils.addCookie(request, RequestUtil.getResponse(), String.valueOf(customerId));
-//        if (!b) {
-//            return new BaseResponse(ResultCode.FAIL_CODE, Constant.MESSAGE_FAIL);
-//        }
-//
-//        request.getSession().setAttribute("referrer", customerId);
-//
-//        return new BaseResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS);
-//
-//    }
+    @ApiOperation("联盟绑定")
+    @GetMapping("/bind/{token}")
+    public BaseResponse affiliateBind(@PathVariable String token){
+        log.warn("联盟注册，推荐人token：" + token);
+
+        AffiliateCodeRecord affiliateCodeRecord = affiliateCodeRecordService.selectByPrimaryKey(token);
+        if (null == affiliateCodeRecord){
+            return BaseResponse.success();
+        }
+
+        HttpServletRequest request = RequestUtil.getRequest();
+        String ip = RequestUtil.getIpAddress(request);
+        if (ip.equals("unknown")){
+            return BaseResponse.success();
+        }
+        redisTemplate.opsForHash().put(RedisKey.HASH_IP_REFERRER_TOKEN,ip,token);
+
+        return new BaseResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS);
+
+    }
 
 
     /**

@@ -13,6 +13,7 @@ import com.upedge.common.model.user.request.UserInfoSelectRequest;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.utils.EmailUtils;
 import com.upedge.common.utils.TokenUtil;
+import com.upedge.common.web.util.RequestUtil;
 import com.upedge.common.web.util.UserUtil;
 import com.upedge.ums.modules.affiliate.service.AffiliateService;
 import com.upedge.ums.modules.store.entity.Store;
@@ -31,6 +32,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.util.List;
 import java.util.Map;
@@ -73,6 +75,7 @@ public class UserController {
         if (StringUtils.isBlank(request.getUsername())) {
             request.setUsername(loginName);
         }
+        request = getReferrerToken(request);
         CustomerSignUpResponse customerSignUpResponse = userService.signUp(request);
         try {
             if(StringUtils.isNotBlank(request.getState())
@@ -90,6 +93,17 @@ public class UserController {
             e.printStackTrace();
         }
         return customerSignUpResponse;
+    }
+
+    private CustomerSignUpRequest getReferrerToken(CustomerSignUpRequest request){
+        HttpServletRequest httpServletRequest = RequestUtil.getRequest();
+        String ip = RequestUtil.getIpAddress(httpServletRequest);
+        if (ip.equals("unknown")){
+            return request;
+        }
+        String token = (String) redisTemplate.opsForHash().get(RedisKey.HASH_IP_REFERRER_TOKEN,ip);
+        request.setReferrerToken(token);
+        return request;
     }
 
     @ApiOperation("登录")
