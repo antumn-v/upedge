@@ -1,58 +1,99 @@
 package com.upedge.ums.modules.manager.request;
 
+import com.upedge.common.utils.IdGenerate;
+import com.upedge.common.web.util.UserUtil;
 import com.upedge.ums.modules.manager.entity.ManagerInfo;
+import com.upedge.ums.modules.user.entity.User;
 import lombok.Data;
 
+import javax.validation.constraints.NotNull;
+import java.util.Date;
 /**
- * @author author
+ * @author gx
  */
 @Data
 public class ManagerInfoAddRequest{
 
+    @NotNull
+    private String loginName;
+    @NotNull
+    private String loginPass;
+
+    private String avatar;
     /**
-    * 
-    */
-    private Long customerId;
+     *
+     */
+    private String mobile;
     /**
-    * 赛盒来源渠道id
-    */
-    private Integer orderSourceId;
+     *
+     */
+    private String email;
     /**
-    * 赛盒来源渠道名称
-    */
-    private String orderSourceName;
+     * 国家
+     */
+    private String country;
     /**
-    * 
-    */
-    private String managerCode;
+     *
+     */
+    private String whatsapp;
     /**
-    *
+     *
+     */
+    private String wechat;
+    /**
+     *
+     */
+    private String fbInfo;
+    /**
+     *
+     */
+    private String skype;
+    /**
+     * 1=男，0=女
+     */
+    private Integer sex;
+    /**
+    * 客户经理英文名
     */
     private String managerName;
     /**
-    * 0=客户经理，1=助理
+    * 邀请注册码
     */
-    private Integer managerType;
-    /**
-    * 1=正常 0=停用
-    */
-    private Integer managerState;
-    /**
-    * 助理所属的客户经理ID
-    */
-    private String assistantSupeior;
+    @NotNull
+    private String inviteCode;
 
     public ManagerInfo toManagerInfo(){
         ManagerInfo managerInfo=new ManagerInfo();
-        managerInfo.setCustomerId(customerId);
-        managerInfo.setOrderSourceId(orderSourceId);
-        managerInfo.setOrderSourceName(orderSourceName);
-        managerInfo.setManagerCode(managerCode);
+        managerInfo.setId(IdGenerate.nextId());
+        managerInfo.setManagerType(1);
+        managerInfo.setManagerState(1);
         managerInfo.setManagerName(managerName);
-        managerInfo.setManagerType(managerType);
-        managerInfo.setManagerState(managerState);
-        managerInfo.setAssistantSupeior(assistantSupeior);
+        managerInfo.setCreateTime(new Date());
+        managerInfo.setInviteCode(inviteCode);
         return managerInfo;
+    }
+
+    public User toUser(Long id){
+        Date date = new Date();
+        User user = new User();
+        user.setId(id);
+        UserUtil.encryptPassword(loginPass,loginName);
+        user.setAvatar(avatar);
+        user.setLoginName(loginName);
+        user.setFbInfo(fbInfo);
+        user.setUsername(managerName);
+        user.setEmail(email);
+        user.setMobile(mobile);
+        user.setSex(sex);
+        user.setSkype(skype);
+        user.setStatus(1);
+        user.setWechat(wechat);
+        user.setWhatsapp(whatsapp);
+        user.setCreateTime(date);
+        user.setUpdateTime(date);
+        user.setLoginCount(0);
+        user.setCountry(country);
+        return user;
     }
 
 }

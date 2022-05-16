@@ -1,0 +1,317 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.upedge.ums.modules.manager.dao.ManagerInfoDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.upedge.ums.modules.manager.entity.ManagerInfo" id="BaseResultMap">
+        <result property="id" column="id"/>
+        <result property="userId" column="user_id"/>
+        <result property="orderSourceId" column="order_source_id"/>
+        <result property="orderSourceName" column="order_source_name"/>
+        <result property="managerCode" column="manager_code"/>
+        <result property="managerType" column="manager_type"/>
+        <result property="managerState" column="manager_state"/>
+        <result property="managerName" column="manager_name"/>
+        <result property="assistantSupeior" column="assistant_supeior"/>
+        <result property="createTime" column="create_time"/>
+        <result property="creatorId" column="creator_id"/>
+        <result property="inviteCode" column="invite_code"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        `id`,`user_id`,`order_source_id`,`order_source_name`,`manager_code`,`manager_type`,`manager_state`,`manager_name`,`assistant_supeior`,`create_time`,`creator_id`,`invite_code`
+    </sql>
+
+    <select id="selectByPrimaryKey" parameterType="com.upedge.ums.modules.manager.entity.ManagerInfo" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from manager_info
+        where id = #{id}
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="com.upedge.ums.modules.manager.entity.ManagerInfo">
+        delete from manager_info
+        where id = #{id}
+    </delete>
+
+    <update id="updateByPrimaryKeySelective" parameterType="com.upedge.ums.modules.manager.entity.ManagerInfo">
+        update manager_info
+        <set>
+            <if test="userId != null">
+                user_id = #{userId},
+            </if>
+            <if test="orderSourceId != null">
+                order_source_id = #{orderSourceId},
+            </if>
+            <if test="orderSourceName != null">
+                order_source_name = #{orderSourceName},
+            </if>
+            <if test="managerCode != null">
+                manager_code = #{managerCode},
+            </if>
+            <if test="managerType != null">
+                manager_type = #{managerType},
+            </if>
+            <if test="managerState != null">
+                manager_state = #{managerState},
+            </if>
+            <if test="managerName != null">
+                manager_name = #{managerName},
+            </if>
+            <if test="assistantSupeior != null">
+                assistant_supeior = #{assistantSupeior},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime},
+            </if>
+            <if test="creatorId != null">
+                creator_id = #{creatorId},
+            </if>
+            <if test="inviteCode != null">
+                invite_code = #{inviteCode},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <update id="updateByPrimaryKey" parameterType="com.upedge.ums.modules.manager.entity.ManagerInfo">
+        update manager_info
+        <set>
+        id = #{id},
+        user_id = #{userId},
+        order_source_id = #{orderSourceId},
+        order_source_name = #{orderSourceName},
+        manager_code = #{managerCode},
+        manager_type = #{managerType},
+        manager_state = #{managerState},
+        manager_name = #{managerName},
+        assistant_supeior = #{assistantSupeior},
+        create_time = #{createTime},
+        creator_id = #{creatorId},
+        invite_code = #{inviteCode},
+        </set>
+        where id = #{id}
+    </update>
+
+    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.upedge.ums.modules.manager.entity.ManagerInfo" useGeneratedKeys="true">
+        insert into manager_info
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            id,
+            user_id,
+            order_source_id,
+            order_source_name,
+            manager_code,
+            manager_type,
+            manager_state,
+            manager_name,
+            assistant_supeior,
+            create_time,
+            creator_id,
+            invite_code
+        </trim>
+        values (
+        #{id},
+        #{userId},
+        #{orderSourceId},
+        #{orderSourceName},
+        #{managerCode},
+        #{managerType},
+        #{managerState},
+        #{managerName},
+        #{assistantSupeior},
+        #{createTime},
+        #{creatorId},
+        #{inviteCode}
+        )
+    </insert>
+
+    <insert id="insertSelective"  keyColumn="id" keyProperty="id"  parameterType="com.upedge.ums.modules.manager.entity.ManagerInfo" useGeneratedKeys="true">
+        insert into manager_info
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null" >
+              id
+            </if>
+            <if test="userId != null" >
+              user_id
+            </if>
+            <if test="orderSourceId != null" >
+              order_source_id
+            </if>
+            <if test="orderSourceName != null" >
+              order_source_name
+            </if>
+            <if test="managerCode != null" >
+              manager_code
+            </if>
+            <if test="managerType != null" >
+              manager_type
+            </if>
+            <if test="managerState != null" >
+              manager_state
+            </if>
+            <if test="managerName != null" >
+              manager_name
+            </if>
+            <if test="assistantSupeior != null" >
+              assistant_supeior
+            </if>
+            <if test="createTime != null" >
+              create_time
+            </if>
+            <if test="creatorId != null" >
+              creator_id
+            </if>
+            <if test="inviteCode != null" >
+              invite_code
+            </if>
+
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null" >
+                #{id}
+            </if>
+            <if test="userId != null" >
+                #{userId}
+            </if>
+            <if test="orderSourceId != null" >
+                #{orderSourceId}
+            </if>
+            <if test="orderSourceName != null" >
+                #{orderSourceName}
+            </if>
+            <if test="managerCode != null" >
+                #{managerCode}
+            </if>
+            <if test="managerType != null" >
+                #{managerType}
+            </if>
+            <if test="managerState != null" >
+                #{managerState}
+            </if>
+            <if test="managerName != null" >
+                #{managerName}
+            </if>
+            <if test="assistantSupeior != null" >
+                #{assistantSupeior}
+            </if>
+            <if test="createTime != null" >
+                #{createTime}
+            </if>
+            <if test="creatorId != null" >
+                #{creatorId}
+            </if>
+            <if test="inviteCode != null" >
+                #{inviteCode}
+            </if>
+
+        </trim>
+    </insert>
+
+    <insert id="insertByBatch" parameterType="java.util.List">
+        insert into manager_info
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+           id,
+           user_id,
+           order_source_id,
+           order_source_name,
+           manager_code,
+           manager_type,
+           manager_state,
+           manager_name,
+           assistant_supeior,
+           create_time,
+           creator_id,
+           invite_code
+        </trim>
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+               #{item.id},
+               #{item.userId},
+               #{item.orderSourceId},
+               #{item.orderSourceName},
+               #{item.managerCode},
+               #{item.managerType},
+               #{item.managerState},
+               #{item.managerName},
+               #{item.assistantSupeior},
+               #{item.createTime},
+               #{item.creatorId},
+               #{item.inviteCode}
+            </trim>
+        </foreach>
+    </insert>
+
+    <sql id="Query_Condition">
+        <if test="t != null">
+            where
+            <trim prefix=" " suffix=" " suffixOverrides=" and ">
+                1 = 1 and
+                    <if test="t.id != null">
+                        id = #{t.id} and
+                    </if>
+                    <if test="t.userId != null">
+                        user_id = #{t.userId} and
+                    </if>
+                    <if test="t.orderSourceId != null">
+                        order_source_id = #{t.orderSourceId} and
+                    </if>
+                    <if test="t.orderSourceName != null">
+                        order_source_name = #{t.orderSourceName} and
+                    </if>
+                    <if test="t.managerCode != null">
+                        manager_code = #{t.managerCode} and
+                    </if>
+                    <if test="t.managerType != null">
+                        manager_type = #{t.managerType} and
+                    </if>
+                    <if test="t.managerState != null">
+                        manager_state = #{t.managerState} and
+                    </if>
+                    <if test="t.managerName != null">
+                        manager_name = #{t.managerName} and
+                    </if>
+                    <if test="t.assistantSupeior != null">
+                        assistant_supeior = #{t.assistantSupeior} and
+                    </if>
+                    <if test="t.createTime != null">
+                        create_time = #{t.createTime} and
+                    </if>
+                    <if test="t.creatorId != null">
+                        creator_id = #{t.creatorId} and
+                    </if>
+                    <if test="t.inviteCode != null">
+                        invite_code = #{t.inviteCode} and
+                    </if>
+            </trim>
+        </if>
+    </sql>
+
+    <select id="select" parameterType="com.upedge.common.base.Page" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from manager_info
+        <include refid="Query_Condition"/>
+        <if test="orderBy != null">
+            order by ${orderBy}
+        </if>
+        <if test="pageNum != null and pageSize != null">
+            limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+        </if>
+    </select>
+
+    <select id="count" parameterType="com.upedge.common.base.Page" resultType="java.lang.Long">
+        select
+        count(1)
+        from manager_info
+        <include refid="Query_Condition"/>
+    </select>
+
+    <select id="selectByInviteCode" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from manager_info
+        where invite_code = #{inviteCode}
+    </select>
+</mapper>

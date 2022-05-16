@@ -4,7 +4,7 @@ import com.upedge.common.base.Page;
 import com.upedge.ums.modules.manager.entity.ManagerInfo;
 
 /**
- * @author author
+ * @author gx
  */
 public class ManagerInfoListRequest extends Page<ManagerInfo> {
 }

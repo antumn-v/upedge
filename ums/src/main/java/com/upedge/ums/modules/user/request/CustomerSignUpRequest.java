@@ -128,10 +128,10 @@ public class CustomerSignUpRequest {
      * @param organization
      * @return
      */
-    public Role toRole(Customer customer, Organization organization) {
+    public Role toRole(Long customerId) {
         Role role = new Role();
         role.setId(IdGenerate.nextId());
-        role.setCustomerId(customer.getId());
+        role.setCustomerId(customerId);
         role.setRoleName(Constant.ORG_DEFAULT_ROLE);
         role.setCreateTime(this.createTime);
         role.setUpdateTime(this.createTime);

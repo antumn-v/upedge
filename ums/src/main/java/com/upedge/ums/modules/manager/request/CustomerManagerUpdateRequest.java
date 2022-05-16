@@ -2,42 +2,20 @@ package com.upedge.ums.modules.manager.request;
 
 import com.upedge.ums.modules.manager.entity.CustomerManager;
 import lombok.Data;
-
 /**
- * @author author
+ * @author gx
  */
 @Data
 public class CustomerManagerUpdateRequest{
 
     /**
-     * 
+     * 用户经理code
      */
-    private Long customerId;
-    /**
-     * 客户注册后创建的默认用户ID
-     */
-    private Long customerSignupUserId;
-    /**
-     * 用户经理ID
-     */
-    private String managerCode;
-    /**
-     * 备注
-     */
-    private String remark;
-    /**
-     * admin用户信息完善状态，对应app_user_info 0:未完善 1:部分完善 2:已完善
-     */
-    private Integer customerInfoState;
+    private Long managerId;
 
-    public CustomerManager toCustomerManager(Integer id){
+    public CustomerManager toCustomerManager(Long id){
         CustomerManager customerManager=new CustomerManager();
-        customerManager.setId(id);
-        customerManager.setCustomerId(customerId);
-        customerManager.setCustomerSignupUserId(customerSignupUserId);
-        customerManager.setManagerCode(managerCode);
-        customerManager.setRemark(remark);
-        customerManager.setCustomerInfoState(customerInfoState);
+        customerManager.setManagerId(managerId);
         return customerManager;
     }
 

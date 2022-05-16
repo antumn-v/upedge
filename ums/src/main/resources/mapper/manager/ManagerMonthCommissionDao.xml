@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.upedge.ums.modules.manager.dao.ManagerMonthCommissionDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.upedge.ums.modules.manager.entity.ManagerMonthCommission" id="BaseResultMap">
+        <result property="id" column="id"/>
+        <result property="managerId" column="manager_id"/>
+        <result property="dateMonth" column="date_month"/>
+        <result property="totalCommission" column="total_commission"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        `id`,`manager_id`,`date_month`,`total_commission`
+    </sql>
+
+    <select id="selectByPrimaryKey" parameterType="com.upedge.ums.modules.manager.entity.ManagerMonthCommission" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from manager_month_commission
+        where id = #{id}
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="com.upedge.ums.modules.manager.entity.ManagerMonthCommission">
+        delete from manager_month_commission
+        where id = #{id}
+    </delete>
+
+    <update id="updateByPrimaryKeySelective" parameterType="com.upedge.ums.modules.manager.entity.ManagerMonthCommission">
+        update manager_month_commission
+        <set>
+            <if test="managerId != null">
+                manager_id = #{managerId},
+            </if>
+            <if test="dateMonth != null">
+                date_month = #{dateMonth},
+            </if>
+            <if test="totalCommission != null">
+                total_commission = #{totalCommission},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <update id="updateByPrimaryKey" parameterType="com.upedge.ums.modules.manager.entity.ManagerMonthCommission">
+        update manager_month_commission
+        <set>
+        id = #{id},
+        manager_id = #{managerId},
+        date_month = #{dateMonth},
+        total_commission = #{totalCommission},
+        </set>
+        where id = #{id}
+    </update>
+
+    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.upedge.ums.modules.manager.entity.ManagerMonthCommission" useGeneratedKeys="true">
+        insert into manager_month_commission
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            id,
+            manager_id,
+            date_month,
+            total_commission
+        </trim>
+        values (
+        #{id},
+        #{managerId},
+        #{dateMonth},
+        #{totalCommission}
+        )
+    </insert>
+
+    <insert id="insertSelective"  keyColumn="id" keyProperty="id"  parameterType="com.upedge.ums.modules.manager.entity.ManagerMonthCommission" useGeneratedKeys="true">
+        insert into manager_month_commission
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null" >
+              id
+            </if>
+            <if test="managerId != null" >
+              manager_id
+            </if>
+            <if test="dateMonth != null" >
+              date_month
+            </if>
+            <if test="totalCommission != null" >
+              total_commission
+            </if>
+
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null" >
+                #{id}
+            </if>
+            <if test="managerId != null" >
+                #{managerId}
+            </if>
+            <if test="dateMonth != null" >
+                #{dateMonth}
+            </if>
+            <if test="totalCommission != null" >
+                #{totalCommission}
+            </if>
+
+        </trim>
+    </insert>
+
+    <insert id="insertByBatch" parameterType="java.util.List">
+        insert into manager_month_commission
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+           id,
+           manager_id,
+           date_month,
+           total_commission
+        </trim>
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+               #{item.id},
+               #{item.managerId},
+               #{item.dateMonth},
+               #{item.totalCommission}
+            </trim>
+        </foreach>
+    </insert>
+
+    <sql id="Query_Condition">
+        <if test="t != null">
+            where
+            <trim prefix=" " suffix=" " suffixOverrides=" and ">
+                1 = 1 and
+                    <if test="t.id != null">
+                        id = #{t.id} and
+                    </if>
+                    <if test="t.managerId != null">
+                        manager_id = #{t.managerId} and
+                    </if>
+                    <if test="t.dateMonth != null">
+                        date_month = #{t.dateMonth} and
+                    </if>
+                    <if test="t.totalCommission != null">
+                        total_commission = #{t.totalCommission} and
+                    </if>
+            </trim>
+        </if>
+    </sql>
+
+    <select id="select" parameterType="com.upedge.common.base.Page" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from manager_month_commission
+        <include refid="Query_Condition"/>
+        <if test="orderBy != null">
+            order by ${orderBy}
+        </if>
+        <if test="pageNum != null and pageSize != null">
+            limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+        </if>
+    </select>
+
+    <select id="count" parameterType="com.upedge.common.base.Page" resultType="java.lang.Long">
+        select
+        count(1)
+        from manager_month_commission
+        <include refid="Query_Condition"/>
+    </select>
+
+
+</mapper>

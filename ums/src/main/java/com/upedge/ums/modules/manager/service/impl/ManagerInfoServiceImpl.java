@@ -2,121 +2,126 @@ package com.upedge.ums.modules.manager.service.impl;
 
 import com.upedge.common.base.BaseResponse;
 import com.upedge.common.base.Page;
-import com.upedge.common.exception.CustomerException;
-import com.upedge.common.model.manager.vo.ManagerInfoVo;
+import com.upedge.common.constant.BaseCode;
+import com.upedge.common.constant.Constant;
 import com.upedge.common.model.user.vo.Session;
+import com.upedge.common.utils.IdGenerate;
+import com.upedge.ums.modules.manager.dao.ManagerInfoDao;
 import com.upedge.ums.modules.manager.entity.ManagerInfo;
-import com.upedge.ums.modules.manager.request.*;
+import com.upedge.ums.modules.manager.request.ManagerInfoAddRequest;
 import com.upedge.ums.modules.manager.service.ManagerInfoService;
-import com.upedge.ums.modules.manager.vo.ManagerInfoContainsUserInfoVo;
+import com.upedge.ums.modules.user.entity.User;
+import com.upedge.ums.modules.user.service.UserService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+
 @Service
 public class ManagerInfoServiceImpl implements ManagerInfoService {
-    @Override
-    public ManagerInfo selectManagerByCode(String code) {
-        return null;
-    }
 
-    @Override
-    public BaseResponse managerOrderSort(ManagerOrderSortRequest request, Session session) {
-        return null;
-    }
+    @Autowired
+    private ManagerInfoDao managerInfoDao;
 
-    @Override
-    public BaseResponse managerCustomerOrderSort(ManagerCustomerOrderSortRequest request, Session session) {
-        return null;
-    }
+    @Autowired
+    UserService userService;
 
-    @Override
-    public BaseResponse managerPackageSort(ManagerPackageSortRequest request, Session session) {
-        return null;
-    }
 
-    @Override
-    public ManagerInfoVo selectSessionManager(String token, Session session) {
-        return null;
-    }
 
-    @Override
-    public ManagerInfo selectByCustomerId(Long customerId) {
-        return null;
-    }
-
-    @Override
-    public ManagerInfoVo managerDetail(String managerCode) {
-        return null;
-    }
-
-    @Override
-    public BaseResponse managerCreate(ManagerCreateRequest request, Session session) throws CustomerException {
-        return null;
-    }
-
-    @Override
-    public List<ManagerInfoVo> selectAllManagerInfos() {
-        return null;
-    }
-
-    @Override
-    public ManagerInfo selectByPrimaryKey(String managerCode) {
-        return null;
-    }
-
-    @Override
+    /**
+     *
+     */
+    @Transactional
     public int deleteByPrimaryKey(Long id) {
-        return 0;
+        ManagerInfo record = new ManagerInfo();
+        record.setId(id);
+        return managerInfoDao.deleteByPrimaryKey(record);
     }
 
-    @Override
-    public int updateByPrimaryKey(ManagerInfo record) {
-        return 0;
-    }
-
-    @Override
-    public int updateByPrimaryKeySelective(ManagerInfo record) throws CustomerException {
-        return 0;
-    }
-
-    @Override
+    /**
+     *
+     */
+    @Transactional
     public int insert(ManagerInfo record) {
-        return 0;
+        return managerInfoDao.insert(record);
     }
 
-    @Override
+    /**
+     *
+     */
+    @Transactional
     public int insertSelective(ManagerInfo record) {
-        return 0;
+        return managerInfoDao.insert(record);
     }
 
+    @Transactional
     @Override
-    public List<ManagerInfo> select(Page<ManagerInfo> record) {
-        return null;
+    public BaseResponse create(ManagerInfoAddRequest request, Session session) {
+        if (session.getApplicationId() != Constant.ADMIN_APPLICATION_ID
+        || session.getUserType() != BaseCode.USER_ROLE_SUPERADMIN){
+            return BaseResponse.failed("权限不足");
+        }
+        ManagerInfo managerInfo = managerInfoDao.selectByInviteCode(request.getInviteCode());
+        if (null != managerInfo){
+            return BaseResponse.failed("邀请码不可重复");
+        }
+        User user = userService.selectByLoginName(request.getLoginName());
+        if (user != null){
+            return BaseResponse.failed("登陆信息不能重复");
+        }
+        Long userId = IdGenerate.nextId();
+        user = request.toUser(userId);
+        user.setCustomerId(session.getCustomerId());
+        userService.insert(user);
+        userService.userBindAccountOrgApp(userId,session.getApplicationId(),session.getAccountId(),session.getParentOrganization().getId(),session.getRole().getId());
+
+        managerInfo = request.toManagerInfo();
+        managerInfo.setUserId(userId);
+        managerInfo.setCreatorId(session.getId());
+        insert(managerInfo);
+        return BaseResponse.success();
     }
 
-    @Override
-    public long count(Page<ManagerInfo> record) {
-        return 0;
+    /**
+     *
+     */
+    public ManagerInfo selectByPrimaryKey(Long id){
+        ManagerInfo record = new ManagerInfo();
+        record.setId(id);
+        return managerInfoDao.selectByPrimaryKey(record);
     }
 
-    @Override
-    public List<ManagerInfo> getManagerList(ManagerInfo managerInfo) {
-        return null;
+    /**
+    *
+    */
+    @Transactional
+    public int updateByPrimaryKeySelective(ManagerInfo record) {
+        return managerInfoDao.updateByPrimaryKeySelective(record);
     }
 
-    @Override
-    public String getManagerByOrderSourceId(Long orderSourceId) {
-        return null;
+    /**
+    *
+    */
+    @Transactional
+    public int updateByPrimaryKey(ManagerInfo record) {
+        return managerInfoDao.updateByPrimaryKey(record);
     }
 
-    @Override
-    public void updateUserInfo(ManagerInfoUpdateRequest entity) {
-
+    /**
+    *
+    */
+    public List<ManagerInfo> select(Page<ManagerInfo> record){
+        record.initFromNum();
+        return managerInfoDao.select(record);
     }
 
-    @Override
-    public List<ManagerInfoContainsUserInfoVo> selectContainsUserInfoPage(Page<ManagerInfo> record) {
-        return null;
+    /**
+    *
+    */
+    public long count(Page<ManagerInfo> record){
+        return managerInfoDao.count(record);
     }
+
 }

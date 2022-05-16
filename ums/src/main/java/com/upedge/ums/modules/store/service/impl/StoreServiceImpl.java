@@ -27,8 +27,6 @@ import com.upedge.ums.async.StoreAsync;
 import com.upedge.ums.enums.ShopifyAttr;
 import com.upedge.ums.enums.WoocommerceAttr;
 import com.upedge.ums.modules.log.service.MqMessageLogService;
-import com.upedge.ums.modules.manager.entity.CustomerManager;
-import com.upedge.ums.modules.manager.service.CustomerManagerService;
 import com.upedge.ums.modules.organization.dao.OrganizationDao;
 import com.upedge.ums.modules.organization.dao.OrganizationMenuDao;
 import com.upedge.ums.modules.organization.dao.OrganizationRoleDao;
@@ -100,9 +98,6 @@ public class StoreServiceImpl implements StoreService {
 
     @Autowired
     StoreAsync storeAsync;
-
-    @Autowired
-    CustomerManagerService customerManagerService;
 
     @Autowired
     UserServiceImpl userServiceImpl;
@@ -286,7 +281,6 @@ public class StoreServiceImpl implements StoreService {
             store.setOrgPath(orgPath);
             organizationDao.insert(organization);
             storeDao.insert(store);
-            updateCustomerManagerAfterStore(session.getCustomerId());
             saveDefaultRole(organization, session);
             saveStoreSetting(storeId);
         }
@@ -455,7 +449,6 @@ public class StoreServiceImpl implements StoreService {
             store.setOrgPath(orgPath);
             organizationDao.insert(organization);
             storeDao.insert(store);
-            updateCustomerManagerAfterStore(session.getCustomerId());
             saveDefaultRole(organization, session);
             saveStoreSetting(storeId);
             OrganizationMenu organizationMenu = new OrganizationMenu();
@@ -578,7 +571,6 @@ public class StoreServiceImpl implements StoreService {
             store.setOrgPath(orgPath);
             organizationDao.insert(organization);
             storeDao.insert(store);
-            updateCustomerManagerAfterStore(session.getCustomerId());
 //            saveDefaultRole(organization, session);
             saveStoreSetting(storeId);
             OrganizationMenu organizationMenu = new OrganizationMenu();
@@ -797,13 +789,7 @@ public class StoreServiceImpl implements StoreService {
         return storeDao.selectStoreNameByGroupuserId();
     }
 
-    //店铺授权完成后修改客户经理关联表信息
-    public void updateCustomerManagerAfterStore(Long customerId){
-        CustomerManager customerManager = new CustomerManager();
-        customerManager.setCustomerId(customerId);
-        customerManager.setIsAuthStore(true);
-        customerManagerService.updateByCustomerIdSelective(customerManager);
-    }
+
 
 
 

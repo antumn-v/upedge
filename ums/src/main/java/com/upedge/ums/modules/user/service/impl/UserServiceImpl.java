@@ -170,12 +170,12 @@ public class UserServiceImpl implements UserService {
             return new UserProfileResponse(ResultCode.FAIL_CODE, "user is disabled!");
         }
         Customer customer = customerService.selectByPrimaryKey(session.getCustomerId());
-        UserInfo userInfo = userInfoService.selectByPrimaryKey(session.getId());
+        User user = userDao.selectByPrimaryKey(session.getId());
         List<Menu> menus = roleMenuService.selectRoleMenuByApplication(session.getRole().getId(), session.getApplicationId());
         UserProfileVo userData = new UserProfileVo();
         userData.setVipLevel(customer.getVipLevel());
         UserInfoVo userInfoVo = new UserInfoVo();
-        BeanUtils.copyProperties(userInfo, userInfoVo);
+        BeanUtils.copyProperties(user, userInfoVo);
         userData.setUserinfo(userInfoVo);
         userData.setRoleVo(session.getRole());
         List<MenuVo> menuVos = menus.stream().map(menu -> {
@@ -224,10 +224,10 @@ public class UserServiceImpl implements UserService {
         if (null != user) {
             throw new CustomerException(CustomerExceptionEnum.LOGIN_NAME_HAS_BEEN_REGISTERED);
         }
-        UserInfo userInfo = userInfoService.selectByEmail(request.getEmail());
-        if (userInfo != null) {
-            throw new CustomerException(CustomerExceptionEnum.MAILBOX_HAS_BEEN_REGISTERED);
-        }
+//        UserInfo userInfo = userInfoService.selectByEmail(request.getEmail());
+//        if (userInfo != null) {
+//            throw new CustomerException(CustomerExceptionEnum.MAILBOX_HAS_BEEN_REGISTERED);
+//        }
         user = userSignUp(request);
 
         try {
@@ -365,59 +365,56 @@ public class UserServiceImpl implements UserService {
         user.setId(userId);
         insert(user);
 
-        UserInfo userInfo = request.toUserInfo(user);
-        userInfo.setOrgId(organization.getId());
-        userInfoService.insert(userInfo);
-
-        OrganizationUser organizationUser = new OrganizationUser();
-        organizationUser.setOrgId(organization.getId());
-        organizationUser.setUserId(user.getId());
-        organizationUserService.insert(organizationUser);
-
         //添加默认角色
         Role role = roleService.selectApplicationDefaultRole(applicationId);
         if (null == role) {
-            role = request.toRole(customer, organization);
+            role = request.toRole(customer.getId());
             role.setApplicationId(applicationId);
             roleService.insertSelective(role);
         }
-
-
-        //用户初始角色
-        UserRole userRole = new UserRole();
-        userRole.setRoleId(role.getId());
-        userRole.setUserId(user.getId());
-        userRoleService.insert(userRole);
-
 
         OrganizationMenu organizationMenu = new OrganizationMenu();
         organizationMenu.setOrgId(organization.getId());
         organizationMenu.setMenuId(0L);
         organizationMenuService.insert(organizationMenu);
 
-
-
         Account account = request.toAccount(customer);
-        account.setName(userInfo.getUsername());
+        account.setName(user.getUsername());
         account.setStatus(1);
         account.setIsDefault(true);
         accountService.insert(account);
-
-        AccountUser accountUser = new AccountUser();
-        accountUser.setAccountId(account.getId());
-        accountUser.setUserId(userId);
-        accountUserMapper.insert(accountUser);
-
-        UserApplication userApplicationKey = new UserApplication();
-        userApplicationKey.setApplicationId(applicationId);
-        userApplicationKey.setUserId(user.getId());
-        userApplicationService.insert(userApplicationKey);
 
         CustomerApplication customerApplicationKey = new CustomerApplication();
         customerApplicationKey.setApplicationId(applicationId);
         customerApplicationKey.setCustomerId(customer.getId());
         customerApplicationService.insert(customerApplicationKey);
+
+        userBindAccountOrgApp(userId,applicationId,account.getId(),organization.getId(),role.getId());
         return user;
+    }
+
+    @Override
+    public void userBindAccountOrgApp(Long userId, Long applicationId, Long accountId, Long organizationId,Long roleId){
+        AccountUser accountUser = new AccountUser();
+        accountUser.setAccountId(accountId);
+        accountUser.setUserId(userId);
+        accountUserMapper.insert(accountUser);
+
+        OrganizationUser organizationUser = new OrganizationUser();
+        organizationUser.setOrgId(organizationId);
+        organizationUser.setUserId(userId);
+        organizationUserService.insert(organizationUser);
+
+        UserApplication userApplicationKey = new UserApplication();
+        userApplicationKey.setApplicationId(applicationId);
+        userApplicationKey.setUserId(userId);
+        userApplicationService.insert(userApplicationKey);
+
+        //用户初始角色
+        UserRole userRole = new UserRole();
+        userRole.setRoleId(roleId);
+        userRole.setUserId(userId);
+        userRoleService.insert(userRole);
     }
 
 
@@ -495,8 +492,7 @@ public class UserServiceImpl implements UserService {
         if (null != account) {
             session.setAccountId(account.getId());
         }
-        UserInfo userInfo = userInfoService.selectByPrimaryKey(userId);
-        session.setUserName(userInfo.getUsername());
+        session.setUserName(user.getUsername());
         session.setLoginpass(user.getLoginPass());
         UserUtil.setUser(redisTemplate, token, session);
         result.put("guideNotice",false);

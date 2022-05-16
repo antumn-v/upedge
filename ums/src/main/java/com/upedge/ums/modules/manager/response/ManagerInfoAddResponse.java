@@ -2,9 +2,8 @@ package com.upedge.ums.modules.manager.response;
 
 import com.upedge.common.base.BaseResponse;
 import com.upedge.ums.modules.manager.request.ManagerInfoAddRequest;
-
 /**
- * @author author
+ * @author gx
  */
 public class ManagerInfoAddResponse extends BaseResponse {
     public ManagerInfoAddResponse(int code, String msg, Object data, ManagerInfoAddRequest req) {

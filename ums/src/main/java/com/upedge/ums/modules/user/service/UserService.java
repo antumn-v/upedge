@@ -21,7 +21,9 @@ import java.util.Map;
  */
 public interface UserService{
 
-    Map<String, Object> userSignIn(User user, Long applicationId,Integer source);
+    void userBindAccountOrgApp(Long userId, Long applicationId, Long accountId, Long organizationId, Long roleId);
+
+    Map<String, Object> userSignIn(User user, Long applicationId, Integer source);
 
     User selectByLoginName(String loginName);
 

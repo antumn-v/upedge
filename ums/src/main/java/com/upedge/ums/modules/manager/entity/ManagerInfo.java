@@ -1,11 +1,11 @@
 package com.upedge.ums.modules.manager.entity;
 
+import java.io.Serializable;
+import java.util.Date;
 import lombok.Data;
 
-import java.util.Date;
-
 /**
- * @author author
+ * @author gx
  */
 @Data
 public class ManagerInfo{
@@ -17,7 +17,7 @@ public class ManagerInfo{
 	/**
 	 * 
 	 */
-    private Long customerId;
+    private Long userId;
 	/**
 	 * 赛盒来源渠道id
 	 */
@@ -31,26 +31,32 @@ public class ManagerInfo{
 	 */
     private String managerCode;
 	/**
-	 * 客户经理别名
-	 */
-    private String managerName;
-	/**
 	 * 0=客户经理，1=助理
 	 */
     private Integer managerType;
 	/**
-	 * 1=正常 0=停用
+	 * 1=正常 0=停用,2=删除
 	 */
     private Integer managerState;
 	/**
-	 * 助理所属的客户经理ID
+	 * 客户经理英文名
+	 */
+    private String managerName;
+	/**
+	 * 助理所属的客户经理代码
 	 */
     private String assistantSupeior;
-
+	/**
+	 * 
+	 */
     private Date createTime;
 	/**
-	 * 创建者客户ID
+	 * 创建者
 	 */
-	private Long creatorUserId;
+    private Long creatorId;
+	/**
+	 * 邀请注册码
+	 */
+    private String inviteCode;
 
 }
