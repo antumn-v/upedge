@@ -3,6 +3,7 @@ package com.upedge.oms.modules.order.controller;
 import com.upedge.common.base.BaseResponse;
 import com.upedge.common.constant.Constant;
 import com.upedge.common.constant.ResultCode;
+import com.upedge.common.exception.CustomerException;
 import com.upedge.common.model.ship.vo.ShipDetail;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.utils.ListUtils;
@@ -47,7 +48,13 @@ public class OrderActionController {
     })
     @PostMapping("/{id}/split")
     public BaseResponse splitNormalOrder(@PathVariable Long id, @RequestBody @Valid SplitNormalOrderRequest request){
-        String result = orderActionService.splitNormalOrder(id,request);
+        String result = null;
+        try {
+            result = orderActionService.splitNormalOrder(id,request);
+        } catch (CustomerException e) {
+            e.printStackTrace();
+            return BaseResponse.failed();
+        }
         if(result.equals("success")){
             return BaseResponse.success();
         }
@@ -103,7 +110,12 @@ public class OrderActionController {
             case 0:
                 return BaseResponse.success();
             case 2:
-                result = orderActionService.restoreSplitOrder(order);
+                try {
+                    result = orderActionService.restoreSplitOrder(order);
+                } catch (CustomerException e) {
+                    e.printStackTrace();
+                    return BaseResponse.failed();
+                }
                 break;
             case 3:
                 result = orderActionService.revertMergedOrder(order);

@@ -176,10 +176,19 @@ public class OrderServiceImpl implements OrderService {
 
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public void deleteOrderByIds(List<Long> ids) {
-        storeOrderItemDao.updateStateAfterRemoveOrder(ids);
+    public void deleteOrderByIds(List<Long> ids) throws CustomerException {
+        List<Order> orders = orderDao.selectByIds(ids);
+        if (ListUtils.isEmpty(orders)){
+            throw new CustomerException("delete order error");
+        }
+        for (Order order : orders) {
+            if (order.getPayState() != 0){
+                throw new CustomerException("delete order error");
+            }
+        }
         orderDao.deleteByIds(ids);
-        storeOrderRelateDao.deleteByOrderId(ids);
+
+        storeOrderItemDao.updateStateAfterRemoveOrder(ids);
     }
 
 

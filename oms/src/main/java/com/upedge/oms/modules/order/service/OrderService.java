@@ -141,7 +141,7 @@ public interface OrderService{
 
     int insertSelective(Order record);
 
-    void deleteOrderByIds(List<Long> ids);
+    void deleteOrderByIds(List<Long> ids) throws CustomerException;
 
     List<Order> select(Page<Order> record);
 

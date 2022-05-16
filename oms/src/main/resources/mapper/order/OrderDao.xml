@@ -629,12 +629,14 @@
     </update>
 
     <delete id="deleteByIds">
-        delete o,oi,od
+        delete o,oi,od,sor
         from `order` o
         left join order_item oi
         on o.id = oi.order_id
         left join order_address od
         on o.id = od.order_id
+        left join store_order_relate sor
+        on o.id = sor.order_id
         where o.id in
         <foreach collection="ids" item="id" open="(" separator="," close=")">
             #{id}
@@ -2277,5 +2279,14 @@
         select DISTINCT payment_id,customer_id,pay_method
         from `order`
         where pay_state = '1'
+    </select>
+
+    <select id="selectByIds" resultMap="BaseResultMap">
+        select <include refid="Base_Column_List"/>
+        from `order`
+        where id in
+        <foreach collection="ids" item="id" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
     </select>
 </mapper>

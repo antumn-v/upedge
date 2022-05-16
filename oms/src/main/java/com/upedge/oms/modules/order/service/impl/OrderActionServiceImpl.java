@@ -6,6 +6,7 @@ import com.upedge.common.base.BaseResponse;
 import com.upedge.common.base.Page;
 import com.upedge.common.constant.Constant;
 import com.upedge.common.constant.ResultCode;
+import com.upedge.common.exception.CustomerException;
 import com.upedge.common.feign.PmsFeignClient;
 import com.upedge.common.model.product.VariantDetail;
 import com.upedge.common.model.product.request.ProductVariantShipsRequest;
@@ -33,6 +34,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -100,7 +102,7 @@ public class OrderActionServiceImpl implements OrderActionService {
 
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public String splitNormalOrder(Long orderId, SplitNormalOrderRequest request) {
+    public String splitNormalOrder(Long orderId, SplitNormalOrderRequest request) throws CustomerException {
         List<OrderSplitModule> orderSplitModules = request.getOrderSplitModules();
         if (ListUtils.isEmpty(orderSplitModules)
                 || orderSplitModules.size() < 2) {
@@ -232,7 +234,7 @@ public class OrderActionServiceImpl implements OrderActionService {
 
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public String restoreSplitOrder(Order order) {
+    public String restoreSplitOrder(Order order) throws CustomerException {
         if (0 != order.getPayState() || 2 != order.getOrderType()) {
             return "order error";
         }
@@ -251,8 +253,6 @@ public class OrderActionServiceImpl implements OrderActionService {
 
         Long id = IdGenerate.nextId();
 
-        Map<Long, Order> orderMap = new HashMap<>();
-        orderMap.put(orderId, order);
         Map<Long, OrderItem> itemMap = new HashMap<>();
 
         List<OrderItem> items = new ArrayList<>();
@@ -265,16 +265,14 @@ public class OrderActionServiceImpl implements OrderActionService {
         for (OrderActionLog orderActionLog : actionLogs) {
             Long newOrderId = orderActionLog.getNewOrderId();
             Order newOrder = null;
-            if (!orderMap.containsKey(newOrderId)) {
+            if (!orderIds.contains(newOrderId)) {
                 newOrder = orderDao.selectByPrimaryKey(newOrderId);
+                if (null == newOrder ||0 != newOrder.getPayState() || 2 != order.getOrderType()) {
+                    continue;
+                }
                 orderIds.add(newOrderId);
-                orderMap.put(newOrderId, newOrder);
-            }else {
-                newOrder = orderMap.get(newOrderId);
             }
-            if (null == newOrder ||0 != newOrder.getPayState() || 2 != order.getOrderType()) {
-                continue;
-            }
+
             OrderItem orderItem = null;
             boolean b = false;
             if (itemMap.containsKey(orderActionLog.getOldItemId())) {
@@ -343,10 +341,12 @@ public class OrderActionServiceImpl implements OrderActionService {
     public String mergeNormalOrder(MergeOrderRequest request) {
 
         List<Long> orderIds = request.getOrderIds();
+        orderIds = orderIds.stream().distinct().collect(Collectors.toList());
         ShipDetail shipDetail = request.getShipDetail();
         if (ListUtils.isEmpty(orderIds) || orderIds.size() < 2) {
             return "request failed";
         }
+
         List<SameAddressOrderVo> sameAddressOrderVos = orderAddressDao.selectSameAddressByOrderIds(orderIds);
         if (ListUtils.isEmpty(sameAddressOrderVos) || 1 != sameAddressOrderVos.size()) {
             return "The combined order address must be the same";
@@ -400,6 +400,7 @@ public class OrderActionServiceImpl implements OrderActionService {
         orderService.initQuoteState(orderId);
         return "success";
     }
+
 
     @Transactional(rollbackFor = Exception.class)
     @Override

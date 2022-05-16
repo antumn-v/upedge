@@ -446,7 +446,12 @@ public class OrderController {
         } else {
             switch (order.getOrderType()) {
                 case 2:
-                    orderActionService.restoreSplitOrder(order);
+                    try {
+                        orderActionService.restoreSplitOrder(order);
+                    } catch (CustomerException e) {
+                        e.printStackTrace();
+                        return BaseResponse.failed();
+                    }
                     break;
                 case 3:
                     orderActionService.revertMergedOrder(order);

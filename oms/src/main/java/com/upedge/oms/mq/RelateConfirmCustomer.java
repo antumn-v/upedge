@@ -6,6 +6,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.upedge.common.base.BaseResponse;
 import com.upedge.common.constant.key.RocketMqConfig;
 import com.upedge.common.constant.ResultCode;
+import com.upedge.common.exception.CustomerException;
 import com.upedge.common.feign.UmsFeignClient;
 import com.upedge.common.model.log.MqMessageLog;
 import com.upedge.common.model.product.RelateDetailVo;
@@ -159,7 +160,12 @@ public class RelateConfirmCustomer {
                 }
                 if (oldVariantVos.size() > 1 || newVariantVos.size() > 1) {
                     log.debug("产品关联生成订单，删除捆绑产品订单：{}", unPaidOrderIds);
-                    orderService.deleteOrderByIds(unPaidOrderIds);
+                    try {
+                        orderService.deleteOrderByIds(unPaidOrderIds);
+                    } catch (CustomerException e) {
+                        e.printStackTrace();
+                        return;
+                    }
                 } else {
                     RelateVariantVo relateVariantVo = newVariantVos.get(0);
                     orderItemService.updateAdminVariantByStoreVariantId(storeVariantId, relateVariantVo);

@@ -1,5 +1,6 @@
 package com.upedge.oms.modules.order.service;
 
+import com.upedge.common.exception.CustomerException;
 import com.upedge.common.model.ship.vo.ShipDetail;
 import com.upedge.oms.modules.order.entity.Order;
 import com.upedge.oms.modules.order.request.MergeOrderRequest;
@@ -19,11 +20,11 @@ public interface OrderActionService {
 
     List<ShipDetail> mergeOrderShipList(List<Long> orderIds);
 
-    String splitNormalOrder(Long orderId, SplitNormalOrderRequest request);
+    String splitNormalOrder(Long orderId, SplitNormalOrderRequest request) throws CustomerException;
 
     String mergeNormalOrder(MergeOrderRequest request);
 
-    String restoreSplitOrder(Order order);
+    String restoreSplitOrder(Order order) throws CustomerException;
 
     String revertMergedOrder(Order order);
 }
