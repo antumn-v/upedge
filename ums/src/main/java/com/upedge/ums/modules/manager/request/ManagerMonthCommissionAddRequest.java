@@ -1,9 +1,8 @@
 package com.upedge.ums.modules.manager.request;
 
-import com.upedge.common.base.Page;
 import com.upedge.ums.modules.manager.entity.ManagerMonthCommission;
-import java.util.Date;
 import lombok.Data;
+
 import java.math.BigDecimal;
 /**
  * @author gx
@@ -18,7 +17,7 @@ public class ManagerMonthCommissionAddRequest{
     /**
     * 
     */
-    private Date dateMonth;
+    private String dateMonth;
     /**
     * 
     */

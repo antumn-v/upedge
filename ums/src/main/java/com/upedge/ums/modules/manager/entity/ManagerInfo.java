@@ -1,8 +1,9 @@
 package com.upedge.ums.modules.manager.entity;
 
-import java.io.Serializable;
-import java.util.Date;
 import lombok.Data;
+
+import java.math.BigDecimal;
+import java.util.Date;
 
 /**
  * @author gx
@@ -58,5 +59,7 @@ public class ManagerInfo{
 	 * 邀请注册码
 	 */
     private String inviteCode;
+
+	private BigDecimal perCommission;
 
 }

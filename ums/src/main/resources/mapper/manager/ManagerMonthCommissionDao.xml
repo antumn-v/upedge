@@ -5,26 +5,27 @@
 
 	<!-- 可根据自己的需求，是否要使用 -->
     <resultMap type="com.upedge.ums.modules.manager.entity.ManagerMonthCommission" id="BaseResultMap">
-        <result property="id" column="id"/>
         <result property="managerId" column="manager_id"/>
         <result property="dateMonth" column="date_month"/>
         <result property="totalCommission" column="total_commission"/>
     </resultMap>
 
     <sql id="Base_Column_List">
-        `id`,`manager_id`,`date_month`,`total_commission`
+        `manager_id`,`date_month`,`total_commission`
     </sql>
 
     <select id="selectByPrimaryKey" parameterType="com.upedge.ums.modules.manager.entity.ManagerMonthCommission" resultMap="BaseResultMap">
         select
         <include refid="Base_Column_List" />
         from manager_month_commission
-        where id = #{id}
+        where manager_id = #{managerId}
+        and date_month = #{dateMonth}
     </select>
 
     <delete id="deleteByPrimaryKey" parameterType="com.upedge.ums.modules.manager.entity.ManagerMonthCommission">
         delete from manager_month_commission
-        where id = #{id}
+        where manager_id = #{managerId}
+          and date_month = #{dateMonth}
     </delete>
 
     <update id="updateByPrimaryKeySelective" parameterType="com.upedge.ums.modules.manager.entity.ManagerMonthCommission">
@@ -46,36 +47,32 @@
     <update id="updateByPrimaryKey" parameterType="com.upedge.ums.modules.manager.entity.ManagerMonthCommission">
         update manager_month_commission
         <set>
-        id = #{id},
         manager_id = #{managerId},
         date_month = #{dateMonth},
         total_commission = #{totalCommission},
         </set>
-        where id = #{id}
+        where manager_id = #{managerId}
+        and date_month = #{dateMonth}
     </update>
 
     <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.upedge.ums.modules.manager.entity.ManagerMonthCommission" useGeneratedKeys="true">
         insert into manager_month_commission
         <trim prefix="(" suffix=")" suffixOverrides=",">
-            id,
             manager_id,
             date_month,
             total_commission
         </trim>
         values (
-        #{id},
         #{managerId},
         #{dateMonth},
         #{totalCommission}
-        )
+        ) on duplicate key
+        update total_commission = total_commission + #{totalCommission}
     </insert>
 
     <insert id="insertSelective"  keyColumn="id" keyProperty="id"  parameterType="com.upedge.ums.modules.manager.entity.ManagerMonthCommission" useGeneratedKeys="true">
         insert into manager_month_commission
         <trim prefix="(" suffix=")" suffixOverrides=",">
-            <if test="id != null" >
-              id
-            </if>
             <if test="managerId != null" >
               manager_id
             </if>
@@ -88,9 +85,6 @@
 
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
-            <if test="id != null" >
-                #{id}
-            </if>
             <if test="managerId != null" >
                 #{managerId}
             </if>
@@ -107,7 +101,6 @@
     <insert id="insertByBatch" parameterType="java.util.List">
         insert into manager_month_commission
         <trim prefix="(" suffix=")" suffixOverrides=",">
-           id,
            manager_id,
            date_month,
            total_commission
@@ -115,7 +108,6 @@
         values
         <foreach collection="list" item="item" index="index" separator=",">
             <trim prefix="(" suffix=")" suffixOverrides=",">
-               #{item.id},
                #{item.managerId},
                #{item.dateMonth},
                #{item.totalCommission}
@@ -128,9 +120,6 @@
             where
             <trim prefix=" " suffix=" " suffixOverrides=" and ">
                 1 = 1 and
-                    <if test="t.id != null">
-                        id = #{t.id} and
-                    </if>
                     <if test="t.managerId != null">
                         manager_id = #{t.managerId} and
                     </if>
@@ -164,5 +153,11 @@
         <include refid="Query_Condition"/>
     </select>
 
-
+    <select id="selectByManagerAndMonth" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from `manager_month_commission`
+        where manager_id = #{managerId}
+        and date_month = #{month}
+    </select>
 </mapper>

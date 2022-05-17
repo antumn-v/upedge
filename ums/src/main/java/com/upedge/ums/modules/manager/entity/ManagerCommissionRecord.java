@@ -1,15 +1,15 @@
 package com.upedge.ums.modules.manager.entity;
 
-import java.math.BigDecimal;
-import java.io.Serializable;
-import java.util.Date;
 import lombok.Data;
+
+import java.math.BigDecimal;
+import java.util.Date;
 
 /**
  * @author gx
  */
 @Data
-public class ManagerComissionRecord{
+public class ManagerCommissionRecord{
 
 	/**
 	 * 
@@ -19,6 +19,8 @@ public class ManagerComissionRecord{
 	 * 
 	 */
     private Long managerId;
+
+	private Long customerId;
 	/**
 	 * 
 	 */

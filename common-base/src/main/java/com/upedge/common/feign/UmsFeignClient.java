@@ -30,9 +30,13 @@ import javax.validation.Valid;
 @FeignClient(name = ServiceNameConstants.USER_SERVICE,fallbackFactory = UmsFeignClientFallbackFactory.class,decode404 = true)
 public interface UmsFeignClient {
 
+    //添加客户经理提成记录
+    @RequestMapping(value="/managerCommissionRecord/add", method=RequestMethod.POST)
+    public BaseResponse addCommissionRecord(@RequestBody @Valid ManagerAddCommissionRequest request);
+    //添加客户vip提成记录
     @RequestMapping(value="/customerVipRebateRecord/add", method=RequestMethod.POST)
     public BaseResponse customerAddVipRebate(@RequestBody @Valid CustomerVipAddRebateRequest request);
-
+    //添加佣金提成记录
     @PostMapping("/affiliate/addCommissionRecord")
     public BaseResponse addAffiliateCommissionRecord(@RequestBody@Valid CommissionRecordVo commissionRecordVo);
 

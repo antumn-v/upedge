@@ -1,20 +1,14 @@
 package com.upedge.ums.modules.manager.entity;
 
-import java.math.BigDecimal;
-import java.io.Serializable;
-import java.util.Date;
 import lombok.Data;
+
+import java.math.BigDecimal;
 
 /**
  * @author gx
  */
 @Data
 public class ManagerMonthCommission{
-
-	/**
-	 * 
-	 */
-    private Long id;
 	/**
 	 * 
 	 */
@@ -22,7 +16,7 @@ public class ManagerMonthCommission{
 	/**
 	 * 
 	 */
-    private Date dateMonth;
+    private String dateMonth;
 	/**
 	 * 
 	 */

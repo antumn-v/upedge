@@ -1,8 +1,8 @@
 package com.upedge.ums.modules.manager.request;
 
 import com.upedge.ums.modules.manager.entity.ManagerMonthCommission;
-import java.util.Date;
 import lombok.Data;
+
 import java.math.BigDecimal;
 /**
  * @author gx
@@ -17,7 +17,7 @@ public class ManagerMonthCommissionUpdateRequest{
     /**
      * 
      */
-    private Date dateMonth;
+    private String dateMonth;
     /**
      * 
      */
@@ -25,7 +25,6 @@ public class ManagerMonthCommissionUpdateRequest{
 
     public ManagerMonthCommission toManagerMonthCommission(Long id){
         ManagerMonthCommission managerMonthCommission=new ManagerMonthCommission();
-        managerMonthCommission.setId(id);
         managerMonthCommission.setManagerId(managerId);
         managerMonthCommission.setDateMonth(dateMonth);
         managerMonthCommission.setTotalCommission(totalCommission);

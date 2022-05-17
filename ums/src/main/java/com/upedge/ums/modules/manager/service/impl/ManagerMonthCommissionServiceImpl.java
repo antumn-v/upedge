@@ -1,13 +1,14 @@
 package com.upedge.ums.modules.manager.service.impl;
 
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import java.util.List;
 import com.upedge.common.base.Page;
-import org.springframework.beans.factory.annotation.Autowired;
 import com.upedge.ums.modules.manager.dao.ManagerMonthCommissionDao;
 import com.upedge.ums.modules.manager.entity.ManagerMonthCommission;
 import com.upedge.ums.modules.manager.service.ManagerMonthCommissionService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 
 @Service
@@ -24,7 +25,6 @@ public class ManagerMonthCommissionServiceImpl implements ManagerMonthCommission
     @Transactional
     public int deleteByPrimaryKey(Long id) {
         ManagerMonthCommission record = new ManagerMonthCommission();
-        record.setId(id);
         return managerMonthCommissionDao.deleteByPrimaryKey(record);
     }
 
@@ -44,12 +44,16 @@ public class ManagerMonthCommissionServiceImpl implements ManagerMonthCommission
         return managerMonthCommissionDao.insert(record);
     }
 
+    @Override
+    public ManagerMonthCommission selectByManagerAndMonth(Long managerId, String month) {
+        return managerMonthCommissionDao.selectByManagerAndMonth(managerId, month);
+    }
+
     /**
      *
      */
     public ManagerMonthCommission selectByPrimaryKey(Long id){
         ManagerMonthCommission record = new ManagerMonthCommission();
-        record.setId(id);
         return managerMonthCommissionDao.selectByPrimaryKey(record);
     }
 

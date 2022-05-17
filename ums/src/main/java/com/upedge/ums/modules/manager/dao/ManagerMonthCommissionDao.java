@@ -1,14 +1,17 @@
 package com.upedge.ums.modules.manager.dao;
 
-import com.upedge.ums.modules.manager.entity.ManagerMonthCommission;
-import org.apache.ibatis.annotations.Mapper;
-import java.util.List;
 import com.upedge.common.base.Page;
+import com.upedge.ums.modules.manager.entity.ManagerMonthCommission;
+import org.apache.ibatis.annotations.Param;
+
+import java.util.List;
 
 /**
  * @author gx
  */
-public interface ManagerMonthCommissionDao{
+public interface ManagerMonthCommissionDao {
+
+    ManagerMonthCommission selectByManagerAndMonth(@Param("managerId") Long managerId, @Param("month") String month);
 
     ManagerMonthCommission selectByPrimaryKey(ManagerMonthCommission record);
 

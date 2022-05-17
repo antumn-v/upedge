@@ -1,38 +1,42 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="com.upedge.ums.modules.manager.dao.ManagerComissionRecordDao">
+<mapper namespace="com.upedge.ums.modules.manager.dao.ManagerCommissionRecordDao">
 
 	<!-- 可根据自己的需求，是否要使用 -->
-    <resultMap type="com.upedge.ums.modules.manager.entity.ManagerComissionRecord" id="BaseResultMap">
+    <resultMap type="com.upedge.ums.modules.manager.entity.ManagerCommissionRecord" id="BaseResultMap">
         <result property="id" column="id"/>
         <result property="managerId" column="manager_id"/>
+        <result property="customerId" column="customer_id"/>
         <result property="orderId" column="order_id"/>
         <result property="commission" column="commission"/>
         <result property="createTime" column="create_time"/>
     </resultMap>
 
     <sql id="Base_Column_List">
-        `id`,`manager_id`,`order_id`,`commission`,`create_time`
+        `id`,`manager_id`,`customer_id`,`order_id`,`commission`,`create_time`
     </sql>
 
-    <select id="selectByPrimaryKey" parameterType="com.upedge.ums.modules.manager.entity.ManagerComissionRecord" resultMap="BaseResultMap">
+    <select id="selectByPrimaryKey" parameterType="com.upedge.ums.modules.manager.entity.ManagerCommissionRecord" resultMap="BaseResultMap">
         select
         <include refid="Base_Column_List" />
         from manager_comission_record
         where id = #{id}
     </select>
 
-    <delete id="deleteByPrimaryKey" parameterType="com.upedge.ums.modules.manager.entity.ManagerComissionRecord">
+    <delete id="deleteByPrimaryKey" parameterType="com.upedge.ums.modules.manager.entity.ManagerCommissionRecord">
         delete from manager_comission_record
         where id = #{id}
     </delete>
 
-    <update id="updateByPrimaryKeySelective" parameterType="com.upedge.ums.modules.manager.entity.ManagerComissionRecord">
+    <update id="updateByPrimaryKeySelective" parameterType="com.upedge.ums.modules.manager.entity.ManagerCommissionRecord">
         update manager_comission_record
         <set>
             <if test="managerId != null">
                 manager_id = #{managerId},
+            </if>
+            <if test="customerId != null">
+                customer_id = #{customerId},
             </if>
             <if test="orderId != null">
                 order_id = #{orderId},
@@ -47,11 +51,12 @@
         where id = #{id}
     </update>
 
-    <update id="updateByPrimaryKey" parameterType="com.upedge.ums.modules.manager.entity.ManagerComissionRecord">
+    <update id="updateByPrimaryKey" parameterType="com.upedge.ums.modules.manager.entity.ManagerCommissionRecord">
         update manager_comission_record
         <set>
         id = #{id},
         manager_id = #{managerId},
+        customer_id = #{customerId},
         order_id = #{orderId},
         commission = #{commission},
         create_time = #{createTime},
@@ -59,11 +64,12 @@
         where id = #{id}
     </update>
 
-    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.upedge.ums.modules.manager.entity.ManagerComissionRecord" useGeneratedKeys="true">
+    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.upedge.ums.modules.manager.entity.ManagerCommissionRecord" useGeneratedKeys="true">
         insert into manager_comission_record
         <trim prefix="(" suffix=")" suffixOverrides=",">
             id,
             manager_id,
+            customer_id,
             order_id,
             commission,
             create_time
@@ -71,13 +77,14 @@
         values (
         #{id},
         #{managerId},
+        #{customerId},
         #{orderId},
         #{commission},
         #{createTime}
         )
     </insert>
 
-    <insert id="insertSelective"  keyColumn="id" keyProperty="id"  parameterType="com.upedge.ums.modules.manager.entity.ManagerComissionRecord" useGeneratedKeys="true">
+    <insert id="insertSelective"  keyColumn="id" keyProperty="id"  parameterType="com.upedge.ums.modules.manager.entity.ManagerCommissionRecord" useGeneratedKeys="true">
         insert into manager_comission_record
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="id != null" >
@@ -85,6 +92,9 @@
             </if>
             <if test="managerId != null" >
               manager_id
+            </if>
+            <if test="customerId != null" >
+                customer_id
             </if>
             <if test="orderId != null" >
               order_id
@@ -104,6 +114,9 @@
             <if test="managerId != null" >
                 #{managerId}
             </if>
+            <if test="customerId != null" >
+                #{customerId}
+            </if>
             <if test="orderId != null" >
                 #{orderId}
             </if>
@@ -122,6 +135,7 @@
         <trim prefix="(" suffix=")" suffixOverrides=",">
            id,
            manager_id,
+            customer_id,
            order_id,
            commission,
            create_time
@@ -131,6 +145,7 @@
             <trim prefix="(" suffix=")" suffixOverrides=",">
                #{item.id},
                #{item.managerId},
+               #{item.customerId},
                #{item.orderId},
                #{item.commission},
                #{item.createTime}
@@ -148,6 +163,9 @@
                     </if>
                     <if test="t.managerId != null">
                         manager_id = #{t.managerId} and
+                    </if>
+                    <if test="t.customerId != null">
+                        customer_id = #{t.customerId} and
                     </if>
                     <if test="t.orderId != null">
                         order_id = #{t.orderId} and

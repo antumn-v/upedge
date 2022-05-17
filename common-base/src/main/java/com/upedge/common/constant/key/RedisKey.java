@@ -91,6 +91,8 @@ public class RedisKey {
     public static final String STRING_SAIHE_TRANSPORT_IDKEY = "saihe_transport:idkey:";
     //客户ID与客户经理ID关联
     public static final String HASH_CUSTOMER_MANAGER_RELATE = "customer:manager:relate";
+    //客户经理每月提成
+    public static final String HASH_MANAGER_MONTH_COMMISSION = "manager:month:commission";
     //运输方式信息  map
     public static final String SHIPPING_METHOD="shipping:method";
 

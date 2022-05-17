@@ -9,6 +9,8 @@ import java.util.List;
  */
 public interface ManagerMonthCommissionService{
 
+    ManagerMonthCommission selectByManagerAndMonth(Long managerId,String month);
+
     ManagerMonthCommission selectByPrimaryKey(Long id);
 
     int deleteByPrimaryKey(Long id);

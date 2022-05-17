@@ -17,10 +17,11 @@
         <result property="createTime" column="create_time"/>
         <result property="creatorId" column="creator_id"/>
         <result property="inviteCode" column="invite_code"/>
+        <result property="perCommission" column="per_commission"/>
     </resultMap>
 
     <sql id="Base_Column_List">
-        `id`,`user_id`,`order_source_id`,`order_source_name`,`manager_code`,`manager_type`,`manager_state`,`manager_name`,`assistant_supeior`,`create_time`,`creator_id`,`invite_code`
+        `id`,`user_id`,`order_source_id`,`order_source_name`,`manager_code`,`manager_type`,`manager_state`,`manager_name`,`assistant_supeior`,`create_time`,`creator_id`,`invite_code`,`per_commission`
     </sql>
 
     <select id="selectByPrimaryKey" parameterType="com.upedge.ums.modules.manager.entity.ManagerInfo" resultMap="BaseResultMap">
@@ -71,6 +72,9 @@
             <if test="inviteCode != null">
                 invite_code = #{inviteCode},
             </if>
+            <if test="perCommission != null">
+                per_commission = #{perCommission},
+            </if>
         </set>
         where id = #{id}
     </update>
@@ -90,6 +94,7 @@
         create_time = #{createTime},
         creator_id = #{creatorId},
         invite_code = #{inviteCode},
+        per_commission = #{perCommission}
         </set>
         where id = #{id}
     </update>
@@ -108,7 +113,8 @@
             assistant_supeior,
             create_time,
             creator_id,
-            invite_code
+            invite_code,
+            per_commission
         </trim>
         values (
         #{id},
@@ -122,7 +128,8 @@
         #{assistantSupeior},
         #{createTime},
         #{creatorId},
-        #{inviteCode}
+        #{inviteCode},
+        #{perCommission}
         )
     </insert>
 
@@ -222,7 +229,8 @@
            assistant_supeior,
            create_time,
            creator_id,
-           invite_code
+           invite_code,
+            per_commission
         </trim>
         values
         <foreach collection="list" item="item" index="index" separator=",">
@@ -238,7 +246,8 @@
                #{item.assistantSupeior},
                #{item.createTime},
                #{item.creatorId},
-               #{item.inviteCode}
+               #{item.inviteCode},
+               #{item.perComission}
             </trim>
         </foreach>
     </insert>

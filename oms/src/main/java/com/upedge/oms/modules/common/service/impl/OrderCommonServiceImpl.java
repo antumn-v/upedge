@@ -17,6 +17,7 @@ import com.upedge.common.model.order.PaymentDetail;
 import com.upedge.common.model.order.TransactionDetail;
 import com.upedge.common.model.ship.vo.ShippingMethodRedis;
 import com.upedge.common.model.user.request.CustomerVipAddRebateRequest;
+import com.upedge.common.model.user.request.ManagerAddCommissionRequest;
 import com.upedge.common.model.user.vo.AffiliateVo;
 import com.upedge.common.model.user.vo.CommissionRecordVo;
 import com.upedge.common.model.user.vo.CustomerIossVo;
@@ -71,6 +72,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ThreadPoolExecutor;
 
 @Slf4j
 @Service
@@ -126,6 +130,9 @@ public class OrderCommonServiceImpl implements OrderCommonService {
 
     @Autowired
     OrderFulfillmentService orderFulfillmentService;
+
+    @Autowired
+    ThreadPoolExecutor threadPoolExecutor;
 
 
     /**
@@ -655,10 +662,45 @@ public class OrderCommonServiceImpl implements OrderCommonService {
 
 
     public void addCustomerCommission(Long orderId,Long customerId){
+        CompletableFuture affiliateCommission = CompletableFuture.runAsync(new Runnable() {
+            @Override
+            public void run() {
+                addAffiliateCommission(orderId,customerId);
+            }
+        },threadPoolExecutor);
 
-        addAffiliateCommission(orderId,customerId);
+        CompletableFuture vipRebate = CompletableFuture.runAsync(new Runnable() {
+            @Override
+            public void run() {
+                addVipRebate(orderId,customerId);
+            }
+        },threadPoolExecutor);
 
-        addVipRebate(orderId,customerId);
+        CompletableFuture managerCommission = CompletableFuture.runAsync(new Runnable() {
+            @Override
+            public void run() {
+                addManagerCommission(orderId,customerId);
+            }
+        },threadPoolExecutor);
+
+        try {
+            CompletableFuture.allOf(affiliateCommission,vipRebate,managerCommission).get();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void addManagerCommission(Long orderId,Long customerId){
+        boolean b = redisTemplate.opsForHash().hasKey(RedisKey.HASH_CUSTOMER_MANAGER_RELATE,customerId);
+        if (!b){
+            return;
+        }
+        ManagerAddCommissionRequest request = new ManagerAddCommissionRequest();
+        request.setOrderId(orderId);
+        request.setCustomerId(customerId);
+        umsFeignClient.addCommissionRecord(request);
     }
 
     public void addVipRebate(Long orderId,Long customerId){
