@@ -47,6 +47,7 @@
         <result property="payAmount" column="pay_amount"/>
         <result property="shipMethodId" column="ship_method_id"/>
         <result property="shipPrice" column="ship_price"/>
+        <result property="serviceFee" column="service_fee"/>
         <result property="totalWeight" column="total_weight"/>
         <result property="productAmount" column="product_amount"/>
         <result property="productDischargeAmount" column="product_discharge_amount"/>
@@ -455,7 +456,7 @@
     <select id="selectAppOrderList" resultMap="AppOrderVo"
             parameterType="com.upedge.oms.modules.order.request.AppOrderListRequest">
         select o.customer_id,o.id,o.store_id,o.pay_amount,o.ship_method_id,
-        (o.ship_price+o.service_fee) as ship_price,
+        o.ship_price,o.service_fee,
         o.total_weight,o.product_amount,o.product_discharge_amount,o.fix_fee,o.pay_method,
         o.pay_time,o.payment_id,o.pay_state,o.refund_state,o.ship_state,o.order_type,o.to_area_id,
         o.vat_amount,o.create_time,o.store_id,r.plat_order_create_time,o.quote_state,o.saihe_order_code,
@@ -850,7 +851,8 @@
             saihe_order_code,
             vat_amount,
             order_status,
-            manager_code
+            manager_code,
+            shipping_warehouse
         </trim>
         values (
         #{id},
@@ -883,7 +885,8 @@
         #{saiheOrderCode},
         #{vatAmount},
         #{orderStatus},
-        #{managerCode}
+        #{managerCode},
+        #{shippingWarehouse}
         )
     </insert>
 

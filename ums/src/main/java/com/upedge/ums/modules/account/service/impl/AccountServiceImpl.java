@@ -491,14 +491,13 @@ public class AccountServiceImpl implements AccountService {
 
         //----------------支付的订单-----------------------
         List<TransactionDetail> transactionDetails = paymentDetail.getOrderTransactions();
-        Iterator<TransactionDetail> transactionDetailIterator = transactionDetails.iterator();
+
         //------------------------------------------
         List<AccountLog> accountLogs = new ArrayList<>();
         List<CustomerVipRebateRecord> customerVipRebateRecords = new ArrayList<>();
         List<AffiliateCommissionRecord> affiliateCommissionRecords = new ArrayList<>();
         //---------------------------------
-        while (transactionDetailIterator.hasNext()) {
-            TransactionDetail detail = transactionDetailIterator.next();
+        for (TransactionDetail detail : transactionDetails) {
             //----------------AccountLog保存每笔订单使用的余额返点信用额度-----------------
             BigDecimal transactionBalance = BigDecimal.ZERO;
             BigDecimal transactionAffiliateRebate = BigDecimal.ZERO;

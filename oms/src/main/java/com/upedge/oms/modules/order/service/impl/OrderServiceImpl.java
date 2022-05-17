@@ -246,6 +246,7 @@ public class OrderServiceImpl implements OrderService {
         List<Long> shippedOrderIds = new ArrayList<>();
         for (AppOrderVo orderVo : appOrderVos) {
             if (orderVo.getShipMethodId() != null) {
+                orderVo.setShipPrice(orderVo.getShipPrice().add(orderVo.getServiceFee()));
                 ShippingMethodRedis shippingMethodRedis = (ShippingMethodRedis) redisTemplate.opsForHash().get(RedisKey.SHIPPING_METHOD, orderVo.getShipMethodId().toString());
                 if (null != shippingMethodRedis) {
                     orderVo.setShipMethodName(shippingMethodRedis.getName());
@@ -1098,7 +1099,7 @@ public class OrderServiceImpl implements OrderService {
         if (null != shipDetail
         && shipDetail.isCouldShip()){
             reshipOrder.setShipMethodId(shipDetail.getMethodId());
-            reshipOrder.setShipPrice(shipDetail.getPrice());
+            reshipOrder.setShipPrice(shipDetail.getPrice().subtract(shipDetail.getServiceFee()));
             reshipOrder.setServiceFee(shipDetail.getServiceFee());
             reshipOrder.setShippingWarehouse(shipDetail.getWarehouseCode());
             reshipOrder.setTotalWeight(shipDetail.getWeight());
