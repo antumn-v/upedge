@@ -194,7 +194,7 @@
         sor.order_customer_name,
         sor.order_id
         from order_item oi
-        inner join store_order_relate sor
+        left join store_order_relate sor
         on oi.store_order_id = sor.store_order_id
         where oi.order_id in
         <foreach collection="orders" item="o" open="(" close=")" separator=",">

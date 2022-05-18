@@ -75,7 +75,7 @@ mybatis-plus:
 logging:
   level:
     root: WARN
-    com.upedge.ums: DEBUG
+    com.upedge.cms: DEBUG
     com.upedge.test: DEBUG
 
 feign:

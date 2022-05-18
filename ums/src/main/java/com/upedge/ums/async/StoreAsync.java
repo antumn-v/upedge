@@ -59,6 +59,7 @@ public class StoreAsync {
                 break;
             case 2:
                 getShoplazzaStoreData(store);
+                break;
             default:
                 break;
         }
@@ -74,6 +75,7 @@ public class StoreAsync {
                 break;
             case 2:
                 getWoocommerceStoreOrders(store);
+                break;
             default:
                 break;
         }
@@ -91,6 +93,7 @@ public class StoreAsync {
                 break;
             case 2:
                 createShoplazzaWebhook(token,shop);
+                break;
             default:
                 break;
         }

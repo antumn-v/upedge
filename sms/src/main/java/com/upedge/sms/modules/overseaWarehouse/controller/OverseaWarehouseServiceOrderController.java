@@ -21,7 +21,6 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ThreadPoolExecutor;
 
 /**
@@ -100,12 +99,7 @@ public class OverseaWarehouseServiceOrderController {
         }
         BaseResponse response = overseaWarehouseServiceOrderService.orderPay(request,session);
         if (response.getCode() == ResultCode.SUCCESS_CODE){
-            CompletableFuture.runAsync(new Runnable() {
-                @Override
-                public void run() {
-                    overseaWarehouseServiceOrderService.saveTransactionRecord(session.getId(), request.getOrderId());
-                }
-            },threadPoolExecutor);
+            overseaWarehouseServiceOrderService.saveTransactionRecord(session.getId(), request.getOrderId());
         }
         RedisUtil.unLock(redisTemplate,key);
         return response;

@@ -462,7 +462,7 @@
         o.vat_amount,o.create_time,o.store_id,r.plat_order_create_time,o.quote_state,o.saihe_order_code,
         o.shipping_warehouse,o.tracking_code
         from `order` o
-        inner join store_order_relate r
+        left join store_order_relate r
         on o.id = r.order_id
         <if test="t.productTitle != null or t.sku != null">
             inner join order_item oi

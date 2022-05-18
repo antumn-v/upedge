@@ -18,7 +18,7 @@ import java.util.List;
 @RequestMapping("/orderSource")
 public class OrderSourceController {
 
-    @RequestMapping(value="/admin/list", method= RequestMethod.POST)
+    @RequestMapping(value="/list", method= RequestMethod.POST)
     public BaseResponse orderSourceList() {
         List<ApiOrderSource> orderSourceList=new ArrayList<>();
         ApiGetOrderSourceResponse apiGetOrderSourceResponse=

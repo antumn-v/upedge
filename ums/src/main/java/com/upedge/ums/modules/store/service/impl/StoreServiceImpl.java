@@ -250,23 +250,6 @@ public class StoreServiceImpl implements StoreService {
         store.setCurrency(shopDetail.getCurrency());
         store.setTimezone(shopDetail.getTimezone());
         store.setUpdateTime(new Date());
-
-        List<StoreAttr> attrs = new ArrayList<>();
-
-        StoreAttr accessToken = new StoreAttr();
-        accessToken.setAttrKey(ShopifyAttr.access_token.toString());
-        accessToken.setAttrValue(token);
-        accessToken.setStoreId(storeId);
-        attrs.add(accessToken);
-
-        StoreAttr locationId = new StoreAttr();
-        locationId.setStoreId(storeId);
-        locationId.setAttrKey(ShopifyAttr.location_id.toString());
-        locationId.setAttrValue(shopDetail.getPrimary_location_id() + "");
-        attrs.add(locationId);
-
-        storeAttrDao.insertByBatch(attrs);
-
         store.setApiToken(token);
 
         Organization organization = toOrganization(store);
@@ -287,9 +270,7 @@ public class StoreServiceImpl implements StoreService {
         StoreVo storeVo = new StoreVo();
         BeanUtils.copyProperties(store,storeVo);
         redisTemplate.opsForValue().set(RedisKey.STRING_STORE + store.getId(),storeVo);
-
         getStoreData(store,null);
-
         return store;
     }
 

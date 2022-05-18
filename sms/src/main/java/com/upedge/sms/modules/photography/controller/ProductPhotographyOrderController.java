@@ -32,7 +32,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Date;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ThreadPoolExecutor;
 
 /**
@@ -141,12 +140,7 @@ public class ProductPhotographyOrderController {
         Session session = UserUtil.getSession(redisTemplate);
         BaseResponse response = productPhotographyOrderService.pay(request,session);
         if (response.getCode() == ResultCode.SUCCESS_CODE){
-            CompletableFuture.runAsync(new Runnable() {
-                @Override
-                public void run() {
-                    productPhotographyOrderService.saveTransactionRecord(session.getId(), request.getId());
-                }
-            },threadPoolExecutor);
+            productPhotographyOrderService.saveTransactionRecord(session.getId(), request.getId());
         }
         return response;
     }
