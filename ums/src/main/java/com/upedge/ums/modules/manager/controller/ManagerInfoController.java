@@ -12,8 +12,10 @@ import com.upedge.common.web.util.UserUtil;
 import com.upedge.ums.modules.manager.entity.ManagerInfo;
 import com.upedge.ums.modules.manager.request.ManagerInfoAddRequest;
 import com.upedge.ums.modules.manager.request.ManagerInfoListRequest;
+import com.upedge.ums.modules.manager.request.ManagerInfoUpdateRequest;
 import com.upedge.ums.modules.manager.response.ManagerInfoInfoResponse;
 import com.upedge.ums.modules.manager.response.ManagerInfoListResponse;
+import com.upedge.ums.modules.manager.response.ManagerInfoUpdateResponse;
 import com.upedge.ums.modules.manager.service.ManagerInfoService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -85,15 +87,14 @@ public class ManagerInfoController {
         return new BaseResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS);
     }
 
-
-//    @RequestMapping(value="/update/{id}", method=RequestMethod.POST)
-//    @Permission(permission = "manager:managerinfo:update")
-//    public ManagerInfoUpdateResponse update(@PathVariable Long id,@RequestBody @Valid ManagerInfoUpdateRequest request) {
-//        ManagerInfo entity=request.toManagerInfo(id);
-//        managerInfoService.updateByPrimaryKeySelective(entity);
-//        ManagerInfoUpdateResponse res = new ManagerInfoUpdateResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS);
-//        return res;
-//    }
+    @ApiOperation("修改客户经理信息")
+    @RequestMapping(value="/update", method=RequestMethod.POST)
+    @Permission(permission = "manager:managerinfo:update")
+    public ManagerInfoUpdateResponse update(@RequestBody @Valid ManagerInfoUpdateRequest request) {
+        managerInfoService.updateByPrimaryKeySelective(request);
+        ManagerInfoUpdateResponse res = new ManagerInfoUpdateResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS);
+        return res;
+    }
 
 
 }

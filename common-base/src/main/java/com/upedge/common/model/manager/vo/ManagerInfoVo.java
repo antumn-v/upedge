@@ -55,4 +55,30 @@ public class ManagerInfoVo {
     private String inviteCode;
 
     private BigDecimal perCommission;
+
+    private String avatar;
+    /**
+     *
+     */
+    private String mobile;
+    /**
+     *
+     */
+    private String email;
+    /**
+     *
+     */
+    private String whatsapp;
+    /**
+     *
+     */
+    private String wechat;
+    /**
+     *
+     */
+    private String fbInfo;
+    /**
+     *
+     */
+    private String skype;
 }

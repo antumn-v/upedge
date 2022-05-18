@@ -7,9 +7,11 @@ import com.upedge.common.constant.Constant;
 import com.upedge.common.model.manager.vo.ManagerInfoVo;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.utils.IdGenerate;
+import com.upedge.common.web.util.UserUtil;
 import com.upedge.ums.modules.manager.dao.ManagerInfoDao;
 import com.upedge.ums.modules.manager.entity.ManagerInfo;
 import com.upedge.ums.modules.manager.request.ManagerInfoAddRequest;
+import com.upedge.ums.modules.manager.request.ManagerInfoUpdateRequest;
 import com.upedge.ums.modules.manager.service.ManagerInfoService;
 import com.upedge.ums.modules.user.entity.User;
 import com.upedge.ums.modules.user.service.UserService;
@@ -89,6 +91,7 @@ public class ManagerInfoServiceImpl implements ManagerInfoService {
         Long userId = IdGenerate.nextId();
         user = request.toUser(userId);
         user.setCustomerId(session.getCustomerId());
+        user.setUserType(BaseCode.USER_ROLE_ADMIN);
         userService.insert(user);
         userService.userBindAccountOrgApp(userId,session.getApplicationId(),session.getAccountId(),session.getParentOrganization().getId(),session.getRole().getId());
 
@@ -112,8 +115,20 @@ public class ManagerInfoServiceImpl implements ManagerInfoService {
     *
     */
     @Transactional
-    public int updateByPrimaryKeySelective(ManagerInfo record) {
-        return managerInfoDao.updateByPrimaryKeySelective(record);
+    public int updateByPrimaryKeySelective(ManagerInfoUpdateRequest request) {
+        ManagerInfo managerInfo = selectByPrimaryKey(request.getId());
+        if (null == managerInfo){
+            return 0;
+        }
+        ManagerInfo entity=request.toManagerInfo();
+        managerInfoDao.updateByPrimaryKeySelective(entity);
+        User user = request.toUser(managerInfo.getUserId());
+        if (StringUtils.isNotBlank(request.getLoginPass())){
+            User u = userService.selectByPrimaryKey(managerInfo.getId());
+            user.setLoginPass(UserUtil.encryptPassword(request.getLoginPass(),u.getLoginName()));
+        }
+        userService.updateByPrimaryKeySelective(user);
+        return 1;
     }
 
     /**

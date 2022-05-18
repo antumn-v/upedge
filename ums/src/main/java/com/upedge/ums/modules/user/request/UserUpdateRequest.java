@@ -97,7 +97,6 @@ public class UserUpdateRequest{
         user.setLoginPass(loginPass);
         user.setUserType(userType);
         user.setStatus(status);
-        user.setUsername(username);
         user.setAvatar(avatar);
         user.setMobile(mobile);
         user.setEmail(email);

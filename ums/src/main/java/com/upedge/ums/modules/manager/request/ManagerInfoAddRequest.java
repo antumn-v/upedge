@@ -6,6 +6,7 @@ import com.upedge.ums.modules.manager.entity.ManagerInfo;
 import com.upedge.ums.modules.user.entity.User;
 import lombok.Data;
 
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.util.Date;
@@ -15,9 +16,9 @@ import java.util.Date;
 @Data
 public class ManagerInfoAddRequest{
 
-    @NotNull
+    @NotBlank
     private String loginName;
-    @NotNull
+    @NotBlank
     private String loginPass;
 
     private String avatar;
@@ -56,11 +57,12 @@ public class ManagerInfoAddRequest{
     /**
     * 客户经理英文名
     */
+    @NotBlank
     private String managerName;
     /**
     * 邀请注册码
     */
-    @NotNull
+    @NotBlank
     private String inviteCode;
 
     @NotNull
@@ -82,7 +84,7 @@ public class ManagerInfoAddRequest{
         Date date = new Date();
         User user = new User();
         user.setId(id);
-        UserUtil.encryptPassword(loginPass,loginName);
+        user.setLoginPass(UserUtil.encryptPassword(loginPass,loginName));
         user.setAvatar(avatar);
         user.setLoginName(loginName);
         user.setFbInfo(fbInfo);

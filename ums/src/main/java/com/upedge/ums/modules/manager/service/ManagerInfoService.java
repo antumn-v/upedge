@@ -6,6 +6,7 @@ import com.upedge.common.model.manager.vo.ManagerInfoVo;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.ums.modules.manager.entity.ManagerInfo;
 import com.upedge.ums.modules.manager.request.ManagerInfoAddRequest;
+import com.upedge.ums.modules.manager.request.ManagerInfoUpdateRequest;
 
 import java.util.List;
 
@@ -26,7 +27,7 @@ public interface ManagerInfoService{
 
     int updateByPrimaryKey(ManagerInfo record);
 
-    int updateByPrimaryKeySelective(ManagerInfo record);
+    int updateByPrimaryKeySelective(ManagerInfoUpdateRequest request);
 
     int insert(ManagerInfo record);
 

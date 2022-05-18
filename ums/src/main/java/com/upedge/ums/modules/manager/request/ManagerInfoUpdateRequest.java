@@ -1,75 +1,79 @@
 package com.upedge.ums.modules.manager.request;
 
 import com.upedge.ums.modules.manager.entity.ManagerInfo;
+import com.upedge.ums.modules.user.entity.User;
 import lombok.Data;
 
-import java.util.Date;
+import java.math.BigDecimal;
+
 /**
  * @author gx
  */
 @Data
 public class ManagerInfoUpdateRequest{
 
-    /**
-     * 
-     */
-    private Long userId;
-    /**
-     * 赛盒来源渠道id
-     */
-    private Integer orderSourceId;
-    /**
-     * 赛盒来源渠道名称
-     */
-    private String orderSourceName;
-    /**
-     * 
-     */
-    private String managerCode;
-    /**
-     * 0=客户经理，1=助理
-     */
-    private Integer managerType;
-    /**
-     * 1=正常 0=停用,2=删除
-     */
-    private Integer managerState;
+
+    private Long id;
     /**
      * 客户经理英文名
      */
     private String managerName;
     /**
-     * 助理所属的客户经理代码
-     */
-    private String assistantSuperior;
-    /**
-     * 
-     */
-    private Date createTime;
-    /**
-     * 创建者
-     */
-    private Long creatorId;
-    /**
      * 邀请注册码
      */
     private String inviteCode;
 
-    public ManagerInfo toManagerInfo(Long id){
+    private String loginPass;
+
+    private String avatar;
+    /**
+     *
+     */
+    private String mobile;
+    /**
+     *
+     */
+    private String email;
+    /**
+     *
+     */
+    private String whatsapp;
+    /**
+     *
+     */
+    private String wechat;
+    /**
+     *
+     */
+    private String fbInfo;
+    /**
+     *
+     */
+    private String skype;
+
+    private BigDecimal perCommission;
+
+    public ManagerInfo toManagerInfo(){
         ManagerInfo managerInfo=new ManagerInfo();
         managerInfo.setId(id);
-        managerInfo.setUserId(userId);
-        managerInfo.setOrderSourceId(orderSourceId);
-        managerInfo.setOrderSourceName(orderSourceName);
-        managerInfo.setManagerCode(managerCode);
-        managerInfo.setManagerType(managerType);
-        managerInfo.setManagerState(managerState);
         managerInfo.setManagerName(managerName);
-        managerInfo.setAssistantSuperior(assistantSuperior);
-        managerInfo.setCreateTime(createTime);
-        managerInfo.setCreatorId(creatorId);
         managerInfo.setInviteCode(inviteCode);
+        managerInfo.setPerCommission(perCommission);
         return managerInfo;
+    }
+
+    public User toUser(Long userId){
+        User user = new User();
+        user.setId(userId);
+        user.setUsername(managerName);
+        user.setAvatar(avatar);
+        user.setMobile(mobile);
+        user.setEmail(email);
+        user.setWhatsapp(whatsapp);
+        user.setWechat(wechat);
+        user.setFbInfo(fbInfo);
+        user.setSkype(skype);
+        return user;
     }
 
 }

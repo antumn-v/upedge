@@ -46,11 +46,8 @@
     </delete>
 
     <update id="updateByPrimaryKeySelective" parameterType="com.upedge.ums.modules.user.entity.User">
-        update user
+        update `user`
         <set>
-            <if test="customerId != null">
-                customer_id = #{customerId},
-            </if>
             <if test="loginName != null">
                 login_name = #{loginName},
             </if>
@@ -98,9 +95,6 @@
             </if>
             <if test="loginCount != null">
                 login_count = #{loginCount},
-            </if>
-            <if test="createTime != null">
-                create_time = #{createTime},
             </if>
             <if test="updateTime != null">
                 update_time = #{updateTime},

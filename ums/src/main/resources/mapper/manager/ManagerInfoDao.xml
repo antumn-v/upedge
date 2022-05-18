@@ -327,7 +327,7 @@
     <select id="selectManagerDetail" resultType="com.upedge.common.model.manager.vo.ManagerInfoVo">
         select mi.`id`,mi.`order_source_id`,mi.`order_source_name`,
                mi.`manager_state`,mi.`manager_name`,
-               mi.`invite_code`,mi.`per_commission`,
+               mi.`invite_code`,mi.`per_commission`,mi.user_id,
                `username`,`avatar`,`mobile`,`email`,`country`,`whatsapp`,`wechat`,`fb_info`,`skype`,`sex`
             from manager_info mi
         left join `user` u
