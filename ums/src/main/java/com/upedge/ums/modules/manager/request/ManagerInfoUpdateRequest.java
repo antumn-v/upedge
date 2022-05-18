@@ -1,8 +1,9 @@
 package com.upedge.ums.modules.manager.request;
 
 import com.upedge.ums.modules.manager.entity.ManagerInfo;
-import java.util.Date;
 import lombok.Data;
+
+import java.util.Date;
 /**
  * @author gx
  */
@@ -40,7 +41,7 @@ public class ManagerInfoUpdateRequest{
     /**
      * 助理所属的客户经理代码
      */
-    private String assistantSupeior;
+    private String assistantSuperior;
     /**
      * 
      */
@@ -64,7 +65,7 @@ public class ManagerInfoUpdateRequest{
         managerInfo.setManagerType(managerType);
         managerInfo.setManagerState(managerState);
         managerInfo.setManagerName(managerName);
-        managerInfo.setAssistantSupeior(assistantSupeior);
+        managerInfo.setAssistantSuperior(assistantSuperior);
         managerInfo.setCreateTime(createTime);
         managerInfo.setCreatorId(creatorId);
         managerInfo.setInviteCode(inviteCode);

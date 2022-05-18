@@ -1,6 +1,7 @@
 package com.upedge.ums.modules.manager.dao;
 
 import com.upedge.common.base.Page;
+import com.upedge.common.model.manager.vo.ManagerInfoVo;
 import com.upedge.ums.modules.manager.entity.ManagerInfo;
 
 import java.util.List;
@@ -9,6 +10,8 @@ import java.util.List;
  * @author gx
  */
 public interface ManagerInfoDao{
+
+    List<ManagerInfoVo> selectManagerDetail();
 
     ManagerInfo selectByInviteCode(String inviteCode);
 

@@ -104,8 +104,14 @@ public class UserController {
         String token = (String) redisTemplate.opsForHash().get(RedisKey.HASH_IP_REFERRER_TOKEN,ip);
         request.setReferrerToken(token);
         redisTemplate.opsForHash().delete(RedisKey.HASH_IP_REFERRER_TOKEN,ip);
+
+        String managerInviteToken = (String) redisTemplate.opsForHash().get(RedisKey.HASH_IP_MANAGER_INVITE_TOKEN,ip);
+        request.setManagerInviteToken(managerInviteToken);
+        redisTemplate.opsForHash().delete(RedisKey.HASH_IP_MANAGER_INVITE_TOKEN,ip);
         return request;
     }
+
+
 
     @ApiOperation("登录")
     @PostMapping("/signin")

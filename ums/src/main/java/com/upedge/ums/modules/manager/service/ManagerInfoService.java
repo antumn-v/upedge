@@ -1,9 +1,10 @@
 package com.upedge.ums.modules.manager.service;
 
 import com.upedge.common.base.BaseResponse;
+import com.upedge.common.base.Page;
+import com.upedge.common.model.manager.vo.ManagerInfoVo;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.ums.modules.manager.entity.ManagerInfo;
-import com.upedge.common.base.Page;
 import com.upedge.ums.modules.manager.request.ManagerInfoAddRequest;
 
 import java.util.List;
@@ -12,6 +13,10 @@ import java.util.List;
  * @author gx
  */
 public interface ManagerInfoService{
+
+    ManagerInfo selectByInviteCode(String inviteCode);
+
+    List<ManagerInfoVo> selectManagerDetail();
 
     BaseResponse create(ManagerInfoAddRequest request, Session session);
 

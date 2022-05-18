@@ -1,5 +1,6 @@
 package com.upedge.ums.modules.manager.service;
 
+import com.upedge.common.base.BaseResponse;
 import com.upedge.ums.modules.manager.entity.CustomerManager;
 import com.upedge.common.base.Page;
 import java.util.List;
@@ -8,6 +9,8 @@ import java.util.List;
  * @author gx
  */
 public interface CustomerManagerService{
+
+    BaseResponse inviteCodeBindCustomer(String managerInviteToken,Long customerId);
 
     CustomerManager selectByPrimaryKey(Long customerId);
 

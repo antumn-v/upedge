@@ -13,7 +13,7 @@
         <result property="managerType" column="manager_type"/>
         <result property="managerState" column="manager_state"/>
         <result property="managerName" column="manager_name"/>
-        <result property="assistantSupeior" column="assistant_supeior"/>
+        <result property="assistantSuperior" column="assistant_superior"/>
         <result property="createTime" column="create_time"/>
         <result property="creatorId" column="creator_id"/>
         <result property="inviteCode" column="invite_code"/>
@@ -21,7 +21,7 @@
     </resultMap>
 
     <sql id="Base_Column_List">
-        `id`,`user_id`,`order_source_id`,`order_source_name`,`manager_code`,`manager_type`,`manager_state`,`manager_name`,`assistant_supeior`,`create_time`,`creator_id`,`invite_code`,`per_commission`
+        `id`,`user_id`,`order_source_id`,`order_source_name`,`manager_code`,`manager_type`,`manager_state`,`manager_name`,`assistant_superior`,`create_time`,`creator_id`,`invite_code`,`per_commission`
     </sql>
 
     <select id="selectByPrimaryKey" parameterType="com.upedge.ums.modules.manager.entity.ManagerInfo" resultMap="BaseResultMap">
@@ -60,8 +60,8 @@
             <if test="managerName != null">
                 manager_name = #{managerName},
             </if>
-            <if test="assistantSupeior != null">
-                assistant_supeior = #{assistantSupeior},
+            <if test="assistantSuperior != null">
+                assistant_superior = #{assistantSuperior},
             </if>
             <if test="createTime != null">
                 create_time = #{createTime},
@@ -90,7 +90,7 @@
         manager_type = #{managerType},
         manager_state = #{managerState},
         manager_name = #{managerName},
-        assistant_supeior = #{assistantSupeior},
+        assistant_superior = #{assistantSuperior},
         create_time = #{createTime},
         creator_id = #{creatorId},
         invite_code = #{inviteCode},
@@ -110,7 +110,7 @@
             manager_type,
             manager_state,
             manager_name,
-            assistant_supeior,
+            assistant_superior,
             create_time,
             creator_id,
             invite_code,
@@ -125,7 +125,7 @@
         #{managerType},
         #{managerState},
         #{managerName},
-        #{assistantSupeior},
+        #{assistantSuperior},
         #{createTime},
         #{creatorId},
         #{inviteCode},
@@ -160,8 +160,8 @@
             <if test="managerName != null" >
               manager_name
             </if>
-            <if test="assistantSupeior != null" >
-              assistant_supeior
+            <if test="assistantSuperior != null" >
+              assistant_superior
             </if>
             <if test="createTime != null" >
               create_time
@@ -199,8 +199,8 @@
             <if test="managerName != null" >
                 #{managerName}
             </if>
-            <if test="assistantSupeior != null" >
-                #{assistantSupeior}
+            <if test="assistantSuperior != null" >
+                #{assistantSuperior}
             </if>
             <if test="createTime != null" >
                 #{createTime}
@@ -226,7 +226,7 @@
            manager_type,
            manager_state,
            manager_name,
-           assistant_supeior,
+           assistant_superior,
            create_time,
            creator_id,
            invite_code,
@@ -243,7 +243,7 @@
                #{item.managerType},
                #{item.managerState},
                #{item.managerName},
-               #{item.assistantSupeior},
+               #{item.assistantSuperior},
                #{item.createTime},
                #{item.creatorId},
                #{item.inviteCode},
@@ -281,8 +281,8 @@
                     <if test="t.managerName != null">
                         manager_name = #{t.managerName} and
                     </if>
-                    <if test="t.assistantSupeior != null">
-                        assistant_supeior = #{t.assistantSupeior} and
+                    <if test="t.assistantSuperior != null">
+                        assistant_superior = #{t.assistantSuperior} and
                     </if>
                     <if test="t.createTime != null">
                         create_time = #{t.createTime} and
@@ -322,5 +322,15 @@
         <include refid="Base_Column_List"/>
         from manager_info
         where invite_code = #{inviteCode}
+    </select>
+
+    <select id="selectManagerDetail" resultType="com.upedge.common.model.manager.vo.ManagerInfoVo">
+        select mi.`id`,mi.`order_source_id`,mi.`order_source_name`,
+               mi.`manager_state`,mi.`manager_name`,
+               mi.`invite_code`,mi.`per_commission`,
+               `username`,`avatar`,`mobile`,`email`,`country`,`whatsapp`,`wechat`,`fb_info`,`skype`,`sex`
+            from manager_info mi
+        left join `user` u
+        on mi.user_id = u.id
     </select>
 </mapper>

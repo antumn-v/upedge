@@ -22,6 +22,7 @@ import com.upedge.ums.modules.application.entity.Application;
 import com.upedge.ums.modules.application.entity.Menu;
 import com.upedge.ums.modules.application.service.ApplicationService;
 import com.upedge.ums.modules.application.service.MenuService;
+import com.upedge.ums.modules.manager.service.CustomerManagerService;
 import com.upedge.ums.modules.organization.entity.Organization;
 import com.upedge.ums.modules.organization.entity.OrganizationMenu;
 import com.upedge.ums.modules.organization.entity.OrganizationUser;
@@ -53,6 +54,9 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.stream.Collectors;
 
 
@@ -125,6 +129,12 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     RedisTemplate redisTemplate;
+
+    @Autowired
+    CustomerManagerService customerManagerService;
+
+    @Autowired
+    ThreadPoolExecutor threadPoolExecutor;
 
 
     /**
@@ -229,12 +239,6 @@ public class UserServiceImpl implements UserService {
 //            throw new CustomerException(CustomerExceptionEnum.MAILBOX_HAS_BEEN_REGISTERED);
 //        }
         user = userSignUp(request);
-
-        try {
-            affiliateService.affiliateBind(request.getReferrerToken(),user.getCustomerId());
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
         if (request.getAutoLogin()) {
             Map<String, Object> result = userSignIn(user, request.getApplicationId());
             return new CustomerSignUpResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS, result);
@@ -372,6 +376,7 @@ public class UserServiceImpl implements UserService {
             role.setApplicationId(applicationId);
             roleService.insertSelective(role);
         }
+        Long roleId = role.getId();
 
         OrganizationMenu organizationMenu = new OrganizationMenu();
         organizationMenu.setOrgId(organization.getId());
@@ -388,8 +393,29 @@ public class UserServiceImpl implements UserService {
         customerApplicationKey.setApplicationId(applicationId);
         customerApplicationKey.setCustomerId(customer.getId());
         customerApplicationService.insert(customerApplicationKey);
+        userBindAccountOrgApp(userId,applicationId,account.getId(),organization.getId(),roleId);
 
-        userBindAccountOrgApp(userId,applicationId,account.getId(),organization.getId(),role.getId());
+        CompletableFuture affiliateBind = CompletableFuture.runAsync(new Runnable() {
+            @Override
+            public void run() {
+                affiliateService.affiliateBind(request.getReferrerToken(),user.getCustomerId());
+            }
+        },threadPoolExecutor);
+
+        CompletableFuture inviteCodeBindCustomer = CompletableFuture.runAsync(new Runnable() {
+            @Override
+            public void run() {
+                customerManagerService.inviteCodeBindCustomer(request.getManagerInviteToken(), customer.getId());
+            }
+        },threadPoolExecutor);
+
+        try {
+            CompletableFuture.allOf(affiliateBind,inviteCodeBindCustomer).get();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        }
         return user;
     }
 

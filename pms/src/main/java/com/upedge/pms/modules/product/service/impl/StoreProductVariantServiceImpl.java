@@ -375,6 +375,11 @@ public class StoreProductVariantServiceImpl implements StoreProductVariantServic
         return splitVariantIds;
     }
 
+    @Override
+    public StoreProductVariant createCustomVariant(String sku, String image, String saleLink, Session session) {
+        return null;
+    }
+
     public void redisDeleteIfSplitVariant(Long storeVariantId){
         redisTemplate.opsForHash().delete(RedisKey.HASH_STORE_SPLIT_VARIANT,storeVariantId.toString());
     }

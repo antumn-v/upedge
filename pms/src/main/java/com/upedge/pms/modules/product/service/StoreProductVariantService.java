@@ -65,5 +65,7 @@ public interface StoreProductVariantService{
     boolean redisCheckIfSplitVariant(Long storeVariantId);
 
     List<Long> getSplitVariantIdsByParentId(Long storeVariantId);
+
+    StoreProductVariant createCustomVariant(String sku,String image,String saleLink,Session session);
 }
 

@@ -4,6 +4,7 @@ import com.upedge.common.base.BaseResponse;
 import com.upedge.common.base.Page;
 import com.upedge.common.constant.BaseCode;
 import com.upedge.common.constant.Constant;
+import com.upedge.common.model.manager.vo.ManagerInfoVo;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.utils.IdGenerate;
 import com.upedge.ums.modules.manager.dao.ManagerInfoDao;
@@ -12,6 +13,7 @@ import com.upedge.ums.modules.manager.request.ManagerInfoAddRequest;
 import com.upedge.ums.modules.manager.service.ManagerInfoService;
 import com.upedge.ums.modules.user.entity.User;
 import com.upedge.ums.modules.user.service.UserService;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -54,6 +56,19 @@ public class ManagerInfoServiceImpl implements ManagerInfoService {
     @Transactional
     public int insertSelective(ManagerInfo record) {
         return managerInfoDao.insert(record);
+    }
+
+    @Override
+    public ManagerInfo selectByInviteCode(String inviteCode) {
+        if (StringUtils.isBlank(inviteCode)){
+            return null;
+        }
+        return managerInfoDao.selectByInviteCode(inviteCode);
+    }
+
+    @Override
+    public List<ManagerInfoVo> selectManagerDetail() {
+        return managerInfoDao.selectManagerDetail();
     }
 
     @Transactional

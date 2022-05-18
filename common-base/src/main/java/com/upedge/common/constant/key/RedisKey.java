@@ -134,4 +134,6 @@ public class RedisKey {
 
     public static final String HASH_IP_REFERRER_TOKEN = "ip:referrer:token";
 
+    public static final String HASH_IP_MANAGER_INVITE_TOKEN = "ip:manager:invite:token";
+
 }

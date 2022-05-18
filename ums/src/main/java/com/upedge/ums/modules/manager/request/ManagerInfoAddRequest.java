@@ -7,6 +7,7 @@ import com.upedge.ums.modules.user.entity.User;
 import lombok.Data;
 
 import javax.validation.constraints.NotNull;
+import java.math.BigDecimal;
 import java.util.Date;
 /**
  * @author gx
@@ -62,6 +63,9 @@ public class ManagerInfoAddRequest{
     @NotNull
     private String inviteCode;
 
+    @NotNull
+    private BigDecimal perCommission;
+
     public ManagerInfo toManagerInfo(){
         ManagerInfo managerInfo=new ManagerInfo();
         managerInfo.setId(IdGenerate.nextId());
@@ -70,6 +74,7 @@ public class ManagerInfoAddRequest{
         managerInfo.setManagerName(managerName);
         managerInfo.setCreateTime(new Date());
         managerInfo.setInviteCode(inviteCode);
+        managerInfo.setPerCommission(perCommission);
         return managerInfo;
     }
 

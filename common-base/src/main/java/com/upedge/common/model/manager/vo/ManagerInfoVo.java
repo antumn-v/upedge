@@ -40,7 +40,7 @@ public class ManagerInfoVo {
     /**
      * 助理所属的客户经理代码
      */
-    private String assistantSupeior;
+    private String assistantSuperior;
     /**
      *
      */
