@@ -8,7 +8,7 @@ import java.util.List;
 @Data
 public class StoreCustomVariantRecordSaveRequest {
 
-    private Session session;
+    private Long customerId;
 
     private List<OrderExcelItemDto> orderExcelItemDtos;
 }

@@ -494,4 +494,16 @@
             customer_id  desc
     </select>
 
+    <select id="selectCustomStores" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from store
+        where customer_id = #{customerId}
+        and store_type = '3'
+        and store_name in
+        <foreach collection="storeNames" item="storeName" open="(" close=")" separator=",">
+            #{storeName}
+        </foreach>
+        limit ${storeNames.size}
+    </select>
 </mapper>

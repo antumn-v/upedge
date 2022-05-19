@@ -12,7 +12,7 @@ import java.util.List;
 /**
  * @author author
  */
-public interface StoreDao{
+public interface StoreDao {
 
     List<Store> selectByCustomerOrgIds(@Param("customerId") Long customerId,
                                        @Param("orgIds") List<Long> orgIds);
@@ -57,4 +57,5 @@ public interface StoreDao{
 
     List<StoreNameAndUserVo> selectStoreNameByGroupuserId();
 
+    List<Store> selectCustomStores(@Param("customerId") Long customerId, @Param("storeNames") List<String> storeNames);
 }

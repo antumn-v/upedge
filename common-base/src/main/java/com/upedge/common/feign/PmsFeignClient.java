@@ -6,6 +6,7 @@ import com.upedge.common.feign.fallback.PmsFeignClientFallbackFactory;
 import com.upedge.common.model.pms.quote.CustomerProductQuoteVo;
 import com.upedge.common.model.pms.request.CustomerProductQuoteSearchRequest;
 import com.upedge.common.model.pms.request.OrderQuoteApplyRequest;
+import com.upedge.common.model.pms.request.StoreCustomVariantRecordSaveRequest;
 import com.upedge.common.model.product.ListVariantsRequest;
 import com.upedge.common.model.product.ProductSaiheInventoryVo;
 import com.upedge.common.model.product.VariantDetail;
@@ -24,6 +25,9 @@ import java.util.List;
  */
 @FeignClient(name = ServiceNameConstants.PMS_SERVICE,fallbackFactory = PmsFeignClientFallbackFactory.class,decode404 = true)
 public interface PmsFeignClient {
+
+    @PostMapping("/storeCustomVariantRecord/save")
+    public List<CustomerProductQuoteVo> saveStoreCustomVariantRecords(StoreCustomVariantRecordSaveRequest request);
 
     @PostMapping("/webhook/product/delete")
     public void deleteStoreProduct(@RequestBody @Valid StoreApiRequest request);

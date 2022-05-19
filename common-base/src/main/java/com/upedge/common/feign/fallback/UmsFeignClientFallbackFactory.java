@@ -14,6 +14,8 @@ import com.upedge.common.model.account.request.ReturnOrderPayAmountToAccountRequ
 import com.upedge.common.model.log.MqMessageLog;
 import com.upedge.common.model.order.PaymentDetail;
 import com.upedge.common.model.order.TransactionDetail;
+import com.upedge.common.model.store.StoreVo;
+import com.upedge.common.model.store.request.CustomStoreSelectRequest;
 import com.upedge.common.model.store.request.StoreSearchRequest;
 import com.upedge.common.model.user.request.*;
 import com.upedge.common.model.user.vo.CommissionRecordVo;
@@ -23,6 +25,8 @@ import org.apache.rocketmq.common.message.Message;
 import org.springframework.stereotype.Component;
 
 import javax.validation.Valid;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author 海桐
@@ -33,6 +37,11 @@ public class UmsFeignClientFallbackFactory implements FallbackFactory<UmsFeignCl
     @Override
     public UmsFeignClient create(Throwable cause) {
         return new UmsFeignClient() {
+
+            @Override
+            public List<StoreVo> selectCustomStore(CustomStoreSelectRequest request) {
+                return new ArrayList<>();
+            }
 
             @Override
             public BaseResponse addCommissionRecord(ManagerAddCommissionRequest request) {

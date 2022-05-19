@@ -4,6 +4,7 @@ import com.upedge.common.base.BaseResponse;
 import com.upedge.common.base.Page;
 import com.upedge.common.model.old.ums.StoreNameAndUserVo;
 import com.upedge.common.model.store.StoreVo;
+import com.upedge.common.model.store.request.CustomStoreSelectRequest;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.ums.modules.store.entity.Store;
 import com.upedge.ums.modules.store.entity.StoreSetting;
@@ -66,6 +67,8 @@ public interface StoreService{
     BaseResponse storeSettingListUpdate(List<StoreSetting> list);
 
     List<StoreNameAndUserVo> selectStoreNameByGroupuserId();
+
+    List<Store> selectCustomStores(CustomStoreSelectRequest request);
 
 }
 

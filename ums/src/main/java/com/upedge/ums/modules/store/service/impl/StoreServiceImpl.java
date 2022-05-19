@@ -12,6 +12,7 @@ import com.upedge.common.model.log.MqMessageLog;
 import com.upedge.common.model.old.ums.StoreNameAndUserVo;
 import com.upedge.common.model.store.StoreVo;
 import com.upedge.common.model.store.config.ShopifyConfig;
+import com.upedge.common.model.store.request.CustomStoreSelectRequest;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.utils.IdGenerate;
 import com.upedge.common.utils.ListUtils;
@@ -643,9 +644,6 @@ public class StoreServiceImpl implements StoreService {
     }
 
     public void saveStoreSetting(Long storeId) {
-
-
-
         List<StoreSetting> storeSettings = new ArrayList<>();
         for (StoreSettingEnum storeSettingEnum : StoreSettingEnum.values()) {
             StoreSetting storeSetting = new StoreSetting();
@@ -770,8 +768,48 @@ public class StoreServiceImpl implements StoreService {
         return storeDao.selectStoreNameByGroupuserId();
     }
 
+    @Transactional
+    @Override
+    public List<Store> selectCustomStores(CustomStoreSelectRequest request) {
+        List<String> storeNames = request.getStoreNames();
+        Session session = request.getSession();
+        Long customerId = session.getCustomerId();
 
+        List<Store> stores = storeDao.selectCustomStores(customerId,storeNames);
+        for (Store store : stores) {
+            storeNames.remove(store.getStoreName());
+        }
+        if(ListUtils.isNotEmpty(storeNames)){
+            for (String storeName : storeNames) {
+                Store store = new Store();
+                Long storeId = IdGenerate.nextId();
+                Long orgId = IdGenerate.nextId();
+                store.setId(storeId);
+                store.setOrgId(orgId);
+                store.setStoreName(storeName);
+                store.setStoreUrl(storeName);
+                store.setUserId(session.getId());
+                store.setCustomerId(session.getCustomerId());
+                store.setStatus(1);
+                store.setStoreType(3);
+                store.setUpdateTime(new Date());
 
+                Organization organization = toOrganization(store);
+                String orgPath = session.getParentOrganization().getId() + "|" + orgId;
+                organization.setOrgParent(session.getParentOrganization().getId());
+                organization.setOrgPath(orgPath);
+                store.setOrgPath(orgPath);
+                organizationDao.insert(organization);
+                storeDao.insert(store);
+                saveDefaultRole(organization, session);
+                saveStoreSetting(storeId);
+
+                stores.add(store);
+            }
+        }
+
+        return stores;
+    }
 
 
 }

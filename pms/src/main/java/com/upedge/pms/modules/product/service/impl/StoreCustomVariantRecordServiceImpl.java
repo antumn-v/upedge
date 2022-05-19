@@ -5,7 +5,6 @@ import com.upedge.common.constant.key.RedisKey;
 import com.upedge.common.model.oms.order.OrderExcelItemDto;
 import com.upedge.common.model.pms.quote.CustomerProductQuoteVo;
 import com.upedge.common.model.pms.request.StoreCustomVariantRecordSaveRequest;
-import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.utils.IdGenerate;
 import com.upedge.common.utils.ListUtils;
 import com.upedge.pms.modules.product.dao.StoreCustomVariantRecordDao;
@@ -69,19 +68,17 @@ public class StoreCustomVariantRecordServiceImpl implements StoreCustomVariantRe
     @Transactional
     @Override
     public List<CustomerProductQuoteVo> saveCustomVariant(StoreCustomVariantRecordSaveRequest request) {
-        Session session = request.getSession();
-        Long customerId = session.getCustomerId();
+
+        Long customerId = request.getCustomerId();
         List<OrderExcelItemDto> orderExcelItemDtos = request.getOrderExcelItemDtos();
 
-        StoreProductAttribute storeProductAttribute = storeProductAttributeService.saveDefaultCustomProduct(session.getCustomerId());
+        StoreProductAttribute storeProductAttribute = storeProductAttributeService.saveDefaultCustomProduct(customerId);
         List<CustomerProductQuoteVo> customerProductQuoteVos = new ArrayList<>();
 
-        List<StoreProductVariant> storeProductVariants = saveNewCustomVariant(session.getCustomerId(),storeProductAttribute.getId(),orderExcelItemDtos);
+        List<StoreProductVariant> storeProductVariants = saveNewCustomVariant(customerId,storeProductAttribute.getId(),orderExcelItemDtos);
         for (StoreProductVariant storeProductVariant : storeProductVariants) {
             CustomerProductQuoteVo customerProductQuoteVo = (CustomerProductQuoteVo) redisTemplate.opsForValue().get(RedisKey.STRING_QUOTED_STORE_VARIANT + storeProductVariant.getId());
-            if (null != customerProductQuoteVo){
-                customerProductQuoteVos.add(customerProductQuoteVo);
-            }else {
+            if (null == customerProductQuoteVo){
                 customerProductQuoteVo = new CustomerProductQuoteVo();
                 customerProductQuoteVo.setCustomerId(customerId);
                 customerProductQuoteVo.setStoreVariantImage(storeProductVariant.getImage());
@@ -91,8 +88,8 @@ public class StoreCustomVariantRecordServiceImpl implements StoreCustomVariantRe
                 customerProductQuoteVo.setQuoteType(-1);
                 customerProductQuoteVo.setQuoteScale(1);
                 customerProductQuoteVo.setStoreProductId(storeProductVariant.getProductId());
-                customerProductQuoteVos.add(customerProductQuoteVo);
             }
+            customerProductQuoteVos.add(customerProductQuoteVo);
         }
         return customerProductQuoteVos;
     }
@@ -109,7 +106,6 @@ public class StoreCustomVariantRecordServiceImpl implements StoreCustomVariantRe
         List<Long> storeVariantIds = new ArrayList<>();
         a:
         for (OrderExcelItemDto orderExcelItemDto : orderExcelItemDtos) {
-            b:
             for (StoreCustomVariantRecord storeCustomVariantRecord : storeCustomVariantRecordList) {
                 if (skus.contains(storeCustomVariantRecord.getSku())){
                     storeVariantIds.add(storeCustomVariantRecord.getStoreVariantId());

@@ -11,6 +11,7 @@ import com.upedge.common.constant.key.RedisKey;
 import com.upedge.common.feign.OmsFeignClient;
 import com.upedge.common.model.store.StoreVo;
 import com.upedge.common.model.store.config.ShopifyConfig;
+import com.upedge.common.model.store.request.CustomStoreSelectRequest;
 import com.upedge.common.model.store.request.StoreSearchRequest;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.utils.HMACValidation;
@@ -376,6 +377,18 @@ public class StoreController {
             return BaseResponse.success();
         }
         return BaseResponse.failed();
+    }
+
+    @PostMapping("/customStoreSelect")
+    public List<StoreVo> selectCustomStore(@RequestBody CustomStoreSelectRequest request){
+        List<Store> stores = storeService.selectCustomStores(request);
+        List<StoreVo> storeVos = new ArrayList<>();
+        for (Store store : stores) {
+            StoreVo storeVo = new StoreVo();
+            BeanUtils.copyProperties(store,storeVo);
+            storeVos.add(storeVo);
+        }
+        return storeVos;
     }
 
 }

@@ -14,6 +14,8 @@ import com.upedge.common.model.account.request.ReturnOrderPayAmountToAccountRequ
 import com.upedge.common.model.log.MqMessageLog;
 import com.upedge.common.model.order.PaymentDetail;
 import com.upedge.common.model.order.TransactionDetail;
+import com.upedge.common.model.store.StoreVo;
+import com.upedge.common.model.store.request.CustomStoreSelectRequest;
 import com.upedge.common.model.store.request.StoreSearchRequest;
 import com.upedge.common.model.user.request.*;
 import com.upedge.common.model.user.vo.CommissionRecordVo;
@@ -23,12 +25,16 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.List;
 
 /**
  * @author 海桐
  */
 @FeignClient(name = ServiceNameConstants.USER_SERVICE,fallbackFactory = UmsFeignClientFallbackFactory.class,decode404 = true)
 public interface UmsFeignClient {
+
+    @PostMapping("/store/customStoreSelect")
+    public List<StoreVo> selectCustomStore(@RequestBody CustomStoreSelectRequest request);
 
     //添加客户经理提成记录
     @RequestMapping(value="/managerCommissionRecord/add", method=RequestMethod.POST)

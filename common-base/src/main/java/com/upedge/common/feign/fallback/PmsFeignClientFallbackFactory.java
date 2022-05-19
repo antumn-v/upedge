@@ -6,6 +6,7 @@ import com.upedge.common.feign.PmsFeignClient;
 import com.upedge.common.model.pms.quote.CustomerProductQuoteVo;
 import com.upedge.common.model.pms.request.CustomerProductQuoteSearchRequest;
 import com.upedge.common.model.pms.request.OrderQuoteApplyRequest;
+import com.upedge.common.model.pms.request.StoreCustomVariantRecordSaveRequest;
 import com.upedge.common.model.product.ListVariantsRequest;
 import com.upedge.common.model.product.ProductSaiheInventoryVo;
 import com.upedge.common.model.product.VariantDetail;
@@ -27,6 +28,11 @@ public class PmsFeignClientFallbackFactory implements FallbackFactory<PmsFeignCl
     @Override
     public PmsFeignClient create(Throwable cause) {
         return new PmsFeignClient() {
+            @Override
+            public List<CustomerProductQuoteVo> saveStoreCustomVariantRecords(StoreCustomVariantRecordSaveRequest request) {
+                return new ArrayList<>();
+            }
+
             @Override
             public void deleteStoreProduct(@Valid StoreApiRequest request) {
                 return;
