@@ -85,6 +85,15 @@ public class StoreProductVariantServiceImpl implements StoreProductVariantServic
         return storeProductVariantDao.insert(record);
     }
 
+    @Override
+    public int insertByBatch(List<StoreProductVariant> storeProductVariants) {
+
+        if (ListUtils.isNotEmpty(storeProductVariants)){
+            return storeProductVariantDao.insertByBatch(storeProductVariants);
+        }
+        return 0;
+    }
+
     /**
      *
      */
@@ -101,6 +110,14 @@ public class StoreProductVariantServiceImpl implements StoreProductVariantServic
     @Override
     public List<StoreProductVariant> selectCustomerUnSplitVariant(StoreProductVariantUnSplitListRequest request) {
         return storeProductVariantDao.selectCustomerUnSplitVariant(request);
+    }
+
+    @Override
+    public List<StoreProductVariant> selectByIds(List<Long> ids) {
+        if (ListUtils.isNotEmpty(ids)){
+            return storeProductVariantDao.selectByIds(ids);
+        }
+        return new ArrayList<>();
     }
 
     @Override

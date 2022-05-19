@@ -608,4 +608,13 @@
         set transform_state = #{transformState}
         where id = #{id};
     </update>
+
+    <select id="selectCustomerDefaultProduct" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from store_product_attribute
+        where customer_id = #{customerId}
+        and source = '3'
+        limit 1
+    </select>
 </mapper>

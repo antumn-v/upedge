@@ -1,5 +1,6 @@
 package com.upedge.oms.modules.order.dto;
 
+import com.upedge.common.exception.CustomerException;
 import lombok.Data;
 
 import javax.validation.constraints.NotNull;
@@ -58,7 +59,7 @@ public class OrderExcelImportDto {
     private Integer quantity;
 
 
-    void checkNotNullFiled(){
+    public void checkNotNullFiled() throws CustomerException {
         Field[] fields = this.getClass().getDeclaredFields();
         for (Field field : fields) {
             NotNull annotation = field.getAnnotation(NotNull.class);
@@ -68,7 +69,7 @@ public class OrderExcelImportDto {
             try {
                 Object value = field.get(this);
                 if (value == null){
-                    System.out.println(annotation.message());
+                    throw new CustomerException(annotation.message());
                 }
             } catch (IllegalAccessException e) {
                 e.printStackTrace();

@@ -44,7 +44,7 @@ public class StoreProductAttribute {
      */
     private String adminProductId;
     /**
-     * 0:SIB ,1:Ali, 2:其他
+     * 0:SIB ,1:Ali, 2:其他，3：自定义
      */
     private Integer source;
     /**

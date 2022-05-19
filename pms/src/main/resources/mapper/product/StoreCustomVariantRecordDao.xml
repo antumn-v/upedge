@@ -1,0 +1,215 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.upedge.pms.modules.product.dao.StoreCustomVariantRecordDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.upedge.pms.modules.product.entity.StoreCustomVariantRecord" id="BaseResultMap">
+        <result property="customerId" column="customer_id"/>
+        <result property="sku" column="sku"/>
+        <result property="sellingLink" column="selling_link"/>
+        <result property="storeVariantId" column="store_variant_id"/>
+        <result property="creatorId" column="creator_id"/>
+        <result property="createTime" column="create_time"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        `customer_id`,`sku`,`selling_link`,`store_variant_id`,`creator_id`,`create_time`
+    </sql>
+
+    <select id="selectByPrimaryKey"  resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from store_custom_variant_record
+        where customer_id = #{customerId}
+        and sku = #{sku}
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="com.upedge.pms.modules.product.entity.StoreCustomVariantRecord">
+        delete from store_custom_variant_record
+        where customer_id = #{customerId}
+    </delete>
+
+    <update id="updateByPrimaryKeySelective" parameterType="com.upedge.pms.modules.product.entity.StoreCustomVariantRecord">
+        update store_custom_variant_record
+        <set>
+            <if test="sku != null">
+                sku = #{sku},
+            </if>
+            <if test="sellingLink != null">
+                selling_link = #{sellingLink},
+            </if>
+            <if test="storeVariantId != null">
+                store_variant_id = #{storeVariantId},
+            </if>
+            <if test="creatorId != null">
+                creator_id = #{creatorId},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime},
+            </if>
+        </set>
+        where customer_id = #{customerId}
+    </update>
+
+    <update id="updateByPrimaryKey" parameterType="com.upedge.pms.modules.product.entity.StoreCustomVariantRecord">
+        update store_custom_variant_record
+        <set>
+        customer_id = #{customerId},
+        sku = #{sku},
+        selling_link = #{sellingLink},
+        store_variant_id = #{storeVariantId},
+        creator_id = #{creatorId},
+        create_time = #{createTime},
+        </set>
+        where customer_id = #{customerId}
+    </update>
+
+    <insert id="insert" keyColumn="customer_id" keyProperty="customerId" parameterType="com.upedge.pms.modules.product.entity.StoreCustomVariantRecord" useGeneratedKeys="true">
+        insert into store_custom_variant_record
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            customer_id,
+            sku,
+            selling_link,
+            store_variant_id,
+            creator_id,
+            create_time
+        </trim>
+        values (
+        #{customerId},
+        #{sku},
+        #{sellingLink},
+        #{storeVariantId},
+        #{creatorId},
+        #{createTime}
+        )
+    </insert>
+
+    <insert id="insertSelective"  keyColumn="customer_id" keyProperty="customerId"  parameterType="com.upedge.pms.modules.product.entity.StoreCustomVariantRecord" useGeneratedKeys="true">
+        insert into store_custom_variant_record
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="customerId != null" >
+              customer_id
+            </if>
+            <if test="sku != null" >
+              sku
+            </if>
+            <if test="sellingLink != null" >
+              selling_link
+            </if>
+            <if test="storeVariantId != null" >
+              store_variant_id
+            </if>
+            <if test="creatorId != null" >
+              creator_id
+            </if>
+            <if test="createTime != null" >
+              create_time
+            </if>
+
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="customerId != null" >
+                #{customerId}
+            </if>
+            <if test="sku != null" >
+                #{sku}
+            </if>
+            <if test="sellingLink != null" >
+                #{sellingLink}
+            </if>
+            <if test="storeVariantId != null" >
+                #{storeVariantId}
+            </if>
+            <if test="creatorId != null" >
+                #{creatorId}
+            </if>
+            <if test="createTime != null" >
+                #{createTime}
+            </if>
+
+        </trim>
+    </insert>
+
+    <insert id="insertByBatch" parameterType="java.util.List">
+        insert into store_custom_variant_record
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+           customer_id,
+           sku,
+           selling_link,
+           store_variant_id,
+           creator_id,
+           create_time
+        </trim>
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+               #{item.customerId},
+               #{item.sku},
+               #{item.sellingLink},
+               #{item.storeVariantId},
+               #{item.creatorId},
+               #{item.createTime}
+            </trim>
+        </foreach>
+    </insert>
+
+    <sql id="Query_Condition">
+        <if test="t != null">
+            where
+            <trim prefix=" " suffix=" " suffixOverrides=" and ">
+                1 = 1 and
+                    <if test="t.customerId != null">
+                        customer_id = #{t.customerId} and
+                    </if>
+                    <if test="t.sku != null">
+                        sku = #{t.sku} and
+                    </if>
+                    <if test="t.sellingLink != null">
+                        selling_link = #{t.sellingLink} and
+                    </if>
+                    <if test="t.storeVariantId != null">
+                        store_variant_id = #{t.storeVariantId} and
+                    </if>
+                    <if test="t.creatorId != null">
+                        creator_id = #{t.creatorId} and
+                    </if>
+                    <if test="t.createTime != null">
+                        create_time = #{t.createTime} and
+                    </if>
+            </trim>
+        </if>
+    </sql>
+
+    <select id="select" parameterType="com.upedge.common.base.Page" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from store_custom_variant_record
+        <include refid="Query_Condition"/>
+        <if test="orderBy != null">
+            order by ${orderBy}
+        </if>
+        <if test="pageNum != null and pageSize != null">
+            limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+        </if>
+    </select>
+
+    <select id="count" parameterType="com.upedge.common.base.Page" resultType="java.lang.Long">
+        select
+        count(1)
+        from store_custom_variant_record
+        <include refid="Query_Condition"/>
+    </select>
+
+    <select id="selectByCustomerAndSkus" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from store_custom_variant_record
+        where customer_id =#{customerId}
+        and sku in
+        <foreach collection="skus" item="sku" open="(" separator="," close=")">
+            #{sku}
+        </foreach>
+        limit ${skus.size}
+    </select>
+</mapper>

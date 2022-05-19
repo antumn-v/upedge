@@ -11,6 +11,7 @@ import com.upedge.common.feign.PmsFeignClient;
 import com.upedge.common.feign.TmsFeignClient;
 import com.upedge.common.feign.UmsFeignClient;
 import com.upedge.common.model.mq.ChangeManagerVo;
+import com.upedge.common.model.oms.order.OrderExcelItemDto;
 import com.upedge.common.model.order.request.ManagerActualRequest;
 import com.upedge.common.model.order.vo.AllOrderAmountVo;
 import com.upedge.common.model.order.vo.CustomerOrderStatisticalVo;
@@ -42,6 +43,7 @@ import com.upedge.oms.modules.common.service.OrderCommonService;
 import com.upedge.oms.modules.fulfillment.service.OrderFulfillmentService;
 import com.upedge.oms.modules.order.dao.*;
 import com.upedge.oms.modules.order.dto.OrderAnalysisDto;
+import com.upedge.oms.modules.order.dto.OrderExcelImportDto;
 import com.upedge.oms.modules.order.dto.PandaOrderListDto;
 import com.upedge.oms.modules.order.entity.*;
 import com.upedge.oms.modules.order.request.*;
@@ -565,6 +567,27 @@ public class OrderServiceImpl implements OrderService {
         return null;
     }
 
+    @Override
+    public BaseResponse importExcelOrder(OrderExcelImportRequest request, Session session) {
+
+        List<OrderExcelImportDto> orderExcels = request.getOrderExcels();
+        if (ListUtils.isEmpty(orderExcels)){
+            return BaseResponse.failed();
+        }
+        Set<OrderExcelItemDto> excelItemDtos = new HashSet<>();
+        for (OrderExcelImportDto orderExcel : orderExcels) {
+            try {
+                orderExcel.checkNotNullFiled();
+            } catch (CustomerException e) {
+                return BaseResponse.failed(e.getMessage());
+            }
+            OrderExcelItemDto excelItemDto = new OrderExcelItemDto();
+            BeanUtils.copyProperties(orderExcel,excelItemDto);
+            excelItemDtos.add(excelItemDto);
+        }
+
+        return null;
+    }
 
 
     List<ShipDetail> orderShipMethods(Long orderId, Long areaId) {

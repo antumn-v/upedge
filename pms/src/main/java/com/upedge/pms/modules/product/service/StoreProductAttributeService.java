@@ -13,6 +13,8 @@ public interface StoreProductAttributeService{
 
     List<StoreProductAttribute> selectStoreProduct(StoreProductListRequest request);
 
+    StoreProductAttribute saveDefaultCustomProduct(Long customerId);
+
     Long countStoreProduct(StoreProductListRequest request);
 
     StoreProductAttribute selectByPrimaryKey(Long id);

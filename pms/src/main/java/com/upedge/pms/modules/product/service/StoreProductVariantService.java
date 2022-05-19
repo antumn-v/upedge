@@ -22,6 +22,8 @@ public interface StoreProductVariantService{
 
     List<StoreProductVariant> selectCustomerUnSplitVariant(StoreProductVariantUnSplitListRequest request);
 
+    List<StoreProductVariant> selectByIds(List<Long> ids);
+
     StoreProductVariant selectByPlatId(String platVariantId);
 
     int updateId(Long oldId, Long newId);
@@ -55,6 +57,8 @@ public interface StoreProductVariantService{
     int updateByPrimaryKeySelective(StoreProductVariant record);
 
     int insert(StoreProductVariant record);
+
+    int insertByBatch(List<StoreProductVariant> storeProductVariants);
 
     int insertSelective(StoreProductVariant record);
 

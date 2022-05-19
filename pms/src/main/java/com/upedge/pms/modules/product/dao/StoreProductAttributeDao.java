@@ -13,6 +13,8 @@ import java.util.List;
  */
 public interface StoreProductAttributeDao{
 
+    StoreProductAttribute selectCustomerDefaultProduct(Long customerId);
+
     List<StoreProductAttribute> selectStoreProduct(StoreProductListRequest request);
 
     Long countStoreProduct(StoreProductListRequest request);

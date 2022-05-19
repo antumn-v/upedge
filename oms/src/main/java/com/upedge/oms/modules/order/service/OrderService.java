@@ -253,5 +253,7 @@ public interface OrderService{
     List<ShipDetail> orderOverseaWarehouseShipMethods(Long orderId, Long areaId);
 
     OrderShipRuleDetail matchShipRule(Long orderId, OrderShipRuleVo orderShipRuleVo);
+
+    BaseResponse importExcelOrder(OrderExcelImportRequest request,Session session);
 }
 
