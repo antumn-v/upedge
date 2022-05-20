@@ -27,7 +27,7 @@ import java.util.List;
 public interface PmsFeignClient {
 
     @PostMapping("/storeCustomVariantRecord/save")
-    public List<CustomerProductQuoteVo> saveStoreCustomVariantRecords(StoreCustomVariantRecordSaveRequest request);
+    public List<CustomerProductQuoteVo> saveStoreCustomVariantRecords(@RequestBody StoreCustomVariantRecordSaveRequest request);
 
     @PostMapping("/webhook/product/delete")
     public void deleteStoreProduct(@RequestBody @Valid StoreApiRequest request);

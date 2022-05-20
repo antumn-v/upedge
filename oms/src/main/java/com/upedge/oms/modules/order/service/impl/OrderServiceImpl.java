@@ -626,7 +626,7 @@ public class OrderServiceImpl implements OrderService {
         List<OrderItem> items = new ArrayList<>();
         for (String orderNumber : orderSkusMap.keySet()) {
             String storeName = orderNumber.substring(0,orderNumber.indexOf(":"));
-            String orderName = orderNumber.substring(orderNumber.indexOf(":"),orderNumber.indexOf("_"));
+            String orderName = orderNumber.substring(orderNumber.indexOf(":")+1,orderNumber.length());
             Long orderId = IdGenerate.nextId();
             Integer quotedItem = 0;
             Integer unQuotedItem = 0;
@@ -637,14 +637,23 @@ public class OrderServiceImpl implements OrderService {
             BigDecimal volume = BigDecimal.ZERO;
             List<String> skus = orderSkusMap.get(orderNumber);
             for (String sku : skus) {
-                Integer quantity = orderSkuQuantity.get(orderNumber + sku);
+                Integer quantity = orderSkuQuantity.get(orderNumber + "_" + sku);
                 BigDecimal itemQuantity = new BigDecimal(quantity);
                 CustomerProductQuoteVo customerProductQuoteVo = skuQuote.get(sku);
                 OrderItem orderItem = new OrderItem();
                 BeanUtils.copyProperties(customerProductQuoteVo,orderItem);
+                orderItem.setOriginalQuantity(quantity);
                 orderItem.setOrderId(orderId);
+                orderItem.setStoreOrderId(orderId);
+                orderItem.setStoreOrderItemId(0l);
+                orderItem.setDischargeQuantity(0);
+                orderItem.setItemType(0);
+                orderItem.setQuantity(quantity);
+                orderItem.setStoreVariantId(customerProductQuoteVo.getStoreVariantId());
+                orderItem.setId(IdGenerate.nextId());
                 switch (customerProductQuoteVo.getQuoteType()){
                     case -1:
+                        orderItem.setQuoteState(0);
                         unQuotedItem++;
                         break;
                     case 5:
@@ -656,20 +665,15 @@ public class OrderServiceImpl implements OrderService {
                         break;
                     case 1:
                         quotedItem++;
+                        orderItem.quoteProductToItem(customerProductQuoteVo);
                         customerProductQuoteVo.setQuoteScale(1);
                         cnyProductAmount = cnyProductAmount.add(orderItem.getCnyPrice().multiply(itemQuantity));
                         productAmount = productAmount.add(orderItem.getUsdPrice().multiply(itemQuantity));
                         totalWeight = totalWeight.add(customerProductQuoteVo.getWeight().multiply(itemQuantity));
                         volume = volume.add(customerProductQuoteVo.getVolume().multiply(itemQuantity));
-                        orderItem.setOriginalQuantity(0);
-                        orderItem.setOrderId(orderId);
-                        orderItem.setStoreOrderItemId(0l);
-                        orderItem.setDischargeQuantity(0);
-                        orderItem.setItemType(0);
-                        orderItem.setId(IdGenerate.nextId());
-                        items.add(orderItem);
                         break;
                 }
+                items.add(orderItem);
             }
             StoreVo storeVo = storeVoMap.get(storeName);
             Order order = new Order();
@@ -705,8 +709,9 @@ public class OrderServiceImpl implements OrderService {
             orderAddressDao.insert(orderAddress);
 
             StoreOrderRelate storeOrderRelate = new StoreOrderRelate();
-            storeOrderRelate.setStoreOrderId(0L);
+            storeOrderRelate.setStoreOrderId(orderId);
             storeOrderRelate.setOrderId(orderId);
+            storeOrderRelate.setPlatOrderName(orderName);
             storeOrderRelate.setOrderCustomerName(orderAddress.getName());
             storeOrderRelate.setFinancialStatus(0);
             storeOrderRelate.setFulfillmentStatus(0);

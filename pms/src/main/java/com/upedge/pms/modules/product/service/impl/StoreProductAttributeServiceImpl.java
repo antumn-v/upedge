@@ -60,6 +60,7 @@ public class StoreProductAttributeServiceImpl implements StoreProductAttributeSe
             return storeProductAttribute;
         }
         Date date = new Date();
+        storeProductAttribute = new StoreProductAttribute();
         storeProductAttribute.setId(IdGenerate.nextId());
         storeProductAttribute.setTitle("default title");
         storeProductAttribute.setStoreId(0L);
