@@ -60,6 +60,12 @@ public class StockOrderController {
     @Autowired
     UmsFeignClient umsFeignClient;
 
+    @ApiOperation("账单信息")
+    @GetMapping("/invoiceDetail/{paymentId}")
+    public BaseResponse invoiceDetail(@PathVariable Long paymentId){
+        return stockOrderService.invoiceDetail(paymentId);
+    }
+
 
     @RequestMapping(value = "/info/{id}", method = RequestMethod.GET)
     @Permission(permission = "stock:order:info:id")

@@ -13,6 +13,7 @@ import com.upedge.common.feign.UmsFeignClient;
 import com.upedge.common.model.account.AccountPaymentRequest;
 import com.upedge.common.model.account.PaypalOrder;
 import com.upedge.common.model.account.PaypalOrder.PaypalOrderItem;
+import com.upedge.common.model.account.vo.InvoiceProductVo;
 import com.upedge.common.model.log.MqMessageLog;
 import com.upedge.common.model.oms.stock.StockOrderItemVo;
 import com.upedge.common.model.oms.stock.StockOrderVo;
@@ -33,7 +34,9 @@ import com.upedge.oms.modules.cart.dao.CartDao;
 import com.upedge.oms.modules.cart.entity.Cart;
 import com.upedge.oms.modules.order.entity.OrderTracking;
 import com.upedge.oms.modules.order.service.OrderTrackingService;
+import com.upedge.oms.modules.statistics.service.InvoiceService;
 import com.upedge.oms.modules.statistics.service.OrderDailyPayCountService;
+import com.upedge.oms.modules.statistics.vo.InvoiceDetailVo;
 import com.upedge.oms.modules.stock.dao.CustomerProductStockDao;
 import com.upedge.oms.modules.stock.dao.CustomerStockRecordDao;
 import com.upedge.oms.modules.stock.dao.StockOrderDao;
@@ -67,6 +70,9 @@ import java.util.concurrent.ThreadPoolExecutor;
 @Slf4j
 @Service
 public class StockOrderServiceImpl implements StockOrderService {
+
+    @Autowired
+    InvoiceService invoiceService;
 
     @Autowired
     private StockOrderDao stockOrderDao;
@@ -134,6 +140,17 @@ public class StockOrderServiceImpl implements StockOrderService {
     @Override
     public int insertSelective(StockOrder record) {
         return stockOrderDao.insert(record);
+    }
+
+    @Override
+    public BaseResponse invoiceDetail(Long paymentId) {
+        InvoiceDetailVo invoiceDetailVo = invoiceService.selectStockInvoiceDetailByPaymentId(paymentId);
+        if (invoiceDetailVo == null){
+            return BaseResponse.failed();
+        }
+        List<InvoiceProductVo> invoiceProductVos = invoiceService.selectStockInvoiceProductByPaymentId(paymentId);
+        invoiceDetailVo.setProductVos(invoiceProductVos);
+        return BaseResponse.success(invoiceDetailVo);
     }
 
     @Override

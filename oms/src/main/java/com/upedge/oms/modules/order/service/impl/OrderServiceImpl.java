@@ -569,6 +569,7 @@ public class OrderServiceImpl implements OrderService {
         return null;
     }
 
+    @Transactional
     @Override
     public BaseResponse importExcelOrder(OrderExcelImportRequest request, Session session) {
         Date date = new Date();

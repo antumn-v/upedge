@@ -771,4 +771,11 @@ public class OrderController {
         packageScheduler.pullNormalTracking();
         return BaseResponse.success();
     }
+
+    @ApiOperation("excel导入订单")
+    @PostMapping("/excelImport")
+    public BaseResponse excelImportOrder(@RequestBody@Valid OrderExcelImportRequest request){
+        Session session = UserUtil.getSession(redisTemplate);
+        return orderService.importExcelOrder(request,session);
+    }
 }

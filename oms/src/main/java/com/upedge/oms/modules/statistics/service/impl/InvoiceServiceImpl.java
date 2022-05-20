@@ -34,7 +34,7 @@ import com.upedge.oms.modules.statistics.service.InvoiceExportRequestService;
 import com.upedge.oms.modules.statistics.service.InvoiceService;
 import com.upedge.oms.modules.statistics.vo.InvoiceDetailVo;
 import com.upedge.oms.modules.statistics.vo.InvoiceExcelVo;
-import com.upedge.oms.modules.statistics.vo.InvoiceProductVo;
+import com.upedge.common.model.account.vo.InvoiceProductVo;
 import com.upedge.oms.modules.statistics.vo.InvoiceVo;
 import org.apache.commons.collections4.MapUtils;
 import org.springframework.beans.BeanUtils;
@@ -67,6 +67,16 @@ public class InvoiceServiceImpl implements InvoiceService {
 
     @Autowired
     RedisTemplate redisTemplate;
+
+    @Override
+    public InvoiceDetailVo selectStockInvoiceDetailByPaymentId(Long paymentId) {
+        return invoiceDao.selectStockInvoiceDetailByPaymentId(paymentId);
+    }
+
+    @Override
+    public List<InvoiceProductVo> selectStockInvoiceProductByPaymentId(Long paymentId) {
+        return invoiceDao.selectStockInvoiceProductByPaymentId(paymentId);
+    }
 
     @Override
     public BaseResponse customerInvoiceList(InvoiceListRequest request) {

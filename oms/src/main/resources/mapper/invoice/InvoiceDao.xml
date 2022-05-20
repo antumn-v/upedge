@@ -191,7 +191,7 @@
         and order_type !='1'
     </select>
 
-    <select id="selectOrderInvoiceProductByPaymentId" resultType="com.upedge.oms.modules.statistics.vo.InvoiceProductVo"
+    <select id="selectOrderInvoiceProductByPaymentId" resultType="com.upedge.common.model.account.vo.InvoiceProductVo"
             parameterType="com.upedge.oms.modules.statistics.request.InvoiceDetailRequest">
         select oi.store_variant_id,
         sum(oi.quantity) as `quantity`,
@@ -205,7 +205,7 @@
         group by oi.store_variant_id,oi.usd_price
     </select>
 
-    <select id="selectOrderInvoiceProductByTime" resultType="com.upedge.oms.modules.statistics.vo.InvoiceProductVo"
+    <select id="selectOrderInvoiceProductByTime" resultType="com.upedge.common.model.account.vo.InvoiceProductVo"
             parameterType="com.upedge.oms.modules.statistics.request.InvoiceSearchRequest">
         select oi.store_product_title as `title`,ifnull(oi.store_variant_name,'Default Title') as `variantTitle`,
         sum(oi.quantity) as `quantity`,
@@ -258,7 +258,7 @@
         and order_type !='1'
     </select>
 
-    <select id="selectWholesaleInvoiceProductByPaymentId" resultType="com.upedge.oms.modules.statistics.vo.InvoiceProductVo"
+    <select id="selectWholesaleInvoiceProductByPaymentId" resultType="com.upedge.common.model.account.vo.InvoiceProductVo"
             parameterType="com.upedge.oms.modules.statistics.request.InvoiceDetailRequest">
         select oi.admin_product_title as `title`,ifnull(oi.admin_variant_name,'Default Title') as `variantTitle`,
         sum(oi.quantity) as `quantity`,
@@ -275,7 +275,7 @@
         group by oi.admin_variant_sku,oi.cny_price,oi.admin_product_title,oi.admin_variant_name,oi.admin_variant_image
     </select>
 
-    <select id="selectWholesaleInvoiceProductByTime" resultType="com.upedge.oms.modules.statistics.vo.InvoiceProductVo"
+    <select id="selectWholesaleInvoiceProductByTime" resultType="com.upedge.common.model.account.vo.InvoiceProductVo"
             parameterType="com.upedge.oms.modules.statistics.request.InvoiceSearchRequest">
         select oi.admin_product_title as `title`,ifnull(oi.admin_variant_name,'Default Title') as `variantTitle`,
         sum(oi.quantity) as `quantity`,
@@ -303,8 +303,9 @@
             sum(ship_price) AS `shipPrice`,
             IFNULL( sum( amount ), 0 ) AS `productAmount`,
             '0' AS vatAmount,
-            IFNULL( sum( amount + paypal_fee), 0 ) AS payAmount,
-            IFNULL( sum( paypal_fee ), 0 ) AS `fixFee`
+            IFNULL( sum( amount + paypal_fee), 0 ) AS amount,
+            IFNULL( sum( paypal_fee ), 0 ) AS `fixFee`,
+            count(id) as orderCount
         from stock_order
         where payment_id = #{paymentId}
         and pay_state > '0'
@@ -327,7 +328,7 @@
 
     </select>
 
-    <select id="selectStockInvoiceProductByPaymentId" resultType="com.upedge.oms.modules.statistics.vo.InvoiceProductVo"
+    <select id="selectStockInvoiceProductByPaymentId" resultType="com.upedge.common.model.account.vo.InvoiceProductVo"
             parameterType="com.upedge.oms.modules.statistics.request.InvoiceDetailRequest">
         select oi.product_title as `title`,ifnull(oi.variant_name,'Default Title') as `variantTitle`,
         sum(oi.quantity) as `quantity`,
@@ -343,7 +344,7 @@
         group by oi.variant_sku,oi.price,oi.product_title,oi.variant_name,oi.variant_image
     </select>
 
-    <select id="selectStockInvoiceProductByTime" resultType="com.upedge.oms.modules.statistics.vo.InvoiceProductVo"
+    <select id="selectStockInvoiceProductByTime" resultType="com.upedge.common.model.account.vo.InvoiceProductVo"
             parameterType="com.upedge.oms.modules.statistics.request.InvoiceSearchRequest">
         select oi.product_title as `title`,ifnull(oi.variant_name,'Default Title') as `variantTitle`,
         sum(oi.quantity) as `quantity`,

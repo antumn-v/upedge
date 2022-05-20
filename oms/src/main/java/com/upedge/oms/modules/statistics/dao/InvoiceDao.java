@@ -3,7 +3,7 @@ package com.upedge.oms.modules.statistics.dao;
 import com.upedge.oms.modules.statistics.request.InvoiceListRequest;
 import com.upedge.oms.modules.statistics.request.InvoiceSearchRequest;
 import com.upedge.oms.modules.statistics.vo.InvoiceDetailVo;
-import com.upedge.oms.modules.statistics.vo.InvoiceProductVo;
+import com.upedge.common.model.account.vo.InvoiceProductVo;
 import com.upedge.oms.modules.statistics.vo.InvoiceVo;
 
 import java.util.List;

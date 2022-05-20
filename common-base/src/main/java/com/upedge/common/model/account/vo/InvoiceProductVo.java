@@ -1,4 +1,4 @@
-package com.upedge.oms.modules.statistics.vo;
+package com.upedge.common.model.account.vo;
 
 import lombok.Data;
 

@@ -1,5 +1,6 @@
 package com.upedge.oms.modules.statistics.vo;
 
+import com.upedge.common.model.account.vo.InvoiceProductVo;
 import com.upedge.oms.modules.order.vo.AppOrderVo;
 import lombok.Data;
 
@@ -8,36 +9,11 @@ import java.util.Date;
 import java.util.List;
 
 @Data
-public class InvoiceDetailVo {
-
-    Long paymentId;
-
-    Long customerId;
-
-
+public class InvoiceDetailVo extends InvoiceVo {
     /**
      * dischargeAmount
      */
     BigDecimal dischargeAmount;
-
-
-    /**
-     * freight
-     */
-    BigDecimal shipPrice;
-
-
-    /**
-     * productAmount
-     */
-    BigDecimal productAmount;
-
-    /**
-     * payAmount
-     */
-    BigDecimal payAmount;
-
-
     /**
      * fixFee
      */
@@ -47,11 +23,11 @@ public class InvoiceDetailVo {
 
     Date payTime;
 
-    List<InvoiceProductVo> productVos;
-
     Integer paymentNumber;
 
     String storeOrderName;
+
+    List<InvoiceProductVo> productVos;
 
     List<AppOrderVo> appOrderVos;
 }
