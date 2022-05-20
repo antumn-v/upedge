@@ -1,5 +1,6 @@
 package com.upedge.sms.modules.center.service;
 
+import com.upedge.common.base.BaseResponse;
 import com.upedge.common.base.Page;
 import com.upedge.sms.modules.center.entity.ServiceOrder;
 
@@ -11,6 +12,8 @@ import java.util.List;
  * @author gx
  */
 public interface ServiceOrderService{
+
+    BaseResponse orderInvoice(Long id);
 
     int updateToPaidByRelateId(Long relateId, Integer serviceType, BigDecimal payAmount, Date updateTime);
 

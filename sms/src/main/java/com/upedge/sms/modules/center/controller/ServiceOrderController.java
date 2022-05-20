@@ -86,5 +86,10 @@ public class ServiceOrderController {
         return BaseResponse.success();
     }
 
+    @ApiOperation("账单信息")
+    @GetMapping("/invoice/{id}")
+    public BaseResponse orderInvoice(@PathVariable Long id){
+        return serviceOrderService.orderInvoice(id);
+    }
 
 }

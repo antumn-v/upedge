@@ -9,6 +9,8 @@ import java.util.List;
 @Data
 public class InvoiceVo {
 
+    Integer orderType;
+
     Long paymentId;
 
     Long customerId;
@@ -29,6 +31,8 @@ public class InvoiceVo {
     BigDecimal payAmount;
 
     Date payTime;
+
+    List<InvoiceProductVo> productVos;
 
 
 }
