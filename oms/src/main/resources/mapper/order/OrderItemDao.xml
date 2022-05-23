@@ -886,6 +886,9 @@
             oi.height = #{height,jdbcType=DECIMAL},
             oi.quantity = (#{quoteScale} * original_quantity),
             oi.quote_scale = #{quoteScale}
+            <if test="storeVariantImage != null and storeVariantImage != ''">
+                ,oi.store_variant_image = #{storeVariantImage}
+            </if>
         where oi.store_variant_id = #{storeVariantId}
         and o.pay_state &lt; '1'
     </update>

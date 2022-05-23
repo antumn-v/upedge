@@ -590,7 +590,7 @@ public class OrderServiceImpl implements OrderService {
             }
             String orderNo = orderExcel.getStoreName() +":"+ orderExcel.getOrderNumber();
             storeNames.add(orderExcel.getStoreName());
-            if (orderSkusMap.containsKey(orderExcel.getOrderNumber())) {
+            if (orderSkusMap.containsKey(orderNo)) {
                 orderSkusMap.get(orderNo).add(orderExcel.getSku());
             } else {
                 List<String> skus = new ArrayList<>();
@@ -623,8 +623,9 @@ public class OrderServiceImpl implements OrderService {
         for (StoreVo storeVo : storeVos) {
             storeVoMap.put(storeVo.getStoreName(),storeVo);
         }
-        List<OrderItem> items = new ArrayList<>();
+
         for (String orderNumber : orderSkusMap.keySet()) {
+            List<OrderItem> items = new ArrayList<>();
             String storeName = orderNumber.substring(0,orderNumber.indexOf(":"));
             String orderName = orderNumber.substring(orderNumber.indexOf(":")+1,orderNumber.length());
             Long orderId = IdGenerate.nextId();
@@ -720,7 +721,7 @@ public class OrderServiceImpl implements OrderService {
             storeOrderRelateDao.insert(storeOrderRelate);
         }
 
-        return null;
+        return BaseResponse.success();
     }
 
 

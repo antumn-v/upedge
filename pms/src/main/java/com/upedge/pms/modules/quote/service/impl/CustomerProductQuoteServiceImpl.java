@@ -183,6 +183,9 @@ public class CustomerProductQuoteServiceImpl implements CustomerProductQuoteServ
         && request.getCustomerId() != null){
             customerProductQuote.setCustomerId(request.getCustomerId());
         }
+        if (customerProductQuote.getStoreVariantImage() == null){
+            customerProductQuote.setStoreVariantImage(productVariant.getVariantImage());
+        }
         customerProductQuoteDao.insert(customerProductQuote);
 
         ProductQuoteRecord productQuoteRecord = new ProductQuoteRecord();
@@ -373,5 +376,4 @@ public class CustomerProductQuoteServiceImpl implements CustomerProductQuoteServ
         }
         return 0;
     }
-
 }

@@ -161,7 +161,6 @@ public class QuoteApplyServiceImpl implements QuoteApplyService {
         for (QuoteApplyItem quoteApplyItem : quoteApplyItems) {
             quoteApplyItemMap.put(quoteApplyItem.getId(), quoteApplyItem);
         }
-        List<CustomerProductQuoteVo> customerProductQuoteVos = new ArrayList<>();
         List<CustomerProductQuote> customerProductQuotes = new ArrayList<>();
         Map<Long, Product> map = new HashMap<>();
         List<Long> storeVariantIds = new ArrayList<>();
@@ -246,6 +245,9 @@ public class QuoteApplyServiceImpl implements QuoteApplyService {
                 customerProductQuote.setProductTitle(product.getProductTitle());
                 customerProductQuote.setQuoteState(1);
                 customerProductQuote.setUpdateTime(new Date());
+                if(StringUtils.isBlank(customerProductQuote.getStoreVariantImage())){
+                    customerProductQuote.setStoreVariantImage(productVariant.getVariantImage());
+                }
                 customerProductQuotes.add(customerProductQuote);
                 storeVariantIds.add(quoteApplyItem.getStoreVariantId());
             }

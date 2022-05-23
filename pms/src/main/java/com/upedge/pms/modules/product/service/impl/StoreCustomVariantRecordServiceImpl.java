@@ -81,6 +81,7 @@ public class StoreCustomVariantRecordServiceImpl implements StoreCustomVariantRe
             if (null == customerProductQuoteVo){
                 customerProductQuoteVo = new CustomerProductQuoteVo();
                 customerProductQuoteVo.setCustomerId(customerId);
+                customerProductQuoteVo.setStoreVariantId(storeProductVariant.getId());
                 customerProductQuoteVo.setStoreVariantImage(storeProductVariant.getImage());
                 customerProductQuoteVo.setStoreParentVariantId(0L);
                 customerProductQuoteVo.setStoreVariantSku(storeProductVariant.getSku());
