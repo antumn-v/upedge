@@ -804,11 +804,9 @@ public class StoreServiceImpl implements StoreService {
                 storeDao.insert(store);
                 saveDefaultRole(organization, session);
                 saveStoreSetting(storeId);
-
                 stores.add(store);
             }
         }
-
         return stores;
     }
 

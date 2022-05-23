@@ -387,6 +387,11 @@ public class StoreController {
             StoreVo storeVo = new StoreVo();
             BeanUtils.copyProperties(store,storeVo);
             storeVos.add(storeVo);
+            String key = RedisKey.STRING_STORE + store.getId();
+            if (!redisTemplate.hasKey(key)){
+                redisTemplate.opsForValue().set(key,storeVo);
+            }
+
         }
         return storeVos;
     }
