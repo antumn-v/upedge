@@ -725,6 +725,121 @@ public class OrderServiceImpl implements OrderService {
         return BaseResponse.success();
     }
 
+    @Transactional
+    @Override
+    public BaseResponse orderCustomCreate(OrderCustomCreateRequest request, Session session) {
+        Long storeId = request.getStoreId();
+        Date date = new Date();
+        List<OrderExcelItemDto> itemDtos = request.getItemDtos();
+        StoreVo storeVo = (StoreVo) redisTemplate.opsForValue().get(RedisKey.STRING_STORE + storeId);
+        if (storeVo == null){
+            return BaseResponse.failed("Store does not exist!");
+        }
+
+        StoreCustomVariantRecordSaveRequest storeCustomVariantRecordSaveRequest = new StoreCustomVariantRecordSaveRequest();
+        storeCustomVariantRecordSaveRequest.setCustomerId(session.getCustomerId());
+        storeCustomVariantRecordSaveRequest.setOrderExcelItemDtos(itemDtos);
+        List<CustomerProductQuoteVo> customerProductQuoteVos = pmsFeignClient.saveStoreCustomVariantRecords(storeCustomVariantRecordSaveRequest);
+        Map<String, CustomerProductQuoteVo> skuQuote = new HashMap<>();
+        for (CustomerProductQuoteVo customerProductQuoteVo : customerProductQuoteVos) {
+            skuQuote.put(customerProductQuoteVo.getStoreVariantSku(), customerProductQuoteVo);
+        }
+        List<OrderItem> items = new ArrayList<>();
+        Long orderId = IdGenerate.nextId();
+        Integer quotedItem = 0;
+        Integer unQuotedItem = 0;
+        Integer quotingItem = 0;
+        BigDecimal productAmount = BigDecimal.ZERO;
+        BigDecimal cnyProductAmount = BigDecimal.ZERO;
+        BigDecimal totalWeight = BigDecimal.ZERO;
+        BigDecimal volume = BigDecimal.ZERO;
+        for (OrderExcelItemDto itemDto : itemDtos) {
+            Integer quantity = itemDto.getQuantity();
+            String sku = itemDto.getSku();
+            BigDecimal itemQuantity = new BigDecimal(quantity);
+            CustomerProductQuoteVo customerProductQuoteVo = skuQuote.get(sku);
+            OrderItem orderItem = new OrderItem();
+            BeanUtils.copyProperties(customerProductQuoteVo,orderItem);
+            orderItem.setOriginalQuantity(quantity);
+            orderItem.setOrderId(orderId);
+            orderItem.setStoreOrderId(orderId);
+            orderItem.setStoreOrderItemId(0l);
+            orderItem.setDischargeQuantity(0);
+            orderItem.setItemType(0);
+            orderItem.setQuantity(quantity);
+            orderItem.setStoreVariantId(customerProductQuoteVo.getStoreVariantId());
+            orderItem.setId(IdGenerate.nextId());
+            switch (customerProductQuoteVo.getQuoteState()){
+                case -1:
+                    orderItem.setQuoteState(0);
+                    unQuotedItem++;
+                    break;
+                case 5:
+                    quotingItem++;
+                    orderItem.setQuoteState(5);
+                    break;
+                case 0:
+                    orderItem.setQuoteState(4);
+                    break;
+                case 1:
+                    quotedItem++;
+                    orderItem.quoteProductToItem(customerProductQuoteVo);
+                    customerProductQuoteVo.setQuoteScale(1);
+                    cnyProductAmount = cnyProductAmount.add(orderItem.getCnyPrice().multiply(itemQuantity));
+                    productAmount = productAmount.add(orderItem.getUsdPrice().multiply(itemQuantity));
+                    totalWeight = totalWeight.add(customerProductQuoteVo.getWeight().multiply(itemQuantity));
+                    volume = volume.add(customerProductQuoteVo.getVolume().multiply(itemQuantity));
+                    break;
+            }
+            items.add(orderItem);
+        }
+
+        Order order = new Order();
+        order.setQuoteState(Order.QUOTE_PARTIAL);
+        order.setId(orderId);
+        order.setOrgId(storeVo.getOrgId());
+        order.setOrgPath(storeVo.getOrgPath());
+        order.setCustomerId(session.getCustomerId());
+        order.setCreateTime(date);
+        order.setUpdateTime(date);
+        order.setStoreId(storeVo.getId());
+        order.setOrderType(4);
+        order.initOrder();
+        if (quotedItem == itemDtos.size()){
+            order.setQuoteState(Order.QUOTE_QUOTED);
+        }
+        if (unQuotedItem == itemDtos.size()){
+            order.setQuoteState(Order.QUOTE_UNQUOTED);
+        }
+        if (quotingItem > 0){
+            order.setQuoteState(Order.QUOTE_QUOTING);
+        }
+        OrderAddress orderAddress = request.getAddress();
+        orderAddress.setId(IdGenerate.nextId());
+        orderAddress.setOrderId(orderId);
+        if (orderAddress.getCountry() != null) {
+            order.setToAreaId((Long) redisTemplate.opsForHash().get(RedisKey.HASH_COUNTRY_AREA_ID, orderAddress.getCountry()));
+        }
+        order.setCnyProductAmount(cnyProductAmount);
+        order.setProductAmount(productAmount);
+        order.setTotalWeight(totalWeight);
+        orderDao.insert(order);
+        orderItemDao.insertByBatch(items);
+        orderAddressDao.insert(orderAddress);
+
+        StoreOrderRelate storeOrderRelate = new StoreOrderRelate();
+        storeOrderRelate.setStoreOrderId(orderId);
+        storeOrderRelate.setOrderId(orderId);
+        storeOrderRelate.setPlatOrderName(request.getOrderNum());
+        storeOrderRelate.setOrderCustomerName(orderAddress.getName());
+        storeOrderRelate.setFinancialStatus(0);
+        storeOrderRelate.setFulfillmentStatus(0);
+        storeOrderRelate.setPlatOrderCreateTime(date);
+        storeOrderRelate.setStoreName(storeVo.getStoreName());
+        storeOrderRelateDao.insert(storeOrderRelate);
+        return BaseResponse.success();
+    }
+
 
     List<ShipDetail> orderShipMethods(Long orderId, Long areaId) {
         return orderLocalWarehouseShipMethods(orderId, areaId);

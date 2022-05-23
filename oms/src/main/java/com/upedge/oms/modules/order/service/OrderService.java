@@ -255,5 +255,7 @@ public interface OrderService{
     OrderShipRuleDetail matchShipRule(Long orderId, OrderShipRuleVo orderShipRuleVo);
 
     BaseResponse importExcelOrder(OrderExcelImportRequest request,Session session);
+
+    BaseResponse orderCustomCreate(OrderCustomCreateRequest request,Session session);
 }
 
