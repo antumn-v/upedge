@@ -86,7 +86,8 @@ public class StoreCustomVariantRecordServiceImpl implements StoreCustomVariantRe
                 customerProductQuoteVo.setStoreParentVariantId(0L);
                 customerProductQuoteVo.setStoreVariantSku(storeProductVariant.getSku());
                 customerProductQuoteVo.setStoreVariantName(storeProductVariant.getTitle());
-                customerProductQuoteVo.setQuoteType(-1);
+//                customerProductQuoteVo.setQuoteType(-1);
+                customerProductQuoteVo.setQuoteState(-1);
                 customerProductQuoteVo.setQuoteScale(1);
                 customerProductQuoteVo.setStoreProductId(storeProductVariant.getProductId());
             }

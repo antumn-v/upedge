@@ -652,7 +652,7 @@ public class OrderServiceImpl implements OrderService {
                 orderItem.setQuantity(quantity);
                 orderItem.setStoreVariantId(customerProductQuoteVo.getStoreVariantId());
                 orderItem.setId(IdGenerate.nextId());
-                switch (customerProductQuoteVo.getQuoteType()){
+                switch (customerProductQuoteVo.getQuoteState()){
                     case -1:
                         orderItem.setQuoteState(0);
                         unQuotedItem++;
@@ -678,6 +678,7 @@ public class OrderServiceImpl implements OrderService {
             }
             StoreVo storeVo = storeVoMap.get(storeName);
             Order order = new Order();
+            order.setQuoteState(Order.QUOTE_PARTIAL);
             order.setId(orderId);
             order.setOrgId(storeVo.getOrgId());
             order.setOrgPath(storeVo.getOrgPath());

@@ -27,9 +27,4 @@ public class PriceUtils {
                 .setScale(2, BigDecimal.ROUND_UP);
     }
 
-    public static void main(String[] args) {
-        BigDecimal ten = new BigDecimal("10");
-        BigDecimal nine = new BigDecimal("9");
-        System.out.println(ten.divide(nine,2, BigDecimal.ROUND_HALF_UP));
-    }
 }

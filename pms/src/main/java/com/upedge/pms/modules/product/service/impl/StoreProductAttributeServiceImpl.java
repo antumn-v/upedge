@@ -72,6 +72,7 @@ public class StoreProductAttributeServiceImpl implements StoreProductAttributeSe
         storeProductAttribute.setCreateAt(date);
         storeProductAttribute.setUpdateAt(date);
         storeProductAttribute.setPrice("0");
+        storeProductAttribute.setSource(3);
         storeProductAttribute.setCustomerId(customerId);
         insert(storeProductAttribute);
         return storeProductAttribute;

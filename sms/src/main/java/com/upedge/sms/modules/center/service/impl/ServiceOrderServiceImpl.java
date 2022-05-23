@@ -119,6 +119,7 @@ public class ServiceOrderServiceImpl implements ServiceOrderService {
             InvoiceProductVo productVo = new InvoiceProductVo();
             productVo.setPrice(item.getPrice());
             productVo.setQuantity(item.getQuantity());
+            productVo.setTotal(new BigDecimal(item.getQuantity()));
             productVo.setSku(item.getVariantSku());
             productVo.setImage(item.getVariantImage());
             productVo.setVariantTitle(item.getVariantName());
@@ -132,7 +133,7 @@ public class ServiceOrderServiceImpl implements ServiceOrderService {
     public InvoiceVo warehouseOrderInvoice(Long id){
         WholesaleOrderVo order = wholesaleOrderService.orderDetail(id);
         InvoiceVo invoiceVo = new InvoiceVo();
-        invoiceVo.setOrderType(OrderType.EXTRA_SERVICE_OVERSEA_WAREHOUSE);
+        invoiceVo.setOrderType(OrderType.EXTRA_SERVICE_WHOLESALE);
         invoiceVo.setCustomerId(order.getCustomerId());
         invoiceVo.setPaymentId(order.getPaymentId());
         invoiceVo.setPayTime(order.getPayTime());
@@ -146,6 +147,7 @@ public class ServiceOrderServiceImpl implements ServiceOrderService {
             InvoiceProductVo productVo = new InvoiceProductVo();
             productVo.setPrice(item.getPrice());
             productVo.setQuantity(item.getQuantity());
+            productVo.setTotal(new BigDecimal(item.getQuantity()));
             productVo.setSku(item.getVariantSku());
             productVo.setImage(item.getVariantImage());
             productVo.setVariantTitle(item.getVariantName());
@@ -173,7 +175,7 @@ public class ServiceOrderServiceImpl implements ServiceOrderService {
     public InvoiceVo photographyOrderInvoice(Long id){
         ProductPhotographyOrder order = productPhotographyOrderService.selectByPrimaryKey(id);
         InvoiceVo invoiceVo = new InvoiceVo();
-        invoiceVo.setOrderType(OrderType.EXTRA_SERVICE_WINNING_PRODUCT);
+        invoiceVo.setOrderType(OrderType.EXTRA_SERVICE_PRODUCT_PHOTOGRAPHY);
         invoiceVo.setCustomerId(order.getCustomerId());
         invoiceVo.setPaymentId(order.getPaymentId());
         invoiceVo.setPayTime(order.getPayTime());
