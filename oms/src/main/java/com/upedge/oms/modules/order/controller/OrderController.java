@@ -778,4 +778,11 @@ public class OrderController {
         Session session = UserUtil.getSession(redisTemplate);
         return orderService.importExcelOrder(request,session);
     }
+
+    @ApiOperation("自定义创建订单")
+    @PostMapping("/customCreate")
+    public BaseResponse customCreateOrder(@RequestBody@Valid OrderCustomCreateRequest request){
+        Session session = UserUtil.getSession(redisTemplate);
+        return orderService.orderCustomCreate(request,session);
+    }
 }
