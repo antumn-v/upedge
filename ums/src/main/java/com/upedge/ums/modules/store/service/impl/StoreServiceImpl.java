@@ -68,6 +68,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -774,7 +775,7 @@ public class StoreServiceImpl implements StoreService {
         List<String> storeNames = request.getStoreNames();
         Session session = request.getSession();
         Long customerId = session.getCustomerId();
-
+        storeNames = storeNames.stream().distinct().collect(Collectors.toList());
         List<Store> stores = storeDao.selectCustomStores(customerId,storeNames);
         for (Store store : stores) {
             storeNames.remove(store.getStoreName());
@@ -810,6 +811,7 @@ public class StoreServiceImpl implements StoreService {
 
         return stores;
     }
+
 
 
 }
