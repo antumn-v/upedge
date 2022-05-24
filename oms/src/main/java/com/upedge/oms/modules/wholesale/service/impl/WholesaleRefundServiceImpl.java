@@ -10,13 +10,11 @@ import com.upedge.common.constant.key.RedisKey;
 import com.upedge.common.exception.CustomerException;
 import com.upedge.common.feign.UmsFeignClient;
 import com.upedge.common.model.account.AccountOrderRefundedRequest;
-import com.upedge.common.model.manager.vo.ManagerInfoVo;
 import com.upedge.common.model.user.vo.CustomerAffiliateVo;
 import com.upedge.common.model.user.vo.CustomerVo;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.utils.IdGenerate;
 import com.upedge.common.utils.ListUtils;
-import com.upedge.common.web.util.UserUtil;
 import com.upedge.oms.modules.order.request.ConfirmRefundRequest;
 import com.upedge.oms.modules.order.request.OrderRefundRejectRefundRequest;
 import com.upedge.oms.modules.order.request.OrderRefundUpdateRemarkRequest;
@@ -337,7 +335,7 @@ public class WholesaleRefundServiceImpl implements WholesaleRefundService {
         request.initFromNum();
         List<WholesaleRefundVo> results = wholesaleRefundDao.refundOrderList(request);
         for (WholesaleRefundVo result : results) {
-            String managerCode = (String) redisTemplate.opsForHash().get(RedisKey.HASH_CUSTOMER_MANAGER_RELATE,result.getCustomerId().toString());
+            String managerCode = (String) redisTemplate.opsForHash().get(RedisKey.HASH_CUSTOMER_MANAGER_RELATE,result.getCustomerId());
             result.setManagerCode(managerCode);
             BaseResponse customerAffiliateResponse =  umsFeignClient.customerAffiliateInfo(result.getCustomerId());
             if (customerAffiliateResponse.getCode() == ResultCode.SUCCESS_CODE){

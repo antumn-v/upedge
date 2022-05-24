@@ -14,6 +14,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Date;
 import java.util.List;
 
 
@@ -58,6 +59,11 @@ public class CustomerManagerServiceImpl implements CustomerManagerService {
     }
 
     @Override
+    public List<CustomerManager> selectAll() {
+        return customerManagerDao.selectAll();
+    }
+
+    @Override
     public BaseResponse inviteCodeBindCustomer(String managerInviteToken, Long customerId) {
         if (StringUtils.isBlank(managerInviteToken)
         || null == customerId){
@@ -69,10 +75,11 @@ public class CustomerManagerServiceImpl implements CustomerManagerService {
         }
         CustomerManager customerManager = new CustomerManager();
         customerManager.setCustomerId(customerId);
-        customerManager.setManagerId(managerInfo.getId());
+        customerManager.setManagerCode(managerInfo.getManagerCode());
+        customerManager.setCreateTime(new Date());
         insert(customerManager);
 
-        redisTemplate.opsForHash().put(RedisKey.HASH_CUSTOMER_MANAGER_RELATE,customerId,managerInfo.getId());
+        redisTemplate.opsForHash().put(RedisKey.HASH_CUSTOMER_MANAGER_RELATE,customerId,managerInfo.getManagerCode());
         return BaseResponse.success();
     }
 

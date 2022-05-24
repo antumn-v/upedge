@@ -3,12 +3,16 @@ package com.upedge.ums.init;
 
 import com.upedge.common.base.Page;
 import com.upedge.common.constant.key.RedisKey;
+import com.upedge.common.model.manager.vo.ManagerInfoVo;
 import com.upedge.common.model.store.StoreVo;
 import com.upedge.common.model.user.vo.AffiliateVo;
 import com.upedge.common.model.user.vo.CustomerIossVo;
 import com.upedge.common.utils.ListUtils;
 import com.upedge.ums.modules.affiliate.entity.Affiliate;
 import com.upedge.ums.modules.affiliate.service.AffiliateService;
+import com.upedge.ums.modules.manager.entity.CustomerManager;
+import com.upedge.ums.modules.manager.service.CustomerManagerService;
+import com.upedge.ums.modules.manager.service.ManagerInfoService;
 import com.upedge.ums.modules.store.entity.Store;
 import com.upedge.ums.modules.store.service.StoreService;
 import com.upedge.ums.modules.user.entity.CustomerIoss;
@@ -49,6 +53,12 @@ public class RedisInit {
     AffiliateService affiliateService;
 
     @Autowired
+    CustomerManagerService customerManagerService;
+
+    @Autowired
+    ManagerInfoService managerInfoService;
+
+    @Autowired
     ThreadPoolExecutor threadPoolExecutor;
 
     @PostConstruct
@@ -74,8 +84,15 @@ public class RedisInit {
             }
         },threadPoolExecutor);
 
+        CompletableFuture<Void> customerManagerInit = CompletableFuture.runAsync(new Runnable() {
+            @Override
+            public void run() {
+                customerManagerInit();
+            }
+        },threadPoolExecutor);
+
         try {
-            CompletableFuture.allOf(storeInit,iossInit,affiliateInit).get();
+            CompletableFuture.allOf(storeInit,iossInit,affiliateInit,customerManagerInit).get();
         } catch (InterruptedException e) {
             e.printStackTrace();
         } catch (ExecutionException e) {
@@ -122,6 +139,25 @@ public class RedisInit {
             redisTemplate.opsForValue().set(RedisKey.STRING_CUSTOMER_IOSS + ioss.getCustomerId(),customerIossVo);
         }
         log.warn("客户IOSS信息加载完毕");
+    }
+
+    public void customerManagerInit(){
+        List<CustomerManager> customerManagers = customerManagerService.selectAll();
+        if (ListUtils.isEmpty(customerManagers)){
+            return;
+        }
+        Map<Long,String> map = new HashMap<>();
+        for (CustomerManager customerManager : customerManagers) {
+            map.put(customerManager.getCustomerId(), customerManager.getManagerCode());
+        }
+        redisTemplate.opsForHash().putAll(RedisKey.HASH_CUSTOMER_MANAGER_RELATE,map);
+
+
+        List<ManagerInfoVo> managerInfoVos = managerInfoService.selectManagerDetail();
+        redisTemplate.delete(RedisKey.STRING_MANAGER_INFO + "*");
+        for (ManagerInfoVo managerInfoVo : managerInfoVos) {
+            redisTemplate.opsForValue().set(RedisKey.STRING_MANAGER_INFO + managerInfoVo.getManagerCode(),managerInfoVo);
+        }
     }
 
 //    @PostConstruct

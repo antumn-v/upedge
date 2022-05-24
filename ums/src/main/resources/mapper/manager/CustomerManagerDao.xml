@@ -6,11 +6,12 @@
 	<!-- 可根据自己的需求，是否要使用 -->
     <resultMap type="com.upedge.ums.modules.manager.entity.CustomerManager" id="BaseResultMap">
         <result property="customerId" column="customer_id"/>
-        <result property="managerId" column="manager_id"/>
+        <result property="managerCode" column="manager_code"/>
+        <result property="createTime" column="create_time"/>
     </resultMap>
 
     <sql id="Base_Column_List">
-        `customer_id`,`manager_id`
+        `customer_id`,`manager_code`,`create_time`
     </sql>
 
     <select id="selectByPrimaryKey" parameterType="com.upedge.ums.modules.manager.entity.CustomerManager" resultMap="BaseResultMap">
@@ -28,8 +29,11 @@
     <update id="updateByPrimaryKeySelective" parameterType="com.upedge.ums.modules.manager.entity.CustomerManager">
         update customer_manager
         <set>
-            <if test="managerId != null">
-                manager_id = #{managerId},
+            <if test="managerCode != null">
+                manager_code = #{managerCode},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime},
             </if>
         </set>
         where customer_id = #{customerId}
@@ -39,7 +43,8 @@
         update customer_manager
         <set>
         customer_id = #{customerId},
-        manager_id = #{managerId},
+        manager_code = #{managerCode},
+        create_time = #{createTime},
         </set>
         where customer_id = #{customerId}
     </update>
@@ -48,11 +53,13 @@
         insert into customer_manager
         <trim prefix="(" suffix=")" suffixOverrides=",">
             customer_id,
-            manager_id
+            manager_code,
+            create_time
         </trim>
         values (
         #{customerId},
-        #{managerId}
+        #{managerCode},
+        #{createTime}
         )
     </insert>
 
@@ -62,8 +69,11 @@
             <if test="customerId != null" >
               customer_id
             </if>
-            <if test="managerId != null" >
-              manager_id
+            <if test="managerCode != null" >
+              manager_code
+            </if>
+            <if test="createTime != null" >
+              create_time
             </if>
 
         </trim>
@@ -71,8 +81,11 @@
             <if test="customerId != null" >
                 #{customerId}
             </if>
-            <if test="managerId != null" >
-                #{managerId}
+            <if test="managerCode != null" >
+                #{managerCode}
+            </if>
+            <if test="createTime != null" >
+                #{createTime}
             </if>
 
         </trim>
@@ -82,13 +95,15 @@
         insert into customer_manager
         <trim prefix="(" suffix=")" suffixOverrides=",">
            customer_id,
-           manager_id
+           manager_code,
+           create_time
         </trim>
         values
         <foreach collection="list" item="item" index="index" separator=",">
             <trim prefix="(" suffix=")" suffixOverrides=",">
                #{item.customerId},
-               #{item.managerId}
+               #{item.managerCode},
+               #{item.createTime}
             </trim>
         </foreach>
     </insert>
@@ -101,8 +116,11 @@
                     <if test="t.customerId != null">
                         customer_id = #{t.customerId} and
                     </if>
-                    <if test="t.managerId != null">
-                        manager_id = #{t.managerId} and
+                    <if test="t.managerCode != null">
+                        manager_code = #{t.managerCode} and
+                    </if>
+                    <if test="t.createTime != null">
+                        create_time = #{t.createTime} and
                     </if>
             </trim>
         </if>
@@ -128,5 +146,9 @@
         <include refid="Query_Condition"/>
     </select>
 
-
+    <select id="selectAll" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from customer_manager
+    </select>
 </mapper>

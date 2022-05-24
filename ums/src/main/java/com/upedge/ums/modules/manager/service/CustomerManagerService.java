@@ -10,6 +10,8 @@ import java.util.List;
  */
 public interface CustomerManagerService{
 
+    List<CustomerManager> selectAll();
+
     BaseResponse inviteCodeBindCustomer(String managerInviteToken,Long customerId);
 
     CustomerManager selectByPrimaryKey(Long customerId);

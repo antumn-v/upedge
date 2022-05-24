@@ -1093,7 +1093,7 @@ public class OrderServiceImpl implements OrderService {
         if (address.getCountry() != null) {
             order.setToAreaId((Long) redisTemplate.opsForHash().get(RedisKey.HASH_COUNTRY_AREA_ID, address.getCountry()));
         }
-        String managerCode = (String) redisTemplate.opsForHash().get(RedisKey.HASH_CUSTOMER_MANAGER_RELATE, storeOrder.getCustomerId().toString());
+        String managerCode = (String) redisTemplate.opsForHash().get(RedisKey.HASH_CUSTOMER_MANAGER_RELATE, storeOrder.getCustomerId());
         if (StringUtils.isBlank(managerCode)) {
             managerCode = "system";
         }
@@ -2016,7 +2016,7 @@ public class OrderServiceImpl implements OrderService {
             orderPendingVo.setReason(orderReshipInfo.getReason());
             orderPendingVo.setReshipTimes(orderReshipInfo.getReshipTimes());
 
-            String managerCode = (String) redisTemplate.opsForHash().get(RedisKey.HASH_CUSTOMER_MANAGER_RELATE, orderPendingVo.getCustomerId().toString());
+            String managerCode = (String) redisTemplate.opsForHash().get(RedisKey.HASH_CUSTOMER_MANAGER_RELATE, orderPendingVo.getCustomerId());
             orderPendingVo.setManagerCode(managerCode);
 
             BaseResponse customerResponse = umsFeignClient.customerInfo(orderPendingVo.getCustomerId());
@@ -2155,7 +2155,7 @@ public class OrderServiceImpl implements OrderService {
         //订单类型  正常订单=0 补发订单=1 拆分订单=2 合并订单=3
         order.setOrderType(1);
         //交易号
-        String managerCode = (String) redisTemplate.opsForHash().get(RedisKey.HASH_CUSTOMER_MANAGER_RELATE, order.getCustomerId().toString());
+        String managerCode = (String) redisTemplate.opsForHash().get(RedisKey.HASH_CUSTOMER_MANAGER_RELATE, order.getCustomerId());
         order.setManagerCode(managerCode);
         order.setCreateTime(new Date());
         order.setUpdateTime(new Date());

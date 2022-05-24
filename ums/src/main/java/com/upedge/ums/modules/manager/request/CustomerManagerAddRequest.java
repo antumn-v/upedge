@@ -1,9 +1,9 @@
 package com.upedge.ums.modules.manager.request;
 
-import com.upedge.common.base.Page;
 import com.upedge.ums.modules.manager.entity.CustomerManager;
-import java.util.Date;
 import lombok.Data;
+
+import java.util.Date;
 /**
  * @author gx
  */
@@ -13,11 +13,16 @@ public class CustomerManagerAddRequest{
     /**
     * 用户经理code
     */
-    private Long managerId;
+    private String managerCode;
+    /**
+    * 
+    */
+    private Date createTime;
 
     public CustomerManager toCustomerManager(){
         CustomerManager customerManager=new CustomerManager();
-        customerManager.setManagerId(managerId);
+        customerManager.setManagerCode(managerCode);
+        customerManager.setCreateTime(createTime);
         return customerManager;
     }
 

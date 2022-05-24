@@ -1,8 +1,8 @@
 package com.upedge.ums.modules.manager.entity;
 
-import java.io.Serializable;
-import java.util.Date;
 import lombok.Data;
+
+import java.util.Date;
 
 /**
  * @author gx
@@ -17,6 +17,10 @@ public class CustomerManager{
 	/**
 	 * 用户经理code
 	 */
-    private Long managerId;
+    private String managerCode;
+	/**
+	 * 
+	 */
+    private Date createTime;
 
 }

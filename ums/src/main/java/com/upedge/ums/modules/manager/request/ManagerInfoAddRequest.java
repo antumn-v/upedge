@@ -59,6 +59,9 @@ public class ManagerInfoAddRequest{
     */
     @NotBlank
     private String managerName;
+    //客户经理代码
+    @NotBlank
+    private String managerCode;
     /**
     * 邀请注册码
     */
@@ -73,6 +76,7 @@ public class ManagerInfoAddRequest{
         managerInfo.setId(IdGenerate.nextId());
         managerInfo.setManagerType(1);
         managerInfo.setManagerState(1);
+        managerInfo.setManagerCode(managerCode);
         managerInfo.setManagerName(managerName);
         managerInfo.setCreateTime(new Date());
         managerInfo.setInviteCode(inviteCode);

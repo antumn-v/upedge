@@ -7,7 +7,6 @@ import java.util.Set;
 
 public interface OmsRedisService {
 
-    ManagerInfoVo getCustomerManager(String managerCode, Long customerId);
 
     /**
      * Wooc插件回传 未配置运输方式缓存

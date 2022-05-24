@@ -1,14 +1,16 @@
 package com.upedge.ums.modules.manager.dao;
 
-import com.upedge.ums.modules.manager.entity.CustomerManager;
-import org.apache.ibatis.annotations.Mapper;
-import java.util.List;
 import com.upedge.common.base.Page;
+import com.upedge.ums.modules.manager.entity.CustomerManager;
+
+import java.util.List;
 
 /**
  * @author gx
  */
 public interface CustomerManagerDao{
+
+    List<CustomerManager> selectAll();
 
     CustomerManager selectByPrimaryKey(CustomerManager record);
 

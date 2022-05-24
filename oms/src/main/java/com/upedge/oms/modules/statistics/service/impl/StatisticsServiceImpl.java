@@ -685,7 +685,7 @@ public class StatisticsServiceImpl implements StatisticsService {
             userSortVo.setEmail(customerVo.getEmail());
             userSortVo.setRegisterDate(customerVo.getCreateTime());
             // 从redis中获取manager信息
-            String managerCode = (String) redisTemplate.opsForHash().get(RedisKey.HASH_CUSTOMER_MANAGER_RELATE, String.valueOf(customerVo.getCustomerId()));
+            String managerCode = (String) redisTemplate.opsForHash().get(RedisKey.HASH_CUSTOMER_MANAGER_RELATE, customerVo.getCustomerId());
             userSortVo.setManagerCode(managerCode);
 //            ManagerInfoVo managerInfoVo = (ManagerInfoVo) redisTemplate.opsForValue().get(RedisKey.STRING_MANAGER_INFO + managerCode);
 //            userSortVo.setUserManager(managerInfoVo.getManagerName());
