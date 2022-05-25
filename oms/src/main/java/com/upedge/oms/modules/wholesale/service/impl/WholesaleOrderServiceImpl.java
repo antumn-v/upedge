@@ -500,7 +500,7 @@ public class WholesaleOrderServiceImpl implements WholesaleOrderService {
         List<WholesaleOrderAddress> addresses = new ArrayList<>();
         List<WholesaleExcelRecord> records = new ArrayList<>();
         Date date = new Date();
-        String managerCode = (String) redisTemplate.opsForHash().get(RedisKey.HASH_CUSTOMER_MANAGER_RELATE, customerId);
+        String managerCode = (String) redisTemplate.opsForHash().get(RedisKey.HASH_CUSTOMER_MANAGER_RELATE, customerId.toString());
 
         orderAddress.forEach((order, data) -> {
             String tags = data.getStoreTags();
@@ -806,7 +806,7 @@ public class WholesaleOrderServiceImpl implements WholesaleOrderService {
                         orderVo.setManagerCode(managerInfoVo.getManagerCode());
                     }
                 }*/
-                String managerCode = (String) redisTemplate.opsForHash().get(RedisKey.HASH_CUSTOMER_MANAGER_RELATE, orderVo.getCustomerId());
+                String managerCode = (String) redisTemplate.opsForHash().get(RedisKey.HASH_CUSTOMER_MANAGER_RELATE, orderVo.getCustomerId().toString());
                 ManagerInfoVo managerInfoVo = (ManagerInfoVo) redisTemplate.opsForValue().get(RedisKey.STRING_MANAGER_INFO + managerCode);
                 if (null != managerInfoVo && StringUtils.isNotBlank(managerInfoVo.getManagerName())) {
                     orderVo.setManagerName(managerInfoVo.getManagerName());

@@ -79,7 +79,7 @@ public class CustomerManagerServiceImpl implements CustomerManagerService {
         customerManager.setCreateTime(new Date());
         insert(customerManager);
 
-        redisTemplate.opsForHash().put(RedisKey.HASH_CUSTOMER_MANAGER_RELATE,customerId,managerInfo.getManagerCode());
+        redisTemplate.opsForHash().put(RedisKey.HASH_CUSTOMER_MANAGER_RELATE,customerId.toString(),managerInfo.getManagerCode());
         return BaseResponse.success();
     }
 

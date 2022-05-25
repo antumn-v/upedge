@@ -335,7 +335,7 @@ public class WholesaleRefundServiceImpl implements WholesaleRefundService {
         request.initFromNum();
         List<WholesaleRefundVo> results = wholesaleRefundDao.refundOrderList(request);
         for (WholesaleRefundVo result : results) {
-            String managerCode = (String) redisTemplate.opsForHash().get(RedisKey.HASH_CUSTOMER_MANAGER_RELATE,result.getCustomerId());
+            String managerCode = (String) redisTemplate.opsForHash().get(RedisKey.HASH_CUSTOMER_MANAGER_RELATE,result.getCustomerId().toString());
             result.setManagerCode(managerCode);
             BaseResponse customerAffiliateResponse =  umsFeignClient.customerAffiliateInfo(result.getCustomerId());
             if (customerAffiliateResponse.getCode() == ResultCode.SUCCESS_CODE){

@@ -391,7 +391,6 @@ public class StoreController {
             if (!redisTemplate.hasKey(key)){
                 redisTemplate.opsForValue().set(key,storeVo);
             }
-
         }
         return storeVos;
     }

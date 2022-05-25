@@ -282,14 +282,14 @@ public class StoreServiceImpl implements StoreService {
 
         if (ListUtils.isNotEmpty(stores)){
             for (Store store1 : stores) {
-                if (store1.getStatus() == 1){
+                if (store1.getStatus() == 1 && store1.getStoreType() != 3){
                     Message message = new Message(RocketMqConfig.TOPIC_GET_STORE_DATA,"store",IdGenerate.uuid(),JSONObject.toJSONBytes(store1));
                     messages.add(message);
                 }
             }
         }
         Message message = null;
-        if (store != null && store.getStatus() == 1){
+        if (store != null && store.getStatus() == 1 && store.getStoreType() != 3){
              message = new Message(RocketMqConfig.TOPIC_GET_STORE_DATA,"store",IdGenerate.uuid(),JSONObject.toJSONBytes(store));
         }
 

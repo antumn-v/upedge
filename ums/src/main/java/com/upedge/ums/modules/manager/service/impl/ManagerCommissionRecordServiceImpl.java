@@ -67,7 +67,7 @@ public class ManagerCommissionRecordServiceImpl implements ManagerCommissionReco
     @Override
     public void addCommissionRecord(ManagerAddCommissionRequest request) {
         Long customerId = request.getCustomerId();
-        String managerCode = (String) redisTemplate.opsForHash().get(RedisKey.HASH_CUSTOMER_MANAGER_RELATE,customerId);
+        String managerCode = (String) redisTemplate.opsForHash().get(RedisKey.HASH_CUSTOMER_MANAGER_RELATE,customerId.toString());
         if (null == managerCode){
             return;
         }

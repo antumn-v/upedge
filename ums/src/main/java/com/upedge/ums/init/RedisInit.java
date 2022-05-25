@@ -146,9 +146,9 @@ public class RedisInit {
         if (ListUtils.isEmpty(customerManagers)){
             return;
         }
-        Map<Long,String> map = new HashMap<>();
+        Map<String,String> map = new HashMap<>();
         for (CustomerManager customerManager : customerManagers) {
-            map.put(customerManager.getCustomerId(), customerManager.getManagerCode());
+            map.put(customerManager.getCustomerId().toString(), customerManager.getManagerCode());
         }
         redisTemplate.opsForHash().putAll(RedisKey.HASH_CUSTOMER_MANAGER_RELATE,map);
 

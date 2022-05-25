@@ -678,6 +678,11 @@ public class OrderServiceImpl implements OrderService {
             }
             StoreVo storeVo = storeVoMap.get(storeName);
             Order order = new Order();
+            String managerCode = (String) redisTemplate.opsForHash().get(RedisKey.HASH_CUSTOMER_MANAGER_RELATE, session.getCustomerId().toString());
+            if (StringUtils.isBlank(managerCode)) {
+                managerCode = "system";
+            }
+            order.setManagerCode(managerCode);
             order.setQuoteState(Order.QUOTE_PARTIAL);
             order.setId(orderId);
             order.setOrgId(storeVo.getOrgId());
@@ -728,13 +733,20 @@ public class OrderServiceImpl implements OrderService {
     @Transactional
     @Override
     public BaseResponse orderCustomCreate(OrderCustomCreateRequest request, Session session) {
-        Long storeId = request.getStoreId();
+        String storeName = request.getStoreName();
+        List<String> storeNames = new ArrayList<>();
+        storeNames.add(storeName);
+        CustomStoreSelectRequest customStoreSelectRequest = new CustomStoreSelectRequest();
+        customStoreSelectRequest.setSession(session);
+        customStoreSelectRequest.setStoreNames(storeNames);
+        List<StoreVo> storeVos = umsFeignClient.selectCustomStore(customStoreSelectRequest);
         Date date = new Date();
         List<OrderExcelItemDto> itemDtos = request.getItemDtos();
-        StoreVo storeVo = (StoreVo) redisTemplate.opsForValue().get(RedisKey.STRING_STORE + storeId);
-        if (storeVo == null){
+
+        if (ListUtils.isEmpty(storeNames)){
             return BaseResponse.failed("Store does not exist!");
         }
+        StoreVo storeVo = storeVos.get(0);
 
         StoreCustomVariantRecordSaveRequest storeCustomVariantRecordSaveRequest = new StoreCustomVariantRecordSaveRequest();
         storeCustomVariantRecordSaveRequest.setCustomerId(session.getCustomerId());
@@ -795,6 +807,11 @@ public class OrderServiceImpl implements OrderService {
         }
 
         Order order = new Order();
+        String managerCode = (String) redisTemplate.opsForHash().get(RedisKey.HASH_CUSTOMER_MANAGER_RELATE, session.getCustomerId().toString());
+        if (StringUtils.isBlank(managerCode)) {
+            managerCode = "system";
+        }
+        order.setManagerCode(managerCode);
         order.setQuoteState(Order.QUOTE_PARTIAL);
         order.setId(orderId);
         order.setOrgId(storeVo.getOrgId());
@@ -1093,7 +1110,7 @@ public class OrderServiceImpl implements OrderService {
         if (address.getCountry() != null) {
             order.setToAreaId((Long) redisTemplate.opsForHash().get(RedisKey.HASH_COUNTRY_AREA_ID, address.getCountry()));
         }
-        String managerCode = (String) redisTemplate.opsForHash().get(RedisKey.HASH_CUSTOMER_MANAGER_RELATE, storeOrder.getCustomerId());
+        String managerCode = (String) redisTemplate.opsForHash().get(RedisKey.HASH_CUSTOMER_MANAGER_RELATE, storeOrder.getCustomerId().toString());
         if (StringUtils.isBlank(managerCode)) {
             managerCode = "system";
         }
@@ -2016,7 +2033,7 @@ public class OrderServiceImpl implements OrderService {
             orderPendingVo.setReason(orderReshipInfo.getReason());
             orderPendingVo.setReshipTimes(orderReshipInfo.getReshipTimes());
 
-            String managerCode = (String) redisTemplate.opsForHash().get(RedisKey.HASH_CUSTOMER_MANAGER_RELATE, orderPendingVo.getCustomerId());
+            String managerCode = (String) redisTemplate.opsForHash().get(RedisKey.HASH_CUSTOMER_MANAGER_RELATE, orderPendingVo.getCustomerId().toString());
             orderPendingVo.setManagerCode(managerCode);
 
             BaseResponse customerResponse = umsFeignClient.customerInfo(orderPendingVo.getCustomerId());
@@ -2155,7 +2172,7 @@ public class OrderServiceImpl implements OrderService {
         //订单类型  正常订单=0 补发订单=1 拆分订单=2 合并订单=3
         order.setOrderType(1);
         //交易号
-        String managerCode = (String) redisTemplate.opsForHash().get(RedisKey.HASH_CUSTOMER_MANAGER_RELATE, order.getCustomerId());
+        String managerCode = (String) redisTemplate.opsForHash().get(RedisKey.HASH_CUSTOMER_MANAGER_RELATE, order.getCustomerId().toString());
         order.setManagerCode(managerCode);
         order.setCreateTime(new Date());
         order.setUpdateTime(new Date());

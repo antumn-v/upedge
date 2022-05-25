@@ -291,7 +291,7 @@ public class SupportTicketsServiceImpl implements SupportTicketsService {
                         supportTicketsVo.setManagerCode(managerInfoVo.getManagerCode());
                     }
                 }*/
-                String managerCode = (String) redisTemplate.opsForHash().get(RedisKey.HASH_CUSTOMER_MANAGER_RELATE, supportTicketsVo.getCustomerId());
+                String managerCode = (String) redisTemplate.opsForHash().get(RedisKey.HASH_CUSTOMER_MANAGER_RELATE, supportTicketsVo.getCustomerId().toString());
                 supportTicketsVo.setManagerCode(managerCode);
             }
         }, threadPoolExecutor);

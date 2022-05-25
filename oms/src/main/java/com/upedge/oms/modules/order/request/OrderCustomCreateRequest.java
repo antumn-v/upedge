@@ -11,14 +11,14 @@ import java.util.List;
 
 @Data
 public class OrderCustomCreateRequest {
-    @NotNull
-    private Long storeId;
+    @NotBlank(message = "Store can not be null!")
+    private String storeName;
 
-    @NotBlank
+    @NotBlank(message = "Order number can not be null!")
     private String orderNum;
 
-    @NotNull
+    @NotNull(message = "Address can not be null!")
     private OrderAddress address;
-    @Size(min = 1)
+    @Size(min = 1,message = "Item error")
     List<OrderExcelItemDto> itemDtos;
 }

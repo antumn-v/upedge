@@ -137,7 +137,7 @@ public class CartServiceImpl implements CartService {
         if (ListUtils.isNotEmpty(cartIds)) {
             cartDao.updateStateByIds(cartIds, 1);
         }
-        String managerCode = (String) redisTemplate.opsForHash().get(RedisKey.HASH_CUSTOMER_MANAGER_RELATE, session.getCustomerId());
+        String managerCode = (String) redisTemplate.opsForHash().get(RedisKey.HASH_CUSTOMER_MANAGER_RELATE, session.getCustomerId().toString());
         StockOrder order = new StockOrder();
         order.setId(orderId);
         order.setAmount(amount);

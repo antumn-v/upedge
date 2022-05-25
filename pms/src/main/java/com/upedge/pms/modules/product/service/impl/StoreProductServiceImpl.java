@@ -557,7 +557,7 @@ public class StoreProductServiceImpl implements StoreProductService {
         if (null == attribute) {
             attribute = new StoreProductAttribute();
             attribute.setId(IdGenerate.nextId());
-            attribute.setManagerCode((String) redisTemplate.opsForHash().get(RedisKey.HASH_CUSTOMER_MANAGER_RELATE, storeVo.getCustomerId()));
+            attribute.setManagerCode((String) redisTemplate.opsForHash().get(RedisKey.HASH_CUSTOMER_MANAGER_RELATE, storeVo.getCustomerId().toString()));
             if (null == importAttribute) {
                 attribute.setSource(2);
             } else {
@@ -584,7 +584,7 @@ public class StoreProductServiceImpl implements StoreProductService {
             attribute.setImportTime(new Date());
             storeProductAttributeDao.insert(attribute);
         } else {
-            attribute.setManagerCode((String) redisTemplate.opsForHash().get(RedisKey.HASH_CUSTOMER_MANAGER_RELATE, storeVo.getCustomerId()));
+            attribute.setManagerCode((String) redisTemplate.opsForHash().get(RedisKey.HASH_CUSTOMER_MANAGER_RELATE, storeVo.getCustomerId().toString()));
             if (null == importAttribute) {
                 attribute.setSource(2);
             } else {

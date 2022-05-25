@@ -693,7 +693,7 @@ public class OrderCommonServiceImpl implements OrderCommonService {
     }
 
     public void addManagerCommission(Long orderId,Long customerId){
-        boolean b = redisTemplate.opsForHash().hasKey(RedisKey.HASH_CUSTOMER_MANAGER_RELATE,customerId);
+        boolean b = redisTemplate.opsForHash().hasKey(RedisKey.HASH_CUSTOMER_MANAGER_RELATE,customerId.toString());
         if (!b){
             return;
         }
