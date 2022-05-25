@@ -667,4 +667,23 @@
             #{item}
         </foreach>
     </select>
+
+    <select id="selectQuoteProductBySkus" resultType="com.upedge.common.model.pms.quote.CustomerProductQuoteVo">
+        select '0' as store_variant_id,'0' as store_product_id,
+        pv.usd_price as quote_price,
+        pv.id as variantId,pv.en_name as variantName,pv.variant_sku,
+        pv.variant_image,pv.variant_price as `cny_price`,pv.usd_price,
+        pv.weight,pv.volume_weight as `volume`,p.product_title as `productTitle`,
+        p.shipping_id as productShippingId,p.id as productId,'1' as quote_scale,
+        pv.width,pv.height,pv.length,'1' as `quoteScale`,
+        '1' as quoteType,'1' as quote_state
+        from  product_variant pv
+        left join product p
+        on p.id = pv.product_id
+        where pv.variant_sku in
+        <foreach collection="skus" item="sku" open="(" close=")" separator=",">
+            #{sku}
+        </foreach>
+        and pv.state = '1'
+    </select>
 </mapper>

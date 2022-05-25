@@ -18,7 +18,8 @@ import com.upedge.common.model.order.vo.CustomerOrderStatisticalVo;
 import com.upedge.common.model.order.vo.ManagerActualVo;
 import com.upedge.common.model.pms.quote.CustomerProductQuoteVo;
 import com.upedge.common.model.pms.request.CustomerProductQuoteSearchRequest;
-import com.upedge.common.model.pms.request.StoreCustomVariantRecordSaveRequest;
+import com.upedge.common.model.pms.request.QuotedProductSelectBySkuRequest;
+import com.upedge.common.model.pms.response.QuotedProductSelectBySkuResponse;
 import com.upedge.common.model.product.ListVariantsRequest;
 import com.upedge.common.model.product.ProductVariantTo;
 import com.upedge.common.model.ship.request.ShipMethodSearchRequest;
@@ -582,6 +583,7 @@ public class OrderServiceImpl implements OrderService {
         List<OrderExcelItemDto> excelItemDtos = new ArrayList<>();
         Map<String,Integer> orderSkuQuantity = new HashMap<>();
         Map<String,OrderAddress> orderAddressMap = new HashMap<>();
+        List<String> skuList = new ArrayList<>();
         for (OrderExcelImportDto orderExcel : orderExcels) {
             try {
                 orderExcel.checkNotNullFiled();
@@ -597,6 +599,8 @@ public class OrderServiceImpl implements OrderService {
                 skus.add(orderExcel.getSku());
                 orderSkusMap.put(orderNo, skus);
             }
+            skuList.add(orderExcel.getSku());
+
             OrderExcelItemDto excelItemDto = new OrderExcelItemDto();
             BeanUtils.copyProperties(orderExcel, excelItemDto);
             excelItemDtos.add(excelItemDto);
@@ -607,13 +611,17 @@ public class OrderServiceImpl implements OrderService {
             BeanUtils.copyProperties(orderExcel,orderAddress);
             orderAddressMap.put(orderNo,orderAddress);
         }
-        StoreCustomVariantRecordSaveRequest storeCustomVariantRecordSaveRequest = new StoreCustomVariantRecordSaveRequest();
-        storeCustomVariantRecordSaveRequest.setCustomerId(session.getCustomerId());
-        storeCustomVariantRecordSaveRequest.setOrderExcelItemDtos(excelItemDtos);
-        List<CustomerProductQuoteVo> customerProductQuoteVos = pmsFeignClient.saveStoreCustomVariantRecords(storeCustomVariantRecordSaveRequest);
+        QuotedProductSelectBySkuRequest quotedProductSelectBySkuRequest = new QuotedProductSelectBySkuRequest();
+        quotedProductSelectBySkuRequest.setCustomerId(session.getCustomerId());
+        quotedProductSelectBySkuRequest.setSkus(skuList);
+        QuotedProductSelectBySkuResponse quotedProductSelectBySkuResponse = pmsFeignClient.selectQuoteProductBySkus(quotedProductSelectBySkuRequest);
+        List<CustomerProductQuoteVo> customerProductQuoteVos = quotedProductSelectBySkuResponse.getCustomerProductQuoteVos();
+        if (ListUtils.isEmpty(customerProductQuoteVos)){
+            return BaseResponse.failed("sku error");
+        }
         Map<String, CustomerProductQuoteVo> skuQuote = new HashMap<>();
         for (CustomerProductQuoteVo customerProductQuoteVo : customerProductQuoteVos) {
-            skuQuote.put(customerProductQuoteVo.getStoreVariantSku(), customerProductQuoteVo);
+            skuQuote.put(customerProductQuoteVo.getVariantSku(), customerProductQuoteVo);
         }
         CustomStoreSelectRequest customStoreSelectRequest = new CustomStoreSelectRequest();
         customStoreSelectRequest.setSession(session);
@@ -629,18 +637,21 @@ public class OrderServiceImpl implements OrderService {
             String storeName = orderNumber.substring(0,orderNumber.indexOf(":"));
             String orderName = orderNumber.substring(orderNumber.indexOf(":")+1,orderNumber.length());
             Long orderId = IdGenerate.nextId();
-            Integer quotedItem = 0;
-            Integer unQuotedItem = 0;
-            Integer quotingItem = 0;
             BigDecimal productAmount = BigDecimal.ZERO;
             BigDecimal cnyProductAmount = BigDecimal.ZERO;
             BigDecimal totalWeight = BigDecimal.ZERO;
             BigDecimal volume = BigDecimal.ZERO;
             List<String> skus = orderSkusMap.get(orderNumber);
             for (String sku : skus) {
+                if (!skuQuote.containsKey(sku)){
+                    continue;
+                }
                 Integer quantity = orderSkuQuantity.get(orderNumber + "_" + sku);
                 BigDecimal itemQuantity = new BigDecimal(quantity);
                 CustomerProductQuoteVo customerProductQuoteVo = skuQuote.get(sku);
+                if (customerProductQuoteVo.getQuoteState() != 1){
+                    continue;
+                }
                 OrderItem orderItem = new OrderItem();
                 BeanUtils.copyProperties(customerProductQuoteVo,orderItem);
                 orderItem.setOriginalQuantity(quantity);
@@ -650,31 +661,18 @@ public class OrderServiceImpl implements OrderService {
                 orderItem.setDischargeQuantity(0);
                 orderItem.setItemType(0);
                 orderItem.setQuantity(quantity);
-                orderItem.setStoreVariantId(customerProductQuoteVo.getStoreVariantId());
+                orderItem.setStoreVariantId(0L);
                 orderItem.setId(IdGenerate.nextId());
-                switch (customerProductQuoteVo.getQuoteState()){
-                    case -1:
-                        orderItem.setQuoteState(0);
-                        unQuotedItem++;
-                        break;
-                    case 5:
-                        quotingItem++;
-                        orderItem.setQuoteState(5);
-                        break;
-                    case 0:
-                        orderItem.setQuoteState(4);
-                        break;
-                    case 1:
-                        quotedItem++;
-                        orderItem.quoteProductToItem(customerProductQuoteVo);
-                        customerProductQuoteVo.setQuoteScale(1);
-                        cnyProductAmount = cnyProductAmount.add(orderItem.getCnyPrice().multiply(itemQuantity));
-                        productAmount = productAmount.add(orderItem.getUsdPrice().multiply(itemQuantity));
-                        totalWeight = totalWeight.add(customerProductQuoteVo.getWeight().multiply(itemQuantity));
-                        volume = volume.add(customerProductQuoteVo.getVolume().multiply(itemQuantity));
-                        break;
-                }
+                orderItem.quoteProductToItem(customerProductQuoteVo);
+                customerProductQuoteVo.setQuoteScale(1);
+                cnyProductAmount = cnyProductAmount.add(orderItem.getCnyPrice().multiply(itemQuantity));
+                productAmount = productAmount.add(orderItem.getUsdPrice().multiply(itemQuantity));
+                totalWeight = totalWeight.add(customerProductQuoteVo.getWeight().multiply(itemQuantity));
+                volume = volume.add(customerProductQuoteVo.getVolume().multiply(itemQuantity));
                 items.add(orderItem);
+            }
+            if (ListUtils.isEmpty(items)){
+                continue;
             }
             StoreVo storeVo = storeVoMap.get(storeName);
             Order order = new Order();
@@ -683,7 +681,7 @@ public class OrderServiceImpl implements OrderService {
                 managerCode = "system";
             }
             order.setManagerCode(managerCode);
-            order.setQuoteState(Order.QUOTE_PARTIAL);
+            order.setQuoteState(Order.QUOTE_QUOTED);
             order.setId(orderId);
             order.setOrgId(storeVo.getOrgId());
             order.setOrgPath(storeVo.getOrgPath());
@@ -693,15 +691,6 @@ public class OrderServiceImpl implements OrderService {
             order.setStoreId(storeVo.getId());
             order.setOrderType(4);
             order.initOrder();
-            if (quotedItem == skus.size()){
-                order.setQuoteState(Order.QUOTE_QUOTED);
-            }
-            if (unQuotedItem == skus.size()){
-                order.setQuoteState(Order.QUOTE_UNQUOTED);
-            }
-            if (quotingItem > 0){
-                order.setQuoteState(Order.QUOTE_QUOTING);
-            }
             OrderAddress orderAddress = orderAddressMap.get(orderNumber);
             orderAddress.setId(IdGenerate.nextId());
             orderAddress.setOrderId(orderId);
@@ -746,21 +735,27 @@ public class OrderServiceImpl implements OrderService {
         if (ListUtils.isEmpty(storeNames)){
             return BaseResponse.failed("Store does not exist!");
         }
+        List<String> skuList = new ArrayList<>();
+        for (OrderExcelItemDto itemDto : itemDtos) {
+            skuList.add(itemDto.getSku());
+        }
         StoreVo storeVo = storeVos.get(0);
 
-        StoreCustomVariantRecordSaveRequest storeCustomVariantRecordSaveRequest = new StoreCustomVariantRecordSaveRequest();
-        storeCustomVariantRecordSaveRequest.setCustomerId(session.getCustomerId());
-        storeCustomVariantRecordSaveRequest.setOrderExcelItemDtos(itemDtos);
-        List<CustomerProductQuoteVo> customerProductQuoteVos = pmsFeignClient.saveStoreCustomVariantRecords(storeCustomVariantRecordSaveRequest);
+        QuotedProductSelectBySkuRequest quotedProductSelectBySkuRequest = new QuotedProductSelectBySkuRequest();
+        quotedProductSelectBySkuRequest.setCustomerId(session.getCustomerId());
+        quotedProductSelectBySkuRequest.setSkus(skuList);
+        QuotedProductSelectBySkuResponse quotedProductSelectBySkuResponse = pmsFeignClient.selectQuoteProductBySkus(quotedProductSelectBySkuRequest);
+        List<CustomerProductQuoteVo> customerProductQuoteVos = quotedProductSelectBySkuResponse.getCustomerProductQuoteVos();
+        if (ListUtils.isEmpty(customerProductQuoteVos)){
+            return BaseResponse.failed("sku error");
+        }
         Map<String, CustomerProductQuoteVo> skuQuote = new HashMap<>();
         for (CustomerProductQuoteVo customerProductQuoteVo : customerProductQuoteVos) {
-            skuQuote.put(customerProductQuoteVo.getStoreVariantSku(), customerProductQuoteVo);
+            skuQuote.put(customerProductQuoteVo.getVariantSku(), customerProductQuoteVo);
         }
         List<OrderItem> items = new ArrayList<>();
         Long orderId = IdGenerate.nextId();
-        Integer quotedItem = 0;
-        Integer unQuotedItem = 0;
-        Integer quotingItem = 0;
+
         BigDecimal productAmount = BigDecimal.ZERO;
         BigDecimal cnyProductAmount = BigDecimal.ZERO;
         BigDecimal totalWeight = BigDecimal.ZERO;
@@ -770,6 +765,9 @@ public class OrderServiceImpl implements OrderService {
             String sku = itemDto.getSku();
             BigDecimal itemQuantity = new BigDecimal(quantity);
             CustomerProductQuoteVo customerProductQuoteVo = skuQuote.get(sku);
+            if (customerProductQuoteVo.getQuoteState() != 1){
+                continue;
+            }
             OrderItem orderItem = new OrderItem();
             BeanUtils.copyProperties(customerProductQuoteVo,orderItem);
             orderItem.setOriginalQuantity(quantity);
@@ -779,30 +777,14 @@ public class OrderServiceImpl implements OrderService {
             orderItem.setDischargeQuantity(0);
             orderItem.setItemType(0);
             orderItem.setQuantity(quantity);
-            orderItem.setStoreVariantId(customerProductQuoteVo.getStoreVariantId());
+            orderItem.setStoreVariantId(0L);
             orderItem.setId(IdGenerate.nextId());
-            switch (customerProductQuoteVo.getQuoteState()){
-                case -1:
-                    orderItem.setQuoteState(0);
-                    unQuotedItem++;
-                    break;
-                case 5:
-                    quotingItem++;
-                    orderItem.setQuoteState(5);
-                    break;
-                case 0:
-                    orderItem.setQuoteState(4);
-                    break;
-                case 1:
-                    quotedItem++;
-                    orderItem.quoteProductToItem(customerProductQuoteVo);
-                    customerProductQuoteVo.setQuoteScale(1);
-                    cnyProductAmount = cnyProductAmount.add(orderItem.getCnyPrice().multiply(itemQuantity));
-                    productAmount = productAmount.add(orderItem.getUsdPrice().multiply(itemQuantity));
-                    totalWeight = totalWeight.add(customerProductQuoteVo.getWeight().multiply(itemQuantity));
-                    volume = volume.add(customerProductQuoteVo.getVolume().multiply(itemQuantity));
-                    break;
-            }
+            orderItem.quoteProductToItem(customerProductQuoteVo);
+            customerProductQuoteVo.setQuoteScale(1);
+            cnyProductAmount = cnyProductAmount.add(orderItem.getCnyPrice().multiply(itemQuantity));
+            productAmount = productAmount.add(orderItem.getUsdPrice().multiply(itemQuantity));
+            totalWeight = totalWeight.add(customerProductQuoteVo.getWeight().multiply(itemQuantity));
+            volume = volume.add(customerProductQuoteVo.getVolume().multiply(itemQuantity));
             items.add(orderItem);
         }
 
@@ -812,7 +794,7 @@ public class OrderServiceImpl implements OrderService {
             managerCode = "system";
         }
         order.setManagerCode(managerCode);
-        order.setQuoteState(Order.QUOTE_PARTIAL);
+        order.setQuoteState(Order.QUOTE_QUOTED);
         order.setId(orderId);
         order.setOrgId(storeVo.getOrgId());
         order.setOrgPath(storeVo.getOrgPath());
@@ -822,15 +804,6 @@ public class OrderServiceImpl implements OrderService {
         order.setStoreId(storeVo.getId());
         order.setOrderType(4);
         order.initOrder();
-        if (quotedItem == itemDtos.size()){
-            order.setQuoteState(Order.QUOTE_QUOTED);
-        }
-        if (unQuotedItem == itemDtos.size()){
-            order.setQuoteState(Order.QUOTE_UNQUOTED);
-        }
-        if (quotingItem > 0){
-            order.setQuoteState(Order.QUOTE_QUOTING);
-        }
         OrderAddress orderAddress = request.getAddress();
         orderAddress.setId(IdGenerate.nextId());
         orderAddress.setOrderId(orderId);

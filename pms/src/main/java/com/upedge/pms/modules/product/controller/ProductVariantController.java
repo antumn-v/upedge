@@ -190,13 +190,13 @@ public class ProductVariantController {
         return res;
     }
 
-    @RequestMapping(value="/del/{id}", method=RequestMethod.POST)
-    @Permission(permission = "product:productvariant:del:id")
-    public ProductVariantDelResponse del(@PathVariable Long id) {
-        productVariantService.deleteByPrimaryKey(id);
-        ProductVariantDelResponse res = new ProductVariantDelResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS);
-        return res;
-    }
+//    @RequestMapping(value="/del/{id}", method=RequestMethod.POST)
+//    @Permission(permission = "product:productvariant:del:id")
+//    public ProductVariantDelResponse del(@PathVariable Long id) {
+//        productVariantService.deleteByPrimaryKey(id);
+//        ProductVariantDelResponse res = new ProductVariantDelResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS);
+//        return res;
+//    }
 
     @RequestMapping(value="/update/{id}", method=RequestMethod.POST)
     @Permission(permission = "product:productvariant:update")

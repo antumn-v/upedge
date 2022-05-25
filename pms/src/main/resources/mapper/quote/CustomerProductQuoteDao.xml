@@ -522,10 +522,10 @@
                store_variant_name,
                store_variant_sku
         from customer_product_quote cpq
-        left join product_variant pv
-        on cpq.variant_id = pv.id
-        left join product p
-        on p.id = pv.product_id
+                     left join product_variant pv
+                on cpq.variant_id = pv.id
+                     left join product p
+                on p.id = pv.product_id
     </select>
 
     <update id="updateBatchByStoreProductVariant">
@@ -537,4 +537,28 @@
             where store_variant_id = #{v.id}
         </foreach>
     </update>
+
+    <select id="selectQuoteProductBySkus" resultType="com.upedge.common.model.pms.quote.CustomerProductQuoteVo">
+        select cpq.store_variant_id,cpq.store_product_id,cpq.quote_apply_id,
+        cpq.quote_price,cpq.customer_id,cpq.store_variant_image,
+        pv.id as variantId,pv.en_name as variantName,pv.variant_sku,
+        pv.variant_image,pv.variant_price as `cny_price`,pv.usd_price,
+        pv.weight,pv.volume_weight as `volume`,p.product_title as `productTitle`,
+        p.shipping_id as productShippingId,p.id as productId,cpq.quote_scale,
+        pv.width,pv.height,pv.length,'1' as `quoteScale`,
+        '1' as quoteType,cpq.quote_state,store_parent_variant_id,
+        store_variant_name,store_variant_sku
+        from customer_product_quote cpq
+        left join product_variant pv
+        on cpq.variant_id = pv.id
+        left join product p
+        on p.id = pv.product_id
+        where cpq.customer_id = #{customerId}
+        and quote_state = '1'
+        and store_parent_variant_id = '0'
+        and pv.variant_sku in
+        <foreach collection="skus" item="sku" open="(" close=")" separator=",">
+            #{sku}
+        </foreach>
+    </select>
 </mapper>

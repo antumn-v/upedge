@@ -14,6 +14,8 @@ import java.util.List;
  */
 public interface CustomerProductQuoteDao {
 
+    List<CustomerProductQuoteVo> selectQuoteProductBySkus(@Param("customerId") Long customerId, @Param("skus") List<String> skus);
+
     List<CustomerProductQuoteVo> selectAllQuoteDetail();
 
     List<CustomerProductQuoteVo> selectQuoteDetail(CustomerProductQuoteSearchRequest request);

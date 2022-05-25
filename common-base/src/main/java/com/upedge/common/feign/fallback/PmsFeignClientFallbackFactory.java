@@ -6,7 +6,9 @@ import com.upedge.common.feign.PmsFeignClient;
 import com.upedge.common.model.pms.quote.CustomerProductQuoteVo;
 import com.upedge.common.model.pms.request.CustomerProductQuoteSearchRequest;
 import com.upedge.common.model.pms.request.OrderQuoteApplyRequest;
+import com.upedge.common.model.pms.request.QuotedProductSelectBySkuRequest;
 import com.upedge.common.model.pms.request.StoreCustomVariantRecordSaveRequest;
+import com.upedge.common.model.pms.response.QuotedProductSelectBySkuResponse;
 import com.upedge.common.model.product.ListVariantsRequest;
 import com.upedge.common.model.product.ProductSaiheInventoryVo;
 import com.upedge.common.model.product.VariantDetail;
@@ -121,6 +123,11 @@ public class PmsFeignClientFallbackFactory implements FallbackFactory<PmsFeignCl
             @Override
             public BaseResponse orderQuoteApply(OrderQuoteApplyRequest request) {
                 return BaseResponse.failed();
+            }
+
+            @Override
+            public QuotedProductSelectBySkuResponse selectQuoteProductBySkus(QuotedProductSelectBySkuRequest request) {
+                return new QuotedProductSelectBySkuResponse(ResultCode.SUCCESS_CODE,new ArrayList<>());
             }
         };
     }

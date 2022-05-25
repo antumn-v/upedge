@@ -1,6 +1,7 @@
 package com.upedge.pms.modules.product.dao;
 
 import com.upedge.common.base.Page;
+import com.upedge.common.model.pms.quote.CustomerProductQuoteVo;
 import com.upedge.pms.modules.product.entity.ProductVariant;
 import com.upedge.pms.modules.product.vo.SaiheSkuVo;
 import org.apache.ibatis.annotations.Param;
@@ -65,5 +66,7 @@ public interface ProductVariantDao{
     List<ProductVariant> select(Page<ProductVariant> record);
 
     long count(Page<ProductVariant> record);
+
+    List<CustomerProductQuoteVo> selectQuoteProductBySkus(@Param("skus") List<String> skus);
 
 }

@@ -6,7 +6,9 @@ import com.upedge.common.feign.fallback.PmsFeignClientFallbackFactory;
 import com.upedge.common.model.pms.quote.CustomerProductQuoteVo;
 import com.upedge.common.model.pms.request.CustomerProductQuoteSearchRequest;
 import com.upedge.common.model.pms.request.OrderQuoteApplyRequest;
+import com.upedge.common.model.pms.request.QuotedProductSelectBySkuRequest;
 import com.upedge.common.model.pms.request.StoreCustomVariantRecordSaveRequest;
+import com.upedge.common.model.pms.response.QuotedProductSelectBySkuResponse;
 import com.upedge.common.model.product.ListVariantsRequest;
 import com.upedge.common.model.product.ProductSaiheInventoryVo;
 import com.upedge.common.model.product.VariantDetail;
@@ -83,4 +85,7 @@ public interface PmsFeignClient {
 
     @PostMapping("/quoteApply/order")
     public BaseResponse orderQuoteApply(@RequestBody OrderQuoteApplyRequest request);
+
+    @PostMapping("/customerProductQuote/selectBySkus")
+    public QuotedProductSelectBySkuResponse selectQuoteProductBySkus(@RequestBody QuotedProductSelectBySkuRequest request);
 }

@@ -7,6 +7,7 @@ import com.upedge.common.constant.key.RedisKey;
 import com.upedge.common.constant.key.RocketMqConfig;
 import com.upedge.common.model.pms.quote.CustomerProductQuoteVo;
 import com.upedge.common.model.pms.request.CustomerProductQuoteSearchRequest;
+import com.upedge.common.model.pms.request.QuotedProductSelectBySkuRequest;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.utils.ListUtils;
 import com.upedge.pms.modules.product.dao.ProductVariantDao;
@@ -375,5 +376,27 @@ public class CustomerProductQuoteServiceImpl implements CustomerProductQuoteServ
             return 1;
         }
         return 0;
+    }
+
+    @Override
+    public List<CustomerProductQuoteVo> selectQuoteProductBySkus(QuotedProductSelectBySkuRequest request) {
+        Long customerId = request.getCustomerId();
+        List<String> skus = request.getSkus();
+        skus = skus.stream().distinct().collect(Collectors.toList());
+
+        List<CustomerProductQuoteVo> customerProductQuoteVos = customerProductQuoteDao.selectQuoteProductBySkus(customerId,skus);
+        if (ListUtils.isEmpty(customerProductQuoteVos)){
+            customerProductQuoteVos = new ArrayList<>();
+        }
+
+        for (CustomerProductQuoteVo customerProductQuoteVo : customerProductQuoteVos) {
+            skus.remove(customerProductQuoteVo.getVariantSku());
+        }
+        if (ListUtils.isNotEmpty(skus)){
+            List<CustomerProductQuoteVo> customerProductQuoteVoList = productVariantDao.selectQuoteProductBySkus(skus);
+            customerProductQuoteVos.addAll(customerProductQuoteVoList);
+        }
+
+        return customerProductQuoteVos;
     }
 }

@@ -5,6 +5,7 @@ import com.upedge.common.base.Page;
 import com.upedge.common.exception.CustomerException;
 import com.upedge.common.model.pms.quote.CustomerProductQuoteVo;
 import com.upedge.common.model.pms.request.CustomerProductQuoteSearchRequest;
+import com.upedge.common.model.pms.request.QuotedProductSelectBySkuRequest;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.pms.modules.product.entity.StoreProductVariant;
 import com.upedge.pms.modules.quote.entity.CustomerProductQuote;
@@ -47,5 +48,7 @@ public interface CustomerProductQuoteService{
     long count(Page<CustomerProductQuote> record);
 
     int updateBatchByStoreProductVariant(List<StoreProductVariant> variants);
+
+    List<CustomerProductQuoteVo> selectQuoteProductBySkus(QuotedProductSelectBySkuRequest request);
 }
 
