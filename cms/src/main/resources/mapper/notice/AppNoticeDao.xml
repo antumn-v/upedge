@@ -13,11 +13,11 @@
         <result property="createTime" column="create_time"/>
         <result property="viewCount" column="view_count"/>
         <result property="state" column="state"/>
-        <result property="adminUserId" column="admin_user_id"/>
+        <result property="operatorId" column="operator_id"/>
     </resultMap>
 
     <sql id="Base_Column_List">
-        `id`,`type`,`title`,`content`,`update_time`,`create_time`,`view_count`,`state`,`admin_user_id`
+        `id`,`type`,`title`,`content`,`update_time`,`create_time`,`view_count`,`state`,`operator_id`
     </sql>
 
     <select id="selectRecentlyNotice" resultMap="BaseResultMap">
@@ -65,8 +65,8 @@
             <if test="state != null">
                 state = #{state},
             </if>
-            <if test="adminUserId != null">
-                admin_user_id = #{adminUserId},
+            <if test="operatorId != null">
+                operator_id = #{operatorId},
             </if>
         </set>
         where id = #{id}
@@ -83,7 +83,7 @@
         create_time = #{createTime},
         view_count = #{viewCount},
         state = #{state},
-        admin_user_id = #{adminUserId},
+        operator_id = #{operatorId},
         </set>
         where id = #{id}
     </update>
@@ -99,7 +99,7 @@
             create_time,
             view_count,
             state,
-            admin_user_id
+            operator_id
         </trim>
         values (
         #{id},
@@ -110,7 +110,7 @@
         #{createTime},
         #{viewCount},
         #{state},
-        #{adminUserId}
+        #{operatorId}
         )
     </insert>
 
@@ -132,8 +132,8 @@
                     <if test="t.state != null">
                         state = #{t.state} and
                     </if>
-                    <if test="t.adminUserId != null">
-                        admin_user_id = #{t.adminUserId} and
+                    <if test="t.operatorId != null">
+                        operator_id = #{t.operatorId} and
                     </if>
             </trim>
         </if>
@@ -148,7 +148,7 @@
         `create_time`,
         `view_count`,
         `state`,
-        `admin_user_id`
+        `operator_id`
         from app_notice
         <include refid="Query_Condition"/>
         order by update_time desc
@@ -167,7 +167,7 @@
     <update id="updateState">
         update app_notice set state=#{state},
         update_time=#{updateTime},
-        admin_user_id=#{adminUserId}
+        operator_id=#{operatorId}
         where id=#{id}
     </update>
 

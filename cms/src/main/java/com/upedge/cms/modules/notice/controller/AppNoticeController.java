@@ -61,7 +61,7 @@ public class AppNoticeController {
      * @param request
      * @return
      */
-    @RequestMapping(value = "/admin/list", method = RequestMethod.POST)
+    @RequestMapping(value = "/list", method = RequestMethod.POST)
     public AppNoticeListResponse list(@RequestBody @Valid AppNoticeListRequest request) {
         return appNoticeService.adminList(request);
     }
@@ -72,7 +72,7 @@ public class AppNoticeController {
      * @param id
      * @return
      */
-    @RequestMapping(value = "/admin/info/{id}", method = RequestMethod.POST)
+    @RequestMapping(value = "/info/{id}", method = RequestMethod.POST)
     public AppNoticeInfoResponse adminInfo(@PathVariable Long id) {
         return appNoticeService.adminInfo(id);
     }
@@ -83,7 +83,7 @@ public class AppNoticeController {
      * @param request
      * @return
      */
-    @RequestMapping(value = "/admin/add", method = RequestMethod.POST)
+    @RequestMapping(value = "/add", method = RequestMethod.POST)
     public AppNoticeAddResponse addNotice(@RequestBody @Valid AppNoticeAddRequest request) {
         Session session = UserUtil.getSession(redisTemplate);
         return appNoticeService.addNotice(request, session);
@@ -95,7 +95,7 @@ public class AppNoticeController {
      * @param request
      * @return
      */
-    @RequestMapping(value = "/admin/update", method = RequestMethod.POST)
+    @RequestMapping(value = "/update", method = RequestMethod.POST)
     public AppNoticeUpdateResponse updateNotice(@RequestBody @Valid AppNoticeUpdateRequest request) {
         Session session = UserUtil.getSession(redisTemplate);
         return appNoticeService.updateNotice(request, session);
@@ -107,7 +107,7 @@ public class AppNoticeController {
      * @param id
      * @return
      */
-    @RequestMapping(value = "/admin/enable/{id}", method = RequestMethod.POST)
+    @RequestMapping(value = "/enable/{id}", method = RequestMethod.POST)
     public AppNoticeUpdateResponse enableNotice(@PathVariable Long id) {
         Session session = UserUtil.getSession(redisTemplate);
         return appNoticeService.enableNotice(id, session);
@@ -119,7 +119,7 @@ public class AppNoticeController {
      * @param id
      * @return
      */
-    @RequestMapping(value = "/admin/disable/{id}", method = RequestMethod.POST)
+    @RequestMapping(value = "/disable/{id}", method = RequestMethod.POST)
     public AppNoticeUpdateResponse disableNotice(@PathVariable Long id) {
         Session session = UserUtil.getSession(redisTemplate);
         return appNoticeService.disableNotice(id, session);

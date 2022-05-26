@@ -45,6 +45,6 @@ public class AppNotice{
 	/**
 	 * 操作人
 	 */
-    private String adminUserId;
+    private Long operatorId;
 
 }

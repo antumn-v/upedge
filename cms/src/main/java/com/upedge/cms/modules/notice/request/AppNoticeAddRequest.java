@@ -28,7 +28,7 @@ public class AppNoticeAddRequest{
     @NotBlank(message = "公告内容为空")
     private String content;
 
-    public AppNotice toAppNotice(String adminUserId){
+    public AppNotice toAppNotice(Long operatorId){
         AppNotice appNotice=new AppNotice();
         appNotice.setType(type);
         appNotice.setTitle(title);
@@ -37,7 +37,7 @@ public class AppNoticeAddRequest{
         appNotice.setCreateTime(new Date());
         appNotice.setViewCount(0);
         appNotice.setState(0);
-        appNotice.setAdminUserId(adminUserId);
+        appNotice.setOperatorId(operatorId);
         return appNotice;
     }
 

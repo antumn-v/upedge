@@ -69,7 +69,7 @@ public class AppNoticeServiceImpl implements AppNoticeService {
     @Transactional(readOnly = false)
     @Override
     public AppNoticeAddResponse addNotice(AppNoticeAddRequest request, Session session) {
-        AppNotice entity=request.toAppNotice(String.valueOf(session.getId()));
+        AppNotice entity=request.toAppNotice(session.getId());
         entity.setId(IdGenerate.nextId());
         appNoticeDao.insert(entity);
         return new AppNoticeAddResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS,entity,request);
@@ -84,7 +84,7 @@ public class AppNoticeServiceImpl implements AppNoticeService {
     @Transactional(readOnly = false)
     @Override
     public AppNoticeUpdateResponse updateNotice(AppNoticeUpdateRequest request, Session session) {
-        AppNotice entity=request.toAppNotice(request.getId(),String.valueOf(session.getId()));
+        AppNotice entity=request.toAppNotice(request.getId(),session.getId());
         appNoticeDao.updateByPrimaryKeySelective(entity);
         return new AppNoticeUpdateResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS);
     }
@@ -101,7 +101,7 @@ public class AppNoticeServiceImpl implements AppNoticeService {
         AppNotice appNotice=new AppNotice();
         appNotice.setId(id);
         appNotice.setUpdateTime(new Date());
-        appNotice.setAdminUserId(String.valueOf(session.getId()));
+        appNotice.setOperatorId(session.getId());
         appNotice.setState(0);
         appNoticeDao.updateState(appNotice);
         return new AppNoticeUpdateResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS);
@@ -119,7 +119,7 @@ public class AppNoticeServiceImpl implements AppNoticeService {
         AppNotice appNotice=new AppNotice();
         appNotice.setId(id);
         appNotice.setUpdateTime(new Date());
-        appNotice.setAdminUserId(String.valueOf(session.getId()));
+        appNotice.setOperatorId(session.getId());
         appNotice.setState(1);
         appNoticeDao.updateState(appNotice);
         return new AppNoticeUpdateResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS);

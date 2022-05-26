@@ -35,14 +35,14 @@ public class AppNoticeUpdateRequest{
      */
     private String adminUserId;
 
-    public AppNotice toAppNotice(Long id,String adminUserId){
+    public AppNotice toAppNotice(Long id,Long operatorId){
         AppNotice appNotice=new AppNotice();
         appNotice.setId(id);
         appNotice.setType(type);
         appNotice.setTitle(title);
         appNotice.setContent(content);
         appNotice.setUpdateTime(new Date());
-        appNotice.setAdminUserId(adminUserId);
+        appNotice.setOperatorId(operatorId);
         return appNotice;
     }
 
