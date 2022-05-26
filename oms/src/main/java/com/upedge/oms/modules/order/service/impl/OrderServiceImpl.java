@@ -590,6 +590,10 @@ public class OrderServiceImpl implements OrderService {
             } catch (CustomerException e) {
                 return BaseResponse.failed(e.getMessage());
             }
+            String storeName = orderExcel.getStoreName();
+            if(StringUtils.isBlank(storeName)){
+                orderExcel.setStoreName("default store");
+            }
             String orderNo = orderExcel.getStoreName() +":"+ orderExcel.getOrderNumber();
             storeNames.add(orderExcel.getStoreName());
             if (orderSkusMap.containsKey(orderNo)) {
@@ -654,6 +658,7 @@ public class OrderServiceImpl implements OrderService {
                 }
                 OrderItem orderItem = new OrderItem();
                 BeanUtils.copyProperties(customerProductQuoteVo,orderItem);
+                orderItem.setStoreVariantImage(customerProductQuoteVo.getVariantImage());
                 orderItem.setOriginalQuantity(quantity);
                 orderItem.setOrderId(orderId);
                 orderItem.setStoreOrderId(orderId);
@@ -723,6 +728,9 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public BaseResponse orderCustomCreate(OrderCustomCreateRequest request, Session session) {
         String storeName = request.getStoreName();
+        if(StringUtils.isBlank(storeName)){
+            storeName = "default store";
+        }
         List<String> storeNames = new ArrayList<>();
         storeNames.add(storeName);
         CustomStoreSelectRequest customStoreSelectRequest = new CustomStoreSelectRequest();
@@ -732,9 +740,6 @@ public class OrderServiceImpl implements OrderService {
         Date date = new Date();
         List<OrderExcelItemDto> itemDtos = request.getItemDtos();
 
-        if (ListUtils.isEmpty(storeNames)){
-            return BaseResponse.failed("Store does not exist!");
-        }
         List<String> skuList = new ArrayList<>();
         for (OrderExcelItemDto itemDto : itemDtos) {
             skuList.add(itemDto.getSku());
@@ -770,6 +775,7 @@ public class OrderServiceImpl implements OrderService {
             }
             OrderItem orderItem = new OrderItem();
             BeanUtils.copyProperties(customerProductQuoteVo,orderItem);
+            orderItem.setStoreVariantImage(customerProductQuoteVo.getVariantImage());
             orderItem.setOriginalQuantity(quantity);
             orderItem.setOrderId(orderId);
             orderItem.setStoreOrderId(orderId);

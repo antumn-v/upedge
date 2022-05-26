@@ -9,7 +9,7 @@ import java.lang.reflect.Field;
 @Data
 public class OrderExcelImportDto {
 
-    @NotNull(message = "Store Name can not be null!")
+//    @NotNull(message = "Store Name can not be null!")
     private String storeName;
 
     @NotNull(message = "Order Number can not be null!")

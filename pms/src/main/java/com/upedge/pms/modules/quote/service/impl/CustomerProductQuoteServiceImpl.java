@@ -384,19 +384,21 @@ public class CustomerProductQuoteServiceImpl implements CustomerProductQuoteServ
         List<String> skus = request.getSkus();
         skus = skus.stream().distinct().collect(Collectors.toList());
 
-        List<CustomerProductQuoteVo> customerProductQuoteVos = customerProductQuoteDao.selectQuoteProductBySkus(customerId,skus);
-        if (ListUtils.isEmpty(customerProductQuoteVos)){
-            customerProductQuoteVos = new ArrayList<>();
-        }
-
-        for (CustomerProductQuoteVo customerProductQuoteVo : customerProductQuoteVos) {
-            skus.remove(customerProductQuoteVo.getVariantSku());
-        }
-        if (ListUtils.isNotEmpty(skus)){
-            List<CustomerProductQuoteVo> customerProductQuoteVoList = productVariantDao.selectQuoteProductBySkus(skus);
-            customerProductQuoteVos.addAll(customerProductQuoteVoList);
-        }
-
-        return customerProductQuoteVos;
+//        List<CustomerProductQuoteVo> customerProductQuoteVos = customerProductQuoteDao.selectQuoteProductBySkus(customerId,skus);
+//        if (ListUtils.isEmpty(customerProductQuoteVos)){
+//            customerProductQuoteVos = new ArrayList<>();
+//        }
+//
+//        for (CustomerProductQuoteVo customerProductQuoteVo : customerProductQuoteVos) {
+//            skus.remove(customerProductQuoteVo.getVariantSku());
+//        }
+//        if (ListUtils.isNotEmpty(skus)){
+//
+//            customerProductQuoteVos.addAll(customerProductQuoteVoList);
+//        }
+//
+//        return customerProductQuoteVos;
+        List<CustomerProductQuoteVo> customerProductQuoteVoList = productVariantDao.selectQuoteProductBySkus(skus);
+        return customerProductQuoteVoList;
     }
 }
