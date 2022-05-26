@@ -69,6 +69,10 @@ import com.upedge.thirdparty.fpx.dto.PriceCalculatorDTO;
 import com.upedge.thirdparty.fpx.dto.ShipPriceCalculator;
 import com.upedge.thirdparty.saihe.entity.SaiheOrder;
 import com.upedge.thirdparty.saihe.entity.SaiheOrderItem;
+import com.upedge.thirdparty.saihe.entity.cancelOrderInfo.ApiCancelOrderResponse;
+import com.upedge.thirdparty.saihe.entity.getOrderByCode.ApiGetOrderResponse;
+import com.upedge.thirdparty.saihe.entity.getOrderByCode.ApiOrderInfo;
+import com.upedge.thirdparty.saihe.service.SaiheService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
@@ -581,8 +585,8 @@ public class OrderServiceImpl implements OrderService {
         List<String> storeNames = new ArrayList<>();
         Map<String, List<String>> orderSkusMap = new HashMap<>();
         List<OrderExcelItemDto> excelItemDtos = new ArrayList<>();
-        Map<String,Integer> orderSkuQuantity = new HashMap<>();
-        Map<String,OrderAddress> orderAddressMap = new HashMap<>();
+        Map<String, Integer> orderSkuQuantity = new HashMap<>();
+        Map<String, OrderAddress> orderAddressMap = new HashMap<>();
         List<String> skuList = new ArrayList<>();
         for (OrderExcelImportDto orderExcel : orderExcels) {
             try {
@@ -591,10 +595,10 @@ public class OrderServiceImpl implements OrderService {
                 return BaseResponse.failed(e.getMessage());
             }
             String storeName = orderExcel.getStoreName();
-            if(StringUtils.isBlank(storeName)){
+            if (StringUtils.isBlank(storeName)) {
                 orderExcel.setStoreName("default store");
             }
-            String orderNo = orderExcel.getStoreName() +":"+ orderExcel.getOrderNumber();
+            String orderNo = orderExcel.getStoreName() + ":" + orderExcel.getOrderNumber();
             storeNames.add(orderExcel.getStoreName());
             if (orderSkusMap.containsKey(orderNo)) {
                 orderSkusMap.get(orderNo).add(orderExcel.getSku());
@@ -609,18 +613,18 @@ public class OrderServiceImpl implements OrderService {
             BeanUtils.copyProperties(orderExcel, excelItemDto);
             excelItemDtos.add(excelItemDto);
             String orderSku = orderNo + "_" + orderExcel.getSku();
-            orderSkuQuantity.put(orderSku,orderExcel.getQuantity());
+            orderSkuQuantity.put(orderSku, orderExcel.getQuantity());
 
-            OrderAddress orderAddress= new OrderAddress();
-            BeanUtils.copyProperties(orderExcel,orderAddress);
-            orderAddressMap.put(orderNo,orderAddress);
+            OrderAddress orderAddress = new OrderAddress();
+            BeanUtils.copyProperties(orderExcel, orderAddress);
+            orderAddressMap.put(orderNo, orderAddress);
         }
         QuotedProductSelectBySkuRequest quotedProductSelectBySkuRequest = new QuotedProductSelectBySkuRequest();
         quotedProductSelectBySkuRequest.setCustomerId(session.getCustomerId());
         quotedProductSelectBySkuRequest.setSkus(skuList);
         QuotedProductSelectBySkuResponse quotedProductSelectBySkuResponse = pmsFeignClient.selectQuoteProductBySkus(quotedProductSelectBySkuRequest);
         List<CustomerProductQuoteVo> customerProductQuoteVos = quotedProductSelectBySkuResponse.getCustomerProductQuoteVos();
-        if (ListUtils.isEmpty(customerProductQuoteVos)){
+        if (ListUtils.isEmpty(customerProductQuoteVos)) {
             return BaseResponse.failed("sku error");
         }
         Map<String, CustomerProductQuoteVo> skuQuote = new HashMap<>();
@@ -631,15 +635,15 @@ public class OrderServiceImpl implements OrderService {
         customStoreSelectRequest.setSession(session);
         customStoreSelectRequest.setStoreNames(storeNames);
         List<StoreVo> storeVos = umsFeignClient.selectCustomStore(customStoreSelectRequest);
-        Map<String,StoreVo> storeVoMap = new HashMap<>();
+        Map<String, StoreVo> storeVoMap = new HashMap<>();
         for (StoreVo storeVo : storeVos) {
-            storeVoMap.put(storeVo.getStoreName(),storeVo);
+            storeVoMap.put(storeVo.getStoreName(), storeVo);
         }
 
         for (String orderNumber : orderSkusMap.keySet()) {
             List<OrderItem> items = new ArrayList<>();
-            String storeName = orderNumber.substring(0,orderNumber.indexOf(":"));
-            String orderName = orderNumber.substring(orderNumber.indexOf(":")+1,orderNumber.length());
+            String storeName = orderNumber.substring(0, orderNumber.indexOf(":"));
+            String orderName = orderNumber.substring(orderNumber.indexOf(":") + 1, orderNumber.length());
             Long orderId = IdGenerate.nextId();
             BigDecimal productAmount = BigDecimal.ZERO;
             BigDecimal cnyProductAmount = BigDecimal.ZERO;
@@ -647,17 +651,17 @@ public class OrderServiceImpl implements OrderService {
             BigDecimal volume = BigDecimal.ZERO;
             List<String> skus = orderSkusMap.get(orderNumber);
             for (String sku : skus) {
-                if (!skuQuote.containsKey(sku)){
+                if (!skuQuote.containsKey(sku)) {
                     continue;
                 }
                 Integer quantity = orderSkuQuantity.get(orderNumber + "_" + sku);
                 BigDecimal itemQuantity = new BigDecimal(quantity);
                 CustomerProductQuoteVo customerProductQuoteVo = skuQuote.get(sku);
-                if (customerProductQuoteVo.getQuoteState() != 1){
+                if (customerProductQuoteVo.getQuoteState() != 1) {
                     continue;
                 }
                 OrderItem orderItem = new OrderItem();
-                BeanUtils.copyProperties(customerProductQuoteVo,orderItem);
+                BeanUtils.copyProperties(customerProductQuoteVo, orderItem);
                 orderItem.setStoreVariantImage(customerProductQuoteVo.getVariantImage());
                 orderItem.setOriginalQuantity(quantity);
                 orderItem.setOrderId(orderId);
@@ -676,7 +680,7 @@ public class OrderServiceImpl implements OrderService {
                 volume = volume.add(customerProductQuoteVo.getVolume().multiply(itemQuantity));
                 items.add(orderItem);
             }
-            if (ListUtils.isEmpty(items)){
+            if (ListUtils.isEmpty(items)) {
                 continue;
             }
             StoreVo storeVo = storeVoMap.get(storeName);
@@ -728,7 +732,7 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public BaseResponse orderCustomCreate(OrderCustomCreateRequest request, Session session) {
         String storeName = request.getStoreName();
-        if(StringUtils.isBlank(storeName)){
+        if (StringUtils.isBlank(storeName)) {
             storeName = "default store";
         }
         List<String> storeNames = new ArrayList<>();
@@ -751,7 +755,7 @@ public class OrderServiceImpl implements OrderService {
         quotedProductSelectBySkuRequest.setSkus(skuList);
         QuotedProductSelectBySkuResponse quotedProductSelectBySkuResponse = pmsFeignClient.selectQuoteProductBySkus(quotedProductSelectBySkuRequest);
         List<CustomerProductQuoteVo> customerProductQuoteVos = quotedProductSelectBySkuResponse.getCustomerProductQuoteVos();
-        if (ListUtils.isEmpty(customerProductQuoteVos)){
+        if (ListUtils.isEmpty(customerProductQuoteVos)) {
             return BaseResponse.failed("sku error");
         }
         Map<String, CustomerProductQuoteVo> skuQuote = new HashMap<>();
@@ -770,11 +774,11 @@ public class OrderServiceImpl implements OrderService {
             String sku = itemDto.getSku();
             BigDecimal itemQuantity = new BigDecimal(quantity);
             CustomerProductQuoteVo customerProductQuoteVo = skuQuote.get(sku);
-            if (customerProductQuoteVo.getQuoteState() != 1){
+            if (customerProductQuoteVo.getQuoteState() != 1) {
                 continue;
             }
             OrderItem orderItem = new OrderItem();
-            BeanUtils.copyProperties(customerProductQuoteVo,orderItem);
+            BeanUtils.copyProperties(customerProductQuoteVo, orderItem);
             orderItem.setStoreVariantImage(customerProductQuoteVo.getVariantImage());
             orderItem.setOriginalQuantity(quantity);
             orderItem.setOrderId(orderId);
@@ -1538,6 +1542,30 @@ public class OrderServiceImpl implements OrderService {
                 orderDao.updateOrderVatAmountById(order.getId(), vatAmount);
             }
         }
+    }
+
+    @Override
+    public BaseResponse revokeReshipOrder(Long orderId, Session session) {
+        Order order = selectByPrimaryKey(orderId);
+        if (order == null
+                || order.getOrderType() != 1) {
+            return BaseResponse.failed();
+        }
+        List<Long> orderIds = new ArrayList<>();
+        orderIds.add(orderId);
+
+        OrderReshipInfo orderReshipInfo = orderReshipInfoDao.selectByPrimaryKey(orderId);
+        if (!orderReshipInfo.getNeedPay() || order.getPayState() < 1) {
+            try {
+                revokeSaiheOrder(order.getSaiheOrderCode());
+            } catch (CustomerException e) {
+                e.printStackTrace();
+                return BaseResponse.failed(e.getMessage());
+            }
+            orderDao.deleteByIds(orderIds);
+            return BaseResponse.success();
+        }
+        return BaseResponse.failed("订单已支付，请申请退款");
     }
 
     public ShipDetail updateShipDetailById(Long id, ShipDetail shipDetail) {
@@ -2652,6 +2680,50 @@ public class OrderServiceImpl implements OrderService {
             }
         }
         return shippingTemplateRedis;
+    }
+
+
+    @Override
+    public ApiOrderInfo revokeSaiheOrder(String saiheOrderCode) throws CustomerException {
+        if (StringUtils.isBlank(saiheOrderCode)) {
+            return null;
+        }
+        ApiGetOrderResponse apiGetOrderResponse = SaiheService.getOrderByCode(saiheOrderCode);
+        if (!apiGetOrderResponse.getGetOrdersResult().getStatus().equals("OK")) {
+            throw new CustomerException(ResultCode.FAIL_CODE, apiGetOrderResponse.getGetOrdersResult().getMsg());
+        }
+        List<ApiOrderInfo> apiOrderInfos = apiGetOrderResponse.getGetOrdersResult().getOrderInfoList().getOrderInfoList();
+        if (ListUtils.isEmpty(apiOrderInfos)) {
+            return null;
+        }
+        ApiOrderInfo apiOrderInfo = apiOrderInfos.get(0);
+        //赛盒发货状态 orderState 订单发货状态(未发货 = 0,部分发货 = 1,全部发货 = 2,妥投 = 3)
+        //订单状态OrderStatus(正常 = 0,待审查 = 1,作废 = 2,锁定 = 3,只锁定发货 = 4,已完成 = 5)
+        Integer orderState = apiOrderInfo.getOrderState();
+        Integer orderStatus = apiOrderInfo.getOrderStatus();
+        //赛盒未发货
+        if (orderState == 0) {
+            //订单已作废
+            if (orderStatus == 2) {
+                //message.append("赛盒未发货,订单已作废!</br> ");
+            } else {
+                //作废订单
+                //作废成功
+                ApiCancelOrderResponse apiCancelOrderResponse = SaiheService.cancelOrderInfo(saiheOrderCode);
+                if (apiCancelOrderResponse.getCancelOrderResult().getStatus().equals("OK") &&
+                        apiCancelOrderResponse.getCancelOrderResult().getSuccess()) {
+                    //message.append("赛盒未发货,订单作废成功!</br> ");
+                } else {
+                    log.warn("赛盒订单号:{},作废失败原因:{}", saiheOrderCode, apiCancelOrderResponse.getCancelOrderResult().getMsg());
+                    //作废失败
+                    //throw newValidationException("赛盒未发货,订单作废失败!</br> ");
+                    throw new CustomerException(ResultCode.FAIL_CODE, apiCancelOrderResponse.getCancelOrderResult().getMsg());
+                }
+            }
+        }
+        return apiOrderInfo;
+
+
     }
 
 

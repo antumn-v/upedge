@@ -505,6 +505,12 @@ public class OrderController {
         return response;
     }
 
+    @PostMapping("/revokeReshipOrder/{orderId}")
+    public BaseResponse revokeReshipOrder(@PathVariable Long orderId){
+        Session session = UserUtil.getSession(redisTemplate);
+        return orderService.revokeReshipOrder(orderId,session);
+    }
+
     @ApiOperation("订单添加产品")
     @PostMapping("/addItem")
     public BaseResponse orderAddItem(@RequestBody@Valid OrderAddItemRequest request){
@@ -724,7 +730,7 @@ public class OrderController {
      * @param request
      * @return
      */
-    @PostMapping("/ManagerActual")
+    @PostMapping("/managerActual")
     public BaseResponse getManagerActual(@RequestBody ManagerActualRequest request) {
         ManagerActualVo data = orderService.getManagerActual(request);
 

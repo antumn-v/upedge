@@ -20,11 +20,11 @@ import com.upedge.oms.modules.order.request.*;
 import com.upedge.oms.modules.order.response.OrderRefundListResponse;
 import com.upedge.oms.modules.order.service.OrderRefundItemService;
 import com.upedge.oms.modules.order.service.OrderRefundService;
+import com.upedge.oms.modules.order.service.OrderService;
 import com.upedge.oms.modules.order.vo.AppOrderItemVo;
 import com.upedge.oms.modules.order.vo.OrderRefundVo;
 import com.upedge.oms.modules.statistics.request.OrderRefundDailyCountRequest;
 import com.upedge.oms.modules.statistics.service.OrderDailyRefundCountService;
-import com.upedge.thirdparty.saihe.entity.cancelOrderInfo.ApiCancelOrderResponse;
 import com.upedge.thirdparty.saihe.entity.getOrderByCode.ApiGetOrderResponse;
 import com.upedge.thirdparty.saihe.entity.getOrderByCode.ApiOrderInfo;
 import com.upedge.thirdparty.saihe.service.SaiheService;
@@ -54,6 +54,9 @@ public class OrderRefundServiceImpl implements OrderRefundService {
     private OrderRefundItemDao orderRefundItemDao;
     @Autowired
     private OrderDao orderDao;
+
+    @Autowired
+    OrderService orderService;
     @Autowired
     private OrderItemDao orderItemDao;
     @Autowired
@@ -616,46 +619,15 @@ public class OrderRefundServiceImpl implements OrderRefundService {
      */
     @Override
     public void cancelSaiheOrderAndSynState(Long refundId, String saiheOrderCode) throws CustomerException {
-        Integer orderState = null;
-        Integer orderSourceId = null;
+
         //赛盒未发货 取消订单
         //获取订单的赛盒code
-        if (!StringUtils.isBlank(saiheOrderCode)) {
-            ApiGetOrderResponse apiGetOrderResponse = SaiheService.getOrderByCode(saiheOrderCode);
-            if (apiGetOrderResponse.getGetOrdersResult().getStatus().equals("OK")) {
-                List<ApiOrderInfo> l = apiGetOrderResponse.getGetOrdersResult().getOrderInfoList().getOrderInfoList();
-                if (l != null && l.size() > 0) {
-                    if (l != null && l.size() > 0) {
-                        //赛盒发货状态 orderState 订单发货状态(未发货 = 0,部分发货 = 1,全部发货 = 2,妥投 = 3)
-                        //订单状态OrderStatus(正常 = 0,待审查 = 1,作废 = 2,锁定 = 3,只锁定发货 = 4,已完成 = 5)
-                        orderState = l.get(0).getOrderState();
-                        Integer orderStatus = l.get(0).getOrderStatus();
-                        orderSourceId = l.get(0).getOrderSourceID();
-                        //赛盒未发货
-                        if (orderState == 0) {
-                            //订单已作废
-                            if (orderStatus == 2) {
-                                //message.append("赛盒未发货,订单已作废!</br> ");
-                            } else {
-                                //作废订单
-                                //作废成功
-                                ApiCancelOrderResponse apiCancelOrderResponse = SaiheService.cancelOrderInfo(saiheOrderCode);
-                                if (apiCancelOrderResponse.getCancelOrderResult().getStatus().equals("OK") &&
-                                        apiCancelOrderResponse.getCancelOrderResult().getSuccess()) {
-                                    //message.append("赛盒未发货,订单作废成功!</br> ");
-                                } else {
-                                    log.warn("退款ID:{},赛盒订单号:{},作废失败原因:{}",refundId,saiheOrderCode,apiCancelOrderResponse.getCancelOrderResult().getMsg());
-                                    //作废失败
-                                    //throw newValidationException("赛盒未发货,订单作废失败!</br> ");
-                                    throw new CustomerException(ResultCode.FAIL_CODE, apiCancelOrderResponse.getCancelOrderResult().getMsg());
-                                }
-                            }
-                        }
-                    }
-                }
-            }
+        ApiOrderInfo apiOrderInfo = orderService.revokeSaiheOrder(saiheOrderCode);
+        if (apiOrderInfo == null){
+            return;
         }
-
+        Integer orderState = apiOrderInfo.getOrderState();
+        Integer orderSourceId = apiOrderInfo.getOrderSourceID();
         //同步退款发货状态
         if (orderState != null && orderSourceId != null) {
             if (orderState > 0) {
@@ -666,6 +638,8 @@ public class OrderRefundServiceImpl implements OrderRefundService {
         }
 
     }
+
+
 
     /**
      * 历史退款列表

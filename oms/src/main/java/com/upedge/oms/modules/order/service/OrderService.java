@@ -18,6 +18,7 @@ import com.upedge.oms.modules.order.response.OrderUpdateResponse;
 import com.upedge.oms.modules.order.vo.*;
 import com.upedge.oms.modules.rules.vo.OrderShipRuleVo;
 import com.upedge.thirdparty.saihe.entity.SaiheOrder;
+import com.upedge.thirdparty.saihe.entity.getOrderByCode.ApiOrderInfo;
 import org.apache.ibatis.annotations.Param;
 
 import java.math.BigDecimal;
@@ -61,6 +62,9 @@ public interface OrderService{
     int initOrderProductAmount(List<Long> orderIds);
 
     void initOrderVatAmountByAreaId(Long areaId);
+
+    //撤销补发订单
+    BaseResponse revokeReshipOrder(Long orderId,Session session);
 
 
     /**
@@ -257,5 +261,7 @@ public interface OrderService{
     BaseResponse importExcelOrder(OrderExcelImportRequest request,Session session);
 
     BaseResponse orderCustomCreate(OrderCustomCreateRequest request,Session session);
+
+    ApiOrderInfo revokeSaiheOrder(String saiheOrderCode) throws CustomerException;
 }
 
