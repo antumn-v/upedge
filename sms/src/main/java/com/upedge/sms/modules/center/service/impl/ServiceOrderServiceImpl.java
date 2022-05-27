@@ -147,7 +147,7 @@ public class ServiceOrderServiceImpl implements ServiceOrderService {
             InvoiceProductVo productVo = new InvoiceProductVo();
             productVo.setPrice(item.getPrice());
             productVo.setQuantity(item.getQuantity());
-            productVo.setTotal(new BigDecimal(item.getQuantity()));
+            productVo.setTotal(new BigDecimal(item.getQuantity()).multiply(item.getPrice()).setScale(2));
             productVo.setSku(item.getVariantSku());
             productVo.setImage(item.getVariantImage());
             productVo.setVariantTitle(item.getVariantName());

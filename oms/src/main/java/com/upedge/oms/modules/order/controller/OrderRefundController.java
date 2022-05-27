@@ -11,10 +11,8 @@ import com.upedge.common.web.util.UserUtil;
 import com.upedge.oms.modules.order.entity.OrderRefund;
 import com.upedge.oms.modules.order.entity.OrderRefundItem;
 import com.upedge.oms.modules.order.request.*;
-import com.upedge.oms.modules.order.response.OrderRefundAddResponse;
 import com.upedge.oms.modules.order.response.OrderRefundInfoResponse;
 import com.upedge.oms.modules.order.response.OrderRefundListResponse;
-import com.upedge.oms.modules.order.response.OrderRefundUpdateResponse;
 import com.upedge.oms.modules.order.service.OrderRefundItemService;
 import com.upedge.oms.modules.order.service.OrderRefundService;
 import com.upedge.oms.modules.order.vo.OrderRefundVo;
@@ -86,23 +84,6 @@ public class OrderRefundController {
         return res;
     }
 
-    @RequestMapping(value="/add", method=RequestMethod.POST)
-    @Permission(permission = "order:orderrefund:add")
-    public OrderRefundAddResponse add(@RequestBody @Valid OrderRefundAddRequest request) {
-        OrderRefund entity=request.toOrderRefund();
-        orderRefundService.insertSelective(entity);
-        OrderRefundAddResponse res = new OrderRefundAddResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS,entity,request);
-        return res;
-    }
-
-    @RequestMapping(value="/update/{id}", method=RequestMethod.POST)
-    @Permission(permission = "order:orderrefund:update")
-    public OrderRefundUpdateResponse update(@PathVariable Long id, @RequestBody @Valid OrderRefundUpdateRequest request) {
-        OrderRefund entity=request.toOrderRefund(id);
-        orderRefundService.updateByPrimaryKeySelective(entity);
-        OrderRefundUpdateResponse res = new OrderRefundUpdateResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS);
-        return res;
-    }
 
     @ApiOperation("订单申请退款")
     @PostMapping("/apply")

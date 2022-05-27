@@ -128,6 +128,8 @@ public interface OrderDao {
 
     int deleteByIds(@Param("ids") List<Long> ids);
 
+    int deleteReshipOrder(Long id);
+
     int deleteOrderByIds(@Param("ids") List<Long> ids);
 
     int updateOrderType(@Param("id") Long id,

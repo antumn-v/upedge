@@ -30,7 +30,7 @@ import java.util.concurrent.TimeUnit;
  * @author author
  */
 @RestController
-@RequestMapping("/appNotice")
+@RequestMapping("/notice")
 public class AppNoticeController {
     @Autowired
     private AppNoticeService appNoticeService;

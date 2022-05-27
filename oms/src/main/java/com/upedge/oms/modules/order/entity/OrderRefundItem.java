@@ -22,6 +22,12 @@ public class OrderRefundItem{
 	 * 
 	 */
     private Integer quantity;
+
+	private Integer costRefundQuantity;
+
+	private Integer stockDischargeQuantity;
+
+	private Integer stockRefundQuantity;
 	/**
 	 * 
 	 */

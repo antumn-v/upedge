@@ -8,6 +8,7 @@ import com.upedge.common.model.tms.WarehouseVo;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.oms.modules.order.vo.ItemDischargeQuantityVo;
 import com.upedge.oms.modules.stock.entity.CustomerProductStock;
+import com.upedge.oms.modules.stock.entity.CustomerStockRecord;
 import com.upedge.oms.modules.stock.request.ManualAddCustomerStockRequest;
 
 import java.util.List;
@@ -16,6 +17,9 @@ import java.util.List;
  * @author author
  */
 public interface CustomerProductStockService{
+
+
+    void orderRefundItemStock(Long customerId, List<CustomerStockRecord> customerStockRecords);
 
     List<WarehouseVo> selectCustomerStockWarehouses(Long customerId);
 

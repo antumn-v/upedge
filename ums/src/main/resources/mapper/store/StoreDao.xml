@@ -503,6 +503,5 @@
         <foreach collection="storeNames" item="storeName" open="(" close=")" separator=",">
             #{storeName}
         </foreach>
-        limit ${storeNames.size}
     </select>
 </mapper>

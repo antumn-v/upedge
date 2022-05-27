@@ -2292,4 +2292,16 @@
             #{id}
         </foreach>
     </select>
+
+    <delete id="deleteReshipOrder">
+        delete o,oi,od,sor
+        from `order` o
+        left join order_item oi
+        on o.id = oi.order_id
+        left join order_address od
+        on o.id = od.order_id
+        left join store_order_relate sor
+        on o.id = sor.order_id
+        where o.id = #{id}
+    </delete>
 </mapper>

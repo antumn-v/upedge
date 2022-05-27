@@ -371,6 +371,29 @@ public class CustomerProductStockServiceImpl implements CustomerProductStockServ
 
     }
 
+    @Transactional
+    @Override
+    public void orderRefundItemStock(Long customerId, List<CustomerStockRecord> customerStockRecords) {
+        if (ListUtils.isEmpty(customerStockRecords)){
+            return;
+        }
+        List<CustomerProductStock> customerProductStocks = new ArrayList<>();
+        for (CustomerStockRecord customerStockRecord : customerStockRecords) {
+            Long variantId = customerStockRecord.getVariantId();
+            Integer quantity = customerStockRecord.getQuantity();
+            CustomerProductStock customerProductStock = new CustomerProductStock();
+            customerProductStock.setCustomerId(customerId);
+            customerProductStock.setStock(quantity);
+            customerProductStock.setVariantId(variantId);
+            customerProductStock.setWarehouseCode(customerProductStock.getWarehouseCode());
+            customerProductStocks.add(customerProductStock);
+        }
+        customerProductStockDao.increaseVariantStock(customerProductStocks);
+
+        customerStockRecordDao.insertByBatch(customerStockRecords);
+
+    }
+
     @Override
     public List<WarehouseVo> selectCustomerStockWarehouses(Long customerId) {
         List<WarehouseVo> warehouseVos = new ArrayList<>();

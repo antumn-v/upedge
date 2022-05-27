@@ -46,7 +46,9 @@
         <foreach collection="stocks" item="s" separator=";">
             update customer_product_stock
             set stock = stock + #{s.stock},
-            variant_image = #{s.variantImage},
+            <if test="s.variantImage != null and s.variantImage != ''">
+                variant_image = #{s.variantImage},
+            </if>
             customer_show_state = '1'
             where customer_id = #{s.customerId}
             and warehouse_code = #{s.warehouseCode}

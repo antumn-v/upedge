@@ -1551,9 +1551,6 @@ public class OrderServiceImpl implements OrderService {
                 || order.getOrderType() != 1) {
             return BaseResponse.failed();
         }
-        List<Long> orderIds = new ArrayList<>();
-        orderIds.add(orderId);
-
         OrderReshipInfo orderReshipInfo = orderReshipInfoDao.selectByPrimaryKey(orderId);
         if (!orderReshipInfo.getNeedPay() || order.getPayState() < 1) {
             try {
@@ -1562,7 +1559,7 @@ public class OrderServiceImpl implements OrderService {
                 e.printStackTrace();
                 return BaseResponse.failed(e.getMessage());
             }
-            orderDao.deleteByIds(orderIds);
+            orderDao.deleteReshipOrder(orderId);
             return BaseResponse.success();
         }
         return BaseResponse.failed("订单已支付，请申请退款");

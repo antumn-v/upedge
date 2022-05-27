@@ -66,4 +66,26 @@ public class CustomerStockRecord{
 	private Integer revokeState;
 
 	private Integer customerShowState;
+
+	public CustomerStockRecord() {
+	}
+
+	public CustomerStockRecord(Long id, Long customerId, Long productId, Long variantId, String warehouseCode, Long relateId, Integer type, Integer orderType, Integer quantity, Date createTime, Date updateTime, String variantImage, String variantSku, String variantName, Integer revokeState, Integer customerShowState) {
+		this.id = id;
+		this.customerId = customerId;
+		this.productId = productId;
+		this.variantId = variantId;
+		this.warehouseCode = warehouseCode;
+		this.relateId = relateId;
+		this.type = type;
+		this.orderType = orderType;
+		this.quantity = quantity;
+		this.createTime = createTime;
+		this.updateTime = updateTime;
+		this.variantImage = variantImage;
+		this.variantSku = variantSku;
+		this.variantName = variantName;
+		this.revokeState = revokeState;
+		this.customerShowState = customerShowState;
+	}
 }
