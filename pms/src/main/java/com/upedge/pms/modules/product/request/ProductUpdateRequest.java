@@ -1,9 +1,10 @@
 package com.upedge.pms.modules.product.request;
 
 import com.upedge.pms.modules.product.entity.Product;
-import java.util.Date;
 import lombok.Data;
+
 import java.math.BigDecimal;
+import java.util.Date;
 /**
  * @author gx
  */
@@ -91,6 +92,8 @@ public class ProductUpdateRequest{
      */
     private BigDecimal minPrice;
 
+    private String remark;
+
     public Product toProduct(Long id){
         Product product=new Product();
         product.setId(id);
@@ -114,6 +117,7 @@ public class ProductUpdateRequest{
         product.setPriceRange(priceRange);
         product.setMaxPrice(maxPrice);
         product.setMinPrice(minPrice);
+        product.setRemark(remark);
         return product;
     }
 

@@ -193,6 +193,7 @@ public class ProductServiceImpl implements ProductService {
         }
         String productSku = request.getProductSku();
         updateProductSku(product,productSku);
+        product.setRemark(request.getRemark());
         productDao.updateByPrimaryKeySelective(product);
         if(!StringUtils.isBlank(request.getEntryCname())||!StringUtils.isBlank(request.getEntryCname())
                 ||request.getWarehouseCode()!=null){

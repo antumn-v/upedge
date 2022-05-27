@@ -96,4 +96,6 @@ public class Product{
 	 */
     private BigDecimal minPrice;
 
+	private String remark;
+
 }

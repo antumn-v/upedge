@@ -26,6 +26,7 @@
         <result property="priceRange" column="price_range"/>
         <result property="maxPrice" column="max_price"/>
         <result property="minPrice" column="min_price"/>
+        <result property="remark" column="remark"/>
     </resultMap>
 
 
@@ -43,7 +44,9 @@
     </resultMap>
 
     <sql id="Base_Column_List">
-        `id`,`original_id`,`product_sku`,`original_title`,`product_title`,`product_image`,`supplier_id`,`shipping_id`,`category_id`,`state`,`replace_state`,`saihe_state`,`product_source`,`product_type`,`cate_type`,`user_id`,`create_time`,`update_time`,`price_range`,`max_price`,`min_price`
+        `id`,`original_id`,`product_sku`,`original_title`,`product_title`,`product_image`,`supplier_id`,`shipping_id`,
+        `category_id`,`state`,`replace_state`,`saihe_state`,`product_source`,`product_type`,`cate_type`,`user_id`,
+        `create_time`,`update_time`,`price_range`,`max_price`,`min_price`,`remark`
     </sql>
 
     <select id="selectByPrimaryKey" parameterType="com.upedge.pms.modules.product.entity.Product"
@@ -121,6 +124,9 @@
             </if>
             <if test="minPrice != null">
                 min_price = #{minPrice},
+            </if>
+            <if test="remark != null">
+                remark = #{remark},
             </if>
         </set>
         where id = #{id}
@@ -508,6 +514,9 @@
                 </if>
                 <if test="t.minPrice != null">
                     and min_price = #{t.minPrice}
+                </if>
+                <if test="t.remark != null">
+                    and remark like concat('%',#{t.remark},'%')
                 </if>
             </trim>
         </if>

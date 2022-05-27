@@ -44,4 +44,6 @@ public class UpdateInfoProductRequest {
     @NotNull(message = "运输模板不能为空")
     private Long shippingId;
 
+    private String remark;
+
 }
