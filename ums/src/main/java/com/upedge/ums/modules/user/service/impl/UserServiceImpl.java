@@ -351,6 +351,11 @@ public class UserServiceImpl implements UserService {
         return new UserSignInResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS, result);
     }
 
+    @Override
+    public List<User> selectAllDefaultCustomerInfo() {
+        return userDao.selectAllDefaultCustomerInfo();
+    }
+
 
     public User userSignUp(CustomerSignUpRequest request) {
         Long applicationId = request.getApplicationId();

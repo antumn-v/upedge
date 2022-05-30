@@ -7,6 +7,7 @@ import com.upedge.common.model.manager.vo.ManagerInfoVo;
 import com.upedge.common.model.store.StoreVo;
 import com.upedge.common.model.user.vo.AffiliateVo;
 import com.upedge.common.model.user.vo.CustomerIossVo;
+import com.upedge.common.model.user.vo.UserVo;
 import com.upedge.common.utils.ListUtils;
 import com.upedge.ums.modules.affiliate.entity.Affiliate;
 import com.upedge.ums.modules.affiliate.service.AffiliateService;
@@ -17,8 +18,10 @@ import com.upedge.ums.modules.store.entity.Store;
 import com.upedge.ums.modules.store.service.StoreService;
 import com.upedge.ums.modules.user.entity.CustomerIoss;
 import com.upedge.ums.modules.user.entity.CustomerSetting;
+import com.upedge.ums.modules.user.entity.User;
 import com.upedge.ums.modules.user.service.CustomerIossService;
 import com.upedge.ums.modules.user.service.CustomerSettingService;
+import com.upedge.ums.modules.user.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,6 +62,9 @@ public class RedisInit {
     ManagerInfoService managerInfoService;
 
     @Autowired
+    UserService userService;
+
+    @Autowired
     ThreadPoolExecutor threadPoolExecutor;
 
     @PostConstruct
@@ -91,8 +97,15 @@ public class RedisInit {
             }
         },threadPoolExecutor);
 
+        CompletableFuture<Void> customerInfoInit = CompletableFuture.runAsync(new Runnable() {
+            @Override
+            public void run() {
+                customerInfoInit();
+            }
+        },threadPoolExecutor);
+
         try {
-            CompletableFuture.allOf(storeInit,iossInit,affiliateInit,customerManagerInit).get();
+            CompletableFuture.allOf(storeInit,iossInit,affiliateInit,customerManagerInit,customerInfoInit).get();
         } catch (InterruptedException e) {
             e.printStackTrace();
         } catch (ExecutionException e) {
@@ -139,6 +152,18 @@ public class RedisInit {
             redisTemplate.opsForValue().set(RedisKey.STRING_CUSTOMER_IOSS + ioss.getCustomerId(),customerIossVo);
         }
         log.warn("客户IOSS信息加载完毕");
+    }
+
+    public void customerInfoInit(){
+        Map<String, UserVo> userVoMap = new HashMap<>();
+        List<User> users = userService.selectAllDefaultCustomerInfo();
+        for (User user : users) {
+            UserVo userVo = new UserVo();
+            BeanUtils.copyProperties(user,userVo);
+            userVoMap.put(String.valueOf(user.getCustomerId()),userVo);
+        }
+        redisTemplate.delete(RedisKey.STRING_CUSTOMER_INFO);
+        redisTemplate.opsForHash().putAll(RedisKey.STRING_CUSTOMER_INFO,userVoMap);
     }
 
     public void customerManagerInit(){

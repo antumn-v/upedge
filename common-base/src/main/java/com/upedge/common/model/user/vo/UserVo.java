@@ -15,8 +15,6 @@ public class UserVo extends UserInfoVo {
 
     private String loginName;
 
-    private String loginPass;
-
     private Integer userType;
 
     private Integer status;

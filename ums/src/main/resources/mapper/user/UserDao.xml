@@ -2,8 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="com.upedge.ums.modules.user.dao.UserDao">
-
-	<!-- 可根据自己的需求，是否要使用 -->
+    <!-- 可根据自己的需求，是否要使用 -->
     <resultMap type="com.upedge.ums.modules.user.entity.User" id="BaseResultMap">
         <result property="id" column="id"/>
         <result property="customerId" column="customer_id"/>
@@ -29,19 +28,21 @@
     </resultMap>
 
     <sql id="Base_Column_List">
-        `id`,`customer_id`,`login_name`,`login_pass`,`user_type`,`status`,`create_time`,`update_time`,`last_login_time`,`login_count`,
+        `id`
+                ,`customer_id`,`login_name`,`login_pass`,`user_type`,`status`,`create_time`,`update_time`,`last_login_time`,`login_count`,
         `username`,`avatar`,`mobile`,`email`,`country`,`whatsapp`,`wechat`,`fb_info`,`skype`,`sex`,remark
     </sql>
 
     <select id="selectByPrimaryKey" resultMap="BaseResultMap">
         select
-        <include refid="Base_Column_List" />
+        <include refid="Base_Column_List"/>
         from user
         where id = #{id}
     </select>
 
     <delete id="deleteByPrimaryKey" parameterType="com.upedge.ums.modules.user.entity.User">
-        delete from user
+        delete
+        from user
         where id = #{id}
     </delete>
 
@@ -133,7 +134,8 @@
         where id = #{id}
     </update>
 
-    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.upedge.ums.modules.user.entity.User" useGeneratedKeys="true">
+    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.upedge.ums.modules.user.entity.User"
+            useGeneratedKeys="true">
         insert into user
         <trim prefix="(" suffix=")" suffixOverrides=",">
             id,
@@ -181,133 +183,132 @@
         )
     </insert>
 
-    <insert id="insertSelective"  keyColumn="id" keyProperty="id"  parameterType="com.upedge.ums.modules.user.entity.User" useGeneratedKeys="true">
+    <insert id="insertSelective" keyColumn="id" keyProperty="id" parameterType="com.upedge.ums.modules.user.entity.User"
+            useGeneratedKeys="true">
         insert into user
         <trim prefix="(" suffix=")" suffixOverrides=",">
-            <if test="id != null" >
+            <if test="id != null">
                 id
             </if>
-            <if test="customerId != null" >
+            <if test="customerId != null">
                 customer_id
             </if>
-            <if test="loginName != null" >
+            <if test="loginName != null">
                 login_name
             </if>
-            <if test="loginPass != null" >
+            <if test="loginPass != null">
                 login_pass
             </if>
-            <if test="userType != null" >
+            <if test="userType != null">
                 user_type
             </if>
-            <if test="status != null" >
+            <if test="status != null">
                 status
             </if>
-            <if test="username != null" >
+            <if test="username != null">
                 username
             </if>
-            <if test="avatar != null" >
+            <if test="avatar != null">
                 avatar
             </if>
-            <if test="mobile != null" >
+            <if test="mobile != null">
                 mobile
             </if>
-            <if test="email != null" >
+            <if test="email != null">
                 email
             </if>
-            <if test="country != null" >
+            <if test="country != null">
                 country
             </if>
-            <if test="whatsapp != null" >
+            <if test="whatsapp != null">
                 whatsapp
             </if>
-            <if test="wechat != null" >
+            <if test="wechat != null">
                 wechat
             </if>
-            <if test="fbInfo != null" >
+            <if test="fbInfo != null">
                 fb_info
             </if>
-            <if test="skype != null" >
+            <if test="skype != null">
                 skype
             </if>
-            <if test="sex != null" >
+            <if test="sex != null">
                 sex
             </if>
-            <if test="loginCount != null" >
+            <if test="loginCount != null">
                 login_count
             </if>
-            <if test="createTime != null" >
+            <if test="createTime != null">
                 create_time
             </if>
-            <if test="updateTime != null" >
+            <if test="updateTime != null">
                 update_time
             </if>
-            <if test="lastLoginTime != null" >
+            <if test="lastLoginTime != null">
                 last_login_time
             </if>
-
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
-            <if test="id != null" >
+            <if test="id != null">
                 #{id}
             </if>
-            <if test="customerId != null" >
+            <if test="customerId != null">
                 #{customerId}
             </if>
-            <if test="loginName != null" >
+            <if test="loginName != null">
                 #{loginName}
             </if>
-            <if test="loginPass != null" >
+            <if test="loginPass != null">
                 #{loginPass}
             </if>
-            <if test="userType != null" >
+            <if test="userType != null">
                 #{userType}
             </if>
-            <if test="status != null" >
+            <if test="status != null">
                 #{status}
             </if>
-            <if test="username != null" >
+            <if test="username != null">
                 #{username}
             </if>
-            <if test="avatar != null" >
+            <if test="avatar != null">
                 #{avatar}
             </if>
-            <if test="mobile != null" >
+            <if test="mobile != null">
                 #{mobile}
             </if>
-            <if test="email != null" >
+            <if test="email != null">
                 #{email}
             </if>
-            <if test="country != null" >
+            <if test="country != null">
                 #{country}
             </if>
-            <if test="whatsapp != null" >
+            <if test="whatsapp != null">
                 #{whatsapp}
             </if>
-            <if test="wechat != null" >
+            <if test="wechat != null">
                 #{wechat}
             </if>
-            <if test="fbInfo != null" >
+            <if test="fbInfo != null">
                 #{fbInfo}
             </if>
-            <if test="skype != null" >
+            <if test="skype != null">
                 #{skype}
             </if>
-            <if test="sex != null" >
+            <if test="sex != null">
                 #{sex}
             </if>
-            <if test="loginCount != null" >
+            <if test="loginCount != null">
                 #{loginCount}
             </if>
-            <if test="createTime != null" >
+            <if test="createTime != null">
                 #{createTime}
             </if>
-            <if test="updateTime != null" >
+            <if test="updateTime != null">
                 #{updateTime}
             </if>
-            <if test="lastLoginTime != null" >
+            <if test="lastLoginTime != null">
                 #{lastLoginTime}
             </if>
-
         </trim>
     </insert>
 
@@ -417,13 +418,15 @@
     </sql>
 
     <update id="refreshLoginData">
-        update user set last_login_time=#{lastLoginTime},login_count=login_count+1
-    where id=#{id}
+        update user
+        set last_login_time=#{lastLoginTime},
+            login_count=login_count + 1
+        where id = #{id}
     </update>
 
     <select id="select" parameterType="com.upedge.common.base.Page" resultMap="BaseResultMap">
         select
-        <include refid="Base_Column_List" />
+        <include refid="Base_Column_List"/>
         from user
         <include refid="Query_Condition"/>
         <if test="orderBy != null">
@@ -442,18 +445,48 @@
     </select>
 
     <select id="selectUserByLoginName" resultMap="BaseResultMap">
-        select <include refid="Base_Column_List"/>
+        select
+        <include refid="Base_Column_List"/>
         from `user`
         where login_name = #{loginName}
     </select>
     <select id="selectByLoginName" resultType="com.upedge.ums.modules.user.entity.User">
-        select <include refid="Base_Column_List"/>
+        select
+        <include refid="Base_Column_List"/>
         from `user`
         where login_name = #{loginName}
     </select>
 
     <update id="resetUserPassword">
-        update `user` set login_pass=#{loginPass},update_time=#{updateTime}
-        where id=#{id} and customer_id=#{customerId}
+        update `user`
+        set login_pass=#{loginPass},
+            update_time=#{updateTime}
+        where id = #{id}
+          and customer_id = #{customerId}
     </update>
+
+    <select id="selectAllDefaultCustomerInfo" resultMap="BaseResultMap">
+        select u.`id`,
+               u.`customer_id`,
+               u.`login_name`,
+               u.`user_type`,
+               u.`status`,
+               u.`create_time`,
+               u.`update_time`,
+               u.`last_login_time`,
+               u.`login_count`,
+               u.`username`,
+               u.`avatar`,
+               u.`mobile`,
+               u.`email`,
+               u.`country`,
+               u.`whatsapp`,
+               u.`wechat`,
+               u.`fb_info`,
+               u.`skype`,
+               u.`sex`,
+               u.remark
+        from `user` u
+        where u.is_default = '1'
+    </select>
 </mapper>

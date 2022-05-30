@@ -53,6 +53,8 @@ public class RedisKey {
     public static final String STRING_PACKAGE_CURRENT_MONTH_USD_RATE = "package:current:month:usd:rate";
     //客户经理信息，拼接客户经理ID
     public static final String STRING_MANAGER_INFO = "manager:info:";
+    //客户信息
+    public static final String STRING_CUSTOMER_INFO = "customer:info:hash";
     //账户佣金提现加锁
     public static final String STRING_ACCOUNT_COMMISSION_WITHDRAWAL = "account:commission:withdrawal:";
     //店铺订单生成订单加锁

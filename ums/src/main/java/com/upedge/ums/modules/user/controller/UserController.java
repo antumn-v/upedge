@@ -76,6 +76,7 @@ public class UserController {
             request.setUsername(loginName);
         }
         request = getReferrerToken(request);
+        request.setDefault(true);
         CustomerSignUpResponse customerSignUpResponse = userService.signUp(request);
         try {
             if(StringUtils.isNotBlank(request.getState())

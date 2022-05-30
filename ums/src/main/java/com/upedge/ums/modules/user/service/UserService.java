@@ -52,5 +52,7 @@ public interface UserService{
     long count(Page<User> record);
 
     BaseResponse userRecoverPassword(UserRecoverPasswordRequest request);
+
+    List<User> selectAllDefaultCustomerInfo();
 }
 

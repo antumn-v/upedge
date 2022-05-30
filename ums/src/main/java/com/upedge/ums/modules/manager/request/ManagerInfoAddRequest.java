@@ -104,6 +104,7 @@ public class ManagerInfoAddRequest{
         user.setUpdateTime(date);
         user.setLoginCount(0);
         user.setCountry(country);
+        user.setIsDefault(false);
         return user;
     }
 

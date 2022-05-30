@@ -93,4 +93,6 @@ public class User{
 
 	private String remark;
 
+	private Boolean isDefault;
+
 }

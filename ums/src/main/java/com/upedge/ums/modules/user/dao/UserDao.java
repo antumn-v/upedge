@@ -12,6 +12,8 @@ import java.util.List;
 public interface UserDao{
 
 
+    List<User> selectAllDefaultCustomerInfo();
+
     User selectByLoginName(String loginName);
 
     void refreshLoginData(User user);

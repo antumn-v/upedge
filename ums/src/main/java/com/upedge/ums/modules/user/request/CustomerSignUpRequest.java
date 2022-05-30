@@ -95,6 +95,8 @@ public class CustomerSignUpRequest {
 
     private String managerInviteToken;
 
+    private boolean isDefault;
+
     /**
      * 获取注册用的Customer对象
      * @return
@@ -162,6 +164,7 @@ public class CustomerSignUpRequest {
         user.setCreateTime(this.createTime);
         user.setUpdateTime(this.createTime);
         user.setLastLoginTime(new Date());
+        user.setIsDefault(isDefault);
         return user;
     }
 
