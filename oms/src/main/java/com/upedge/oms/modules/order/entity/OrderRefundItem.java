@@ -13,7 +13,7 @@ public class OrderRefundItem{
 	/**
 	 * 
 	 */
-    private Integer id;
+    private Long id;
 	/**
 	 * 
 	 */
@@ -24,6 +24,8 @@ public class OrderRefundItem{
     private Integer quantity;
 
 	private Integer costRefundQuantity;
+
+	private Integer costPayQuantity;
 
 	private Integer stockDischargeQuantity;
 

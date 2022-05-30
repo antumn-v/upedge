@@ -54,6 +54,7 @@
         <result property="saiheOrderCode" column="saihe_order_code"/>
         <result property="paymentId" column="payment_id"/>
         <result property="cnyProductAmount" column="cny_product_amount"/>
+        <result property="serviceFee" column="service_fee"/>
     </resultMap>
 
     <sql id="Base_Column_List">
@@ -452,7 +453,8 @@
         o.`ship_state`,
         o.`payment_id`,
         o.`saihe_order_code`,
-        o.`cny_product_amount`
+        o.`cny_product_amount`,
+        o.service_fee
         from order_refund r
         left join `order` o
         on o.id = r.order_id

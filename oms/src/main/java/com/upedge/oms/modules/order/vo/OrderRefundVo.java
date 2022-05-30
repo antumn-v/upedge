@@ -40,6 +40,8 @@ public class OrderRefundVo {
      * vat
      */
     private BigDecimal vatAmount;
+
+    private BigDecimal serviceFee;
     /**
      * paypal手续费
      */
@@ -135,7 +137,7 @@ public class OrderRefundVo {
     private Integer saiheorderStatus;
 
     public void initMaxRefundAmount(){
-        this.maxRefundAmount = this.vatAmount.add(this.productAmount).add(this.shipPrice);
+        this.maxRefundAmount = this.vatAmount.add(this.productAmount).add(this.shipPrice).add(this.serviceFee).subtract(this.productDischargeAmount);
     }
 
 }

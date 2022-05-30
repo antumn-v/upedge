@@ -9,6 +9,7 @@
         <result property="orderId" column="order_id"/>
         <result property="quantity" column="quantity"/>
         <result property="costRefundQuantity" column="cost_refund_quantity"/>
+        <result property="costPayQuantity" column="cost_pay_quantity"/>
         <result property="stockDischargeQuantity" column="stock_discharge_quantity"/>
         <result property="stockRefundQuantity" column="stock_refund_quantity"/>
         <result property="price" column="price"/>
@@ -19,7 +20,7 @@
     </resultMap>
 
     <sql id="Base_Column_List">
-        `id`,`order_id`,`quantity`,`stock_discharge_quantity`,`stock_refund_quantity`,`price`,`refund_id`,`order_item_id`,`variant_sku`,`variant_image`
+        `id`,`order_id`,`quantity`,`stock_discharge_quantity`,`stock_refund_quantity`,`cost_refund_quantity`,`cost_pay_quantity`,`price`,`refund_id`,`order_item_id`,`variant_sku`,`variant_image`
     </sql>
 
     <select id="selectByPrimaryKey" parameterType="com.upedge.oms.modules.order.entity.OrderRefundItem" resultMap="BaseResultMap">

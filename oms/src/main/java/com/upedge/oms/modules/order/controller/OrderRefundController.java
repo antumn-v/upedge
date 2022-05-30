@@ -8,6 +8,7 @@ import com.upedge.common.exception.CustomerException;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.web.util.RedisUtil;
 import com.upedge.common.web.util.UserUtil;
+import com.upedge.oms.modules.order.entity.Order;
 import com.upedge.oms.modules.order.entity.OrderRefund;
 import com.upedge.oms.modules.order.entity.OrderRefundItem;
 import com.upedge.oms.modules.order.request.*;
@@ -15,6 +16,7 @@ import com.upedge.oms.modules.order.response.OrderRefundInfoResponse;
 import com.upedge.oms.modules.order.response.OrderRefundListResponse;
 import com.upedge.oms.modules.order.service.OrderRefundItemService;
 import com.upedge.oms.modules.order.service.OrderRefundService;
+import com.upedge.oms.modules.order.service.OrderService;
 import com.upedge.oms.modules.order.vo.OrderRefundVo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -39,6 +41,10 @@ import java.util.List;
 public class OrderRefundController {
     @Autowired
     private OrderRefundService orderRefundService;
+
+    @Autowired
+    OrderService orderService;
+
     @Autowired
     RedisTemplate<String, Object> redisTemplate;
 
@@ -53,7 +59,9 @@ public class OrderRefundController {
         if (null == result){
             return BaseResponse.failed();
         }
+        Order order = orderService.selectByPrimaryKey(result.getOrderId());
         OrderRefundVo orderRefundVo = new OrderRefundVo();
+        BeanUtils.copyProperties(order,orderRefundVo);
         BeanUtils.copyProperties(result,orderRefundVo);
         List<OrderRefundItem> orderRefundItems = orderRefundItemService.selectOrderRefundItemListbByRefundId(id);
         orderRefundVo.setOrderRefundItemList(orderRefundItems);

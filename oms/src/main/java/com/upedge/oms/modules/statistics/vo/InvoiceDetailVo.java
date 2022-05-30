@@ -19,6 +19,12 @@ public class InvoiceDetailVo extends InvoiceVo {
      */
     BigDecimal fixFee;
 
+    private BigDecimal shipPrice;
+
+    private BigDecimal productAmount;
+
+    private BigDecimal payAmount;
+
     BigDecimal vatAmount;
 
     Date payTime;

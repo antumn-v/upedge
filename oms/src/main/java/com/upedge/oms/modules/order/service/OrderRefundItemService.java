@@ -12,10 +12,6 @@ public interface OrderRefundItemService{
 
     List<OrderRefundItem> selectByRefundId(Long refundId);
 
-    OrderRefundItem selectByPrimaryKey(Integer id);
-
-    int deleteByPrimaryKey(Integer id);
-
     int updateByPrimaryKey(OrderRefundItem record);
 
     int updateByPrimaryKeySelective(OrderRefundItem record);

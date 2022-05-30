@@ -19,7 +19,7 @@ import java.util.List;
 public interface CustomerProductStockService{
 
 
-    void orderRefundItemStock(Long customerId, List<CustomerStockRecord> customerStockRecords);
+    void orderRefundItemStock(Long customerId,String warehouseCode, List<CustomerStockRecord> customerStockRecords);
 
     List<WarehouseVo> selectCustomerStockWarehouses(Long customerId);
 

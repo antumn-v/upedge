@@ -137,6 +137,7 @@ public class OrderRefundServiceImpl implements OrderRefundService {
                     return BaseResponse.failed("The product refund quantity cannot be greater than the actual paid quantity");
                 }
                 refundProductAmount = new BigDecimal(refundItem.getQuantity()).multiply(itemVo.getPrice()).add(refundProductAmount);
+                refundItem.setId(IdGenerate.nextId());
                 refundItem.setOrderId(orderId);
                 refundItem.setRefundId(refundId);
                 refundItem.setPrice(itemVo.getPrice());
@@ -144,13 +145,10 @@ public class OrderRefundServiceImpl implements OrderRefundService {
                 refundItem.setVariantSku(itemVo.getStoreVariantSku());
                 refundItem.setStockRefundQuantity(0);
                 refundItem.setStockDischargeQuantity(itemVo.getDischargeQuantity());
+                refundItem.setCostPayQuantity(itemVo.getQuantity() - itemVo.getDischargeQuantity());
             }
         }
         refundAmount = refundAmount.add(request.getShippingPrice()).add(request.getVatAmount()).add(refundProductAmount);
-        BigDecimal payAmount = order.getPayAmount();
-        if (refundAmount.compareTo(payAmount) > 0) {
-            return BaseResponse.failed("The refund amount cannot be greater than the actual payment amount");
-        }
 
         OrderRefund appRefund = new OrderRefund();
         appRefund.setId(refundId);
@@ -464,128 +462,6 @@ public class OrderRefundServiceImpl implements OrderRefundService {
     /**
      * 确认退款
      */
-    @Override
-    @GlobalTransactional//分布式事务注解
-    public BaseResponse confirmRefund(ConfirmRefundRequest request, Session session) throws CustomerException {
-        //确认退款
-        OrderRefund orderRefund = orderRefundDao.selectByPrimaryKey(request.getId());
-        if (orderRefund == null || orderRefund.getState() == null
-                || orderRefund.getCustomerId() == null || orderRefund.getOrderId() == null ||
-                orderRefund.getRefundAmount() == null) {
-            return new BaseResponse(ResultCode.FAIL_CODE, "参数异常");
-        }
-        //退款状态，申请中=0，通过=1，驳回=2
-        //订单状态为退款中
-        if (orderRefund.getState() != 0) {
-            return new BaseResponse(ResultCode.FAIL_CODE, "状态过时请刷新");
-        }
-
-        //查询订单
-        Long orderId = orderRefund.getOrderId();
-        Order order = orderDao.selectByPrimaryKey(orderId);
-        if (order == null) {
-            return new BaseResponse(ResultCode.FAIL_CODE, "找不到订单");
-        }
-        //支付状态,待支付=0，已支付=1，取消订单=-1
-        //退款状态:0=未退款，1=申请中 2=部分退款，3=全部退款
-        if (order.getPayState() == null || order.getPayState() != 1) {
-            return new BaseResponse(ResultCode.FAIL_CODE, "订单支付状态异常");
-        }
-        if (order.getRefundState() == null || order.getRefundState() != 1) {
-            return new BaseResponse(ResultCode.FAIL_CODE, "订单退款状态异常");
-        }
-        if (order.getPayAmount() == null || order.getPayAmount().compareTo(BigDecimal.ZERO) <= 0) {
-            return new BaseResponse(ResultCode.FAIL_CODE, "订单金额异常");
-        }
-
-        //检查申请退款金额
-        BigDecimal actualRefundAmount = request.getActualRefundAmount();
-        BigDecimal refundAmount = orderRefund.getRefundAmount();
-        if (actualRefundAmount.compareTo(refundAmount) != 0){
-            refundAmount = actualRefundAmount;
-        }
-        if (refundAmount == null || refundAmount.compareTo(BigDecimal.ZERO) <= 0) {
-            return new BaseResponse(ResultCode.FAIL_CODE, "退款金额异常");
-        }
-        //检查申请退款金额  不能大于支付总金额  支付商品总金额/USD+运费/USD+VAT税费
-        BigDecimal shippingPrice = order.getShipPrice() == null ? BigDecimal.ZERO : order.getShipPrice().add(order.getServiceFee());
-        BigDecimal vatAmount = order.getVatAmount() == null ? BigDecimal.ZERO : order.getVatAmount();
-        BigDecimal productAmount = order.getProductAmount() == null ? BigDecimal.ZERO : order.getProductAmount();
-        BigDecimal totalAmount = shippingPrice.add(vatAmount).add(productAmount);
-        if (refundAmount.compareTo(totalAmount) > 0) {
-            return new BaseResponse(ResultCode.FAIL_CODE, "退款金额超过可退金额");
-        }
-
-        BigDecimal refundShippingPrice = orderRefund.getRefundShippingPrice();
-        if (refundShippingPrice == null || refundShippingPrice.compareTo(BigDecimal.ZERO) < 0) {
-            return new BaseResponse(ResultCode.FAIL_CODE, "退款运费金额异常");
-        }
-        if (refundShippingPrice.compareTo(shippingPrice) > 0) {
-            return new BaseResponse(ResultCode.FAIL_CODE, "退款运费金额超出限制");
-        }
-        BigDecimal refundVatAmount = orderRefund.getRefundVatAmount();
-        if (refundVatAmount == null || refundVatAmount.compareTo(BigDecimal.ZERO) < 0) {
-            return new BaseResponse(ResultCode.FAIL_CODE, "退款VAT金额异常");
-        }
-        if (refundVatAmount.compareTo(vatAmount) > 0) {
-            return new BaseResponse(ResultCode.FAIL_CODE, "退款VAT金额超出限制");
-        }
-        BigDecimal refundProductAmount = orderRefund.getRefundProductAmount();
-        if (refundProductAmount == null || refundProductAmount.compareTo(BigDecimal.ZERO) < 0) {
-            return new BaseResponse(ResultCode.FAIL_CODE, "退款产品金额异常");
-        }
-        if (refundProductAmount.compareTo(productAmount) > 0) {
-            return new BaseResponse(ResultCode.FAIL_CODE, "退款产品金额超出限制");
-        }
-
-        Integer state = 2;//AppStockOrderEnum.PARTREFUNDED.getValue();
-        //与可退金额做对比
-        if (orderRefund.getRefundAmount().compareTo(totalAmount) == 0) {
-            state = 3;//AppStockOrderEnum.REFUNDED.getValue();
-        }
-
-        //作废赛盒订单，并同步赛盒发货状态
-        cancelSaiheOrderAndSynState(orderRefund.getId(), order.getSaiheOrderCode());
-        //退款状态:0=未退款，1=申请中 2=部分退款，3=全部退款
-        //修改订单状态
-        int res = orderDao.updateOrderAsRefund(order.getId(), state);
-        updateConfirmAppRefundTrackingState(orderRefund.getId());
-        if (res == 0) {
-            throw new CustomerException(ResultCode.FAIL_CODE, "修改订单状态异常");
-        }
-        //更新状态 已确认
-        orderRefund.setState(1);
-        //   String userCode=String.valueOf(session.getId());
-        orderRefund.setActualRefundAmount(actualRefundAmount);
-        orderRefund.setUpdateTime(new Date());
-
-        int rs = orderRefundDao.updateConfirmRefund(orderRefund);
-        if (rs == 0) {
-            throw new CustomerException(ResultCode.FAIL_CODE, "修改退款单状态异常");
-        }
-        // 统计退款信息
-        OrderRefundDailyCountRequest orderRefundDailyCountRequest = new OrderRefundDailyCountRequest();
-        orderRefundDailyCountRequest.setRefundId(request.getId());
-        orderRefundDailyCountRequest.setOrderType(OrderType.NORMAL);
-        orderRefundDailyCountRequest.setRefundTime(new Date());
-        orderDailyRefundCountService.OrderDailyRefundCount(orderRefundDailyCountRequest);
-
-        AccountOrderRefundedRequest accountOrderRefundedRequest = new AccountOrderRefundedRequest();
-        accountOrderRefundedRequest.setOrderId(order.getId());
-        accountOrderRefundedRequest.setRefundId(request.getId());
-        accountOrderRefundedRequest.setCustomerId(order.getCustomerId());
-        //支付商品总金额/USD+运费/USD+VAT税费
-        accountOrderRefundedRequest.setPayAmount(order.getPayAmount());
-        accountOrderRefundedRequest.setRefundAmount(refundAmount);
-        accountOrderRefundedRequest.setOrderType(OrderType.NORMAL);
-        //账户退款
-        BaseResponse response = umsFeignClient.accountOrderRefunded(accountOrderRefundedRequest);
-        if (response.getCode() != 1) {
-            throw new CustomerException(ResultCode.FAIL_CODE, response.getMsg());
-        }
-        return new BaseResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS);
-    }
-
 //    @Override
 //    @GlobalTransactional//分布式事务注解
 //    public BaseResponse confirmRefund(ConfirmRefundRequest request, Session session) throws CustomerException {
@@ -633,23 +509,29 @@ public class OrderRefundServiceImpl implements OrderRefundService {
 //        BigDecimal shippingPrice = order.getShipPrice() == null ? BigDecimal.ZERO : order.getShipPrice().add(order.getServiceFee());
 //        BigDecimal vatAmount = order.getVatAmount() == null ? BigDecimal.ZERO : order.getVatAmount();
 //        BigDecimal productAmount = order.getProductAmount() == null ? BigDecimal.ZERO : order.getProductAmount();
-//        BigDecimal totalAmount = shippingPrice.add(vatAmount).add(productAmount).subtract(order.getProductDischargeAmount());
+//        BigDecimal totalAmount = shippingPrice.add(vatAmount).add(productAmount);
 //        if (refundAmount.compareTo(totalAmount) > 0) {
 //            return new BaseResponse(ResultCode.FAIL_CODE, "退款金额超过可退金额");
 //        }
 //
-//        BigDecimal refundShippingPrice = request.getRefundShipPrice();
-//        if (refundShippingPrice == null || refundShippingPrice.compareTo(shippingPrice) > 0) {
+//        BigDecimal refundShippingPrice = orderRefund.getRefundShippingPrice();
+//        if (refundShippingPrice == null || refundShippingPrice.compareTo(BigDecimal.ZERO) < 0) {
 //            return new BaseResponse(ResultCode.FAIL_CODE, "退款运费金额异常");
 //        }
-//        BigDecimal refundVatAmount = request.getRefundVatAmount();
-//        if (refundVatAmount == null || refundVatAmount.compareTo(vatAmount) > 0) {
+//        if (refundShippingPrice.compareTo(shippingPrice) > 0) {
+//            return new BaseResponse(ResultCode.FAIL_CODE, "退款运费金额超出限制");
+//        }
+//        BigDecimal refundVatAmount = orderRefund.getRefundVatAmount();
+//        if (refundVatAmount == null || refundVatAmount.compareTo(BigDecimal.ZERO) < 0) {
 //            return new BaseResponse(ResultCode.FAIL_CODE, "退款VAT金额异常");
 //        }
-//
-//        BigDecimal refundProductAmount = BigDecimal.ZERO;
-//        List<CustomerStockRecord> customerStockRecords = refundProductAmount(request.getRefundItems(),orderId,order.getCustomerId(),order.getShippingWarehouse(),BigDecimal.ZERO);
-//
+//        if (refundVatAmount.compareTo(vatAmount) > 0) {
+//            return new BaseResponse(ResultCode.FAIL_CODE, "退款VAT金额超出限制");
+//        }
+//        BigDecimal refundProductAmount = orderRefund.getRefundProductAmount();
+//        if (refundProductAmount == null || refundProductAmount.compareTo(BigDecimal.ZERO) < 0) {
+//            return new BaseResponse(ResultCode.FAIL_CODE, "退款产品金额异常");
+//        }
 //        if (refundProductAmount.compareTo(productAmount) > 0) {
 //            return new BaseResponse(ResultCode.FAIL_CODE, "退款产品金额超出限制");
 //        }
@@ -665,6 +547,7 @@ public class OrderRefundServiceImpl implements OrderRefundService {
 //        //退款状态:0=未退款，1=申请中 2=部分退款，3=全部退款
 //        //修改订单状态
 //        int res = orderDao.updateOrderAsRefund(order.getId(), state);
+//        updateConfirmAppRefundTrackingState(orderRefund.getId());
 //        if (res == 0) {
 //            throw new CustomerException(ResultCode.FAIL_CODE, "修改订单状态异常");
 //        }
@@ -685,8 +568,6 @@ public class OrderRefundServiceImpl implements OrderRefundService {
 //        orderRefundDailyCountRequest.setRefundTime(new Date());
 //        orderDailyRefundCountService.OrderDailyRefundCount(orderRefundDailyCountRequest);
 //
-//        customerProductStockService.orderRefundItemStock(order.getCustomerId(),customerStockRecords);
-//
 //        AccountOrderRefundedRequest accountOrderRefundedRequest = new AccountOrderRefundedRequest();
 //        accountOrderRefundedRequest.setOrderId(order.getId());
 //        accountOrderRefundedRequest.setRefundId(request.getId());
@@ -703,13 +584,131 @@ public class OrderRefundServiceImpl implements OrderRefundService {
 //        return new BaseResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS);
 //    }
 
+    @Override
+    @GlobalTransactional//分布式事务注解
+    public BaseResponse confirmRefund(ConfirmRefundRequest request, Session session) throws CustomerException {
+        //确认退款
+        OrderRefund orderRefund = orderRefundDao.selectByPrimaryKey(request.getId());
+        if (orderRefund == null || orderRefund.getState() == null
+                || orderRefund.getCustomerId() == null || orderRefund.getOrderId() == null) {
+            return new BaseResponse(ResultCode.FAIL_CODE, "参数异常");
+        }
+        //退款状态，申请中=0，通过=1，驳回=2
+        //订单状态为退款中
+        if (orderRefund.getState() != 0) {
+            return new BaseResponse(ResultCode.FAIL_CODE, "状态过时请刷新");
+        }
 
-    private List<CustomerStockRecord> refundProductAmount(List<OrderRefundItem> refundItems,Long orderId,Long customerId,String warehouseCode,BigDecimal refundProductAmount) throws CustomerException {
+        //查询订单
+        Long orderId = orderRefund.getOrderId();
+        Order order = orderDao.selectByPrimaryKey(orderId);
+        if (order == null) {
+            return new BaseResponse(ResultCode.FAIL_CODE, "找不到订单");
+        }
+        if (StringUtils.isBlank(order.getShippingWarehouse())){
+            return new BaseResponse(ResultCode.FAIL_CODE, "订单仓库信息异常");
+        }
+        //支付状态,待支付=0，已支付=1，取消订单=-1
+        //退款状态:0=未退款，1=申请中 2=部分退款，3=全部退款
+        if (order.getPayState() == null || order.getPayState() != 1) {
+            return new BaseResponse(ResultCode.FAIL_CODE, "订单支付状态异常");
+        }
+        if (order.getRefundState() == null || order.getRefundState() != 1) {
+            return new BaseResponse(ResultCode.FAIL_CODE, "订单退款状态异常");
+        }
+        if (order.getPayAmount() == null || order.getPayAmount().compareTo(BigDecimal.ZERO) <= 0) {
+            return new BaseResponse(ResultCode.FAIL_CODE, "订单金额异常");
+        }
+        //计算退款产品费和库存
+        Map<String,Object> map = refundProductAmount(request.getRefundItems(),orderId,order.getCustomerId(),order.getShippingWarehouse());
+
+        BigDecimal refundProductAmount = (BigDecimal) map.get("refundProductAmount");
+        List<CustomerStockRecord> customerStockRecords = (List<CustomerStockRecord>) map.get("customerStockRecords");
+        BigDecimal actualRefundAmount = request.getServiceFee().add(request.getRefundShipPrice()).add(refundProductAmount).add(request.getRefundVatAmount());
+        //检查申请退款金额
+        //检查申请退款金额  不能大于支付总金额  支付商品总金额/USD+运费/USD+VAT税费
+        BigDecimal shippingPrice = order.getShipPrice() == null ? BigDecimal.ZERO : order.getShipPrice();
+        BigDecimal vatAmount = order.getVatAmount() == null ? BigDecimal.ZERO : order.getVatAmount();
+        BigDecimal productAmount = order.getProductAmount() == null ? BigDecimal.ZERO : order.getProductAmount();
+        BigDecimal payAmount = order.getPayAmount();
+        if (actualRefundAmount.compareTo(payAmount) > 0) {
+            return new BaseResponse(ResultCode.FAIL_CODE, "退款金额超过可退金额");
+        }
+
+        BigDecimal refundShippingPrice = request.getRefundShipPrice();
+        if (refundShippingPrice == null || refundShippingPrice.compareTo(shippingPrice) > 0) {
+            return new BaseResponse(ResultCode.FAIL_CODE, "退款运费金额异常");
+        }
+        BigDecimal refundVatAmount = request.getRefundVatAmount();
+        if (refundVatAmount == null || refundVatAmount.compareTo(vatAmount) > 0) {
+            return new BaseResponse(ResultCode.FAIL_CODE, "退款VAT金额异常");
+        }
+
+
+        if (refundProductAmount.compareTo(productAmount) > 0) {
+            return new BaseResponse(ResultCode.FAIL_CODE, "退款产品金额超出限制");
+        }
+
+        Integer state = 2;//AppStockOrderEnum.PARTREFUNDED.getValue();
+        //与可退金额做对比
+        if (actualRefundAmount.compareTo(payAmount) == 0) {
+            state = 3;//AppStockOrderEnum.REFUNDED.getValue();
+        }
+
+        //作废赛盒订单，并同步赛盒发货状态
+        cancelSaiheOrderAndSynState(orderRefund.getId(), order.getSaiheOrderCode());
+        //退款状态:0=未退款，1=申请中 2=部分退款，3=全部退款
+        //修改订单状态
+        int res = orderDao.updateOrderAsRefund(order.getId(), state);
+        if (res == 0) {
+            throw new CustomerException(ResultCode.FAIL_CODE, "修改订单状态异常");
+        }
+        //更新状态 已确认
+        orderRefund.setState(1);
+        //   String userCode=String.valueOf(session.getId());
+        orderRefund.setActualRefundAmount(actualRefundAmount);
+        orderRefund.setUpdateTime(new Date());
+
+        int rs = orderRefundDao.updateConfirmRefund(orderRefund);
+        if (rs == 0) {
+            throw new CustomerException(ResultCode.FAIL_CODE, "修改退款单状态异常");
+        }
+        // 统计退款信息
+        OrderRefundDailyCountRequest orderRefundDailyCountRequest = new OrderRefundDailyCountRequest();
+        orderRefundDailyCountRequest.setRefundId(request.getId());
+        orderRefundDailyCountRequest.setOrderType(OrderType.NORMAL);
+        orderRefundDailyCountRequest.setRefundTime(new Date());
+        orderDailyRefundCountService.OrderDailyRefundCount(orderRefundDailyCountRequest);
+
+        customerProductStockService.orderRefundItemStock(order.getCustomerId(),order.getShippingWarehouse(),customerStockRecords);
+
+        AccountOrderRefundedRequest accountOrderRefundedRequest = new AccountOrderRefundedRequest();
+        accountOrderRefundedRequest.setOrderId(order.getId());
+        accountOrderRefundedRequest.setRefundId(request.getId());
+        accountOrderRefundedRequest.setCustomerId(order.getCustomerId());
+        //支付商品总金额/USD+运费/USD+VAT税费
+        accountOrderRefundedRequest.setPayAmount(order.getPayAmount());
+        accountOrderRefundedRequest.setRefundAmount(actualRefundAmount);
+        accountOrderRefundedRequest.setOrderType(OrderType.NORMAL);
+        //账户退款
+        BaseResponse response = umsFeignClient.accountOrderRefunded(accountOrderRefundedRequest);
+        if (response.getCode() != 1) {
+            throw new CustomerException(ResultCode.FAIL_CODE, response.getMsg());
+        }
+        return new BaseResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS);
+    }
+
+
+    private Map<String,Object> refundProductAmount(List<OrderRefundItem> refundItems,Long orderId,Long customerId,String warehouseCode) throws CustomerException {
+        Map<String,Object> map = new HashMap<>();
+        BigDecimal refundProductAmount = BigDecimal.ZERO;
         Date date = new Date();
         List<CustomerStockRecord> customerStockRecords = new ArrayList<>();
         List<OrderItem> orderItems = orderItemDao.selectItemByOrderId(orderId);
         if (ListUtils.isEmpty(orderItems) ||ListUtils.isEmpty(refundItems)){
-            return new ArrayList<>();
+            map.put("refundProductAmount",BigDecimal.ZERO);
+            map.put("customerStockRecords",customerStockRecords);
+            return map;
         }
         Map<Long,OrderItem> itemMap = new HashMap<>();
         for (OrderItem orderItem : orderItems) {
@@ -719,21 +718,21 @@ public class OrderRefundServiceImpl implements OrderRefundService {
             if (!itemMap.containsKey(refundItem.getOrderItemId())){
                 throw new CustomerException("订单退款申请包含错误的产品信息");
             }
-            Integer refundQuantity = refundItem.getQuantity();
-            Integer costRefundQuantity = refundItem.getCostRefundQuantity();
-            Integer stockRefundQuantity = refundItem.getStockRefundQuantity();
-            if (refundQuantity < (costRefundQuantity + stockRefundQuantity)){
-                throw new CustomerException("产品退款数量不得大于申请退款数量");
-            }
-
             OrderItem orderItem = itemMap.get(refundItem.getOrderItemId());
-            if (refundItem.getStockRefundQuantity() > orderItem.getDischargeQuantity()){
-                throw new CustomerException("订单产品库存退款数量不能大于使用数量");
+            Integer quantity = orderItem.getQuantity();
+            Integer costRefundQuantity = refundItem.getCostRefundQuantity();
+            if (costRefundQuantity > quantity){
+                throw new CustomerException("产品退款数量不得大于支付数量");
             }
-            Integer costPayQuantity = orderItem.getQuantity() - orderItem.getDischargeQuantity();
-            if (costRefundQuantity > costPayQuantity){
-                throw new CustomerException("订单产品退款费用数量不能大于支付数量");
-            }
+            Integer stockRefundQuantity = quantity - costRefundQuantity;
+
+//            if (refundItem.getStockRefundQuantity() > orderItem.getDischargeQuantity()){
+//                throw new CustomerException("订单产品库存退款数量不能大于使用数量");
+//            }
+//            Integer costPayQuantity = orderItem.getQuantity() - orderItem.getDischargeQuantity();
+//            if (costRefundQuantity > costPayQuantity){
+//                throw new CustomerException("订单产品退款费用数量不能大于支付数量");
+//            }
             refundProductAmount = refundProductAmount. add(new BigDecimal(costRefundQuantity).multiply( orderItem.getUsdPrice()));
 
             if (stockRefundQuantity > 0){
@@ -744,8 +743,8 @@ public class OrderRefundServiceImpl implements OrderRefundService {
                                 orderItem.getAdminProductId(),
                                 orderItem.getAdminVariantId(),
                                 warehouseCode,
-                                orderItem.getId(),
-                                2,
+                                Long.parseLong(refundItem.getId().toString()),
+                                5,
                                 OrderType.NORMAL,
                                 stockRefundQuantity,
                                 date,
@@ -759,7 +758,9 @@ public class OrderRefundServiceImpl implements OrderRefundService {
 
             }
         }
-        return customerStockRecords;
+        map.put("refundProductAmount",refundProductAmount);
+        map.put("customerStockRecords",customerStockRecords);
+        return map;
     }
 
     //更新赛盒状态

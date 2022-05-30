@@ -18,17 +18,6 @@ public class OrderRefundItemServiceImpl implements OrderRefundItemService {
     private OrderRefundItemDao orderRefundItemDao;
 
 
-
-    /**
-     *
-     */
-    @Transactional
-    public int deleteByPrimaryKey(Integer id) {
-        OrderRefundItem record = new OrderRefundItem();
-        record.setId(id);
-        return orderRefundItemDao.deleteByPrimaryKey(record);
-    }
-
     /**
      *
      */
@@ -53,14 +42,7 @@ public class OrderRefundItemServiceImpl implements OrderRefundItemService {
         return null;
     }
 
-    /**
-     *
-     */
-    public OrderRefundItem selectByPrimaryKey(Integer id){
-        OrderRefundItem record = new OrderRefundItem();
-        record.setId(id);
-        return orderRefundItemDao.selectByPrimaryKey(record);
-    }
+
 
     /**
     *

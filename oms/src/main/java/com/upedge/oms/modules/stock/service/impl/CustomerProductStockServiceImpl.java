@@ -373,24 +373,48 @@ public class CustomerProductStockServiceImpl implements CustomerProductStockServ
 
     @Transactional
     @Override
-    public void orderRefundItemStock(Long customerId, List<CustomerStockRecord> customerStockRecords) {
+    public void orderRefundItemStock(Long customerId, String warehouseCode,List<CustomerStockRecord> customerStockRecords) {
         if (ListUtils.isEmpty(customerStockRecords)){
             return;
         }
+
+        List<Long> variantIds = customerProductStockDao.selectWarehouseVariantIdsByCustomer(customerId,warehouseCode);
+        if (variantIds == null){
+            variantIds = new ArrayList<>();
+        }
+
+        List<CustomerProductStock> update = new ArrayList<>();
+        List<CustomerProductStock> insert = new ArrayList<>();
         List<CustomerProductStock> customerProductStocks = new ArrayList<>();
         for (CustomerStockRecord customerStockRecord : customerStockRecords) {
             Long variantId = customerStockRecord.getVariantId();
+
             Integer quantity = customerStockRecord.getQuantity();
             CustomerProductStock customerProductStock = new CustomerProductStock();
             customerProductStock.setCustomerId(customerId);
             customerProductStock.setStock(quantity);
             customerProductStock.setVariantId(variantId);
-            customerProductStock.setWarehouseCode(customerProductStock.getWarehouseCode());
-            customerProductStocks.add(customerProductStock);
+            customerProductStock.setWarehouseCode(warehouseCode);
+            if(variantIds.contains(variantId)){
+                update.add(customerProductStock);
+            }else {
+                BeanUtils.copyProperties(customerStockRecord,customerProductStock);
+                customerProductStock.setCustomerShowState(1);
+                customerProductStock.setLockStock(0);
+                insert.add(customerProductStock);
+            }
         }
-        customerProductStockDao.increaseVariantStock(customerProductStocks);
-
+        if (ListUtils.isNotEmpty(update)){
+            customerProductStockDao.increaseVariantStock(update);
+        }
+        if (ListUtils.isNotEmpty(insert)){
+            customerProductStockDao.insertByBatch(insert);
+        }
         customerStockRecordDao.insertByBatch(customerStockRecords);
+
+        for (CustomerProductStock customerProductStock : customerProductStocks) {
+            redisAddCustomerVariantStock(customerId,customerProductStock.getVariantId(),customerProductStock.getWarehouseCode(),customerProductStock.getStock());
+        }
 
     }
 

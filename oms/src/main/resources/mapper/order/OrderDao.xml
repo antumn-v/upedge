@@ -2282,6 +2282,7 @@
         select DISTINCT payment_id,customer_id,pay_method
         from `order`
         where pay_state = '1'
+        and payment_id is not null
     </select>
 
     <select id="selectByIds" resultMap="BaseResultMap">

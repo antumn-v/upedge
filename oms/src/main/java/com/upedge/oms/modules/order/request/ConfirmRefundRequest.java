@@ -12,12 +12,12 @@ public class ConfirmRefundRequest {
     @NotNull
     private Long id;
 
-    @NotNull
     private BigDecimal actualRefundAmount;
-
-
+    @NotNull
+    private BigDecimal serviceFee;
+    @NotNull
     private BigDecimal refundShipPrice;
-
+    @NotNull
     private BigDecimal refundVatAmount;
 
     private List<OrderRefundItem> refundItems;

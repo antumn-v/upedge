@@ -40,7 +40,7 @@ public class OrderRefundItemUpdateRequest{
      */
     private String variantImage;
 
-    public OrderRefundItem toOrderRefundItem(Integer id){
+    public OrderRefundItem toOrderRefundItem(Long id){
         OrderRefundItem orderRefundItem=new OrderRefundItem();
         orderRefundItem.setId(id);
         orderRefundItem.setOrderId(orderId);
