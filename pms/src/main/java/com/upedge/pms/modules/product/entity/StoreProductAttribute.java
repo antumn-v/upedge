@@ -2,7 +2,9 @@ package com.upedge.pms.modules.product.entity;
 
 import com.upedge.common.model.user.vo.Session;
 import lombok.Data;
+import org.springframework.util.ReflectionUtils;
 
+import java.lang.reflect.Field;
 import java.util.Date;
 
 /**
@@ -83,7 +85,9 @@ public class StoreProductAttribute {
      */
     private Integer transformState;
 
-    private Long customerId;
+    public Long customerId;
+
+    private String customerName;
 
     private String managerCode;
 
@@ -110,5 +114,11 @@ public class StoreProductAttribute {
         product.setUpdateTime(new Date());
         product.setPriceRange(this.price);
         return product;
+    }
+
+    public static void main(String[] args) {
+        StoreProductAttribute storeProductAttribute = new StoreProductAttribute();
+        Field field = ReflectionUtils.findField(StoreProductAttribute.class,"customerId");
+        System.out.println(field);
     }
 }

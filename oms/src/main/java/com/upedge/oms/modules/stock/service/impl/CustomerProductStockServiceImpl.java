@@ -432,6 +432,10 @@ public class CustomerProductStockServiceImpl implements CustomerProductStockServ
     @Override
     public void redisInit() {
         List<CustomerProductStock> customerProductStocks = customerProductStockDao.selectAllCustomerStocks();
+        Set<String> keys = redisTemplate.keys(RedisKey.STRING_CUSTOMER_VARIANT_STOCK + "*");
+        if (keys != null && keys.size() > 0){
+            redisTemplate.delete(keys);
+        }
         for (CustomerProductStock customerProductStock : customerProductStocks) {
             Long customerId = customerProductStock.getCustomerId();
             Long variantId = customerProductStock.getVariantId();

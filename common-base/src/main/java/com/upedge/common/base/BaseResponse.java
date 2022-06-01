@@ -1,9 +1,12 @@
 package com.upedge.common.base;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.upedge.common.constant.Constant;
 import com.upedge.common.constant.ResultCode;
 
 import java.io.Serializable;
+import java.util.Collection;
 
 public class BaseResponse implements Serializable {
 
@@ -96,6 +99,9 @@ public class BaseResponse implements Serializable {
 	}
 
 	public void setData(Object data) {
+
+
+
 		this.data = data;
 	}
 

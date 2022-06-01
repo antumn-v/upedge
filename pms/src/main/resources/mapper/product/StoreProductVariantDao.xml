@@ -657,7 +657,7 @@
             and spv.sku = #{t.sku}
         </if>
         <if test="t.title != null and t.title != ''">
-            and spv.title = #{t.title}
+            and spv.title like concat('%',#{t.title},'%')
         </if>
         order by plat_variant_id desc
         <if test="pageNum != null and pageSize != null">
