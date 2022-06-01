@@ -9,9 +9,9 @@ import java.util.List;
 /**
  * @author author
  */
-public interface ImportProductAttributeDao{
+public interface ImportProductAttributeDao {
 
-    ImportProductAttribute selectBySourceProductId(String sourceProductId);
+    ImportProductAttribute selectBySourceProductId(@Param("sourceProductId") String sourceProductId, @Param("customerId") Long customerId);
 
     List<String> selectImportedSourceProductIds(@Param("customerId") Long customerId);
 

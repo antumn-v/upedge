@@ -15,6 +15,8 @@ import java.util.concurrent.ExecutionException;
  */
 public interface OrderCommonService {
 
+    void refreshReferrerCommission();
+
     /**
      * 订单导入赛盒前saiheOrder的处理和是否满足上传条件的判断
      */

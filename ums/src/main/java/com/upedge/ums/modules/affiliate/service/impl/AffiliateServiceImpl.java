@@ -3,6 +3,8 @@ package com.upedge.ums.modules.affiliate.service.impl;
 import com.upedge.common.base.Page;
 import com.upedge.common.constant.Constant;
 import com.upedge.common.constant.ResultCode;
+import com.upedge.common.constant.key.RedisKey;
+import com.upedge.common.model.user.vo.AffiliateVo;
 import com.upedge.common.model.user.vo.CommissionRecordVo;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.web.util.UserUtil;
@@ -142,6 +144,8 @@ public class AffiliateServiceImpl implements AffiliateService {
         request.setSource(0);
         addAffiliate(request);
 
+
+
     }
 
     /**
@@ -258,6 +262,10 @@ public class AffiliateServiceImpl implements AffiliateService {
             affiliate.setRefereeCommission(new BigDecimal("0.2"));
         }
         insert(affiliate);
+
+        AffiliateVo affiliateVo = new AffiliateVo();
+        BeanUtils.copyProperties(affiliate,affiliateVo);
+        redisTemplate.opsForHash().put(RedisKey.HASH_AFFILIATE_REFEREE,affiliateVo.getRefereeId().toString(),affiliateVo);
 
         return new AffiliateAddResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS);
     }

@@ -27,7 +27,7 @@
 
     <select id="selectCustomerTicketList" resultType="com.upedge.oms.modules.tickets.vo.CustomerTicketVo" parameterType="com.upedge.oms.modules.tickets.request.CustomerTicketListRequest">
         select st.state,st.result,st.create_time,st.manager_name as `managerName`,
-        st.customer_name as `customerName`,
+        st.customer_name as `customerName`,st.customer_id,
         st.create_time as `createTime`, st.id,st.order_id as `orderId`,st.describes,
         sor.plat_order_name as `orderNumber`,sor.store_name as `storeName`
         from support_tickets st
@@ -428,7 +428,7 @@
 
     <select id="selectProcessList" resultType="com.upedge.oms.modules.tickets.vo.CustomerTicketVo">
         select st.state,st.result,st.create_time,st.manager_name as `managerName`,
-               st.customer_name as `customerName`,
+               st.customer_name as `customerName`,st.customer_id,
                st.create_time as `createTime`, st.id,st.order_id as `orderId`,st.describes,
                sor.plat_order_name as `orderNumber`,sor.store_name as `storeName`
         from support_tickets st

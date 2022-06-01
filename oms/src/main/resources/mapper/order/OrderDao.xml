@@ -2305,4 +2305,12 @@
         on o.id = sor.order_id
         where o.id = #{id}
     </delete>
+
+    <select id="selectShippedIdsByCustomer" resultType="java.lang.Long">
+        select id
+        from `order`
+        where customer_id = #{customerId}
+        and ship_state = '1'
+        and order_type != '1'
+    </select>
 </mapper>

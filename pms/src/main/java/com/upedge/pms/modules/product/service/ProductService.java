@@ -31,7 +31,7 @@ public interface ProductService{
 
     BaseResponse updateInfo(Long id,UpdateInfoProductRequest request, Session session) throws Exception;
 
-    AppProductVo showCustomerProductDetail(Long productId);
+    AppProductVo showCustomerProductDetail(Long productId,Session session);
 
     String refreshProductPriceRange(Long productId);
 

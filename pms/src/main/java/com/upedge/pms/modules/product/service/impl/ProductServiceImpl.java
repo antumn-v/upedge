@@ -247,7 +247,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public AppProductVo showCustomerProductDetail(Long productId) {
+    public AppProductVo showCustomerProductDetail(Long productId,Session session) {
         Product product =  productDao.selectByPrimaryKey(productId);
         AppProductVo appProductVo=  new AppProductVo();
         if (product != null){
@@ -274,7 +274,7 @@ public class ProductServiceImpl implements ProductService {
         }
         appProductVo.setVariantVos(variantVos);
         appProductVo.setAttributeMap(attributeMap);
-        ImportProductAttribute importProductAttribute = importProductAttributeDao.selectBySourceProductId(productId.toString());
+        ImportProductAttribute importProductAttribute = importProductAttributeDao.selectBySourceProductId(productId.toString(),session.getCustomerId());
         if (importProductAttribute != null){
             appProductVo.setImportState(1);
         }else {

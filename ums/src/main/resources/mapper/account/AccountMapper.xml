@@ -321,7 +321,7 @@
 
     <update id="addAccountAffiliateRebate">
         update account
-        set affiliate_rebate = affiliate_rebate + #{vipRebate}
+        set affiliate_rebate = affiliate_rebate + #{affiliateRebate}
         where id = #{accountId}
     </update>
 </mapper>

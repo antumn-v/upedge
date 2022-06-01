@@ -8,8 +8,6 @@ import com.upedge.common.constant.key.RedisKey;
 import com.upedge.common.constant.key.RocketMqConfig;
 import com.upedge.common.enums.CustomerExceptionEnum;
 import com.upedge.common.exception.CustomerException;
-import com.upedge.common.feign.PmsFeignClient;
-import com.upedge.common.feign.TmsFeignClient;
 import com.upedge.common.feign.UmsFeignClient;
 import com.upedge.common.model.log.MqMessageLog;
 import com.upedge.common.model.mq.ChangeManagerVo;
@@ -40,12 +38,10 @@ import com.upedge.oms.modules.order.entity.OrderReshipInfo;
 import com.upedge.oms.modules.order.entity.OrderTracking;
 import com.upedge.oms.modules.order.service.OrderService;
 import com.upedge.oms.modules.order.service.OrderTrackingService;
-import com.upedge.oms.modules.redis.OmsRedisService;
 import com.upedge.oms.modules.wholesale.dao.WholesaleOrderDao;
 import com.upedge.oms.modules.wholesale.dao.WholesaleRefundDao;
 import com.upedge.oms.modules.wholesale.dao.WholesaleReshipInfoDao;
 import com.upedge.oms.modules.wholesale.entity.WholesaleReshipInfo;
-import com.upedge.oms.modules.wholesale.service.WholesaleOrderService;
 import com.upedge.thirdparty.saihe.config.SaiheConfig;
 import com.upedge.thirdparty.saihe.entity.SaiheOrder;
 import com.upedge.thirdparty.saihe.entity.SaiheOrderItem;
@@ -81,19 +77,11 @@ import java.util.concurrent.ThreadPoolExecutor;
 public class OrderCommonServiceImpl implements OrderCommonService {
 
     @Autowired
-    private OmsRedisService omsRedisService;
-
-    @Autowired
-    private PmsFeignClient pmsFeignClient;
-
-    @Autowired
     private RedisTemplate<String, Object> redisTemplate;
 
     @Autowired
     private WholesaleOrderDao wholesaleOrderDao;
 
-    @Autowired
-    private TmsFeignClient tmsFeignClient;
 
     @Autowired
     private UmsFeignClient umsFeignClient;
@@ -120,9 +108,6 @@ public class OrderCommonServiceImpl implements OrderCommonService {
     private OrderTrackingService orderTrackingService;
 
     @Autowired
-    private WholesaleOrderService wholesaleOrderService;
-
-    @Autowired
     private OrderService orderService;
 
     @Autowired
@@ -134,6 +119,21 @@ public class OrderCommonServiceImpl implements OrderCommonService {
     @Autowired
     ThreadPoolExecutor threadPoolExecutor;
 
+
+    @Override
+    public void refreshReferrerCommission() {
+       Map<Object, Object> map = redisTemplate.opsForHash().entries(RedisKey.HASH_AFFILIATE_REFEREE);
+
+       for (Map.Entry<Object,Object> entry: map.entrySet()){
+           String cId = (String) entry.getKey();
+           Long customerId = Long.parseLong(cId);
+           List<Long> orderIds = orderDao.selectShippedIdsByCustomer(customerId);
+           for (Long orderId : orderIds) {
+               addAffiliateCommission(orderId,customerId);
+           }
+
+       }
+    }
 
     /**
      * 订单导入赛盒前saiheOrder的处理和是否满足上传条件的判断
@@ -629,7 +629,9 @@ public class OrderCommonServiceImpl implements OrderCommonService {
                                 orderTracking.setCreateTime(new Date());
                                 //标记订单为发货
                                 orderTrackingService.insert(orderTracking);
-                                addCustomerCommission(id,order.getCustomerId());
+                                if (order.getOrderType() != 1){
+                                    addCustomerCommission(id,order.getCustomerId());
+                                }
 //                                sendMqMessage(new Message(RocketMqConfig.TOPIC_ORDER_FULFILLMENT,"",UUID.randomUUID().toString(), JSONObject.toJSONBytes(id)));
                             } else {
                                 orderTrackingService.updateOrderTracking(orderTracking);

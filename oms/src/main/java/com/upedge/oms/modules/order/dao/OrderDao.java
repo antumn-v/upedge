@@ -377,5 +377,7 @@ public interface OrderDao {
 
     List<Order> selectPageBymove(Page<Order> page);
 
+    List<Long> selectShippedIdsByCustomer(Long customerId);
+
 
 }

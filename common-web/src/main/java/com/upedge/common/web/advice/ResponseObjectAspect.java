@@ -68,39 +68,45 @@ public class ResponseObjectAspect implements ResponseBodyAdvice {
         if (!jsonObject.containsKey("data")){
             return result;
         }
-        Object data = jsonObject.get("data");
+        try {
+            Object data = jsonObject.get("data");
 
-        if (data instanceof JSONObject){
-            JSONObject jsonData = JSONObject.parseObject(JSON.toJSONString(data));
-            if (jsonData.containsKey("customerId")){
-                Long customerId = jsonObject.getLong("customerId");
-                if (customerId == null){
-                    return result;
+            if (data instanceof JSONObject){
+                JSONObject jsonData = JSONObject.parseObject(JSON.toJSONString(data));
+                if (jsonData.containsKey("customerId")){
+                    Long customerId = jsonObject.getLong("customerId");
+                    if (customerId == null){
+                        return result;
+                    }
+                    UserVo userVo = (UserVo) redisTemplate.opsForHash().get(RedisKey.STRING_CUSTOMER_INFO,String.valueOf(customerId));
+                    if (userVo != null){
+                        jsonData.put("username",userVo.getUsername());
+                    }
+                    jsonObject.put("data",jsonData);
                 }
-                UserVo userVo = (UserVo) redisTemplate.opsForHash().get(RedisKey.STRING_CUSTOMER_INFO,String.valueOf(customerId));
-                if (userVo != null){
-                    jsonData.put("username",userVo.getUsername());
-                }
-                jsonObject.put("data",jsonData);
             }
-        }
-        if (data instanceof JSONArray){
-            JSONArray jsonArray = JSONArray.parseArray(JSON.toJSONString(data));
-            List<Object> list = new ArrayList<>();
-            for (Object a : jsonArray){
-                JSONObject x = (JSONObject) JSON.toJSON(a);
-                Long customerId = x.getLong("customerId");
-                if (customerId == null){
-                    return result;
+
+            if (data instanceof JSONArray){
+                JSONArray jsonArray = JSONArray.parseArray(JSON.toJSONString(data));
+                List<Object> list = new ArrayList<>();
+                for (Object a : jsonArray){
+                    JSONObject x = (JSONObject) JSON.toJSON(a);
+                    Long customerId = x.getLong("customerId");
+                    if (customerId == null){
+                        return result;
+                    }
+                    UserVo userVo = (UserVo) redisTemplate.opsForHash().get(RedisKey.STRING_CUSTOMER_INFO,String.valueOf(customerId));
+                    if (userVo != null){
+                        x.put("username",userVo.getUsername());
+                    }
+                    list.add(x);
                 }
-                UserVo userVo = (UserVo) redisTemplate.opsForHash().get(RedisKey.STRING_CUSTOMER_INFO,String.valueOf(customerId));
-                if (userVo != null){
-                    x.put("username",userVo.getUsername());
-                }
-                list.add(x);
+                jsonObject.put("data",list);
             }
-            jsonObject.put("data",list);
+            return jsonObject;
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-        return jsonObject;
+        return result;
     }
 }

@@ -96,10 +96,6 @@ public class StoreProductController {
             }
         }
         List<StoreProductAttribute> attributes = storeProductAttributeService.selectStoreProduct(request);
-        for (StoreProductAttribute attribute : attributes) {
-            attribute = UserUtil.objectAddUserNameField(redisTemplate,attribute,StoreProductAttribute.class);
-        }
-//        UserUtil.objectsAddUserNameField(redisTemplate,attributes,StoreProductAttribute.class);
         Long total = storeProductAttributeService.countStoreProduct(request);
         request.setTotal(total);
         return BaseResponse.success(attributes,request);

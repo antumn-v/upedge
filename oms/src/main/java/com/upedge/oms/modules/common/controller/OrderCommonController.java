@@ -36,7 +36,8 @@ public class OrderCommonController {
 
     @PostMapping("/jsonTest")
     public BaseResponse jsonTest(){
-        orderPayService.checkOrderAccountLog();
+        orderCommonService.refreshReferrerCommission();
+//        orderPayService.checkOrderAccountLog();
         return BaseResponse.success();
     }
 

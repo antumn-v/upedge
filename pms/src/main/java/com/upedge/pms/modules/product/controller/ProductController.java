@@ -97,7 +97,8 @@ public class ProductController {
     @ApiOperation("产品展示详情")
     @GetMapping("/showDetail/{id}")
     public BaseResponse productShowDetail(@PathVariable Long id) {
-        AppProductVo appProductVo = productService.showCustomerProductDetail(id);
+        Session session = UserUtil.getSession(redisTemplate);
+        AppProductVo appProductVo = productService.showCustomerProductDetail(id,session);
         return BaseResponse.success(appProductVo);
     }
 
