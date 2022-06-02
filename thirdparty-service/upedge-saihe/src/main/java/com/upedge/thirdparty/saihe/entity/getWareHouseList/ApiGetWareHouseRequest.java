@@ -9,7 +9,7 @@ import javax.xml.bind.annotation.XmlAttribute;
 public class ApiGetWareHouseRequest {
 
     @XmlAttribute(name="xmlns")
-    protected String xmlns="https://tempuri.org/";
+    protected String xmlns="http://tempuri.org/";
 
 
     WhRequest request;

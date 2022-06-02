@@ -10,7 +10,7 @@ import javax.xml.bind.annotation.XmlElement;
 public class ApiGetWareHouseResponse {
 
     @XmlAttribute(name="xmlns")
-    protected String xmlns="https://tempuri.org/";
+    protected String xmlns="http://tempuri.org/";
 
 
     GetWareHouseListResult getWareHouseListResult=new GetWareHouseListResult();

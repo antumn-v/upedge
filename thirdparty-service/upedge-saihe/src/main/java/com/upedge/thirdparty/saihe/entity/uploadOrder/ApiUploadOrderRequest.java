@@ -9,7 +9,7 @@ public class ApiUploadOrderRequest {
 
 
     @XmlAttribute(name="xmlns")
-    protected String xmlns="https://tempuri.org/";
+    protected String xmlns="http://tempuri.org/";
 
     Request request;
 

@@ -440,7 +440,7 @@ public class SaiheService {
             requestEntity.setBody(requestBody);
             String xmlStr = XmlAndJavaObjectConvert.convertToXml(requestEntity);
 //            log.debug("xmlStr:{}",xmlStr);
-            String result = PostUtils.sendPostV2(SaiheConfig.ORDER_URL, xmlStr,"https://tempuri.org/GetPackages");
+            String result = PostUtils.sendPostV2(SaiheConfig.ORDER_URL, xmlStr,"http://tempuri.org/GetPackages");
 //            log.debug("result:{}",result);
             RequestEntity1 responseEntity= (RequestEntity1) XmlAndJavaObjectConvert.convertXmlStrToObject(RequestEntity1.class, result);
             return  responseEntity.getBody().getApiGetPackagesResponse();
@@ -476,7 +476,7 @@ public class SaiheService {
             requestEntity.setBody(requestBody);
             String xmlStr = XmlAndJavaObjectConvert.convertToXml(requestEntity);
 //            log.debug("xmlStr:{}",xmlStr);
-            String result = PostUtils.sendPostV2(SaiheConfig.ORDER_URL, xmlStr,"https://tempuri.org/GetProcurementList");
+            String result = PostUtils.sendPostV2(SaiheConfig.ORDER_URL, xmlStr,"http://tempuri.org/GetProcurementList");
 //            log.debug("result:{}",result);
             RequestEntity1 responseEntity1= (RequestEntity1) XmlAndJavaObjectConvert.convertXmlStrToObject(RequestEntity1.class, result);
             return  responseEntity1.getBody().getGetProcurementListResponse();
@@ -535,7 +535,7 @@ public class SaiheService {
 
             String xmlStr2 = XmlAndJavaObjectConvert.convertToXml(requestEntity);
 //            System.out.println(xmlStr2);
-            String result = PostUtils.sendPost1(SaiheConfig.ORDER_URL, "https://tempuri.org/GetPurchasePutInLogList", xmlStr2);
+            String result = PostUtils.sendPost1(SaiheConfig.ORDER_URL, "http://tempuri.org/GetPurchasePutInLogList", xmlStr2);
 //            System.out.println(result);
             RequestEntity1 responseEntity1= (RequestEntity1) XmlAndJavaObjectConvert.convertXmlStrToObject(RequestEntity1.class, result);
             return  responseEntity1.getBody().getApiGetInPurchaseDetailResponse();
@@ -574,7 +574,7 @@ public class SaiheService {
 
             String xmlStr2 = XmlAndJavaObjectConvert.convertToXml(requestEntity);
 //            System.out.println(xmlStr2);
-            String result = PostUtils.sendPost1(SaiheConfig.PRODUCT_URL, "https://tempuri.org/GetProductInventory", xmlStr2);
+            String result = PostUtils.sendPost1(SaiheConfig.PRODUCT_URL, "http://tempuri.org/GetProductInventory", xmlStr2);
 //            System.out.println(result);
             RequestEntity1 responseEntity1= (RequestEntity1) XmlAndJavaObjectConvert.convertXmlStrToObject(RequestEntity1.class, result);
             return  responseEntity1.getBody().getGetProductInventoryResponse();
@@ -608,7 +608,7 @@ public class SaiheService {
 
             String xmlStr2 = XmlAndJavaObjectConvert.convertToXml(requestEntity);
 //            System.out.println(xmlStr2);
-            String result = PostUtils.sendPost1(SaiheConfig.PRODUCT_URL, "https://tempuri.org/GetProductInventory", xmlStr2);
+            String result = PostUtils.sendPost1(SaiheConfig.PRODUCT_URL, "http://tempuri.org/GetProductInventory", xmlStr2);
 //            System.out.println(result);
             RequestEntity1 responseEntity1= (RequestEntity1) XmlAndJavaObjectConvert.convertXmlStrToObject(RequestEntity1.class, result);
             return  responseEntity1.getBody().getGetProductInventoryResponse();
@@ -663,7 +663,7 @@ public class SaiheService {
             String xmlStr2 = XmlAndJavaObjectConvert.convertToXml(requestEntity);
 //            System.out.println(xmlStr2);
 
-            String result = PostUtils.sendPost1(SaiheConfig.ORDER_URL, "https://tempuri.org/GetPackages", xmlStr2);
+            String result = PostUtils.sendPost1(SaiheConfig.ORDER_URL, "http://tempuri.org/GetPackages", xmlStr2);
 //            System.out.println(result);
 
             RequestEntity1 responseEntity1= (RequestEntity1) XmlAndJavaObjectConvert.convertXmlStrToObject(RequestEntity1.class, result);

@@ -9,7 +9,7 @@ import javax.xml.bind.annotation.XmlElement;
 public class ApiCreateProcurementResponse {
 
     @XmlAttribute(name="xmlns")
-    protected String xmlns="https://tempuri.org/";
+    protected String xmlns="http://tempuri.org/";
 
     CreateProcurementResult createProcurementResult=new CreateProcurementResult();
 
