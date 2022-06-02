@@ -15,14 +15,9 @@
             '2' as 'type','0' as 'status',
             count(distinct  upedge.id) as `orderCount`
             from `order` upedge
-            left join store_order_relate sor
-            on upedge.id = sor.order_id
             where upedge.customer_id = #{t.customerId}
             <if test="t.orderId != null">
                 and upedge.id = #{t.orderId}
-            </if>
-            <if test="t.platOrderName != null">
-                and sor.plat_order_name = #{t.platOrderName}
             </if>
             and upedge.pay_state > '0'
             and upedge.order_status = '0'
@@ -170,7 +165,6 @@
         from `order`
         where payment_id = #{paymentId}
         and pay_state > '0'
-        and order_type !='1'
         group by payment_id,pay_time,customer_id
     </select>
 
