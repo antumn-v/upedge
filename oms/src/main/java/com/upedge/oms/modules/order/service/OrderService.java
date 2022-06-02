@@ -263,5 +263,7 @@ public interface OrderService{
     BaseResponse orderCustomCreate(OrderCustomCreateRequest request,Session session);
 
     ApiOrderInfo revokeSaiheOrder(String saiheOrderCode) throws CustomerException;
+
+    void addNewStoreOrderItem(StoreOrder storeOrder, List<StoreOrderItem> storeOrderItems);
 }
 

@@ -2723,5 +2723,110 @@ public class OrderServiceImpl implements OrderService {
 
     }
 
+    @Override
+    public void addNewStoreOrderItem(StoreOrder storeOrder, List<StoreOrderItem> storeOrderItems) {
+        List<StoreOrderRelate> storeOrderRelates = storeOrderRelateDao.selectByStoreOrderId(storeOrder.getId());
+        if (ListUtils.isEmpty(storeOrderRelates)) {
+            return;
+        }
+        List<OrderItem> orderItems = new ArrayList<>();
+        boolean newOrder = true;
+        Long orderId = IdGenerate.nextId();
+        for (StoreOrderRelate storeOrderRelate : storeOrderRelates) {
+            Order order = selectByPrimaryKey(storeOrderRelate.getOrderId());
+            if (order.getPayState() == OrderConstant.PAY_STATE_PAID
+                    || order.getOrderType() != 0) {
+                continue;
+            }
+            newOrder = false;
+            orderId = order.getId();
+        }
+        for (StoreOrderItem item : storeOrderItems) {
+            Long storeVariantId = item.getStoreVariantId();
+            if (storeVariantId == null) {
+                continue;
+            }
+            List<Long> splitVariantIds = (List<Long>) redisTemplate.opsForHash().get(RedisKey.HASH_STORE_SPLIT_VARIANT, String.valueOf(storeVariantId));
+            if (ListUtils.isNotEmpty(splitVariantIds)) {
+                //判断拆分的变体是否已报价
+                for (Long splitVariantId : splitVariantIds) {
+                    CustomerProductQuoteVo customerProductQuoteVo = (CustomerProductQuoteVo) redisTemplate.opsForValue().get(RedisKey.STRING_QUOTED_STORE_VARIANT + splitVariantId);
+                    if (customerProductQuoteVo == null) {
+                        continue;
+                    }
+                    if (customerProductQuoteVo.getQuoteScale() == null) {
+                        customerProductQuoteVo.setQuoteScale(1);
+                    }
+                    BigDecimal itemQuantity = new BigDecimal(item.getQuantity()).multiply(new BigDecimal(customerProductQuoteVo.getQuoteScale()));
+                    OrderItem orderItem = new OrderItem();
+                    BeanUtils.copyProperties(item, orderItem);
+                    orderItem.setQuantity(itemQuantity.intValue());
+                    orderItem.setOriginalQuantity(item.getQuantity());
+                    orderItem.quoteProductToItem(customerProductQuoteVo);
+                    orderItem.setStoreVariantId(customerProductQuoteVo.getStoreVariantId());
+                    orderItem.setStoreProductId(customerProductQuoteVo.getStoreProductId());
+                    orderItem.setStoreVariantSku(customerProductQuoteVo.getStoreVariantSku());
+                    orderItem.setStoreVariantName(customerProductQuoteVo.getStoreVariantName());
+                    orderItem.setStoreVariantImage(customerProductQuoteVo.getStoreVariantImage());
+                    orderItem.setQuoteState(customerProductQuoteVo.getQuoteType());
+                    orderItem.setQuoteScale(customerProductQuoteVo.getQuoteScale());
+
+                    orderItem.setOrderId(orderId);
+                    orderItem.setStoreOrderItemId(item.getId());
+                    orderItem.setDischargeQuantity(0);
+                    orderItem.setItemType(2);
+                    orderItem.setId(IdGenerate.nextId());
+                    orderItems.add(orderItem);
+                }
+                OrderItem orderItem = new OrderItem();
+                BeanUtils.copyProperties(item, orderItem);
+                orderItem.setOriginalQuantity(item.getQuantity());
+                continue;
+            }
+
+            OrderItem orderItem = new OrderItem();
+            BeanUtils.copyProperties(item, orderItem);
+            orderItem.setOriginalQuantity(item.getQuantity());
+            CustomerProductQuoteVo customerProductQuoteVo = (CustomerProductQuoteVo) redisTemplate.opsForValue().get(RedisKey.STRING_QUOTED_STORE_VARIANT + storeVariantId);
+            if (customerProductQuoteVo != null) {
+                if (customerProductQuoteVo.getQuoteType() == 5) {
+                    //报价中
+                    orderItem.setQuoteState(5);
+                } else if (customerProductQuoteVo.getQuoteState() == 0) {
+                    //产品报价失败
+                    orderItem.setQuoteState(4);
+                } else {
+                    //报价成功
+                    if (customerProductQuoteVo.getQuoteScale() == null) {
+                        customerProductQuoteVo.setQuoteScale(1);
+                    }
+                    BigDecimal itemQuantity = new BigDecimal(item.getQuantity()).multiply(new BigDecimal(customerProductQuoteVo.getQuoteScale()));
+                    orderItem.setQuantity(itemQuantity.intValue());
+                    orderItem.quoteProductToItem(customerProductQuoteVo);
+                    orderItem.setQuoteState(customerProductQuoteVo.getQuoteType());
+                    orderItem.setQuoteScale(customerProductQuoteVo.getQuoteScale());
+                }
+            } else {
+                orderItem.setQuoteState(0);
+            }
+            if (null == orderItem.getQuoteScale()) {
+                orderItem.setQuoteScale(1);
+            }
+            orderItem.setOriginalQuantity(item.getQuantity());
+            orderItem.setOrderId(orderId);
+            orderItem.setStoreOrderItemId(item.getId());
+            orderItem.setDischargeQuantity(0);
+            orderItem.setItemType(0);
+            orderItem.setId(IdGenerate.nextId());
+            orderItems.add(orderItem);
+        }
+        orderItemDao.insertByBatch(orderItems);
+        if (newOrder){
+
+        }
+        initQuoteState(orderId);
+        return;
+    }
+
 
 }

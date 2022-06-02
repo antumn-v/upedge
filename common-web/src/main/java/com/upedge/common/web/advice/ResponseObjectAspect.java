@@ -74,8 +74,7 @@ public class ResponseObjectAspect implements ResponseBodyAdvice {
             if (result == null) {
                 return result;
             }
-
-            JSONObject jsonObject = JSONObject.parseObject(result.toString());
+            JSONObject jsonObject = JSONObject.parseObject(JSON.toJSONString(result));
             if (!jsonObject.containsKey("data")) {
                 return result;
             }
@@ -83,7 +82,7 @@ public class ResponseObjectAspect implements ResponseBodyAdvice {
             Object data = jsonObject.get("data");
 
             if (data instanceof JSONObject) {
-                JSONObject jsonData = JSONObject.parseObject(data.toString());
+                JSONObject jsonData = JSONObject.parseObject(JSON.toJSONString(data));
                 if (jsonData.containsKey("customerId")) {
                     Long customerId = jsonObject.getLong("customerId");
                     if (customerId == null) {
@@ -98,7 +97,7 @@ public class ResponseObjectAspect implements ResponseBodyAdvice {
             }
 
             if (data instanceof JSONArray) {
-                JSONArray jsonArray = JSONArray.parseArray(data.toString());
+                JSONArray jsonArray = JSONArray.parseArray(JSON.toJSONString(data));
                 List<Object> list = new ArrayList<>();
                 for (Object a : jsonArray) {
                     JSONObject x = (JSONObject) JSON.toJSON(a);

@@ -10,7 +10,7 @@ public class ApiGetOrderSourceResponse {
 
 
     @XmlAttribute(name="xmlns")
-    protected String xmlns="http://tempuri.org/";
+    protected String xmlns="https://tempuri.org/";
 
     private GetOrderSourceListResult getOrderSourceListResult;
 

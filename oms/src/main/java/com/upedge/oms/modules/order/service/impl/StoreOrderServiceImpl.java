@@ -7,10 +7,12 @@ import com.upedge.common.base.BaseResponse;
 import com.upedge.common.base.Page;
 import com.upedge.common.constant.BaseCode;
 import com.upedge.common.constant.Constant;
+import com.upedge.common.constant.OrderConstant;
 import com.upedge.common.constant.ResultCode;
 import com.upedge.common.constant.key.RedisKey;
 import com.upedge.common.feign.PmsFeignClient;
 import com.upedge.common.feign.TmsFeignClient;
+import com.upedge.common.model.pms.quote.CustomerProductQuoteVo;
 import com.upedge.common.model.product.StoreProductVariantVo;
 import com.upedge.common.model.product.request.PlatIdSelectStoreVariantRequest;
 import com.upedge.common.model.ship.request.AreaSelectRequest;
@@ -43,7 +45,9 @@ import com.upedge.thirdparty.shoplazza.moudles.order.entity.ShoplazzaOrder.Shopl
 import com.upedge.thirdparty.woocommerce.moudles.order.entity.WoocommerceOrder;
 import com.upedge.thirdparty.woocommerce.moudles.order.entity.WoocommerceOrderItem;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
@@ -742,20 +746,22 @@ public class StoreOrderServiceImpl implements StoreOrderService {
         }
 
         //更新店铺产品数量
-        Map<String,Integer> itemQuantityMap = new HashMap<>();
+        Map<String,ShopifyLineItem> lineItemMap = new HashMap<>();
         List<ShopifyLineItem> shopifyLineItems = shopifyOrder.getLine_items();
         for (ShopifyLineItem shopifyLineItem : shopifyLineItems) {
-            Integer quantity = shopifyLineItem.getFulfillable_quantity();
-            itemQuantityMap.put(shopifyLineItem.getId(),quantity);
+            lineItemMap.put(shopifyLineItem.getId(),shopifyLineItem);
         }
+
         List<Long> storeOrderItemIds = new ArrayList<>();
         List<StoreOrderItem> storeOrderItems = storeOrderItemDao.selectByStoreOrderId(storeOrderId);
         for (StoreOrderItem storeOrderItem : storeOrderItems) {
-            if (!itemQuantityMap.containsKey(storeOrderItem.getPlatOrderItemId())){
-                //插入变体
+            ShopifyLineItem shopifyLineItem = lineItemMap.get(storeOrderItem.getPlatOrderItemId());
+            if (null == shopifyLineItem){
                 continue;
             }
-            Integer quantity = itemQuantityMap.get(storeOrderItem.getPlatOrderItemId());
+            lineItemMap.remove(shopifyLineItem.getId());
+
+            Integer quantity = shopifyLineItem.getFulfillable_quantity();
             if (quantity == null || quantity.equals(storeOrderItem.getQuantity())){
                 continue;
             }
@@ -763,6 +769,12 @@ public class StoreOrderServiceImpl implements StoreOrderService {
             storeOrderItem.setQuantity(quantity);
             storeOrderItemDao.updateByPrimaryKey(storeOrderItem);
             orderItemService.updateQuantityByStoreOrderItemId(storeOrderItem.getId(),quantity);
+        }
+        if (MapUtils.isNotEmpty(lineItemMap)){
+            List<ShopifyLineItem> newItems = new ArrayList<>();
+            lineItemMap.forEach((lineItemId,lineItem) -> {
+                newItems.add(lineItem);
+            });
         }
         if (ListUtils.isNotEmpty(storeOrderItemIds)){
             List<Long> orderIds = orderItemService.selectOrderIdsByStoreOrderItemIds(storeOrderItemIds);
@@ -779,6 +791,95 @@ public class StoreOrderServiceImpl implements StoreOrderService {
                 }
                 if (ListUtils.isNotEmpty(cancelIds)){
                     orderService.cancelOrderByIds(orderIds);
+                }
+            }
+        }
+    }
+
+    public void storeOrderAddNewItem(StoreOrder storeOrder,List<ShopifyLineItem> shopifyLineItems){
+        if (ListUtils.isEmpty(shopifyLineItems)){
+            return;
+        }
+        Long storeOrderId = storeOrder.getId();
+        List<StoreOrderItem> storeOrderItems = new ArrayList<>();
+        List<StoreProductVariantVo> variants = new ArrayList<>();
+        for (ShopifyLineItem shopifyLineItem : shopifyLineItems) {
+            StoreOrderItem storeOrderItem = new StoreOrderItem(shopifyLineItem);
+            storeOrderItem.setPlatOrderId(storeOrder.getPlatOrderId());
+            storeOrderItem.setStoreOrderId(storeOrderId);
+            storeOrderItem.setId(IdGenerate.nextId());
+            storeOrderItems .add(storeOrderItem);
+
+            if (shopifyLineItem.getVariant_id() != null &&
+                    shopifyLineItem.getProduct_id() != null){
+                StoreProductVariantVo variant = new StoreProductVariantVo();
+                variant.setPlatProductId(shopifyLineItem.getProduct_id());
+                variant.setPlatVariantId(shopifyLineItem.getVariant_id());
+                variants.add(variant);
+            }
+        }
+
+        PlatIdSelectStoreVariantRequest platIdSelectStoreVariantRequest = new PlatIdSelectStoreVariantRequest();
+        platIdSelectStoreVariantRequest.setStoreId(storeOrder.getStoreId());
+        platIdSelectStoreVariantRequest.setVariantVos(variants);
+        if (ListUtils.isNotEmpty(variants)){
+            PlatIdSelectStoreVariantRequest request = new PlatIdSelectStoreVariantRequest();
+            request.setStoreId(storeOrder.getStoreId());
+            request.setVariantVos(variants);
+            // 查询商品信息 补充store_Order_Item表中商品信息
+            BaseResponse baseResponse = pmsFeignClient.selectByPlatId(request);
+            if (baseResponse.getCode() == ResultCode.SUCCESS_CODE && null != baseResponse.getData()) {
+                List<StoreProductVariantVo> variantVos = JSONArray.parseArray(JSON.toJSON(baseResponse.getData()).toString()).toJavaList(StoreProductVariantVo.class);
+                for (StoreOrderItem storeOrderItem : storeOrderItems) {
+                    for (StoreProductVariantVo variantVo : variantVos) {
+                        if (variantVo.getPlatVariantId().equals(storeOrderItem.getPlatVariantId())){
+                            storeOrderItem.setStoreVariantId(variantVo.getStoreVariantId());
+                            storeOrderItem.setStoreProductId(variantVo.getStoreProductId());
+                            storeOrderItem.setStoreVariantImage(variantVo.getImage());
+                        }
+                    }
+                }
+            }
+        }
+        storeOrderItemDao.insertByBatch(storeOrderItems);
+
+        List<StoreOrderRelate> storeOrderRelates = storeOrderRelateDao.selectByStoreOrderId(storeOrder.getId());
+        if (ListUtils.isEmpty(storeOrderRelates)){
+            return;
+        }
+        List<OrderItem> orderItems = new ArrayList<>();
+
+        for (StoreOrderRelate storeOrderRelate : storeOrderRelates) {
+            Order order = orderService.selectByPrimaryKey(storeOrderRelate.getOrderId());
+            if (order.getPayState() == OrderConstant.PAY_STATE_PAID
+                    || order.getOrderType() != 0){
+                continue;
+            }
+            for (StoreOrderItem storeOrderItem : storeOrderItems) {
+                Long storeVariantId = storeOrderItem.getStoreVariantId();
+                if (storeVariantId == null){
+                    continue;
+                }
+                List<Long> splitVariantIds = (List<Long>) redisTemplate.opsForHash().get(RedisKey.HASH_STORE_SPLIT_VARIANT, String.valueOf(storeVariantId));
+                OrderItem orderItem = new OrderItem();
+                BeanUtils.copyProperties(storeOrderItem, orderItem);
+                orderItem.setOriginalQuantity(storeOrderItem.getQuantity());
+                CustomerProductQuoteVo customerProductQuoteVo = (CustomerProductQuoteVo) redisTemplate.opsForValue().get(RedisKey.STRING_QUOTED_STORE_VARIANT + storeOrderItem.getStoreVariantId());
+                if (null == customerProductQuoteVo) {
+
+                    if (splitVariantIds != null && splitVariantIds.contains(storeVariantId)) {
+                        orderItem.setQuoteState(OrderItem.QUOTE_STATE_QUOTING);
+                    } else {
+                        orderItem.setQuoteState(OrderItem.QUOTE_STATE_UNQU0TED);
+                    }
+                } else {
+                    //报价成功，未报价订单改为部分报价
+                    if (customerProductQuoteVo.getQuoteState() == 1) {
+                        orderItem.quoteProductToItem(customerProductQuoteVo);
+                        //报价失败，已报价订单改为部分报价
+                    } else {
+                        orderItem.setQuoteState(OrderItem.QUOTE_STATE_NO_STOCK);
+                    }
                 }
             }
         }

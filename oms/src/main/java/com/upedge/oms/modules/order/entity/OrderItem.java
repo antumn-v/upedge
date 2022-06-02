@@ -4,6 +4,7 @@ import com.upedge.common.model.pms.quote.CustomerProductQuoteVo;
 import com.upedge.common.model.product.RelateVariantVo;
 import com.upedge.common.utils.PriceUtils;
 import lombok.Data;
+import org.springframework.beans.BeanUtils;
 
 import java.math.BigDecimal;
 
@@ -146,22 +147,6 @@ public class OrderItem{
 		this.height = variantVo.getHeight();
 	}
 
-	public void initItemQuoteDetail(CustomerProductQuoteVo variantVo){
-		this.adminVariantId = variantVo.getVariantId();
-		this.adminProductId = variantVo.getProductId();
-		this.shippingId = variantVo.getProductShippingId();
-		this.cnyPrice = variantVo.getCnyPrice();
-		this.usdPrice = PriceUtils.cnyToUsdByDefaultRate(variantVo.getQuotePrice());
-		this.adminVariantVolume = variantVo.getVolume();
-		this.adminVariantWeight = variantVo.getWeight();
-		this.adminVariantImage = variantVo.getVariantImage();
-		this.adminVariantSku = variantVo.getVariantSku();
-		this.usdRate = new BigDecimal("6.3");
-		this.width = variantVo.getWidth();
-		this.length = variantVo.getLength();
-		this.height = variantVo.getHeight();
-	}
-
 	public OrderItem(Integer dischargeQuantity) {
 		this.dischargeQuantity = dischargeQuantity;
 	}
@@ -170,6 +155,15 @@ public class OrderItem{
 	}
 
 	public void quoteProductToItem(CustomerProductQuoteVo variantVo){
+		if (variantVo.getQuoteState() == 5
+				|| variantVo.getQuoteState() == 4){
+			this.quoteState = variantVo.getQuoteState();
+			return;
+		}
+		if (variantVo.getQuoteScale() == null){
+			variantVo.setQuoteScale(1);
+		}
+		this.quoteState = variantVo.getQuoteState();
 		this.adminVariantId = variantVo.getVariantId();
 		this.adminProductId = variantVo.getProductId();
 		this.shippingId = variantVo.getProductShippingId();
@@ -185,5 +179,42 @@ public class OrderItem{
 		this.height = variantVo.getHeight();
 		this.quantity = originalQuantity * variantVo.getQuoteScale();
 		this.quoteState = QUOTE_STATE_QUOTED;
+		this.quoteScale = variantVo.getQuoteScale();
+		this.itemType = 0;
+		this.dischargeQuantity = 0;
+
 	}
+
+	public void quoteProductToItem(CustomerProductQuoteVo variantVo,StoreOrderItem storeOrderItem,Integer itemType){
+		BeanUtils.copyProperties(storeOrderItem,this);
+		this.originalQuantity = storeOrderItem.getQuantity();
+		this.storeOrderItemId = storeOrderItem.getId();
+		if (variantVo.getQuoteState() == 5
+				|| variantVo.getQuoteState() == 4){
+			return;
+		}
+		if (variantVo.getQuoteScale() == null){
+			variantVo.setQuoteScale(1);
+		}
+
+		this.adminVariantId = variantVo.getVariantId();
+		this.adminProductId = variantVo.getProductId();
+		this.shippingId = variantVo.getProductShippingId();
+		this.cnyPrice = variantVo.getCnyPrice();
+		this.usdPrice = PriceUtils.cnyToUsdByDefaultRate(variantVo.getQuotePrice());
+		this.adminVariantVolume = variantVo.getVolume();
+		this.adminVariantWeight = variantVo.getWeight();
+		this.adminVariantImage = variantVo.getVariantImage();
+		this.adminVariantSku = variantVo.getVariantSku();
+		this.usdRate = new BigDecimal("6.3");
+		this.width = variantVo.getWidth();
+		this.length = variantVo.getLength();
+		this.height = variantVo.getHeight();
+		this.quantity = storeOrderItem.getQuantity() * variantVo.getQuoteScale();
+		this.quoteState = variantVo.getQuoteState();
+		this.quoteScale = variantVo.getQuoteScale();
+		this.itemType = itemType;
+		this.dischargeQuantity = 0;
+	}
+
 }

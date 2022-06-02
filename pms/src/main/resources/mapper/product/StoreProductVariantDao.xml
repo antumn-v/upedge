@@ -654,7 +654,7 @@
         where spa.customer_id = #{customerId}
         and split_type = '0'
         <if test="t.sku != null and t.sku != ''">
-            and spv.sku = #{t.sku}
+            and spv.sku like concat('%', #{t.sku},'%')
         </if>
         <if test="t.title != null and t.title != ''">
             and spv.title like concat('%',#{t.title},'%')
@@ -673,10 +673,10 @@
         where spa.customer_id = #{customerId}
         and split_type = '0'
         <if test="t.sku != null and t.sku != ''">
-            and spv.sku = #{t.sku}
+            and spv.sku like concat('%', #{t.sku},'%')
         </if>
         <if test="t.title != null and t.title != ''">
-            and spv.title = #{t.title}
+            and spv.title like concat('%',#{t.title},'%')
         </if>
     </select>
 </mapper>

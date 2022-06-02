@@ -2,8 +2,8 @@ package com.upedge.thirdparty.saihe.config;
 
 public class SaiheConfig {
 
-    public static final String ORDER_URL="http://rakj.irobotbox.com/Api/API_Irobotbox_Orders.asmx";
-    public static final String PRODUCT_URL="http://rakj.irobotbox.com/Api/API_ProductInfoManage.asmx";
+    public static final String ORDER_URL="https://rakj.irobotbox.com/Api/API_Irobotbox_Orders.asmx";
+    public static final String PRODUCT_URL="https://rakj.irobotbox.com/Api/API_ProductInfoManage.asmx";
 
     //用户名
     public static final String USERNAME="15924173139";//"15924173139";
