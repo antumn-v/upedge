@@ -14,11 +14,11 @@ import javax.xml.bind.annotation.*;
 @XmlRootElement(name = "soap12:Envelope")
 public class SaiheRequestEntity {
     @XmlAttribute(name="xmlns:soap12")
-    protected String soap="https://www.w3.org/2003/05/soap-envelope";
+    protected String soap="http://www.w3.org/2003/05/soap-envelope";
     @XmlAttribute(name="xmlns:xsi")
-    protected String xsi="https://www.w3.org/2001/XMLSchema-instance";
+    protected String xsi="http://www.w3.org/2001/XMLSchema-instance";
     @XmlAttribute(name="xmlns:xsd")
-    protected String xsd="https://www.w3.org/2001/XMLSchema";
+    protected String xsd="http://www.w3.org/2001/XMLSchema";
 
 
 
