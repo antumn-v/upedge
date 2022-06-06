@@ -7,12 +7,10 @@ import com.upedge.common.base.BaseResponse;
 import com.upedge.common.base.Page;
 import com.upedge.common.constant.BaseCode;
 import com.upedge.common.constant.Constant;
-import com.upedge.common.constant.OrderConstant;
 import com.upedge.common.constant.ResultCode;
 import com.upedge.common.constant.key.RedisKey;
 import com.upedge.common.feign.PmsFeignClient;
 import com.upedge.common.feign.TmsFeignClient;
-import com.upedge.common.model.pms.quote.CustomerProductQuoteVo;
 import com.upedge.common.model.product.StoreProductVariantVo;
 import com.upedge.common.model.product.request.PlatIdSelectStoreVariantRequest;
 import com.upedge.common.model.ship.request.AreaSelectRequest;
@@ -25,7 +23,10 @@ import com.upedge.common.utils.ListUtils;
 import com.upedge.common.web.util.RedisUtil;
 import com.upedge.oms.modules.order.dao.*;
 import com.upedge.oms.modules.order.dto.UnrecognizedStoreOrderDto;
-import com.upedge.oms.modules.order.entity.*;
+import com.upedge.oms.modules.order.entity.StoreOrder;
+import com.upedge.oms.modules.order.entity.StoreOrderAddress;
+import com.upedge.oms.modules.order.entity.StoreOrderItem;
+import com.upedge.oms.modules.order.entity.StoreOrderRelate;
 import com.upedge.oms.modules.order.request.StoreDataListRequest;
 import com.upedge.oms.modules.order.request.StoreOrderListRequest;
 import com.upedge.oms.modules.order.request.UnrecognizedStoreOrderListRequest;
@@ -47,7 +48,6 @@ import com.upedge.thirdparty.woocommerce.moudles.order.entity.WoocommerceOrderIt
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
@@ -202,28 +202,23 @@ public class StoreOrderServiceImpl implements StoreOrderService {
 
         Long storeAddressId = null;
         Long storeOrderId = null;
-        boolean b = false;
+
         Date date = new Date();
-        if (null == storeOrder) {
-            storeAddressId = IdGenerate.nextId();
-            storeOrderId = IdGenerate.nextId();
-            storeOrder = new StoreOrder(shopifyOrder);
-            storeOrder.setStoreName(storeVo.getStoreName());
-            storeOrder.setId(storeOrderId);
-            storeOrder.setStoreId(storeVo.getId());
-            storeOrder.setOrgId(storeVo.getOrgId());
-            storeOrder.setOrgPath(storeVo.getOrgPath());
-            storeOrder.setStoreAddressId(storeAddressId);
-            storeOrder.setCreateTime(shopifyOrder.getCreated_at());
-            storeOrder.setUpdateTime(shopifyOrder.getUpdated_at());
-            storeOrder.setImportTime(date);
-            storeOrder.setCustomerId(storeVo.getCustomerId());
-        } else {
-            b = true;
-            storeOrderId = storeOrder.getId();
-            storeAddressId = storeOrder.getStoreAddressId();
-            storeOrder.setUpdateTime(date);
-        }
+
+        storeAddressId = IdGenerate.nextId();
+        storeOrderId = IdGenerate.nextId();
+        storeOrder = new StoreOrder(shopifyOrder);
+        storeOrder.setStoreName(storeVo.getStoreName());
+        storeOrder.setId(storeOrderId);
+        storeOrder.setStoreId(storeVo.getId());
+        storeOrder.setOrgId(storeVo.getOrgId());
+        storeOrder.setOrgPath(storeVo.getOrgPath());
+        storeOrder.setStoreAddressId(storeAddressId);
+        storeOrder.setCreateTime(shopifyOrder.getCreated_at());
+        storeOrder.setUpdateTime(shopifyOrder.getUpdated_at());
+        storeOrder.setImportTime(date);
+        storeOrder.setCustomerId(storeVo.getCustomerId());
+
 
         StoreOrderAddress storeOrderAddress = null;
         if (null != shopifyOrder.getShipping_address()) {
@@ -245,52 +240,22 @@ public class StoreOrderServiceImpl implements StoreOrderService {
         }
 
         List<StoreOrderItem> insertItems = new ArrayList<>();
-        List<StoreOrderItem> updateItems = new ArrayList<>();
         List<ShopifyLineItem> lineItemsBeans = shopifyOrder.getLine_items();
         Iterator<ShopifyLineItem> iterator = lineItemsBeans.iterator();
-        if (b) {
-            List<String> platItemIdList = new ArrayList<>();
-            List<String> platItemIds = storeOrderItemDao.selectPlatItemIdByStoreOrderId(storeOrderId);
-            while (iterator.hasNext()) {
-                ShopifyLineItem lineItemsBean = iterator.next();
-                platItemIdList.add(lineItemsBean.getId());
-                StoreOrderItem storeOrderItem = new StoreOrderItem(lineItemsBean);
-                storeOrderItem.setPlatOrderId(platOrderId);
-                storeOrderItem.setStoreOrderId(storeOrderId);
-                if (platItemIds.contains(lineItemsBean.getId())) {
-                    updateItems.add(storeOrderItem);
-                } else {
-                    storeOrderItem.setId(IdGenerate.nextId());
-                    insertItems.add(storeOrderItem);
-                }
-            }
-            platItemIds.removeAll(platItemIdList);
-            if (ListUtils.isNotEmpty(insertItems)) {
-                storeOrderItemDao.insertByBatch(insertItems);
-            }
-            if (ListUtils.isNotEmpty(platItemIds)) {
-                storeOrderItemDao.updateRemoveState(storeOrderId, platItemIds);
-            }
-            int i = storeOrderAddressDao.updateByPrimaryKey(storeOrderAddress);
-            if (i == 1){
-                orderAddressService.updateByStoreOrderAddress(storeOrderAddress);
-            }
-            storeOrderRelateDao.updateStoreStatusByStoreOrderId(storeOrder);
-        } else {
-            while (iterator.hasNext()) {
-                ShopifyLineItem lineItemsBean = iterator.next();
-                StoreOrderItem storeOrderItem = new StoreOrderItem(lineItemsBean);
-                storeOrderItem.setPlatOrderId(platOrderId);
-                storeOrderItem.setStoreOrderId(storeOrderId);
-                storeOrderItem.setId(IdGenerate.nextId());
-                insertItems.add(storeOrderItem);
-            }
-            storeOrderItemDao.insertByBatch(insertItems);
-            storeOrderAddressDao.insert(storeOrderAddress);
-            storeOrderDao.insert(storeOrder);
+
+        while (iterator.hasNext()) {
+            ShopifyLineItem lineItemsBean = iterator.next();
+            StoreOrderItem storeOrderItem = new StoreOrderItem(lineItemsBean);
+            storeOrderItem.setPlatOrderId(platOrderId);
+            storeOrderItem.setStoreOrderId(storeOrderId);
+            storeOrderItem.setId(IdGenerate.nextId());
+            insertItems.add(storeOrderItem);
         }
-        updateItems.addAll(insertItems);
-        storeOrder.setItems(updateItems);
+        storeOrderItemDao.insertByBatch(insertItems);
+        storeOrderAddressDao.insert(storeOrderAddress);
+        storeOrderDao.insert(storeOrder);
+
+        storeOrder.setItems(insertItems);
         storeOrder.setAddress(storeOrderAddress);
         RedisUtil.unLock(redisTemplate, key);
         return storeOrder;
@@ -724,6 +689,7 @@ public class StoreOrderServiceImpl implements StoreOrderService {
             if (i == 1){
                 orderAddressService.updateByStoreOrderAddress(storeOrderAddress);
             }
+            storeOrder.setAddress( storeOrderAddress);
         }
 
         //更新店铺订单状态
@@ -775,6 +741,8 @@ public class StoreOrderServiceImpl implements StoreOrderService {
             lineItemMap.forEach((lineItemId,lineItem) -> {
                 newItems.add(lineItem);
             });
+            List<Long> newItemIds = storeOrderAddNewItem(storeOrder,newItems);
+            storeOrderItemIds.addAll(newItemIds);
         }
         if (ListUtils.isNotEmpty(storeOrderItemIds)){
             List<Long> orderIds = orderItemService.selectOrderIdsByStoreOrderItemIds(storeOrderItemIds);
@@ -796,18 +764,21 @@ public class StoreOrderServiceImpl implements StoreOrderService {
         }
     }
 
-    public void storeOrderAddNewItem(StoreOrder storeOrder,List<ShopifyLineItem> shopifyLineItems){
+    public List<Long> storeOrderAddNewItem(StoreOrder storeOrder,List<ShopifyLineItem> shopifyLineItems){
         if (ListUtils.isEmpty(shopifyLineItems)){
-            return;
+            return new ArrayList<>();
         }
+        List<Long> itemIds = new ArrayList<>();
         Long storeOrderId = storeOrder.getId();
         List<StoreOrderItem> storeOrderItems = new ArrayList<>();
         List<StoreProductVariantVo> variants = new ArrayList<>();
         for (ShopifyLineItem shopifyLineItem : shopifyLineItems) {
             StoreOrderItem storeOrderItem = new StoreOrderItem(shopifyLineItem);
+            Long id = IdGenerate.nextId();
             storeOrderItem.setPlatOrderId(storeOrder.getPlatOrderId());
             storeOrderItem.setStoreOrderId(storeOrderId);
-            storeOrderItem.setId(IdGenerate.nextId());
+            storeOrderItem.setId(id);
+            itemIds.add(id);
             storeOrderItems .add(storeOrderItem);
 
             if (shopifyLineItem.getVariant_id() != null &&
@@ -843,45 +814,7 @@ public class StoreOrderServiceImpl implements StoreOrderService {
         }
         storeOrderItemDao.insertByBatch(storeOrderItems);
 
-        List<StoreOrderRelate> storeOrderRelates = storeOrderRelateDao.selectByStoreOrderId(storeOrder.getId());
-        if (ListUtils.isEmpty(storeOrderRelates)){
-            return;
-        }
-        List<OrderItem> orderItems = new ArrayList<>();
-
-        for (StoreOrderRelate storeOrderRelate : storeOrderRelates) {
-            Order order = orderService.selectByPrimaryKey(storeOrderRelate.getOrderId());
-            if (order.getPayState() == OrderConstant.PAY_STATE_PAID
-                    || order.getOrderType() != 0){
-                continue;
-            }
-            for (StoreOrderItem storeOrderItem : storeOrderItems) {
-                Long storeVariantId = storeOrderItem.getStoreVariantId();
-                if (storeVariantId == null){
-                    continue;
-                }
-                List<Long> splitVariantIds = (List<Long>) redisTemplate.opsForHash().get(RedisKey.HASH_STORE_SPLIT_VARIANT, String.valueOf(storeVariantId));
-                OrderItem orderItem = new OrderItem();
-                BeanUtils.copyProperties(storeOrderItem, orderItem);
-                orderItem.setOriginalQuantity(storeOrderItem.getQuantity());
-                CustomerProductQuoteVo customerProductQuoteVo = (CustomerProductQuoteVo) redisTemplate.opsForValue().get(RedisKey.STRING_QUOTED_STORE_VARIANT + storeOrderItem.getStoreVariantId());
-                if (null == customerProductQuoteVo) {
-
-                    if (splitVariantIds != null && splitVariantIds.contains(storeVariantId)) {
-                        orderItem.setQuoteState(OrderItem.QUOTE_STATE_QUOTING);
-                    } else {
-                        orderItem.setQuoteState(OrderItem.QUOTE_STATE_UNQU0TED);
-                    }
-                } else {
-                    //报价成功，未报价订单改为部分报价
-                    if (customerProductQuoteVo.getQuoteState() == 1) {
-                        orderItem.quoteProductToItem(customerProductQuoteVo);
-                        //报价失败，已报价订单改为部分报价
-                    } else {
-                        orderItem.setQuoteState(OrderItem.QUOTE_STATE_NO_STOCK);
-                    }
-                }
-            }
-        }
+        orderService.addNewStoreOrderItem(storeOrder,storeOrderItems);
+        return itemIds;
     }
 }

@@ -81,6 +81,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
@@ -166,6 +168,13 @@ public class OrderServiceImpl implements OrderService {
 
     @Value("${ifUploadSaihe}")
     Boolean ifUploadSaihe;
+
+    @Autowired
+    private PlatformTransactionManager platformTransactionManager;
+
+    @Autowired
+    private TransactionDefinition transactionDefinition;
+
 
     /**
      *
@@ -2723,6 +2732,7 @@ public class OrderServiceImpl implements OrderService {
 
     }
 
+    @Transactional
     @Override
     public void addNewStoreOrderItem(StoreOrder storeOrder, List<StoreOrderItem> storeOrderItems) {
         List<StoreOrderRelate> storeOrderRelates = storeOrderRelateDao.selectByStoreOrderId(storeOrder.getId());
@@ -2741,6 +2751,9 @@ public class OrderServiceImpl implements OrderService {
             newOrder = false;
             orderId = order.getId();
         }
+        Integer quoteProducts = 0;
+        Integer quoteState = 0;
+        Integer quoteFailed = 0;
         for (StoreOrderItem item : storeOrderItems) {
             Long storeVariantId = item.getStoreVariantId();
             if (storeVariantId == null) {
@@ -2791,11 +2804,14 @@ public class OrderServiceImpl implements OrderService {
             if (customerProductQuoteVo != null) {
                 if (customerProductQuoteVo.getQuoteType() == 5) {
                     //报价中
+                    quoteState = Order.QUOTE_QUOTING;
                     orderItem.setQuoteState(5);
                 } else if (customerProductQuoteVo.getQuoteState() == 0) {
                     //产品报价失败
+                    quoteFailed ++;
                     orderItem.setQuoteState(4);
                 } else {
+                    quoteProducts++;
                     //报价成功
                     if (customerProductQuoteVo.getQuoteScale() == null) {
                         customerProductQuoteVo.setQuoteScale(1);
@@ -2820,11 +2836,48 @@ public class OrderServiceImpl implements OrderService {
             orderItem.setId(IdGenerate.nextId());
             orderItems.add(orderItem);
         }
-        orderItemDao.insertByBatch(orderItems);
         if (newOrder){
+            Order nOrder = new Order();
+            BeanUtils.copyProperties(storeOrder,nOrder);
+            nOrder.initOrder();
+            nOrder.setTotalWeight(BigDecimal.ZERO);
+            nOrder.setProductAmount(BigDecimal.ZERO);
+            nOrder.setOrderType(0);
+            nOrder.setId(orderId);
 
+            if (quoteState != OrderConstant.QUOTE_STATE_QUOTING) {
+                if (quoteFailed == orderItems.size()) {
+                    quoteState = OrderConstant.QUOTE_STATE_PART_UNQUOTED;
+                } else {
+                    if (quoteProducts == 0) {
+                        quoteState = OrderConstant.QUOTE_STATE_UNQUOTED;
+                    } else if (quoteProducts == orderItems.size()) {
+                        quoteState = OrderConstant.QUOTE_STATE_QUOTED;
+                    } else {
+                        quoteState = OrderConstant.QUOTE_STATE_PART_UNQUOTED;
+                    }
+                }
+            }
+            nOrder.setQuoteState(quoteState);
+            insert(nOrder);
+
+            OrderAddress orderAddress = new OrderAddress();
+            StoreOrderAddress storeOrderAddress = storeOrder.getAddress();
+            BeanUtils.copyProperties(storeOrderAddress,orderAddress);
+            orderAddress.setOrderId(orderId);
+            orderAddress.setId(IdGenerate.nextId());
+            orderAddressDao.insert(orderAddress);
+
+            StoreOrderRelate storeOrderRelate = new StoreOrderRelate(storeOrder);
+            storeOrderRelate.setOrderId(orderId);
+            storeOrderRelate.setOrderCreateTime(new Date());
+            storeOrderRelate.setStoreName(storeOrder.getStoreName());
+            if (null != orderAddress) {
+                storeOrderRelate.setOrderCustomerName(orderAddress.getFirstName() + " " + orderAddress.getLastName());
+            }
+            storeOrderRelateDao.insert(storeOrderRelate);
         }
-        initQuoteState(orderId);
+        orderItemDao.insertByBatch(orderItems);
         return;
     }
 
