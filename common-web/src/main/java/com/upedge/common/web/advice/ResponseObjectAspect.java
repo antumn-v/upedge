@@ -3,11 +3,9 @@ package com.upedge.common.web.advice;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.upedge.common.constant.Constant;
+import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.upedge.common.constant.key.RedisKey;
-import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.model.user.vo.UserVo;
-import com.upedge.common.web.util.UserUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.MethodParameter;
@@ -28,34 +26,6 @@ public class ResponseObjectAspect implements ResponseBodyAdvice {
     @Autowired
     private RedisTemplate<String, Object> redisTemplate;
 
-//    @AfterReturning(value = "execution( * com.upedge.pms.modules.*.controller.*.*(..))",returning = "result")
-//    public void responseAfter(Object result){
-//        if (result == null){
-//            return;
-//        }
-//        String s = "customerId";
-//        JSONObject jsonObject = JSONObject.parseObject(JSON.toJSONString(result));
-//        if (!jsonObject.containsKey("data")){
-//            return;
-//        }
-//        result = jsonObject.get("data");
-//
-//        if (result instanceof JSONObject){
-//            jsonObject = JSONObject.parseObject(JSON.toJSONString(result));
-//            if (jsonObject.containsKey("customerId")){
-//                Long customerId = jsonObject.getLong(s);
-//                if (customerId == null){
-//                    return;
-//                }
-//                UserVo userVo = (UserVo) redisTemplate.opsForHash().get(RedisKey.STRING_CUSTOMER_INFO,String.valueOf(customerId));
-//                jsonObject.put("username",userVo.getUsername());
-//            }
-//        }
-//        if (result instanceof JSONArray){
-//            JSONArray jsonArray = JSONArray.parseArray(JSON.toJSONString(result));
-//            jsonArray = UserUtil.objectAddUserNameField(redisTemplate,jsonArray,JSONArray.class);
-//        }
-//    }
 
     @Override
     public boolean supports(MethodParameter methodParameter, Class aClass) {
@@ -65,16 +35,11 @@ public class ResponseObjectAspect implements ResponseBodyAdvice {
     @Override
     public Object beforeBodyWrite(Object result, MethodParameter methodParameter, MediaType mediaType, Class aClass, ServerHttpRequest serverHttpRequest, ServerHttpResponse serverHttpResponse) {
         try {
-            Session session = UserUtil.getSession(redisTemplate);
-            if (session == null
-            || session.getApplicationId() == Constant.APP_APPLICATION_ID){
-                return result;
-            }
 
             if (result == null) {
                 return result;
             }
-            JSONObject jsonObject = JSONObject.parseObject(JSON.toJSONString(result));
+            JSONObject jsonObject = JSONObject.parseObject(JSON.toJSONStringWithDateFormat(result, "yyyy-MM-dd HH:mm", SerializerFeature.WriteDateUseDateFormat));
             if (!jsonObject.containsKey("data")) {
                 return result;
             }
@@ -82,7 +47,7 @@ public class ResponseObjectAspect implements ResponseBodyAdvice {
             Object data = jsonObject.get("data");
 
             if (data instanceof JSONObject) {
-                JSONObject jsonData = JSONObject.parseObject(JSON.toJSONString(data));
+                JSONObject jsonData = JSONObject.parseObject(JSON.toJSONStringWithDateFormat(data, "yyyy-MM-dd HH:mm", SerializerFeature.WriteDateUseDateFormat));
                 if (jsonData.containsKey("customerId")) {
                     Long customerId = jsonObject.getLong("customerId");
                     if (customerId == null) {
@@ -97,7 +62,7 @@ public class ResponseObjectAspect implements ResponseBodyAdvice {
             }
 
             if (data instanceof JSONArray) {
-                JSONArray jsonArray = JSONArray.parseArray(JSON.toJSONString(data));
+                JSONArray jsonArray = JSONArray.parseArray(JSON.toJSONStringWithDateFormat(data, "yyyy-MM-dd HH:mm", SerializerFeature.WriteDateUseDateFormat));
                 List<Object> list = new ArrayList<>();
                 for (Object a : jsonArray) {
                     JSONObject x = (JSONObject) JSON.toJSON(a);
