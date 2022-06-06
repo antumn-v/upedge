@@ -4,7 +4,10 @@ import com.upedge.common.base.BaseResponse;
 import com.upedge.common.component.annotation.Permission;
 import com.upedge.common.constant.Constant;
 import com.upedge.common.constant.ResultCode;
+import com.upedge.common.constant.key.RedisKey;
 import com.upedge.common.model.user.vo.Session;
+import com.upedge.common.model.user.vo.UserVo;
+import com.upedge.common.utils.ListUtils;
 import com.upedge.common.web.util.UserUtil;
 import com.upedge.pms.modules.product.entity.CustomerPrivateProduct;
 import com.upedge.pms.modules.product.request.AllocationPrivateProductRequest;
@@ -18,6 +21,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -40,6 +44,26 @@ public class CustomerPrivateProductController {
     public BaseResponse allocationPrivateProduct(@RequestBody@Valid AllocationPrivateProductRequest request){
         Session session = UserUtil.getSession(redisTemplate);
         return customerPrivateProductService.allocationPrivateProduct(request,session);
+    }
+
+    @ApiOperation("私有产品分配客户")
+    @PostMapping("/assignedUser/{productId}")
+    public BaseResponse productAssignedUser(@PathVariable Long productId){
+        CustomerPrivateProductListRequest request = new CustomerPrivateProductListRequest();
+        CustomerPrivateProduct customerPrivateProduct = new CustomerPrivateProduct();
+        customerPrivateProduct.setProductId(productId);
+        request.setT(customerPrivateProduct);
+        request.setPageSize(-1);
+        List<CustomerPrivateProduct> customerPrivateProducts = customerPrivateProductService.select(request);
+        if (ListUtils.isNotEmpty(customerPrivateProducts)){
+            List<UserVo> userVos = new ArrayList<>();
+            for (CustomerPrivateProduct privateProduct : customerPrivateProducts) {
+                UserVo userVo = (UserVo) redisTemplate.opsForHash().get(RedisKey.STRING_CUSTOMER_INFO,String.valueOf(privateProduct.getCustomerId()));
+                userVos.add(userVo);
+            }
+            return BaseResponse.success(userVos);
+        }
+        return BaseResponse.success(new ArrayList<>());
     }
 
     @RequestMapping(value="/list", method=RequestMethod.POST)
