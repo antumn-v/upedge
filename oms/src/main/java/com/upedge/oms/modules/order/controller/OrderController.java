@@ -1,10 +1,7 @@
 package com.upedge.oms.modules.order.controller;
 
 import com.upedge.common.base.BaseResponse;
-import com.upedge.common.constant.BaseCode;
-import com.upedge.common.constant.Constant;
-import com.upedge.common.constant.OrderType;
-import com.upedge.common.constant.ResultCode;
+import com.upedge.common.constant.*;
 import com.upedge.common.constant.key.RedisKey;
 import com.upedge.common.exception.CustomerException;
 import com.upedge.common.model.order.request.ManagerActualRequest;
@@ -626,7 +623,6 @@ public class OrderController {
         if (!flag) {
             return new BaseResponse(ResultCode.FAIL_CODE, Constant.MESSAGE_FAIL);
         }
-        Session session = UserUtil.getSession(redisTemplate);
         try {
             boolean res = orderService.importOrderToSaihe(request.getOrderId());
             if (res) {
@@ -638,6 +634,13 @@ public class OrderController {
         } finally {
             RedisUtil.unLock(redisTemplate, key);
         }
+    }
+
+    @ApiOperation("订单取消上传赛盒")
+    @PostMapping("/cancelUploadSaihe")
+    public BaseResponse orderCancelUploadSaihe(@RequestBody OrderImportSaiheRequest request){
+        Long orderId = request.getOrderId();
+        return orderService.orderCancelUploadSaihe(orderId);
     }
 
     /**
@@ -672,20 +675,6 @@ public class OrderController {
         }
     }
 
-    /**
-     * 客户管理 -- 个人客户  -- 用户信息 -- 潘达信息 分页列表
-     *
-     * @param request
-     * @return
-     */
-    @RequestMapping(value = "/pageOrder", method = RequestMethod.POST)
-    public BaseResponse upedgeOrderPage(@RequestBody PandaOrderListRequest request) {
-
-        List<PandaOrderListVo> result = orderService.upedgeOrderPage(request);
-        Long total = orderService.upedgeOrderCount(request);
-        request.setTotal(total);
-        return new BaseResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS, result, request);
-    }
 
     /**
      * 客户管理 -- 个人客户  -- 用户信息 -- 订单分析 （echarts 选择时间区间 数量 和 地区分布）

@@ -1338,6 +1338,18 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
+    public BaseResponse orderCancelUploadSaihe(Long orderId) {
+        Order order = selectByPrimaryKey(orderId);
+        if (order == null
+                || order.getPayState() != OrderConstant.PAY_STATE_PAID
+                || order.getSaiheOrderCode() != null){
+            return BaseResponse.failed("订单不存在或未支付或已上传赛盒");
+        }
+        orderDao.orderCancelUploadSaihe(orderId);
+        return BaseResponse.success();
+    }
+
+    @Override
     public int cancelOrderByIds(List<Long> ids) {
         if (ListUtils.isEmpty(ids)) {
             return 0;

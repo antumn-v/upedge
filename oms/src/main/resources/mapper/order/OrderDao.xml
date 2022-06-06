@@ -2313,4 +2313,12 @@
         and ship_state = '1'
         and order_type != '1'
     </select>
+
+    <update id="orderCancelUploadSaihe">
+        update `order`
+            set saihe_order_code = '0'
+        where id = #{id}
+        and pay_state = '1'
+        and saihe_order_code is null
+    </update>
 </mapper>

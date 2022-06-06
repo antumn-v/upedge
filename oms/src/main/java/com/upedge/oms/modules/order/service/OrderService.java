@@ -41,6 +41,8 @@ public interface OrderService{
 
     List<Long> selectUnPaidIdsByShipRule( OrderShipRuleVo shipRuleVo,  Long areaId);
 
+    BaseResponse orderCancelUploadSaihe(Long orderId);
+
     int cancelOrderByIds(@Param("ids") List<Long> ids);
 
     int initShipByShipUnitId(Long shipUnitId);

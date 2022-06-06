@@ -37,6 +37,9 @@ import java.util.Set;
  */
 public interface OrderDao {
 
+
+    void orderCancelUploadSaihe(Long id);
+
     List<Order> selectByIds(@Param("ids") List<Long> ids);
 
     List<Order> selectAllPaymentId();
