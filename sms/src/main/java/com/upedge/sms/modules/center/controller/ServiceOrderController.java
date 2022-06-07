@@ -57,6 +57,13 @@ public class ServiceOrderController {
         return res;
     }
 
+    @ApiOperation("取消订单")
+    @PostMapping("/cancel/{id}")
+    public BaseResponse cancelOrder(@PathVariable Long id){
+        Session session = UserUtil.getSession(redisTemplate);
+        return serviceOrderService.cancelOrder(id,session);
+    }
+
 
 
 

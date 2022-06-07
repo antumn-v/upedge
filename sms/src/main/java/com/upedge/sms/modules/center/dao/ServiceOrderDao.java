@@ -13,6 +13,8 @@ import java.util.List;
  */
 public interface ServiceOrderDao {
 
+    ServiceOrder cancelOrder(@Param("id") Long id, @Param("orderTable") String orderTable);
+
     ServiceOrder selectByRelateId(@Param("relateId") Long relateId, @Param("serviceType") Integer serviceType);
 
     int updateToPaidByRelateId(@Param("id") Long id, @Param("serviceType") Integer serviceType, @Param("payAmount") BigDecimal payAmount, @Param("updateTime") Date updateTime);

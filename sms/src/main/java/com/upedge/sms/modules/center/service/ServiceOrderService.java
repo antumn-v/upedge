@@ -2,6 +2,7 @@ package com.upedge.sms.modules.center.service;
 
 import com.upedge.common.base.BaseResponse;
 import com.upedge.common.base.Page;
+import com.upedge.common.model.user.vo.Session;
 import com.upedge.sms.modules.center.entity.ServiceOrder;
 
 import java.math.BigDecimal;
@@ -12,6 +13,8 @@ import java.util.List;
  * @author gx
  */
 public interface ServiceOrderService{
+
+    BaseResponse cancelOrder(Long id, Session session);
 
     BaseResponse orderInvoice(Long id);
 

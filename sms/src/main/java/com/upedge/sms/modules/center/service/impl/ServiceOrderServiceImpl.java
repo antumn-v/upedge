@@ -6,6 +6,7 @@ import com.upedge.common.constant.OrderConstant;
 import com.upedge.common.constant.OrderType;
 import com.upedge.common.model.account.vo.InvoiceProductVo;
 import com.upedge.common.model.account.vo.InvoiceVo;
+import com.upedge.common.model.user.vo.Session;
 import com.upedge.sms.modules.center.dao.ServiceOrderDao;
 import com.upedge.sms.modules.center.entity.ServiceOrder;
 import com.upedge.sms.modules.center.service.ServiceOrderService;
@@ -72,6 +73,37 @@ public class ServiceOrderServiceImpl implements ServiceOrderService {
     @Transactional
     public int insertSelective(ServiceOrder record) {
         return serviceOrderDao.insert(record);
+    }
+
+    @Override
+    public BaseResponse cancelOrder(Long id, Session session) {
+        ServiceOrder serviceOrder = selectByPrimaryKey(id);
+        if (serviceOrder == null
+        || !serviceOrder.getCustomerId().equals(session.getCustomerId())
+        || serviceOrder.getPayState() != OrderConstant.PAY_STATE_UNPAID){
+            return BaseResponse.failed();
+        }
+        String orderTable = null;
+
+
+        switch (serviceOrder.getServiceType()){
+            case OrderType.EXTRA_SERVICE_OVERSEA_WAREHOUSE:
+                orderTable = "oversea_warehouse_service_order";
+                break;
+            case OrderType.EXTRA_SERVICE_WHOLESALE:
+                orderTable = "wholesale_order";
+                break;
+            case OrderType.EXTRA_SERVICE_WINNING_PRODUCT:
+                orderTable = "winning_product_service_order";
+                break;
+            case OrderType.EXTRA_SERVICE_PRODUCT_PHOTOGRAPHY:
+                orderTable = "product_photography_order";
+                break;
+            default:
+                return BaseResponse.failed();
+        }
+        serviceOrderDao.cancelOrder(id,orderTable);
+        return BaseResponse.success();
     }
 
     @Override
