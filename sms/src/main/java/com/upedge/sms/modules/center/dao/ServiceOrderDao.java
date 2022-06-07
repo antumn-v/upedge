@@ -13,7 +13,9 @@ import java.util.List;
  */
 public interface ServiceOrderDao {
 
-    ServiceOrder cancelOrder(@Param("id") Long id, @Param("orderTable") String orderTable);
+    void cancelOrder(@Param("id") Long id, @Param("orderTable") String orderTable);
+
+    void restoreCanceledOrder(@Param("id") Long id, @Param("orderTable") String orderTable);
 
     ServiceOrder selectByRelateId(@Param("relateId") Long relateId, @Param("serviceType") Integer serviceType);
 

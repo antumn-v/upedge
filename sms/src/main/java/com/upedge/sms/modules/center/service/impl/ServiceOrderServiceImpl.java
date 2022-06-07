@@ -107,6 +107,37 @@ public class ServiceOrderServiceImpl implements ServiceOrderService {
     }
 
     @Override
+    public BaseResponse restoreCanceledOrder(Long id, Session session) {
+        ServiceOrder serviceOrder = selectByPrimaryKey(id);
+        if (serviceOrder == null
+                || !serviceOrder.getCustomerId().equals(session.getCustomerId())
+                || serviceOrder.getPayState() != OrderConstant.PAY_STATE_CANCELED){
+            return BaseResponse.failed();
+        }
+        String orderTable = null;
+
+
+        switch (serviceOrder.getServiceType()){
+            case OrderType.EXTRA_SERVICE_OVERSEA_WAREHOUSE:
+                orderTable = "oversea_warehouse_service_order";
+                break;
+            case OrderType.EXTRA_SERVICE_WHOLESALE:
+                orderTable = "wholesale_order";
+                break;
+            case OrderType.EXTRA_SERVICE_WINNING_PRODUCT:
+                orderTable = "winning_product_service_order";
+                break;
+            case OrderType.EXTRA_SERVICE_PRODUCT_PHOTOGRAPHY:
+                orderTable = "product_photography_order";
+                break;
+            default:
+                return BaseResponse.failed();
+        }
+        serviceOrderDao.restoreCanceledOrder(id,orderTable);
+        return BaseResponse.success();
+    }
+
+    @Override
     public BaseResponse orderInvoice(Long id) {
         ServiceOrder serviceOrder = selectByPrimaryKey(id);
         if (null == serviceOrder

@@ -16,6 +16,8 @@ public interface ServiceOrderService{
 
     BaseResponse cancelOrder(Long id, Session session);
 
+    BaseResponse restoreCanceledOrder(Long id, Session session);
+
     BaseResponse orderInvoice(Long id);
 
     int updateToPaidByRelateId(Long relateId, Integer serviceType, BigDecimal payAmount, Date updateTime);

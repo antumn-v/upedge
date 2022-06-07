@@ -348,11 +348,23 @@
         update service_order
             set pay_state = '-1'
         where id = #{id}
-        and pay_state = '0'
+        and pay_state = '0';
 
         update ${orderTable}
         set pay_state = '-1'
         where id = #{id}
-        and pay_state = '0'
+        and pay_state = '0';
+    </update>
+
+    <update id="restoreCanceledOrder">
+        update service_order
+        set pay_state = '0'
+        where id = #{id}
+        and pay_state = '-1';
+
+        update ${orderTable}
+        set pay_state = '0'
+        where id = #{id}
+        and pay_state = '-1';
     </update>
 </mapper>
