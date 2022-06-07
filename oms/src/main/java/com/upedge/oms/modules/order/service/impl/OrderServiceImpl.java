@@ -83,6 +83,7 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionDefinition;
+import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
@@ -457,11 +458,11 @@ public class OrderServiceImpl implements OrderService {
 //        return shipDetails;
     }
 
-    @Transactional(rollbackFor = Exception.class)
+//    @Transactional(rollbackFor = Exception.class)
     @Override
     public OrderShipRuleDetail matchShipRule(Long id) {
         Order order = orderDao.selectByPrimaryKey(id);
-        if (order.getPayState() != 0 && order.getOrderType() != 0) {
+        if (order.getPayState() != 0 && order.getQuoteState() != OrderConstant.QUOTE_STATE_QUOTED) {
             return null;
         }
 
@@ -498,13 +499,13 @@ public class OrderServiceImpl implements OrderService {
 
                         ship = updateShipDetailById(id, ship);
 
-                        OrderAttr orderAttr = new OrderAttr();
-                        orderAttr.setOrderId(id);
-                        orderAttr.setAttrName(OrderAttrEnum.SHIP_RULE_ID.name());
-                        orderAttr.setAttrValue(String.valueOf(rule.getId()));
-                        orderAttr.setCreateTime(new Date());
-                        orderAttrDao.deleteByOrderIdAndName(id, OrderAttrEnum.SHIP_RULE_ID.name());
-                        orderAttrDao.insert(orderAttr);
+//                        OrderAttr orderAttr = new OrderAttr();
+//                        orderAttr.setOrderId(id);
+//                        orderAttr.setAttrName(OrderAttrEnum.SHIP_RULE_ID.name());
+//                        orderAttr.setAttrValue(String.valueOf(rule.getId()));
+//                        orderAttr.setCreateTime(new Date());
+//                        orderAttrDao.deleteByOrderIdAndName(id, OrderAttrEnum.SHIP_RULE_ID.name());
+//                        orderAttrDao.insert(orderAttr);
 
                         OrderShipRuleDetail detail = new OrderShipRuleDetail();
                         detail.setOrderId(id);
@@ -533,7 +534,7 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public OrderShipRuleDetail matchShipRule(Long id, OrderShipRuleVo rule) {
         Order order = orderDao.selectByPrimaryKey(id);
-        if (order.getPayState() != 0 && order.getOrderType() != 0) {
+        if (order.getPayState() != 0 && order.getQuoteState() != OrderConstant.QUOTE_STATE_QUOTED) {
             return null;
         }
 
@@ -562,13 +563,13 @@ public class OrderServiceImpl implements OrderService {
 
                     ship = updateShipDetailById(id, ship);
 
-                    OrderAttr orderAttr = new OrderAttr();
-                    orderAttr.setOrderId(id);
-                    orderAttr.setAttrName(OrderAttrEnum.SHIP_RULE_ID.name());
-                    orderAttr.setAttrValue(String.valueOf(rule.getId()));
-                    orderAttr.setCreateTime(new Date());
-                    orderAttrDao.deleteByOrderIdAndName(id, OrderAttrEnum.SHIP_RULE_ID.name());
-                    orderAttrDao.insert(orderAttr);
+//                    OrderAttr orderAttr = new OrderAttr();
+//                    orderAttr.setOrderId(id);
+//                    orderAttr.setAttrName(OrderAttrEnum.SHIP_RULE_ID.name());
+//                    orderAttr.setAttrValue(String.valueOf(rule.getId()));
+//                    orderAttr.setCreateTime(new Date());
+//                    orderAttrDao.deleteByOrderIdAndName(id, OrderAttrEnum.SHIP_RULE_ID.name());
+//                    orderAttrDao.insert(orderAttr);
 
                     OrderShipRuleDetail detail = new OrderShipRuleDetail();
                     detail.setOrderId(id);
@@ -2744,9 +2745,9 @@ public class OrderServiceImpl implements OrderService {
 
     }
 
-    @Transactional
     @Override
     public void addNewStoreOrderItem(StoreOrder storeOrder, List<StoreOrderItem> storeOrderItems) {
+        TransactionStatus transaction = platformTransactionManager.getTransaction(transactionDefinition);
         List<StoreOrderRelate> storeOrderRelates = storeOrderRelateDao.selectByStoreOrderId(storeOrder.getId());
         if (ListUtils.isEmpty(storeOrderRelates)) {
             return;
@@ -2849,12 +2850,22 @@ public class OrderServiceImpl implements OrderService {
             orderItems.add(orderItem);
         }
         if (newOrder){
+            OrderAddress orderAddress = new OrderAddress();
+            StoreOrderAddress storeOrderAddress = storeOrder.getAddress();
+            BeanUtils.copyProperties(storeOrderAddress,orderAddress);
+            orderAddress.setOrderId(orderId);
+            orderAddress.setId(IdGenerate.nextId());
+            orderAddressDao.insert(orderAddress);
+
             Order nOrder = new Order();
             BeanUtils.copyProperties(storeOrder,nOrder);
             nOrder.initOrder();
             nOrder.setTotalWeight(BigDecimal.ZERO);
             nOrder.setProductAmount(BigDecimal.ZERO);
             nOrder.setOrderType(0);
+            if (orderAddress.getCountry() != null) {
+                nOrder.setToAreaId((Long) redisTemplate.opsForHash().get(RedisKey.HASH_COUNTRY_AREA_ID, orderAddress.getCountry()));
+            }
             nOrder.setId(orderId);
 
             if (quoteState != OrderConstant.QUOTE_STATE_QUOTING) {
@@ -2873,12 +2884,7 @@ public class OrderServiceImpl implements OrderService {
             nOrder.setQuoteState(quoteState);
             insert(nOrder);
 
-            OrderAddress orderAddress = new OrderAddress();
-            StoreOrderAddress storeOrderAddress = storeOrder.getAddress();
-            BeanUtils.copyProperties(storeOrderAddress,orderAddress);
-            orderAddress.setOrderId(orderId);
-            orderAddress.setId(IdGenerate.nextId());
-            orderAddressDao.insert(orderAddress);
+
 
             StoreOrderRelate storeOrderRelate = new StoreOrderRelate(storeOrder);
             storeOrderRelate.setOrderId(orderId);
@@ -2890,6 +2896,9 @@ public class OrderServiceImpl implements OrderService {
             storeOrderRelateDao.insert(storeOrderRelate);
         }
         orderItemDao.insertByBatch(orderItems);
+        platformTransactionManager.commit(transaction);
+        initQuoteState(orderId);
+//        matchShipRule(orderId);
         return;
     }
 

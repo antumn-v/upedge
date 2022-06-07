@@ -51,6 +51,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
@@ -91,6 +93,12 @@ public class StoreOrderServiceImpl implements StoreOrderService {
 
     @Autowired
     RedisTemplate<String, Object> redisTemplate;
+
+    @Autowired
+    private PlatformTransactionManager platformTransactionManager;
+
+    @Autowired
+    private TransactionDefinition transactionDefinition;
 
     private static List<String> financialStatus = new ArrayList<>();
 
@@ -250,6 +258,7 @@ public class StoreOrderServiceImpl implements StoreOrderService {
             storeOrderItem.setStoreOrderId(storeOrderId);
             storeOrderItem.setId(IdGenerate.nextId());
             insertItems.add(storeOrderItem);
+            break;
         }
         storeOrderItemDao.insertByBatch(insertItems);
         storeOrderAddressDao.insert(storeOrderAddress);
@@ -739,7 +748,9 @@ public class StoreOrderServiceImpl implements StoreOrderService {
         if (MapUtils.isNotEmpty(lineItemMap)){
             List<ShopifyLineItem> newItems = new ArrayList<>();
             lineItemMap.forEach((lineItemId,lineItem) -> {
-                newItems.add(lineItem);
+                if (lineItem.getFulfillable_quantity() != null && lineItem.getFulfillable_quantity() != 0){
+                    newItems.add(lineItem);
+                }
             });
             List<Long> newItemIds = storeOrderAddNewItem(storeOrder,newItems);
             storeOrderItemIds.addAll(newItemIds);
@@ -765,6 +776,7 @@ public class StoreOrderServiceImpl implements StoreOrderService {
     }
 
     public List<Long> storeOrderAddNewItem(StoreOrder storeOrder,List<ShopifyLineItem> shopifyLineItems){
+//        TransactionStatus transaction = platformTransactionManager.getTransaction(transactionDefinition);
         if (ListUtils.isEmpty(shopifyLineItems)){
             return new ArrayList<>();
         }
@@ -813,8 +825,8 @@ public class StoreOrderServiceImpl implements StoreOrderService {
             }
         }
         storeOrderItemDao.insertByBatch(storeOrderItems);
-
         orderService.addNewStoreOrderItem(storeOrder,storeOrderItems);
+//        platformTransactionManager.commit(transaction);
         return itemIds;
     }
 }
