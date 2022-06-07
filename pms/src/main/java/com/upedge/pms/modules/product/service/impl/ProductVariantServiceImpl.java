@@ -428,7 +428,20 @@ public class ProductVariantServiceImpl implements ProductVariantService {
 
     @Override
     public List<ProductVariant> selectByProductId(Long productId) {
-        return productVariantDao.selectByProductId(productId);
+        List<ProductVariant> productVariants = productVariantDao.selectByProductId(productId);
+        if (ListUtils.isNotEmpty(productVariants)){
+            List<ProductVariantAttr> variantAttrs = productVariantAttrService.selectByProductId(productId);
+            for (ProductVariant productVariant : productVariants) {
+                List<ProductVariantAttr> variantAttrList = productVariant.getProductVariantAttrList();
+                for (ProductVariantAttr variantAttr : variantAttrs) {
+                    if (variantAttr.getVariantId().equals(productVariant.getId())){
+                        variantAttrList.add(variantAttr);
+                    }
+                }
+                variantAttrs.removeAll(variantAttrList);
+            }
+        }
+        return productVariants;
     }
 
     @Override

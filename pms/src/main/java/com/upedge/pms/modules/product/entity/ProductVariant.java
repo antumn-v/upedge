@@ -1,13 +1,10 @@
 package com.upedge.pms.modules.product.entity;
 
-import java.math.BigDecimal;
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
-import com.upedge.pms.modules.product.vo.VariantAttributeVo;
 import lombok.Data;
+
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author gx
@@ -86,5 +83,4 @@ public class ProductVariant{
 
 	private List<ProductVariantAttr> productVariantAttrList=new ArrayList<>();
 
-	private List<VariantAttributeVo> variantAttributeVos;
 }

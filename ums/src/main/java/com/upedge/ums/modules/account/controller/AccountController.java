@@ -103,10 +103,10 @@ public class AccountController {
 //        return accountService.addAccountPayMethod(request);
 //    }
 
-    @GetMapping("/paymethod/{accountPaymethodId}/attrs")
-    public AccountPaymethodAttrListResponse listAccountPaymethodAttr(@PathVariable Integer accountPaymethodId){
-        return accountService.accountPaymethodAttrList(accountPaymethodId);
-    }
+//    @GetMapping("/paymethod/{accountPaymethodId}/attrs")
+//    public AccountPaymethodAttrListResponse listAccountPaymethodAttr(@PathVariable Integer accountPaymethodId){
+//        return accountService.accountPaymethodAttrList(accountPaymethodId);
+//    }
 
 //    @ApiOperation("账户添加payoneer")
 //    @PostMapping("/paymethod/add/payoneer")

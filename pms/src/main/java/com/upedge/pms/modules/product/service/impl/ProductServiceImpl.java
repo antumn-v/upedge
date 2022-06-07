@@ -225,6 +225,9 @@ public class ProductServiceImpl implements ProductService {
     }
 
     void updateProductSku(Product product,String productSku){
+        if (product.getProductSource() == 0){
+            return;
+        }
         if (StringUtils.isNotBlank(productSku)){
             productSku = UrlUtils.getNameByUrl(productSku);
             if (StringUtils.isNotBlank(productSku)){
@@ -363,22 +366,11 @@ public class ProductServiceImpl implements ProductService {
             adminProductVo.setProductInfo(productInfo);
         }, threadPoolExecutor);
         //开启异步任务  获取产品描述
-        List<Long> variantIds = new ArrayList<>();
         //属性-值列表
         Map<String, VariantAttrVo> attrMap = new HashMap<>();
-        Map<String, Set<String>> attrValSet = new HashMap<>();
-        Map<Long, ProductVariant> productVariantMap = new HashMap<>();
         CompletableFuture<Void> productVariantListFuture = CompletableFuture.runAsync(() -> {
             List<ProductVariant> productVariantList = productVariantService.selectByProductId(id);
-            productVariantList.forEach(productVariant -> {
-                variantIds.add(productVariant.getId());
-                productVariantMap.put(productVariant.getId(), productVariant);
-            });
-        }, threadPoolExecutor).thenRunAsync(() -> {
-            //获取产品属性
-            List<ProductVariant> productVariantList = productVariantService.getProductVariantList(variantIds, attrMap, attrValSet, productVariantMap);
             adminProductVo.setProductVariantList(productVariantList);
-
         }, threadPoolExecutor);
         //等到所有任务都完成
         try {
@@ -387,12 +379,7 @@ public class ProductServiceImpl implements ProductService {
             e.printStackTrace();
             return null;
         }
-        //装载属性
-        List<VariantAttrVo> variantAttrVoList = new ArrayList<>();
-        for (VariantAttrVo v : attrMap.values()) {
-            variantAttrVoList.add(v);
-        }
-        adminProductVo.setVariantAttrVos(variantAttrVoList);
+
         return adminProductVo;
     }
 

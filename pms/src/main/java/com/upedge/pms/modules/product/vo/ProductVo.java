@@ -1,9 +1,11 @@
 package com.upedge.pms.modules.product.vo;
 
-import com.upedge.pms.modules.product.entity.*;
+import com.upedge.pms.modules.product.entity.ProductAttribute;
+import com.upedge.pms.modules.product.entity.ProductImg;
+import com.upedge.pms.modules.product.entity.ProductInfo;
+import com.upedge.pms.modules.product.entity.ProductVariant;
 import lombok.Data;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -97,9 +99,5 @@ public class ProductVo {
 	private ProductInfo productInfo;
 
 	private List<ProductVariant> productVariantList;
-
-	private List<VariantAttrVo> variantAttrVos;
-
-	private List<VariantAttributeVo> VariantAttributeVos;
 
 }
