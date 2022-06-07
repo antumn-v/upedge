@@ -400,6 +400,10 @@ public class UserServiceImpl implements UserService {
         customerApplicationService.insert(customerApplicationKey);
         userBindAccountOrgApp(userId,applicationId,account.getId(),organization.getId(),roleId);
 
+        UserVo userVo = new UserVo();
+        BeanUtils.copyProperties(user,userVo);
+        redisTemplate.opsForHash().put(RedisKey.STRING_CUSTOMER_INFO,String.valueOf(customer.getId()),userVo);
+
         CompletableFuture affiliateBind = CompletableFuture.runAsync(new Runnable() {
             @Override
             public void run() {
