@@ -70,12 +70,13 @@ public class ShippingUnitController {
     @Autowired
     TmsProducerService tmsProducerService;
 
-//    @PostMapping("/add")
-//    public BaseResponse addShipUnit(@RequestBody ShippingUnitAddRequest request) {
-//        ShippingUnit shippingUnit = request.toShippingUnit();
-//        shippingUnitService.insert(shippingUnit);
-//        return BaseResponse.success();
-//    }
+    @PostMapping("/add")
+    public BaseResponse addShipUnit(@RequestBody@Valid ShippingUnitAddRequest request) {
+        ShippingUnit shippingUnit = request.toShippingUnit();
+        shippingUnitService.insert(shippingUnit);
+        redisTemplate.delete(RedisKey.STRING_METHOD_COUNTRY_UNIT_LIST);
+        return BaseResponse.success();
+    }
     @ApiOperation("运费计算")
     @PostMapping("/freightCalculation")
     public BaseResponse freightCalculation(@RequestBody@Valid ShipUnitFreightCalculationRequest request){
@@ -96,7 +97,7 @@ public class ShippingUnitController {
         if (request.getT() == null) {
             request.setT(new ShippingUnit());
         }
-        ShippingUnit shippingUnit = request.getT();
+         ShippingUnit shippingUnit = request.getT();
         shippingUnit.setState(1);
         List<ShipMethodCountryVo> results = (List<ShipMethodCountryVo>) redisTemplate.opsForValue().get(RedisKey.STRING_METHOD_COUNTRY_UNIT_LIST);
         if (ListUtils.isEmpty(results)){

@@ -158,6 +158,7 @@ public class ProductServiceImpl implements ProductService {
             return new BaseResponse(ResultCode.FAIL_CODE,Constant.MESSAGE_FAIL);
         }
         Product product = productDao.selectByPrimaryKey(id);
+        Integer productSource = product.getProductSource();
         Long shippingId = product.getShippingId();
         if(!StringUtils.isBlank(request.getProductTitle())||!StringUtils.isBlank(request.getCategoryCode())
                 ||request.getCateType()!=null||request.getShippingId()!=null){
@@ -192,6 +193,7 @@ public class ProductServiceImpl implements ProductService {
             }
         }
         String productSku = request.getProductSku();
+        product.setProductSource(productSource);
         updateProductSku(product,productSku);
         product.setRemark(request.getRemark());
         productDao.updateByPrimaryKeySelective(product);

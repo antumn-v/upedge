@@ -1540,11 +1540,6 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public SaiheOrder querySaiheOrder(Long id) {
-        return orderDao.querySaiheOrder(id);
-    }
-
-    @Override
     public void updateSaiheOrderCode(String id, String saiheOrderCode) {
         orderDao.updateSaiheOrderCode(id, saiheOrderCode);
     }
@@ -2305,8 +2300,18 @@ public class OrderServiceImpl implements OrderService {
          * 获取 已支付，未发货，订单状态正常，未退款
          * 并且没有赛盒orderCode的赛盒订单信息
          */
+        Order order = selectByPrimaryKey(id);
+        if (order.getPayState() != 1
+        || order.getShipState() != 0
+        || order.getRefundState() != 0
+        || order.getOrderStatus() != 0
+        || (order.getSaiheOrderCode() != null && !order.getSaiheOrderCode().equals("0"))){
+            return false;
+        }
+
         SaiheOrder saiheOrder = orderDao.querySaiheOrder(id);
-        if (null == saiheOrder || saiheOrder.getCustomerId().equals(1499564543207194625L)) {
+        if (null == saiheOrder
+                || saiheOrder.getCustomerId().equals(1499564543207194625L)) {
             return false;
         }
         /**

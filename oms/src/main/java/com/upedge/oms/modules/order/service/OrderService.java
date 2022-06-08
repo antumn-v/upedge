@@ -17,7 +17,6 @@ import com.upedge.oms.modules.order.response.OrderListResponse;
 import com.upedge.oms.modules.order.response.OrderUpdateResponse;
 import com.upedge.oms.modules.order.vo.*;
 import com.upedge.oms.modules.rules.vo.OrderShipRuleVo;
-import com.upedge.thirdparty.saihe.entity.SaiheOrder;
 import com.upedge.thirdparty.saihe.entity.getOrderByCode.ApiOrderInfo;
 import org.apache.ibatis.annotations.Param;
 
@@ -55,8 +54,6 @@ public interface OrderService{
     void initQuoteState(Long id);
 
     int initVatAmountByCustomerId(Long customerId);
-
-    SaiheOrder querySaiheOrder(Long id);
 
     void updateSaiheOrderCode(String id,
                               String saiheOrderCode);

@@ -110,6 +110,8 @@
             <result property="storeVariantImage" column="store_variant_image"/>
             <result property="adminVariantImage" column="admin_variant_image"/>
             <result property="storeProductTitle" column="store_product_title"/>
+            <result property="storeProductId" column="store_product_id"/>
+            <result property="storeVariantId" column="store_variant_id"/>
             <result property="price" column="usd_price"/>
             <result property="adminVariantWeight" column="admin_variant_weight"/>
             <result property="adminVariantVolume" column="admin_variant_volume"/>
@@ -183,6 +185,7 @@
     <select id="selectAppOrderItemByOrderIds" resultMap="OrderRelateItems" >
         select DISTINCTROW oi.order_id as `orderId`,oi.store_order_id,store_product_id,
         oi.id as itemId,oi.order_id,`admin_product_id`,`store_variant_name`,`admin_variant_id`,
+        oi.store_product_id,oi.store_variant_id,
         `store_variant_sku`,`admin_variant_image`,`store_product_title`,`usd_price`,`quantity`,
         `discharge_quantity`,`admin_variant_weight`,`admin_variant_volume`,store_variant_image,
         oi.quote_state,

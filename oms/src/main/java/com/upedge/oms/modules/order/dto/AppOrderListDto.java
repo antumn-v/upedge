@@ -63,7 +63,7 @@ public class AppOrderListDto {
 
     String sku;
 
-    Boolean saiheState;
+    Integer saiheState;
 
     public AppOrderListDto() {
 //        initDateRange();

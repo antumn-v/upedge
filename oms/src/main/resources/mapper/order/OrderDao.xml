@@ -295,6 +295,9 @@
                     <if test="t.saiheState == 1">
                         o.saihe_order_code is not null and
                     </if>
+                    <if test="t.saiheState == 2">
+                        o.saihe_order_code = '0'
+                    </if>
                     <if test="t.saiheState == 0">
                         o.saihe_order_code is null and
                         o.pay_state > '0' and
@@ -1525,7 +1528,6 @@
         and o.ship_state = 0
         and o.refund_state = 0
         and o.order_status = 0
-        and o.saihe_order_code is NULL
     </select>
 
     <update id="updateSaiheOrderCode">
