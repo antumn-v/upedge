@@ -1,6 +1,7 @@
 package com.upedge.ums.modules.account.service.impl;
 
 import com.upedge.common.base.BaseResponse;
+import com.upedge.common.constant.BaseCode;
 import com.upedge.common.constant.Constant;
 import com.upedge.common.constant.PayOrderMethod;
 import com.upedge.common.constant.ResultCode;
@@ -79,6 +80,24 @@ public class RechargeServiceImpl implements RechargeService {
     private String transferLocalPath;
     @Value("${files.image.prefix}")
     private String transferImageUrlPrefix;
+
+    @Override
+    public BaseResponse confirmReceived(Long id, Session session) {
+        if (session.getApplicationId() != Constant.ADMIN_APPLICATION_ID
+                && session.getUserType()  != BaseCode.USER_ROLE_SUPERADMIN){
+            return BaseResponse.failed();
+        }
+        RechargeRequestLog requestLog = rechargeRequestLogMapper.selectByPrimaryKey(id);
+        if (null == requestLog || requestLog.getStatus() != 1){
+            return BaseResponse.failed("充值申请未通过");
+        }
+        requestLog = new RechargeRequestLog();
+        requestLog.setId(id);
+        requestLog.setStatus(3);
+        requestLog.setUpdateTime(new Date());
+        rechargeRequestLogMapper.updateByPrimaryKeySelective(requestLog);
+        return BaseResponse.success();
+    }
 
     @Transactional
     @Override

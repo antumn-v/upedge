@@ -18,6 +18,8 @@ import java.util.Date;
 public interface RechargeService {
 
 
+
+    BaseResponse confirmReceived(Long id,Session session);
     /**
      * 提交申请记录
      * @param request

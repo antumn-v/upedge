@@ -128,7 +128,7 @@ public class RechargeController {
     public BaseResponse transferRechargeRequest(@RequestBody @Valid TransferRechargeRequest request) {
         String image = request.getAttr().getImage();
         if (StringUtils.isBlank(image) ||
-                request.getAmount().compareTo(new BigDecimal("100")) == -1){
+                request.getAmount().compareTo(new BigDecimal("1")) == -1){
             return BaseResponse.failed();
         }
         return rechargeService.createTransferRequest(request);
@@ -271,6 +271,13 @@ public class RechargeController {
     @PostMapping("/{id}/revoke")
     public RechargeRevokeResponse revokeRechargeLog(@PathVariable Long id) {
         return rechargeService.revokeRecharge(id);
+    }
+
+    @ApiOperation("确认充值金额到账")
+    @PostMapping("/confirmReceive/{id}")
+    public BaseResponse confirmReceive(@PathVariable Long id){
+        Session session = UserUtil.getSession(redisTemplate);
+        return rechargeService.confirmReceived(id,session);
     }
 
 }
