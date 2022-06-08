@@ -35,7 +35,8 @@ public class TransactionConstant {
         EXTRA_SERVICE_OVERSEA_WAREHOUSE(4,"海外仓备库"),
         EXTRA_SERVICE_WHOLESALE(5,"服务批发单"),
         EXTRA_SERVICE_PRODUCT_PHOTOGRAPHY(6,"产品拍照"),
-        EXTRA_SERVICE_WINNING_PRODUCT(7,"热卖品");
+        EXTRA_SERVICE_WINNING_PRODUCT(7,"热卖品"),
+        BALANCE_WITHDRAW(8,"提现");
 
         private Integer code;
 

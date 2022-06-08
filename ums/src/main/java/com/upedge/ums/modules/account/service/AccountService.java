@@ -28,6 +28,8 @@ public interface AccountService {
      */
     Account selectCustomerDefaultAccount(Long customerId);
 
+    BaseResponse accountBalanceWithdraw(AccountBalanceWithdrawRequest request,Session session);
+
     Account selectSessionAccount(Session session);
 
     Account selectById(Long id);

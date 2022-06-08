@@ -11,6 +11,7 @@ import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.web.util.UserUtil;
 import com.upedge.ums.modules.account.entity.Account;
 import com.upedge.ums.modules.account.request.AccountAddRequest;
+import com.upedge.ums.modules.account.request.AccountBalanceWithdrawRequest;
 import com.upedge.ums.modules.account.request.AccountListRequest;
 import com.upedge.ums.modules.account.response.*;
 import com.upedge.ums.modules.account.service.AccountService;
@@ -35,10 +36,6 @@ public class AccountController {
 
     @Autowired
     AccountService accountService;
-
-    String payoneerAuthUrl;
-
-
 
     /**
      * 账户列表
@@ -219,6 +216,13 @@ public class AccountController {
             e.printStackTrace();
             return new BaseResponse(ResultCode.FAIL_CODE, e.getMessage());
         }
+    }
+
+    @ApiOperation("账单余额提现")
+    @PostMapping("/balanceWithdraw")
+    public BaseResponse accountBalanceWithdraw(@RequestBody@Valid AccountBalanceWithdrawRequest request){
+        Session session = UserUtil.getSession(redisTemplate);
+        return accountService.accountBalanceWithdraw(request,session);
     }
 
 }
