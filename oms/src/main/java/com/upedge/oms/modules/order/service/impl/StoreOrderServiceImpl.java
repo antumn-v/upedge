@@ -258,7 +258,6 @@ public class StoreOrderServiceImpl implements StoreOrderService {
             storeOrderItem.setStoreOrderId(storeOrderId);
             storeOrderItem.setId(IdGenerate.nextId());
             insertItems.add(storeOrderItem);
-            break;
         }
         storeOrderItemDao.insertByBatch(insertItems);
         storeOrderAddressDao.insert(storeOrderAddress);
