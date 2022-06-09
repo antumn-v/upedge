@@ -847,6 +847,19 @@ public class ProductServiceImpl implements ProductService {
                 product.setId(productId);
                 product.setSaiheState(1);
                 updateByPrimaryKeySelective(product);
+                ProcessUpdateProductResult.SkuAddList skuAddList = apiUploadProductsResponse.getProcessUpdateProductResult().getSkuAddList();
+                if (null != skuAddList && ListUtils.isNotEmpty(skuAddList.getSkuResult())){
+                    List<SkuResult> skuResults = skuAddList.getSkuResult();
+                    List<ProductVariant> variants = new ArrayList<>();
+                    for (SkuResult skuResult : skuResults) {
+                        ProductVariant variant = new ProductVariant();
+                        variant.setVariantSku(skuResult.getClientSku());
+                        variant.setSaiheSku(skuResult.getSku());
+                        variants.add(variant);
+                    }
+                    productVariantService.updateSaiheSku(variants);
+                }
+
                 return new BaseResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS);
             }
         } else {

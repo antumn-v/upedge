@@ -22,6 +22,7 @@
         <result property="length" column="length"/>
         <result property="width" column="width"/>
         <result property="height" column="height"/>
+        <result property="saiheSku" column="saihe_sku"/>
     </resultMap>
 
     <resultMap type="com.upedge.pms.modules.product.vo.SaiheSkuVo" id="SaiheSkuVo">
@@ -58,7 +59,9 @@
         </collection>
     </resultMap>
     <sql id="Base_Column_List">
-        `id`,`original_variant_id`,`product_id`,`variant_sku`,`variant_image`,`variant_price`,`usd_price`,`inventory`,`weight`,`state`,`volume_weight`,`variant_type`,`cn_name`,`en_name`,`length`,`width`,`height`
+        `id`,`original_variant_id`,`product_id`,`variant_sku`,`variant_image`,
+        `variant_price`,`usd_price`,`inventory`,`weight`,`state`,`volume_weight`,
+        `variant_type`,`cn_name`,`en_name`,`length`,`width`,`height`,`saihe_sku`
     </sql>
 
 
@@ -686,4 +689,13 @@
         </foreach>
         and pv.state = '1'
     </select>
+
+    <update id="updateSaiheSku">
+        <foreach collection="variants" item="variant" separator=";">
+            update product_variant
+            set saihe_sku = #{variant.saiheSku}
+            where variant_sku = #{variant.variantSku}
+            limit 1
+        </foreach>
+    </update>
 </mapper>

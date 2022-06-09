@@ -20,6 +20,8 @@ import java.util.Set;
  */
 public interface ProductVariantService{
 
+    int updateSaiheSku(List<ProductVariant> variants);
+
     List<SaiheSkuVo> selectSaiheSkuVoByProductId(Long productId);
 
     SaiheSkuVo selectSaiheSkuVoById(Long id);

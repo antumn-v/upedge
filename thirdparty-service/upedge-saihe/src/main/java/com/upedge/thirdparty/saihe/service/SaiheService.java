@@ -19,9 +19,7 @@ import com.upedge.thirdparty.saihe.entity.getPackages.PackagesRequest;
 import com.upedge.thirdparty.saihe.entity.getProcurementList.GetProcurementList;
 import com.upedge.thirdparty.saihe.entity.getProcurementList.GetProcurementListRequest;
 import com.upedge.thirdparty.saihe.entity.getProcurementList.GetProcurementListResponse;
-import com.upedge.thirdparty.saihe.entity.getProducts.ApiGetProductRequest;
-import com.upedge.thirdparty.saihe.entity.getProducts.ApiGetProductResponse;
-import com.upedge.thirdparty.saihe.entity.getProducts.ProductRequest;
+import com.upedge.thirdparty.saihe.entity.getProducts.*;
 import com.upedge.thirdparty.saihe.entity.getTransportList.ApiGetTransportRequest;
 import com.upedge.thirdparty.saihe.entity.getTransportList.ApiGetTransportResponse;
 import com.upedge.thirdparty.saihe.entity.getTransportList.TrRequest;
@@ -630,8 +628,9 @@ public class SaiheService {
 //        System.out.println(apiGetOrderResponse);
 //        System.out.println(getProductsByClientSKUs("The Beard Roller:1646923580001",null));
 
-        ApiGetWareHouseResponse apiGetWareHouseResponse = getWareHouseList();
-        System.out.println(apiGetWareHouseResponse.getGetWareHouseListResult().getWareHouseList());
+//        ApiGetWareHouseResponse apiGetWareHouseResponse = getWareHouseList();
+//        System.out.println(apiGetWareHouseResponse.getGetWareHouseListResult().getWareHouseList());
+
     }
 
 

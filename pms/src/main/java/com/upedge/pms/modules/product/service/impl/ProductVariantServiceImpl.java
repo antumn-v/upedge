@@ -151,6 +151,14 @@ public class ProductVariantServiceImpl implements ProductVariantService {
     }
 
     @Override
+    public int updateSaiheSku(List<ProductVariant> variants) {
+        if (ListUtils.isEmpty(variants)){
+            return 0;
+        }
+        return productVariantDao.updateSaiheSku(variants);
+    }
+
+    @Override
     public List<SaiheSkuVo> selectSaiheSkuVoByProductId(Long productId) {
         if (null != productId){
             return productVariantDao.selectSaiheSkuVoByProductId(productId);

@@ -13,6 +13,10 @@ import com.upedge.pms.modules.product.request.*;
 import com.upedge.pms.modules.product.response.*;
 import com.upedge.pms.modules.product.service.ProductService;
 import com.upedge.pms.modules.product.service.ProductVariantService;
+import com.upedge.thirdparty.saihe.entity.getProducts.ApiGetProductResponse;
+import com.upedge.thirdparty.saihe.entity.getProducts.ApiProductInfo;
+import com.upedge.thirdparty.saihe.entity.getProducts.GetProductsResult;
+import com.upedge.thirdparty.saihe.service.SaiheService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +24,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ThreadPoolExecutor;
 
@@ -217,6 +222,36 @@ public class ProductVariantController {
             return BaseResponse.failed(e.getMessage());
         }
         return BaseResponse.success();
+    }
+
+
+    @PostMapping("/refreshSaiheSku")
+    public BaseResponse refreshSaiheSku(){
+        Integer token = refershSaiheSku(null);
+        while (token != null){
+            token = refershSaiheSku(token);
+        }
+        return BaseResponse.success();
+    }
+
+
+    public Integer refershSaiheSku(Integer nextToken){
+        ApiGetProductResponse response = SaiheService.getProductsByClientSKUs(null,nextToken);
+        GetProductsResult result = response.getGetProductsResult();
+        if (result.getStatus().equals("OK")){
+            nextToken  = result.getNextToken();
+            List<ProductVariant> variants = new ArrayList<>();
+            List<ApiProductInfo> apiProductInfos = result.getProductInfoList().getProductInfoList();
+            for (ApiProductInfo apiProductInfo : apiProductInfos) {
+                ProductVariant productVariant = new ProductVariant();
+                productVariant.setVariantSku(apiProductInfo.getClientSKU());
+                productVariant.setSaiheSku(apiProductInfo.getSKU());
+                variants.add(productVariant);
+            }
+            productVariantService.updateSaiheSku(variants);
+            return nextToken;
+        }
+        return null;
     }
 
 

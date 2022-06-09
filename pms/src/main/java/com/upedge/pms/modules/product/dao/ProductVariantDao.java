@@ -13,27 +13,29 @@ import java.util.Map;
 /**
  * @author gx
  */
-public interface ProductVariantDao{
+public interface ProductVariantDao {
 
     void updateByBatch(List<ProductVariant> list);
 
-    void updateWeight(@Param("ids") List<Long> ids,@Param("weight") BigDecimal weight);
+    void updateWeight(@Param("ids") List<Long> ids, @Param("weight") BigDecimal weight);
 
     void updateVolumeWeight(@Param("ids") List<Long> ids,
                             @Param("volumeWeight") BigDecimal volumeWeight,
-                            @Param("width")BigDecimal width,
-                            @Param("height")BigDecimal height,
-                            @Param("length")BigDecimal length);
+                            @Param("width") BigDecimal width,
+                            @Param("height") BigDecimal height,
+                            @Param("length") BigDecimal length);
 
-    void updateVariantImage(@Param("ids") List<Long> ids,@Param("variantImage") String variantImage);
+    void updateVariantImage(@Param("ids") List<Long> ids, @Param("variantImage") String variantImage);
 
     int disableVariant(@Param("ids") List<Long> ids);
 
-    int enableVariant(@Param("ids")List<Long> ids);
+    int enableVariant(@Param("ids") List<Long> ids);
 
-    void updatePrice(@Param("ids")List<Long> ids,
-                     @Param("price")BigDecimal price,
-                     @Param("usdPrice")BigDecimal usdPrice);
+    void updatePrice(@Param("ids") List<Long> ids,
+                     @Param("price") BigDecimal price,
+                     @Param("usdPrice") BigDecimal usdPrice);
+
+    int updateSaiheSku(@Param("variants") List<ProductVariant> variants);
 
     List<ProductVariant> listProductVariantByIds(@Param("ids") List<Long> ids);
 

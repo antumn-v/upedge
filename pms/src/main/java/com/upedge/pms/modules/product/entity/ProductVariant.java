@@ -81,6 +81,8 @@ public class ProductVariant{
 	 */
     private BigDecimal height;
 
+	private String saiheSku;
+
 	private List<ProductVariantAttr> productVariantAttrList=new ArrayList<>();
 
 }
