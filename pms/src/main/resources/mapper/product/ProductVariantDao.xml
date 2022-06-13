@@ -23,6 +23,7 @@
         <result property="width" column="width"/>
         <result property="height" column="height"/>
         <result property="saiheSku" column="saihe_sku"/>
+        <result property="latestQuotePrice" column="latest_quote_price"/>
     </resultMap>
 
     <resultMap type="com.upedge.pms.modules.product.vo.SaiheSkuVo" id="SaiheSkuVo">
@@ -61,7 +62,7 @@
     <sql id="Base_Column_List">
         `id`,`original_variant_id`,`product_id`,`variant_sku`,`variant_image`,
         `variant_price`,`usd_price`,`inventory`,`weight`,`state`,`volume_weight`,
-        `variant_type`,`cn_name`,`en_name`,`length`,`width`,`height`,`saihe_sku`
+        `variant_type`,`cn_name`,`en_name`,`length`,`width`,`height`,`saihe_sku`,latest_quote_price
     </sql>
 
 
@@ -261,6 +262,9 @@
             </if>
             <if test="height != null">
                 height = #{height},
+            </if>
+            <if test="latestQuotePrice != null">
+                latest_quote_price = #{latestQuotePrice},
             </if>
         </set>
         where id = #{id}

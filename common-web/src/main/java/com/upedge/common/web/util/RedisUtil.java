@@ -48,10 +48,10 @@ public class RedisUtil {
      * 如果已经存在返回false,否则返回true
      */
     public static Boolean setNx(RedisTemplate<String, Object> redisTemplate, String key, Object value, Long expireTime, TimeUnit timeUnit){
-       if(StringUtils.isBlank(key) |value==null){
-           return false;
-       }
-       return redisTemplate.opsForValue().setIfAbsent(key,value,expireTime,timeUnit);
+        if(StringUtils.isBlank(key) |value==null){
+            return false;
+        }
+        return redisTemplate.opsForValue().setIfAbsent(key,value,expireTime,timeUnit);
     }
 
     /**
@@ -68,10 +68,10 @@ public class RedisUtil {
      * 移除数据
      */
     public static Boolean remove(RedisTemplate<String, Object> redisTemplate, String key){
-       if(StringUtils.isBlank(key)){
-           return null;
-       }
-       return redisTemplate.delete(key);
+        if(StringUtils.isBlank(key)){
+            return null;
+        }
+        return redisTemplate.delete(key);
     }
 
     /**

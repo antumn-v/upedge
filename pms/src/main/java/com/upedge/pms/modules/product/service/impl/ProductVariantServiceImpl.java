@@ -4,6 +4,7 @@ import com.upedge.common.base.Page;
 import com.upedge.common.constant.Constant;
 import com.upedge.common.constant.ResultCode;
 import com.upedge.common.exception.CustomerException;
+import com.upedge.common.model.pms.quote.CustomerProductQuoteVo;
 import com.upedge.common.model.product.VariantDetail;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.utils.IdGenerate;
@@ -157,6 +158,15 @@ public class ProductVariantServiceImpl implements ProductVariantService {
         }
         return productVariantDao.updateSaiheSku(variants);
     }
+
+    @Override
+    public int updateLatestQuotePrice(Long id, BigDecimal quotePrice) {
+        ProductVariant productVariant = new ProductVariant();
+        productVariant.setId(id);
+        productVariant.setLatestQuotePrice(quotePrice);
+        return updateByPrimaryKeySelective(productVariant);
+    }
+
 
     @Override
     public List<SaiheSkuVo> selectSaiheSkuVoByProductId(Long productId) {
@@ -495,6 +505,22 @@ public class ProductVariantServiceImpl implements ProductVariantService {
     */
     public long count(Page<ProductVariant> record){
         return productVariantDao.count(record);
+    }
+
+    @Override
+    public ProductVariant selectBySku(String variantSku) {
+        if (StringUtils.isBlank(variantSku)){
+            return null;
+        }
+        return productVariantDao.selectBySku(variantSku);
+    }
+
+    @Override
+    public List<CustomerProductQuoteVo> selectQuoteProductBySkus(List<String> skus) {
+        if (ListUtils.isEmpty(skus)){
+            return new ArrayList<>();
+        }
+        return productVariantDao.selectQuoteProductBySkus(skus);
     }
 
 }

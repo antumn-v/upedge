@@ -83,6 +83,8 @@ public class ProductVariant{
 
 	private String saiheSku;
 
+	private BigDecimal latestQuotePrice;
+
 	private List<ProductVariantAttr> productVariantAttrList=new ArrayList<>();
 
 }

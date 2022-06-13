@@ -2,6 +2,7 @@ package com.upedge.pms.modules.product.service;
 
 import com.upedge.common.base.Page;
 import com.upedge.common.exception.CustomerException;
+import com.upedge.common.model.pms.quote.CustomerProductQuoteVo;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.pms.modules.product.entity.ProductVariant;
 import com.upedge.pms.modules.product.request.*;
@@ -21,6 +22,8 @@ import java.util.Set;
 public interface ProductVariantService{
 
     int updateSaiheSku(List<ProductVariant> variants);
+
+    int updateLatestQuotePrice(Long id,BigDecimal quotePrice);
 
     List<SaiheSkuVo> selectSaiheSkuVoByProductId(Long productId);
 
@@ -67,5 +70,9 @@ public interface ProductVariantService{
     List<ProductVariant> select(Page<ProductVariant> record);
 
     long count(Page<ProductVariant> record);
+
+    ProductVariant selectBySku(String variantSku);
+
+    List<CustomerProductQuoteVo> selectQuoteProductBySkus(List<String> skus);
 }
 

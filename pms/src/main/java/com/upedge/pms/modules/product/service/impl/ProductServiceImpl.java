@@ -58,7 +58,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.stream.Collectors;
 
@@ -153,32 +152,32 @@ public class ProductServiceImpl implements ProductService {
     @Transactional
     @Override
     public BaseResponse updateInfo(Long id, UpdateInfoProductRequest request, Session session) throws Exception {
-        ProductAttribute productAttribute=productAttributeService.selectByProductId(id);
-        if(productAttribute==null){
-            return new BaseResponse(ResultCode.FAIL_CODE,Constant.MESSAGE_FAIL);
+        ProductAttribute productAttribute = productAttributeService.selectByProductId(id);
+        if (productAttribute == null) {
+            return new BaseResponse(ResultCode.FAIL_CODE, Constant.MESSAGE_FAIL);
         }
         Product product = productDao.selectByPrimaryKey(id);
         Integer productSource = product.getProductSource();
         Long shippingId = product.getShippingId();
-        if(!StringUtils.isBlank(request.getProductTitle())||!StringUtils.isBlank(request.getCategoryCode())
-                ||request.getCateType()!=null||request.getShippingId()!=null){
-            product=new Product();
+        if (!StringUtils.isBlank(request.getProductTitle()) || !StringUtils.isBlank(request.getCategoryCode())
+                || request.getCateType() != null || request.getShippingId() != null) {
+            product = new Product();
             product.setId(id);
             product.setProductTitle(request.getProductTitle());
-            Category category=categoryService.selectByCateCode(request.getCategoryCode());
-            if (category != null){
+            Category category = categoryService.selectByCateCode(request.getCategoryCode());
+            if (category != null) {
                 product.setCategoryId(category.getId());
             }
-            if (StringUtils.isBlank(product.getProductSku())&& StringUtils.isNotBlank(request.getProductSku())){
+            if (StringUtils.isBlank(product.getProductSku()) && StringUtils.isNotBlank(request.getProductSku())) {
                 product.setProductSku(request.getProductSku());
             }
             product.setCateType(request.getCateType());
             product.setShippingId(request.getShippingId());
-            if(request.getShippingId()!=null){
-                Product old=productDao.selectByPrimaryKey(id);
+            if (request.getShippingId() != null) {
+                Product old = productDao.selectByPrimaryKey(id);
                 //个人产品池 修改运输模板记录日志
-                if(old.getState()!=ProductConstant.State.EDITING.getCode()&&!old.getShippingId().equals(request.getShippingId())){
-                    ProductLog productLog=new ProductLog();
+                if (old.getState() != ProductConstant.State.EDITING.getCode() && !old.getShippingId().equals(request.getShippingId())) {
+                    ProductLog productLog = new ProductLog();
                     productLog.setId(IdGenerate.nextId());
                     productLog.setAdminUser(String.valueOf(session.getId()));
                     productLog.setCreateTime(new Date());
@@ -194,12 +193,12 @@ public class ProductServiceImpl implements ProductService {
         }
         String productSku = request.getProductSku();
         product.setProductSource(productSource);
-        updateProductSku(product,productSku);
+        updateProductSku(product, productSku);
         product.setRemark(request.getRemark());
         productDao.updateByPrimaryKeySelective(product);
-        if(!StringUtils.isBlank(request.getEntryCname())||!StringUtils.isBlank(request.getEntryCname())
-                ||request.getWarehouseCode()!=null){
-            ProductAttribute attribute=new ProductAttribute();
+        if (!StringUtils.isBlank(request.getEntryCname()) || !StringUtils.isBlank(request.getEntryCname())
+                || request.getWarehouseCode() != null) {
+            ProductAttribute attribute = new ProductAttribute();
             attribute.setId(productAttribute.getId());
             attribute.setEntryCname(request.getEntryCname());
             attribute.setEntryEname(request.getEntryEname());
@@ -208,34 +207,33 @@ public class ProductServiceImpl implements ProductService {
             productAttributeService.updateByPrimaryKeySelective(attribute);
         }
 
-        if ( request.getShippingId() != null
-        && !request.getShippingId().equals(shippingId)){
+        if (request.getShippingId() != null
+                && !request.getShippingId().equals(shippingId)) {
             List<VariantDetail> variantDetails = new ArrayList<>();
             VariantDetail variantDetail = new VariantDetail();
             variantDetail.setProductId(id);
             variantDetail.setProductShippingId(request.getShippingId());
             variantDetails.add(variantDetail);
-            boolean b = sendUpdateVariantMessage(variantDetails,"shippingId");
-            if (!b){
+            boolean b = sendUpdateVariantMessage(variantDetails, "shippingId");
+            if (!b) {
                 throw new Exception("消息队列异常，请重新提交或联系IT！");
             }
         }
 
 
-
-        return new BaseResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS);
+        return new BaseResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS);
     }
 
-    void updateProductSku(Product product,String productSku){
-        if (product.getProductSource() == 0){
+    void updateProductSku(Product product, String productSku) {
+        if (product.getProductSource() == 0) {
             return;
         }
-        if (StringUtils.isNotBlank(productSku)){
+        if (StringUtils.isNotBlank(productSku)) {
             productSku = UrlUtils.getNameByUrl(productSku);
-            if (StringUtils.isNotBlank(productSku)){
+            if (StringUtils.isNotBlank(productSku)) {
                 AlibabaApiVo alibabaApiVo = (AlibabaApiVo) redisTemplate.opsForValue().get(RedisKey.STRING_ALI1688_API);
                 AlibabaProductVo alibabaProductVo = Ali1688Service.getProduct(productSku, alibabaApiVo);
-                if (null != alibabaProductVo){
+                if (null != alibabaProductVo) {
                     Supplier supplier = supplierService.selectByLoginId(alibabaProductVo.getSupplierVo().getLoginId());
                     if (supplier == null) {
                         supplier = new Supplier();
@@ -252,11 +250,11 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public AppProductVo showCustomerProductDetail(Long productId,Session session) {
-        Product product =  productDao.selectByPrimaryKey(productId);
-        AppProductVo appProductVo=  new AppProductVo();
-        if (product != null){
-            BeanUtils.copyProperties(product,appProductVo);
+    public AppProductVo showCustomerProductDetail(Long productId, Session session) {
+        Product product = productDao.selectByPrimaryKey(productId);
+        AppProductVo appProductVo = new AppProductVo();
+        if (product != null) {
+            BeanUtils.copyProperties(product, appProductVo);
             appProductVo.initUsdPriceRange();
         }
 
@@ -265,24 +263,24 @@ public class ProductServiceImpl implements ProductService {
         for (AppProductVariantVo variantVo : variantVos) {
             List<AppProductVariantAttrVo> attrs = variantVo.getAttrs();
             attrs.forEach(appProductVariantAttrVo -> {
-                if (!attributeMap.containsKey(appProductVariantAttrVo.getVariantAttrEname())){
-                    attributeMap.put(appProductVariantAttrVo.getVariantAttrEname(),new HashSet<>());
+                if (!attributeMap.containsKey(appProductVariantAttrVo.getVariantAttrEname())) {
+                    attributeMap.put(appProductVariantAttrVo.getVariantAttrEname(), new HashSet<>());
                 }
                 attributeMap.get(appProductVariantAttrVo.getVariantAttrEname()).add(appProductVariantAttrVo.getVariantAttrEvalue());
             });
-            if (variantVo.getUsdPrice() != null){
+            if (variantVo.getUsdPrice() != null) {
                 variantVo.setVariantPrice(variantVo.getUsdPrice());
-            }else {
+            } else {
                 BigDecimal price = PriceUtils.cnyToUsdByDefaultRate(variantVo.getVariantPrice());
                 variantVo.setVariantPrice(price);
             }
         }
         appProductVo.setVariantVos(variantVos);
         appProductVo.setAttributeMap(attributeMap);
-        ImportProductAttribute importProductAttribute = importProductAttributeDao.selectBySourceProductId(productId.toString(),session.getCustomerId());
-        if (importProductAttribute != null){
+        ImportProductAttribute importProductAttribute = importProductAttributeDao.selectBySourceProductId(productId.toString(), session.getCustomerId());
+        if (importProductAttribute != null) {
             appProductVo.setImportState(1);
-        }else {
+        } else {
             appProductVo.setImportState(0);
         }
         List<VariantNameVo> variantNameVos = productVariantAttrService.selectNameValueByProductId(productId);
@@ -321,7 +319,7 @@ public class ProductServiceImpl implements ProductService {
     public BaseResponse winningProductList(WinningProductListRequest request, Session session) {
         List<AppProductVo> productVos = productDao.selectWinningProducts(request);
         //检查产品是否已导入my product
-        checkImportProducts(productVos,session.getCustomerId());
+        checkImportProducts(productVos, session.getCustomerId());
         Long total = productDao.countWinningProduct(request);
         request.setTotal(total);
         return new BaseResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS, productVos, request);
@@ -340,47 +338,38 @@ public class ProductServiceImpl implements ProductService {
 //            adminProductVo.setCategoryId(Long.parseLong(category.getCateCode()));
 //        }
         //开启异步任务 获取属性
-        CompletableFuture<Void> productAttributeFuture = CompletableFuture.runAsync(() -> {
-            ProductAttribute productAttribute = productAttributeService.selectByProductId(id);
-            if (productAttribute == null){
-                productAttribute = new ProductAttribute();
-                productAttribute.setProductId(id);
-                productAttribute.setWarehouseCode(SaiheConfig.UPEDGE_DEFAULT_WAREHOUSE_ID);
-                productAttributeService.insert(productAttribute);
-            }
-            adminProductVo.setProductAttribute(productAttribute);
-        }, threadPoolExecutor);
+
+        ProductAttribute productAttribute = productAttributeService.selectByProductId(id);
+        if (productAttribute == null) {
+            productAttribute = new ProductAttribute();
+            productAttribute.setProductId(id);
+            productAttribute.setWarehouseCode(SaiheConfig.UPEDGE_DEFAULT_WAREHOUSE_ID);
+            productAttributeService.insert(productAttribute);
+        }
+        adminProductVo.setProductAttribute(productAttribute);
+
 
         //开启异步任务  获取图片列表
-        CompletableFuture<Void> productImgListFuture = CompletableFuture.runAsync(() -> {
-            List<ProductImg> productImgList = productImgService.selectByProductId(id);
-            adminProductVo.setProductImgList(productImgList);
-        }, threadPoolExecutor);
+
+        List<ProductImg> productImgList = productImgService.selectByProductId(id);
+        adminProductVo.setProductImgList(productImgList);
+
 
         //开启异步任务  获取产品描述
-        CompletableFuture<Void> productInfoFuture = CompletableFuture.runAsync(() -> {
-            ProductInfo productInfo = productInfoService.selectByProductId(id);
-            if (productInfo == null){
-                productInfo = new ProductInfo();
-                productInfo.setProductId(id);
-                productInfoService.insert(productInfo);
-            }
-            adminProductVo.setProductInfo(productInfo);
-        }, threadPoolExecutor);
+
+        ProductInfo productInfo = productInfoService.selectByProductId(id);
+        if (productInfo == null) {
+            productInfo = new ProductInfo();
+            productInfo.setProductId(id);
+            productInfoService.insert(productInfo);
+        }
+        adminProductVo.setProductInfo(productInfo);
+
         //开启异步任务  获取产品描述
         //属性-值列表
-        Map<String, VariantAttrVo> attrMap = new HashMap<>();
-        CompletableFuture<Void> productVariantListFuture = CompletableFuture.runAsync(() -> {
-            List<ProductVariant> productVariantList = productVariantService.selectByProductId(id);
-            adminProductVo.setProductVariantList(productVariantList);
-        }, threadPoolExecutor);
-        //等到所有任务都完成
-        try {
-            CompletableFuture.allOf(productAttributeFuture, productImgListFuture, productInfoFuture, productVariantListFuture).get();
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
+
+        List<ProductVariant> productVariantList = productVariantService.selectByProductId(id);
+        adminProductVo.setProductVariantList(productVariantList);
 
         return adminProductVo;
     }
@@ -667,7 +656,7 @@ public class ProductServiceImpl implements ProductService {
             productVariant.setWidth(BigDecimal.ONE);
             productVariant.setLength(BigDecimal.ONE);
             productVariant.setVolumeWeight(BigDecimal.ONE);
-            if (null == productVariant.getWeight()){
+            if (null == productVariant.getWeight()) {
                 productVariant.setWeight(BigDecimal.ZERO);
             }
             productVariantList.add(productVariant);
@@ -696,7 +685,7 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public Product selectByOriginalId(String originalId) {
-        if (StringUtils.isBlank(originalId)){
+        if (StringUtils.isBlank(originalId)) {
             return null;
         }
         return productDao.selectByOriginalId(originalId);
@@ -731,8 +720,8 @@ public class ProductServiceImpl implements ProductService {
             }
             //变体重量异常
             if (null == productVariant.getWeight()
-                || null == productVariant.getVolumeWeight()
-                || productVariant.getVolumeWeight().compareTo(BigDecimal.ZERO) <= 0
+                    || null == productVariant.getVolumeWeight()
+                    || productVariant.getVolumeWeight().compareTo(BigDecimal.ZERO) <= 0
                     || productVariant.getWeight().compareTo(BigDecimal.ZERO) <= 0) {
                 return new BaseResponse(ResultCode.FAIL_CODE, "变体重量异常");
             }
@@ -773,19 +762,19 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public BaseResponse uploadToSaihe(Long productId,Long variantId) throws Exception {
+    public BaseResponse uploadToSaihe(Long productId, Long variantId) throws Exception {
         List<SaiheSkuVo> list = new ArrayList<>();
-        if (null == productId && null == variantId){
+        if (null == productId && null == variantId) {
             return BaseResponse.failed("请求数据为空");
         }
-        if (null != variantId){
+        if (null != variantId) {
             SaiheSkuVo saiheSkuVo = productVariantService.selectSaiheSkuVoById(variantId);
-            if (null != saiheSkuVo){
+            if (null != saiheSkuVo) {
                 list.add(saiheSkuVo);
                 productId = Long.parseLong(saiheSkuVo.getProductId());
             }
 
-        }else {
+        } else {
             list = productVariantService.selectSaiheSkuVoByProductId(productId);
         }
         if (list == null || list.size() == 0) {
@@ -848,7 +837,7 @@ public class ProductServiceImpl implements ProductService {
                 product.setSaiheState(1);
                 updateByPrimaryKeySelective(product);
                 ProcessUpdateProductResult.SkuAddList skuAddList = apiUploadProductsResponse.getProcessUpdateProductResult().getSkuAddList();
-                if (null != skuAddList && ListUtils.isNotEmpty(skuAddList.getSkuResult())){
+                if (null != skuAddList && ListUtils.isNotEmpty(skuAddList.getSkuResult())) {
                     List<SkuResult> skuResults = skuAddList.getSkuResult();
                     List<ProductVariant> variants = new ArrayList<>();
                     for (SkuResult skuResult : skuResults) {
@@ -901,7 +890,7 @@ public class ProductServiceImpl implements ProductService {
         }
         //选品池->收藏夹
 
-        int res = productDao.importFavorite(request.getIds(), session.getId(),new Date());
+        int res = productDao.importFavorite(request.getIds(), session.getId(), new Date());
         return new ImportFavoriteResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS, res);
     }
 
@@ -958,16 +947,16 @@ public class ProductServiceImpl implements ProductService {
         Product product = productDao.selectByPrimaryKey(record.getId());
         Long shippingId = product.getShippingId();
         int i = productDao.updateByPrimaryKeySelective(record);
-        if (i == 1){
-            if ( record.getShippingId() != null
-                    && !record.getShippingId().equals(shippingId)){
+        if (i == 1) {
+            if (record.getShippingId() != null
+                    && !record.getShippingId().equals(shippingId)) {
                 List<VariantDetail> variantDetails = new ArrayList<>();
                 VariantDetail variantDetail = new VariantDetail();
                 variantDetail.setProductId(record.getId());
                 variantDetail.setProductShippingId(record.getShippingId());
                 variantDetails.add(variantDetail);
-                boolean b = sendUpdateVariantMessage(variantDetails,"shippingId");
-                if (!b){
+                boolean b = sendUpdateVariantMessage(variantDetails, "shippingId");
+                if (!b) {
                     throw new Exception("消息队列异常，请重新提交或联系IT！");
                 }
             }
@@ -1088,14 +1077,14 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public List<Product> selectByIds(List<Long> productIds) {
-        if (ListUtils.isEmpty(productIds)){
+        if (ListUtils.isEmpty(productIds)) {
             return new ArrayList<>();
         }
         return productDao.selectByIds(productIds);
     }
 
     @Override
-    public List<AppProductVo> checkImportProducts(List<AppProductVo> productVos,Long customerId) {
+    public List<AppProductVo> checkImportProducts(List<AppProductVo> productVos, Long customerId) {
         if (ListUtils.isNotEmpty(productVos)) {
             List<String> sourceProductIds = importProductAttributeDao.selectImportedSourceProductIds(customerId);
             boolean b = ListUtils.isNotEmpty(sourceProductIds);
@@ -1117,34 +1106,34 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public boolean sendUpdateVariantMessage(List<VariantDetail> variantDetails, String tag) {
-        if(ListUtils.isEmpty(variantDetails)){
+        if (ListUtils.isEmpty(variantDetails)) {
             return false;
         }
         String key = UUID.randomUUID().toString();
-        log.debug("变体更新发送消息，key:{},tag:{},数据:{}",key,tag, JSON.toJSON(variantDetails));
-        Message message = new Message(RocketMqConfig.TOPIC_VARIANT_UPDATE,tag,key, JSON.toJSONBytes(variantDetails));
+        log.debug("变体更新发送消息，key:{},tag:{},数据:{}", key, tag, JSON.toJSON(variantDetails));
+        Message message = new Message(RocketMqConfig.TOPIC_VARIANT_UPDATE, tag, key, JSON.toJSONBytes(variantDetails));
         message.setDelayTimeLevel(1);
-        MqMessageLog messageLog = MqMessageLog.toMqMessageLog(message,variantDetails.toString());
+        MqMessageLog messageLog = MqMessageLog.toMqMessageLog(message, variantDetails.toString());
         boolean b = false;
         String status = "failed";
         int i = 1;
-        while (i < 4 && !status.equals(SendStatus.SEND_OK.name())){
+        while (i < 4 && !status.equals(SendStatus.SEND_OK.name())) {
             try {
-                status =  defaultMQProducer.send(message).getSendStatus().name();
+                status = defaultMQProducer.send(message).getSendStatus().name();
             } catch (Exception e) {
                 e.printStackTrace();
-                log.warn("变体更新发送消息，key:{},交易信息发送失败,失败次数:{}",key,i);
-            }finally {
+                log.warn("变体更新发送消息，key:{},交易信息发送失败,失败次数:{}", key, i);
+            } finally {
                 i += 1;
             }
         }
-        if(status.equals(SendStatus.SEND_OK.name())){
+        if (status.equals(SendStatus.SEND_OK.name())) {
             b = true;
             messageLog.setIsSendSuccess(1);
-            log.warn("变体更新发送消息，key:{},交易信息发送成功",key);
-        }else {
+            log.warn("变体更新发送消息，key:{},交易信息发送成功", key);
+        } else {
             messageLog.setIsSendSuccess(0);
-            log.warn("变体更新发送消息，key:{}",key);
+            log.warn("变体更新发送消息，key:{}", key);
         }
         umsFeignClient.saveMqLog(messageLog);
         return b;

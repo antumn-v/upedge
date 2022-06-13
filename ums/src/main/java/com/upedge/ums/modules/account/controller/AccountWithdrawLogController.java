@@ -51,7 +51,7 @@ public class AccountWithdrawLogController {
         return accountWithdrawLogService.withdrawConfirm(id,session);
     }
 
-    @ApiOperation("提现通过")
+    @ApiOperation("提现驳回")
     @PostMapping("/reject/{id}")
     public BaseResponse reject(@PathVariable Long id){
         Session session = UserUtil.getSession(redisTemplate);

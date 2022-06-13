@@ -10,13 +10,13 @@ import com.upedge.common.model.pms.request.CustomerProductQuoteSearchRequest;
 import com.upedge.common.model.pms.request.QuotedProductSelectBySkuRequest;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.utils.ListUtils;
-import com.upedge.pms.modules.product.dao.ProductVariantDao;
 import com.upedge.pms.modules.product.dao.StoreProductAttributeDao;
 import com.upedge.pms.modules.product.dao.StoreProductVariantDao;
 import com.upedge.pms.modules.product.entity.Product;
 import com.upedge.pms.modules.product.entity.ProductVariant;
 import com.upedge.pms.modules.product.entity.StoreProductVariant;
 import com.upedge.pms.modules.product.service.ProductService;
+import com.upedge.pms.modules.product.service.ProductVariantService;
 import com.upedge.pms.modules.product.service.StoreProductVariantService;
 import com.upedge.pms.modules.quote.dao.CustomerProductQuoteDao;
 import com.upedge.pms.modules.quote.entity.CustomerProductQuote;
@@ -61,7 +61,7 @@ public class CustomerProductQuoteServiceImpl implements CustomerProductQuoteServ
     ProductMqProducer productMqProducer;
 
     @Autowired
-    ProductVariantDao productVariantDao;
+    ProductVariantService productVariantService;
 
     @Autowired
     ProductService productService;
@@ -158,7 +158,7 @@ public class CustomerProductQuoteServiceImpl implements CustomerProductQuoteServ
                 && customerProductQuote.getQuoteScale().equals(request.getQuoteScale())) {
             return BaseResponse.success();
         }
-        ProductVariant productVariant = productVariantDao.selectBySku(request.getVariantSku());
+        ProductVariant productVariant = productVariantService.selectBySku(request.getVariantSku());
         if (null == productVariant
                 || null == productVariant.getWeight()
                 || null == productVariant.getVolumeWeight()
@@ -194,6 +194,8 @@ public class CustomerProductQuoteServiceImpl implements CustomerProductQuoteServ
         productQuoteRecord.setUserId(session.getId());
         productQuoteRecord.setCreateTime(new Date());
         productQuoteRecordService.insert(productQuoteRecord);
+
+        productVariantService.updateLatestQuotePrice(productVariant.getId(),request.getQuotePrice());
 
         List<Long> storeVariantIds = new ArrayList<>();
         storeVariantIds.add(storeVariantId);
@@ -398,7 +400,7 @@ public class CustomerProductQuoteServiceImpl implements CustomerProductQuoteServ
 //        }
 //
 //        return customerProductQuoteVos;
-        List<CustomerProductQuoteVo> customerProductQuoteVoList = productVariantDao.selectQuoteProductBySkus(skus);
+        List<CustomerProductQuoteVo> customerProductQuoteVoList = productVariantService.selectQuoteProductBySkus(skus);
         return customerProductQuoteVoList;
     }
 }
