@@ -1230,7 +1230,7 @@ public class OrderServiceImpl implements OrderService {
             order.setQuoteState(Order.QUOTE_UNQUOTED);
         }
         if (quotingItem > 0) {
-            order.setQuoteState(Order.QUOTE_UNQUOTED);
+            order.setQuoteState(Order.QUOTE_QUOTING);
         }
         order.setCnyProductAmount(cnyProductAmount);
         order.setProductAmount(productAmount);

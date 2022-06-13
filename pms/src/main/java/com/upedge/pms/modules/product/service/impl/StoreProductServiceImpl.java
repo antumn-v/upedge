@@ -99,7 +99,7 @@ public class StoreProductServiceImpl implements StoreProductService {
     @Override
     public BaseResponse toNormalProduct(Long id, Long managerId) {
         StoreProductAttribute storeProductAttribute = storeProductAttributeDao.selectByPrimaryKey(id);
-        if (null == storeProductAttribute) {
+        if (null == storeProductAttribute || storeProductAttribute.getSource() == 3) {
             return BaseResponse.failed("店铺产品不存在");
         }
         if (storeProductAttribute.getTransformState() == 1) {
@@ -141,7 +141,6 @@ public class StoreProductServiceImpl implements StoreProductService {
             ProductInfo productInfo = new ProductInfo();
             productInfo.setProductId(newProductId);
             productInfoService.insert(productInfo);
-            storeProductAttributeDao.updateTransformStateById(id, 1);
             return BaseResponse.success();
         }
 
