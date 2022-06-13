@@ -13,13 +13,7 @@ import java.util.Date;
 public class AccountBalanceWithdrawRequest {
 
     @NotNull
-    BigDecimal balance;
-
-    @NotNull
-    BigDecimal vipRebate;
-
-    @NotNull
-    BigDecimal affiliateRebate;
+    BigDecimal withdrawAmount;
 
     @NotNull
     private String collectAccount;
@@ -29,11 +23,12 @@ public class AccountBalanceWithdrawRequest {
     public AccountWithdrawLog toWithdrawLog(Session session){
         AccountWithdrawLog withdrawLog = new AccountWithdrawLog();
         withdrawLog.setId(IdGenerate.nextId());
-        withdrawLog.setBalance(balance);
+        withdrawLog.setWithdrawAmount(withdrawAmount);
+        withdrawLog.setBalance(BigDecimal.ZERO);
         withdrawLog.setAccountId(session.getAccountId());
         withdrawLog.setCustomerId(session.getCustomerId());
-        withdrawLog.setAffiliateRebate(affiliateRebate);
-        withdrawLog.setVipRebate(vipRebate);
+        withdrawLog.setAffiliateRebate(BigDecimal.ZERO);
+        withdrawLog.setVipRebate(BigDecimal.ZERO);
         withdrawLog.setCollectAccount(collectAccount);
         if (collectType == null){
             collectType = 0;

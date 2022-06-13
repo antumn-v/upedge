@@ -23,6 +23,8 @@ public class AccountWithdrawLog{
 	 * 
 	 */
     private Long customerId;
+
+	private BigDecimal withdrawAmount;
 	/**
 	 * 
 	 */

@@ -8,6 +8,7 @@
         <result property="id" column="id"/>
         <result property="accountId" column="account_id"/>
         <result property="customerId" column="customer_id"/>
+        <result property="withdrawAmount" column="withdraw_amount"/>
         <result property="balance" column="balance"/>
         <result property="affiliateRebate" column="affiliate_rebate"/>
         <result property="vipRebate" column="vip_rebate"/>
@@ -20,7 +21,7 @@
     </resultMap>
 
     <sql id="Base_Column_List">
-        `id`,`account_id`,`customer_id`,`balance`,`affiliate_rebate`,`vip_rebate`,`collect_account`,`collect_type`,`log_before_withdraw`,`create_time`,`update_time`,`status`
+        `id`,`account_id`,`customer_id`,`balance`,`affiliate_rebate`,`vip_rebate`,`collect_account`,`collect_type`,`log_before_withdraw`,`create_time`,`update_time`,`status`,`withdraw_amount`
 
     </sql>
 
@@ -69,6 +70,9 @@
             <if test="updateTime != null">
                 update_time = #{updateTime},
             </if>
+            <if test="status != null">
+                status = #{status},
+            </if>
         </set>
         where id = #{id}
         and status = '0'
@@ -100,6 +104,7 @@
             id,
             account_id,
             customer_id,
+            withdraw_amount,
             balance,
             affiliate_rebate,
             vip_rebate,
@@ -114,6 +119,7 @@
         #{id},
         #{accountId},
         #{customerId},
+        #{withdrawAmount},
         #{balance},
         #{affiliateRebate},
         #{vipRebate},

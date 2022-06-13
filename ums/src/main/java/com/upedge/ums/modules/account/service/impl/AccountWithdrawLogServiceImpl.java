@@ -71,10 +71,13 @@ public class AccountWithdrawLogServiceImpl implements AccountWithdrawLogService 
 
     @Override
     public BaseResponse accountWithdrawRequest(AccountBalanceWithdrawRequest request, Session session) {
+        if (request.getWithdrawAmount().compareTo(BigDecimal.ONE) < 0){
+            return BaseResponse.failed();
+        }
         Account account = accountService.selectById(session.getAccountId());
-        if (account.getBalance().compareTo(request.getBalance()) < 0
-                || account.getAffiliateRebate().compareTo(request.getAffiliateRebate()) < 0
-                || account.getVipRebate().compareTo(request.getVipRebate()) < 0){
+
+        BigDecimal amount = account.getBalance().add(account.getVipRebate()).add(account.getAffiliateRebate());
+        if (amount.compareTo(request.getWithdrawAmount()) < 0){
             return BaseResponse.failed("Insufficient balance");
         }
 
@@ -108,6 +111,32 @@ public class AccountWithdrawLogServiceImpl implements AccountWithdrawLogService 
         if(!b){
             return BaseResponse.failed("账户正在交易中");
         }
+        BigDecimal withdrawAmount = accountWithdrawLog.getWithdrawAmount();
+
+        Account account = accountService.selectById(accountWithdrawLog.getAccountId());
+        BigDecimal balance = account.getBalance();
+        BigDecimal affiliateRebate = account.getAffiliateRebate();
+        BigDecimal vipRebate = account.getVipRebate();
+
+        BigDecimal amount = account.getBalance().add(account.getVipRebate()).add(account.getAffiliateRebate());
+        if (amount.compareTo(withdrawAmount) < 0){
+            return BaseResponse.failed("账户余额不足");
+        }
+        if (balance.compareTo(withdrawAmount) > 0){
+            accountWithdrawLog.setBalance(withdrawAmount);
+        }else if (balance.add(affiliateRebate).compareTo(withdrawAmount) > 0){
+            withdrawAmount = withdrawAmount.subtract(balance);
+            accountWithdrawLog.setBalance(balance);
+            accountWithdrawLog.setAffiliateRebate(withdrawAmount);
+        }else {
+            withdrawAmount = withdrawAmount.subtract(balance).subtract(affiliateRebate);
+            accountWithdrawLog.setBalance(balance);
+            accountWithdrawLog.setAffiliateRebate(affiliateRebate);
+            accountWithdrawLog.setVipRebate(withdrawAmount);
+        }
+        accountWithdrawLog.setStatus(1);
+        updateByPrimaryKeySelective(accountWithdrawLog);
+
         int i = accountService.accountReduceBalance(accountWithdrawLog.getAccountId(),accountWithdrawLog.getBalance(),accountWithdrawLog.getAffiliateRebate(),accountWithdrawLog.getVipRebate());
         if (i == 0){
             return BaseResponse.failed("提现失败");
@@ -125,7 +154,6 @@ public class AccountWithdrawLogServiceImpl implements AccountWithdrawLogService 
         accountLogService.insert(accountLog);
 
 
-        updateByPrimaryKeySelective(accountWithdrawLog);
         RedisUtil.unLock(redisTemplate,key);
         return BaseResponse.success();
     }
