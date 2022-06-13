@@ -1,6 +1,5 @@
 package com.upedge.pms.modules.product.entity;
 
-import com.upedge.common.model.user.vo.Session;
 import lombok.Data;
 import org.springframework.util.ReflectionUtils;
 
@@ -96,7 +95,10 @@ public class StoreProductAttribute {
 
     }
 
-    public Product toProduct(Session session){
+    public Product toProduct(Long managerId){
+        if(null == managerId){
+            managerId = 0L;
+        }
         Product product = new Product();
         product.setProductSku(null);
         product.setProductTitle(this.title);
@@ -109,7 +111,7 @@ public class StoreProductAttribute {
         product.setProductType(1);
         product.setReplaceState(0);
         product.setCateType(0);
-        product.setUserId(session.getId().toString());
+        product.setUserId(managerId.toString());
         product.setCreateTime(new Date());
         product.setUpdateTime(new Date());
         product.setPriceRange(this.price);

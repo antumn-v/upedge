@@ -1,8 +1,5 @@
 package com.upedge.pms.modules.product.service;
 
-import com.upedge.common.model.user.vo.Session;
-import com.upedge.thirdparty.shoplazza.moudles.product.entity.ShoplazzaProduct;
-import com.upedge.thirdparty.woocommerce.moudles.product.entity.WoocProduct;
 import com.upedge.common.base.BaseResponse;
 import com.upedge.common.model.product.StoreProductVariantVo;
 import com.upedge.common.model.product.request.PlatIdSelectStoreVariantRequest;
@@ -11,7 +8,8 @@ import com.upedge.pms.modules.product.request.StoreProductListRequest;
 import com.upedge.pms.modules.product.response.StoreProductListResponse;
 import com.upedge.pms.modules.product.vo.StoreProductRelateVo;
 import com.upedge.thirdparty.shopify.moudles.product.entity.ShopifyProduct;
-
+import com.upedge.thirdparty.shoplazza.moudles.product.entity.ShoplazzaProduct;
+import com.upedge.thirdparty.woocommerce.moudles.product.entity.WoocProduct;
 
 import java.util.List;
 
@@ -27,7 +25,7 @@ public interface StoreProductService {
      */
     List<StoreProductRelateVo> selectStoreVariantRelateDetail(Long storeProductId);
 
-    BaseResponse toNormalProduct(Long id, Session session);
+    BaseResponse toNormalProduct(Long id, Long managerId);
 
     List<StoreProductVariantVo> selectVariantByPlatId(PlatIdSelectStoreVariantRequest request);
 

@@ -18,6 +18,7 @@ import com.upedge.pms.modules.product.entity.StoreProductVariant;
 import com.upedge.pms.modules.product.request.ClaimQuoteApplyRequest;
 import com.upedge.pms.modules.product.request.QuoteApplyProcessRequest;
 import com.upedge.pms.modules.product.service.ProductService;
+import com.upedge.pms.modules.product.service.StoreProductService;
 import com.upedge.pms.modules.product.service.StoreProductVariantService;
 import com.upedge.pms.modules.quote.dao.CustomerProductQuoteDao;
 import com.upedge.pms.modules.quote.dao.QuoteApplyDao;
@@ -78,6 +79,9 @@ public class QuoteApplyServiceImpl implements QuoteApplyService {
 
     @Autowired
     StoreProductVariantService storeProductVariantService;
+
+    @Autowired
+    StoreProductService storeProductService;
 
     @Autowired
     ProductMqProducer productMqProducer;
@@ -314,24 +318,6 @@ public class QuoteApplyServiceImpl implements QuoteApplyService {
         List<Long> storeVariantIds = request.getStoreVariantId();
         Long customerId = request.getCustomerId();
 
-//        List<CustomerProductQuote> customerProductQuotes = customerProductQuoteDao.selectByCustomerAndStoreVariantIds(customerId, storeVariantIds);
-//        if (ListUtils.isNotEmpty(customerProductQuotes)) {
-//            for (CustomerProductQuote customerProductQuote : customerProductQuotes) {
-//                if (storeVariantIds.contains(customerProductQuote.getStoreVariantId())) {
-//                    storeVariantIds.remove(customerProductQuote.getStoreVariantId());
-//                }
-//            }
-//        }
-//        if (ListUtils.isEmpty(storeVariantIds)) {
-//            return BaseResponse.failed();
-//        }
-//        List<Long> quotingStoreVariantIds = quoteApplyItemDao.selectQuotingStoreVariantIds(storeVariantIds);
-//        if (ListUtils.isNotEmpty(quotingStoreVariantIds)) {
-//            storeVariantIds.removeAll(quotingStoreVariantIds);
-//        }
-//        if (ListUtils.isEmpty(storeVariantIds)) {
-//            return BaseResponse.failed();
-//        }
         Long applyId = IdGenerate.nextId();
         List<QuoteApplyItem> quoteApplyItems = new ArrayList<>();
         List<Long> quotingVariantIds = new ArrayList<>();
@@ -359,6 +345,8 @@ public class QuoteApplyServiceImpl implements QuoteApplyService {
             quoteApplyItem.setState(0);
             quoteApplyItems.add(quoteApplyItem);
             quotingVariantIds.add(quoteApplyItem.getStoreVariantId());
+
+            storeProductService.toNormalProduct(storeProductVariant.getId(),null);
         }
         if(ListUtils.isEmpty(quoteApplyItems)){
             return BaseResponse.failed();

@@ -97,7 +97,7 @@ public class StoreProductServiceImpl implements StoreProductService {
 
     @Transactional
     @Override
-    public BaseResponse toNormalProduct(Long id, Session session) {
+    public BaseResponse toNormalProduct(Long id, Long managerId) {
         StoreProductAttribute storeProductAttribute = storeProductAttributeDao.selectByPrimaryKey(id);
         if (null == storeProductAttribute) {
             return BaseResponse.failed("店铺产品不存在");
@@ -112,7 +112,7 @@ public class StoreProductServiceImpl implements StoreProductService {
         Product product = productService.selectByOriginalId(id.toString());
         if (null == product) {
             newProductId = IdGenerate.nextId();
-            product = storeProductAttribute.toProduct(session);
+            product = storeProductAttribute.toProduct(managerId);
             product.setId(newProductId);
             for (StoreProductVariant storeProductVariant : storeProductVariants) {
                 Long variantId = IdGenerate.nextId();
@@ -141,10 +141,10 @@ public class StoreProductServiceImpl implements StoreProductService {
             ProductInfo productInfo = new ProductInfo();
             productInfo.setProductId(newProductId);
             productInfoService.insert(productInfo);
-
+            storeProductAttributeDao.updateTransformStateById(id, 1);
             return BaseResponse.success();
         }
-        storeProductAttributeDao.updateTransformStateById(id, 1);
+
         return BaseResponse.failed("同一产品不能重复转换");
     }
 

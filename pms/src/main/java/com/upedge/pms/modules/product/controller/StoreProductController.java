@@ -66,7 +66,7 @@ public class StoreProductController {
     @PostMapping("/toNormalProduct/{id}")
     public BaseResponse toNormalProduct(@PathVariable Long id){
         Session session = UserUtil.getSession(redisTemplate);
-        return storeProductService.toNormalProduct(id,session);
+        return storeProductService.toNormalProduct(id,session.getId());
     }
 //    @ApiOperation("店铺产品关联详情")
 //    @GetMapping("/{id}/relateDetail")
