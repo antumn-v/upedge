@@ -1,6 +1,6 @@
 package com.upedge.thirdparty.saihe.request;
 
-import com.upedge.thirdparty.saihe.entity.cancelOrderInfo.ApiCancelOrderRequest;
+import com.upedge.thirdparty.saihe.entity.cancelOrderInfo.*;
 import com.upedge.thirdparty.saihe.entity.createProcurement.ApiCreateProcurementRequest;
 import com.upedge.thirdparty.saihe.entity.getOrderByCode.ApiGetOrderRequest;
 import com.upedge.thirdparty.saihe.entity.getOrderSourceList.ApiGetOrderSourceRequest;

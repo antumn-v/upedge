@@ -122,6 +122,7 @@ public class OrderRefundController {
     @ApiOperation("退款申请列表")
     @RequestMapping(value="/applyList", method=RequestMethod.POST)
     public OrderRefundListResponse refundOrderList(@RequestBody @Valid OrderRefundListRequest request) {
+        log.warn("新服务区访问");
         return orderRefundService.refundOrderList(request);
     }
 

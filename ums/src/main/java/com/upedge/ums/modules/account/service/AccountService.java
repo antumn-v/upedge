@@ -28,13 +28,18 @@ public interface AccountService {
      */
     Account selectCustomerDefaultAccount(Long customerId);
 
-    BaseResponse accountBalanceWithdraw(AccountBalanceWithdrawRequest request,Session session);
+
 
     Account selectSessionAccount(Session session);
 
     Account selectById(Long id);
 
     AccountPayMethod selectByAccountBankNum(Long accountId, String bankNum);
+
+    int accountReduceBalance(Long id,
+                             BigDecimal balance,
+                             BigDecimal affiliateRebate,
+                             BigDecimal vipRebate);
 
     BaseResponse returnOrderPayAmountToAccount(ReturnOrderPayAmountToAccountRequest request);
     /**分页查询账户
@@ -48,9 +53,6 @@ public interface AccountService {
      * @return
      */
     AccountAddResponse addAccount(AccountAddRequest request);
-
-    void addBalanceAndBenefits( Long id,
-                                BigDecimal amount, BigDecimal benefitsAmount);
 
     /**
      * 逻辑删除账户

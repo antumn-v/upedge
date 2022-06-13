@@ -2,9 +2,7 @@ package com.upedge.thirdparty.saihe.entity.cancelOrderInfo;
 
 import javax.xml.bind.annotation.XmlElement;
 
-/**
- * Created by cjq on 2019/6/10.
- */
+
 public class CancelOrderInfo {
 
     //用户名

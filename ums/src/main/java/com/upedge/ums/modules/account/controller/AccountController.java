@@ -218,11 +218,6 @@ public class AccountController {
         }
     }
 
-    @ApiOperation("账单余额提现")
-    @PostMapping("/balanceWithdraw")
-    public BaseResponse accountBalanceWithdraw(@RequestBody@Valid AccountBalanceWithdrawRequest request){
-        Session session = UserUtil.getSession(redisTemplate);
-        return accountService.accountBalanceWithdraw(request,session);
-    }
+
 
 }

@@ -1,0 +1,306 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.upedge.ums.modules.account.dao.AccountWithdrawLogDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.upedge.ums.modules.account.entity.AccountWithdrawLog" id="BaseResultMap">
+        <result property="id" column="id"/>
+        <result property="accountId" column="account_id"/>
+        <result property="customerId" column="customer_id"/>
+        <result property="balance" column="balance"/>
+        <result property="affiliateRebate" column="affiliate_rebate"/>
+        <result property="vipRebate" column="vip_rebate"/>
+        <result property="collectAccount" column="collect_account"/>
+        <result property="collectType" column="collect_type"/>
+        <result property="logBeforeWithdraw" column="log_before_withdraw"/>
+        <result property="status" column="status"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        `id`,`account_id`,`customer_id`,`balance`,`affiliate_rebate`,`vip_rebate`,`collect_account`,`collect_type`,`log_before_withdraw`,`create_time`,`update_time`,`status`
+
+    </sql>
+
+    <select id="selectByPrimaryKey" parameterType="com.upedge.ums.modules.account.entity.AccountWithdrawLog" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from account_withdraw_log
+        where id = #{id}
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="com.upedge.ums.modules.account.entity.AccountWithdrawLog">
+        delete from account_withdraw_log
+        where id = #{id}
+    </delete>
+
+    <update id="updateByPrimaryKeySelective" parameterType="com.upedge.ums.modules.account.entity.AccountWithdrawLog">
+        update account_withdraw_log
+        <set>
+            <if test="accountId != null">
+                account_id = #{accountId},
+            </if>
+            <if test="customerId != null">
+                customer_id = #{customerId},
+            </if>
+            <if test="balance != null">
+                balance = #{balance},
+            </if>
+            <if test="affiliateRebate != null">
+                affiliate_rebate = #{affiliateRebate},
+            </if>
+            <if test="vipRebate != null">
+                vip_rebate = #{vipRebate},
+            </if>
+            <if test="collectAccount != null">
+                collect_account = #{collectAccount},
+            </if>
+            <if test="collectType != null">
+                collect_type = #{collectType},
+            </if>
+            <if test="logBeforeWithdraw != null">
+                log_before_withdraw = #{logBeforeWithdraw},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime},
+            </if>
+            <if test="updateTime != null">
+                update_time = #{updateTime},
+            </if>
+        </set>
+        where id = #{id}
+        and status = '0'
+    </update>
+
+    <update id="updateByPrimaryKey" parameterType="com.upedge.ums.modules.account.entity.AccountWithdrawLog">
+        update account_withdraw_log
+        <set>
+        id = #{id},
+        account_id = #{accountId},
+        customer_id = #{customerId},
+        balance = #{balance},
+        affiliate_rebate = #{affiliateRebate},
+        vip_rebate = #{vipRebate},
+        collect_account = #{collectAccount},
+        collect_type = #{collectType},
+        log_before_withdraw = #{logBeforeWithdraw},
+            status = #{status},
+        create_time = #{createTime},
+        update_time = #{updateTime},
+        </set>
+        where id = #{id}
+        and status = '0'
+    </update>
+
+    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.upedge.ums.modules.account.entity.AccountWithdrawLog" useGeneratedKeys="true">
+        insert into account_withdraw_log
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            id,
+            account_id,
+            customer_id,
+            balance,
+            affiliate_rebate,
+            vip_rebate,
+            collect_account,
+            collect_type,
+            log_before_withdraw,
+            status,
+            create_time,
+            update_time
+        </trim>
+        values (
+        #{id},
+        #{accountId},
+        #{customerId},
+        #{balance},
+        #{affiliateRebate},
+        #{vipRebate},
+        #{collectAccount},
+        #{collectType},
+        #{logBeforeWithdraw},
+        #{status},
+        #{createTime},
+        #{updateTime}
+        )
+    </insert>
+
+    <insert id="insertSelective"  keyColumn="id" keyProperty="id"  parameterType="com.upedge.ums.modules.account.entity.AccountWithdrawLog" useGeneratedKeys="true">
+        insert into account_withdraw_log
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null" >
+              id
+            </if>
+            <if test="accountId != null" >
+              account_id
+            </if>
+            <if test="customerId != null" >
+              customer_id
+            </if>
+            <if test="balance != null" >
+              balance
+            </if>
+            <if test="affiliateRebate != null" >
+              affiliate_rebate
+            </if>
+            <if test="vipRebate != null" >
+              vip_rebate
+            </if>
+            <if test="collectAccount != null" >
+              collect_account
+            </if>
+            <if test="collectType != null" >
+              collect_type
+            </if>
+            <if test="logBeforeWithdraw != null" >
+              log_before_withdraw
+            </if>
+            <if test="createTime != null" >
+              create_time
+            </if>
+            <if test="updateTime != null" >
+              update_time
+            </if>
+
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null" >
+                #{id}
+            </if>
+            <if test="accountId != null" >
+                #{accountId}
+            </if>
+            <if test="customerId != null" >
+                #{customerId}
+            </if>
+            <if test="balance != null" >
+                #{balance}
+            </if>
+            <if test="affiliateRebate != null" >
+                #{affiliateRebate}
+            </if>
+            <if test="vipRebate != null" >
+                #{vipRebate}
+            </if>
+            <if test="collectAccount != null" >
+                #{collectAccount}
+            </if>
+            <if test="collectType != null" >
+                #{collectType}
+            </if>
+            <if test="logBeforeWithdraw != null" >
+                #{logBeforeWithdraw}
+            </if>
+            <if test="createTime != null" >
+                #{createTime}
+            </if>
+            <if test="updateTime != null" >
+                #{updateTime}
+            </if>
+
+        </trim>
+    </insert>
+
+    <insert id="insertByBatch" parameterType="java.util.List">
+        insert into account_withdraw_log
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+           id,
+           account_id,
+           customer_id,
+           balance,
+           affiliate_rebate,
+           vip_rebate,
+           collect_account,
+           collect_type,
+           log_before_withdraw,
+            status,
+           create_time,
+           update_time
+        </trim>
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+               #{item.id},
+               #{item.accountId},
+               #{item.customerId},
+               #{item.balance},
+               #{item.affiliateRebate},
+               #{item.vipRebate},
+               #{item.collectAccount},
+               #{item.collectType},
+               #{item.logBeforeWithdraw},
+               #{item.status},
+               #{item.createTime},
+               #{item.updateTime}
+            </trim>
+        </foreach>
+    </insert>
+
+    <sql id="Query_Condition">
+        <if test="t != null">
+            where
+            <trim prefix=" " suffix=" " suffixOverrides=" and ">
+                1 = 1 and
+                    <if test="t.id != null">
+                        id = #{t.id} and
+                    </if>
+                    <if test="t.accountId != null">
+                        account_id = #{t.accountId} and
+                    </if>
+                    <if test="t.customerId != null">
+                        customer_id = #{t.customerId} and
+                    </if>
+                    <if test="t.balance != null">
+                        balance = #{t.balance} and
+                    </if>
+                    <if test="t.affiliateRebate != null">
+                        affiliate_rebate = #{t.affiliateRebate} and
+                    </if>
+                    <if test="t.vipRebate != null">
+                        vip_rebate = #{t.vipRebate} and
+                    </if>
+                    <if test="t.collectAccount != null">
+                        collect_account = #{t.collectAccount} and
+                    </if>
+                    <if test="t.collectType != null">
+                        collect_type = #{t.collectType} and
+                    </if>
+                    <if test="t.logBeforeWithdraw != null">
+                        log_before_withdraw = #{t.logBeforeWithdraw} and
+                    </if>
+                    <if test="t.status != null">
+                        status = #{t.status} and
+                    </if>
+                    <if test="t.createTime != null">
+                        create_time = #{t.createTime} and
+                    </if>
+                    <if test="t.updateTime != null">
+                        update_time = #{t.updateTime} and
+                    </if>
+            </trim>
+        </if>
+    </sql>
+
+    <select id="select" parameterType="com.upedge.common.base.Page" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from account_withdraw_log
+        <include refid="Query_Condition"/>
+        <if test="orderBy != null">
+            order by ${orderBy}
+        </if>
+        <if test="pageNum != null and pageSize != null">
+            limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+        </if>
+    </select>
+
+    <select id="count" parameterType="com.upedge.common.base.Page" resultType="java.lang.Long">
+        select
+        count(1)
+        from account_withdraw_log
+        <include refid="Query_Condition"/>
+    </select>
+
+
+</mapper>

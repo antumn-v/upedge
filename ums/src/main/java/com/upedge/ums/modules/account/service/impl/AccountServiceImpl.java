@@ -1,7 +1,6 @@
 package com.upedge.ums.modules.account.service.impl;
 
 import com.upedge.common.base.BaseResponse;
-import com.upedge.common.constant.BaseCode;
 import com.upedge.common.constant.Constant;
 import com.upedge.common.constant.OrderType;
 import com.upedge.common.constant.ResultCode;
@@ -16,9 +15,8 @@ import com.upedge.common.model.order.PaymentDetail;
 import com.upedge.common.model.order.TransactionDetail;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.model.user.vo.UserVo;
-import com.upedge.common.utils.IdGenerate;
 import com.upedge.common.utils.ListUtils;
-import com.upedge.common.web.util.RedisUtil;
+import com.upedge.common.web.util.*;
 import com.upedge.common.web.util.UserUtil;
 import com.upedge.ums.modules.account.dao.*;
 import com.upedge.ums.modules.account.entity.*;
@@ -41,7 +39,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * @author 海桐
@@ -105,48 +106,6 @@ public class AccountServiceImpl implements AccountService {
         return accountMapper.selectCustomerDefaultAccount(customerId);
     }
 
-    @Transactional
-    @Override
-    public BaseResponse accountBalanceWithdraw(AccountBalanceWithdrawRequest request, Session session) {
-        if (session.getApplicationId() != Constant.ADMIN_APPLICATION_ID
-        && session.getUserType()  != BaseCode.USER_ROLE_SUPERADMIN){
-            return BaseResponse.failed();
-        }
-        Account account = accountMapper.selectCustomerDefaultAccount(request.getCustomerId());
-
-        String key = RedisKey.KEY_USER_ACCOUNT_PAY + account.getId();
-
-        boolean b = RedisUtil.lock(redisTemplate,key,3L,10*1000L);
-
-        if(!b){
-            return BaseResponse.failed("账户正在交易中");
-        }
-
-        if (account.getBalance().compareTo(request.getBalance()) < 0
-        || account.getAffiliateRebate().compareTo(request.getAffiliateRebate()) < 0
-        || account.getVipRebate().compareTo(request.getVipRebate()) < 0){
-            RedisUtil.unLock(redisTemplate,key);
-            return BaseResponse.failed("余额不足");
-        }
-        int i = accountMapper.accountReduceBalance(account.getId(),request.getBalance(),request.getAffiliateRebate(),request.getVipRebate());
-        if (i == 0){
-            RedisUtil.unLock(redisTemplate,key);
-            return BaseResponse.failed("提现失败");
-        }
-        AccountLog accountLog = new AccountLog(account.getId(),account.getCustomerId(),TransactionConstant.TransactionType.PAY_CUT_PAYMENT.getCode(),
-                TransactionConstant.OrderType.BALANCE_WITHDRAW.getCode(),
-                TransactionConstant.PayMethod.ACCOUNT.getCode(),
-                IdGenerate.nextId(),
-                request.getBalance(),
-                request.getAffiliateRebate(),
-                request.getVipRebate(),
-                BigDecimal.ZERO,
-                BigDecimal.ZERO,
-                new Date());
-        accountLogDao.insert(accountLog);
-        RedisUtil.unLock(redisTemplate,key);
-        return BaseResponse.success();
-    }
 
     @Override
     public Account selectSessionAccount(Session session) {
@@ -165,6 +124,18 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public AccountPayMethod selectByAccountBankNum(Long accountId, String bankNum) {
         return accountPayMethodMapper.selectByAccountIdAndBankNum(accountId, bankNum);
+    }
+
+    @Override
+    public int accountReduceBalance(Long id, BigDecimal balance, BigDecimal affiliateRebate, BigDecimal vipRebate) {
+        if (null == balance
+        || null == affiliateRebate
+        || null == vipRebate
+        || null == id){
+            return 0;
+        }
+        return accountMapper.accountReduceBalance(id, balance, affiliateRebate, vipRebate);
+
     }
 
     @GlobalTransactional
@@ -220,11 +191,6 @@ public class AccountServiceImpl implements AccountService {
         accountPayMethodMapper.insert(payMethod);
 
         return new AccountAddResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS);
-    }
-
-    @Override
-    public void addBalanceAndBenefits(Long id, BigDecimal amount, BigDecimal benefitsAmount) {
-
     }
 
     /**
@@ -408,7 +374,6 @@ public class AccountServiceImpl implements AccountService {
         String key = RedisKey.KEY_USER_ACCOUNT_PAY + accountId;
 
         boolean b = RedisUtil.lock(redisTemplate,key,3L,10*1000L);
-
         if(!b){
             return false;
         }

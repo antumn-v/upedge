@@ -40,7 +40,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ThreadPoolExecutor;
 
 @Slf4j
@@ -231,48 +230,30 @@ public class OrderRefundServiceImpl implements OrderRefundService {
             result.initMaxRefundAmount();
         }
 
-        //  客户信息
-        CompletableFuture<Void> customerFuture = CompletableFuture.runAsync(() -> {
-            for (OrderRefundVo orderRefundVo : results) {
-                BaseResponse customerResponse = umsFeignClient.customerInfo(orderRefundVo.getCustomerId());
-                if (customerResponse.getCode() == ResultCode.SUCCESS_CODE) {
-                    CustomerVo customerVo = JSON.parseObject(JSON.toJSONString(customerResponse.getData()), CustomerVo.class);
-                    if (customerVo != null) {
-                        orderRefundVo.setCustomerLoginName(customerVo.getLoginName());
-                        orderRefundVo.setCustomerName(customerVo.getUsername());
-                    }
-                }
-            }
-        }, threadPoolExecutor);
+
 
         // 获取订单的赛盒状态
         // OrderStatus
         //订单状态(正常 = 0,待审查 = 1,作废 = 2,锁定 = 3,只锁定发货 = 4,已完成 = 5)
         //OrderState
         //订单发货状态(未发货 = 0,部分发货 = 1,全部发货 = 2,妥投 = 3
-        CompletableFuture<Void> saiheFuture = CompletableFuture.runAsync(() -> {
-            for (OrderRefundVo orderRefundVo : results) {
-                if (orderRefundVo.getSaiheOrderCode() != null) {
-                    ApiGetOrderResponse apiGetOrderResponse = SaiheService.getOrderByCode(orderRefundVo.getSaiheOrderCode().toString());
-                    if (apiGetOrderResponse.getGetOrdersResult().getStatus().equals("OK")) {
-                        List<ApiOrderInfo> l = apiGetOrderResponse.getGetOrdersResult().getOrderInfoList().getOrderInfoList();
-                        if (l != null && l.size() > 0) {
-                            Integer orderState = l.get(0).getOrderState();
-                            Integer orderStatus = l.get(0).getOrderStatus();
-                            orderRefundVo.setSaiheOrderState(orderState);
-                            orderRefundVo.setSaiheorderStatus(orderStatus);
-                        }
-                    }
-                }
-            }
-        }, threadPoolExecutor);
+//        CompletableFuture<Void> saiheFuture = CompletableFuture.runAsync(() -> {
+//            for (OrderRefundVo orderRefundVo : results) {
+//                if (orderRefundVo.getSaiheOrderCode() != null) {
+//                    ApiGetOrderResponse apiGetOrderResponse = SaiheService.getOrderByCode(orderRefundVo.getSaiheOrderCode().toString());
+//                    if (apiGetOrderResponse.getGetOrdersResult().getStatus().equals("OK")) {
+//                        List<ApiOrderInfo> l = apiGetOrderResponse.getGetOrdersResult().getOrderInfoList().getOrderInfoList();
+//                        if (l != null && l.size() > 0) {
+//                            Integer orderState = l.get(0).getOrderState();
+//                            Integer orderStatus = l.get(0).getOrderStatus();
+//                            orderRefundVo.setSaiheOrderState(orderState);
+//                            orderRefundVo.setSaiheorderStatus(orderStatus);
+//                        }
+//                    }
+//                }
+//            }
+//        }, threadPoolExecutor);
 
-        try {
-            CompletableFuture.allOf(customerFuture,saiheFuture).get();
-        } catch (Exception e) {
-            e.printStackTrace();
-            return (OrderRefundListResponse) OrderRefundListResponse.failed();
-        }
         Long total = orderRefundDao.refundOrderCount(request);
         request.setTotal(total);
         return new OrderRefundListResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS, results, request);

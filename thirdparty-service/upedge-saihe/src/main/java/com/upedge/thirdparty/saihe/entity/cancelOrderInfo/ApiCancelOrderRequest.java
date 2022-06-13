@@ -14,6 +14,7 @@ public class ApiCancelOrderRequest {
     CancelOrderInfo cancelOrderInfo;
 
     @XmlElement(name="request")
+
     public CancelOrderInfo getCancelOrderInfo() {
         return cancelOrderInfo;
     }
@@ -21,6 +22,4 @@ public class ApiCancelOrderRequest {
     public void setCancelOrderInfo(CancelOrderInfo cancelOrderInfo) {
         this.cancelOrderInfo = cancelOrderInfo;
     }
-
-
 }

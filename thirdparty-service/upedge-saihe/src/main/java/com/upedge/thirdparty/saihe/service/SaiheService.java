@@ -6,9 +6,8 @@ import com.upedge.thirdparty.saihe.entity.GetProductInventory.InventoryRequest;
 import com.upedge.thirdparty.saihe.entity.GetPurchasePutInLogList.ApiGetInPurchaseDetailRequest;
 import com.upedge.thirdparty.saihe.entity.GetPurchasePutInLogList.ApiGetInPurchaseDetailResponse;
 import com.upedge.thirdparty.saihe.entity.GetPurchasePutInLogList.PurchaseDetailRequest;
-import com.upedge.thirdparty.saihe.entity.cancelOrderInfo.ApiCancelOrderRequest;
+import com.upedge.thirdparty.saihe.entity.cancelOrderInfo.*;
 import com.upedge.thirdparty.saihe.entity.cancelOrderInfo.ApiCancelOrderResponse;
-import com.upedge.thirdparty.saihe.entity.cancelOrderInfo.CancelOrderInfo;
 import com.upedge.thirdparty.saihe.entity.createProcurement.*;
 import com.upedge.thirdparty.saihe.entity.getOrderByCode.ApiGetOrderRequest;
 import com.upedge.thirdparty.saihe.entity.getOrderByCode.ApiGetOrderResponse;
@@ -631,6 +630,17 @@ public class SaiheService {
 //        ApiGetWareHouseResponse apiGetWareHouseResponse = getWareHouseList();
 //        System.out.println(apiGetWareHouseResponse.getGetWareHouseListResult().getWareHouseList());
 
+        ApiGetProductResponse response = getProductsByClientSKUs(null,null);
+        GetProductsResult result = response.getGetProductsResult();
+        if (result.getStatus().equals("OK")){
+            Integer nextToken = result.getNextToken();
+            List<ApiProductInfo> apiProductInfos = result.getProductInfoList().getProductInfoList();
+            for (ApiProductInfo apiProductInfo : apiProductInfos) {
+
+            }
+        }
+
+        System.out.println(response);
     }
 
 
