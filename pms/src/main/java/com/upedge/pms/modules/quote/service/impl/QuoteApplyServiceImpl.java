@@ -346,7 +346,7 @@ public class QuoteApplyServiceImpl implements QuoteApplyService {
             quoteApplyItems.add(quoteApplyItem);
             quotingVariantIds.add(quoteApplyItem.getStoreVariantId());
 
-            storeProductService.toNormalProduct(storeProductVariant.getId(),null);
+            storeProductService.toNormalProduct(storeProductVariant.getProductId(),0L);
         }
         if(ListUtils.isEmpty(quoteApplyItems)){
             return BaseResponse.failed();

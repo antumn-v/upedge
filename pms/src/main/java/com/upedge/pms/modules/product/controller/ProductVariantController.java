@@ -8,6 +8,7 @@ import com.upedge.common.exception.CustomerException;
 import com.upedge.common.model.product.ListVariantsRequest;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.web.util.UserUtil;
+import com.upedge.pms.modules.product.entity.Product;
 import com.upedge.pms.modules.product.entity.ProductVariant;
 import com.upedge.pms.modules.product.request.*;
 import com.upedge.pms.modules.product.response.*;
@@ -56,7 +57,16 @@ public class ProductVariantController {
         return productVariantService.listVariantByIds(request.getVariantIds());
     }
 
-
+    @ApiOperation("根据产品来源ID查询变体")
+    @RequestMapping(value="/listByOriginalProductId/{originalProductId}", method=RequestMethod.GET)
+    public BaseResponse listByOriginalProductId(@PathVariable String originalProductId){
+        Product product = productService.selectByOriginalId(originalProductId);
+        if (null == product){
+            return BaseResponse.failed("产品不存在");
+        }
+        List<ProductVariant> variants = productVariantService.selectByProductId(product.getId());
+        return BaseResponse.success(variants);
+    }
     /**
      * 更新变体属性
      */

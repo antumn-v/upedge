@@ -450,6 +450,12 @@ public class ProductVariantServiceImpl implements ProductVariantService {
         if (ListUtils.isNotEmpty(productVariants)){
             List<ProductVariantAttr> variantAttrs = productVariantAttrService.selectByProductId(productId);
             for (ProductVariant productVariant : productVariants) {
+                if (null == productVariant.getLatestQuotePrice()){
+                    productVariant.setLatestQuotePrice(BigDecimal.ZERO);
+                }
+                if (null == productVariant.getSaiheSku()){
+                    productVariant.setSaiheSku("");
+                }
                 List<ProductVariantAttr> variantAttrList = productVariant.getProductVariantAttrList();
                 for (ProductVariantAttr variantAttr : variantAttrs) {
                     if (variantAttr.getVariantId().equals(productVariant.getId())){
