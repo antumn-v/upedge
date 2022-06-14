@@ -18,6 +18,7 @@ import com.upedge.pms.modules.product.entity.StoreProductVariant;
 import com.upedge.pms.modules.product.request.ClaimQuoteApplyRequest;
 import com.upedge.pms.modules.product.request.QuoteApplyProcessRequest;
 import com.upedge.pms.modules.product.service.ProductService;
+import com.upedge.pms.modules.product.service.ProductVariantService;
 import com.upedge.pms.modules.product.service.StoreProductService;
 import com.upedge.pms.modules.product.service.StoreProductVariantService;
 import com.upedge.pms.modules.quote.dao.CustomerProductQuoteDao;
@@ -58,6 +59,9 @@ public class QuoteApplyServiceImpl implements QuoteApplyService {
 
     @Autowired
     QuoteApplyItemDao quoteApplyItemDao;
+
+    @Autowired
+    ProductVariantService productVariantService;
 
     @Autowired
     ProductService productService;
@@ -228,6 +232,8 @@ public class QuoteApplyServiceImpl implements QuoteApplyService {
                 quoteApplyItem.setQuoteScale(quoteApplyProcessItem.getQuoteScale());
                 quoteApplyItem.setState(1);
                 quoteApplyItemDao.updateByPrimaryKey(quoteApplyItem);
+
+                productVariantService.updateLatestQuotePrice(productVariant.getId(),quoteApplyProcessItem.getPrice());
 
                 //报价记录
                 ProductQuoteRecord productQuoteRecord = new ProductQuoteRecord();
