@@ -6,7 +6,6 @@ import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.utils.ListUtils;
 import com.upedge.pms.modules.product.dao.CustomerPrivateProductDao;
 import com.upedge.pms.modules.product.entity.CustomerPrivateProduct;
-import com.upedge.pms.modules.product.entity.Product;
 import com.upedge.pms.modules.product.request.AllocationPrivateProductRequest;
 import com.upedge.pms.modules.product.request.PrivateWinningProductsRequest;
 import com.upedge.pms.modules.product.service.CustomerPrivateProductService;
@@ -64,31 +63,24 @@ public class CustomerPrivateProductServiceImpl implements CustomerPrivateProduct
     public BaseResponse allocationPrivateProduct(AllocationPrivateProductRequest request, Session session) {
         List<Long> productIds = request.getProductIds();
         List<Long> customerIds = request.getCustomerIds();
-        ;
-        if (ListUtils.isEmpty(customerIds)
-                || ListUtils.isEmpty(productIds)) {
-            return BaseResponse.failed("产品列表和客户列表不能为空");
-        }
-        List<Product> products = new ArrayList<>();
-        if (productIds.size() == 1) {
-            Product product = productService.selectByPrimaryKey(productIds.get(0));
-            products.add(product);
-        } else {
-            products = productService.selectByIds(productIds);
+
+        if (ListUtils.isEmpty(productIds)) {
+            return BaseResponse.failed("产品列表不能为空");
         }
 
-        if (ListUtils.isEmpty(products)) {
-            return BaseResponse.failed("产品ID有误");
+        for (Long productId : productIds) {
+            customerPrivateProductDao.deleteByProductId(productId);
+        }
+
+        if (ListUtils.isEmpty(customerIds)){
+            return BaseResponse.success();
         }
         //判断去重字符串
         List<String> customerProductIds = new ArrayList<>();
         List<CustomerPrivateProduct> customerPrivateProducts = new ArrayList<>();
 
         for (Long productId : productIds) {
-            List<Long> productCustomerIds = customerPrivateProductDao.selectCustomerIdsByProductId(productId);
-            if (ListUtils.isNotEmpty(productCustomerIds)){
-                customerIds.removeAll(productCustomerIds);
-            }
+
             for (Long customerId : customerIds) {
                 String customerProductId = customerId + "-" + productId;
                 if (customerProductIds.contains(customerProductId)) {

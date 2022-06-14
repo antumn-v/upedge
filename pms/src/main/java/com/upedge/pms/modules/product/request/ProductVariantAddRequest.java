@@ -50,7 +50,7 @@ public class ProductVariantAddRequest{
     public ProductVariant toProductVariant(){
         ProductVariant productVariant=new ProductVariant();
         productVariant.setId(IdGenerate.nextId());
-        productVariant.setOriginalVariantId(0L);
+        productVariant.setOriginalVariantId("0");
         productVariant.setProductId(productId);
         productVariant.setVariantSku(IdGenerate.nextId().toString());
         productVariant.setVariantImage(variantImage);

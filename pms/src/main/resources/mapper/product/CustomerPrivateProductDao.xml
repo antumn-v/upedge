@@ -214,4 +214,9 @@
         from customer_private_product
         where product_id = #{productId}
     </select>
+
+    <delete id="deleteByProductId">
+        delete from customer_private_product
+        where product_id = #{productId}
+    </delete>
 </mapper>

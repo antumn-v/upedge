@@ -11,6 +11,5 @@ public class AllocationPrivateProductRequest {
     @Size(min = 1)
     List<Long> productIds;
 
-    @Size(min = 1)
     List<Long> customerIds;
 }

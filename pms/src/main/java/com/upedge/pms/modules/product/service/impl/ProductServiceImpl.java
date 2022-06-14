@@ -24,6 +24,7 @@ import com.upedge.pms.modules.alibaba.service.Ali1688Service;
 import com.upedge.pms.modules.alibaba.service.TranslateService;
 import com.upedge.pms.modules.alibaba.vo.AlibabaProductVo;
 import com.upedge.pms.modules.alibaba.vo.ProductVariantAttrVo;
+import com.upedge.pms.modules.alibaba.vo.ProductVariantVo;
 import com.upedge.pms.modules.category.entity.Category;
 import com.upedge.pms.modules.category.entity.CategoryMapping;
 import com.upedge.pms.modules.category.service.CategoryMappingService;
@@ -560,27 +561,39 @@ public class ProductServiceImpl implements ProductService {
 
     @Transactional
     @Override
-    public BaseResponse importFrom1688(AlibabaProductVo AlibabaProductVo, Session session) {
+    public BaseResponse importFrom1688(AlibabaProductVo alibabaProductVo, Session session) {
+
+        Product p = selectByOriginalId(alibabaProductVo.getProductSku());
+        if (null == p){
+            addNewProduct(alibabaProductVo,session);
+        }else {
+            updateAlibabaProduct(alibabaProductVo, p.getId());
+        }
+        return new BaseResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS);
+
+    }
+
+
+    public void addNewProduct(AlibabaProductVo alibabaProductVo, Session session){
         Long productId = IdGenerate.nextId();
-        String mainImage = AlibabaProductVo.getProductImage();
         //产品供应商
-        Supplier supplier = supplierService.selectByLoginId(AlibabaProductVo.getSupplierVo().getLoginId());
+        Supplier supplier = supplierService.selectByLoginId(alibabaProductVo.getSupplierVo().getLoginId());
         if (supplier == null) {
             supplier = new Supplier();
-            BeanUtils.copyProperties(AlibabaProductVo.getSupplierVo(), supplier);
+            BeanUtils.copyProperties(alibabaProductVo.getSupplierVo(), supplier);
             supplier.setUpdateTime(new Date());
             supplier.setCreateTime(new Date());
             supplierService.insert(supplier);
         }
 
         //产品类目
-        Long aliCnCategoryId = AlibabaProductVo.getProductAttributeVo().getAliCnCategoryId();
+        Long aliCnCategoryId = alibabaProductVo.getProductAttributeVo().getAliCnCategoryId();
         CategoryMapping categoryMapping = categoryMappingService.selectByAliCateCode(String.valueOf(aliCnCategoryId));
 
         //产品
         Product product = new Product();
-        BeanUtils.copyProperties(AlibabaProductVo, product);
-        product.setOriginalId(AlibabaProductVo.getProductSku());
+        BeanUtils.copyProperties(alibabaProductVo, product);
+        product.setOriginalId(alibabaProductVo.getProductSku());
         if (categoryMapping != null) {
             product.setCategoryId(categoryMapping.getCategoryId());
         }
@@ -604,7 +617,7 @@ public class ProductServiceImpl implements ProductService {
         }
         productDao.insert(product);
         ProductAttribute productAttribute = new ProductAttribute();
-        BeanUtils.copyProperties(AlibabaProductVo.getProductAttributeVo(), productAttribute);
+        BeanUtils.copyProperties(alibabaProductVo.getProductAttributeVo(), productAttribute);
         productAttribute.setId(IdGenerate.nextId());
         productAttribute.setProductId(productId);
         if (categoryMapping != null) {
@@ -615,7 +628,7 @@ public class ProductServiceImpl implements ProductService {
         productAttributeService.insert(productAttribute);
         //产品图片
         List<ProductImg> productImgList = new ArrayList<>();
-        AlibabaProductVo.getProductImgVoList().forEach(productImgVo -> {
+        alibabaProductVo.getProductImgVoList().forEach(productImgVo -> {
             ProductImg productImg = new ProductImg();
             BeanUtils.copyProperties(productImgVo, productImg);
             productImg.setId(IdGenerate.nextId());
@@ -625,14 +638,39 @@ public class ProductServiceImpl implements ProductService {
         productImgService.insertByBatch(productImgList);
         //产品描述
         ProductInfo productInfo = new ProductInfo();
-        BeanUtils.copyProperties(AlibabaProductVo.getProductInfoVo(), productInfo);
+        BeanUtils.copyProperties(alibabaProductVo.getProductInfoVo(), productInfo);
         productInfo.setId(IdGenerate.nextId());
         productInfo.setProductId(productId);
         productInfoService.insert(productInfo);
+
+        addNewAlibabaProductVariants(alibabaProductVo.getProductVariantVoList(), productId);
+
+        //更新价格区间
+        refreshProductPriceRange(productId);
+    }
+
+    public void updateAlibabaProduct(AlibabaProductVo alibabaProductVo,Long productId){
+
+        List<ProductVariantVo> productVariantVoList = alibabaProductVo.getProductVariantVoList();
+
+        addNewAlibabaProductVariants(productVariantVoList,productId);
+    }
+
+    public void addNewAlibabaProductVariants(List<ProductVariantVo> productVariantVoList,Long productId){
+        List<ProductVariant> productVariants = productVariantService.selectByProductId(productId);
+        List<String> originalVariantIds = new ArrayList<>();
+        productVariants.forEach(variant -> {
+            originalVariantIds.add(variant.getOriginalVariantId());
+        });
+
         //产品变体
         List<ProductVariant> productVariantList = new ArrayList<>();
         List<ProductVariantAttr> productVariantAttrList = new ArrayList<>();
-        AlibabaProductVo.getProductVariantVoList().forEach(productVariantVo -> {
+
+        for (ProductVariantVo productVariantVo : productVariantVoList) {
+            if (originalVariantIds.contains(productVariantVo.getOriginalVariantId())){
+                continue;
+            }
             ProductVariant productVariant = new ProductVariant();
             BeanUtils.copyProperties(productVariantVo, productVariant);
             Long variantId = IdGenerate.nextId();
@@ -641,9 +679,6 @@ public class ProductServiceImpl implements ProductService {
             //0:正常产品 1:捆绑产品
             productVariant.setVariantType(0);
             productVariant.setState(1);
-//            if (StringUtils.isBlank(productVariant.getVariantImage())){
-//                productVariant.setVariantImage(mainImage);
-//            }
             List<String> cnNameList = productVariantVo.getVariantAttrVoList().stream().map(ProductVariantAttrVo::getVariantAttrCvalue).collect(Collectors.toList());
             List<String> enNameList = productVariantVo.getVariantAttrVoList().stream().map(ProductVariantAttrVo::getVariantAttrEvalue).collect(Collectors.toList());
             productVariant.setCnName(cnNameList.toString());
@@ -668,14 +703,13 @@ public class ProductServiceImpl implements ProductService {
                 productVariantAttr.setVariantId(variantId);
                 productVariantAttrList.add(productVariantAttr);
             });
-        });
-        productVariantService.insertByBatch(productVariantList);
-        productVariantAttrService.insertByBatch(productVariantAttrList);
-        //更新价格区间
-        refreshProductPriceRange(productId);
-
-        return new BaseResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS);
-
+        }
+        if (ListUtils.isNotEmpty(productVariantList)){
+            productVariantService.insertByBatch(productVariantList);
+        }
+        if (ListUtils.isNotEmpty(productVariantAttrList)){
+            productVariantAttrService.insertByBatch(productVariantAttrList);
+        }
     }
 
     @Override

@@ -124,7 +124,7 @@ public class Ali1688Service {
                     productVariantVo.setVolumeWeight(new BigDecimal(shippingInfo.getVolume()));
                 }
             }
-            productVariantVo.setOriginalVariantId(Long.parseLong(skuInfos.getSkuId()));
+            productVariantVo.setOriginalVariantId(skuInfos.getSkuId());
             productVariantVo.setVariantSku(skuInfos.getSkuId());
             productVariantVo.setVariantPrice(skuInfos.getPrice() == null ? new BigDecimal(price) : new BigDecimal(skuInfos.getPrice()));
             productVariantVo.setInventory(Integer.toUnsignedLong(skuInfos.getAmountOnSale()));
@@ -161,7 +161,7 @@ public class Ali1688Service {
         if (productInfo.getSkuInfos() == null || productInfo.getSkuInfos().size() == 0) {
             //变体
             ProductVariantVo productVariantVo = new ProductVariantVo();
-            productVariantVo.setOriginalVariantId(Long.parseLong(alibabaProductId));
+            productVariantVo.setOriginalVariantId(alibabaProductId);
             productVariantVo.setVariantSku(alibabaProductId);
             productVariantVo.setVariantPrice(price == null ? new BigDecimal(price) : new BigDecimal(price));
             productVariantVo.setInventory(productInfo.getSaleInfo().getAmountOnSale() == null ? 0 : productInfo.getSaleInfo().getAmountOnSale().longValue());

@@ -82,13 +82,13 @@ public class ProductController {
             return BaseResponse.failed("产品不可重复导入");
         }
         AlibabaApiVo alibabaApiVo = (AlibabaApiVo) redisTemplate.opsForValue().get(RedisKey.STRING_ALI1688_API);
-        AlibabaProductVo AlibabaProductVo = Ali1688Service.getProduct(request.getOriginalProductId(), alibabaApiVo);
+        AlibabaProductVo alibabaProductVo = Ali1688Service.getProduct(request.getOriginalProductId(), alibabaApiVo);
         Session session = UserUtil.getSession(redisTemplate);
-        if (AlibabaProductVo == null) {
+        if (alibabaProductVo == null) {
             return new BaseResponse(ResultCode.FAIL_CODE, Constant.MESSAGE_FAIL);
         }
         try {
-            return productService.importFrom1688(AlibabaProductVo, session);
+            return productService.importFrom1688(alibabaProductVo, session);
         } catch (Exception e) {
             return new BaseResponse(ResultCode.FAIL_CODE, e.getMessage());
         }

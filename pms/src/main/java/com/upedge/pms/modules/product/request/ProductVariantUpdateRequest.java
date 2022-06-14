@@ -1,8 +1,8 @@
 package com.upedge.pms.modules.product.request;
 
 import com.upedge.pms.modules.product.entity.ProductVariant;
-import java.util.Date;
 import lombok.Data;
+
 import java.math.BigDecimal;
 /**
  * @author gx
@@ -13,7 +13,7 @@ public class ProductVariantUpdateRequest{
     /**
      * 
      */
-    private Long originalVariantId;
+    private String originalVariantId;
     /**
      * 商品id
      */

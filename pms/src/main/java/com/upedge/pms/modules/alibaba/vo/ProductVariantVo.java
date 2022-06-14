@@ -18,7 +18,7 @@ public class ProductVariantVo{
 	/**
 	*
 	*/
-	private Long originalVariantId;
+	private String originalVariantId;
 	/**
 	* 商品id
 	*/

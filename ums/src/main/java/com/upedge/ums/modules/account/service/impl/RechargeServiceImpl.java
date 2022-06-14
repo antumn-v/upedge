@@ -348,11 +348,8 @@ public class RechargeServiceImpl implements RechargeService {
             RechargeRequestLogVo rechargeRequestLogVo = new RechargeRequestLogVo();
             BeanUtils.copyProperties(log, rechargeRequestLogVo);
             rechargeRequestLogVo.setAdminUserId(log.getHandleUserId());
-            UserInfoDto userInfoDto = new UserInfoDto();
-            rechargeRequestLogVo.setLoginName(userInfoDto.getLoginName());
-            rechargeRequestLogVo.setUsername(userInfoDto.getUsername());
-            List<RechargeRequestAttr> attrList = rechargeRequestAttrMapper.listAttrByRechargeRequestId(log.getId());
-            rechargeRequestLogVo.setAttrs(attrList);
+//            List<RechargeRequestAttr> attrList = rechargeRequestAttrMapper.listAttrByRechargeRequestId(log.getId());
+//            rechargeRequestLogVo.setAttrs(attrList);
             rechargeRequestLogVoList.add(rechargeRequestLogVo);
         });
         return new ApplyRechargeListResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS, rechargeRequestLogVoList, request);
