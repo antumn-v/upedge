@@ -20,6 +20,8 @@ import java.util.Set;
  */
 public interface StockOrderDao{
 
+    List<Long> selectUploadSaiheFailedIds();
+
     Set<String> selectOrderWarehouseByPaymentId(Long paymentId);
 
     PaymentAmount selectSumAmountByPaymentId(Long paymentId);

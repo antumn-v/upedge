@@ -20,6 +20,8 @@ import java.util.List;
  */
 public interface StockOrderService{
 
+    List<Long> selectUploadSaiheFailedIds();
+
     BaseResponse invoiceDetail(Long paymentId);
 
     BaseResponse confirmShipReview(Long orderId,Session session);

@@ -143,6 +143,11 @@ public class StockOrderServiceImpl implements StockOrderService {
     }
 
     @Override
+    public List<Long> selectUploadSaiheFailedIds() {
+        return stockOrderDao.selectUploadSaiheFailedIds();
+    }
+
+    @Override
     public BaseResponse invoiceDetail(Long paymentId) {
         InvoiceDetailVo invoiceDetailVo = invoiceService.selectStockInvoiceDetailByPaymentId(paymentId);
         if (invoiceDetailVo == null){

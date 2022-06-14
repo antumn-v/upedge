@@ -865,4 +865,13 @@
         and pay_state = '1'
         and ship_review = '2'
     </select>
+
+    <select id="selectUploadSaiheFailedIds" resultType="java.lang.Long">
+        select id
+        from `stock_order`
+        where pay_state = '1'
+          and saihe_code is null
+        order by pay_time asc
+        limit 10
+    </select>
 </mapper>
