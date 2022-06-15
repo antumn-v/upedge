@@ -15,9 +15,9 @@ import com.upedge.common.model.product.ProductSaiheInventoryVo;
 import com.upedge.common.model.product.ProductVariantTo;
 import com.upedge.common.model.user.vo.CustomerVo;
 import com.upedge.common.model.user.vo.Session;
+import com.upedge.common.model.user.vo.UserVo;
 import com.upedge.common.utils.IdGenerate;
 import com.upedge.common.utils.ListUtils;
-import com.upedge.common.web.util.UserUtil;
 import com.upedge.oms.modules.statistics.request.OrderRefundDailyCountRequest;
 import com.upedge.oms.modules.stock.dao.*;
 import com.upedge.oms.modules.stock.entity.*;
@@ -167,15 +167,18 @@ public class AdminStockServiceImpl implements AdminStockService {
         if(res==0){
             throw new CustomerException("备库订单状态异常");
         }
-        ApiCreateProcurementResponse apiCreateProcurementResponse= SaiheService.createProcurement(procurementProductList);
+
+        UserVo userVo = (UserVo) redisTemplate.opsForHash().get(RedisKey.STRING_CUSTOMER_INFO,stockOrder.getCustomerId().toString());
+        String remark = userVo.getUsername() + "|" + userVo.getRemark();
+
+        ApiCreateProcurementResponse apiCreateProcurementResponse= SaiheService.createProcurement(procurementProductList,remark);
         if (apiCreateProcurementResponse.getCreateProcurementResult().getStatus().equals("OK")) {
             String saiheCode=apiCreateProcurementResponse.getCreateProcurementResult().getOrderCode();
-            log.debug("潘达备库订单id:{},saiheCode:{}",stockOrder.getId(),saiheCode);
+            log.debug("备库订单id:{},saiheCode:{}",stockOrder.getId(),saiheCode);
             if(!StringUtils.isBlank(saiheCode)){
                 stockOrder.setUpdateTime(new Date());
                 stockOrder.setSaiheState(1);
                 //处理人
-                Session session=UserUtil.getSession(redisTemplate);
                 stockOrder.setSaiheCode(saiheCode);
                 stockOrderDao.updateOrderStockedSuccess(stockOrder);
                 log.debug("创建备库单成功");

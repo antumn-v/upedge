@@ -253,7 +253,7 @@ public class SaiheService {
      * @param procurementProductList
      * @return
      */
-    public static ApiCreateProcurementResponse createProcurement(List<ApiCreateProcurementProductList> procurementProductList){
+    public static ApiCreateProcurementResponse createProcurement(List<ApiCreateProcurementProductList> procurementProductList,String remark){
 
         ApiCreateProcurementResponse apiCreateProcurementResponse=new ApiCreateProcurementResponse("Error");
         try {
@@ -263,7 +263,7 @@ public class SaiheService {
             procurementRequest.setPassword(SaiheConfig.PASSWORD);
             procurementRequest.setCustomerID(SaiheConfig.CUSTOMER_ID);
             procurementRequest.setWareHouseID(SaiheConfig.UPEDGE_DEFAULT_WAREHOUSE_ID);
-            procurementRequest.setRemark("");
+            procurementRequest.setRemark(remark);
             ProductList productList=new ProductList();
             productList.setProductList(procurementProductList);
             procurementRequest.setProductList(productList);

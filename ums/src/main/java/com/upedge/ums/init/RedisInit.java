@@ -23,6 +23,7 @@ import com.upedge.ums.modules.user.service.CustomerIossService;
 import com.upedge.ums.modules.user.service.CustomerSettingService;
 import com.upedge.ums.modules.user.service.UserService;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -160,6 +161,9 @@ public class RedisInit {
         for (User user : users) {
             UserVo userVo = new UserVo();
             BeanUtils.copyProperties(user,userVo);
+            if (StringUtils.isBlank(userVo.getRemark())){
+                userVo.setRemark("");
+            }
             userVoMap.put(String.valueOf(user.getCustomerId()),userVo);
         }
         redisTemplate.delete(RedisKey.STRING_CUSTOMER_INFO);

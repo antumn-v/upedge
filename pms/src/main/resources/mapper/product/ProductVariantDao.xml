@@ -678,7 +678,7 @@
 
     <select id="selectQuoteProductBySkus" resultType="com.upedge.common.model.pms.quote.CustomerProductQuoteVo">
         select '0' as store_variant_id,'0' as store_product_id,
-        pv.usd_price as quote_price,
+        pv.variant_price as quote_price,
         pv.id as variantId,pv.en_name as variantName,pv.variant_sku,
         pv.variant_image,pv.variant_price as `cny_price`,pv.usd_price,
         pv.weight,pv.volume_weight as `volume`,p.product_title as `productTitle`,

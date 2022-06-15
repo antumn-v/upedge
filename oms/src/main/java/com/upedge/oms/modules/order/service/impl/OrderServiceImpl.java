@@ -499,14 +499,6 @@ public class OrderServiceImpl implements OrderService {
 
                         ship = updateShipDetailById(id, ship);
 
-//                        OrderAttr orderAttr = new OrderAttr();
-//                        orderAttr.setOrderId(id);
-//                        orderAttr.setAttrName(OrderAttrEnum.SHIP_RULE_ID.name());
-//                        orderAttr.setAttrValue(String.valueOf(rule.getId()));
-//                        orderAttr.setCreateTime(new Date());
-//                        orderAttrDao.deleteByOrderIdAndName(id, OrderAttrEnum.SHIP_RULE_ID.name());
-//                        orderAttrDao.insert(orderAttr);
-
                         OrderShipRuleDetail detail = new OrderShipRuleDetail();
                         detail.setOrderId(id);
                         detail.setShipRuleId(rule.getId());
@@ -790,6 +782,8 @@ public class OrderServiceImpl implements OrderService {
             OrderItem orderItem = new OrderItem();
             BeanUtils.copyProperties(customerProductQuoteVo, orderItem);
             orderItem.setStoreVariantImage(customerProductQuoteVo.getVariantImage());
+            orderItem.setStoreVariantSku(customerProductQuoteVo.getVariantSku());
+            orderItem.setStoreVariantName(customerProductQuoteVo.getVariantName());
             orderItem.setOriginalQuantity(quantity);
             orderItem.setOrderId(orderId);
             orderItem.setStoreOrderId(orderId);
@@ -828,7 +822,13 @@ public class OrderServiceImpl implements OrderService {
         orderAddress.setId(IdGenerate.nextId());
         orderAddress.setOrderId(orderId);
         if (orderAddress.getCountry() != null) {
-            order.setToAreaId((Long) redisTemplate.opsForHash().get(RedisKey.HASH_COUNTRY_AREA_ID, orderAddress.getCountry()));
+            Long areaId = (Long) redisTemplate.opsForHash().get(RedisKey.HASH_COUNTRY_AREA_ID, orderAddress.getCountry());
+            if (areaId == null){
+                return BaseResponse.failed("country error");
+            }
+            order.setToAreaId(areaId);
+            ArearedisVo arearedisVo = (ArearedisVo) redisTemplate.opsForHash().get(RedisKey.AREA,areaId.toString());
+            orderAddress.setCountryCode(arearedisVo.getAreaCode());
         }
         order.setCnyProductAmount(cnyProductAmount);
         order.setProductAmount(productAmount);
@@ -847,6 +847,8 @@ public class OrderServiceImpl implements OrderService {
         storeOrderRelate.setPlatOrderCreateTime(date);
         storeOrderRelate.setStoreName(storeVo.getStoreName());
         storeOrderRelateDao.insert(storeOrderRelate);
+
+        matchShipRule(orderId);
         return BaseResponse.success();
     }
 

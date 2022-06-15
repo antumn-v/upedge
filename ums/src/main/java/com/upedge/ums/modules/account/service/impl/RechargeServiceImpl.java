@@ -153,15 +153,11 @@ public class RechargeServiceImpl implements RechargeService {
         log.setCustomerId(order.getSession().getCustomerId());
         log.setAmount(order.getAmount());
         log.setCustomerMoney(order.getAmount());
-        log.setStatus(0);
+        log.setStatus(3);
         log.setCreateTime(new Date());
         log.setUpdateTime(new Date());
         log.setRechargeType(1);
-        BigDecimal benefits = rechargeBenefitsMapper.selectBenefitsByAppAndAmount(order.getSession().getApplicationId(), order.getAmount());
-        if (null == benefits) {
-            benefits = BigDecimal.ZERO;
-        }
-        log.setBenefits(benefits);
+        log.setBenefits(BigDecimal.ZERO);
         rechargeRequestLogMapper.insert(log);
 
         RechargeRequestAttr attr = new RechargeRequestAttr();

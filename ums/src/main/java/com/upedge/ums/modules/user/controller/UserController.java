@@ -11,6 +11,7 @@ import com.upedge.common.constant.key.RedisKey;
 import com.upedge.common.exception.CustomerException;
 import com.upedge.common.model.user.request.UserInfoSelectRequest;
 import com.upedge.common.model.user.vo.Session;
+import com.upedge.common.model.user.vo.UserVo;
 import com.upedge.common.utils.EmailUtils;
 import com.upedge.common.utils.TokenUtil;
 import com.upedge.common.web.util.RequestUtil;
@@ -28,6 +29,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.*;
@@ -199,6 +201,7 @@ public class UserController {
     public UserUpdateResponse update(@PathVariable Long id,@RequestBody @Valid UserUpdateRequest request) {
         User entity=request.toUser(id);
         userService.updateByPrimaryKeySelective(entity);
+
         UserUpdateResponse res = new UserUpdateResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS);
         return res;
     }

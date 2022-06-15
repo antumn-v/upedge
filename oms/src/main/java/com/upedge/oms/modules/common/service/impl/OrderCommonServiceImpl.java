@@ -14,12 +14,10 @@ import com.upedge.common.model.mq.ChangeManagerVo;
 import com.upedge.common.model.order.PaymentDetail;
 import com.upedge.common.model.order.TransactionDetail;
 import com.upedge.common.model.ship.vo.ShippingMethodRedis;
+import com.upedge.common.model.store.StoreVo;
 import com.upedge.common.model.user.request.CustomerVipAddRebateRequest;
 import com.upedge.common.model.user.request.ManagerAddCommissionRequest;
-import com.upedge.common.model.user.vo.AffiliateVo;
-import com.upedge.common.model.user.vo.CommissionRecordVo;
-import com.upedge.common.model.user.vo.CustomerIossVo;
-import com.upedge.common.model.user.vo.CustomerVo;
+import com.upedge.common.model.user.vo.*;
 import com.upedge.common.utils.IdGenerate;
 import com.upedge.common.utils.ListUtils;
 import com.upedge.oms.enums.UpdateOmsManagerEnum;
@@ -432,12 +430,15 @@ public class OrderCommonServiceImpl implements OrderCommonService {
             //存放备注信息
             for (Map.Entry<String, Set<String>> entry : mapSet.entrySet()) {
                 String storeId = entry.getKey();
+                StoreVo storeVo = (StoreVo) redisTemplate.opsForValue().get(RedisKey.STRING_STORE + storeId);
                 Set<String> nameSet = entry.getValue();
-                orderInfo = orderInfo + storeId + nameSet.toString();
+                orderInfo = orderInfo + storeVo.getStoreName() + "|" + nameSet.toString();
                 orderInfo = orderInfo + " ";
             }
         }
-        apiUploadOrderInfo.setOrderDescription(orderInfo + againInfo + vatInfo);
+        UserVo userVo = (UserVo) redisTemplate.opsForHash().get(RedisKey.STRING_CUSTOMER_INFO,saiheOrder.getCustomerId().toString());
+        String remark = userVo.getUsername() + "|" + userVo.getRemark();
+        apiUploadOrderInfo.setOrderDescription(remark + "|" + orderInfo + againInfo + vatInfo);
 
         //发货仓库ID 默认仓库
         apiUploadOrderInfo.setWareHouseID(SaiheConfig.UPEDGE_DEFAULT_WAREHOUSE_ID);

@@ -5,6 +5,8 @@ import com.upedge.common.base.Page;
 import com.upedge.common.component.annotation.Permission;
 import com.upedge.common.constant.Constant;
 import com.upedge.common.constant.ResultCode;
+import com.upedge.common.constant.key.RedisKey;
+import com.upedge.common.model.user.vo.UserVo;
 import com.upedge.ums.modules.user.entity.Customer;
 import com.upedge.ums.modules.user.request.CustomerAddRequest;
 import com.upedge.ums.modules.user.request.CustomerUpdateRequest;
@@ -13,8 +15,11 @@ import com.upedge.ums.modules.user.response.CustomerDelResponse;
 import com.upedge.ums.modules.user.response.CustomerInfoResponse;
 import com.upedge.ums.modules.user.response.CustomerUpdateResponse;
 import com.upedge.ums.modules.user.service.CustomerService;
+import com.upedge.ums.modules.user.service.UserService;
 import com.upedge.ums.modules.user.vo.CustomerDetailVo;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -29,6 +34,12 @@ import javax.validation.Valid;
 public class CustomerController {
     @Autowired
     private CustomerService customerService;
+
+    @Autowired
+    UserService userService;
+
+    @Autowired
+    RedisTemplate redisTemplate;
 
 
     @RequestMapping(value="/info/{id}", method=RequestMethod.GET)
@@ -67,6 +78,12 @@ public class CustomerController {
     public CustomerUpdateResponse update(@PathVariable Long id,@RequestBody @Valid CustomerUpdateRequest request) {
         Customer entity=request.toCustomer(id);
         customerService.updateByPrimaryKeySelective(entity);
+        if (StringUtils.isNotBlank(request.getRemark())){
+            UserVo userVo = (UserVo) redisTemplate.opsForHash().get(RedisKey.STRING_CUSTOMER_INFO,id.toString());
+            userVo.setRemark(request.getRemark());
+            redisTemplate.opsForHash().put(RedisKey.STRING_CUSTOMER_INFO,id.toString(),userVo);
+        }
+
         CustomerUpdateResponse res = new CustomerUpdateResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS);
         return res;
     }

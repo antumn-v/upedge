@@ -140,7 +140,7 @@
         <!--        <if test="t.createTime != null ">-->
         <!--            and date_format(r.create_time,'%Y-%m-%d') = DATE_FORMAT( #{createTime},'%Y-%m-%d')-->
         <!--        </if>-->
-        order by update_time desc
+        order by status asc,update_time desc
         <if test="pageNum != null and pageSize != null">
             limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
         </if>

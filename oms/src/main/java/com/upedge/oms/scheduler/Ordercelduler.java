@@ -8,6 +8,7 @@ import com.upedge.oms.modules.stock.service.AdminStockService;
 import com.upedge.oms.modules.stock.service.StockOrderService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -30,9 +31,15 @@ public class Ordercelduler {
     @Autowired
     RedisTemplate<String, Object> redisTemplate;
 
+    @Value("${ifUploadSaihe}")
+    Boolean ifUploadSaihe;
+
 
     @Scheduled(cron = "0 */10 * ? * *")
     public void reUploadOrderToSaihe(){
+        if (!ifUploadSaihe) {
+            return ;
+        }
         List<Long> ids = orderService.selectUploadSaiheFailedIds();
         if (ListUtils.isNotEmpty(ids)){
             for (Long id : ids) {

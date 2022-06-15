@@ -10,6 +10,7 @@ import com.upedge.oms.modules.order.entity.Order;
 import com.upedge.oms.modules.order.service.OrderItemService;
 import com.upedge.oms.modules.order.service.OrderPayService;
 import com.upedge.oms.modules.order.service.OrderService;
+import com.upedge.oms.scheduler.PackageScheduler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -33,6 +34,9 @@ public class OrderCommonController {
 
     @Autowired
     OrderPayService orderPayService;
+
+    @Autowired
+    PackageScheduler packageScheduler;
 
     @PostMapping("/jsonTest")
     public BaseResponse jsonTest(){

@@ -120,7 +120,7 @@ public class CustomerSignUpRequest {
         organization.setCustomerId(customer.getId());
         organization.setOrgName(orgName);
         organization.setOrgParent(Constant.ROOT_ORGANIZATION);
-        organization.setOrgPath(String.valueOf(customer.getId()));
+        organization.setOrgPath("0|" + customer.getId());
         organization.setCreateTime(customer.getCreateTime());
         organization.setUpdateTime(customer.getCreateTime());
         return organization;
@@ -128,8 +128,6 @@ public class CustomerSignUpRequest {
 
     /**
      * 获取注册用的角色信息
-     * @param customer
-     * @param organization
      * @return
      */
     public Role toRole(Long customerId) {
