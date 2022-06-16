@@ -20,7 +20,7 @@ import com.upedge.common.model.store.request.StoreApiRequest;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.utils.IdGenerate;
 import com.upedge.common.utils.ListUtils;
-import com.upedge.common.web.util.*;
+import com.upedge.common.web.util.RedisUtil;
 import com.upedge.oms.modules.order.dao.*;
 import com.upedge.oms.modules.order.dto.UnrecognizedStoreOrderDto;
 import com.upedge.oms.modules.order.entity.StoreOrder;
@@ -46,7 +46,7 @@ import com.upedge.thirdparty.shoplazza.moudles.order.entity.ShoplazzaOrder.Shopl
 import com.upedge.thirdparty.woocommerce.moudles.order.entity.WoocommerceOrder;
 import com.upedge.thirdparty.woocommerce.moudles.order.entity.WoocommerceOrderItem;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections.MapUtils;
+import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -708,8 +708,7 @@ public class StoreOrderServiceImpl implements StoreOrderService {
             storeOrderDao.updateByPrimaryKeySelective(newStoreOrder);
             storeOrderRelateDao.updateStoreStatusByStoreOrderId(newStoreOrder);
             List<StoreOrderRelate> storeOrderRelates = storeOrderRelateDao.selectByStoreOrderId(storeOrderId);
-            if (shopifyOrder.getFinancial_status().equals("refunded")
-                    || (shopifyOrder.getFulfillment_status() != null && shopifyOrder.getFulfillment_status().equals("fulfilled"))){
+            if (shopifyOrder.getFinancial_status().equals("refunded")){
                 List<Long> cancelIds = new ArrayList<>();
                 for (StoreOrderRelate storeOrderRelate : storeOrderRelates) {
                     cancelIds.add(storeOrderRelate.getOrderId());
@@ -726,7 +725,7 @@ public class StoreOrderServiceImpl implements StoreOrderService {
             lineItemMap.put(shopifyLineItem.getId(),shopifyLineItem);
         }
 
-        List<Long> storeOrderItemIds = new ArrayList<>();
+//        List<Long> storeOrderItemIds = new ArrayList<>();
         List<StoreOrderItem> storeOrderItems = storeOrderItemDao.selectByStoreOrderId(storeOrderId);
         for (StoreOrderItem storeOrderItem : storeOrderItems) {
             ShopifyLineItem shopifyLineItem = lineItemMap.get(storeOrderItem.getPlatOrderItemId());
@@ -735,14 +734,14 @@ public class StoreOrderServiceImpl implements StoreOrderService {
             }
             lineItemMap.remove(shopifyLineItem.getId());
 
-            Integer quantity = shopifyLineItem.getFulfillable_quantity();
-            if (quantity == null || quantity.equals(storeOrderItem.getQuantity())){
-                continue;
-            }
-            storeOrderItemIds.add(storeOrderItem.getId());
-            storeOrderItem.setQuantity(quantity);
-            storeOrderItemDao.updateByPrimaryKey(storeOrderItem);
-            orderItemService.updateQuantityByStoreOrderItemId(storeOrderItem.getId(),quantity);
+//            Integer quantity = shopifyLineItem.getFulfillable_quantity();
+//            if (quantity == null || quantity.equals(storeOrderItem.getQuantity())){
+//                continue;
+//            }
+//            storeOrderItemIds.add(storeOrderItem.getId());
+//            storeOrderItem.setQuantity(quantity);
+//            storeOrderItemDao.updateByPrimaryKey(storeOrderItem);
+//            orderItemService.updateQuantityByStoreOrderItemId(storeOrderItem.getId(),quantity);
         }
         if (MapUtils.isNotEmpty(lineItemMap)){
             List<ShopifyLineItem> newItems = new ArrayList<>();
@@ -751,27 +750,27 @@ public class StoreOrderServiceImpl implements StoreOrderService {
                     newItems.add(lineItem);
                 }
             });
-            List<Long> newItemIds = storeOrderAddNewItem(storeOrder,newItems);
-            storeOrderItemIds.addAll(newItemIds);
+            storeOrderAddNewItem(storeOrder,newItems);
+//            storeOrderItemIds.addAll(newItemIds);
         }
-        if (ListUtils.isNotEmpty(storeOrderItemIds)){
-            List<Long> orderIds = orderItemService.selectOrderIdsByStoreOrderItemIds(storeOrderItemIds);
-            if (ListUtils.isNotEmpty(orderIds)){
-                orderService.initOrderProductAmount(orderIds);
-                List<Long> cancelIds = new ArrayList<>();
-                for (Long orderId : orderIds) {
-                    int countItemQuantity = orderItemService.selectCountQuantityByOrderId(orderId);
-                    if (countItemQuantity == 0){
-                        cancelIds.add(orderId);
-                    }else {
-                        orderService.matchShipRule(orderId);
-                    }
-                }
-                if (ListUtils.isNotEmpty(cancelIds)){
-                    orderService.cancelOrderByIds(orderIds);
-                }
-            }
-        }
+//        if (ListUtils.isNotEmpty(storeOrderItemIds)){
+//            List<Long> orderIds = orderItemService.selectOrderIdsByStoreOrderItemIds(storeOrderItemIds);
+//            if (ListUtils.isNotEmpty(orderIds)){
+//                orderService.initOrderProductAmount(orderIds);
+//                List<Long> cancelIds = new ArrayList<>();
+//                for (Long orderId : orderIds) {
+//                    int countItemQuantity = orderItemService.selectCountQuantityByOrderId(orderId);
+//                    if (countItemQuantity == 0){
+//                        cancelIds.add(orderId);
+//                    }else {
+//                        orderService.matchShipRule(orderId);
+//                    }
+//                }
+//                if (ListUtils.isNotEmpty(cancelIds)){
+//                    orderService.cancelOrderByIds(orderIds);
+//                }
+//            }
+//        }
     }
 
     public List<Long> storeOrderAddNewItem(StoreOrder storeOrder,List<ShopifyLineItem> shopifyLineItems){

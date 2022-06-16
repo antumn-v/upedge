@@ -2898,8 +2898,6 @@ public class OrderServiceImpl implements OrderService {
             nOrder.setQuoteState(quoteState);
             insert(nOrder);
 
-
-
             StoreOrderRelate storeOrderRelate = new StoreOrderRelate(storeOrder);
             storeOrderRelate.setOrderId(orderId);
             storeOrderRelate.setOrderCreateTime(new Date());
@@ -2912,7 +2910,7 @@ public class OrderServiceImpl implements OrderService {
         orderItemDao.insertByBatch(orderItems);
         platformTransactionManager.commit(transaction);
         initQuoteState(orderId);
-//        matchShipRule(orderId);
+        matchShipRule(orderId);
         return;
     }
 
