@@ -494,8 +494,6 @@ public class OrderController {
             Order order = (Order) response.getData();
             if (request.getNeedPay() && order.getShipMethodId() == null) {
                 orderService.matchShipRule(order.getId());
-            }else if (!request.getNeedPay()){
-                orderService.importOrderToSaihe(order.getId());
             }
             return response;
         }
