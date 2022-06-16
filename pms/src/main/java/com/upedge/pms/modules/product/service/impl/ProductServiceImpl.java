@@ -32,6 +32,7 @@ import com.upedge.pms.modules.category.service.CategoryService;
 import com.upedge.pms.modules.product.dao.AppProductVariantDao;
 import com.upedge.pms.modules.product.dao.ImportProductAttributeDao;
 import com.upedge.pms.modules.product.dao.ProductDao;
+import com.upedge.pms.modules.product.dto.ProductListDto;
 import com.upedge.pms.modules.product.entity.*;
 import com.upedge.pms.modules.product.request.*;
 import com.upedge.pms.modules.product.response.AbandonProductResponse;
@@ -1108,6 +1109,17 @@ public class ProductServiceImpl implements ProductService {
         return apiImportProductInfo;
     }
 
+
+    @Override
+    public BaseResponse selectCustomerPrivateProduct(Page<ProductListDto> record) {
+        record.setCondition("state != '5'");
+        record.setOrderBy("update_time desc");
+        List<Product> products = productDao.selectCustomerPrivateProduct(record);
+
+        long count= productDao.countCustomerPrivateProduct(record);
+        record.setTotal(count);
+        return BaseResponse.success(products,record);
+    }
 
     @Override
     public List<Product> selectByIds(List<Long> productIds) {

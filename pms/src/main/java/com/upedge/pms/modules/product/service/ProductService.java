@@ -5,6 +5,8 @@ import com.upedge.common.base.Page;
 import com.upedge.common.exception.CustomerException;
 import com.upedge.common.model.product.VariantDetail;
 import com.upedge.common.model.user.vo.Session;
+import com.upedge.pms.modules.alibaba.vo.AlibabaProductVo;
+import com.upedge.pms.modules.product.dto.ProductListDto;
 import com.upedge.pms.modules.product.entity.Product;
 import com.upedge.pms.modules.product.request.*;
 import com.upedge.pms.modules.product.response.AbandonProductResponse;
@@ -14,7 +16,6 @@ import com.upedge.pms.modules.product.response.ProductListResponse;
 import com.upedge.pms.modules.product.vo.AddProductVo;
 import com.upedge.pms.modules.product.vo.AppProductVo;
 import com.upedge.pms.modules.product.vo.ProductVo;
-import com.upedge.pms.modules.alibaba.vo.AlibabaProductVo;
 
 import java.util.List;
 
@@ -22,6 +23,8 @@ import java.util.List;
  * @author gx
  */
 public interface ProductService{
+
+    BaseResponse selectCustomerPrivateProduct(Page<ProductListDto> record);
 
     List<Product> selectByIds(List<Long> productIds);
 

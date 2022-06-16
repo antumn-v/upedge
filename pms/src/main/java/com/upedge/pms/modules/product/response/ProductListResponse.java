@@ -9,4 +9,5 @@ public class ProductListResponse extends BaseResponse {
     public ProductListResponse(int code, String msg, Object data,ProductListRequest req) {
         super(code,msg,data,req);
     }
+
 }

@@ -518,6 +518,7 @@
                 <if test="t.remark != null">
                     and remark like concat('%',#{t.remark},'%')
                 </if>
+
             </trim>
         </if>
         <if test="condition != null and condition != ''">
@@ -636,5 +637,34 @@
         <foreach collection="ids" open="(" separator="," close=")" item="id">
             #{id}
         </foreach>
+    </select>
+
+    <select id="selectCustomerPrivateProduct" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from product p
+        inner join customer_private_product cpp
+        on p.id = cpp.product_id
+        <include refid="Query_Condition"/>
+        <if test="t.customerId != null">
+            and cpp.customer_id = #{t.customerId}
+        </if>
+        <if test="orderBy != null">
+            order by ${orderBy}
+        </if>
+        <if test="pageNum != null and pageSize != null">
+            limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+        </if>
+    </select>
+
+    <select id="countCustomerPrivateProduct" resultType="java.lang.Long">
+        select count(1)
+        from product p
+        inner join customer_private_product cpp
+        on p.id = cpp.product_id
+        <include refid="Query_Condition"/>
+        <if test="t.customerId != null">
+            and cpp.customer_id = #{t.customerId}
+        </if>
     </select>
 </mapper>

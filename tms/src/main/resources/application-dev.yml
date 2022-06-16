@@ -16,7 +16,7 @@ spring:
         heartbeat: true
   redis:
     database: 0
-    host: 192.168.2.18
+    host: 192.168.2.8
     port: 6379
     password: 123456
     lettuce:

@@ -1,6 +1,7 @@
 package com.upedge.pms.modules.product.dao;
 
 import com.upedge.common.base.Page;
+import com.upedge.pms.modules.product.dto.ProductListDto;
 import com.upedge.pms.modules.product.entity.Product;
 import com.upedge.pms.modules.product.request.WinningProductListRequest;
 import com.upedge.pms.modules.product.vo.AppProductVo;
@@ -14,7 +15,7 @@ import java.util.Set;
 /**
  * @author gx
  */
-public interface ProductDao{
+public interface ProductDao {
 
     List<Product> selectByIds(@Param("ids") List<Long> ids);
 
@@ -26,16 +27,16 @@ public interface ProductDao{
 
     int updatePriceRangeById(@Param("priceRange") String priceRange,
                              @Param("id") Long id,
-                             @Param("minPrice") BigDecimal minPrice ,
+                             @Param("minPrice") BigDecimal minPrice,
                              @Param("maxPrice") BigDecimal maxPrice);
 
     int importFavorite(@Param("ids") List<Long> ids,
                        @Param("userId") Long userId,
-                       @Param("date")Date date);
+                       @Param("date") Date date);
 
-    int multiRelease(@Param("ids") List<Long> ids,@Param("userId") Long userId);
+    int multiRelease(@Param("ids") List<Long> ids, @Param("userId") Long userId);
 
-    int abandonProduct(@Param("id") Long id,@Param("userId") Long userId);
+    int abandonProduct(@Param("id") Long id, @Param("userId") Long userId);
 
     void publicProduct(Long id);
 
@@ -45,7 +46,7 @@ public interface ProductDao{
 
     Product selectByOriginalId(String originalId);
 
-    void updateSaiheState(@Param("ids") List<Long> ids, @Param("size")Integer size);
+    void updateSaiheState(@Param("ids") List<Long> ids, @Param("size") Integer size);
 
     Product selectByPrimaryKey(Long id);
 
@@ -63,6 +64,9 @@ public interface ProductDao{
 
     List<Product> select(Page<Product> record);
 
+    List<Product> selectCustomerPrivateProduct(Page<ProductListDto> record);
+
     long count(Page<Product> record);
 
+    long countCustomerPrivateProduct(Page<ProductListDto> record);
 }

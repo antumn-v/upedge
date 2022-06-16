@@ -15,6 +15,7 @@ import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.utils.UploadImgUtil;
 import com.upedge.common.utils.UrlUtils;
 import com.upedge.common.web.util.UserUtil;
+import com.upedge.pms.modules.product.dto.ProductListDto;
 import com.upedge.pms.modules.product.entity.Product;
 import com.upedge.pms.modules.product.entity.ProductVariant;
 import com.upedge.pms.modules.product.request.*;
@@ -368,13 +369,27 @@ public class ProductController {
 
     @RequestMapping(value = "/list", method = RequestMethod.POST)
     @Permission(permission = "product:product:list")
-    public ProductListResponse productList(@RequestBody @Valid ProductListRequest request) {
-        request.setCondition("state != '5'");
-        request.setOrderBy("update_time desc");
-        List<Product> results = productService.select(request);
-        Long total = productService.count(request);
-        request.setTotal(total);
-        ProductListResponse res = new ProductListResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS, results, request);
+    public BaseResponse productList(@RequestBody @Valid ProductDtoListRequest request) {
+        ProductListDto productListDto = request.getT();
+        if (productListDto != null&& productListDto.getSku() != null){
+            ProductVariant variant = productVariantService.selectBySku(productListDto.getSku());
+            if (null != variant){
+                productListDto.setId(variant.getProductId());
+            }
+        }
+
+        if (productListDto.getCustomerId() != null){
+            return productService.selectCustomerPrivateProduct(request);
+        }
+
+        ProductListRequest productListRequest = new ProductListRequest();
+        BeanUtils.copyProperties(request,productListRequest);
+        productListRequest.setCondition("state != '5'");
+        productListRequest.setOrderBy("update_time desc");
+        List<Product> results = productService.select(productListRequest);
+        Long total = productService.count(productListRequest);
+        productListRequest.setTotal(total);
+        ProductListResponse res = new ProductListResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS, results, productListRequest);
         return res;
     }
 
