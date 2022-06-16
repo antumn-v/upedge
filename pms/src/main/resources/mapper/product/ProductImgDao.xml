@@ -185,6 +185,7 @@
         select <include refid="Base_Column_List"/>
         from product_img
         where product_id = #{productId}
+        order by state desc, image_seq asc
     </select>
 
 

@@ -85,6 +85,7 @@ public class ProductImgServiceImpl implements ProductImgService {
         productImg.setProductId(request.getProductId());
         productImg.setState(1);
         productImg.setImageUrl(image);
+        productImg.setImageSeq(0);
         insert(productImg);
         return BaseResponse.success();
     }
