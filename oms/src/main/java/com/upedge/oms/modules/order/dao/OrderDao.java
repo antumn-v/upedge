@@ -66,6 +66,8 @@ public interface OrderDao {
 
     int initShipByShipUnitId(Long shipUnitId);
 
+    List<Long> selectUnpaidOrderIdsByShipUnitId(Long shipUnitId);
+
     List<OrderProductAmountVo> selectOrderItemAmountByPaymentId(Long paymentId);
 
 

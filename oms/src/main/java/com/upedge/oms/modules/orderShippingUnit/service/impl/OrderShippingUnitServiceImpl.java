@@ -90,10 +90,8 @@ public class OrderShippingUnitServiceImpl implements OrderShippingUnitService {
         }
     }
 
-    @Transactional
     @Override
     public void deleteByShipUnitId(Long shipUnitId) {
-        orderService.initShipByShipUnitId(shipUnitId);
         orderShippingUnitDao.deleteUnPaidOrderUnitByShipUnitId(shipUnitId);
     }
 

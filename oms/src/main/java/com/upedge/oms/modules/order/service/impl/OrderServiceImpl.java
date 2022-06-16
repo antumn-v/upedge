@@ -1361,12 +1361,19 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public int initShipByShipUnitId(Long shipUnitId) {
+    public void initShipByShipUnitId(Long shipUnitId) {
+        List<Long> orderIds = orderDao.selectUnpaidOrderIdsByShipUnitId(shipUnitId);
+        if (ListUtils.isEmpty(orderIds)){
+            return;
+        }
 
         if (shipUnitId != null) {
-            return orderDao.initShipByShipUnitId(shipUnitId);
+            orderDao.initShipByShipUnitId(shipUnitId);
+            orderShippingUnitService.deleteByShipUnitId(shipUnitId);
         }
-        return 0;
+        for (Long orderId : orderIds) {
+            matchShipRule(orderId);
+        }
     }
 
     @Override

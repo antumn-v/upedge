@@ -4,11 +4,11 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.upedge.common.base.BaseResponse;
-import com.upedge.common.constant.key.RocketMqConfig;
 import com.upedge.common.constant.ResultCode;
+import com.upedge.common.constant.key.RocketMqConfig;
 import com.upedge.common.feign.UmsFeignClient;
 import com.upedge.common.model.log.MqMessageLog;
-import com.upedge.oms.modules.orderShippingUnit.service.OrderShippingUnitService;
+import com.upedge.oms.modules.order.service.OrderService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.rocketmq.client.consumer.DefaultMQPushConsumer;
 import org.apache.rocketmq.client.consumer.listener.ConsumeConcurrentlyStatus;
@@ -32,7 +32,8 @@ public class OrderShipUnitCustomer {
     UmsFeignClient umsFeignClient;
 
     @Autowired
-    private OrderShippingUnitService orderShippingUnitService;
+    OrderService orderService;
+
 
     public OrderShipUnitCustomer() throws MQClientException {
         consumer = new DefaultMQPushConsumer("del_orderShipUnit");
@@ -69,7 +70,8 @@ public class OrderShipUnitCustomer {
 
                     // 删除order_shipping_unit 并 清0运费 删除shipMethodId  目前只删除
                     for (Long shipUnitId : shipUnitIds) {
-                        orderShippingUnitService.deleteByShipUnitId(shipUnitId);
+
+                        orderService.initShipByShipUnitId(shipUnitId);
                     }
 
                     if (null == mqMessageLog) {

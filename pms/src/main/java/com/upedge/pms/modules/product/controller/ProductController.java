@@ -78,10 +78,7 @@ public class ProductController {
         if (StringUtils.isBlank(request.getOriginalProductId())) {
             return new BaseResponse(ResultCode.FAIL_CODE, Constant.MESSAGE_FAIL);
         }
-        Product p = productService.selectByOriginalId(request.getOriginalProductId());
-        if (p != null) {
-            return BaseResponse.failed("产品不可重复导入");
-        }
+
         AlibabaApiVo alibabaApiVo = (AlibabaApiVo) redisTemplate.opsForValue().get(RedisKey.STRING_ALI1688_API);
         AlibabaProductVo alibabaProductVo = Ali1688Service.getProduct(request.getOriginalProductId(), alibabaApiVo);
         Session session = UserUtil.getSession(redisTemplate);

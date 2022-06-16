@@ -44,7 +44,7 @@ public interface OrderService{
 
     int cancelOrderByIds(@Param("ids") List<Long> ids);
 
-    int initShipByShipUnitId(Long shipUnitId);
+    void initShipByShipUnitId(Long shipUnitId);
 
     int updateOrderVatAmountByAreaId(List<Long> areaIds,
                                      BigDecimal vatAmount);

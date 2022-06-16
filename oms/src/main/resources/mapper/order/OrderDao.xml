@@ -2208,8 +2208,7 @@
         on o.id = osu.order_id
                 set o.ship_method_id = null, ship_price = '0'
         where osu.ship_unit_id = #{shipUnitId}
-          and o.pay_state
-         &lt; 1
+          and o.pay_state &lt; 1
     </update>
 
     <update id="cancelOrderByIds">
@@ -2323,4 +2322,13 @@
         and pay_state = '1'
         and saihe_order_code is null
     </update>
+
+    <select id="selectUnpaidOrderIdsByShipUnitId" resultType="java.lang.Long">
+        select distinct o.id
+        from `order` o
+        inner join order_shipping_unit osu
+        on o.id = osu.order_id
+        where osu.ship_unit_id = #{shipUnitId}
+          and o.pay_state &lt; 1
+    </select>
 </mapper>
