@@ -644,7 +644,7 @@ public class ProductServiceImpl implements ProductService {
         productInfo.setProductId(productId);
         productInfoService.insert(productInfo);
 
-        addNewAlibabaProductVariants(alibabaProductVo.getProductVariantVoList(), productId);
+        addNewAlibabaProductVariants(alibabaProductVo.getProductVariantVoList(), productId,alibabaProductVo.getProductImage());
 
         //更新价格区间
         refreshProductPriceRange(productId);
@@ -654,10 +654,10 @@ public class ProductServiceImpl implements ProductService {
 
         List<ProductVariantVo> productVariantVoList = alibabaProductVo.getProductVariantVoList();
 
-        addNewAlibabaProductVariants(productVariantVoList,productId);
+        addNewAlibabaProductVariants(productVariantVoList,productId,alibabaProductVo.getProductImage());
     }
 
-    public void addNewAlibabaProductVariants(List<ProductVariantVo> productVariantVoList,Long productId){
+    public void addNewAlibabaProductVariants(List<ProductVariantVo> productVariantVoList,Long productId,String mainImage){
         List<ProductVariant> productVariants = productVariantService.selectByProductId(productId);
         List<String> originalVariantIds = new ArrayList<>();
         productVariants.forEach(variant -> {
@@ -694,6 +694,9 @@ public class ProductServiceImpl implements ProductService {
             productVariant.setVolumeWeight(BigDecimal.ONE);
             if (null == productVariant.getWeight()) {
                 productVariant.setWeight(BigDecimal.ZERO);
+            }
+            if (null == productVariant.getVariantImage()){
+                productVariant.setVariantImage(mainImage);
             }
             productVariantList.add(productVariant);
             productVariantVo.getVariantAttrVoList().forEach(productVariantAttrVo -> {
