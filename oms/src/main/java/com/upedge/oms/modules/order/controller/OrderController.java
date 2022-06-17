@@ -1,7 +1,10 @@
 package com.upedge.oms.modules.order.controller;
 
 import com.upedge.common.base.BaseResponse;
-import com.upedge.common.constant.*;
+import com.upedge.common.constant.BaseCode;
+import com.upedge.common.constant.Constant;
+import com.upedge.common.constant.OrderType;
+import com.upedge.common.constant.ResultCode;
 import com.upedge.common.constant.key.RedisKey;
 import com.upedge.common.exception.CustomerException;
 import com.upedge.common.model.order.request.ManagerActualRequest;
@@ -777,5 +780,11 @@ public class OrderController {
     public BaseResponse customCreateOrder(@RequestBody@Valid OrderCustomCreateRequest request){
         Session session = UserUtil.getSession(redisTemplate);
         return orderService.orderCustomCreate(request,session);
+    }
+
+    @PostMapping("/initQuoteState/{orderId}")
+    public BaseResponse initQuoteState(@PathVariable Long orderId){
+        orderService.initQuoteState(orderId);
+        return BaseResponse.success();
     }
 }

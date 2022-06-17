@@ -1,5 +1,7 @@
 package com.upedge.oms.modules.order.service.impl;
 
+import com.upedge.common.base.BaseResponse;
+import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.utils.ListUtils;
 import com.upedge.oms.modules.order.dao.OrderAddressDao;
 import com.upedge.oms.modules.order.entity.Order;
@@ -14,6 +16,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -50,6 +53,9 @@ public class OrderAddressServiceImpl implements OrderAddressService {
                 continue;
             }
             OrderAddress orderAddress = orderAddressDao.selectByOrderId(storeOrderRelate.getOrderId());
+            if (orderAddress.getIfEdited()){
+                continue;
+            }
             Long orderAddressId = orderAddress.getId();
             if (StringUtils.isBlank(orderAddress.getCountry())
                 || !orderAddress.getCountry().equals(storeOrderAddress.getCountry())){
@@ -62,5 +68,25 @@ public class OrderAddressServiceImpl implements OrderAddressService {
             orderAddressDao.updateByPrimaryKey(orderAddress);
             storeOrderRelateService.updateCustomerNameByOrderId(storeOrderRelate.getOrderId(),orderAddress.getName());
         }
+    }
+
+    @Transactional
+    @Override
+    public BaseResponse update(OrderAddress orderAddress, Session session) {
+        OrderAddress address = orderAddressDao.selectByPrimaryKey(orderAddress.getId());
+        if (null == address){
+            return BaseResponse.failed();
+        }
+        Order order = orderService.selectByPrimaryKey(address.getOrderId());
+        if (order.getPayState() != 0 || !session.getCustomerId().equals(order.getCustomerId())){
+            return BaseResponse.failed("The address cannot be modified for a paid order");
+        }
+        orderAddress.setOrderId(order.getId());
+        orderAddressDao.updateByPrimaryKey(orderAddress);
+        if (!orderAddress.getCountryCode().equals(address.getCountryCode())){
+            orderService.orderUpdateToAreaId(order.getId(), orderAddress.getCountry());
+        }
+        storeOrderRelateService.updateCustomerNameByOrderId(order.getId(),orderAddress.getName());
+        return null;
     }
 }

@@ -12,7 +12,7 @@ import javax.annotation.PostConstruct;
 import java.util.Set;
 
 @Slf4j
-//@Component
+@Component
 public class OmsRedisInit {
 
 

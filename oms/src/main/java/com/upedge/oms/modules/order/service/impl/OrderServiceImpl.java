@@ -1511,6 +1511,10 @@ public class OrderServiceImpl implements OrderService {
         Integer quoteFailed = 0;
         if (ListUtils.isNotEmpty(orderItems)) {
             for (OrderItem orderItem : orderItems) {
+                if (orderItem.getQuantity() == 0){
+                    quoteProducts++;
+                    continue;
+                }
                 if (orderItem.getQuoteState() == OrderItem.QUOTE_STATE_QUOTING) {
                     quoteState = OrderConstant.QUOTE_STATE_QUOTING;
                     break;
@@ -2910,7 +2914,7 @@ public class OrderServiceImpl implements OrderService {
         orderItemDao.insertByBatch(orderItems);
         platformTransactionManager.commit(transaction);
         initQuoteState(orderId);
-        matchShipRule(orderId);
+//        matchShipRule(orderId);
         return;
     }
 

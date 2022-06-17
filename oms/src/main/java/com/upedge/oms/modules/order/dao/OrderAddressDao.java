@@ -23,7 +23,7 @@ public interface OrderAddressDao{
 
     OrderAddress selectByOrderId(Long orderId);
 
-    OrderAddress selectByPrimaryKey(OrderAddress record);
+    OrderAddress selectByPrimaryKey(Long id);
 
     int deleteByOrderIds(@Param("orderIds") List<Long> orderIds);
 

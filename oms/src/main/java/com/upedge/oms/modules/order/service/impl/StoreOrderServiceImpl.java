@@ -725,7 +725,7 @@ public class StoreOrderServiceImpl implements StoreOrderService {
             lineItemMap.put(shopifyLineItem.getId(),shopifyLineItem);
         }
 
-//        List<Long> storeOrderItemIds = new ArrayList<>();
+        List<Long> storeOrderItemIds = new ArrayList<>();
         List<StoreOrderItem> storeOrderItems = storeOrderItemDao.selectByStoreOrderId(storeOrderId);
         for (StoreOrderItem storeOrderItem : storeOrderItems) {
             ShopifyLineItem shopifyLineItem = lineItemMap.get(storeOrderItem.getPlatOrderItemId());
@@ -734,14 +734,14 @@ public class StoreOrderServiceImpl implements StoreOrderService {
             }
             lineItemMap.remove(shopifyLineItem.getId());
 
-//            Integer quantity = shopifyLineItem.getFulfillable_quantity();
-//            if (quantity == null || quantity.equals(storeOrderItem.getQuantity())){
-//                continue;
-//            }
-//            storeOrderItemIds.add(storeOrderItem.getId());
-//            storeOrderItem.setQuantity(quantity);
-//            storeOrderItemDao.updateByPrimaryKey(storeOrderItem);
-//            orderItemService.updateQuantityByStoreOrderItemId(storeOrderItem.getId(),quantity);
+            Integer quantity = shopifyLineItem.getFulfillable_quantity();
+            if (quantity == null || quantity.equals(storeOrderItem.getQuantity())){
+                continue;
+            }
+            storeOrderItemIds.add(storeOrderItem.getId());
+            storeOrderItem.setQuantity(quantity);
+            storeOrderItemDao.updateByPrimaryKey(storeOrderItem);
+            orderItemService.updateQuantityByStoreOrderItemId(storeOrderItem.getId(),quantity);
         }
         if (MapUtils.isNotEmpty(lineItemMap)){
             List<ShopifyLineItem> newItems = new ArrayList<>();
@@ -750,27 +750,27 @@ public class StoreOrderServiceImpl implements StoreOrderService {
                     newItems.add(lineItem);
                 }
             });
-            storeOrderAddNewItem(storeOrder,newItems);
-//            storeOrderItemIds.addAll(newItemIds);
+            List<Long> newItemIds = storeOrderAddNewItem(storeOrder,newItems);
+            storeOrderItemIds.addAll(newItemIds);
         }
-//        if (ListUtils.isNotEmpty(storeOrderItemIds)){
-//            List<Long> orderIds = orderItemService.selectOrderIdsByStoreOrderItemIds(storeOrderItemIds);
-//            if (ListUtils.isNotEmpty(orderIds)){
-//                orderService.initOrderProductAmount(orderIds);
-//                List<Long> cancelIds = new ArrayList<>();
-//                for (Long orderId : orderIds) {
-//                    int countItemQuantity = orderItemService.selectCountQuantityByOrderId(orderId);
-//                    if (countItemQuantity == 0){
-//                        cancelIds.add(orderId);
-//                    }else {
-//                        orderService.matchShipRule(orderId);
-//                    }
-//                }
-//                if (ListUtils.isNotEmpty(cancelIds)){
-//                    orderService.cancelOrderByIds(orderIds);
-//                }
-//            }
-//        }
+        if (ListUtils.isNotEmpty(storeOrderItemIds)){
+            List<Long> orderIds = orderItemService.selectOrderIdsByStoreOrderItemIds(storeOrderItemIds);
+            if (ListUtils.isNotEmpty(orderIds)){
+                orderService.initOrderProductAmount(orderIds);
+                List<Long> cancelIds = new ArrayList<>();
+                for (Long orderId : orderIds) {
+                    int countItemQuantity = orderItemService.selectCountQuantityByOrderId(orderId);
+                    if (countItemQuantity == 0){
+                        cancelIds.add(orderId);
+                    }else {
+                        orderService.matchShipRule(orderId);
+                    }
+                }
+                if (ListUtils.isNotEmpty(cancelIds)){
+                    orderService.cancelOrderByIds(orderIds);
+                }
+            }
+        }
     }
 
     public List<Long> storeOrderAddNewItem(StoreOrder storeOrder,List<ShopifyLineItem> shopifyLineItems){

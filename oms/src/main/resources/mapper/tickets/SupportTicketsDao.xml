@@ -453,7 +453,7 @@
                     and st.manager_customer_id = #{t.managerCustomerId}
                 </if>
                 <if test="t.orderId != null">
-                    and sor.order_id = #{orderId}
+                    and sor.order_id = #{t.orderId}
                 </if>
             </if>
         </where>

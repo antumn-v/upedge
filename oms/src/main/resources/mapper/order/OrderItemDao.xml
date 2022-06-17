@@ -293,7 +293,7 @@
         and o.pay_state = '0'
     </update>
 
-    <update id="    updateOrderIdByOrderItemMap">
+    <update id="updateOrderIdByOrderItemMap">
         <foreach collection="orderItemMap" index="orderId" item="itemIds" separator=";">
             update order_item
             set order_id = #{orderId}
