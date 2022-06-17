@@ -655,6 +655,13 @@ public class ProductServiceImpl implements ProductService {
         List<ProductVariantVo> productVariantVoList = alibabaProductVo.getProductVariantVoList();
 
         addNewAlibabaProductVariants(productVariantVoList,productId,alibabaProductVo.getProductImage());
+
+        Product product = new Product();
+        product.setId(productId);
+        product.setUpdateTime(new Date());
+        productDao.updateByPrimaryKeySelective(product);
+
+        refreshProductPriceRange(productId);
     }
 
     public void addNewAlibabaProductVariants(List<ProductVariantVo> productVariantVoList,Long productId,String mainImage){

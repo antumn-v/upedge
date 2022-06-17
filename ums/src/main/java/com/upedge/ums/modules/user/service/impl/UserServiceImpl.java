@@ -372,6 +372,7 @@ public class UserServiceImpl implements UserService {
 
         User user = request.toUser(customer);
         user.setId(userId);
+        user.setIsDefault(true);
         insert(user);
 
         //添加默认角色
