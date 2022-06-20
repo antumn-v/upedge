@@ -262,8 +262,18 @@ public class OrderServiceImpl implements OrderService {
         } else {
             storeOrderVos = orderItemDao.selectAppOrderItemByOrderIds(appOrderVos);
         }
-        List<Long> shippedOrderIds = new ArrayList<>();
+        List<Long> ids = redisTemplate.opsForList().range(RedisKey.HASH_ORDER_APP_CREATE_RESHIP_APPLICATION,0,-1);
+
+
         for (AppOrderVo orderVo : appOrderVos) {
+            if (orderVo.getOrderType() != 1){
+                orderVo.setReshipCreateSource(0L);
+            }
+            if (orderVo.getOrderType() == 1 && ListUtils.isNotEmpty(ids) && ids.contains(orderVo.getId())){
+                orderVo.setReshipCreateSource(Constant.APP_APPLICATION_ID);
+            }else if (orderVo.getOrderType() == 1){
+                orderVo.setReshipCreateSource(Constant.ADMIN_APPLICATION_ID);
+            }
             if (orderVo.getShipMethodId() != null) {
                 orderVo.setShipPrice(orderVo.getShipPrice().add(orderVo.getServiceFee()));
                 ShippingMethodRedis shippingMethodRedis = (ShippingMethodRedis) redisTemplate.opsForHash().get(RedisKey.SHIPPING_METHOD, orderVo.getShipMethodId().toString());
@@ -272,9 +282,6 @@ public class OrderServiceImpl implements OrderService {
                 }
             } else {
                 orderVo.setShipPrice(BigDecimal.ZERO);
-            }
-            if (1 == orderVo.getShipState()) {
-                shippedOrderIds.add(orderVo.getId());
             }
             orderVo.setStoreOrderVos(new HashSet<>());
             for (AppStoreOrderVo storeOrderVo : storeOrderVos) {
@@ -289,7 +296,6 @@ public class OrderServiceImpl implements OrderService {
             }
             completeOrderStoreUrl(orderVo);
         }
-//        completeOrderTrackingCode(appOrderVos);
         return appOrderVos;
     }
 
@@ -1394,6 +1400,11 @@ public class OrderServiceImpl implements OrderService {
         if (order == null || order.getOrderType() == 1) {
             return BaseResponse.failed("订单不存在或补发订单不能补发");
         }
+        if (session.getApplicationId().equals(Constant.APP_APPLICATION_ID)){
+            if (!session.getCustomerId().equals(order.getCustomerId())){
+                return BaseResponse.failed();
+            }
+        }
         List<OrderItem> orderItems = orderItemDao.selectItemByOrderId(id);
         Long reshipOrderId = IdGenerate.nextId();
         Order reshipOrder = new Order();
@@ -1409,7 +1420,7 @@ public class OrderServiceImpl implements OrderService {
             reshipOrder.setServiceFee(shipDetail.getServiceFee());
             reshipOrder.setShippingWarehouse(shipDetail.getWarehouseCode());
             reshipOrder.setTotalWeight(shipDetail.getWeight());
-            if (!request.getNeedPay()) {
+            if (!request.getNeedPay() && session.getApplicationId().equals(Constant.ADMIN_APPLICATION_ID)) {
                 reshipOrder.setPayState(1);
                 reshipOrder.setPayTime(new Date());
                 reshipOrder.setPayMethod(0);
@@ -1494,7 +1505,12 @@ public class OrderServiceImpl implements OrderService {
         orderReshipInfo.setReason(request.getReshipReason());
         orderReshipInfo.setReshipTimes(1);
         orderReshipInfo.setNeedPay(request.getNeedPay());
+        orderReshipInfo.setCreatorId(session.getId());
+        orderReshipInfo.setCreateApplicationId(session.getApplicationId());
         orderReshipInfoDao.insert(orderReshipInfo);
+        if (session.getApplicationId().equals(Constant.APP_APPLICATION_ID)){
+            redisTemplate.opsForList().leftPush(RedisKey.HASH_ORDER_APP_CREATE_RESHIP_APPLICATION,reshipOrderId);
+        }
         if (null != shipDetail
                 && shipDetail.isCouldShip()
                 && shipDetail.getWarehouseCode().equals(ProductConstant.DEFAULT_WAREHOUSE_ID)) {
@@ -1625,7 +1641,6 @@ public class OrderServiceImpl implements OrderService {
         orderDao.updateShipDetailById(shipDetail, id);
         shipDetail.setPrice(shipDetail.getPrice().add(shipDetail.getServiceFee()));
         return shipDetail;
-
     }
 
     @Override
@@ -1654,6 +1669,7 @@ public class OrderServiceImpl implements OrderService {
                 shipDetail = updateShipDetailById(orderId, shipDetail);
                 return shipDetail;
             }
+            orderDao.updateOrderShipMethod(orderId);
         } else {
             return shipRuleDetail.getShipDetail();
         }
@@ -1704,7 +1720,7 @@ public class OrderServiceImpl implements OrderService {
     public void orderUpdateToAreaId(Long orderId, String country) {
         Long areaId = (Long) redisTemplate.opsForHash().get(RedisKey.HASH_COUNTRY_AREA_ID, country);
         orderDao.updateToAreaIdById(orderId, areaId);
-        matchShipRule(orderId);
+        orderInitShipDetail(orderId);
     }
 
     @Override

@@ -9,10 +9,12 @@
         <result property="originalOrderId" column="original_order_id"/>
         <result property="reason" column="reason"/>
         <result property="needPay" column="need_pay"/>
+        <result property="creatorId" column="creator_id"/>
+        <result property="createApplicationId" column="create_application_id"/>
     </resultMap>
 
     <sql id="Base_Column_List">
-        `order_id`,`original_order_id`,`reason`,need_pay
+        `order_id`,`original_order_id`,`reason`,need_pay,`creator_id`,`create_application_id`
     </sql>
 
     <select id="selectByPrimaryKey" parameterType="com.upedge.oms.modules.order.entity.OrderReshipInfo" resultMap="BaseResultMap">
@@ -57,14 +59,18 @@
             original_order_id,
             reason,
             reship_times,
-            need_pay
+            need_pay,
+            creator_id,
+            create_application_id
         </trim>
         values (
         #{orderId},
         #{originalOrderId},
         #{reason},
         #{reshipTimes},
-        #{needPay}
+        #{needPay},
+        #{creatorId},
+        #{createApplicationId}
         )
     </insert>
 
@@ -126,6 +132,12 @@
                     </if>
                     <if test="t.reason != null">
                         reason = #{t.reason} and
+                    </if>
+                    <if test="t.createApplicationId != null">
+                        create_application_id = #{t.createApplicationId} and
+                    </if>
+                    <if test="t.creatorId != null">
+                        creator_id = #{t.creatorId} and
                     </if>
             </trim>
         </if>

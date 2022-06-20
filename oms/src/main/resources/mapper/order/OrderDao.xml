@@ -1545,7 +1545,8 @@
     <update id="updateOrderShipMethod">
         update `order`
         set ship_method_id = null,
-            ship_price     = 0
+            ship_price     = '0',
+            service_fee = '0'
         where id = #{id}
           and pay_state &lt; 1
     </update>

@@ -24,4 +24,8 @@ public class OrderReshipInfo{
     private Integer reshipTimes;
 
 	private Boolean needPay;
+
+	private Long creatorId;
+
+	private Long createApplicationId;
 }

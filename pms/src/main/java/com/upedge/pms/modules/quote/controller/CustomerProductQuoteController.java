@@ -133,7 +133,7 @@ public class CustomerProductQuoteController {
         cartAddRequest.setUsdPrice(PriceUtils.cnyToUsdByDefaultRate(customerProductQuote.getQuotePrice()));
         cartAddRequest.setVariantImage(customerProductQuote.getStoreVariantImage());
         cartAddRequest.setVariantName(customerProductQuote.getStoreVariantName());
-        cartAddRequest.setVariantSku(customerProductQuote.getStoreVariantSku());
+        cartAddRequest.setVariantSku(customerProductQuote.getVariantSku());
         cartAddRequest.setProductId(customerProductQuote.getProductId());
         cartAddRequest.setProductTitle(customerProductQuote.getProductTitle());
         cartAddRequest.setWeight(variant.getWeight());

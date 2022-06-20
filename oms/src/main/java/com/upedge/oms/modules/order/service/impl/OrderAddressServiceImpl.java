@@ -16,7 +16,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -70,7 +69,7 @@ public class OrderAddressServiceImpl implements OrderAddressService {
         }
     }
 
-    @Transactional
+
     @Override
     public BaseResponse update(OrderAddress orderAddress, Session session) {
         OrderAddress address = orderAddressDao.selectByPrimaryKey(orderAddress.getId());
@@ -87,6 +86,6 @@ public class OrderAddressServiceImpl implements OrderAddressService {
             orderService.orderUpdateToAreaId(order.getId(), orderAddress.getCountry());
         }
         storeOrderRelateService.updateCustomerNameByOrderId(order.getId(),orderAddress.getName());
-        return null;
+        return BaseResponse.success();
     }
 }

@@ -138,4 +138,6 @@ public class RedisKey {
 
     public static final String HASH_IP_MANAGER_INVITE_TOKEN = "ip:manager:invite:token";
 
+    public static final String HASH_ORDER_APP_CREATE_RESHIP_APPLICATION = "order:reship:application";
+
 }
