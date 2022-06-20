@@ -27,6 +27,8 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -148,6 +150,10 @@ public class OrderRefundController {
                 OrderRefund orderRefund = (OrderRefund) response.getData();
                 ConfirmRefundRequest confirmRefundRequest = new ConfirmRefundRequest();
                 confirmRefundRequest.setId(orderRefund.getId());
+                confirmRefundRequest.setRefundItems(new ArrayList<>());
+                confirmRefundRequest.setRefundShipPrice(BigDecimal.ZERO);
+                confirmRefundRequest.setRefundVatAmount(BigDecimal.ZERO);
+                confirmRefundRequest.setServiceFee(BigDecimal.ZERO);
                 confirmRefundRequest.setActualRefundAmount(orderRefund.getRefundAmount());
                 return orderRefundService.confirmRefund(confirmRefundRequest,session);
             }

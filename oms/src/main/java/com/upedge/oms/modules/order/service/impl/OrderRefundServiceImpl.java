@@ -605,7 +605,7 @@ public class OrderRefundServiceImpl implements OrderRefundService {
 
         BigDecimal refundProductAmount = (BigDecimal) map.get("refundProductAmount");
         List<CustomerStockRecord> customerStockRecords = (List<CustomerStockRecord>) map.get("customerStockRecords");
-        BigDecimal actualRefundAmount = request.getServiceFee().add(request.getRefundShipPrice()).add(refundProductAmount).add(request.getRefundVatAmount());
+        BigDecimal actualRefundAmount = request.getActualRefundAmount();
         //检查申请退款金额
         //检查申请退款金额  不能大于支付总金额  支付商品总金额/USD+运费/USD+VAT税费
         BigDecimal shippingPrice = order.getShipPrice() == null ? BigDecimal.ZERO : order.getShipPrice();

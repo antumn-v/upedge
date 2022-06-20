@@ -300,7 +300,7 @@ public class OrderItemServiceImpl implements OrderItemService {
         List<Long> orderIds = orderItemDao.selectUnpaidOrderIdByStoreVariantId(storeParentVariantId);
         if (ListUtils.isEmpty(orderIds)){
             //判断是否有产品需要更新信息
-            quoteItem = orderItemDao.selectByStoreVariantIdAndQuoteState(storeVariantId,OrderItem.QUOTE_STATE_QUOTED);
+            quoteItem = orderItemDao.selectByStoreVariantIdAndQuoteState(storeVariantId,null);
             if (null != quoteItem){
                 if (customerProductQuoteVo.getQuoteState() == 0) {
                     orderItemDao.cancelItemQuoteDetail(customerProductQuoteVo);
