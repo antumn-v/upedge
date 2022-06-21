@@ -168,6 +168,20 @@ public class OrderFulfillmentServiceImpl implements OrderFulfillmentService {
             return false;
         }
         ShopifyOrder shopifyOrder = jsonObject.getJSONObject("order").toJavaObject(ShopifyOrder.class);
+        Map<String,List<ShopifyLineItem>> fulfillmentItems = new HashMap<>();
+        List<ShopifyLineItem> shopifyLineItems = shopifyOrder.getLine_items();
+        for (ShopifyLineItem shopifyLineItem : shopifyLineItems) {
+            if (shopifyLineItem.getFulfillable_quantity() == 0){
+                continue;
+            }
+            String fulfillmentService = shopifyLineItem.getFulfillmentService();
+            List<ShopifyLineItem> lineItems = fulfillmentItems.get(fulfillmentService);
+            if (ListUtils.isEmpty(lineItems)){
+                lineItems = new ArrayList<>();
+            }
+            lineItems.add(shopifyLineItem);
+            fulfillmentItems.put(fulfillmentService,lineItems);
+        }
         //更新已回传物流的订单产品的物流信息
         List<ShopifyFulfillment> shopifyFulfillments = shopifyOrder.getFulfillments();
         if (ListUtils.isNotEmpty(shopifyFulfillments)) {
@@ -175,19 +189,15 @@ public class OrderFulfillmentServiceImpl implements OrderFulfillmentService {
         }
 
         if (ListUtils.isNotEmpty(platOrderItemIds)) {
-            return uploadShopifyOrderFulfillment(platOrderItemIds, orderTracking, storeVo, platOrderId,storeOrderId);
+            return uploadShopifyOrderFulfillment(fulfillmentItems, orderTracking, storeVo, platOrderId,storeOrderId);
         }
         return true;
     }
 
     //上传shopify订单物流信息
-    boolean uploadShopifyOrderFulfillment(List<String> platOrderItemIds, OrderTracking orderTracking, StoreVo storeVo, String platOrderId, Long storeOrderId) {
+    boolean uploadShopifyOrderFulfillment(Map<String,List<ShopifyLineItem>> fulfillmentItems, OrderTracking orderTracking, StoreVo storeVo, String platOrderId, Long storeOrderId) {
         List<ShopifyLineItem> lineItems = new ArrayList<>();
-        for (String platOrderItemId : platOrderItemIds) {
-            ShopifyLineItem lineItem = new ShopifyLineItem();
-            lineItem.setId(platOrderItemId);
-            lineItems.add(lineItem);
-        }
+
         //shopify订单回传物流需要添加location Id，location和订单产品的关系还需要测试
         String storeLocationKey = RedisKey.STRING_STORE_SHOPIFY_LOCATIONS + storeVo.getId();
         List<ShopifyLocation> locations = (List<ShopifyLocation>) redisTemplate.opsForValue().get(storeLocationKey);
@@ -196,23 +206,45 @@ public class OrderFulfillmentServiceImpl implements OrderFulfillmentService {
             redisTemplate.opsForValue().set(storeLocationKey, locations);
         }
 
-        Map<String,Object> fulfillmentMap = new HashMap<>();
-        Map<String, Object> map = new HashMap<>();
-        map.put("tracking_number", orderTracking.getTrackingCode());
-        map.put("tracking_company", orderTracking.getTrackingCompany());
-        map.put("notify_customer", true);
-        map.put("tracking_url","https://t.17track.net/en#nums=" + orderTracking.getTrackingCode());
-        map.put("line_items", lineItems);
-        for (ShopifyLocation location : locations) {
-            map.put("location_id", location.getId());
-            fulfillmentMap.put("fulfillment",map);
-            ShopifyFulfillment fulfillment = ShopifyOrderApi.orderFulfillment(platOrderId, storeVo.getStoreName(), storeVo.getApiToken(), fulfillmentMap);
-            saveStoreOrderFulfillment(fulfillment,storeVo,orderTracking,platOrderId,fulfillment_post,storeOrderId);
-            if (null != fulfillment && fulfillment.getStatus().equals("success")) {
-                return true;
+        a:
+        for (Map.Entry<String,List<ShopifyLineItem>> fulfillmentServiceItemsEntry: fulfillmentItems.entrySet() ){
+            List<ShopifyLineItem> lineItemList = fulfillmentServiceItemsEntry.getValue();
+            if (ListUtils.isEmpty(lineItemList)){
+                continue ;
             }
+            Map<String,Object> fulfillmentMap = new HashMap<>();
+            Map<String, Object> map = new HashMap<>();
+            map.put("tracking_number", orderTracking.getTrackingCode());
+            map.put("tracking_company", orderTracking.getTrackingCompany());
+            map.put("notify_customer", true);
+            map.put("tracking_url","https://t.17track.net/en#nums=" + orderTracking.getTrackingCode());
+            map.put("line_items", lineItemList);
+            String locationId = (String) redisTemplate.opsForHash().get(RedisKey.HASH_STORE_FULFILLMENT_SERVICE_LOCATION+storeVo.getId(),fulfillmentServiceItemsEntry.getKey());
+            if (StringUtils.isNotBlank(locationId)){
+                map.put("location_id", locationId);
+                fulfillmentMap.put("fulfillment",map);
+                ShopifyFulfillment fulfillment = ShopifyOrderApi.orderFulfillment(platOrderId, storeVo.getStoreName(), storeVo.getApiToken(), fulfillmentMap);
+                saveStoreOrderFulfillment(fulfillment,storeVo,orderTracking,platOrderId,fulfillment_post,storeOrderId);
+                if (null != fulfillment && fulfillment.getStatus().equals("success")) {
+                    continue a;
+                }
+            }
+
+            for (ShopifyLocation location : locations) {
+                map.put("location_id", location.getId());
+                fulfillmentMap.put("fulfillment",map);
+                ShopifyFulfillment fulfillment = ShopifyOrderApi.orderFulfillment(platOrderId, storeVo.getStoreName(), storeVo.getApiToken(), fulfillmentMap);
+                saveStoreOrderFulfillment(fulfillment,storeVo,orderTracking,platOrderId,fulfillment_post,storeOrderId);
+                if (null != fulfillment && fulfillment.getStatus().equals("success")) {
+                    redisTemplate.opsForHash().put(RedisKey.HASH_STORE_FULFILLMENT_SERVICE_LOCATION+storeVo.getId(),fulfillmentServiceItemsEntry.getKey(),location.getId());
+                    continue a;
+                }
+            }
+
         }
-        return false;
+
+
+        return true;
     }
 
     //更新shopify订单物流信息

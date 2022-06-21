@@ -3,6 +3,7 @@ package com.upedge.oms.modules.order.service.impl;
 import com.upedge.common.base.Page;
 import com.upedge.common.constant.Constant;
 import com.upedge.common.constant.key.RedisKey;
+import com.upedge.common.utils.ListUtils;
 import com.upedge.oms.modules.order.dao.OrderReshipInfoDao;
 import com.upedge.oms.modules.order.entity.OrderReshipInfo;
 import com.upedge.oms.modules.order.service.OrderReshipInfoService;
@@ -37,7 +38,8 @@ public class OrderReshipInfoServiceImpl implements OrderReshipInfoService {
             ids.add(reshipInfo.getOrderId());
         }
         redisTemplate.delete(RedisKey.HASH_ORDER_APP_CREATE_RESHIP_APPLICATION);
-        redisTemplate.opsForList().leftPushAll(RedisKey.HASH_ORDER_APP_CREATE_RESHIP_APPLICATION,ids);
-
+        if (ListUtils.isNotEmpty(ids)){
+            redisTemplate.opsForList().leftPushAll(RedisKey.HASH_ORDER_APP_CREATE_RESHIP_APPLICATION,ids);
+        }
     }
 }

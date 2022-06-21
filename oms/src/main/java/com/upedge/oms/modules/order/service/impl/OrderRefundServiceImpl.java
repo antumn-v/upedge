@@ -605,7 +605,7 @@ public class OrderRefundServiceImpl implements OrderRefundService {
 
         BigDecimal refundProductAmount = (BigDecimal) map.get("refundProductAmount");
         List<CustomerStockRecord> customerStockRecords = (List<CustomerStockRecord>) map.get("customerStockRecords");
-        BigDecimal actualRefundAmount = request.getActualRefundAmount();
+        BigDecimal actualRefundAmount = request.getServiceFee().add(request.getRefundShipPrice()).add(refundProductAmount).add(request.getRefundVatAmount());
         //检查申请退款金额
         //检查申请退款金额  不能大于支付总金额  支付商品总金额/USD+运费/USD+VAT税费
         BigDecimal shippingPrice = order.getShipPrice() == null ? BigDecimal.ZERO : order.getShipPrice();
@@ -616,19 +616,19 @@ public class OrderRefundServiceImpl implements OrderRefundService {
             return new BaseResponse(ResultCode.FAIL_CODE, "退款金额超过可退金额");
         }
 
-        BigDecimal refundShippingPrice = request.getRefundShipPrice();
-        if (refundShippingPrice == null || refundShippingPrice.compareTo(shippingPrice) > 0) {
-            return new BaseResponse(ResultCode.FAIL_CODE, "退款运费金额异常");
-        }
-        BigDecimal refundVatAmount = request.getRefundVatAmount();
-        if (refundVatAmount == null || refundVatAmount.compareTo(vatAmount) > 0) {
-            return new BaseResponse(ResultCode.FAIL_CODE, "退款VAT金额异常");
-        }
-
-
-        if (refundProductAmount.compareTo(productAmount) > 0) {
-            return new BaseResponse(ResultCode.FAIL_CODE, "退款产品金额超出限制");
-        }
+//        BigDecimal refundShippingPrice = request.getRefundShipPrice();
+//        if (refundShippingPrice == null || refundShippingPrice.compareTo(shippingPrice) > 0) {
+//            return new BaseResponse(ResultCode.FAIL_CODE, "退款运费金额异常");
+//        }
+//        BigDecimal refundVatAmount = request.getRefundVatAmount();
+//        if (refundVatAmount == null || refundVatAmount.compareTo(vatAmount) > 0) {
+//            return new BaseResponse(ResultCode.FAIL_CODE, "退款VAT金额异常");
+//        }
+//
+//
+//        if (refundProductAmount.compareTo(productAmount) > 0) {
+//            return new BaseResponse(ResultCode.FAIL_CODE, "退款产品金额超出限制");
+//        }
 
         Integer state = 2;//AppStockOrderEnum.PARTREFUNDED.getValue();
         //与可退金额做对比
@@ -702,12 +702,15 @@ public class OrderRefundServiceImpl implements OrderRefundService {
             OrderItem orderItem = itemMap.get(refundItem.getOrderItemId());
             Integer quantity = orderItem.getQuantity();
             Integer costRefundQuantity = refundItem.getCostRefundQuantity();
+            if (costRefundQuantity == null){
+                costRefundQuantity = refundItem.getQuantity();
+            }
             if (costRefundQuantity > quantity){
                 throw new CustomerException("产品退款数量不得大于支付数量");
             }
             Integer stockRefundQuantity = quantity - costRefundQuantity;
 
-//            if (refundItem.getStockRefundQuantity() > orderItem.getDischargeQuantity()){
+//            if (stockRefundQuantity > orderItem.getDischargeQuantity()){
 //                throw new CustomerException("订单产品库存退款数量不能大于使用数量");
 //            }
 //            Integer costPayQuantity = orderItem.getQuantity() - orderItem.getDischargeQuantity();

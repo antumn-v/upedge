@@ -557,17 +557,7 @@ public class OrderCommonServiceImpl implements OrderCommonService {
         OrderTrackingCommerVo a = new OrderTrackingCommerVo();
         Order order = orderService.selectByPrimaryKey(id);
         a = a.NormalOrderTrackingCommerVo(order, a);
-//        if (orderType == OrderType.NORMAL) {
-//
-//        }
-//        if (orderType == OrderType.WHOLESALE) {
-//            WholesaleOrder wholesaleOrder = wholesaleOrderService.selectByPrimaryKey(id);
-//            a = a.wholesaleOrderTrackingCommerVo(wholesaleOrder, a);
-//
-//            if (a.getShipPrice() == null || a.getShipState() != 0) {
-//                return false;
-//            }
-//        }
+
         if (a == null || a.getSaiheOrderCode() == null || a.getShipMethodId() == null) {
             return false;
         }

@@ -1,6 +1,7 @@
 package com.upedge.oms.init;
 
 import com.upedge.common.constant.key.RedisKey;
+import com.upedge.oms.modules.order.service.OrderReshipInfoService;
 import com.upedge.oms.modules.stock.service.CustomerProductStockService;
 import com.upedge.oms.modules.vat.service.VatRuleService;
 import lombok.extern.slf4j.Slf4j;
@@ -23,6 +24,9 @@ public class OmsRedisInit {
     VatRuleService vatRuleService;
 
     @Autowired
+    OrderReshipInfoService orderReshipInfoService;
+
+    @Autowired
     CustomerProductStockService customerProductStockService;
 
     @PostConstruct
@@ -31,6 +35,8 @@ public class OmsRedisInit {
         redisTemplate.delete(keys);
 
         customerProductStockService.redisInit();
+
+        orderReshipInfoService.redisInitReshipOrderApplication();
         log.warn("redis客户商品库存加载完毕----------------------------");
     }
 }

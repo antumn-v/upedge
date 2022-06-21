@@ -85,7 +85,6 @@ public class ShopifyOrderApi {
         if (entity == null){
             return null;
         }
-
         return entity.getBody();
     }
 

@@ -20,6 +20,8 @@ public class ApplyOrderRefundRequest {
     @NotNull
     BigDecimal vatAmount;
 
+    BigDecimal serviceFee;
+
     String remark;
 
     boolean directRefund;

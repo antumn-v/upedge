@@ -662,7 +662,6 @@ public class OrderController {
         if (!flag) {
             return new BaseResponse(ResultCode.FAIL_CODE, Constant.MESSAGE_FAIL);
         }
-        Session session = UserUtil.getSession(redisTemplate);
         try {
             boolean res = orderService.getTrackingFromSaihe(request.getOrderId());
             if (res) {
