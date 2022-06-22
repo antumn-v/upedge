@@ -1,5 +1,6 @@
 package com.upedge.pms.modules.product.service;
 
+import com.upedge.common.base.BaseResponse;
 import com.upedge.common.base.Page;
 import com.upedge.common.exception.CustomerException;
 import com.upedge.common.model.pms.quote.CustomerProductQuoteVo;
@@ -20,6 +21,8 @@ import java.util.Set;
  * @author gx
  */
 public interface ProductVariantService{
+
+    BaseResponse addVariant(ProductVariantAddRequest request,Session session);
 
     int updateSaiheSku(List<ProductVariant> variants);
 

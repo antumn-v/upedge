@@ -1,5 +1,6 @@
 package com.upedge.pms.modules.product.service.impl;
 
+import com.upedge.common.base.BaseResponse;
 import com.upedge.common.base.Page;
 import com.upedge.common.constant.Constant;
 import com.upedge.common.constant.ResultCode;
@@ -149,6 +150,28 @@ public class ProductVariantServiceImpl implements ProductVariantService {
         productVariantDao.updateByBatch(productVariantList);
         productVariantAttrService.updateByBatch(productVariantAttrList);
         return new ProductVariantUpdateAttrResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS);
+    }
+
+    @Transactional
+    @Override
+    public BaseResponse addVariant(ProductVariantAddRequest request, Session session) {
+        Product product = productService.selectByPrimaryKey(request.getProductId());
+        if (null == product){
+            return BaseResponse.failed("产品不存在");
+        }
+
+        ProductVariant productVariant = request.toProductVariant();
+        insert(productVariant);
+
+        Long id = productVariant.getId();
+        List<ProductVariantAttr> variantAttrs = request.getVariantAttrs();
+        for (ProductVariantAttr variantAttr : variantAttrs) {
+            variantAttr.setVariantId(id);
+            variantAttr.setProductId(productVariant.getProductId());
+        }
+        productVariantAttrService.insertByBatch(variantAttrs);
+
+        return BaseResponse.success();
     }
 
     @Override

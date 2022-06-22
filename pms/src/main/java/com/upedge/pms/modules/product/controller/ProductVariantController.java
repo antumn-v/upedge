@@ -194,15 +194,8 @@ public class ProductVariantController {
     @RequestMapping(value="/add", method=RequestMethod.POST)
     @Permission(permission = "product:productvariant:add")
     public BaseResponse add(@RequestBody @Valid ProductVariantAddRequest request) {
-        ProductVariant entity=request.toProductVariant();
-        try {
-            productVariantService.insertSelective(entity);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return BaseResponse.failed(e.getMessage());
-        }
-        ProductVariantAddResponse res = new ProductVariantAddResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS,entity,request);
-        return res;
+        Session session = UserUtil.getSession(redisTemplate);
+        return productVariantService.addVariant(request,session);
     }
 
 //    @RequestMapping(value="/del/{id}", method=RequestMethod.POST)

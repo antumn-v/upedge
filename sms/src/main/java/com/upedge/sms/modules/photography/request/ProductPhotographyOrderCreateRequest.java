@@ -26,6 +26,8 @@ public class ProductPhotographyOrderCreateRequest {
 
     private Integer photographyType = 0;
 
+    private String remark;
+
     @Size(min = 1)
     private List<ProductPhotographyOrderItem> items;
 }
