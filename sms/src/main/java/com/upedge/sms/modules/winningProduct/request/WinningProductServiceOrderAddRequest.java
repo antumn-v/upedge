@@ -33,6 +33,8 @@ public class WinningProductServiceOrderAddRequest{
     @NotNull
     private String description;
 
+    private String remark;
+
 
     public WinningProductServiceOrder toWinningProductServiceOrder(){
         Date date = new Date();

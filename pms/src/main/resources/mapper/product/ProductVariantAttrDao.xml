@@ -309,4 +309,9 @@
         where pva.product_id = #{productId}
           and pv.state = '1'
     </select>
+
+    <delete id="deleteByVariantId">
+        delete from product_variant_attr
+        where variant_id = #{variantId}
+    </delete>
 </mapper>

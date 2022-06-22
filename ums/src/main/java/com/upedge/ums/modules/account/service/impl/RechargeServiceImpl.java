@@ -153,7 +153,7 @@ public class RechargeServiceImpl implements RechargeService {
         log.setCustomerId(order.getSession().getCustomerId());
         log.setAmount(order.getAmount());
         log.setCustomerMoney(order.getAmount());
-        log.setStatus(3);
+        log.setStatus(0);
         log.setCreateTime(new Date());
         log.setUpdateTime(new Date());
         log.setRechargeType(1);
@@ -195,9 +195,13 @@ public class RechargeServiceImpl implements RechargeService {
         if (null == requestLog || requestLog.getStatus() != 0) {
             return new ApplyRechargeConfirmResponse(ResultCode.FAIL_CODE, Constant.MESSAGE_FAIL);
         }
-        rechargeConfirm(requestLog, 0, PayOrderMethod.RECHARGE);
+        rechargeConfirm(requestLog, requestLog.getRechargeType(),requestLog.getRechargeType());
         log.debug(requestId + "--->修改状态为已完成");
-        requestLog.setStatus(1);
+        if (requestLog.getRechargeType() == 1){
+            requestLog.setStatus(3);
+        }else {
+            requestLog.setStatus(1);
+        }
         requestLog.setUpdateTime(new Date());
         requestLog.setHandleUserId(session.getId());
         int res = rechargeRequestLogMapper.confirmRechargeRequest(requestLog);
@@ -318,7 +322,7 @@ public class RechargeServiceImpl implements RechargeService {
         }
         RechargeRequestLog requestLog = rechargeRequestLogMapper.selectByPrimaryKey(attr.getRechargeRequestId());
         if (payment.getState().equals("completed")) {
-            requestLog.setStatus(1);
+            requestLog.setStatus(3);
             requestLog.setUpdateTime(new Date());
             rechargeRequestLogMapper.updateByPrimaryKey(requestLog);
             rechargeConfirm(requestLog, rechargeType, PayOrderMethod.PAYPAL);

@@ -101,6 +101,7 @@ public class WinningProductServiceOrderServiceImpl implements WinningProductServ
         serviceOrder.setRefundState(0);
         serviceOrder.setServiceType(OrderType.EXTRA_SERVICE_WINNING_PRODUCT);
         serviceOrder.setUpdateTime(new Date());
+        serviceOrder.setRemark(request.getRemark());
         serviceOrderService.insert(serviceOrder);
         saveTransactionRecordMessage(session.getId(),orderId);
         return BaseResponse.success();

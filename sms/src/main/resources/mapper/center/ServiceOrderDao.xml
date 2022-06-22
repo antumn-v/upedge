@@ -18,10 +18,13 @@
         <result property="updateTime" column="update_time"/>
         <result property="finishTime" column="finish_time"/>
         <result property="managerId" column="manager_id"/>
+        <result property="remark" column="remark"/>
     </resultMap>
 
     <sql id="Base_Column_List">
-        `id`,`service_type`,`service_title`,`relate_id`,`customer_id`,`service_state`,`pay_state`,`refund_state`,`pay_amount`,`create_time`,`update_time`,`finish_time`,`manager_id`
+        `id`,`service_type`,`service_title`,`relate_id`,`customer_id`,
+        `service_state`,`pay_state`,`refund_state`,`pay_amount`,`create_time`,
+        `update_time`,`finish_time`,`manager_id`,`remark`
     </sql>
 
     <select id="selectByPrimaryKey" parameterType="com.upedge.sms.modules.center.entity.ServiceOrder" resultMap="BaseResultMap">
@@ -75,6 +78,9 @@
             <if test="managerId != null">
                 manager_id = #{managerId},
             </if>
+            <if test="remark != null">
+                remark = #{remark},
+            </if>
         </set>
         where id = #{id}
     </update>
@@ -114,7 +120,8 @@
             create_time,
             update_time,
             finish_time,
-            manager_id
+            manager_id,
+            remark
         </trim>
         values (
         #{id},
@@ -129,7 +136,8 @@
         #{createTime},
         #{updateTime},
         #{finishTime},
-        #{managerId}
+        #{managerId},
+        #{remark}
         )
     </insert>
 

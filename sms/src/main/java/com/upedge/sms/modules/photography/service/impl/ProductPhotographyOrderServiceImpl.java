@@ -177,6 +177,7 @@ public class ProductPhotographyOrderServiceImpl implements ProductPhotographyOrd
         serviceOrder.setRefundState(0);
         serviceOrder.setServiceType(OrderType.EXTRA_SERVICE_PRODUCT_PHOTOGRAPHY);
         serviceOrder.setUpdateTime(new Date());
+        serviceOrder.setRemark(request.getRemark());
         serviceOrderService.insert(serviceOrder);
         return BaseResponse.success(productPhotographyOrder);
     }

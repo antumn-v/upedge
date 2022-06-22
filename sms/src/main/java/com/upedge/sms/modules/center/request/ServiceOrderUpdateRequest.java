@@ -12,10 +12,13 @@ public class ServiceOrderUpdateRequest{
 
     String serviceTitle;
 
+    String remark;
+
     public ServiceOrder toServiceOrder(){
         ServiceOrder serviceOrder=new ServiceOrder();
         serviceOrder.setId(id);
         serviceOrder.setServiceTitle(serviceTitle);
+        serviceOrder.setRemark(remark);
         return serviceOrder;
     }
 

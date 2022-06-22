@@ -37,5 +37,7 @@ public interface ProductVariantAttrService{
     List<ProductVariantAttr> select(Page<ProductVariantAttr> record);
 
     long count(Page<ProductVariantAttr> record);
+
+    void deleteByVariantId(Long variantId);
 }
 

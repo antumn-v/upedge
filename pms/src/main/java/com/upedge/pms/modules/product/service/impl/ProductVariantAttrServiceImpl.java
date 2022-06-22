@@ -115,4 +115,9 @@ public class ProductVariantAttrServiceImpl implements ProductVariantAttrService 
         return productVariantAttrDao.count(record);
     }
 
+    @Override
+    public void deleteByVariantId(Long variantId) {
+        productVariantAttrDao.deleteByVariantId(variantId);
+    }
+
 }

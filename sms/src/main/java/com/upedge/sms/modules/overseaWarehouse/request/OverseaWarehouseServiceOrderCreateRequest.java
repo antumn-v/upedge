@@ -20,4 +20,6 @@ public class OverseaWarehouseServiceOrderCreateRequest {
 
     @NotNull(message = "Title can't be null")
     String serviceTitle;
+
+    String remark;
 }

@@ -58,4 +58,6 @@ public class ServiceOrder{
 	 */
     private Long managerId;
 
+	private String remark;
+
 }

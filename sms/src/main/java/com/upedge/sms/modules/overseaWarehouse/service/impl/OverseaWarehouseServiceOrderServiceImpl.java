@@ -386,6 +386,7 @@ public class OverseaWarehouseServiceOrderServiceImpl implements OverseaWarehouse
         serviceOrder.setRefundState(0);
         serviceOrder.setServiceType(OrderType.EXTRA_SERVICE_OVERSEA_WAREHOUSE);
         serviceOrder.setUpdateTime(new Date());
+        serviceOrder.setRemark(request.getRemark());
         serviceOrderService.insert(serviceOrder);
 
         CartSubmitRequest cartSubmitRequest = new CartSubmitRequest();

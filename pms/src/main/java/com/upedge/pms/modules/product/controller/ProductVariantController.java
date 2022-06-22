@@ -70,12 +70,12 @@ public class ProductVariantController {
     /**
      * 更新变体属性
      */
-    @ApiOperation("更新变体属性")
-    @RequestMapping(value="/updateAttr", method=RequestMethod.POST)
-    public ProductVariantUpdateAttrResponse updateAttr(@RequestBody @Valid ProductVariantUpdateAttrRequest request) {
-        Session session = UserUtil.getSession(redisTemplate);
-        return productVariantService.updateAttr(request);
-    }
+//    @ApiOperation("更新变体属性")
+//    @RequestMapping(value="/updateAttr", method=RequestMethod.POST)
+//    public ProductVariantUpdateAttrResponse updateAttr(@RequestBody @Valid ProductVariantUpdateAttrRequest request) {
+//        Session session = UserUtil.getSession(redisTemplate);
+//        return productVariantService.updateAttr(request);
+//    }
 
     /**
      * 更新实重
@@ -206,13 +206,11 @@ public class ProductVariantController {
 //        return res;
 //    }
 
-    @RequestMapping(value="/update/{id}", method=RequestMethod.POST)
+    @ApiOperation("更新变体属性")
+    @RequestMapping(value="/updateAttrs", method=RequestMethod.POST)
     @Permission(permission = "product:productvariant:update")
-    public ProductVariantUpdateResponse update(@PathVariable Long id,@RequestBody @Valid ProductVariantUpdateRequest request) {
-        ProductVariant entity=request.toProductVariant(id);
-        productVariantService.updateByPrimaryKeySelective(entity);
-        ProductVariantUpdateResponse res = new ProductVariantUpdateResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS);
-        return res;
+    public BaseResponse update(@RequestBody @Valid ProductVariantUpdateRequest request) {
+        return productVariantService.updateAttrs(request,null);
     }
 
 

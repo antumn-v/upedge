@@ -226,6 +226,7 @@ public class WholesaleOrderServiceImpl implements WholesaleOrderService {
         serviceOrder.setRefundState(0);
         serviceOrder.setServiceType(OrderType.EXTRA_SERVICE_WHOLESALE);
         serviceOrder.setUpdateTime(new Date());
+        serviceOrder.setRemark(request.getRemark());
         serviceOrderService.insert(serviceOrder);
 
         CartSubmitRequest cartSubmitRequest = new CartSubmitRequest();

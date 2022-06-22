@@ -154,6 +154,40 @@ public class ProductVariantServiceImpl implements ProductVariantService {
 
     @Transactional
     @Override
+    public BaseResponse updateAttrs(ProductVariantUpdateRequest request, Session session) {
+        Long variantId = request.getId();
+        ProductVariant productVariant = selectByPrimaryKey(request.getId());
+        if (null == productVariant){
+            return BaseResponse.failed("变体不存在");
+        }
+
+        List<ProductVariantAttr> variantAttrs = request.getVariantAttrs();
+        for (ProductVariantAttr variantAttr : variantAttrs) {
+            if (StringUtils.isBlank(variantAttr.getVariantAttrEname())
+            ||StringUtils.isBlank(variantAttr.getVariantAttrEvalue())
+            ||StringUtils.isBlank(variantAttr.getVariantAttrCname())
+            ||StringUtils.isBlank(variantAttr.getVariantAttrCvalue())){
+                return BaseResponse.failed("属性值不能为空");
+            }
+            variantAttr.setVariantId(variantId);
+            variantAttr.setProductId(productVariant.getProductId());
+        }
+        productVariant = new ProductVariant();
+        List<String> cnNameList = variantAttrs.stream().map(ProductVariantAttr::getVariantAttrCvalue).collect(Collectors.toList());
+        List<String> enNameList = variantAttrs.stream().map(ProductVariantAttr::getVariantAttrEvalue).collect(Collectors.toList());
+        productVariant.setCnName(cnNameList.toString());
+        productVariant.setEnName(enNameList.toString());
+        productVariant.setId(request.getId());
+        updateByPrimaryKeySelective(productVariant);
+
+        productVariantAttrService.deleteByVariantId(request.getId());
+        productVariantAttrService.insertByBatch(variantAttrs);
+
+        return BaseResponse.success();
+    }
+
+    @Transactional
+    @Override
     public BaseResponse addVariant(ProductVariantAddRequest request, Session session) {
         Product product = productService.selectByPrimaryKey(request.getProductId());
         if (null == product){

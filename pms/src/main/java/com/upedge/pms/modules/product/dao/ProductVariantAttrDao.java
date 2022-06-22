@@ -44,4 +44,6 @@ public interface ProductVariantAttrDao{
 
     long count(Page<ProductVariantAttr> record);
 
+    void deleteByVariantId(Long variantId);
+
 }

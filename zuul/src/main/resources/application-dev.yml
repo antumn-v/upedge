@@ -68,7 +68,7 @@ ribbon:        #设置ribbon的超时时间小于zuul的超时时间
 files:
   image:
     local: 'D:/developer/image/'
-    prefix: 'http://192.168.2.5:8611/image/'
+    prefix: 'http://192.168.2.9:8611/image/'
 
 
 management:
