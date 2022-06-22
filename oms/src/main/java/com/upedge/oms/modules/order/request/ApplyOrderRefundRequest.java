@@ -16,10 +16,10 @@ public class ApplyOrderRefundRequest {
     @NotBlank
     private String refundReason;
     @NotNull
-    BigDecimal shippingPrice;
+    BigDecimal shipPrice;
     @NotNull
     BigDecimal vatAmount;
-
+    @NotNull
     BigDecimal serviceFee;
 
     String remark;

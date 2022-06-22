@@ -40,7 +40,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.*;
-import java.util.concurrent.ThreadPoolExecutor;
 
 @Slf4j
 @Service
@@ -63,8 +62,6 @@ public class OrderRefundServiceImpl implements OrderRefundService {
     RedisTemplate<String, Object> redisTemplate;
     @Autowired
     private OrderRefundItemService orderRefundItemService;
-    @Autowired
-    private ThreadPoolExecutor threadPoolExecutor;
 
     @Autowired
     OrderDailyRefundCountService orderDailyRefundCountService;
@@ -116,7 +113,7 @@ public class OrderRefundServiceImpl implements OrderRefundService {
         if (1 != order.getPayState() || 0 != order.getRefundState()) {
             return BaseResponse.failed();
         }
-        if (request.getShippingPrice().compareTo(order.getShipPrice().add(order.getServiceFee())) > 0
+        if (request.getShipPrice().compareTo(order.getShipPrice().add(order.getServiceFee())) > 0
                 || request.getVatAmount().compareTo(order.getVatAmount()) > 0) {
             return BaseResponse.failed("The refund amount cannot be greater than the actual payment amount");
         }
@@ -147,7 +144,7 @@ public class OrderRefundServiceImpl implements OrderRefundService {
                 refundItem.setCostPayQuantity(itemVo.getQuantity() - itemVo.getDischargeQuantity());
             }
         }
-        refundAmount = refundAmount.add(request.getShippingPrice()).add(request.getVatAmount()).add(refundProductAmount);
+        refundAmount = refundAmount.add(request.getShipPrice()).add(request.getVatAmount()).add(refundProductAmount);
 
         OrderRefund appRefund = new OrderRefund();
         appRefund.setId(refundId);
@@ -161,7 +158,7 @@ public class OrderRefundServiceImpl implements OrderRefundService {
         appRefund.setState(0);//申请中
         appRefund.setSource(session.getApplicationId());//来源app
         appRefund.setTrackingState(order.getShipState());
-        appRefund.setRefundShippingPrice(request.getShippingPrice());
+        appRefund.setRefundShippingPrice(request.getShipPrice());
         appRefund.setRefundVatAmount(request.getVatAmount());
         appRefund.setRefundProductAmount(refundProductAmount);
         //修改订单状态  已付款的改为 退款中
@@ -273,7 +270,7 @@ public class OrderRefundServiceImpl implements OrderRefundService {
         OrderRefund appRefund = new OrderRefund();
 
         String refundReason = request.getRefundReason();
-        BigDecimal refundShippingPrice = request.getShippingPrice();
+        BigDecimal refundShippingPrice = request.getShipPrice();
         BigDecimal refundVatAmount = request.getVatAmount();
         String remark = request.getRemark();
         List<OrderRefundItem> refundItemList = request.getRefundItemList();
@@ -296,16 +293,11 @@ public class OrderRefundServiceImpl implements OrderRefundService {
         }
         BigDecimal refundAmount = BigDecimal.ZERO;
         BigDecimal refundProductAmount = BigDecimal.ZERO;
-        refundAmount = refundAmount.add(refundShippingPrice).add(refundVatAmount);
+        refundAmount = refundAmount.add(refundShippingPrice).add(refundVatAmount).add(request.getServiceFee());
         //检查退款产品
         Long refundId = IdGenerate.nextId();
         for (OrderRefundItem refundItem : refundItemList) {
-            if (refundItem.getQuantity() == null || refundItem.getQuantity() <= 0) {
-                return new BaseResponse(ResultCode.FAIL_CODE, "数量异常!");
-            }
-            if (refundItem.getOrderItemId() == null) {
-                return new BaseResponse(ResultCode.FAIL_CODE, "参数异常!");
-            }
+
             refundItem.setOrderId(orderId);
             OrderItem old = orderItemDao.queryOrderItemByIdAndOrderId(refundItem.getOrderItemId(), orderId);
             if (old == null) {
@@ -339,9 +331,9 @@ public class OrderRefundServiceImpl implements OrderRefundService {
         if (refundVatAmount.compareTo(vatAmount) > 0) {
             return new BaseResponse(ResultCode.FAIL_CODE, "退款VAT税费超过限制!");
         }
-        if (refundShippingPrice.compareTo(order.getShipPrice().add(order.getServiceFee())) > 0) {
-            return new BaseResponse(ResultCode.FAIL_CODE, "退款运费超过限制!");
-        }
+//        if (refundShippingPrice.compareTo(order.getShipPrice().add(order.getServiceFee())) > 0) {
+//            return new BaseResponse(ResultCode.FAIL_CODE, "退款运费超过限制!");
+//        }
         //可退最大金额
         BigDecimal maxAmount = order.getShipPrice().
                 add(order.getProductAmount()).add(vatAmount).add(order.getServiceFee());
@@ -727,7 +719,7 @@ public class OrderRefundServiceImpl implements OrderRefundService {
                                 orderItem.getAdminProductId(),
                                 orderItem.getAdminVariantId(),
                                 warehouseCode,
-                                Long.parseLong(refundItem.getId().toString()),
+                                refundItem.getOrderItemId(),
                                 5,
                                 OrderType.NORMAL,
                                 stockRefundQuantity,

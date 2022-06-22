@@ -150,7 +150,7 @@ public class OrderRefundController {
                 ConfirmRefundRequest confirmRefundRequest = new ConfirmRefundRequest();
                 confirmRefundRequest.setId(orderRefund.getId());
                 confirmRefundRequest.setRefundItems(request.getRefundItemList());
-                confirmRefundRequest.setRefundShipPrice(request.getShippingPrice());
+                confirmRefundRequest.setRefundShipPrice(request.getShipPrice());
                 confirmRefundRequest.setRefundVatAmount(request.getVatAmount());
                 confirmRefundRequest.setServiceFee(BigDecimal.ZERO);
                 confirmRefundRequest.setActualRefundAmount(orderRefund.getRefundAmount());

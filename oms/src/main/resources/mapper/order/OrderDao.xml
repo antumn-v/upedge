@@ -438,6 +438,7 @@
                o.pay_amount,
                o.ship_method_id,
                (o.ship_price + service_fee) as `ship_price`,
+                o.service_fee,
                o.total_weight,
                o.product_amount,
                o.product_discharge_amount,
