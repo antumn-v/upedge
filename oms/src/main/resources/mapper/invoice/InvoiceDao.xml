@@ -19,6 +19,9 @@
             <if test="t.orderId != null">
                 and upedge.id = #{t.orderId}
             </if>
+            <if test="t.beginTime != null and t.endTime != null">
+                and date_format(pay_time,'%Y-%m-%d') between #{t.beginTime} and #{t.endTime}
+            </if>
             and upedge.pay_state > '0'
             and upedge.order_status = '0'
             group by payment_id,pay_time,customer_id
@@ -95,6 +98,9 @@
         </if>
         <if test="t.platOrderName != null">
             and sor.plat_order_name = #{t.platOrderName}
+        </if>
+        <if test="t.beginTime != null and t.endTime != null">
+            and date_format(pay_time,'%Y-%m-%d') between #{t.beginTime} and #{t.endTime}
         </if>
         and upedge.pay_state > '0'
         and upedge.order_status = '0'
