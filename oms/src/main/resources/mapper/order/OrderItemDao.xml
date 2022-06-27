@@ -182,28 +182,14 @@
         where oi.order_id = #{orderId}
     </select>
 
-    <select id="selectAppOrderItemByOrderIds" resultMap="OrderRelateItems" >
-        select DISTINCTROW oi.order_id as `orderId`,oi.store_order_id,store_product_id,
-        oi.id as itemId,oi.order_id,`admin_product_id`,`store_variant_name`,`admin_variant_id`,
-        oi.store_product_id,oi.store_variant_id,
-        `store_variant_sku`,`admin_variant_image`,`store_product_title`,`usd_price`,`quantity`,
-        `discharge_quantity`,`admin_variant_weight`,`admin_variant_volume`,store_variant_image,
-        oi.quote_state,
-        sor.store_name,
-        sor.financial_status,
-        sor.fulfillment_status,
-        sor.plat_order_create_time,
-        sor.plat_order_name,
-        sor.order_customer_name,
-        sor.order_id
-        from order_item oi
-        left join store_order_relate sor
-        on oi.order_id = sor.order_id
-        where oi.order_id in
+    <select id="selectAppOrderItemByOrderIds" resultMap="BaseResultMap" >
+        select <include refid="Base_Column_List"/>
+        from order_item
+        where order_id in
         <foreach collection="orders" item="o" open="(" close=")" separator=",">
             #{o.id}
         </foreach>
-        and oi.quote_state != '3'
+        and quote_state != '3'
     </select>
 
     <select id="selectAdminVariantDetailByOrder" resultType="com.upedge.common.model.product.VariantDetail">

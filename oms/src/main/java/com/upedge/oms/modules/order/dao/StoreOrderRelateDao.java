@@ -11,11 +11,13 @@ import java.util.Set;
 /**
  * @author author
  */
-public interface StoreOrderRelateDao{
+public interface StoreOrderRelateDao {
 
     int deleteByOrderId(@Param("orderIds") List<Long> orderIds);
 
     int updateStoreStatusByStoreOrderId(StoreOrder storeOrder);
+
+    List<StoreOrderRelate> selectByOrderIds(@Param("ids") List<Long> ids);
 
     List<StoreOrderRelate> selectUnPaidByStoreOrderId(@Param("storeOrderIds") List<Long> storeOrderIds);
 
@@ -25,8 +27,8 @@ public interface StoreOrderRelateDao{
 
     StoreOrderRelate selectByPrimaryKey(StoreOrderRelate record);
 
-    int updateCustomerNameByOrderId(@Param("orderId")Long orderId,
-                                    @Param("customerName")String customerName);
+    int updateCustomerNameByOrderId(@Param("orderId") Long orderId,
+                                    @Param("customerName") String customerName);
 
     int updateOrderId(@Param("orderIds") List<Long> orderIds,
                       @Param("orderId") Long orderId);

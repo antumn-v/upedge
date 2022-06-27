@@ -337,4 +337,14 @@
             financial_status = #{financialStatus}
         where store_order_id = #{id}
     </update>
+
+    <select id="selectByOrderIds" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from store_order_relate
+        where order_id in
+        <foreach collection="orders" item="o" open="(" close=")" separator=",">
+            #{o.id}
+        </foreach>
+    </select>
 </mapper>
