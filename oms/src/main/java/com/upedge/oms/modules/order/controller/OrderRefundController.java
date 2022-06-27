@@ -27,7 +27,6 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.math.BigDecimal;
 import java.util.List;
 
 /**
@@ -123,7 +122,6 @@ public class OrderRefundController {
     @ApiOperation("退款申请列表")
     @RequestMapping(value="/applyList", method=RequestMethod.POST)
     public OrderRefundListResponse refundOrderList(@RequestBody @Valid OrderRefundListRequest request) {
-        log.warn("新服务区访问");
         return orderRefundService.refundOrderList(request);
     }
 
@@ -152,7 +150,7 @@ public class OrderRefundController {
                 confirmRefundRequest.setRefundItems(request.getRefundItemList());
                 confirmRefundRequest.setRefundShipPrice(request.getShipPrice());
                 confirmRefundRequest.setRefundVatAmount(request.getVatAmount());
-                confirmRefundRequest.setServiceFee(BigDecimal.ZERO);
+                confirmRefundRequest.setServiceFee(request.getServiceFee());
                 confirmRefundRequest.setActualRefundAmount(orderRefund.getRefundAmount());
                 return orderRefundService.confirmRefund(confirmRefundRequest,session);
             }
