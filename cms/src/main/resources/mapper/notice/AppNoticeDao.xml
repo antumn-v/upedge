@@ -141,14 +141,7 @@
 
     <select id="select" parameterType="com.upedge.common.base.Page" resultMap="BaseResultMap">
         select
-        `id`,
-        `type`,
-        `title`,
-        `update_time`,
-        `create_time`,
-        `view_count`,
-        `state`,
-        `operator_id`
+        <include refid="Base_Column_List"/>
         from app_notice
         <include refid="Query_Condition"/>
         order by update_time desc

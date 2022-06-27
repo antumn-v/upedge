@@ -16,6 +16,7 @@
             count(distinct  upedge.id) as `orderCount`
             from `order` upedge
             where upedge.customer_id = #{t.customerId}
+            and payment_id is not null
             <if test="t.orderId != null">
                 and upedge.id = #{t.orderId}
             </if>
@@ -93,6 +94,7 @@
         left join store_order_relate sor
         on upedge.id = sor.order_id
         where upedge.customer_id = #{t.customerId}
+        and payment_id is not null
         <if test="t.orderId != null">
             and upedge.id = #{t.orderId}
         </if>
@@ -156,26 +158,30 @@
 <!--        </if>-->
     </select>
 
-    <select id="selectOrderInvoiceDetailByPaymentId" resultType="com.upedge.oms.modules.statistics.vo.InvoiceDetailVo"
-    parameterType="com.upedge.oms.modules.statistics.request.InvoiceDetailRequest">
+    <select id="selectOrderInvoiceDetailByPaymentId" resultType="com.upedge.oms.modules.statistics.vo.InvoiceDetailVo">
         select
-            payment_id AS `paymentId`,
-            pay_time AS `payTime`,
             customer_id,
-            IFNULL(sum( product_discharge_amount ), 0 )  AS `dischargeAmount`,
-            IFNULL(sum( ship_price + service_fee ), 0 )  AS `shipPrice`,
-            IFNULL(sum( product_amount ), 0 )  AS `productAmount`,
-            IFNULL(sum( vat_amount ), 0 )  AS vatAmount,
-            IFNULL(sum( pay_amount), 0 )  AS payAmount,
-            IFNULL(sum( fix_fee ), 0 )  AS `fixFee`
+            sum( product_discharge_amount )  AS `dischargeAmount`,
+            sum( ship_price + service_fee )  AS `shipPrice`,
+            sum( product_amount )  AS `productAmount`,
+            sum( vat_amount )  AS vatAmount,
+            sum( pay_amount)  AS payAmount,
+            sum( fix_fee )  AS `fixFee`
         from `order`
-        where payment_id = #{paymentId}
-        and pay_state > '0'
-        group by payment_id,pay_time,customer_id
+        where pay_state > '0'
+        <if test="paymentId != null">
+            and payment_id = #{paymentId}
+        </if>
+        <if test="paymentIds != null and paymentIds.size() > 0">
+            and payment_id in
+            <foreach collection="paymentIds" item="paymentId" open="(" separator="," close=")">
+                #{paymentId}
+            </foreach>
+        </if>
+        group by customer_id
     </select>
 
-    <select id="selectOrderInvoiceDetailByTime" resultType="com.upedge.oms.modules.statistics.vo.InvoiceDetailVo"
-    parameterType="com.upedge.oms.modules.statistics.request.InvoiceSearchRequest">
+    <select id="selectOrderInvoiceDetailByTime" resultType="com.upedge.oms.modules.statistics.vo.InvoiceDetailVo">
         select
         sum(product_discharge_amount) as `dischargeAmount`,
         sum(ship_price) as `shipPrice`,
@@ -194,15 +200,24 @@
     <select id="selectOrderInvoiceProductByPaymentId" resultType="com.upedge.common.model.account.vo.InvoiceProductVo"
             parameterType="com.upedge.oms.modules.statistics.request.InvoiceDetailRequest">
         select oi.store_variant_id,
+        oi.store_variant_image as `image`,oi.store_variant_name as `variantTitle`,
         sum(oi.quantity) as `quantity`,
         oi.usd_price as `price`,
         sum(oi.quantity * oi.usd_price) as `total`
         from `order` o
         inner join order_item oi
         on o.id = oi.order_id
-        where o.payment_id = #{paymentId}
-        and o.pay_state > '0'
-        group by oi.store_variant_id,oi.usd_price
+        where o.pay_state > '0'
+        <if test="paymentId != null">
+            and payment_id = #{paymentId}
+        </if>
+        <if test="paymentIds != null and paymentIds.size() > 0">
+            and payment_id in
+            <foreach collection="paymentIds" item="paymentId" open="(" separator="," close=")">
+                #{paymentId}
+            </foreach>
+        </if>
+        group by oi.store_variant_id,oi.store_variant_image,oi.store_variant_name,oi.usd_price
     </select>
 
     <select id="selectOrderInvoiceProductByTime" resultType="com.upedge.common.model.account.vo.InvoiceProductVo"
@@ -361,4 +376,6 @@
         and o.pay_state > '0'
         group by oi.variant_sku,oi.price,oi.product_title,oi.variant_name,oi.variant_image
     </select>
+
+
 </mapper>

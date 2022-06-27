@@ -241,6 +241,13 @@
                 <if test="t.paymentId != null">
                     o.payment_id = #{t.paymentId} and
                 </if>
+                <if test="t.paymentIds != null and t.paymentIds.size() > 0">
+                    o.payment_id in
+                    <foreach collection="t.paymentIds" item="pId" open="(" close=")" separator=",">
+                        #{pId}
+                    </foreach>
+                    and
+                </if>
                 <if test="t.payState != null">
                     o.pay_state = #{t.payState} and
                 </if>

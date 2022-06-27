@@ -5,6 +5,7 @@ import com.upedge.oms.modules.statistics.request.InvoiceSearchRequest;
 import com.upedge.oms.modules.statistics.vo.InvoiceDetailVo;
 import com.upedge.common.model.account.vo.InvoiceProductVo;
 import com.upedge.oms.modules.statistics.vo.InvoiceVo;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -14,9 +15,9 @@ public interface InvoiceDao {
 
     Long selectCustomerInvoiceCount(InvoiceListRequest request);
 
-    InvoiceDetailVo selectOrderInvoiceDetailByPaymentId(Long paymentId);
+    InvoiceDetailVo selectOrderInvoiceDetailByPaymentId(@Param("paymentId") Long paymentId,@Param("paymentIds") List<Long> paymentIds);
 
-    List<InvoiceProductVo> selectOrderInvoiceProductByPaymentId(Long paymentId);
+    List<InvoiceProductVo> selectOrderInvoiceProductByPaymentId(@Param("paymentId") Long paymentId,@Param("paymentIds") List<Long> paymentIds);
 
     InvoiceDetailVo selectWholesaleInvoiceDetailByPaymentId(Long paymentId);
 

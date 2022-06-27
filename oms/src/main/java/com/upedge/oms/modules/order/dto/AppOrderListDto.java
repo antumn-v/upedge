@@ -31,6 +31,8 @@ public class AppOrderListDto {
 
     Long paymentId;
 
+    List<Long> paymentIds;
+
     Integer financialStatus;
 
     Integer fulfillmentStatus;
