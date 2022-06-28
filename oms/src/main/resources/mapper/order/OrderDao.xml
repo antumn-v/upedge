@@ -231,10 +231,17 @@
                 <if test="t.orgId != null">
                     o.org_id = #{t.orgId} and
                 </if>
-                <if test="t.orgIds != null and t.storeIds.length > 0">
+                <if test="t.orgIds != null and t.orgIds.length > 0">
                     o.org_id in
                     <foreach collection="t.orgIds" item="sId" open="(" close=")" separator=",">
                         #{sId}
+                    </foreach>
+                    and
+                </if>
+                <if test="t.orderIds != null and t.orderIds.size() > 0">
+                    o.id in
+                    <foreach collection="t.orderIds" item="oId" open="(" close=")" separator=",">
+                        #{oId}
                     </foreach>
                     and
                 </if>

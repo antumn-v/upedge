@@ -47,7 +47,7 @@
         where o.customer_id = #{customerId}
         and o.pay_state = '0'
         and o.quote_state ='3'
-        and o.order_type = '0'
+        and o.order_type &lt; '2'
         and oa.country is not null
     </select>
 
@@ -63,7 +63,7 @@
             #{orderId}
         </foreach>
         and o.pay_state = '0'
-        and o.order_type = '0'
+        and o.order_type &lt; '2'
         and oa.country is not null
         group by store_id,address,oa.first_name,oa.last_name,oa.country,oa.city,oa.province,oa.address1,oa.address2,oa.zip,oa.company,oa.phone, o.id
     </select>

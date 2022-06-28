@@ -221,7 +221,7 @@ public class OrderServiceImpl implements OrderService {
         for (StoreOrderRelate storeOrderRelate : storeOrderRelates) {
             AppStoreOrderVo appStoreOrderVo = new AppStoreOrderVo();
             BeanUtils.copyProperties(storeOrderRelate, appStoreOrderVo);
-            appStoreOrderVo.setItemVos(new HashSet<>());
+            appStoreOrderVo.setItemVos(new ArrayList<>());
             itemVos.forEach(appOrderItemVo -> {
                 if (appOrderItemVo.getStoreOrderId().equals(appStoreOrderVo.getStoreOrderId())) {
                     appStoreOrderVo.getItemVos().add(appOrderItemVo);
@@ -256,14 +256,17 @@ public class OrderServiceImpl implements OrderService {
     public List<AppOrderVo> selectAppOrderList(AppOrderListRequest request) {
         request.initFromNum();
         List<AppOrderVo> appOrderVos = orderDao.selectAppOrderList(request);
-        List<AppStoreOrderVo> storeOrderVos = new ArrayList<>();
         if (ListUtils.isEmpty(appOrderVos)) {
-            appOrderVos = new ArrayList<>();
-        } else {
-            storeOrderVos = orderItemDao.selectAppOrderItemByOrderIds(appOrderVos);
+            return new ArrayList<>();
         }
-        List<Long> ids = redisTemplate.opsForList().range(RedisKey.HASH_ORDER_APP_CREATE_RESHIP_APPLICATION,0,-1);
+        List<Long> orderIds = new ArrayList<>();
+        appOrderVos.forEach(appOrderVo -> {
+            orderIds.add(appOrderVo.getId());
+        });
 
+        List<AppStoreOrderVo> appStoreOrderVos = getAppStoreOrderVos(orderIds);
+
+        List<Long> ids = redisTemplate.opsForList().range(RedisKey.HASH_ORDER_APP_CREATE_RESHIP_APPLICATION,0,-1);
 
         for (AppOrderVo orderVo : appOrderVos) {
             if (orderVo.getOrderType() != 1){
@@ -284,7 +287,7 @@ public class OrderServiceImpl implements OrderService {
                 orderVo.setShipPrice(BigDecimal.ZERO);
             }
             orderVo.setStoreOrderVos(new HashSet<>());
-            for (AppStoreOrderVo storeOrderVo : storeOrderVos) {
+            for (AppStoreOrderVo storeOrderVo : appStoreOrderVos) {
                 if (orderVo.getId().equals(storeOrderVo.getOrderId())) {
                     orderVo.getStoreOrderVos().add(storeOrderVo);
                     orderVo.setOrderCustomerName(storeOrderVo.getOrderCustomerName());
@@ -299,24 +302,35 @@ public class OrderServiceImpl implements OrderService {
         return appOrderVos;
     }
 
-    void completeOrderTrackingCode(List<AppOrderVo> appOrderVos) {
-        Map<Long, AppOrderVo> shippedOrderMap = new HashMap<>();
-        List<Long> shippedOrderIds = new ArrayList<>();
-        for (AppOrderVo appOrderVo : appOrderVos) {
-            if (appOrderVo.getShipState() == 1) {
-                shippedOrderIds.add(appOrderVo.getId());
-                shippedOrderMap.put(appOrderVo.getId(), appOrderVo);
-            }
+    private List<AppStoreOrderVo> getAppStoreOrderVos(List<Long> orderIds){
+        if (ListUtils.isEmpty(orderIds)){
+            return new ArrayList<>();
         }
-        if (ListUtils.isNotEmpty(shippedOrderIds)) {
-            List<OrderTracking> orderTrackings = orderTrackingService.listOrderTrackingByOrderIds(shippedOrderIds);
-            if (ListUtils.isNotEmpty(orderTrackings)) {
-                for (OrderTracking orderTracking : orderTrackings) {
-                    AppOrderVo appOrderVo = shippedOrderMap.get(orderTracking.getOrderId());
-                    appOrderVo.setTrackingCode(orderTracking.getTrackingCode());
+        List<OrderItem> orderItems = orderItemDao.selectAppOrderItemByOrderIds(orderIds);
+
+        List<StoreOrderRelate> storeOrderRelates = storeOrderRelateDao.selectByOrderIds(orderIds);
+
+        List<AppStoreOrderVo> appStoreOrderVos = new ArrayList<>();
+
+        for (StoreOrderRelate storeOrderRelate : storeOrderRelates) {
+            AppStoreOrderVo appStoreOrderVo = new AppStoreOrderVo();
+            BeanUtils.copyProperties(storeOrderRelate,appStoreOrderVo);
+
+            List<AppOrderItemVo> itemVos = new ArrayList<>();
+            for (OrderItem orderItem : orderItems) {
+                if (orderItem.getOrderId().equals(storeOrderRelate.getOrderId())
+                && orderItem.getStoreOrderId().equals(storeOrderRelate.getStoreOrderId())){
+                    AppOrderItemVo appOrderItemVo = new AppOrderItemVo();
+                    BeanUtils.copyProperties(orderItem,appOrderItemVo);
+                    appOrderItemVo.setPrice(orderItem.getUsdPrice());
+                    itemVos.add(appOrderItemVo);
                 }
             }
+            orderItems.removeAll(itemVos);
+            appStoreOrderVo.setItemVos(itemVos);
+            appStoreOrderVos.add(appStoreOrderVo);
         }
+        return appStoreOrderVos;
     }
 
     void completeOrderStoreUrl(AppOrderVo orderVo) {

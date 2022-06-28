@@ -29,6 +29,8 @@ public class AppOrderListDto {
 
     String orderId;
 
+    List<Long> orderIds;
+
     Long paymentId;
 
     List<Long> paymentIds;

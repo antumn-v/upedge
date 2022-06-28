@@ -343,8 +343,8 @@
         <include refid="Base_Column_List"/>
         from store_order_relate
         where order_id in
-        <foreach collection="orders" item="o" open="(" close=")" separator=",">
-            #{o.id}
+        <foreach collection="ids" item="id" open="(" close=")" separator=",">
+            #{id}
         </foreach>
     </select>
 </mapper>

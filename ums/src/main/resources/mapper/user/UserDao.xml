@@ -487,6 +487,7 @@
                u.`sex`,
                u.remark
         from `user` u
-        where u.is_default = '1'
+            inner join customer c
+            on c.customer_signup_user_id = u.id
     </select>
 </mapper>

@@ -299,7 +299,7 @@ public class OrderPayServiceImpl implements OrderPayService {
                 BigDecimal dischargeAmount = BigDecimal.ZERO;
                 Set<AppStoreOrderVo> storeOrderVos = appOrderVo.getStoreOrderVos();
                 for (AppStoreOrderVo storeOrderVo : storeOrderVos) {
-                    Set<AppOrderItemVo> itemVos = storeOrderVo.getItemVos();
+                    List<AppOrderItemVo> itemVos = storeOrderVo.getItemVos();
                     for (AppOrderItemVo appOrderItemVo : itemVos) {
                         Integer dischargeQuantity = 0;
                         if (map.containsKey(appOrderItemVo.getAdminVariantId())) {
@@ -524,7 +524,7 @@ public class OrderPayServiceImpl implements OrderPayService {
     boolean checkOrderOverseaShipMethod(AppOrderVo appOrderVo){
         Set<AppStoreOrderVo> appStoreOrderVos = appOrderVo.getStoreOrderVos();
         for (AppStoreOrderVo appStoreOrderVo : appStoreOrderVos) {
-            Set<AppOrderItemVo> itemVos = appStoreOrderVo.getItemVos();
+            List<AppOrderItemVo> itemVos = appStoreOrderVo.getItemVos();
             for (AppOrderItemVo itemVo : itemVos) {
                 boolean b = customerProductStockService.redisCheckCustomerVariantStock(appOrderVo.getCustomerId(),itemVo.getAdminVariantId(),appOrderVo.getShippingWarehouse(),itemVo.getQuantity());
                 if (!b){
@@ -761,7 +761,7 @@ public class OrderPayServiceImpl implements OrderPayService {
             shipPrice = shipPrice.add(orderVo.getShipPrice().add(orderVo.getVatAmount()));
             Set<AppStoreOrderVo> storeOrderVos = orderVo.getStoreOrderVos();
             storeOrderVos.forEach(appStoreOrderVo -> {
-                Set<AppOrderItemVo> orderItemVos = appStoreOrderVo.getItemVos();
+                List<AppOrderItemVo> orderItemVos = appStoreOrderVo.getItemVos();
                 for (AppOrderItemVo itemVo : orderItemVos) {
                     PaypalOrderItem orderItem = new PaypalOrderItem();
                     orderItem.setItemId(itemVo.getId());
@@ -835,7 +835,7 @@ public class OrderPayServiceImpl implements OrderPayService {
             BigDecimal volume = BigDecimal.ZERO;
             Set<AppStoreOrderVo> storeOrderVos = order.getStoreOrderVos();
             for (AppStoreOrderVo storeOrderVo : storeOrderVos) {
-                Set<AppOrderItemVo> itemVos = storeOrderVo.getItemVos();
+                List<AppOrderItemVo> itemVos = storeOrderVo.getItemVos();
                 for (AppOrderItemVo itemVo : itemVos) {
                     BigDecimal quantity = new BigDecimal(itemVo.getQuantity());
                     weight = weight.add(quantity.multiply(itemVo.getAdminVariantWeight()));

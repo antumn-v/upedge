@@ -186,8 +186,8 @@
         select <include refid="Base_Column_List"/>
         from order_item
         where order_id in
-        <foreach collection="orders" item="o" open="(" close=")" separator=",">
-            #{o.id}
+        <foreach collection="orderIds" item="orderId" open="(" close=")" separator=",">
+            #{orderId}
         </foreach>
         and quote_state != '3'
     </select>

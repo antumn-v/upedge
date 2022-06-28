@@ -65,7 +65,7 @@ public interface OrderItemDao {
 
     Integer selectCountQuantityByOrderId(Long orderId);
 
-    List<AppStoreOrderVo> selectAppOrderItemByOrderIds(@Param("orders") List<AppOrderVo> orders);
+    List<OrderItem> selectAppOrderItemByOrderIds(@Param("orderIds") List<Long> orderIds);
 
     List<AppOrderItemVo> selectAppOrderItemByOrderId(Long orderId);
 

@@ -3,7 +3,7 @@ package com.upedge.oms.modules.order.vo;
 import lombok.Data;
 
 import java.util.Date;
-import java.util.Set;
+import java.util.List;
 
 @Data
 public class AppStoreOrderVo {
@@ -22,6 +22,6 @@ public class AppStoreOrderVo {
 
     private String orderCustomerName;
 
-    private Set<AppOrderItemVo> itemVos;
+    private List<AppOrderItemVo> itemVos;
 
 }

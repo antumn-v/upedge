@@ -43,10 +43,10 @@ public class PackageScheduler {
      * 从赛盒获取物流
      */
 //    @Async
-//    @Scheduled(cron = "0 00 00 ? * *")
-//    public void pullTrackingScheduledOne(){
-//        pullNormalTracking();
-//    }
+////    @Scheduled(cron = "0 00 00 ? * *")
+////    public void pullTrackingScheduledOne(){
+////        pullNormalTracking();
+////    }
     /**
      * 从赛盒获取物流
      */

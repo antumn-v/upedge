@@ -15,7 +15,9 @@ import com.upedge.common.utils.IdGenerate;
 import com.upedge.common.utils.ListUtils;
 import com.upedge.oms.constant.OrderActionType;
 import com.upedge.oms.modules.order.dao.*;
+import com.upedge.oms.modules.order.dto.AppOrderListDto;
 import com.upedge.oms.modules.order.entity.*;
+import com.upedge.oms.modules.order.request.AppOrderListRequest;
 import com.upedge.oms.modules.order.request.MergeOrderRequest;
 import com.upedge.oms.modules.order.request.SplitNormalOrderRequest;
 import com.upedge.oms.modules.order.request.SplitNormalOrderRequest.OrderSplitModule;
@@ -85,7 +87,11 @@ public class OrderActionServiceImpl implements OrderActionService {
                 if (ListUtils.isEmpty(sameAddressOrderVo.getOrderIds()) || sameAddressOrderVo.getOrderIds().size() < 2) {
                     iterator.remove();
                 } else {
-                    List<AppOrderVo> appOrderVos = orderDao.selectAppOrderByIds(sameAddressOrderVo.getOrderIds());
+                    AppOrderListRequest request = new AppOrderListRequest();
+                    request.setT(new AppOrderListDto());
+                    request.getT().setOrderIds(sameAddressOrderVo.getOrderIds());
+                    request.setPageSize(-1);
+                    List<AppOrderVo> appOrderVos = orderService.selectAppOrderList(request);
                     if (ListUtils.isNotEmpty(appOrderVos)) {
                         sameAddressOrderVo.setAppOrderVos(appOrderVos);
                     } else {
@@ -352,6 +358,28 @@ public class OrderActionServiceImpl implements OrderActionService {
             return "The combined order address must be the same";
         }
         List<AppOrderVo> appOrderVos = orderDao.selectAppOrderByIds(orderIds);
+        Integer orderType = null;
+        List<Long> storeOrderIds = new ArrayList<>();
+        for (AppOrderVo appOrderVo : appOrderVos) {
+            if (appOrderVo.getOrderType() > 1){
+                return "request failed";
+            }
+            if (orderType == null){
+                orderType = appOrderVo.getOrderType();
+            }else if (!orderType.equals(appOrderVo.getOrderType())){
+                return "Only orders of the same type can be combined";
+            }
+
+        }
+        List<StoreOrderRelate> storeOrderRelates = storeOrderRelateDao.selectByOrderIds(orderIds);
+        for (StoreOrderRelate storeOrderRelate : storeOrderRelates) {
+            if (storeOrderIds.contains(storeOrderRelate.getStoreOrderId())){
+                return "The same order can only be combined";
+            }else {
+                storeOrderIds.add(storeOrderRelate.getStoreOrderId());
+            }
+        }
+
         AppOrderVo appOrderVo = appOrderVos.get(0);
 
         appOrderVos.remove(appOrderVo);
@@ -361,7 +389,6 @@ public class OrderActionServiceImpl implements OrderActionService {
         List<OrderActionLog> actionLogs = new ArrayList<>();
         for (AppOrderVo orderVo : appOrderVos) {
             if (0 != orderVo.getPayState()
-                    || 0 != orderVo.getOrderType()
                     || !storeId.equals(orderVo.getStoreId())) {
                 return "Only unpaid ordinary orders can be combined";
             }
@@ -414,6 +441,13 @@ public class OrderActionServiceImpl implements OrderActionService {
         actionLog.setNewOrderId(orderId);
         page.setT(actionLog);
         List<OrderActionLog> actionLogs = orderActionLogDao.select(page);
+
+        Integer orderType = 0;
+        Long oldOrderId = actionLogs.get(0).getOldOrderId();
+        OrderReshipInfo orderReshipInfo = orderReshipInfoDao.selectByPrimaryKey(oldOrderId);
+        if (null != orderReshipInfo){
+            orderType = 1;
+        }
 
         List<StoreOrderRelate> storeOrderRelates = new ArrayList<>();
         Map<Long, List<Long>> orderItemMap = new HashMap<>();
@@ -477,7 +511,7 @@ public class OrderActionServiceImpl implements OrderActionService {
             }
         }
 
-        orderDao.updateOrderType(orderId, 0);
+        orderDao.updateOrderType(orderId, orderType);
         orderDao.insertByBatch(orders);
         orderItemDao.updateOrderIdByOrderItemMap(orderItemMap);
         orderAddressDao.insertByBatch(orderAddresses);
