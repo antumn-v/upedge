@@ -1,26 +1,31 @@
 package com.upedge.oms.modules.vat.controller;
 
+import com.upedge.common.base.BaseResponse;
 import com.upedge.common.constant.Constant;
 import com.upedge.common.constant.ResultCode;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.web.util.UserUtil;
 import com.upedge.oms.modules.vat.entity.VatRule;
 import com.upedge.oms.modules.vat.request.VatRuleAddRequest;
+import com.upedge.oms.modules.vat.request.VatRuleAssignCustomerRequest;
 import com.upedge.oms.modules.vat.request.VatRuleListRequest;
 import com.upedge.oms.modules.vat.request.VatRuleUpdateRequest;
 import com.upedge.oms.modules.vat.response.VatRuleAddResponse;
 import com.upedge.oms.modules.vat.response.VatRuleInfoResponse;
 import com.upedge.oms.modules.vat.response.VatRuleListResponse;
 import com.upedge.oms.modules.vat.response.VatRuleUpdateResponse;
+import com.upedge.oms.modules.vat.service.CustomerVatRuleService;
 import com.upedge.oms.modules.vat.service.VatRuleService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.math.BigDecimal;
-import org.springframework.web.bind.annotation.*;
+import java.util.List;
+
 /**
  * 
  *
@@ -34,6 +39,9 @@ public class VatRuleController {
     private VatRuleService vatRuleService;
     @Autowired
     RedisTemplate<String, Object> redisTemplate;
+
+    @Autowired
+    CustomerVatRuleService customerVatRuleService;
 
 
     //========================admin======================
@@ -87,5 +95,19 @@ public class VatRuleController {
     public VatRuleUpdateResponse adminUpdate(@PathVariable Long id, @RequestBody @Valid VatRuleUpdateRequest request) {
         Session session= UserUtil.getSession(redisTemplate);
         return vatRuleService.adminUpdate(id,request,session);
+    }
+
+    @ApiOperation("私有vat规则分配用户")
+    @PostMapping("/assignCustomer")
+    public BaseResponse assignCustomer(@RequestBody@Valid VatRuleAssignCustomerRequest request){
+        Session session = UserUtil.getSession(redisTemplate);
+        return vatRuleService.assignCustomer(request,session);
+    }
+
+    @ApiOperation("私有vat规则分配详情")
+    @GetMapping("/assignDetail/{id}")
+    public BaseResponse assignDetail(@PathVariable Long id){
+        List<Long> customerIds = customerVatRuleService.selectCustomerIdsByRuleId(id);
+        return BaseResponse.success(customerIds);
     }
 }

@@ -14,6 +14,8 @@ public interface VatRuleItemDao{
 
     List<VatRuleItem> selectByRuleId(Long ruleId);
 
+    void deleteByCustomerIds(List<Long> customerIds);
+
     VatRuleItem selectByPrimaryKey(VatRuleItem record);
 
     int deleteByPrimaryKey(VatRuleItem record);

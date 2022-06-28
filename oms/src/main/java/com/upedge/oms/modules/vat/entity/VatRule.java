@@ -46,8 +46,10 @@ public class VatRule{
 	/**
 	 * 
 	 */
-    private String adminUser;
+    private Long creatorId;
 
     private Long areaId;
+
+	private Integer vatType;
 
 }

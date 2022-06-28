@@ -1,5 +1,6 @@
 package com.upedge.oms.modules.vat.service.impl;
 
+import com.upedge.common.base.BaseResponse;
 import com.upedge.common.base.Page;
 import com.upedge.common.constant.Constant;
 import com.upedge.common.constant.ResultCode;
@@ -7,20 +8,24 @@ import com.upedge.common.constant.key.RedisKey;
 import com.upedge.common.model.user.vo.CustomerIossVo;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.utils.IdGenerate;
+import com.upedge.common.utils.ListUtils;
 import com.upedge.oms.constant.VatRuleType;
 import com.upedge.oms.modules.order.service.OrderService;
 import com.upedge.oms.modules.vat.dao.VatRuleDao;
 import com.upedge.oms.modules.vat.dao.VatRuleItemDao;
 import com.upedge.oms.modules.vat.dao.VatRuleLogDao;
+import com.upedge.oms.modules.vat.entity.CustomerVatRule;
 import com.upedge.oms.modules.vat.entity.VatRule;
 import com.upedge.oms.modules.vat.entity.VatRuleItem;
 import com.upedge.oms.modules.vat.entity.VatRuleLog;
 import com.upedge.oms.modules.vat.request.VatRuleAddRequest;
+import com.upedge.oms.modules.vat.request.VatRuleAssignCustomerRequest;
 import com.upedge.oms.modules.vat.request.VatRuleListRequest;
 import com.upedge.oms.modules.vat.request.VatRuleUpdateRequest;
 import com.upedge.oms.modules.vat.response.VatRuleAddResponse;
 import com.upedge.oms.modules.vat.response.VatRuleListResponse;
 import com.upedge.oms.modules.vat.response.VatRuleUpdateResponse;
+import com.upedge.oms.modules.vat.service.CustomerVatRuleService;
 import com.upedge.oms.modules.vat.service.VatRuleService;
 import com.upedge.oms.modules.vat.vo.VatRuleVo;
 import org.apache.commons.lang3.StringUtils;
@@ -48,6 +53,9 @@ public class VatRuleServiceImpl implements VatRuleService {
 
     @Autowired
     OrderService orderService;
+
+    @Autowired
+    CustomerVatRuleService customerVatRuleService;
 
     @Autowired
     RedisTemplate<String, Object> redisTemplate;
@@ -84,6 +92,45 @@ public class VatRuleServiceImpl implements VatRuleService {
         return vatRuleDao.selectAllAreaVatRule();
     }
 
+    @Transactional
+    @Override
+    public BaseResponse assignCustomer(VatRuleAssignCustomerRequest request, Session session) {
+        Long vatRuleId = request.getRuleId();
+        VatRule vatRule = selectByPrimaryKey(vatRuleId);
+        if (null == vatRule || vatRule.getVatType() != 1){
+            return BaseResponse.failed("vat规则不存在或不是私有规则");
+        }
+
+        List<VatRuleItem> vatRuleItems = vatRuleItemDao.listVatRuleItemByRuleId(vatRuleId);
+        //删除之前vat规则绑定的用户
+        customerVatRuleService.deleteByRuleId(vatRuleId);
+        List<Long> customerIdList = customerVatRuleService.selectCustomerIdsByRuleId(vatRuleId);
+        for (Long aLong : customerIdList) {
+            for (VatRuleItem vatRuleItem : vatRuleItems) {
+                String key = RedisKey.STRING_AREA_VAT_RULE + aLong + ":" + vatRuleItem.getAreaId();
+                redisTemplate.delete(key);
+            }
+        }
+        //绑定vat规则与用户
+        List<Long> customerIds = request.getCustomerIds();
+        if (ListUtils.isNotEmpty(customerIds)){
+            List<CustomerVatRule> customerVatRules = new ArrayList<>();
+            for (Long customerId : customerIds) {
+                CustomerVatRule customerVatRule = new CustomerVatRule();
+                customerVatRule.setCustomerId(customerId);
+                customerVatRule.setVatRuleId(vatRuleId);
+                customerVatRules.add(customerVatRule);
+
+                for (VatRuleItem vatRuleItem : vatRuleItems) {
+                    String key = RedisKey.STRING_AREA_VAT_RULE + customerId + ":" + vatRuleItem.getAreaId();
+                    redisTemplate.opsForValue().set(key,vatRule);
+                }
+            }
+            customerVatRuleService.insertByBatch(customerVatRules);
+        }
+        return BaseResponse.success();
+    }
+
     @Override
     public BigDecimal getOrderVatAmount(BigDecimal productAmount, BigDecimal shipPrice, Long areaId,Long customerId) {
         CustomerIossVo customerIossVo = (CustomerIossVo) redisTemplate.opsForValue().get(RedisKey.STRING_CUSTOMER_IOSS + customerId);
@@ -92,9 +139,11 @@ public class VatRuleServiceImpl implements VatRuleService {
             return BigDecimal.ZERO;
         }
 
-        String key = RedisKey.STRING_AREA_VAT_RULE + areaId;
+        String key = RedisKey.STRING_AREA_VAT_RULE +customerId + ":" + areaId;
         VatRule rule = (VatRule) redisTemplate.opsForValue().get(key);
-
+        if (null == rule){
+            key = RedisKey.STRING_AREA_VAT_RULE + areaId;
+        }
         if(null == rule){
             rule = vatRuleDao.selectVatRuleByAreaId(areaId);
             if(null == rule) {
@@ -209,7 +258,7 @@ public class VatRuleServiceImpl implements VatRuleService {
         //VAT申报比例
         BigDecimal ratio=request.getRatio().multiply(new BigDecimal(0.01));
         request.setRatio(ratio);
-        VatRule entity=request.toVatRule(String.valueOf(session.getId()));
+        VatRule entity=request.toVatRule(session.getId());
         entity.setId(IdGenerate.nextId());
         vatRuleDao.insert(entity);
         return new VatRuleAddResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS,entity,request);
@@ -259,7 +308,7 @@ public class VatRuleServiceImpl implements VatRuleService {
         //VAT申报比例
         BigDecimal ratio=request.getRatio().multiply(new BigDecimal(0.01));
         request.setRatio(ratio);
-        VatRule entity=request.toVatRule(id, String.valueOf(session.getId()));
+        VatRule entity=request.toVatRule(id, session.getId());
         this.updateByPrimaryKeySelective(entity);
         this.recordLog(entity, String.valueOf(session.getId()));
 

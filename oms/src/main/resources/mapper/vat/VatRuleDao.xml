@@ -13,16 +13,17 @@
         <result property="currency" column="currency"/>
         <result property="createTime" column="create_time"/>
         <result property="updateTime" column="update_time"/>
-        <result property="adminUser" column="admin_user"/>
+        <result property="creatorId" column="creator_id"/>
         <result property="areaId" column="area_id"/>
+        <result property="vatType" column="vat_type"/>
     </resultMap>
 
     <sql id="Base_Column_List">
-        `id`,`min_amount`,`max_amount`,`method_type`,`ratio`,`currency`,`create_time`,`update_time`,`admin_user`
+        `id`,`min_amount`,`max_amount`,`method_type`,`ratio`,`currency`,`create_time`,`update_time`,`creator_id`,`vat_type`
     </sql>
 
     <select id="selectVatRuleByAreaId" resultMap="BaseResultMap">
-        select r.`id`,r.`min_amount`,r.`max_amount`,r.`method_type`,r.`ratio`,r.`currency`,r.`create_time`,r.`update_time`,r.`admin_user`
+        select r.`id`,r.`min_amount`,r.`max_amount`,r.`method_type`,r.`ratio`,r.`currency`,r.`create_time`,r.`update_time`,r.`creator_id`,r.`vat_type`
         from vat_rule r
         inner join vat_rule_item i
         on r.id = i.rule_id
@@ -30,7 +31,7 @@
     </select>
 
     <select id="selectAllAreaVatRule" resultMap="BaseResultMap">
-        select r.`id`,r.`min_amount`,r.`max_amount`,r.`method_type`,r.`ratio`,r.`currency`,r.`create_time`,r.`update_time`,r.`admin_user`,i.area_id
+        select r.`id`,r.`min_amount`,r.`max_amount`,r.`method_type`,r.`ratio`,r.`currency`,r.`create_time`,r.`update_time`,r.`creator_id`,i.area_id,r.`vat_type`
         from vat_rule r
         inner join vat_rule_item i
         on r.id = i.rule_id
@@ -73,8 +74,11 @@
             <if test="updateTime != null">
                 update_time = #{updateTime},
             </if>
-            <if test="adminUser != null">
-                admin_user = #{adminUser},
+            <if test="creatorId != null">
+                creator_id = #{creatorId},
+            </if>
+            <if test="vatType != null">
+                vat_type = #{vatType},
             </if>
         </set>
         where id = #{id}
@@ -91,7 +95,8 @@
         currency = #{currency},
         create_time = #{createTime},
         update_time = #{updateTime},
-        admin_user = #{adminUser},
+        creator_id = #{creatorId},
+        vat_type = #{vatType},
         </set>
         where id = #{id}
     </update>
@@ -107,7 +112,8 @@
             currency,
             create_time,
             update_time,
-            admin_user
+            creator_id,
+            vat_type
         </trim>
         values (
         #{id},
@@ -118,7 +124,8 @@
         #{currency},
         #{createTime},
         #{updateTime},
-        #{adminUser}
+        #{creatorId},
+        #{vatType}
         )
     </insert>
 
@@ -149,8 +156,11 @@
             <if test="updateTime != null" >
               update_time
             </if>
-            <if test="adminUser != null" >
-              admin_user
+            <if test="creatorId != null" >
+              creator_id
+            </if>
+            <if test="vatType != null" >
+              vat_type
             </if>
 
         </trim>
@@ -179,8 +189,11 @@
             <if test="updateTime != null" >
                 #{updateTime}
             </if>
-            <if test="adminUser != null" >
-                #{adminUser}
+            <if test="creatorId != null" >
+                #{creatorId}
+            </if>
+            <if test="vatType != null" >
+                #{vatType}
             </if>
 
         </trim>
@@ -197,7 +210,8 @@
            currency,
            create_time,
            update_time,
-           admin_user
+           creator_id,
+            vat_type
         </trim>
         values
         <foreach collection="list" item="item" index="index" separator=",">
@@ -210,7 +224,8 @@
                #{item.currency},
                #{item.createTime},
                #{item.updateTime},
-               #{item.adminUser}
+               #{item.creatorId},
+               #{item.vatType}
             </trim>
         </foreach>
     </insert>
@@ -244,8 +259,11 @@
                     <if test="t.updateTime != null">
                         update_time = #{t.updateTime} and
                     </if>
-                    <if test="t.adminUser != null">
-                        admin_user = #{t.adminUser} and
+                    <if test="t.creatorId != null">
+                        creator_id = #{t.creatorId} and
+                    </if>
+                    <if test="t.vatType != null">
+                        vat_type = #{t.vatType} and
                     </if>
             </trim>
         </if>

@@ -43,7 +43,7 @@ public class VatRuleVo {
     /**
      *
      */
-    private String adminUser;
+    private Integer vatType;
 
     private Integer areaNum;
 }

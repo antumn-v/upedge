@@ -4,11 +4,7 @@ import com.upedge.common.base.Page;
 import com.upedge.common.utils.DateUtils;
 import com.upedge.oms.modules.order.entity.Order;
 import com.upedge.oms.modules.order.service.OrderService;
-import com.upedge.oms.modules.order.service.OrderTrackingService;
 import com.upedge.oms.modules.order.vo.OrderVo;
-import com.upedge.oms.modules.pack.service.PackageInfoService;
-import com.upedge.oms.modules.pack.service.PackageTrackingService;
-import com.upedge.oms.modules.wholesale.service.WholesaleOrderService;
 import io.micrometer.core.instrument.util.StringUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
@@ -27,17 +23,6 @@ public class PackageScheduler {
     @Autowired
     private OrderService orderService;
 
-    @Autowired
-    private WholesaleOrderService wholesaleOrderService;
-
-    @Autowired
-    private PackageInfoService packageInfoService;
-
-    @Autowired
-    private PackageTrackingService  packageTrackingService;
-
-    @Autowired
-    private OrderTrackingService orderTrackingService;
 
     /**
      * 从赛盒获取物流

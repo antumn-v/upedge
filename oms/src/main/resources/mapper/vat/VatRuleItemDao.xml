@@ -247,4 +247,12 @@
         from vat_rule_item
         where rule_id = #{ruleId}
     </select>
+
+    <delete id="deleteByCustomerIds">
+        delete from vat_rule_item
+        where customer_id in
+            <foreach collection="customerIds" item="customerId" open="(" separator="," close=")">
+                #{customerId}
+            </foreach>
+    </delete>
 </mapper>

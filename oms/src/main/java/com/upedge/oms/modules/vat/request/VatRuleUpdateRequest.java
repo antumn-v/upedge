@@ -37,7 +37,9 @@ public class VatRuleUpdateRequest{
      */
     private String adminUser;
 
-    public VatRule toVatRule(Long id, String userCode){
+    private Integer vatType;
+
+    public VatRule toVatRule(Long id, Long userCode){
         VatRule vatRule=new VatRule();
         vatRule.setId(id);
         vatRule.setMinAmount(minAmount);
@@ -45,7 +47,8 @@ public class VatRuleUpdateRequest{
         vatRule.setMethodType(methodType);
         vatRule.setRatio(ratio);
         vatRule.setUpdateTime(new Date());
-        vatRule.setAdminUser(userCode);
+        vatRule.setCreatorId(userCode);
+        vatRule.setVatType(vatType);
         vatRule.setCurrency("USD");
         return vatRule;
     }

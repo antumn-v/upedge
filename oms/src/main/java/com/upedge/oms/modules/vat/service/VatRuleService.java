@@ -1,9 +1,11 @@
 package com.upedge.oms.modules.vat.service;
 
+import com.upedge.common.base.BaseResponse;
 import com.upedge.common.base.Page;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.oms.modules.vat.entity.VatRule;
 import com.upedge.oms.modules.vat.request.VatRuleAddRequest;
+import com.upedge.oms.modules.vat.request.VatRuleAssignCustomerRequest;
 import com.upedge.oms.modules.vat.request.VatRuleListRequest;
 import com.upedge.oms.modules.vat.request.VatRuleUpdateRequest;
 import com.upedge.oms.modules.vat.response.VatRuleAddResponse;
@@ -19,6 +21,8 @@ import java.util.List;
 public interface VatRuleService{
 
     List<VatRule> selectAllAreaVatRule();
+
+    BaseResponse assignCustomer(VatRuleAssignCustomerRequest request,Session session);
 
     BigDecimal getOrderVatAmount(BigDecimal productAmount, BigDecimal shipPrice, Long areaId,Long customerId);
 

@@ -34,7 +34,9 @@ public class VatRuleAddRequest{
     @NotNull
     private BigDecimal ratio;
 
-    public VatRule toVatRule(String adminUser){
+    private Integer vatType;
+
+    public VatRule toVatRule(Long creatorId){
         VatRule vatRule=new VatRule();
         vatRule.setMinAmount(minAmount);
         vatRule.setMaxAmount(maxAmount);
@@ -43,7 +45,8 @@ public class VatRuleAddRequest{
         vatRule.setCurrency("USD");
         vatRule.setCreateTime(new Date());
         vatRule.setUpdateTime(new Date());
-        vatRule.setAdminUser(adminUser);
+        vatRule.setCreatorId(creatorId);
+        vatRule.setVatType(vatType);
         return vatRule;
     }
 
