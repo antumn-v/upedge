@@ -27,7 +27,8 @@
         from vat_rule r
         inner join vat_rule_item i
         on r.id = i.rule_id
-        where i.area_id = #{areaId}
+        where r.id = #{ruleId}
+        and i.area_id = #{areaId}
     </select>
 
     <select id="selectAllAreaVatRule" resultMap="BaseResultMap">

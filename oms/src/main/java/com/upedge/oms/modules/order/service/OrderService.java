@@ -60,7 +60,7 @@ public interface OrderService{
 
     int initOrderProductAmount(List<Long> orderIds);
 
-    void initOrderVatAmountByAreaId(Long areaId);
+    void initOrderVatAmountByAreaId(Long areaId,Long customerId);
 
     //撤销补发订单
     BaseResponse revokeReshipOrder(Long orderId,Session session);

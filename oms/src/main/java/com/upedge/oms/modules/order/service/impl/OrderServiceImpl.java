@@ -1594,8 +1594,8 @@ public class OrderServiceImpl implements OrderService {
 
     @Async
     @Override
-    public void initOrderVatAmountByAreaId(Long areaId) {
-        List<Order> orders = orderDao.selectUnPaidOrderByAreaId(areaId);
+    public void initOrderVatAmountByAreaId(Long areaId,Long customerId) {
+        List<Order> orders = orderDao.selectUnPaidOrderByAreaId(areaId,customerId);
         for (Order order : orders) {
             BigDecimal vatAmount = vatRuleService.getOrderVatAmount(order.getProductAmount(), order.getShipPrice(), order.getToAreaId(), order.getCustomerId());
             if (vatAmount.compareTo(order.getVatAmount()) != 0) {

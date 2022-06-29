@@ -12,7 +12,11 @@ import java.util.List;
  */
 public interface VatRuleItemDao{
 
+    void deleteByRuleId(Long ruleId);
+
     List<VatRuleItem> selectByRuleId(Long ruleId);
+
+    List<Long> selectUniqueAreaIds();
 
     void deleteByCustomerIds(List<Long> customerIds);
 

@@ -18,6 +18,7 @@ import com.upedge.oms.modules.vat.request.VatRuleItemUpdateRequest;
 import com.upedge.oms.modules.vat.response.VatRuleItemListResponse;
 import com.upedge.oms.modules.vat.response.VatRuleItemRemoveResponse;
 import com.upedge.oms.modules.vat.response.VatRuleItemUpdateResponse;
+import com.upedge.oms.modules.vat.service.CustomerVatRuleService;
 import com.upedge.oms.modules.vat.service.VatRuleItemService;
 import com.upedge.oms.modules.vat.vo.VatAreaVo;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,6 +39,9 @@ public class VatRuleItemServiceImpl implements VatRuleItemService {
     private VatRuleDao vatRuleDao;
     @Autowired
     private VatRuleLogDao vatRuleLogDao;
+
+    @Autowired
+    CustomerVatRuleService customerVatRuleService;
 
     @Autowired
     OrderService orderService;
@@ -113,25 +117,53 @@ public class VatRuleItemServiceImpl implements VatRuleItemService {
         return vatRuleItemDao.count(record);
     }
 
-    @Transactional
     @Override
     public VatRuleItemUpdateResponse updateRuleItems(VatRuleItemUpdateRequest request, Session session) {
+        Long ruleId = request.getRuleId();
         List<VatRuleItem> newItems = new ArrayList<>();
         Set<Long> newAreaIds = new HashSet<>();
-        VatRule vatRule = vatRuleDao.selectByPrimaryKey(request.getRuleId());
+        VatRule vatRule = vatRuleDao.selectByPrimaryKey(ruleId);
         List<VatRuleLog> vatRuleLogList = new ArrayList<>();
-        List<Long> oldAreaIds = new ArrayList<>();
-        List<VatRuleItem> oldItems = vatRuleItemDao.listVatRuleItemByRuleId(request.getRuleId());
+        List<Long> customerIds = new ArrayList<>();
+        if (vatRule.getVatType() == 1){
+            customerIds = customerVatRuleService.selectCustomerIdsByRuleId(ruleId);
+        }
+
+        //删除之前配置的地区
+        List<VatRuleItem> oldItems = vatRuleItemDao.listVatRuleItemByRuleId(ruleId);
+        vatRuleItemDao.deleteByRuleId(ruleId);
+        Set<Long> oldAreaIds = new HashSet<>();
         for (VatRuleItem oldItem : oldItems) {
             oldAreaIds.add(oldItem.getAreaId());
+            if (vatRule.getVatType() == 1 && ListUtils.isNotEmpty(customerIds)){
+                for (Long customerId : customerIds) {
+                    String key = RedisKey.STRING_AREA_VAT_RULE + customerId + ":" + oldItem.getAreaId();
+                    redisTemplate.delete(key);
+                }
+            }else {
+                String key = RedisKey.STRING_AREA_VAT_RULE + oldItem.getAreaId();
+                redisTemplate.delete(key);
+            }
+
         }
         //判断是否包含已配置的地区，新地区加入redis缓存
+        List<Long> areaIds = vatRuleItemDao.selectUniqueAreaIds();
         for (VatAreaVo vatAreaVo : request.getVatAreaVos()) {
-            if (oldAreaIds.contains(vatAreaVo.getAreaId())) {
-                oldAreaIds.remove(vatAreaVo.getAreaId());
-                continue;
-            }
             VatRuleItem vatRuleItem = new VatRuleItem();
+            if (vatRule.getVatType() == 1){
+                vatRuleItem.setIsUnique(false);
+                for (Long customerId : customerIds) {
+                    String key = RedisKey.STRING_AREA_VAT_RULE + customerId + ":" + vatRuleItem.getAreaId();
+                    redisTemplate.opsForValue().set(key, vatRule);
+                }
+            }else {
+                if (areaIds.contains(vatAreaVo.getAreaId())){
+                    continue;
+                }
+                String key = RedisKey.STRING_AREA_VAT_RULE + vatRuleItem.getAreaId();
+                redisTemplate.opsForValue().set(key, vatRule);
+                vatRuleItem.setIsUnique(true);
+            }
             vatRuleItem.setRuleId(request.getRuleId());
             vatRuleItem.setAreaId(vatAreaVo.getAreaId());
             vatRuleItem.setAreaName(vatAreaVo.getAreaName());
@@ -139,20 +171,12 @@ public class VatRuleItemServiceImpl implements VatRuleItemService {
             vatRuleItem.setUpdateTime(new Date());
             newAreaIds.add(vatAreaVo.getAreaId());
             newItems.add(vatRuleItem);
-            String key = RedisKey.STRING_AREA_VAT_RULE + vatRuleItem.getAreaId();
-            redisTemplate.opsForValue().set(key, vatRule);
+
         }
         if (ListUtils.isNotEmpty(newItems)) {
-            vatRuleItemDao.updateRuleItems(newItems);
+            vatRuleItemDao.insertByBatch(newItems);
         }
-        //被删除的地区初始化订单vat金额并删除redis缓存
-        if (ListUtils.isNotEmpty(oldAreaIds)) {
-            orderService.updateOrderVatAmountByAreaId(oldAreaIds, BigDecimal.ZERO);
-            for (Long oldAreaId : oldAreaIds) {
-                String key = RedisKey.STRING_AREA_VAT_RULE + oldAreaId;
-                redisTemplate.delete(key);
-            }
-        }
+
         //保存之前配置的信息
         for (VatRuleItem item : oldItems) {
             //该地区已移除
@@ -174,9 +198,10 @@ public class VatRuleItemServiceImpl implements VatRuleItemService {
         if (vatRuleLogList.size() > 0) {
             vatRuleLogDao.insertByBatch(vatRuleLogList);
         }
-        //修改订单vat
+        //新老地区修改订单vat
+        newAreaIds.addAll(oldAreaIds);
         for (Long newAreaId : newAreaIds) {
-            orderService.initOrderVatAmountByAreaId(newAreaId);
+            orderService.initOrderVatAmountByAreaId(newAreaId,null);
         }
         return new VatRuleItemUpdateResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS);
     }

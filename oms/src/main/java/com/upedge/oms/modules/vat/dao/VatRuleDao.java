@@ -2,17 +2,18 @@ package com.upedge.oms.modules.vat.dao;
 
 import com.upedge.common.base.Page;
 import com.upedge.oms.modules.vat.entity.VatRule;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
 /**
  * @author author
  */
-public interface VatRuleDao{
+public interface VatRuleDao {
 
     List<VatRule> selectAllAreaVatRule();
 
-    VatRule selectVatRuleByAreaId(Long areaId);
+    VatRule selectVatRuleByAreaId(@Param("ruleId") Long ruleId, @Param("areaId") Long areaId);
 
     VatRule selectByPrimaryKey(Long id);
 

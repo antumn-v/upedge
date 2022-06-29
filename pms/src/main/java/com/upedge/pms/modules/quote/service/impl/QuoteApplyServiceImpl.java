@@ -328,17 +328,13 @@ public class QuoteApplyServiceImpl implements QuoteApplyService {
         List<QuoteApplyItem> quoteApplyItems = new ArrayList<>();
         List<Long> quotingVariantIds = new ArrayList<>();
         List<StoreProductVariant> storeProductVariants = storeProductVariantDao.selectByIds(storeVariantIds);
+        storeProductService.toNormalProduct(storeProductVariants.get(0).getProductId(),0L);
         for (StoreProductVariant storeProductVariant : storeProductVariants) {
             //判断产品是否已报价
             String key = RedisKey.STRING_QUOTED_STORE_VARIANT + storeProductVariant.getId();
             if (redisTemplate.hasKey(key)){
                 continue;
             }
-            CustomerProductQuoteVo customerProductQuoteVo = new CustomerProductQuoteVo();
-            customerProductQuoteVo.setStoreVariantId(storeProductVariant.getId());
-            customerProductQuoteVo.setQuoteType(5);
-            customerProductQuoteVo.setStoreParentVariantId(0L);
-            redisTemplate.opsForValue().set(key,customerProductQuoteVo);
 
             QuoteApplyItem quoteApplyItem = new QuoteApplyItem();
             quoteApplyItem.setStoreProductId(storeProductVariant.getProductId());
@@ -352,8 +348,13 @@ public class QuoteApplyServiceImpl implements QuoteApplyService {
             quoteApplyItems.add(quoteApplyItem);
             quotingVariantIds.add(quoteApplyItem.getStoreVariantId());
 
-            storeProductService.toNormalProduct(storeProductVariant.getProductId(),0L);
+            CustomerProductQuoteVo customerProductQuoteVo = new CustomerProductQuoteVo();
+            customerProductQuoteVo.setStoreVariantId(storeProductVariant.getId());
+            customerProductQuoteVo.setQuoteType(5);
+            customerProductQuoteVo.setStoreParentVariantId(0L);
+            redisTemplate.opsForValue().set(key,customerProductQuoteVo);
         }
+
         if(ListUtils.isEmpty(quoteApplyItems)){
             return BaseResponse.failed();
         }
@@ -369,6 +370,7 @@ public class QuoteApplyServiceImpl implements QuoteApplyService {
         quoteApply.setUpdateTime(new Date());
         quoteApplyDao.insert(quoteApply);
         redisAddQuotingVariant(quotingVariantIds);
+
         return BaseResponse.success();
     }
 

@@ -138,7 +138,8 @@
            area_id,
            area_name,
            create_time,
-           update_time
+           update_time,
+            is_unique
         </trim>
         values
         <foreach collection="list" item="item" index="index" separator=",">
@@ -148,7 +149,8 @@
                #{item.areaId},
                #{item.areaName},
                #{item.createTime},
-               #{item.updateTime}
+               #{item.updateTime},
+                #{item.isUnique}
             </trim>
         </foreach>
     </insert>
@@ -220,7 +222,7 @@
     </update>
 
     <insert id="updateRuleItems" parameterType="java.util.List">
-        insert into vat_rule_item(rule_id,area_id,area_name,create_time,update_time)
+        insert into vat_rule_item(rule_id,area_id,area_name,create_time,update_time,is_unique)
         values
         <foreach collection="list" item="item" index="index"
                  separator=",">
@@ -228,13 +230,15 @@
             #{item.areaId,jdbcType=BIGINT},
             #{item.areaName,jdbcType=VARCHAR},
             #{item.createTime,jdbcType=TIMESTAMP},
-            #{item.updateTime,jdbcType=TIMESTAMP})
+            #{item.updateTime,jdbcType=TIMESTAMP},
+            #{item.isUnitque})
         </foreach>
         ON DUPLICATE KEY UPDATE
         area_id = VALUES(area_id),
         rule_id = VALUES(rule_id),
         area_name = VALUES(area_name),
-        update_time = VALUES(update_time)
+        update_time = VALUES(update_time),
+        is_unique = values{is_unique}
     </insert>
 
     <select id="countAreaNumByRuleId" resultType="java.lang.Integer">
@@ -254,5 +258,16 @@
             <foreach collection="customerIds" item="customerId" open="(" separator="," close=")">
                 #{customerId}
             </foreach>
+    </delete>
+
+    <select id="selectUniqueAreaIds" resultType="java.lang.Long">
+        select area_id
+        from vat_rule_item
+        where is_unique = '1';
+    </select>
+
+    <delete id="deleteByRuleId">
+        delete from vat_rule_item
+        where rule_id = #{ruleId}
     </delete>
 </mapper>

@@ -35,7 +35,6 @@ import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.utils.IdGenerate;
 import com.upedge.common.utils.ListUtils;
 import com.upedge.common.utils.PriceUtils;
-import com.upedge.oms.constant.VatRuleType;
 import com.upedge.oms.enums.WholesaleOrderTagEnum;
 import com.upedge.oms.modules.common.service.OrderCommonService;
 import com.upedge.oms.modules.order.request.ApplyReshipOrderRequest;
@@ -46,7 +45,6 @@ import com.upedge.oms.modules.orderShippingUnit.entity.OrderShippingUnit;
 import com.upedge.oms.modules.orderShippingUnit.service.OrderShippingUnitService;
 import com.upedge.oms.modules.redis.OmsRedisService;
 import com.upedge.oms.modules.vat.dao.VatRuleDao;
-import com.upedge.oms.modules.vat.entity.VatRule;
 import com.upedge.oms.modules.wholesale.dao.*;
 import com.upedge.oms.modules.wholesale.dto.WholesaleOrderAppListDto;
 import com.upedge.oms.modules.wholesale.entity.*;
@@ -657,9 +655,9 @@ public class WholesaleOrderServiceImpl implements WholesaleOrderService {
 
 
             wholesaleOrder.setShipPrice(shipDetail.getPrice());
-            BigDecimal vatAmount = updateOrderVatAmount(wholesaleOrder);
+//            BigDecimal vatAmount = updateOrderVatAmount(wholesaleOrder);
             Map<String, Object> map = new HashMap<>();
-            map.put("vatAmount", vatAmount);
+//            map.put("vatAmount", vatAmount);
             map.put("ship", shipDetail);
             return new BaseResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS, map);
         }
@@ -671,30 +669,30 @@ public class WholesaleOrderServiceImpl implements WholesaleOrderService {
         return wholesaleOrderDao.updatePayStateById(id, state);
     }
 
-    BigDecimal updateOrderVatAmount(WholesaleOrder wholesaleOrder) {
-        VatRule rule = vatRuleDao.selectVatRuleByAreaId(wholesaleOrder.getToAreaId());
-        BigDecimal vatAmount = BigDecimal.ZERO;
-        if (null != rule) {
-            switch (rule.getMethodType()) {
-                case VatRuleType
-                        .ORDER_AMOUNT:
-                    vatAmount = (wholesaleOrder.getProductAmount().add(wholesaleOrder.getShipPrice())).multiply(rule.getRatio());
-                    break;
-                case VatRuleType.PRODUCT_AMOUNT:
-                    vatAmount = wholesaleOrder.getProductAmount().multiply(rule.getRatio());
-                    break;
-            }
-            if (vatAmount.compareTo(rule.getMinAmount()) == -1) {
-                vatAmount = rule.getMinAmount();
-            } else if (vatAmount.compareTo(rule.getMaxAmount()) == 1) {
-                vatAmount = rule.getMaxAmount();
-            }
-        }
-        if (vatAmount.compareTo(wholesaleOrder.getVatAmount()) != 0) {
-            wholesaleOrderDao.updateVatAmountById(wholesaleOrder.getId(), vatAmount);
-        }
-        return vatAmount;
-    }
+//    BigDecimal updateOrderVatAmount(WholesaleOrder wholesaleOrder) {
+//        VatRule rule = vatRuleDao.selectVatRuleByAreaId(wholesaleOrder.getToAreaId());
+//        BigDecimal vatAmount = BigDecimal.ZERO;
+//        if (null != rule) {
+//            switch (rule.getMethodType()) {
+//                case VatRuleType
+//                        .ORDER_AMOUNT:
+//                    vatAmount = (wholesaleOrder.getProductAmount().add(wholesaleOrder.getShipPrice())).multiply(rule.getRatio());
+//                    break;
+//                case VatRuleType.PRODUCT_AMOUNT:
+//                    vatAmount = wholesaleOrder.getProductAmount().multiply(rule.getRatio());
+//                    break;
+//            }
+//            if (vatAmount.compareTo(rule.getMinAmount()) == -1) {
+//                vatAmount = rule.getMinAmount();
+//            } else if (vatAmount.compareTo(rule.getMaxAmount()) == 1) {
+//                vatAmount = rule.getMaxAmount();
+//            }
+//        }
+//        if (vatAmount.compareTo(wholesaleOrder.getVatAmount()) != 0) {
+//            wholesaleOrderDao.updateVatAmountById(wholesaleOrder.getId(), vatAmount);
+//        }
+//        return vatAmount;
+//    }
 
     /**
      *

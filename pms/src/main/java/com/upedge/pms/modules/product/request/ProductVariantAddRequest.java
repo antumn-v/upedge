@@ -70,7 +70,7 @@ public class ProductVariantAddRequest{
         productVariant.setWeight(weight);
         productVariant.setState(state);
         productVariant.setVolumeWeight(BigDecimal.ONE);
-        productVariant.setVariantType(0);
+        productVariant.setVariantType(2);
         productVariant.setLength(BigDecimal.ONE);
         productVariant.setWidth(BigDecimal.ONE);
         productVariant.setHeight(BigDecimal.ONE);

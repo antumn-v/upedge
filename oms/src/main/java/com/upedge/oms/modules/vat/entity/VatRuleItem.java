@@ -33,4 +33,6 @@ public class VatRuleItem{
 	 */
     private Date updateTime;
 
+	private Boolean isUnique;
+
 }

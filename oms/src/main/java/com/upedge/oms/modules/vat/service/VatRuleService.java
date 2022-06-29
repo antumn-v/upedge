@@ -44,7 +44,7 @@ public interface VatRuleService{
 
     VatRuleAddResponse addVatRule(VatRuleAddRequest request, Session session);
 
-    VatRuleUpdateResponse adminUpdate(Long id, VatRuleUpdateRequest request, Session session);
+    VatRuleUpdateResponse update(Long id, VatRuleUpdateRequest request, Session session);
 
     VatRuleListResponse adminList(VatRuleListRequest request);
 }

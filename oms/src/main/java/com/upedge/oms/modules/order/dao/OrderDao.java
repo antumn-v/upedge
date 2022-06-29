@@ -48,7 +48,7 @@ public interface OrderDao {
 
     List<Long> selectUploadSaiheFailedIds();
 
-    List<Order> selectUnPaidOrderByAreaId(Long areaId);
+    List<Order> selectUnPaidOrderByAreaId(@Param("areaId") Long areaId, @Param("customerId") Long customerId);
 
     List<Long> selectUnPaidIdsByShipRule(@Param("rule") OrderShipRuleVo shipRuleVo, @Param("areaId") Long areaId);
 

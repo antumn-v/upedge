@@ -3,6 +3,7 @@ package com.upedge.oms.modules.vat.controller;
 import com.upedge.common.base.BaseResponse;
 import com.upedge.common.constant.Constant;
 import com.upedge.common.constant.ResultCode;
+import com.upedge.common.model.user.vo.CustomerVo;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.web.util.UserUtil;
 import com.upedge.oms.modules.vat.entity.VatRule;
@@ -24,6 +25,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -94,7 +96,7 @@ public class VatRuleController {
     @RequestMapping(value="/update/{id}", method=RequestMethod.POST)
     public VatRuleUpdateResponse adminUpdate(@PathVariable Long id, @RequestBody @Valid VatRuleUpdateRequest request) {
         Session session= UserUtil.getSession(redisTemplate);
-        return vatRuleService.adminUpdate(id,request,session);
+        return vatRuleService.update(id,request,session);
     }
 
     @ApiOperation("私有vat规则分配用户")
@@ -108,6 +110,12 @@ public class VatRuleController {
     @GetMapping("/assignDetail/{id}")
     public BaseResponse assignDetail(@PathVariable Long id){
         List<Long> customerIds = customerVatRuleService.selectCustomerIdsByRuleId(id);
-        return BaseResponse.success(customerIds);
+        List<CustomerVo> customerVos = new ArrayList<>();
+        for (Long customerId : customerIds) {
+            CustomerVo customerVo = new CustomerVo();
+            customerVo.setCustomerId(customerId);
+            customerVos.add(customerVo);
+        }
+        return BaseResponse.success(customerVos);
     }
 }

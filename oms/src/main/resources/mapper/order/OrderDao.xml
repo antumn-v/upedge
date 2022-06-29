@@ -2242,6 +2242,9 @@
         <include refid="Base_Column_List"/>
         from `order`
         where to_area_id = #{areaId}
+        <if test="customerId != null">
+            and customer_id = #{customerId}
+        </if>
         and pay_state = '0'
         and quote_state = '3'
     </select>
