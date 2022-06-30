@@ -105,36 +105,39 @@ public class VatRuleServiceImpl implements VatRuleService {
         //vat配置的国家
         List<VatRuleItem> vatRuleItems = vatRuleItemDao.listVatRuleItemByRuleId(vatRuleId);
         //vat之前分配的用户
-//        List<Long> customerIdList = customerVatRuleService.selectCustomerIdsByRuleId(vatRuleId);
-//        //vat规则里移除的用户重新匹配运输方式
-//        if (ListUtils.isNotEmpty(customerIdList)) {
-//            customerIdList.removeAll(customerIds);
-//            for (VatRuleItem vatRuleItem : vatRuleItems) {
-//                for (Long aLong : customerIdList) {
-//                    String key = RedisKey.STRING_AREA_VAT_RULE + aLong + ":" + vatRuleItem.getAreaId();
-//                    redisTemplate.delete(key);
-//                    orderService.initOrderVatAmountByAreaId(vatRuleItem.getAreaId(), aLong);
-//                }
-//            }
-//        }
+        List<Long> customerIdList = customerVatRuleService.selectCustomerIdsByRuleId(vatRuleId);
+        //vat规则里移除的用户重新匹配运输方式
+        if (ListUtils.isNotEmpty(customerIdList)) {
+            customerIdList.removeAll(customerIds);
+            for (VatRuleItem vatRuleItem : vatRuleItems) {
+                for (Long aLong : customerIdList) {
+                    String key = RedisKey.STRING_AREA_VAT_RULE + aLong + ":" + vatRuleItem.getAreaId();
+                    redisTemplate.delete(key);
+                }
+            }
+        }
         //删除之前vat规则绑定的用户
         customerVatRuleService.deleteByRuleId(vatRuleId);
 
         //绑定vat规则与用户
         if (ListUtils.isNotEmpty(customerIds)) {
             List<CustomerVatRule> customerVatRules = new ArrayList<>();
+            for (Long customerId : customerIds) {
+                CustomerVatRule customerVatRule = new CustomerVatRule();
+                customerVatRule.setCustomerId(customerId);
+                customerVatRule.setVatRuleId(vatRuleId);
+                customerVatRules.add(customerVatRule);
+            }
+            customerVatRuleService.insertByBatch(customerVatRules);
+
             for (VatRuleItem vatRuleItem : vatRuleItems) {
                 for (Long customerId : customerIds) {
-                    CustomerVatRule customerVatRule = new CustomerVatRule();
-                    customerVatRule.setCustomerId(customerId);
-                    customerVatRule.setVatRuleId(vatRuleId);
-                    customerVatRules.add(customerVatRule);
                     String key = RedisKey.STRING_AREA_VAT_RULE + customerId + ":" + vatRuleItem.getAreaId();
                     redisTemplate.opsForValue().set(key, vatRule);
                 }
                 orderService.initOrderVatAmountByAreaId(vatRuleItem.getAreaId(), null);
             }
-            customerVatRuleService.insertByBatch(customerVatRules);
+
         }
         return BaseResponse.success();
     }

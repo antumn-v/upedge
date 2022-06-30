@@ -26,7 +26,6 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigDecimal;
 import java.util.*;
 
 
@@ -211,6 +210,7 @@ public class VatRuleItemServiceImpl implements VatRuleItemService {
     public VatRuleItemRemoveResponse removeItem(VatRuleItemRemoveRequest request, Session session) {
         VatRuleLog vatRuleLog = new VatRuleLog();
         VatRule vatRule = vatRuleDao.selectByPrimaryKey(request.getRuleId());
+        List<Long> customerIds = customerVatRuleService.selectCustomerIdsByRuleId(request.getRuleId());
         vatRuleLog.setRuleId(0L);
         vatRuleLog.setAreaId(request.getAreaId());
         vatRuleLog.setAreaName(request.getAreaName());
@@ -225,9 +225,12 @@ public class VatRuleItemServiceImpl implements VatRuleItemService {
         vatRuleItemDao.removeArea(request.getRuleId(), request.getAreaId());
         String key = RedisKey.STRING_AREA_VAT_RULE + request.getAreaId();
         redisTemplate.delete(key);
-        List<Long> areaIds = new ArrayList<>();
-        areaIds.add(request.getAreaId());
-        orderService.updateOrderVatAmountByAreaId(areaIds, BigDecimal.ZERO);
+        for (Long customerId : customerIds) {
+            key = RedisKey.STRING_AREA_VAT_RULE +customerId + ":" + request.getAreaId();
+            redisTemplate.delete(key);
+        }
+
+        orderService.initOrderVatAmountByAreaId(request.getAreaId(), null);
         return new VatRuleItemRemoveResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS);
     }
 
