@@ -245,7 +245,7 @@ public class ProductServiceImpl implements ProductService {
                         supplierService.insert(supplier);
                     }
                     product.setProductSku(productSku);
-                    product.setSupplierId(Integer.toUnsignedLong(supplier.getId()));
+                    product.setSupplierName(supplier.getSupplierName());
                 }
             }
         }
@@ -373,7 +373,29 @@ public class ProductServiceImpl implements ProductService {
         List<ProductVariant> productVariantList = productVariantService.selectByProductId(id);
         adminProductVo.setProductVariantList(productVariantList);
 
+        adminProductVo.setVariantAttributeVos(getVariantAttributeVos(productVariantList));
+
         return adminProductVo;
+    }
+
+    List<VariantAttributeVo> getVariantAttributeVos(List<ProductVariant> productVariantList){
+        if (ListUtils.isEmpty(productVariantList)){
+            return new ArrayList<>();
+        }
+        for (ProductVariant productVariant : productVariantList) {
+            List<ProductVariantAttr> variantAttrs = productVariant.getProductVariantAttrList();
+            if (ListUtils.isNotEmpty(variantAttrs)){
+                List<VariantAttributeVo> variantAttributeVos = new ArrayList<>();
+                for (ProductVariantAttr variantAttr : variantAttrs) {
+                    VariantAttributeVo variantAttributeVo = new VariantAttributeVo();
+                    variantAttributeVo.setAttributeCName(variantAttr.getVariantAttrCname());
+                    variantAttributeVo.setAttributeEName(variantAttr.getVariantAttrEname());
+                    variantAttributeVos.add(variantAttributeVo);
+                }
+                return variantAttributeVos;
+            }
+        }
+        return new ArrayList<>();
     }
 
 
@@ -511,7 +533,7 @@ public class ProductServiceImpl implements ProductService {
         }
         product.setProductSku(productSku);
         product.setOriginalId(null);
-        product.setSupplierId(0L);
+        product.setSupplierName(null);
         product.setOriginalTitle(addProductVo.getProductTitle());
         //商品状态默认为下架
         product.setState(ProductConstant.State.UNSHELVE.getCode());
@@ -598,7 +620,7 @@ public class ProductServiceImpl implements ProductService {
         if (categoryMapping != null) {
             product.setCategoryId(categoryMapping.getCategoryId());
         }
-        product.setSupplierId(Integer.toUnsignedLong(supplier.getId()));
+        product.setSupplierName(supplier.getSupplierName());
         product.setId(productId);
         //导入到选品池
         product.setState(ProductConstant.State.EDITING.getCode());
@@ -644,7 +666,7 @@ public class ProductServiceImpl implements ProductService {
         productInfo.setProductId(productId);
         productInfoService.insert(productInfo);
 
-        addNewAlibabaProductVariants(alibabaProductVo.getProductVariantVoList(), productId,alibabaProductVo.getProductImage());
+        addNewAlibabaProductVariants(alibabaProductVo.getProductVariantVoList(), productId,alibabaProductVo);
 
         //更新价格区间
         refreshProductPriceRange(productId);
@@ -654,7 +676,7 @@ public class ProductServiceImpl implements ProductService {
 
         List<ProductVariantVo> productVariantVoList = alibabaProductVo.getProductVariantVoList();
 
-        addNewAlibabaProductVariants(productVariantVoList,productId,alibabaProductVo.getProductImage());
+        addNewAlibabaProductVariants(productVariantVoList,productId,alibabaProductVo);
 
         Product product = new Product();
         product.setId(productId);
@@ -664,7 +686,10 @@ public class ProductServiceImpl implements ProductService {
         refreshProductPriceRange(productId);
     }
 
-    public void addNewAlibabaProductVariants(List<ProductVariantVo> productVariantVoList,Long productId,String mainImage){
+    public void addNewAlibabaProductVariants(List<ProductVariantVo> productVariantVoList,Long productId,AlibabaProductVo alibabaProductVo){
+        String mainImage = alibabaProductVo.getProductImage();
+        String supplierName = alibabaProductVo.getSupplierVo().getSupplierName();
+        String purchaseLink = alibabaProductVo.getProductSku();
         List<ProductVariant> productVariants = productVariantService.selectByProductId(productId);
         List<String> originalVariantIds = new ArrayList<>();
         productVariants.forEach(variant -> {
@@ -691,6 +716,8 @@ public class ProductServiceImpl implements ProductService {
             List<String> enNameList = productVariantVo.getVariantAttrVoList().stream().map(ProductVariantAttrVo::getVariantAttrEvalue).collect(Collectors.toList());
             productVariant.setCnName(cnNameList.toString());
             productVariant.setEnName(enNameList.toString());
+            productVariant.setSupplierName(supplierName);
+            productVariant.setPurchaseLink(purchaseLink);
             //变体价格
             productVariant.setVariantPrice(productVariantVo.getVariantPrice());
             productVariant.setUsdPrice(PriceUtils.cnyToUsdByDefaultRate(productVariant.getVariantPrice()));
@@ -1045,8 +1072,6 @@ public class ProductServiceImpl implements ProductService {
         apiImportProductInfo.setComeSource(0);//产品来源 系统采集
         if (saiheSkuVo.getCateType() != null && saiheSkuVo.getCateType().equals(1)) {
             apiImportProductInfo.setProductClassNameEN("upedgepackaging");//产品英文类别名
-            //定制包装 潘达物流包材
-            //商品类别是“定制包装”的产品，传到赛盒产品类别字段的"潘达物流包材"，普通商品传“潘达”，产品编辑页面，新增商品类别选项，默认普通商品
             apiImportProductInfo.setProductClassNameCN("戎安物流包材");
         } else {
             apiImportProductInfo.setProductClassNameEN("upedge");//产品英文类别名

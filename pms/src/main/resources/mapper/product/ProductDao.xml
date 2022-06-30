@@ -11,7 +11,7 @@
         <result property="originalTitle" column="original_title"/>
         <result property="productTitle" column="product_title"/>
         <result property="productImage" column="product_image"/>
-        <result property="supplierId" column="supplier_id"/>
+        <result property="supplierName" column="supplier_name"/>
         <result property="shippingId" column="shipping_id"/>
         <result property="categoryId" column="category_id"/>
         <result property="state" column="state"/>
@@ -44,7 +44,7 @@
     </resultMap>
 
     <sql id="Base_Column_List">
-        `id`,`original_id`,`product_sku`,`original_title`,`product_title`,`product_image`,`supplier_id`,`shipping_id`,
+        `id`,`original_id`,`product_sku`,`original_title`,`product_title`,`product_image`,`supplier_name`,`shipping_id`,
         `category_id`,`state`,`replace_state`,`saihe_state`,`product_source`,`product_type`,`cate_type`,`user_id`,
         `create_time`,`update_time`,`price_range`,`max_price`,`min_price`,`remark`
     </sql>
@@ -80,8 +80,8 @@
             <if test="productImage != null">
                 product_image = #{productImage},
             </if>
-            <if test="supplierId != null">
-                supplier_id = #{supplierId},
+            <if test="supplierName != null">
+                supplier_name = #{supplierName},
             </if>
             <if test="shippingId != null">
                 shipping_id = #{shippingId},
@@ -141,7 +141,7 @@
             original_title = #{originalTitle},
             product_title = #{productTitle},
             product_image = #{productImage},
-            supplier_id = #{supplierId},
+            supplier_name = #{supplierName},
             shipping_id = #{shippingId},
             category_id = #{categoryId},
             state = #{state},
@@ -217,7 +217,7 @@
             original_title,
             product_title,
             product_image,
-            supplier_id,
+            supplier_name,
             shipping_id,
             category_id,
             state,
@@ -240,7 +240,7 @@
         #{originalTitle},
         #{productTitle},
         #{productImage},
-        #{supplierId},
+        #{supplierName},
         #{shippingId},
         #{categoryId},
         #{state},
@@ -280,8 +280,8 @@
             <if test="productImage != null">
                 product_image
             </if>
-            <if test="supplierId != null">
-                supplier_id
+            <if test="supplierName != null">
+                supplier_name
             </if>
             <if test="shippingId != null">
                 shipping_id
@@ -346,8 +346,8 @@
             <if test="productImage != null">
                 #{productImage}
             </if>
-            <if test="supplierId != null">
-                #{supplierId}
+            <if test="supplierName != null">
+                #{supplierName}
             </if>
             <if test="shippingId != null">
                 #{shippingId}
@@ -404,7 +404,7 @@
             original_title,
             product_title,
             product_image,
-            supplier_id,
+            supplier_name,
             shipping_id,
             category_id,
             `state`,
@@ -429,7 +429,7 @@
                 #{item.originalTitle},
                 #{item.productTitle},
                 #{item.productImage},
-                #{item.supplierId},
+                #{item.supplierName},
                 #{item.shippingId},
                 #{item.categoryId},
                 #{item.state},
@@ -470,8 +470,8 @@
                 <if test="t.productImage != null">
                     and product_image = #{t.productImage}
                 </if>
-                <if test="t.supplierId != null">
-                    and supplier_id = #{t.supplierId}
+                <if test="t.supplierName != null">
+                    and supplier_name = #{supplierName}
                 </if>
                 <if test="t.shippingId != null">
                     and shipping_id = #{t.shippingId}

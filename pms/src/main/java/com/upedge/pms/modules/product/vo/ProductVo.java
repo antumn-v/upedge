@@ -100,4 +100,6 @@ public class ProductVo {
 
 	private List<ProductVariant> productVariantList;
 
+	private List<VariantAttributeVo> variantAttributeVos;
+
 }

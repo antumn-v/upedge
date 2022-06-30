@@ -1,10 +1,10 @@
 package com.upedge.pms.modules.product.request;
 
-import com.upedge.common.base.Page;
 import com.upedge.pms.modules.product.entity.Product;
-import java.util.Date;
 import lombok.Data;
+
 import java.math.BigDecimal;
+import java.util.Date;
 /**
  * @author gx
  */
@@ -34,7 +34,7 @@ public class ProductAddRequest{
     /**
     * 供应商id
     */
-    private Long supplierId;
+    private String supplierName;
     /**
     * 运输模板id
     */
@@ -99,7 +99,7 @@ public class ProductAddRequest{
         product.setOriginalTitle(originalTitle);
         product.setProductTitle(productTitle);
         product.setProductImage(productImage);
-        product.setSupplierId(supplierId);
+        product.setSupplierName(supplierName);
         product.setShippingId(shippingId);
         product.setCategoryId(categoryId);
         product.setState(state);

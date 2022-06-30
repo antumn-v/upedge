@@ -34,7 +34,7 @@ public class ProductUpdateRequest{
     /**
      * 供应商id
      */
-    private Long supplierId;
+    private String supplierName;
     /**
      * 运输模板id
      */
@@ -102,7 +102,7 @@ public class ProductUpdateRequest{
         product.setOriginalTitle(originalTitle);
         product.setProductTitle(productTitle);
         product.setProductImage(productImage);
-        product.setSupplierId(supplierId);
+        product.setSupplierName(supplierName);
         product.setShippingId(shippingId);
         product.setCategoryId(categoryId);
         product.setState(state);

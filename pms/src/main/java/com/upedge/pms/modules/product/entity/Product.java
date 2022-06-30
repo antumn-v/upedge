@@ -38,7 +38,8 @@ public class Product{
 	/**
 	 * 供应商id
 	 */
-    private Long supplierId;
+//    private Long supplierId;
+    private String supplierName;
 	/**
 	 * 运输模板id
 	 */

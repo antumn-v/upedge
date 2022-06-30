@@ -85,6 +85,10 @@ public class ProductVariant{
 
 	private BigDecimal latestQuotePrice;
 
+	private String supplierName;
+
+	private String purchaseLink;
+
 	private List<ProductVariantAttr> productVariantAttrList=new ArrayList<>();
 
 }
