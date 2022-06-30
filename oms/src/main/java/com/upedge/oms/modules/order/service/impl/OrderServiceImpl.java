@@ -374,7 +374,8 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public ShipDetail updateShipDetail(Long id, ShipDetail shipDetail) {
         Order order = selectByPrimaryKey(id);
-        if (order == null || order.getPayState() != 0) {
+        if (order == null || order.getPayState() != 0
+        || order.getQuoteState() != Order.QUOTE_QUOTED) {
             return null;
         }
         if (!shipDetail.isCouldShip()) {
@@ -889,6 +890,9 @@ public class OrderServiceImpl implements OrderService {
             BigDecimal volume = BigDecimal.ZERO;
             ShippingTemplateRedis shippingTemplateRedis = null;
             for (OrderItem item : items) {
+                if (null == item.getAdminVariantId()){
+                    continue;
+                }
                 if (null == item.getAdminVariantWeight()
                         || null == item.getAdminVariantVolume()
                         || BigDecimal.ZERO.compareTo(item.getAdminVariantWeight()) == 0
@@ -959,11 +963,14 @@ public class OrderServiceImpl implements OrderService {
             BigDecimal weight = BigDecimal.ZERO;
             boolean couldShip = true;
             for (OrderItem item : items) {
+                if (null == item.getAdminVariantId()){
+                    continue;
+                }
                 if (null == item.getAdminVariantWeight()
                         || null == item.getAdminVariantVolume()
                         || BigDecimal.ZERO.compareTo(item.getAdminVariantWeight()) == 0
                         || BigDecimal.ZERO.compareTo(item.getAdminVariantVolume()) == 0) {
-                    return null;
+                    return new ArrayList<>();
                 }
                 weight = weight.add(item.getAdminVariantWeight().multiply(new BigDecimal(item.getQuantity())));
                 boolean b = customerProductStockService.redisCheckCustomerVariantStock(customerId, item.getAdminVariantId(), warehouseCode, item.getQuantity());
@@ -984,7 +991,7 @@ public class OrderServiceImpl implements OrderService {
             }
 
             if (ListUtils.isEmpty(methodCodes)) {
-                return null;
+                return new ArrayList<>();
             }
 
             int w = weight.intValue();

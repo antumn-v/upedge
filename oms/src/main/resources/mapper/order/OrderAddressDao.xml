@@ -39,7 +39,7 @@
 
     <select id="selectSameAddressOrderByStore" resultMap="SameAddressOrderVo">
         select o.store_id,
-        replace(CONCAT_WS('_',concat(oa.first_name,oa.last_name),oa.country,oa.city,oa.province,oa.address1,oa.address2,oa.zip,oa.company,oa.phone),' ','') as address,
+        replace(CONCAT_WS('',concat(oa.first_name,oa.last_name),oa.country,oa.city,oa.province,oa.address1,oa.address2,oa.zip,oa.company,oa.phone),' ','') as address,
         o.id as `orderId`
         from order_address oa
         inner join `order` o
@@ -53,7 +53,7 @@
 
     <select id="selectSameAddressByOrderIds" resultMap="SameAddressOrderVo">
         select o.store_id,
-        replace(CONCAT_WS('_',concat(oa.first_name,oa.last_name),oa.country,oa.city,oa.province,oa.address1,oa.address2,oa.zip,oa.company,oa.phone),' ','') as address,
+        replace(CONCAT_WS('',concat(oa.first_name,oa.last_name),oa.country,oa.city,oa.province,oa.address1,oa.address2,oa.zip,oa.company,oa.phone),' ','') as address,
         o.id as `orderId`
         from order_address oa
         inner join `order` o
