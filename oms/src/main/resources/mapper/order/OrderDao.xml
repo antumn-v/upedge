@@ -277,7 +277,12 @@
                 <if test="t.platOrderName != null">
                     r.plat_order_name = #{t.platOrderName} and
                 </if>
-                <if test="t.platOrderNames != null and t.platOrderNames.length > 0">
+                <if test="t.orderNameBegin != null and t.orderNameEnd != null">
+                    r.plat_order_name
+                    between #{t.orderNameBegin}
+                    and #{t.orderNameEnd} and
+                </if>
+                <if test="t.platOrderNames != null and t.platOrderNames.size() > 0">
                     r.plat_order_name in
                     <foreach collection="t.platOrderNames" item="name" open="(" separator="," close=")">
                         #{name}

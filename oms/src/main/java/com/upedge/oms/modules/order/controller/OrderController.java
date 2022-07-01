@@ -110,21 +110,10 @@ public class OrderController {
             appOrderListDto.initOrderState();
 //            appOrderListDto.initDateRange();
         }
-        if (session.getUserType() == BaseCode.USER_ROLE_NORMAL) {
-            List<Long> orgIds = session.getOrgIds();
-            if (ListUtils.isEmpty(orgIds)) {
-                return new BaseResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS, new ArrayList<>(), request);
-            }
-            appOrderListDto.setOrgIds(orgIds);
-        }
+
         appOrderListDto.setCustomerId(session.getCustomerId());
 
-        if (ListUtils.isNotEmpty(appOrderListDto.getPlatOrderNames())) {
-            request.setPageSize(null);
-        } else {
-            request.initFromNum();
-        }
-
+        request.initFromNum();
         if (appOrderListDto.getTags().equals("PAID")) {
             appOrderListDto.setPayState(null);
             request.setCondition("o.pay_state > 0");

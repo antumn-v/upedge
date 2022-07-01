@@ -49,6 +49,10 @@ public class AppOrderListDto {
 
     List<String> platOrderNames;
 
+    String orderNameBegin;
+
+    String orderNameEnd;
+
     String beginTime;
 
     String endTime;
