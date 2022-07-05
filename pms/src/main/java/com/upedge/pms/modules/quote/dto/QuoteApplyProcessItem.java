@@ -14,5 +14,5 @@ public class QuoteApplyProcessItem {
 
     Integer quoteScale;
 
-    boolean canQuote;
+    Boolean canQuote;
 }

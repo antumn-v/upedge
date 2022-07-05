@@ -89,6 +89,8 @@ public class ProductVariant{
 
 	private String purchaseLink;
 
+	private String purchaseSku;
+
 	private List<ProductVariantAttr> productVariantAttrList=new ArrayList<>();
 
 }

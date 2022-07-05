@@ -1,11 +1,9 @@
 package com.upedge.oms.modules.order.dto;
 
-import com.upedge.common.utils.DateUtils;
 import com.upedge.oms.enums.OrderTagEnum;
 import lombok.Data;
 
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 @Data
@@ -53,9 +51,9 @@ public class AppOrderListDto {
 
     String orderNameEnd;
 
-    String beginTime;
+    Date beginTime;
 
-    String endTime;
+    Date endTime;
 
     /**
      * 物流单号，单独查询
@@ -95,19 +93,17 @@ public class AppOrderListDto {
         }
     }
 
-    public void initDateRange() {
-        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
-        String start = DateUtils.getDate("yyyy-MM-dd", -30, Calendar.DAY_OF_MONTH);
-        String end = DateUtils.getDate("yyyy-MM-dd", +1, Calendar.DAY_OF_MONTH);
-
-        if (null == this.beginTime) {
-            this.beginTime = start;
-        }
-        if (null == this.endTime) {
-            this.endTime = end;
-        }
-
-
-    }
+//    public void initDateRange() {
+//        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+//        String start = DateUtils.getDate("yyyy-MM-dd", -30, Calendar.DAY_OF_MONTH);
+//        String end = DateUtils.getDate("yyyy-MM-dd", +1, Calendar.DAY_OF_MONTH);
+//
+//        if (null == this.beginTime) {
+//            this.beginTime = start;
+//        }
+//        if (null == this.endTime) {
+//            this.endTime = end;
+//        }
+//    }
 
 }

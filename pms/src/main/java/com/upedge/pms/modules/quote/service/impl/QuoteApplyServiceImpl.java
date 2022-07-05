@@ -178,7 +178,7 @@ public class QuoteApplyServiceImpl implements QuoteApplyService {
         //处理的报价信息挨个从map里取出对应的报价产品
         for (QuoteApplyProcessItem quoteApplyProcessItem : quoteApplyProcessItems) {
             QuoteApplyItem quoteApplyItem = quoteApplyItemMap.get(quoteApplyProcessItem.getQuoteApplyItemId());
-            if (null == quoteApplyItem) {
+            if (null == quoteApplyItem || quoteApplyProcessItem.getCanQuote() == null) {
                 continue;
             }
             //检查是否是已拆分变体
@@ -192,8 +192,9 @@ public class QuoteApplyServiceImpl implements QuoteApplyService {
             BeanUtils.copyProperties(quoteApplyItem, customerProductQuote);
             customerProductQuote.setStoreParentVariantId(storeProductVariant.getParentVariantId());
             customerProductQuote.setCustomerId(quoteApply.getCustomerId());
+
             //取消报价的产品
-            if (!quoteApplyProcessItem.isCanQuote()) {
+            if (!quoteApplyProcessItem.getCanQuote()) {
                 ProductQuoteRecord productQuoteRecord = new ProductQuoteRecord();
                 productQuoteRecord.setStoreVariantId(quoteApplyItem.getStoreVariantId());
                 productQuoteRecord.setStoreProductId(quoteApplyItem.getStoreProductId());

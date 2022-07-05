@@ -2,8 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="com.upedge.pms.modules.product.dao.ProductVariantDao">
-
-	<!-- 可根据自己的需求，是否要使用 -->
+    <!-- 可根据自己的需求，是否要使用 -->
     <resultMap type="com.upedge.pms.modules.product.entity.ProductVariant" id="BaseResultMap">
         <result property="id" column="id"/>
         <result property="originalVariantId" column="original_variant_id"/>
@@ -60,7 +59,8 @@
         </collection>
     </resultMap>
     <sql id="Base_Column_List">
-        `id`,`original_variant_id`,`product_id`,`variant_sku`,`variant_image`,
+        `id`
+                ,`original_variant_id`,`product_id`,`variant_sku`,`variant_image`,
         `variant_price`,`usd_price`,`inventory`,`weight`,`state`,`volume_weight`,
         `variant_type`,`cn_name`,`en_name`,`length`,`width`,`height`,
         `latest_quote_price`,`saihe_sku`
@@ -104,90 +104,81 @@
     </select>
 
     <select id="selectSaiheSkuVoByProductId" resultMap="SaiheSkuVo">
-        select
-        p.cate_type as cateType,
-        v.variant_sku as customerSku,
-        p.product_sku as parentSku,
-        v.product_id as productId,
-        p.shipping_id as shippingId,
-        p.user_id as userId,
-        v.weight as weight,
-        v.weight as netWeight,
-        v.weight as grossWeight,
-        v.weight as perProductPackWeight,
-        s.supplier_name as supplierName,
-        p.product_sku as purchaseLink,
-        IFNULL(a.entry_ename,c.cate_name) as productEntryEnName,
-        IFNULL(a.entry_cname,cc.cate_name) as productEntryCnName,
-        v.variant_price/6.3 as entryPrice,
-        v.variant_price as supplyPrice,
-        v.variant_image as mainImage,
-        --         jsu.username as developUser,
-        --         jsu.username as chargeUser,
-        --         jsu.username as editorUser,
-        --         jsu.username as imageHandleUser,
-        --         jsu.username as purchaseUser,
-        a.item_no as supplierCode,
-        a.warehouse_code as warehouseCode,
-        --     t.saihe_id as shippingAttribute,
-        p.shipping_id as shippingId,
-        pva.variant_attr_cvalue as variantAttrCvalue,
-        pva.variant_attr_evalue as variantAttrEvalue,
-        pva.seq as seq
+        select p.cate_type             as cateType,
+               v.variant_sku           as customerSku,
+               p.product_sku           as parentSku,
+               v.product_id            as productId,
+               p.shipping_id           as shippingId,
+               p.user_id               as userId,
+               v.weight                as weight,
+               v.weight                as netWeight,
+               v.weight                as grossWeight,
+               v.weight                as perProductPackWeight,
+               p.supplier_name         as supplierName,
+               p.product_sku           as purchaseLink,
+               a.entry_ename           as productEntryEnName,
+               a.entry_cname           as productEntryCnName,
+               v.variant_price / 6.3   as entryPrice,
+               v.variant_price         as supplyPrice,
+               v.variant_image         as mainImage,
+               a.item_no               as supplierCode,
+               a.warehouse_code        as warehouseCode,
+               p.shipping_id           as shippingId,
+               pva.variant_attr_cvalue as variantAttrCvalue,
+               pva.variant_attr_evalue as variantAttrEvalue,
+               pva.seq                 as seq
         from product_variant v
-        left join product_attribute a on v.product_id=a.product_id
-        left join product p on v.product_id=p.id
-        left join supplier s on  s.id = p.supplier_id
-        --       left join shipping_template t on p.shipping_id=t.id
-        left join category c on p.category_id=c.id
-        left join ali_cn_category cc on a.ali_cn_category_id=cc.id
-        --       left join user_info jsu on jsu.id=p.user_id
-        left join product_variant_attr pva on pva.variant_id=v.id
-        where p.id = #{productId} and v.state=1
+        left join product_attribute a on v.product_id = a.product_id
+        left join product p on v.product_id = p.id
+        left join product_variant_attr pva on pva.variant_id = v.id
+        where p.id = #{productId}
+        and v.state = 1
     </select>
 
     <select id="selectSaiheSkuVoById" resultMap="SaiheSkuVo">
-        select
-        p.cate_type as cateType,
-        v.variant_sku as customerSku,
-        p.product_sku as parentSku,
-        v.product_id as productId,
-        p.shipping_id as shippingId,
-        p.user_id as userId,
-        v.weight as weight,
-        v.weight as netWeight,
-        v.weight as grossWeight,
-        v.weight as perProductPackWeight,
-        p.supplier_name as supplierName,
-        p.product_sku as purchaseLink,
-        a.entry_ename as productEntryEnName,
-        a.entry_cname as productEntryCnName,
-        v.variant_price/6.3 as entryPrice,
-        v.variant_price as supplyPrice,
-        v.variant_image as mainImage,
-        a.item_no as supplierCode,
-        a.warehouse_code as warehouseCode,
-        p.shipping_id as shippingId,
-        pva.variant_attr_cvalue as variantAttrCvalue,
-        pva.variant_attr_evalue as variantAttrEvalue,
-        pva.seq as seq
+        select p.cate_type             as cateType,
+               v.variant_sku           as customerSku,
+               p.product_sku           as parentSku,
+               v.product_id            as productId,
+               p.shipping_id           as shippingId,
+               p.user_id               as userId,
+               v.weight                as weight,
+               v.weight                as netWeight,
+               v.weight                as grossWeight,
+               v.weight                as perProductPackWeight,
+               p.supplier_name         as supplierName,
+               p.product_sku           as purchaseLink,
+               a.entry_ename           as productEntryEnName,
+               a.entry_cname           as productEntryCnName,
+               v.variant_price / 6.3   as entryPrice,
+               v.variant_price         as supplyPrice,
+               v.variant_image         as mainImage,
+               a.item_no               as supplierCode,
+               a.warehouse_code        as warehouseCode,
+               p.shipping_id           as shippingId,
+               pva.variant_attr_cvalue as variantAttrCvalue,
+               pva.variant_attr_evalue as variantAttrEvalue,
+               pva.seq                 as seq
         from product_variant v
-        left join product_attribute a on v.product_id=a.product_id
-        left join product p on v.product_id=p.id
-        left join product_variant_attr pva on pva.variant_id=v.id
-        where v.id = #{id} and v.state=1
+         left join product_attribute a on v.product_id = a.product_id
+         left join product p on v.product_id = p.id
+         left join product_variant_attr pva on pva.variant_id = v.id
+        where v.id = #{id}
+          and v.state = 1
     </select>
 
 
-    <select id="selectByPrimaryKey" parameterType="com.upedge.pms.modules.product.entity.ProductVariant" resultMap="BaseResultMap">
+    <select id="selectByPrimaryKey" parameterType="com.upedge.pms.modules.product.entity.ProductVariant"
+            resultMap="BaseResultMap">
         select
-        <include refid="Base_Column_List" />
+        <include refid="Base_Column_List"/>
         from product_variant
         where id = #{id}
     </select>
 
     <delete id="deleteByPrimaryKey" parameterType="com.upedge.pms.modules.product.entity.ProductVariant">
-        delete from product_variant
+        delete
+        from product_variant
         where id = #{id}
     </delete>
 
@@ -252,23 +243,23 @@
     <update id="updateByPrimaryKey" parameterType="com.upedge.pms.modules.product.entity.ProductVariant">
         update product_variant
         <set>
-        id = #{id},
-        original_variant_id = #{originalVariantId},
-        product_id = #{productId},
-        variant_sku = #{variantSku},
-        variant_image = #{variantImage},
-        variant_price = #{variantPrice},
-        usd_price = #{usdPrice},
-        inventory = #{inventory},
-        weight = #{weight},
-        state = #{state},
-        volume_weight = #{volumeWeight},
-        variant_type = #{variantType},
-        cn_name = #{cnName},
-        en_name = #{enName},
-        length = #{length},
-        width = #{width},
-        height = #{height},
+            id = #{id},
+            original_variant_id = #{originalVariantId},
+            product_id = #{productId},
+            variant_sku = #{variantSku},
+            variant_image = #{variantImage},
+            variant_price = #{variantPrice},
+            usd_price = #{usdPrice},
+            inventory = #{inventory},
+            weight = #{weight},
+            state = #{state},
+            volume_weight = #{volumeWeight},
+            variant_type = #{variantType},
+            cn_name = #{cnName},
+            en_name = #{enName},
+            length = #{length},
+            width = #{width},
+            height = #{height},
         </set>
         where id = #{id}
     </update>
@@ -288,7 +279,7 @@
         update product_variant
         set volume_weight=#{volumeWeight},
         width = #{width},
-        length  = #{length},
+        length = #{length},
         height = #{height}
         where id in
         <foreach collection="ids" index="index" item="item"
@@ -347,7 +338,8 @@
     </update>
 
 
-    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.upedge.pms.modules.product.entity.ProductVariant" useGeneratedKeys="true">
+    <insert id="insert" keyColumn="id" keyProperty="id"
+            parameterType="com.upedge.pms.modules.product.entity.ProductVariant" useGeneratedKeys="true">
         insert into product_variant
         <trim prefix="(" suffix=")" suffixOverrides=",">
             id,
@@ -389,159 +381,158 @@
         )
     </insert>
 
-    <insert id="insertSelective"  keyColumn="id" keyProperty="id"  parameterType="com.upedge.pms.modules.product.entity.ProductVariant" useGeneratedKeys="true">
+    <insert id="insertSelective" keyColumn="id" keyProperty="id"
+            parameterType="com.upedge.pms.modules.product.entity.ProductVariant" useGeneratedKeys="true">
         insert into product_variant
         <trim prefix="(" suffix=")" suffixOverrides=",">
-            <if test="id != null" >
-              id
+            <if test="id != null">
+                id
             </if>
-            <if test="originalVariantId != null" >
-              original_variant_id
+            <if test="originalVariantId != null">
+                original_variant_id
             </if>
-            <if test="productId != null" >
-              product_id
+            <if test="productId != null">
+                product_id
             </if>
-            <if test="variantSku != null" >
-              variant_sku
+            <if test="variantSku != null">
+                variant_sku
             </if>
-            <if test="variantImage != null" >
-              variant_image
+            <if test="variantImage != null">
+                variant_image
             </if>
-            <if test="variantPrice != null" >
-              variant_price
+            <if test="variantPrice != null">
+                variant_price
             </if>
-            <if test="usdPrice != null" >
-              usd_price
+            <if test="usdPrice != null">
+                usd_price
             </if>
-            <if test="inventory != null" >
-              inventory
+            <if test="inventory != null">
+                inventory
             </if>
-            <if test="weight != null" >
-              weight
+            <if test="weight != null">
+                weight
             </if>
-            <if test="state != null" >
-              state
+            <if test="state != null">
+                state
             </if>
-            <if test="volumeWeight != null" >
-              volume_weight
+            <if test="volumeWeight != null">
+                volume_weight
             </if>
-            <if test="variantType != null" >
-              variant_type
+            <if test="variantType != null">
+                variant_type
             </if>
-            <if test="cnName != null" >
-              cn_name
+            <if test="cnName != null">
+                cn_name
             </if>
-            <if test="enName != null" >
-              en_name
+            <if test="enName != null">
+                en_name
             </if>
-            <if test="length != null" >
-              length
+            <if test="length != null">
+                length
             </if>
-            <if test="width != null" >
-              width
+            <if test="width != null">
+                width
             </if>
-            <if test="height != null" >
-              height
+            <if test="height != null">
+                height
             </if>
-
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
-            <if test="id != null" >
+            <if test="id != null">
                 #{id}
             </if>
-            <if test="originalVariantId != null" >
+            <if test="originalVariantId != null">
                 #{originalVariantId}
             </if>
-            <if test="productId != null" >
+            <if test="productId != null">
                 #{productId}
             </if>
-            <if test="variantSku != null" >
+            <if test="variantSku != null">
                 #{variantSku}
             </if>
-            <if test="variantImage != null" >
+            <if test="variantImage != null">
                 #{variantImage}
             </if>
-            <if test="variantPrice != null" >
+            <if test="variantPrice != null">
                 #{variantPrice}
             </if>
-            <if test="usdPrice != null" >
+            <if test="usdPrice != null">
                 #{usdPrice}
             </if>
-            <if test="inventory != null" >
+            <if test="inventory != null">
                 #{inventory}
             </if>
-            <if test="weight != null" >
+            <if test="weight != null">
                 #{weight}
             </if>
-            <if test="state != null" >
+            <if test="state != null">
                 #{state}
             </if>
-            <if test="volumeWeight != null" >
+            <if test="volumeWeight != null">
                 #{volumeWeight}
             </if>
-            <if test="variantType != null" >
+            <if test="variantType != null">
                 #{variantType}
             </if>
-            <if test="cnName != null" >
+            <if test="cnName != null">
                 #{cnName}
             </if>
-            <if test="enName != null" >
+            <if test="enName != null">
                 #{enName}
             </if>
-            <if test="length != null" >
+            <if test="length != null">
                 #{length}
             </if>
-            <if test="width != null" >
+            <if test="width != null">
                 #{width}
             </if>
-            <if test="height != null" >
+            <if test="height != null">
                 #{height}
             </if>
-
         </trim>
     </insert>
 
     <insert id="insertByBatch" parameterType="java.util.List">
         insert into product_variant
         <trim prefix="(" suffix=")" suffixOverrides=",">
-           id,
-           original_variant_id,
-           product_id,
-           variant_sku,
-           variant_image,
-           variant_price,
-           usd_price,
-           inventory,
-           weight,
-           state,
-           volume_weight,
-           variant_type,
-           cn_name,
-           en_name,
-           length,
-           width,
-           height
+            id,
+            original_variant_id,
+            product_id,
+            variant_sku,
+            variant_image,
+            variant_price,
+            usd_price,
+            inventory,
+            weight,
+            `state`,
+            volume_weight,
+            variant_type,
+            cn_name,
+            en_name,
+            `length`,
+            width,
+            height
         </trim>
         values
         <foreach collection="list" item="item" index="index" separator=",">
             <trim prefix="(" suffix=")" suffixOverrides=",">
-               #{item.id},
-               #{item.originalVariantId},
-               #{item.productId},
-               #{item.variantSku},
-               #{item.variantImage},
-               #{item.variantPrice},
-               #{item.usdPrice},
-               #{item.inventory},
-               #{item.weight},
-               #{item.state},
-               #{item.volumeWeight},
-               #{item.variantType},
-               #{item.cnName},
-               #{item.enName},
-               #{item.length},
-               #{item.width},
-               #{item.height}
+                #{item.id},
+                #{item.originalVariantId},
+                #{item.productId},
+                #{item.variantSku},
+                #{item.variantImage},
+                #{item.variantPrice},
+                #{item.usdPrice},
+                #{item.inventory},
+                #{item.weight},
+                #{item.state},
+                #{item.volumeWeight},
+                #{item.variantType},
+                #{item.cnName},
+                #{item.enName},
+                #{item.length},
+                #{item.width},
+                #{item.height}
             </trim>
         </foreach>
     </insert>
@@ -551,64 +542,64 @@
             where
             <trim prefix=" " suffix=" " suffixOverrides=" and ">
                 1 = 1 and
-                    <if test="t.id != null">
-                        id = #{t.id} and
-                    </if>
-                    <if test="t.originalVariantId != null">
-                        original_variant_id = #{t.originalVariantId} and
-                    </if>
-                    <if test="t.productId != null">
-                        product_id = #{t.productId} and
-                    </if>
-                    <if test="t.variantSku != null">
-                        variant_sku = #{t.variantSku} and
-                    </if>
-                    <if test="t.variantImage != null">
-                        variant_image = #{t.variantImage} and
-                    </if>
-                    <if test="t.variantPrice != null">
-                        variant_price = #{t.variantPrice} and
-                    </if>
-                    <if test="t.usdPrice != null">
-                        usd_price = #{t.usdPrice} and
-                    </if>
-                    <if test="t.inventory != null">
-                        inventory = #{t.inventory} and
-                    </if>
-                    <if test="t.weight != null">
-                        weight = #{t.weight} and
-                    </if>
-                    <if test="t.state != null">
-                        state = #{t.state} and
-                    </if>
-                    <if test="t.volumeWeight != null">
-                        volume_weight = #{t.volumeWeight} and
-                    </if>
-                    <if test="t.variantType != null">
-                        variant_type = #{t.variantType} and
-                    </if>
-                    <if test="t.cnName != null">
-                        cn_name = #{t.cnName} and
-                    </if>
-                    <if test="t.enName != null">
-                        en_name = #{t.enName} and
-                    </if>
-                    <if test="t.length != null">
-                        length = #{t.length} and
-                    </if>
-                    <if test="t.width != null">
-                        width = #{t.width} and
-                    </if>
-                    <if test="t.height != null">
-                        height = #{t.height} and
-                    </if>
+                <if test="t.id != null">
+                    id = #{t.id} and
+                </if>
+                <if test="t.originalVariantId != null">
+                    original_variant_id = #{t.originalVariantId} and
+                </if>
+                <if test="t.productId != null">
+                    product_id = #{t.productId} and
+                </if>
+                <if test="t.variantSku != null">
+                    variant_sku = #{t.variantSku} and
+                </if>
+                <if test="t.variantImage != null">
+                    variant_image = #{t.variantImage} and
+                </if>
+                <if test="t.variantPrice != null">
+                    variant_price = #{t.variantPrice} and
+                </if>
+                <if test="t.usdPrice != null">
+                    usd_price = #{t.usdPrice} and
+                </if>
+                <if test="t.inventory != null">
+                    inventory = #{t.inventory} and
+                </if>
+                <if test="t.weight != null">
+                    weight = #{t.weight} and
+                </if>
+                <if test="t.state != null">
+                    state = #{t.state} and
+                </if>
+                <if test="t.volumeWeight != null">
+                    volume_weight = #{t.volumeWeight} and
+                </if>
+                <if test="t.variantType != null">
+                    variant_type = #{t.variantType} and
+                </if>
+                <if test="t.cnName != null">
+                    cn_name = #{t.cnName} and
+                </if>
+                <if test="t.enName != null">
+                    en_name = #{t.enName} and
+                </if>
+                <if test="t.length != null">
+                    length = #{t.length} and
+                </if>
+                <if test="t.width != null">
+                    width = #{t.width} and
+                </if>
+                <if test="t.height != null">
+                    height = #{t.height} and
+                </if>
             </trim>
         </if>
     </sql>
 
     <select id="select" parameterType="com.upedge.common.base.Page" resultMap="BaseResultMap">
         select
-        <include refid="Base_Column_List" />
+        <include refid="Base_Column_List"/>
         from product_variant
         <include refid="Query_Condition"/>
         <if test="orderBy != null">
@@ -626,20 +617,22 @@
         <include refid="Query_Condition"/>
     </select>
     <select id="selectByProductId" resultMap="BaseResultMap">
-        select <include refid="Base_Column_List"/>
+        select
+        <include refid="Base_Column_List"/>
         from product_variant
         where product_id = #{productId}
         order by state desc,latest_quote_price desc
     </select>
     <select id="selectVariantPriceRange" resultType="java.util.Map">
         select min(variant_price) as minPrice,
-        max(variant_price) as maxPrice
+               max(variant_price) as maxPrice
         from product_variant
         where product_id = #{productId}
-        and state = '1'
+          and state = '1'
     </select>
     <select id="selectBySku" resultType="com.upedge.pms.modules.product.entity.ProductVariant">
-        select <include refid="Base_Column_List"/>
+        select
+        <include refid="Base_Column_List"/>
         from product_variant
         where variant_sku = #{sku}
     </select>
@@ -663,7 +656,7 @@
         p.shipping_id as productShippingId,p.id as productId,'1' as quote_scale,
         pv.width,pv.height,pv.length,'1' as `quoteScale`,
         '1' as quoteType,'1' as quote_state
-        from  product_variant pv
+        from product_variant pv
         left join product p
         on p.id = pv.product_id
         where pv.variant_sku in

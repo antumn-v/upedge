@@ -4,17 +4,15 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.upedge.common.base.BaseResponse;
-import com.upedge.common.constant.key.RocketMqConfig;
 import com.upedge.common.constant.ResultCode;
+import com.upedge.common.constant.key.RocketMqConfig;
 import com.upedge.common.feign.UmsFeignClient;
 import com.upedge.common.model.log.MqMessageLog;
 import com.upedge.common.model.product.VariantDetail;
 import com.upedge.oms.modules.cart.service.CartService;
 import com.upedge.oms.modules.order.service.OrderItemService;
-import com.upedge.oms.modules.order.service.OrderService;
 import com.upedge.oms.modules.stock.service.StockOrderService;
 import com.upedge.oms.modules.wholesale.service.WholesaleOrderItemService;
-import com.upedge.oms.modules.wholesale.service.WholesaleOrderService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.rocketmq.client.consumer.DefaultMQPushConsumer;
@@ -51,11 +49,6 @@ public class VariantUpdateCusomer {
     @Autowired
     UmsFeignClient umsFeignClient;
 
-    @Autowired
-    private OrderService orderService;
-
-    @Autowired
-    private WholesaleOrderService wholesaleOrderService;
 
     public VariantUpdateCusomer() throws MQClientException {
         consumer = new DefaultMQPushConsumer("variant");
@@ -104,7 +97,7 @@ public class VariantUpdateCusomer {
                                 // 修改信息     删除shipMethodId 和   shipPrice
                                 // 调用  orderInitShipDetail 并根据该方法仿写一份用作批发订单
                                 orderItemService.updateAdminVariantByVariantId(variantDetail,tag);
-                                wholesaleOrderItemService.updateItemByVariantId(variantDetail,tag);
+//                                wholesaleOrderItemService.updateItemByVariantId(variantDetail,tag);
                                 break;
                             }
                         }
@@ -121,7 +114,7 @@ public class VariantUpdateCusomer {
                             //  调用  orderInitShipDetail 并根据该方法仿写一份用作批发订单
 
                             orderItemService.updateAdminVariantByVariantId(variantDetail,tag);
-                            wholesaleOrderItemService.updateItemByVariantId(variantDetail,tag);
+//                            wholesaleOrderItemService.updateItemByVariantId(variantDetail,tag);
                         }
                     }
 
@@ -147,5 +140,10 @@ public class VariantUpdateCusomer {
 
         consumer.start();
         System.out.println(RocketMqConfig.TOPIC_VARIANT_UPDATE + "-->消费者 启动成功=======");
+    }
+
+
+    void variantUpdateShippingId(List<VariantDetail> variantDetailList){
+
     }
 }

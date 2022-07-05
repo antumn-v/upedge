@@ -18,7 +18,7 @@ public class ProductVariantVo{
 	/**
 	*
 	*/
-	private Long originalVariantId;
+	private String originalVariantId;
 	/**
 	* 商品id
 	*/
@@ -51,6 +51,8 @@ public class ProductVariantVo{
 	* 体积重
 	*/
 	private BigDecimal volumeWeight;
+
+	private String specId;
 
 	private List<ProductVariantAttrVo> variantAttrVoList;
 

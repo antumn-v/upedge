@@ -14,7 +14,7 @@ import com.upedge.pms.modules.alibaba.entity.supplier.AlibabaAccountAgentCrossBa
 import com.upedge.pms.modules.alibaba.entity.supplier.AlibabaAccountAgentCrossBasicResult;
 import com.upedge.pms.modules.alibaba.entity.supplier.SimpleAccountInfo;
 import com.upedge.pms.modules.alibaba.entity.translate.TranslateResult;
-import com.upedge.pms.modules.alibaba.vo.*;
+import com.upedge.thirdparty.ali1688.vo.*;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpMethod;
 
@@ -128,7 +128,7 @@ public class Ali1688Service {
             productVariantVo.setVariantSku(skuInfos.getSkuId());
             productVariantVo.setVariantPrice(skuInfos.getPrice() == null ? new BigDecimal(price) : new BigDecimal(skuInfos.getPrice()));
             productVariantVo.setInventory(Integer.toUnsignedLong(skuInfos.getAmountOnSale()));
-
+            productVariantVo.setSpecId(skuInfos.getSpecId());
             productVariantVo.setState(1);
             if (productVariantVo.getInventory() <= 0
                     || null == productVariantVo.getWeight()

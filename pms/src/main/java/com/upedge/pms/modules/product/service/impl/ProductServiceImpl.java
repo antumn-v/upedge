@@ -22,9 +22,6 @@ import com.upedge.common.utils.UrlUtils;
 import com.upedge.pms.modules.alibaba.entity.translate.TranslateResult;
 import com.upedge.pms.modules.alibaba.service.Ali1688Service;
 import com.upedge.pms.modules.alibaba.service.TranslateService;
-import com.upedge.pms.modules.alibaba.vo.AlibabaProductVo;
-import com.upedge.pms.modules.alibaba.vo.ProductVariantAttrVo;
-import com.upedge.pms.modules.alibaba.vo.ProductVariantVo;
 import com.upedge.pms.modules.category.entity.Category;
 import com.upedge.pms.modules.category.entity.CategoryMapping;
 import com.upedge.pms.modules.category.service.CategoryMappingService;
@@ -43,6 +40,9 @@ import com.upedge.pms.modules.product.service.*;
 import com.upedge.pms.modules.product.vo.*;
 import com.upedge.pms.modules.supplier.entity.Supplier;
 import com.upedge.pms.modules.supplier.service.SupplierService;
+import com.upedge.thirdparty.ali1688.vo.AlibabaProductVo;
+import com.upedge.thirdparty.ali1688.vo.ProductVariantAttrVo;
+import com.upedge.thirdparty.ali1688.vo.ProductVariantVo;
 import com.upedge.thirdparty.saihe.config.SaiheConfig;
 import com.upedge.thirdparty.saihe.entity.processUpdateProduct.*;
 import com.upedge.thirdparty.saihe.service.SaiheService;
@@ -686,7 +686,7 @@ public class ProductServiceImpl implements ProductService {
         refreshProductPriceRange(productId);
     }
 
-    public void addNewAlibabaProductVariants(List<ProductVariantVo> productVariantVoList,Long productId,AlibabaProductVo alibabaProductVo){
+    public void addNewAlibabaProductVariants(List<ProductVariantVo> productVariantVoList, Long productId, AlibabaProductVo alibabaProductVo){
         String mainImage = alibabaProductVo.getProductImage();
         String supplierName = alibabaProductVo.getSupplierVo().getSupplierName();
         String purchaseLink = alibabaProductVo.getProductSku();

@@ -1,6 +1,7 @@
 package com.upedge.pms.modules.alibaba.entity.product;
 
-import com.upedge.pms.modules.alibaba.vo.ProductInfoVo;
+
+import com.upedge.thirdparty.ali1688.vo.ProductInfoVo;
 
 import java.util.ArrayList;
 import java.util.Date;
