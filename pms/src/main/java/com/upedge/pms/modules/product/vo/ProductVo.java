@@ -1,6 +1,5 @@
 package com.upedge.pms.modules.product.vo;
 
-import com.upedge.pms.modules.product.entity.ProductAttribute;
 import com.upedge.pms.modules.product.entity.ProductImg;
 import com.upedge.pms.modules.product.entity.ProductInfo;
 import com.upedge.pms.modules.product.entity.ProductVariant;
@@ -92,7 +91,14 @@ public class ProductVo {
 
 	private Integer gteState;
 
-	private ProductAttribute productAttribute;
+	/**
+	 * 报关英文名
+	 */
+	private String entryEname;
+	/**
+	 * 报关中文名
+	 */
+	private String entryCname;
 
 	private List<ProductImg> productImgList;
 

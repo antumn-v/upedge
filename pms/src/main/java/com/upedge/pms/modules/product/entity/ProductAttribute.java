@@ -25,10 +25,6 @@ public class ProductAttribute{
 	 */
     private String aliCnCategoryName;
 	/**
-	 * 产品货号
-	 */
-    private String itemNo;
-	/**
 	 * 1688上30天成交量
 	 */
     private Integer turnover;
@@ -44,6 +40,10 @@ public class ProductAttribute{
 	 * 报关中文名
 	 */
     private String entryCname;
+	/**
+	 * 产品货号
+	 */
+	private String itemNo;
 	/**
 	 * 赛盒仓库id
 	 */

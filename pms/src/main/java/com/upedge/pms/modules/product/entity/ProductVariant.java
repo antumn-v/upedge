@@ -91,6 +91,8 @@ public class ProductVariant{
 
 	private String purchaseSku;
 
+	private String specId;
+
 	private List<ProductVariantAttr> productVariantAttrList=new ArrayList<>();
 
 }

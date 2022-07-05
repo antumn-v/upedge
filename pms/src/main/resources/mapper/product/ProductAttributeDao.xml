@@ -9,16 +9,17 @@
         <result property="productId" column="product_id"/>
         <result property="aliCnCategoryId" column="ali_cn_category_id"/>
         <result property="aliCnCategoryName" column="ali_cn_category_name"/>
-        <result property="itemNo" column="item_no"/>
+
         <result property="turnover" column="turnover"/>
         <result property="score" column="score"/>
+        <result property="itemNo" column="item_no"/>
         <result property="entryEname" column="entry_ename"/>
         <result property="entryCname" column="entry_cname"/>
         <result property="warehouseCode" column="warehouse_code"/>
     </resultMap>
 
     <sql id="Base_Column_List">
-        `id`,`product_id`,`ali_cn_category_id`,`ali_cn_category_name`,`item_no`,`turnover`,`score`,`entry_ename`,`entry_cname`,`warehouse_code`
+        `id`,`product_id`,`ali_cn_category_id`,`ali_cn_category_name`,`turnover`,`score`,`entry_ename`,`entry_cname`,`item_no`,`warehouse_code`
     </sql>
 
     <select id="selectByPrimaryKey" parameterType="com.upedge.pms.modules.product.entity.ProductAttribute" resultMap="BaseResultMap">

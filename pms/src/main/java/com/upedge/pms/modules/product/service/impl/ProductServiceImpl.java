@@ -196,18 +196,18 @@ public class ProductServiceImpl implements ProductService {
         String productSku = request.getProductSku();
         product.setProductSource(productSource);
         updateProductSku(product, productSku);
-        product.setRemark(request.getRemark());
+        BeanUtils.copyProperties(request,product);
         productDao.updateByPrimaryKeySelective(product);
-        if (!StringUtils.isBlank(request.getEntryCname()) || !StringUtils.isBlank(request.getEntryCname())
-                || request.getWarehouseCode() != null) {
-            ProductAttribute attribute = new ProductAttribute();
-            attribute.setId(productAttribute.getId());
-            attribute.setEntryCname(request.getEntryCname());
-            attribute.setEntryEname(request.getEntryEname());
-            attribute.setWarehouseCode(request.getWarehouseCode());
-//            attribute.setShippingAttributeId(request.getShippingAttributeId());
-            productAttributeService.updateByPrimaryKeySelective(attribute);
-        }
+//        if (!StringUtils.isBlank(request.getEntryCname()) || !StringUtils.isBlank(request.getEntryCname())
+//                || request.getWarehouseCode() != null) {
+//            ProductAttribute attribute = new ProductAttribute();
+//            attribute.setId(productAttribute.getId());
+//            attribute.setEntryCname(request.getEntryCname());
+//            attribute.setEntryEname(request.getEntryEname());
+//            attribute.setWarehouseCode(request.getWarehouseCode());
+////            attribute.setShippingAttributeId(request.getShippingAttributeId());
+//            productAttributeService.updateByPrimaryKeySelective(attribute);
+//        }
 
         if (request.getShippingId() != null
                 && !request.getShippingId().equals(shippingId)) {
@@ -311,7 +311,7 @@ public class ProductServiceImpl implements ProductService {
             } else {
                 priceRange = minPrice + "~" + maxPrice;
             }
-            productDao.updatePriceRangeById(priceRange, productId, minPrice, maxPrice);
+            productDao.updatePriceRangeById(priceRange, productId);
             return priceRange;
         }
         return null;
@@ -335,20 +335,16 @@ public class ProductServiceImpl implements ProductService {
         }
         ProductVo adminProductVo = new ProductVo();
         BeanUtils.copyProperties(product, adminProductVo);
-//        Category category=categoryService.selectByPrimaryKey(product.getCategoryId());
-//        if(category!=null) {
-//            adminProductVo.setCategoryId(Long.parseLong(category.getCateCode()));
-//        }
         //开启异步任务 获取属性
 
-        ProductAttribute productAttribute = productAttributeService.selectByProductId(id);
-        if (productAttribute == null) {
-            productAttribute = new ProductAttribute();
-            productAttribute.setProductId(id);
-            productAttribute.setWarehouseCode(SaiheConfig.UPEDGE_DEFAULT_WAREHOUSE_ID);
-            productAttributeService.insert(productAttribute);
-        }
-        adminProductVo.setProductAttribute(productAttribute);
+//        ProductAttribute productAttribute = productAttributeService.selectByProductId(id);
+//        if (productAttribute == null) {
+//            productAttribute = new ProductAttribute();
+//            productAttribute.setProductId(id);
+//            productAttribute.setWarehouseCode(SaiheConfig.UPEDGE_DEFAULT_WAREHOUSE_ID);
+//            productAttributeService.insert(productAttribute);
+//        }
+//        adminProductVo.setProductAttribute(productAttribute);
 
 
         //开启异步任务  获取图片列表
@@ -359,13 +355,13 @@ public class ProductServiceImpl implements ProductService {
 
         //开启异步任务  获取产品描述
 
-        ProductInfo productInfo = productInfoService.selectByProductId(id);
-        if (productInfo == null) {
-            productInfo = new ProductInfo();
-            productInfo.setProductId(id);
-            productInfoService.insert(productInfo);
-        }
-        adminProductVo.setProductInfo(productInfo);
+//        ProductInfo productInfo = productInfoService.selectByProductId(id);
+//        if (productInfo == null) {
+//            productInfo = new ProductInfo();
+//            productInfo.setProductId(id);
+//            productInfoService.insert(productInfo);
+//        }
+//        adminProductVo.setProductInfo(productInfo);
 
         //开启异步任务  获取产品描述
         //属性-值列表
@@ -638,7 +634,9 @@ public class ProductServiceImpl implements ProductService {
         if (session != null) {
             product.setUserId(String.valueOf(session.getId()));
         }
+        product.setItemNo(alibabaProductVo.getProductAttributeVo().getItemNo());
         productDao.insert(product);
+
         ProductAttribute productAttribute = new ProductAttribute();
         BeanUtils.copyProperties(alibabaProductVo.getProductAttributeVo(), productAttribute);
         productAttribute.setId(IdGenerate.nextId());
@@ -718,6 +716,7 @@ public class ProductServiceImpl implements ProductService {
             productVariant.setEnName(enNameList.toString());
             productVariant.setSupplierName(supplierName);
             productVariant.setPurchaseLink(purchaseLink);
+            productVariant.setSpecId(productVariantVo.getSpecId());
             //变体价格
             productVariant.setVariantPrice(productVariantVo.getVariantPrice());
             productVariant.setUsdPrice(PriceUtils.cnyToUsdByDefaultRate(productVariant.getVariantPrice()));

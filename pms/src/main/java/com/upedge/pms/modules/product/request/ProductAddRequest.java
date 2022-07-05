@@ -112,8 +112,6 @@ public class ProductAddRequest{
         product.setCreateTime(createTime);
         product.setUpdateTime(updateTime);
         product.setPriceRange(priceRange);
-        product.setMaxPrice(maxPrice);
-        product.setMinPrice(minPrice);
         return product;
     }
 

@@ -7,7 +7,6 @@ import com.upedge.pms.modules.product.request.WinningProductListRequest;
 import com.upedge.pms.modules.product.vo.AppProductVo;
 import org.apache.ibatis.annotations.Param;
 
-import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -26,9 +25,7 @@ public interface ProductDao {
     Long countWinningProduct(WinningProductListRequest request);
 
     int updatePriceRangeById(@Param("priceRange") String priceRange,
-                             @Param("id") Long id,
-                             @Param("minPrice") BigDecimal minPrice,
-                             @Param("maxPrice") BigDecimal maxPrice);
+                             @Param("id") Long id);
 
     int importFavorite(@Param("ids") List<Long> ids,
                        @Param("userId") Long userId,

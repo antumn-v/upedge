@@ -2,7 +2,6 @@ package com.upedge.pms.modules.product.entity;
 
 import lombok.Data;
 
-import java.math.BigDecimal;
 import java.util.Date;
 
 /**
@@ -89,13 +88,17 @@ public class Product{
 	 */
     private String priceRange;
 	/**
-	 * 最高价
+	 * 报关英文名
 	 */
-    private BigDecimal maxPrice;
+	private String entryEname;
 	/**
-	 * 最低价
+	 * 报关中文名
 	 */
-    private BigDecimal minPrice;
+	private String entryCname;
+	/**
+	 * 产品货号
+	 */
+	private String itemNo;
 
 	private String remark;
 

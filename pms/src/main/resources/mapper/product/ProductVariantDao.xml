@@ -116,19 +116,17 @@
                v.weight                as perProductPackWeight,
                p.supplier_name         as supplierName,
                p.product_sku           as purchaseLink,
-               a.entry_ename           as productEntryEnName,
-               a.entry_cname           as productEntryCnName,
+               p.entry_ename           as productEntryEnName,
+               p.entry_cname           as productEntryCnName,
                v.variant_price / 6.3   as entryPrice,
                v.variant_price         as supplyPrice,
                v.variant_image         as mainImage,
-               a.item_no               as supplierCode,
-               a.warehouse_code        as warehouseCode,
+               p.item_no               as supplierCode,
                p.shipping_id           as shippingId,
                pva.variant_attr_cvalue as variantAttrCvalue,
                pva.variant_attr_evalue as variantAttrEvalue,
                pva.seq                 as seq
         from product_variant v
-        left join product_attribute a on v.product_id = a.product_id
         left join product p on v.product_id = p.id
         left join product_variant_attr pva on pva.variant_id = v.id
         where p.id = #{productId}
@@ -148,19 +146,18 @@
                v.weight                as perProductPackWeight,
                p.supplier_name         as supplierName,
                p.product_sku           as purchaseLink,
-               a.entry_ename           as productEntryEnName,
-               a.entry_cname           as productEntryCnName,
+               p.entry_ename           as productEntryEnName,
+               p.entry_cname           as productEntryCnName,
                v.variant_price / 6.3   as entryPrice,
                v.variant_price         as supplyPrice,
                v.variant_image         as mainImage,
-               a.item_no               as supplierCode,
-               a.warehouse_code        as warehouseCode,
+               p.item_no               as supplierCode,
                p.shipping_id           as shippingId,
                pva.variant_attr_cvalue as variantAttrCvalue,
                pva.variant_attr_evalue as variantAttrEvalue,
                pva.seq                 as seq
         from product_variant v
-         left join product_attribute a on v.product_id = a.product_id
+<!--         left join product_attribute a on v.product_id = a.product_id-->
          left join product p on v.product_id = p.id
          left join product_variant_attr pva on pva.variant_id = v.id
         where v.id = #{id}

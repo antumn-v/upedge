@@ -24,9 +24,10 @@
         <result property="createTime" column="create_time"/>
         <result property="updateTime" column="update_time"/>
         <result property="priceRange" column="price_range"/>
-        <result property="maxPrice" column="max_price"/>
-        <result property="minPrice" column="min_price"/>
         <result property="remark" column="remark"/>
+        <result property="itemNo" column="item_no"/>
+        <result property="entryEname" column="entry_ename"/>
+        <result property="entryCname" column="entry_cname"/>
     </resultMap>
 
 
@@ -37,8 +38,6 @@
         <result property="categoryId" column="category_id"/>
         <result property="turnover" column="turnover"/>
         <result property="score" column="score"/>
-        <result property="minPrice" column="min_price"/>
-        <result property="maxPrice" column="max_price"/>
         <result property="createTime" column="create_time"/>
         <result property="updateTime" column="update_time"/>
     </resultMap>
@@ -46,7 +45,8 @@
     <sql id="Base_Column_List">
         `id`,`original_id`,`product_sku`,`original_title`,`product_title`,`product_image`,`supplier_name`,`shipping_id`,
         `category_id`,`state`,`replace_state`,`saihe_state`,`product_source`,`product_type`,`cate_type`,`user_id`,
-        `create_time`,`update_time`,`price_range`,`max_price`,`min_price`,`remark`
+        `create_time`,`update_time`,`price_range`,`remark`,`item_no`,
+        ifnull(`entry_ename`,'') as `entry_ename`,ifnull(`entry_cname`,'') as `entry_cname`
     </sql>
 
     <select id="selectByPrimaryKey" parameterType="com.upedge.pms.modules.product.entity.Product"
@@ -119,14 +119,14 @@
             <if test="priceRange != null">
                 price_range = #{priceRange},
             </if>
-            <if test="maxPrice != null">
-                max_price = #{maxPrice},
-            </if>
-            <if test="minPrice != null">
-                min_price = #{minPrice},
-            </if>
             <if test="remark != null">
                 remark = #{remark},
+            </if>
+            <if test="entryEname != null">
+                entry_ename = #{entryEname},
+            </if>
+            <if test="entryCname != null">
+                entry_cname = #{entryCname},
             </if>
         </set>
         where id = #{id}
@@ -153,9 +153,7 @@
             user_id = #{userId},
             create_time = #{createTime},
             update_time = #{updateTime},
-            price_range = #{priceRange},
-            max_price = #{maxPrice},
-            min_price = #{minPrice},
+            price_range = #{priceRange}
         </set>
         where id = #{id}
     </update>
@@ -201,9 +199,7 @@
     </update>
     <update id="updatePriceRangeById">
         update product
-        set price_range = #{priceRange},
-            max_price  = #{maxPrice},
-            min_price  = #{minPrice}
+        set price_range = #{priceRange}
         where id = #{id}
     </update>
 
@@ -230,8 +226,9 @@
             create_time,
             update_time,
             price_range,
-            max_price,
-            min_price
+            item_no,
+            entry_ename,
+            entry_cname
         </trim>
         values (
         #{id},
@@ -253,8 +250,9 @@
         #{createTime},
         #{updateTime},
         #{priceRange},
-        #{maxPrice},
-        #{minPrice}
+        #{itemNo},
+        #{entryEname},
+        #{entryCname}
         )
     </insert>
 
@@ -319,12 +317,6 @@
             <if test="priceRange != null">
                 price_range
             </if>
-            <if test="maxPrice != null">
-                max_price
-            </if>
-            <if test="minPrice != null">
-                min_price
-            </if>
 
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
@@ -385,12 +377,6 @@
             <if test="priceRange != null">
                 #{priceRange}
             </if>
-            <if test="maxPrice != null">
-                #{maxPrice}
-            </if>
-            <if test="minPrice != null">
-                #{minPrice}
-            </if>
 
         </trim>
     </insert>
@@ -416,9 +402,7 @@
             user_id,
             create_time,
             update_time,
-            price_range,
-            max_price,
-            min_price
+            price_range
         </trim>
         values
         <foreach collection="list" item="item" index="index" separator=",">
@@ -441,9 +425,7 @@
                 #{item.userId},
                 #{item.createTime},
                 #{item.updateTime},
-                #{item.priceRange},
-                #{item.maxPrice},
-                #{item.minPrice}
+                #{item.priceRange}
             </trim>
         </foreach>
     </insert>
@@ -509,12 +491,6 @@
                 <if test="t.priceRange != null">
                     and price_range = #{t.priceRange}
                 </if>
-                <if test="t.maxPrice != null">
-                    and max_price = #{t.maxPrice}
-                </if>
-                <if test="t.minPrice != null">
-                    and min_price = #{t.minPrice}
-                </if>
                 <if test="t.remark != null">
                     and remark like concat('%',#{t.remark},'%')
                 </if>
@@ -556,9 +532,7 @@
         select
         p.id,p.price_range priceRange,`product_title`,`product_image`,p.category_id,
         p.create_time creatTime,p.update_time,
-        a.turnover,a.score,
-        p.min_price,
-        p.max_price
+        a.turnover,a.score
         from product p
         left join product_attribute a
         on p.id = a.product_id
