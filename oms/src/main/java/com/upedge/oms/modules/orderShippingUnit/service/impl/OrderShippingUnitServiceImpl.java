@@ -8,12 +8,10 @@ import com.upedge.common.constant.ResultCode;
 import com.upedge.common.feign.TmsFeignClient;
 import com.upedge.common.model.tms.ShippingUnitVo;
 import com.upedge.common.utils.IdGenerate;
-import com.upedge.oms.modules.order.service.OrderService;
 import com.upedge.oms.modules.orderShippingUnit.dao.OrderShippingUnitDao;
 import com.upedge.oms.modules.orderShippingUnit.entity.OrderShippingUnit;
 import com.upedge.oms.modules.orderShippingUnit.service.OrderShippingUnitService;
 import com.upedge.oms.modules.orderShippingUnit.vo.OrderShippingUnitVo;
-import com.upedge.oms.modules.wholesale.service.WholesaleOrderService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -29,14 +27,10 @@ public class OrderShippingUnitServiceImpl implements OrderShippingUnitService {
     @Autowired
     private OrderShippingUnitDao orderShippingUnitDao;
 
-    @Autowired
-    private OrderService orderService;
 
     @Autowired
     TmsFeignClient tmsFeignClient;
 
-    @Autowired
-    private WholesaleOrderService wholesaleOrderService;
 
 
     /**
@@ -149,15 +143,10 @@ public class OrderShippingUnitServiceImpl implements OrderShippingUnitService {
         return orderShippingUnitDao.delete(record);
     }
 
-
-
     @Override
-    public void delByProductId(Long productId, int orderType) {
-        orderShippingUnitDao.delByProductId(productId , orderType);
+    public void deleteByOrderIds(List<Long> orderIds, Integer orderType) {
+
     }
 
-    @Override
-    public void delByVariantId(Long variantId, int orderType) {
-        orderShippingUnitDao.delByVariantId(variantId , orderType);
-    }
+
 }

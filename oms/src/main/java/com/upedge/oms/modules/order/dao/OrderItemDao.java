@@ -23,7 +23,7 @@ public interface OrderItemDao {
 
     void initDischargeQuantityByPaymentId(Long paymentId);
 
-    List<OrderStoreVariantIdsVo> selectOrderStoreVariantIdsByStoreVariantIds(@Param("storeVariantIds")List<Long> storeVariantIds);
+    List<OrderStoreVariantIdsVo> selectOrderStoreVariantIdsByStoreVariantIds(@Param("storeVariantIds") List<Long> storeVariantIds);
 
     int increaseQuantityById(@Param("id") Long id, @Param("quantity") Integer quantity);
 
@@ -123,7 +123,9 @@ public interface OrderItemDao {
 
     List<AirwallexVo> airwallex(@Param("t") AirwallexRequest airwallexRequest);
 
-    List<OrderItem> selectOrderItemListByProduct(@Param("productId") Long productId);
+    List<Long> selectOrderItemListByProduct(@Param("productId") Long productId);
 
-    List<OrderItem> selectOrderItemListByVariantId(@Param("variantId") Long variantId);
+    List<Long> selectOrderItemListByVariantId(@Param("variantId") Long variantId);
+
+    int updateCustomOrderItemPrice(@Param("variantId") Long variantId, @Param("cnyPrice") BigDecimal cnyPrice, @Param("usdPrice") BigDecimal usdPrice);
 }

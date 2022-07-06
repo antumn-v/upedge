@@ -14,7 +14,6 @@ import com.upedge.oms.modules.order.service.OrderItemService;
 import com.upedge.oms.modules.stock.service.StockOrderService;
 import com.upedge.oms.modules.wholesale.service.WholesaleOrderItemService;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.rocketmq.client.consumer.DefaultMQPushConsumer;
 import org.apache.rocketmq.client.consumer.listener.ConsumeConcurrentlyStatus;
 import org.apache.rocketmq.client.consumer.listener.MessageListenerConcurrently;
@@ -89,34 +88,17 @@ public class VariantUpdateCusomer {
                     String body = new String(message.getBody());
 
                     List<VariantDetail> variantDetailList = JSONArray.parseArray(body,VariantDetail.class);
-
-                    // 如果是shippingId 则只用跑一遍
-                    if (StringUtils.equals("shippingId",tag)){
-                        for (VariantDetail variantDetail: variantDetailList) {
-                            if (null != variantDetail.getProductId() && null != variantDetail.getProductShippingId()) {
-                                // 修改信息     删除shipMethodId 和   shipPrice
-                                // 调用  orderInitShipDetail 并根据该方法仿写一份用作批发订单
-                                orderItemService.updateAdminVariantByVariantId(variantDetail,tag);
-//                                wholesaleOrderItemService.updateItemByVariantId(variantDetail,tag);
+                    for (VariantDetail variantDetail: variantDetailList) {
+                        switch (tag){
+                            case "price":
+                                variantUpdatePrice(variantDetail);
                                 break;
-                            }
-                        }
-                    }else {
-                        for (VariantDetail variantDetail: variantDetailList) {
-                            if(tag.equals("price")){
-                                if (null == variantDetail.getUsdPrice()){
-                                    continue;
-                                }
-                                cartService.updatePriceByVariantId(variantDetail);
-                                stockOrderService.updatePriceByVariantId(variantDetail);
-                            }
-                            // 修改订单item信息  删除普通订单和批发订单得shipMethodId 和   shipPrice
-                            //  调用  orderInitShipDetail 并根据该方法仿写一份用作批发订单
-
-                            orderItemService.updateAdminVariantByVariantId(variantDetail,tag);
-//                            wholesaleOrderItemService.updateItemByVariantId(variantDetail,tag);
+                            default:
+                                orderItemService.updateAdminVariantByVariantId(variantDetail,tag);
+                                break;
                         }
                     }
+
 
                     if(null == mqMessageLog){
                         mqMessageLog = MqMessageLog.toMqMessageLog(message, String.valueOf(System.currentTimeMillis()));
@@ -145,5 +127,11 @@ public class VariantUpdateCusomer {
 
     void variantUpdateShippingId(List<VariantDetail> variantDetailList){
 
+    }
+
+    void variantUpdatePrice(VariantDetail variantDetail){
+        orderItemService.updateCustomOrderItemPrice(variantDetail.getVariantId(), variantDetail.getCnyPrice(),variantDetail.getUsdPrice());
+        cartService.updatePriceByVariantId(variantDetail);
+        stockOrderService.updatePriceByVariantId(variantDetail);
     }
 }

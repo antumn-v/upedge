@@ -10,7 +10,7 @@ import java.util.List;
 /**
  * @author xwCui
  */
-public interface OrderShippingUnitDao{
+public interface OrderShippingUnitDao {
 
     List<Long> selectOrderIdByOrderPaymentId(@Param("paymentId") Long paymentId,
                                              @Param("orderType") Integer orderType);
@@ -42,6 +42,8 @@ public interface OrderShippingUnitDao{
     int deleteOrderShippingUnit(@Param("id") Long id, @Param("orderType") int orderType, @Param("orderId") Long orderId);
 
     int delete(@Param("record") OrderShippingUnit record);
+
+    int deleteByOrderIds(@Param("orderIds") List<Long> orderIds, @Param("orderType") Integer orderType);
 
     void delByProductId(@Param("productId") Long productId, @Param("orderType") int orderType);
 

@@ -2720,23 +2720,12 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public void matchingShipInfoByProductId(List<OrderItem> list) {
-        for (OrderItem orderItem : list) {
-            orderInitShipDetail(orderItem.getOrderId());
+    public void orderInitShipDetailByIds(List<Long> ids) {
+        for (Long id : ids) {
+            orderInitShipDetail(id);
         }
     }
 
-    @Override
-    public void matchingShipInfoByVariantId(List<OrderItem> list) {
-        List<Long> orderIds = new ArrayList<>();
-        for (OrderItem orderItem : list) {
-            if (orderIds.contains(orderItem.getOrderId())) {
-                continue;
-            }
-            orderIds.add(orderItem.getOrderId());
-            orderInitShipDetail(orderItem.getOrderId());
-        }
-    }
 
     private ShippingTemplateRedis getOrderShipTemplate(Long orderId) {
         ShippingTemplateRedis shippingTemplateRedis = null;

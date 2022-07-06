@@ -254,7 +254,7 @@
         on oi.order_id = o.id
         set oi.${name} = #{value}
         where oi.admin_variant_id = #{adminVariantId}
-        and o.pay_state = '0'
+        and o.pay_state &lt; '1'
     </update>
 
     <update id="updateUsdPriceByAdminVariantId">
@@ -973,12 +973,12 @@
             </if>
 			order by o.pay_time desc
     </select>
-    <select id="selectOrderItemListByProduct" resultType="com.upedge.oms.modules.order.entity.OrderItem">
-         select DISTINCT oi.order_id from  `order_item` oi  inner join  `order` o on oi.order_id = o.id
-         WHERE  oi.admin_product_id = #{productId}  and  o.pay_state = 0
+    <select id="selectOrderItemListByProduct" resultType="java.lang.Long">
+         select DISTINCT oi.order_id from  `order` o  inner join `order_item` oi  on oi.order_id = o.id
+         WHERE  oi.admin_product_id = #{productId}  and  o.pay_state = 0 and o.quote_state = '3'
     </select>
-    <select id="selectOrderItemListByVariantId" resultType="com.upedge.oms.modules.order.entity.OrderItem">
-        select  DISTINCT oi.order_id from  `order_item` oi  inner join  `order` o on oi.order_id = o.id
+    <select id="selectOrderItemListByVariantId" resultType="java.lang.Long">
+        select  DISTINCT oi.order_id from `order` o  inner join `order_item` oi  on oi.order_id = o.id
          WHERE oi.admin_variant_id = #{variantId}  and  o.pay_state = 0 and o.quote_state = '3'
     </select>
 
@@ -1000,7 +1000,7 @@
         <foreach collection="storeVariantIds" item="storeVariantId" open="(" separator="," close=")">
             #{storeVariantId}
         </foreach>
-        and o.pay_state &lt; 1
+        and o.pay_state &lt; '1'
         and o.quote_state != '3'
         and oi.quote_state = '0'
     </update>
@@ -1160,5 +1160,15 @@
         set oi.discharge_quantity = '0'
         where o.payment_id = #{paymentId}
         and o.pay_state = '0'
+    </update>
+
+    <update id="updateCustomOrderItemPrice">
+        update `order` o
+            inner join `order_item` oi
+        on o.id = oi.order_id
+        set oi.cny_price = #{cnyPrice},usd_price = #{usdPrice}
+        where oi.admin_variant_id = #{variantId}
+        and o.pay_state &lt; '1'
+        and o.order_type = '4'
     </update>
 </mapper>

@@ -10,8 +10,6 @@ import com.upedge.common.model.product.RelateVariantVo;
 import com.upedge.common.model.product.VariantDetail;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.oms.modules.order.entity.OrderItem;
-import com.upedge.oms.modules.order.entity.StoreOrder;
-import com.upedge.oms.modules.order.entity.StoreOrderItem;
 import com.upedge.oms.modules.order.request.AirwallexRequest;
 import com.upedge.oms.modules.order.request.OrderItemQuoteRequest;
 import com.upedge.oms.modules.order.request.OrderItemUpdateQuantityRequest;
@@ -19,6 +17,7 @@ import com.upedge.oms.modules.order.vo.AirwallexVo;
 import com.upedge.oms.modules.order.vo.ItemDischargeQuantityVo;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 /**
@@ -78,6 +77,9 @@ public interface OrderItemService{
      * @return
      */
     List<AirwallexVo> airwallex(AirwallexRequest airwallexRequest);
+
+
+    int updateCustomOrderItemPrice(Long variantId,BigDecimal cnyPrice,BigDecimal usdPrice);
 
 
 }

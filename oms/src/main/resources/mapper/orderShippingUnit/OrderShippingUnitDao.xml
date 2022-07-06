@@ -508,4 +508,14 @@
         where osu.ship_unit_id = #{shipUnitId}
         and o.pay_state &lt; 1
     </delete>
+
+    <delete id="deleteByOrderIds">
+        delete
+            from  order_shipping_unit
+        where order_id in
+            <foreach collection="orderIds" item="orderId" open="(" close=")" separator=",">
+                #{orderId}
+            </foreach>
+        and order_type = #{orderType}
+    </delete>
 </mapper>

@@ -104,7 +104,7 @@ public class OrderItemServiceImpl implements OrderItemService {
 
     @Override
     public List<Long> selectOrderIdsByStoreOrderItemIds(List<Long> storeOrderItemIds) {
-        if (ListUtils.isNotEmpty(storeOrderItemIds)){
+        if (ListUtils.isNotEmpty(storeOrderItemIds)) {
             return orderItemDao.selectOrderIdsByStoreOrderItemIds(storeOrderItemIds);
         }
         return null;
@@ -113,15 +113,15 @@ public class OrderItemServiceImpl implements OrderItemService {
     @Override
     public int updateQuantityByStoreOrderItemId(Long storeOrderItemId, Integer quantity) {
         if (null != storeOrderItemId
-        && null != quantity){
-            orderItemDao.updateQuantityByStoreOrderItemId(storeOrderItemId,quantity);
+                && null != quantity) {
+            orderItemDao.updateQuantityByStoreOrderItemId(storeOrderItemId, quantity);
         }
         return 0;
     }
 
     @Override
     public List<OrderItem> selectByOrderId(Long orderId) {
-        if(null == orderId){
+        if (null == orderId) {
             return null;
         }
         return orderItemDao.selectItemByOrderId(orderId);
@@ -130,10 +130,10 @@ public class OrderItemServiceImpl implements OrderItemService {
     @Override
     public int updateImageNameByStoreVariantId(OrderItemUpdateImageNameRequest request) {
         if (StringUtils.isBlank(request.getName())
-        && StringUtils.isBlank(request.getImage())){
+                && StringUtils.isBlank(request.getImage())) {
             return 0;
         }
-        if (request.getStoreVariantId() == null){
+        if (request.getStoreVariantId() == null) {
             return 0;
         }
         return orderItemDao.updateImageNameByStoreVariantId(request);
@@ -145,17 +145,17 @@ public class OrderItemServiceImpl implements OrderItemService {
         Long itemId = request.getItemId();
         List<Long> orderIds = request.getOrderIds();
         if (ListUtils.isEmpty(orderIds)
-        && itemId == null) {
+                && itemId == null) {
             return BaseResponse.failed();
         }
         List<Long> storeVariantIds = new ArrayList<>();
-        if (ListUtils.isNotEmpty(orderIds)){
+        if (ListUtils.isNotEmpty(orderIds)) {
             storeVariantIds.addAll(orderItemDao.selectStoreVariantIdsByOrderIds(orderIds));
         }
-        if (itemId != null){
+        if (itemId != null) {
             OrderItem orderItem = orderItemDao.selectByPrimaryKey(itemId);
             if (orderItem != null
-            && orderItem.getQuoteState() == 0){
+                    && orderItem.getQuoteState() == 0) {
                 storeVariantIds.add(orderItem.getStoreVariantId());
             }
         }
@@ -211,42 +211,42 @@ public class OrderItemServiceImpl implements OrderItemService {
     @Transactional
     @Override
     public void updateItemQuoteDetail(CustomerProductQuoteVo customerProductQuoteVo) {
-        if (customerProductQuoteVo.getQuoteState() == null){
+        if (customerProductQuoteVo.getQuoteState() == null) {
             return;
         }
         //报价失败的产品
         if (customerProductQuoteVo.getQuoteState() == 0) {
             orderItemDao.cancelItemQuoteDetail(customerProductQuoteVo);
-        //报价成功的产品
-        }else if (customerProductQuoteVo.getQuoteState() == 1){
+            //报价成功的产品
+        } else if (customerProductQuoteVo.getQuoteState() == 1) {
             if (null == customerProductQuoteVo.getQuotePrice()) {
                 return;
             }
             BigDecimal usdPrice = PriceUtils.cnyToUsdByDefaultRate(customerProductQuoteVo.getQuotePrice());
             customerProductQuoteVo.setUsdPrice(usdPrice);
             orderItemDao.updateItemQuoteDetail(customerProductQuoteVo);
-        }else {
+        } else {
             //异常情况直接返回
             return;
         }
         Long storeVariantId = customerProductQuoteVo.getStoreVariantId();
         //查询该产品关联的未支付订单
         List<Long> orderIds = orderItemDao.selectUnpaidOrderIdByStoreVariantId(storeVariantId);
-        if (ListUtils.isEmpty(orderIds)){
+        if (ListUtils.isEmpty(orderIds)) {
             return;
         }
         //查询订单中是否包含报价中的产品
-        List<Long> quotingOrders = orderItemDao.selectOrderIdsByOrderIdsAndQuoteState(orderIds,OrderItem.QUOTE_STATE_QUOTING);
+        List<Long> quotingOrders = orderItemDao.selectOrderIdsByOrderIdsAndQuoteState(orderIds, OrderItem.QUOTE_STATE_QUOTING);
         if (ListUtils.isNotEmpty(quotingOrders)) {//标记订单为部分报价
             orderDao.updateQuoteStateByIds(quotingOrders, OrderConstant.QUOTE_STATE_QUOTING);
         }
         orderIds.removeAll(quotingOrders);
         //查询订单中是否包含未报价或报价失败的产品
-        if(ListUtils.isEmpty(orderIds)){
+        if (ListUtils.isEmpty(orderIds)) {
             return;
         }
         List<Long> partQuoteOrderIds = orderItemDao.selectUnQuoteItemOrderIdByOrderIds(orderIds);
-        if (ListUtils.isNotEmpty(partQuoteOrderIds)){
+        if (ListUtils.isNotEmpty(partQuoteOrderIds)) {
             orderDao.updateQuoteStateByIds(partQuoteOrderIds, OrderConstant.QUOTE_STATE_PART_UNQUOTED);
         }
         orderIds.removeAll(partQuoteOrderIds);
@@ -267,10 +267,10 @@ public class OrderItemServiceImpl implements OrderItemService {
     @Override
     public void updateSplitVariantItemQuoteDetail(CustomerProductQuoteVo customerProductQuoteVo) throws CustomerException {
 
-        if(customerProductQuoteVo == null
-        || customerProductQuoteVo.getStoreParentVariantId().equals(0L)
-        || customerProductQuoteVo.getStoreParentVariantId() == null
-        || customerProductQuoteVo.getQuoteState() == null){
+        if (customerProductQuoteVo == null
+                || customerProductQuoteVo.getStoreParentVariantId().equals(0L)
+                || customerProductQuoteVo.getStoreParentVariantId() == null
+                || customerProductQuoteVo.getQuoteState() == null) {
             return;
         }
         //0=新增  1=修改 2=父体新增拆分变体
@@ -278,41 +278,41 @@ public class OrderItemServiceImpl implements OrderItemService {
         //判断父体变体是否已报价  若已报价则无法操作
         Long storeParentVariantId = customerProductQuoteVo.getStoreParentVariantId();
         String key = "storeVariant:split:update:item:parent:" + storeParentVariantId;
-        boolean b = RedisUtil.lock(redisTemplate,key,10L,30*1000L);
-        if (!b){
+        boolean b = RedisUtil.lock(redisTemplate, key, 10L, 30 * 1000L);
+        if (!b) {
             throw new CustomerException(key + "---->获取锁失败");
         }
         Long storeVariantId = customerProductQuoteVo.getStoreVariantId();
-        List<Long> splitVariantIds = (List<Long>) redisTemplate.opsForHash().get(RedisKey.HASH_STORE_SPLIT_VARIANT,String.valueOf(storeParentVariantId));
+        List<Long> splitVariantIds = (List<Long>) redisTemplate.opsForHash().get(RedisKey.HASH_STORE_SPLIT_VARIANT, String.valueOf(storeParentVariantId));
         if (ListUtils.isEmpty(splitVariantIds)
-        || !splitVariantIds.contains(storeVariantId)){
+                || !splitVariantIds.contains(storeVariantId)) {
             return;
         }
-        OrderItem quoteItem = orderItemDao.selectByStoreVariantIdAndQuoteState(storeParentVariantId,OrderItem.QUOTE_STATE_QUOTED);
-        if (null != quoteItem){
+        OrderItem quoteItem = orderItemDao.selectByStoreVariantIdAndQuoteState(storeParentVariantId, OrderItem.QUOTE_STATE_QUOTED);
+        if (null != quoteItem) {
             return;
         }
-        OrderItem upedgeItem = orderItemDao.selectByStoreVariantIdAndQuoteState(storeParentVariantId,OrderItem.QUOTE_STATE_UPEDGE);
-        if (null != upedgeItem){
+        OrderItem upedgeItem = orderItemDao.selectByStoreVariantIdAndQuoteState(storeParentVariantId, OrderItem.QUOTE_STATE_UPEDGE);
+        if (null != upedgeItem) {
             return;
         }
         //判断父产品是否有订单
         List<Long> orderIds = orderItemDao.selectUnpaidOrderIdByStoreVariantId(storeParentVariantId);
-        if (ListUtils.isEmpty(orderIds)){
+        if (ListUtils.isEmpty(orderIds)) {
             //判断是否有产品需要更新信息
-            quoteItem = orderItemDao.selectByStoreVariantIdAndQuoteState(storeVariantId,null);
-            if (null != quoteItem){
+            quoteItem = orderItemDao.selectByStoreVariantIdAndQuoteState(storeVariantId, null);
+            if (null != quoteItem) {
                 if (customerProductQuoteVo.getQuoteState() == 0) {
                     orderItemDao.cancelItemQuoteDetail(customerProductQuoteVo);
                     //报价成功的产品
-                }else if (customerProductQuoteVo.getQuoteState() == 1){
+                } else if (customerProductQuoteVo.getQuoteState() == 1) {
                     if (null == customerProductQuoteVo.getQuotePrice()) {
                         return;
                     }
                     BigDecimal usdPrice = PriceUtils.cnyToUsdByDefaultRate(customerProductQuoteVo.getQuotePrice());
                     customerProductQuoteVo.setUsdPrice(usdPrice);
                     orderItemDao.updateItemQuoteDetail(customerProductQuoteVo);
-                }else {
+                } else {
                     //异常情况直接返回
                     return;
                 }
@@ -324,10 +324,10 @@ public class OrderItemServiceImpl implements OrderItemService {
             for (OrderStoreVariantIdsVo orderStoreVariantIdsVo : orderStoreVariantIdsVos) {
                 Long orderId = orderStoreVariantIdsVo.getOrderId();
                 List<Long> storeVariantIds = orderStoreVariantIdsVo.getStoreVariantIds();
-                if (storeVariantIds.contains(storeVariantId)){
+                if (storeVariantIds.contains(storeVariantId)) {
                     continue;
                 }
-                OrderItem orderItem = orderItemDao.selectByOrderIdAndStoreVariantId(orderId,storeVariantIds.get(0));
+                OrderItem orderItem = orderItemDao.selectByOrderIdAndStoreVariantId(orderId, storeVariantIds.get(0));
                 //更新item对象，重新插入数据库
                 orderItem.quoteProductToItem(customerProductQuoteVo);
                 orderItem.setStoreVariantImage(customerProductQuoteVo.getStoreVariantImage());
@@ -360,9 +360,9 @@ public class OrderItemServiceImpl implements OrderItemService {
 //                }
 //                type = 2;
 //            }
-        }else {
+        } else {
             //父变体有订单，删除订单里的副产品，插入子产品
-            variantFirstSplit(orderIds,customerProductQuoteVo,storeParentVariantId,true);
+            variantFirstSplit(orderIds, customerProductQuoteVo, storeParentVariantId, true);
         }
 //        switch (type){
 //            case 0:
@@ -375,21 +375,21 @@ public class OrderItemServiceImpl implements OrderItemService {
 //            default:
 //                return;
 //        }
-        if (ListUtils.isEmpty(orderIds)){
+        if (ListUtils.isEmpty(orderIds)) {
             return;
         }
         //查询订单中是否包含报价中的产品
-        List<Long> quotingOrders = orderItemDao.selectOrderIdsByOrderIdsAndQuoteState(orderIds,OrderItem.QUOTE_STATE_QUOTING);
+        List<Long> quotingOrders = orderItemDao.selectOrderIdsByOrderIdsAndQuoteState(orderIds, OrderItem.QUOTE_STATE_QUOTING);
         if (ListUtils.isNotEmpty(quotingOrders)) {//标记订单为部分报价
             orderDao.updateQuoteStateByIds(quotingOrders, OrderConstant.QUOTE_STATE_QUOTING);
         }
         orderIds.removeAll(quotingOrders);
-        if(ListUtils.isEmpty(orderIds)){
+        if (ListUtils.isEmpty(orderIds)) {
             return;
         }
         //查询订单中是否包含未报价或报价失败的产品
         List<Long> partQuoteOrderIds = orderItemDao.selectUnQuoteItemOrderIdByOrderIds(orderIds);
-        if (ListUtils.isNotEmpty(partQuoteOrderIds)){
+        if (ListUtils.isNotEmpty(partQuoteOrderIds)) {
             orderDao.updateQuoteStateByIds(partQuoteOrderIds, OrderConstant.QUOTE_STATE_PART_UNQUOTED);
         }
         orderIds.removeAll(partQuoteOrderIds);
@@ -404,7 +404,7 @@ public class OrderItemServiceImpl implements OrderItemService {
                 orderService.matchShipRule(orderId);
             }
         }
-        RedisUtil.unLock(redisTemplate,key);
+        RedisUtil.unLock(redisTemplate, key);
     }
 
     @Override
@@ -451,57 +451,41 @@ public class OrderItemServiceImpl implements OrderItemService {
     public void updateAdminVariantByVariantId(VariantDetail variantDetail, String tag) {
         String name = null;
         Object value = null;
-        List<OrderItem> list = null;
+        List<Long> list = null;
         switch (tag) {
-            case "price":
-                name = "cny_price";
-                value = variantDetail.getCnyPrice();
-                break;
             case "weight":
                 name = "admin_variant_weight";//重量
                 value = variantDetail.getWeight();
+                orderItemDao.updateAdminVariantDetailByVariantId(name, value, variantDetail.getVariantId());
+                list = orderItemDao.selectOrderItemListByVariantId(variantDetail.getVariantId());
                 break;
             case "volume":
-                name = "admin_variant_volume";//体积
-                value = variantDetail.getVolume();
-                break;
+                orderItemDao.updateVolumeByVariantId(variantDetail);
+                return;
             case "shippingId"://运输模板
-                if (null != variantDetail.getProductId() && null != variantDetail.getProductShippingId()) {
-                    // 修改订单item
-                    orderItemDao.updateShippingIdByAdminProductId(variantDetail.getProductShippingId(), variantDetail.getProductId());
-/*                     删除订单表运输信息
-                    orderService.delOrderShipInfoByProductId(variantDetail.getProductId());*/
-
-                    orderShippingUnitService.delByProductId(variantDetail.getProductId(), OrderType.NORMAL);
-                    list = orderItemDao.selectOrderItemListByProduct(variantDetail.getProductId());
-                    // 重新匹配运输规则
-                    orderService.matchingShipInfoByProductId(list);
+                if (null == variantDetail.getProductId()
+                        || null == variantDetail.getProductShippingId()) {
                     return;
                 }
+                // 修改订单item
+                orderItemDao.updateShippingIdByAdminProductId(variantDetail.getProductShippingId(), variantDetail.getProductId());
+                list = orderItemDao.selectOrderItemListByProduct(variantDetail.getProductId());
                 break;
             default:
                 return;
         }
-        if (null == value) {
-            return;
+
+        if (ListUtils.isNotEmpty(list)){
+            orderShippingUnitService.deleteByOrderIds(list, OrderType.NORMAL);
+            orderService.orderInitShipDetailByIds(list);
         }
-        orderItemDao.updateAdminVariantDetailByVariantId(name, value, variantDetail.getVariantId());
-        switch (tag){
-            case "price":
-                orderItemDao.updateUsdPriceByAdminVariantId(variantDetail.getVariantId(), variantDetail.getUsdPrice());
-                break;
-            case "volume":
-                orderItemDao.updateVolumeByVariantId(variantDetail);
-                break;
-            default:
-                break;
-        }
-        //未支付订单重新匹配运输方式
-        if (!tag.equals("price")) {
-            orderShippingUnitService.delByVariantId(variantDetail.getVariantId(), OrderType.NORMAL);
-            list = orderItemDao.selectOrderItemListByVariantId(variantDetail.getVariantId());
-            orderService.matchingShipInfoByVariantId(list);
-        }
+
+        return;
+
+//        //未支付订单重新匹配运输方式
+//        if (!tag.equals("price")) {
+//
+//        }
 
     }
 
@@ -585,20 +569,25 @@ public class OrderItemServiceImpl implements OrderItemService {
         return orderItemDao.airwallex(airwallexRequest);
     }
 
+    @Override
+    public int updateCustomOrderItemPrice(Long variantId, BigDecimal cnyPrice, BigDecimal usdPrice) {
+        return orderItemDao.updateCustomOrderItemPrice(variantId, cnyPrice, usdPrice);
+    }
 
-    public List<Long> variantFirstSplit(List<Long> orderIds,CustomerProductQuoteVo customerProductQuoteVo,Long storeParentVariantId,boolean shouldDelete){
+
+    public List<Long> variantFirstSplit(List<Long> orderIds, CustomerProductQuoteVo customerProductQuoteVo, Long storeParentVariantId, boolean shouldDelete) {
         //若父变体拥有订单，代表是新增的拆分变体，删除订单下的父体变体，将拆分变体插入到订单里面
-        Page<OrderItem> page= new Page<>();
+        Page<OrderItem> page = new Page<>();
         page.setT(new OrderItem());
         page.getT().setStoreVariantId(storeParentVariantId);
         page.setPageSize(-1);
         page.initFromNum();
         List<OrderItem> orderItems = select(page);
         for (OrderItem orderItem : orderItems) {
-            if (!orderIds.contains(orderItem.getOrderId())){
+            if (!orderIds.contains(orderItem.getOrderId())) {
                 continue;
             }
-            if (shouldDelete){
+            if (shouldDelete) {
                 //删除旧的item
                 Long oldId = orderItem.getId();
                 deleteByPrimaryKey(oldId);

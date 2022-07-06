@@ -48,8 +48,6 @@ public interface OrderShippingUnitService{
 
 //    void delOrderShipUnitAndShipMethod(List<Long> longs);
 
-    void delByProductId(Long productId, int orderType);
-
-    void delByVariantId(Long variantId, int orderType);
+    void deleteByOrderIds(List<Long> orderIds,Integer orderType);
 }
 

@@ -247,9 +247,8 @@ public interface OrderService{
 
     void delOrderShipInfoByVariantId(Long variantId);
 
-    void matchingShipInfoByProductId(List<OrderItem> list);
+    void orderInitShipDetailByIds(List<Long> ids);
 
-    void matchingShipInfoByVariantId(List<OrderItem> list);
 
     List<ShipDetail> orderLocalWarehouseShipMethods(Long orderId, Long areaId);
 
