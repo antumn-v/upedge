@@ -508,7 +508,8 @@
             en_name,
             `length`,
             width,
-            height
+            height,
+            purchase_sku
         </trim>
         values
         <foreach collection="list" item="item" index="index" separator=",">
@@ -529,7 +530,8 @@
                 #{item.enName},
                 #{item.length},
                 #{item.width},
-                #{item.height}
+                #{item.height},
+                #{item.purchaseSku}
             </trim>
         </foreach>
     </insert>

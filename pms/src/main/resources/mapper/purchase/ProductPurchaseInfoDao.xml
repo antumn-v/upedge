@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.upedge.pms.modules.purchase.dao.ProductPurchaseInfoDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.upedge.pms.modules.purchase.entity.ProductPurchaseInfo" id="BaseResultMap">
+        <result property="purchaseSku" column="purchase_sku"/>
+        <result property="purchaseLink" column="purchase_link"/>
+        <result property="supplierName" column="supplier_name"/>
+        <result property="specId" column="spec_id"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        `purchase_sku`,`purchase_link`,`supplier_name`,`spec_id`
+    </sql>
+
+    <select id="selectByPrimaryKey" parameterType="com.upedge.pms.modules.purchase.entity.ProductPurchaseInfo" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from product_purchase_info
+        where purchase_sku = #{purchaseSku}
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="com.upedge.pms.modules.purchase.entity.ProductPurchaseInfo">
+        delete from product_purchase_info
+        where purchase_sku = #{purchaseSku}
+    </delete>
+
+    <update id="updateByPrimaryKeySelective" parameterType="com.upedge.pms.modules.purchase.entity.ProductPurchaseInfo">
+        update product_purchase_info
+        <set>
+            <if test="purchaseLink != null">
+                purchase_link = #{purchaseLink},
+            </if>
+            <if test="supplierName != null">
+                supplier_name = #{supplierName},
+            </if>
+            <if test="specId != null">
+                spec_id = #{specId},
+            </if>
+        </set>
+        where purchase_sku = #{purchaseSku}
+    </update>
+
+    <update id="updateByPrimaryKey" parameterType="com.upedge.pms.modules.purchase.entity.ProductPurchaseInfo">
+        update product_purchase_info
+        <set>
+        purchase_sku = #{purchaseSku},
+        purchase_link = #{purchaseLink},
+        supplier_name = #{supplierName},
+        spec_id = #{specId},
+        </set>
+        where purchase_sku = #{purchaseSku}
+    </update>
+
+    <insert id="insert" keyColumn="purchase_sku" keyProperty="purchaseSku" parameterType="com.upedge.pms.modules.purchase.entity.ProductPurchaseInfo" useGeneratedKeys="true">
+        insert into product_purchase_info
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            purchase_sku,
+            purchase_link,
+            supplier_name,
+            spec_id
+        </trim>
+        values (
+        #{purchaseSku},
+        #{purchaseLink},
+        #{supplierName},
+        #{specId}
+        )
+    </insert>
+
+    <insert id="insertSelective"  keyColumn="purchase_sku" keyProperty="purchaseSku"  parameterType="com.upedge.pms.modules.purchase.entity.ProductPurchaseInfo" useGeneratedKeys="true">
+        insert into product_purchase_info
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="purchaseSku != null" >
+              purchase_sku
+            </if>
+            <if test="purchaseLink != null" >
+              purchase_link
+            </if>
+            <if test="supplierName != null" >
+              supplier_name
+            </if>
+            <if test="specId != null" >
+              spec_id
+            </if>
+
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="purchaseSku != null" >
+                #{purchaseSku}
+            </if>
+            <if test="purchaseLink != null" >
+                #{purchaseLink}
+            </if>
+            <if test="supplierName != null" >
+                #{supplierName}
+            </if>
+            <if test="specId != null" >
+                #{specId}
+            </if>
+
+        </trim>
+    </insert>
+
+    <insert id="insertByBatch" parameterType="java.util.List">
+        insert into product_purchase_info
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+           purchase_sku,
+           purchase_link,
+           supplier_name,
+           spec_id
+        </trim>
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+               #{item.purchaseSku},
+               #{item.purchaseLink},
+               #{item.supplierName},
+               #{item.specId}
+            </trim>
+        </foreach>
+    </insert>
+
+    <sql id="Query_Condition">
+        <if test="t != null">
+            where
+            <trim prefix=" " suffix=" " suffixOverrides=" and ">
+                1 = 1 and
+                    <if test="t.purchaseSku != null">
+                        purchase_sku = #{t.purchaseSku} and
+                    </if>
+                    <if test="t.purchaseLink != null">
+                        purchase_link = #{t.purchaseLink} and
+                    </if>
+                    <if test="t.supplierName != null">
+                        supplier_name = #{t.supplierName} and
+                    </if>
+                    <if test="t.specId != null">
+                        spec_id = #{t.specId} and
+                    </if>
+            </trim>
+        </if>
+    </sql>
+
+    <select id="select" parameterType="com.upedge.common.base.Page" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from product_purchase_info
+        <include refid="Query_Condition"/>
+        <if test="orderBy != null">
+            order by ${orderBy}
+        </if>
+        <if test="pageNum != null and pageSize != null">
+            limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+        </if>
+    </select>
+
+    <select id="count" parameterType="com.upedge.common.base.Page" resultType="java.lang.Long">
+        select
+        count(1)
+        from product_purchase_info
+        <include refid="Query_Condition"/>
+    </select>
+
+
+</mapper>

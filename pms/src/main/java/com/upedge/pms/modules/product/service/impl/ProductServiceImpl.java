@@ -38,6 +38,8 @@ import com.upedge.pms.modules.product.response.MultiReleaseResponse;
 import com.upedge.pms.modules.product.response.ProductListResponse;
 import com.upedge.pms.modules.product.service.*;
 import com.upedge.pms.modules.product.vo.*;
+import com.upedge.pms.modules.purchase.entity.ProductPurchaseInfo;
+import com.upedge.pms.modules.purchase.service.ProductPurchaseInfoService;
 import com.upedge.pms.modules.supplier.entity.Supplier;
 import com.upedge.pms.modules.supplier.service.SupplierService;
 import com.upedge.thirdparty.ali1688.vo.AlibabaProductVo;
@@ -120,6 +122,9 @@ public class ProductServiceImpl implements ProductService {
 
     @Autowired
     ProductLogService productLogService;
+
+    @Autowired
+    ProductPurchaseInfoService productPurchaseInfoService;
 
 
     /**
@@ -685,6 +690,8 @@ public class ProductServiceImpl implements ProductService {
     }
 
     public void addNewAlibabaProductVariants(List<ProductVariantVo> productVariantVoList, Long productId, AlibabaProductVo alibabaProductVo){
+        List<ProductPurchaseInfo> productPurchaseInfos = new ArrayList<>();
+
         String mainImage = alibabaProductVo.getProductImage();
         String supplierName = alibabaProductVo.getSupplierVo().getSupplierName();
         String purchaseLink = alibabaProductVo.getProductSku();
@@ -702,6 +709,13 @@ public class ProductServiceImpl implements ProductService {
             if (originalVariantIds.contains(productVariantVo.getOriginalVariantId())){
                 continue;
             }
+            ProductPurchaseInfo productPurchaseInfo = new ProductPurchaseInfo();
+            productPurchaseInfo.setPurchaseSku(productVariantVo.getVariantSku());
+            productPurchaseInfo.setPurchaseLink(purchaseLink);
+            productPurchaseInfo.setSupplierName(supplierName);
+            productPurchaseInfo.setSpecId(productVariantVo.getSpecId());
+            productPurchaseInfos.add(productPurchaseInfo);
+
             ProductVariant productVariant = new ProductVariant();
             BeanUtils.copyProperties(productVariantVo, productVariant);
             Long variantId = IdGenerate.nextId();
@@ -714,9 +728,7 @@ public class ProductServiceImpl implements ProductService {
             List<String> enNameList = productVariantVo.getVariantAttrVoList().stream().map(ProductVariantAttrVo::getVariantAttrEvalue).collect(Collectors.toList());
             productVariant.setCnName(cnNameList.toString());
             productVariant.setEnName(enNameList.toString());
-            productVariant.setSupplierName(supplierName);
-            productVariant.setPurchaseLink(purchaseLink);
-            productVariant.setSpecId(productVariantVo.getSpecId());
+            productVariant.setPurchaseSku(productVariantVo.getVariantSku());
             //变体价格
             productVariant.setVariantPrice(productVariantVo.getVariantPrice());
             productVariant.setUsdPrice(PriceUtils.cnyToUsdByDefaultRate(productVariant.getVariantPrice()));
@@ -742,6 +754,7 @@ public class ProductServiceImpl implements ProductService {
             });
         }
         if (ListUtils.isNotEmpty(productVariantList)){
+            productPurchaseInfoService.insertByBatch(productPurchaseInfos);
             productVariantService.insertByBatch(productVariantList);
         }
         if (ListUtils.isNotEmpty(productVariantAttrList)){
@@ -844,7 +857,6 @@ public class ProductServiceImpl implements ProductService {
                 list.add(saiheSkuVo);
                 productId = Long.parseLong(saiheSkuVo.getProductId());
             }
-
         } else {
             list = productVariantService.selectSaiheSkuVoByProductId(productId);
         }
@@ -975,7 +987,7 @@ public class ProductServiceImpl implements ProductService {
 
             return selectionProductVo;
         }).collect(Collectors.toList());
-        ;
+
         request.setTotal(total);
 
         ProductListResponse res = new ProductListResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS, selectionProductVoList, request);
