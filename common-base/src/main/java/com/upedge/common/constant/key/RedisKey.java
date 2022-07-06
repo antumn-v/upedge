@@ -141,4 +141,6 @@ public class RedisKey {
     public static final String HASH_ORDER_APP_CREATE_RESHIP_APPLICATION = "order:reship:application";
 
     public static final String HASH_STORE_FULFILLMENT_SERVICE_LOCATION = "store:fulfillment:service:location:";
+    //变体修改sku记录
+    public static final String HASH_VARIANT_UPDATE_SKU_LOG = "variant:update:sku:log";
 }

@@ -1,7 +1,6 @@
 package com.upedge.oms.modules.wholesale.service.impl;
 
 import com.upedge.common.base.Page;
-import com.upedge.common.constant.OrderType;
 import com.upedge.common.feign.PmsFeignClient;
 import com.upedge.common.model.product.VariantDetail;
 import com.upedge.oms.modules.order.vo.ItemDischargeQuantityVo;
@@ -94,7 +93,7 @@ public class WholesaleOrderItemServiceImpl implements WholesaleOrderItemService 
                     // 修改 订单item信息
                     wholesaleOrderItemDao.updateShippingIdByAdminProductId(variantDetail.getProductShippingId(), variantDetail.getProductId());
                     // 删除运输规则
-                    orderShippingUnitService.delByProductId(variantDetail.getProductId(), OrderType.WHOLESALE);
+//                    orderShippingUnitService.delByProductId(variantDetail.getProductId(), OrderType.WHOLESALE);
                     list = wholesaleOrderItemDao.selectOrderItemListByProduct(variantDetail.getProductId());
                     // 重新匹配运输规则
                     wholesaleOrderService.matchingShipInfoByProductId(list);
@@ -111,7 +110,7 @@ public class WholesaleOrderItemServiceImpl implements WholesaleOrderItemService 
         if (tag.equals("price")) {
             wholesaleOrderItemDao.updateAdminVariantDetailByVariantId("usd_price", variantDetail.getUsdPrice(), variantDetail.getVariantId());
         } else {
-            orderShippingUnitService.delByVariantId(variantDetail.getVariantId(), OrderType.WHOLESALE);
+//            orderShippingUnitService.delByVariantId(variantDetail.getVariantId(), OrderType.WHOLESALE);
             list = wholesaleOrderItemDao.selectOrderItemListByVariantId(variantDetail.getVariantId());
             // 重新匹配运输规则
             wholesaleOrderService.matchingShipInfoByVariantId(list);

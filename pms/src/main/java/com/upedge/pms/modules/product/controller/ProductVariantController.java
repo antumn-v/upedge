@@ -255,5 +255,12 @@ public class ProductVariantController {
         return null;
     }
 
+    @ApiOperation("修改sku")
+    @PostMapping("/updateSku")
+    public BaseResponse updateSku(@RequestBody@Valid ProductVariantUpdateSkuRequest request){
+        Session session = UserUtil.getSession(redisTemplate);
+        return productVariantService.updateSku(request,session);
+    }
+
 
 }

@@ -1,0 +1,10 @@
+package com.upedge.pms.modules.product.request;
+
+import com.upedge.common.base.Page;
+import com.upedge.pms.modules.product.entity.VariantSkuUpdateLog;
+
+/**
+ * @author gx
+ */
+public class VariantSkuUpdateLogListRequest extends Page<VariantSkuUpdateLog> {
+}

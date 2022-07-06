@@ -4,6 +4,7 @@ import com.upedge.common.base.BaseResponse;
 import com.upedge.common.base.Page;
 import com.upedge.common.constant.Constant;
 import com.upedge.common.constant.ResultCode;
+import com.upedge.common.constant.key.RedisKey;
 import com.upedge.common.exception.CustomerException;
 import com.upedge.common.model.pms.quote.CustomerProductQuoteVo;
 import com.upedge.common.model.product.VariantDetail;
@@ -13,20 +14,19 @@ import com.upedge.common.utils.ListUtils;
 import com.upedge.common.utils.PriceUtils;
 import com.upedge.pms.modules.product.dao.ProductLogDao;
 import com.upedge.pms.modules.product.dao.ProductVariantDao;
-import com.upedge.pms.modules.product.entity.Product;
-import com.upedge.pms.modules.product.entity.ProductLog;
-import com.upedge.pms.modules.product.entity.ProductVariant;
-import com.upedge.pms.modules.product.entity.ProductVariantAttr;
+import com.upedge.pms.modules.product.entity.*;
 import com.upedge.pms.modules.product.request.*;
 import com.upedge.pms.modules.product.response.*;
 import com.upedge.pms.modules.product.service.ProductService;
 import com.upedge.pms.modules.product.service.ProductVariantAttrService;
 import com.upedge.pms.modules.product.service.ProductVariantService;
+import com.upedge.pms.modules.product.service.VariantSkuUpdateLogService;
 import com.upedge.pms.modules.product.vo.SaiheSkuVo;
 import com.upedge.pms.modules.product.vo.VariantAttrVo;
 import com.upedge.pms.modules.product.vo.VariantValVo;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -49,6 +49,12 @@ public class ProductVariantServiceImpl implements ProductVariantService {
 
     @Autowired
     ProductLogDao productLogDao;
+
+    @Autowired
+    VariantSkuUpdateLogService variantSkuUpdateLogService;
+
+    @Autowired
+    RedisTemplate redisTemplate;
 
 
 
@@ -150,6 +156,30 @@ public class ProductVariantServiceImpl implements ProductVariantService {
         productVariantDao.updateByBatch(productVariantList);
         productVariantAttrService.updateByBatch(productVariantAttrList);
         return new ProductVariantUpdateAttrResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS);
+    }
+
+    @Override
+    public BaseResponse updateSku(ProductVariantUpdateSkuRequest request, Session session) {
+        String sku = request.getSku();
+        Long id = request.getId();
+        ProductVariant productVariant = selectByPrimaryKey(id);
+        if (null == productVariant){
+            return BaseResponse.failed("变体不存在");
+        }
+        if (productVariant.getVariantSku().equals(sku)){
+            return BaseResponse.success();
+        }
+        String oldSku = productVariant.getVariantSku();
+        productVariant = new ProductVariant();
+        productVariant.setVariantSku(sku);
+        productVariant.setId(id);
+        updateByPrimaryKeySelective(productVariant);
+
+        VariantSkuUpdateLog updateLog = new VariantSkuUpdateLog(id,sku,session.getId());
+        variantSkuUpdateLogService.insert(updateLog);
+
+        redisTemplate.opsForHash().put(RedisKey.HASH_VARIANT_UPDATE_SKU_LOG,oldSku,id);
+        return BaseResponse.success();
     }
 
     @Transactional
@@ -574,6 +604,10 @@ public class ProductVariantServiceImpl implements ProductVariantService {
     public ProductVariant selectBySku(String variantSku) {
         if (StringUtils.isBlank(variantSku)){
             return null;
+        }
+        Long id = (Long) redisTemplate.opsForHash().get(RedisKey.HASH_VARIANT_UPDATE_SKU_LOG,variantSku);
+        if (id != null){
+            return selectByPrimaryKey(id);
         }
         return productVariantDao.selectBySku(variantSku);
     }

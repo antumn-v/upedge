@@ -22,6 +22,8 @@ import java.util.Set;
  */
 public interface ProductVariantService{
 
+    BaseResponse updateSku(ProductVariantUpdateSkuRequest request,Session session);
+
     BaseResponse updateAttrs(ProductVariantUpdateRequest request,Session session);
 
     BaseResponse addVariant(ProductVariantAddRequest request,Session session);
