@@ -23,6 +23,8 @@ public class ProductVariantAddRequest{
     */
     @NotNull(message = "产品ID不能为空")
     private Long productId;
+
+    private String variantSku;
     /**
     * 变体图片
     */
@@ -42,19 +44,11 @@ public class ProductVariantAddRequest{
     */
     @NotNull
     private Integer state;
-    /**
-    * 变体中文名
-    */
-//    @NotNull(message = "变体中文名不能为空")
-//    private String cnName;
-//    /**
-//    * 变体英文名
-//    */
-//    @NotNull(message = "变体英文名不能为空")
-//    private String enName;
 
     @Size(min = 1,message = "变体属性不能为空")
     List<ProductVariantAttr> variantAttrs;
+
+    private String purchaseSku;
 
 
     public ProductVariant toProductVariant(){
@@ -62,7 +56,7 @@ public class ProductVariantAddRequest{
         productVariant.setId(IdGenerate.nextId());
         productVariant.setOriginalVariantId("0");
         productVariant.setProductId(productId);
-        productVariant.setVariantSku(IdGenerate.nextId().toString());
+        productVariant.setVariantSku(variantSku);
         productVariant.setVariantImage(variantImage);
         productVariant.setVariantPrice(variantPrice);
         productVariant.setUsdPrice(PriceUtils.cnyToUsdByDefaultRate(variantPrice));
@@ -74,7 +68,7 @@ public class ProductVariantAddRequest{
         productVariant.setLength(BigDecimal.ONE);
         productVariant.setWidth(BigDecimal.ONE);
         productVariant.setHeight(BigDecimal.ONE);
-
+        productVariant.setPurchaseSku(purchaseSku);
         List<String> cnNameList = variantAttrs.stream().map(ProductVariantAttr::getVariantAttrCvalue).collect(Collectors.toList());
         List<String> enNameList = variantAttrs.stream().map(ProductVariantAttr::getVariantAttrEvalue).collect(Collectors.toList());
         productVariant.setCnName(cnNameList.toString());

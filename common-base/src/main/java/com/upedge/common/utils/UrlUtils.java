@@ -50,6 +50,11 @@ public class UrlUtils {
             return null;
         }
         try {
+            try {
+                Long id = Long.parseLong(url);
+                return id.toString() ;
+            } catch (NumberFormatException e) {
+            }
             url=url.split("[?]")[0];
             //获取链接前缀
             String prefixes = url.substring(0, url.lastIndexOf("/"));
@@ -67,6 +72,6 @@ public class UrlUtils {
 
 
     public static void main(String[] args) {
-        System.out.println(UrlUtils.getNameByUrl("https://detail.1688.com/offer/566804255439.html"));
+        System.out.println(UrlUtils.getNameByUrl("566804255439"));
     }
 }

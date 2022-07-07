@@ -62,6 +62,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.stream.Collectors;
 
@@ -200,7 +201,7 @@ public class ProductServiceImpl implements ProductService {
         }
         String productSku = request.getProductSku();
         product.setProductSource(productSource);
-        updateProductSku(product, productSku);
+        updateProductSku(product, productSku,session);
         BeanUtils.copyProperties(request,product);
         productDao.updateByPrimaryKeySelective(product);
 //        if (!StringUtils.isBlank(request.getEntryCname()) || !StringUtils.isBlank(request.getEntryCname())
@@ -231,7 +232,7 @@ public class ProductServiceImpl implements ProductService {
         return new BaseResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS);
     }
 
-    void updateProductSku(Product product, String productSku) {
+    void updateProductSku(Product product, String productSku,Session session) {
         if (product.getProductSource() == 0) {
             return;
         }
@@ -240,7 +241,15 @@ public class ProductServiceImpl implements ProductService {
             if (StringUtils.isNotBlank(productSku)) {
                 AlibabaApiVo alibabaApiVo = (AlibabaApiVo) redisTemplate.opsForValue().get(RedisKey.STRING_ALI1688_API);
                 AlibabaProductVo alibabaProductVo = Ali1688Service.getProduct(productSku, alibabaApiVo);
+
+
                 if (null != alibabaProductVo) {
+                    CompletableFuture.runAsync(new Runnable() {
+                        @Override
+                        public void run() {
+                            importFrom1688(alibabaProductVo,session.getId());
+                        }
+                    },threadPoolExecutor);
                     Supplier supplier = supplierService.selectByLoginId(alibabaProductVo.getSupplierVo().getLoginId());
                     if (supplier == null) {
                         supplier = new Supplier();
@@ -585,11 +594,11 @@ public class ProductServiceImpl implements ProductService {
 
     @Transactional
     @Override
-    public BaseResponse importFrom1688(AlibabaProductVo alibabaProductVo, Session session) {
+    public BaseResponse importFrom1688(AlibabaProductVo alibabaProductVo, Long operatorId) {
 
         Product p = selectByOriginalId(alibabaProductVo.getProductSku());
         if (null == p){
-            addNewProduct(alibabaProductVo,session);
+            addNewProduct(alibabaProductVo,operatorId);
         }else {
             updateAlibabaProduct(alibabaProductVo, p.getId());
         }
@@ -597,8 +606,28 @@ public class ProductServiceImpl implements ProductService {
 
     }
 
+    @Override
+    public BaseResponse importFrom1688Url(String url, Long operatorId) {
+        String aliProductId = "";
+        if (!StringUtils.isBlank(url)) {
+            aliProductId = UrlUtils.getNameByUrl(url);
+        }
+        if (StringUtils.isBlank(aliProductId)) {
+            return new BaseResponse(ResultCode.FAIL_CODE, Constant.MESSAGE_FAIL);
+        }
+        AlibabaApiVo alibabaApiVo = (AlibabaApiVo) redisTemplate.opsForValue().get(RedisKey.STRING_ALI1688_API);
+        AlibabaProductVo alibabaProductVo = Ali1688Service.getProduct(aliProductId, alibabaApiVo);
+        if (alibabaProductVo == null) {
+            return new BaseResponse(ResultCode.FAIL_CODE, Constant.MESSAGE_FAIL);
+        }
+        return importFrom1688(alibabaProductVo, operatorId);
+    }
 
-    public void addNewProduct(AlibabaProductVo alibabaProductVo, Session session){
+
+    public void addNewProduct(AlibabaProductVo alibabaProductVo,Long operatorId){
+        if (null == operatorId){
+            operatorId = 0L;
+        }
         Long productId = IdGenerate.nextId();
         //产品供应商
         Supplier supplier = supplierService.selectByLoginId(alibabaProductVo.getSupplierVo().getLoginId());
@@ -636,9 +665,7 @@ public class ProductServiceImpl implements ProductService {
         product.setCreateTime(new Date());
         product.setUpdateTime(new Date());
         //有session记录导入人
-        if (session != null) {
-            product.setUserId(String.valueOf(session.getId()));
-        }
+        product.setUserId(operatorId);
         product.setItemNo(alibabaProductVo.getProductAttributeVo().getItemNo());
         productDao.insert(product);
 

@@ -2,6 +2,7 @@ package com.upedge.pms.modules.purchase.service.impl;
 
 import com.upedge.common.base.Page;
 import com.upedge.common.utils.ListUtils;
+import com.upedge.pms.modules.product.service.ProductService;
 import com.upedge.pms.modules.purchase.dao.ProductPurchaseInfoDao;
 import com.upedge.pms.modules.purchase.entity.ProductPurchaseInfo;
 import com.upedge.pms.modules.purchase.service.ProductPurchaseInfoService;
@@ -17,6 +18,9 @@ public class ProductPurchaseInfoServiceImpl implements ProductPurchaseInfoServic
 
     @Autowired
     private ProductPurchaseInfoDao productPurchaseInfoDao;
+
+    @Autowired
+    ProductService productService;
 
 
 
@@ -83,6 +87,11 @@ public class ProductPurchaseInfoServiceImpl implements ProductPurchaseInfoServic
     *
     */
     public List<ProductPurchaseInfo> select(Page<ProductPurchaseInfo> record){
+        ProductPurchaseInfo productPurchaseInfo = record.getT();
+        if (productPurchaseInfo != null
+        && productPurchaseInfo.getPurchaseLink() != null){
+            productService.importFrom1688Url(productPurchaseInfo.getPurchaseLink(),0L);
+        }
         record.initFromNum();
         return productPurchaseInfoDao.select(record);
     }

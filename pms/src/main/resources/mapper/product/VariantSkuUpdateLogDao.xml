@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.upedge.pms.modules.product.dao.VariantSkuUpdateLogDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.upedge.pms.modules.product.entity.VariantSkuUpdateLog" id="BaseResultMap">
+        <result property="variantSku" column="variant_sku"/>
+        <result property="variantId" column="variant_id"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="operatorId" column="operator_id"/>
+        <result property="skuType" column="sku_type"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        `variant_sku`,`variant_id`,`update_time`,`operator_id`,`sku_type`
+    </sql>
+
+    <select id="selectByPrimaryKey" parameterType="com.upedge.pms.modules.product.entity.VariantSkuUpdateLog" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from variant_sku_update_log
+        where variant_sku = #{variantSku}
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="com.upedge.pms.modules.product.entity.VariantSkuUpdateLog">
+        delete from variant_sku_update_log
+        where variant_sku = #{variantSku}
+    </delete>
+
+    <update id="updateByPrimaryKeySelective" parameterType="com.upedge.pms.modules.product.entity.VariantSkuUpdateLog">
+        update variant_sku_update_log
+        <set>
+            <if test="variantId != null">
+                variant_id = #{variantId},
+            </if>
+            <if test="updateTime != null">
+                update_time = #{updateTime},
+            </if>
+            <if test="operatorId != null">
+                operator_id = #{operatorId},
+            </if>
+            <if test="skuType != null">
+                sku_type = #{skuType},
+            </if>
+        </set>
+        where variant_sku = #{variantSku}
+    </update>
+
+    <update id="updateByPrimaryKey" parameterType="com.upedge.pms.modules.product.entity.VariantSkuUpdateLog">
+        update variant_sku_update_log
+        <set>
+        variant_sku = #{variantSku},
+        variant_id = #{variantId},
+        update_time = #{updateTime},
+        operator_id = #{operatorId},
+        sku_type = #{skuType},
+        </set>
+        where variant_sku = #{variantSku}
+    </update>
+
+    <insert id="insert" keyColumn="variant_sku" keyProperty="variantSku" parameterType="com.upedge.pms.modules.product.entity.VariantSkuUpdateLog" useGeneratedKeys="true">
+        insert into variant_sku_update_log
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            variant_sku,
+            variant_id,
+            update_time,
+            operator_id,
+            sku_type
+        </trim>
+        values (
+        #{variantSku},
+        #{variantId},
+        #{updateTime},
+        #{operatorId},
+        #{skuType}
+        )
+    </insert>
+
+    <insert id="insertSelective"  keyColumn="variant_sku" keyProperty="variantSku"  parameterType="com.upedge.pms.modules.product.entity.VariantSkuUpdateLog" useGeneratedKeys="true">
+        insert into variant_sku_update_log
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="variantSku != null" >
+              variant_sku
+            </if>
+            <if test="variantId != null" >
+              variant_id
+            </if>
+            <if test="updateTime != null" >
+              update_time
+            </if>
+            <if test="operatorId != null" >
+              operator_id
+            </if>
+            <if test="skuType != null" >
+              sku_type
+            </if>
+
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="variantSku != null" >
+                #{variantSku}
+            </if>
+            <if test="variantId != null" >
+                #{variantId}
+            </if>
+            <if test="updateTime != null" >
+                #{updateTime}
+            </if>
+            <if test="operatorId != null" >
+                #{operatorId}
+            </if>
+            <if test="skuType != null" >
+                #{skuType}
+            </if>
+
+        </trim>
+    </insert>
+
+    <insert id="insertByBatch" parameterType="java.util.List">
+        insert into variant_sku_update_log
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+           variant_sku,
+           variant_id,
+           update_time,
+           operator_id,
+           sku_type
+        </trim>
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+               #{item.variantSku},
+               #{item.variantId},
+               #{item.updateTime},
+               #{item.operatorId},
+               #{item.skuType}
+            </trim>
+        </foreach>
+    </insert>
+
+    <sql id="Query_Condition">
+        <if test="t != null">
+            where
+            <trim prefix=" " suffix=" " suffixOverrides=" and ">
+                1 = 1 and
+                    <if test="t.variantSku != null">
+                        variant_sku = #{t.variantSku} and
+                    </if>
+                    <if test="t.variantId != null">
+                        variant_id = #{t.variantId} and
+                    </if>
+                    <if test="t.updateTime != null">
+                        update_time = #{t.updateTime} and
+                    </if>
+                    <if test="t.operatorId != null">
+                        operator_id = #{t.operatorId} and
+                    </if>
+                    <if test="t.skuType != null">
+                        sku_type = #{t.skuType} and
+                    </if>
+            </trim>
+        </if>
+    </sql>
+
+    <select id="select" parameterType="com.upedge.common.base.Page" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from variant_sku_update_log
+        <include refid="Query_Condition"/>
+        <if test="orderBy != null">
+            order by ${orderBy}
+        </if>
+        <if test="pageNum != null and pageSize != null">
+            limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+        </if>
+    </select>
+
+    <select id="count" parameterType="com.upedge.common.base.Page" resultType="java.lang.Long">
+        select
+        count(1)
+        from variant_sku_update_log
+        <include refid="Query_Condition"/>
+    </select>
+
+
+</mapper>

@@ -5,17 +5,13 @@ import com.upedge.common.base.Page;
 import com.upedge.common.component.annotation.Permission;
 import com.upedge.common.constant.Constant;
 import com.upedge.common.constant.ResultCode;
-import com.upedge.common.constant.key.RedisKey;
 import com.upedge.common.exception.CustomerException;
 import com.upedge.common.feign.OmsFeignClient;
 import com.upedge.common.model.cart.request.CartAddRequest;
-import com.upedge.common.model.product.AlibabaApiVo;
 import com.upedge.common.model.product.VariantDetail;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.utils.UploadImgUtil;
-import com.upedge.common.utils.UrlUtils;
 import com.upedge.common.web.util.UserUtil;
-import com.upedge.pms.modules.alibaba.service.Ali1688Service;
 import com.upedge.pms.modules.product.dto.ProductListDto;
 import com.upedge.pms.modules.product.entity.Product;
 import com.upedge.pms.modules.product.entity.ProductVariant;
@@ -27,7 +23,6 @@ import com.upedge.pms.modules.product.service.ProductVariantService;
 import com.upedge.pms.modules.product.vo.AddProductVo;
 import com.upedge.pms.modules.product.vo.AppProductVo;
 import com.upedge.pms.modules.product.vo.ProductVo;
-import com.upedge.thirdparty.ali1688.vo.AlibabaProductVo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -71,25 +66,8 @@ public class ProductController {
     @ApiOperation("1688导入产品")
     @RequestMapping(value = "/importFrom1688", method = RequestMethod.POST)
     public BaseResponse importFrom1688(@RequestBody ImportFrom1688Request request) {
-        if (!StringUtils.isBlank(request.getUrl())) {
-            String aliProductId = UrlUtils.getNameByUrl(request.getUrl());
-            request.setOriginalProductId(aliProductId);
-        }
-        if (StringUtils.isBlank(request.getOriginalProductId())) {
-            return new BaseResponse(ResultCode.FAIL_CODE, Constant.MESSAGE_FAIL);
-        }
-
-        AlibabaApiVo alibabaApiVo = (AlibabaApiVo) redisTemplate.opsForValue().get(RedisKey.STRING_ALI1688_API);
-        AlibabaProductVo alibabaProductVo = Ali1688Service.getProduct(request.getOriginalProductId(), alibabaApiVo);
         Session session = UserUtil.getSession(redisTemplate);
-        if (alibabaProductVo == null) {
-            return new BaseResponse(ResultCode.FAIL_CODE, Constant.MESSAGE_FAIL);
-        }
-        try {
-            return productService.importFrom1688(alibabaProductVo, session);
-        } catch (Exception e) {
-            return new BaseResponse(ResultCode.FAIL_CODE, e.getMessage());
-        }
+        return productService.importFrom1688Url(request.getUrl(),session.getId());
     }
 
     @ApiOperation("产品展示详情")
@@ -164,7 +142,7 @@ public class ProductController {
             request.setT(product);
         }
         Product p = request.getT();
-        p.setUserId(String.valueOf(session.getId()));
+        p.setUserId(session.getId());
         p.setState(1);
         request.setFields("p.id,p.product_sku,p.product_title,p.product_image,p.create_time,p.user_id,p.cate_type," +
                 "p.update_time");

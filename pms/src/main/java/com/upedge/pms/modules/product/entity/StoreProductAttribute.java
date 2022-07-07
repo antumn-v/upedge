@@ -111,7 +111,7 @@ public class StoreProductAttribute {
         product.setProductType(1);
         product.setReplaceState(0);
         product.setCateType(0);
-        product.setUserId(managerId.toString());
+        product.setUserId(managerId);
         product.setCreateTime(new Date());
         product.setUpdateTime(new Date());
         product.setPriceRange(this.price);

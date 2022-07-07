@@ -42,7 +42,9 @@ public interface ProductService{
 
     ProductVo productDetail(Long id);
 
-    BaseResponse importFrom1688(AlibabaProductVo AlibabaProductVo, Session session);
+    BaseResponse importFrom1688(AlibabaProductVo AlibabaProductVo, Long operatorId);
+
+    BaseResponse importFrom1688Url(String url, Long operatorId);
 
     Product selectByProductSku(String productSku);
 

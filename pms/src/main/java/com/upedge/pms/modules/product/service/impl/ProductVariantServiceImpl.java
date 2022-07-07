@@ -24,6 +24,8 @@ import com.upedge.pms.modules.product.service.VariantSkuUpdateLogService;
 import com.upedge.pms.modules.product.vo.SaiheSkuVo;
 import com.upedge.pms.modules.product.vo.VariantAttrVo;
 import com.upedge.pms.modules.product.vo.VariantValVo;
+import com.upedge.pms.modules.purchase.entity.ProductPurchaseInfo;
+import com.upedge.pms.modules.purchase.service.ProductPurchaseInfoService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -52,6 +54,9 @@ public class ProductVariantServiceImpl implements ProductVariantService {
 
     @Autowired
     VariantSkuUpdateLogService variantSkuUpdateLogService;
+
+    @Autowired
+    ProductPurchaseInfoService productPurchaseInfoService;
 
     @Autowired
     RedisTemplate redisTemplate;
@@ -158,16 +163,51 @@ public class ProductVariantServiceImpl implements ProductVariantService {
         return new ProductVariantUpdateAttrResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS);
     }
 
+    @Transactional
     @Override
     public BaseResponse updateSku(ProductVariantUpdateSkuRequest request, Session session) {
-        String sku = request.getSku();
+        String sku = request.getVariantSku();
+        String purchaseSku = request.getPurchaseSku();
         Long id = request.getId();
         ProductVariant productVariant = selectByPrimaryKey(id);
         if (null == productVariant){
             return BaseResponse.failed("变体不存在");
         }
+        if (StringUtils.isNotBlank(sku)){
+            updateVariantSku(sku,id,productVariant,session);
+        }
+        if (StringUtils.isNotBlank(purchaseSku)){
+            updatePurchaseSku(purchaseSku,id,productVariant,session);
+        }
+        return BaseResponse.success();
+    }
+
+    public void updatePurchaseSku(String purchaseSku,Long id,ProductVariant productVariant, Session session){
+        if (null == productVariant){
+            return;
+        }
+        if (productVariant.getPurchaseSku().equals(purchaseSku)){
+            return ;
+        }
+        ProductPurchaseInfo productPurchaseInfo = productPurchaseInfoService.selectByPrimaryKey(purchaseSku);
+        if (null == productPurchaseInfo){
+            return;
+        }
+        productVariant = new ProductVariant();
+        productVariant.setPurchaseSku(purchaseSku);
+        productVariant.setId(id);
+        updateByPrimaryKeySelective(productVariant);
+
+        VariantSkuUpdateLog updateLog = new VariantSkuUpdateLog(id,purchaseSku,session.getId(),1);
+        variantSkuUpdateLogService.insert(updateLog);
+    }
+
+    public void updateVariantSku(String sku,Long id,ProductVariant productVariant, Session session) {
+        if (null == productVariant){
+            return;
+        }
         if (productVariant.getVariantSku().equals(sku)){
-            return BaseResponse.success();
+            return ;
         }
         String oldSku = productVariant.getVariantSku();
         productVariant = new ProductVariant();
@@ -175,11 +215,10 @@ public class ProductVariantServiceImpl implements ProductVariantService {
         productVariant.setId(id);
         updateByPrimaryKeySelective(productVariant);
 
-        VariantSkuUpdateLog updateLog = new VariantSkuUpdateLog(id,sku,session.getId());
+        VariantSkuUpdateLog updateLog = new VariantSkuUpdateLog(id,sku,session.getId(),0);
         variantSkuUpdateLogService.insert(updateLog);
 
         redisTemplate.opsForHash().put(RedisKey.HASH_VARIANT_UPDATE_SKU_LOG,oldSku,id);
-        return BaseResponse.success();
     }
 
     @Transactional

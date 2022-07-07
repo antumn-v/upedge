@@ -74,7 +74,7 @@ public class Product{
 	/**
 	 * 导入/创建 人
 	 */
-    private String userId;
+    private Long userId;
 	/**
 	 * 创建时间
 	 */

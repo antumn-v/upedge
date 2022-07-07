@@ -25,13 +25,17 @@ public class VariantSkuUpdateLog{
 
 	private Long operatorId;
 
+	//0=采购sku 1=报价sku
+	private Integer skuType;
+
 	public VariantSkuUpdateLog() {
 	}
 
-	public VariantSkuUpdateLog(Long variantId, String variantSku,  Long operatorId) {
+	public VariantSkuUpdateLog(Long variantId, String variantSku,  Long operatorId,Integer skuType) {
 		this.variantId = variantId;
 		this.variantSku = variantSku;
 		this.updateTime = new Date();
 		this.operatorId = operatorId;
+		this.skuType = skuType;
 	}
 }
