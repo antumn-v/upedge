@@ -1,7 +1,10 @@
 package com.upedge.pms.modules.purchase.service.impl;
 
+import com.upedge.common.base.BaseResponse;
 import com.upedge.common.base.Page;
 import com.upedge.common.utils.ListUtils;
+import com.upedge.common.utils.UrlUtils;
+import com.upedge.pms.modules.product.entity.Product;
 import com.upedge.pms.modules.product.service.ProductService;
 import com.upedge.pms.modules.purchase.dao.ProductPurchaseInfoDao;
 import com.upedge.pms.modules.purchase.entity.ProductPurchaseInfo;
@@ -58,6 +61,13 @@ public class ProductPurchaseInfoServiceImpl implements ProductPurchaseInfoServic
         return productPurchaseInfoDao.insert(record);
     }
 
+    @Override
+    public BaseResponse purchaseSkuDetailList(String purchaseLink) {
+        String id = UrlUtils.getNameByUrl(purchaseLink);
+        Product product = productService.selectByProductSku(id);
+        return null;
+    }
+
     /**
      *
      */
@@ -87,10 +97,14 @@ public class ProductPurchaseInfoServiceImpl implements ProductPurchaseInfoServic
     *
     */
     public List<ProductPurchaseInfo> select(Page<ProductPurchaseInfo> record){
+        record.setPageSize(-1);
         ProductPurchaseInfo productPurchaseInfo = record.getT();
         if (productPurchaseInfo != null
         && productPurchaseInfo.getPurchaseLink() != null){
-            productService.importFrom1688Url(productPurchaseInfo.getPurchaseLink(),0L);
+            String id = UrlUtils.getNameByUrl(productPurchaseInfo.getPurchaseLink());
+            productService.importFrom1688Url(id,0L);
+            productPurchaseInfo.setPurchaseLink(id);
+            record.setT(productPurchaseInfo);
         }
         record.initFromNum();
         return productPurchaseInfoDao.select(record);

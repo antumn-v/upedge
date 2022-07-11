@@ -351,16 +351,6 @@ public class ProductServiceImpl implements ProductService {
         BeanUtils.copyProperties(product, adminProductVo);
         //开启异步任务 获取属性
 
-//        ProductAttribute productAttribute = productAttributeService.selectByProductId(id);
-//        if (productAttribute == null) {
-//            productAttribute = new ProductAttribute();
-//            productAttribute.setProductId(id);
-//            productAttribute.setWarehouseCode(SaiheConfig.UPEDGE_DEFAULT_WAREHOUSE_ID);
-//            productAttributeService.insert(productAttribute);
-//        }
-//        adminProductVo.setProductAttribute(productAttribute);
-
-
         //开启异步任务  获取图片列表
 
         List<ProductImg> productImgList = productImgService.selectByProductId(id);
@@ -736,12 +726,6 @@ public class ProductServiceImpl implements ProductService {
             if (originalVariantIds.contains(productVariantVo.getOriginalVariantId())){
                 continue;
             }
-            ProductPurchaseInfo productPurchaseInfo = new ProductPurchaseInfo();
-            productPurchaseInfo.setPurchaseSku(productVariantVo.getVariantSku());
-            productPurchaseInfo.setPurchaseLink(purchaseLink);
-            productPurchaseInfo.setSupplierName(supplierName);
-            productPurchaseInfo.setSpecId(productVariantVo.getSpecId());
-            productPurchaseInfos.add(productPurchaseInfo);
 
             ProductVariant productVariant = new ProductVariant();
             BeanUtils.copyProperties(productVariantVo, productVariant);
@@ -779,6 +763,16 @@ public class ProductServiceImpl implements ProductService {
                 productVariantAttr.setVariantId(variantId);
                 productVariantAttrList.add(productVariantAttr);
             });
+
+            ProductPurchaseInfo productPurchaseInfo = new ProductPurchaseInfo();
+            productPurchaseInfo.setPurchaseSku(productVariantVo.getVariantSku());
+            productPurchaseInfo.setVariantImage(productVariant.getVariantImage());
+            productPurchaseInfo.setVariantName(productVariant.getCnName());
+            productPurchaseInfo.setPurchaseLink(purchaseLink);
+            productPurchaseInfo.setSupplierName(supplierName);
+            productPurchaseInfo.setSpecId(productVariantVo.getSpecId());
+            productPurchaseInfos.add(productPurchaseInfo);
+
         }
         if (ListUtils.isNotEmpty(productVariantList)){
             productPurchaseInfoService.insertByBatch(productPurchaseInfos);

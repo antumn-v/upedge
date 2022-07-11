@@ -696,11 +696,11 @@ public class OrderPayServiceImpl implements OrderPayService {
     }
 
     public void payOrderAsync(Long userId, Long customerId, Long paymentId, Integer payMethod) {
-        sendSaveTransactionRecordMessage(paymentId, customerId, userId, payMethod);
+//        sendSaveTransactionRecordMessage(paymentId, customerId, userId, payMethod);
         // 订单上传赛盒 放在 sendSaveTransactionRecordMessage的消費端
 //        mqOnSaiheService.uploadPaymentIdOnMq(paymentId, OrderType.NORMAL);
         customerStockRecordService.saveDischargeStockRecordByPaymentId(customerId, paymentId, OrderType.NORMAL);
-//        customerProductSalesLogService.saveProductSaleRecord(paymentId, OrderType.NORMAL, customerId, new Date());
+        customerProductSalesLogService.saveProductSaleRecord(paymentId, OrderType.NORMAL, customerId, new Date());
 //        List<AppOrderVo> orderVos = orderDao.selectPayOrderListByPaymentId(paymentId);
 //        if (ListUtils.isNotEmpty(orderVos)) {
 //            for (AppOrderVo orderVo : orderVos) {

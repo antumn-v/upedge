@@ -34,6 +34,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.stream.Collectors;
 
 
@@ -60,6 +62,9 @@ public class ProductVariantServiceImpl implements ProductVariantService {
 
     @Autowired
     RedisTemplate redisTemplate;
+
+    @Autowired
+    ThreadPoolExecutor threadPoolExecutor;
 
 
 
@@ -572,9 +577,34 @@ public class ProductVariantServiceImpl implements ProductVariantService {
 
     @Override
     public List<ProductVariant> selectByProductId(Long productId) {
-        List<ProductVariant> productVariants = productVariantDao.selectByProductId(productId);
+        Map<String,Object> map = new HashMap<>();
+        CompletableFuture<Void> variants = CompletableFuture.runAsync(new Runnable() {
+            @Override
+            public void run() {
+                List<ProductVariant> productVariants = productVariantDao.selectByProductId(productId);
+                map.put("variants",productVariants);
+            }
+        },threadPoolExecutor);
+
+        CompletableFuture<Void> attributes = CompletableFuture.runAsync(new Runnable() {
+            @Override
+            public void run() {
+                List<ProductVariantAttr> variantAttrs = productVariantAttrService.selectByProductId(productId);
+                map.put("attrs",variantAttrs);
+            }
+        },threadPoolExecutor);
+
+        try {
+            CompletableFuture.allOf(variants,attributes).get();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ArrayList<>();
+        }
+        List<ProductVariant> productVariants = (List<ProductVariant>) map.get("variants");
+        List<ProductVariantAttr> variantAttrs = (List<ProductVariantAttr>) map.get("attrs");
+
         if (ListUtils.isNotEmpty(productVariants)){
-            List<ProductVariantAttr> variantAttrs = productVariantAttrService.selectByProductId(productId);
+
             for (ProductVariant productVariant : productVariants) {
                 if (null == productVariant.getLatestQuotePrice()){
                     productVariant.setLatestQuotePrice(BigDecimal.ZERO);

@@ -8,6 +8,7 @@
         <result property="originalVariantId" column="original_variant_id"/>
         <result property="productId" column="product_id"/>
         <result property="variantSku" column="variant_sku"/>
+        <result property="purchaseSku" column="purchase_sku"/>
         <result property="variantImage" column="variant_image"/>
         <result property="variantPrice" column="variant_price"/>
         <result property="usdPrice" column="usd_price"/>
@@ -59,11 +60,10 @@
         </collection>
     </resultMap>
     <sql id="Base_Column_List">
-        `id`
-                ,`original_variant_id`,`product_id`,`variant_sku`,`variant_image`,
+        `id`,`original_variant_id`,`product_id`,`variant_sku`,`variant_image`,
         `variant_price`,`usd_price`,`inventory`,`weight`,`state`,`volume_weight`,
         `variant_type`,`cn_name`,`en_name`,`length`,`width`,`height`,
-        `latest_quote_price`,`saihe_sku`
+        `latest_quote_price`,`saihe_sku`,ifnull(`purchase_sku`,'') as `purchase_sku`
     </sql>
 
 

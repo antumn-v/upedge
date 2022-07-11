@@ -9,10 +9,12 @@
         <result property="purchaseLink" column="purchase_link"/>
         <result property="supplierName" column="supplier_name"/>
         <result property="specId" column="spec_id"/>
+        <result property="variantName" column="variant_name"/>
+        <result property="variantImage" column="variant_image"/>
     </resultMap>
 
     <sql id="Base_Column_List">
-        `purchase_sku`,`purchase_link`,`supplier_name`,`spec_id`
+        `purchase_sku`,`purchase_link`,`supplier_name`,`spec_id`,`variant_name`,`variant_image`
     </sql>
 
     <select id="selectByPrimaryKey" parameterType="com.upedge.pms.modules.purchase.entity.ProductPurchaseInfo" resultMap="BaseResultMap">
@@ -39,6 +41,12 @@
             <if test="specId != null">
                 spec_id = #{specId},
             </if>
+            <if test="variantName != null">
+                variant_name = #{variantName},
+            </if>
+            <if test="variantImage != null">
+                variant_image = #{variantImage},
+            </if>
         </set>
         where purchase_sku = #{purchaseSku}
     </update>
@@ -50,6 +58,8 @@
         purchase_link = #{purchaseLink},
         supplier_name = #{supplierName},
         spec_id = #{specId},
+        variant_name = #{variantName},
+        variant_image = #{variantImage},
         </set>
         where purchase_sku = #{purchaseSku}
     </update>
@@ -60,13 +70,17 @@
             purchase_sku,
             purchase_link,
             supplier_name,
-            spec_id
+            spec_id,
+            variant_name,
+            variant_image
         </trim>
         values (
         #{purchaseSku},
         #{purchaseLink},
         #{supplierName},
-        #{specId}
+        #{specId},
+        #{variantName},
+        #{variantImage}
         )
     </insert>
 
@@ -85,6 +99,12 @@
             <if test="specId != null" >
               spec_id
             </if>
+            <if test="variantName != null" >
+              variant_name
+            </if>
+            <if test="variantImage != null" >
+              variant_image
+            </if>
 
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
@@ -100,6 +120,12 @@
             <if test="specId != null" >
                 #{specId}
             </if>
+            <if test="variantName != null" >
+                #{variantName}
+            </if>
+            <if test="variantImage != null" >
+                #{variantImage}
+            </if>
 
         </trim>
     </insert>
@@ -110,7 +136,9 @@
            purchase_sku,
            purchase_link,
            supplier_name,
-           spec_id
+           spec_id,
+           variant_name,
+           variant_image
         </trim>
         values
         <foreach collection="list" item="item" index="index" separator=",">
@@ -118,7 +146,9 @@
                #{item.purchaseSku},
                #{item.purchaseLink},
                #{item.supplierName},
-               #{item.specId}
+               #{item.specId},
+               #{item.variantName},
+               #{item.variantImage}
             </trim>
         </foreach>
     </insert>
@@ -139,6 +169,12 @@
                     </if>
                     <if test="t.specId != null">
                         spec_id = #{t.specId} and
+                    </if>
+                    <if test="t.variantName != null">
+                        variant_name = #{t.variantName} and
+                    </if>
+                    <if test="t.variantImage != null">
+                        variant_image = #{t.variantImage} and
                     </if>
             </trim>
         </if>

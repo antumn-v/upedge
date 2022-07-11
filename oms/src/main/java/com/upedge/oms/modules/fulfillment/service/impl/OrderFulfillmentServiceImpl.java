@@ -131,6 +131,9 @@ public class OrderFulfillmentServiceImpl implements OrderFulfillmentService {
         try {
             storeOrderRelates.forEach(storeOrderRelate -> {
                 List<StoreOrderItem> storeOrderItems = storeOrderItemDao.selectByStoreOrderAndOrder(orderId, storeOrderRelate.getStoreOrderId());
+                if(ListUtils.isEmpty(storeOrderItems)){
+                    return;
+                }
                 String platOrderId = storeOrderItems.get(0).getPlatOrderId();
                 Long storeOrderId = storeOrderRelate.getStoreOrderId();
                 switch (storeVo.getStoreType()) {//0=shopify，1=woocommerce，2=shoplazza

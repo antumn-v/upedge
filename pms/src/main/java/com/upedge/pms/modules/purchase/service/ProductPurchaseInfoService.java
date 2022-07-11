@@ -1,5 +1,6 @@
 package com.upedge.pms.modules.purchase.service;
 
+import com.upedge.common.base.BaseResponse;
 import com.upedge.pms.modules.purchase.entity.ProductPurchaseInfo;
 import com.upedge.common.base.Page;
 import java.util.List;
@@ -8,6 +9,9 @@ import java.util.List;
  * @author gx
  */
 public interface ProductPurchaseInfoService{
+
+
+    BaseResponse purchaseSkuDetailList(String purchaseLink);
 
     ProductPurchaseInfo selectByPrimaryKey(String purchaseSku);
 
