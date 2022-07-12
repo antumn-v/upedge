@@ -5,10 +5,7 @@ import com.upedge.common.exception.CustomerException;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.ums.modules.user.entity.User;
 import com.upedge.common.base.Page;
-import com.upedge.ums.modules.user.request.CustomerSignUpRequest;
-import com.upedge.ums.modules.user.request.UserRecoverPasswordRequest;
-import com.upedge.ums.modules.user.request.UserSignInRequest;
-import com.upedge.ums.modules.user.request.UserUpdatePwdRequest;
+import com.upedge.ums.modules.user.request.*;
 import com.upedge.ums.modules.user.response.CustomerSignUpResponse;
 import com.upedge.ums.modules.user.response.UserProfileResponse;
 import com.upedge.ums.modules.user.response.UserSignInResponse;
@@ -20,6 +17,9 @@ import java.util.Map;
  * @author gx
  */
 public interface UserService{
+
+
+    BaseResponse addUser(UserAddRequest request,Session session);
 
     void userBindAccountOrgApp(Long userId, Long applicationId, Long accountId, Long organizationId, Long roleId);
 

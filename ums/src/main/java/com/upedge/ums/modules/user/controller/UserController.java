@@ -11,7 +11,6 @@ import com.upedge.common.constant.key.RedisKey;
 import com.upedge.common.exception.CustomerException;
 import com.upedge.common.model.user.request.UserInfoSelectRequest;
 import com.upedge.common.model.user.vo.Session;
-import com.upedge.common.model.user.vo.UserVo;
 import com.upedge.common.utils.EmailUtils;
 import com.upedge.common.utils.TokenUtil;
 import com.upedge.common.web.util.RequestUtil;
@@ -29,7 +28,6 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.*;
@@ -178,14 +176,11 @@ public class UserController {
         return res;
     }
 
-    @RequestMapping(value="/add", method=RequestMethod.POST)
+    @RequestMapping(value="/addUser", method=RequestMethod.POST)
     @Permission(permission = "user:user:add")
-    public UserAddResponse add(@RequestBody @Valid UserAddRequest request) {
+    public BaseResponse add(@RequestBody @Valid UserAddRequest request) {
         Session session = UserUtil.getSession(redisTemplate);
-        User entity=request.toUser(session.getCustomerId());
-        userService.insertSelective(entity);
-        UserAddResponse res = new UserAddResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS,entity,request);
-        return res;
+        return userService.addUser(request,session);
     }
 
     @RequestMapping(value="/del/{id}", method=RequestMethod.POST)

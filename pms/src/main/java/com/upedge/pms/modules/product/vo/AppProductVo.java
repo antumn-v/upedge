@@ -35,6 +35,7 @@ public class AppProductVo extends Product {
 
 
     public void initUsdPriceRange(){
+
         BigDecimal usdRate = new BigDecimal("6.3");
         if (this.minPrice != null) {
             this.minPrice = this.minPrice.divide(usdRate,2,BigDecimal.ROUND_UP);

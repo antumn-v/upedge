@@ -34,10 +34,7 @@ import com.upedge.ums.modules.store.entity.Store;
 import com.upedge.ums.modules.store.service.StoreService;
 import com.upedge.ums.modules.user.dao.UserDao;
 import com.upedge.ums.modules.user.entity.*;
-import com.upedge.ums.modules.user.request.CustomerSignUpRequest;
-import com.upedge.ums.modules.user.request.UserRecoverPasswordRequest;
-import com.upedge.ums.modules.user.request.UserSignInRequest;
-import com.upedge.ums.modules.user.request.UserUpdatePwdRequest;
+import com.upedge.ums.modules.user.request.*;
 import com.upedge.ums.modules.user.response.CustomerSignUpResponse;
 import com.upedge.ums.modules.user.response.UserProfileResponse;
 import com.upedge.ums.modules.user.response.UserSignInResponse;
@@ -427,6 +424,25 @@ public class UserServiceImpl implements UserService {
             e.printStackTrace();
         }
         return user;
+    }
+
+    @Transactional
+    @Override
+    public BaseResponse addUser(UserAddRequest request, Session session) {
+        Long customerId = session.getCustomerId();
+        Long userId = IdGenerate.nextId();
+        String pass = UserUtil.encryptPassword(request.getLoginPass(),request.getLoginName());
+        User user = request.toUser(session.getCustomerId());
+        user.setLoginPass(pass);
+        user.setId(userId);
+        user.setIsDefault(true);
+        insert(user);
+
+        Account account = accountService.selectCustomerDefaultAccount(customerId);
+
+        userBindAccountOrgApp(userId,session.getApplicationId(),account.getId(),session.getParentOrganization().getId(),session.getRole().getId());
+
+        return BaseResponse.success();
     }
 
     @Override

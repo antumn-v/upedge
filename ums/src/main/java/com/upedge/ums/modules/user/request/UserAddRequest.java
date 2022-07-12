@@ -3,6 +3,8 @@ package com.upedge.ums.modules.user.request;
 import com.upedge.ums.modules.user.entity.User;
 import lombok.Data;
 
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import java.util.Date;
 /**
  * @author gx
@@ -13,26 +15,27 @@ public class UserAddRequest{
     /**
     * 
     */
-    private Long customerId;
-    /**
-    * 
-    */
+    @NotBlank
     private String loginName;
     /**
     * 
     */
+    @NotBlank
     private String loginPass;
     /**
     * 0 超级管理员 1管理员 2普通用户
     */
+    @NotNull
     private Integer userType;
     /**
     * 1 正常 0 停用
     */
+    @NotNull
     private Integer status;
     /**
     * 姓名
     */
+    @NotBlank
     private String username;
     /**
     * 
@@ -104,10 +107,10 @@ public class UserAddRequest{
         user.setFbInfo(fbInfo);
         user.setSkype(skype);
         user.setSex(sex);
-        user.setLoginCount(loginCount);
-        user.setCreateTime(createTime);
-        user.setUpdateTime(updateTime);
-        user.setLastLoginTime(lastLoginTime);
+        user.setLoginCount(0);
+        user.setCreateTime(new Date());
+        user.setUpdateTime(new Date());
+        user.setLastLoginTime(new Date());
         return user;
     }
 

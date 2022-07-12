@@ -325,7 +325,7 @@ public class ProductServiceImpl implements ProductService {
             } else {
                 priceRange = minPrice + "~" + maxPrice;
             }
-            productDao.updatePriceRangeById(priceRange, productId);
+            productDao.updatePriceRangeById(priceRange, productId,minPrice,maxPrice);
             return priceRange;
         }
         return null;
@@ -1081,7 +1081,8 @@ public class ProductServiceImpl implements ProductService {
      */
     public List<Product> select(Page<Product> record) {
         record.initFromNum();
-        return productDao.select(record);
+        List<Product> products = productDao.select(record);
+        return products;
     }
 
     /**
