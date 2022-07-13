@@ -8,6 +8,8 @@ import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.utils.IdGenerate;
 import com.upedge.common.utils.ListUtils;
 import com.upedge.common.web.util.RedisUtil;
+import com.upedge.pms.modules.product.entity.ProductVariant;
+import com.upedge.pms.modules.product.service.ProductVariantService;
 import com.upedge.pms.modules.product.vo.VariantWarehouseStockVo;
 import com.upedge.pms.modules.purchase.dao.VariantWarehouseStockDao;
 import com.upedge.pms.modules.purchase.entity.VariantWarehouseStock;
@@ -16,6 +18,7 @@ import com.upedge.pms.modules.purchase.request.VariantStockUpdateRequest;
 import com.upedge.pms.modules.purchase.request.VariantWarehouseStockListRequest;
 import com.upedge.pms.modules.purchase.service.VariantWarehouseStockRecordService;
 import com.upedge.pms.modules.purchase.service.VariantWarehouseStockService;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -35,6 +38,9 @@ public class VariantWarehouseStockServiceImpl implements VariantWarehouseStockSe
 
     @Autowired
     private VariantWarehouseStockRecordService variantWarehouseStockRecordService;
+
+    @Autowired
+    ProductVariantService productVariantService;
     
     @Autowired
     OmsFeignClient omsFeignClient;
@@ -78,12 +84,19 @@ public class VariantWarehouseStockServiceImpl implements VariantWarehouseStockSe
             for (VariantWarehouseStock variantWarehouseStock : variantWarehouseStocks) {
                 variantIds.add(variantWarehouseStock.getVariantId());
             }
+            List<ProductVariant> productVariants = productVariantService.listVariantByIds(variantIds);
             List<VariantPreSaleQuantity> variantPreSaleQuantities = omsFeignClient.selectVariantPreSaleQuantity(variantIds);
             a:
             for (VariantWarehouseStock variantWarehouseStock : variantWarehouseStocks) {
                 VariantWarehouseStockVo variantWarehouseStockVo = new VariantWarehouseStockVo();
                 BeanUtils.copyProperties(variantWarehouseStock,variantWarehouseStockVo);
                 variantWarehouseStockVos.add(variantWarehouseStockVo);
+                for (ProductVariant productVariant : productVariants) {
+                    if (productVariant.getId().equals(variantWarehouseStock.getVariantId())){
+                        BeanUtils.copyProperties(productVariant,variantWarehouseStockVo);
+                        productVariants.remove(productVariant);
+                    }
+                }
                 if (ListUtils.isEmpty(variantPreSaleQuantities)){
                     continue a;
                 }
@@ -124,6 +137,9 @@ public class VariantWarehouseStockServiceImpl implements VariantWarehouseStockSe
             variantWarehouseStock.setVariantId(variantId);
             variantWarehouseStock.setWarehouseCode(warehouseCode);
             variantWarehouseStock.setUpdateTime(new Date());
+            if (StringUtils.isNotBlank(request.getRemark())){
+                variantWarehouseStock.setRemark(request.getRemark());
+            }
             updateByPrimaryKeySelective(variantWarehouseStock);
         }
 

@@ -17,5 +17,7 @@ public class VariantStockUpdateRequest {
     @NotNull
     Integer stock;
 
+    String remark;
+
 
 }

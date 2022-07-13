@@ -54,7 +54,9 @@ public class ProductVariantController {
 
     @RequestMapping(value="/listVariantByIds", method=RequestMethod.POST)
     public ProductVariantsResponse listVariantByIds(@RequestBody ListVariantsRequest request) {
-        return productVariantService.listVariantByIds(request.getVariantIds());
+        List<ProductVariant> productVariants = productVariantService.listVariantByIds(request.getVariantIds());
+        ProductVariantsResponse res = new ProductVariantsResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS, productVariants);
+        return res;
     }
 
     @ApiOperation("根据产品来源ID查询变体")

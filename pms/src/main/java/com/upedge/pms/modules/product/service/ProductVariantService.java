@@ -50,7 +50,7 @@ public interface ProductVariantService{
 
     ProductVariantUpdatePriceResponse updatePrice(ProductVariantUpdatePriceRequest request, Session session) throws CustomerException;
 
-    ProductVariantsResponse listVariantByIds(List<Long> variantIds);
+    List<ProductVariant> listVariantByIds(List<Long> variantIds);
 
     Map<String, BigDecimal> selectVariantPriceRange(Long productId);
 

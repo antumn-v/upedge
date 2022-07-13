@@ -518,10 +518,10 @@ public class ProductVariantServiceImpl implements ProductVariantService {
     }
 
     @Override
-    public ProductVariantsResponse listVariantByIds(List<Long> variantIds) {
+    public List<ProductVariant> listVariantByIds(List<Long> variantIds) {
         List<ProductVariant> productVariantList = productVariantDao.listProductVariantByIds(variantIds);
-        ProductVariantsResponse res = new ProductVariantsResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS, productVariantList);
-        return res;
+
+        return productVariantList;
     }
 
     @Override

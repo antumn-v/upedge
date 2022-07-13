@@ -7,4 +7,12 @@ import lombok.Data;
 public class VariantWarehouseStockVo  extends VariantWarehouseStock {
 
     private int preSaleQuantity;
+
+    private String cnName;
+
+    private String variantSku;
+
+    private String purchaseSku;
+
+    private String variantImage;
 }
