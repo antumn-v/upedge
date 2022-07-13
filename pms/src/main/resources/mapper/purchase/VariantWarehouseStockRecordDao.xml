@@ -1,0 +1,276 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.upedge.pms.modules.purchase.dao.VariantWarehouseStockRecordDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.upedge.pms.modules.purchase.entity.VariantWarehouseStockRecord" id="BaseResultMap">
+        <result property="id" column="id"/>
+        <result property="variantId" column="variant_id"/>
+        <result property="warehouseCode" column="warehouse_code"/>
+        <result property="changeStock" column="change_stock"/>
+        <result property="processType" column="process_type"/>
+        <result property="originalStock" column="original_stock"/>
+        <result property="nowStock" column="now_stock"/>
+        <result property="relateId" column="relate_id"/>
+        <result property="createTime" column="create_time"/>
+        <result property="shelfNum" column="shelf_num"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        `id`,`variant_id`,`warehouse_code`,`change_stock`,`process_type`,`original_stock`,`now_stock`,`relate_id`,`create_time`,`shelf_num`
+    </sql>
+
+    <select id="selectByPrimaryKey" parameterType="com.upedge.pms.modules.purchase.entity.VariantWarehouseStockRecord" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from variant_warehouse_stock_record
+        where id = #{id}
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="com.upedge.pms.modules.purchase.entity.VariantWarehouseStockRecord">
+        delete from variant_warehouse_stock_record
+        where id = #{id}
+    </delete>
+
+    <update id="updateByPrimaryKeySelective" parameterType="com.upedge.pms.modules.purchase.entity.VariantWarehouseStockRecord">
+        update variant_warehouse_stock_record
+        <set>
+            <if test="variantId != null">
+                variant_id = #{variantId},
+            </if>
+            <if test="warehouseCode != null">
+                warehouse_code = #{warehouseCode},
+            </if>
+            <if test="changeStock != null">
+                change_stock = #{changeStock},
+            </if>
+            <if test="processType != null">
+                process_type = #{processType},
+            </if>
+            <if test="originalStock != null">
+                original_stock = #{originalStock},
+            </if>
+            <if test="nowStock != null">
+                now_stock = #{nowStock},
+            </if>
+            <if test="relateId != null">
+                relate_id = #{relateId},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime},
+            </if>
+            <if test="shelfNum != null">
+                shelf_num = #{shelfNum},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <update id="updateByPrimaryKey" parameterType="com.upedge.pms.modules.purchase.entity.VariantWarehouseStockRecord">
+        update variant_warehouse_stock_record
+        <set>
+        id = #{id},
+        variant_id = #{variantId},
+        warehouse_code = #{warehouseCode},
+        change_stock = #{changeStock},
+        process_type = #{processType},
+        original_stock = #{originalStock},
+        now_stock = #{nowStock},
+        relate_id = #{relateId},
+        create_time = #{createTime},
+        shelf_num = #{shelfNum},
+        </set>
+        where id = #{id}
+    </update>
+
+    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.upedge.pms.modules.purchase.entity.VariantWarehouseStockRecord" useGeneratedKeys="true">
+        insert into variant_warehouse_stock_record
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            id,
+            variant_id,
+            warehouse_code,
+            change_stock,
+            process_type,
+            original_stock,
+            now_stock,
+            relate_id,
+            create_time,
+            shelf_num
+        </trim>
+        values (
+        #{id},
+        #{variantId},
+        #{warehouseCode},
+        #{changeStock},
+        #{processType},
+        #{originalStock},
+        #{nowStock},
+        #{relateId},
+        #{createTime},
+        #{shelfNum}
+        )
+    </insert>
+
+    <insert id="insertSelective"  keyColumn="id" keyProperty="id"  parameterType="com.upedge.pms.modules.purchase.entity.VariantWarehouseStockRecord" useGeneratedKeys="true">
+        insert into variant_warehouse_stock_record
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null" >
+              id
+            </if>
+            <if test="variantId != null" >
+              variant_id
+            </if>
+            <if test="warehouseCode != null" >
+              warehouse_code
+            </if>
+            <if test="changeStock != null" >
+              change_stock
+            </if>
+            <if test="processType != null" >
+              process_type
+            </if>
+            <if test="originalStock != null" >
+              original_stock
+            </if>
+            <if test="nowStock != null" >
+              now_stock
+            </if>
+            <if test="relateId != null" >
+              relate_id
+            </if>
+            <if test="createTime != null" >
+              create_time
+            </if>
+            <if test="shelfNum != null" >
+              shelf_num
+            </if>
+
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null" >
+                #{id}
+            </if>
+            <if test="variantId != null" >
+                #{variantId}
+            </if>
+            <if test="warehouseCode != null" >
+                #{warehouseCode}
+            </if>
+            <if test="changeStock != null" >
+                #{changeStock}
+            </if>
+            <if test="processType != null" >
+                #{processType}
+            </if>
+            <if test="originalStock != null" >
+                #{originalStock}
+            </if>
+            <if test="nowStock != null" >
+                #{nowStock}
+            </if>
+            <if test="relateId != null" >
+                #{relateId}
+            </if>
+            <if test="createTime != null" >
+                #{createTime}
+            </if>
+            <if test="shelfNum != null" >
+                #{shelfNum}
+            </if>
+
+        </trim>
+    </insert>
+
+    <insert id="insertByBatch" parameterType="java.util.List">
+        insert into variant_warehouse_stock_record
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+           id,
+           variant_id,
+           warehouse_code,
+           change_stock,
+           process_type,
+           original_stock,
+           now_stock,
+           relate_id,
+           create_time,
+           shelf_num
+        </trim>
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+               #{item.id},
+               #{item.variantId},
+               #{item.warehouseCode},
+               #{item.changeStock},
+               #{item.processType},
+               #{item.originalStock},
+               #{item.nowStock},
+               #{item.relateId},
+               #{item.createTime},
+               #{item.shelfNum}
+            </trim>
+        </foreach>
+    </insert>
+
+    <sql id="Query_Condition">
+        <if test="t != null">
+            where
+            <trim prefix=" " suffix=" " suffixOverrides=" and ">
+                1 = 1 and
+                    <if test="t.id != null">
+                        id = #{t.id} and
+                    </if>
+                    <if test="t.variantId != null">
+                        variant_id = #{t.variantId} and
+                    </if>
+                    <if test="t.warehouseCode != null">
+                        warehouse_code = #{t.warehouseCode} and
+                    </if>
+                    <if test="t.changeStock != null">
+                        change_stock = #{t.changeStock} and
+                    </if>
+                    <if test="t.processType != null">
+                        process_type = #{t.processType} and
+                    </if>
+                    <if test="t.originalStock != null">
+                        original_stock = #{t.originalStock} and
+                    </if>
+                    <if test="t.nowStock != null">
+                        now_stock = #{t.nowStock} and
+                    </if>
+                    <if test="t.relateId != null">
+                        relate_id = #{t.relateId} and
+                    </if>
+                    <if test="t.createTime != null">
+                        create_time = #{t.createTime} and
+                    </if>
+                    <if test="t.shelfNum != null">
+                        shelf_num = #{t.shelfNum} and
+                    </if>
+            </trim>
+        </if>
+    </sql>
+
+    <select id="select" parameterType="com.upedge.common.base.Page" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from variant_warehouse_stock_record
+        <include refid="Query_Condition"/>
+        <if test="orderBy != null">
+            order by ${orderBy}
+        </if>
+        <if test="pageNum != null and pageSize != null">
+            limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+        </if>
+    </select>
+
+    <select id="count" parameterType="com.upedge.common.base.Page" resultType="java.lang.Long">
+        select
+        count(1)
+        from variant_warehouse_stock_record
+        <include refid="Query_Condition"/>
+    </select>
+
+
+</mapper>

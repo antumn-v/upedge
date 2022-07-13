@@ -473,7 +473,7 @@ public class SupportTicketsServiceImpl implements SupportTicketsService {
         supportTicketsMessageDao.insert(supportTicketsMessage);
 
         //记录admin回复消息时效数
-        recordReplyData(request.getTicketId(), msgType);
+//        recordReplyData(request.getTicketId(), msgType);
 
         return new BaseResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS, supportTicketsMessage);
     }

@@ -1,0 +1,243 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.upedge.pms.modules.purchase.dao.VariantWarehouseStockDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.upedge.pms.modules.purchase.entity.VariantWarehouseStock" id="BaseResultMap">
+        <result property="variantId" column="variant_id"/>
+        <result property="warehouseCode" column="warehouse_code"/>
+        <result property="stockScale" column="stock_scale"/>
+        <result property="safeStock" column="safe_stock"/>
+        <result property="lockStock" column="lock_stock"/>
+        <result property="purchaseStock" column="purchase_stock"/>
+        <result property="remark" column="remark"/>
+        <result property="shelfNum" column="shelf_num"/>
+        <result property="updateTime" column="update_time"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        `variant_id`,`warehouse_code`,`stock_scale`,`safe_stock`,`lock_stock`,`purchase_stock`,`remark`,`shelf_num`,`update_time`
+    </sql>
+
+    <select id="selectByPrimaryKey"  resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from variant_warehouse_stock
+        where variant_id = #{variantId}
+        and warehouse_code = #{warehouseCode}
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="com.upedge.pms.modules.purchase.entity.VariantWarehouseStock">
+        delete from variant_warehouse_stock
+        where variant_id = #{variantId}
+    </delete>
+
+    <update id="updateByPrimaryKeySelective" parameterType="com.upedge.pms.modules.purchase.entity.VariantWarehouseStock">
+        update variant_warehouse_stock
+        <set>
+
+            <if test="stockScale != null">
+                stock_scale = #{stockScale},
+            </if>
+            <if test="safeStock != null">
+                safe_stock = #{safeStock},
+            </if>
+            <if test="lockStock != null">
+                lock_stock = #{lockStock},
+            </if>
+            <if test="purchaseStock != null">
+                purchase_stock = #{purchaseStock},
+            </if>
+            <if test="remark != null">
+                remark = #{remark},
+            </if>
+            <if test="shelfNum != null">
+                shelf_num = #{shelfNum},
+            </if>
+            <if test="updateTime != null">
+                update_time = #{updateTime},
+            </if>
+        </set>
+        where variant_id = #{variantId} and warehouse_code = #{warehouseCode}
+    </update>
+
+    <update id="updateByPrimaryKey" parameterType="com.upedge.pms.modules.purchase.entity.VariantWarehouseStock">
+        update variant_warehouse_stock
+        <set>
+        variant_id = #{variantId},
+        warehouse_code = #{warehouseCode},
+        stock_scale = #{stockScale},
+        safe_stock = #{safeStock},
+        lock_stock = #{lockStock},
+        purchase_stock = #{purchaseStock},
+        remark = #{remark},
+        shelf_num = #{shelfNum},
+        </set>
+        where variant_id = #{variantId}
+    </update>
+
+    <insert id="insert" keyColumn="variant_id" keyProperty="variantId" parameterType="com.upedge.pms.modules.purchase.entity.VariantWarehouseStock" useGeneratedKeys="true">
+        insert into variant_warehouse_stock
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            variant_id,
+            warehouse_code,
+            stock_scale,
+            safe_stock,
+            lock_stock,
+            purchase_stock,
+            remark,
+            shelf_num,
+            update_time
+        </trim>
+        values (
+        #{variantId},
+        #{warehouseCode},
+        #{stockScale},
+        #{safeStock},
+        #{lockStock},
+        #{purchaseStock},
+        #{remark},
+        #{shelfNum},
+        #{updateTime}
+        )
+    </insert>
+
+    <insert id="insertSelective"  keyColumn="variant_id" keyProperty="variantId"  parameterType="com.upedge.pms.modules.purchase.entity.VariantWarehouseStock" useGeneratedKeys="true">
+        insert into variant_warehouse_stock
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="variantId != null" >
+              variant_id
+            </if>
+            <if test="warehouseCode != null" >
+              warehouse_code
+            </if>
+            <if test="stockScale != null" >
+              stock_scale
+            </if>
+            <if test="safeStock != null" >
+              safe_stock
+            </if>
+            <if test="lockStock != null" >
+              lock_stock
+            </if>
+            <if test="purchaseStock != null" >
+              purchase_stock
+            </if>
+            <if test="remark != null" >
+              remark
+            </if>
+            <if test="shelfNum != null" >
+              shelf_num
+            </if>
+
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="variantId != null" >
+                #{variantId}
+            </if>
+            <if test="warehouseCode != null" >
+                #{warehouseCode}
+            </if>
+            <if test="stockScale != null" >
+                #{stockScale}
+            </if>
+            <if test="safeStock != null" >
+                #{safeStock}
+            </if>
+            <if test="lockStock != null" >
+                #{lockStock}
+            </if>
+            <if test="purchaseStock != null" >
+                #{purchaseStock}
+            </if>
+            <if test="remark != null" >
+                #{remark}
+            </if>
+            <if test="shelfNum != null" >
+                #{shelfNum}
+            </if>
+
+        </trim>
+    </insert>
+
+    <insert id="insertByBatch" parameterType="java.util.List">
+        insert into variant_warehouse_stock
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+           variant_id,
+           warehouse_code,
+           stock_scale,
+           safe_stock,
+           lock_stock,
+           purchase_stock,
+           remark,
+           shelf_num
+        </trim>
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+               #{item.variantId},
+               #{item.warehouseCode},
+               #{item.stockScale},
+               #{item.safeStock},
+               #{item.lockStock},
+               #{item.purchaseStock},
+               #{item.remark},
+               #{item.shelfNum}
+            </trim>
+        </foreach>
+    </insert>
+
+    <sql id="Query_Condition">
+        <if test="t != null">
+            where
+            <trim prefix=" " suffix=" " suffixOverrides=" and ">
+                1 = 1 and
+                    <if test="t.variantId != null">
+                        variant_id = #{t.variantId} and
+                    </if>
+                    <if test="t.warehouseCode != null">
+                        warehouse_code = #{t.warehouseCode} and
+                    </if>
+                    <if test="t.stockScale != null">
+                        stock_scale = #{t.stockScale} and
+                    </if>
+                    <if test="t.safeStock != null">
+                        safe_stock = #{t.safeStock} and
+                    </if>
+                    <if test="t.lockStock != null">
+                        lock_stock = #{t.lockStock} and
+                    </if>
+                    <if test="t.purchaseStock != null">
+                        purchase_stock = #{t.purchaseStock} and
+                    </if>
+                    <if test="t.remark != null">
+                        remark = #{t.remark} and
+                    </if>
+                    <if test="t.shelfNum != null">
+                        shelf_num = #{t.shelfNum} and
+                    </if>
+            </trim>
+        </if>
+    </sql>
+
+    <select id="select" parameterType="com.upedge.common.base.Page" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from variant_warehouse_stock
+        <include refid="Query_Condition"/>
+        order by safe_stock desc
+        <if test="pageNum != null and pageSize != null">
+            limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+        </if>
+    </select>
+
+    <select id="count" parameterType="com.upedge.common.base.Page" resultType="java.lang.Long">
+        select
+        count(1)
+        from variant_warehouse_stock
+        <include refid="Query_Condition"/>
+    </select>
+
+
+</mapper>
