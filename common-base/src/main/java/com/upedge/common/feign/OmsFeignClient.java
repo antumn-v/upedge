@@ -15,6 +15,7 @@ import com.upedge.common.model.order.request.OrderDailyCountRequest;
 import com.upedge.common.model.order.vo.AllOrderAmountVo;
 import com.upedge.common.model.order.vo.OrderItemUpdateImageNameRequest;
 import com.upedge.common.model.order.vo.UplodaSaiheOnMqVo;
+import com.upedge.common.model.pms.vo.VariantPreSaleQuantity;
 import com.upedge.common.model.statistics.request.ManagerPackageStatisticsRequest;
 import com.upedge.common.model.statistics.request.OrderStatisticsRequest;
 import com.upedge.common.model.statistics.response.ManagerOrderCountResponse;
@@ -40,6 +41,9 @@ public interface OmsFeignClient  {
 
     @PostMapping("/orderItem/updateImageNameByStoreVariantId")
     public BaseResponse updateImageNameByStoreVariantId(@RequestBody OrderItemUpdateImageNameRequest request);
+
+    @PostMapping("/orderItem/variantPreSaleQuantity")
+    public List<VariantPreSaleQuantity> selectVariantPreSaleQuantity(@RequestBody List<Long> variantIds);
 
     /**
      * 客户经理包裹统计

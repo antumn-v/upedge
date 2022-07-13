@@ -2,20 +2,27 @@ package com.upedge.pms.modules.purchase.service.impl;
 
 import com.upedge.common.base.BaseResponse;
 import com.upedge.common.base.Page;
+import com.upedge.common.feign.OmsFeignClient;
+import com.upedge.common.model.pms.vo.VariantPreSaleQuantity;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.utils.IdGenerate;
+import com.upedge.common.utils.ListUtils;
 import com.upedge.common.web.util.RedisUtil;
+import com.upedge.pms.modules.product.vo.VariantWarehouseStockVo;
 import com.upedge.pms.modules.purchase.dao.VariantWarehouseStockDao;
 import com.upedge.pms.modules.purchase.entity.VariantWarehouseStock;
 import com.upedge.pms.modules.purchase.entity.VariantWarehouseStockRecord;
 import com.upedge.pms.modules.purchase.request.VariantStockUpdateRequest;
+import com.upedge.pms.modules.purchase.request.VariantWarehouseStockListRequest;
 import com.upedge.pms.modules.purchase.service.VariantWarehouseStockRecordService;
 import com.upedge.pms.modules.purchase.service.VariantWarehouseStockService;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -28,6 +35,9 @@ public class VariantWarehouseStockServiceImpl implements VariantWarehouseStockSe
 
     @Autowired
     private VariantWarehouseStockRecordService variantWarehouseStockRecordService;
+    
+    @Autowired
+    OmsFeignClient omsFeignClient;
 
     @Autowired
     RedisTemplate redisTemplate;
@@ -57,6 +67,38 @@ public class VariantWarehouseStockServiceImpl implements VariantWarehouseStockSe
     @Transactional
     public int insertSelective(VariantWarehouseStock record) {
         return variantWarehouseStockDao.insert(record);
+    }
+
+    @Override
+    public BaseResponse variantWarehouseStockList(VariantWarehouseStockListRequest request) {
+        List<VariantWarehouseStockVo> variantWarehouseStockVos = new ArrayList<>();
+        List<VariantWarehouseStock> variantWarehouseStocks = select(request);
+        if (ListUtils.isNotEmpty(variantWarehouseStocks)){
+            List<Long> variantIds = new ArrayList<>();
+            for (VariantWarehouseStock variantWarehouseStock : variantWarehouseStocks) {
+                variantIds.add(variantWarehouseStock.getVariantId());
+            }
+            List<VariantPreSaleQuantity> variantPreSaleQuantities = omsFeignClient.selectVariantPreSaleQuantity(variantIds);
+            a:
+            for (VariantWarehouseStock variantWarehouseStock : variantWarehouseStocks) {
+                VariantWarehouseStockVo variantWarehouseStockVo = new VariantWarehouseStockVo();
+                BeanUtils.copyProperties(variantWarehouseStock,variantWarehouseStockVo);
+                variantWarehouseStockVos.add(variantWarehouseStockVo);
+                if (ListUtils.isEmpty(variantPreSaleQuantities)){
+                    continue a;
+                }
+                for (VariantPreSaleQuantity variantPreSaleQuantity : variantPreSaleQuantities) {
+                    if (variantPreSaleQuantity.getVariantId().equals(variantWarehouseStock.getVariantId())){
+                        variantWarehouseStockVo.setPreSaleQuantity(variantPreSaleQuantity.getPreSaleQuantity());
+                        variantPreSaleQuantities.remove(variantPreSaleQuantity);
+                        continue a;
+                    }
+                }
+            }
+        }
+        Long total = count(request);
+        request.setTotal(total);
+        return BaseResponse.success(variantWarehouseStockVos,request);
     }
 
     @Transactional

@@ -3,6 +3,7 @@ package com.upedge.oms.modules.order.dao;
 import com.upedge.common.base.Page;
 import com.upedge.common.model.order.vo.OrderItemUpdateImageNameRequest;
 import com.upedge.common.model.pms.quote.CustomerProductQuoteVo;
+import com.upedge.common.model.pms.vo.VariantPreSaleQuantity;
 import com.upedge.common.model.product.RelateVariantVo;
 import com.upedge.common.model.product.VariantDetail;
 import com.upedge.oms.modules.order.entity.OrderItem;
@@ -128,4 +129,7 @@ public interface OrderItemDao {
     List<Long> selectOrderItemListByVariantId(@Param("variantId") Long variantId);
 
     int updateCustomOrderItemPrice(@Param("variantId") Long variantId, @Param("cnyPrice") BigDecimal cnyPrice, @Param("usdPrice") BigDecimal usdPrice);
+
+
+    List<VariantPreSaleQuantity> selectVariantPreSaleQuantity(@Param("variantIds") List<Long> variantIds);
 }

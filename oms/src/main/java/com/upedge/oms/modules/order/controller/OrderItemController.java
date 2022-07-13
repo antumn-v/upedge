@@ -5,6 +5,7 @@ import com.upedge.common.enums.CustomerExceptionEnum;
 import com.upedge.common.exception.CustomerException;
 import com.upedge.common.feign.PmsFeignClient;
 import com.upedge.common.model.order.vo.OrderItemUpdateImageNameRequest;
+import com.upedge.common.model.pms.vo.VariantPreSaleQuantity;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.web.util.UserUtil;
 import com.upedge.oms.modules.order.request.AirwallexRequest;
@@ -19,6 +20,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.List;
 
 /**
  * 
@@ -72,5 +74,12 @@ public class OrderItemController {
             throw new CustomerException(CustomerExceptionEnum.TIME_CANNOT_BE_EMPTY);
         }
         return  BaseResponse.success(orderItemService.airwallex(airwallexRequest));
+    }
+
+
+    @PostMapping("/variantPreSaleQuantity")
+    public List<VariantPreSaleQuantity> selectVariantPreSaleQuantity(@RequestBody List<Long> variantIds){
+        List<VariantPreSaleQuantity> variantPreSaleQuantities = orderItemService.selectVariantPreSaleQuantity(variantIds);
+        return variantPreSaleQuantities;
     }
 }

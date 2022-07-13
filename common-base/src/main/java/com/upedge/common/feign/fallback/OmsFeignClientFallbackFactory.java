@@ -16,6 +16,7 @@ import com.upedge.common.model.order.request.OrderDailyCountRequest;
 import com.upedge.common.model.order.vo.AllOrderAmountVo;
 import com.upedge.common.model.order.vo.OrderItemUpdateImageNameRequest;
 import com.upedge.common.model.order.vo.UplodaSaiheOnMqVo;
+import com.upedge.common.model.pms.vo.VariantPreSaleQuantity;
 import com.upedge.common.model.statistics.request.ManagerPackageStatisticsRequest;
 import com.upedge.common.model.statistics.request.OrderStatisticsRequest;
 import com.upedge.common.model.statistics.response.ManagerOrderCountResponse;
@@ -50,6 +51,11 @@ public class OmsFeignClientFallbackFactory implements FallbackFactory<OmsFeignCl
             @Override
             public BaseResponse updateImageNameByStoreVariantId(OrderItemUpdateImageNameRequest request){
                 return BaseResponse.failed();
+            }
+
+            @Override
+            public List<VariantPreSaleQuantity> selectVariantPreSaleQuantity(List<Long> variantIds) {
+                return new ArrayList<>();
             }
 
             @Override

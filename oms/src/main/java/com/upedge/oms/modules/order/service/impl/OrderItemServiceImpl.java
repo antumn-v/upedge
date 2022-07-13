@@ -11,6 +11,7 @@ import com.upedge.common.feign.PmsFeignClient;
 import com.upedge.common.model.order.vo.OrderItemUpdateImageNameRequest;
 import com.upedge.common.model.pms.quote.CustomerProductQuoteVo;
 import com.upedge.common.model.pms.request.OrderQuoteApplyRequest;
+import com.upedge.common.model.pms.vo.VariantPreSaleQuantity;
 import com.upedge.common.model.product.RelateDetailVo;
 import com.upedge.common.model.product.RelateVariantVo;
 import com.upedge.common.model.product.VariantDetail;
@@ -572,6 +573,14 @@ public class OrderItemServiceImpl implements OrderItemService {
     @Override
     public int updateCustomOrderItemPrice(Long variantId, BigDecimal cnyPrice, BigDecimal usdPrice) {
         return orderItemDao.updateCustomOrderItemPrice(variantId, cnyPrice, usdPrice);
+    }
+
+    @Override
+    public List<VariantPreSaleQuantity> selectVariantPreSaleQuantity(List<Long> variantIds) {
+        if (ListUtils.isEmpty(variantIds)){
+            return new ArrayList<>();
+        }
+        return orderItemDao.selectVariantPreSaleQuantity(variantIds);
     }
 
 

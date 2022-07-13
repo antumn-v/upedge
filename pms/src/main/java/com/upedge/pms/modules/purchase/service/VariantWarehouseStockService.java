@@ -5,6 +5,7 @@ import com.upedge.common.base.Page;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.pms.modules.purchase.entity.VariantWarehouseStock;
 import com.upedge.pms.modules.purchase.request.VariantStockUpdateRequest;
+import com.upedge.pms.modules.purchase.request.VariantWarehouseStockListRequest;
 
 import java.util.List;
 
@@ -13,6 +14,7 @@ import java.util.List;
  */
 public interface VariantWarehouseStockService{
 
+    BaseResponse variantWarehouseStockList(VariantWarehouseStockListRequest request);
 
     BaseResponse updateVariantStock(VariantStockUpdateRequest request, Session session);
 

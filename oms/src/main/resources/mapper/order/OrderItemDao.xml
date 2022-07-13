@@ -2,7 +2,6 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="com.upedge.oms.modules.order.dao.OrderItemDao">
-
     <resultMap type="com.upedge.oms.modules.order.entity.OrderItem" id="BaseResultMap">
         <result property="id" column="id"/>
         <result property="orderId" column="order_id"/>
@@ -31,7 +30,6 @@
         <result property="originalQuantity" column="original_quantity"/>
         <result property="shippingWarehouse" column="shipping_warehouse"/>
     </resultMap>
-
 
 
     <resultMap type="com.upedge.oms.modules.order.vo.AppOrderItemVo" id="AppOrderItemVo">
@@ -123,9 +121,9 @@
     </resultMap>
 
 
-
     <sql id="Base_Column_List">
-        `id`,`order_id`,`store_order_id`,`store_order_item_id`,`store_variant_id`,
+        `id`
+                ,`order_id`,`store_order_id`,`store_order_item_id`,`store_variant_id`,
         `admin_variant_id`,`store_product_id`,`admin_product_id`,
         `store_variant_name`,`store_variant_sku`,`store_product_title`,`store_variant_image`,
         `admin_variant_image`,`admin_variant_sku`,`usd_price`,`usd_rate`,`cny_price`,
@@ -133,38 +131,59 @@
     </sql>
 
     <select id="selectItemByPaymentId" resultMap="BaseResultMap">
-        select distinct oi.`id`,`order_id`,`store_order_item_id`,`store_variant_id`,`admin_variant_id`,`admin_product_id`,`store_variant_name`,
-        `store_variant_sku`,`admin_variant_image`,`store_product_title`,`usd_price`,`quantity`,`discharge_quantity`,
-        `admin_variant_weight`,`admin_variant_volume`,`item_type`,o.shipping_warehouse
+        select distinct oi.`id`,
+                        `order_id`,
+                        `store_order_item_id`,
+                        `store_variant_id`,
+                        `admin_variant_id`,
+                        `admin_product_id`,
+                        `store_variant_name`,
+                        `store_variant_sku`,
+                        `admin_variant_image`,
+                        `store_product_title`,
+                        `usd_price`,
+                        `quantity`,
+                        `discharge_quantity`,
+                        `admin_variant_weight`,
+                        `admin_variant_volume`,
+                        `item_type`,
+                        o.shipping_warehouse
         from order_item oi
-        inner join `order` o
-        on oi.order_id = o.id
+                     inner join `order` o
+                on oi.order_id = o.id
         where o.payment_id = #{paymentId}
     </select>
 
     <select id="selectStockRecordByPaymentId" resultMap="StockRecord">
-        select cps.warehouse_code,cps.variant_image,cps.variant_sku,cps.variant_name,
-        oi.discharge_quantity as `quantity`,'1' as `type`,'2' as `order_type`,
-        oi.id as `relate_id`,cps.variant_id,cps.product_id,cps.customer_id
+        select cps.warehouse_code,
+               cps.variant_image,
+               cps.variant_sku,
+               cps.variant_name,
+               oi.discharge_quantity as `quantity`,
+               '1'                   as `type`,
+               '2'                   as `order_type`,
+               oi.id                 as `relate_id`,
+               cps.variant_id,
+               cps.product_id,
+               cps.customer_id
         from order_item oi
-        inner join `order` o
-        on oi.order_id = o.id
-        left join customer_product_stock cps
-        on oi.admin_variant_id = cps.variant_id
+                     inner join `order` o
+                on oi.order_id = o.id
+                     left join customer_product_stock cps
+                on oi.admin_variant_id = cps.variant_id
         where o.payment_id = #{paymentId}
-        and cps.customer_id = #{customerId}
-        and oi.discharge_quantity > '0'
-        and o.pay_state = '1'
-        and o.shipping_warehouse = cps.warehouse_code
+          and cps.customer_id = #{customerId}
+          and oi.discharge_quantity > '0'
+          and o.pay_state = '1'
+          and o.shipping_warehouse = cps.warehouse_code
     </select>
 
     <select id="selectStoreOrderIdById" resultType="java.lang.Long">
         select soi.store_order_id
         from order_item oi
-        inner join store_order_item soi
-        on oi.store_order_item_id = soi.id
-        where oi.id = #{id}
-        limit 1
+                     inner join store_order_item soi
+                on oi.store_order_item_id = soi.id
+        where oi.id = #{id} limit 1
     </select>
 
     <select id="selectCountQuantityByOrderId" resultType="java.lang.Integer">
@@ -174,16 +193,29 @@
     </select>
 
     <select id="selectAppOrderItemByOrderId" resultMap="AppOrderItemVo" parameterType="java.lang.Long">
-        select oi.id,oi.order_id,`admin_product_id`,`store_variant_name`,oi.store_order_id,
-        `store_variant_sku`,`admin_variant_image`,`store_product_title`,`usd_price`,`quantity`,
-        `discharge_quantity`,`admin_variant_weight`,`admin_variant_volume`,store_variant_id,
-            `store_variant_image`,`store_product_id`
+        select oi.id,
+               oi.order_id,
+               `admin_product_id`,
+               `store_variant_name`,
+               oi.store_order_id,
+               `store_variant_sku`,
+               `admin_variant_image`,
+               `store_product_title`,
+               `usd_price`,
+               `quantity`,
+               `discharge_quantity`,
+               `admin_variant_weight`,
+               `admin_variant_volume`,
+               store_variant_id,
+               `store_variant_image`,
+               `store_product_id`
         from order_item oi
         where oi.order_id = #{orderId}
     </select>
 
-    <select id="selectAppOrderItemByOrderIds" resultMap="BaseResultMap" >
-        select <include refid="Base_Column_List"/>
+    <select id="selectAppOrderItemByOrderIds" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
         from order_item
         where order_id in
         <foreach collection="orderIds" item="orderId" open="(" close=")" separator=",">
@@ -193,11 +225,13 @@
     </select>
 
     <select id="selectAdminVariantDetailByOrder" resultType="com.upedge.common.model.product.VariantDetail">
-        select `admin_variant_id` as `variantId`,`admin_product_id` as `productId`,
-        (`quantity` * `admin_variant_weight`) as `weight`,(`quantity` *`admin_variant_volume`) as `volume`
+        select `admin_variant_id`                    as `variantId`,
+               `admin_product_id`                    as `productId`,
+               (`quantity` * `admin_variant_weight`) as `weight`,
+               (`quantity` * `admin_variant_volume`) as `volume`
         from order_item
         where order_id = #{orderId}
-        group by `admin_variant_id`,`admin_product_id`,`quantity`,`admin_variant_weight`,`admin_variant_volume`
+        group by `admin_variant_id`, `admin_product_id`, `quantity`, `admin_variant_weight`, `admin_variant_volume`
     </select>
 
     <select id="selectAdminVariantDetailByOrderIds" resultType="com.upedge.common.model.product.VariantDetail">
@@ -211,14 +245,17 @@
         and admin_variant_id is not null
     </select>
 
-    <select id="selectDischargeQuantityByPaymentId" resultType="com.upedge.oms.modules.order.vo.ItemDischargeQuantityVo">
-        select oi.admin_variant_id as `variantId`,sum(oi.discharge_quantity) as `dischargeQuantity`,o.shipping_warehouse
+    <select id="selectDischargeQuantityByPaymentId"
+            resultType="com.upedge.oms.modules.order.vo.ItemDischargeQuantityVo">
+        select oi.admin_variant_id        as `variantId`,
+               sum(oi.discharge_quantity) as `dischargeQuantity`,
+               o.shipping_warehouse
         from order_item oi
-        inner join `order` o
-        on oi.order_id = o.id
+                     inner join `order` o
+                on oi.order_id = o.id
         where o.payment_id = #{paymentId}
-        and oi.discharge_quantity > '0'
-        group by oi.admin_variant_id,o.shipping_warehouse
+          and oi.discharge_quantity > '0'
+        group by oi.admin_variant_id, o.shipping_warehouse
     </select>
 
     <update id="updateDischargeQuantityByMap">
@@ -231,40 +268,39 @@
 
     <update id="updateAdminVariantByStoreVariantId">
         update order_item oi
-        inner join `order` o
+                inner join `order` o
         on oi.order_id = o.id
-        set admin_variant_id = #{r.variantId},
-            `admin_variant_weight` = #{r.weight},
-            `admin_variant_volume` = #{r.volume},
-            `admin_product_id` = #{r.productId},
-            `usd_price` = #{r.usdPrice},
-            `admin_variant_image` = #{r.image}
+                set admin_variant_id = #{r.variantId},
+                        `admin_variant_weight` = #{r.weight},
+                        `admin_variant_volume` = #{r.volume},
+                        `admin_product_id` = #{r.productId},
+                        `usd_price` = #{r.usdPrice},
+                        `admin_variant_image` = #{r.image}
         where store_variant_id = #{storeVariantId}
-        and o.pay_state = '0'
-        and o.order_type != '1'
-        and admin_variant_id is not null;
+          and o.pay_state = '0'
+          and o.order_type != '1'
+          and admin_variant_id is not null;
     </update>
-
-
 
 
     <update id="updateAdminVariantDetailByVariantId">
         update order_item oi
-        inner join `order` o
+                inner join `order` o
         on oi.order_id = o.id
-        set oi.${name} = #{value}
+                set oi.${name} = #{value}
         where oi.admin_variant_id = #{adminVariantId}
-        and o.pay_state &lt; '1'
+          and o.pay_state
+         &lt; '1'
     </update>
 
     <update id="updateUsdPriceByAdminVariantId">
         update order_item oi
-        inner join `order` o
+                inner join `order` o
         on oi.order_id = o.id
-        set oi.usd_price = #{usdPrice}
+                set oi.usd_price = #{usdPrice}
         where oi.admin_variant_id = #{adminVariantId}
-        and o.pay_state = '0'
-        and oi.quote_state = '6'
+          and o.pay_state = '0'
+          and oi.quote_state = '6'
     </update>
 
     <update id="updateOrderIdByOrderIds">
@@ -300,7 +336,8 @@
     </select>
 
     <delete id="deleteByPrimaryKey" parameterType="com.upedge.oms.modules.order.entity.OrderItem">
-        delete from order_item
+        delete
+        from order_item
         where id = #{id}
     </delete>
 
@@ -427,7 +464,8 @@
         where id = #{id}
     </update>
 
-    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.upedge.oms.modules.order.entity.OrderItem" useGeneratedKeys="true">
+    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.upedge.oms.modules.order.entity.OrderItem"
+            useGeneratedKeys="true">
         insert into order_item
         <trim prefix="(" suffix=")" suffixOverrides=",">
             id,
@@ -491,181 +529,180 @@
         )
     </insert>
 
-    <insert id="insertSelective"  keyColumn="id" keyProperty="id"  parameterType="com.upedge.oms.modules.order.entity.OrderItem" useGeneratedKeys="true">
+    <insert id="insertSelective" keyColumn="id" keyProperty="id"
+            parameterType="com.upedge.oms.modules.order.entity.OrderItem" useGeneratedKeys="true">
         insert into order_item
         <trim prefix="(" suffix=")" suffixOverrides=",">
-            <if test="id != null" >
+            <if test="id != null">
                 id
             </if>
-            <if test="orderId != null" >
+            <if test="orderId != null">
                 order_id
             </if>
-            <if test="storeOrderId != null" >
+            <if test="storeOrderId != null">
                 store_order_id
             </if>
-            <if test="storeOrderItemId != null" >
+            <if test="storeOrderItemId != null">
                 store_order_item_id
             </if>
-            <if test="storeVariantId != null" >
+            <if test="storeVariantId != null">
                 store_variant_id
             </if>
-            <if test="adminVariantId != null" >
+            <if test="adminVariantId != null">
                 admin_variant_id
             </if>
-            <if test="storeProductId != null" >
+            <if test="storeProductId != null">
                 store_product_id
             </if>
-            <if test="adminProductId != null" >
+            <if test="adminProductId != null">
                 admin_product_id
             </if>
-            <if test="storeVariantName != null" >
+            <if test="storeVariantName != null">
                 store_variant_name
             </if>
-            <if test="storeVariantSku != null" >
+            <if test="storeVariantSku != null">
                 store_variant_sku
             </if>
-            <if test="storeProductTitle != null" >
+            <if test="storeProductTitle != null">
                 store_product_title
             </if>
-            <if test="storeVariantImage != null" >
+            <if test="storeVariantImage != null">
                 store_variant_image
             </if>
-            <if test="adminVariantImage != null" >
+            <if test="adminVariantImage != null">
                 admin_variant_image
             </if>
-            <if test="adminVariantSku != null" >
+            <if test="adminVariantSku != null">
                 admin_variant_sku
             </if>
-            <if test="usdPrice != null" >
+            <if test="usdPrice != null">
                 usd_price
             </if>
-            <if test="usdRate != null" >
+            <if test="usdRate != null">
                 usd_rate
             </if>
-            <if test="cnyPrice != null" >
+            <if test="cnyPrice != null">
                 cny_price
             </if>
-            <if test="quantity != null" >
+            <if test="quantity != null">
                 quantity
             </if>
-            <if test="dischargeQuantity != null" >
+            <if test="dischargeQuantity != null">
                 discharge_quantity
             </if>
-            <if test="adminVariantWeight != null" >
+            <if test="adminVariantWeight != null">
                 admin_variant_weight
             </if>
-            <if test="adminVariantVolume != null" >
+            <if test="adminVariantVolume != null">
                 admin_variant_volume
             </if>
-            <if test="itemType != null" >
+            <if test="itemType != null">
                 item_type
             </if>
-            <if test="shippingId != null" >
+            <if test="shippingId != null">
                 shipping_id
             </if>
-            <if test="quoteState != null" >
+            <if test="quoteState != null">
                 quote_state
             </if>
-            <if test="length != null" >
+            <if test="length != null">
                 length
             </if>
-            <if test="width != null" >
+            <if test="width != null">
                 width
             </if>
-            <if test="height != null" >
+            <if test="height != null">
                 height
             </if>
-            <if test="originalQuantity != null" >
+            <if test="originalQuantity != null">
                 original_quantity
             </if>
-
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
-            <if test="id != null" >
+            <if test="id != null">
                 #{id}
             </if>
-            <if test="orderId != null" >
+            <if test="orderId != null">
                 #{orderId}
             </if>
-            <if test="storeOrderId != null" >
+            <if test="storeOrderId != null">
                 #{storeOrderId}
             </if>
-            <if test="storeOrderItemId != null" >
+            <if test="storeOrderItemId != null">
                 #{storeOrderItemId}
             </if>
-            <if test="storeVariantId != null" >
+            <if test="storeVariantId != null">
                 #{storeVariantId}
             </if>
-            <if test="adminVariantId != null" >
+            <if test="adminVariantId != null">
                 #{adminVariantId}
             </if>
-            <if test="storeProductId != null" >
+            <if test="storeProductId != null">
                 #{storeProductId}
             </if>
-            <if test="adminProductId != null" >
+            <if test="adminProductId != null">
                 #{adminProductId}
             </if>
-            <if test="storeVariantName != null" >
+            <if test="storeVariantName != null">
                 #{storeVariantName}
             </if>
-            <if test="storeVariantSku != null" >
+            <if test="storeVariantSku != null">
                 #{storeVariantSku}
             </if>
-            <if test="storeProductTitle != null" >
+            <if test="storeProductTitle != null">
                 #{storeProductTitle}
             </if>
-            <if test="storeVariantImage != null" >
+            <if test="storeVariantImage != null">
                 #{storeVariantImage}
             </if>
-            <if test="adminVariantImage != null" >
+            <if test="adminVariantImage != null">
                 #{adminVariantImage}
             </if>
-            <if test="adminVariantSku != null" >
+            <if test="adminVariantSku != null">
                 #{adminVariantSku}
             </if>
-            <if test="usdPrice != null" >
+            <if test="usdPrice != null">
                 #{usdPrice}
             </if>
-            <if test="usdRate != null" >
+            <if test="usdRate != null">
                 #{usdRate}
             </if>
-            <if test="cnyPrice != null" >
+            <if test="cnyPrice != null">
                 #{cnyPrice}
             </if>
-            <if test="quantity != null" >
+            <if test="quantity != null">
                 #{quantity}
             </if>
-            <if test="dischargeQuantity != null" >
+            <if test="dischargeQuantity != null">
                 #{dischargeQuantity}
             </if>
-            <if test="adminVariantWeight != null" >
+            <if test="adminVariantWeight != null">
                 #{adminVariantWeight}
             </if>
-            <if test="adminVariantVolume != null" >
+            <if test="adminVariantVolume != null">
                 #{adminVariantVolume}
             </if>
-            <if test="itemType != null" >
+            <if test="itemType != null">
                 #{itemType}
             </if>
-            <if test="shippingId != null" >
+            <if test="shippingId != null">
                 #{shippingId}
             </if>
-            <if test="quoteState != null" >
+            <if test="quoteState != null">
                 #{quoteState}
             </if>
-            <if test="length != null" >
+            <if test="length != null">
                 #{length}
             </if>
-            <if test="width != null" >
+            <if test="width != null">
                 #{width}
             </if>
-            <if test="height != null" >
+            <if test="height != null">
                 #{height}
             </if>
-            <if test="originalQuantity != null" >
+            <if test="originalQuantity != null">
                 #{originalQuantity}
             </if>
-
         </trim>
     </insert>
 
@@ -833,7 +870,7 @@
 
     <select id="select" parameterType="com.upedge.common.base.Page" resultMap="BaseResultMap">
         select
-        <include refid="Base_Column_List" />
+        <include refid="Base_Column_List"/>
         from order_item
         <include refid="Query_Condition"/>
         order by id desc
@@ -848,84 +885,84 @@
 
     <update id="updateShippingIdByAdminProductId">
         update order_item oi
-            inner join `order` o
+                inner join `order` o
         on oi.order_id = o.id
-            set oi.shipping_id = #{shippingId}
+                set oi.shipping_id = #{shippingId}
         where oi.admin_product_id = #{adminProductId}
           and o.pay_state = '0'
     </update>
 
     <update id="updateItemQuoteDetail" parameterType="com.upedge.common.model.pms.quote.CustomerProductQuoteVo">
-        update order_item  oi
+        update order_item oi
         inner join `order` o
         on oi.order_id = o.id
         set oi.admin_product_id = #{productId},
-            oi.admin_variant_id = #{variantId},
-            oi.admin_variant_sku = #{variantSku},
-            oi.admin_variant_image = #{variantImage},
-            oi.admin_variant_volume = #{volume},
-            oi.admin_variant_weight = #{weight},
-            oi.shipping_id = #{productShippingId},
-            oi.usd_price = #{usdPrice},
-            oi.cny_price = #{cnyPrice},
-            oi.discharge_quantity = '0',
-            oi.quote_state = '1',
-            oi.length = #{length},
-            oi.width = #{width},
-            oi.height = #{height,jdbcType=DECIMAL},
-            oi.quantity = (#{quoteScale} * original_quantity),
-            oi.quote_scale = #{quoteScale}
-            <if test="storeVariantImage != null and storeVariantImage != ''">
-                ,oi.store_variant_image = #{storeVariantImage}
-            </if>
+        oi.admin_variant_id = #{variantId},
+        oi.admin_variant_sku = #{variantSku},
+        oi.admin_variant_image = #{variantImage},
+        oi.admin_variant_volume = #{volume},
+        oi.admin_variant_weight = #{weight},
+        oi.shipping_id = #{productShippingId},
+        oi.usd_price = #{usdPrice},
+        oi.cny_price = #{cnyPrice},
+        oi.discharge_quantity = '0',
+        oi.quote_state = '1',
+        oi.length = #{length},
+        oi.width = #{width},
+        oi.height = #{height,jdbcType=DECIMAL},
+        oi.quantity = (#{quoteScale} * original_quantity),
+        oi.quote_scale = #{quoteScale}
+        <if test="storeVariantImage != null and storeVariantImage != ''">
+            ,oi.store_variant_image = #{storeVariantImage}
+        </if>
         where oi.store_variant_id = #{storeVariantId}
         and o.pay_state &lt; '1'
     </update>
 
     <update id="updateVolumeByVariantId">
         update order_item oi
-        inner join `order` o
+                inner join `order` o
         on oi.order_id = o.id
-        set oi.length = #{length},
-        oi.width = #{width},
-        oi.height = #{height},
-        oi.admin_variant_volume = #{volume}
+                set oi.length = #{length},
+                        oi.width = #{width},
+                        oi.height = #{height},
+                        oi.admin_variant_volume = #{volume}
         where oi.admin_variant_id = #{variantId}
-        and o.pay_state &lt; '1'
+          and o.pay_state
+         &lt; '1'
     </update>
 
     <select id="listOrderItem" resultType="com.upedge.oms.modules.order.vo.OrderItemVo">
-        select
-        oi.`id` as id,
-        oi.`order_id` as orderId,
-        oi.`store_order_item_id` as storeOrderItemId,
-        oi.`store_variant_id` as storeVariantId,
-        oi.`admin_variant_id` as adminVariantId,
-        oi.`admin_product_id` as adminProductId,
-        oi.`store_variant_name` as storeVariantName,
-        oi.`store_variant_sku` as storeVariantSku,
-        oi.`admin_variant_image` as adminVariantImage,
-        oi.`store_product_title` as storeProductTitle,
-        oi.`usd_price` as usdPrice,
-        oi.`quantity` as quantity,
-        oi.`discharge_quantity` as dischargeQuantity,
-        oi.admin_variant_weight as adminVariantWeight,
-        oi.admin_variant_volume as adminVariantVolume,
-        so.id as storeOrderId,
-        so.plat_order_id as platOrderId,
-        so.plat_order_name as platOrderName,
-        so.store_id as storeId,
-        so.financial_status as financialStatus,
-        so.fulfillment_status as fulfillmentStatus,
-        so.create_time as createTime,
-        so.update_time as updateTime,
-        soi.plat_variant_id as platVariantId,
-        soi.plat_product_id as platProductId,
-        soi.store_product_id as storeProductId,
-        soi.plat_order_item_id as platOrderItemId
+        select oi.`id`                  as id,
+               oi.`order_id`            as orderId,
+               oi.`store_order_item_id` as storeOrderItemId,
+               oi.`store_variant_id`    as storeVariantId,
+               oi.`admin_variant_id`    as adminVariantId,
+               oi.`admin_product_id`    as adminProductId,
+               oi.`store_variant_name`  as storeVariantName,
+               oi.`store_variant_sku`   as storeVariantSku,
+               oi.`admin_variant_image` as adminVariantImage,
+               oi.`store_product_title` as storeProductTitle,
+               oi.`usd_price`           as usdPrice,
+               oi.`quantity`            as quantity,
+               oi.`discharge_quantity`  as dischargeQuantity,
+               oi.admin_variant_weight  as adminVariantWeight,
+               oi.admin_variant_volume  as adminVariantVolume,
+               so.id                    as storeOrderId,
+               so.plat_order_id         as platOrderId,
+               so.plat_order_name       as platOrderName,
+               so.store_id              as storeId,
+               so.financial_status      as financialStatus,
+               so.fulfillment_status    as fulfillmentStatus,
+               so.create_time           as createTime,
+               so.update_time           as updateTime,
+               soi.plat_variant_id      as platVariantId,
+               soi.plat_product_id      as platProductId,
+               soi.store_product_id     as storeProductId,
+               soi.plat_order_item_id   as platOrderItemId
         from order_item oi
-        left join store_order_item soi on oi.store_order_item_id=soi.id
-        left join store_order so  on soi.store_order_id=so.id
+                     left join store_order_item soi on oi.store_order_item_id = soi.id
+                     left join store_order so on soi.store_order_id = so.id
         where order_id = #{orderId}
     </select>
 
@@ -937,63 +974,70 @@
     </select>
 
     <select id="listSaiheOrderItemByOrderId" resultType="com.upedge.thirdparty.saihe.entity.SaiheOrderItem">
-        select distinct
-		oi.quantity as productNum,
-		oi.usd_price as salePrice,
-		oi.admin_variant_sku as sellerSku,
-		oi.admin_product_id as adminProductId,
-		oi.id as orderItemId,
-		so.plat_order_name as orderName,
-		so.store_id as storeId
-		from order_item oi
-		left join store_order so on so.id=oi.store_order_id
-		where  oi.order_id=#{orderId}
-        and quantity > '0'
+        select distinct oi.quantity          as productNum,
+                        oi.usd_price         as salePrice,
+                        oi.admin_variant_sku as sellerSku,
+                        oi.admin_product_id  as adminProductId,
+                        oi.id                as orderItemId,
+                        so.plat_order_name   as orderName,
+                        so.store_id          as storeId
+        from order_item oi
+                     left join store_order so on so.id = oi.store_order_id
+        where oi.order_id = #{orderId}
+          and quantity > '0'
     </select>
     <select id="airwallex" resultType="com.upedge.oms.modules.order.vo.AirwallexVo">
-        	select
-			o.id as orderId,
-			o.pay_time as prderDateTime,
-			oi.quantity * oi.usd_price as  lineTotal,
-			oi.quantity as itemQuantity,
-			oi.usd_price,
-			oi.admin_variant_sku,
-			oi.admin_variant_id
-			from order_item oi
-			left join `order` o on oi.order_id = o.id
-			where o.pay_state > 0 and o.order_status=0
-            <if test="t.orderId != null">
-                o.id = #{t.orderId} and
-            </if>
-            <if test="t.customerId != null">
-                o.customer_id = #{t.customerId} and
-            </if>
-            <if test="t.beginTime != null and t.endTime != null">
-             and   o.pay_time between #{t.beginTime} and #{t.endTime}
-            </if>
-			order by o.pay_time desc
+        select
+        o.id as orderId,
+        o.pay_time as prderDateTime,
+        oi.quantity * oi.usd_price as lineTotal,
+        oi.quantity as itemQuantity,
+        oi.usd_price,
+        oi.admin_variant_sku,
+        oi.admin_variant_id
+        from order_item oi
+        left join `order` o on oi.order_id = o.id
+        where o.pay_state > 0 and o.order_status=0
+        <if test="t.orderId != null">
+            o.id = #{t.orderId} and
+        </if>
+        <if test="t.customerId != null">
+            o.customer_id = #{t.customerId} and
+        </if>
+        <if test="t.beginTime != null and t.endTime != null">
+            and o.pay_time between #{t.beginTime} and #{t.endTime}
+        </if>
+        order by o.pay_time desc
     </select>
     <select id="selectOrderItemListByProduct" resultType="java.lang.Long">
-         select DISTINCT oi.order_id from  `order` o  inner join `order_item` oi  on oi.order_id = o.id
-         WHERE  oi.admin_product_id = #{productId}  and  o.pay_state = 0 and o.quote_state = '3'
+        select DISTINCT oi.order_id
+        from `order` o
+                     inner join `order_item` oi on oi.order_id = o.id
+        WHERE oi.admin_product_id = #{productId}
+          and o.pay_state = 0
+          and o.quote_state = '3'
     </select>
     <select id="selectOrderItemListByVariantId" resultType="java.lang.Long">
-        select  DISTINCT oi.order_id from `order` o  inner join `order_item` oi  on oi.order_id = o.id
-         WHERE oi.admin_variant_id = #{variantId}  and  o.pay_state = 0 and o.quote_state = '3'
+        select DISTINCT oi.order_id
+        from `order` o
+                     inner join `order_item` oi on oi.order_id = o.id
+        WHERE oi.admin_variant_id = #{variantId}
+          and o.pay_state = 0
+          and o.quote_state = '3'
     </select>
 
     <update id="updateQuoteStateByIds">
         update order_item
-            set quote_state = #{quoteState}
+        set quote_state = #{quoteState}
         where id in
-            <foreach collection="ids" item="id" open="(" separator="," close=")">
-                #{id}
-            </foreach>
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
         and quote_state = '0'
     </update>
     <update id="updateOrderAsQuotingByStoreVariantIds">
         update `order` o
-            left join order_item oi
+        left join order_item oi
         on o.id = oi.order_id
         set o.quote_state = '1',oi.quote_state = '5'
         where oi.store_variant_id in
@@ -1008,10 +1052,10 @@
     <select id="selectUnpaidOrderIdByStoreVariantId" resultType="java.lang.Long">
         select distinct o.id
         from `order` o
-            left join order_item oi
-            on o.id = oi.order_id
+                     left join order_item oi
+                on o.id = oi.order_id
         where oi.store_variant_id = #{storeVariantId}
-        and o.pay_state &lt; 1
+          and o.pay_state &lt; 1
     </select>
 
     <select id="selectUnQuoteItemOrderIdByOrderIds" resultType="java.lang.Long">
@@ -1034,31 +1078,32 @@
 
     <select id="selectStoreVariantIdsByOrderIds" resultType="java.lang.Long">
         select distinct store_variant_id
-            from order_item
+        from order_item
         where order_id in
-            <foreach collection="orderIds" item="orderId" open="(" close=")" separator=",">
-                #{orderId}
-            </foreach>
+        <foreach collection="orderIds" item="orderId" open="(" close=")" separator=",">
+            #{orderId}
+        </foreach>
         and quote_state = '0'
     </select>
 
     <update id="cancelItemQuoteDetail">
-        update order_item  oi
-        inner join `order` o
+        update order_item oi
+                inner join `order` o
         on oi.order_id = o.id
-        set oi.admin_product_id = null,
-            oi.admin_variant_id = null,
-            oi.admin_variant_sku = null,
-            oi.admin_variant_image = null,
-            oi.admin_variant_volume = null,
-            oi.admin_variant_weight =null,
-            oi.shipping_id = null,
-            oi.usd_price = null,
-            oi.cny_price = null,
-            oi.discharge_quantity = '0',
-            oi.quote_state = '4'
+                set oi.admin_product_id = null,
+                        oi.admin_variant_id = null,
+                        oi.admin_variant_sku = null,
+                        oi.admin_variant_image = null,
+                        oi.admin_variant_volume = null,
+                        oi.admin_variant_weight = null,
+                        oi.shipping_id = null,
+                        oi.usd_price = null,
+                        oi.cny_price = null,
+                        oi.discharge_quantity = '0',
+                        oi.quote_state = '4'
         where oi.store_variant_id = #{storeVariantId}
-        and o.pay_state &lt; '1'
+          and o.pay_state
+         &lt; '1'
     </update>
 
     <select id="selectOrderIdsByOrderIdsAndQuoteState" resultType="java.lang.Long">
@@ -1093,25 +1138,26 @@
 
     <update id="updateImageNameByStoreVariantId">
         update order_item
-            <set>
-                <if test="image != null">
-                    store_variant_image = #{image},
-                </if>
-                <if test="name != null">
-                    store_variant_name = #{name},
-                </if>
-            </set>
+        <set>
+            <if test="image != null">
+                store_variant_image = #{image},
+            </if>
+            <if test="name != null">
+                store_variant_name = #{name},
+            </if>
+        </set>
         where store_variant_id = #{storeVariantId}
     </update>
 
     <update id="updateQuantityByStoreOrderItemId">
         update order_item oi
-            inner join `order` o
+                inner join `order` o
         on o.id = oi.order_id
-        set oi.quantity = (#{quantity} * oi.quote_scale)
-        where o.pay_state &lt; '1'
-        and oi.store_order_item_id = #{storeOrderItemId}
-        and quote_scale is not null
+                set oi.quantity = (#{quantity} * oi.quote_scale)
+        where o.pay_state
+         &lt; '1'
+          and oi.store_order_item_id = #{storeOrderItemId}
+          and quote_scale is not null
     </update>
 
     <select id="selectOrderIdsByStoreOrderItemIds" resultType="java.lang.Long">
@@ -1128,7 +1174,7 @@
 
     <update id="increaseQuantityById">
         update order_item
-            set quantity = quantity + #{quantity}
+        set quantity = quantity + #{quantity}
         where id = #{id}
     </update>
 
@@ -1141,34 +1187,48 @@
 
     <select id="selectOrderStoreVariantIdsByStoreVariantIds"
             resultMap="OrderStoreVariantIdsVo">
-        select  o.id,oi.store_variant_id
+        select o.id,oi.store_variant_id
         from `order` o
-                     inner join order_item oi
-                on o.id = oi.order_id
+        inner join order_item oi
+        on o.id = oi.order_id
         where o.pay_state &lt; '1'
         and o.order_type != '1'
         and oi.store_variant_id in
-            <foreach collection="storeVariantIds" item="storeVariantId" open="(" close=")" separator=",">
-                #{storeVariantId}
-            </foreach>
+        <foreach collection="storeVariantIds" item="storeVariantId" open="(" close=")" separator=",">
+            #{storeVariantId}
+        </foreach>
     </select>
 
     <update id="initDischargeQuantityByPaymentId">
         update order_item oi
-            inner join `order` o
+                inner join `order` o
         on oi.order_id = o.id
-        set oi.discharge_quantity = '0'
+                set oi.discharge_quantity = '0'
         where o.payment_id = #{paymentId}
-        and o.pay_state = '0'
+          and o.pay_state = '0'
     </update>
 
     <update id="updateCustomOrderItemPrice">
         update `order` o
-            inner join `order_item` oi
+                inner join `order_item` oi
         on o.id = oi.order_id
-        set oi.cny_price = #{cnyPrice},usd_price = #{usdPrice}
+                set oi.cny_price = #{cnyPrice}, usd_price = #{usdPrice}
         where oi.admin_variant_id = #{variantId}
-        and o.pay_state &lt; '1'
-        and o.order_type = '4'
+          and o.pay_state
+         &lt; '1'
+          and o.order_type = '4'
     </update>
+
+    <select id="selectVariantPreSaleQuantity" resultType="com.upedge.common.model.pms.vo.VariantPreSaleQuantity">
+        select admin_variant_id as variantId, sum(quantity) as preSaleQuantity
+        from `order` o
+        inner join order_item oi
+        on o.id = oi.order_id
+        where o.pay_state = '0'
+        and oi.admin_variant_id in
+            <foreach collection="variantIds" item="variantId" open="(" close=")" separator=",">
+                #{variantId}
+            </foreach>
+        group by admin_variant_id
+    </select>
 </mapper>
