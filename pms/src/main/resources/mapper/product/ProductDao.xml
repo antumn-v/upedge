@@ -129,6 +129,12 @@
             <if test="remark != null">
                 remark = #{remark},
             </if>
+            <if test="entryEname != null">
+                entry_ename = #{entryEname},
+            </if>
+            <if test="entryCname != null">
+                entry_cname = #{entryCname},
+            </if>
         </set>
         where id = #{id}
     </update>

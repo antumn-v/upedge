@@ -239,5 +239,23 @@
         <include refid="Query_Condition"/>
     </select>
 
+    <select id="selectByVariantIdsAndWarehouseCode" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from variant_warehouse_stock
+        where warehouse_code = #{warehouseCode}
+        and variant_id in
+        <foreach collection="variantIds" item="variantId" open="(" separator="," close=")">
+            #{variantId}
+        </foreach>
+    </select>
 
+    <update id="updateVariantWarehouseSafeStock">
+        update variant_warehouse_stock
+            set safe_stock = safe_stock - #{changeQuantity},
+                lock_stock = lock_stock + {changeQuantity}
+        where variant_id = #{variantId}
+        and warehouse_code = #{warehouseCode}
+        and safe_stock >= #{changeQuantity}
+    </update>
 </mapper>

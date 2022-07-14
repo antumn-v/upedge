@@ -143,4 +143,6 @@ public class RedisKey {
     public static final String HASH_STORE_FULFILLMENT_SERVICE_LOCATION = "store:fulfillment:service:location:";
     //变体修改sku记录
     public static final String HASH_VARIANT_UPDATE_SKU_LOG = "variant:update:sku:log";
+    //操作中的库存加锁
+    public static final String KEY_VARIANT_WAREHOUSE_STOCK_LOCK = "key:variant:warehouse:stock:lock:";
 }

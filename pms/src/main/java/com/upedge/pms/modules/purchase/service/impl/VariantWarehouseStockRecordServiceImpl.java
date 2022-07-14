@@ -48,6 +48,14 @@ public class VariantWarehouseStockRecordServiceImpl implements VariantWarehouseS
         return variantWarehouseStockRecordDao.insert(record);
     }
 
+    @Override
+    public int insertByBatch(List<VariantWarehouseStockRecord> records) {
+        if (ListUtils.isNotEmpty(records)){
+            return variantWarehouseStockRecordDao.insertByBatch(records);
+        }
+        return 0;
+    }
+
     /**
      *
      */

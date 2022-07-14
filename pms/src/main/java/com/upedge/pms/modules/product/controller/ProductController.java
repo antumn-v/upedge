@@ -245,9 +245,7 @@ public class ProductController {
             e.printStackTrace();
             return BaseResponse.failed(e.getMessage());
         }
-        if (response.getCode() == ResultCode.SUCCESS_CODE && null != request.getShippingId()) {
 
-        }
         return response;
     }
 
