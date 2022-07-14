@@ -1,7 +1,9 @@
 package com.upedge.pms.modules.purchase.service;
 
+import com.upedge.common.base.BaseResponse;
 import com.upedge.common.base.Page;
 import com.upedge.pms.modules.purchase.entity.VariantWarehouseStockRecord;
+import com.upedge.pms.modules.purchase.request.VariantWarehouseStockRecordListRequest;
 
 import java.util.List;
 
@@ -9,6 +11,8 @@ import java.util.List;
  * @author gx
  */
 public interface VariantWarehouseStockRecordService{
+
+    BaseResponse variantStockRecordList(VariantWarehouseStockRecordListRequest request);
 
     VariantWarehouseStockRecord selectByPrimaryKey(Integer id);
 

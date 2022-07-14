@@ -10,7 +10,7 @@ import com.upedge.common.utils.ListUtils;
 import com.upedge.common.web.util.RedisUtil;
 import com.upedge.pms.modules.product.entity.ProductVariant;
 import com.upedge.pms.modules.product.service.ProductVariantService;
-import com.upedge.pms.modules.product.vo.VariantWarehouseStockVo;
+import com.upedge.pms.modules.purchase.vo.VariantWarehouseStockVo;
 import com.upedge.pms.modules.purchase.dao.VariantWarehouseStockDao;
 import com.upedge.pms.modules.purchase.entity.VariantWarehouseStock;
 import com.upedge.pms.modules.purchase.entity.VariantWarehouseStockRecord;
@@ -94,7 +94,6 @@ public class VariantWarehouseStockServiceImpl implements VariantWarehouseStockSe
                 for (ProductVariant productVariant : productVariants) {
                     if (productVariant.getId().equals(variantWarehouseStock.getVariantId())){
                         BeanUtils.copyProperties(productVariant,variantWarehouseStockVo);
-                        productVariants.remove(productVariant);
                     }
                 }
                 if (ListUtils.isEmpty(variantPreSaleQuantities)){

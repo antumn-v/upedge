@@ -1,4 +1,4 @@
-package com.upedge.pms.modules.product.vo;
+package com.upedge.pms.modules.purchase.vo;
 
 import com.upedge.pms.modules.purchase.entity.VariantWarehouseStock;
 import lombok.Data;
