@@ -5,6 +5,7 @@ import com.upedge.common.enums.CustomerExceptionEnum;
 import com.upedge.common.exception.CustomerException;
 import com.upedge.common.feign.PmsFeignClient;
 import com.upedge.common.model.order.vo.OrderItemUpdateImageNameRequest;
+import com.upedge.common.model.pms.vo.PurchaseAdviceItemVo;
 import com.upedge.common.model.pms.vo.VariantPreSaleQuantity;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.web.util.UserUtil;
@@ -81,5 +82,10 @@ public class OrderItemController {
     public List<VariantPreSaleQuantity> selectVariantPreSaleQuantity(@RequestBody List<Long> variantIds){
         List<VariantPreSaleQuantity> variantPreSaleQuantities = orderItemService.selectVariantPreSaleQuantity(variantIds);
         return variantPreSaleQuantities;
+    }
+
+    @PostMapping("/purchaseItems")
+    public List<PurchaseAdviceItemVo> purchaseItems(){
+        return orderItemService.selectUnStockOrderItems();
     }
 }

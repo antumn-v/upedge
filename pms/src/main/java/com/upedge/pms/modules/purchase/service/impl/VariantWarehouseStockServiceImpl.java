@@ -76,6 +76,11 @@ public class VariantWarehouseStockServiceImpl implements VariantWarehouseStockSe
         return variantWarehouseStockDao.insert(record);
     }
 
+    @Override
+    public List<VariantWarehouseStock> selectByVariantIdsAndWarehouseCode(List<Long> variantIds, String warehouseCode) {
+        return variantWarehouseStockDao.selectByVariantIdsAndWarehouseCode(variantIds, warehouseCode);
+    }
+
     @Transactional
     @Override
     public boolean orderCheckStock(OrderItemQuantityVo orderItemQuantityVo) throws Exception {
@@ -115,16 +120,7 @@ public class VariantWarehouseStockServiceImpl implements VariantWarehouseStockSe
                     }
                     Integer nowStock = variantWarehouseStock.getSafeStock() - changeQuantity;
                     //保存库存锁定记录
-                    VariantWarehouseStockRecord record = new VariantWarehouseStockRecord(
-                            variantId,
-                            warehouseCode,
-                            changeQuantity,
-                            VariantWarehouseStockRecord.STOCK_LOCK,
-                            variantWarehouseStock.getSafeStock(),
-                            nowStock,
-                            itemQuantityVo.getItemId(),
-                            new Date(),
-                            "",0L);
+                    VariantWarehouseStockRecord record = new VariantWarehouseStockRecord(variantId, warehouseCode, changeQuantity, VariantWarehouseStockRecord.STOCK_LOCK, variantWarehouseStock.getSafeStock(), nowStock, itemQuantityVo.getItemId(), new Date(), "",0L);
                     records.add(record);
                     //更新对象最新安全库存
                     variantWarehouseStock.setSafeStock(nowStock);

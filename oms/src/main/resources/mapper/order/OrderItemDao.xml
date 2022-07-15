@@ -1226,9 +1226,21 @@
         on o.id = oi.order_id
         where o.pay_state = '0'
         and oi.admin_variant_id in
-            <foreach collection="variantIds" item="variantId" open="(" close=")" separator=",">
-                #{variantId}
-            </foreach>
+        <foreach collection="variantIds" item="variantId" open="(" close=")" separator=",">
+            #{variantId}
+        </foreach>
         group by admin_variant_id
+    </select>
+
+    <select id="selectUnStockOrderItems" resultMap="BaseResultMap">
+        select oi.admin_variant_id, sum(oi.quantity) as `quantity`
+        from `order` o
+        inner join `order_item` oi
+        on o.id = oi.order_id
+        where o.pay_state = '1'
+          and o.refund_state = '0'
+          and o.ship_state = '0'
+          and o.stock_state = '0'
+        group by oi.admin_variant_id
     </select>
 </mapper>

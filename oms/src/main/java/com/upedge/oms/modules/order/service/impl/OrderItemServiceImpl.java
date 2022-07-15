@@ -11,6 +11,7 @@ import com.upedge.common.feign.PmsFeignClient;
 import com.upedge.common.model.order.vo.OrderItemUpdateImageNameRequest;
 import com.upedge.common.model.pms.quote.CustomerProductQuoteVo;
 import com.upedge.common.model.pms.request.OrderQuoteApplyRequest;
+import com.upedge.common.model.pms.vo.PurchaseAdviceItemVo;
 import com.upedge.common.model.pms.vo.VariantPreSaleQuantity;
 import com.upedge.common.model.product.RelateDetailVo;
 import com.upedge.common.model.product.RelateVariantVo;
@@ -581,6 +582,22 @@ public class OrderItemServiceImpl implements OrderItemService {
             return new ArrayList<>();
         }
         return orderItemDao.selectVariantPreSaleQuantity(variantIds);
+    }
+
+    @Override
+    public List<PurchaseAdviceItemVo> selectUnStockOrderItems() {
+        List<OrderItem> orderItems = orderItemDao.selectUnStockOrderItems();
+        if (ListUtils.isEmpty(orderItems)){
+            return new ArrayList<>();
+        }
+        List<PurchaseAdviceItemVo> purchaseAdviceItemVos = new ArrayList<>();
+        for (OrderItem orderItem : orderItems) {
+            PurchaseAdviceItemVo purchaseAdviceItemVo = new PurchaseAdviceItemVo();
+            purchaseAdviceItemVo.setVariantId(orderItem.getAdminVariantId());
+            purchaseAdviceItemVo.setOrderQuantity(orderItem.getQuantity());
+            purchaseAdviceItemVos.add(purchaseAdviceItemVo);
+        }
+        return purchaseAdviceItemVos;
     }
 
 

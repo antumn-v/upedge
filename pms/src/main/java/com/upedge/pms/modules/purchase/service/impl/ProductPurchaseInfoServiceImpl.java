@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -57,6 +58,14 @@ public class ProductPurchaseInfoServiceImpl implements ProductPurchaseInfoServic
     @Transactional
     public int insertSelective(ProductPurchaseInfo record) {
         return productPurchaseInfoDao.insert(record);
+    }
+
+    @Override
+    public List<ProductPurchaseInfo> selectByPurchaseSkus(List<String> purchaseSkus) {
+        if (ListUtils.isEmpty(purchaseSkus)){
+            return new ArrayList<>();
+        }
+        return productPurchaseInfoDao.selectByPurchaseSkus(purchaseSkus);
     }
 
     /**

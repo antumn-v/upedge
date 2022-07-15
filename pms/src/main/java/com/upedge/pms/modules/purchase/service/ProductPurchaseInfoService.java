@@ -10,6 +10,8 @@ import java.util.List;
  */
 public interface ProductPurchaseInfoService{
 
+    List<ProductPurchaseInfo> selectByPurchaseSkus( List<String> purchaseSkus);
+
     ProductPurchaseInfo selectByPrimaryKey(String purchaseSku);
 
     int deleteByPrimaryKey(String purchaseSku);

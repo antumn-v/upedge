@@ -4,7 +4,7 @@ import com.upedge.common.base.BaseResponse;
 
 public interface PurchaseService {
 
-    BaseResponse purchaseAdvice();
+    BaseResponse purchaseAdvice(String warehouseCode);
 
     BaseResponse previewPurchaseOrder();
 

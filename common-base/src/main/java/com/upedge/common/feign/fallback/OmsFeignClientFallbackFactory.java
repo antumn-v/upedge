@@ -16,6 +16,7 @@ import com.upedge.common.model.order.request.OrderDailyCountRequest;
 import com.upedge.common.model.order.vo.AllOrderAmountVo;
 import com.upedge.common.model.order.vo.OrderItemUpdateImageNameRequest;
 import com.upedge.common.model.order.vo.UplodaSaiheOnMqVo;
+import com.upedge.common.model.pms.vo.PurchaseAdviceItemVo;
 import com.upedge.common.model.pms.vo.VariantPreSaleQuantity;
 import com.upedge.common.model.statistics.request.ManagerPackageStatisticsRequest;
 import com.upedge.common.model.statistics.request.OrderStatisticsRequest;
@@ -55,6 +56,11 @@ public class OmsFeignClientFallbackFactory implements FallbackFactory<OmsFeignCl
 
             @Override
             public List<VariantPreSaleQuantity> selectVariantPreSaleQuantity(List<Long> variantIds) {
+                return new ArrayList<>();
+            }
+
+            @Override
+            public List<PurchaseAdviceItemVo> purchaseItems() {
                 return new ArrayList<>();
             }
 

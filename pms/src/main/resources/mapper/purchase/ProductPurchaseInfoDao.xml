@@ -200,5 +200,13 @@
         <include refid="Query_Condition"/>
     </select>
 
-
+    <select id="selectByPurchaseSkus" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from product_purchase_info
+        where purchase_sku in
+        <foreach collection="purchaseSkus" item="sku" open="(" close=")" separator=",">
+            #{sku}
+        </foreach>
+    </select>
 </mapper>
