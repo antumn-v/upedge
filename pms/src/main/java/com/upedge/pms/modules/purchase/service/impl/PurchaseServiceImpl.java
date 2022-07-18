@@ -9,7 +9,9 @@ import com.upedge.pms.modules.product.entity.ProductVariant;
 import com.upedge.pms.modules.product.service.ProductVariantService;
 import com.upedge.pms.modules.purchase.entity.ProductPurchaseInfo;
 import com.upedge.pms.modules.purchase.entity.VariantWarehouseStock;
+import com.upedge.pms.modules.purchase.request.PurchaseOrderCreateRequest;
 import com.upedge.pms.modules.purchase.service.ProductPurchaseInfoService;
+import com.upedge.pms.modules.purchase.service.PurchasePlanService;
 import com.upedge.pms.modules.purchase.service.PurchaseService;
 import com.upedge.pms.modules.purchase.service.VariantWarehouseStockService;
 import org.apache.commons.collections.MapUtils;
@@ -32,6 +34,9 @@ public class PurchaseServiceImpl implements PurchaseService {
     VariantWarehouseStockService variantWarehouseStockService;
 
     @Autowired
+    PurchasePlanService purchasePlanService;
+
+    @Autowired
     OmsFeignClient omsFeignClient;
 
 
@@ -46,6 +51,11 @@ public class PurchaseServiceImpl implements PurchaseService {
         List<Long> variantIds = new ArrayList<>();
         for (PurchaseAdviceItemVo purchaseAdviceItemVo : purchaseAdviceItemVos) {
             variantIds.add(purchaseAdviceItemVo.getVariantId());
+        }
+
+        List<Long> planingVariantIds = purchasePlanService.selectPlaningVariantIds();
+        if (ListUtils.isNotEmpty(planingVariantIds)){
+            variantIds.removeAll(planingVariantIds);
         }
 
         Set<String> purchaseSkus = new HashSet<>();
@@ -109,7 +119,7 @@ public class PurchaseServiceImpl implements PurchaseService {
     }
 
     @Override
-    public BaseResponse previewPurchaseOrder() {
+    public BaseResponse previewPurchaseOrder(PurchaseOrderCreateRequest request) {
         return null;
     }
 

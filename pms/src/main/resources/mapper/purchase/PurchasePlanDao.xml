@@ -1,0 +1,388 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.upedge.pms.modules.purchase.dao.PurchasePlanDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.upedge.pms.modules.purchase.entity.PurchasePlan" id="BaseResultMap">
+        <result property="id" column="id"/>
+        <result property="purchaseSku" column="purchase_sku"/>
+        <result property="supplierName" column="supplier_name"/>
+        <result property="productId" column="product_id"/>
+        <result property="variantId" column="variant_id"/>
+        <result property="variantSku" column="variant_sku"/>
+        <result property="cnName" column="cn_name"/>
+        <result property="variantImage" column="variant_image"/>
+        <result property="purchaseLink" column="purchase_link"/>
+        <result property="quantity" column="quantity"/>
+        <result property="specId" column="spec_id"/>
+        <result property="operatorId" column="operator_id"/>
+        <result property="state" column="state"/>
+        <result property="purchaseOrderId" column="purchase_order_id"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        `id`,`purchase_sku`,`supplier_name`,`product_id`,`variant_id`,`variant_sku`,`cn_name`,`variant_image`,`purchase_link`,`quantity`,`spec_id`,`operator_id`,`state`,`purchase_order_id`,`create_time`,`update_time`
+    </sql>
+
+    <select id="selectByPrimaryKey" parameterType="com.upedge.pms.modules.purchase.entity.PurchasePlan" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from purchase_plan
+        where id = #{id}
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="com.upedge.pms.modules.purchase.entity.PurchasePlan">
+        delete from purchase_plan
+        where id = #{id}
+    </delete>
+
+    <update id="updateByPrimaryKeySelective" parameterType="com.upedge.pms.modules.purchase.entity.PurchasePlan">
+        update purchase_plan
+        <set>
+            <if test="purchaseSku != null">
+                purchase_sku = #{purchaseSku},
+            </if>
+            <if test="supplierName != null">
+                supplier_name = #{supplierName},
+            </if>
+            <if test="productId != null">
+                product_id = #{productId},
+            </if>
+            <if test="variantId != null">
+                variant_id = #{variantId},
+            </if>
+            <if test="variantSku != null">
+                variant_sku = #{variantSku},
+            </if>
+            <if test="cnName != null">
+                cn_name = #{cnName},
+            </if>
+            <if test="variantImage != null">
+                variant_image = #{variantImage},
+            </if>
+            <if test="purchaseLink != null">
+                purchase_link = #{purchaseLink},
+            </if>
+            <if test="quantity != null">
+                quantity = #{quantity},
+            </if>
+            <if test="specId != null">
+                spec_id = #{specId},
+            </if>
+            <if test="operatorId != null">
+                operator_id = #{operatorId},
+            </if>
+            <if test="state != null">
+                state = #{state},
+            </if>
+            <if test="purchaseOrderId != null">
+                purchase_order_id = #{purchaseOrderId},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime},
+            </if>
+            <if test="updateTime != null">
+                update_time = #{updateTime},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <update id="updateByPrimaryKey" parameterType="com.upedge.pms.modules.purchase.entity.PurchasePlan">
+        update purchase_plan
+        <set>
+        id = #{id},
+        purchase_sku = #{purchaseSku},
+        supplier_name = #{supplierName},
+        product_id = #{productId},
+        variant_id = #{variantId},
+        variant_sku = #{variantSku},
+        cn_name = #{cnName},
+        variant_image = #{variantImage},
+        purchase_link = #{purchaseLink},
+        quantity = #{quantity},
+        spec_id = #{specId},
+        operator_id = #{operatorId},
+        state = #{state},
+        purchase_order_id = #{purchaseOrderId},
+        create_time = #{createTime},
+        update_time = #{updateTime},
+        </set>
+        where id = #{id}
+    </update>
+
+    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.upedge.pms.modules.purchase.entity.PurchasePlan" useGeneratedKeys="true">
+        insert into purchase_plan
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            id,
+            purchase_sku,
+            supplier_name,
+            product_id,
+            variant_id,
+            variant_sku,
+            cn_name,
+            variant_image,
+            purchase_link,
+            quantity,
+            spec_id,
+            operator_id,
+            state,
+            purchase_order_id,
+            create_time,
+            update_time
+        </trim>
+        values (
+        #{id},
+        #{purchaseSku},
+        #{supplierName},
+        #{productId},
+        #{variantId},
+        #{variantSku},
+        #{cnName},
+        #{variantImage},
+        #{purchaseLink},
+        #{quantity},
+        #{specId},
+        #{operatorId},
+        #{state},
+        #{purchaseOrderId},
+        #{createTime},
+        #{updateTime}
+        )
+    </insert>
+
+    <insert id="insertSelective"  keyColumn="id" keyProperty="id"  parameterType="com.upedge.pms.modules.purchase.entity.PurchasePlan" useGeneratedKeys="true">
+        insert into purchase_plan
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null" >
+              id
+            </if>
+            <if test="purchaseSku != null" >
+              purchase_sku
+            </if>
+            <if test="supplierName != null" >
+              supplier_name
+            </if>
+            <if test="productId != null" >
+              product_id
+            </if>
+            <if test="variantId != null" >
+              variant_id
+            </if>
+            <if test="variantSku != null" >
+              variant_sku
+            </if>
+            <if test="cnName != null" >
+              cn_name
+            </if>
+            <if test="variantImage != null" >
+              variant_image
+            </if>
+            <if test="purchaseLink != null" >
+              purchase_link
+            </if>
+            <if test="quantity != null" >
+              quantity
+            </if>
+            <if test="specId != null" >
+              spec_id
+            </if>
+            <if test="operatorId != null" >
+              operator_id
+            </if>
+            <if test="state != null" >
+              state
+            </if>
+            <if test="purchaseOrderId != null" >
+              purchase_order_id
+            </if>
+            <if test="createTime != null" >
+              create_time
+            </if>
+            <if test="updateTime != null" >
+              update_time
+            </if>
+
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null" >
+                #{id}
+            </if>
+            <if test="purchaseSku != null" >
+                #{purchaseSku}
+            </if>
+            <if test="supplierName != null" >
+                #{supplierName}
+            </if>
+            <if test="productId != null" >
+                #{productId}
+            </if>
+            <if test="variantId != null" >
+                #{variantId}
+            </if>
+            <if test="variantSku != null" >
+                #{variantSku}
+            </if>
+            <if test="cnName != null" >
+                #{cnName}
+            </if>
+            <if test="variantImage != null" >
+                #{variantImage}
+            </if>
+            <if test="purchaseLink != null" >
+                #{purchaseLink}
+            </if>
+            <if test="quantity != null" >
+                #{quantity}
+            </if>
+            <if test="specId != null" >
+                #{specId}
+            </if>
+            <if test="operatorId != null" >
+                #{operatorId}
+            </if>
+            <if test="state != null" >
+                #{state}
+            </if>
+            <if test="purchaseOrderId != null" >
+                #{purchaseOrderId}
+            </if>
+            <if test="createTime != null" >
+                #{createTime}
+            </if>
+            <if test="updateTime != null" >
+                #{updateTime}
+            </if>
+
+        </trim>
+    </insert>
+
+    <insert id="insertByBatch" parameterType="java.util.List">
+        insert into purchase_plan
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+           id,
+           purchase_sku,
+           supplier_name,
+           product_id,
+           variant_id,
+           variant_sku,
+           cn_name,
+           variant_image,
+           purchase_link,
+           quantity,
+           spec_id,
+           operator_id,
+           state,
+           purchase_order_id,
+           create_time,
+           update_time
+        </trim>
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+               #{item.id},
+               #{item.purchaseSku},
+               #{item.supplierName},
+               #{item.productId},
+               #{item.variantId},
+               #{item.variantSku},
+               #{item.cnName},
+               #{item.variantImage},
+               #{item.purchaseLink},
+               #{item.quantity},
+               #{item.specId},
+               #{item.operatorId},
+               #{item.state},
+               #{item.purchaseOrderId},
+               #{item.createTime},
+               #{item.updateTime}
+            </trim>
+        </foreach>
+    </insert>
+
+    <sql id="Query_Condition">
+        <if test="t != null">
+            where
+            <trim prefix=" " suffix=" " suffixOverrides=" and ">
+                1 = 1 and
+                    <if test="t.id != null">
+                        id = #{t.id} and
+                    </if>
+                    <if test="t.purchaseSku != null">
+                        purchase_sku = #{t.purchaseSku} and
+                    </if>
+                    <if test="t.supplierName != null">
+                        supplier_name = #{t.supplierName} and
+                    </if>
+                    <if test="t.productId != null">
+                        product_id = #{t.productId} and
+                    </if>
+                    <if test="t.variantId != null">
+                        variant_id = #{t.variantId} and
+                    </if>
+                    <if test="t.variantSku != null">
+                        variant_sku = #{t.variantSku} and
+                    </if>
+                    <if test="t.cnName != null">
+                        cn_name = #{t.cnName} and
+                    </if>
+                    <if test="t.variantImage != null">
+                        variant_image = #{t.variantImage} and
+                    </if>
+                    <if test="t.purchaseLink != null">
+                        purchase_link = #{t.purchaseLink} and
+                    </if>
+                    <if test="t.quantity != null">
+                        quantity = #{t.quantity} and
+                    </if>
+                    <if test="t.specId != null">
+                        spec_id = #{t.specId} and
+                    </if>
+                    <if test="t.operatorId != null">
+                        operator_id = #{t.operatorId} and
+                    </if>
+                    <if test="t.state != null">
+                        state = #{t.state} and
+                    </if>
+                    <if test="t.purchaseOrderId != null">
+                        purchase_order_id = #{t.purchaseOrderId} and
+                    </if>
+                    <if test="t.createTime != null">
+                        create_time = #{t.createTime} and
+                    </if>
+                    <if test="t.updateTime != null">
+                        update_time = #{t.updateTime} and
+                    </if>
+            </trim>
+        </if>
+    </sql>
+
+    <select id="select" parameterType="com.upedge.common.base.Page" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from purchase_plan
+        <include refid="Query_Condition"/>
+        <if test="orderBy != null">
+            order by ${orderBy}
+        </if>
+        <if test="pageNum != null and pageSize != null">
+            limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+        </if>
+    </select>
+
+    <select id="count" parameterType="com.upedge.common.base.Page" resultType="java.lang.Long">
+        select
+        count(1)
+        from purchase_plan
+        <include refid="Query_Condition"/>
+    </select>
+
+    <select id="selectPlaningVariantIds" resultType="java.lang.Long">
+        select distinct variant_id
+        from purchase_plan
+        where state = '0'
+    </select>
+</mapper>

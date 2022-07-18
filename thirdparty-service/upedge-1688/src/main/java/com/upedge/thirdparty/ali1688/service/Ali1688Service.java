@@ -3,6 +3,9 @@ package com.upedge.thirdparty.ali1688.service;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.ocean.rawsdk.ApiExecutor;
 import com.alibaba.ocean.rawsdk.common.SDKResult;
+import com.alibaba.trade.param.AlibabaCreateOrderPreviewResultModel;
+import com.alibaba.trade.param.AlibabaTradeFastAddress;
+import com.alibaba.trade.param.AlibabaTradeFastCargo;
 import com.upedge.common.model.product.AlibabaApiVo;
 import com.upedge.common.utils.GetImgUrlList;
 import com.upedge.common.utils.OkHttpRequest;
@@ -349,6 +352,20 @@ public class Ali1688Service {
         CommonResult result=sdkResult.getResult().getResult();
         return result;
 
+    }
+
+    public List<AlibabaCreateOrderPreviewResultModel> createOrderPreview(List<AlibabaTradeFastCargo> alibabaTradeFastCargos){
+        AlibabaTradeFastAddress addressParam = new AlibabaTradeFastAddress();
+        addressParam.setAddressId(0L);
+        addressParam.setFullName("辰戎贸易");
+        addressParam.setMobile("13751135729");
+        addressParam.setProvinceText("浙江省");
+        addressParam.setCityText("金华市");
+        addressParam.setAreaText("义乌市");
+        addressParam.setTownText("后宅街道");
+        addressParam.setAddress("遗安二区42幢1单元三楼");
+        addressParam.setPhone("13751135729");
+        return null;
     }
 
 

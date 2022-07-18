@@ -20,4 +20,7 @@ public class PurchaseController {
     public BaseResponse adviceList(@PathVariable String warehouseCode){
         return purchaseService.purchaseAdvice(warehouseCode);
     }
+
+
+
 }
