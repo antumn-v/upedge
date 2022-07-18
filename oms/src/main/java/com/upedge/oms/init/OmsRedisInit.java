@@ -1,6 +1,5 @@
 package com.upedge.oms.init;
 
-import com.upedge.common.constant.key.RedisKey;
 import com.upedge.oms.modules.order.service.OrderReshipInfoService;
 import com.upedge.oms.modules.stock.service.CustomerProductStockService;
 import com.upedge.oms.modules.vat.service.VatRuleService;
@@ -10,7 +9,6 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
-import java.util.Set;
 
 @Slf4j
 @Component
@@ -31,8 +29,8 @@ public class OmsRedisInit {
 
     @PostConstruct
     public void packageCurrentUsdRateInit(){
-        Set<String> keys = redisTemplate.keys(RedisKey.STRING_AREA_VAT_RULE + "*");
-        redisTemplate.delete(keys);
+//        Set<String> keys = redisTemplate.keys(RedisKey.STRING_AREA_VAT_RULE + "*");
+//        redisTemplate.delete(keys);
 
         customerProductStockService.redisInit();
 

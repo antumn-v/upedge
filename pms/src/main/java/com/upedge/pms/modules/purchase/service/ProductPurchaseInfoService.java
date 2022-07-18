@@ -4,13 +4,14 @@ import com.upedge.common.base.Page;
 import com.upedge.pms.modules.purchase.entity.ProductPurchaseInfo;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * @author gx
  */
 public interface ProductPurchaseInfoService{
 
-    List<ProductPurchaseInfo> selectByPurchaseSkus( List<String> purchaseSkus);
+    List<ProductPurchaseInfo> selectByPurchaseSkus( Set<String> purchaseSkus);
 
     ProductPurchaseInfo selectByPrimaryKey(String purchaseSku);
 

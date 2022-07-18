@@ -1179,6 +1179,42 @@ public class ProductServiceImpl implements ProductService {
 
 
     @Override
+    public BaseResponse test() {
+
+        Page<Product> page = new Page<>();
+        Product product = new Product();
+        product.setProductSource(0);
+        page.setT(product);
+        page.setPageSize(-1);
+        page.initFromNum();
+        AlibabaApiVo alibabaApiVo = (AlibabaApiVo) redisTemplate.opsForValue().get(RedisKey.STRING_ALI1688_API);
+        List<Product> products = select(page);
+        for (Product product1 : products) {
+            AlibabaProductVo productInfoVo = Ali1688Service.getProduct(product1.getProductSku(),alibabaApiVo);
+            if (null == productInfoVo){
+                continue;
+            }
+            List<ProductVariantVo> variantVos =productInfoVo.getProductVariantVoList();
+            List<ProductPurchaseInfo> productPurchaseInfos = new ArrayList<>();
+            for (ProductVariantVo variant : variantVos) {
+                ProductPurchaseInfo productPurchaseInfo = new ProductPurchaseInfo();
+                productPurchaseInfo.setPurchaseLink(productInfoVo.getProductSku());
+                productPurchaseInfo.setSupplierName(productInfoVo.getSupplierVo().getSupplierName());
+                productPurchaseInfo.setPurchaseSku(variant.getVariantSku());
+                productPurchaseInfo.setVariantImage(variant.getVariantImage());
+                List<ProductVariantAttrVo> variantAttrVoList = variant.getVariantAttrVoList();
+
+                productPurchaseInfo.setVariantName(variantAttrVoList.stream().map(ProductVariantAttrVo::getVariantAttrCvalue).collect(Collectors.toList()).toString());
+                productPurchaseInfo.setSpecId(variant.getSpecId());
+                productPurchaseInfos.add(productPurchaseInfo);
+            }
+            productPurchaseInfoService.insertByBatch(productPurchaseInfos);
+        }
+
+        return BaseResponse.success();
+    }
+
+    @Override
     public BaseResponse selectCustomerPrivateProduct(Page<ProductListDto> record) {
         record.setCondition("state != '5'");
         record.setOrderBy("update_time desc");

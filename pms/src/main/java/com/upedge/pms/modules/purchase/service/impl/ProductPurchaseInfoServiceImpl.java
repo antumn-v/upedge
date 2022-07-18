@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 
 @Service
@@ -61,8 +62,8 @@ public class ProductPurchaseInfoServiceImpl implements ProductPurchaseInfoServic
     }
 
     @Override
-    public List<ProductPurchaseInfo> selectByPurchaseSkus(List<String> purchaseSkus) {
-        if (ListUtils.isEmpty(purchaseSkus)){
+    public List<ProductPurchaseInfo> selectByPurchaseSkus(Set<String> purchaseSkus) {
+        if (purchaseSkus == null || purchaseSkus.size() == 0){
             return new ArrayList<>();
         }
         return productPurchaseInfoDao.selectByPurchaseSkus(purchaseSkus);

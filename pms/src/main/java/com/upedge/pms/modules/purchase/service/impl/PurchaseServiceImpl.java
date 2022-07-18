@@ -12,14 +12,12 @@ import com.upedge.pms.modules.purchase.entity.VariantWarehouseStock;
 import com.upedge.pms.modules.purchase.service.ProductPurchaseInfoService;
 import com.upedge.pms.modules.purchase.service.PurchaseService;
 import com.upedge.pms.modules.purchase.service.VariantWarehouseStockService;
+import org.apache.commons.collections.MapUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service
 public class PurchaseServiceImpl implements PurchaseService {
@@ -50,7 +48,7 @@ public class PurchaseServiceImpl implements PurchaseService {
             variantIds.add(purchaseAdviceItemVo.getVariantId());
         }
 
-        List<String> purchaseSkus = new ArrayList<>();
+        Set<String> purchaseSkus = new HashSet<>();
         List<ProductVariant> productVariants = productVariantService.listVariantByIds(variantIds);
 
         List<VariantWarehouseStock> variantWarehouseStocks = variantWarehouseStockService.selectByVariantIdsAndWarehouseCode(variantIds,warehouseCode);
@@ -69,7 +67,7 @@ public class PurchaseServiceImpl implements PurchaseService {
             }
             for (ProductVariant productVariant : productVariants) {
                 purchaseSkus.add(productVariant.getPurchaseSku());
-                if (purchaseAdviceItemVo.getVariantId().equals(productVariant)){
+                if (purchaseAdviceItemVo.getVariantId().equals(productVariant.getId())){
                     BeanUtils.copyProperties(productVariant,purchaseAdviceItemVo);
                     productVariants.remove(productVariant);
                     continue a;
@@ -79,8 +77,35 @@ public class PurchaseServiceImpl implements PurchaseService {
 
         List<ProductPurchaseInfo> productPurchaseInfos = productPurchaseInfoService.selectByPurchaseSkus(purchaseSkus);
         Map<String, PurchaseAdviceVo> purchaseAdviceVoMap = new HashMap<>();
-
-        return null;
+        a:
+        for (PurchaseAdviceItemVo purchaseAdviceItemVo : purchaseAdviceItemVos) {
+            if (purchaseAdviceItemVo.getPurchaseSku() == null){
+                continue ;
+            }
+            for (ProductPurchaseInfo productPurchaseInfo : productPurchaseInfos) {
+                String supplierName = productPurchaseInfo.getSupplierName();
+                String purchaseSku = productPurchaseInfo.getPurchaseSku();
+                if (purchaseAdviceItemVo.getPurchaseSku().equals(purchaseSku)){
+                    PurchaseAdviceVo purchaseAdviceVo = purchaseAdviceVoMap.get(supplierName);
+                    if (purchaseAdviceVo == null){
+                        purchaseAdviceVo = new PurchaseAdviceVo();
+                        purchaseAdviceVo.setSupplierName(supplierName);
+                        purchaseAdviceVo.setWarehouseCode(warehouseCode);
+                    }
+                    purchaseAdviceVo.getPurchaseAdviceItemVos().add(purchaseAdviceItemVo);
+                    purchaseAdviceVoMap.put(supplierName,purchaseAdviceVo);
+                    continue a;
+                }
+            }
+        }
+        if (MapUtils.isEmpty(purchaseAdviceVoMap)){
+            return BaseResponse.success(new ArrayList<>());
+        }
+        List<PurchaseAdviceVo> purchaseAdviceVos = new ArrayList<>();
+        for (Map.Entry<String,PurchaseAdviceVo> map:purchaseAdviceVoMap.entrySet()){
+            purchaseAdviceVos.add(map.getValue());
+        }
+        return BaseResponse.success(purchaseAdviceVos);
     }
 
     @Override

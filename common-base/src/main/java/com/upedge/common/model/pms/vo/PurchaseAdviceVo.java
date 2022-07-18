@@ -2,6 +2,7 @@ package com.upedge.common.model.pms.vo;
 
 import lombok.Data;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -11,5 +12,5 @@ public class PurchaseAdviceVo {
 
     private String warehouseCode;
 
-    private List<PurchaseAdviceItemVo> purchaseAdviceItemVos;
+    private List<PurchaseAdviceItemVo> purchaseAdviceItemVos = new ArrayList<>();
 }

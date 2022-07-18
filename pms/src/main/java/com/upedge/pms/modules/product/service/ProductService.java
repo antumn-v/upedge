@@ -24,6 +24,8 @@ import java.util.List;
  */
 public interface ProductService{
 
+    BaseResponse test();
+
     BaseResponse selectCustomerPrivateProduct(Page<ProductListDto> record);
 
     List<Product> selectByIds(List<Long> productIds);
