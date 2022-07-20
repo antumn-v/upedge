@@ -1,9 +1,9 @@
 package com.upedge.pms.modules.purchase.service;
 
 import com.upedge.common.base.BaseResponse;
+import com.upedge.common.base.Page;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.pms.modules.purchase.entity.PurchasePlan;
-import com.upedge.common.base.Page;
 import com.upedge.pms.modules.purchase.request.PurchasePlanAddRequest;
 
 import java.util.List;
@@ -12,6 +12,8 @@ import java.util.List;
  * @author gx
  */
 public interface PurchasePlanService{
+
+    List<PurchasePlan> selectByIds( List<Integer> ids);
 
     List<Long> selectPlaningVariantIds();
 

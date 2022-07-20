@@ -11,4 +11,7 @@ public class PurchaseOrderCreateRequest {
 
     @Size(min = 1)
     private List<PurchaseOrderCreateDto> purchaseOrderCreateDtos;
+
+    @Size(min = 1)
+    public List<Integer> ids;
 }

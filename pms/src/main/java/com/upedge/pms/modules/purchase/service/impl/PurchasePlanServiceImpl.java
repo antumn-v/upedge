@@ -3,6 +3,7 @@ package com.upedge.pms.modules.purchase.service.impl;
 import com.upedge.common.base.BaseResponse;
 import com.upedge.common.base.Page;
 import com.upedge.common.model.user.vo.Session;
+import com.upedge.common.utils.ListUtils;
 import com.upedge.pms.modules.product.entity.ProductVariant;
 import com.upedge.pms.modules.product.service.ProductVariantService;
 import com.upedge.pms.modules.purchase.dao.PurchasePlanDao;
@@ -16,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -58,6 +60,14 @@ public class PurchasePlanServiceImpl implements PurchasePlanService {
     @Transactional
     public int insertSelective(PurchasePlan record) {
         return purchasePlanDao.insert(record);
+    }
+
+    @Override
+    public List<PurchasePlan> selectByIds(List<Integer> ids) {
+        if (ListUtils.isNotEmpty(ids)){
+            return purchasePlanDao.selectByIds(ids);
+        }
+        return new ArrayList<>();
     }
 
     @Override

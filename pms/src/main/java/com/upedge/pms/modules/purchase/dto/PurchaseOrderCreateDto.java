@@ -7,5 +7,5 @@ public class PurchaseOrderCreateDto {
 
     String purchaseSku;
 
-    Integer quantity;
+    Double quantity;
 }

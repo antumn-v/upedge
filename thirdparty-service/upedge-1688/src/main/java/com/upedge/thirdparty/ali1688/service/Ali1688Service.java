@@ -3,9 +3,8 @@ package com.upedge.thirdparty.ali1688.service;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.ocean.rawsdk.ApiExecutor;
 import com.alibaba.ocean.rawsdk.common.SDKResult;
-import com.alibaba.trade.param.AlibabaCreateOrderPreviewResultModel;
-import com.alibaba.trade.param.AlibabaTradeFastAddress;
-import com.alibaba.trade.param.AlibabaTradeFastCargo;
+import com.alibaba.trade.param.*;
+import com.upedge.common.exception.CustomerException;
 import com.upedge.common.model.product.AlibabaApiVo;
 import com.upedge.common.utils.GetImgUrlList;
 import com.upedge.common.utils.OkHttpRequest;
@@ -354,7 +353,9 @@ public class Ali1688Service {
 
     }
 
-    public List<AlibabaCreateOrderPreviewResultModel> createOrderPreview(List<AlibabaTradeFastCargo> alibabaTradeFastCargos){
+    public static List<AlibabaCreateOrderPreviewResultModel> createOrderPreview(List<AlibabaTradeFastCargo> alibabaTradeFastCargos,AlibabaApiVo alibabaApiVo) throws CustomerException {
+        ApiExecutor apiExecutor = new ApiExecutor(alibabaApiVo.getApiKey(), alibabaApiVo.getApiSecret());
+
         AlibabaTradeFastAddress addressParam = new AlibabaTradeFastAddress();
         addressParam.setAddressId(0L);
         addressParam.setFullName("辰戎贸易");
@@ -365,7 +366,44 @@ public class Ali1688Service {
         addressParam.setTownText("后宅街道");
         addressParam.setAddress("遗安二区42幢1单元三楼");
         addressParam.setPhone("13751135729");
-        return null;
+
+        AlibabaCreateOrderPreviewParam createOrderPreviewParam = new AlibabaCreateOrderPreviewParam();
+        createOrderPreviewParam.setAddressParam(addressParam);
+        createOrderPreviewParam.setCargoParamList(alibabaTradeFastCargos.toArray(new AlibabaTradeFastCargo[alibabaTradeFastCargos.size()]));
+        createOrderPreviewParam.setFlow("general");
+
+        SDKResult<AlibabaCreateOrderPreviewResult> sdkResult =
+                apiExecutor.execute(createOrderPreviewParam, alibabaApiVo.getAccessToken());
+        if(sdkResult.getErrorMessage() != null){
+            throw new CustomerException(sdkResult.getErrorMessage());
+        }
+        AlibabaCreateOrderPreviewResult result=sdkResult.getResult();
+        return Arrays.asList(result.getOrderPreviewResuslt());
+    }
+
+    public static AlibabaTradeFastResult createOrder(List<AlibabaTradeFastCargo> alibabaTradeFastCargos,AlibabaApiVo alibabaApiVo){
+        ApiExecutor apiExecutor = new ApiExecutor(alibabaApiVo.getApiKey(), alibabaApiVo.getApiSecret());
+
+        AlibabaTradeFastAddress addressParam = new AlibabaTradeFastAddress();
+        addressParam.setAddressId(0L);
+        addressParam.setFullName("辰戎贸易");
+        addressParam.setMobile("13751135729");
+        addressParam.setProvinceText("浙江省");
+        addressParam.setCityText("金华市");
+        addressParam.setAreaText("义乌市");
+        addressParam.setTownText("后宅街道");
+        addressParam.setAddress("遗安二区42幢1单元三楼");
+        addressParam.setPhone("13751135729");
+
+        AlibabaTradeFastCreateOrderParam createOrderPreviewParam = new AlibabaTradeFastCreateOrderParam();
+        createOrderPreviewParam.setAddressParam(addressParam);
+        createOrderPreviewParam.setCargoParamList(alibabaTradeFastCargos.toArray(new AlibabaTradeFastCargo[alibabaTradeFastCargos.size()]));
+        createOrderPreviewParam.setFlow("general");
+
+        SDKResult<AlibabaTradeFastCreateOrderResult> sdkResult =
+                apiExecutor.execute(createOrderPreviewParam, alibabaApiVo.getAccessToken());
+        AlibabaTradeFastCreateOrderResult result=sdkResult.getResult();
+        return result.getResult();
     }
 
 

@@ -2,6 +2,7 @@ package com.upedge.pms.modules.purchase.dao;
 
 import com.upedge.common.base.Page;
 import com.upedge.pms.modules.purchase.entity.PurchasePlan;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -9,6 +10,8 @@ import java.util.List;
  * @author gx
  */
 public interface PurchasePlanDao{
+
+    List<PurchasePlan> selectByIds(@Param("ids") List<Integer> ids);
 
     List<Long> selectPlaningVariantIds();
 
