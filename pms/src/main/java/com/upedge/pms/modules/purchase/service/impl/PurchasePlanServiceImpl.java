@@ -63,6 +63,19 @@ public class PurchasePlanServiceImpl implements PurchasePlanService {
     }
 
     @Override
+    public int updateVariantStockByIds(List<Integer> ids) {
+        if (ListUtils.isNotEmpty(ids)){
+            return purchasePlanDao.updateVariantStockByIds(ids);
+        }
+        return 0;
+    }
+
+    @Override
+    public int updatePurchaseOrderIdByIds(List<Integer> Ids, Long purchaseOrderId) {
+        return 0;
+    }
+
+    @Override
     public List<PurchasePlan> selectByIds(List<Integer> ids) {
         if (ListUtils.isNotEmpty(ids)){
             return purchasePlanDao.selectByIds(ids);

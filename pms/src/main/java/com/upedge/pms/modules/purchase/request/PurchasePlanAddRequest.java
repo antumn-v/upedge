@@ -18,5 +18,4 @@ public class PurchasePlanAddRequest{
     */
     private Integer quantity;
 
-
 }

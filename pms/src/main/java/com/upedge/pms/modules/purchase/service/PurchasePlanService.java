@@ -13,6 +13,10 @@ import java.util.List;
  */
 public interface PurchasePlanService{
 
+    int updateVariantStockByIds(List<Integer> ids);
+
+    int updatePurchaseOrderIdByIds(List<Integer> Ids,Long purchaseOrderId);
+
     List<PurchasePlan> selectByIds( List<Integer> ids);
 
     List<Long> selectPlaningVariantIds();

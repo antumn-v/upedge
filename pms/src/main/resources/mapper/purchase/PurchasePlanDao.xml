@@ -129,8 +129,9 @@
             quantity,
             spec_id,
             operator_id,
-            state,
+            `state`,
             purchase_order_id,
+            warehouse_code,
             create_time,
             update_time
         </trim>
@@ -149,6 +150,7 @@
         #{operatorId},
         #{state},
         #{purchaseOrderId},
+        'CNHZ',
         #{createTime},
         #{updateTime}
         )
@@ -395,4 +397,25 @@
             #{id}
         </foreach>
     </select>
+
+    <update id="updatePurchaseOrderIdByIds">
+        update purchase_plan
+            set state = '1',purchase_order_id = #{purchaseOrderId}
+        where state = '0'
+        and id in
+        <foreach collection="ids" open="(" close=")" separator="," item="id">
+            #{id}
+        </foreach>
+    </update>
+
+    <update id="updateVariantStockByIds">
+        update variant_warehouse_stock vws
+                inner join purchase_plan p
+        on vws.variant_id = p.variant_id
+                set vws.purchase_stock = vws.purchase_stock + p.quantity
+        where p.id in
+        <foreach collection="ids" open="(" close=")" separator="," item="id">
+            #{id}
+        </foreach>
+    </update>
 </mapper>

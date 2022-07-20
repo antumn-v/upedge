@@ -3,6 +3,7 @@ package com.upedge.pms.modules.purchase.service.impl;
 import com.alibaba.trade.param.AlibabaCreateOrderPreviewResultCargoModel;
 import com.alibaba.trade.param.AlibabaCreateOrderPreviewResultModel;
 import com.alibaba.trade.param.AlibabaTradeFastCargo;
+import com.alibaba.trade.param.AlibabaTradeFastResult;
 import com.upedge.common.base.BaseResponse;
 import com.upedge.common.constant.key.RedisKey;
 import com.upedge.common.exception.CustomerException;
@@ -11,17 +12,13 @@ import com.upedge.common.model.pms.vo.PurchaseAdviceItemVo;
 import com.upedge.common.model.pms.vo.PurchaseAdviceVo;
 import com.upedge.common.model.product.AlibabaApiVo;
 import com.upedge.common.model.user.vo.Session;
+import com.upedge.common.utils.IdGenerate;
 import com.upedge.common.utils.ListUtils;
 import com.upedge.pms.modules.product.entity.ProductVariant;
 import com.upedge.pms.modules.product.service.ProductVariantService;
-import com.upedge.pms.modules.purchase.entity.ProductPurchaseInfo;
-import com.upedge.pms.modules.purchase.entity.PurchasePlan;
-import com.upedge.pms.modules.purchase.entity.VariantWarehouseStock;
+import com.upedge.pms.modules.purchase.entity.*;
 import com.upedge.pms.modules.purchase.request.PurchaseOrderCreateRequest;
-import com.upedge.pms.modules.purchase.service.ProductPurchaseInfoService;
-import com.upedge.pms.modules.purchase.service.PurchasePlanService;
-import com.upedge.pms.modules.purchase.service.PurchaseService;
-import com.upedge.pms.modules.purchase.service.VariantWarehouseStockService;
+import com.upedge.pms.modules.purchase.service.*;
 import com.upedge.pms.modules.purchase.vo.PurchaseItemVo;
 import com.upedge.pms.modules.purchase.vo.PurchaseOrderVo;
 import com.upedge.thirdparty.ali1688.service.Ali1688Service;
@@ -30,7 +27,9 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.*;
 
 @Service
@@ -47,6 +46,12 @@ public class PurchaseServiceImpl implements PurchaseService {
 
     @Autowired
     PurchasePlanService purchasePlanService;
+
+    @Autowired
+    PurchaseOrderService purchaseOrderService;
+
+    @Autowired
+    PurchaseOrderItemService purchaseOrderItemService;
 
     @Autowired
     OmsFeignClient omsFeignClient;
@@ -140,11 +145,11 @@ public class PurchaseServiceImpl implements PurchaseService {
             return BaseResponse.success(new ArrayList<>());
         }
 
-        Map<String,PurchasePlan> skuPurchasePlanMap = new HashMap<>();
+        Map<String, PurchasePlan> skuPurchasePlanMap = new HashMap<>();
         Set<String> purchaseSkus = new HashSet<>();
         for (PurchasePlan purchasePlan : purchasePlans) {
             purchaseSkus.add(purchasePlan.getPurchaseSku());
-            skuPurchasePlanMap.put(purchasePlan.getSpecId(),purchasePlan);
+            skuPurchasePlanMap.put(purchasePlan.getSpecId(), purchasePlan);
         }
         List<ProductPurchaseInfo> productPurchaseInfos = productPurchaseInfoService.selectByPurchaseSkus(purchaseSkus);
 
@@ -182,15 +187,15 @@ public class PurchaseServiceImpl implements PurchaseService {
                     List<AlibabaCreateOrderPreviewResultCargoModel> resultCargoModels = Arrays.asList(previewResultModel.getCargoList());
                     for (AlibabaCreateOrderPreviewResultCargoModel resultCargoModel : resultCargoModels) {
                         PurchasePlan purchasePlan = skuPurchasePlanMap.get(resultCargoModel.getSpecId());
-                        if (null == purchasePlan){
+                        if (null == purchasePlan) {
                             continue;
                         }
                         PurchaseItemVo purchaseItemVo = new PurchaseItemVo();
-                        BeanUtils.copyProperties(purchasePlan,purchaseItemVo);
+                        BeanUtils.copyProperties(purchasePlan, purchaseItemVo);
                         purchaseItemVo.setPrice(resultCargoModel.getFinalUnitPrice());
                         purchaseItemVos.add(purchaseItemVo);
                         purchaseOrderVo.setCargoPromotionList(Arrays.asList(resultCargoModel.getCargoPromotionList()));
-                     }
+                    }
                     purchaseOrderVo.setPurchaseItemVos(purchaseItemVos);
                     purchaseOrderVos.add(purchaseOrderVo);
                 }
@@ -203,8 +208,81 @@ public class PurchaseServiceImpl implements PurchaseService {
         return BaseResponse.success(purchaseOrderVos);
     }
 
+
+    @Transactional
     @Override
-    public BaseResponse createPurchaseOrder() {
-        return null;
+    public BaseResponse createPurchaseOrder(PurchaseOrderCreateRequest request, Session session) {
+        List<PurchasePlan> purchasePlans = purchasePlanService.selectByIds(request.getIds());
+        if (ListUtils.isEmpty(purchasePlans)) {
+            return BaseResponse.success(new ArrayList<>());
+        }
+
+        Map<String, PurchasePlan> skuPurchasePlanMap = new HashMap<>();
+        Set<String> purchaseSkus = new HashSet<>();
+        for (PurchasePlan purchasePlan : purchasePlans) {
+            purchaseSkus.add(purchasePlan.getPurchaseSku());
+            skuPurchasePlanMap.put(purchasePlan.getSpecId(), purchasePlan);
+        }
+        List<ProductPurchaseInfo> productPurchaseInfos = productPurchaseInfoService.selectByPurchaseSkus(purchaseSkus);
+
+        Map<String, List<Integer>> supplierPurchasePlans = new HashMap<>();
+        Map<String, List<AlibabaTradeFastCargo>> supplierCargosMap = new HashMap<>();
+
+        for (PurchasePlan purchasePlan : purchasePlans) {
+            if (!supplierCargosMap.containsKey(purchasePlan.getSupplierName())) {
+                supplierCargosMap.put(purchasePlan.getSupplierName(), new ArrayList<AlibabaTradeFastCargo>());
+                supplierPurchasePlans.put(purchasePlan.getSupplierName(), new ArrayList<>());
+            }
+            supplierPurchasePlans.get(purchasePlan.getSupplierName()).add(purchasePlan.getId());
+            for (ProductPurchaseInfo productPurchaseInfo : productPurchaseInfos) {
+                if (productPurchaseInfo.getPurchaseSku().equals(purchasePlan.getPurchaseSku())) {
+                    AlibabaTradeFastCargo alibabaTradeFastCargo = new AlibabaTradeFastCargo();
+                    alibabaTradeFastCargo.setOfferId(Long.parseLong(productPurchaseInfo.getPurchaseLink()));
+                    alibabaTradeFastCargo.setSpecId(productPurchaseInfo.getSpecId());
+                    alibabaTradeFastCargo.setQuantity(purchasePlan.getQuantity().doubleValue());
+                    supplierCargosMap.get(purchasePlan.getSupplierName()).add(alibabaTradeFastCargo);
+                }
+            }
+        }
+
+        AlibabaApiVo alibabaApiVo = (AlibabaApiVo) redisTemplate.opsForValue().get(RedisKey.STRING_ALI1688_API);
+
+        for (Map.Entry<String, List<AlibabaTradeFastCargo>> map : supplierCargosMap.entrySet()) {
+            List<AlibabaTradeFastCargo> tradeFastCargos = map.getValue();
+            AlibabaTradeFastResult alibabaTradeFastResult = null;
+            try {
+                alibabaTradeFastResult = Ali1688Service.createOrder(tradeFastCargos, alibabaApiVo);
+            } catch (CustomerException e) {
+                e.printStackTrace();
+                continue;
+            }
+            Long id = IdGenerate.nextId();
+            PurchaseOrder purchaseOrder = new PurchaseOrder(id, alibabaTradeFastResult.getOrderId(),
+                    BigDecimal.ZERO,
+                    new BigDecimal(alibabaTradeFastResult.getPostFee().toString()),
+                    new BigDecimal(alibabaTradeFastResult.getTotalSuccessAmount().toString()),
+                    BigDecimal.ZERO,
+                    map.getKey(),
+                    0, 0, session.getId());
+
+            List<PurchaseOrderItem> purchaseItems = new ArrayList<>();
+            for (AlibabaTradeFastCargo tradeFastCargo : tradeFastCargos) {
+                PurchasePlan purchasePlan = skuPurchasePlanMap.get(tradeFastCargo.getSpecId());
+                if (null == purchasePlan) {
+                    continue;
+                }
+                PurchaseOrderItem purchaseItem = new PurchaseOrderItem();
+                BeanUtils.copyProperties(purchasePlan, purchaseItem);
+                purchaseItem.setOrderId(id);
+                purchaseItem.setId(IdGenerate.nextId());
+                purchaseItems.add(purchaseItem);
+            }
+            List<Integer> planIds = supplierPurchasePlans.get(map.getKey());
+            purchaseOrderService.insert(purchaseOrder);
+            purchaseOrderItemService.insertByBatch(purchaseItems);
+            purchasePlanService.updatePurchaseOrderIdByIds(planIds,id);
+            purchasePlanService.updateVariantStockByIds(planIds);
+        }
+        return BaseResponse.success();
     }
 }

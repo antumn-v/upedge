@@ -381,7 +381,7 @@ public class Ali1688Service {
         return Arrays.asList(result.getOrderPreviewResuslt());
     }
 
-    public static AlibabaTradeFastResult createOrder(List<AlibabaTradeFastCargo> alibabaTradeFastCargos,AlibabaApiVo alibabaApiVo){
+    public static AlibabaTradeFastResult createOrder(List<AlibabaTradeFastCargo> alibabaTradeFastCargos,AlibabaApiVo alibabaApiVo) throws CustomerException {
         ApiExecutor apiExecutor = new ApiExecutor(alibabaApiVo.getApiKey(), alibabaApiVo.getApiSecret());
 
         AlibabaTradeFastAddress addressParam = new AlibabaTradeFastAddress();
@@ -402,6 +402,9 @@ public class Ali1688Service {
 
         SDKResult<AlibabaTradeFastCreateOrderResult> sdkResult =
                 apiExecutor.execute(createOrderPreviewParam, alibabaApiVo.getAccessToken());
+        if(sdkResult.getErrorMessage() != null){
+            throw new CustomerException(sdkResult.getErrorMessage());
+        }
         AlibabaTradeFastCreateOrderResult result=sdkResult.getResult();
         return result.getResult();
     }

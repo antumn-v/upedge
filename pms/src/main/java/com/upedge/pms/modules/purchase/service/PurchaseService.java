@@ -10,5 +10,5 @@ public interface PurchaseService {
 
     BaseResponse previewPurchaseOrder(PurchaseOrderCreateRequest request, Session session);
 
-    BaseResponse createPurchaseOrder();
+    BaseResponse createPurchaseOrder(PurchaseOrderCreateRequest request, Session session);
 }

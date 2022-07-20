@@ -9,7 +9,11 @@ import java.util.List;
 /**
  * @author gx
  */
-public interface PurchasePlanDao{
+public interface PurchasePlanDao {
+
+    int updateVariantStockByIds(@Param("ids") List<Integer> ids);
+
+    int updatePurchaseOrderIdByIds(@Param("Ids") List<Integer> Ids, @Param("purchaseOrderId") Long purchaseOrderId);
 
     List<PurchasePlan> selectByIds(@Param("ids") List<Integer> ids);
 
