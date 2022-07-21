@@ -1,8 +1,8 @@
 package com.upedge.pms.modules.purchase.request;
 
 import com.upedge.pms.modules.purchase.entity.PurchaseOrderItem;
-import java.util.Date;
 import lombok.Data;
+
 import java.math.BigDecimal;
 /**
  * @author gx
@@ -17,7 +17,7 @@ public class PurchaseOrderItemUpdateRequest{
     /**
      * 
      */
-    private Long varaintId;
+    private Long variantId;
     /**
      * 
      */
@@ -59,7 +59,7 @@ public class PurchaseOrderItemUpdateRequest{
         PurchaseOrderItem purchaseOrderItem=new PurchaseOrderItem();
         purchaseOrderItem.setId(id);
         purchaseOrderItem.setOrderId(orderId);
-        purchaseOrderItem.setVaraintId(varaintId);
+        purchaseOrderItem.setVariantId(variantId);
         purchaseOrderItem.setProductId(productId);
         purchaseOrderItem.setPurchaseLink(purchaseLink);
         purchaseOrderItem.setVariantName(variantName);

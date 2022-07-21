@@ -13,6 +13,7 @@ import com.upedge.common.utils.ListUtils;
 import com.upedge.common.web.util.RedisUtil;
 import com.upedge.pms.modules.product.entity.ProductVariant;
 import com.upedge.pms.modules.product.service.ProductVariantService;
+import com.upedge.pms.modules.purchase.entity.PurchasePlan;
 import com.upedge.pms.modules.purchase.vo.VariantWarehouseStockVo;
 import com.upedge.pms.modules.purchase.dao.VariantWarehouseStockDao;
 import com.upedge.pms.modules.purchase.entity.VariantWarehouseStock;
@@ -79,6 +80,37 @@ public class VariantWarehouseStockServiceImpl implements VariantWarehouseStockSe
     @Override
     public List<VariantWarehouseStock> selectByVariantIdsAndWarehouseCode(List<Long> variantIds, String warehouseCode) {
         return variantWarehouseStockDao.selectByVariantIdsAndWarehouseCode(variantIds, warehouseCode);
+    }
+
+    @Override
+    public boolean updateVariantPurchaseStockByPlan(List<PurchasePlan> purchasePlans) {
+        for (PurchasePlan purchasePlan : purchasePlans) {
+            updateVariantPurchaseStockByPlan(purchasePlan);
+        }
+        return true;
+    }
+
+    boolean updateVariantPurchaseStockByPlan(PurchasePlan purchasePlan){
+        VariantWarehouseStock variantWarehouseStock = variantWarehouseStockDao.selectByPrimaryKey(purchasePlan.getVariantId(), "CNHZ");
+        if (variantWarehouseStock == null){
+            variantWarehouseStock = new VariantWarehouseStock(purchasePlan.getVariantId(), "CNHZ",1, 0, purchasePlan.getQuantity(),0,"","");
+            insert(variantWarehouseStock);
+        }else {
+            variantWarehouseStockDao.updateVariantPurchaseStock(purchasePlan.getVariantId(), "CNHZ",purchasePlan.getQuantity());
+        }
+        VariantWarehouseStockRecord variantWarehouseStockRecord =
+                new VariantWarehouseStockRecord(purchasePlan.getVariantId(),
+                        "CNHZ",
+                        purchasePlan.getQuantity(),
+                        VariantWarehouseStockRecord.PURCHASE_UPDATE,
+                        variantWarehouseStock.getPurchaseStock(),
+                        variantWarehouseStock.getPurchaseStock() + purchasePlan.getQuantity(),
+                        purchasePlan.getId().longValue(),
+                        new Date(),
+                        null,
+                        0L);
+        variantWarehouseStockRecordService.insert(variantWarehouseStockRecord);
+        return true;
     }
 
     @Transactional

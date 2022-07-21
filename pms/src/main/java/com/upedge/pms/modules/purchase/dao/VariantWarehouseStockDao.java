@@ -11,6 +11,8 @@ import java.util.List;
  */
 public interface VariantWarehouseStockDao {
 
+    int updateVariantPurchaseStock(@Param("variantId") Long variantId, @Param("warehouseCode") String warehouseCode, @Param("changeQuantity") Integer changeQuantity);
+
     VariantWarehouseStock selectByPrimaryKey(@Param("variantId") Long variantId, @Param("warehouseCode") String warehouseCode);
 
     List<VariantWarehouseStock> selectByVariantIdsAndWarehouseCode(@Param("variantIds") List<Long> variantIds, @Param("warehouseCode") String warehouseCode);

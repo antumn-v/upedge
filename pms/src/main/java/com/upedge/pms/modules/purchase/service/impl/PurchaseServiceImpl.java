@@ -14,12 +14,12 @@ import com.upedge.common.model.product.AlibabaApiVo;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.utils.IdGenerate;
 import com.upedge.common.utils.ListUtils;
+import com.upedge.common.web.util.RedisUtil;
 import com.upedge.pms.modules.product.entity.ProductVariant;
 import com.upedge.pms.modules.product.service.ProductVariantService;
 import com.upedge.pms.modules.purchase.entity.*;
 import com.upedge.pms.modules.purchase.request.PurchaseOrderCreateRequest;
 import com.upedge.pms.modules.purchase.service.*;
-import com.upedge.pms.modules.purchase.vo.PurchaseItemVo;
 import com.upedge.pms.modules.purchase.vo.PurchaseOrderVo;
 import com.upedge.thirdparty.ali1688.service.Ali1688Service;
 import org.apache.commons.collections.MapUtils;
@@ -178,21 +178,21 @@ public class PurchaseServiceImpl implements PurchaseService {
                 List<AlibabaCreateOrderPreviewResultModel> previewResultModels = Ali1688Service.createOrderPreview(map.getValue(), alibabaApiVo);
                 for (AlibabaCreateOrderPreviewResultModel previewResultModel : previewResultModels) {
                     PurchaseOrderVo purchaseOrderVo = new PurchaseOrderVo();
-                    purchaseOrderVo.setFreight(previewResultModel.getSumCarriage().doubleValue() / 100);
-                    purchaseOrderVo.setProductAmount(previewResultModel.getSumPaymentNoCarriage().doubleValue() / 100);
-                    purchaseOrderVo.setAmount(previewResultModel.getSumPayment().doubleValue() / 100);
+                    purchaseOrderVo.setShipPrice(new BigDecimal(previewResultModel.getSumCarriage() / 100));
+                    purchaseOrderVo.setProductAmount(new BigDecimal(previewResultModel.getSumPaymentNoCarriage().doubleValue() / 100));
+                    purchaseOrderVo.setAmount(new BigDecimal(previewResultModel.getSumPayment().doubleValue() / 100));
                     purchaseOrderVo.setSupplierName(map.getKey());
 
-                    List<PurchaseItemVo> purchaseItemVos = new ArrayList<>();
+                    List<PurchaseOrderItem> purchaseItemVos = new ArrayList<>();
                     List<AlibabaCreateOrderPreviewResultCargoModel> resultCargoModels = Arrays.asList(previewResultModel.getCargoList());
                     for (AlibabaCreateOrderPreviewResultCargoModel resultCargoModel : resultCargoModels) {
                         PurchasePlan purchasePlan = skuPurchasePlanMap.get(resultCargoModel.getSpecId());
                         if (null == purchasePlan) {
                             continue;
                         }
-                        PurchaseItemVo purchaseItemVo = new PurchaseItemVo();
+                        PurchaseOrderItem purchaseItemVo = new PurchaseOrderItem();
                         BeanUtils.copyProperties(purchasePlan, purchaseItemVo);
-                        purchaseItemVo.setPrice(resultCargoModel.getFinalUnitPrice());
+                        purchaseItemVo.setPrice(new BigDecimal(resultCargoModel.getFinalUnitPrice()));
                         purchaseItemVos.add(purchaseItemVo);
                         purchaseOrderVo.setCargoPromotionList(Arrays.asList(resultCargoModel.getCargoPromotionList()));
                     }
@@ -212,6 +212,12 @@ public class PurchaseServiceImpl implements PurchaseService {
     @Transactional
     @Override
     public BaseResponse createPurchaseOrder(PurchaseOrderCreateRequest request, Session session) {
+        String key = "key:createPurchaseOrder";
+        boolean b = RedisUtil.lock(redisTemplate,key,10L,60 * 1000L);
+        if (!b){
+            return BaseResponse.failed("其他采购单正在生成中，请稍候。");
+        }
+
         List<PurchasePlan> purchasePlans = purchasePlanService.selectByIds(request.getIds());
         if (ListUtils.isEmpty(purchasePlans)) {
             return BaseResponse.success(new ArrayList<>());
@@ -259,8 +265,8 @@ public class PurchaseServiceImpl implements PurchaseService {
             Long id = IdGenerate.nextId();
             PurchaseOrder purchaseOrder = new PurchaseOrder(id, alibabaTradeFastResult.getOrderId(),
                     BigDecimal.ZERO,
-                    new BigDecimal(alibabaTradeFastResult.getPostFee().toString()),
-                    new BigDecimal(alibabaTradeFastResult.getTotalSuccessAmount().toString()),
+                    new BigDecimal((alibabaTradeFastResult.getPostFee().doubleValue() / 100)),
+                    new BigDecimal(alibabaTradeFastResult.getTotalSuccessAmount().doubleValue() / 100),
                     BigDecimal.ZERO,
                     map.getKey(),
                     0, 0, session.getId());
@@ -273,6 +279,7 @@ public class PurchaseServiceImpl implements PurchaseService {
                 }
                 PurchaseOrderItem purchaseItem = new PurchaseOrderItem();
                 BeanUtils.copyProperties(purchasePlan, purchaseItem);
+                purchaseItem.setVariantName(purchasePlan.getCnName());
                 purchaseItem.setOrderId(id);
                 purchaseItem.setId(IdGenerate.nextId());
                 purchaseItems.add(purchaseItem);
@@ -281,8 +288,9 @@ public class PurchaseServiceImpl implements PurchaseService {
             purchaseOrderService.insert(purchaseOrder);
             purchaseOrderItemService.insertByBatch(purchaseItems);
             purchasePlanService.updatePurchaseOrderIdByIds(planIds,id);
-            purchasePlanService.updateVariantStockByIds(planIds);
         }
+        variantWarehouseStockService.updateVariantPurchaseStockByPlan(purchasePlans);
+        RedisUtil.unLock(redisTemplate,key);
         return BaseResponse.success();
     }
 }

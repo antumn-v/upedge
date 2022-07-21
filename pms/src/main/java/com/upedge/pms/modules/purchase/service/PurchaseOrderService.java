@@ -1,13 +1,18 @@
 package com.upedge.pms.modules.purchase.service;
 
-import com.upedge.pms.modules.purchase.entity.PurchaseOrder;
 import com.upedge.common.base.Page;
+import com.upedge.pms.modules.purchase.entity.PurchaseOrder;
+import com.upedge.pms.modules.purchase.request.PurchaseOrderListRequest;
+import com.upedge.pms.modules.purchase.vo.PurchaseOrderVo;
+
 import java.util.List;
 
 /**
  * @author gx
  */
 public interface PurchaseOrderService{
+
+    List<PurchaseOrderVo> orderList(PurchaseOrderListRequest request);
 
     PurchaseOrder selectByPrimaryKey(Long id);
 

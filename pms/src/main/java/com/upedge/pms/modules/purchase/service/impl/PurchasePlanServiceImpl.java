@@ -12,6 +12,7 @@ import com.upedge.pms.modules.purchase.entity.PurchasePlan;
 import com.upedge.pms.modules.purchase.request.PurchasePlanAddRequest;
 import com.upedge.pms.modules.purchase.service.ProductPurchaseInfoService;
 import com.upedge.pms.modules.purchase.service.PurchasePlanService;
+import com.upedge.pms.modules.purchase.service.VariantWarehouseStockService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -33,6 +34,9 @@ public class PurchasePlanServiceImpl implements PurchasePlanService {
 
     @Autowired
     ProductPurchaseInfoService productPurchaseInfoService;
+
+    @Autowired
+    VariantWarehouseStockService variantWarehouseStockService;
 
 
 
@@ -77,6 +81,8 @@ public class PurchasePlanServiceImpl implements PurchasePlanService {
 
     @Override
     public List<PurchasePlan> selectByIds(List<Integer> ids) {
+
+
         if (ListUtils.isNotEmpty(ids)){
             return purchasePlanDao.selectByIds(ids);
         }

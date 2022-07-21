@@ -21,7 +21,7 @@ public class PurchaseOrderItem{
 	/**
 	 * 
 	 */
-    private Long varaintId;
+    private Long variantId;
 	/**
 	 * 
 	 */

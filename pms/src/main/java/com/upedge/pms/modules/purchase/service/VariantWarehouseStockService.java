@@ -4,10 +4,10 @@ import com.upedge.common.base.BaseResponse;
 import com.upedge.common.base.Page;
 import com.upedge.common.model.oms.order.OrderItemQuantityVo;
 import com.upedge.common.model.user.vo.Session;
+import com.upedge.pms.modules.purchase.entity.PurchasePlan;
 import com.upedge.pms.modules.purchase.entity.VariantWarehouseStock;
 import com.upedge.pms.modules.purchase.request.VariantStockUpdateRequest;
 import com.upedge.pms.modules.purchase.request.VariantWarehouseStockListRequest;
-import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -17,6 +17,8 @@ import java.util.List;
 public interface VariantWarehouseStockService{
 
     List<VariantWarehouseStock> selectByVariantIdsAndWarehouseCode(List<Long> variantIds, String warehouseCode);
+
+    boolean updateVariantPurchaseStockByPlan(List<PurchasePlan> purchasePlans);
 
     boolean orderCheckStock(OrderItemQuantityVo orderItemQuantityVo) throws Exception;
 

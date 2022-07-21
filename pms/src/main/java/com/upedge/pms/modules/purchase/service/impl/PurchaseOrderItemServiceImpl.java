@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -52,6 +53,14 @@ public class PurchaseOrderItemServiceImpl implements PurchaseOrderItemService {
     @Transactional
     public int insertSelective(PurchaseOrderItem record) {
         return purchaseOrderItemDao.insert(record);
+    }
+
+    @Override
+    public List<PurchaseOrderItem> selectByOrderIds(List<Long> orderIds) {
+        if (ListUtils.isNotEmpty(orderIds)){
+            return purchaseOrderItemDao.selectByOrderIds(orderIds);
+        }
+        return new ArrayList<>();
     }
 
     /**

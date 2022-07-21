@@ -1,14 +1,17 @@
 package com.upedge.pms.modules.purchase.dao;
 
-import com.upedge.pms.modules.purchase.entity.PurchaseOrderItem;
-import org.apache.ibatis.annotations.Mapper;
-import java.util.List;
 import com.upedge.common.base.Page;
+import com.upedge.pms.modules.purchase.entity.PurchaseOrderItem;
+import org.apache.ibatis.annotations.Param;
+
+import java.util.List;
 
 /**
  * @author gx
  */
-public interface PurchaseOrderItemDao{
+public interface PurchaseOrderItemDao {
+
+    List<PurchaseOrderItem> selectByOrderIds(@Param("orderIds") List<Long> orderIds);
 
     PurchaseOrderItem selectByPrimaryKey(PurchaseOrderItem record);
 
