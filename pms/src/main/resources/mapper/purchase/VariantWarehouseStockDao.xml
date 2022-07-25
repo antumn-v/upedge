@@ -266,4 +266,18 @@
         where variant_id = #{variantId}
         and warehouse_code = #{warehouseCode}
     </update>
+
+    <update id="updateVariantStockEx">
+        update variant_warehouse_stock
+        set safe_stock = safe_stock - #{quantity}
+        where variant_id = #{variantId}
+        and warehouse_code = #{warehouseCode}
+    </update>
+
+    <update id="updateVariantStockIm">
+        update variant_warehouse_stock
+        set safe_stock = safe_stock + #{quantity}
+        where variant_id = #{variantId}
+        and warehouse_code = #{warehouseCode}
+    </update>
 </mapper>

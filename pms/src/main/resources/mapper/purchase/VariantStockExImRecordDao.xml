@@ -1,0 +1,258 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.upedge.pms.modules.purchase.dao.VariantStockExImRecordDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.upedge.pms.modules.purchase.entity.VariantStockExImRecord" id="BaseResultMap">
+        <result property="id" column="id"/>
+        <result property="variantId" column="variant_id"/>
+        <result property="variantSku" column="variant_sku"/>
+        <result property="warehouseCode" column="warehouse_code"/>
+        <result property="trackingCode" column="tracking_code"/>
+        <result property="quantity" column="quantity"/>
+        <result property="operatorId" column="operator_id"/>
+        <result property="operateType" column="operate_type"/>
+        <result property="createTime" column="create_time"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        `id`,`variant_id`,`variant_sku`,`warehouse_code`,`tracking_code`,`quantity`,`operator_id`,`operate_type`,`create_time`
+    </sql>
+
+    <select id="selectByPrimaryKey" parameterType="com.upedge.pms.modules.purchase.entity.VariantStockExImRecord" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from variant_stock_ex_im_record
+        where id = #{id}
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="com.upedge.pms.modules.purchase.entity.VariantStockExImRecord">
+        delete from variant_stock_ex_im_record
+        where id = #{id}
+    </delete>
+
+    <update id="updateByPrimaryKeySelective" parameterType="com.upedge.pms.modules.purchase.entity.VariantStockExImRecord">
+        update variant_stock_ex_im_record
+        <set>
+            <if test="variantId != null">
+                variant_id = #{variantId},
+            </if>
+            <if test="variantSku != null">
+                variant_sku = #{variantSku},
+            </if>
+            <if test="warehouseCode != null">
+                warehouse_code = #{warehouseCode},
+            </if>
+            <if test="trackingCode != null">
+                tracking_code = #{trackingCode},
+            </if>
+            <if test="quantity != null">
+                quantity = #{quantity},
+            </if>
+            <if test="operatorId != null">
+                operator_id = #{operatorId},
+            </if>
+            <if test="operateType != null">
+                operate_type = #{operateType},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <update id="updateByPrimaryKey" parameterType="com.upedge.pms.modules.purchase.entity.VariantStockExImRecord">
+        update variant_stock_ex_im_record
+        <set>
+        id = #{id},
+        variant_id = #{variantId},
+        variant_sku = #{variantSku},
+        warehouse_code = #{warehouseCode},
+        tracking_code = #{trackingCode},
+        quantity = #{quantity},
+        operator_id = #{operatorId},
+        operate_type = #{operateType},
+        create_time = #{createTime},
+        </set>
+        where id = #{id}
+    </update>
+
+    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.upedge.pms.modules.purchase.entity.VariantStockExImRecord" useGeneratedKeys="true">
+        insert into variant_stock_ex_im_record
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            id,
+            variant_id,
+            variant_sku,
+            warehouse_code,
+            tracking_code,
+            quantity,
+            operator_id,
+            operate_type,
+            create_time
+        </trim>
+        values (
+        #{id},
+        #{variantId},
+        #{variantSku},
+        #{warehouseCode},
+        #{trackingCode},
+        #{quantity},
+        #{operatorId},
+        #{operateType},
+        #{createTime}
+        )
+    </insert>
+
+    <insert id="insertSelective"  keyColumn="id" keyProperty="id"  parameterType="com.upedge.pms.modules.purchase.entity.VariantStockExImRecord" useGeneratedKeys="true">
+        insert into variant_stock_ex_im_record
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null" >
+              id
+            </if>
+            <if test="variantId != null" >
+              variant_id
+            </if>
+            <if test="variantSku != null" >
+              variant_sku
+            </if>
+            <if test="warehouseCode != null" >
+              warehouse_code
+            </if>
+            <if test="trackingCode != null" >
+              tracking_code
+            </if>
+            <if test="quantity != null" >
+              quantity
+            </if>
+            <if test="operatorId != null" >
+              operator_id
+            </if>
+            <if test="operateType != null" >
+              operate_type
+            </if>
+            <if test="createTime != null" >
+              create_time
+            </if>
+
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null" >
+                #{id}
+            </if>
+            <if test="variantId != null" >
+                #{variantId}
+            </if>
+            <if test="variantSku != null" >
+                #{variantSku}
+            </if>
+            <if test="warehouseCode != null" >
+                #{warehouseCode}
+            </if>
+            <if test="trackingCode != null" >
+                #{trackingCode}
+            </if>
+            <if test="quantity != null" >
+                #{quantity}
+            </if>
+            <if test="operatorId != null" >
+                #{operatorId}
+            </if>
+            <if test="operateType != null" >
+                #{operateType}
+            </if>
+            <if test="createTime != null" >
+                #{createTime}
+            </if>
+
+        </trim>
+    </insert>
+
+    <insert id="insertByBatch" parameterType="java.util.List">
+        insert into variant_stock_ex_im_record
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+           id,
+           variant_id,
+           variant_sku,
+           warehouse_code,
+           tracking_code,
+           quantity,
+           operator_id,
+           operate_type,
+           create_time
+        </trim>
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+               #{item.id},
+               #{item.variantId},
+               #{item.variantSku},
+               #{item.warehouseCode},
+               #{item.trackingCode},
+               #{item.quantity},
+               #{item.operatorId},
+               #{item.operateType},
+               #{item.createTime}
+            </trim>
+        </foreach>
+    </insert>
+
+    <sql id="Query_Condition">
+        <if test="t != null">
+            where
+            <trim prefix=" " suffix=" " suffixOverrides=" and ">
+                1 = 1 and
+                    <if test="t.id != null">
+                        id = #{t.id} and
+                    </if>
+                    <if test="t.variantId != null">
+                        variant_id = #{t.variantId} and
+                    </if>
+                    <if test="t.variantSku != null">
+                        variant_sku = #{t.variantSku} and
+                    </if>
+                    <if test="t.warehouseCode != null">
+                        warehouse_code = #{t.warehouseCode} and
+                    </if>
+                    <if test="t.trackingCode != null">
+                        tracking_code = #{t.trackingCode} and
+                    </if>
+                    <if test="t.quantity != null">
+                        quantity = #{t.quantity} and
+                    </if>
+                    <if test="t.operatorId != null">
+                        operator_id = #{t.operatorId} and
+                    </if>
+                    <if test="t.operateType != null">
+                        operate_type = #{t.operateType} and
+                    </if>
+                    <if test="t.createTime != null">
+                        create_time = #{t.createTime} and
+                    </if>
+            </trim>
+        </if>
+    </sql>
+
+    <select id="select" parameterType="com.upedge.common.base.Page" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from variant_stock_ex_im_record
+        <include refid="Query_Condition"/>
+        <if test="orderBy != null">
+            order by ${orderBy}
+        </if>
+        <if test="pageNum != null and pageSize != null">
+            limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+        </if>
+    </select>
+
+    <select id="count" parameterType="com.upedge.common.base.Page" resultType="java.lang.Long">
+        select
+        count(1)
+        from variant_stock_ex_im_record
+        <include refid="Query_Condition"/>
+    </select>
+
+
+</mapper>

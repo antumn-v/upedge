@@ -14,6 +14,9 @@ import com.upedge.common.web.util.RedisUtil;
 import com.upedge.pms.modules.product.entity.ProductVariant;
 import com.upedge.pms.modules.product.service.ProductVariantService;
 import com.upedge.pms.modules.purchase.entity.PurchasePlan;
+import com.upedge.pms.modules.purchase.entity.VariantStockExImRecord;
+import com.upedge.pms.modules.purchase.request.VariantStockExImRecordUpdateRequest;
+import com.upedge.pms.modules.purchase.service.VariantStockExImRecordService;
 import com.upedge.pms.modules.purchase.vo.VariantWarehouseStockVo;
 import com.upedge.pms.modules.purchase.dao.VariantWarehouseStockDao;
 import com.upedge.pms.modules.purchase.entity.VariantWarehouseStock;
@@ -40,6 +43,9 @@ public class VariantWarehouseStockServiceImpl implements VariantWarehouseStockSe
 
     @Autowired
     private VariantWarehouseStockRecordService variantWarehouseStockRecordService;
+
+    @Autowired
+    VariantStockExImRecordService variantStockExImRecordService;
 
     @Autowired
     ProductVariantService productVariantService;
@@ -255,6 +261,87 @@ public class VariantWarehouseStockServiceImpl implements VariantWarehouseStockSe
                         null,
                         session.getId());
         variantWarehouseStockRecordService.insert(variantWarehouseStockRecord);
+        RedisUtil.unLock(redisTemplate,key);
+        return BaseResponse.success();
+    }
+
+    @Transactional
+    @Override
+    public BaseResponse variantStockEx(VariantStockExImRecordUpdateRequest request, Session session) {
+
+        ProductVariant productVariant = productVariantService.selectBySku(request.getVariantSku());
+        if (null == productVariant){
+            return BaseResponse.failed("变体不存在");
+        }
+        String key = "key:variantStockEx:"+ productVariant.getId();
+        boolean b = RedisUtil.lock(redisTemplate,key,10L,20 * 1000L);
+        if (!b){
+            return BaseResponse.failed();
+        }
+
+        VariantWarehouseStock variantWarehouseStock = variantWarehouseStockDao.selectByPrimaryKey(productVariant.getId(), request.getWarehouseCode());
+        if (variantWarehouseStock.getSafeStock() < request.getQuantity()){
+            return BaseResponse.failed("仓库数量不足");
+        }
+
+        VariantStockExImRecord variantStockExImRecord = request.toVariantStockExImRecord(VariantStockExImRecord.EX_WAREHOUSE);
+        variantStockExImRecord.setId(IdGenerate.nextId());
+        variantStockExImRecord.setVariantId(productVariant.getId());
+        variantStockExImRecord.setOperatorId(session.getId());
+        variantStockExImRecordService.insert(variantStockExImRecord);
+
+        VariantWarehouseStockRecord variantWarehouseStockRecord =
+                new VariantWarehouseStockRecord(productVariant.getId(),
+                        request.getWarehouseCode(),
+                        request.getQuantity(),
+                        VariantWarehouseStockRecord.CUSTOM_EX,
+                        variantWarehouseStock.getSafeStock(),
+                        variantWarehouseStock.getSafeStock() - request.getQuantity(),
+                        variantStockExImRecord.getId(),
+                        new Date(),
+                        "",
+                        session.getId());
+        variantWarehouseStockRecordService.insert(variantWarehouseStockRecord);
+
+        variantWarehouseStockDao.updateVariantStockEx(productVariant.getId(), request.getWarehouseCode(), request.getQuantity());
+        RedisUtil.unLock(redisTemplate,key);
+        return BaseResponse.success();
+    }
+
+    @Transactional
+    @Override
+    public BaseResponse variantStockIm(VariantStockExImRecordUpdateRequest request, Session session) {
+        ProductVariant productVariant = productVariantService.selectBySku(request.getVariantSku());
+        if (null == productVariant){
+            return BaseResponse.failed("变体不存在");
+        }
+        String key = "key:variantStockIm:"+ productVariant.getId();
+        boolean b = RedisUtil.lock(redisTemplate,key,10L,20 * 1000L);
+        if (!b){
+            return BaseResponse.failed();
+        }
+        VariantStockExImRecord variantStockExImRecord = request.toVariantStockExImRecord(VariantStockExImRecord.IM_WAREHOUSE);
+        variantStockExImRecord.setId(IdGenerate.nextId());
+        variantStockExImRecord.setVariantId(productVariant.getId());
+        variantStockExImRecord.setOperatorId(session.getId());
+        variantStockExImRecordService.insert(variantStockExImRecord);
+
+        VariantWarehouseStock variantWarehouseStock = variantWarehouseStockDao.selectByPrimaryKey(productVariant.getId(), request.getWarehouseCode());
+
+        VariantWarehouseStockRecord variantWarehouseStockRecord =
+                new VariantWarehouseStockRecord(productVariant.getId(),
+                        request.getWarehouseCode(),
+                        request.getQuantity(),
+                        VariantWarehouseStockRecord.CUSTOM_IM,
+                        variantWarehouseStock.getSafeStock(),
+                        variantWarehouseStock.getSafeStock() + request.getQuantity(),
+                        variantStockExImRecord.getId(),
+                        new Date(),
+                        "",
+                        session.getId());
+        variantWarehouseStockRecordService.insert(variantWarehouseStockRecord);
+
+        variantWarehouseStockDao.updateVariantStockIm(productVariant.getId(), request.getWarehouseCode(), request.getQuantity());
         RedisUtil.unLock(redisTemplate,key);
         return BaseResponse.success();
     }

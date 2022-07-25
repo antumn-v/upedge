@@ -37,17 +37,6 @@ public class VariantWarehouseStockController {
     @RequestMapping(value="/list", method=RequestMethod.POST)
     @Permission(permission = "purchase:variantwarehousestock:list")
     public BaseResponse list(@RequestBody @Valid VariantWarehouseStockListRequest request) {
-//        List<VariantWarehouseStock> results = variantWarehouseStockService.select(request);
-//        List<VariantWarehouseStockVo> variantWarehouseStockVos = new ArrayList<>();
-//        for (VariantWarehouseStock result : results) {
-//            VariantWarehouseStockVo variantWarehouseStockVo = new VariantWarehouseStockVo();
-//            BeanUtils.copyProperties(result,variantWarehouseStockVo);
-//            variantWarehouseStockVos.add(variantWarehouseStockVo);
-//        }
-//        Long total = variantWarehouseStockService.count(request);
-//        request.setTotal(total);
-//        VariantWarehouseStockListResponse res = new VariantWarehouseStockListResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS,variantWarehouseStockVos,request);
-//        return res;
         return variantWarehouseStockService.variantWarehouseStockList(request);
     }
 
