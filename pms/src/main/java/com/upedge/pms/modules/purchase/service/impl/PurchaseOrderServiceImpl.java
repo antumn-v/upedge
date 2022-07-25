@@ -1,6 +1,12 @@
 package com.upedge.pms.modules.purchase.service.impl;
 
+import com.alibaba.trade.param.AlibabaOpenplatformTradeModelNativeLogisticsInfo;
+import com.alibaba.trade.param.AlibabaOpenplatformTradeModelNativeLogisticsItemsInfo;
+import com.alibaba.trade.param.AlibabaOpenplatformTradeModelOrderBaseInfo;
+import com.alibaba.trade.param.AlibabaOpenplatformTradeModelTradeInfo;
+import com.upedge.common.base.BaseResponse;
 import com.upedge.common.base.Page;
+import com.upedge.common.exception.CustomerException;
 import com.upedge.common.utils.ListUtils;
 import com.upedge.pms.modules.purchase.dao.PurchaseOrderDao;
 import com.upedge.pms.modules.purchase.entity.PurchaseOrder;
@@ -9,12 +15,16 @@ import com.upedge.pms.modules.purchase.request.PurchaseOrderListRequest;
 import com.upedge.pms.modules.purchase.service.PurchaseOrderItemService;
 import com.upedge.pms.modules.purchase.service.PurchaseOrderService;
 import com.upedge.pms.modules.purchase.vo.PurchaseOrderVo;
+import com.upedge.thirdparty.ali1688.service.Ali1688Service;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
 
@@ -53,6 +63,49 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
     @Transactional
     public int insertSelective(PurchaseOrder record) {
         return purchaseOrderDao.insert(record);
+    }
+
+    @Override
+    public BaseResponse refreshFrom1688(Long id) {
+        PurchaseOrder purchaseOrder = selectByPrimaryKey(id);
+        if (null == purchaseOrder){
+            return BaseResponse.failed("订单不存在");
+        }
+        AlibabaOpenplatformTradeModelTradeInfo alibabaOpenplatformTradeModelTradeInfo = null;
+        try {
+            alibabaOpenplatformTradeModelTradeInfo = Ali1688Service.orderDetail(Long.parseLong(purchaseOrder.getPurchaseId()),null);
+        } catch (CustomerException e) {
+            return BaseResponse.failed(e.getMessage());
+        }
+        purchaseOrder = new PurchaseOrder();
+        AlibabaOpenplatformTradeModelOrderBaseInfo baseInfo = alibabaOpenplatformTradeModelTradeInfo.getBaseInfo();
+        purchaseOrder.setPurchaseStatus(baseInfo.getStatus());
+        purchaseOrder.setReceiveTime(baseInfo.getReceivingTime());
+        purchaseOrder.setDeliveredTime(baseInfo.getAllDeliveredTime());
+        purchaseOrder.setRemark(baseInfo.getRemark());
+        purchaseOrder.setProductAmount(baseInfo.getSumProductPayment());
+        purchaseOrder.setShipPrice(baseInfo.getShippingFee());
+        purchaseOrder.setDiscountAmount(new BigDecimal(baseInfo.getDiscount()));
+        purchaseOrder.setUpdateTime(new Date());
+        AlibabaOpenplatformTradeModelNativeLogisticsInfo alibabaOpenplatformTradeModelNativeLogisticsInfo = alibabaOpenplatformTradeModelTradeInfo.getNativeLogistics();
+        if (alibabaOpenplatformTradeModelNativeLogisticsInfo != null){
+            List<AlibabaOpenplatformTradeModelNativeLogisticsItemsInfo> logisticsItemsInfos = Arrays.asList(alibabaOpenplatformTradeModelNativeLogisticsInfo.getLogisticsItems());
+            if (ListUtils.isNotEmpty(logisticsItemsInfos)){
+                StringBuffer code = new StringBuffer();
+                for (int i = 0; i < logisticsItemsInfos.size(); i++) {
+                    AlibabaOpenplatformTradeModelNativeLogisticsItemsInfo logisticsItemsInfo = logisticsItemsInfos.get(i);
+                    if (i == 0){
+                        code = code.append(logisticsItemsInfo.getLogisticsCode());
+                    }else {
+                        code = code.append(",").append(logisticsItemsInfo.getLogisticsCode());
+                    }
+                }
+                purchaseOrder.setTrackingCode(code.toString());
+            }
+        }
+        purchaseOrder.setId(id);
+        updateByPrimaryKeySelective(purchaseOrder);
+        return BaseResponse.success();
     }
 
     @Override

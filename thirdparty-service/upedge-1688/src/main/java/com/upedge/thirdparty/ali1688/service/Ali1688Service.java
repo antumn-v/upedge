@@ -1,6 +1,9 @@
 package com.upedge.thirdparty.ali1688.service;
 
 import com.alibaba.fastjson.JSONObject;
+import com.alibaba.logistics.param.AlibabaLogisticsOpenPlatformLogisticsTrace;
+import com.alibaba.logistics.param.AlibabaTradeGetLogisticsTraceInfoBuyerViewParam;
+import com.alibaba.logistics.param.AlibabaTradeGetLogisticsTraceInfoBuyerViewResult;
 import com.alibaba.ocean.rawsdk.ApiExecutor;
 import com.alibaba.ocean.rawsdk.common.SDKResult;
 import com.alibaba.trade.param.*;
@@ -382,7 +385,7 @@ public class Ali1688Service {
     }
 
     public static AlibabaTradeFastResult createOrder(List<AlibabaTradeFastCargo> alibabaTradeFastCargos,AlibabaApiVo alibabaApiVo) throws CustomerException {
-        ApiExecutor apiExecutor = new ApiExecutor("7928847", "XU8EgwrRYb");
+        ApiExecutor apiExecutor = new ApiExecutor("7715698", "DUE2C3KM9s");
 
         AlibabaTradeFastAddress addressParam = new AlibabaTradeFastAddress();
         addressParam.setAddressId(0L);
@@ -401,7 +404,7 @@ public class Ali1688Service {
         createOrderPreviewParam.setFlow("general");
 
         SDKResult<AlibabaTradeFastCreateOrderResult> sdkResult =
-                apiExecutor.execute(createOrderPreviewParam, "0c59dcae-5a18-4815-9ccc-7946d0f483ab");
+                apiExecutor.execute(createOrderPreviewParam, "e000f7e2-1353-4324-ac1e-b69b8fe80dcd");
         if(sdkResult.getErrorMessage() != null){
             throw new CustomerException(sdkResult.getErrorMessage());
         }
@@ -410,5 +413,54 @@ public class Ali1688Service {
     }
 
 
+    public static AlibabaOpenplatformTradeModelTradeInfo orderDetail(Long orderId,AlibabaApiVo alibabaApiVo) throws CustomerException {
+        ApiExecutor apiExecutor = new ApiExecutor("7715698", "DUE2C3KM9s");
+        AlibabaTradeGetBuyerViewParam alibabaTradeGetBuyerViewParam = new AlibabaTradeGetBuyerViewParam();
+        alibabaTradeGetBuyerViewParam.setOrderId(orderId);
+        alibabaTradeGetBuyerViewParam.setWebSite("1688");
 
+        SDKResult<AlibabaTradeGetBuyerViewResult> sdkResult =
+                apiExecutor.execute(alibabaTradeGetBuyerViewParam, "e000f7e2-1353-4324-ac1e-b69b8fe80dcd");
+        if(sdkResult.getErrorMessage() != null){
+            throw new CustomerException(sdkResult.getErrorMessage());
+        }
+        AlibabaTradeGetBuyerViewResult result=sdkResult.getResult();
+        return result.getResult();
+    }
+
+
+    public static List<AlibabaLogisticsOpenPlatformLogisticsTrace> orderShipDetail(Long orderId, AlibabaApiVo alibabaApiVo) throws CustomerException {
+        ApiExecutor apiExecutor = new ApiExecutor("7715698", "DUE2C3KM9s");
+        AlibabaTradeGetLogisticsTraceInfoBuyerViewParam param = new AlibabaTradeGetLogisticsTraceInfoBuyerViewParam();
+        param.setOrderId(orderId);
+        param.setWebSite("1688");
+
+        SDKResult<AlibabaTradeGetLogisticsTraceInfoBuyerViewResult> sdkResult =
+                apiExecutor.execute(param, "e000f7e2-1353-4324-ac1e-b69b8fe80dcd");
+        if(sdkResult.getErrorMessage() != null){
+            throw new CustomerException(sdkResult.getErrorMessage());
+        }
+        AlibabaTradeGetLogisticsTraceInfoBuyerViewResult result=sdkResult.getResult();
+        return Arrays.asList(result.getLogisticsTrace());
+    }
+
+
+    public static void main(String[] args) {
+        List<AlibabaLogisticsOpenPlatformLogisticsTrace> alibabaLogisticsOpenPlatformLogisticsTraces = null;
+        try {
+            alibabaLogisticsOpenPlatformLogisticsTraces = orderShipDetail(2770474212376530454L,null);
+        } catch (CustomerException e) {
+            e.printStackTrace();
+        }
+        System.out.println(alibabaLogisticsOpenPlatformLogisticsTraces);
+
+//        AlibabaOpenplatformTradeModelTradeInfo alibabaOpenplatformTradeModelTradeInfo = null;
+//        try {
+//            alibabaOpenplatformTradeModelTradeInfo = orderDetail(1622473212155530454L,null);
+//        } catch (CustomerException e) {
+//            e.printStackTrace();
+//        }
+//
+//        System.out.println(alibabaOpenplatformTradeModelTradeInfo);
+    }
 }

@@ -79,7 +79,7 @@ public class PurchasePlanUpdateRequest{
         purchasePlan.setProductId(productId);
         purchasePlan.setVariantId(variantId);
         purchasePlan.setVariantSku(variantSku);
-        purchasePlan.setCnName(cnName);
+        purchasePlan.setVariantName(cnName);
         purchasePlan.setVariantImage(variantImage);
         purchasePlan.setPurchaseLink(purchaseLink);
         purchasePlan.setQuantity(quantity);

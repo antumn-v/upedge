@@ -18,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -64,6 +65,11 @@ public class PurchasePlanServiceImpl implements PurchasePlanService {
     @Transactional
     public int insertSelective(PurchasePlan record) {
         return purchasePlanDao.insert(record);
+    }
+
+    @Override
+    public int updatePriceById(Integer id, BigDecimal price) {
+        return purchasePlanDao.updatePriceById(id, price);
     }
 
     @Override

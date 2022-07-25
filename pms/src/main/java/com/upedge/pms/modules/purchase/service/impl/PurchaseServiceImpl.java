@@ -190,11 +190,13 @@ public class PurchaseServiceImpl implements PurchaseService {
                         if (null == purchasePlan) {
                             continue;
                         }
+                        BigDecimal price = new BigDecimal(resultCargoModel.getFinalUnitPrice());
                         PurchaseOrderItem purchaseItemVo = new PurchaseOrderItem();
                         BeanUtils.copyProperties(purchasePlan, purchaseItemVo);
-                        purchaseItemVo.setPrice(new BigDecimal(resultCargoModel.getFinalUnitPrice()));
+                        purchaseItemVo.setPrice(price);
                         purchaseItemVos.add(purchaseItemVo);
                         purchaseOrderVo.setCargoPromotionList(Arrays.asList(resultCargoModel.getCargoPromotionList()));
+                        purchasePlanService.updatePriceById(purchasePlan.getId(),price);
                     }
                     purchaseOrderVo.setPurchaseItemVos(purchaseItemVos);
                     purchaseOrderVos.add(purchaseOrderVo);
@@ -211,16 +213,16 @@ public class PurchaseServiceImpl implements PurchaseService {
 
     @Transactional
     @Override
-    public BaseResponse createPurchaseOrder(PurchaseOrderCreateRequest request, Session session) {
+    public List<Long> createPurchaseOrder(PurchaseOrderCreateRequest request, Session session) throws CustomerException {
         String key = "key:createPurchaseOrder";
         boolean b = RedisUtil.lock(redisTemplate,key,10L,60 * 1000L);
         if (!b){
-            return BaseResponse.failed("其他采购单正在生成中，请稍候。");
+            throw new CustomerException("其他采购单正在生成中，请稍候。");
         }
 
         List<PurchasePlan> purchasePlans = purchasePlanService.selectByIds(request.getIds());
         if (ListUtils.isEmpty(purchasePlans)) {
-            return BaseResponse.success(new ArrayList<>());
+            return new ArrayList<>();
         }
 
         Map<String, PurchasePlan> skuPurchasePlanMap = new HashMap<>();
@@ -253,6 +255,7 @@ public class PurchaseServiceImpl implements PurchaseService {
 
         AlibabaApiVo alibabaApiVo = (AlibabaApiVo) redisTemplate.opsForValue().get(RedisKey.STRING_ALI1688_API);
 
+        List<Long> orderIds = new ArrayList<>();
         for (Map.Entry<String, List<AlibabaTradeFastCargo>> map : supplierCargosMap.entrySet()) {
             List<AlibabaTradeFastCargo> tradeFastCargos = map.getValue();
             AlibabaTradeFastResult alibabaTradeFastResult = null;
@@ -263,6 +266,7 @@ public class PurchaseServiceImpl implements PurchaseService {
                 continue;
             }
             Long id = IdGenerate.nextId();
+            orderIds.add(id);
             PurchaseOrder purchaseOrder = new PurchaseOrder(id, alibabaTradeFastResult.getOrderId(),
                     BigDecimal.ZERO,
                     new BigDecimal((alibabaTradeFastResult.getPostFee().doubleValue() / 100)),
@@ -279,7 +283,6 @@ public class PurchaseServiceImpl implements PurchaseService {
                 }
                 PurchaseOrderItem purchaseItem = new PurchaseOrderItem();
                 BeanUtils.copyProperties(purchasePlan, purchaseItem);
-                purchaseItem.setVariantName(purchasePlan.getCnName());
                 purchaseItem.setOrderId(id);
                 purchaseItem.setId(IdGenerate.nextId());
                 purchaseItems.add(purchaseItem);
@@ -291,6 +294,6 @@ public class PurchaseServiceImpl implements PurchaseService {
         }
         variantWarehouseStockService.updateVariantPurchaseStockByPlan(purchasePlans);
         RedisUtil.unLock(redisTemplate,key);
-        return BaseResponse.success();
+        return orderIds;
     }
 }

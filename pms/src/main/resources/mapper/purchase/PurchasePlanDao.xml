@@ -11,10 +11,11 @@
         <result property="productId" column="product_id"/>
         <result property="variantId" column="variant_id"/>
         <result property="variantSku" column="variant_sku"/>
-        <result property="cnName" column="cn_name"/>
+        <result property="variantName" column="variant_name"/>
         <result property="variantImage" column="variant_image"/>
         <result property="purchaseLink" column="purchase_link"/>
         <result property="quantity" column="quantity"/>
+        <result property="price" column="price"/>
         <result property="specId" column="spec_id"/>
         <result property="operatorId" column="operator_id"/>
         <result property="state" column="state"/>
@@ -24,7 +25,8 @@
     </resultMap>
 
     <sql id="Base_Column_List">
-        `id`,`purchase_sku`,`supplier_name`,`product_id`,`variant_id`,`variant_sku`,`cn_name`,`variant_image`,`purchase_link`,`quantity`,`spec_id`,`operator_id`,`state`,`purchase_order_id`,`create_time`,`update_time`
+        `id`,`purchase_sku`,`supplier_name`,`product_id`,`variant_id`,`variant_sku`,`variant_name`,`variant_image`,`purchase_link`,`quantity`,`price`,
+                                                                                                                                                                                                                                                                                                            `spec_id`,`operator_id`,`state`,`purchase_order_id`,`create_time`,`update_time`
     </sql>
 
     <select id="selectByPrimaryKey" parameterType="com.upedge.pms.modules.purchase.entity.PurchasePlan" resultMap="BaseResultMap">
@@ -57,8 +59,8 @@
             <if test="variantSku != null">
                 variant_sku = #{variantSku},
             </if>
-            <if test="cnName != null">
-                cn_name = #{cnName},
+            <if test="variantName != null">
+                variant_name = #{variantName},
             </if>
             <if test="variantImage != null">
                 variant_image = #{variantImage},
@@ -100,7 +102,7 @@
         product_id = #{productId},
         variant_id = #{variantId},
         variant_sku = #{variantSku},
-        cn_name = #{cnName},
+        variant_name = #{variantName},
         variant_image = #{variantImage},
         purchase_link = #{purchaseLink},
         quantity = #{quantity},
@@ -123,7 +125,7 @@
             product_id,
             variant_id,
             variant_sku,
-            cn_name,
+            variant_name,
             variant_image,
             purchase_link,
             quantity,
@@ -142,7 +144,7 @@
         #{productId},
         #{variantId},
         #{variantSku},
-        #{cnName},
+        #{variantName},
         #{variantImage},
         #{purchaseLink},
         #{quantity},
@@ -177,8 +179,8 @@
             <if test="variantSku != null" >
               variant_sku
             </if>
-            <if test="cnName != null" >
-              cn_name
+            <if test="variantName != null" >
+              variant_name
             </if>
             <if test="variantImage != null" >
               variant_image
@@ -228,8 +230,8 @@
             <if test="variantSku != null" >
                 #{variantSku}
             </if>
-            <if test="cnName != null" >
-                #{cnName}
+            <if test="variantName != null" >
+                #{variantName}
             </if>
             <if test="variantImage != null" >
                 #{variantImage}
@@ -271,7 +273,7 @@
            product_id,
            variant_id,
            variant_sku,
-           cn_name,
+           variant_name,
            variant_image,
            purchase_link,
            quantity,
@@ -291,7 +293,7 @@
                #{item.productId},
                #{item.variantId},
                #{item.variantSku},
-               #{item.cnName},
+               #{item.variantName},
                #{item.variantImage},
                #{item.purchaseLink},
                #{item.quantity},
@@ -328,8 +330,8 @@
                     <if test="t.variantSku != null">
                         variant_sku = #{t.variantSku} and
                     </if>
-                    <if test="t.cnName != null">
-                        cn_name = #{t.cnName} and
+                    <if test="t.variantName != null">
+                        variant_name = #{t.variantName} and
                     </if>
                     <if test="t.variantImage != null">
                         variant_image = #{t.variantImage} and
@@ -367,9 +369,7 @@
         <include refid="Base_Column_List" />
         from purchase_plan
         <include refid="Query_Condition"/>
-        <if test="orderBy != null">
-            order by ${orderBy}
-        </if>
+        order by update_time desc
         <if test="pageNum != null and pageSize != null">
             limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
         </if>
@@ -417,5 +417,12 @@
         <foreach collection="ids" open="(" close=")" separator="," item="id">
             #{id}
         </foreach>
+    </update>
+
+    <update id="updatePriceById">
+        update purchase_plan
+            set price = #{price}
+        where id = #{id}
+        and state = '0';
     </update>
 </mapper>

@@ -1,9 +1,11 @@
 package com.upedge.pms.modules.purchase.controller;
 
 import com.upedge.common.base.BaseResponse;
+import com.upedge.common.exception.CustomerException;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.web.util.UserUtil;
 import com.upedge.pms.modules.purchase.request.PurchaseOrderCreateRequest;
+import com.upedge.pms.modules.purchase.service.PurchaseOrderService;
 import com.upedge.pms.modules.purchase.service.PurchaseService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -12,6 +14,9 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ThreadPoolExecutor;
 
 @Api(tags = "采购管理")
 @RestController
@@ -22,7 +27,13 @@ public class PurchaseController {
     PurchaseService purchaseService;
 
     @Autowired
+    PurchaseOrderService purchaseOrderService;
+
+    @Autowired
     RedisTemplate redisTemplate;
+
+    @Autowired
+    ThreadPoolExecutor threadPoolExecutor;
 
     @ApiOperation("采购建议")
     @PostMapping("/adviceList/{warehouseCode}")
@@ -42,9 +53,20 @@ public class PurchaseController {
     @PostMapping("/createOrder")
     public BaseResponse createOrder(@RequestBody@Valid PurchaseOrderCreateRequest request){
         Session session = UserUtil.getSession(redisTemplate);
-        return purchaseService.createPurchaseOrder(request,session);
+        try {
+            List<Long> ids = purchaseService.createPurchaseOrder(request,session);
+            for (Long id : ids) {
+                CompletableFuture.runAsync(new Runnable() {
+                    @Override
+                    public void run() {
+                        purchaseOrderService.refreshFrom1688(id);
+                    }
+                },threadPoolExecutor);
+            }
+            return BaseResponse.success();
+        } catch (CustomerException e) {
+            return BaseResponse.failed(e.getMessage());
+        }
     }
-
-
 
 }

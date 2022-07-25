@@ -4,12 +4,15 @@ import com.upedge.common.base.Page;
 import com.upedge.pms.modules.purchase.entity.PurchasePlan;
 import org.apache.ibatis.annotations.Param;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 /**
  * @author gx
  */
 public interface PurchasePlanDao {
+
+    int updatePriceById(@Param("id") Integer id, @Param("price") BigDecimal price);
 
     int updateVariantStockByIds(@Param("ids") List<Integer> ids);
 

@@ -2,6 +2,7 @@ package com.upedge.pms.modules.purchase.entity;
 
 import lombok.Data;
 
+import java.math.BigDecimal;
 import java.util.Date;
 
 /**
@@ -37,7 +38,7 @@ public class PurchasePlan{
 	/**
 	 * 
 	 */
-    private String cnName;
+    private String variantName;
 	/**
 	 * 
 	 */
@@ -50,6 +51,8 @@ public class PurchasePlan{
 	 * 
 	 */
     private Integer quantity;
+
+	private BigDecimal price;
 	/**
 	 * 
 	 */

@@ -12,15 +12,21 @@
         <result property="amount" column="amount"/>
         <result property="discountAmount" column="discount_amount"/>
         <result property="supplierName" column="supplier_name"/>
+        <result property="purchaseStatus" column="purchase_status"/>
         <result property="purchaseState" column="purchase_state"/>
         <result property="purchaseType" column="purchase_type"/>
         <result property="operatorId" column="operator_id"/>
+        <result property="warehouseCode" column="warehouse_code"/>
+        <result property="remark" column="remark"/>
+        <result property="trackingCode" column="tracking_code"/>
+        <result property="deliveredTime" column="delivered_time"/>
+        <result property="receiveTime" column="receive_time"/>
         <result property="createTime" column="create_time"/>
         <result property="updateTime" column="update_time"/>
     </resultMap>
 
     <sql id="Base_Column_List">
-        `id`,`purchase_id`,`product_amount`,`ship_price`,`amount`,`discount_amount`,`supplier_name`,`purchase_state`,`purchase_type`,`operator_id`,`create_time`,`update_time`
+        `id`,`purchase_id`,`product_amount`,`ship_price`,`amount`,`discount_amount`,`supplier_name`,`purchase_status`,`purchase_state`,`purchase_type`,`operator_id`,`warehouse_code`,`remark`,`tracking_code`,`delivered_time`,`receive_time`,`create_time`,`update_time`
     </sql>
 
     <select id="selectByPrimaryKey" parameterType="com.upedge.pms.modules.purchase.entity.PurchaseOrder" resultMap="BaseResultMap">
@@ -56,6 +62,9 @@
             <if test="supplierName != null">
                 supplier_name = #{supplierName},
             </if>
+            <if test="purchaseStatus != null">
+                purchase_status = #{purchaseStatus},
+            </if>
             <if test="purchaseState != null">
                 purchase_state = #{purchaseState},
             </if>
@@ -64,6 +73,21 @@
             </if>
             <if test="operatorId != null">
                 operator_id = #{operatorId},
+            </if>
+            <if test="warehouseCode != null">
+                warehouse_code = #{warehouseCode},
+            </if>
+            <if test="remark != null">
+                remark = #{remark},
+            </if>
+            <if test="trackingCode != null">
+                tracking_code = #{trackingCode},
+            </if>
+            <if test="deliveredTime != null">
+                delivered_time = #{deliveredTime},
+            </if>
+            <if test="receiveTime != null">
+                receive_time = #{receiveTime},
             </if>
             <if test="createTime != null">
                 create_time = #{createTime},
@@ -85,9 +109,15 @@
         amount = #{amount},
         discount_amount = #{discountAmount},
         supplier_name = #{supplierName},
+        purchase_status = #{purchaseStatus},
         purchase_state = #{purchaseState},
         purchase_type = #{purchaseType},
         operator_id = #{operatorId},
+        warehouse_code = #{warehouseCode},
+        remark = #{remark},
+        tracking_code = #{trackingCode},
+        delivered_time = #{deliveredTime},
+        receive_time = #{receiveTime},
         create_time = #{createTime},
         update_time = #{updateTime},
         </set>
@@ -104,9 +134,15 @@
             amount,
             discount_amount,
             supplier_name,
+            purchase_status,
             purchase_state,
             purchase_type,
             operator_id,
+            warehouse_code,
+            remark,
+            tracking_code,
+            delivered_time,
+            receive_time,
             create_time,
             update_time
         </trim>
@@ -118,9 +154,15 @@
         #{amount},
         #{discountAmount},
         #{supplierName},
+        #{purchaseStatus},
         #{purchaseState},
         #{purchaseType},
         #{operatorId},
+        #{warehouseCode},
+        #{remark},
+        #{trackingCode},
+        #{deliveredTime},
+        #{receiveTime},
         #{createTime},
         #{updateTime}
         )
@@ -150,6 +192,9 @@
             <if test="supplierName != null" >
               supplier_name
             </if>
+            <if test="purchaseStatus != null" >
+              purchase_status
+            </if>
             <if test="purchaseState != null" >
               purchase_state
             </if>
@@ -158,6 +203,21 @@
             </if>
             <if test="operatorId != null" >
               operator_id
+            </if>
+            <if test="warehouseCode != null" >
+              warehouse_code
+            </if>
+            <if test="remark != null" >
+              remark
+            </if>
+            <if test="trackingCode != null" >
+              tracking_code
+            </if>
+            <if test="deliveredTime != null" >
+              delivered_time
+            </if>
+            <if test="receiveTime != null" >
+              receive_time
             </if>
             <if test="createTime != null" >
               create_time
@@ -189,6 +249,9 @@
             <if test="supplierName != null" >
                 #{supplierName}
             </if>
+            <if test="purchaseStatus != null" >
+                #{purchaseStatus}
+            </if>
             <if test="purchaseState != null" >
                 #{purchaseState}
             </if>
@@ -197,6 +260,21 @@
             </if>
             <if test="operatorId != null" >
                 #{operatorId}
+            </if>
+            <if test="warehouseCode != null" >
+                #{warehouseCode}
+            </if>
+            <if test="remark != null" >
+                #{remark}
+            </if>
+            <if test="trackingCode != null" >
+                #{trackingCode}
+            </if>
+            <if test="deliveredTime != null" >
+                #{deliveredTime}
+            </if>
+            <if test="receiveTime != null" >
+                #{receiveTime}
             </if>
             <if test="createTime != null" >
                 #{createTime}
@@ -218,9 +296,15 @@
            amount,
            discount_amount,
            supplier_name,
+           purchase_status,
            purchase_state,
            purchase_type,
            operator_id,
+           warehouse_code,
+           remark,
+           tracking_code,
+           delivered_time,
+           receive_time,
            create_time,
            update_time
         </trim>
@@ -234,9 +318,15 @@
                #{item.amount},
                #{item.discountAmount},
                #{item.supplierName},
+               #{item.purchaseStatus},
                #{item.purchaseState},
                #{item.purchaseType},
                #{item.operatorId},
+               #{item.warehouseCode},
+               #{item.remark},
+               #{item.trackingCode},
+               #{item.deliveredTime},
+               #{item.receiveTime},
                #{item.createTime},
                #{item.updateTime}
             </trim>
@@ -269,6 +359,9 @@
                     <if test="t.supplierName != null">
                         supplier_name = #{t.supplierName} and
                     </if>
+                    <if test="t.purchaseStatus != null">
+                        purchase_status = #{t.purchaseStatus} and
+                    </if>
                     <if test="t.purchaseState != null">
                         purchase_state = #{t.purchaseState} and
                     </if>
@@ -277,6 +370,21 @@
                     </if>
                     <if test="t.operatorId != null">
                         operator_id = #{t.operatorId} and
+                    </if>
+                    <if test="t.warehouseCode != null">
+                        warehouse_code = #{t.warehouseCode} and
+                    </if>
+                    <if test="t.remark != null">
+                        remark = #{t.remark} and
+                    </if>
+                    <if test="t.trackingCode != null">
+                        tracking_code = #{t.trackingCode} and
+                    </if>
+                    <if test="t.deliveredTime != null">
+                        delivered_time = #{t.deliveredTime} and
+                    </if>
+                    <if test="t.receiveTime != null">
+                        receive_time = #{t.receiveTime} and
                     </if>
                     <if test="t.createTime != null">
                         create_time = #{t.createTime} and

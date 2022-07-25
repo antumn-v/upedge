@@ -5,12 +5,15 @@ import com.upedge.pms.modules.purchase.entity.PurchaseOrderItem;
 import lombok.Data;
 
 import java.math.BigDecimal;
+import java.util.Date;
 import java.util.List;
 
 @Data
 public class PurchaseOrderVo {
 
     private Long id;
+
+    private String purchaseId;
 
     private BigDecimal productAmount;
     /**
@@ -25,6 +28,26 @@ public class PurchaseOrderVo {
     private String supplierName;
 
     private Long buyerId;
+    /**
+     *
+     */
+    private Integer purchaseState;
+    /**
+     * 0=1688采购
+     */
+    private Integer purchaseType;
+    /**
+     *
+     */
+    private Long operatorId;
+    /**
+     *
+     */
+    private Date createTime;
+    /**
+     *
+     */
+    private Date updateTime;
 
     private List<PurchaseOrderItem> purchaseItemVos;
 

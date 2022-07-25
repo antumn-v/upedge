@@ -42,6 +42,10 @@ public class PurchaseOrder{
 	/**
 	 * 
 	 */
+    private String purchaseStatus;
+	/**
+	 * 
+	 */
     private Integer purchaseState;
 	/**
 	 * 0=1688采购
@@ -51,6 +55,26 @@ public class PurchaseOrder{
 	 * 
 	 */
     private Long operatorId;
+	/**
+	 * 
+	 */
+    private String warehouseCode;
+	/**
+	 * 留言
+	 */
+    private String remark;
+	/**
+	 * 物流单号
+	 */
+    private String trackingCode;
+	/**
+	 * 发货时间
+	 */
+    private Date deliveredTime;
+	/**
+	 * 收货时间
+	 */
+    private Date receiveTime;
 	/**
 	 * 
 	 */
@@ -64,7 +88,7 @@ public class PurchaseOrder{
 	public PurchaseOrder() {
 	}
 
-	public PurchaseOrder(Long id, String purchaseId, BigDecimal productAmount, BigDecimal shipPrice, BigDecimal amount, BigDecimal discountAmount, String supplierName, Integer purchaseState, Integer purchaseType, Long operatorId) {
+	public PurchaseOrder(Long id, String purchaseId, BigDecimal productAmount, BigDecimal shipPrice, BigDecimal amount, BigDecimal discountAmount, String supplierName,  Integer purchaseState, Integer purchaseType, Long operatorId) {
 		this.id = id;
 		this.purchaseId = purchaseId;
 		this.productAmount = productAmount;
@@ -75,6 +99,7 @@ public class PurchaseOrder{
 		this.purchaseState = purchaseState;
 		this.purchaseType = purchaseType;
 		this.operatorId = operatorId;
+		this.warehouseCode = "CNHZ";
 		this.createTime = new Date();
 		this.updateTime = new Date();
 	}
