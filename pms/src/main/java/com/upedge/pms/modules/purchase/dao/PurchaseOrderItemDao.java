@@ -11,6 +11,8 @@ import java.util.List;
  */
 public interface PurchaseOrderItemDao {
 
+    List<PurchaseOrderItem> selectByOrderId(Long orderId);
+
     List<PurchaseOrderItem> selectByOrderIds(@Param("orderIds") List<Long> orderIds);
 
     PurchaseOrderItem selectByPrimaryKey(PurchaseOrderItem record);

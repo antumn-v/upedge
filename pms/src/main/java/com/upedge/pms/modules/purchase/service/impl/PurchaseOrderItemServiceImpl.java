@@ -56,6 +56,11 @@ public class PurchaseOrderItemServiceImpl implements PurchaseOrderItemService {
     }
 
     @Override
+    public List<PurchaseOrderItem> selectByOrderId(Long orderId) {
+        return purchaseOrderItemDao.selectByOrderId(orderId);
+    }
+
+    @Override
     public List<PurchaseOrderItem> selectByOrderIds(List<Long> orderIds) {
         if (ListUtils.isNotEmpty(orderIds)){
             return purchaseOrderItemDao.selectByOrderIds(orderIds);

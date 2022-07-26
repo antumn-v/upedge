@@ -68,12 +68,12 @@ public class PurchaseOrderController {
             e.printStackTrace();
         }
         if (ListUtils.isNotEmpty(alibabaLogisticsOpenPlatformLogisticsTraces)){
-            return BaseResponse.success(alibabaLogisticsOpenPlatformLogisticsTraces.get(0).getLogisticsSteps());
+            return BaseResponse.success(alibabaLogisticsOpenPlatformLogisticsTraces);
         }
         return BaseResponse.success(new ArrayList<>());
     }
 
-
+    @ApiOperation("同步1688订单信息")
     @PostMapping("/refresh/{id}")
     public BaseResponse refreshDetail(@PathVariable Long id){
         return purchaseOrderService.refreshFrom1688(id);

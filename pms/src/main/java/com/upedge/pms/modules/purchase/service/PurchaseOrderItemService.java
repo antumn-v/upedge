@@ -9,6 +9,7 @@ import java.util.List;
  */
 public interface PurchaseOrderItemService{
 
+    List<PurchaseOrderItem> selectByOrderId(Long orderId);
     List<PurchaseOrderItem> selectByOrderIds(List<Long> orderIds);
 
     PurchaseOrderItem selectByPrimaryKey(Long id);

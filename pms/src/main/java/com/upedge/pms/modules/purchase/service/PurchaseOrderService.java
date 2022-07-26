@@ -2,8 +2,10 @@ package com.upedge.pms.modules.purchase.service;
 
 import com.upedge.common.base.BaseResponse;
 import com.upedge.common.base.Page;
+import com.upedge.common.model.user.vo.Session;
 import com.upedge.pms.modules.purchase.entity.PurchaseOrder;
 import com.upedge.pms.modules.purchase.request.PurchaseOrderListRequest;
+import com.upedge.pms.modules.purchase.request.PurchaseOrderReceiveRequest;
 import com.upedge.pms.modules.purchase.vo.PurchaseOrderVo;
 
 import java.util.List;
@@ -12,6 +14,8 @@ import java.util.List;
  * @author gx
  */
 public interface PurchaseOrderService{
+
+    BaseResponse orderReceive(PurchaseOrderReceiveRequest request, Session session);
 
     BaseResponse refreshFrom1688(Long id);
 

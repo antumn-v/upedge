@@ -281,6 +281,7 @@ public class VariantWarehouseStockServiceImpl implements VariantWarehouseStockSe
 
         VariantWarehouseStock variantWarehouseStock = variantWarehouseStockDao.selectByPrimaryKey(productVariant.getId(), request.getWarehouseCode());
         if (variantWarehouseStock.getSafeStock() < request.getQuantity()){
+            RedisUtil.unLock(redisTemplate,key);
             return BaseResponse.failed("仓库数量不足");
         }
 
@@ -320,13 +321,20 @@ public class VariantWarehouseStockServiceImpl implements VariantWarehouseStockSe
         if (!b){
             return BaseResponse.failed();
         }
+
+        VariantWarehouseStock variantWarehouseStock = variantWarehouseStockDao.selectByPrimaryKey(productVariant.getId(), request.getWarehouseCode());
+        if (null == variantWarehouseStock){
+            variantWarehouseStock = new VariantWarehouseStock(productVariant.getId(), request.getWarehouseCode(), 1, 0, 0,0,"","");
+            insert(variantWarehouseStock);
+        }
+
         VariantStockExImRecord variantStockExImRecord = request.toVariantStockExImRecord(VariantStockExImRecord.IM_WAREHOUSE);
         variantStockExImRecord.setId(IdGenerate.nextId());
         variantStockExImRecord.setVariantId(productVariant.getId());
         variantStockExImRecord.setOperatorId(session.getId());
         variantStockExImRecordService.insert(variantStockExImRecord);
 
-        VariantWarehouseStock variantWarehouseStock = variantWarehouseStockDao.selectByPrimaryKey(productVariant.getId(), request.getWarehouseCode());
+
 
         VariantWarehouseStockRecord variantWarehouseStockRecord =
                 new VariantWarehouseStockRecord(productVariant.getId(),

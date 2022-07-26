@@ -2,9 +2,11 @@ package com.upedge.pms.modules.purchase.vo;
 
 import com.alibaba.trade.param.AlibabaTradePromotionModel;
 import com.upedge.pms.modules.purchase.entity.PurchaseOrderItem;
+import com.upedge.pms.modules.purchase.entity.PurchaseOrderTracking;
 import lombok.Data;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -12,9 +14,13 @@ import java.util.List;
 public class PurchaseOrderVo {
 
     private Long id;
-
+    /**
+     *
+     */
     private String purchaseId;
-
+    /**
+     *
+     */
     private BigDecimal productAmount;
     /**
      *
@@ -24,10 +30,18 @@ public class PurchaseOrderVo {
      *
      */
     private BigDecimal amount;
-
+    /**
+     *
+     */
+    private BigDecimal discountAmount;
+    /**
+     *
+     */
     private String supplierName;
-
-    private Long buyerId;
+    /**
+     *
+     */
+    private String purchaseStatus;
     /**
      *
      */
@@ -43,13 +57,35 @@ public class PurchaseOrderVo {
     /**
      *
      */
+    private String warehouseCode;
+    /**
+     * 留言
+     */
+    private String remark;
+    /**
+     * 物流单号
+     */
+    private String trackingCode;
+    /**
+     * 发货时间
+     */
+    private Date deliveredTime;
+    /**
+     * 收货时间
+     */
+    private Date receiveTime;
+    /**
+     *
+     */
     private Date createTime;
     /**
      *
      */
     private Date updateTime;
 
-    private List<PurchaseOrderItem> purchaseItemVos;
+    private List<PurchaseOrderItem> purchaseItemVos = new ArrayList<>();
+
+    private List<PurchaseOrderTracking> trackingList = new ArrayList<>();
 
 
     private List<AlibabaTradePromotionModel> cargoPromotionList;
