@@ -6,19 +6,23 @@ import com.alibaba.trade.param.AlibabaOpenplatformTradeModelOrderBaseInfo;
 import com.alibaba.trade.param.AlibabaOpenplatformTradeModelTradeInfo;
 import com.upedge.common.base.BaseResponse;
 import com.upedge.common.base.Page;
+import com.upedge.common.constant.ResultCode;
 import com.upedge.common.exception.CustomerException;
 import com.upedge.common.model.user.vo.Session;
+import com.upedge.common.utils.IdGenerate;
 import com.upedge.common.utils.ListUtils;
 import com.upedge.pms.modules.purchase.dao.PurchaseOrderDao;
 import com.upedge.pms.modules.purchase.entity.PurchaseOrder;
 import com.upedge.pms.modules.purchase.entity.PurchaseOrderItem;
 import com.upedge.pms.modules.purchase.entity.PurchaseOrderTracking;
+import com.upedge.pms.modules.purchase.entity.VariantWarehouseStockRecord;
 import com.upedge.pms.modules.purchase.request.PurchaseOrderListRequest;
 import com.upedge.pms.modules.purchase.request.PurchaseOrderReceiveRequest;
-import com.upedge.pms.modules.purchase.request.PurchaseOrderReceiveRequest.PurchaseOrderItemReceiveDto;
+import com.upedge.pms.modules.purchase.request.VariantStockExImRecordUpdateRequest;
 import com.upedge.pms.modules.purchase.service.PurchaseOrderItemService;
 import com.upedge.pms.modules.purchase.service.PurchaseOrderService;
 import com.upedge.pms.modules.purchase.service.PurchaseOrderTrackingService;
+import com.upedge.pms.modules.purchase.service.VariantWarehouseStockService;
 import com.upedge.pms.modules.purchase.vo.PurchaseOrderVo;
 import com.upedge.thirdparty.ali1688.service.Ali1688Service;
 import org.springframework.beans.BeanUtils;
@@ -45,6 +49,9 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
 
     @Autowired
     PurchaseOrderTrackingService purchaseOrderTrackingService;
+
+    @Autowired
+    VariantWarehouseStockService variantWarehouseStockService;
 
     @Autowired
     ThreadPoolExecutor threadPoolExecutor;
@@ -77,24 +84,70 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
     }
 
     @Override
+    public void checkOrderReceiveQuantity(Long id) {
+        Integer purchaseQuantity = 0;
+
+        Integer receiveQuantity = 0;
+
+        List<PurchaseOrderItem> items = purchaseOrderItemService.selectByOrderId(id);
+        for (PurchaseOrderItem item : items) {
+            purchaseQuantity += item.getQuantity();
+            receiveQuantity += item.getReceiveQuantity();
+        }
+        if (receiveQuantity == 0){
+            return;
+        }
+        PurchaseOrder purchaseOrder = new PurchaseOrder();
+        purchaseOrder.setId(id);
+        purchaseOrder.setUpdateTime(new Date());
+        if (receiveQuantity < purchaseQuantity){
+            purchaseOrder.setPurchaseState(1);
+        }else {
+            purchaseOrder.setPurchaseState(2);
+        }
+        updateByPrimaryKeySelective(purchaseOrder);
+    }
+
+    @Transactional
+    @Override
     public BaseResponse orderReceive(PurchaseOrderReceiveRequest request, Session session) {
-        Long orderId = request.getId();
+        BaseResponse response = orderReceiveItemIm(request, session);
+        if (response.getCode() == ResultCode.SUCCESS_CODE){
+            checkOrderReceiveQuantity(request.getOrderId());
+        }
+        return response;
+    }
+
+
+    BaseResponse orderReceiveItemIm(PurchaseOrderReceiveRequest request, Session session){
+        Long orderId = request.getOrderId();
         PurchaseOrder purchaseOrder = selectByPrimaryKey(orderId);
         if (purchaseOrder == null){
             return BaseResponse.failed("订单不存在");
         }
-        List<PurchaseOrderItemReceiveDto> itemReceiveDtos = request.getItemReceiveDtos();
+        List<PurchaseOrderReceiveRequest.PurchaseOrderItemReceiveDto> itemReceiveDtos = request.getItemReceiveDtos();
         List<PurchaseOrderItem> purchaseOrderItems = purchaseOrderItemService.selectByOrderId(orderId);
+
+        Long relateId = IdGenerate.nextId();
+        VariantStockExImRecordUpdateRequest recordUpdateRequest = new VariantStockExImRecordUpdateRequest();
+        recordUpdateRequest.setRelateId(relateId);
+        recordUpdateRequest.setProcessType(VariantWarehouseStockRecord.PURCHASE_ADD);
+        recordUpdateRequest.setWarehouseCode(purchaseOrder.getWarehouseCode());
+        recordUpdateRequest.setTrackingCode(recordUpdateRequest.getTrackingCode());
+        a:
         for (PurchaseOrderItem purchaseOrderItem : purchaseOrderItems) {
-            for (PurchaseOrderItemReceiveDto itemReceiveDto : itemReceiveDtos) {
-                if (purchaseOrderItem.getId().equals(itemReceiveDto.getId())){
+            for (PurchaseOrderReceiveRequest.PurchaseOrderItemReceiveDto itemReceiveDto : itemReceiveDtos) {
+                if (purchaseOrderItem.getId().equals(itemReceiveDto.getItemId())){
+                    recordUpdateRequest.setQuantity(itemReceiveDto.getQuantity());
+                    recordUpdateRequest.setVariantSku(purchaseOrderItem.getVariantSku());
+                    variantWarehouseStockService.variantStockIm(recordUpdateRequest,session);
                     purchaseOrderItem.setReceiveQuantity(itemReceiveDto.getQuantity());
+                    purchaseOrderItemService.updateByPrimaryKeySelective(purchaseOrderItem);
+                    continue a;
                 }
             }
         }
-
-
-        return null;
+        return BaseResponse.success();
     }
 
     @Override

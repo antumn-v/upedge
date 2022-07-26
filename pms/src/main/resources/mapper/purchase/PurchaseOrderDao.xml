@@ -12,6 +12,7 @@
         <result property="amount" column="amount"/>
         <result property="discountAmount" column="discount_amount"/>
         <result property="supplierName" column="supplier_name"/>
+        <result property="purchaseQuantity" column="purchase_quantity"/>
         <result property="purchaseStatus" column="purchase_status"/>
         <result property="purchaseState" column="purchase_state"/>
         <result property="purchaseType" column="purchase_type"/>
@@ -26,7 +27,9 @@
     </resultMap>
 
     <sql id="Base_Column_List">
-        `id`,`purchase_id`,`product_amount`,`ship_price`,`amount`,`discount_amount`,`supplier_name`,`purchase_status`,`purchase_state`,`purchase_type`,`operator_id`,`warehouse_code`,`remark`,`tracking_code`,`delivered_time`,`receive_time`,`create_time`,`update_time`
+        `id`,`purchase_id`,`product_amount`,`ship_price`,`amount`,`discount_amount`,
+        `supplier_name`,`purchase_status`,`purchase_state`,`purchase_type`,`operator_id`,`purchase_quantity`,
+        `warehouse_code`,`remark`,`tracking_code`,`delivered_time`,`receive_time`,`create_time`,`update_time`
     </sql>
 
     <select id="selectByPrimaryKey" parameterType="com.upedge.pms.modules.purchase.entity.PurchaseOrder" resultMap="BaseResultMap">
@@ -144,7 +147,8 @@
             delivered_time,
             receive_time,
             create_time,
-            update_time
+            update_time,
+            purchase_quantity
         </trim>
         values (
         #{id},
@@ -164,7 +168,8 @@
         #{deliveredTime},
         #{receiveTime},
         #{createTime},
-        #{updateTime}
+        #{updateTime},
+        #{purchaseQuantity}
         )
     </insert>
 

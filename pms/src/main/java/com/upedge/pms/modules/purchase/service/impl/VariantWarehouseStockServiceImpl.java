@@ -13,18 +13,17 @@ import com.upedge.common.utils.ListUtils;
 import com.upedge.common.web.util.RedisUtil;
 import com.upedge.pms.modules.product.entity.ProductVariant;
 import com.upedge.pms.modules.product.service.ProductVariantService;
-import com.upedge.pms.modules.purchase.entity.PurchasePlan;
-import com.upedge.pms.modules.purchase.entity.VariantStockExImRecord;
-import com.upedge.pms.modules.purchase.request.VariantStockExImRecordUpdateRequest;
-import com.upedge.pms.modules.purchase.service.VariantStockExImRecordService;
-import com.upedge.pms.modules.purchase.vo.VariantWarehouseStockVo;
 import com.upedge.pms.modules.purchase.dao.VariantWarehouseStockDao;
+import com.upedge.pms.modules.purchase.entity.PurchasePlan;
 import com.upedge.pms.modules.purchase.entity.VariantWarehouseStock;
 import com.upedge.pms.modules.purchase.entity.VariantWarehouseStockRecord;
+import com.upedge.pms.modules.purchase.request.VariantStockExImRecordUpdateRequest;
 import com.upedge.pms.modules.purchase.request.VariantStockUpdateRequest;
 import com.upedge.pms.modules.purchase.request.VariantWarehouseStockListRequest;
+import com.upedge.pms.modules.purchase.service.VariantStockExImRecordService;
 import com.upedge.pms.modules.purchase.service.VariantWarehouseStockRecordService;
 import com.upedge.pms.modules.purchase.service.VariantWarehouseStockService;
+import com.upedge.pms.modules.purchase.vo.VariantWarehouseStockVo;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -285,20 +284,14 @@ public class VariantWarehouseStockServiceImpl implements VariantWarehouseStockSe
             return BaseResponse.failed("仓库数量不足");
         }
 
-        VariantStockExImRecord variantStockExImRecord = request.toVariantStockExImRecord(VariantStockExImRecord.EX_WAREHOUSE);
-        variantStockExImRecord.setId(IdGenerate.nextId());
-        variantStockExImRecord.setVariantId(productVariant.getId());
-        variantStockExImRecord.setOperatorId(session.getId());
-        variantStockExImRecordService.insert(variantStockExImRecord);
-
         VariantWarehouseStockRecord variantWarehouseStockRecord =
                 new VariantWarehouseStockRecord(productVariant.getId(),
                         request.getWarehouseCode(),
                         request.getQuantity(),
-                        VariantWarehouseStockRecord.CUSTOM_EX,
+                        request.getProcessType(),
                         variantWarehouseStock.getSafeStock(),
                         variantWarehouseStock.getSafeStock() - request.getQuantity(),
-                        variantStockExImRecord.getId(),
+                        request.getRelateId(),
                         new Date(),
                         "",
                         session.getId());
@@ -328,22 +321,20 @@ public class VariantWarehouseStockServiceImpl implements VariantWarehouseStockSe
             insert(variantWarehouseStock);
         }
 
-        VariantStockExImRecord variantStockExImRecord = request.toVariantStockExImRecord(VariantStockExImRecord.IM_WAREHOUSE);
-        variantStockExImRecord.setId(IdGenerate.nextId());
-        variantStockExImRecord.setVariantId(productVariant.getId());
-        variantStockExImRecord.setOperatorId(session.getId());
-        variantStockExImRecordService.insert(variantStockExImRecord);
-
-
+//        VariantStockExImRecord variantStockExImRecord = request.toVariantStockExImRecord(VariantStockExImRecord.IM_WAREHOUSE);
+//        variantStockExImRecord.setId(IdGenerate.nextId());
+//        variantStockExImRecord.setVariantId(productVariant.getId());
+//        variantStockExImRecord.setOperatorId(session.getId());
+//        variantStockExImRecordService.insert(variantStockExImRecord);
 
         VariantWarehouseStockRecord variantWarehouseStockRecord =
                 new VariantWarehouseStockRecord(productVariant.getId(),
                         request.getWarehouseCode(),
                         request.getQuantity(),
-                        VariantWarehouseStockRecord.CUSTOM_IM,
+                        request.getProcessType(),
                         variantWarehouseStock.getSafeStock(),
                         variantWarehouseStock.getSafeStock() + request.getQuantity(),
-                        variantStockExImRecord.getId(),
+                        request.getRelateId(),
                         new Date(),
                         "",
                         session.getId());

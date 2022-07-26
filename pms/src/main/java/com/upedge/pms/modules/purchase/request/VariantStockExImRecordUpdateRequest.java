@@ -11,6 +11,7 @@ import java.util.Date;
 @Data
 public class VariantStockExImRecordUpdateRequest{
 
+    private Long relateId;
 
     /**
      * 
@@ -32,6 +33,8 @@ public class VariantStockExImRecordUpdateRequest{
      */
     @NotNull
     private Integer quantity;
+
+    private Integer processType;
 
 
     public VariantStockExImRecord toVariantStockExImRecord(Integer operateType){

@@ -6,9 +6,12 @@ import com.upedge.common.component.annotation.Permission;
 import com.upedge.common.constant.Constant;
 import com.upedge.common.constant.ResultCode;
 import com.upedge.common.exception.CustomerException;
+import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.utils.ListUtils;
+import com.upedge.common.web.util.UserUtil;
 import com.upedge.pms.modules.purchase.entity.PurchaseOrder;
 import com.upedge.pms.modules.purchase.request.PurchaseOrderListRequest;
+import com.upedge.pms.modules.purchase.request.PurchaseOrderReceiveRequest;
 import com.upedge.pms.modules.purchase.response.PurchaseOrderListResponse;
 import com.upedge.pms.modules.purchase.service.PurchaseOrderService;
 import com.upedge.pms.modules.purchase.vo.PurchaseOrderVo;
@@ -16,6 +19,7 @@ import com.upedge.thirdparty.ali1688.service.Ali1688Service;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -33,6 +37,9 @@ import java.util.List;
 public class PurchaseOrderController {
     @Autowired
     private PurchaseOrderService purchaseOrderService;
+
+    @Autowired
+    RedisTemplate redisTemplate;
 
 
 //    @RequestMapping(value="/info/{id}", method=RequestMethod.GET)
@@ -79,5 +86,11 @@ public class PurchaseOrderController {
         return purchaseOrderService.refreshFrom1688(id);
     }
 
-
+    @ApiOperation("入库")
+    @PostMapping("/receive")
+    public BaseResponse orderReceive(@RequestBody@Valid PurchaseOrderReceiveRequest request){
+        Session session = UserUtil.getSession(redisTemplate);
+        BaseResponse response = purchaseOrderService.orderReceive(request,session);
+        return response;
+    }
 }

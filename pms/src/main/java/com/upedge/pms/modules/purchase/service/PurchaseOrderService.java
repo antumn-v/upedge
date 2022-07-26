@@ -15,6 +15,8 @@ import java.util.List;
  */
 public interface PurchaseOrderService{
 
+    void checkOrderReceiveQuantity(Long id);
+
     BaseResponse orderReceive(PurchaseOrderReceiveRequest request, Session session);
 
     BaseResponse refreshFrom1688(Long id);

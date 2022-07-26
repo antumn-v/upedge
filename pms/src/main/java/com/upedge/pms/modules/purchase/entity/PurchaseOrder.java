@@ -51,6 +51,8 @@ public class PurchaseOrder{
 	 * 0=1688采购
 	 */
     private Integer purchaseType;
+
+	private Integer purchaseQuantity;
 	/**
 	 * 
 	 */
@@ -88,7 +90,7 @@ public class PurchaseOrder{
 	public PurchaseOrder() {
 	}
 
-	public PurchaseOrder(Long id, String purchaseId, BigDecimal productAmount, BigDecimal shipPrice, BigDecimal amount, BigDecimal discountAmount, String supplierName,  Integer purchaseState, Integer purchaseType, Long operatorId) {
+	public PurchaseOrder(Long id, String purchaseId, BigDecimal productAmount, BigDecimal shipPrice, BigDecimal amount, BigDecimal discountAmount, String supplierName,  Integer purchaseState, Integer purchaseType, Long operatorId,Integer purchaseQuantity) {
 		this.id = id;
 		this.purchaseId = purchaseId;
 		this.productAmount = productAmount;
@@ -102,5 +104,6 @@ public class PurchaseOrder{
 		this.warehouseCode = "CNHZ";
 		this.createTime = new Date();
 		this.updateTime = new Date();
+		this.purchaseQuantity = purchaseQuantity;
 	}
 }

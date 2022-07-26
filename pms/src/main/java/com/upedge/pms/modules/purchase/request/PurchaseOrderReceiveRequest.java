@@ -10,16 +10,17 @@ import java.util.List;
 public class PurchaseOrderReceiveRequest {
 
     @NotNull
-    private Long id;
+    private Long orderId;
+
+    private String trackingCode;
 
     @Size(min = 1)
     private List<PurchaseOrderItemReceiveDto> itemReceiveDtos;
 
 
-
     @Data
     public class PurchaseOrderItemReceiveDto{
-        private Long id;
+        private Long itemId;
         private Integer quantity;
     }
 }

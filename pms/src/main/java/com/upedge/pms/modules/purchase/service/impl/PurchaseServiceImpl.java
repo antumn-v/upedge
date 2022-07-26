@@ -273,9 +273,10 @@ public class PurchaseServiceImpl implements PurchaseService {
                     new BigDecimal(alibabaTradeFastResult.getTotalSuccessAmount().doubleValue() / 100),
                     BigDecimal.ZERO,
                     map.getKey(),
-                    0, 0, session.getId());
+                    0, 0, session.getId(), 0);
 
             List<PurchaseOrderItem> purchaseItems = new ArrayList<>();
+            Double purchaseQuantity = 0.0;
             for (AlibabaTradeFastCargo tradeFastCargo : tradeFastCargos) {
                 PurchasePlan purchasePlan = skuPurchasePlanMap.get(tradeFastCargo.getSpecId());
                 if (null == purchasePlan) {
@@ -286,7 +287,9 @@ public class PurchaseServiceImpl implements PurchaseService {
                 purchaseItem.setOrderId(id);
                 purchaseItem.setId(IdGenerate.nextId());
                 purchaseItems.add(purchaseItem);
+                purchaseQuantity += tradeFastCargo.getQuantity();
             }
+            purchaseOrder.setPurchaseQuantity(purchaseQuantity.intValue());
             List<Integer> planIds = supplierPurchasePlans.get(map.getKey());
             purchaseOrderService.insert(purchaseOrder);
             purchaseOrderItemService.insertByBatch(purchaseItems);

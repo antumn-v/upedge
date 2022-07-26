@@ -3,7 +3,9 @@ package com.upedge.pms.modules.purchase.controller;
 import com.upedge.common.base.BaseResponse;
 import com.upedge.common.component.annotation.Permission;
 import com.upedge.common.model.user.vo.Session;
+import com.upedge.common.utils.IdGenerate;
 import com.upedge.common.web.util.UserUtil;
+import com.upedge.pms.modules.purchase.entity.VariantWarehouseStockRecord;
 import com.upedge.pms.modules.purchase.request.VariantStockExImRecordUpdateRequest;
 import com.upedge.pms.modules.purchase.request.VariantStockUpdateRequest;
 import com.upedge.pms.modules.purchase.request.VariantWarehouseStockListRequest;
@@ -50,6 +52,8 @@ public class VariantWarehouseStockController {
     @PostMapping("/customEx")
     public BaseResponse stockEx(@RequestBody@Valid VariantStockExImRecordUpdateRequest request){
         Session session = UserUtil.getSession(redisTemplate);
+        request.setProcessType(VariantWarehouseStockRecord.CUSTOM_EX);
+        request.setRelateId(IdGenerate.nextId());
         return variantWarehouseStockService.variantStockEx(request,session);
     }
 
@@ -57,6 +61,8 @@ public class VariantWarehouseStockController {
     @PostMapping("/customIm")
     public BaseResponse stockIm(@RequestBody@Valid VariantStockExImRecordUpdateRequest request){
         Session session = UserUtil.getSession(redisTemplate);
+        request.setProcessType(VariantWarehouseStockRecord.CUSTOM_IM);
+        request.setRelateId(IdGenerate.nextId());
         return variantWarehouseStockService.variantStockIm(request,session);
     }
 

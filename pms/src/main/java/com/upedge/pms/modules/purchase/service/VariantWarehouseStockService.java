@@ -28,6 +28,7 @@ public interface VariantWarehouseStockService{
     BaseResponse updateVariantStock(VariantStockUpdateRequest request, Session session);
 
     BaseResponse variantStockEx(VariantStockExImRecordUpdateRequest request, Session session);
+
     BaseResponse variantStockIm(VariantStockExImRecordUpdateRequest request, Session session);
 
     VariantWarehouseStock selectByPrimaryKey(Long variantId,String warehouseCode);
