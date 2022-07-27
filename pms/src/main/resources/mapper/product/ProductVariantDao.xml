@@ -23,6 +23,7 @@
         <result property="width" column="width"/>
         <result property="height" column="height"/>
         <result property="saiheSku" column="saihe_sku"/>
+        <result property="barcode" column="barcode"/>
         <result property="latestQuotePrice" column="latest_quote_price"/>
     </resultMap>
 
@@ -63,7 +64,7 @@
         `id`,`original_variant_id`,`product_id`,`variant_sku`,`variant_image`,
         `variant_price`,`usd_price`,`inventory`,`weight`,`state`,`volume_weight`,
         `variant_type`,`cn_name`,`en_name`,`length`,`width`,`height`,
-        `latest_quote_price`,`saihe_sku`,ifnull(`purchase_sku`,'') as `purchase_sku`
+        `latest_quote_price`,`saihe_sku`,ifnull(`purchase_sku`,'') as `purchase_sku`,`barcode`
     </sql>
 
 
@@ -355,7 +356,8 @@
             en_name,
             `length`,
             width,
-            height
+            height,
+            barcode
         </trim>
         values (
         #{id},
@@ -374,119 +376,9 @@
         #{enName},
         #{length},
         #{width},
-        #{height}
+        #{height},
+        #{barcode}
         )
-    </insert>
-
-    <insert id="insertSelective" keyColumn="id" keyProperty="id"
-            parameterType="com.upedge.pms.modules.product.entity.ProductVariant" useGeneratedKeys="true">
-        insert into product_variant
-        <trim prefix="(" suffix=")" suffixOverrides=",">
-            <if test="id != null">
-                id
-            </if>
-            <if test="originalVariantId != null">
-                original_variant_id
-            </if>
-            <if test="productId != null">
-                product_id
-            </if>
-            <if test="variantSku != null">
-                variant_sku
-            </if>
-            <if test="variantImage != null">
-                variant_image
-            </if>
-            <if test="variantPrice != null">
-                variant_price
-            </if>
-            <if test="usdPrice != null">
-                usd_price
-            </if>
-            <if test="inventory != null">
-                inventory
-            </if>
-            <if test="weight != null">
-                weight
-            </if>
-            <if test="state != null">
-                state
-            </if>
-            <if test="volumeWeight != null">
-                volume_weight
-            </if>
-            <if test="variantType != null">
-                variant_type
-            </if>
-            <if test="cnName != null">
-                cn_name
-            </if>
-            <if test="enName != null">
-                en_name
-            </if>
-            <if test="length != null">
-                length
-            </if>
-            <if test="width != null">
-                width
-            </if>
-            <if test="height != null">
-                height
-            </if>
-        </trim>
-        <trim prefix="values (" suffix=")" suffixOverrides=",">
-            <if test="id != null">
-                #{id}
-            </if>
-            <if test="originalVariantId != null">
-                #{originalVariantId}
-            </if>
-            <if test="productId != null">
-                #{productId}
-            </if>
-            <if test="variantSku != null">
-                #{variantSku}
-            </if>
-            <if test="variantImage != null">
-                #{variantImage}
-            </if>
-            <if test="variantPrice != null">
-                #{variantPrice}
-            </if>
-            <if test="usdPrice != null">
-                #{usdPrice}
-            </if>
-            <if test="inventory != null">
-                #{inventory}
-            </if>
-            <if test="weight != null">
-                #{weight}
-            </if>
-            <if test="state != null">
-                #{state}
-            </if>
-            <if test="volumeWeight != null">
-                #{volumeWeight}
-            </if>
-            <if test="variantType != null">
-                #{variantType}
-            </if>
-            <if test="cnName != null">
-                #{cnName}
-            </if>
-            <if test="enName != null">
-                #{enName}
-            </if>
-            <if test="length != null">
-                #{length}
-            </if>
-            <if test="width != null">
-                #{width}
-            </if>
-            <if test="height != null">
-                #{height}
-            </if>
-        </trim>
     </insert>
 
     <insert id="insertByBatch" parameterType="java.util.List">
@@ -509,7 +401,8 @@
             `length`,
             width,
             height,
-            purchase_sku
+            purchase_sku,
+            barcode
         </trim>
         values
         <foreach collection="list" item="item" index="index" separator=",">
@@ -531,7 +424,8 @@
                 #{item.length},
                 #{item.width},
                 #{item.height},
-                #{item.purchaseSku}
+                #{item.purchaseSku},
+                #{item.barcode}
             </trim>
         </foreach>
     </insert>
@@ -673,4 +567,9 @@
             limit 1
         </foreach>
     </update>
+
+    <select id="selectMaxBarcode" resultType="java.lang.Long">
+        select max(barcode)
+        from product_variant
+    </select>
 </mapper>

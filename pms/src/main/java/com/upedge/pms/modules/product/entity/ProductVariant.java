@@ -16,6 +16,8 @@ public class ProductVariant{
 	 * 
 	 */
     private Long id;
+
+	private Long barcode;
 	/**
 	 * 
 	 */

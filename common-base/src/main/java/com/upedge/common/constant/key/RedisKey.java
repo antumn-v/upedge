@@ -109,10 +109,6 @@ public class RedisKey {
      * 普通订单产品未导入赛盒的产品集合hash 导入产品时移除
      */
     public static final String HASH_BAD_NORMAL_ORDER_PRODUCT="badNormalOrderProduct";
-    /**
-     * 批发订单产品未导入赛盒的产品集合hash 导入产品时移除
-     */
-    public static final String HASH_BAD_WHOLESALE_ORDER_PRODUCT="badWholesaleOrderProduct";
     //Wooc插件回传 未配置运输方式缓存
     public static final String WOOC_SHIP_METHOD="wookShipMethod:";
     //回传物流 店铺信息缓存
@@ -145,4 +141,6 @@ public class RedisKey {
     public static final String HASH_VARIANT_UPDATE_SKU_LOG = "variant:update:sku:log";
     //操作中的库存加锁
     public static final String KEY_VARIANT_WAREHOUSE_STOCK_LOCK = "key:variant:warehouse:stock:lock:";
+    //变体目前最大编号
+    public static final String STRING_VARIANT_MAX_NUMBER = "variant:max:number";
 }

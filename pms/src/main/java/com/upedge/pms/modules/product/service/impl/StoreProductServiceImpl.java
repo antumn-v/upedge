@@ -23,10 +23,7 @@ import com.upedge.pms.modules.product.dto.StoreProductDto;
 import com.upedge.pms.modules.product.entity.*;
 import com.upedge.pms.modules.product.request.StoreProductListRequest;
 import com.upedge.pms.modules.product.response.StoreProductListResponse;
-import com.upedge.pms.modules.product.service.ProductAttributeService;
-import com.upedge.pms.modules.product.service.ProductInfoService;
-import com.upedge.pms.modules.product.service.ProductService;
-import com.upedge.pms.modules.product.service.StoreProductService;
+import com.upedge.pms.modules.product.service.*;
 import com.upedge.pms.modules.product.vo.StoreProductRelateVo;
 import com.upedge.pms.modules.quote.service.CustomerProductQuoteService;
 import com.upedge.thirdparty.saihe.config.SaiheConfig;
@@ -82,7 +79,7 @@ public class StoreProductServiceImpl implements StoreProductService {
     ProductInfoService productInfoService;
 
     @Autowired
-    ProductVariantDao productVariantDao;
+    ProductVariantService productVariantService;
 
     @Autowired
     ProductVariantAttrDao productVariantAttrDao;
@@ -129,7 +126,7 @@ public class StoreProductServiceImpl implements StoreProductService {
                 productVariantAttrs.add(productVariantAttr);
             }
             productService.insert(product);
-            productVariantDao.insertByBatch(productVariants);
+            productVariantService.insertByBatch(productVariants);
             productVariantAttrDao.insertByBatch(productVariantAttrs);
             storeProductAttributeDao.updateTransformStateById(id, 1);
 

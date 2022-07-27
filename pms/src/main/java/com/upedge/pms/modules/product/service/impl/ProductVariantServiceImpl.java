@@ -12,6 +12,7 @@ import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.utils.IdGenerate;
 import com.upedge.common.utils.ListUtils;
 import com.upedge.common.utils.PriceUtils;
+import com.upedge.common.web.util.RedisUtil;
 import com.upedge.pms.modules.product.dao.ProductLogDao;
 import com.upedge.pms.modules.product.dao.ProductVariantDao;
 import com.upedge.pms.modules.product.entity.*;
@@ -83,6 +84,8 @@ public class ProductVariantServiceImpl implements ProductVariantService {
      */
     @Transactional
     public int insert(ProductVariant record) {
+        Long barcode = getMaxBarCode(1);
+        record.setBarcode(barcode + 1);
         return productVariantDao.insert(record);
     }
 
@@ -91,6 +94,8 @@ public class ProductVariantServiceImpl implements ProductVariantService {
      */
     @Transactional
     public int insertSelective(ProductVariant record) throws Exception {
+        Long barcode = getMaxBarCode(1);
+        record.setBarcode(barcode + 1);
         int i = productVariantDao.insert(record);
         if (i == 1 && record.getState() == 1){
             Product product = productService.selectByPrimaryKey(record.getProductId());
@@ -269,6 +274,7 @@ public class ProductVariantServiceImpl implements ProductVariantService {
         }
 
         ProductVariant productVariant = request.toProductVariant();
+
         insert(productVariant);
 
         Long id = productVariant.getId();
@@ -626,6 +632,13 @@ public class ProductVariantServiceImpl implements ProductVariantService {
 
     @Override
     public int insertByBatch(List<ProductVariant> productVariants) {
+        if (ListUtils.isEmpty(productVariants)){
+            return 0;
+        }
+        Long barcode = getMaxBarCode(productVariants.size());
+        for (ProductVariant productVariant : productVariants) {
+            productVariant.setBarcode(++barcode);
+        }
         return productVariantDao.insertByBatch(productVariants);
     }
 
@@ -687,6 +700,22 @@ public class ProductVariantServiceImpl implements ProductVariantService {
             return new ArrayList<>();
         }
         return productVariantDao.selectQuoteProductBySkus(skus);
+    }
+
+    private Long getMaxBarCode(int length){
+        String key = "key:" + RedisKey.STRING_VARIANT_MAX_NUMBER;
+        boolean b = RedisUtil.lock(redisTemplate,key,5L,10L);
+        if (!b){
+            return null;
+        }
+        Long barcode = (Long) redisTemplate.opsForValue().get(RedisKey.STRING_VARIANT_MAX_NUMBER);
+        if (null == barcode){
+            barcode = productVariantDao.selectMaxBarcode();
+        }
+        redisTemplate.opsForValue().set(RedisKey.STRING_VARIANT_MAX_NUMBER,barcode + length);
+        RedisUtil.unLock(redisTemplate,key);
+        return barcode;
+
     }
 
 }

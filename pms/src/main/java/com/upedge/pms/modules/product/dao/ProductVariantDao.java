@@ -15,6 +15,8 @@ import java.util.Map;
  */
 public interface ProductVariantDao {
 
+    Long selectMaxBarcode();
+
     void updateByBatch(List<ProductVariant> list);
 
     void updateWeight(@Param("ids") List<Long> ids, @Param("weight") BigDecimal weight);
@@ -60,8 +62,6 @@ public interface ProductVariantDao {
     int updateByPrimaryKeySelective(ProductVariant record);
 
     int insert(ProductVariant record);
-
-    int insertSelective(ProductVariant record);
 
     int insertByBatch(List<ProductVariant> list);
 
