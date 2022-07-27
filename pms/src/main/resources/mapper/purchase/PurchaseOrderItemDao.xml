@@ -15,12 +15,14 @@
         <result property="variantSku" column="variant_sku"/>
         <result property="purchaseSku" column="purchase_sku"/>
         <result property="quantity" column="quantity"/>
+        <result property="receiveQuantity" column="receive_quantity"/>
         <result property="price" column="price"/>
         <result property="specId" column="spec_id"/>
+        <result property="weight" column="weight"/>
     </resultMap>
 
     <sql id="Base_Column_List">
-        `id`,`order_id`,`variant_id`,`product_id`,`purchase_link`,`variant_name`,`variant_image`,`variant_sku`,`purchase_sku`,`quantity`,`price`,`spec_id`
+        `id`,`order_id`,`variant_id`,`product_id`,`purchase_link`,`variant_name`,`variant_image`,`variant_sku`,`purchase_sku`,`quantity`,`price`,`spec_id`,`receive_quantity`
     </sql>
 
     <select id="selectByPrimaryKey" parameterType="com.upedge.pms.modules.purchase.entity.PurchaseOrderItem" resultMap="BaseResultMap">
@@ -310,9 +312,12 @@
 
     <select id="selectByOrderIds" resultMap="BaseResultMap">
         select
-        <include refid="Base_Column_List" />
-        from purchase_order_item
-        where order_id in
+        poi.`id`,poi.`order_id`,poi.`variant_id`,poi.`product_id`,poi.`purchase_link`,poi.`variant_name`,poi.`variant_image`,poi.`variant_sku`,
+        poi.`purchase_sku`,poi.`quantity`,poi.`price`,poi.`spec_id`,poi.`receive_quantity`,pv.weight
+        from purchase_order_item poi
+        left join product_variant pv
+        on poi.variant_id = pv.id
+        where poi.order_id in
         <foreach collection="orderIds" item="orderId" open="(" separator="," close=")">
             #{orderId}
         </foreach>

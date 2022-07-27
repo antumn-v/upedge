@@ -61,4 +61,8 @@ public class PurchaseOrderItem{
 	 */
     private String specId;
 
+	private Long barcode;
+
+	private BigDecimal weight;
+
 }
