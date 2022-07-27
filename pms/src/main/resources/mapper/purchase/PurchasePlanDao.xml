@@ -11,6 +11,7 @@
         <result property="productId" column="product_id"/>
         <result property="variantId" column="variant_id"/>
         <result property="variantSku" column="variant_sku"/>
+        <result property="barcode" column="barcode"/>
         <result property="variantName" column="variant_name"/>
         <result property="variantImage" column="variant_image"/>
         <result property="purchaseLink" column="purchase_link"/>
@@ -25,7 +26,8 @@
     </resultMap>
 
     <sql id="Base_Column_List">
-        `id`,`purchase_sku`,`supplier_name`,`product_id`,`variant_id`,`variant_sku`,`variant_name`,`variant_image`,`purchase_link`,`quantity`,`price`,
+        `id`,`purchase_sku`,`supplier_name`,`product_id`,`variant_id`,`variant_sku`,`barcode`,
+        `variant_name`,`variant_image`,`purchase_link`,`quantity`,`price`,
                                                                                                                                                                                                                                                                                                             `spec_id`,`operator_id`,`state`,`purchase_order_id`,`create_time`,`update_time`
     </sql>
 
@@ -125,6 +127,7 @@
             product_id,
             variant_id,
             variant_sku,
+            barcode,
             variant_name,
             variant_image,
             purchase_link,
@@ -144,6 +147,7 @@
         #{productId},
         #{variantId},
         #{variantSku},
+        #{barcode},
         #{variantName},
         #{variantImage},
         #{purchaseLink},

@@ -1,32 +1,27 @@
 package com.upedge.pms.modules.purchase.controller;
 
-import java.util.Arrays;
-import java.util.Map;
-
-import com.upedge.common.constant.ResultCode;
-import org.springframework.beans.factory.annotation.Autowired;
 import com.upedge.common.component.annotation.Permission;
-import com.upedge.pms.modules.purchase.entity.PurchaseOrderItem;
-import com.upedge.pms.modules.purchase.service.PurchaseOrderItemService;
-import org.springframework.web.bind.annotation.*;
-import java.util.List;
 import com.upedge.common.constant.Constant;
+import com.upedge.common.constant.ResultCode;
+import com.upedge.pms.modules.purchase.entity.PurchaseOrderItem;
 import com.upedge.pms.modules.purchase.request.PurchaseOrderItemAddRequest;
 import com.upedge.pms.modules.purchase.request.PurchaseOrderItemListRequest;
 import com.upedge.pms.modules.purchase.request.PurchaseOrderItemUpdateRequest;
+import com.upedge.pms.modules.purchase.response.*;
+import com.upedge.pms.modules.purchase.service.PurchaseOrderItemService;
+import io.swagger.annotations.Api;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
 
-import com.upedge.pms.modules.purchase.response.PurchaseOrderItemAddResponse;
-import com.upedge.pms.modules.purchase.response.PurchaseOrderItemDelResponse;
-import com.upedge.pms.modules.purchase.response.PurchaseOrderItemInfoResponse;
-import com.upedge.pms.modules.purchase.response.PurchaseOrderItemListResponse;
-import com.upedge.pms.modules.purchase.response.PurchaseOrderItemUpdateResponse;
 import javax.validation.Valid;
+import java.util.List;
 
 /**
  * 
  *
  * @author gx
  */
+@Api(tags = "采购订单产品")
 @RestController
 @RequestMapping("/purchaseOrderItem")
 public class PurchaseOrderItemController {

@@ -8,6 +8,7 @@
         <result property="id" column="id"/>
         <result property="orderId" column="order_id"/>
         <result property="variantId" column="variant_id"/>
+        <result property="barcode" column="barcode"/>
         <result property="productId" column="product_id"/>
         <result property="purchaseLink" column="purchase_link"/>
         <result property="variantName" column="variant_name"/>
@@ -22,7 +23,8 @@
     </resultMap>
 
     <sql id="Base_Column_List">
-        `id`,`order_id`,`variant_id`,`product_id`,`purchase_link`,`variant_name`,`variant_image`,`variant_sku`,`purchase_sku`,`quantity`,`price`,`spec_id`,`receive_quantity`
+        `id`,`order_id`,`variant_id`,`product_id`,`purchase_link`,`variant_name`,`barcode`,
+        `variant_image`,`variant_sku`,`purchase_sku`,`quantity`,`price`,`spec_id`,`receive_quantity`
     </sql>
 
     <select id="selectByPrimaryKey" parameterType="com.upedge.pms.modules.purchase.entity.PurchaseOrderItem" resultMap="BaseResultMap">
@@ -102,6 +104,7 @@
             id,
             order_id,
             variant_id,
+            barcode,
             product_id,
             purchase_link,
             variant_name,
@@ -116,6 +119,7 @@
         #{id},
         #{orderId},
         #{variantId},
+        #{barcode},
         #{productId},
         #{purchaseLink},
         #{variantName},

@@ -35,6 +35,8 @@ public class PurchasePlan{
 	 * 
 	 */
     private String variantSku;
+
+	private Long barcode;
 	/**
 	 * 
 	 */
