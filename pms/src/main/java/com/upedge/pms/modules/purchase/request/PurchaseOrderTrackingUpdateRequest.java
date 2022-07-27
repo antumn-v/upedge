@@ -38,7 +38,7 @@ public class PurchaseOrderTrackingUpdateRequest{
         purchaseOrderTracking.setPurchaseId(purchaseId);
         purchaseOrderTracking.setTrackingCode(trackingCode);
         purchaseOrderTracking.setTrackingCompany(trackingCompany);
-        purchaseOrderTracking.setCreateTime(createTime);
+        purchaseOrderTracking.setUpdateTime(createTime);
         return purchaseOrderTracking;
     }
 

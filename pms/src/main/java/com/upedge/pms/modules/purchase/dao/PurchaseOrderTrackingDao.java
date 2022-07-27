@@ -11,6 +11,8 @@ import java.util.List;
  */
 public interface PurchaseOrderTrackingDao {
 
+    List<PurchaseOrderTracking> selectByOrderId(Long orderId);
+
     List<PurchaseOrderTracking> selectByOrderIds(@Param("orderIds") List<Long> orderIds);
 
     PurchaseOrderTracking selectByPrimaryKey(PurchaseOrderTracking record);

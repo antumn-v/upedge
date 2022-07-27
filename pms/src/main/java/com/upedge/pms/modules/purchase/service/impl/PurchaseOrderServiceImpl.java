@@ -1,5 +1,6 @@
 package com.upedge.pms.modules.purchase.service.impl;
 
+import com.alibaba.logistics.param.AlibabaLogisticsOpenPlatformLogisticsTrace;
 import com.alibaba.trade.param.AlibabaOpenplatformTradeModelNativeLogisticsInfo;
 import com.alibaba.trade.param.AlibabaOpenplatformTradeModelNativeLogisticsItemsInfo;
 import com.alibaba.trade.param.AlibabaOpenplatformTradeModelOrderBaseInfo;
@@ -156,13 +157,31 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
         if (null == purchaseOrder){
             return BaseResponse.failed("订单不存在");
         }
-        AlibabaOpenplatformTradeModelTradeInfo alibabaOpenplatformTradeModelTradeInfo = null;
         try {
-            alibabaOpenplatformTradeModelTradeInfo = Ali1688Service.orderDetail(Long.parseLong(purchaseOrder.getPurchaseId()),null);
+            updateBaseInfo(id, purchaseOrder.getPurchaseId(), purchaseOrder.getTrackingCode());
         } catch (CustomerException e) {
             return BaseResponse.failed(e.getMessage());
         }
-        purchaseOrder = new PurchaseOrder();
+
+        List<AlibabaLogisticsOpenPlatformLogisticsTrace> alibabaLogisticsOpenPlatformLogisticsTraces = null;
+        try {
+            alibabaLogisticsOpenPlatformLogisticsTraces = Ali1688Service.orderShipDetail(Long.parseLong(purchaseOrder.getPurchaseId()),null);
+        } catch (CustomerException e) {
+        }
+        purchaseOrderTrackingService.updateOrderTrackingLatestUpdateInfo(id,alibabaLogisticsOpenPlatformLogisticsTraces);
+
+        return BaseResponse.success();
+    }
+
+
+    void updateBaseInfo(Long id,String purchaseId,String trackingCode) throws CustomerException {
+        AlibabaOpenplatformTradeModelTradeInfo alibabaOpenplatformTradeModelTradeInfo = null;
+        try {
+            alibabaOpenplatformTradeModelTradeInfo = Ali1688Service.orderDetail(Long.parseLong(purchaseId),null);
+        } catch (CustomerException e) {
+            throw new CustomerException(e.getMessage());
+        }
+        PurchaseOrder purchaseOrder = new PurchaseOrder();
         AlibabaOpenplatformTradeModelOrderBaseInfo baseInfo = alibabaOpenplatformTradeModelTradeInfo.getBaseInfo();
         purchaseOrder.setPurchaseStatus(baseInfo.getStatus());
         purchaseOrder.setReceiveTime(baseInfo.getReceivingTime());
@@ -180,13 +199,16 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
                 StringBuffer code = new StringBuffer();
                 for (int i = 0; i < logisticsItemsInfos.size(); i++) {
                     AlibabaOpenplatformTradeModelNativeLogisticsItemsInfo logisticsItemsInfo = logisticsItemsInfos.get(i);
-                    if (i == 0){
+                    if (trackingCode.contains(logisticsItemsInfo.getLogisticsCode())){
+                        continue;
+                    }
+                    if (code == null){
                         code = code.append(logisticsItemsInfo.getLogisticsCode());
                     }else {
                         code = code.append(",").append(logisticsItemsInfo.getLogisticsCode());
                     }
-                    PurchaseOrderTracking purchaseOrderTracking = new PurchaseOrderTracking(id, purchaseOrder.getPurchaseId(), logisticsItemsInfo.getLogisticsCode(), logisticsItemsInfo.getLogisticsCompanyName());
-                    purchaseOrderTracking.setCreateTime(logisticsItemsInfo.getDeliveredTime());
+                    PurchaseOrderTracking purchaseOrderTracking = new PurchaseOrderTracking(id, purchaseId, logisticsItemsInfo.getLogisticsCode(), logisticsItemsInfo.getLogisticsCompanyName());
+                    purchaseOrderTracking.setUpdateTime(logisticsItemsInfo.getDeliveredTime());
                     orderTrackingList.add(purchaseOrderTracking);
                 }
                 purchaseOrder.setTrackingCode(code.toString());
@@ -196,7 +218,6 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
         }
         purchaseOrder.setId(id);
         updateByPrimaryKeySelective(purchaseOrder);
-        return BaseResponse.success();
     }
 
     @Override

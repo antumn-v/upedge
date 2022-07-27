@@ -33,7 +33,11 @@ public class PurchaseOrderTracking{
 	/**
 	 * 
 	 */
-    private Date createTime;
+    private Date updateTime;
+
+	private Date receiveTime;
+
+	private String latestInfo;
 
 	public PurchaseOrderTracking() {
 	}
@@ -43,6 +47,6 @@ public class PurchaseOrderTracking{
 		this.purchaseId = purchaseId;
 		this.trackingCode = trackingCode;
 		this.trackingCompany = trackingCompany;
-		this.createTime = new Date();
+		this.updateTime = new Date();
 	}
 }

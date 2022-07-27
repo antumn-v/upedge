@@ -10,11 +10,12 @@
         <result property="purchaseId" column="purchase_id"/>
         <result property="trackingCode" column="tracking_code"/>
         <result property="trackingCompany" column="tracking_company"/>
-        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="latestInfo" column="latest_info"/>
     </resultMap>
 
     <sql id="Base_Column_List">
-        `id`,`purchase_order_id`,`purchase_id`,`tracking_code`,`tracking_company`,`create_time`
+        `id`,`purchase_order_id`,`purchase_id`,`tracking_code`,`tracking_company`,`update_time`,`latest_info`
     </sql>
 
     <select id="selectByPrimaryKey" parameterType="com.upedge.pms.modules.purchase.entity.PurchaseOrderTracking" resultMap="BaseResultMap">
@@ -44,8 +45,14 @@
             <if test="trackingCompany != null">
                 tracking_company = #{trackingCompany},
             </if>
-            <if test="createTime != null">
-                create_time = #{createTime},
+            <if test="updateTime != null">
+                update_time = #{updateTime},
+            </if>
+            <if test="receiveTime != null">
+                receive_time = #{receiveTime},
+            </if>
+            <if test="latestInfo != null">
+                latest_info = #{latestInfo},
             </if>
         </set>
         where id = #{id}
@@ -59,7 +66,7 @@
         purchase_id = #{purchaseId},
         tracking_code = #{trackingCode},
         tracking_company = #{trackingCompany},
-        create_time = #{createTime},
+        update_time = #{updateTime},
         </set>
         where id = #{id}
     </update>
@@ -72,7 +79,7 @@
             purchase_id,
             tracking_code,
             tracking_company,
-            create_time
+            update_time
         </trim>
         values (
         #{id},
@@ -80,7 +87,7 @@
         #{purchaseId},
         #{trackingCode},
         #{trackingCompany},
-        #{createTime}
+        #{updateTime}
         )
     </insert>
 
@@ -102,8 +109,8 @@
             <if test="trackingCompany != null" >
               tracking_company
             </if>
-            <if test="createTime != null" >
-              create_time
+            <if test="updateTime != null" >
+              update_time
             </if>
 
         </trim>
@@ -123,8 +130,8 @@
             <if test="trackingCompany != null" >
                 #{trackingCompany}
             </if>
-            <if test="createTime != null" >
-                #{createTime}
+            <if test="updateTime != null" >
+                #{updateTime}
             </if>
 
         </trim>
@@ -138,7 +145,7 @@
            purchase_id,
            tracking_code,
            tracking_company,
-           create_time
+           update_time
         </trim>
         values
         <foreach collection="list" item="item" index="index" separator=",">
@@ -148,7 +155,7 @@
                #{item.purchaseId},
                #{item.trackingCode},
                #{item.trackingCompany},
-               #{item.createTime}
+               #{item.updateTime}
             </trim>
         </foreach>
     </insert>
@@ -173,8 +180,8 @@
                     <if test="t.trackingCompany != null">
                         tracking_company = #{t.trackingCompany} and
                     </if>
-                    <if test="t.createTime != null">
-                        create_time = #{t.createTime} and
+                    <if test="t.updateTime != null">
+                        update_time = #{t.updateTime} and
                     </if>
             </trim>
         </if>
@@ -208,5 +215,12 @@
         <foreach collection="orderIds" item="orderId" open="(" close=")" separator=",">
             #{orderId}
         </foreach>
+    </select>
+
+    <select id="selectByOrderId" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from purchase_order_tracking
+        where purchase_order_id = #{orderId}
     </select>
 </mapper>

@@ -86,7 +86,7 @@ public class PurchaseOrderController {
         return purchaseOrderService.refreshFrom1688(id);
     }
 
-    @ApiOperation("入库")
+    @ApiOperation("销单入库")
     @PostMapping("/receive")
     public BaseResponse orderReceive(@RequestBody@Valid PurchaseOrderReceiveRequest request){
         Session session = UserUtil.getSession(redisTemplate);

@@ -1,8 +1,8 @@
 package com.upedge.pms.modules.purchase.service;
 
-import com.upedge.pms.modules.purchase.entity.PurchaseOrderTracking;
+import com.alibaba.logistics.param.AlibabaLogisticsOpenPlatformLogisticsTrace;
 import com.upedge.common.base.Page;
-import org.apache.ibatis.annotations.Param;
+import com.upedge.pms.modules.purchase.entity.PurchaseOrderTracking;
 
 import java.util.List;
 
@@ -10,6 +10,10 @@ import java.util.List;
  * @author gx
  */
 public interface PurchaseOrderTrackingService{
+    List<PurchaseOrderTracking> selectByOrderId(Long orderId);
+
+
+    void updateOrderTrackingLatestUpdateInfo(Long orderId,List<AlibabaLogisticsOpenPlatformLogisticsTrace> alibabaLogisticsOpenPlatformLogisticsTraces);
 
     List<PurchaseOrderTracking> selectByOrderIds(List<Long> orderIds);
 
