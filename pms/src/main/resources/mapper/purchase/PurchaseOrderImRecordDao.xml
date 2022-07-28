@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.upedge.pms.modules.purchase.dao.PurchaseOrderImRecordDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.upedge.pms.modules.purchase.entity.PurchaseOrderImRecord" id="BaseResultMap">
+        <result property="id" column="id"/>
+        <result property="purchaseOrderId" column="purchase_order_id"/>
+        <result property="trackingCode" column="tracking_code"/>
+        <result property="operatorId" column="operator_id"/>
+        <result property="createTime" column="create_time"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        `id`,`purchase_order_id`,`tracking_code`,`operator_id`,`create_time`
+    </sql>
+
+    <select id="selectByPrimaryKey" parameterType="com.upedge.pms.modules.purchase.entity.PurchaseOrderImRecord" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from purchase_order_im_record
+        where id = #{id}
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="com.upedge.pms.modules.purchase.entity.PurchaseOrderImRecord">
+        delete from purchase_order_im_record
+        where id = #{id}
+    </delete>
+
+    <update id="updateByPrimaryKeySelective" parameterType="com.upedge.pms.modules.purchase.entity.PurchaseOrderImRecord">
+        update purchase_order_im_record
+        <set>
+            <if test="purchaseOrderId != null">
+                purchase_order_id = #{purchaseOrderId},
+            </if>
+            <if test="trackingCode != null">
+                tracking_code = #{trackingCode},
+            </if>
+            <if test="operatorId != null">
+                operator_id = #{operatorId},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <update id="updateByPrimaryKey" parameterType="com.upedge.pms.modules.purchase.entity.PurchaseOrderImRecord">
+        update purchase_order_im_record
+        <set>
+        id = #{id},
+        purchase_order_id = #{purchaseOrderId},
+        tracking_code = #{trackingCode},
+        operator_id = #{operatorId},
+        create_time = #{createTime},
+        </set>
+        where id = #{id}
+    </update>
+
+    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.upedge.pms.modules.purchase.entity.PurchaseOrderImRecord" useGeneratedKeys="true">
+        insert into purchase_order_im_record
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            id,
+            purchase_order_id,
+            tracking_code,
+            operator_id,
+            create_time
+        </trim>
+        values (
+        #{id},
+        #{purchaseOrderId},
+        #{trackingCode},
+        #{operatorId},
+        #{createTime}
+        )
+    </insert>
+
+    <insert id="insertSelective"  keyColumn="id" keyProperty="id"  parameterType="com.upedge.pms.modules.purchase.entity.PurchaseOrderImRecord" useGeneratedKeys="true">
+        insert into purchase_order_im_record
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null" >
+              id
+            </if>
+            <if test="purchaseOrderId != null" >
+              purchase_order_id
+            </if>
+            <if test="trackingCode != null" >
+              tracking_code
+            </if>
+            <if test="operatorId != null" >
+              operator_id
+            </if>
+            <if test="createTime != null" >
+              create_time
+            </if>
+
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null" >
+                #{id}
+            </if>
+            <if test="purchaseOrderId != null" >
+                #{purchaseOrderId}
+            </if>
+            <if test="trackingCode != null" >
+                #{trackingCode}
+            </if>
+            <if test="operatorId != null" >
+                #{operatorId}
+            </if>
+            <if test="createTime != null" >
+                #{createTime}
+            </if>
+
+        </trim>
+    </insert>
+
+    <insert id="insertByBatch" parameterType="java.util.List">
+        insert into purchase_order_im_record
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+           id,
+           purchase_order_id,
+           tracking_code,
+           operator_id,
+           create_time
+        </trim>
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+               #{item.id},
+               #{item.purchaseOrderId},
+               #{item.trackingCode},
+               #{item.operatorId},
+               #{item.createTime}
+            </trim>
+        </foreach>
+    </insert>
+
+    <sql id="Query_Condition">
+        <if test="t != null">
+            where
+            <trim prefix=" " suffix=" " suffixOverrides=" and ">
+                1 = 1 and
+                    <if test="t.id != null">
+                        id = #{t.id} and
+                    </if>
+                    <if test="t.purchaseOrderId != null">
+                        purchase_order_id = #{t.purchaseOrderId} and
+                    </if>
+                    <if test="t.trackingCode != null">
+                        tracking_code = #{t.trackingCode} and
+                    </if>
+                    <if test="t.operatorId != null">
+                        operator_id = #{t.operatorId} and
+                    </if>
+                    <if test="t.createTime != null">
+                        create_time = #{t.createTime} and
+                    </if>
+            </trim>
+        </if>
+    </sql>
+
+    <select id="select" parameterType="com.upedge.common.base.Page" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from purchase_order_im_record
+        <include refid="Query_Condition"/>
+        <if test="orderBy != null">
+            order by ${orderBy}
+        </if>
+        <if test="pageNum != null and pageSize != null">
+            limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+        </if>
+    </select>
+
+    <select id="count" parameterType="com.upedge.common.base.Page" resultType="java.lang.Long">
+        select
+        count(1)
+        from purchase_order_im_record
+        <include refid="Query_Condition"/>
+    </select>
+
+
+</mapper>

@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.upedge.pms.modules.purchase.dao.PurchaseOrderImItemDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.upedge.pms.modules.purchase.entity.PurchaseOrderImItem" id="BaseResultMap">
+        <result property="id" column="id"/>
+        <result property="orderImId" column="order_im_id"/>
+        <result property="variantId" column="variant_id"/>
+        <result property="quantity" column="quantity"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        `id`,`order_im_id`,`variant_id`,`quantity`
+    </sql>
+
+    <select id="selectByPrimaryKey" parameterType="com.upedge.pms.modules.purchase.entity.PurchaseOrderImItem" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from purchase_order_im_item
+        where id = #{id}
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="com.upedge.pms.modules.purchase.entity.PurchaseOrderImItem">
+        delete from purchase_order_im_item
+        where id = #{id}
+    </delete>
+
+    <update id="updateByPrimaryKeySelective" parameterType="com.upedge.pms.modules.purchase.entity.PurchaseOrderImItem">
+        update purchase_order_im_item
+        <set>
+            <if test="orderImId != null">
+                order_im_id = #{orderImId},
+            </if>
+            <if test="variantId != null">
+                variant_id = #{variantId},
+            </if>
+            <if test="quantity != null">
+                quantity = #{quantity},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <update id="updateByPrimaryKey" parameterType="com.upedge.pms.modules.purchase.entity.PurchaseOrderImItem">
+        update purchase_order_im_item
+        <set>
+        id = #{id},
+        order_im_id = #{orderImId},
+        variant_id = #{variantId},
+        quantity = #{quantity},
+        </set>
+        where id = #{id}
+    </update>
+
+    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.upedge.pms.modules.purchase.entity.PurchaseOrderImItem" useGeneratedKeys="true">
+        insert into purchase_order_im_item
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            id,
+            order_im_id,
+            variant_id,
+            quantity
+        </trim>
+        values (
+        #{id},
+        #{orderImId},
+        #{variantId},
+        #{quantity}
+        )
+    </insert>
+
+    <insert id="insertSelective"  keyColumn="id" keyProperty="id"  parameterType="com.upedge.pms.modules.purchase.entity.PurchaseOrderImItem" useGeneratedKeys="true">
+        insert into purchase_order_im_item
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null" >
+              id
+            </if>
+            <if test="orderImId != null" >
+              order_im_id
+            </if>
+            <if test="variantId != null" >
+              variant_id
+            </if>
+            <if test="quantity != null" >
+              quantity
+            </if>
+
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null" >
+                #{id}
+            </if>
+            <if test="orderImId != null" >
+                #{orderImId}
+            </if>
+            <if test="variantId != null" >
+                #{variantId}
+            </if>
+            <if test="quantity != null" >
+                #{quantity}
+            </if>
+
+        </trim>
+    </insert>
+
+    <insert id="insertByBatch" parameterType="java.util.List">
+        insert into purchase_order_im_item
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+           id,
+           order_im_id,
+           variant_id,
+           quantity
+        </trim>
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+               #{item.id},
+               #{item.orderImId},
+               #{item.variantId},
+               #{item.quantity}
+            </trim>
+        </foreach>
+    </insert>
+
+    <sql id="Query_Condition">
+        <if test="t != null">
+            where
+            <trim prefix=" " suffix=" " suffixOverrides=" and ">
+                1 = 1 and
+                    <if test="t.id != null">
+                        id = #{t.id} and
+                    </if>
+                    <if test="t.orderImId != null">
+                        order_im_id = #{t.orderImId} and
+                    </if>
+                    <if test="t.variantId != null">
+                        variant_id = #{t.variantId} and
+                    </if>
+                    <if test="t.quantity != null">
+                        quantity = #{t.quantity} and
+                    </if>
+            </trim>
+        </if>
+    </sql>
+
+    <select id="select" parameterType="com.upedge.common.base.Page" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from purchase_order_im_item
+        <include refid="Query_Condition"/>
+        <if test="orderBy != null">
+            order by ${orderBy}
+        </if>
+        <if test="pageNum != null and pageSize != null">
+            limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+        </if>
+    </select>
+
+    <select id="count" parameterType="com.upedge.common.base.Page" resultType="java.lang.Long">
+        select
+        count(1)
+        from purchase_order_im_item
+        <include refid="Query_Condition"/>
+    </select>
+
+
+</mapper>

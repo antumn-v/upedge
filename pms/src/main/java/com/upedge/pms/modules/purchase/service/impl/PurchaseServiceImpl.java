@@ -23,6 +23,7 @@ import com.upedge.pms.modules.purchase.service.*;
 import com.upedge.pms.modules.purchase.vo.PurchaseOrderVo;
 import com.upedge.thirdparty.ali1688.service.Ali1688Service;
 import org.apache.commons.collections.MapUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -31,6 +32,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ThreadPoolExecutor;
 
 @Service
 public class PurchaseServiceImpl implements PurchaseService {
@@ -59,6 +62,26 @@ public class PurchaseServiceImpl implements PurchaseService {
     @Autowired
     RedisTemplate redisTemplate;
 
+    @Autowired
+    ThreadPoolExecutor threadPoolExecutor;
+
+
+    @Override
+    public BaseResponse cancelPurchase(List<Long> variantIds, Session session) {
+        redisTemplate.opsForList().leftPushAll(RedisKey.STRING_VARIANT_CANCEL_PURCHASE_LIST,variantIds);
+        return purchaseAdvice("CNHZ");
+    }
+
+    @Override
+    public BaseResponse restorePurchase(List<Long> variantIds, Session session) {
+        List<Long> cancelPurchaseVariantIds = redisTemplate.opsForList().range(RedisKey.STRING_VARIANT_CANCEL_PURCHASE_LIST,0,-1);
+        if (ListUtils.isEmpty(cancelPurchaseVariantIds)){
+            return BaseResponse.success();
+        }
+        cancelPurchaseVariantIds.removeAll(variantIds);
+        redisTemplate.opsForList().leftPushAll(RedisKey.STRING_VARIANT_CANCEL_PURCHASE_LIST,cancelPurchaseVariantIds);
+        return BaseResponse.success();
+    }
 
     @Override
     public BaseResponse purchaseAdvice(String warehouseCode) {
@@ -78,6 +101,43 @@ public class PurchaseServiceImpl implements PurchaseService {
             variantIds.removeAll(planingVariantIds);
         }
 
+        List<Long> cancelPurchaseVariantIds = redisTemplate.opsForList().range(RedisKey.STRING_VARIANT_CANCEL_PURCHASE_LIST,0,-1);
+        if (ListUtils.isNotEmpty(cancelPurchaseVariantIds)){
+            variantIds.removeAll(cancelPurchaseVariantIds);
+        }
+
+        Map<String,List<PurchaseAdviceVo>> map = new HashMap<>();
+        CompletableFuture<Void> advice = CompletableFuture.runAsync(new Runnable() {
+            @Override
+            public void run() {
+                List<PurchaseAdviceVo> adviceVos = getPurchaseAdvices(variantIds,warehouseCode,purchaseAdviceItemVos);
+                map.put("advice",adviceVos);
+            }
+        },threadPoolExecutor);
+        CompletableFuture<Void> cancel = CompletableFuture.runAsync(new Runnable() {
+            @Override
+            public void run() {
+                List<PurchaseAdviceVo> adviceVos = getPurchaseAdvices(cancelPurchaseVariantIds,warehouseCode,purchaseAdviceItemVos);
+                map.put("cancel",adviceVos);
+            }
+        },threadPoolExecutor);
+
+        try {
+            CompletableFuture.allOf(advice,cancel).get();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return BaseResponse.success(map);
+    }
+
+    private List<PurchaseAdviceVo> getPurchaseAdvices(List<Long> variantIds,String warehouseCode,List<PurchaseAdviceItemVo> purchaseAdviceItemVos){
+        if (ListUtils.isEmpty(variantIds) || ListUtils.isEmpty(purchaseAdviceItemVos)){
+            return new ArrayList<>();
+        }
+        if (StringUtils.isBlank(warehouseCode)){
+            warehouseCode = "CNHZ";
+        }
         Set<String> purchaseSkus = new HashSet<>();
         List<ProductVariant> productVariants = productVariantService.listVariantByIds(variantIds);
 
@@ -129,13 +189,13 @@ public class PurchaseServiceImpl implements PurchaseService {
             }
         }
         if (MapUtils.isEmpty(purchaseAdviceVoMap)) {
-            return BaseResponse.success(new ArrayList<>());
+            return new ArrayList<>();
         }
         List<PurchaseAdviceVo> purchaseAdviceVos = new ArrayList<>();
         for (Map.Entry<String, PurchaseAdviceVo> map : purchaseAdviceVoMap.entrySet()) {
             purchaseAdviceVos.add(map.getValue());
         }
-        return BaseResponse.success(purchaseAdviceVos);
+        return purchaseAdviceVos;
     }
 
     @Override

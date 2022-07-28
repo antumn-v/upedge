@@ -41,6 +41,20 @@ public class PurchaseController {
         return purchaseService.purchaseAdvice(warehouseCode);
     }
 
+    @ApiOperation("取消采购")
+    @PostMapping("/cancel")
+    public BaseResponse cancelPurchase(@RequestBody List<Long> variantIds){
+        Session session = UserUtil.getSession(redisTemplate);
+        return purchaseService.cancelPurchase(variantIds,session);
+    }
+
+    @ApiOperation("恢复采购")
+    @PostMapping("/restore")
+    public BaseResponse restorePurchase(@RequestBody List<Long> variantIds){
+        Session session = UserUtil.getSession(redisTemplate);
+        return purchaseService.restorePurchase(variantIds,session);
+    }
+
     @ApiOperation("预览创建1688采购单")
     @PostMapping("/createOrderPreview")
     public BaseResponse createOrderPreview(@RequestBody@Valid PurchaseOrderCreateRequest request){

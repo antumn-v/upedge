@@ -41,6 +41,7 @@
     <delete id="deleteByPrimaryKey" parameterType="com.upedge.pms.modules.purchase.entity.PurchasePlan">
         delete from purchase_plan
         where id = #{id}
+        and `state` = '0'
     </delete>
 
     <update id="updateByPrimaryKeySelective" parameterType="com.upedge.pms.modules.purchase.entity.PurchasePlan">

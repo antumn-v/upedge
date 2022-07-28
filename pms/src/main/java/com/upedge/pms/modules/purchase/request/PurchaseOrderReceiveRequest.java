@@ -1,5 +1,6 @@
 package com.upedge.pms.modules.purchase.request;
 
+import com.upedge.pms.modules.purchase.dto.PurchaseOrderItemReceiveDto;
 import lombok.Data;
 
 import javax.validation.constraints.NotNull;
@@ -17,10 +18,4 @@ public class PurchaseOrderReceiveRequest {
     @Size(min = 1)
     private List<PurchaseOrderItemReceiveDto> itemReceiveDtos;
 
-
-    @Data
-    public class PurchaseOrderItemReceiveDto{
-        private Long itemId;
-        private Integer quantity;
-    }
 }

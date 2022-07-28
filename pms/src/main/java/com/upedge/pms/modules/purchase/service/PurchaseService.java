@@ -9,6 +9,10 @@ import java.util.List;
 
 public interface PurchaseService {
 
+    BaseResponse cancelPurchase(List<Long> variantIds,Session session);
+
+    BaseResponse restorePurchase(List<Long> variantIds,Session session);
+
     BaseResponse purchaseAdvice(String warehouseCode);
 
     BaseResponse previewPurchaseOrder(PurchaseOrderCreateRequest request, Session session);

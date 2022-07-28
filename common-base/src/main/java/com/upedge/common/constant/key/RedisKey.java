@@ -143,4 +143,6 @@ public class RedisKey {
     public static final String KEY_VARIANT_WAREHOUSE_STOCK_LOCK = "key:variant:warehouse:stock:lock:";
     //变体目前最大编号
     public static final String STRING_VARIANT_MAX_NUMBER = "variant:max:number";
+
+    public static final String STRING_VARIANT_CANCEL_PURCHASE_LIST = "variant:cancel:purchase:list";
 }

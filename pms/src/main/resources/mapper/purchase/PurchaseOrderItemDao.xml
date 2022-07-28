@@ -75,6 +75,9 @@
             <if test="specId != null">
                 spec_id = #{specId},
             </if>
+            <if test="receiveQuantity != null">
+                receive_quantity = #{receiveQuantity}
+            </if>
         </set>
         where id = #{id}
     </update>

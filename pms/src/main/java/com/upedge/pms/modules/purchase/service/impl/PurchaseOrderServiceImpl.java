@@ -13,17 +13,12 @@ import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.utils.IdGenerate;
 import com.upedge.common.utils.ListUtils;
 import com.upedge.pms.modules.purchase.dao.PurchaseOrderDao;
-import com.upedge.pms.modules.purchase.entity.PurchaseOrder;
-import com.upedge.pms.modules.purchase.entity.PurchaseOrderItem;
-import com.upedge.pms.modules.purchase.entity.PurchaseOrderTracking;
-import com.upedge.pms.modules.purchase.entity.VariantWarehouseStockRecord;
+import com.upedge.pms.modules.purchase.dto.PurchaseOrderItemReceiveDto;
+import com.upedge.pms.modules.purchase.entity.*;
 import com.upedge.pms.modules.purchase.request.PurchaseOrderListRequest;
 import com.upedge.pms.modules.purchase.request.PurchaseOrderReceiveRequest;
 import com.upedge.pms.modules.purchase.request.VariantStockExImRecordUpdateRequest;
-import com.upedge.pms.modules.purchase.service.PurchaseOrderItemService;
-import com.upedge.pms.modules.purchase.service.PurchaseOrderService;
-import com.upedge.pms.modules.purchase.service.PurchaseOrderTrackingService;
-import com.upedge.pms.modules.purchase.service.VariantWarehouseStockService;
+import com.upedge.pms.modules.purchase.service.*;
 import com.upedge.pms.modules.purchase.vo.PurchaseOrderVo;
 import com.upedge.thirdparty.ali1688.service.Ali1688Service;
 import org.springframework.beans.BeanUtils;
@@ -56,6 +51,12 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
 
     @Autowired
     ThreadPoolExecutor threadPoolExecutor;
+
+    @Autowired
+    PurchaseOrderImRecordService purchaseOrderImRecordService;
+
+    @Autowired
+    PurchaseOrderImItemService purchaseOrderImItemService;
 
 
     /**
@@ -126,10 +127,19 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
         if (purchaseOrder == null){
             return BaseResponse.failed("订单不存在");
         }
-        List<PurchaseOrderReceiveRequest.PurchaseOrderItemReceiveDto> itemReceiveDtos = request.getItemReceiveDtos();
+        List<PurchaseOrderItemReceiveDto> itemReceiveDtos = request.getItemReceiveDtos();
         List<PurchaseOrderItem> purchaseOrderItems = purchaseOrderItemService.selectByOrderId(orderId);
 
         Long relateId = IdGenerate.nextId();
+
+        PurchaseOrderImRecord purchaseOrderImRecord = new PurchaseOrderImRecord();
+        purchaseOrderImRecord.setId(relateId);
+        purchaseOrderImRecord.setPurchaseOrderId(orderId);
+        purchaseOrderImRecord.setTrackingCode(request.getTrackingCode());
+        purchaseOrderImRecord.setCreateTime(new Date());
+        purchaseOrderImRecord.setOperatorId(session.getId());
+        purchaseOrderImRecordService.insert(purchaseOrderImRecord);
+
         VariantStockExImRecordUpdateRequest recordUpdateRequest = new VariantStockExImRecordUpdateRequest();
         recordUpdateRequest.setRelateId(relateId);
         recordUpdateRequest.setProcessType(VariantWarehouseStockRecord.PURCHASE_ADD);
@@ -137,12 +147,13 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
         recordUpdateRequest.setTrackingCode(recordUpdateRequest.getTrackingCode());
         a:
         for (PurchaseOrderItem purchaseOrderItem : purchaseOrderItems) {
-            for (PurchaseOrderReceiveRequest.PurchaseOrderItemReceiveDto itemReceiveDto : itemReceiveDtos) {
-                if (purchaseOrderItem.getId().equals(itemReceiveDto.getItemId())){
+            for (PurchaseOrderItemReceiveDto itemReceiveDto : itemReceiveDtos) {
+                if (purchaseOrderItem.getId().equals(itemReceiveDto.getItemId())
+                && itemReceiveDto.getQuantity() > 0){
                     recordUpdateRequest.setQuantity(itemReceiveDto.getQuantity());
                     recordUpdateRequest.setVariantSku(purchaseOrderItem.getVariantSku());
                     variantWarehouseStockService.variantStockIm(recordUpdateRequest,session);
-                    purchaseOrderItem.setReceiveQuantity(itemReceiveDto.getQuantity());
+                    purchaseOrderItem.setReceiveQuantity(itemReceiveDto.getQuantity() + purchaseOrderItem.getReceiveQuantity());
                     purchaseOrderItemService.updateByPrimaryKeySelective(purchaseOrderItem);
                     continue a;
                 }

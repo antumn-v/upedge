@@ -13,6 +13,8 @@ public class PurchaseAdviceItemVo {
 
     private int safeStock;
 
+    private int availableStock;
+
     private int purchaseQuantity;
 
     private String variantImage;

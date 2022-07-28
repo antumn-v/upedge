@@ -89,5 +89,12 @@ public class PurchasePlanController {
         return res;
     }
 
+    @ApiOperation("删除采购计划")
+    @PostMapping("/delete/{id}")
+    public BaseResponse delete(@PathVariable Integer id){
+        purchasePlanService.deleteByPrimaryKey(id);
+        return BaseResponse.success();
+    }
+
 
 }
