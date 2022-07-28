@@ -199,13 +199,14 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
                 StringBuffer code = new StringBuffer();
                 for (int i = 0; i < logisticsItemsInfos.size(); i++) {
                     AlibabaOpenplatformTradeModelNativeLogisticsItemsInfo logisticsItemsInfo = logisticsItemsInfos.get(i);
-                    if (trackingCode.contains(logisticsItemsInfo.getLogisticsCode())){
-                        continue;
-                    }
+
                     if (code == null){
                         code = code.append(logisticsItemsInfo.getLogisticsCode());
                     }else {
                         code = code.append(",").append(logisticsItemsInfo.getLogisticsCode());
+                    }
+                    if (trackingCode.contains(logisticsItemsInfo.getLogisticsCode())){
+                        continue;
                     }
                     PurchaseOrderTracking purchaseOrderTracking = new PurchaseOrderTracking(id, purchaseId, logisticsItemsInfo.getLogisticsCode(), logisticsItemsInfo.getLogisticsCompanyName());
                     purchaseOrderTracking.setUpdateTime(logisticsItemsInfo.getDeliveredTime());

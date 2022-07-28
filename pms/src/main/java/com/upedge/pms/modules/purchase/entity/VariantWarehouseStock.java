@@ -27,6 +27,10 @@ public class VariantWarehouseStock{
 	 */
     private Integer safeStock;
 	/**
+	 * 可用库存
+	 */
+	private Integer availableStock;
+	/**
 	 * 锁定库存
 	 */
     private Integer lockStock;
@@ -48,11 +52,11 @@ public class VariantWarehouseStock{
 	public VariantWarehouseStock() {
 	}
 
-	public VariantWarehouseStock(Long variantId, String warehouseCode, Integer stockScale, Integer safeStock, Integer lockStock, Integer purchaseStock, String remark, String shelfNum) {
+	public VariantWarehouseStock(Long variantId, String warehouseCode, Integer stockScale, Integer availableStock, Integer lockStock, Integer purchaseStock, String remark, String shelfNum) {
 		this.variantId = variantId;
 		this.warehouseCode = warehouseCode;
 		this.stockScale = stockScale;
-		this.safeStock = safeStock;
+		this.availableStock = availableStock;
 		this.lockStock = lockStock;
 		this.purchaseStock = purchaseStock;
 		this.remark = remark;

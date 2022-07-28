@@ -17,6 +17,7 @@ import com.upedge.pms.modules.purchase.dao.VariantWarehouseStockDao;
 import com.upedge.pms.modules.purchase.entity.PurchasePlan;
 import com.upedge.pms.modules.purchase.entity.VariantWarehouseStock;
 import com.upedge.pms.modules.purchase.entity.VariantWarehouseStockRecord;
+import com.upedge.pms.modules.purchase.request.VariantSafeStockUpdateRequest;
 import com.upedge.pms.modules.purchase.request.VariantStockExImRecordUpdateRequest;
 import com.upedge.pms.modules.purchase.request.VariantStockUpdateRequest;
 import com.upedge.pms.modules.purchase.request.VariantWarehouseStockListRequest;
@@ -80,6 +81,16 @@ public class VariantWarehouseStockServiceImpl implements VariantWarehouseStockSe
     @Transactional
     public int insertSelective(VariantWarehouseStock record) {
         return variantWarehouseStockDao.insert(record);
+    }
+
+    @Override
+    public int updateVariantSafeStock(VariantSafeStockUpdateRequest request) {
+        if (null == request.getSafeStock()
+        || null == request.getVariantId()
+        ||null == request.getWarehouseCode()){
+            return 0;
+        }
+        return variantWarehouseStockDao.updateVariantSafeStock(request);
     }
 
     @Override
@@ -152,15 +163,15 @@ public class VariantWarehouseStockServiceImpl implements VariantWarehouseStockSe
                 if (itemQuantityVo.getVariantId().equals(variantId)){
                     Integer changeQuantity = itemQuantityVo.getQuantity();
                     //安全数量小于变动库存，返回
-                    if (changeQuantity > variantWarehouseStock.getSafeStock()){
+                    if (changeQuantity > variantWarehouseStock.getAvailableStock()){
                         return true;
                     }
-                    Integer nowStock = variantWarehouseStock.getSafeStock() - changeQuantity;
+                    Integer nowStock = variantWarehouseStock.getAvailableStock() - changeQuantity;
                     //保存库存锁定记录
-                    VariantWarehouseStockRecord record = new VariantWarehouseStockRecord(variantId, warehouseCode, changeQuantity, VariantWarehouseStockRecord.STOCK_LOCK, variantWarehouseStock.getSafeStock(), nowStock, itemQuantityVo.getItemId(), new Date(), "",0L);
+                    VariantWarehouseStockRecord record = new VariantWarehouseStockRecord(variantId, warehouseCode, changeQuantity, VariantWarehouseStockRecord.STOCK_LOCK, variantWarehouseStock.getAvailableStock(), nowStock, itemQuantityVo.getItemId(), new Date(), "",0L);
                     records.add(record);
                     //更新对象最新安全库存
-                    variantWarehouseStock.setSafeStock(nowStock);
+                    variantWarehouseStock.setAvailableStock(nowStock);
                     //变体变动的库存
                     if (variantChangeQuantity.containsKey(variantId)){
                         changeQuantity = changeQuantity + variantChangeQuantity.get(variantId);
@@ -171,12 +182,15 @@ public class VariantWarehouseStockServiceImpl implements VariantWarehouseStockSe
         }
         //挨个修改锁定库存数量，修改数量则回滚
         for (Map.Entry<Long,Integer> map:variantChangeQuantity.entrySet()){
-            int i = variantWarehouseStockDao.updateVariantWarehouseSafeStock(map.getKey(), warehouseCode,map.getValue());
+            int i = variantWarehouseStockDao.updateVariantWarehouseAvailableStock(map.getKey(), warehouseCode,map.getValue());
             if (i == 0){
                 throw new Exception("库存不足");
             }
         }
         variantWarehouseStockRecordService.insertByBatch(records);
+        for (String key : keys) {
+            RedisUtil.unLock(redisTemplate,key);
+        }
         //修改订单缺货状态
         return true;
     }
@@ -236,9 +250,9 @@ public class VariantWarehouseStockServiceImpl implements VariantWarehouseStockSe
             variantWarehouseStock = new VariantWarehouseStock(variantId,warehouseCode,1, request.getStock(), 0,0,"","");
             insert(variantWarehouseStock);
         }else {
-            originalQuantity = variantWarehouseStock.getSafeStock();
+            originalQuantity = variantWarehouseStock.getAvailableStock();
             variantWarehouseStock = new VariantWarehouseStock();
-            variantWarehouseStock.setSafeStock(request.getStock());
+            variantWarehouseStock.setAvailableStock(request.getStock());
             variantWarehouseStock.setVariantId(variantId);
             variantWarehouseStock.setWarehouseCode(warehouseCode);
             variantWarehouseStock.setUpdateTime(new Date());
@@ -279,7 +293,7 @@ public class VariantWarehouseStockServiceImpl implements VariantWarehouseStockSe
         }
 
         VariantWarehouseStock variantWarehouseStock = variantWarehouseStockDao.selectByPrimaryKey(productVariant.getId(), request.getWarehouseCode());
-        if (variantWarehouseStock.getSafeStock() < request.getQuantity()){
+        if (variantWarehouseStock.getAvailableStock() < request.getQuantity()){
             RedisUtil.unLock(redisTemplate,key);
             return BaseResponse.failed("仓库数量不足");
         }
@@ -289,8 +303,8 @@ public class VariantWarehouseStockServiceImpl implements VariantWarehouseStockSe
                         request.getWarehouseCode(),
                         request.getQuantity(),
                         request.getProcessType(),
-                        variantWarehouseStock.getSafeStock(),
-                        variantWarehouseStock.getSafeStock() - request.getQuantity(),
+                        variantWarehouseStock.getAvailableStock(),
+                        variantWarehouseStock.getAvailableStock() - request.getQuantity(),
                         request.getRelateId(),
                         new Date(),
                         "",
@@ -332,8 +346,8 @@ public class VariantWarehouseStockServiceImpl implements VariantWarehouseStockSe
                         request.getWarehouseCode(),
                         request.getQuantity(),
                         request.getProcessType(),
-                        variantWarehouseStock.getSafeStock(),
-                        variantWarehouseStock.getSafeStock() + request.getQuantity(),
+                        variantWarehouseStock.getAvailableStock(),
+                        variantWarehouseStock.getAvailableStock() + request.getQuantity(),
                         request.getRelateId(),
                         new Date(),
                         "",

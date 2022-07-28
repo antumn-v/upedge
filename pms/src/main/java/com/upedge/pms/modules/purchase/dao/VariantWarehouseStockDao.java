@@ -2,6 +2,7 @@ package com.upedge.pms.modules.purchase.dao;
 
 import com.upedge.common.base.Page;
 import com.upedge.pms.modules.purchase.entity.VariantWarehouseStock;
+import com.upedge.pms.modules.purchase.request.VariantSafeStockUpdateRequest;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
@@ -17,7 +18,9 @@ public interface VariantWarehouseStockDao {
 
     List<VariantWarehouseStock> selectByVariantIdsAndWarehouseCode(@Param("variantIds") List<Long> variantIds, @Param("warehouseCode") String warehouseCode);
 
-    int updateVariantWarehouseSafeStock(@Param("variantId") Long variantId, @Param("warehouseCode") String warehouseCode, @Param("changeQuantity") Integer changeQuantity);
+    int updateVariantSafeStock(VariantSafeStockUpdateRequest request);
+
+    int updateVariantWarehouseAvailableStock(@Param("variantId") Long variantId, @Param("warehouseCode") String warehouseCode, @Param("changeQuantity") Integer changeQuantity);
 
     int updateVariantStockEx(@Param("variantId") Long variantId, @Param("warehouseCode") String warehouseCode, @Param("quantity") Integer quantity);
 

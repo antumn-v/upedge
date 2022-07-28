@@ -89,7 +89,7 @@ public class PurchaseServiceImpl implements PurchaseService {
             b:
             for (VariantWarehouseStock variantWarehouseStock : variantWarehouseStocks) {
                 if (variantWarehouseStock.getVariantId().equals(variantId)) {
-                    purchaseAdviceItemVo.setSafeStock(variantWarehouseStock.getSafeStock());
+                    purchaseAdviceItemVo.setSafeStock(variantWarehouseStock.getAvailableStock());
                     purchaseAdviceItemVo.setPurchaseQuantity(variantWarehouseStock.getPurchaseStock());
                     variantWarehouseStocks.remove(variantWarehouseStock);
                     break b;

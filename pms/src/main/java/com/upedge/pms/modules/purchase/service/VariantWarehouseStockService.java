@@ -6,6 +6,7 @@ import com.upedge.common.model.oms.order.OrderItemQuantityVo;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.pms.modules.purchase.entity.PurchasePlan;
 import com.upedge.pms.modules.purchase.entity.VariantWarehouseStock;
+import com.upedge.pms.modules.purchase.request.VariantSafeStockUpdateRequest;
 import com.upedge.pms.modules.purchase.request.VariantStockExImRecordUpdateRequest;
 import com.upedge.pms.modules.purchase.request.VariantStockUpdateRequest;
 import com.upedge.pms.modules.purchase.request.VariantWarehouseStockListRequest;
@@ -16,6 +17,8 @@ import java.util.List;
  * @author gx
  */
 public interface VariantWarehouseStockService{
+
+    int updateVariantSafeStock(VariantSafeStockUpdateRequest request);
 
     List<VariantWarehouseStock> selectByVariantIdsAndWarehouseCode(List<Long> variantIds, String warehouseCode);
 

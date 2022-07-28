@@ -1,6 +1,5 @@
 package com.upedge.pms.modules.purchase.request;
 
-import com.upedge.pms.modules.purchase.entity.VariantWarehouseStock;
 import lombok.Data;
 /**
  * @author gx
@@ -36,18 +35,5 @@ public class VariantWarehouseStockUpdateRequest{
      * 
      */
     private String shelfNum;
-
-    public VariantWarehouseStock toVariantWarehouseStock(Long variantId){
-        VariantWarehouseStock variantWarehouseStock=new VariantWarehouseStock();
-        variantWarehouseStock.setVariantId(variantId);
-        variantWarehouseStock.setWarehouseCode(warehouseCode);
-        variantWarehouseStock.setStockScale(stockScale);
-        variantWarehouseStock.setSafeStock(safeStock);
-        variantWarehouseStock.setLockStock(lockStock);
-        variantWarehouseStock.setPurchaseStock(purchaseStock);
-        variantWarehouseStock.setRemark(remark);
-        variantWarehouseStock.setShelfNum(shelfNum);
-        return variantWarehouseStock;
-    }
 
 }

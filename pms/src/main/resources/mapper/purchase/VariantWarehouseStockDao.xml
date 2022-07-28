@@ -7,8 +7,9 @@
         <result property="variantId" column="variant_id"/>
         <result property="warehouseCode" column="warehouse_code"/>
         <result property="stockScale" column="stock_scale"/>
-        <result property="safeStock" column="safe_stock"/>
+        <result property="availableStock" column="available_stock"/>
         <result property="lockStock" column="lock_stock"/>
+        <result property="safeStock" column="safe_stock"/>
         <result property="purchaseStock" column="purchase_stock"/>
         <result property="remark" column="remark"/>
         <result property="shelfNum" column="shelf_num"/>
@@ -17,7 +18,7 @@
 
     <sql id="Base_Column_List">
         `variant_id`
-                ,`warehouse_code`,`stock_scale`,`safe_stock`,`lock_stock`,`purchase_stock`,`remark`,`shelf_num`,`update_time`
+                ,`warehouse_code`,`stock_scale`,`available_stock`,`lock_stock`,`purchase_stock`,`remark`,`shelf_num`,`update_time`
     </sql>
 
     <select id="selectByPrimaryKey" resultMap="BaseResultMap">
@@ -41,8 +42,8 @@
             <if test="stockScale != null">
                 stock_scale = #{stockScale},
             </if>
-            <if test="safeStock != null">
-                safe_stock = #{safeStock},
+            <if test="availableStock != null">
+                available_stock = #{availableStock},
             </if>
             <if test="lockStock != null">
                 lock_stock = #{lockStock},
@@ -69,7 +70,7 @@
             variant_id = #{variantId},
             warehouse_code = #{warehouseCode},
             stock_scale = #{stockScale},
-            safe_stock = #{safeStock},
+            available_stock = #{availableStock},
             lock_stock = #{lockStock},
             purchase_stock = #{purchaseStock},
             remark = #{remark},
@@ -85,7 +86,7 @@
             variant_id,
             warehouse_code,
             stock_scale,
-            safe_stock,
+            available_stock,
             lock_stock,
             purchase_stock,
             remark,
@@ -96,7 +97,7 @@
         #{variantId},
         #{warehouseCode},
         #{stockScale},
-        #{safeStock},
+        #{availableStock},
         #{lockStock},
         #{purchaseStock},
         #{remark},
@@ -118,8 +119,8 @@
             <if test="stockScale != null">
                 stock_scale
             </if>
-            <if test="safeStock != null">
-                safe_stock
+            <if test="availableStock != null">
+                available_stock
             </if>
             <if test="lockStock != null">
                 lock_stock
@@ -144,8 +145,8 @@
             <if test="stockScale != null">
                 #{stockScale}
             </if>
-            <if test="safeStock != null">
-                #{safeStock}
+            <if test="availableStock != null">
+                #{availableStock}
             </if>
             <if test="lockStock != null">
                 #{lockStock}
@@ -168,7 +169,7 @@
             variant_id,
             warehouse_code,
             stock_scale,
-            safe_stock,
+            available_stock,
             lock_stock,
             purchase_stock,
             remark,
@@ -180,7 +181,7 @@
                 #{item.variantId},
                 #{item.warehouseCode},
                 #{item.stockScale},
-                #{item.safeStock},
+                #{item.availableStock},
                 #{item.lockStock},
                 #{item.purchaseStock},
                 #{item.remark},
@@ -203,8 +204,8 @@
                 <if test="t.stockScale != null">
                     stock_scale = #{t.stockScale} and
                 </if>
-                <if test="t.safeStock != null">
-                    safe_stock = #{t.safeStock} and
+                <if test="t.availableStock != null">
+                    available_stock = #{t.availableStock} and
                 </if>
                 <if test="t.lockStock != null">
                     lock_stock = #{t.lockStock} and
@@ -227,7 +228,7 @@
         <include refid="Base_Column_List"/>
         from variant_warehouse_stock
         <include refid="Query_Condition"/>
-        order by safe_stock desc
+        order by available_stock desc
         <if test="pageNum != null and pageSize != null">
             limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
         </if>
@@ -251,13 +252,13 @@
         </foreach>
     </select>
 
-    <update id="updateVariantWarehouseSafeStock">
+    <update id="updateVariantWarehouseAvailableStock">
         update variant_warehouse_stock
-        set safe_stock = safe_stock - #{changeQuantity},
+        set available_stock = available_stock - #{changeQuantity},
             lock_stock = lock_stock + {changeQuantity}
         where variant_id = #{variantId}
           and warehouse_code = #{warehouseCode}
-          and safe_stock >= #{changeQuantity}
+          and available_stock >= #{changeQuantity}
     </update>
 
     <update id="updateVariantPurchaseStock">
@@ -269,14 +270,21 @@
 
     <update id="updateVariantStockEx">
         update variant_warehouse_stock
-        set safe_stock = safe_stock - #{quantity}
+        set available_stock = available_stock - #{quantity}
         where variant_id = #{variantId}
         and warehouse_code = #{warehouseCode}
     </update>
 
     <update id="updateVariantStockIm">
         update variant_warehouse_stock
-        set safe_stock = safe_stock + #{quantity}
+        set available_stock = available_stock + #{quantity}
+        where variant_id = #{variantId}
+        and warehouse_code = #{warehouseCode}
+    </update>
+
+    <update id="updateVariantSafeStock" parameterType="com.upedge.pms.modules.purchase.request.VariantSafeStockUpdateRequest">
+        update variant_warehouse_stock
+        set safe_stock = #{safeStock}
         where variant_id = #{variantId}
         and warehouse_code = #{warehouseCode}
     </update>
