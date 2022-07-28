@@ -10,9 +10,11 @@ import com.upedge.pms.modules.purchase.dao.PurchasePlanDao;
 import com.upedge.pms.modules.purchase.entity.ProductPurchaseInfo;
 import com.upedge.pms.modules.purchase.entity.PurchasePlan;
 import com.upedge.pms.modules.purchase.request.PurchasePlanAddRequest;
+import com.upedge.pms.modules.purchase.request.PurchasePlanUpdateRequest;
 import com.upedge.pms.modules.purchase.service.ProductPurchaseInfoService;
 import com.upedge.pms.modules.purchase.service.PurchasePlanService;
 import com.upedge.pms.modules.purchase.service.VariantWarehouseStockService;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -65,6 +67,31 @@ public class PurchasePlanServiceImpl implements PurchasePlanService {
     @Transactional
     public int insertSelective(PurchasePlan record) {
         return purchasePlanDao.insert(record);
+    }
+
+    @Override
+    public BaseResponse updatePurchaseSku(PurchasePlanUpdateRequest request, Session session) {
+        if (null == request.getId()
+        || StringUtils.isBlank(request.getPurchaseSku())){
+            return BaseResponse.failed();
+        }
+        PurchasePlan purchasePlan = selectByPrimaryKey(request.getId());
+        if (null == purchasePlan
+        || 0 != purchasePlan.getState()){
+            return BaseResponse.failed();
+        }
+        if (purchasePlan.getPurchaseSku().equals(request.getPurchaseSku())){
+            return  BaseResponse.success();
+        }
+        ProductPurchaseInfo productPurchaseInfo = productPurchaseInfoService.selectByPrimaryKey(request.getPurchaseSku());
+        purchasePlan = new PurchasePlan();
+        purchasePlan.setId(request.getId());
+        purchasePlan.setPurchaseSku(productPurchaseInfo.getPurchaseSku());
+        purchasePlan.setSupplierName(productPurchaseInfo.getSupplierName());
+        purchasePlan.setPurchaseLink(productPurchaseInfo.getPurchaseLink());
+        purchasePlan.setUpdateTime(new Date());
+        updateByPrimaryKeySelective(purchasePlan);
+        return BaseResponse.success();
     }
 
     @Override

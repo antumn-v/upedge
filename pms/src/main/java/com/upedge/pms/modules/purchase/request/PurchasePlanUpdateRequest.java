@@ -10,6 +10,8 @@ import java.util.Date;
 @Data
 public class PurchasePlanUpdateRequest{
 
+    Integer id;
+
     /**
      * 
      */

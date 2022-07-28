@@ -96,5 +96,11 @@ public class PurchasePlanController {
         return BaseResponse.success();
     }
 
+    @ApiOperation("修改采购信息")
+    @PostMapping("/updatePurchaseInfo")
+    public BaseResponse updatePurchaseInfo(@RequestBody PurchasePlanUpdateRequest request){
+        Session session = UserUtil.getSession(redisTemplate);
+        return purchasePlanService.updatePurchaseSku(request,session);
+    }
 
 }

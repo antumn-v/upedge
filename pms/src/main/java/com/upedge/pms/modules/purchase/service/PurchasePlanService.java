@@ -5,7 +5,7 @@ import com.upedge.common.base.Page;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.pms.modules.purchase.entity.PurchasePlan;
 import com.upedge.pms.modules.purchase.request.PurchasePlanAddRequest;
-import org.apache.ibatis.annotations.Param;
+import com.upedge.pms.modules.purchase.request.PurchasePlanUpdateRequest;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -14,6 +14,8 @@ import java.util.List;
  * @author gx
  */
 public interface PurchasePlanService{
+
+    BaseResponse updatePurchaseSku(PurchasePlanUpdateRequest request,Session session);
 
     int updatePriceById(Integer id,BigDecimal price);
 
