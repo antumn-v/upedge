@@ -2,6 +2,7 @@ package com.upedge.oms.modules.order.service;
 
 import com.upedge.common.base.BaseResponse;
 import com.upedge.common.exception.CustomerException;
+import com.upedge.common.model.order.OrderItemQuantityDto;
 import com.upedge.common.model.order.PaymentDetail;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.oms.modules.order.vo.AppOrderVo;
@@ -32,11 +33,13 @@ public interface OrderPayService {
 
     BaseResponse orderPayList(Long paymnetId, Session session,String warehouseCode) throws ExecutionException, InterruptedException, CustomerException;
 
+    void payOrderAsync(Long customerId, Long paymentId);
+
     void sendSaveTransactionRecordMessage(Long paymentId, Long customerId, Long userId, Integer payMethod);
 
     BaseResponse createPaypalOrder(Session session, BigDecimal amount, Long paymentId, List<ItemDischargeQuantityVo> dischargeQuantityVos);
 
     PaymentDetail payOrderByPaypal(Long userId, Long customerId, Long paymentId);
 
-    void payOrderAsync(Long userId, Long customerId, Long paymentId,Integer payMethod);
+    void sendCheckOrderStockMessage(OrderItemQuantityDto orderItemQuantityDto);
 }

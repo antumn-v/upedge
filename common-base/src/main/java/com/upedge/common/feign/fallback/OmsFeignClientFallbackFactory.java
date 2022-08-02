@@ -11,8 +11,10 @@ import com.upedge.common.model.cart.request.CartSelectByIdsRequest;
 import com.upedge.common.model.cart.request.CartSubmitRequest;
 import com.upedge.common.model.cart.request.CartVo;
 import com.upedge.common.model.oms.stock.StockOrderVo;
+import com.upedge.common.model.order.OrderItemQuantityDto;
 import com.upedge.common.model.order.request.ManagerActualRequest;
 import com.upedge.common.model.order.request.OrderDailyCountRequest;
+import com.upedge.common.model.order.request.OrderStockStateUpdateRequest;
 import com.upedge.common.model.order.vo.AllOrderAmountVo;
 import com.upedge.common.model.order.vo.OrderItemUpdateImageNameRequest;
 import com.upedge.common.model.order.vo.UplodaSaiheOnMqVo;
@@ -40,6 +42,15 @@ public class OmsFeignClientFallbackFactory implements FallbackFactory<OmsFeignCl
 
 
             @Override
+            public void checkStock(OrderItemQuantityDto orderItemQuantityDto) {
+            }
+
+            @Override
+            public int updateStockState(OrderStockStateUpdateRequest request) {
+                return 0;
+            }
+
+            @Override
             public BaseResponse updateWarehouseByMethod(Long methodId) {
                 return BaseResponse.failed();
             }
@@ -50,7 +61,7 @@ public class OmsFeignClientFallbackFactory implements FallbackFactory<OmsFeignCl
             }
 
             @Override
-            public BaseResponse updateImageNameByStoreVariantId(OrderItemUpdateImageNameRequest request){
+            public BaseResponse updateImageNameByStoreVariantId(OrderItemUpdateImageNameRequest request) {
                 return BaseResponse.failed();
             }
 
@@ -81,7 +92,7 @@ public class OmsFeignClientFallbackFactory implements FallbackFactory<OmsFeignCl
 
             @Override
             public BaseResponse cartAdd(CartAddRequest request) {
-                log.warn(request + "--->添加购物车失败" );
+                log.warn(request + "--->添加购物车失败");
                 return new BaseResponse(ResultCode.FAIL_CODE, Constant.MESSAGE_FAIL);
             }
 
@@ -162,7 +173,7 @@ public class OmsFeignClientFallbackFactory implements FallbackFactory<OmsFeignCl
 
             @Override
             public ManagerOrderCountResponse managerDateOrderCount(ManagerPackageStatisticsRequest request) {
-                return new ManagerOrderCountResponse(ResultCode.FAIL_CODE,Constant.MESSAGE_FAIL,null,request);
+                return new ManagerOrderCountResponse(ResultCode.FAIL_CODE, Constant.MESSAGE_FAIL, null, request);
             }
 
             @Override
@@ -197,7 +208,7 @@ public class OmsFeignClientFallbackFactory implements FallbackFactory<OmsFeignCl
 
             @Override
             public void uploadPaymentIdOnMq(UplodaSaiheOnMqVo uplodaSaiheOnMq) {
-                return ;
+                return;
             }
         };
     }

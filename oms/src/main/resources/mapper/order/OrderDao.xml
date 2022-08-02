@@ -2304,6 +2304,7 @@
         from `order`
         where pay_state = '1'
         and payment_id is not null
+        and date(pay_time) >= '2022-7-31'
     </select>
 
     <select id="selectByIds" resultMap="BaseResultMap">
@@ -2350,5 +2351,29 @@
         on o.id = osu.order_id
         where osu.ship_unit_id = #{shipUnitId}
           and o.pay_state &lt; 1
+    </select>
+
+    <select id="selectOrderItemQuantities" resultType="com.upedge.common.model.oms.order.OrderItemQuantityVo">
+        select o.id as `orderId`,shipping_warehouse as `warehouseCode`,
+        oi.quantity,oi.id as `itemId`,oi.admin_variant_id as `variantId`
+        from `order` o
+        inner join order_item oi
+        on o.id = oi.order_id    where o.pay_state = '1'
+        and o.refund_state = '0'
+        and o.ship_state = '0'
+        and o.stock_state = '0'
+        <if test="variantId != null">
+            and oi.admin_variant_id = #{variantId}
+        </if>
+        <if test="customerId != null">
+            and o.customer_id = #{customerId}
+        </if>
+        <if test="paymentId != null">
+            and o.payment_id = #{paymentId}
+        </if>
+        <if test="orderId != null">
+            and o.id = #{orderId}
+        </if>
+
     </select>
 </mapper>

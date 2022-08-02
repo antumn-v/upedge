@@ -1,5 +1,6 @@
 package com.upedge.oms.modules.order.service.impl;
 
+import com.alibaba.fastjson.JSON;
 import com.upedge.common.base.BaseResponse;
 import com.upedge.common.base.Page;
 import com.upedge.common.constant.*;
@@ -12,6 +13,7 @@ import com.upedge.common.feign.UmsFeignClient;
 import com.upedge.common.model.account.AccountPaymentRequest;
 import com.upedge.common.model.account.PaypalOrder;
 import com.upedge.common.model.account.PaypalOrder.PaypalOrderItem;
+import com.upedge.common.model.oms.order.OrderItemQuantityVo;
 import com.upedge.common.model.order.PaymentDetail;
 import com.upedge.common.model.order.TransactionDetail;
 import com.upedge.common.model.order.request.CustomerOrderDailyCountUpdateRequest;
@@ -32,6 +34,7 @@ import com.upedge.oms.modules.common.vo.OrderPayCheckResultVo;
 import com.upedge.oms.modules.order.dao.OrderDao;
 import com.upedge.oms.modules.order.dao.OrderItemDao;
 import com.upedge.oms.modules.order.dto.AppOrderListDto;
+import com.upedge.common.model.order.OrderItemQuantityDto;
 import com.upedge.oms.modules.order.dto.OrderTransactionDto;
 import com.upedge.oms.modules.order.entity.Order;
 import com.upedge.oms.modules.order.entity.OrderItem;
@@ -165,18 +168,18 @@ public class OrderPayServiceImpl implements OrderPayService {
             }
             //验证产品费
             if (orderVo.getProductAmount().compareTo(orderProductAmountVo.getProductAmount()) != 0
-                    || orderVo.getProductDischargeAmount().compareTo(orderProductAmountVo.getDischargeAmount()) != 0 ) {
+                    || orderVo.getProductDischargeAmount().compareTo(orderProductAmountVo.getDischargeAmount()) != 0) {
                 orderVo.setProductAmount(orderProductAmountVo.getProductAmount());
                 orderVo.setProductDischargeAmount(orderProductAmountVo.getDischargeAmount());
                 orderDao.updateOrderProductAmount(orderProductAmountVo);
             }
             //检查运输方式
-            if (StringUtils.isBlank(orderVo.getShippingWarehouse())){
+            if (StringUtils.isBlank(orderVo.getShippingWarehouse())) {
                 cantShipOrders.add(orderVo);
                 continue;
             }
             WarehouseVo warehouseVo = (WarehouseVo) redisTemplate.opsForValue().get(RedisKey.STRING_WAREHOUSE + orderVo.getShippingWarehouse());
-            if (null == warehouseVo){
+            if (null == warehouseVo) {
                 cantShipOrders.add(orderVo);
                 continue;
             }
@@ -185,9 +188,9 @@ public class OrderPayServiceImpl implements OrderPayService {
                     cantShipOrders.add(orderVo);
                     continue;
                 }
-            }else {
+            } else {
                 boolean b = checkOrderOverseaShipMethod(orderVo);
-                if (!b){
+                if (!b) {
                     cantShipOrders.add(orderVo);
                     continue;
                 }
@@ -354,26 +357,26 @@ public class OrderPayServiceImpl implements OrderPayService {
 
     public void refreshOrderStockDischarge(Long customerId, Long paymentId) {
         List<CustomerWarehouseVariantStockVo> customerWarehouseVariantStockVos = customerProductStockDao.selectCustomerWarehouseVariantStock(customerId);
-        if (ListUtils.isEmpty(customerWarehouseVariantStockVos)){
+        if (ListUtils.isEmpty(customerWarehouseVariantStockVos)) {
             orderItemDao.initDischargeQuantityByPaymentId(paymentId);
             return;
         }
         //需修改订单产品抵扣数量的集合
         Map<Long, Integer> itemDischargeMap = new HashMap<>();
-        Map<String,Integer> variantWarehouseStockMap = new HashMap<>();
+        Map<String, Integer> variantWarehouseStockMap = new HashMap<>();
         for (CustomerWarehouseVariantStockVo customerWarehouseVariantStockVo : customerWarehouseVariantStockVos) {
             String key = customerWarehouseVariantStockVo.getVariantId() + customerWarehouseVariantStockVo.getWarehouseCode();
-            variantWarehouseStockMap.put(key,customerWarehouseVariantStockVo.getStock());
+            variantWarehouseStockMap.put(key, customerWarehouseVariantStockVo.getStock());
         }
         List<OrderItem> orderItems = orderItemDao.selectItemByPaymentId(paymentId);
         for (OrderItem orderItem : orderItems) {
             String key = orderItem.getAdminVariantId() + orderItem.getShippingWarehouse();
             Integer stock = variantWarehouseStockMap.get(key);
             if (stock == null
-            || stock == 0){
-                if (orderItem.getDischargeQuantity() != 0){
+                    || stock == 0) {
+                if (orderItem.getDischargeQuantity() != 0) {
                     orderItem.setDischargeQuantity(0);
-                    itemDischargeMap.put(orderItem.getId(),0);
+                    itemDischargeMap.put(orderItem.getId(), 0);
                 }
                 continue;
             }
@@ -381,18 +384,18 @@ public class OrderPayServiceImpl implements OrderPayService {
             Integer quantity = orderItem.getQuantity();
             if (stock >= quantity) {
                 dischargeQuantity = quantity;
-            }else {
+            } else {
                 dischargeQuantity = stock;
                 stock = 0;
             }
             stock = stock - dischargeQuantity;
-            if (!dischargeQuantity.equals(orderItem.getDischargeQuantity())){
+            if (!dischargeQuantity.equals(orderItem.getDischargeQuantity())) {
                 orderItem.setDischargeQuantity(dischargeQuantity);
-                itemDischargeMap.put(orderItem.getId(),dischargeQuantity);
+                itemDischargeMap.put(orderItem.getId(), dischargeQuantity);
             }
             variantWarehouseStockMap.put(key, stock);
         }
-        if (MapUtils.isNotEmpty(itemDischargeMap)){
+        if (MapUtils.isNotEmpty(itemDischargeMap)) {
             orderItemDao.updateDischargeQuantityByMap(itemDischargeMap);
         }
     }
@@ -401,7 +404,7 @@ public class OrderPayServiceImpl implements OrderPayService {
     public void checkOrderAccountLog() {
         List<Order> orders = orderDao.selectAllPaymentId();
         for (Order order : orders) {
-            sendSaveTransactionRecordMessage(order.getPaymentId(),order.getCustomerId(),null,order.getPayMethod());
+            sendSaveTransactionRecordMessage(order.getPaymentId(), order.getCustomerId(), null, order.getPayMethod());
         }
     }
 
@@ -474,13 +477,13 @@ public class OrderPayServiceImpl implements OrderPayService {
         //检查运输方式
         List<Long> orderIds = orderShippingUnitService.selectOrderIdByOrderPaymentId(paymentId, OrderType.NORMAL);
         for (AppOrderVo order : orders) {
-            if (order.getShippingWarehouse().equals(ProductConstant.DEFAULT_WAREHOUSE_ID)){//本地仓
+            if (order.getShippingWarehouse().equals(ProductConstant.DEFAULT_WAREHOUSE_ID)) {//本地仓
                 if (!orderIds.contains(order.getId())) {
                     return BaseResponse.failed("ship error");
                 }
-            }else {//海外仓
+            } else {//海外仓
                 boolean b = checkOrderOverseaShipMethod(order);
-                if (!b){
+                if (!b) {
                     return BaseResponse.failed("Insufficient inventory of overseas warehouse products");
                 }
             }
@@ -493,13 +496,13 @@ public class OrderPayServiceImpl implements OrderPayService {
         });
         for (AppOrderVo order : orders) {
             OrderProductAmountVo orderProductAmountVo = orderProductAmountVoMap.get(order.getId());
-            if (null == orderProductAmountVo){
-                return BaseResponse.failed( "product amount error");
+            if (null == orderProductAmountVo) {
+                return BaseResponse.failed("product amount error");
             }
             if (orderProductAmountVo.getProductAmount().compareTo(order.getProductAmount()) != 0
-                    || orderProductAmountVo.getDischargeAmount().compareTo(order.getProductDischargeAmount()) != 0 ) {
+                    || orderProductAmountVo.getDischargeAmount().compareTo(order.getProductDischargeAmount()) != 0) {
                 orderDao.updateOrderProductAmount(orderProductAmountVo);
-                return BaseResponse.failed( "product amount error");
+                return BaseResponse.failed("product amount error");
             }
             BigDecimal vatAmount = vatRuleService.getOrderVatAmount(order.getProductAmount(), order.getShipPrice(), order.getToAreaId(), order.getCustomerId());
             if (vatAmount.compareTo(order.getVatAmount()) != 0) {
@@ -521,20 +524,19 @@ public class OrderPayServiceImpl implements OrderPayService {
         return BaseResponse.failed("order error");
     }
 
-    boolean checkOrderOverseaShipMethod(AppOrderVo appOrderVo){
+    boolean checkOrderOverseaShipMethod(AppOrderVo appOrderVo) {
         Set<AppStoreOrderVo> appStoreOrderVos = appOrderVo.getStoreOrderVos();
         for (AppStoreOrderVo appStoreOrderVo : appStoreOrderVos) {
             List<AppOrderItemVo> itemVos = appStoreOrderVo.getItemVos();
             for (AppOrderItemVo itemVo : itemVos) {
-                boolean b = customerProductStockService.redisCheckCustomerVariantStock(appOrderVo.getCustomerId(),itemVo.getAdminVariantId(),appOrderVo.getShippingWarehouse(),itemVo.getQuantity());
-                if (!b){
+                boolean b = customerProductStockService.redisCheckCustomerVariantStock(appOrderVo.getCustomerId(), itemVo.getAdminVariantId(), appOrderVo.getShippingWarehouse(), itemVo.getQuantity());
+                if (!b) {
                     return b;
                 }
             }
         }
         return true;
     }
-
 
 
     private OrderPayCheckResultVo creatOrderPayCheckResultVo(List<AppOrderVo> orders, Long paymentId, String str) {
@@ -681,26 +683,60 @@ public class OrderPayServiceImpl implements OrderPayService {
             customerProductStockService.reduceFromLockStock(customerId, dischargeQuantityVos);
         }
 
-        payOrderAsync(session.getId(),session.getCustomerId(),paymentId,0);
-
-        CustomerOrderDailyCountUpdateRequest customerOrderDailyCountUpdateRequest = new CustomerOrderDailyCountUpdateRequest();
-        customerOrderDailyCountUpdateRequest.setCustomerId(customerId);
-        customerOrderDailyCountUpdateRequest.setOrderType(TransactionConstant.OrderType.NORMAL_ORDER.getCode());
-        customerOrderDailyCountUpdateRequest.setPaymentId(paymentId);
-        customerOrderDailyCountUpdateRequest.setPayTime(payTime);
-        orderDailyPayCountService.updateCustomerOrderDailyCount(customerOrderDailyCountUpdateRequest);
-
         String key = RedisKey.LIST_CUSTOMER_NORMAL_ORDER_PAYMENT_ID + customerId;
-        redisTemplate.opsForList().rightPush(key,paymentId);
+        redisTemplate.opsForList().rightPush(key, paymentId);
         return "success";
     }
 
-    public void payOrderAsync(Long userId, Long customerId, Long paymentId, Integer payMethod) {
-//        sendSaveTransactionRecordMessage(paymentId, customerId, userId, payMethod);
-        // 订单上传赛盒 放在 sendSaveTransactionRecordMessage的消費端
-//        mqOnSaiheService.uploadPaymentIdOnMq(paymentId, OrderType.NORMAL);
-        customerStockRecordService.saveDischargeStockRecordByPaymentId(customerId, paymentId, OrderType.NORMAL);
-        customerProductSalesLogService.saveProductSaleRecord(paymentId, OrderType.NORMAL, customerId, new Date());
+    @Override
+    public void payOrderAsync(Long customerId, Long paymentId) {
+        CompletableFuture<Void> saveDischargeStockRecord = CompletableFuture.runAsync(new Runnable() {
+            @Override
+            public void run() {
+                customerStockRecordService.saveDischargeStockRecordByPaymentId(customerId, paymentId, OrderType.NORMAL);
+            }
+        }, threadPoolExecutor);
+
+        CompletableFuture<Void> saveProductSaleRecord = CompletableFuture.runAsync(new Runnable() {
+            @Override
+            public void run() {
+                customerProductSalesLogService.saveProductSaleRecord(paymentId, OrderType.NORMAL, customerId, new Date());
+            }
+        }, threadPoolExecutor);
+
+        CompletableFuture<Void> updateCustomerOrderDailyCount = CompletableFuture.runAsync(new Runnable() {
+            @Override
+            public void run() {
+                CustomerOrderDailyCountUpdateRequest customerOrderDailyCountUpdateRequest = new CustomerOrderDailyCountUpdateRequest();
+                customerOrderDailyCountUpdateRequest.setCustomerId(customerId);
+                customerOrderDailyCountUpdateRequest.setOrderType(TransactionConstant.OrderType.NORMAL_ORDER.getCode());
+                customerOrderDailyCountUpdateRequest.setPaymentId(paymentId);
+                customerOrderDailyCountUpdateRequest.setPayTime(new Date());
+                orderDailyPayCountService.updateCustomerOrderDailyCount(customerOrderDailyCountUpdateRequest);
+            }
+        }, threadPoolExecutor);
+
+        CompletableFuture<Void> saveTransactionRecordMessage = CompletableFuture.runAsync(new Runnable() {
+            @Override
+            public void run() {
+                sendSaveTransactionRecordMessage(paymentId,customerId,null,0);
+            }
+        },threadPoolExecutor);
+
+//        CompletableFuture<Void> sendCheckOrderStockMessage = CompletableFuture.runAsync(new Runnable() {
+//            @Override
+//            public void run() {
+//                sendCheckOrderStockMessage(paymentId);
+//            }
+//        }, threadPoolExecutor);
+
+
+        try {
+            CompletableFuture.allOf( saveDischargeStockRecord, saveProductSaleRecord, updateCustomerOrderDailyCount,saveTransactionRecordMessage).get();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
 //        List<AppOrderVo> orderVos = orderDao.selectPayOrderListByPaymentId(paymentId);
 //        if (ListUtils.isNotEmpty(orderVos)) {
 //            for (AppOrderVo orderVo : orderVos) {
@@ -820,7 +856,6 @@ public class OrderPayServiceImpl implements OrderPayService {
         if (ListUtils.isNotEmpty(dischargeQuantityVos)) {
             customerProductStockDao.reduceFromLockStock(customerId, dischargeQuantityVos);
         }
-        payOrderAsync(userId,customerId,paymentId,1);
         return detail;
     }
 
@@ -905,6 +940,24 @@ public class OrderPayServiceImpl implements OrderPayService {
             }
         }
 
+    }
+
+    @Override
+    public void sendCheckOrderStockMessage(OrderItemQuantityDto orderItemQuantityDto) {
+        List<OrderItemQuantityVo> orderItemQuantityVos = orderDao.selectOrderItemQuantities(orderItemQuantityDto);
+        if (ListUtils.isNotEmpty(orderItemQuantityVos)) {
+            List<Message> messages = new ArrayList<>();
+            orderItemQuantityVos.forEach(orderItemQuantityVo -> {
+                Message message = new Message(RocketMqConfig.TOPIC_ORDER_CHECK_STOCK, "", orderItemQuantityVo.getOrderId().toString(), JSON.toJSONBytes(orderItemQuantityVo));
+                messages.add(message);
+            });
+            try {
+                defaultMQProducer.send(messages);
+            } catch (Exception e) {
+                e.printStackTrace();
+                log.warn("paymentId:{},订单检查库存消息发送失败", orderItemQuantityDto.toString());
+            }
+        }
     }
 
 }

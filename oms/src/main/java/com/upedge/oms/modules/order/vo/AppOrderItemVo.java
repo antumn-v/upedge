@@ -50,6 +50,8 @@ public class AppOrderItemVo {
     private BigDecimal adminVariantWeight;
 
     private BigDecimal adminVariantVolume;
+
+    private String adminVariantSku;
     /**
      *
      */

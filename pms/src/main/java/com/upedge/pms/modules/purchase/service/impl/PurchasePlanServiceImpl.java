@@ -4,7 +4,9 @@ import com.upedge.common.base.BaseResponse;
 import com.upedge.common.base.Page;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.utils.ListUtils;
+import com.upedge.pms.modules.product.entity.Product;
 import com.upedge.pms.modules.product.entity.ProductVariant;
+import com.upedge.pms.modules.product.service.ProductService;
 import com.upedge.pms.modules.product.service.ProductVariantService;
 import com.upedge.pms.modules.purchase.dao.PurchasePlanDao;
 import com.upedge.pms.modules.purchase.entity.ProductPurchaseInfo;
@@ -31,6 +33,9 @@ public class PurchasePlanServiceImpl implements PurchasePlanService {
 
     @Autowired
     private PurchasePlanDao purchasePlanDao;
+
+    @Autowired
+    ProductService productService;
 
     @Autowired
     ProductVariantService productVariantService;
@@ -135,13 +140,17 @@ public class PurchasePlanServiceImpl implements PurchasePlanService {
         || null == productVariant.getPurchaseSku()){
             return BaseResponse.failed("产品未配置采购信息");
         }
+        if(null == productVariant.getVariantImage()){
+            Product product = productService.selectByPrimaryKey(productVariant.getProductId());
+            productVariant.setVariantImage(product.getProductImage());
+        }
         ProductPurchaseInfo productPurchaseInfo = productPurchaseInfoService.selectByPrimaryKey(productVariant.getPurchaseSku());
         if (null == productPurchaseInfo){
             return BaseResponse.failed("采购信息异常");
         }
         PurchasePlan purchasePlan = new PurchasePlan();
-        BeanUtils.copyProperties(productVariant,purchasePlan);
         BeanUtils.copyProperties(productPurchaseInfo,purchasePlan);
+        BeanUtils.copyProperties(productVariant,purchasePlan);
         purchasePlan.setState(0);
         purchasePlan.setVariantId(variantId);
         purchasePlan.setQuantity(request.getQuantity());

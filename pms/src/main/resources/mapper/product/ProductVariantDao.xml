@@ -192,6 +192,9 @@
             <if test="variantSku != null">
                 variant_sku = #{variantSku},
             </if>
+            <if test="purchaseSku != null">
+                purchase_sku = #{purchaseSku},
+            </if>
             <if test="variantImage != null">
                 variant_image = #{variantImage},
             </if>

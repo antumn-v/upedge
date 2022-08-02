@@ -119,6 +119,7 @@ public class OrderPayController {
             BaseResponse response = orderPayService.orderPayCheck(paymentId, amount, dischargeQuantityVos, session.getCustomerId(),"balance");
             if (response.getCode() == ResultCode.SUCCESS_CODE) {
                     orderPayService.payOrderByBalance(session, amount, paymentId, dischargeQuantityVos);
+                    orderPayService.payOrderAsync(session.getCustomerId(),paymentId);
                     OrderPayResponse.PayResponse payResponse = new OrderPayResponse.PayResponse(paymentId,amount, TransactionConstant.PayMethod.ACCOUNT.getCode(),new Date());
                     RedisUtil.unLock(redisTemplate,customerPayOrderLockKey);
                     return new OrderPayResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS,payResponse);

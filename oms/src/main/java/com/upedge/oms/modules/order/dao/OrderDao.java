@@ -2,6 +2,7 @@ package com.upedge.oms.modules.order.dao;
 
 import com.upedge.common.base.Page;
 import com.upedge.common.model.mq.ChangeManagerVo;
+import com.upedge.common.model.oms.order.OrderItemQuantityVo;
 import com.upedge.common.model.order.TransactionDetail;
 import com.upedge.common.model.order.request.ManagerActualRequest;
 import com.upedge.common.model.order.vo.AllOrderAmountVo;
@@ -10,6 +11,7 @@ import com.upedge.common.model.order.vo.ManagerActualVo;
 import com.upedge.common.model.ship.vo.ShipDetail;
 import com.upedge.oms.modules.common.vo.RefundVo;
 import com.upedge.oms.modules.order.dto.OrderAnalysisDto;
+import com.upedge.common.model.order.OrderItemQuantityDto;
 import com.upedge.oms.modules.order.dto.OrderTransactionDto;
 import com.upedge.oms.modules.order.dto.PandaOrderListDto;
 import com.upedge.oms.modules.order.entity.Order;
@@ -384,5 +386,6 @@ public interface OrderDao {
 
     List<Long> selectShippedIdsByCustomer(Long customerId);
 
+    List<OrderItemQuantityVo> selectOrderItemQuantities(OrderItemQuantityDto orderItemQuantityDto);
 
 }

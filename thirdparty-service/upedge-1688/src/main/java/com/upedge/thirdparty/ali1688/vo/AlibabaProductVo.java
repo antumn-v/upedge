@@ -34,27 +34,27 @@ public class AlibabaProductVo{
 	/**
 	 * 属性信息
 	 */
-	private com.upedge.thirdparty.ali1688.vo.ProductAttributeVo productAttributeVo;
+	private ProductAttributeVo productAttributeVo;
 
 	/**
 	 * 产品描述
 	 */
-	private com.upedge.thirdparty.ali1688.vo.ProductInfoVo productInfoVo;
+	private ProductInfoVo productInfoVo;
 
 	/**
 	 * 产品供应商
 	 */
-	private com.upedge.thirdparty.ali1688.vo.SupplierVo supplierVo;
+	private SupplierVo supplierVo;
 
 	/**
 	 * 产品图片列表
 	 */
-	private List<com.upedge.thirdparty.ali1688.vo.ProductImgVo> productImgVoList;
+	private List<ProductImgVo> productImgVoList;
 
 	/**
 	 * 产品变体列表
 	 */
-	private List<com.upedge.thirdparty.ali1688.vo.ProductVariantVo> productVariantVoList;
+	private List<ProductVariantVo> productVariantVoList;
 
 
 

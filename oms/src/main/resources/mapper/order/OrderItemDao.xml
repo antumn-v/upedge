@@ -42,6 +42,7 @@
         <result property="storeVariantName" column="store_variant_name"/>
         <result property="storeVariantSku" column="store_variant_sku"/>
         <result property="adminVariantImage" column="admin_variant_image"/>
+        <result property="adminVariantSku" column="admin_variant_sku"/>
         <result property="storeProductTitle" column="store_product_title"/>
         <result property="price" column="usd_price"/>
         <result property="adminVariantWeight" column="admin_variant_weight"/>
@@ -196,6 +197,7 @@
         select oi.id,
                oi.order_id,
                `admin_product_id`,
+               `admin_variant_id`,
                `store_variant_name`,
                oi.store_order_id,
                `store_variant_sku`,
@@ -206,6 +208,7 @@
                `discharge_quantity`,
                `admin_variant_weight`,
                `admin_variant_volume`,
+               `admin_variant_sku`,
                store_variant_id,
                `store_variant_image`,
                `store_product_id`
@@ -980,7 +983,8 @@
                         oi.admin_product_id  as adminProductId,
                         oi.id                as orderItemId,
                         so.plat_order_name   as orderName,
-                        so.store_id          as storeId
+                        so.store_id          as storeId,
+                        oi.admin_variant_id as variantId
         from order_item oi
                      left join store_order so on so.id = oi.store_order_id
         where oi.order_id = #{orderId}

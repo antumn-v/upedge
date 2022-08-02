@@ -32,6 +32,8 @@ import java.util.Set;
  */
 public interface OrderService{
 
+    int updateStockState(Long id,Integer stockState);
+
     BaseResponse updateOrderShippingWarehouse(Long shipMethodId);
 
     BaseResponse orderAddItem(OrderAddItemRequest request,Session session);

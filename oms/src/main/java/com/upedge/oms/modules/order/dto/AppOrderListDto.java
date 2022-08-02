@@ -3,7 +3,6 @@ package com.upedge.oms.modules.order.dto;
 import com.upedge.oms.enums.OrderTagEnum;
 import lombok.Data;
 
-import java.util.Date;
 import java.util.List;
 
 @Data
@@ -51,9 +50,9 @@ public class AppOrderListDto {
 
     String orderNameEnd;
 
-    Date beginTime;
+    String beginTime;
 
-    Date endTime;
+    String endTime;
 
     /**
      * 物流单号，单独查询

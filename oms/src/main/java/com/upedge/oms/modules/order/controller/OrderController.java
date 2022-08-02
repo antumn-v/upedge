@@ -34,7 +34,6 @@ import com.upedge.oms.modules.orderShippingUnit.vo.OrderShippingUnitVo;
 import com.upedge.oms.modules.tickets.service.SupportTicketsService;
 import com.upedge.oms.modules.tickets.vo.SupportTicketsVo;
 import com.upedge.oms.scheduler.PackageScheduler;
-import com.upedge.thirdparty.saihe.config.SaiheConfig;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -580,9 +579,9 @@ public class OrderController {
     @ApiOperation("订单导入赛盒")
     @RequestMapping(value = "/uploadSaihe", method = RequestMethod.POST)
     public BaseResponse importOrderToSaihe(@RequestBody OrderImportSaiheRequest request) {
-        if (!SaiheConfig.SAIHE_ORDER_SWITCH) {
-            return new BaseResponse(ResultCode.FAIL_CODE, "未开启");
-        }
+//        if (!SaiheConfig.SAIHE_ORDER_SWITCH) {
+//            return new BaseResponse(ResultCode.FAIL_CODE, "未开启");
+//        }
         String key = RedisUtil.KEY_ORDER_IMPORT_SAIHE + request.getOrderId();
         boolean flag = RedisUtil.lock(redisTemplate, key, 2L, 1000L * 2 * 60);
         //获取锁成功
@@ -751,4 +750,5 @@ public class OrderController {
         orderService.initQuoteState(orderId);
         return BaseResponse.success();
     }
+
 }

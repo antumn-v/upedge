@@ -14,6 +14,7 @@ import com.upedge.common.utils.IdGenerate;
 import com.upedge.common.utils.ListUtils;
 import com.upedge.pms.modules.purchase.dao.PurchaseOrderDao;
 import com.upedge.pms.modules.purchase.dto.PurchaseOrderItemReceiveDto;
+import com.upedge.pms.modules.purchase.dto.PurchaseOrderListDto;
 import com.upedge.pms.modules.purchase.entity.*;
 import com.upedge.pms.modules.purchase.request.PurchaseOrderListRequest;
 import com.upedge.pms.modules.purchase.request.PurchaseOrderReceiveRequest;
@@ -21,6 +22,7 @@ import com.upedge.pms.modules.purchase.request.VariantStockExImRecordUpdateReque
 import com.upedge.pms.modules.purchase.service.*;
 import com.upedge.pms.modules.purchase.vo.PurchaseOrderVo;
 import com.upedge.thirdparty.ali1688.service.Ali1688Service;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -293,9 +295,22 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
     /**
     *
     */
-    public List<PurchaseOrder> select(Page<PurchaseOrder> record){
-        record.initFromNum();
-        return purchaseOrderDao.select(record);
+    public List<PurchaseOrder> select(PurchaseOrderListRequest request){
+        PurchaseOrderListDto purchaseOrderListDto = new PurchaseOrderListDto();
+        Page<PurchaseOrder> page = new Page<>();
+        if (null != purchaseOrderListDto){
+            PurchaseOrder purchaseOrderDto = new PurchaseOrder();
+            BeanUtils.copyProperties(request.getT(),purchaseOrderDto);
+            page.setT(purchaseOrderDto);
+            if (StringUtils.isNotBlank(purchaseOrderListDto.getPurchaseSku())
+            || StringUtils.isNotBlank(purchaseOrderListDto.getVariantName())
+            || StringUtils.isNotBlank(purchaseOrderListDto.getVariantSku())
+            || StringUtils.isNotBlank(purchaseOrderListDto.getBarcode())){
+
+            }
+        }
+        page.initFromNum();
+        return purchaseOrderDao.select(page);
     }
 
     /**

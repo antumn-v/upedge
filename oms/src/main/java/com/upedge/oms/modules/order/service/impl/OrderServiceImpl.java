@@ -73,6 +73,7 @@ import com.upedge.thirdparty.saihe.entity.cancelOrderInfo.ApiCancelOrderResponse
 import com.upedge.thirdparty.saihe.entity.getOrderByCode.ApiGetOrderResponse;
 import com.upedge.thirdparty.saihe.entity.getOrderByCode.ApiOrderInfo;
 import com.upedge.thirdparty.saihe.service.SaiheService;
+import io.seata.spring.annotation.GlobalTransactional;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
@@ -1283,6 +1284,21 @@ public class OrderServiceImpl implements OrderService {
         return order;
     }
 
+    @GlobalTransactional
+    @Override
+    public int updateStockState(Long id, Integer stockState) {
+
+        Order order = selectByPrimaryKey(id);
+        if (order == null
+        || order.getShipState() == 1){
+            return 0;
+        }
+        order = new Order();
+        order.setId(id);
+        order.setStockState(stockState);
+        return updateByPrimaryKeySelective(order);
+    }
+
     @Override
     public BaseResponse updateOrderShippingWarehouse(Long shipMethodId) {
 
@@ -2338,9 +2354,9 @@ public class OrderServiceImpl implements OrderService {
     @Override
     @Transactional
     public boolean importOrderToSaihe(Long id) {
-        if (!ifUploadSaihe) {
-            return false;
-        }
+//        if (!ifUploadSaihe) {
+//            return false;
+//        }
         String key = "order:upload:saihe:" + id;
         boolean b = RedisUtil.lock(redisTemplate, key, 10L, 20 * 1000L);
         if (!b) {

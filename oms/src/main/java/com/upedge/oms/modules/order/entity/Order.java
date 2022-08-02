@@ -128,6 +128,7 @@ public class Order{
 
 	private String trackingCode;
 
+	private Integer stockState;
 
 	public Order() {
 	}

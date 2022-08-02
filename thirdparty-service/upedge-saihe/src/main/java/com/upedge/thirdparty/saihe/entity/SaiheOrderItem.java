@@ -32,4 +32,6 @@ public class SaiheOrderItem {
 
     private String storeId;
 
+    private Long variantId;
+
 }

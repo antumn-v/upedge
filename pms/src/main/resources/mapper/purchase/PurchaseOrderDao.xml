@@ -420,6 +420,4 @@
         from purchase_order
         <include refid="Query_Condition"/>
     </select>
-
-
 </mapper>

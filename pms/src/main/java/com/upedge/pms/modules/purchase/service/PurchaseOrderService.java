@@ -35,7 +35,7 @@ public interface PurchaseOrderService{
 
     int insertSelective(PurchaseOrder record);
 
-    List<PurchaseOrder> select(Page<PurchaseOrder> record);
+    List<PurchaseOrder> select(PurchaseOrderListRequest request);
 
     long count(Page<PurchaseOrder> record);
 }

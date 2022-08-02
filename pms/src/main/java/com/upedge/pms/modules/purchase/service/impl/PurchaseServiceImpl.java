@@ -34,6 +34,7 @@ import java.math.BigDecimal;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ThreadPoolExecutor;
+import java.util.stream.Collectors;
 
 @Service
 public class PurchaseServiceImpl implements PurchaseService {
@@ -69,7 +70,7 @@ public class PurchaseServiceImpl implements PurchaseService {
     @Override
     public BaseResponse cancelPurchase(List<Long> variantIds, Session session) {
         redisTemplate.opsForList().leftPushAll(RedisKey.STRING_VARIANT_CANCEL_PURCHASE_LIST,variantIds);
-        return purchaseAdvice("CNHZ");
+        return BaseResponse.success();
     }
 
     @Override
@@ -79,6 +80,11 @@ public class PurchaseServiceImpl implements PurchaseService {
             return BaseResponse.success();
         }
         cancelPurchaseVariantIds.removeAll(variantIds);
+        redisTemplate.delete(RedisKey.STRING_VARIANT_CANCEL_PURCHASE_LIST);
+        if (ListUtils.isEmpty(cancelPurchaseVariantIds)){
+            return BaseResponse.success();
+        }
+        cancelPurchaseVariantIds = cancelPurchaseVariantIds.stream().distinct().collect(Collectors.toList());
         redisTemplate.opsForList().leftPushAll(RedisKey.STRING_VARIANT_CANCEL_PURCHASE_LIST,cancelPurchaseVariantIds);
         return BaseResponse.success();
     }

@@ -8,11 +8,13 @@ import com.upedge.common.constant.key.RedisKey;
 import com.upedge.common.constant.key.RocketMqConfig;
 import com.upedge.common.enums.CustomerExceptionEnum;
 import com.upedge.common.exception.CustomerException;
+import com.upedge.common.feign.PmsFeignClient;
 import com.upedge.common.feign.UmsFeignClient;
 import com.upedge.common.model.log.MqMessageLog;
 import com.upedge.common.model.mq.ChangeManagerVo;
 import com.upedge.common.model.order.PaymentDetail;
 import com.upedge.common.model.order.TransactionDetail;
+import com.upedge.common.model.product.ListVariantsRequest;
 import com.upedge.common.model.ship.vo.ShippingMethodRedis;
 import com.upedge.common.model.store.StoreVo;
 import com.upedge.common.model.user.request.CustomerVipAddRebateRequest;
@@ -45,8 +47,6 @@ import com.upedge.thirdparty.saihe.entity.SaiheOrder;
 import com.upedge.thirdparty.saihe.entity.SaiheOrderItem;
 import com.upedge.thirdparty.saihe.entity.getOrderByCode.ApiGetOrderResponse;
 import com.upedge.thirdparty.saihe.entity.getOrderByCode.ApiOrderInfo;
-import com.upedge.thirdparty.saihe.entity.getProducts.ApiGetProductResponse;
-import com.upedge.thirdparty.saihe.entity.getProducts.ProductInfoList;
 import com.upedge.thirdparty.saihe.entity.uploadOrder.ApiUploadOrderInfo;
 import com.upedge.thirdparty.saihe.entity.uploadOrder.ApiUploadOrderList;
 import com.upedge.thirdparty.saihe.entity.uploadOrder.OrderItemList;
@@ -116,6 +116,9 @@ public class OrderCommonServiceImpl implements OrderCommonService {
 
     @Autowired
     ThreadPoolExecutor threadPoolExecutor;
+
+    @Autowired
+    PmsFeignClient pmsFeignClient;
 
 
     @Override
@@ -221,18 +224,31 @@ public class OrderCommonServiceImpl implements OrderCommonService {
 
     //检查产品是否导入赛盒 否则不上传
     public Boolean uploadSaihe(List<SaiheOrderItem> orderItemList) {
+        List<Long> variantIds = new ArrayList<>();
         for (SaiheOrderItem saiheOrderItem : orderItemList) {
-            ApiGetProductResponse apiGetProductResponse = SaiheService.getProductsByClientSKUs(saiheOrderItem.getSellerSku(), null);
-            ProductInfoList pInfoList = apiGetProductResponse.getGetProductsResult().getProductInfoList();
-            if (apiGetProductResponse.getGetProductsResult().getStatus().equals("OK")
-                    && pInfoList != null && pInfoList.getProductInfoList() != null
-                    && pInfoList.getProductInfoList().size() > 0) {
-                continue;
-            } else {
-                //加入缓存 产品未导入产品列表
-//                BaseResponse rs = pmsFeignClient.userInfo(saiheOrderItem.getAdminProductId());
-//                String userId = (String) rs.getData();
-//                redisTemplate.opsForHash().put(RedisKey.HASH_BAD_WHOLESALE_ORDER_PRODUCT, String.valueOf(saiheOrderItem.getAdminProductId()), userId);
+            variantIds.add(saiheOrderItem.getVariantId());
+
+//            ApiGetProductResponse apiGetProductResponse = SaiheService.getProductsByClientSKUs(saiheOrderItem.getSellerSku(), null);
+//            ProductInfoList pInfoList = apiGetProductResponse.getGetProductsResult().getProductInfoList();
+//            if (apiGetProductResponse.getGetProductsResult().getStatus().equals("OK")
+//                    && pInfoList != null && pInfoList.getProductInfoList() != null
+//                    && pInfoList.getProductInfoList().size() > 0) {
+//                continue;
+//            } else {
+//                //加入缓存 产品未导入产品列表
+////                BaseResponse rs = pmsFeignClient.userInfo(saiheOrderItem.getAdminProductId());
+////                String userId = (String) rs.getData();
+////                redisTemplate.opsForHash().put(RedisKey.HASH_BAD_WHOLESALE_ORDER_PRODUCT, String.valueOf(saiheOrderItem.getAdminProductId()), userId);
+//                return false;
+//            }
+        }
+
+        ListVariantsRequest request = new ListVariantsRequest();
+        request.setVariantIds(variantIds);
+        BaseResponse response = pmsFeignClient.listVariantByIds(request);
+        List<LinkedHashMap> variantDetailList = (List<LinkedHashMap>) response.getData();
+        for (LinkedHashMap linkedHashMap : variantDetailList) {
+            if (linkedHashMap.get("saiheSku") == null){
                 return false;
             }
         }

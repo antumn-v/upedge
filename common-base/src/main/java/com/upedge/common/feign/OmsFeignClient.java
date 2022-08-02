@@ -10,8 +10,10 @@ import com.upedge.common.model.cart.request.CartSelectByIdsRequest;
 import com.upedge.common.model.cart.request.CartSubmitRequest;
 import com.upedge.common.model.cart.request.CartVo;
 import com.upedge.common.model.oms.stock.StockOrderVo;
+import com.upedge.common.model.order.OrderItemQuantityDto;
 import com.upedge.common.model.order.request.ManagerActualRequest;
 import com.upedge.common.model.order.request.OrderDailyCountRequest;
+import com.upedge.common.model.order.request.OrderStockStateUpdateRequest;
 import com.upedge.common.model.order.vo.AllOrderAmountVo;
 import com.upedge.common.model.order.vo.OrderItemUpdateImageNameRequest;
 import com.upedge.common.model.order.vo.UplodaSaiheOnMqVo;
@@ -33,6 +35,12 @@ import java.util.List;
  */
 @FeignClient(value = ServiceNameConstants.OMS_SERVICE,fallbackFactory = OmsFeignClientFallbackFactory.class,decode404 = true)
 public interface OmsFeignClient  {
+
+    @PostMapping("/orderCommon/checkStock")
+    public void checkStock(@RequestBody OrderItemQuantityDto orderItemQuantityDto);
+
+    @PostMapping("/orderCommon/updateStockState")
+    public int updateStockState(OrderStockStateUpdateRequest request);
 
     @PostMapping("/order/updateWarehouse/{methodId}")
     public BaseResponse updateWarehouseByMethod(@PathVariable Long methodId);

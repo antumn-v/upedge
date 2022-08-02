@@ -1,26 +1,22 @@
 package com.upedge.pms.modules.supplier.controller;
 
-import java.util.Arrays;
-import java.util.Map;
-
-import com.upedge.common.constant.ResultCode;
-import org.springframework.beans.factory.annotation.Autowired;
 import com.upedge.common.component.annotation.Permission;
-import com.upedge.pms.modules.supplier.entity.Supplier;
-import com.upedge.pms.modules.supplier.service.SupplierService;
-import org.springframework.web.bind.annotation.*;
-import java.util.List;
 import com.upedge.common.constant.Constant;
+import com.upedge.common.constant.ResultCode;
+import com.upedge.pms.modules.supplier.entity.Supplier;
 import com.upedge.pms.modules.supplier.request.SupplierAddRequest;
 import com.upedge.pms.modules.supplier.request.SupplierListRequest;
 import com.upedge.pms.modules.supplier.request.SupplierUpdateRequest;
-
 import com.upedge.pms.modules.supplier.response.SupplierAddResponse;
-import com.upedge.pms.modules.supplier.response.SupplierDelResponse;
 import com.upedge.pms.modules.supplier.response.SupplierInfoResponse;
 import com.upedge.pms.modules.supplier.response.SupplierListResponse;
 import com.upedge.pms.modules.supplier.response.SupplierUpdateResponse;
+import com.upedge.pms.modules.supplier.service.SupplierService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+
 import javax.validation.Valid;
+import java.util.List;
 
 /**
  * 
@@ -61,13 +57,6 @@ public class SupplierController {
         return res;
     }
 
-    @RequestMapping(value="/del/{id}", method=RequestMethod.POST)
-    @Permission(permission = "supplier:supplier:del:id")
-    public SupplierDelResponse del(@PathVariable Integer id) {
-        supplierService.deleteByPrimaryKey(id);
-        SupplierDelResponse res = new SupplierDelResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS);
-        return res;
-    }
 
     @RequestMapping(value="/update/{id}", method=RequestMethod.POST)
     @Permission(permission = "supplier:supplier:update")

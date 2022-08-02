@@ -29,6 +29,8 @@ public class RocketMqConfig {
      * 订单上传赛盒
      */
     public final static String TOPIC_ORDER_UPLOAD_SAIHE = "order_upload_saihe";
+
+    public final static String TOPIC_ORDER_CHECK_STOCK = "order_check_stock";
     /**
      * 修改客户经理
      */

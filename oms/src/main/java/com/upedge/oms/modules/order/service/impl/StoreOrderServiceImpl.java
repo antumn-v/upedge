@@ -766,9 +766,9 @@ public class StoreOrderServiceImpl implements StoreOrderService {
                         orderService.matchShipRule(orderId);
                     }
                 }
-                if (ListUtils.isNotEmpty(cancelIds)){
-                    orderService.cancelOrderByIds(orderIds);
-                }
+//                if (ListUtils.isNotEmpty(cancelIds)){
+//                    orderService.cancelOrderByIds(cancelIds);
+//                }
             }
         }
     }
