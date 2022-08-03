@@ -49,7 +49,7 @@ public class AppOrderListRequest extends Page<AppOrderListDto> {
         this.initFromNum();
         if (appOrderListDto.getTags().equals("PAID")) {
             appOrderListDto.setPayState(null);
-            this.setCondition("o.pay_state > 0");
+            this.setCondition("o.pay_state > 0 and o.ship_state != 1");
         }
         if (appOrderListDto.getTags().equals("REFUNDS")) {
             appOrderListDto.setRefundState(null);

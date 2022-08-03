@@ -47,7 +47,7 @@ import com.upedge.oms.modules.fulfillment.service.OrderFulfillmentService;
 import com.upedge.oms.modules.order.dao.*;
 import com.upedge.oms.modules.order.dto.OrderAnalysisDto;
 import com.upedge.oms.modules.order.dto.OrderExcelImportDto;
-import com.upedge.oms.modules.order.dto.PandaOrderListDto;
+import com.upedge.oms.modules.order.dto.OrderListDto;
 import com.upedge.oms.modules.order.entity.*;
 import com.upedge.oms.modules.order.request.*;
 import com.upedge.oms.modules.order.response.OrderListResponse;
@@ -272,6 +272,9 @@ public class OrderServiceImpl implements OrderService {
         for (AppOrderVo orderVo : appOrderVos) {
             if (orderVo.getOrderType() != 1){
                 orderVo.setReshipCreateSource(0L);
+            }
+            if (orderVo.getPickType() == null){
+                orderVo.setPickType(-1);
             }
             if (orderVo.getOrderType() == 1 && ListUtils.isNotEmpty(ids) && ids.contains(orderVo.getId())){
                 orderVo.setReshipCreateSource(Constant.APP_APPLICATION_ID);
@@ -1282,6 +1285,11 @@ public class OrderServiceImpl implements OrderService {
         RedisUtil.unLock(redisTemplate, key);
         orderInitShipDetail(orderId);
         return order;
+    }
+
+    @Override
+    public void updatePickType(Long id, Integer pickType) {
+        orderDao.updatePickType(id, pickType);
     }
 
     @GlobalTransactional
@@ -2497,7 +2505,7 @@ public class OrderServiceImpl implements OrderService {
      * @return
      */
     @Override
-    public List<PandaOrderListVo> upedgeOrderPage(Page<PandaOrderListDto> record) {
+    public List<PandaOrderListVo> upedgeOrderPage(Page<OrderListDto> record) {
         List<PandaOrderListVo> upedgeOrderListVos = orderDao.upedgeOrderPage(record);
         for (PandaOrderListVo upedgeOrderListVo : upedgeOrderListVos) {
             if (null != upedgeOrderListVo.getShipMethodId()) {
@@ -2513,7 +2521,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public Long upedgeOrderCount(Page<PandaOrderListDto> record) {
+    public Long upedgeOrderCount(Page<OrderListDto> record) {
         return orderDao.upedgeOrderCount(record);
     }
 
@@ -2603,7 +2611,7 @@ public class OrderServiceImpl implements OrderService {
      * @return
      */
     @Override
-    public List<Order> getOrderList(PandaOrderListDto dto) {
+    public List<Order> getOrderList(OrderListDto dto) {
 
         return orderDao.getOrderList(dto);
     }

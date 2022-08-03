@@ -70,6 +70,8 @@ public class AppOrderListDto {
 
     Integer saiheState;
 
+    Integer pickType;
+
     public AppOrderListDto() {
 //        initDateRange();
         initOrderState();

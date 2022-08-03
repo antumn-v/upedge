@@ -13,7 +13,7 @@ import com.upedge.oms.modules.common.vo.RefundVo;
 import com.upedge.oms.modules.order.dto.OrderAnalysisDto;
 import com.upedge.common.model.order.OrderItemQuantityDto;
 import com.upedge.oms.modules.order.dto.OrderTransactionDto;
-import com.upedge.oms.modules.order.dto.PandaOrderListDto;
+import com.upedge.oms.modules.order.dto.OrderListDto;
 import com.upedge.oms.modules.order.entity.Order;
 import com.upedge.oms.modules.order.request.AppOrderListRequest;
 import com.upedge.oms.modules.order.request.OrderCogsSelectRequest;
@@ -39,6 +39,7 @@ import java.util.Set;
  */
 public interface OrderDao {
 
+    void updatePickType(@Param("id") Long id, @Param("pickType") Integer pickType);
 
     void orderCancelUploadSaihe(Long id);
 
@@ -296,9 +297,9 @@ public interface OrderDao {
      * @param record
      * @return
      */
-    List<PandaOrderListVo> upedgeOrderPage(Page<PandaOrderListDto> record);
+    List<PandaOrderListVo> upedgeOrderPage(Page<OrderListDto> record);
 
-    Long upedgeOrderCount(Page<PandaOrderListDto> record);
+    Long upedgeOrderCount(Page<OrderListDto> record);
 
     /**
      * 客户该时间区间内下单数量
@@ -344,7 +345,7 @@ public interface OrderDao {
      */
     List<AppOrderDataVo> appOrderWithDate(@Param("customerId") String customerId, @Param("startDay") String startDay, @Param("endDay") String endDay);
 
-    List<Order> getOrderList(@Param("t") PandaOrderListDto dto);
+    List<Order> getOrderList(@Param("t") OrderListDto dto);
 
     ManagerActualVo getManagerActual(@Param("t") ManagerActualRequest request);
 

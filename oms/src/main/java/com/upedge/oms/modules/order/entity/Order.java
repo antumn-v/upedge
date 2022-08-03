@@ -130,6 +130,8 @@ public class Order{
 
 	private Integer stockState;
 
+	private Integer pickType;
+
 	public Order() {
 	}
 

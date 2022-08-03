@@ -681,5 +681,8 @@
         <if test="t.title != null and t.title != ''">
             and spv.title like concat('%',#{t.title},'%')
         </if>
+        <if test="t.productTitle != null and t.productTitle != ''">
+            and spa.title = #{t.productTitle}
+        </if>
     </select>
 </mapper>

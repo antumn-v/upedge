@@ -7,7 +7,7 @@ import lombok.Data;
  *  客户管理 -- 个人客户  -- 用户信息 -- 潘达信息 query 条件
  */
 @Data
-public class PandaOrderListDto   {
+public class OrderListDto   {
 
     /**
      * customer_id 客户id

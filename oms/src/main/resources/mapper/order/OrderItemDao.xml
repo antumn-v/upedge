@@ -149,9 +149,9 @@
                         `admin_variant_volume`,
                         `item_type`,
                         o.shipping_warehouse
-        from order_item oi
-                     inner join `order` o
-                on oi.order_id = o.id
+        from `order` o
+        inner join order_item oi
+        on oi.order_id = o.id
         where o.payment_id = #{paymentId}
     </select>
 

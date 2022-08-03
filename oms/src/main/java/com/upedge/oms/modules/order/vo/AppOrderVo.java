@@ -93,6 +93,8 @@ public class AppOrderVo {
 
     private boolean hasPayFailed;
 
+    private Integer pickType;
+
     private Long toAreaId;
 
     private String country;

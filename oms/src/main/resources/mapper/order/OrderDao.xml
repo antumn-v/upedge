@@ -36,6 +36,7 @@
         <result property="managerCode" column="manager_code"/>
         <result property="shippingWarehouse" column="shipping_warehouse"/>
         <result property="trackingCode" column="tracking_code"/>
+        <result property="pickType" column="pick_type"/>
     </resultMap>
 
     <resultMap type="com.upedge.oms.modules.order.vo.AppOrderVo" id="AppOrderVo">
@@ -66,6 +67,7 @@
         <result property="createTime" column="create_time"/>
         <result property="shippingWarehouse" column="shipping_warehouse"/>
         <result property="trackingCode" column="tracking_code"/>
+        <result property="pickType" column="pick_type"/>
         <collection ofType="com.upedge.oms.modules.order.vo.AppStoreOrderVo" property="storeOrderVos">
             <id property="storeOrderId" column="store_order_id"/>
             <result property="platOrderName" column="plat_order_name"/>
@@ -136,7 +138,7 @@
         `total_weight`,`product_amount`,`product_discharge_amount`,`fix_fee`,`fix_fee_percentage`,`service_fee`,
         `pay_method`,`pay_time`,`payment_id`,`pay_state`,`refund_state`,`ship_state`,`order_type`,quote_state,
         `to_area_id`,`cny_rate`,`create_time`,`update_time`,`saihe_order_code`,`vat_amount`,`order_status`,`manager_code`,
-        `shipping_warehouse`,`tracking_code`
+        `shipping_warehouse`,`tracking_code`,pick_type
     </sql>
 
 
@@ -307,6 +309,9 @@
                 <if test="t.customer != null">
                     r.order_customer_name = #{t.customer} and
                 </if>
+                <if test="t.pickType != null">
+                    o.pick_type = #{t.pickType} and
+                </if>
                 <if test="t.beginTime != null and t.endTime != null">
                     date(r.plat_order_create_time) between #{t.beginTime} and #{t.endTime} and
                 </if>
@@ -320,6 +325,7 @@
                     <if test="t.saiheState == 0">
                         o.saihe_order_code is null and
                         o.pay_state > '0' and
+                        o.refund_state = '0' and
                     </if>
                 </if>
                 <if test="condition != null">
@@ -389,7 +395,7 @@
         o.vat_amount,sor.plat_order_name,sor.plat_order_create_time,sor.`order_customer_name`,
         oi.id as `itemId`,oi.order_id,`admin_product_id`,`store_variant_name`,oi.store_variant_image,
         `store_variant_sku`,`admin_variant_image`,`store_product_title`,`usd_price`,`quantity`,
-        `discharge_quantity`,`admin_variant_weight`,`admin_variant_volume`,oi.admin_variant_id
+        `discharge_quantity`,`admin_variant_weight`,`admin_variant_volume`,oi.admin_variant_id,o.pick_type
         from `order` o
         inner join order_item oi
         on o.id = oi.order_id
@@ -422,6 +428,7 @@
                o.order_type,
                o.to_area_id,
                o.vat_amount,
+                o.pick_type,
                sor.plat_order_name,
                sor.plat_order_create_time,
                sor.`order_customer_name`,
@@ -471,7 +478,8 @@
                o.order_type,
                o.to_area_id,
                o.vat_amount,
-               o.create_time
+               o.create_time,
+                o.pick_type
         from `order` o
         where o.id = #{id}
     </select>
@@ -483,7 +491,7 @@
         o.total_weight,o.product_amount,o.product_discharge_amount,o.fix_fee,o.pay_method,
         o.pay_time,o.payment_id,o.pay_state,o.refund_state,o.ship_state,o.order_type,o.to_area_id,
         o.vat_amount,o.create_time,o.store_id,r.plat_order_create_time,o.quote_state,o.saihe_order_code,
-        o.shipping_warehouse,o.tracking_code
+        o.shipping_warehouse,o.tracking_code,o.pick_type
         from `order` o
         left join store_order_relate r
         on o.id = r.order_id
@@ -791,6 +799,9 @@
             </if>
             <if test="managerCode != null">
                 manager_code = #{managerCode},
+            </if>
+            <if test="pickType != null">
+                pick_type = #{pickType},
             </if>
         </set>
         where id = #{id}
@@ -1271,6 +1282,9 @@
                     </if>
                     <if test="t.managerCode != null">
                         and manager_code = #{t.managerCode}
+                    </if>
+                    <if test="t.pickType != null">
+                        and pick_type = #{pickType}
                     </if>
                 </if>
                 <if test="condition != null">
@@ -2376,4 +2390,10 @@
         </if>
 
     </select>
+
+    <update id="updatePickType">
+        update `order`
+            set pick_type = #{pickType}
+        where id = #{id}
+    </update>
 </mapper>

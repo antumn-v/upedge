@@ -19,7 +19,7 @@ import com.upedge.common.web.util.UserUtil;
 import com.upedge.oms.enums.OrderTagEnum;
 import com.upedge.oms.modules.order.dto.AppOrderListDto;
 import com.upedge.oms.modules.order.dto.OrderAnalysisDto;
-import com.upedge.oms.modules.order.dto.PandaOrderListDto;
+import com.upedge.oms.modules.order.dto.OrderListDto;
 import com.upedge.oms.modules.order.entity.Order;
 import com.upedge.oms.modules.order.entity.OrderAddress;
 import com.upedge.oms.modules.order.request.*;
@@ -671,7 +671,7 @@ public class OrderController {
      * 查询订单list
      */
     @RequestMapping(value = "/orderList", method = RequestMethod.POST)
-    public BaseResponse orderList(@RequestBody PandaOrderListDto dto) {
+    public BaseResponse orderList(@RequestBody OrderListDto dto) {
 
         List<Order> resultList = orderService.getOrderList(dto);
         return new BaseResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS, resultList);

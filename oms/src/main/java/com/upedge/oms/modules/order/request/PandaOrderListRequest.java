@@ -1,9 +1,9 @@
 package com.upedge.oms.modules.order.request;
 
 import com.upedge.common.base.Page;
-import com.upedge.oms.modules.order.dto.PandaOrderListDto;
+import com.upedge.oms.modules.order.dto.OrderListDto;
 
-public class PandaOrderListRequest  extends Page<PandaOrderListDto> {
+public class PandaOrderListRequest  extends Page<OrderListDto> {
 
     Integer pageNum;
 

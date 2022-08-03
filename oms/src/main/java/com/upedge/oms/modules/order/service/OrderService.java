@@ -10,7 +10,7 @@ import com.upedge.common.model.order.vo.ManagerActualVo;
 import com.upedge.common.model.ship.vo.ShipDetail;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.oms.modules.order.dto.OrderAnalysisDto;
-import com.upedge.oms.modules.order.dto.PandaOrderListDto;
+import com.upedge.oms.modules.order.dto.OrderListDto;
 import com.upedge.oms.modules.order.entity.*;
 import com.upedge.oms.modules.order.request.*;
 import com.upedge.oms.modules.order.response.OrderListResponse;
@@ -31,6 +31,8 @@ import java.util.Set;
  * @author author
  */
 public interface OrderService{
+
+    void updatePickType(Long id, Integer pickType);
 
     int updateStockState(Long id,Integer stockState);
 
@@ -187,8 +189,8 @@ public interface OrderService{
      * @param record
      * @return
      */
-    List<PandaOrderListVo> upedgeOrderPage(Page<PandaOrderListDto> record);
-    Long upedgeOrderCount(Page<PandaOrderListDto> record);
+    List<PandaOrderListVo> upedgeOrderPage(Page<OrderListDto> record);
+    Long upedgeOrderCount(Page<OrderListDto> record);
 
     /**
      * 客户管理 -- 个人客户  -- 用户信息 -- 订单分析 （echarts 数量 和 地区分布）
@@ -204,7 +206,7 @@ public interface OrderService{
      */
     Map quantityAndAmount(OrderAnalysisDto request) throws ParseException;
 
-    List<Order> getOrderList(PandaOrderListDto dto);
+    List<Order> getOrderList(OrderListDto dto);
 
     ManagerActualVo getManagerActual(ManagerActualRequest request);
 

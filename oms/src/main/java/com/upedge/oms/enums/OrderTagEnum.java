@@ -26,7 +26,7 @@ public enum  OrderTagEnum {
     /**
      * 已发货
      */
-    SHIPPED(1,0,1,null),
+    SHIPPED(1,0,null,null),
 
     /**
      * 取消订单
