@@ -61,6 +61,8 @@ public class StoreProductVariant {
 
     private Long parentVariantId;
 
+    private String productTitle;
+
     public ProductVariant toProductVariant(Long productId,Long id){
         ProductVariant productVariant = new ProductVariant();
         productVariant.setId(id);
