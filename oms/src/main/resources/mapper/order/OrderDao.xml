@@ -312,6 +312,9 @@
                 <if test="t.pickType != null">
                     o.pick_type = #{t.pickType} and
                 </if>
+                <if test="t.shipMethodId != null">
+                    o.ship_method_id = #{t.shipMethodId} and
+                </if>
                 <if test="t.beginTime != null and t.endTime != null">
                     date(r.plat_order_create_time) between #{t.beginTime} and #{t.endTime} and
                 </if>
@@ -634,6 +637,7 @@
         where payment_id = #{paymentId}
           and pay_state != '1'
         and order_status = '0'
+        and product_amount > '0'
     </update>
 
     <update id="updateOrderAsPending">

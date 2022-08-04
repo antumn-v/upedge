@@ -72,6 +72,8 @@ public class AppOrderListDto {
 
     Integer pickType;
 
+    Long shipMethodId;
+
     public AppOrderListDto() {
 //        initDateRange();
         initOrderState();

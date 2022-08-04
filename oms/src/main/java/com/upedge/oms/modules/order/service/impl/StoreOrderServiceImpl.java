@@ -708,7 +708,7 @@ public class StoreOrderServiceImpl implements StoreOrderService {
             storeOrderDao.updateByPrimaryKeySelective(newStoreOrder);
             storeOrderRelateDao.updateStoreStatusByStoreOrderId(newStoreOrder);
             List<StoreOrderRelate> storeOrderRelates = storeOrderRelateDao.selectByStoreOrderId(storeOrderId);
-            if (shopifyOrder.getFinancial_status().equals("refunded")){
+            if (shopifyOrder.getFinancial_status().equals("refunded") || shopifyOrder.getFulfillment_status().equals("fulfilled")){
                 List<Long> cancelIds = new ArrayList<>();
                 for (StoreOrderRelate storeOrderRelate : storeOrderRelates) {
                     cancelIds.add(storeOrderRelate.getOrderId());

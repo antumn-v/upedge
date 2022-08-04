@@ -173,6 +173,10 @@ public class OrderPayServiceImpl implements OrderPayService {
                 orderVo.setProductDischargeAmount(orderProductAmountVo.getDischargeAmount());
                 orderDao.updateOrderProductAmount(orderProductAmountVo);
             }
+            if (orderVo.getProductAmount().compareTo(BigDecimal.ZERO) == 0){
+                cantShipOrders.add(orderVo);
+                continue;
+            }
             //检查运输方式
             if (StringUtils.isBlank(orderVo.getShippingWarehouse())) {
                 cantShipOrders.add(orderVo);
