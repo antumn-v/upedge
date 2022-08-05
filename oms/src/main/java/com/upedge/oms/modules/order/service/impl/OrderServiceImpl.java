@@ -1106,14 +1106,14 @@ public class OrderServiceImpl implements OrderService {
         //查询产品报价
         CustomerProductQuoteSearchRequest customerProductQuoteSearchRequest = new CustomerProductQuoteSearchRequest();
         customerProductQuoteSearchRequest.setStoreVariantIds(storeVariantIds);
-        List<CustomerProductQuoteVo> customerProductQuoteVos = pmsFeignClient.searchCustomerProductQuote(customerProductQuoteSearchRequest);
-
-        Map<Long, CustomerProductQuoteVo> customerProductQuoteVoMap = new HashMap<>();
-        if (ListUtils.isNotEmpty(customerProductQuoteVos)) {
-            for (CustomerProductQuoteVo customerProductQuoteVo : customerProductQuoteVos) {
-                customerProductQuoteVoMap.put(customerProductQuoteVo.getStoreVariantId(), customerProductQuoteVo);
-            }
-        }
+//        List<CustomerProductQuoteVo> customerProductQuoteVos = pmsFeignClient.searchCustomerProductQuote(customerProductQuoteSearchRequest);
+//
+//        Map<Long, CustomerProductQuoteVo> customerProductQuoteVoMap = new HashMap<>();
+//        if (ListUtils.isNotEmpty(customerProductQuoteVos)) {
+//            for (CustomerProductQuoteVo customerProductQuoteVo : customerProductQuoteVos) {
+//                customerProductQuoteVoMap.put(customerProductQuoteVo.getStoreVariantId(), customerProductQuoteVo);
+//            }
+//        }
         Long orderId = IdGenerate.nextId();
 
         StoreOrderAddress storeOrderAddress = storeOrderAddressDao.selectByStoreOrderId(storeOrderId);
@@ -1162,7 +1162,7 @@ public class OrderServiceImpl implements OrderService {
                 //判断拆分的变体是否已报价
                 boolean quoted = false;
                 for (Long splitVariantId : splitVariantIds) {
-                    CustomerProductQuoteVo customerProductQuoteVo = customerProductQuoteVoMap.get(splitVariantId);
+                    CustomerProductQuoteVo customerProductQuoteVo = (CustomerProductQuoteVo) redisTemplate.opsForValue().get(RedisKey.STRING_QUOTED_STORE_VARIANT + splitVariantId);
                     if (customerProductQuoteVo != null) {
                         quoted = true;
                     } else {
@@ -1210,8 +1210,8 @@ public class OrderServiceImpl implements OrderService {
             OrderItem orderItem = new OrderItem();
             BeanUtils.copyProperties(item, orderItem);
             orderItem.setOriginalQuantity(item.getQuantity());
-            if (customerProductQuoteVoMap.containsKey(item.getStoreVariantId())) {
-                CustomerProductQuoteVo customerProductQuoteVo = customerProductQuoteVoMap.get(item.getStoreVariantId());
+            CustomerProductQuoteVo customerProductQuoteVo = (CustomerProductQuoteVo) redisTemplate.opsForValue().get(RedisKey.STRING_QUOTED_STORE_VARIANT + item.getStoreVariantId());
+            if (customerProductQuoteVo != null) {
                 if (customerProductQuoteVo.getQuoteType() == 5) {
                     //报价中
                     quotingItem++;
@@ -1285,6 +1285,15 @@ public class OrderServiceImpl implements OrderService {
         RedisUtil.unLock(redisTemplate, key);
         orderInitShipDetail(orderId);
         return order;
+    }
+
+    @Override
+    public int updateOrderPickState(List<Long> orderIds, Integer state,Long pickId) {
+
+        if(ListUtils.isNotEmpty(orderIds)){
+            return orderDao.updateOrderPickState(orderIds,state,pickId);
+        }
+        return 0;
     }
 
     @Override

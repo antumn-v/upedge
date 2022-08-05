@@ -21,12 +21,12 @@ public enum  OrderTagEnum {
     /**
      * 已付款未发货
      */
-    PAID(1,0,0,null),
+    PAID(1,0,null,null),
 
     /**
      * 已发货
      */
-    SHIPPED(1,0,null,null),
+    SHIPPED(1,0,1,null),
 
     /**
      * 取消订单

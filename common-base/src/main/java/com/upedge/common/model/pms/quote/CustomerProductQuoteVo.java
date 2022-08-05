@@ -77,4 +77,6 @@ public class CustomerProductQuoteVo extends VariantDetail {
     private Integer quoteState;
 
     private Long storeParentVariantId;
+
+    private String barcode;
 }

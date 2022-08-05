@@ -108,6 +108,10 @@ public class OrderItem{
 
 	private String shippingWarehouse;
 
+	private Integer pickedQuantity;
+
+	private String barcode;
+
 
 	public OrderItem(StoreOrderItem storeOrderItem) {
 		this.storeVariantId = storeOrderItem.getStoreVariantId();
@@ -145,6 +149,7 @@ public class OrderItem{
 		this.width = variantVo.getWidth();
 		this.length = variantVo.getLength();
 		this.height = variantVo.getHeight();
+		this.barcode = variantVo.getBarcode();
 	}
 
 	public OrderItem(Integer dischargeQuantity) {
@@ -182,6 +187,7 @@ public class OrderItem{
 		this.quoteScale = variantVo.getQuoteScale();
 		this.itemType = 0;
 		this.dischargeQuantity = 0;
+		this.barcode = variantVo.getBarcode();
 
 	}
 

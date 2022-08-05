@@ -129,6 +129,7 @@
                 <result property="dischargeQuantity" column="discharge_quantity"/>
                 <result property="itemType" column="item_type"/>
                 <result property="quoteState" column="quote_state"/>
+                <result property="pickedQuantity" column="picked_quantity"/>
             </collection>
         </collection>
     </resultMap>
@@ -2399,5 +2400,16 @@
         update `order`
             set pick_type = #{pickType}
         where id = #{id}
+    </update>
+
+    <update id="updateOrderPickState">
+        update `order`
+            set ship_state = #{state},
+        pick_id = #{pickId}
+        where ship_state != '1'
+        and id in
+        <foreach collection="orderIds" item="orderId" open="(" separator="," close=")">
+            #{orderId}
+        </foreach>
     </update>
 </mapper>

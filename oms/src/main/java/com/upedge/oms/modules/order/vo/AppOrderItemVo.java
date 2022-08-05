@@ -65,4 +65,6 @@ public class AppOrderItemVo {
 
     private Integer quoteState;
 
+    private Integer pickedQuantity;
+
 }
