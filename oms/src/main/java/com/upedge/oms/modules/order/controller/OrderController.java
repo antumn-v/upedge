@@ -160,13 +160,6 @@ public class OrderController {
 
         Session session = UserUtil.getSession(redisTemplate);
 
-//        if (session.getUserType() == BaseCode.USER_ROLE_NORMAL) {
-//            List<Long> orgIds = session.getOrgIds();
-//            if (ListUtils.isEmpty(orgIds)) {
-//                return new BaseResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS, new ArrayList<>(), appOrderListRequest);
-//            }
-//        }
-
         ConcurrentHashMap<String, Long> map = new ConcurrentHashMap();
         CountDownLatch latch = new CountDownLatch(OrderTagEnum.values().length);
         for (OrderTagEnum tag : OrderTagEnum.values()) {
@@ -181,26 +174,6 @@ public class OrderController {
                         BeanUtils.copyProperties(appOrderList, appOrderListDto);
                         appOrderListDto.setTags(tag.name());
                         request.setT(appOrderListDto);
-//                        if (null != appOrderListDto) {
-//                            appOrderListDto = new AppOrderListDto();
-//                        } else {
-//                            appOrderListDto.initOrderState();
-//                            appOrderListDto.setTags(tag.name());
-//                        }
-//                        appOrderListDto.setCustomerId(session.getCustomerId());
-//                        if (tag.name().equals("IN_PROCESSING")) {
-//                            appOrderListDto.setPayState(null);
-//                            request.setCondition("o.pay_state > 0");
-//                        } else if (tag.name().equals("REFUNDS")) {
-//                            appOrderListDto.setRefundState(null);
-//                            request.setCondition("o.refund_state > 0");
-//                        } else {
-//                            appOrderListDto.setPayState(tag.getPayState());
-//                            appOrderListDto.setRefundState(tag.getRefundState());
-//                            appOrderListDto.setShipState(tag.getShipState());
-//                            request.setCondition(null);
-//                        }
-//                        request.setT(appOrderListDto);
                         request.init(session.getCustomerId());
                         Long total = orderService.selectAppOrderCount(request);
                         map.put(tag.name(), total);

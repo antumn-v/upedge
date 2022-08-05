@@ -3,6 +3,7 @@ package com.upedge.oms.modules.pick.request;
 import lombok.Data;
 
 import javax.validation.constraints.NotNull;
+import java.util.List;
 
 @Data
 public class OrderPickCreateRequest {
@@ -11,7 +12,7 @@ public class OrderPickCreateRequest {
     private Integer pickType;
 
     @NotNull
-    private Long shipMethodId;
+    private List<Long> shipMethodIds;
 
     private int singleProductQuantity;
 

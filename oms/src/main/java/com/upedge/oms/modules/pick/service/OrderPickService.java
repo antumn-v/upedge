@@ -14,6 +14,8 @@ import java.util.List;
  */
 public interface OrderPickService{
 
+    BaseResponse twicePickInfo(Long pickId);
+
     BaseResponse previewList(OrderPickPreviewListRequest request);
 
     BaseResponse create(OrderPickCreateRequest request, Session session);

@@ -2,8 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="com.upedge.oms.modules.pick.dao.OrderPickDao">
-
-	<!-- 可根据自己的需求，是否要使用 -->
+    <!-- 可根据自己的需求，是否要使用 -->
     <resultMap type="com.upedge.oms.modules.pick.entity.OrderPick" id="BaseResultMap">
         <result property="id" column="id"/>
         <result property="pickType" column="pick_type"/>
@@ -16,19 +15,36 @@
         <result property="operatorId" column="operator_id"/>
     </resultMap>
 
+    <resultMap id="OrderPickInfoVo" type="com.upedge.oms.modules.pick.vo.OrderPickInfoVo">
+        <result property="orderId" column="orderId"/>
+        <result property="pickType" column="pickType"/>
+        <result property="shipState" column="shipState"/>
+        <result property="pickId" column="pickId"/>
+        <collection property="orderItemPickInfoVos" ofType="com.upedge.oms.modules.pick.vo.OrderItemPickInfoVo">
+            <result property="pickedQuantity" column="pickedQuantity"/>
+            <result property="itemId" column="itemId"/>
+            <result property="variantId" column="variantId"/>
+            <result property="variantSku" column="variantSku"/>
+            <result property="barcode" column="barcode"/>
+            <result property="quantity" column="quantity"/>
+        </collection>
+    </resultMap>
+
     <sql id="Base_Column_List">
         `id`,`pick_type`,`ship_method_id`,`pick_state`,`sku_quantity`,`sku_type`,`create_time`,`update_time`,`operator_id`
     </sql>
 
-    <select id="selectByPrimaryKey" parameterType="com.upedge.oms.modules.pick.entity.OrderPick" resultMap="BaseResultMap">
+    <select id="selectByPrimaryKey" parameterType="com.upedge.oms.modules.pick.entity.OrderPick"
+            resultMap="BaseResultMap">
         select
-        <include refid="Base_Column_List" />
+        <include refid="Base_Column_List"/>
         from order_pick
         where id = #{id}
     </select>
 
     <delete id="deleteByPrimaryKey" parameterType="com.upedge.oms.modules.pick.entity.OrderPick">
-        delete from order_pick
+        delete
+        from order_pick
         where id = #{id}
     </delete>
 
@@ -66,20 +82,21 @@
     <update id="updateByPrimaryKey" parameterType="com.upedge.oms.modules.pick.entity.OrderPick">
         update order_pick
         <set>
-        id = #{id},
-        pick_type = #{pickType},
-        ship_method_id = #{shipMethodId},
-        pick_state = #{pickState},
-        sku_quantity = #{skuQuantity},
-        sku_type = #{skuType},
-        create_time = #{createTime},
-        update_time = #{updateTime},
-        operator_id = #{operatorId},
+            id = #{id},
+            pick_type = #{pickType},
+            ship_method_id = #{shipMethodId},
+            pick_state = #{pickState},
+            sku_quantity = #{skuQuantity},
+            sku_type = #{skuType},
+            create_time = #{createTime},
+            update_time = #{updateTime},
+            operator_id = #{operatorId},
         </set>
         where id = #{id}
     </update>
 
-    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.upedge.oms.modules.pick.entity.OrderPick" useGeneratedKeys="true">
+    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.upedge.oms.modules.pick.entity.OrderPick"
+            useGeneratedKeys="true">
         insert into order_pick
         <trim prefix="(" suffix=")" suffixOverrides=",">
             id,
@@ -105,95 +122,94 @@
         )
     </insert>
 
-    <insert id="insertSelective"  keyColumn="id" keyProperty="id"  parameterType="com.upedge.oms.modules.pick.entity.OrderPick" useGeneratedKeys="true">
+    <insert id="insertSelective" keyColumn="id" keyProperty="id"
+            parameterType="com.upedge.oms.modules.pick.entity.OrderPick" useGeneratedKeys="true">
         insert into order_pick
         <trim prefix="(" suffix=")" suffixOverrides=",">
-            <if test="id != null" >
-              id
+            <if test="id != null">
+                id
             </if>
-            <if test="pickType != null" >
-              pick_type
+            <if test="pickType != null">
+                pick_type
             </if>
-            <if test="shipMethodId != null" >
-              ship_method_id
+            <if test="shipMethodId != null">
+                ship_method_id
             </if>
-            <if test="pickState != null" >
-              pick_state
+            <if test="pickState != null">
+                pick_state
             </if>
-            <if test="skuQuantity != null" >
-              sku_quantity
+            <if test="skuQuantity != null">
+                sku_quantity
             </if>
-            <if test="skuType != null" >
-              sku_type
+            <if test="skuType != null">
+                sku_type
             </if>
-            <if test="createTime != null" >
-              create_time
+            <if test="createTime != null">
+                create_time
             </if>
-            <if test="updateTime != null" >
-              update_time
+            <if test="updateTime != null">
+                update_time
             </if>
-            <if test="operatorId != null" >
-              operator_id
+            <if test="operatorId != null">
+                operator_id
             </if>
-
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
-            <if test="id != null" >
+            <if test="id != null">
                 #{id}
             </if>
-            <if test="pickType != null" >
+            <if test="pickType != null">
                 #{pickType}
             </if>
-            <if test="shipMethodId != null" >
+            <if test="shipMethodId != null">
                 #{shipMethodId}
             </if>
-            <if test="pickState != null" >
+            <if test="pickState != null">
                 #{pickState}
             </if>
-            <if test="skuQuantity != null" >
+            <if test="skuQuantity != null">
                 #{skuQuantity}
             </if>
-            <if test="skuType != null" >
+            <if test="skuType != null">
                 #{skuType}
             </if>
-            <if test="createTime != null" >
+            <if test="createTime != null">
                 #{createTime}
             </if>
-            <if test="updateTime != null" >
+            <if test="updateTime != null">
                 #{updateTime}
             </if>
-            <if test="operatorId != null" >
+            <if test="operatorId != null">
                 #{operatorId}
             </if>
-
         </trim>
     </insert>
 
     <insert id="insertByBatch" parameterType="java.util.List">
         insert into order_pick
         <trim prefix="(" suffix=")" suffixOverrides=",">
-           id,
-           pick_type,
-           ship_method_id,
-           pick_state,
-           sku_quantity,
-           sku_type,
-           create_time,
-           update_time,
-           operator_id
+            id,
+            pick_type,
+            ship_method_id,
+            pick_state,
+            sku_quantity,
+            sku_type,
+            create_time,
+            update_time,
+            operator_id
         </trim>
         values
         <foreach collection="list" item="item" index="index" separator=",">
             <trim prefix="(" suffix=")" suffixOverrides=",">
-               #{item.id},
-               #{item.pickType},
-               #{item.shipMethodId},
-               #{item.pickState},
-               #{item.skuQuantity},
-               #{item.skuType},
-               #{item.createTime},
-               #{item.updateTime},
-               #{item.operatorId}
+                #{item.id},
+                #{item.pickType},
+                #{item.shipMethodId},
+                #{item.pickState},
+                #{item.skuQuantity},
+                #{item.skuType},
+                #{item.createTime},
+                #{item.updateTime},
+                #{item.operatorId}
             </trim>
         </foreach>
     </insert>
@@ -203,40 +219,40 @@
             where
             <trim prefix=" " suffix=" " suffixOverrides=" and ">
                 1 = 1 and
-                    <if test="t.id != null">
-                        id = #{t.id} and
-                    </if>
-                    <if test="t.pickType != null">
-                        pick_type = #{t.pickType} and
-                    </if>
-                    <if test="t.shipMethodId != null">
-                        ship_method_id = #{t.shipMethodId} and
-                    </if>
-                    <if test="t.pickState != null">
-                        pick_state = #{t.pickState} and
-                    </if>
-                    <if test="t.skuQuantity != null">
-                        sku_quantity = #{t.skuQuantity} and
-                    </if>
-                    <if test="t.skuType != null">
-                        sku_type = #{t.skuType} and
-                    </if>
-                    <if test="t.createTime != null">
-                        create_time = #{t.createTime} and
-                    </if>
-                    <if test="t.updateTime != null">
-                        update_time = #{t.updateTime} and
-                    </if>
-                    <if test="t.operatorId != null">
-                        operator_id = #{t.operatorId} and
-                    </if>
+                <if test="t.id != null">
+                    id = #{t.id} and
+                </if>
+                <if test="t.pickType != null">
+                    pick_type = #{t.pickType} and
+                </if>
+                <if test="t.shipMethodId != null">
+                    ship_method_id = #{t.shipMethodId} and
+                </if>
+                <if test="t.pickState != null">
+                    pick_state = #{t.pickState} and
+                </if>
+                <if test="t.skuQuantity != null">
+                    sku_quantity = #{t.skuQuantity} and
+                </if>
+                <if test="t.skuType != null">
+                    sku_type = #{t.skuType} and
+                </if>
+                <if test="t.createTime != null">
+                    create_time = #{t.createTime} and
+                </if>
+                <if test="t.updateTime != null">
+                    update_time = #{t.updateTime} and
+                </if>
+                <if test="t.operatorId != null">
+                    operator_id = #{t.operatorId} and
+                </if>
             </trim>
         </if>
     </sql>
 
     <select id="select" parameterType="com.upedge.common.base.Page" resultMap="BaseResultMap">
         select
-        <include refid="Base_Column_List" />
+        <include refid="Base_Column_List"/>
         from order_pick
         <include refid="Query_Condition"/>
         <if test="orderBy != null">
@@ -264,9 +280,66 @@
         and o.refund_state = '0'
         and o.ship_state = '0'
         and o.pick_type is not null
-          <if test="shipMethodId != null">
-              and ship_method_id = #{shipMethodId}
-          </if>
+        <if test="shipMethodId != null">
+            and ship_method_id = #{shipMethodId}
+        </if>
         group by ship_method_id,pick_type
+    </select>
+
+    <select id="selectOneSkuOneProductOrderQuantity" resultType="com.upedge.oms.modules.pick.vo.OrderPickQuantityVo">
+        select o.id as `orderId`
+        from `order` o
+        inner join order_item oi
+        on o.id = oi.order_id
+        where o.pay_state = '1'
+          and o.refund_state = '0'
+          and o.ship_state = '0'
+          and o.pick_type = '0'
+        and o.ship_method_id in
+        <foreach collection="shipMethodIds" item="methodId" open="(" close=")" separator=",">
+            #{methodId}
+        </foreach>
+        limit ${size}
+    </select>
+
+    <select id="selectOneSkuMultiProductOrderQuantity" resultType="com.upedge.oms.modules.pick.vo.OrderPickQuantityVo">
+        select o.id as `orderId`, sum(oi.quantity) as `skuQuantity`
+        from `order` o
+        inner join order_item oi
+        on o.id = oi.order_id
+        where o.pay_state = '1'
+          and o.refund_state = '0'
+          and o.ship_state = '0'
+          and o.pick_type = '1'
+        and o.ship_method_id in
+        <foreach collection="shipMethodIds" item="methodId" open="(" close=")" separator=",">
+            #{methodId}
+        </foreach>
+        group by o.id
+        limit ${size}
+    </select>
+
+    <select id="selectMultiSkuOrderQuantity" resultType="com.upedge.oms.modules.pick.vo.OrderPickQuantityVo">
+        select o.id as `orderId`
+        from `order` o
+        where o.pay_state = '1'
+          and o.refund_state = '0'
+          and o.ship_state = '0'
+          and o.pick_type = '2'
+        and o.ship_method_id in
+        <foreach collection="shipMethodIds" item="methodId" open="(" close=")" separator=",">
+            #{methodId}
+        </foreach>
+        limit ${size}
+    </select>
+
+    <select id="selectOrderPickInfo" resultMap="OrderPickInfoVo">
+        select o.id as `orderId`,o.pick_type as `pickType`,o.ship_state as `shipState`,o.pick_id as `pickId`,
+            oi.id as `itemId`,oi.barcode,oi.quantity,oi.admin_variant_id as `variantId`,
+            oi.admin_variant_sku as `variantSku`,oi.picked_quantity as `pickedQuantity`
+            from `order` o
+        inner join order_item oi
+        on o.id = oi.order_id
+        where o.pick_id = #{pickId}
     </select>
 </mapper>
