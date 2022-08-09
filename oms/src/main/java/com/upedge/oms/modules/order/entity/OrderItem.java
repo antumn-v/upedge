@@ -64,6 +64,7 @@ public class OrderItem{
 	 * 
 	 */
     private String adminVariantSku;
+    private String adminVariantName;
     private String adminVariantImage;
 	/**
 	 * 
@@ -145,6 +146,7 @@ public class OrderItem{
 		this.adminVariantWeight = variantVo.getWeight();
 		this.adminVariantImage = variantVo.getVariantImage();
 		this.adminVariantSku = variantVo.getVariantSku();
+		this.adminVariantName = variantVo.getCnName();
 		this.usdRate = new BigDecimal("6.3");
 		this.width = variantVo.getWidth();
 		this.length = variantVo.getLength();
@@ -178,6 +180,7 @@ public class OrderItem{
 		this.adminVariantWeight = variantVo.getWeight();
 		this.adminVariantImage = variantVo.getVariantImage();
 		this.adminVariantSku = variantVo.getVariantSku();
+		this.adminVariantName = variantVo.getCnName();
 		this.usdRate = new BigDecimal("6.3");
 		this.width = variantVo.getWidth();
 		this.length = variantVo.getLength();
@@ -212,6 +215,7 @@ public class OrderItem{
 		this.adminVariantWeight = variantVo.getWeight();
 		this.adminVariantImage = variantVo.getVariantImage();
 		this.adminVariantSku = variantVo.getVariantSku();
+		this.adminVariantName = variantVo.getCnName();
 		this.usdRate = new BigDecimal("6.3");
 		this.width = variantVo.getWidth();
 		this.length = variantVo.getLength();

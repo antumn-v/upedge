@@ -20,7 +20,15 @@ public class OrderTwicePickVo {
 
         private String variantSku;
 
+        private String variantName;
+
+        private String variantImage;
+
         private String barcode;
+
+        private Integer quantity;
+
+        private Integer pickedQuantity;
 
         private Set<Long> orderIds = new HashSet<>();
     }

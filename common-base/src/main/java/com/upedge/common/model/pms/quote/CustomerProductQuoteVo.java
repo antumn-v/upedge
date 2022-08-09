@@ -49,6 +49,7 @@ public class CustomerProductQuoteVo extends VariantDetail {
      *
      */
     private String variantName;
+    private String cnName;
     /**
      *
      */

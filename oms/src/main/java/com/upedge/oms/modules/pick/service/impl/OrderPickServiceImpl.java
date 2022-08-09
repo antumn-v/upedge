@@ -18,6 +18,7 @@ import com.upedge.oms.modules.pick.request.OrderPickPreviewListRequest;
 import com.upedge.oms.modules.pick.request.TwicePickSubmitRequest;
 import com.upedge.oms.modules.pick.service.OrderPickService;
 import com.upedge.oms.modules.pick.vo.*;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
@@ -170,10 +171,12 @@ public class OrderPickServiceImpl implements OrderPickService {
                 Long variantId = itemPickInfoVo.getVariantId();
                 if (!map.containsKey(variantId)){
                     OrderTwicePickVo.VariantOrderId variantOrderId = new OrderTwicePickVo.VariantOrderId();
-                    variantOrderId.setVariantId(variantId);
-                    variantOrderId.setVariantSku(itemPickInfoVo.getVariantSku());
-                    variantOrderId.setBarcode(itemPickInfoVo.getBarcode());
+                    BeanUtils.copyProperties(itemPickInfoVo,variantOrderId);
                     map.put(variantId,variantOrderId);
+                }else {
+                    OrderTwicePickVo.VariantOrderId variantOrderId = map.get(variantId);
+                    variantOrderId.setQuantity(variantOrderId.getQuantity() + itemPickInfoVo.getQuantity());
+                    variantOrderId.setPickedQuantity(variantOrderId.getPickedQuantity() + itemPickInfoVo.getPickedQuantity());
                 }
                 map.get(variantId).getOrderIds().add(orderId);
             }
@@ -239,7 +242,6 @@ public class OrderPickServiceImpl implements OrderPickService {
         return BaseResponse.success(orderPickWaveVos);
     }
 
-    @Transactional
     @Override
     public BaseResponse create(OrderPickCreateRequest request, Session session) {
         String key = "key:createOrderPickWave";
@@ -255,7 +257,7 @@ public class OrderPickServiceImpl implements OrderPickService {
                 oneSkuMultiQtyCreateWave(request.getShipMethodIds(),request.getSingleProductQuantity(),session.getId());
                 break;
             case 2:
-                multiSkuCreateWave(request.getShipMethodIds(),request.getSingleProductQuantity(),session.getId());
+                multiSkuCreateWave(request.getShipMethodIds(),request.getMixedProductQuantity(),session.getId());
                 break;
             default:
                 return BaseResponse.failed();
@@ -266,11 +268,11 @@ public class OrderPickServiceImpl implements OrderPickService {
     }
 
 
-    public void multiSkuCreateWave(List<Long> shipMethodIds,Integer size,Long operatorId){
+    public int multiSkuCreateWave(List<Long> shipMethodIds,Integer size,Long operatorId){
 
         List<OrderPickQuantityVo> orderPickQuantityVos = orderPickDao.selectMultiSkuOrderQuantity(shipMethodIds, size);
         if (ListUtils.isEmpty(orderPickQuantityVos)){
-            return;
+            return 0;
         }
         List<Long> orderIds = new ArrayList<>();
         orderPickQuantityVos.forEach(orderPickQuantityVo -> {
@@ -279,7 +281,7 @@ public class OrderPickServiceImpl implements OrderPickService {
 
         Long pickId = IdGenerate.nextId();
         OrderPick orderPick = new OrderPick();
-        orderPick.setPickType(0);
+        orderPick.setPickType(2);
         orderPick.setId(pickId);
         orderPick.setPickState(OrderPick.TO_BE_PICKED);
         orderPick.setOperatorId(operatorId);
@@ -292,15 +294,19 @@ public class OrderPickServiceImpl implements OrderPickService {
         orderService.updateOrderPickState(orderIds,2,pickId);
 
         while (orderPickQuantityVos.size() == size){
-            multiSkuCreateWave(shipMethodIds,size,operatorId);
+            int i = multiSkuCreateWave(shipMethodIds,size,operatorId);
+            if (i == 0){
+                return i;
+            }
         }
+        return orderPickQuantityVos.size();
     }
 
-    public void oneSkuOneQtyCreateWave(List<Long> shipMethodIds,Integer size,Long operatorId){
+    public int oneSkuOneQtyCreateWave(List<Long> shipMethodIds,Integer size,Long operatorId){
 
         List<OrderPickQuantityVo> orderPickQuantityVos = orderPickDao.selectOneSkuOneProductOrderQuantity(shipMethodIds, size);
         if (ListUtils.isEmpty(orderPickQuantityVos)){
-            return;
+            return 0;
         }
         List<Long> orderIds = new ArrayList<>();
         orderPickQuantityVos.forEach(orderPickQuantityVo -> {
@@ -322,16 +328,20 @@ public class OrderPickServiceImpl implements OrderPickService {
         orderService.updateOrderPickState(orderIds,3,pickId);
 
         while (orderPickQuantityVos.size() == size){
-            oneSkuOneQtyCreateWave(shipMethodIds,size,operatorId);
+            int i = oneSkuOneQtyCreateWave(shipMethodIds,size,operatorId);
+            if (i == 0){
+                return i;
+            }
         }
+        return orderPickQuantityVos.size();
 
     }
 
-    public void oneSkuMultiQtyCreateWave(List<Long> shipMethodIds,Integer size,Long operatorId){
+    public int oneSkuMultiQtyCreateWave(List<Long> shipMethodIds,Integer size,Long operatorId){
 
         List<OrderPickQuantityVo> orderPickQuantityVos = orderPickDao.selectOneSkuMultiProductOrderQuantity(shipMethodIds, size / 2 + 5);
         if (ListUtils.isEmpty(orderPickQuantityVos)){
-            return;
+            return 0;
         }
         List<Long> orderIds = new ArrayList<>();
         int skuQuantity = 0;
@@ -343,12 +353,12 @@ public class OrderPickServiceImpl implements OrderPickService {
             orderIds.add(orderPickQuantityVo.getOrderId());
         }
         if (ListUtils.isEmpty(orderIds)){
-            return;
+            return 0;
         }
 
         Long pickId = IdGenerate.nextId();
         OrderPick orderPick = new OrderPick();
-        orderPick.setPickType(0);
+        orderPick.setPickType(1);
         orderPick.setId(pickId);
         orderPick.setOperatorId(operatorId);
         orderPick.setCreateTime(new Date());
@@ -361,8 +371,12 @@ public class OrderPickServiceImpl implements OrderPickService {
         orderService.updateOrderPickState(orderIds,3,pickId);
 
         while (orderPickQuantityVos.size() == size){
-            oneSkuMultiQtyCreateWave(shipMethodIds,size,operatorId);
+            int i = oneSkuMultiQtyCreateWave(shipMethodIds,size,operatorId);
+            if (i == 0){
+                return i;
+            }
         }
+        return orderPickQuantityVos.size();
     }
 
 
