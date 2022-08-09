@@ -15,7 +15,6 @@ import java.util.List;
  */
 public interface OrderPickDao {
 
-
     List<OrderPickInfoVo> selectOrderPickInfo(Long pickId);
 
     List<OrderPickQuantityVo> selectOneSkuOneProductOrderQuantity(@Param("shipMethodIds") List<Long> shipMethodIds, @Param("size") Integer size);

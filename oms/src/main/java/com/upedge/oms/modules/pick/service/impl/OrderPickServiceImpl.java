@@ -71,7 +71,32 @@ public class OrderPickServiceImpl implements OrderPickService {
 
     @Override
     public BaseResponse printPickInfo(Long pickId, Session session) {
-        return null;
+
+        List<OrderPickInfoVo> orderPickInfoVoList = orderPickDao.selectOrderPickInfo(pickId);
+
+        if (ListUtils.isEmpty(orderPickInfoVoList)){
+            return BaseResponse.failed();
+        }
+
+        Map<Long,OrderItemPickInfoVo> map = new HashMap<>();
+
+        for (OrderPickInfoVo orderPickInfoVo : orderPickInfoVoList) {
+            List<OrderItemPickInfoVo> orderItemPickInfoVos = orderPickInfoVo.getOrderItemPickInfoVos();
+            for (OrderItemPickInfoVo orderItemPickInfoVo : orderItemPickInfoVos) {
+                if (map.containsKey(orderItemPickInfoVo.getVariantId())){
+                    OrderItemPickInfoVo itemPickInfoVo = map.get(orderItemPickInfoVo.getVariantId());
+                    orderItemPickInfoVo.setQuantity(orderItemPickInfoVo.getQuantity() + itemPickInfoVo.getQuantity());
+                    orderItemPickInfoVo.setPickedQuantity(orderItemPickInfoVo.getPickedQuantity() + itemPickInfoVo.getPickedQuantity());
+                }
+                map.put(orderItemPickInfoVo.getVariantId(),orderItemPickInfoVo);
+            }
+        }
+
+        List<OrderItemPickInfoVo> orderItemPickInfoVos = new ArrayList<>();
+        map.forEach((variantId,item)-> {
+            orderItemPickInfoVos.add(item);
+        });
+        return BaseResponse.success(orderItemPickInfoVos);
     }
 
     @Transactional
@@ -90,8 +115,10 @@ public class OrderPickServiceImpl implements OrderPickService {
         }
 
         boolean b = true;
+
         List<OrderItem> updatePickedQuantity = new ArrayList<>();
         for (OrderPickInfoVo orderPickInfoVo : orderPickInfoVos) {
+
             List<OrderItemPickInfoVo> itemPickInfoVos = orderPickInfoVo.getOrderItemPickInfoVos();
             for (OrderItemPickInfoVo itemPickInfoVo : itemPickInfoVos) {
 
@@ -133,9 +160,10 @@ public class OrderPickServiceImpl implements OrderPickService {
         List<OrderPickInfoVo> orderPickInfoVos = orderPickDao.selectOrderPickInfo(pickId);
 
         List<OrderTwicePickVo.VariantOrderId> variantOrderIds = new ArrayList<>();
-
+        int i = 1;
         Map<Long, OrderTwicePickVo.VariantOrderId> map = new HashMap<>();
         for (OrderPickInfoVo orderPickInfoVo : orderPickInfoVos) {
+            orderPickInfoVo.setSeq(i++);
             Long orderId = orderPickInfoVo.getOrderId();
             List<OrderItemPickInfoVo> itemPickInfoVos = orderPickInfoVo.getOrderItemPickInfoVos();
             for (OrderItemPickInfoVo itemPickInfoVo : itemPickInfoVos) {

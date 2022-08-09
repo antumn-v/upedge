@@ -55,4 +55,11 @@ public class OrderPickController {
         Session session = UserUtil.getSession(redisTemplate);
         return orderPickService.twicePickSubmit(request,session);
     }
+
+    @ApiOperation("打印拣货单")
+    @PostMapping("/print/{id}")
+    public BaseResponse printPickList(@PathVariable Long id){
+        Session session = UserUtil.getSession(redisTemplate);
+        return orderPickService.printPickInfo(id,session);
+    }
 }

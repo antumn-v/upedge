@@ -342,5 +342,6 @@
         inner join order_item oi
         on o.id = oi.order_id
         where o.pick_id = #{pickId}
+        order by o.id desc
     </select>
 </mapper>
