@@ -1,14 +1,28 @@
 package com.upedge.oms.modules.pick.entity;
 
-import java.io.Serializable;
-import java.util.Date;
 import lombok.Data;
+
+import java.util.Date;
 
 /**
  * @author gx
  */
 @Data
 public class OrderPick{
+
+	public static Integer CANCELED = -1;
+
+	public static Integer TO_BE_PICKED = 0;
+
+	public static Integer TWICE_PICK = 1;
+
+	public static Integer TO_BE_PACKED = 2;
+
+	public static Integer PACKING = 3;
+
+	public static Integer TO_BE_SHIPPED = 4;
+
+	public static Integer SHIPPED = 5;
 
 	/**
 	 * 

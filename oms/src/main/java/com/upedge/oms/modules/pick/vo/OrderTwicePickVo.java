@@ -2,8 +2,9 @@ package com.upedge.oms.modules.pick.vo;
 
 import lombok.Data;
 
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Data
 public class OrderTwicePickVo {
@@ -21,6 +22,6 @@ public class OrderTwicePickVo {
 
         private String barcode;
 
-        private List<Long> orderIds = new ArrayList<>();
+        private Set<Long> orderIds = new HashSet<>();
     }
 }

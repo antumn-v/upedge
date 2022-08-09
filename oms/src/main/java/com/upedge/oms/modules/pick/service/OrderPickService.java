@@ -6,6 +6,7 @@ import com.upedge.common.model.user.vo.Session;
 import com.upedge.oms.modules.pick.entity.OrderPick;
 import com.upedge.oms.modules.pick.request.OrderPickCreateRequest;
 import com.upedge.oms.modules.pick.request.OrderPickPreviewListRequest;
+import com.upedge.oms.modules.pick.request.TwicePickSubmitRequest;
 
 import java.util.List;
 
@@ -13,6 +14,11 @@ import java.util.List;
  * @author gx
  */
 public interface OrderPickService{
+
+    //打印拣货单
+    BaseResponse printPickInfo(Long pickId,Session session);
+
+    BaseResponse twicePickSubmit(TwicePickSubmitRequest request,Session session);
 
     BaseResponse twicePickInfo(Long pickId);
 

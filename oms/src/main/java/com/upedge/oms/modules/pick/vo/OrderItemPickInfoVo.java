@@ -11,6 +11,8 @@ public class OrderItemPickInfoVo {
 
     private String variantSku;
 
+    private String variantImage;
+
     private String barcode;
 
     private Integer quantity;

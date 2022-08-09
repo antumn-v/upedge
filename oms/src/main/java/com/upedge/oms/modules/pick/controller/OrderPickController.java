@@ -5,12 +5,15 @@ import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.web.util.UserUtil;
 import com.upedge.oms.modules.pick.request.OrderPickCreateRequest;
 import com.upedge.oms.modules.pick.request.OrderPickPreviewListRequest;
+import com.upedge.oms.modules.pick.request.TwicePickSubmitRequest;
 import com.upedge.oms.modules.pick.service.OrderPickService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.*;
+
+import javax.validation.Valid;
 
 /**
  * 订单拣货
@@ -40,10 +43,16 @@ public class OrderPickController {
         return orderPickService.create(request,session);
     }
 
-
+    @ApiOperation("二次分拣")
     @PostMapping("/twicePickInfo/{id}")
     public BaseResponse twicePickInfo(@PathVariable Long id){
         return orderPickService.twicePickInfo(id);
     }
 
+    @ApiOperation("二次分拣提交")
+    @PostMapping("/twicePickSubmit")
+    public BaseResponse twicePickSubmit(@RequestBody@Valid TwicePickSubmitRequest request){
+        Session session = UserUtil.getSession(redisTemplate);
+        return orderPickService.twicePickSubmit(request,session);
+    }
 }

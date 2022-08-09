@@ -100,6 +100,14 @@ public class OrderItemServiceImpl implements OrderItemService {
     }
 
     @Override
+    public int batchUpdatePickedQuantity(List<OrderItem> orderItems) {
+        if (ListUtils.isNotEmpty(orderItems)){
+            return orderItemDao.batchUpdatePickedQuantity(orderItems);
+        }
+        return 0;
+    }
+
+    @Override
     public Integer selectCountQuantityByOrderId(Long orderId) {
         return orderItemDao.selectCountQuantityByOrderId(orderId);
     }

@@ -8,11 +8,14 @@ import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.utils.IdGenerate;
 import com.upedge.common.utils.ListUtils;
 import com.upedge.common.web.util.RedisUtil;
+import com.upedge.oms.modules.order.entity.OrderItem;
+import com.upedge.oms.modules.order.service.OrderItemService;
 import com.upedge.oms.modules.order.service.OrderService;
 import com.upedge.oms.modules.pick.dao.OrderPickDao;
 import com.upedge.oms.modules.pick.entity.OrderPick;
 import com.upedge.oms.modules.pick.request.OrderPickCreateRequest;
 import com.upedge.oms.modules.pick.request.OrderPickPreviewListRequest;
+import com.upedge.oms.modules.pick.request.TwicePickSubmitRequest;
 import com.upedge.oms.modules.pick.service.OrderPickService;
 import com.upedge.oms.modules.pick.vo.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +34,9 @@ public class OrderPickServiceImpl implements OrderPickService {
 
     @Autowired
     OrderService orderService;
+
+    @Autowired
+    OrderItemService orderItemService;
 
     @Autowired
     RedisTemplate redisTemplate;
@@ -64,12 +70,63 @@ public class OrderPickServiceImpl implements OrderPickService {
     }
 
     @Override
+    public BaseResponse printPickInfo(Long pickId, Session session) {
+        return null;
+    }
+
+    @Transactional
+    @Override
+    public BaseResponse twicePickSubmit(TwicePickSubmitRequest request, Session session) {
+        Long pickId = request.getPickId();
+        List<OrderPickInfoVo> orderPickInfoVos = request.getOrderPickInfoVos();
+
+        Map<Long,OrderItemPickInfoVo> map = new HashMap<>();
+        List<OrderPickInfoVo> orderPickInfoVoList = orderPickDao.selectOrderPickInfo(pickId);
+        for (OrderPickInfoVo orderPickInfoVo : orderPickInfoVoList) {
+            List<OrderItemPickInfoVo> itemPickInfoVos = orderPickInfoVo.getOrderItemPickInfoVos();
+            for (OrderItemPickInfoVo itemPickInfoVo : itemPickInfoVos) {
+                map.put(itemPickInfoVo.getItemId(),itemPickInfoVo);
+            }
+        }
+
+        boolean b = true;
+        List<OrderItem> updatePickedQuantity = new ArrayList<>();
+        for (OrderPickInfoVo orderPickInfoVo : orderPickInfoVos) {
+            List<OrderItemPickInfoVo> itemPickInfoVos = orderPickInfoVo.getOrderItemPickInfoVos();
+            for (OrderItemPickInfoVo itemPickInfoVo : itemPickInfoVos) {
+
+                OrderItemPickInfoVo orderItemPickInfoVo = map.get(itemPickInfoVo.getItemId());
+                Integer pickedQuantity = itemPickInfoVo.getPickedQuantity();
+                if (!itemPickInfoVo.getQuantity().equals(orderItemPickInfoVo.getPickedQuantity())){
+                    b = false;
+                }
+                if (pickedQuantity != orderItemPickInfoVo.getPickedQuantity()){
+                    OrderItem orderItem = new OrderItem();
+                    orderItem.setId(orderItem.getId());
+                    orderItem.setPickedQuantity(pickedQuantity);
+                    updatePickedQuantity.add(orderItem);
+                }
+            }
+        }
+        if (b){
+            OrderPick orderPick = new OrderPick();
+            orderPick.setPickState(OrderPick.TO_BE_PACKED);
+            orderPick.setId(pickId);
+            orderPick.setUpdateTime(new Date());
+            updateByPrimaryKeySelective(orderPick);
+        }
+        orderItemService.batchUpdatePickedQuantity(updatePickedQuantity);
+        return BaseResponse.success();
+    }
+
+    @Override
     public BaseResponse twicePickInfo(Long pickId) {
 
         OrderPick orderPick = selectByPrimaryKey(pickId);
         if (null == orderPick
                 || orderPick.getPickType() != 2
-        || orderPick.getPickState() != 0){
+        || orderPick.getPickState() < OrderPick.TO_BE_PICKED
+        || orderPick.getPickState() > OrderPick.TWICE_PICK){
             return BaseResponse.failed();
         }
 
@@ -101,6 +158,12 @@ public class OrderPickServiceImpl implements OrderPickService {
         OrderTwicePickVo orderTwicePickVo = new OrderTwicePickVo();
         orderTwicePickVo.setOrderPickInfoVos(orderPickInfoVos);
         orderTwicePickVo.setVariantOrderIds(variantOrderIds);
+
+        orderPick = new OrderPick();
+        orderPick.setPickState(OrderPick.TWICE_PICK);
+        orderPick.setId(pickId);
+        orderPick.setUpdateTime(new Date());
+        updateByPrimaryKeySelective(orderPick);
 
         return BaseResponse.success(orderTwicePickVo);
     }
@@ -190,7 +253,7 @@ public class OrderPickServiceImpl implements OrderPickService {
         OrderPick orderPick = new OrderPick();
         orderPick.setPickType(0);
         orderPick.setId(pickId);
-        orderPick.setPickState(0);
+        orderPick.setPickState(OrderPick.TO_BE_PICKED);
         orderPick.setOperatorId(operatorId);
         orderPick.setCreateTime(new Date());
         orderPick.setUpdateTime(new Date());
@@ -224,7 +287,7 @@ public class OrderPickServiceImpl implements OrderPickService {
         orderPick.setCreateTime(new Date());
         orderPick.setUpdateTime(new Date());
         orderPick.setSkuType(1);
-        orderPick.setPickState(0);
+        orderPick.setPickState(OrderPick.TO_BE_PACKED);
         orderPick.setSkuQuantity(size);
         insert(orderPick);
 
@@ -263,7 +326,7 @@ public class OrderPickServiceImpl implements OrderPickService {
         orderPick.setCreateTime(new Date());
         orderPick.setUpdateTime(new Date());
         orderPick.setSkuType(1);
-        orderPick.setPickState(0);
+        orderPick.setPickState(OrderPick.TO_BE_PACKED);
         orderPick.setSkuQuantity(skuQuantity);
         insert(orderPick);
 
