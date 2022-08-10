@@ -281,6 +281,7 @@
         where o.pay_state = '1'
         and o.refund_state = '0'
         and o.ship_state = '0'
+        and oi.quantity > '0'
         and o.pick_type is not null
         <if test="shipMethodId != null">
             and ship_method_id = #{shipMethodId}
@@ -297,6 +298,7 @@
           and o.refund_state = '0'
           and o.ship_state = '0'
           and o.pick_type = '0'
+        and oi.quantity > '0'
         and o.ship_method_id in
         <foreach collection="shipMethodIds" item="methodId" open="(" close=")" separator=",">
             #{methodId}
@@ -313,6 +315,7 @@
           and o.refund_state = '0'
           and o.ship_state = '0'
           and o.pick_type = '1'
+        and oi.quantity > '0'
         and o.ship_method_id in
         <foreach collection="shipMethodIds" item="methodId" open="(" close=")" separator=",">
             #{methodId}
@@ -338,12 +341,13 @@
     <select id="selectOrderPickInfo" resultMap="OrderPickInfoVo">
         select o.id as `orderId`,o.pick_type as `pickType`,o.ship_state as `shipState`,o.pick_id as `pickId`,
             oi.id as `itemId`,oi.barcode,oi.quantity,oi.admin_variant_id as `variantId`,
-            oi.admin_variant_sku as `variantSku`,oi.picked_quantity as `pickedQuantity`,oi.admin_variant_image,oi.barcode,
+            oi.admin_variant_sku as `variantSku`,oi.picked_quantity as `pickedQuantity`,oi.admin_variant_image,
             oi.admin_variant_name as `variantName`
             from `order` o
         inner join order_item oi
         on o.id = oi.order_id
         where o.pick_id = #{pickId}
+        and oi.quantity > '0'
         order by o.id desc
     </select>
 </mapper>

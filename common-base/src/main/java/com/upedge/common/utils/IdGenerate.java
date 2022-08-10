@@ -83,7 +83,8 @@ public class IdGenerate {
 
 
 	public static void main(String[] args) {
-		System.out.println(generateUniqueId(8));
+		System.out.println(IdGenerate.nextId());
+//		System.out.println(generateUniqueId(8));
 	}
 
 }

@@ -1255,8 +1255,8 @@
     <update id="batchUpdatePickedQuantity">
         <foreach collection="orderItems" item="item" separator=";">
             update order_item
-            set picked_quantity = #{pickedQuantity}
-            where id = #{id}
+            set picked_quantity = #{item.pickedQuantity}
+            where id = #{item.id}
         </foreach>
     </update>
 </mapper>

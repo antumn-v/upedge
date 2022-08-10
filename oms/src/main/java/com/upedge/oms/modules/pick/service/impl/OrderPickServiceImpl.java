@@ -130,7 +130,7 @@ public class OrderPickServiceImpl implements OrderPickService {
                 }
                 if (pickedQuantity != orderItemPickInfoVo.getPickedQuantity()){
                     OrderItem orderItem = new OrderItem();
-                    orderItem.setId(orderItem.getId());
+                    orderItem.setId(orderItemPickInfoVo.getItemId());
                     orderItem.setPickedQuantity(pickedQuantity);
                     updatePickedQuantity.add(orderItem);
                 }

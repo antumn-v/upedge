@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @NoArgsConstructor
@@ -12,7 +13,7 @@ public class FpxOrderCreateDto {
 
 
     @JsonProperty("4px_tracking_no")
-    private String $4pxTrackingNo;
+    private String fpxTrackingNo;
     /**
      * 订单ID
      */
@@ -40,28 +41,37 @@ public class FpxOrderCreateDto {
     private String salesPlatform;
     @JsonProperty("seller_id")
     private String sellerId;
+    /**
+     * 物流服务信息，需要运费方式关联的代码
+     */
     @JsonProperty("logistics_service_info")
-    private LogisticsServiceInfoDTO logisticsServiceInfo;
+    private LogisticsServiceInfoDTO logisticsServiceInfo = new LogisticsServiceInfoDTO();
     @JsonProperty("label_barcode")
     private String labelBarcode;
     @JsonProperty("return_info")
-    private ReturnInfoDTO returnInfo;
+    private ReturnInfoDTO returnInfo = new ReturnInfoDTO();
     @JsonProperty("parcel_list")
     private List<ParcelListDTO> parcelList;
     @JsonProperty("is_insure")
-    private String isInsure;
+    private String isInsure = "N";
     @JsonProperty("insurance_info")
-    private InsuranceInfoDTO insuranceInfo;
+    private InsuranceInfoDTO insuranceInfo = new InsuranceInfoDTO();
+    /**
+     * 发件人信息（固定地址）
+     */
     @JsonProperty("sender")
-    private SenderDTO sender;
+    private SenderDTO sender = new SenderDTO();
+    /**
+     * 收件人信息（订单地址）
+     */
     @JsonProperty("recipient_info")
-    private RecipientInfoDTO recipientInfo;
+    private RecipientInfoDTO recipientInfo = new RecipientInfoDTO();
     @JsonProperty("deliver_type_info")
     private DeliverTypeInfoDTO deliverTypeInfo = new DeliverTypeInfoDTO();
     @JsonProperty("label_config_info")
     private LabelConfigInfoDTO labelConfigInfo;
     @JsonProperty("deliver_to_recipient_info")
-    private DeliverToRecipientInfo deliverToRecipientInfo;
+    private DeliverToRecipientInfo deliverToRecipientInfo = new DeliverToRecipientInfo();
 
     @NoArgsConstructor
     @Data
@@ -80,11 +90,11 @@ public class FpxOrderCreateDto {
     @Data
     public static class ReturnInfoDTO {
         @JsonProperty("is_return_on_domestic")
-        private String isReturnOnDomestic;
+        private String isReturnOnDomestic = "Y";
         @JsonProperty("domestic_return_addr")
         private DomesticReturnAddrDTO domesticReturnAddr;
         @JsonProperty("is_return_on_oversea")
-        private String isReturnOnOversea;
+        private String isReturnOnOversea = "U";
         @JsonProperty("oversea_return_addr")
         private OverseaReturnAddrDTO overseaReturnAddr;
 
@@ -178,31 +188,31 @@ public class FpxOrderCreateDto {
     @Data
     public static class SenderDTO {
         @JsonProperty("first_name")
-        private String firstName;
+        private String firstName = "郭";
         @JsonProperty("last_name")
-        private String lastName;
+        private String lastName = "xin";
         @JsonProperty("company")
-        private String company;
+        private String company = "upedge";
         @JsonProperty("phone")
-        private String phone;
+        private String phone = "18166668888";
         @JsonProperty("phone2")
         private String phone2;
         @JsonProperty("email")
-        private String email;
+        private String email = "89127398621@qq.com";
         @JsonProperty("post_code")
-        private String postCode;
+        private String postCode = "0";
         @JsonProperty("country")
-        private String country;
+        private String country = "CN";
         @JsonProperty("state")
-        private String state;
+        private String state = "浙江省";
         @JsonProperty("city")
-        private String city;
+        private String city = "杭州市";
         @JsonProperty("district")
-        private String district;
+        private String district = "余杭区";
         @JsonProperty("street")
-        private String street;
+        private String street = "五常街道";
         @JsonProperty("house_number")
-        private String houseNumber;
+        private String houseNumber = "406";
         @JsonProperty("certificate_info")
         private CertificateInfoDTO certificateInfo;
 
@@ -456,17 +466,17 @@ public class FpxOrderCreateDto {
             @JsonProperty("hscode_import")
             private String hscodeImport;
             @JsonProperty("declare_unit_price_export")
-            private Integer declareUnitPriceExport;
+            private BigDecimal declareUnitPriceExport;
             @JsonProperty("currency_export")
-            private String currencyExport;
+            private String currencyExport = "USD";
             @JsonProperty("declare_unit_price_import")
-            private Double declareUnitPriceImport;
+            private BigDecimal declareUnitPriceImport;
             @JsonProperty("currency_import")
-            private String currencyImport;
+            private String currencyImport = "USD";
             @JsonProperty("brand_export")
-            private String brandExport;
+            private String brandExport = "none";
             @JsonProperty("brand_import")
-            private String brandImport;
+            private String brandImport = "none";
             @JsonProperty("sales_url")
             private String salesUrl;
             @JsonProperty("package_remarks")

@@ -36,7 +36,17 @@ public enum MethodEnum {
     /**
      * 查询计量单位
      */
-    measure_unit_list("com.basis.measureunit.getlist")
+    measure_unit_list("com.basis.measureunit.getlist"),
+    /**
+     * 创建直发委托单
+     */
+    order_create("ds.xms.order.create"),
+    /**
+     * 单个包裹打印面单
+     */
+    single_package_label("ds.xms.label.get"),
+
+    multi_package_label("ds.xms.label.getlist")
     ;
 
     String method;

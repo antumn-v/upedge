@@ -757,11 +757,9 @@ public class StoreOrderServiceImpl implements StoreOrderService {
             List<Long> orderIds = orderItemService.selectOrderIdsByStoreOrderItemIds(storeOrderItemIds);
             if (ListUtils.isNotEmpty(orderIds)){
                 orderService.initOrderProductAmount(orderIds);
-                List<Long> cancelIds = new ArrayList<>();
                 for (Long orderId : orderIds) {
                     int countItemQuantity = orderItemService.selectCountQuantityByOrderId(orderId);
                     if (countItemQuantity == 0){
-                        cancelIds.add(orderId);
                     }else {
                         orderService.matchShipRule(orderId);
                     }
