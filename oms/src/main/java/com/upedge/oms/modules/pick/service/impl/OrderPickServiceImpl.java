@@ -73,6 +73,8 @@ public class OrderPickServiceImpl implements OrderPickService {
     @Override
     public BaseResponse printPickInfo(Long pickId, Session session) {
 
+        OrderPick orderPick = selectByPrimaryKey(pickId);
+
         List<OrderPickInfoVo> orderPickInfoVoList = orderPickDao.selectOrderPickInfo(pickId);
 
         if (ListUtils.isEmpty(orderPickInfoVoList)){
@@ -104,6 +106,7 @@ public class OrderPickServiceImpl implements OrderPickService {
         });
 
         OrderPrintVo orderPrintVo = new OrderPrintVo();
+        orderPrintVo.setWaveNo(orderPick.getWaveNo());
         orderPrintVo.setOrderItemPickInfoVos(orderItemPickInfoVos);
         orderPrintVo.setSkuQuantity(quantity);
         orderPrintVo.setSkuType(variantIds.size());
@@ -378,6 +381,7 @@ public class OrderPickServiceImpl implements OrderPickService {
         OrderPick orderPick = new OrderPick();
         orderPick.setPickType(1);
         orderPick.setId(pickId);
+        orderPick.setWaveNo(getWaveNo());
         orderPick.setOperatorId(operatorId);
         orderPick.setCreateTime(new Date());
         orderPick.setUpdateTime(new Date());
@@ -436,6 +440,28 @@ public class OrderPickServiceImpl implements OrderPickService {
     */
     public long count(Page<OrderPick> record){
         return orderPickDao.count(record);
+    }
+
+
+    private Integer getWaveNo(){
+        String key = "order:pick:wave:no";
+
+        boolean b = RedisUtil.lock(redisTemplate,key,5L,10L);
+        if (!b){
+            return null;
+        }
+        Integer no = (Integer) redisTemplate.opsForValue().get(key);
+        if(null == no){
+            no = orderPickDao.selectMaxWaveNo();
+            if (null == no){
+                no = 10001;
+            }
+        }else {
+            no += 1;
+        }
+        redisTemplate.opsForValue().set(key,no);
+        RedisUtil.unLock(redisTemplate,key);
+        return no;
     }
 
 }

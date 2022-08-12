@@ -15,6 +15,10 @@ import java.util.List;
  */
 public interface OrderPickDao {
 
+    OrderPick selectByWaveNo(Integer waveNo);
+
+    Integer selectMaxWaveNo();
+
     List<OrderPickInfoVo> selectOrderPickInfo(Long pickId);
 
     List<OrderPickQuantityVo> selectOneSkuOneProductOrderQuantity(@Param("shipMethodIds") List<Long> shipMethodIds, @Param("size") Integer size);

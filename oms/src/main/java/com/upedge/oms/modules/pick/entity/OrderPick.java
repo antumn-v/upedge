@@ -28,6 +28,8 @@ public class OrderPick{
 	 * 
 	 */
     private Long id;
+
+	private Integer waveNo;
 	/**
 	 * 
 	 */

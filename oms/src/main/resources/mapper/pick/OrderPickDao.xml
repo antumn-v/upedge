@@ -5,6 +5,7 @@
     <!-- 可根据自己的需求，是否要使用 -->
     <resultMap type="com.upedge.oms.modules.pick.entity.OrderPick" id="BaseResultMap">
         <result property="id" column="id"/>
+        <result property="waveNo" column="wave_no"/>
         <result property="pickType" column="pick_type"/>
         <result property="shipMethodId" column="ship_method_id"/>
         <result property="pickState" column="pick_state"/>
@@ -33,7 +34,7 @@
     </resultMap>
 
     <sql id="Base_Column_List">
-        `id`,`pick_type`,`ship_method_id`,`pick_state`,`sku_quantity`,`sku_type`,`create_time`,`update_time`,`operator_id`
+        `id`,`wave_no`,`pick_type`,`ship_method_id`,`pick_state`,`sku_quantity`,`sku_type`,`create_time`,`update_time`,`operator_id`
     </sql>
 
     <select id="selectByPrimaryKey" parameterType="com.upedge.oms.modules.pick.entity.OrderPick"
@@ -102,6 +103,7 @@
         insert into order_pick
         <trim prefix="(" suffix=")" suffixOverrides=",">
             id,
+            wave_no,
             pick_type,
             ship_method_id,
             pick_state,
@@ -113,6 +115,7 @@
         </trim>
         values (
         #{id},
+        #{waveNo},
         #{pickType},
         #{shipMethodId},
         #{pickState},
@@ -257,9 +260,7 @@
         <include refid="Base_Column_List"/>
         from order_pick
         <include refid="Query_Condition"/>
-        <if test="orderBy != null">
-            order by ${orderBy}
-        </if>
+        order by wave_no desc
         <if test="pageNum != null and pageSize != null">
             limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
         </if>
@@ -349,5 +350,17 @@
         where o.pick_id = #{pickId}
         and oi.quantity > '0'
         order by o.id desc
+    </select>
+
+    <select id="selectMaxWaveNo" resultType="java.lang.Integer">
+        select max(wave_no)
+        from order_pick
+    </select>
+
+    <select id="selectByWaveNo" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from order_pick
+        where wave_no = #{waveNo}
     </select>
 </mapper>

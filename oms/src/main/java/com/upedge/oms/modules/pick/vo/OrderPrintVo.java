@@ -7,6 +7,8 @@ import java.util.List;
 @Data
 public class OrderPrintVo {
 
+    private Integer waveNo;
+
     private Integer packageCount;
 
     private Integer skuType;
