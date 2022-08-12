@@ -14,6 +14,7 @@
         <result property="createTime" column="create_time"/>
         <result property="updateTime" column="update_time"/>
         <result property="operatorId" column="operator_id"/>
+        <result property="isPrinted" column="is_printed"/>
     </resultMap>
 
     <resultMap id="OrderPickInfoVo" type="com.upedge.oms.modules.pick.vo.OrderPickInfoVo">
@@ -34,7 +35,7 @@
     </resultMap>
 
     <sql id="Base_Column_List">
-        `id`,`wave_no`,`pick_type`,`ship_method_id`,`pick_state`,`sku_quantity`,`sku_type`,`create_time`,`update_time`,`operator_id`
+        `id`,`wave_no`,`pick_type`,`ship_method_id`,`pick_state`,`sku_quantity`,`sku_type`,`create_time`,`update_time`,`operator_id`,`is_printed`
     </sql>
 
     <select id="selectByPrimaryKey" parameterType="com.upedge.oms.modules.pick.entity.OrderPick"
@@ -78,6 +79,9 @@
             <if test="operatorId != null">
                 operator_id = #{operatorId},
             </if>
+            <if test="isPrinted != null">
+                is_printed = #{isPrinted},
+            </if>
         </set>
         where id = #{id}
     </update>
@@ -111,7 +115,8 @@
             sku_type,
             create_time,
             update_time,
-            operator_id
+            operator_id,
+            is_printed
         </trim>
         values (
         #{id},
@@ -123,7 +128,8 @@
         #{skuType},
         #{createTime},
         #{updateTime},
-        #{operatorId}
+        #{operatorId},
+        #{isPrinted}
         )
     </insert>
 

@@ -93,7 +93,11 @@ public class AppOrderVo {
 
     private boolean hasPayFailed;
 
+    private Boolean isPrinted;
+
     private Integer pickType;
+
+    private Long pickId;
 
     private Long toAreaId;
 

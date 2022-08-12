@@ -147,4 +147,6 @@ public class RedisKey {
     public static final String STRING_VARIANT_CANCEL_PURCHASE_LIST = "variant:cancel:purchase:list";
 
     public static final String HASH_ORDER_CREATE_PACKAGE_FAILED_REASON = "order:create:package:failed:reason";
+    //已打印的波次
+    public static final String HASH_ORDER_PICK_WAVE_PRINTED = "order:pick:wave:printed";
 }

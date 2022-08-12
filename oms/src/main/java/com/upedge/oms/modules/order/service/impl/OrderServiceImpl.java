@@ -2362,6 +2362,15 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public OrderListResponse manageList(AppOrderListRequest request, Session session) {
         List<AppOrderVo> appOrderVos = selectAppOrderList(request);
+        appOrderVos.forEach(appOrderVo -> {
+            Long pickId = appOrderVo.getPickId();
+            if (null != pickId){
+                boolean b = redisTemplate.opsForHash().hasKey(RedisKey.HASH_ORDER_PICK_WAVE_PRINTED,pickId.toString());
+                appOrderVo.setIsPrinted(b);
+            }else {
+                appOrderVo.setIsPrinted(false);
+            }
+        });
         Long total = selectAppOrderCount(request);
         request.setTotal(total);
         return new OrderListResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS, appOrderVos, request);

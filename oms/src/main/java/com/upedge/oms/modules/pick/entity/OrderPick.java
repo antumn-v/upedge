@@ -63,4 +63,6 @@ public class OrderPick{
 	 */
     private Long operatorId;
 
+	private Boolean isPrinted;
+
 }

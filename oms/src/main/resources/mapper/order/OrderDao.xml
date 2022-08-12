@@ -68,6 +68,7 @@
         <result property="shippingWarehouse" column="shipping_warehouse"/>
         <result property="trackingCode" column="tracking_code"/>
         <result property="pickType" column="pick_type"/>
+        <result property="pickId" column="pick_id"/>
         <collection ofType="com.upedge.oms.modules.order.vo.AppStoreOrderVo" property="storeOrderVos">
             <id property="storeOrderId" column="store_order_id"/>
             <result property="platOrderName" column="plat_order_name"/>
@@ -495,7 +496,7 @@
         o.total_weight,o.product_amount,o.product_discharge_amount,o.fix_fee,o.pay_method,
         o.pay_time,o.payment_id,o.pay_state,o.refund_state,o.ship_state,o.order_type,o.to_area_id,
         o.vat_amount,o.create_time,o.store_id,r.plat_order_create_time,o.quote_state,o.saihe_order_code,
-        o.shipping_warehouse,o.tracking_code,o.pick_type
+        o.shipping_warehouse,o.tracking_code,o.pick_type,o.pick_id
         from `order` o
         left join store_order_relate r
         on o.id = r.order_id

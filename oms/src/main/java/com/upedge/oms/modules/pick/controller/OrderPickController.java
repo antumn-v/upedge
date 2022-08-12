@@ -1,6 +1,7 @@
 package com.upedge.oms.modules.pick.controller;
 
 import com.upedge.common.base.BaseResponse;
+import com.upedge.common.constant.key.RedisKey;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.web.util.UserUtil;
 import com.upedge.oms.modules.pick.entity.OrderPick;
@@ -75,4 +76,17 @@ public class OrderPickController {
         Session session = UserUtil.getSession(redisTemplate);
         return orderPickService.printPickInfo(id,session);
     }
+
+    @ApiOperation("已打印")
+    @PostMapping("/printClick/{id}")
+    public BaseResponse printClick(@PathVariable Long id){
+        OrderPick orderPick = new OrderPick();
+        orderPick.setId(id);
+        orderPick.setIsPrinted(true);
+        orderPickService.updateByPrimaryKeySelective(orderPick);
+        redisTemplate.opsForHash().put(RedisKey.HASH_ORDER_PICK_WAVE_PRINTED,id.toString(),1);
+        return BaseResponse.success();
+    }
+
+
 }
