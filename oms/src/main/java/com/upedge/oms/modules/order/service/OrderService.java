@@ -32,6 +32,8 @@ import java.util.Set;
  */
 public interface OrderService{
 
+    int updateShipState(Long id,Integer shipState);
+
     int updateOrderPickState( List<Long> orderIds, Integer state,Long pickId);
 
     void updatePickType(Long id, Integer pickType);

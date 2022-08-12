@@ -1288,6 +1288,11 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
+    public int updateShipState(Long id, Integer shipState) {
+        return orderDao.updateShipState(id, shipState);
+    }
+
+    @Override
     public int updateOrderPickState(List<Long> orderIds, Integer state,Long pickId) {
 
         if(ListUtils.isNotEmpty(orderIds)){

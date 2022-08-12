@@ -1259,4 +1259,14 @@
             where id = #{item.id}
         </foreach>
     </update>
+
+    <select id="selectByOrderIds" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from order_item
+        where order_id in
+        <foreach collection="orderIds" item="orderId" open="(" separator="," close=")">
+            #{orderId}
+        </foreach>
+    </select>
 </mapper>

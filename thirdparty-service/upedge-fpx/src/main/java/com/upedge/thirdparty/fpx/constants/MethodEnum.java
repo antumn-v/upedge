@@ -45,7 +45,9 @@ public enum MethodEnum {
      * 单个包裹打印面单
      */
     single_package_label("ds.xms.label.get"),
-
+    /**
+     * 多个包裹打印面单
+     */
     multi_package_label("ds.xms.label.getlist")
     ;
 

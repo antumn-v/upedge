@@ -22,6 +22,8 @@ import java.util.Map;
  */
 public interface OrderItemDao {
 
+    List<OrderItem> selectByOrderIds(@Param("orderIds") List<Long> orderIds);
+
     int batchUpdatePickedQuantity(@Param("orderItems") List<OrderItem> orderItems);
 
     void initDischargeQuantityByPaymentId(Long paymentId);

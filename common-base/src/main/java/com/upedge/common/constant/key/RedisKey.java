@@ -145,4 +145,6 @@ public class RedisKey {
     public static final String STRING_VARIANT_MAX_NUMBER = "variant:max:number";
 
     public static final String STRING_VARIANT_CANCEL_PURCHASE_LIST = "variant:cancel:purchase:list";
+
+    public static final String HASH_ORDER_CREATE_PACKAGE_FAILED_REASON = "order:create:package:failed:reason";
 }

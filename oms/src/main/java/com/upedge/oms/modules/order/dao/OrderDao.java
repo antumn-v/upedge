@@ -41,6 +41,8 @@ public interface OrderDao {
 
     void updatePickType(@Param("id") Long id, @Param("pickType") Integer pickType);
 
+    int updateShipState(@Param("id") Long id, @Param("shipState") Integer shipState);
+
     void orderCancelUploadSaihe(Long id);
 
     List<Order> selectByIds(@Param("ids") List<Long> ids);

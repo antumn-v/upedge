@@ -17,7 +17,6 @@ import com.upedge.oms.modules.order.request.OrderItemQuoteRequest;
 import com.upedge.oms.modules.order.request.OrderItemUpdateQuantityRequest;
 import com.upedge.oms.modules.order.vo.AirwallexVo;
 import com.upedge.oms.modules.order.vo.ItemDischargeQuantityVo;
-import org.apache.ibatis.annotations.Param;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
@@ -26,7 +25,9 @@ import java.util.List;
 /**
  * @author author
  */
-public interface OrderItemService{
+public interface OrderItemService {
+
+    List<OrderItem> selectByOrderIds(List<Long> orderIds);
 
     int batchUpdatePickedQuantity(List<OrderItem> orderItems);
 
@@ -78,13 +79,14 @@ public interface OrderItemService{
 
     /**
      * 导出
+     *
      * @param airwallexRequest
      * @return
      */
     List<AirwallexVo> airwallex(AirwallexRequest airwallexRequest);
 
 
-    int updateCustomOrderItemPrice(Long variantId,BigDecimal cnyPrice,BigDecimal usdPrice);
+    int updateCustomOrderItemPrice(Long variantId, BigDecimal cnyPrice, BigDecimal usdPrice);
 
     List<VariantPreSaleQuantity> selectVariantPreSaleQuantity(List<Long> variantIds);
 

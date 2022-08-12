@@ -3,7 +3,9 @@ package com.upedge.oms.modules.pick.controller;
 import com.upedge.common.base.BaseResponse;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.web.util.UserUtil;
+import com.upedge.oms.modules.pick.entity.OrderPick;
 import com.upedge.oms.modules.pick.request.OrderPickCreateRequest;
+import com.upedge.oms.modules.pick.request.OrderPickListRequest;
 import com.upedge.oms.modules.pick.request.OrderPickPreviewListRequest;
 import com.upedge.oms.modules.pick.request.TwicePickSubmitRequest;
 import com.upedge.oms.modules.pick.service.OrderPickService;
@@ -14,6 +16,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.List;
 
 /**
  * 订单拣货
@@ -29,6 +32,16 @@ public class OrderPickController {
 
     @Autowired
     RedisTemplate redisTemplate;
+
+    @ApiOperation("波次列表")
+    @PostMapping("/waveList")
+    public BaseResponse wareList(@RequestBody OrderPickListRequest request){
+        List<OrderPick> orderPicks = orderPickService.select(request);
+        Long count = orderPickService.count(request);
+
+        request.setTotal(count);
+        return BaseResponse.success(orderPicks,request);
+    }
 
     @ApiOperation("波次处理列表")
     @PostMapping("/previewList")

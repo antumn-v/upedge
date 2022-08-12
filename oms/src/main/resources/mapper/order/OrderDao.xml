@@ -2412,4 +2412,11 @@
             #{orderId}
         </foreach>
     </update>
+
+    <update id="updateShipState">
+        update `order`
+        set ship_state = #{shipState}
+        where id = #{id}
+        and ship_state != '1'
+    </update>
 </mapper>

@@ -79,11 +79,16 @@ public class OrderPickServiceImpl implements OrderPickService {
             return BaseResponse.failed();
         }
 
+        Integer quantity = 0;
+        Set<Long> variantIds = new HashSet<>();
+
         Map<Long,OrderItemPickInfoVo> map = new HashMap<>();
 
         for (OrderPickInfoVo orderPickInfoVo : orderPickInfoVoList) {
             List<OrderItemPickInfoVo> orderItemPickInfoVos = orderPickInfoVo.getOrderItemPickInfoVos();
             for (OrderItemPickInfoVo orderItemPickInfoVo : orderItemPickInfoVos) {
+                quantity += orderItemPickInfoVo.getQuantity();
+                variantIds.add(orderItemPickInfoVo.getVariantId());
                 if (map.containsKey(orderItemPickInfoVo.getVariantId())){
                     OrderItemPickInfoVo itemPickInfoVo = map.get(orderItemPickInfoVo.getVariantId());
                     orderItemPickInfoVo.setQuantity(orderItemPickInfoVo.getQuantity() + itemPickInfoVo.getQuantity());
@@ -97,7 +102,13 @@ public class OrderPickServiceImpl implements OrderPickService {
         map.forEach((variantId,item)-> {
             orderItemPickInfoVos.add(item);
         });
-        return BaseResponse.success(orderItemPickInfoVos);
+
+        OrderPrintVo orderPrintVo = new OrderPrintVo();
+        orderPrintVo.setOrderItemPickInfoVos(orderItemPickInfoVos);
+        orderPrintVo.setSkuQuantity(quantity);
+        orderPrintVo.setSkuType(variantIds.size());
+        orderPrintVo.setPackageCount(orderPickInfoVoList.size());
+        return BaseResponse.success(orderPrintVo);
     }
 
     @Transactional
@@ -264,7 +275,6 @@ public class OrderPickServiceImpl implements OrderPickService {
         }
         RedisUtil.unLock(redisTemplate,key);
         return BaseResponse.success();
-
     }
 
 
@@ -274,9 +284,17 @@ public class OrderPickServiceImpl implements OrderPickService {
         if (ListUtils.isEmpty(orderPickQuantityVos)){
             return 0;
         }
+        Set<Long> variantIds = new HashSet<>();
+
         List<Long> orderIds = new ArrayList<>();
         orderPickQuantityVos.forEach(orderPickQuantityVo -> {
             orderIds.add(orderPickQuantityVo.getOrderId());
+
+        });
+
+        List<OrderItem> orderItems = orderItemService.selectByOrderIds(orderIds);
+        orderItems.forEach(orderItem -> {
+            variantIds.add(orderItem.getAdminVariantId());
         });
 
         Long pickId = IdGenerate.nextId();
@@ -287,7 +305,7 @@ public class OrderPickServiceImpl implements OrderPickService {
         orderPick.setOperatorId(operatorId);
         orderPick.setCreateTime(new Date());
         orderPick.setUpdateTime(new Date());
-        orderPick.setSkuType(1);
+        orderPick.setSkuType(variantIds.size());
         orderPick.setSkuQuantity(size);
         insert(orderPick);
 
