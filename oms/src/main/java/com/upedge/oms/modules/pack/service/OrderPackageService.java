@@ -10,13 +10,13 @@ import java.util.List;
 public interface OrderPackageService {
 
 
-    OrderPackageInfoVo packageInfo(Long packageNo);
+    OrderPackageInfoVo packageInfo(Integer packageNo);
 
     BaseResponse createPackage(Long orderId);
 
-    OrderPackage selectByPrimaryKey(Long id);
+    OrderPackage selectByPrimaryKey(Integer id);
 
-    int deleteByPrimaryKey(Long id);
+    int deleteByPrimaryKey(Integer id);
 
     int updateByPrimaryKey(OrderPackage record);
 

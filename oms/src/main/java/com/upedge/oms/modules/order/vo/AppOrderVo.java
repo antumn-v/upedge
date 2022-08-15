@@ -107,6 +107,12 @@ public class AppOrderVo {
 
     private Date createTime;
 
+    private Integer pickState;
+
+    private Integer packState;
+
+    private Integer packNo;
+
     private BigDecimal vatAmount = BigDecimal.ZERO;
 
     private Long reshipCreateSource;

@@ -37,6 +37,9 @@
         <result property="shippingWarehouse" column="shipping_warehouse"/>
         <result property="trackingCode" column="tracking_code"/>
         <result property="pickType" column="pick_type"/>
+        <result property="pickState" column="pick_state"/>
+        <result property="packState" column="pack_state"/>
+        <result property="packNo" column="pack_no"/>
     </resultMap>
 
     <resultMap type="com.upedge.oms.modules.order.vo.AppOrderVo" id="AppOrderVo">
@@ -69,6 +72,9 @@
         <result property="trackingCode" column="tracking_code"/>
         <result property="pickType" column="pick_type"/>
         <result property="pickId" column="pick_id"/>
+        <result property="pickState" column="pick_state"/>
+        <result property="packState" column="pack_state"/>
+        <result property="packNo" column="pack_no"/>
         <collection ofType="com.upedge.oms.modules.order.vo.AppStoreOrderVo" property="storeOrderVos">
             <id property="storeOrderId" column="store_order_id"/>
             <result property="platOrderName" column="plat_order_name"/>
@@ -140,7 +146,7 @@
         `total_weight`,`product_amount`,`product_discharge_amount`,`fix_fee`,`fix_fee_percentage`,`service_fee`,
         `pay_method`,`pay_time`,`payment_id`,`pay_state`,`refund_state`,`ship_state`,`order_type`,quote_state,
         `to_area_id`,`cny_rate`,`create_time`,`update_time`,`saihe_order_code`,`vat_amount`,`order_status`,`manager_code`,
-        `shipping_warehouse`,`tracking_code`,pick_type
+        `shipping_warehouse`,`tracking_code`,pick_type,pick_state,pack_state,pack_no
     </sql>
 
 
@@ -499,7 +505,7 @@
         o.total_weight,o.product_amount,o.product_discharge_amount,o.fix_fee,o.pay_method,
         o.pay_time,o.payment_id,o.pay_state,o.refund_state,o.ship_state,o.order_type,o.to_area_id,
         o.vat_amount,o.create_time,o.store_id,r.plat_order_create_time,o.quote_state,o.saihe_order_code,
-        o.shipping_warehouse,o.tracking_code,o.pick_type,o.pick_id
+        o.shipping_warehouse,o.tracking_code,o.pick_type,o.pick_id,o.pick_state,o.pack_state,o.pack_no
         from `order` o
         left join store_order_relate r
         on o.id = r.order_id
@@ -2408,7 +2414,7 @@
 
     <update id="updateOrderPickState">
         update `order`
-            set ship_state = #{state},
+            set pick_state = #{state},
         pick_id = #{pickId}
         where ship_state != '1'
         and id in
@@ -2422,5 +2428,12 @@
         set ship_state = #{shipState}
         where id = #{id}
         and ship_state != '1'
+    </update>
+
+    <update id="updateOrderPackInfo">
+        update `order`
+            set pack_state = #{packageState},
+                pack_no = #{packNo}
+        where id = #{id}
     </update>
 </mapper>

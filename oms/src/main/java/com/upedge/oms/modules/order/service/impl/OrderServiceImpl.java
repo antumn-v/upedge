@@ -1288,6 +1288,11 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
+    public int updateOrderPackInfo(Long id, Integer packageState, Integer packNo) {
+        return orderDao.updateOrderPackInfo(id, packageState, packNo);
+    }
+
+    @Override
     public int updateShipState(Long id, Integer shipState) {
         return orderDao.updateShipState(id, shipState);
     }

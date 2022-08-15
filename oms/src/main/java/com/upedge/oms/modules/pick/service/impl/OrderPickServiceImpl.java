@@ -312,7 +312,7 @@ public class OrderPickServiceImpl implements OrderPickService {
         orderPick.setSkuQuantity(size);
         insert(orderPick);
 
-        orderService.updateOrderPickState(orderIds,2,pickId);
+        orderService.updateOrderPickState(orderIds,1,pickId);
 
         while (orderPickQuantityVos.size() == size){
             int i = multiSkuCreateWave(shipMethodIds,size,operatorId);
@@ -346,7 +346,7 @@ public class OrderPickServiceImpl implements OrderPickService {
         orderPick.setSkuQuantity(size);
         insert(orderPick);
 
-        orderService.updateOrderPickState(orderIds,3,pickId);
+        orderService.updateOrderPickState(orderIds,1,pickId);
 
         while (orderPickQuantityVos.size() == size){
             int i = oneSkuOneQtyCreateWave(shipMethodIds,size,operatorId);
@@ -390,7 +390,7 @@ public class OrderPickServiceImpl implements OrderPickService {
         orderPick.setSkuQuantity(skuQuantity);
         insert(orderPick);
 
-        orderService.updateOrderPickState(orderIds,3,pickId);
+        orderService.updateOrderPickState(orderIds,1,pickId);
 
         while (orderPickQuantityVos.size() == size){
             int i = oneSkuMultiQtyCreateWave(shipMethodIds,size,operatorId);

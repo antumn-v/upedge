@@ -132,6 +132,12 @@ public class Order{
 
 	private Integer pickType;
 
+	private Integer pickState;
+
+	private Integer packState;
+
+	private Integer packNo;
+
 	public Order() {
 	}
 

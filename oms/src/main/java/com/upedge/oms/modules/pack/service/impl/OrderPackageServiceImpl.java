@@ -54,7 +54,7 @@ public class OrderPackageServiceImpl implements OrderPackageService {
     RedisTemplate redisTemplate;
 
     @Override
-    public OrderPackageInfoVo packageInfo(Long packageNo) {
+    public OrderPackageInfoVo packageInfo(Integer packageNo) {
         OrderPackage orderPackage = selectByPrimaryKey(packageNo);
 
         if (null == packageNo){
@@ -72,9 +72,8 @@ public class OrderPackageServiceImpl implements OrderPackageService {
         Order order = orderService.selectByPrimaryKey(orderId);
 
         if (order.getPayState() != 1
-        || order.getShipState() == 1
-        || order.getShipState() == 4){
-            return BaseResponse.failed();
+        || order.getPackState() == 1){
+            return BaseResponse.failed("订单未支付或已生成包裹");
         }
 
         FpxCreateOrderSuccessVo.FpxCreateOrderDataDTO fpxCreateOrderDataDTO = null;
@@ -82,16 +81,16 @@ public class OrderPackageServiceImpl implements OrderPackageService {
         try {
             fpxCreateOrderDataDTO = createFpxPackage(order);
         } catch (Exception e) {
-            orderService.updateShipState(orderId,5);
+            orderService.updateOrderPackInfo(orderId,2,null);
             redisTemplate.opsForHash().put(RedisKey.HASH_ORDER_CREATE_PACKAGE_FAILED_REASON,orderId.toString(),e.getMessage());
             return BaseResponse.failed(e.getMessage());
         }
         ShippingMethodRedis shippingMethodRedis = (ShippingMethodRedis) redisTemplate.opsForHash().get(RedisKey.SHIPPING_METHOD,String.valueOf(order.getShipMethodId()));
 
-        Long packageNo = getPackageNo();
+        Integer packageNo = getPackageNo();
         OrderPackage orderPackage = new OrderPackage();
         orderPackage.setId(packageNo);
-        orderPackage.setPackageNo(packageNo.toString());
+        orderPackage.setPackageNo(packageNo);
         orderPackage.setOrderId(orderId);
         orderPackage.setPackageState(0);
         orderPackage.setCreateTime(new Date());
@@ -105,7 +104,7 @@ public class OrderPackageServiceImpl implements OrderPackageService {
         orderPackage.setTrackingCompany(shippingMethodRedis.getTrackingCompany());
         insert(orderPackage);
 
-        orderService.updateShipState(orderId,4);
+        orderService.updateOrderPackInfo(orderId,1,packageNo);
 
         return BaseResponse.success(orderPackage);
     }
@@ -177,7 +176,7 @@ public class OrderPackageServiceImpl implements OrderPackageService {
 
 
     @Transactional
-    public int deleteByPrimaryKey(Long id) {
+    public int deleteByPrimaryKey(Integer id) {
         OrderPackage record = new OrderPackage();
         record.setId(id);
         return orderPackageDao.deleteByPrimaryKey(record);
@@ -202,7 +201,7 @@ public class OrderPackageServiceImpl implements OrderPackageService {
     /**
      *
      */
-    public OrderPackage selectByPrimaryKey(Long id){
+    public OrderPackage selectByPrimaryKey(Integer id){
         OrderPackage record = new OrderPackage();
         record.setId(id);
         return orderPackageDao.selectByPrimaryKey(record);
@@ -239,13 +238,16 @@ public class OrderPackageServiceImpl implements OrderPackageService {
         return orderPackageDao.count(record);
     }
 
-    public Long getPackageNo(){
+    public Integer getPackageNo(){
         String key = "order:package:no";
         boolean b = RedisUtil.lock(redisTemplate,key,5L,10L);
+        if (!b){
+            return null;
+        }
         String date = DateUtils.getDate("yyyyMMdd");
-        Long no = (Long) redisTemplate.opsForHash().get(key,date);
+        Integer no = (Integer) redisTemplate.opsForHash().get(key,date);
         if (null == no){
-            no = Long.parseLong(date) + 00001;
+            no = Integer.parseInt(date + "00001");
         }else {
             no = no + 1;
         }

@@ -25,7 +25,7 @@ public class OrderPackageUpdateRequest{
     /**
      * 
      */
-    private String packageNo;
+    private Integer packageNo;
     /**
      * 
      */
@@ -75,7 +75,7 @@ public class OrderPackageUpdateRequest{
      */
     private Date receiveTime;
 
-    public OrderPackage toOrderPackage(Long id){
+    public OrderPackage toOrderPackage(Integer id){
         OrderPackage orderPackage=new OrderPackage();
         orderPackage.setId(id);
         orderPackage.setCustomerId(customerId);

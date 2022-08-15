@@ -31,6 +31,14 @@ import java.util.Set;
  * @author author
  */
 public interface OrderService{
+    /**
+     * 修改订单包裹信息
+     * @param id
+     * @param packageState
+     * @param packNo
+     * @return
+     */
+    int updateOrderPackInfo(Long id, Integer packageState,Integer packNo);
 
     int updateShipState(Long id,Integer shipState);
 
