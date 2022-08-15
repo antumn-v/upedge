@@ -314,6 +314,9 @@
                 <if test="t.pickType != null">
                     o.pick_type = #{t.pickType} and
                 </if>
+                <if test="t.stockState != null">
+                    o.stock_state = #{t.stockState} and
+                </if>
                 <if test="t.shipMethodId != null">
                     o.ship_method_id = #{t.shipMethodId} and
                 </if>

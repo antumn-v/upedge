@@ -74,6 +74,8 @@ public class AppOrderListDto {
 
     Long shipMethodId;
 
+    Integer stockState;
+
     public AppOrderListDto() {
 //        initDateRange();
         initOrderState();

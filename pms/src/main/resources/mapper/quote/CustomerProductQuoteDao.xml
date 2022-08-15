@@ -456,7 +456,7 @@
         pv.width,pv.height,pv.length,ifnull(cpq.quote_scale,'1') as `quoteScale`,
         pv.cn_name as `cnName`,
         '1' as quoteType,cpq.quote_state,store_parent_variant_id,
-        store_variant_name,store_variant_sku.pv.barcode
+        store_variant_name,store_variant_sku,pv.barcode
         from customer_product_quote cpq
         left join product_variant pv
         on cpq.variant_id = pv.id
