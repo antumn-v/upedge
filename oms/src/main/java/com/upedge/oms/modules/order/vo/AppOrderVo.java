@@ -113,6 +113,8 @@ public class AppOrderVo {
 
     private Integer packNo;
 
+    private Integer stockState;
+
     private BigDecimal vatAmount = BigDecimal.ZERO;
 
     private Long reshipCreateSource;

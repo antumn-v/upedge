@@ -22,6 +22,7 @@
         <result property="pickType" column="pickType"/>
         <result property="shipState" column="shipState"/>
         <result property="pickId" column="pickId"/>
+        <result property="packNo" column="pack_no"/>
         <collection property="orderItemPickInfoVos" ofType="com.upedge.oms.modules.pick.vo.OrderItemPickInfoVo">
             <result property="pickedQuantity" column="pickedQuantity"/>
             <result property="itemId" column="itemId"/>
@@ -350,7 +351,7 @@
         select o.id as `orderId`,o.pick_type as `pickType`,o.ship_state as `shipState`,o.pick_id as `pickId`,
             oi.id as `itemId`,oi.barcode,oi.quantity,oi.admin_variant_id as `variantId`,
             oi.admin_variant_sku as `variantSku`,oi.picked_quantity as `pickedQuantity`,oi.admin_variant_image,
-            oi.admin_variant_name as `variantName`
+            oi.admin_variant_name as `variantName`,o.pack_no
             from `order` o
         inner join order_item oi
         on o.id = oi.order_id

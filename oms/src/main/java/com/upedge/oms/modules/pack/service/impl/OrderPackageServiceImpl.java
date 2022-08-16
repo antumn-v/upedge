@@ -162,7 +162,7 @@ public class OrderPackageServiceImpl implements OrderPackageService {
         recipientInfo.setPhone("8956232659");
         recipientInfo.setPhone2("18562356856");
 
-        fpxOrderCreateDto.getLogisticsServiceInfo().setLogisticsProductCode(shippingMethodRedis.getMethodCode());
+        fpxOrderCreateDto.getLogisticsServiceInfo().setLogisticsProductCode("F3");
 
         try {
             FpxCreateOrderSuccessVo.FpxCreateOrderDataDTO fpxCreateOrderDataDTO = FpxOrderApi.createFpxOrder(fpxOrderCreateDto);

@@ -10,6 +10,7 @@ import com.upedge.oms.modules.pick.request.OrderPickListRequest;
 import com.upedge.oms.modules.pick.request.OrderPickPreviewListRequest;
 import com.upedge.oms.modules.pick.request.TwicePickSubmitRequest;
 import com.upedge.oms.modules.pick.service.OrderPickService;
+import com.upedge.oms.modules.pick.vo.OrderPickInfoVo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,6 +34,13 @@ public class OrderPickController {
 
     @Autowired
     RedisTemplate redisTemplate;
+
+    @ApiOperation("波次详情")
+    @PostMapping("/waveInfo/{waveNo}")
+    public BaseResponse waveInfo(@PathVariable Integer waveNo){
+        List<OrderPickInfoVo> orderPickInfoVos = orderPickService.wavePickInfo(waveNo);
+        return BaseResponse.success(orderPickInfoVos);
+    }
 
     @ApiOperation("波次列表")
     @PostMapping("/waveList")
@@ -58,9 +66,9 @@ public class OrderPickController {
     }
 
     @ApiOperation("二次分拣")
-    @PostMapping("/twicePickInfo/{id}")
-    public BaseResponse twicePickInfo(@PathVariable Long id){
-        return orderPickService.twicePickInfo(id);
+    @PostMapping("/twicePickInfo/{waveNo}")
+    public BaseResponse twicePickInfo(@PathVariable Integer waveNo){
+        return orderPickService.twicePickInfo(waveNo);
     }
 
     @ApiOperation("二次分拣提交")

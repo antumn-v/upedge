@@ -353,4 +353,8 @@ public class EncryptUtil {
         return stringBuffer.toString();
     }
 
+
+    public static void main(String[] args) {
+        System.out.println(getInstance().Base64Encode("C06616&0xVUQWDmoeo="));
+    }
 }

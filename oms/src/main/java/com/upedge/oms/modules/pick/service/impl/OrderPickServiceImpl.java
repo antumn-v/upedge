@@ -71,6 +71,16 @@ public class OrderPickServiceImpl implements OrderPickService {
     }
 
     @Override
+    public List<OrderPickInfoVo> wavePickInfo(Integer waveNo) {
+        OrderPick orderPick = orderPickDao.selectByWaveNo(waveNo);
+        if (null == orderPick){
+            return new ArrayList<>();
+        }
+        List<OrderPickInfoVo> orderPickInfoVos = orderPickDao.selectOrderPickInfo(orderPick.getId());
+        return orderPickInfoVos;
+    }
+
+    @Override
     public BaseResponse printPickInfo(Long pickId, Session session) {
 
         OrderPick orderPick = selectByPrimaryKey(pickId);
@@ -162,15 +172,16 @@ public class OrderPickServiceImpl implements OrderPickService {
     }
 
     @Override
-    public BaseResponse twicePickInfo(Long pickId) {
+    public BaseResponse twicePickInfo(Integer waveNo) {
 
-        OrderPick orderPick = selectByPrimaryKey(pickId);
+        OrderPick orderPick = orderPickDao.selectByWaveNo(waveNo);
         if (null == orderPick
                 || orderPick.getPickType() != 2
         || orderPick.getPickState() < OrderPick.TO_BE_PICKED
         || orderPick.getPickState() > OrderPick.TWICE_PICK){
             return BaseResponse.failed();
         }
+        Long pickId = orderPick.getId();
 
         List<OrderPickInfoVo> orderPickInfoVos = orderPickDao.selectOrderPickInfo(pickId);
 

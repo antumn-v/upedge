@@ -24,6 +24,7 @@
         <result property="payState" column="pay_state"/>
         <result property="refundState" column="refund_state"/>
         <result property="shipState" column="ship_state"/>
+        <result property="stockState" column="stock_state"/>
         <result property="quoteState" column="quote_state"/>
         <result property="orderType" column="order_type"/>
         <result property="toAreaId" column="to_area_id"/>
@@ -75,6 +76,7 @@
         <result property="pickState" column="pick_state"/>
         <result property="packState" column="pack_state"/>
         <result property="packNo" column="pack_no"/>
+        <result property="stockState" column="stock_state"/>
         <collection ofType="com.upedge.oms.modules.order.vo.AppStoreOrderVo" property="storeOrderVos">
             <id property="storeOrderId" column="store_order_id"/>
             <result property="platOrderName" column="plat_order_name"/>
@@ -146,7 +148,7 @@
         `total_weight`,`product_amount`,`product_discharge_amount`,`fix_fee`,`fix_fee_percentage`,`service_fee`,
         `pay_method`,`pay_time`,`payment_id`,`pay_state`,`refund_state`,`ship_state`,`order_type`,quote_state,
         `to_area_id`,`cny_rate`,`create_time`,`update_time`,`saihe_order_code`,`vat_amount`,`order_status`,`manager_code`,
-        `shipping_warehouse`,`tracking_code`,pick_type,pick_state,pack_state,pack_no
+        `shipping_warehouse`,`tracking_code`,pick_type,pick_state,pack_state,pack_no,`stock_state`
     </sql>
 
 
@@ -501,7 +503,7 @@
     <select id="selectAppOrderList" resultMap="AppOrderVo"
             parameterType="com.upedge.oms.modules.order.request.AppOrderListRequest">
         select o.customer_id,o.id,o.store_id,o.pay_amount,o.ship_method_id,
-        o.ship_price,o.service_fee,
+        o.ship_price,o.service_fee,o.stock_state,
         o.total_weight,o.product_amount,o.product_discharge_amount,o.fix_fee,o.pay_method,
         o.pay_time,o.payment_id,o.pay_state,o.refund_state,o.ship_state,o.order_type,o.to_area_id,
         o.vat_amount,o.create_time,o.store_id,r.plat_order_create_time,o.quote_state,o.saihe_order_code,

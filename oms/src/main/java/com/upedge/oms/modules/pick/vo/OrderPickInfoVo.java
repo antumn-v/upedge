@@ -15,6 +15,8 @@ public class OrderPickInfoVo {
 
     private Long pickId;
 
+    private Integer packNo;
+
     private Integer seq;
 
     List<OrderItemPickInfoVo> orderItemPickInfoVos;
