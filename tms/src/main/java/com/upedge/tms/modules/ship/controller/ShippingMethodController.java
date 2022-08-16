@@ -11,6 +11,7 @@ import com.upedge.common.model.ship.vo.ShipDetail;
 import com.upedge.common.model.ship.vo.ShipMethodNameVo;
 import com.upedge.common.model.ship.vo.ShippingMethodVo;
 import com.upedge.tms.modules.ship.entity.ShippingMethod;
+import com.upedge.tms.modules.ship.request.ShipCompanyMethodCodeRequest;
 import com.upedge.tms.modules.ship.request.ShippingMethodAddRequest;
 import com.upedge.tms.modules.ship.request.ShippingMethodListRequest;
 import com.upedge.tms.modules.ship.request.ShippingMethodUpdateRequest;
@@ -19,6 +20,7 @@ import com.upedge.tms.modules.ship.response.ShippingMethodInfoResponse;
 import com.upedge.tms.modules.ship.response.ShippingMethodListResponse;
 import com.upedge.tms.modules.ship.response.ShippingMethodUpdateResponse;
 import com.upedge.tms.modules.ship.service.ShippingMethodService;
+import com.upedge.tms.modules.ship.vo.ShipMethodCodeVo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.BeanUtils;
@@ -183,6 +185,13 @@ public class ShippingMethodController {
             return new BaseResponse(ResultCode.SUCCESS_CODE,shipDetail);
         }
         return BaseResponse.failed();
+    }
+
+    @ApiOperation("物流公司物流方式代码")
+    @PostMapping("/companyMethodCodes")
+    public BaseResponse shipCompanyMethodCodes(@RequestBody ShipCompanyMethodCodeRequest request){
+        List<ShipMethodCodeVo> shipMethodCodeVos = shippingMethodService.getShipCompanyMethodCode(request);
+        return BaseResponse.success(shipMethodCodeVos);
     }
 
 

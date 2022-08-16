@@ -12,12 +12,14 @@ import com.upedge.common.model.ship.vo.ShipDetail;
 import com.upedge.common.model.ship.vo.ShipMethodNameVo;
 import com.upedge.tms.modules.ship.entity.SaiheTransport;
 import com.upedge.tms.modules.ship.entity.ShippingMethod;
+import com.upedge.tms.modules.ship.request.ShipCompanyMethodCodeRequest;
 import com.upedge.tms.modules.ship.request.ShippingMethodAddRequest;
 import com.upedge.tms.modules.ship.request.ShippingMethodListRequest;
 import com.upedge.tms.modules.ship.request.ShippingMethodUpdateRequest;
 import com.upedge.tms.modules.ship.response.ShippingMethodDisableResponse;
 import com.upedge.tms.modules.ship.response.ShippingMethodEnableResponse;
 import com.upedge.tms.modules.ship.response.ShippingMethodListResponse;
+import com.upedge.tms.modules.ship.vo.ShipMethodCodeVo;
 
 import java.util.List;
 
@@ -25,6 +27,8 @@ import java.util.List;
  * @author author
  */
 public interface ShippingMethodService{
+
+    List<ShipMethodCodeVo> getShipCompanyMethodCode(ShipCompanyMethodCodeRequest request);
 
     BaseResponse addShipMethod(ShippingMethodAddRequest request) throws CustomerException;
 

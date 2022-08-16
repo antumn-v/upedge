@@ -20,6 +20,11 @@ import com.upedge.common.model.tms.ShippingTemplateVo;
 import com.upedge.common.model.tms.WarehouseVo;
 import com.upedge.common.utils.IdGenerate;
 import com.upedge.common.utils.ListUtils;
+import com.upedge.thirdparty.shipcompany.fpx.api.FpxCommonApi;
+import com.upedge.thirdparty.shipcompany.fpx.request.FpxWarehouseMethodListRequest;
+import com.upedge.thirdparty.shipcompany.fpx.vo.FpxMethodVo;
+import com.upedge.thirdparty.shipcompany.yunexpress.api.YunexpressApi;
+import com.upedge.thirdparty.shipcompany.yunexpress.vo.YunExpressShipMethodVo;
 import com.upedge.tms.modules.area.dao.AreaDao;
 import com.upedge.tms.modules.ship.dao.ShippingMethodDao;
 import com.upedge.tms.modules.ship.dao.ShippingMethodTemplateDao;
@@ -28,6 +33,7 @@ import com.upedge.tms.modules.ship.entity.SaiheTransport;
 import com.upedge.tms.modules.ship.entity.ShippingMethod;
 import com.upedge.tms.modules.ship.entity.ShippingMethodTemplate;
 import com.upedge.tms.modules.ship.entity.ShippingUnit;
+import com.upedge.tms.modules.ship.request.ShipCompanyMethodCodeRequest;
 import com.upedge.tms.modules.ship.request.ShippingMethodAddRequest;
 import com.upedge.tms.modules.ship.request.ShippingMethodListRequest;
 import com.upedge.tms.modules.ship.request.ShippingMethodUpdateRequest;
@@ -38,6 +44,7 @@ import com.upedge.tms.modules.ship.service.ShippingMethodService;
 import com.upedge.tms.modules.ship.service.ShippingMethodTemplateService;
 import com.upedge.tms.modules.ship.service.ShippingUnitService;
 import com.upedge.tms.modules.ship.vo.MethodIdTemplateNameVo;
+import com.upedge.tms.modules.ship.vo.ShipMethodCodeVo;
 import com.upedge.tms.mq.TmsProducerService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
@@ -185,6 +192,44 @@ public class ShippingMethodServiceImpl implements ShippingMethodService {
             }
         });
         return shipDetails;
+    }
+
+    @Override
+    public List<ShipMethodCodeVo> getShipCompanyMethodCode(ShipCompanyMethodCodeRequest request) {
+        String shipCompany = request.getShipCompany();
+        List<ShipMethodCodeVo> shipMethodCodeVos = new ArrayList<>();
+        switch (shipCompany){
+            case "4PX":
+                FpxWarehouseMethodListRequest fpxWarehouseMethodListRequest = new FpxWarehouseMethodListRequest();
+//                fpxWarehouseMethodListRequest.setSourcePositionCode(warehouseCode);
+                fpxWarehouseMethodListRequest.setCategoryCode("end");
+                fpxWarehouseMethodListRequest.setServiceCode("F");
+                List<FpxMethodVo> fpxMethodVos = FpxCommonApi.getFpxMethods(fpxWarehouseMethodListRequest);
+                fpxMethodVos.forEach(fpxMethodVo -> {
+                    ShipMethodCodeVo shipMethodCodeVo = new ShipMethodCodeVo();
+                    shipMethodCodeVo.setMethodCode(fpxMethodVo.getLogisticsProductCode());
+                    shipMethodCodeVo.setShipCompany(shipCompany);
+                    shipMethodCodeVo.setCName(fpxMethodVo.getLogisticsProductNameCn());
+                    shipMethodCodeVo.setEName(fpxMethodVo.getLogisticsProductNameEn());
+                    shipMethodCodeVos.add(shipMethodCodeVo);
+                });
+                break;
+            case "YnnExpress":
+                List<YunExpressShipMethodVo> yunExpressShipMethodVos = YunexpressApi.getShipMethods("CN");
+                for (YunExpressShipMethodVo yunExpressShipMethodVo : yunExpressShipMethodVos) {
+                    ShipMethodCodeVo shipMethodCodeVo = new ShipMethodCodeVo();
+                    shipMethodCodeVo.setMethodCode(yunExpressShipMethodVo.getCode());
+                    shipMethodCodeVo.setShipCompany(shipCompany);
+                    shipMethodCodeVo.setCName(yunExpressShipMethodVo.getCName());
+                    shipMethodCodeVo.setEName(yunExpressShipMethodVo.getCName());
+                    shipMethodCodeVos.add(shipMethodCodeVo);
+                }
+                break;
+            default:
+                break;
+        }
+
+        return shipMethodCodeVos;
     }
 
     @Override
