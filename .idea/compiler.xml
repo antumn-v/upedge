@@ -17,11 +17,13 @@
         <module name="common-base" />
         <module name="upedge-woocommerce" />
         <module name="upedge_ums" />
+        <module name="upedge-yunexpress" />
         <module name="upedge-1688" />
         <module name="oms" />
         <module name="upedge-fpx" />
         <module name="pms" />
         <module name="sms" />
+        <module name="upedge-shipcompany" />
         <module name="panda-trackingmore" />
         <module name="ums" />
         <module name="common-web" />
@@ -37,7 +39,9 @@
       <module name="projects" target="1.8" />
       <module name="servlet" target="1.8" />
       <module name="servlets" target="1.8" />
+      <module name="upedge-fpx" target="1.8" />
       <module name="upedge-ums" target="1.8" />
+      <module name="upedge-yunexpress" target="1.8" />
       <module name="upedge_ums" target="1.8" />
       <module name="wrapper" target="1.8" />
     </bytecodeTargetLevel>
@@ -58,11 +62,13 @@
       <module name="upedge-1688" options="-parameters" />
       <module name="upedge-fpx" options="" />
       <module name="upedge-saihe" options="-parameters" />
+      <module name="upedge-shipcompany" options="-parameters" />
       <module name="upedge-shopify" options="-parameters" />
       <module name="upedge-shoplazza" options="-parameters" />
       <module name="upedge-trackingmore" options="-parameters" />
       <module name="upedge-ums" options="" />
       <module name="upedge-woocommerce" options="-parameters" />
+      <module name="upedge-yunexpress" options="-parameters" />
       <module name="upedge_generator" options="-parameters" />
       <module name="zuul" options="-parameters" />
     </option>

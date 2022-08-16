@@ -35,11 +35,11 @@ import com.upedge.sms.modules.overseaWarehouse.request.OverseaWarehouseServiceOr
 import com.upedge.sms.modules.overseaWarehouse.service.OverseaWarehouseServiceOrderItemService;
 import com.upedge.sms.modules.overseaWarehouse.service.OverseaWarehouseServiceOrderService;
 import com.upedge.sms.modules.overseaWarehouse.vo.OverseaWarehouseServiceOrderVo;
-import com.upedge.thirdparty.fpx.api.FpxWmsApi;
-import com.upedge.thirdparty.fpx.request.CreateFpxInboundRequest;
-import com.upedge.thirdparty.fpx.request.CreateFpxInboundRequest.IconsignmentSkuDTO;
-import com.upedge.thirdparty.fpx.vo.FpxInbound;
-import com.upedge.thirdparty.fpx.vo.FpxInboundSku;
+import com.upedge.thirdparty.shipcompany.fpx.api.FpxWmsApi;
+import com.upedge.thirdparty.shipcompany.fpx.request.CreateFpxInboundRequest;
+import com.upedge.thirdparty.shipcompany.fpx.request.CreateFpxInboundRequest.IconsignmentSkuDTO;
+import com.upedge.thirdparty.shipcompany.fpx.vo.FpxInbound;
+import com.upedge.thirdparty.shipcompany.fpx.vo.FpxInboundSku;
 import io.seata.spring.annotation.GlobalTransactional;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;

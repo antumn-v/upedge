@@ -11,8 +11,8 @@ import com.upedge.sms.modules.overseaWarehouse.request.OverseaWarehouseServiceOr
 import com.upedge.sms.modules.overseaWarehouse.request.OverseaWarehouseServiceOrderItemUploadFpxRequest;
 import com.upedge.sms.modules.overseaWarehouse.service.OverseaWarehouseServiceOrderItemService;
 import com.upedge.sms.modules.overseaWarehouse.service.OverseaWarehouseSkuService;
-import com.upedge.thirdparty.fpx.api.FpxWmsApi;
-import com.upedge.thirdparty.fpx.vo.FpxSku;
+import com.upedge.thirdparty.shipcompany.fpx.api.FpxWmsApi;
+import com.upedge.thirdparty.shipcompany.fpx.vo.FpxSku;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;

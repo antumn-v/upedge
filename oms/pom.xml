@@ -72,7 +72,7 @@
 
         <dependency>
             <groupId>com.upedge</groupId>
-            <artifactId>upedge-fpx</artifactId>
+            <artifactId>upedge-shipcompany</artifactId>
             <version>1.0-SNAPSHOT</version>
             <scope>compile</scope>
         </dependency>

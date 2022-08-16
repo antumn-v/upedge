@@ -10,8 +10,8 @@ import com.upedge.sms.modules.overseaWarehouse.entity.OverseaWarehouseServiceOrd
 import com.upedge.sms.modules.overseaWarehouse.request.*;
 import com.upedge.sms.modules.overseaWarehouse.response.*;
 import com.upedge.sms.modules.overseaWarehouse.service.OverseaWarehouseServiceOrderItemService;
-import com.upedge.thirdparty.fpx.api.FpxCommonApi;
-import com.upedge.thirdparty.fpx.vo.FpxMeasureUnit;
+import com.upedge.thirdparty.shipcompany.fpx.api.FpxCommonApi;
+import com.upedge.thirdparty.shipcompany.fpx.vo.FpxMeasureUnit;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
