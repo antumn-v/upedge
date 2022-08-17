@@ -15,7 +15,7 @@ public class OrderPickInfoVo {
 
     private Long pickId;
 
-    private Integer packNo;
+    private Long packNo;
 
     private Integer seq;
 

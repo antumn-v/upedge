@@ -19,7 +19,7 @@
 
     <resultMap id="OrderPickInfoVo" type="com.upedge.oms.modules.pick.vo.OrderPickInfoVo">
         <result property="orderId" column="orderId"/>
-        <result property="pickType" column="pickType"/>
+        <result property="pickType" column="pick_type"/>
         <result property="shipState" column="shipState"/>
         <result property="pickId" column="pickId"/>
         <result property="packNo" column="pack_no"/>
@@ -351,7 +351,7 @@
         select o.id as `orderId`,o.pick_type as `pickType`,o.ship_state as `shipState`,o.pick_id as `pickId`,
             oi.id as `itemId`,oi.barcode,oi.quantity,oi.admin_variant_id as `variantId`,
             oi.admin_variant_sku as `variantSku`,oi.picked_quantity as `pickedQuantity`,oi.admin_variant_image,
-            oi.admin_variant_name as `variantName`,o.pack_no
+            oi.admin_variant_name as `variantName`,o.pack_no,o.pick_type
             from `order` o
         inner join order_item oi
         on o.id = oi.order_id

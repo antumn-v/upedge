@@ -25,7 +25,7 @@ public class OrderPackageAddRequest{
     /**
     * 
     */
-    private Integer packageNo;
+    private Long packageNo;
     /**
     * 
     */

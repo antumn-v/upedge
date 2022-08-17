@@ -281,7 +281,7 @@ public class UserServiceImpl implements UserService {
             return new UserSignInResponse(ResultCode.FAIL_CODE, "user not enabled!");
         }
         if (!user.getLoginPass().equalsIgnoreCase(
-                UserUtil.encryptPassword(request.getPassword(), request.getLoginName()))) {
+                UserUtil.encryptPassword(request.getPassword(), user.getLoginName()))) {
             return new UserSignInResponse(ResultCode.FAIL_CODE, "user or password error");
         }
         Map<String, Object> result = userSignIn(user, applicationId);

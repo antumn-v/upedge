@@ -25,6 +25,7 @@ import com.upedge.thirdparty.shipcompany.fpx.dto.FpxOrderCreateDto;
 import com.upedge.thirdparty.shipcompany.fpx.dto.FpxOrderCreateDto.ParcelListDTO;
 import com.upedge.thirdparty.shipcompany.fpx.dto.FpxOrderCreateDto.RecipientInfoDTO;
 import com.upedge.thirdparty.shipcompany.fpx.vo.FpxCreateOrderSuccessVo;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -54,7 +55,7 @@ public class OrderPackageServiceImpl implements OrderPackageService {
     RedisTemplate redisTemplate;
 
     @Override
-    public OrderPackageInfoVo packageInfo(Integer packageNo) {
+    public OrderPackageInfoVo packageInfo(Long packageNo) {
         OrderPackage orderPackage = selectByPrimaryKey(packageNo);
 
         if (null == packageNo){
@@ -76,8 +77,26 @@ public class OrderPackageServiceImpl implements OrderPackageService {
             return BaseResponse.failed("订单未支付或已生成包裹");
         }
 
-        FpxCreateOrderSuccessVo.FpxCreateOrderDataDTO fpxCreateOrderDataDTO = null;
+        ShippingMethodRedis shippingMethodRedis = (ShippingMethodRedis) redisTemplate.opsForHash().get(RedisKey.SHIPPING_METHOD,order.getShipMethodId().toString());
+        String shipCompany = shippingMethodRedis.getTrackingCompany();
+        if (StringUtils.isBlank(shipCompany) || StringUtils.isBlank(shippingMethodRedis.getMethodCode())){
+            return BaseResponse.failed("请完善运输方式公司信息");
+        }
 
+        switch (shipCompany){
+            case "4PX":
+                 return createFpxPackage(order,shippingMethodRedis);
+            case "YunExpress":
+                break;
+            default:
+                return BaseResponse.failed("物流公司未对接");
+        }
+        return BaseResponse.failed();
+    }
+
+    private BaseResponse createFpxPackage(Order order,ShippingMethodRedis shippingMethodRedis){
+        Long orderId = order.getId();
+        FpxCreateOrderSuccessVo.FpxCreateOrderDataDTO fpxCreateOrderDataDTO = null;
         try {
             fpxCreateOrderDataDTO = createFpxPackage(order);
         } catch (Exception e) {
@@ -85,9 +104,8 @@ public class OrderPackageServiceImpl implements OrderPackageService {
             redisTemplate.opsForHash().put(RedisKey.HASH_ORDER_CREATE_PACKAGE_FAILED_REASON,orderId.toString(),e.getMessage());
             return BaseResponse.failed(e.getMessage());
         }
-        ShippingMethodRedis shippingMethodRedis = (ShippingMethodRedis) redisTemplate.opsForHash().get(RedisKey.SHIPPING_METHOD,String.valueOf(order.getShipMethodId()));
 
-        Integer packageNo = getPackageNo();
+        Long packageNo = getPackageNo();
         OrderPackage orderPackage = new OrderPackage();
         orderPackage.setId(packageNo);
         orderPackage.setPackageNo(packageNo);
@@ -105,9 +123,43 @@ public class OrderPackageServiceImpl implements OrderPackageService {
         insert(orderPackage);
 
         orderService.updateOrderPackInfo(orderId,1,packageNo);
-
         return BaseResponse.success(orderPackage);
     }
+
+//    private BaseResponse createYunExpressPackage(Order order,ShippingMethodRedis shippingMethodRedis){
+//        Long orderId = order.getId();
+//        WayBillCreateDto wayBillCreateDto = new WayBillCreateDto();
+//        WayBillCreateDto.ReceiverDTO receiverDTO = new WayBillCreateDto.ReceiverDTO();
+//        List<WayBillCreateDto.ParcelsDTO> parcels = new ArrayList<>();
+//
+//        try {
+//            fpxCreateOrderDataDTO = createFpxPackage(order);
+//        } catch (Exception e) {
+//            orderService.updateOrderPackInfo(orderId,2,null);
+//            redisTemplate.opsForHash().put(RedisKey.HASH_ORDER_CREATE_PACKAGE_FAILED_REASON,orderId.toString(),e.getMessage());
+//            return BaseResponse.failed(e.getMessage());
+//        }
+//
+//        Integer packageNo = getPackageNo();
+//        OrderPackage orderPackage = new OrderPackage();
+//        orderPackage.setId(packageNo);
+//        orderPackage.setPackageNo(packageNo);
+//        orderPackage.setOrderId(orderId);
+//        orderPackage.setPackageState(0);
+//        orderPackage.setCreateTime(new Date());
+//        orderPackage.setLogisticsOrderNo(fpxCreateOrderDataDTO.getLogisticsChannelNo());
+//        orderPackage.setTrackingCode(fpxCreateOrderDataDTO.getDsConsignmentNo());
+//        orderPackage.setPlatId(fpxCreateOrderDataDTO.getLabelBarcode());
+//        orderPackage.setStoreId(order.getStoreId());
+//        orderPackage.setCustomerId(order.getCustomerId());
+//        orderPackage.setTrackingMethodName(shippingMethodRedis.getName());
+//        orderPackage.setTrackingMethodCode(shippingMethodRedis.getMethodCode());
+//        orderPackage.setTrackingCompany(shippingMethodRedis.getTrackingCompany());
+//        insert(orderPackage);
+//
+//        orderService.updateOrderPackInfo(orderId,1,packageNo);
+//        return BaseResponse.success(orderPackage);
+//    }
 
     public FpxCreateOrderSuccessVo.FpxCreateOrderDataDTO createFpxPackage(Order order) throws CustomerException {
        Long orderId = order.getId();
@@ -176,7 +228,7 @@ public class OrderPackageServiceImpl implements OrderPackageService {
 
 
     @Transactional
-    public int deleteByPrimaryKey(Integer id) {
+    public int deleteByPrimaryKey(Long id) {
         OrderPackage record = new OrderPackage();
         record.setId(id);
         return orderPackageDao.deleteByPrimaryKey(record);
@@ -201,7 +253,7 @@ public class OrderPackageServiceImpl implements OrderPackageService {
     /**
      *
      */
-    public OrderPackage selectByPrimaryKey(Integer id){
+    public OrderPackage selectByPrimaryKey(Long id){
         OrderPackage record = new OrderPackage();
         record.setId(id);
         return orderPackageDao.selectByPrimaryKey(record);
@@ -238,21 +290,24 @@ public class OrderPackageServiceImpl implements OrderPackageService {
         return orderPackageDao.count(record);
     }
 
-    public Integer getPackageNo(){
-        String key = "order:package:no";
-        boolean b = RedisUtil.lock(redisTemplate,key,5L,10L);
+    public Long getPackageNo(){
+        String lockKey = "order:package:no:lock";
+
+        boolean b = RedisUtil.lock(redisTemplate,lockKey,5L,10L);
         if (!b){
             return null;
         }
+        String key = "order:package:no";
         String date = DateUtils.getDate("yyyyMMdd");
-        Integer no = (Integer) redisTemplate.opsForHash().get(key,date);
-        if (null == no){
-            no = Integer.parseInt(date + "00001");
+        b = redisTemplate.opsForHash().hasKey(key,date);
+        Long no = null;
+        if (!b){
+            no = Long.parseLong(date + "00001");
         }else {
             no = no + 1;
         }
         redisTemplate.opsForHash().put(key,date,no);
-        RedisUtil.unLock(redisTemplate,key);
+        RedisUtil.unLock(redisTemplate,lockKey);
         return no;
     }
 

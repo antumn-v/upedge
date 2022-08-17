@@ -121,6 +121,8 @@ public class AppOrderVo {
 
     private String shippingWarehouse;
 
+    private String createPackFailedReason;
+
     private Set<AppStoreOrderVo> storeOrderVos;
 
     private OrderAddress orderAddress;

@@ -40,7 +40,7 @@ import java.util.Set;
 public interface OrderDao {
 
 
-    int updateOrderPackInfo(@Param("id") Long id, @Param("packageState") Integer packageState, @Param("packNo") Integer packNo);
+    int updateOrderPackInfo(@Param("id") Long id, @Param("packageState") Integer packageState, @Param("packNo") Long packNo);
 
     void updatePickType(@Param("id") Long id, @Param("pickType") Integer pickType);
 

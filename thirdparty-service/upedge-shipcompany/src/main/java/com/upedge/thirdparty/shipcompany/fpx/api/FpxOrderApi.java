@@ -23,7 +23,7 @@ public class FpxOrderApi {
         if (null == result){
             return null;
         }
-        FpxCreateOrderSuccessVo fpxCreateOrderSuccessVo = jsonObject.toJavaObject(FpxCreateOrderSuccessVo.class);
+        FpxCreateOrderSuccessVo fpxCreateOrderSuccessVo = JSONObject.parseObject(result,FpxCreateOrderSuccessVo.class);
         if (fpxCreateOrderSuccessVo.getResult().equals("1")){
             return fpxCreateOrderSuccessVo.getData();
         }

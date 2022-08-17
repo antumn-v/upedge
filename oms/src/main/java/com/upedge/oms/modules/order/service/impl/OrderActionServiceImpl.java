@@ -359,7 +359,7 @@ public class OrderActionServiceImpl implements OrderActionService {
         }
         List<AppOrderVo> appOrderVos = orderDao.selectAppOrderByIds(orderIds);
         Integer orderType = null;
-
+        List<Long> storeOrderIds = new ArrayList<>();
         for (AppOrderVo appOrderVo : appOrderVos) {
             if (appOrderVo.getOrderType() > 1){
                 return "request failed";
@@ -371,7 +371,6 @@ public class OrderActionServiceImpl implements OrderActionService {
             }
 
         }
-        List<Long> storeOrderIds = new ArrayList<>();
         List<StoreOrderRelate> storeOrderRelates = storeOrderRelateDao.selectByOrderIds(orderIds);
         for (StoreOrderRelate storeOrderRelate : storeOrderRelates) {
             if (storeOrderIds.contains(storeOrderRelate.getStoreOrderId())){
@@ -459,14 +458,12 @@ public class OrderActionServiceImpl implements OrderActionService {
         List<OrderActionLog> actionLogList = new ArrayList<>();
 
         for (OrderActionLog orderActionLog : actionLogs) {
-            Long logOldOrderId = orderActionLog.getOldOrderId();
+            Long id = orderActionLog.getOldOrderId();
             Long itemId = orderActionLog.getNewItemId();
             Long newOrderId = null;
 
-            Long storeOrderId = null;
-
-            if (newOrderIdMap.containsKey(logOldOrderId)) {
-                newOrderId = newOrderIdMap.get(logOldOrderId);
+            if (newOrderIdMap.containsKey(id)) {
+                newOrderId = newOrderIdMap.get(id);
                 if (orderItemMap.get(newOrderId).contains(itemId)) {
                     continue;
                 }
@@ -479,9 +476,9 @@ public class OrderActionServiceImpl implements OrderActionService {
                 newOrder.setUpdateTime(date);
                 newOrder.setCnyProductAmount(BigDecimal.ZERO);
                 orders.add(newOrder);
-                newOrderIdMap.put(logOldOrderId, newOrderId);
+                newOrderIdMap.put(id, newOrderId);
 
-                storeOrderId = orderItemDao.selectStoreOrderIdById(itemId);
+                Long storeOrderId = orderItemDao.selectStoreOrderIdById(itemId);
                 StoreOrder storeOrder = storeOrderDao.selectByPrimaryKey(storeOrderId);
                 StoreOrderRelate storeOrderRelate = new StoreOrderRelate(storeOrder);
                 storeOrderRelate.setOrderId(newOrderId);
@@ -495,13 +492,13 @@ public class OrderActionServiceImpl implements OrderActionService {
                 address.setOrderId(newOrderId);
                 orderAddresses.add(address);
 
-                orderItemMap.put(storeOrder.getId(), new ArrayList<>());
+                orderItemMap.put(newOrderId, new ArrayList<>());
             }
 
-            if (orderItemMap.get(storeOrderId).contains(itemId)) {
+            if (orderItemMap.get(newOrderId).contains(itemId)) {
                 continue;
             } else {
-                orderItemMap.get(storeOrderId).add(itemId);
+                orderItemMap.get(newOrderId).add(itemId);
 
                 OrderActionLog log = new OrderActionLog();
                 BeanUtils.copyProperties(orderActionLog, log);
@@ -526,6 +523,7 @@ public class OrderActionServiceImpl implements OrderActionService {
 
         return "success";
     }
+
 
     @Override
     public List<ShipDetail> mergeOrderShipList(List<Long> orderIds) {

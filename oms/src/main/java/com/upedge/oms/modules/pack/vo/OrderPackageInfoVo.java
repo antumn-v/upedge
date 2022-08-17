@@ -7,5 +7,7 @@ import lombok.Data;
 @Data
 public class OrderPackageInfoVo extends OrderPackage {
 
+    private Integer pickType;
+
     private AppOrderVo orderVo;
 }

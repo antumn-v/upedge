@@ -52,7 +52,7 @@ public class OrderPackageController {
     }
 
     @ApiOperation("获取包裹面单")
-    @GetMapping("/label")
+    @PostMapping("/label")
     public BaseResponse getLabel(@RequestBody OrderPackageGetLabelRequest request) {
         String labelUrl = "";
         try {

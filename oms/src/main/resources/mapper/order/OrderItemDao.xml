@@ -181,11 +181,9 @@
     </select>
 
     <select id="selectStoreOrderIdById" resultType="java.lang.Long">
-        select soi.store_order_id
-        from order_item oi
-                     inner join store_order_item soi
-                on oi.store_order_item_id = soi.id
-        where oi.id = #{id} limit 1
+        select store_order_id
+        from order_item
+        where id = #{id}
     </select>
 
     <select id="selectCountQuantityByOrderId" resultType="java.lang.Integer">

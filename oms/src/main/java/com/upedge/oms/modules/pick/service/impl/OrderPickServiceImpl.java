@@ -315,6 +315,7 @@ public class OrderPickServiceImpl implements OrderPickService {
         OrderPick orderPick = new OrderPick();
         orderPick.setPickType(2);
         orderPick.setId(pickId);
+        orderPick.setWaveNo(getWaveNo());
         orderPick.setPickState(OrderPick.TO_BE_PICKED);
         orderPick.setOperatorId(operatorId);
         orderPick.setCreateTime(new Date());
@@ -349,6 +350,7 @@ public class OrderPickServiceImpl implements OrderPickService {
         OrderPick orderPick = new OrderPick();
         orderPick.setPickType(0);
         orderPick.setId(pickId);
+        orderPick.setWaveNo(getWaveNo());
         orderPick.setOperatorId(operatorId);
         orderPick.setCreateTime(new Date());
         orderPick.setUpdateTime(new Date());
@@ -455,12 +457,13 @@ public class OrderPickServiceImpl implements OrderPickService {
 
 
     private Integer getWaveNo(){
-        String key = "order:pick:wave:no";
+        String lockKey = "order:pick:wave:no:lock";
 
-        boolean b = RedisUtil.lock(redisTemplate,key,5L,10L);
+        boolean b = RedisUtil.lock(redisTemplate,lockKey,5L,10L);
         if (!b){
             return null;
         }
+        String key = "order:pick:wave:no";
         Integer no = (Integer) redisTemplate.opsForValue().get(key);
         if(null == no){
             no = orderPickDao.selectMaxWaveNo();
@@ -471,7 +474,7 @@ public class OrderPickServiceImpl implements OrderPickService {
             no += 1;
         }
         redisTemplate.opsForValue().set(key,no);
-        RedisUtil.unLock(redisTemplate,key);
+        RedisUtil.unLock(redisTemplate,lockKey);
         return no;
     }
 

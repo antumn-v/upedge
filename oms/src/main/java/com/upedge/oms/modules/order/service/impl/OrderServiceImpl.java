@@ -1104,8 +1104,8 @@ public class OrderServiceImpl implements OrderService {
             storeVariantIds.add(item.getStoreVariantId());
         });
         //查询产品报价
-        CustomerProductQuoteSearchRequest customerProductQuoteSearchRequest = new CustomerProductQuoteSearchRequest();
-        customerProductQuoteSearchRequest.setStoreVariantIds(storeVariantIds);
+//        CustomerProductQuoteSearchRequest customerProductQuoteSearchRequest = new CustomerProductQuoteSearchRequest();
+//        customerProductQuoteSearchRequest.setStoreVariantIds(storeVariantIds);
 //        List<CustomerProductQuoteVo> customerProductQuoteVos = pmsFeignClient.searchCustomerProductQuote(customerProductQuoteSearchRequest);
 //
 //        Map<Long, CustomerProductQuoteVo> customerProductQuoteVoMap = new HashMap<>();
@@ -1288,7 +1288,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public int updateOrderPackInfo(Long id, Integer packageState, Integer packNo) {
+    public int updateOrderPackInfo(Long id, Integer packageState, Long packNo) {
         return orderDao.updateOrderPackInfo(id, packageState, packNo);
     }
 
@@ -2368,6 +2368,10 @@ public class OrderServiceImpl implements OrderService {
     public OrderListResponse manageList(AppOrderListRequest request, Session session) {
         List<AppOrderVo> appOrderVos = selectAppOrderList(request);
         appOrderVos.forEach(appOrderVo -> {
+            if (appOrderVo.getPackState() == 2){
+                String reason = (String) redisTemplate.opsForHash().get(RedisKey.HASH_ORDER_CREATE_PACKAGE_FAILED_REASON,appOrderVo.getId().toString());
+                appOrderVo.setCreatePackFailedReason(reason);
+            }
             Long pickId = appOrderVo.getPickId();
             if (null != pickId){
                 boolean b = redisTemplate.opsForHash().hasKey(RedisKey.HASH_ORDER_PICK_WAVE_PRINTED,pickId.toString());

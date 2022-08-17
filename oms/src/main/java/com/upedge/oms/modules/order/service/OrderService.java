@@ -38,7 +38,7 @@ public interface OrderService{
      * @param packNo
      * @return
      */
-    int updateOrderPackInfo(Long id, Integer packageState,Integer packNo);
+    int updateOrderPackInfo(Long id, Integer packageState,Long packNo);
 
     int updateShipState(Long id,Integer shipState);
 

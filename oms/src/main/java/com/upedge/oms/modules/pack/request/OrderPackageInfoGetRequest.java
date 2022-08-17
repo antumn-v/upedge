@@ -5,7 +5,7 @@ import lombok.Data;
 @Data
 public class OrderPackageInfoGetRequest {
 
-    private Integer packageNo;
+    private Long packageNo;
 
     private String trackingCode;
 }

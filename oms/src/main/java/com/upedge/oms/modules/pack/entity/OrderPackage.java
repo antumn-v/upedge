@@ -13,7 +13,7 @@ public class OrderPackage{
 	/**
 	 * 
 	 */
-    private Integer id;
+    private Long id;
 	/**
 	 * 
 	 */
@@ -29,7 +29,7 @@ public class OrderPackage{
 	/**
 	 * 
 	 */
-    private Integer packageNo;
+    private Long packageNo;
 	/**
 	 * 
 	 */
