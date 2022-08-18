@@ -1,14 +1,17 @@
 package com.upedge.oms.modules.pack.dao;
 
-import com.upedge.oms.modules.pack.entity.OrderPackage;
-import org.apache.ibatis.annotations.Mapper;
-import java.util.List;
 import com.upedge.common.base.Page;
+import com.upedge.oms.modules.pack.entity.OrderPackage;
+import org.apache.ibatis.annotations.Param;
+
+import java.util.List;
 
 /**
  * @author gx
  */
-public interface OrderPackageDao{
+public interface OrderPackageDao {
+
+    List<OrderPackage> selectByIds(@Param("ids") List<Long> ids);
 
     OrderPackage selectByPrimaryKey(OrderPackage record);
 

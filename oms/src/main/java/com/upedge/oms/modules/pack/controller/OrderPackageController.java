@@ -1,23 +1,21 @@
 package com.upedge.oms.modules.pack.controller;
 
 import com.upedge.common.base.BaseResponse;
-import com.upedge.common.utils.ListUtils;
+import com.upedge.common.model.user.vo.Session;
+import com.upedge.common.web.util.UserUtil;
 import com.upedge.oms.modules.pack.entity.OrderPackage;
 import com.upedge.oms.modules.pack.request.OrderPackageInfoGetRequest;
 import com.upedge.oms.modules.pack.request.OrderPackageListRequest;
 import com.upedge.oms.modules.pack.service.OrderPackageService;
 import com.upedge.oms.modules.pack.vo.OrderPackageInfoVo;
-import com.upedge.thirdparty.shipcompany.fpx.api.FpxOrderApi;
 import com.upedge.thirdparty.shipcompany.fpx.request.OrderPackageGetLabelRequest;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @Api(tags = "订单包裹")
 @RestController
@@ -26,6 +24,9 @@ public class OrderPackageController {
 
     @Autowired
     OrderPackageService orderPackageService;
+
+    @Autowired
+    RedisTemplate redisTemplate;
 
     @ApiOperation("包裹信息")
     @PostMapping("/info")
@@ -54,19 +55,8 @@ public class OrderPackageController {
     @ApiOperation("获取包裹面单")
     @PostMapping("/label")
     public BaseResponse getLabel(@RequestBody OrderPackageGetLabelRequest request) {
-        String labelUrl = "";
-        try {
-            if (StringUtils.isNotBlank(request.getPlatId())) {
-                labelUrl = FpxOrderApi.getSinglePackageLabel(request.getPlatId());
-            } else if (ListUtils.isNotEmpty(request.getPlatIds())) {
-                labelUrl = FpxOrderApi.getMultiPackageLabel(request.getPlatIds(), "F3");
-            }
-        } catch (Exception e) {
-            return BaseResponse.failed(e.getMessage());
-        }
-        Map<String,String> map = new HashMap<>();
-        map.put("labelUrl",labelUrl);
-        return BaseResponse.success(map);
+        Session session = UserUtil.getSession(redisTemplate);
+        return BaseResponse.success(request,session);
     }
 
 }

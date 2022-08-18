@@ -1,0 +1,82 @@
+package com.upedge.oms.modules.pack.controller;
+
+import java.util.Arrays;
+import java.util.Map;
+
+import com.upedge.common.constant.ResultCode;
+import org.springframework.beans.factory.annotation.Autowired;
+import com.upedge.common.component.annotation.Permission;
+import com.upedge.oms.modules.pack.entity.OrderLabelPrintLog;
+import com.upedge.oms.modules.pack.service.OrderLabelPrintLogService;
+import org.springframework.web.bind.annotation.*;
+import java.util.List;
+import com.upedge.common.constant.Constant;
+import com.upedge.oms.modules.pack.request.OrderLabelPrintLogAddRequest;
+import com.upedge.oms.modules.pack.request.OrderLabelPrintLogListRequest;
+import com.upedge.oms.modules.pack.request.OrderLabelPrintLogUpdateRequest;
+
+import com.upedge.oms.modules.pack.response.OrderLabelPrintLogAddResponse;
+import com.upedge.oms.modules.pack.response.OrderLabelPrintLogDelResponse;
+import com.upedge.oms.modules.pack.response.OrderLabelPrintLogInfoResponse;
+import com.upedge.oms.modules.pack.response.OrderLabelPrintLogListResponse;
+import com.upedge.oms.modules.pack.response.OrderLabelPrintLogUpdateResponse;
+import javax.validation.Valid;
+
+/**
+ * 
+ *
+ * @author gx
+ */
+@RestController
+@RequestMapping("/orderLabelPrintLog")
+public class OrderLabelPrintLogController {
+    @Autowired
+    private OrderLabelPrintLogService orderLabelPrintLogService;
+
+
+    @RequestMapping(value="/info/{id}", method=RequestMethod.GET)
+    @Permission(permission = "pack:orderlabelprintlog:info:id")
+    public OrderLabelPrintLogInfoResponse info(@PathVariable Long id) {
+        OrderLabelPrintLog result = orderLabelPrintLogService.selectByPrimaryKey(id);
+        OrderLabelPrintLogInfoResponse res = new OrderLabelPrintLogInfoResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS,result,id);
+        return res;
+    }
+
+    @RequestMapping(value="/list", method=RequestMethod.POST)
+    @Permission(permission = "pack:orderlabelprintlog:list")
+    public OrderLabelPrintLogListResponse list(@RequestBody @Valid OrderLabelPrintLogListRequest request) {
+        List<OrderLabelPrintLog> results = orderLabelPrintLogService.select(request);
+        Long total = orderLabelPrintLogService.count(request);
+        request.setTotal(total);
+        OrderLabelPrintLogListResponse res = new OrderLabelPrintLogListResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS,results,request);
+        return res;
+    }
+
+    @RequestMapping(value="/add", method=RequestMethod.POST)
+    @Permission(permission = "pack:orderlabelprintlog:add")
+    public OrderLabelPrintLogAddResponse add(@RequestBody @Valid OrderLabelPrintLogAddRequest request) {
+        OrderLabelPrintLog entity=request.toOrderLabelPrintLog();
+        orderLabelPrintLogService.insertSelective(entity);
+        OrderLabelPrintLogAddResponse res = new OrderLabelPrintLogAddResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS,entity,request);
+        return res;
+    }
+
+    @RequestMapping(value="/del/{id}", method=RequestMethod.POST)
+    @Permission(permission = "pack:orderlabelprintlog:del:id")
+    public OrderLabelPrintLogDelResponse del(@PathVariable Long id) {
+        orderLabelPrintLogService.deleteByPrimaryKey(id);
+        OrderLabelPrintLogDelResponse res = new OrderLabelPrintLogDelResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS);
+        return res;
+    }
+
+    @RequestMapping(value="/update/{id}", method=RequestMethod.POST)
+    @Permission(permission = "pack:orderlabelprintlog:update")
+    public OrderLabelPrintLogUpdateResponse update(@PathVariable Long id,@RequestBody @Valid OrderLabelPrintLogUpdateRequest request) {
+        OrderLabelPrintLog entity=request.toOrderLabelPrintLog(id);
+        orderLabelPrintLogService.updateByPrimaryKeySelective(entity);
+        OrderLabelPrintLogUpdateResponse res = new OrderLabelPrintLogUpdateResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS);
+        return res;
+    }
+
+
+}

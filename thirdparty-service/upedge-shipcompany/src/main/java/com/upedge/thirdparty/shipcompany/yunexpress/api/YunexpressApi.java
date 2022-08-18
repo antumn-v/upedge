@@ -1,10 +1,12 @@
 package com.upedge.thirdparty.shipcompany.yunexpress.api;
 
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.upedge.common.utils.ListUtils;
 import com.upedge.thirdparty.shipcompany.yunexpress.dto.WayBillCreateDto;
 import com.upedge.thirdparty.shipcompany.yunexpress.request.WayBillCreateRequest;
 import com.upedge.thirdparty.shipcompany.yunexpress.response.WayBillCreateResponse;
+import com.upedge.thirdparty.shipcompany.yunexpress.vo.YunExpressLabelVo;
 import com.upedge.thirdparty.shipcompany.yunexpress.vo.YunExpressShipMethodVo;
 import okhttp3.*;
 import org.springframework.http.HttpMethod;
@@ -51,6 +53,25 @@ public class YunexpressApi {
         WayBillCreateResponse wayBillCreateResponse = JSONObject.parseObject(result, WayBillCreateResponse.class);
         return wayBillCreateResponse;
 
+    }
+
+    public static String getSinglePackageLabel(String orderNo){
+        String apiUrl = REQUEST_URL + "/Label/Print";
+        JSONArray jsonArray = new JSONArray();
+        jsonArray.add(orderNo);
+        try {
+            String result = commonRequest(apiUrl, HttpMethod.POST, jsonArray.toString());
+            JSONObject jsonObject = JSONObject.parseObject(result);
+            String code = jsonObject.getString("code");
+            if (code.equals("0000")){
+                List<YunExpressLabelVo> yunExpressLabelVos = jsonObject.getJSONArray("Item").toJavaList(YunExpressLabelVo.class);
+                return yunExpressLabelVos.get(0).getUrl();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+
+        }
+        return "";
     }
 
 

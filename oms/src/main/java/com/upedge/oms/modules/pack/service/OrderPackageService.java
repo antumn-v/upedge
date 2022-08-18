@@ -2,13 +2,17 @@ package com.upedge.oms.modules.pack.service;
 
 import com.upedge.common.base.BaseResponse;
 import com.upedge.common.base.Page;
+import com.upedge.common.model.user.vo.Session;
 import com.upedge.oms.modules.pack.entity.OrderPackage;
 import com.upedge.oms.modules.pack.vo.OrderPackageInfoVo;
+import com.upedge.thirdparty.shipcompany.fpx.request.OrderPackageGetLabelRequest;
 
 import java.util.List;
 
 public interface OrderPackageService {
 
+
+    BaseResponse printPackLabel(OrderPackageGetLabelRequest request, Session session);
 
     OrderPackageInfoVo packageInfo(Long packageNo);
 

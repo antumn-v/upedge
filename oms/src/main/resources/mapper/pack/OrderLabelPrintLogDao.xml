@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.upedge.oms.modules.pack.dao.OrderLabelPrintLogDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.upedge.oms.modules.pack.entity.OrderLabelPrintLog" id="BaseResultMap">
+        <result property="id" column="id"/>
+        <result property="orderId" column="order_id"/>
+        <result property="packNo" column="pack_no"/>
+        <result property="labelUrl" column="label_url"/>
+        <result property="createTime" column="create_time"/>
+        <result property="operatorId" column="operator_id"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        `id`,`order_id`,`pack_no`,`label_url`,`create_time`,`operator_id`
+    </sql>
+
+    <select id="selectByPrimaryKey" parameterType="com.upedge.oms.modules.pack.entity.OrderLabelPrintLog" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from order_label_print_log
+        where id = #{id}
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="com.upedge.oms.modules.pack.entity.OrderLabelPrintLog">
+        delete from order_label_print_log
+        where id = #{id}
+    </delete>
+
+    <update id="updateByPrimaryKeySelective" parameterType="com.upedge.oms.modules.pack.entity.OrderLabelPrintLog">
+        update order_label_print_log
+        <set>
+            <if test="orderId != null">
+                order_id = #{orderId},
+            </if>
+            <if test="packNo != null">
+                pack_no = #{packNo},
+            </if>
+            <if test="labelUrl != null">
+                label_url = #{labelUrl},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime},
+            </if>
+            <if test="operatorId != null">
+                operator_id = #{operatorId},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <update id="updateByPrimaryKey" parameterType="com.upedge.oms.modules.pack.entity.OrderLabelPrintLog">
+        update order_label_print_log
+        <set>
+        id = #{id},
+        order_id = #{orderId},
+        pack_no = #{packNo},
+        label_url = #{labelUrl},
+        create_time = #{createTime},
+        operator_id = #{operatorId},
+        </set>
+        where id = #{id}
+    </update>
+
+    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.upedge.oms.modules.pack.entity.OrderLabelPrintLog" useGeneratedKeys="true">
+        insert into order_label_print_log
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            id,
+            order_id,
+            pack_no,
+            label_url,
+            create_time,
+            operator_id
+        </trim>
+        values (
+        #{id},
+        #{orderId},
+        #{packNo},
+        #{labelUrl},
+        #{createTime},
+        #{operatorId}
+        )
+    </insert>
+
+    <insert id="insertSelective"  keyColumn="id" keyProperty="id"  parameterType="com.upedge.oms.modules.pack.entity.OrderLabelPrintLog" useGeneratedKeys="true">
+        insert into order_label_print_log
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null" >
+              id
+            </if>
+            <if test="orderId != null" >
+              order_id
+            </if>
+            <if test="packNo != null" >
+              pack_no
+            </if>
+            <if test="labelUrl != null" >
+              label_url
+            </if>
+            <if test="createTime != null" >
+              create_time
+            </if>
+            <if test="operatorId != null" >
+              operator_id
+            </if>
+
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null" >
+                #{id}
+            </if>
+            <if test="orderId != null" >
+                #{orderId}
+            </if>
+            <if test="packNo != null" >
+                #{packNo}
+            </if>
+            <if test="labelUrl != null" >
+                #{labelUrl}
+            </if>
+            <if test="createTime != null" >
+                #{createTime}
+            </if>
+            <if test="operatorId != null" >
+                #{operatorId}
+            </if>
+
+        </trim>
+    </insert>
+
+    <insert id="insertByBatch" parameterType="java.util.List">
+        insert into order_label_print_log
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+           id,
+           order_id,
+           pack_no,
+           label_url,
+           create_time,
+           operator_id
+        </trim>
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+               #{item.id},
+               #{item.orderId},
+               #{item.packNo},
+               #{item.labelUrl},
+               #{item.createTime},
+               #{item.operatorId}
+            </trim>
+        </foreach>
+    </insert>
+
+    <sql id="Query_Condition">
+        <if test="t != null">
+            where
+            <trim prefix=" " suffix=" " suffixOverrides=" and ">
+                1 = 1 and
+                    <if test="t.id != null">
+                        id = #{t.id} and
+                    </if>
+                    <if test="t.orderId != null">
+                        order_id = #{t.orderId} and
+                    </if>
+                    <if test="t.packNo != null">
+                        pack_no = #{t.packNo} and
+                    </if>
+                    <if test="t.labelUrl != null">
+                        label_url = #{t.labelUrl} and
+                    </if>
+                    <if test="t.createTime != null">
+                        create_time = #{t.createTime} and
+                    </if>
+                    <if test="t.operatorId != null">
+                        operator_id = #{t.operatorId} and
+                    </if>
+            </trim>
+        </if>
+    </sql>
+
+    <select id="select" parameterType="com.upedge.common.base.Page" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from order_label_print_log
+        <include refid="Query_Condition"/>
+        <if test="orderBy != null">
+            order by ${orderBy}
+        </if>
+        <if test="pageNum != null and pageSize != null">
+            limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+        </if>
+    </select>
+
+    <select id="count" parameterType="com.upedge.common.base.Page" resultType="java.lang.Long">
+        select
+        count(1)
+        from order_label_print_log
+        <include refid="Query_Condition"/>
+    </select>
+
+
+</mapper>

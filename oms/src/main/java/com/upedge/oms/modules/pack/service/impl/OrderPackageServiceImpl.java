@@ -6,6 +6,7 @@ import com.upedge.common.constant.key.RedisKey;
 import com.upedge.common.exception.CustomerException;
 import com.upedge.common.model.ship.vo.ShippingMethodRedis;
 import com.upedge.common.model.user.vo.CustomerIossVo;
+import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.model.user.vo.UserVo;
 import com.upedge.common.utils.DateUtils;
 import com.upedge.common.web.util.RedisUtil;
@@ -24,6 +25,7 @@ import com.upedge.thirdparty.shipcompany.fpx.api.FpxOrderApi;
 import com.upedge.thirdparty.shipcompany.fpx.dto.FpxOrderCreateDto;
 import com.upedge.thirdparty.shipcompany.fpx.dto.FpxOrderCreateDto.ParcelListDTO;
 import com.upedge.thirdparty.shipcompany.fpx.dto.FpxOrderCreateDto.RecipientInfoDTO;
+import com.upedge.thirdparty.shipcompany.fpx.request.OrderPackageGetLabelRequest;
 import com.upedge.thirdparty.shipcompany.fpx.vo.FpxCreateOrderSuccessVo;
 import com.upedge.thirdparty.shipcompany.yunexpress.api.YunexpressApi;
 import com.upedge.thirdparty.shipcompany.yunexpress.dto.WayBillCreateDto;
@@ -38,9 +40,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 @Service
 public class OrderPackageServiceImpl implements OrderPackageService {
@@ -59,6 +59,30 @@ public class OrderPackageServiceImpl implements OrderPackageService {
 
     @Autowired
     RedisTemplate redisTemplate;
+
+    @Override
+    public BaseResponse printPackLabel(OrderPackageGetLabelRequest request, Session session) {
+        String labelUrl = "";
+        OrderPackage orderPackage = selectByPrimaryKey(request.getPackNo());
+        if (null == orderPackage){
+            return BaseResponse.failed("包裹不存在");
+        }
+        try {
+            switch (orderPackage.getTrackingCompany()){
+                case "4PX":
+                    labelUrl = FpxOrderApi.getSinglePackageLabel(orderPackage.getPlatId());
+                    break;
+                case "YunExpress":
+                    labelUrl = YunexpressApi.getSinglePackageLabel(orderPackage.getPlatId());
+                    break;
+            }
+        }catch (Exception e){
+
+        }
+        Map<String,String> map = new HashMap<>();
+        map.put("labelUrl",labelUrl);
+        return BaseResponse.success(map);
+    }
 
     @Override
     public OrderPackageInfoVo packageInfo(Long packageNo) {
