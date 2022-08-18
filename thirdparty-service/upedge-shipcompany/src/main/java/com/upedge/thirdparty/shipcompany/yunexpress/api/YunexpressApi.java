@@ -26,15 +26,15 @@ public class YunexpressApi {
 
         String result = null;
         try {
-            result = commonRequest(apiUrl, HttpMethod.POST, null);
+            result = commonRequest(apiUrl, HttpMethod.GET, null);
         } catch (Exception e) {
             e.printStackTrace();
             return new ArrayList<>();
         }
 
         JSONObject jsonObject = JSONObject.parseObject(result);
-        if (jsonObject.containsKey("items")) {
-            List<YunExpressShipMethodVo> shipMethodVos = jsonObject.getJSONArray("items").toJavaList(YunExpressShipMethodVo.class);
+        if (jsonObject.containsKey("Items")) {
+            List<YunExpressShipMethodVo> shipMethodVos = jsonObject.getJSONArray("Items").toJavaList(YunExpressShipMethodVo.class);
             return shipMethodVos;
         }
         return new ArrayList<>();

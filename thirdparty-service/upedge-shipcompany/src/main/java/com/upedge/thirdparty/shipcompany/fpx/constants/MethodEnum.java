@@ -14,6 +14,10 @@ public enum MethodEnum {
      */
     get_methods("com.basis.logistics_product.getlist"),
     /**
+     * 直发运输方式查询
+     */
+    get_xms_methods("ds.xms.logistics_product.getlist"),
+    /**
      * 库存查询
      */
     inventory_get("fu.wms.inventory.get"),

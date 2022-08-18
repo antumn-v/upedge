@@ -83,6 +83,22 @@ public class FpxCommonApi {
         return null;
     }
 
+    public static List<FpxMethodVo> getTransportMethods(Integer transportMode){
+        FpxConfig.param.setMethod(MethodEnum.get_xms_methods.getMethod());
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("transport_mode",transportMode);
+        String result = ApiHttpClientUtils.apiJsongPost(FpxConfig.param,jsonObject, AmbientEnum.FORMAT_ADDRESS);
+        if (null == result){
+            return null;
+        }
+        FpxApiResultVo resultVo = JSONObject.parseObject(result,FpxApiResultVo.class);
+        if (resultVo.getResult().equals("1")){
+            List<FpxMethodVo> fpxMethodVos = JSONArray.parseArray(JSON.toJSONString(resultVo.getData()),FpxMethodVo.class);
+            return fpxMethodVos;
+        }
+        return null;
+    }
+
     /**
      * 选择计量单位
      */

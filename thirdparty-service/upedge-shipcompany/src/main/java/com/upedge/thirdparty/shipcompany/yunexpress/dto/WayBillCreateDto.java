@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @NoArgsConstructor
@@ -24,7 +25,7 @@ public class WayBillCreateDto {
      * 包裹号
      */
     @JsonProperty("TrackingNumber")
-    private Object trackingNumber;
+    private String trackingNumber;
     @JsonProperty("TransactionNumber")
     private Object transactionNumber;
     @JsonProperty("IossCode")
@@ -43,7 +44,7 @@ public class WayBillCreateDto {
     @JsonProperty("PackageCount")
     private Integer packageCount;
     @JsonProperty("Weight")
-    private Integer weight;
+    private BigDecimal weight;
     @JsonProperty("ApplicationType")
     private Integer applicationType;
     @JsonProperty("ReturnOption")
@@ -146,15 +147,15 @@ public class WayBillCreateDto {
         @JsonProperty("SKU")
         private String sku;
         @JsonProperty("UnitPrice")
-        private Integer unitPrice;
+        private BigDecimal unitPrice;
         @JsonProperty("UnitWeight")
-        private Integer unitWeight;
+        private BigDecimal unitWeight;
         @JsonProperty("Remark")
         private String remark;
         @JsonProperty("InvoiceRemark")
         private String invoiceRemark;
         @JsonProperty("CurrencyCode")
-        private Object currencyCode;
+        private String currencyCode = "USD";
     }
 
     @NoArgsConstructor

@@ -204,7 +204,7 @@ public class ShippingMethodServiceImpl implements ShippingMethodService {
 //                fpxWarehouseMethodListRequest.setSourcePositionCode(warehouseCode);
                 fpxWarehouseMethodListRequest.setCategoryCode("end");
                 fpxWarehouseMethodListRequest.setServiceCode("F");
-                List<FpxMethodVo> fpxMethodVos = FpxCommonApi.getFpxMethods(fpxWarehouseMethodListRequest);
+                List<FpxMethodVo> fpxMethodVos = FpxCommonApi.getTransportMethods(3);
                 fpxMethodVos.forEach(fpxMethodVo -> {
                     ShipMethodCodeVo shipMethodCodeVo = new ShipMethodCodeVo();
                     shipMethodCodeVo.setMethodCode(fpxMethodVo.getLogisticsProductCode());
@@ -214,7 +214,7 @@ public class ShippingMethodServiceImpl implements ShippingMethodService {
                     shipMethodCodeVos.add(shipMethodCodeVo);
                 });
                 break;
-            case "YnnExpress":
+            case "YunExpress":
                 List<YunExpressShipMethodVo> yunExpressShipMethodVos = YunexpressApi.getShipMethods("CN");
                 for (YunExpressShipMethodVo yunExpressShipMethodVo : yunExpressShipMethodVos) {
                     ShipMethodCodeVo shipMethodCodeVo = new ShipMethodCodeVo();

@@ -25,6 +25,11 @@ import com.upedge.thirdparty.shipcompany.fpx.dto.FpxOrderCreateDto;
 import com.upedge.thirdparty.shipcompany.fpx.dto.FpxOrderCreateDto.ParcelListDTO;
 import com.upedge.thirdparty.shipcompany.fpx.dto.FpxOrderCreateDto.RecipientInfoDTO;
 import com.upedge.thirdparty.shipcompany.fpx.vo.FpxCreateOrderSuccessVo;
+import com.upedge.thirdparty.shipcompany.yunexpress.api.YunexpressApi;
+import com.upedge.thirdparty.shipcompany.yunexpress.dto.WayBillCreateDto;
+import com.upedge.thirdparty.shipcompany.yunexpress.request.WayBillCreateRequest;
+import com.upedge.thirdparty.shipcompany.yunexpress.response.WayBillCreateResponse;
+import com.upedge.thirdparty.shipcompany.yunexpress.vo.WayBillItemVo;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,6 +37,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -87,11 +93,10 @@ public class OrderPackageServiceImpl implements OrderPackageService {
             case "4PX":
                  return createFpxPackage(order,shippingMethodRedis);
             case "YunExpress":
-                break;
+                 return createYunExpressPackage(order,shippingMethodRedis);
             default:
                 return BaseResponse.failed("物流公司未对接");
         }
-        return BaseResponse.failed();
     }
 
     private BaseResponse createFpxPackage(Order order,ShippingMethodRedis shippingMethodRedis){
@@ -126,40 +131,83 @@ public class OrderPackageServiceImpl implements OrderPackageService {
         return BaseResponse.success(orderPackage);
     }
 
-//    private BaseResponse createYunExpressPackage(Order order,ShippingMethodRedis shippingMethodRedis){
-//        Long orderId = order.getId();
-//        WayBillCreateDto wayBillCreateDto = new WayBillCreateDto();
-//        WayBillCreateDto.ReceiverDTO receiverDTO = new WayBillCreateDto.ReceiverDTO();
-//        List<WayBillCreateDto.ParcelsDTO> parcels = new ArrayList<>();
-//
-//        try {
-//            fpxCreateOrderDataDTO = createFpxPackage(order);
-//        } catch (Exception e) {
-//            orderService.updateOrderPackInfo(orderId,2,null);
-//            redisTemplate.opsForHash().put(RedisKey.HASH_ORDER_CREATE_PACKAGE_FAILED_REASON,orderId.toString(),e.getMessage());
-//            return BaseResponse.failed(e.getMessage());
-//        }
-//
-//        Integer packageNo = getPackageNo();
-//        OrderPackage orderPackage = new OrderPackage();
-//        orderPackage.setId(packageNo);
-//        orderPackage.setPackageNo(packageNo);
-//        orderPackage.setOrderId(orderId);
-//        orderPackage.setPackageState(0);
-//        orderPackage.setCreateTime(new Date());
-//        orderPackage.setLogisticsOrderNo(fpxCreateOrderDataDTO.getLogisticsChannelNo());
-//        orderPackage.setTrackingCode(fpxCreateOrderDataDTO.getDsConsignmentNo());
-//        orderPackage.setPlatId(fpxCreateOrderDataDTO.getLabelBarcode());
-//        orderPackage.setStoreId(order.getStoreId());
-//        orderPackage.setCustomerId(order.getCustomerId());
-//        orderPackage.setTrackingMethodName(shippingMethodRedis.getName());
-//        orderPackage.setTrackingMethodCode(shippingMethodRedis.getMethodCode());
-//        orderPackage.setTrackingCompany(shippingMethodRedis.getTrackingCompany());
-//        insert(orderPackage);
-//
-//        orderService.updateOrderPackInfo(orderId,1,packageNo);
-//        return BaseResponse.success(orderPackage);
-//    }
+    private BaseResponse createYunExpressPackage(Order order,ShippingMethodRedis shippingMethodRedis){
+        Long orderId = order.getId();
+        WayBillCreateDto wayBillCreateDto = new WayBillCreateDto();
+        WayBillCreateDto.ReceiverDTO receiverDTO = new WayBillCreateDto.ReceiverDTO();
+        List<WayBillCreateDto.ParcelsDTO> parcels = new ArrayList<>();
+
+        List<OrderItem> orderItems = orderItemService.selectByOrderId(orderId);
+        OrderAddress orderAddress = orderService.getOrderAddress(orderId);
+
+        receiverDTO.setFirstName("测");
+        receiverDTO.setLastName("试");
+        receiverDTO.setZip(orderAddress.getZip());
+        receiverDTO.setHouseNumber(orderAddress.getAddress2());
+        receiverDTO.setStreet(orderAddress.getAddress1());
+        receiverDTO.setState(orderAddress.getProvince());
+        receiverDTO.setCountryCode(orderAddress.getCountryCode());
+        receiverDTO.setPhone("8956232659");
+        receiverDTO.setCity(orderAddress.getCity());
+
+        orderItems.forEach(orderItem -> {
+            WayBillCreateDto.ParcelsDTO parcelsDTO = new WayBillCreateDto.ParcelsDTO();
+            parcelsDTO.setEName("pet clothes");
+            parcelsDTO.setCName("宠物服装");
+            parcelsDTO.setQuantity(orderItem.getQuantity());
+            parcelsDTO.setUnitPrice(orderItem.getUsdPrice());
+            parcelsDTO.setUnitWeight(orderItem.getAdminVariantWeight().divide(new BigDecimal("1000"),2,BigDecimal.ROUND_UP));
+            parcels.add(parcelsDTO);
+        });
+
+        wayBillCreateDto.setCustomerOrderNumber(orderId.toString());
+        wayBillCreateDto.setShippingMethodCode(shippingMethodRedis.getMethodCode());
+        wayBillCreateDto.setTrackingNumber(order.getPackNo().toString());
+        wayBillCreateDto.setPackageCount(1);
+        wayBillCreateDto.setWeight(order.getTotalWeight().divide(new BigDecimal("1000"),2,BigDecimal.ROUND_UP));
+
+        wayBillCreateDto.setReceiver(receiverDTO);
+        wayBillCreateDto.setParcels(parcels);
+
+        WayBillCreateRequest wayBillCreateRequest = new WayBillCreateRequest();
+        wayBillCreateRequest.getWayBillCreateDtos().add(wayBillCreateDto);
+        WayBillItemVo wayBillItemVo = null;
+        WayBillCreateResponse wayBillCreateResponse = null;
+        try {
+            wayBillCreateResponse = YunexpressApi.createWayBill(wayBillCreateRequest);
+            wayBillItemVo = wayBillCreateResponse.getItemVos().get(0);
+
+            if (wayBillItemVo.getSuccess() != 1){
+                orderService.updateOrderPackInfo(orderId,2,null);
+                redisTemplate.opsForHash().put(RedisKey.HASH_ORDER_CREATE_PACKAGE_FAILED_REASON,orderId.toString(),wayBillItemVo.getRemark());
+                return BaseResponse.failed(wayBillCreateResponse.getMessage());
+            }
+        } catch (Exception e) {
+            orderService.updateOrderPackInfo(orderId,2,null);
+            redisTemplate.opsForHash().put(RedisKey.HASH_ORDER_CREATE_PACKAGE_FAILED_REASON,orderId.toString(),e.getMessage());
+            return BaseResponse.failed(e.getMessage());
+        }
+
+        Long packageNo = getPackageNo();
+        OrderPackage orderPackage = new OrderPackage();
+        orderPackage.setId(packageNo);
+        orderPackage.setPackageNo(packageNo);
+        orderPackage.setOrderId(orderId);
+        orderPackage.setPackageState(0);
+        orderPackage.setCreateTime(new Date());
+        orderPackage.setLogisticsOrderNo(wayBillItemVo.getWayBillNumber());
+        orderPackage.setTrackingCode(wayBillItemVo.getWayBillNumber());
+        orderPackage.setPlatId(wayBillItemVo.getWayBillNumber());
+        orderPackage.setStoreId(order.getStoreId());
+        orderPackage.setCustomerId(order.getCustomerId());
+        orderPackage.setTrackingMethodName(shippingMethodRedis.getName());
+        orderPackage.setTrackingMethodCode(shippingMethodRedis.getMethodCode());
+        orderPackage.setTrackingCompany(shippingMethodRedis.getTrackingCompany());
+        insert(orderPackage);
+
+        orderService.updateOrderPackInfo(orderId,1,packageNo);
+        return BaseResponse.success(orderPackage);
+    }
 
     public FpxCreateOrderSuccessVo.FpxCreateOrderDataDTO createFpxPackage(Order order) throws CustomerException {
        Long orderId = order.getId();
