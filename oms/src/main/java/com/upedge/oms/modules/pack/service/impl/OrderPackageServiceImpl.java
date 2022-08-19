@@ -18,7 +18,9 @@ import com.upedge.oms.modules.order.service.OrderItemService;
 import com.upedge.oms.modules.order.service.OrderService;
 import com.upedge.oms.modules.order.vo.AppOrderVo;
 import com.upedge.oms.modules.pack.dao.OrderPackageDao;
+import com.upedge.oms.modules.pack.entity.OrderLabelPrintLog;
 import com.upedge.oms.modules.pack.entity.OrderPackage;
+import com.upedge.oms.modules.pack.service.OrderLabelPrintLogService;
 import com.upedge.oms.modules.pack.service.OrderPackageService;
 import com.upedge.oms.modules.pack.vo.OrderPackageInfoVo;
 import com.upedge.thirdparty.shipcompany.fpx.api.FpxOrderApi;
@@ -58,6 +60,9 @@ public class OrderPackageServiceImpl implements OrderPackageService {
     OrderAddressService orderAddressService;
 
     @Autowired
+    OrderLabelPrintLogService orderLabelPrintLogService;
+
+    @Autowired
     RedisTemplate redisTemplate;
 
     @Override
@@ -79,6 +84,14 @@ public class OrderPackageServiceImpl implements OrderPackageService {
         }catch (Exception e){
 
         }
+
+        OrderLabelPrintLog orderLabelPrintLog = new OrderLabelPrintLog();
+        orderLabelPrintLog.setOrderId(orderPackage.getOrderId());
+        orderLabelPrintLog.setLabelUrl(labelUrl);
+        orderLabelPrintLog.setCreateTime(new Date());
+        orderLabelPrintLog.setPackNo(orderPackage.getPackageNo());
+        orderLabelPrintLog.setOperatorId(session.getId());
+        orderLabelPrintLogService.insert(orderLabelPrintLog);
         Map<String,String> map = new HashMap<>();
         map.put("labelUrl",labelUrl);
         return BaseResponse.success(map);

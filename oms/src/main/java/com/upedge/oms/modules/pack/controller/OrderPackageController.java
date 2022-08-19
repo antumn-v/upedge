@@ -56,7 +56,7 @@ public class OrderPackageController {
     @PostMapping("/label")
     public BaseResponse getLabel(@RequestBody OrderPackageGetLabelRequest request) {
         Session session = UserUtil.getSession(redisTemplate);
-        return BaseResponse.success(request,session);
+        return orderPackageService.printPackLabel(request,session);
     }
 
 }
