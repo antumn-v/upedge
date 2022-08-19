@@ -12,7 +12,7 @@ import java.util.List;
 public class WayBillCreateResponse {
 
     @JsonProperty("Item")
-    List<WayBillItemVo> itemVos;
+    private List<WayBillItemVo> itemVos;
 
 
     @JsonProperty("Code")

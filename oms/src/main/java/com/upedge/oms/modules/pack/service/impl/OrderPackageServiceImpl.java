@@ -160,6 +160,10 @@ public class OrderPackageServiceImpl implements OrderPackageService {
         WayBillCreateDto wayBillCreateDto = new WayBillCreateDto();
         WayBillCreateDto.ReceiverDTO receiverDTO = new WayBillCreateDto.ReceiverDTO();
         List<WayBillCreateDto.ParcelsDTO> parcels = new ArrayList<>();
+        List<WayBillCreateDto.OrderExtraDTO> orderExtraDTOs = new ArrayList<>();
+        List<WayBillCreateDto.ChildOrdersDTO> childOrdersDTOS = new ArrayList<>();
+
+        List<WayBillCreateDto.ChildOrdersDTO.ChildDetailsDTO> childDetailsDTOS = new ArrayList<>();
 
         List<OrderItem> orderItems = orderItemService.selectByOrderId(orderId);
         OrderAddress orderAddress = orderService.getOrderAddress(orderId);
@@ -174,24 +178,49 @@ public class OrderPackageServiceImpl implements OrderPackageService {
         receiverDTO.setPhone("8956232659");
         receiverDTO.setCity(orderAddress.getCity());
 
-        orderItems.forEach(orderItem -> {
+        for (OrderItem orderItem : orderItems) {
+            WayBillCreateDto.ChildOrdersDTO.ChildDetailsDTO childDetailsDTO = new WayBillCreateDto.ChildOrdersDTO.ChildDetailsDTO();
+            childDetailsDTO.setSku(orderItem.getAdminVariantSku());
+            childDetailsDTO.setQuantity(orderItem.getQuantity());
+            childDetailsDTOS.add(childDetailsDTO);
             WayBillCreateDto.ParcelsDTO parcelsDTO = new WayBillCreateDto.ParcelsDTO();
             parcelsDTO.setEName("pet clothes");
             parcelsDTO.setCName("宠物服装");
+            parcelsDTO.setCurrencyCode("USD");
+            parcelsDTO.setSKU(orderItem.getAdminVariantSku());
             parcelsDTO.setQuantity(orderItem.getQuantity());
             parcelsDTO.setUnitPrice(orderItem.getUsdPrice());
             parcelsDTO.setUnitWeight(orderItem.getAdminVariantWeight().divide(new BigDecimal("1000"),2,BigDecimal.ROUND_UP));
             parcels.add(parcelsDTO);
-        });
+            break;
+        }
 
+        WayBillCreateDto.ChildOrdersDTO childOrdersDTO = new WayBillCreateDto.ChildOrdersDTO();
+        childOrdersDTO.setChildDetails(childDetailsDTOS);
+        childOrdersDTO.setBoxNumber(orderId.toString());
+        childOrdersDTO.setBoxWeight(BigDecimal.ONE);
+        childOrdersDTOS.add(childOrdersDTO);
+
+        WayBillCreateDto.OrderExtraDTO orderExtraDTO = new WayBillCreateDto.OrderExtraDTO();
+        orderExtraDTO.setExtraCode("V1");
+        orderExtraDTO.setExtraName("云涂预缴");
+        orderExtraDTOs.add(orderExtraDTO);
+
+        wayBillCreateDto.setChildOrders(childOrdersDTOS);
         wayBillCreateDto.setCustomerOrderNumber(orderId.toString());
         wayBillCreateDto.setShippingMethodCode(shippingMethodRedis.getMethodCode());
-        wayBillCreateDto.setTrackingNumber(order.getPackNo().toString());
         wayBillCreateDto.setPackageCount(1);
         wayBillCreateDto.setWeight(order.getTotalWeight().divide(new BigDecimal("1000"),2,BigDecimal.ROUND_UP));
+        wayBillCreateDto.setIossCode("IOSS0690112210251452600");
+        wayBillCreateDto.setReturnOption(0);
+        wayBillCreateDto.setTariffPrepay(0);
+        wayBillCreateDto.setInsuranceOption(0);
+        wayBillCreateDto.setSourceCode("API");
+
 
         wayBillCreateDto.setReceiver(receiverDTO);
         wayBillCreateDto.setParcels(parcels);
+        wayBillCreateDto.setOrderExtra(orderExtraDTOs);
 
         WayBillCreateRequest wayBillCreateRequest = new WayBillCreateRequest();
         wayBillCreateRequest.getWayBillCreateDtos().add(wayBillCreateDto);

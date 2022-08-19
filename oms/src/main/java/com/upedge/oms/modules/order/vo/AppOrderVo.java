@@ -111,7 +111,7 @@ public class AppOrderVo {
 
     private Integer packState;
 
-    private Integer packNo;
+    private Long packNo;
 
     private Integer stockState;
 
