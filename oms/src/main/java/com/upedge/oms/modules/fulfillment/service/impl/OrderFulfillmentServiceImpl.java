@@ -21,6 +21,8 @@ import com.upedge.oms.modules.order.entity.OrderTracking;
 import com.upedge.oms.modules.order.entity.StoreOrderItem;
 import com.upedge.oms.modules.order.entity.StoreOrderRelate;
 import com.upedge.oms.modules.order.service.OrderTrackingService;
+import com.upedge.oms.modules.pack.entity.OrderPackage;
+import com.upedge.oms.modules.pack.service.OrderPackageService;
 import com.upedge.oms.modules.redis.OmsRedisService;
 import com.upedge.thirdparty.shopify.moudles.order.controller.ShopifyOrderApi;
 import com.upedge.thirdparty.shopify.moudles.order.entity.ShopifyFulfillment;
@@ -77,6 +79,9 @@ public class OrderFulfillmentServiceImpl implements OrderFulfillmentService {
 
     @Autowired
     private OrderTrackingService orderTrackingService;
+
+    @Autowired
+    OrderPackageService orderPackageService;
 
     //新增post
     private int fulfillment_post = 0;
@@ -160,6 +165,42 @@ public class OrderFulfillmentServiceImpl implements OrderFulfillmentService {
         orderTrackingDao.updateOrderTracking(orderTracking);
     }
 
+    public void orderFulfillment(Long id,Long packNo) {
+        Order order = orderDao.selectByPrimaryKey(id);
+        if (order == null){
+            return;
+        }
+        OrderPackage orderPackage = orderPackageService.selectByPrimaryKey(packNo);
+        if (null == orderPackage) {
+            //无物流信息或物流信息已回传店铺
+            return;
+        }
+
+        Long orderId = order.getId();
+        StoreVo storeVo = getStoreVo(order.getStoreId());
+        List<StoreOrderRelate> storeOrderRelates = storeOrderRelateDao.selectByOrderId(orderId);
+        try {
+            storeOrderRelates.forEach(storeOrderRelate -> {
+                List<StoreOrderItem> storeOrderItems = storeOrderItemDao.selectByStoreOrderAndOrder(orderId, storeOrderRelate.getStoreOrderId());
+                if(ListUtils.isEmpty(storeOrderItems)){
+                    return;
+                }
+                String platOrderId = storeOrderItems.get(0).getPlatOrderId();
+                Long storeOrderId = storeOrderRelate.getStoreOrderId();
+                switch (storeVo.getStoreType()) {//0=shopify，1=woocommerce，2=shoplazza
+                    case 0:
+                        shopifyOrderFulfill(storeOrderItems, orderPackage, storeVo, platOrderId, storeOrderId);
+                        break;
+                    default:
+                        break;
+                }
+            });
+        } catch (Exception e) {
+            e.printStackTrace();
+            return;
+        }
+    }
+
     //shopify订单回传物流信息
     public boolean shopifyOrderFulfill(List<StoreOrderItem> storeOrderItems, OrderTracking orderTracking, StoreVo storeVo, String platOrderId, Long storeOrderId) {
         List<String> platOrderItemIds = new ArrayList<>();
@@ -193,6 +234,42 @@ public class OrderFulfillmentServiceImpl implements OrderFulfillmentService {
 
         if (ListUtils.isNotEmpty(platOrderItemIds)) {
             return uploadShopifyOrderFulfillment(fulfillmentItems, orderTracking, storeVo, platOrderId,storeOrderId);
+        }
+        return true;
+    }
+
+    public boolean shopifyOrderFulfill(List<StoreOrderItem> storeOrderItems, OrderPackage orderPackage, StoreVo storeVo, String platOrderId, Long storeOrderId) {
+        List<String> platOrderItemIds = new ArrayList<>();
+        storeOrderItems.forEach(storeOrderItem -> {
+            platOrderItemIds.add(storeOrderItem.getPlatOrderItemId());
+        });
+        JSONObject jsonObject = ShopifyOrderApi.getOrderDetailById(platOrderId, storeVo.getStoreName(), storeVo.getApiToken());
+        if (jsonObject == null) {
+            return false;
+        }
+        ShopifyOrder shopifyOrder = jsonObject.getJSONObject("order").toJavaObject(ShopifyOrder.class);
+        Map<String,List<ShopifyLineItem>> fulfillmentItems = new HashMap<>();
+        List<ShopifyLineItem> shopifyLineItems = shopifyOrder.getLine_items();
+        for (ShopifyLineItem shopifyLineItem : shopifyLineItems) {
+            if (shopifyLineItem.getFulfillable_quantity() == 0){
+                continue;
+            }
+            String fulfillmentService = shopifyLineItem.getFulfillmentService();
+            List<ShopifyLineItem> lineItems = fulfillmentItems.get(fulfillmentService);
+            if (ListUtils.isEmpty(lineItems)){
+                lineItems = new ArrayList<>();
+            }
+            lineItems.add(shopifyLineItem);
+            fulfillmentItems.put(fulfillmentService,lineItems);
+        }
+        //更新已回传物流的订单产品的物流信息
+        List<ShopifyFulfillment> shopifyFulfillments = shopifyOrder.getFulfillments();
+        if (ListUtils.isNotEmpty(shopifyFulfillments)) {
+            shopifyUpdateFulfillment(shopifyFulfillments, platOrderItemIds, orderPackage, storeVo, platOrderId,storeOrderId);
+        }
+
+        if (ListUtils.isNotEmpty(platOrderItemIds)) {
+            return uploadShopifyOrderFulfillment(fulfillmentItems, orderPackage, storeVo, platOrderId,storeOrderId);
         }
         return true;
     }
@@ -250,6 +327,58 @@ public class OrderFulfillmentServiceImpl implements OrderFulfillmentService {
         return true;
     }
 
+    boolean uploadShopifyOrderFulfillment(Map<String,List<ShopifyLineItem>> fulfillmentItems, OrderPackage orderPackage, StoreVo storeVo, String platOrderId, Long storeOrderId) {
+        List<ShopifyLineItem> lineItems = new ArrayList<>();
+
+        //shopify订单回传物流需要添加location Id，location和订单产品的关系还需要测试
+        String storeLocationKey = RedisKey.STRING_STORE_SHOPIFY_LOCATIONS + storeVo.getId();
+        List<ShopifyLocation> locations = (List<ShopifyLocation>) redisTemplate.opsForValue().get(storeLocationKey);
+        if (ListUtils.isEmpty(locations)) {
+            locations = ShopifyShopApi.getShopifyLocations(storeVo.getStoreName(), storeVo.getApiToken());
+            redisTemplate.opsForValue().set(storeLocationKey, locations);
+        }
+
+        a:
+        for (Map.Entry<String,List<ShopifyLineItem>> fulfillmentServiceItemsEntry: fulfillmentItems.entrySet() ){
+            List<ShopifyLineItem> lineItemList = fulfillmentServiceItemsEntry.getValue();
+            if (ListUtils.isEmpty(lineItemList)){
+                continue ;
+            }
+            Map<String,Object> fulfillmentMap = new HashMap<>();
+            Map<String, Object> map = new HashMap<>();
+            map.put("tracking_number", orderPackage.getTrackingCode());
+            map.put("tracking_company", orderPackage.getTrackingCompany());
+            map.put("notify_customer", true);
+            map.put("tracking_url","https://t.17track.net/en#nums=" + orderPackage.getTrackingCode());
+            map.put("line_items", lineItemList);
+            String locationId = (String) redisTemplate.opsForHash().get(RedisKey.HASH_STORE_FULFILLMENT_SERVICE_LOCATION+storeVo.getId(),fulfillmentServiceItemsEntry.getKey());
+            if (StringUtils.isNotBlank(locationId)){
+                map.put("location_id", locationId);
+                fulfillmentMap.put("fulfillment",map);
+                ShopifyFulfillment fulfillment = ShopifyOrderApi.orderFulfillment(platOrderId, storeVo.getStoreName(), storeVo.getApiToken(), fulfillmentMap);
+                saveStoreOrderFulfillment(fulfillment,storeVo,orderPackage.getOrderId(),platOrderId,fulfillment_post,storeOrderId);
+                if (null != fulfillment && fulfillment.getStatus().equals("success")) {
+                    continue a;
+                }
+            }
+
+            for (ShopifyLocation location : locations) {
+                map.put("location_id", location.getId());
+                fulfillmentMap.put("fulfillment",map);
+                ShopifyFulfillment fulfillment = ShopifyOrderApi.orderFulfillment(platOrderId, storeVo.getStoreName(), storeVo.getApiToken(), fulfillmentMap);
+                saveStoreOrderFulfillment(fulfillment,storeVo,orderPackage.getOrderId(),platOrderId,fulfillment_post,storeOrderId);
+                if (null != fulfillment && fulfillment.getStatus().equals("success")) {
+                    redisTemplate.opsForHash().put(RedisKey.HASH_STORE_FULFILLMENT_SERVICE_LOCATION+storeVo.getId(),fulfillmentServiceItemsEntry.getKey(),location.getId());
+                    continue a;
+                }
+            }
+
+        }
+
+
+        return true;
+    }
+
     //更新shopify订单物流信息
     void shopifyUpdateFulfillment(List<ShopifyFulfillment> shopifyFulfillments, List<String> platOrderItemIds, OrderTracking orderTracking, StoreVo storeVo, String platOrderId, Long storeOrderId) {
         shopifyFulfillments.forEach(shopifyFulfillment -> {
@@ -271,6 +400,31 @@ public class OrderFulfillmentServiceImpl implements OrderFulfillmentService {
                 fulfillment.put("fulfillment", map);
                 ShopifyFulfillment updateShopFulfillment = ShopifyOrderApi.orderFulfillmentUpdate(fulfillment, storeVo.getApiToken(), storeVo.getStoreName(), platOrderId, shopifyFulfillment.getId());
                 saveStoreOrderFulfillment(updateShopFulfillment,storeVo,orderTracking,platOrderId,fulfillment_post,storeOrderId);
+
+            }
+        });
+    }
+
+    void shopifyUpdateFulfillment(List<ShopifyFulfillment> shopifyFulfillments, List<String> platOrderItemIds, OrderPackage orderPackage, StoreVo storeVo, String platOrderId, Long storeOrderId) {
+        shopifyFulfillments.forEach(shopifyFulfillment -> {
+            List<String> fulfillmentItemIds = new ArrayList<>();
+            List<ShopifyLineItem> shopifyLineItems = shopifyFulfillment.getLine_items();
+            shopifyLineItems.forEach(shopifyLineItem -> {
+                if (platOrderItemIds.contains(shopifyLineItem.getId())) {
+                    fulfillmentItemIds.add(shopifyLineItem.getId());
+                }
+            });
+            if (ListUtils.isNotEmpty(fulfillmentItemIds)) {
+                platOrderItemIds.removeAll(fulfillmentItemIds);
+                Map<String, Object> fulfillment = new HashMap<>();
+                Map<String, Object> map = new HashMap<>();
+                map.put("tracking_number", orderPackage.getTrackingCode());
+                map.put("tracking_company", orderPackage.getTrackingCompany());
+                map.put("notify_customer", true);
+                map.put("tracking_url","https://t.17track.net/en#nums=" + orderPackage.getTrackingCode());
+                fulfillment.put("fulfillment", map);
+                ShopifyFulfillment updateShopFulfillment = ShopifyOrderApi.orderFulfillmentUpdate(fulfillment, storeVo.getApiToken(), storeVo.getStoreName(), platOrderId, shopifyFulfillment.getId());
+                saveStoreOrderFulfillment(updateShopFulfillment,storeVo,orderPackage.getOrderId(),platOrderId,fulfillment_post,storeOrderId);
 
             }
         });
@@ -372,6 +526,43 @@ public class OrderFulfillmentServiceImpl implements OrderFulfillmentService {
         storeOrderFulfillment.setCustomerId(storeVo.getCustomerId());
         storeOrderFulfillment.setOrgId(storeVo.getOrgId());
         storeOrderFulfillment.setOrderId(orderTracking.getOrderId());
+        storeOrderFulfillment.setPlatOrderId(platOrderId);
+        storeOrderFulfillment.setFulfillmentType(fulfillmentType);
+        storeOrderFulfillment.setStoreOrderId(storeOrderId);
+        if (null != object) {
+            storeOrderFulfillment.setFulfillmentResult(true);
+            switch (storeVo.getStoreType()) {
+                case 0:
+                    ShopifyFulfillment shopifyFulfillment = (ShopifyFulfillment) object;
+                    storeOrderFulfillment.setPlatFulfillmentStatus(shopifyFulfillment.getStatus());
+                    storeOrderFulfillment.setPlatFulfillmentId(shopifyFulfillment.getId());
+                    break;
+                case 1:
+                    WoocommerceOrderNote woocommerceOrderNote = (WoocommerceOrderNote) object;
+                    storeOrderFulfillment.setPlatFulfillmentStatus("success");
+                    storeOrderFulfillment.setPlatFulfillmentId(woocommerceOrderNote.getId());
+                    break;
+                case 2:
+                    ShoplazzaFulfilliment shoplazzaFulfilliment = (ShoplazzaFulfilliment) object;
+                    storeOrderFulfillment.setPlatFulfillmentId(shoplazzaFulfilliment.getId());
+                    storeOrderFulfillment.setPlatFulfillmentStatus(shoplazzaFulfilliment.getStatus());
+                    break;
+                default:
+                    break;
+            }
+        }else {
+            storeOrderFulfillment.setFulfillmentResult(false);
+        }
+        storeOrderFulfillmentDao.insert(storeOrderFulfillment);
+    }
+
+    void saveStoreOrderFulfillment(Object object, StoreVo storeVo, Long orderId, String platOrderId, Integer fulfillmentType, Long storeOrderId) {
+        StoreOrderFulfillment storeOrderFulfillment = new StoreOrderFulfillment();
+        storeOrderFulfillment.setCreateTime(new Date());
+        storeOrderFulfillment.setStoreId(storeVo.getId());
+        storeOrderFulfillment.setCustomerId(storeVo.getCustomerId());
+        storeOrderFulfillment.setOrgId(storeVo.getOrgId());
+        storeOrderFulfillment.setOrderId(orderId);
         storeOrderFulfillment.setPlatOrderId(platOrderId);
         storeOrderFulfillment.setFulfillmentType(fulfillmentType);
         storeOrderFulfillment.setStoreOrderId(storeOrderId);

@@ -33,7 +33,7 @@ public class OrderPackageController {
     @ApiOperation("包裹信息")
     @PostMapping("/info")
     public BaseResponse packageInfo(@RequestBody OrderPackageInfoGetRequest request){
-        OrderPackageInfoVo orderPackageInfoVo = orderPackageService.packageInfo(request.getPackageNo());
+        OrderPackageInfoVo orderPackageInfoVo = orderPackageService.packageInfo(request);
         return BaseResponse.success(orderPackageInfoVo);
     }
 

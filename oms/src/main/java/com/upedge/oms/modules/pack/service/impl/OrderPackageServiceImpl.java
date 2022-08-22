@@ -21,6 +21,7 @@ import com.upedge.oms.modules.pack.dao.OrderPackageDao;
 import com.upedge.oms.modules.pack.entity.OrderLabelPrintLog;
 import com.upedge.oms.modules.pack.entity.OrderPackage;
 import com.upedge.oms.modules.pack.request.OrderPackRevokeRequest;
+import com.upedge.oms.modules.pack.request.OrderPackageInfoGetRequest;
 import com.upedge.oms.modules.pack.service.OrderLabelPrintLogService;
 import com.upedge.oms.modules.pack.service.OrderPackageService;
 import com.upedge.oms.modules.pack.vo.OrderPackageInfoVo;
@@ -65,6 +66,14 @@ public class OrderPackageServiceImpl implements OrderPackageService {
 
     @Autowired
     RedisTemplate redisTemplate;
+
+    @Override
+    public BaseResponse packageExStock(Long packNo, Session session) {
+        OrderPackage orderPackage = selectByPrimaryKey(packNo);
+
+
+        return null;
+    }
 
     @Transactional
     @Override
@@ -138,10 +147,9 @@ public class OrderPackageServiceImpl implements OrderPackageService {
     }
 
     @Override
-    public OrderPackageInfoVo packageInfo(Long packageNo) {
-        OrderPackage orderPackage = selectByPrimaryKey(packageNo,null,null);
-
-        if (null == packageNo){
+    public OrderPackageInfoVo packageInfo(OrderPackageInfoGetRequest request) {
+        OrderPackage orderPackage = selectByPrimaryKey(request.getPackNo(), request.getOrderId(), request.getTrackingCode());
+        if (null == orderPackage){
             return null;
         }
         OrderPackageInfoVo orderPackageInfoVo = new OrderPackageInfoVo();
