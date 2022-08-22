@@ -5,6 +5,7 @@ import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.web.util.UserUtil;
 import com.upedge.oms.modules.pack.entity.OrderLabelPrintLog;
 import com.upedge.oms.modules.pack.entity.OrderPackage;
+import com.upedge.oms.modules.pack.request.OrderPackRevokeRequest;
 import com.upedge.oms.modules.pack.request.OrderPackageInfoGetRequest;
 import com.upedge.oms.modules.pack.request.OrderPackageListRequest;
 import com.upedge.oms.modules.pack.service.OrderPackageService;
@@ -40,6 +41,13 @@ public class OrderPackageController {
     @PostMapping("/create/{id}")
     public BaseResponse orderCreatePackage(@PathVariable Long id) {
         return orderPackageService.createPackage(id);
+    }
+
+    @ApiOperation("撤销包裹")
+    @PostMapping("/revoke")
+    public BaseResponse revokePackage(@RequestBody OrderPackRevokeRequest request){
+        Session session = UserUtil.getSession(redisTemplate);
+        return orderPackageService.orderRevokePackage(request,session);
     }
 
     @ApiOperation("包裹列表")

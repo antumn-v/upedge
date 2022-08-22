@@ -79,4 +79,6 @@ public class OrderPackage{
 	 */
     private Date receiveTime;
 
+	private String remark;
+
 }

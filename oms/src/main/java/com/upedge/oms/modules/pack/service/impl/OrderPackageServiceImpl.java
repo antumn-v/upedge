@@ -20,6 +20,7 @@ import com.upedge.oms.modules.order.vo.AppOrderVo;
 import com.upedge.oms.modules.pack.dao.OrderPackageDao;
 import com.upedge.oms.modules.pack.entity.OrderLabelPrintLog;
 import com.upedge.oms.modules.pack.entity.OrderPackage;
+import com.upedge.oms.modules.pack.request.OrderPackRevokeRequest;
 import com.upedge.oms.modules.pack.service.OrderLabelPrintLogService;
 import com.upedge.oms.modules.pack.service.OrderPackageService;
 import com.upedge.oms.modules.pack.vo.OrderPackageInfoVo;
@@ -65,6 +66,40 @@ public class OrderPackageServiceImpl implements OrderPackageService {
     @Autowired
     RedisTemplate redisTemplate;
 
+    @Transactional
+    @Override
+    public BaseResponse orderRevokePackage(OrderPackRevokeRequest request, Session session) {
+        OrderPackage orderPackage = selectByPrimaryKey(request.getPackNo(), request.getOrderId(), request.getTrackingCode());
+        if (null == orderPackage){
+            return BaseResponse.failed();
+        }
+        String result = "";
+        switch (orderPackage.getTrackingCompany()){
+            case "4PX":
+                result = FpxOrderApi.cancelPack(orderPackage.getOrderId());
+                break;
+            case "YunExpress":
+                result = YunexpressApi.cancelYunExpressPack(orderPackage.getOrderId());
+                break;
+            default:
+                break;
+        }
+        if (!result.equals("success")){
+            return BaseResponse.failed(result);
+        }
+        String reason = request.getReason();
+        if (StringUtils.isNotBlank(reason)){
+            if (StringUtils.isNotBlank(orderPackage.getRemark())){
+                reason = orderPackage.getRemark() + "," + reason;
+            }
+        }
+
+        orderService.updateOrderPackInfo(orderPackage.getOrderId(),-1, orderPackage.getPackageNo());
+
+        orderPackageDao.revokePackageById(orderPackage.getId(),reason);
+        return BaseResponse.success();
+    }
+
     @Override
     public List<OrderLabelPrintLog> packLabelPrintLog(Long packNo) {
         return orderLabelPrintLogService.selectByPackNo(packNo);
@@ -104,7 +139,7 @@ public class OrderPackageServiceImpl implements OrderPackageService {
 
     @Override
     public OrderPackageInfoVo packageInfo(Long packageNo) {
-        OrderPackage orderPackage = selectByPrimaryKey(packageNo);
+        OrderPackage orderPackage = selectByPrimaryKey(packageNo,null,null);
 
         if (null == packageNo){
             return null;
@@ -372,10 +407,21 @@ public class OrderPackageServiceImpl implements OrderPackageService {
     /**
      *
      */
+    public OrderPackage selectByPrimaryKey(Long id,Long orderId,String trackingCode){
+        if(null != id){
+            return orderPackageDao.selectByPrimaryKey(id);
+        }
+        if (null != orderId){
+            return orderPackageDao.selectByOrderId(orderId);
+        }
+        if (null != trackingCode){
+            return orderPackageDao.selectByTrackingCode(trackingCode);
+        }
+        return null;
+    }
+
     public OrderPackage selectByPrimaryKey(Long id){
-        OrderPackage record = new OrderPackage();
-        record.setId(id);
-        return orderPackageDao.selectByPrimaryKey(record);
+        return orderPackageDao.selectByPrimaryKey(id);
     }
 
     /**

@@ -59,6 +59,28 @@ public class FpxOrderApi {
         }
     }
 
+
+    public static String cancelPack(Long orderId){
+        FpxConfig.param.setMethod(MethodEnum.order_cancel.getMethod());
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("request_no",orderId);
+        jsonObject.put("cancel_reason","");
+
+
+        String result = ApiHttpClientUtils.apiJsongPost(FpxConfig.param,jsonObject, AmbientEnum.SANDBOX_ADDRESS);
+
+        jsonObject = JSONObject.parseObject(result);
+        if (jsonObject.getInteger("result") == 1){
+            return "success";
+        }
+        List<FpxOrderErrorDTO> errorDTOS = jsonObject.getJSONArray("errors").toJavaList(FpxOrderErrorDTO.class);
+        String msg = "";
+        for (FpxOrderErrorDTO error : errorDTOS) {
+            msg = error.getErrorMsg() + " ";
+        }
+        return msg;
+    }
+
     public static String getMultiPackageLabel(List<String> fpxNo,String methodCode) {
         FpxConfig.param.setMethod(MethodEnum.multi_package_label.getMethod());
 

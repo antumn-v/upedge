@@ -11,9 +11,16 @@ import java.util.List;
  */
 public interface OrderPackageDao {
 
+
+    int revokePackageById(@Param("id") Long id, @Param("reason") String reason);
+
     List<OrderPackage> selectByIds(@Param("ids") List<Long> ids);
 
-    OrderPackage selectByPrimaryKey(OrderPackage record);
+    OrderPackage selectByPrimaryKey(Long id);
+
+    OrderPackage selectByOrderId(Long orderId);
+
+    OrderPackage selectByTrackingCode(String trackingCode);
 
     int deleteByPrimaryKey(OrderPackage record);
 

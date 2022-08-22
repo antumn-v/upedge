@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.upedge.common.utils.ListUtils;
 import com.upedge.thirdparty.shipcompany.yunexpress.dto.WayBillCreateDto;
+import com.upedge.thirdparty.shipcompany.yunexpress.dto.WayBillDeleteDto;
 import com.upedge.thirdparty.shipcompany.yunexpress.request.WayBillCreateRequest;
 import com.upedge.thirdparty.shipcompany.yunexpress.response.WayBillCreateResponse;
 import com.upedge.thirdparty.shipcompany.yunexpress.vo.WayBillItemVo;
@@ -79,6 +80,29 @@ public class YunexpressApi {
 
         }
         return "";
+    }
+
+    public static String cancelYunExpressPack(Long orderId){
+        String apiUrl = REQUEST_URL + "/WayBill/Delete";
+
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("OrderType",2);
+        jsonObject.put("OrderNumber",orderId);
+
+        try {
+            String result = commonRequest(apiUrl, HttpMethod.POST, jsonObject.toString());
+            jsonObject = JSONObject.parseObject(result);
+            WayBillDeleteDto wayBillDeleteDto = jsonObject.toJavaObject(WayBillDeleteDto.class);
+            if (wayBillDeleteDto.getCode().equals("0000")){
+                return "success";
+            }
+            WayBillDeleteDto.WayBillDeleteItemDTO item = wayBillDeleteDto.getItem();;
+            return item.getRemark();
+        } catch (Exception e) {
+            e.printStackTrace();
+
+        }
+        return null;
     }
 
 

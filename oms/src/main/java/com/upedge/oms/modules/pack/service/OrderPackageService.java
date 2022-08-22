@@ -5,6 +5,7 @@ import com.upedge.common.base.Page;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.oms.modules.pack.entity.OrderLabelPrintLog;
 import com.upedge.oms.modules.pack.entity.OrderPackage;
+import com.upedge.oms.modules.pack.request.OrderPackRevokeRequest;
 import com.upedge.oms.modules.pack.vo.OrderPackageInfoVo;
 import com.upedge.thirdparty.shipcompany.fpx.request.OrderPackageGetLabelRequest;
 
@@ -12,6 +13,8 @@ import java.util.List;
 
 public interface OrderPackageService {
 
+
+    BaseResponse orderRevokePackage(OrderPackRevokeRequest request,Session session);
 
     List<OrderLabelPrintLog> packLabelPrintLog(Long packNo);
 
@@ -21,7 +24,7 @@ public interface OrderPackageService {
 
     BaseResponse createPackage(Long orderId);
 
-    OrderPackage selectByPrimaryKey(Long id);
+    OrderPackage selectByPrimaryKey(Long id,Long orderId,String trackingCode);
 
     int deleteByPrimaryKey(Long id);
 
