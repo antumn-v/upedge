@@ -66,6 +66,11 @@ public class OrderPackageServiceImpl implements OrderPackageService {
     RedisTemplate redisTemplate;
 
     @Override
+    public List<OrderLabelPrintLog> packLabelPrintLog(Long packNo) {
+        return orderLabelPrintLogService.selectByPackNo(packNo);
+    }
+
+    @Override
     public BaseResponse printPackLabel(OrderPackageGetLabelRequest request, Session session) {
         String labelUrl = "";
         OrderPackage orderPackage = selectByPrimaryKey(request.getPackNo());

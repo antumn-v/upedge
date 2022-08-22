@@ -69,7 +69,7 @@ public class YunexpressApi {
         try {
             String result = commonRequest(apiUrl, HttpMethod.POST, jsonArray.toString());
             JSONObject jsonObject = JSONObject.parseObject(result);
-            String code = jsonObject.getString("code");
+            String code = jsonObject.getString("Code");
             if (code.equals("0000")){
                 List<YunExpressLabelVo> yunExpressLabelVos = jsonObject.getJSONArray("Item").toJavaList(YunExpressLabelVo.class);
                 return yunExpressLabelVos.get(0).getUrl();

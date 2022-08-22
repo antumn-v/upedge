@@ -307,6 +307,7 @@
           and o.refund_state = '0'
           and o.ship_state = '0'
           and o.pick_type = '0'
+          and o.pack_state = '1'
         and oi.quantity > '0'
         and o.ship_method_id in
         <foreach collection="shipMethodIds" item="methodId" open="(" close=")" separator=",">
@@ -324,6 +325,7 @@
           and o.refund_state = '0'
           and o.ship_state = '0'
           and o.pick_type = '1'
+        and o.pack_state = '1'
         and oi.quantity > '0'
         and o.ship_method_id in
         <foreach collection="shipMethodIds" item="methodId" open="(" close=")" separator=",">
@@ -340,6 +342,7 @@
           and o.refund_state = '0'
           and o.ship_state = '0'
           and o.pick_type = '2'
+        and o.pack_state = '1'
         and o.ship_method_id in
         <foreach collection="shipMethodIds" item="methodId" open="(" close=")" separator=",">
             #{methodId}

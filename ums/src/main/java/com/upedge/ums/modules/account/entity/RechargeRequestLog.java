@@ -1,7 +1,10 @@
 package com.upedge.ums.modules.account.entity;
 
+import com.alibaba.fastjson.annotation.JSONField;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.upedge.common.model.old.ums.AppRecharge;
 import lombok.Data;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import java.math.BigDecimal;
 import java.util.Date;
@@ -46,6 +49,16 @@ public class RechargeRequestLog {
     private Date createTime;
 
     private Date updateTime;
+
+
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    @JSONField(format = "yyyy-MM-dd")
+    @JsonFormat(pattern = "yyyy-MM-dd")
+    Date beginTime;
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    @JSONField(format = "yyyy-MM-dd")
+    @JsonFormat(pattern = "yyyy-MM-dd")
+    Date endTime;
 
 
     public RechargeLog toRechargeLog(){

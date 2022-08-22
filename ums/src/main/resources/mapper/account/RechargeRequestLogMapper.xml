@@ -53,10 +53,11 @@
                 <if test="t.rechargeType != null">
                     and recharge_type = #{t.rechargeType}
                 </if>
+                <if test="t.beginTime != null and t.endTime != null">
+                    and create_time between #{t.beginTime} and #{t.endTime}
+                </if>
             </if>
-            <if test="beginTime != null and endTime != null">
-                and create_time between #{beginTime} and #{endTime}
-            </if>
+
         </where>
     </sql>
 
@@ -120,10 +121,11 @@
                 <if test="t.rechargeType != null">
                     and r.recharge_type = #{t.rechargeType}
                 </if>
+                <if test="t.beginTime != null and t.endTime != null">
+                    and date(r.create_time) between #{t.beginTime} and #{t.endTime}
+                </if>
             </if>
-            <if test="beginTime != null and endTime != null">
-                and date(r.create_time) between #{beginTime} and #{endTime}
-            </if>
+
         </where>
     </sql>
     <select id="selectRechargeRequestList" resultMap="BaseResultMap" parameterType="com.upedge.common.base.Page">

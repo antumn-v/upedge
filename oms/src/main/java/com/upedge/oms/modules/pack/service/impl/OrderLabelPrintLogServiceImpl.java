@@ -45,6 +45,11 @@ public class OrderLabelPrintLogServiceImpl implements OrderLabelPrintLogService 
         return orderLabelPrintLogDao.insert(record);
     }
 
+    @Override
+    public List<OrderLabelPrintLog> selectByPackNo(Long packNo) {
+        return orderLabelPrintLogDao.selectByPackNo(packNo);
+    }
+
     /**
      *
      */

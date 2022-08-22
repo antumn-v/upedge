@@ -1,14 +1,16 @@
 package com.upedge.oms.modules.pack.dao;
 
-import com.upedge.oms.modules.pack.entity.OrderLabelPrintLog;
-import org.apache.ibatis.annotations.Mapper;
-import java.util.List;
 import com.upedge.common.base.Page;
+import com.upedge.oms.modules.pack.entity.OrderLabelPrintLog;
+
+import java.util.List;
 
 /**
  * @author gx
  */
 public interface OrderLabelPrintLogDao{
+
+    List<OrderLabelPrintLog> selectByPackNo(Long packNo);
 
     OrderLabelPrintLog selectByPrimaryKey(OrderLabelPrintLog record);
 

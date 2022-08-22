@@ -3,6 +3,7 @@ package com.upedge.oms.modules.pack.controller;
 import com.upedge.common.base.BaseResponse;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.web.util.UserUtil;
+import com.upedge.oms.modules.pack.entity.OrderLabelPrintLog;
 import com.upedge.oms.modules.pack.entity.OrderPackage;
 import com.upedge.oms.modules.pack.request.OrderPackageInfoGetRequest;
 import com.upedge.oms.modules.pack.request.OrderPackageListRequest;
@@ -58,5 +59,13 @@ public class OrderPackageController {
         Session session = UserUtil.getSession(redisTemplate);
         return orderPackageService.printPackLabel(request,session);
     }
+
+    @ApiOperation("面单打印记录")
+    @GetMapping("/labelLog/{packNo}")
+    public BaseResponse labelPrintLog(@PathVariable Long packNo){
+        List<OrderLabelPrintLog> orderLabelPrintLogs = orderPackageService.packLabelPrintLog(packNo);
+        return BaseResponse.success(orderLabelPrintLogs);
+    }
+
 
 }

@@ -200,5 +200,10 @@
         <include refid="Query_Condition"/>
     </select>
 
-
+    <select id="selectByPackNo" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from order_label_print_log
+        where pack_no = #{packNo}
+    </select>
 </mapper>

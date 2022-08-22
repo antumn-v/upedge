@@ -29,9 +29,19 @@ public interface VariantWarehouseStockService{
     BaseResponse variantWarehouseStockList(VariantWarehouseStockListRequest request);
 
     BaseResponse updateVariantStock(VariantStockUpdateRequest request, Session session);
-
+    /**
+     * 出库
+     * @param request
+     * @param session
+     * @return
+     */
     BaseResponse variantStockEx(VariantStockExImRecordUpdateRequest request, Session session);
-
+    /**
+     * 入库
+     * @param request
+     * @param session
+     * @return
+     */
     BaseResponse variantStockIm(VariantStockExImRecordUpdateRequest request, Session session);
 
     VariantWarehouseStock selectByPrimaryKey(Long variantId,String warehouseCode);

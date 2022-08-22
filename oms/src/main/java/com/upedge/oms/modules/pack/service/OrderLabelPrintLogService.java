@@ -9,6 +9,8 @@ import java.util.List;
  */
 public interface OrderLabelPrintLogService{
 
+    List<OrderLabelPrintLog> selectByPackNo(Long packNo);
+
     OrderLabelPrintLog selectByPrimaryKey(Long id);
 
     int deleteByPrimaryKey(Long id);
