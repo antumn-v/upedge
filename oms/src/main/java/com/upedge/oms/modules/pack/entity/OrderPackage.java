@@ -37,7 +37,7 @@ public class OrderPackage{
 	/**
 	 * 
 	 */
-    private Long pickId;
+    private Long waveNo;
 	/**
 	 * 真实追踪号
 	 */

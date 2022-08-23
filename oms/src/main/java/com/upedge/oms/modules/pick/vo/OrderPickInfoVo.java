@@ -13,7 +13,7 @@ public class OrderPickInfoVo {
 
     private Integer shipState;
 
-    private Long pickId;
+    private Long waveNo;
 
     private Long packNo;
 

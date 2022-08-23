@@ -33,7 +33,7 @@ public class OrderPackageAddRequest{
     /**
     * 
     */
-    private Long pickId;
+    private Long waveNo;
     /**
     * 真实追踪号
     */
@@ -82,7 +82,7 @@ public class OrderPackageAddRequest{
         orderPackage.setOrgPath(orgPath);
         orderPackage.setPackageNo(packageNo);
         orderPackage.setOrderId(orderId);
-        orderPackage.setPickId(pickId);
+        orderPackage.setWaveNo(waveNo);
         orderPackage.setTrackingCode(trackingCode);
         orderPackage.setLogisticsOrderNo(logisticsOrderNo);
         orderPackage.setTrackingCompany(trackingCompany);

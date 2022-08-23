@@ -11,7 +11,7 @@
         <result property="orgPath" column="org_path"/>
         <result property="packageNo" column="package_no"/>
         <result property="orderId" column="order_id"/>
-        <result property="pickId" column="pick_id"/>
+        <result property="waveNo" column="wave_no"/>
         <result property="trackingCode" column="tracking_code"/>
         <result property="logisticsOrderNo" column="logistics_order_no"/>
         <result property="trackingCompany" column="tracking_company"/>
@@ -25,7 +25,7 @@
     </resultMap>
 
     <sql id="Base_Column_List">
-        `id`,`customer_id`,`store_id`,`org_path`,`package_no`,`order_id`,`pick_id`,`tracking_code`,`logistics_order_no`,`tracking_company`,`tracking_method_name`,`tracking_method_code`,`plat_id`,`package_state`,`create_time`,`send_time`,`receive_time`
+        `id`,`customer_id`,`store_id`,`org_path`,`package_no`,`order_id`,`wave_no`,`tracking_code`,`logistics_order_no`,`tracking_company`,`tracking_method_name`,`tracking_method_code`,`plat_id`,`package_state`,`create_time`,`send_time`,`receive_time`
     </sql>
 
     <select id="selectByPrimaryKey" parameterType="com.upedge.oms.modules.pack.entity.OrderPackage" resultMap="BaseResultMap">
@@ -58,8 +58,8 @@
             <if test="orderId != null">
                 order_id = #{orderId},
             </if>
-            <if test="pickId != null">
-                pick_id = #{pickId},
+            <if test="waveNo != null">
+                wave_no = #{waveNo},
             </if>
             <if test="trackingCode != null">
                 tracking_code = #{trackingCode},
@@ -104,7 +104,7 @@
         org_path = #{orgPath},
         package_no = #{packageNo},
         order_id = #{orderId},
-        pick_id = #{pickId},
+        wave_no = #{waveNo},
         tracking_code = #{trackingCode},
         logistics_order_no = #{logisticsOrderNo},
         tracking_company = #{trackingCompany},
@@ -128,7 +128,7 @@
             org_path,
             package_no,
             order_id,
-            pick_id,
+            wave_no,
             tracking_code,
             logistics_order_no,
             tracking_company,
@@ -147,7 +147,7 @@
         #{orgPath},
         #{packageNo},
         #{orderId},
-        #{pickId},
+        #{waveNo},
         #{trackingCode},
         #{logisticsOrderNo},
         #{trackingCompany},
@@ -182,8 +182,8 @@
             <if test="orderId != null" >
               order_id
             </if>
-            <if test="pickId != null" >
-              pick_id
+            <if test="waveNo != null" >
+              wave_no
             </if>
             <if test="trackingCode != null" >
               tracking_code
@@ -236,8 +236,8 @@
             <if test="orderId != null" >
                 #{orderId}
             </if>
-            <if test="pickId != null" >
-                #{pickId}
+            <if test="waveNo != null" >
+                #{waveNo}
             </if>
             <if test="trackingCode != null" >
                 #{trackingCode}
@@ -282,7 +282,7 @@
            org_path,
            package_no,
            order_id,
-           pick_id,
+           wave_no,
            tracking_code,
            logistics_order_no,
            tracking_company,
@@ -303,7 +303,7 @@
                #{item.orgPath},
                #{item.packageNo},
                #{item.orderId},
-               #{item.pickId},
+               #{item.waveNo},
                #{item.trackingCode},
                #{item.logisticsOrderNo},
                #{item.trackingCompany},
@@ -341,8 +341,8 @@
                     <if test="t.orderId != null">
                         order_id = #{t.orderId} and
                     </if>
-                    <if test="t.pickId != null">
-                        pick_id = #{t.pickId} and
+                    <if test="t.waveNo != null">
+                        wave_no = #{t.waveNo} and
                     </if>
                     <if test="t.trackingCode != null">
                         tracking_code = #{t.trackingCode} and

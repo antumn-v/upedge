@@ -136,7 +136,7 @@ public class Order{
 
 	private Integer packState;
 
-	private Integer packNo;
+	private Long packNo;
 
 	public Order() {
 	}

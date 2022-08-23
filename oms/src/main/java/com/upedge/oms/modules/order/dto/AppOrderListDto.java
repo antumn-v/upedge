@@ -76,6 +76,8 @@ public class AppOrderListDto {
 
     Integer stockState;
 
+    Integer waveNo;
+
     public AppOrderListDto() {
 //        initDateRange();
         initOrderState();

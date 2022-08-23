@@ -8,9 +8,12 @@ import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.utils.IdGenerate;
 import com.upedge.common.utils.ListUtils;
 import com.upedge.common.web.util.RedisUtil;
+import com.upedge.oms.modules.order.dto.AppOrderListDto;
 import com.upedge.oms.modules.order.entity.OrderItem;
+import com.upedge.oms.modules.order.request.AppOrderListRequest;
 import com.upedge.oms.modules.order.service.OrderItemService;
 import com.upedge.oms.modules.order.service.OrderService;
+import com.upedge.oms.modules.order.vo.AppOrderVo;
 import com.upedge.oms.modules.pick.dao.OrderPickDao;
 import com.upedge.oms.modules.pick.entity.OrderPick;
 import com.upedge.oms.modules.pick.request.OrderPickCreateRequest;
@@ -71,21 +74,31 @@ public class OrderPickServiceImpl implements OrderPickService {
     }
 
     @Override
-    public List<OrderPickInfoVo> wavePickInfo(Integer waveNo) {
+    public OrderPickWaveInfoVo wavePickInfo(Integer waveNo) {
         OrderPick orderPick = orderPickDao.selectByWaveNo(waveNo);
         if (null == orderPick){
-            return new ArrayList<>();
+            return null;
         }
-        List<OrderPickInfoVo> orderPickInfoVos = orderPickDao.selectOrderPickInfo(orderPick.getId());
-        return orderPickInfoVos;
+        OrderPickWaveInfoVo orderPickWaveInfoVo = new OrderPickWaveInfoVo();
+        BeanUtils.copyProperties(orderPick,orderPickWaveInfoVo);
+
+        AppOrderListRequest request = new AppOrderListRequest();
+        AppOrderListDto appOrderListDto = new AppOrderListDto();
+        appOrderListDto.setWaveNo(waveNo);
+        request.setT(appOrderListDto);
+        request.setPageSize(-1);
+
+        List<AppOrderVo> appOrderVos = orderService.selectAppOrderList(request);
+        orderPickWaveInfoVo.setOrderVos(appOrderVos);
+        return orderPickWaveInfoVo;
     }
 
     @Override
-    public BaseResponse printPickInfo(Long pickId, Session session) {
+    public BaseResponse printPickInfo(Integer waveNo, Session session) {
 
-        OrderPick orderPick = selectByPrimaryKey(pickId);
+        OrderPick orderPick = orderPickDao.selectByWaveNo(waveNo);
 
-        List<OrderPickInfoVo> orderPickInfoVoList = orderPickDao.selectOrderPickInfo(pickId);
+        List<OrderPickInfoVo> orderPickInfoVoList = orderPickDao.selectOrderPickInfo(waveNo);
 
         if (ListUtils.isEmpty(orderPickInfoVoList)){
             return BaseResponse.failed();
@@ -127,11 +140,11 @@ public class OrderPickServiceImpl implements OrderPickService {
     @Transactional
     @Override
     public BaseResponse twicePickSubmit(TwicePickSubmitRequest request, Session session) {
-        Long pickId = request.getPickId();
+        Integer waveNo = request.getWaveNo();
         List<OrderPickInfoVo> orderPickInfoVos = request.getOrderPickInfoVos();
 
         Map<Long,OrderItemPickInfoVo> map = new HashMap<>();
-        List<OrderPickInfoVo> orderPickInfoVoList = orderPickDao.selectOrderPickInfo(pickId);
+        List<OrderPickInfoVo> orderPickInfoVoList = orderPickDao.selectOrderPickInfo(waveNo);
         for (OrderPickInfoVo orderPickInfoVo : orderPickInfoVoList) {
             List<OrderItemPickInfoVo> itemPickInfoVos = orderPickInfoVo.getOrderItemPickInfoVos();
             for (OrderItemPickInfoVo itemPickInfoVo : itemPickInfoVos) {
@@ -163,7 +176,7 @@ public class OrderPickServiceImpl implements OrderPickService {
         if (b){
             OrderPick orderPick = new OrderPick();
             orderPick.setPickState(OrderPick.TO_BE_PACKED);
-            orderPick.setId(pickId);
+            orderPick.setWaveNo(waveNo);
             orderPick.setUpdateTime(new Date());
             updateByPrimaryKeySelective(orderPick);
         }
@@ -181,9 +194,8 @@ public class OrderPickServiceImpl implements OrderPickService {
         || orderPick.getPickState() > OrderPick.TWICE_PICK){
             return BaseResponse.failed();
         }
-        Long pickId = orderPick.getId();
 
-        List<OrderPickInfoVo> orderPickInfoVos = orderPickDao.selectOrderPickInfo(pickId);
+        List<OrderPickInfoVo> orderPickInfoVos = orderPickDao.selectOrderPickInfo(waveNo);
 
         List<OrderTwicePickVo.VariantOrderId> variantOrderIds = new ArrayList<>();
         int i = 1;
@@ -217,7 +229,7 @@ public class OrderPickServiceImpl implements OrderPickService {
 
         orderPick = new OrderPick();
         orderPick.setPickState(OrderPick.TWICE_PICK);
-        orderPick.setId(pickId);
+        orderPick.setWaveNo(waveNo);
         orderPick.setUpdateTime(new Date());
         updateByPrimaryKeySelective(orderPick);
 
@@ -311,10 +323,10 @@ public class OrderPickServiceImpl implements OrderPickService {
             variantIds.add(orderItem.getAdminVariantId());
         });
 
-        Long pickId = IdGenerate.nextId();
+        Long waveNo = IdGenerate.nextId();
         OrderPick orderPick = new OrderPick();
         orderPick.setPickType(2);
-        orderPick.setId(pickId);
+        orderPick.setId(waveNo);
         orderPick.setWaveNo(getWaveNo());
         orderPick.setPickState(OrderPick.TO_BE_PICKED);
         orderPick.setOperatorId(operatorId);
@@ -324,7 +336,7 @@ public class OrderPickServiceImpl implements OrderPickService {
         orderPick.setSkuQuantity(size);
         insert(orderPick);
 
-        orderService.updateOrderPickState(orderIds,1,pickId);
+        orderService.updateOrderPickState(orderIds,1,waveNo);
 
         while (orderPickQuantityVos.size() == size){
             int i = multiSkuCreateWave(shipMethodIds,size,operatorId);
@@ -346,10 +358,10 @@ public class OrderPickServiceImpl implements OrderPickService {
             orderIds.add(orderPickQuantityVo.getOrderId());
         });
 
-        Long pickId = IdGenerate.nextId();
+        Long waveNo = IdGenerate.nextId();
         OrderPick orderPick = new OrderPick();
         orderPick.setPickType(0);
-        orderPick.setId(pickId);
+        orderPick.setId(waveNo);
         orderPick.setWaveNo(getWaveNo());
         orderPick.setOperatorId(operatorId);
         orderPick.setCreateTime(new Date());
@@ -359,7 +371,7 @@ public class OrderPickServiceImpl implements OrderPickService {
         orderPick.setSkuQuantity(size);
         insert(orderPick);
 
-        orderService.updateOrderPickState(orderIds,1,pickId);
+        orderService.updateOrderPickState(orderIds,1,waveNo);
 
         while (orderPickQuantityVos.size() == size){
             int i = oneSkuOneQtyCreateWave(shipMethodIds,size,operatorId);
@@ -390,10 +402,10 @@ public class OrderPickServiceImpl implements OrderPickService {
             return 0;
         }
 
-        Long pickId = IdGenerate.nextId();
+        Long waveNo = IdGenerate.nextId();
         OrderPick orderPick = new OrderPick();
         orderPick.setPickType(1);
-        orderPick.setId(pickId);
+        orderPick.setId(waveNo);
         orderPick.setWaveNo(getWaveNo());
         orderPick.setOperatorId(operatorId);
         orderPick.setCreateTime(new Date());
@@ -403,7 +415,7 @@ public class OrderPickServiceImpl implements OrderPickService {
         orderPick.setSkuQuantity(skuQuantity);
         insert(orderPick);
 
-        orderService.updateOrderPickState(orderIds,1,pickId);
+        orderService.updateOrderPickState(orderIds,1,waveNo);
 
         while (orderPickQuantityVos.size() == size){
             int i = oneSkuMultiQtyCreateWave(shipMethodIds,size,operatorId);

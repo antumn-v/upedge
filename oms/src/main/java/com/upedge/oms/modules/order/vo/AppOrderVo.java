@@ -97,7 +97,7 @@ public class AppOrderVo {
 
     private Integer pickType;
 
-    private Long pickId;
+    private Long waveNo;
 
     private Long toAreaId;
 

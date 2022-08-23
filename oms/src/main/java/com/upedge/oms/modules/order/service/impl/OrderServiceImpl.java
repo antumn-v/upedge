@@ -1298,10 +1298,10 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public int updateOrderPickState(List<Long> orderIds, Integer state,Long pickId) {
+    public int updateOrderPickState(List<Long> orderIds, Integer state,Long waveNo) {
 
         if(ListUtils.isNotEmpty(orderIds)){
-            return orderDao.updateOrderPickState(orderIds,state,pickId);
+            return orderDao.updateOrderPickState(orderIds,state,waveNo);
         }
         return 0;
     }
@@ -2372,9 +2372,9 @@ public class OrderServiceImpl implements OrderService {
                 String reason = (String) redisTemplate.opsForHash().get(RedisKey.HASH_ORDER_CREATE_PACKAGE_FAILED_REASON,appOrderVo.getId().toString());
                 appOrderVo.setCreatePackFailedReason(reason);
             }
-            Long pickId = appOrderVo.getPickId();
-            if (null != pickId){
-                boolean b = redisTemplate.opsForHash().hasKey(RedisKey.HASH_ORDER_PICK_WAVE_PRINTED,pickId.toString());
+            Long waveNo = appOrderVo.getWaveNo();
+            if (null != waveNo){
+                boolean b = redisTemplate.opsForHash().hasKey(RedisKey.HASH_ORDER_PICK_WAVE_PRINTED,waveNo.toString());
                 appOrderVo.setIsPrinted(b);
             }else {
                 appOrderVo.setIsPrinted(false);

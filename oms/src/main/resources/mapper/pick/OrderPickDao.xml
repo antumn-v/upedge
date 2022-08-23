@@ -21,7 +21,7 @@
         <result property="orderId" column="orderId"/>
         <result property="pickType" column="pick_type"/>
         <result property="shipState" column="shipState"/>
-        <result property="pickId" column="pickId"/>
+        <result property="waveNo" column="waveNo"/>
         <result property="packNo" column="pack_no"/>
         <collection property="orderItemPickInfoVos" ofType="com.upedge.oms.modules.pick.vo.OrderItemPickInfoVo">
             <result property="pickedQuantity" column="pickedQuantity"/>
@@ -84,7 +84,7 @@
                 is_printed = #{isPrinted},
             </if>
         </set>
-        where id = #{id}
+        where wave_no = #{waveNo}
     </update>
 
     <update id="updateByPrimaryKey" parameterType="com.upedge.oms.modules.pick.entity.OrderPick">
@@ -351,14 +351,14 @@
     </select>
 
     <select id="selectOrderPickInfo" resultMap="OrderPickInfoVo">
-        select o.id as `orderId`,o.pick_type as `pickType`,o.ship_state as `shipState`,o.pick_id as `pickId`,
+        select o.id as `orderId`,o.pick_type as `pickType`,o.ship_state as `shipState`,o.wave_no as `waveNo`,
             oi.id as `itemId`,oi.barcode,oi.quantity,oi.admin_variant_id as `variantId`,
             oi.admin_variant_sku as `variantSku`,oi.picked_quantity as `pickedQuantity`,oi.admin_variant_image,
             oi.admin_variant_name as `variantName`,o.pack_no,o.pick_type
             from `order` o
         inner join order_item oi
         on o.id = oi.order_id
-        where o.pick_id = #{pickId}
+        where o.wave_no = #{waveNo}
         and oi.quantity > '0'
         order by o.id desc
     </select>

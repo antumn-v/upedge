@@ -11,7 +11,7 @@ import java.util.List;
 public class TwicePickSubmitRequest {
 
    @NotNull
-   private Long pickId;
+   private Integer waveNo;
 
    @Size(min = 1)
    private List<OrderPickInfoVo> orderPickInfoVos;

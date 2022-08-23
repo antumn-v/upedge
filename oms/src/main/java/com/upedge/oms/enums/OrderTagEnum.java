@@ -21,7 +21,7 @@ public enum  OrderTagEnum {
     /**
      * 已付款未发货
      */
-    PAID(1,0,null,null),
+    PAID(1,0,0,null),
 
     /**
      * 已发货

@@ -19,7 +19,7 @@ public interface OrderPickDao {
 
     Integer selectMaxWaveNo();
 
-    List<OrderPickInfoVo> selectOrderPickInfo(Long pickId);
+    List<OrderPickInfoVo> selectOrderPickInfo(Integer waveNo);
 
     List<OrderPickQuantityVo> selectOneSkuOneProductOrderQuantity(@Param("shipMethodIds") List<Long> shipMethodIds, @Param("size") Integer size);
 

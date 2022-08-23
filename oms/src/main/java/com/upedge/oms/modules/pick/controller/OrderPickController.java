@@ -10,7 +10,7 @@ import com.upedge.oms.modules.pick.request.OrderPickListRequest;
 import com.upedge.oms.modules.pick.request.OrderPickPreviewListRequest;
 import com.upedge.oms.modules.pick.request.TwicePickSubmitRequest;
 import com.upedge.oms.modules.pick.service.OrderPickService;
-import com.upedge.oms.modules.pick.vo.OrderPickInfoVo;
+import com.upedge.oms.modules.pick.vo.OrderPickWaveInfoVo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,8 +38,8 @@ public class OrderPickController {
     @ApiOperation("波次详情")
     @PostMapping("/waveInfo/{waveNo}")
     public BaseResponse waveInfo(@PathVariable Integer waveNo){
-        List<OrderPickInfoVo> orderPickInfoVos = orderPickService.wavePickInfo(waveNo);
-        return BaseResponse.success(orderPickInfoVos);
+        OrderPickWaveInfoVo orderPickWaveInfoVo = orderPickService.wavePickInfo(waveNo);
+        return BaseResponse.success(orderPickWaveInfoVo);
     }
 
     @ApiOperation("波次列表")
@@ -79,10 +79,10 @@ public class OrderPickController {
     }
 
     @ApiOperation("打印拣货单")
-    @PostMapping("/print/{id}")
-    public BaseResponse printPickList(@PathVariable Long id){
+    @PostMapping("/print/{waveNo}")
+    public BaseResponse printPickList(@PathVariable Integer waveNo){
         Session session = UserUtil.getSession(redisTemplate);
-        return orderPickService.printPickInfo(id,session);
+        return orderPickService.printPickInfo(waveNo,session);
     }
 
     @ApiOperation("已打印")

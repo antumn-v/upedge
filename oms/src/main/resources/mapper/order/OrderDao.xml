@@ -72,7 +72,7 @@
         <result property="shippingWarehouse" column="shipping_warehouse"/>
         <result property="trackingCode" column="tracking_code"/>
         <result property="pickType" column="pick_type"/>
-        <result property="pickId" column="pick_id"/>
+        <result property="waveNo" column="wave_no"/>
         <result property="pickState" column="pick_state"/>
         <result property="packState" column="pack_state"/>
         <result property="packNo" column="pack_no"/>
@@ -285,7 +285,9 @@
                 <if test="t.toAreaId != null">
                     o.to_area_id = #{t.toAreaId} and
                 </if>
-
+                <if test="t.waveNo != null">
+                    o.wave_no = #{t.waveNo} and
+                </if>
                 <if test="t.platOrderName != null">
                     r.plat_order_name = #{t.platOrderName} and
                 </if>
@@ -507,7 +509,7 @@
         o.total_weight,o.product_amount,o.product_discharge_amount,o.fix_fee,o.pay_method,
         o.pay_time,o.payment_id,o.pay_state,o.refund_state,o.ship_state,o.order_type,o.to_area_id,
         o.vat_amount,o.create_time,o.store_id,r.plat_order_create_time,o.quote_state,o.saihe_order_code,
-        o.shipping_warehouse,o.tracking_code,o.pick_type,o.pick_id,o.pick_state,o.pack_state,o.pack_no
+        o.shipping_warehouse,o.tracking_code,o.pick_type,o.wave_no,o.pick_state,o.pack_state,o.pack_no
         from `order` o
         left join store_order_relate r
         on o.id = r.order_id
@@ -2417,7 +2419,7 @@
     <update id="updateOrderPickState">
         update `order`
             set pick_state = #{state},
-        pick_id = #{pickId}
+        wave_no = #{waveNo}
         where ship_state != '1'
         and id in
         <foreach collection="orderIds" item="orderId" open="(" separator="," close=")">

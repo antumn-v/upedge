@@ -47,10 +47,10 @@ public class AppOrderListRequest extends Page<AppOrderListDto> {
         appOrderListDto.setCustomerId(customerId);
 
         this.initFromNum();
-        if (appOrderListDto.getTags().equals("PAID")) {
-            appOrderListDto.setPayState(null);
-            this.setCondition("o.pay_state > 0 and o.ship_state != 1");
-        }
+//        if (appOrderListDto.getTags().equals("PAID")) {
+//            appOrderListDto.setPayState(null);
+//            this.setCondition("o.pay_state > 0 and o.ship_state != 1");
+//        }
         if (appOrderListDto.getTags().equals("REFUNDS")) {
             appOrderListDto.setRefundState(null);
             this.setCondition("o.refund_state > 0");
