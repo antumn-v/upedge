@@ -93,7 +93,9 @@ public class AppOrderVo {
 
     private boolean hasPayFailed;
 
-    private Boolean isPrinted;
+    private Boolean isPrintPick;
+
+    private Boolean isPrintLabel;
 
     private Integer pickType;
 

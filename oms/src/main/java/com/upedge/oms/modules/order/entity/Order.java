@@ -138,6 +138,8 @@ public class Order{
 
 	private Long packNo;
 
+	private Boolean isPrintLabel;
+
 	public Order() {
 	}
 

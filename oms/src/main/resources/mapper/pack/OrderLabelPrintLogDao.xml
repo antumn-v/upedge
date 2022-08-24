@@ -206,4 +206,13 @@
         from order_label_print_log
         where pack_no = #{packNo}
     </select>
+
+    <select id="selectTheLatestPackLabel" resultType="com.upedge.oms.modules.pick.vo.OrderPickWaveInfoVo">
+        select
+        <include refid="Base_Column_List" />
+        from order_label_print_log
+        where pack_no = #{packNo}
+        order by create_time desc
+        limit 1
+    </select>
 </mapper>

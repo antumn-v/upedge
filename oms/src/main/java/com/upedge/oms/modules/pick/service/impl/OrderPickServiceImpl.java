@@ -90,6 +90,27 @@ public class OrderPickServiceImpl implements OrderPickService {
 
         List<AppOrderVo> appOrderVos = orderService.selectAppOrderList(request);
         orderPickWaveInfoVo.setOrderVos(appOrderVos);
+
+        List<OrderTwicePickVo.VariantOrderId> variantOrderIds = new ArrayList<>();
+
+        Map<String,Set<Long>> barcodeOrderIds = new HashMap<>();
+        appOrderVos.forEach( appOrderVo -> {
+            appOrderVo.getStoreOrderVos().forEach(appStoreOrderVo -> {
+                appStoreOrderVo.getItemVos().forEach(appOrderItemVo -> {
+                    if (!barcodeOrderIds.containsKey(appOrderItemVo.getBarcode())){
+                        barcodeOrderIds.put(appOrderItemVo.getBarcode(),new HashSet<>());
+                    }
+                    barcodeOrderIds.get(appOrderItemVo.getBarcode()).add(appOrderVo.getId());
+                });
+            });
+        });
+        barcodeOrderIds.forEach((barcode,orderIds) -> {
+            OrderTwicePickVo.VariantOrderId variantOrderId = new OrderTwicePickVo.VariantOrderId();
+            variantOrderId.setBarcode(barcode);
+            variantOrderId.setOrderIds(orderIds);
+            variantOrderIds.add(variantOrderId);
+        });
+        orderPickWaveInfoVo.setVariantOrderIds(variantOrderIds);
         return orderPickWaveInfoVo;
     }
 

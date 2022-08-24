@@ -25,6 +25,7 @@ import com.upedge.oms.modules.pack.request.OrderPackageInfoGetRequest;
 import com.upedge.oms.modules.pack.service.OrderLabelPrintLogService;
 import com.upedge.oms.modules.pack.service.OrderPackageService;
 import com.upedge.oms.modules.pack.vo.OrderPackageInfoVo;
+import com.upedge.oms.modules.pick.vo.OrderPickWaveInfoVo;
 import com.upedge.thirdparty.shipcompany.fpx.api.FpxOrderApi;
 import com.upedge.thirdparty.shipcompany.fpx.dto.FpxOrderCreateDto;
 import com.upedge.thirdparty.shipcompany.fpx.dto.FpxOrderCreateDto.ParcelListDTO;
@@ -121,6 +122,12 @@ public class OrderPackageServiceImpl implements OrderPackageService {
         if (null == orderPackage){
             return BaseResponse.failed("包裹不存在");
         }
+        Map<String,String> map = new HashMap<>();
+        OrderPickWaveInfoVo orderPickWaveInfoVo = orderLabelPrintLogService.selectTheLatestPackLabel(request.getPackNo());
+        if (null != orderPickWaveInfoVo){
+            map.put("labelUrl",labelUrl);
+            return BaseResponse.success(map);
+        }
         try {
             switch (orderPackage.getTrackingCompany()){
                 case "4PX":
@@ -133,6 +140,7 @@ public class OrderPackageServiceImpl implements OrderPackageService {
         }catch (Exception e){
 
         }
+        map.put("labelUrl",labelUrl);
 
         OrderLabelPrintLog orderLabelPrintLog = new OrderLabelPrintLog();
         orderLabelPrintLog.setOrderId(orderPackage.getOrderId());
@@ -141,8 +149,11 @@ public class OrderPackageServiceImpl implements OrderPackageService {
         orderLabelPrintLog.setPackNo(orderPackage.getPackageNo());
         orderLabelPrintLog.setOperatorId(session.getId());
         orderLabelPrintLogService.insert(orderLabelPrintLog);
-        Map<String,String> map = new HashMap<>();
-        map.put("labelUrl",labelUrl);
+
+        Order order = new Order();
+        order.setId(orderPackage.getId());
+        order.setIsPrintLabel(true);
+        orderService.updateByPrimaryKeySelective(order);
         return BaseResponse.success(map);
     }
 

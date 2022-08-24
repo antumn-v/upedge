@@ -2375,9 +2375,9 @@ public class OrderServiceImpl implements OrderService {
             Long waveNo = appOrderVo.getWaveNo();
             if (null != waveNo){
                 boolean b = redisTemplate.opsForHash().hasKey(RedisKey.HASH_ORDER_PICK_WAVE_PRINTED,waveNo.toString());
-                appOrderVo.setIsPrinted(b);
+                appOrderVo.setIsPrintPick(b);
             }else {
-                appOrderVo.setIsPrinted(false);
+                appOrderVo.setIsPrintPick(false);
             }
         });
         Long total = selectAppOrderCount(request);

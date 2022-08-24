@@ -1,32 +1,27 @@
 package com.upedge.oms.modules.pack.controller;
 
-import java.util.Arrays;
-import java.util.Map;
-
-import com.upedge.common.constant.ResultCode;
-import org.springframework.beans.factory.annotation.Autowired;
 import com.upedge.common.component.annotation.Permission;
-import com.upedge.oms.modules.pack.entity.OrderLabelPrintLog;
-import com.upedge.oms.modules.pack.service.OrderLabelPrintLogService;
-import org.springframework.web.bind.annotation.*;
-import java.util.List;
 import com.upedge.common.constant.Constant;
+import com.upedge.common.constant.ResultCode;
+import com.upedge.oms.modules.pack.entity.OrderLabelPrintLog;
 import com.upedge.oms.modules.pack.request.OrderLabelPrintLogAddRequest;
 import com.upedge.oms.modules.pack.request.OrderLabelPrintLogListRequest;
 import com.upedge.oms.modules.pack.request.OrderLabelPrintLogUpdateRequest;
+import com.upedge.oms.modules.pack.response.*;
+import com.upedge.oms.modules.pack.service.OrderLabelPrintLogService;
+import io.swagger.annotations.Api;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
 
-import com.upedge.oms.modules.pack.response.OrderLabelPrintLogAddResponse;
-import com.upedge.oms.modules.pack.response.OrderLabelPrintLogDelResponse;
-import com.upedge.oms.modules.pack.response.OrderLabelPrintLogInfoResponse;
-import com.upedge.oms.modules.pack.response.OrderLabelPrintLogListResponse;
-import com.upedge.oms.modules.pack.response.OrderLabelPrintLogUpdateResponse;
 import javax.validation.Valid;
+import java.util.List;
 
 /**
  * 
  *
  * @author gx
  */
+@Api(tags = "面单打印记录")
 @RestController
 @RequestMapping("/orderLabelPrintLog")
 public class OrderLabelPrintLogController {

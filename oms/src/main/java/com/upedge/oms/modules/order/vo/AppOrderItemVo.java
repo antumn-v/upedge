@@ -24,6 +24,8 @@ public class AppOrderItemVo {
     private Long adminProductId;
 
     private Long adminVariantId;
+
+    private String barcode;
     /**
      *
      */

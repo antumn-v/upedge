@@ -77,6 +77,7 @@
         <result property="packState" column="pack_state"/>
         <result property="packNo" column="pack_no"/>
         <result property="stockState" column="stock_state"/>
+        <result property="isPrintLabel" column="is_print_label"/>
         <collection ofType="com.upedge.oms.modules.order.vo.AppStoreOrderVo" property="storeOrderVos">
             <id property="storeOrderId" column="store_order_id"/>
             <result property="platOrderName" column="plat_order_name"/>
@@ -509,7 +510,8 @@
         o.total_weight,o.product_amount,o.product_discharge_amount,o.fix_fee,o.pay_method,
         o.pay_time,o.payment_id,o.pay_state,o.refund_state,o.ship_state,o.order_type,o.to_area_id,
         o.vat_amount,o.create_time,o.store_id,r.plat_order_create_time,o.quote_state,o.saihe_order_code,
-        o.shipping_warehouse,o.tracking_code,o.pick_type,o.wave_no,o.pick_state,o.pack_state,o.pack_no
+        o.shipping_warehouse,o.tracking_code,o.pick_type,o.wave_no,o.pick_state,o.pack_state,o.pack_no,
+        o.is_print_label
         from `order` o
         left join store_order_relate r
         on o.id = r.order_id
@@ -822,9 +824,11 @@
             <if test="pickType != null">
                 pick_type = #{pickType},
             </if>
+            <if test="isPrintLabel != null">
+                is_print_label = #{isPrintLabel},
+            </if>
         </set>
         where id = #{id}
-        and pay_state &lt; '1'
     </update>
 
     <update id="updateByPrimaryKey" parameterType="com.upedge.oms.modules.order.entity.Order">

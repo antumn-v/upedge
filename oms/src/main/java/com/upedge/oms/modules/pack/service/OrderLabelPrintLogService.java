@@ -1,13 +1,17 @@
 package com.upedge.oms.modules.pack.service;
 
-import com.upedge.oms.modules.pack.entity.OrderLabelPrintLog;
 import com.upedge.common.base.Page;
+import com.upedge.oms.modules.pack.entity.OrderLabelPrintLog;
+import com.upedge.oms.modules.pick.vo.OrderPickWaveInfoVo;
+
 import java.util.List;
 
 /**
  * @author gx
  */
 public interface OrderLabelPrintLogService{
+
+    OrderPickWaveInfoVo selectTheLatestPackLabel(Long packNo);
 
     List<OrderLabelPrintLog> selectByPackNo(Long packNo);
 
