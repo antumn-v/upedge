@@ -273,6 +273,7 @@
         set available_stock = available_stock - #{quantity}
         where variant_id = #{variantId}
         and warehouse_code = #{warehouseCode}
+        and available_stock > #{quantity}
     </update>
 
     <update id="updateVariantStockIm">
@@ -287,5 +288,13 @@
         set safe_stock = #{safeStock}
         where variant_id = #{variantId}
         and warehouse_code = #{warehouseCode}
+    </update>
+
+    <update id="reduceVariantLockStock">
+        update variant_warehouse_stock
+        set lock_stock = lock_stock - #{changeQuantity}
+        where variant_id = #{variantId}
+          and warehouse_code = #{warehouseCode}
+          and lock_stock > #{changeQuantity}
     </update>
 </mapper>

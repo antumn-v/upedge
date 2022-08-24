@@ -11,5 +11,7 @@ public class OrderItemQuantityVo {
 
     private String warehouseCode;
 
+    private Long operatorId;
+
     private List<ItemQuantityVo> itemQuantityVos;
 }

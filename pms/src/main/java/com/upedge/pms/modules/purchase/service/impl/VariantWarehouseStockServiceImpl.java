@@ -3,6 +3,7 @@ package com.upedge.pms.modules.purchase.service.impl;
 import com.upedge.common.base.BaseResponse;
 import com.upedge.common.base.Page;
 import com.upedge.common.constant.key.RedisKey;
+import com.upedge.common.exception.CustomerException;
 import com.upedge.common.feign.OmsFeignClient;
 import com.upedge.common.model.oms.order.ItemQuantityVo;
 import com.upedge.common.model.oms.order.OrderItemQuantityVo;
@@ -82,6 +83,36 @@ public class VariantWarehouseStockServiceImpl implements VariantWarehouseStockSe
     @Transactional
     public int insertSelective(VariantWarehouseStock record) {
         return variantWarehouseStockDao.insert(record);
+    }
+
+    @Transactional
+    @Override
+    public int packageShipped(OrderItemQuantityVo orderItemQuantityVo) throws CustomerException {
+
+        List<ItemQuantityVo> itemQuantityVos = orderItemQuantityVo.getItemQuantityVos();
+        for (ItemQuantityVo itemQuantityVo : itemQuantityVos) {
+            VariantWarehouseStock variantWarehouseStock = variantWarehouseStockDao.selectByPrimaryKey(itemQuantityVo.getVariantId(), "CNHz");
+            if (variantWarehouseStock.getLockStock() < itemQuantityVo.getQuantity()){
+                throw new CustomerException("库存不足");
+            }
+            int i = variantWarehouseStockDao.reduceVariantLockStock(variantWarehouseStock.getVariantId(), "CNHZ",itemQuantityVo.getQuantity());
+            if (i == 0){
+                throw new CustomerException("库存不足");
+            }
+            VariantWarehouseStockRecord variantWarehouseStockRecord =
+                    new VariantWarehouseStockRecord(variantWarehouseStock.getVariantId(),
+                            "CNHZ",
+                            itemQuantityVo.getQuantity(),
+                            0,
+                            variantWarehouseStock.getLockStock(),
+                            variantWarehouseStock.getLockStock() - itemQuantityVo.getQuantity(),
+                            itemQuantityVo.getItemId(),
+                            new Date(),
+                            "",
+                            orderItemQuantityVo.getOperatorId());
+            variantWarehouseStockRecordService.insert(variantWarehouseStockRecord);
+        }
+        return 1;
     }
 
     @Override

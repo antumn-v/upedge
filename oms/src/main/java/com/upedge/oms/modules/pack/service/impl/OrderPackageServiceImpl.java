@@ -10,6 +10,7 @@ import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.model.user.vo.UserVo;
 import com.upedge.common.utils.DateUtils;
 import com.upedge.common.web.util.RedisUtil;
+import com.upedge.oms.modules.fulfillment.service.OrderFulfillmentService;
 import com.upedge.oms.modules.order.entity.Order;
 import com.upedge.oms.modules.order.entity.OrderAddress;
 import com.upedge.oms.modules.order.entity.OrderItem;
@@ -68,12 +69,32 @@ public class OrderPackageServiceImpl implements OrderPackageService {
     @Autowired
     RedisTemplate redisTemplate;
 
+    @Autowired
+    OrderFulfillmentService orderFulfillmentService;
+
+    @Transactional
     @Override
     public BaseResponse packageExStock(Long packNo, Session session) {
         OrderPackage orderPackage = selectByPrimaryKey(packNo);
+        if (orderPackage.getPackageState() != 0){
+            return BaseResponse.failed();
+        }
 
+//        orderFulfillmentService.orderFulfillment(orderPackage.getOrderId(),orderPackage.getId());
 
-        return null;
+        orderPackage = new OrderPackage();
+        orderPackage.setId(packNo);
+        orderPackage.setPackageState(1);
+        orderPackage.setSendTime(new Date());
+        updateByPrimaryKeySelective(orderPackage);
+
+        Order order = new Order();
+        order.setShipState(1);
+        order.setId(orderPackage.getOrderId());
+        order.setPackState(3);
+        orderService.updateByPrimaryKeySelective(order);
+
+        return BaseResponse.success();
     }
 
     @Transactional

@@ -4,4 +4,5 @@ public interface OrderFulfillmentService {
 
 
     void orderFulfillment(Long id);
+    void orderFulfillment(Long id,Long packNo);
 }
