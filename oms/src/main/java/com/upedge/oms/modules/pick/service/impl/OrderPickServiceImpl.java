@@ -302,6 +302,18 @@ public class OrderPickServiceImpl implements OrderPickService {
 
     @Override
     public BaseResponse create(OrderPickCreateRequest request, Session session) {
+        List<Long> shipMethodIds = request.getShipMethodIds();
+        String companyName = "";
+        for (int i = 0; i < shipMethodIds.size(); i++) {
+            Long shipMethodId = shipMethodIds.get(i);
+            ShippingMethodRedis shippingMethodRedis = (ShippingMethodRedis) redisTemplate.opsForHash().get(RedisKey.SHIPPING_METHOD,shipMethodId.toString());
+            if (i == 0){
+                companyName = shippingMethodRedis.getTrackingCompany();
+            }else if (!companyName.equals(shippingMethodRedis.getTrackingCompany())){
+                return BaseResponse.failed("不同物流公司的订单无法生成到同一波次");
+            }
+        }
+
         String key = "key:createOrderPickWave";
         boolean b = RedisUtil.lock(redisTemplate,key,10L,60 * 1000L);
         if (!b){
