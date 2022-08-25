@@ -1,6 +1,9 @@
 package com.upedge.thirdparty.shipcompany.cne.api;
 
 import com.alibaba.fastjson.JSONObject;
+import com.upedge.common.exception.CustomerException;
+import com.upedge.thirdparty.shipcompany.cne.dto.CneCreateOrderRequest;
+import com.upedge.thirdparty.shipcompany.cne.dto.CneOrderDto;
 import com.upedge.thirdparty.shipcompany.cne.dto.CneRequestBase;
 import com.upedge.thirdparty.shipcompany.cne.dto.CneShipMethodDto;
 import okhttp3.*;
@@ -28,17 +31,30 @@ public class CneApi {
         }
         JSONObject jsonObject = JSONObject.parseObject(result);
         if (!jsonObject.containsKey("List")){
-            System.out.println(jsonObject);
             return new ArrayList<>();
         }
         List<CneShipMethodDto> cneShipMethodDtos = jsonObject.getJSONArray("List").toJavaList(CneShipMethodDto.class);
         return cneShipMethodDtos;
     }
 
+    public static CneOrderDto createCneOrder(CneCreateOrderRequest request) throws Exception {
+        String requestUrl = "https://api.cne.com/cgi-bin/EmsData.dll?DoApi";
+
+        request.setRequestName("PreInputSet");
+
+        String result = commonRequest(requestUrl,HttpMethod.POST, JSONObject.toJSONString(request));
+
+        JSONObject jsonObject = JSONObject.parseObject(result);
+        if (1 != jsonObject.getInteger("OK")){
+            throw new CustomerException(jsonObject.getString("cMess"));
+        }
+        List<CneOrderDto> cneOrderDtos = jsonObject.getJSONArray("ErrList").toJavaList(CneOrderDto.class);
+        return cneOrderDtos.get(0);
+
+    }
 
 
     static String commonRequest(String url, HttpMethod method, String data) throws Exception {
-        System.out.println(data);
 
         OkHttpClient client = new OkHttpClient().newBuilder()
                 .readTimeout(60, TimeUnit.SECONDS)

@@ -23,7 +23,6 @@ import com.upedge.common.utils.ListUtils;
 import com.upedge.thirdparty.shipcompany.cne.api.CneApi;
 import com.upedge.thirdparty.shipcompany.cne.dto.CneShipMethodDto;
 import com.upedge.thirdparty.shipcompany.fpx.api.FpxCommonApi;
-import com.upedge.thirdparty.shipcompany.fpx.request.FpxWarehouseMethodListRequest;
 import com.upedge.thirdparty.shipcompany.fpx.vo.FpxMethodVo;
 import com.upedge.thirdparty.shipcompany.yunexpress.api.YunexpressApi;
 import com.upedge.thirdparty.shipcompany.yunexpress.vo.YunExpressShipMethodVo;
@@ -205,10 +204,10 @@ public class ShippingMethodServiceImpl implements ShippingMethodService {
         List<ShipMethodCodeVo> shipMethodCodeVos = new ArrayList<>();
         switch (shipCompany){
             case "4PX":
-                FpxWarehouseMethodListRequest fpxWarehouseMethodListRequest = new FpxWarehouseMethodListRequest();
+//                FpxWarehouseMethodListRequest fpxWarehouseMethodListRequest = new FpxWarehouseMethodListRequest();
 //                fpxWarehouseMethodListRequest.setSourcePositionCode(warehouseCode);
-                fpxWarehouseMethodListRequest.setCategoryCode("end");
-                fpxWarehouseMethodListRequest.setServiceCode("F");
+//                fpxWarehouseMethodListRequest.setCategoryCode("end");
+//                fpxWarehouseMethodListRequest.setServiceCode("F");
                 List<FpxMethodVo> fpxMethodVos = FpxCommonApi.getTransportMethods(3);
                 fpxMethodVos.forEach(fpxMethodVo -> {
                     ShipMethodCodeVo shipMethodCodeVo = new ShipMethodCodeVo();

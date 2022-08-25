@@ -27,6 +27,9 @@ import com.upedge.oms.modules.pack.service.OrderLabelPrintLogService;
 import com.upedge.oms.modules.pack.service.OrderPackageService;
 import com.upedge.oms.modules.pack.vo.OrderPackageInfoVo;
 import com.upedge.oms.modules.pick.vo.OrderPickWaveInfoVo;
+import com.upedge.thirdparty.shipcompany.cne.api.CneApi;
+import com.upedge.thirdparty.shipcompany.cne.dto.CneCreateOrderRequest;
+import com.upedge.thirdparty.shipcompany.cne.dto.CneOrderDto;
 import com.upedge.thirdparty.shipcompany.fpx.api.FpxOrderApi;
 import com.upedge.thirdparty.shipcompany.fpx.dto.FpxOrderCreateDto;
 import com.upedge.thirdparty.shipcompany.fpx.dto.FpxOrderCreateDto.ParcelListDTO;
@@ -211,9 +214,73 @@ public class OrderPackageServiceImpl implements OrderPackageService {
                  return createFpxPackage(order,shippingMethodRedis);
             case "YunExpress":
                  return createYunExpressPackage(order,shippingMethodRedis);
+            case "CNE":
+                return createCnePackage(order,shippingMethodRedis);
             default:
                 return BaseResponse.failed("物流公司未对接");
         }
+    }
+
+    public BaseResponse createCnePackage(Order order,ShippingMethodRedis shippingMethodRedis){
+        Long orderId = order.getId();
+        OrderAddress orderAddress = orderService.getOrderAddress(orderId);
+
+        CneCreateOrderRequest request = new CneCreateOrderRequest();
+        CneCreateOrderRequest.RecListDTO recListDTO = new CneCreateOrderRequest.RecListDTO();
+        recListDTO.setCEmsKind(shippingMethodRedis.getMethodCode());
+        recListDTO.setCRNo(orderId.toString());
+        recListDTO.setCDes(orderAddress.getCountryCode());
+        recListDTO.setCReceiver(orderAddress.getName());
+        recListDTO.setCRUnit(orderAddress.getCompany());
+        recListDTO.setCRAddr(orderAddress.getAddress1() + " " + orderAddress.getAddress2());
+        recListDTO.setCRCity(orderAddress.getCity());
+        recListDTO.setCRProvince(orderAddress.getProvince());
+        recListDTO.setCRPostcode(orderAddress.getZip());
+        recListDTO.setCRCountry(orderAddress.getCountry());
+        recListDTO.setCRPhone(orderAddress.getPhone());
+        recListDTO.setCRSms(orderAddress.getPhone());
+        recListDTO.setCREMail(orderAddress.getEmail());
+        recListDTO.setFWeight(order.getTotalWeight().divide(new BigDecimal("1000")).doubleValue());
+
+        List<OrderItem> orderItems = orderItemService.selectByOrderId(orderId);
+        List<CneCreateOrderRequest.RecListDTO.CneGoodsListDTO> cneGoodsListDTOS = new ArrayList<>();
+        orderItems.forEach(orderItem -> {
+            CneCreateOrderRequest.RecListDTO.CneGoodsListDTO cneGoodsListDTO = new CneCreateOrderRequest.RecListDTO.CneGoodsListDTO();
+            cneGoodsListDTO.setCxGoods("宠物服装");
+            cneGoodsListDTO.setCxGoodsA("pet clothes");
+            cneGoodsListDTO.setIxQuantity(orderItem.getQuantity());
+            cneGoodsListDTO.setFxPrice(orderItem.getUsdPrice());
+            cneGoodsListDTOS.add(cneGoodsListDTO);
+        });
+        recListDTO.setGoodsList(cneGoodsListDTOS);
+        request.getRecList().add(recListDTO);
+        CneOrderDto cneOrderDto = null;
+        try {
+            cneOrderDto = CneApi.createCneOrder(request);
+        } catch (Exception e) {
+            return BaseResponse.failed(e.getMessage());
+        }
+
+        Long packageNo = getPackageNo();
+        OrderPackage orderPackage = new OrderPackage();
+        orderPackage.setId(packageNo);
+        orderPackage.setPackageNo(packageNo);
+        orderPackage.setOrderId(orderId);
+        orderPackage.setPackageState(0);
+        orderPackage.setCreateTime(new Date());
+        orderPackage.setLogisticsOrderNo(cneOrderDto.getCPNo());
+        orderPackage.setTrackingCode(cneOrderDto.getCNo());
+        orderPackage.setPlatId(cneOrderDto.getIID());
+        orderPackage.setStoreId(order.getStoreId());
+        orderPackage.setCustomerId(order.getCustomerId());
+        orderPackage.setTrackingMethodName(shippingMethodRedis.getName());
+        orderPackage.setTrackingMethodCode(shippingMethodRedis.getMethodCode());
+        orderPackage.setTrackingCompany(shippingMethodRedis.getTrackingCompany());
+        insert(orderPackage);
+
+        orderService.updateOrderPackInfo(orderId,1,packageNo);
+        return BaseResponse.success(orderPackage);
+
     }
 
     private BaseResponse createFpxPackage(Order order,ShippingMethodRedis shippingMethodRedis){
@@ -408,7 +475,7 @@ public class OrderPackageServiceImpl implements OrderPackageService {
         recipientInfo.setPhone("8956232659");
         recipientInfo.setPhone2("18562356856");
 
-        fpxOrderCreateDto.getLogisticsServiceInfo().setLogisticsProductCode("F3");
+        fpxOrderCreateDto.getLogisticsServiceInfo().setLogisticsProductCode(shippingMethodRedis.getMethodCode());
 
         try {
             FpxCreateOrderSuccessVo.FpxCreateOrderDataDTO fpxCreateOrderDataDTO = FpxOrderApi.createFpxOrder(fpxOrderCreateDto);
@@ -509,7 +576,11 @@ public class OrderPackageServiceImpl implements OrderPackageService {
         if (!b){
             no = Long.parseLong(date + "00001");
         }else {
-            no = no + 1;
+            if (null != no){
+                no = no + 1;
+            }else {
+                no = Long.parseLong(date + "00001");
+            }
         }
         redisTemplate.opsForHash().put(key,date,no);
         RedisUtil.unLock(redisTemplate,lockKey);
