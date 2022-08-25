@@ -131,36 +131,4 @@ public class YunexpressApi {
 
     }
 
-    public static void main(String[] args) {
-        String result = "{\n" +
-                "    \"Item\": [\n" +
-                "        {\n" +
-                "            \"CustomerOrderNumber\": \"1534005174605803520\",\n" +
-                "            \"Success\": 1,\n" +
-                "            \"TrackType\": \"2\",\n" +
-                "            \"Remark\": \"\",\n" +
-                "            \"AgentNumber\": null,\n" +
-                "            \"WayBillNumber\": \"YT2223131246000002\",\n" +
-                "            \"RequireSenderAddress\": 0,\n" +
-                "            \"TrackingNumber\": null,\n" +
-                "            \"ShipperBoxs\": [\n" +
-                "                {\n" +
-                "                    \"BoxNumber\": \"1534005174605803520\",\n" +
-                "                    \"ShipperHawbcode\": \"YT2223131246000002U001\"\n" +
-                "                }\n" +
-                "            ]\n" +
-                "        }\n" +
-                "    ],\n" +
-                "    \"Code\": \"0000\",\n" +
-                "    \"Message\": \"提交成功!\",\n" +
-                "    \"RequestId\": \"0HMJRC726F2RQ:00000002\",\n" +
-                "    \"TimeStamp\": \"2022-08-19T05:24:50.4832254+00:00\"\n" +
-                "}";
-
-        JSONObject jsonObject = JSONObject.parseObject(result);
-        List<WayBillItemVo> wayBillItemVos = jsonObject.getJSONArray("Item").toJavaList(WayBillItemVo.class);
-        System.out.println(wayBillItemVos);
-        WayBillCreateResponse wayBillCreateResponse = JSONObject.parseObject(result, WayBillCreateResponse.class);
-        System.out.println(wayBillCreateResponse);
-    }
 }

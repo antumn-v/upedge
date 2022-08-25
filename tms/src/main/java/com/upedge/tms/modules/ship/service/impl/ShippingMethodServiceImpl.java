@@ -20,6 +20,8 @@ import com.upedge.common.model.tms.ShippingTemplateVo;
 import com.upedge.common.model.tms.WarehouseVo;
 import com.upedge.common.utils.IdGenerate;
 import com.upedge.common.utils.ListUtils;
+import com.upedge.thirdparty.shipcompany.cne.api.CneApi;
+import com.upedge.thirdparty.shipcompany.cne.dto.CneShipMethodDto;
 import com.upedge.thirdparty.shipcompany.fpx.api.FpxCommonApi;
 import com.upedge.thirdparty.shipcompany.fpx.request.FpxWarehouseMethodListRequest;
 import com.upedge.thirdparty.shipcompany.fpx.vo.FpxMethodVo;
@@ -197,6 +199,9 @@ public class ShippingMethodServiceImpl implements ShippingMethodService {
     @Override
     public List<ShipMethodCodeVo> getShipCompanyMethodCode(ShipCompanyMethodCodeRequest request) {
         String shipCompany = request.getShipCompany();
+        if (StringUtils.isBlank(shipCompany)){
+            return new ArrayList<>();
+        }
         List<ShipMethodCodeVo> shipMethodCodeVos = new ArrayList<>();
         switch (shipCompany){
             case "4PX":
@@ -225,6 +230,16 @@ public class ShippingMethodServiceImpl implements ShippingMethodService {
                     shipMethodCodeVos.add(shipMethodCodeVo);
                 }
                 break;
+            case "CNE":
+                List<CneShipMethodDto> cneShipMethodDtos = CneApi.getCneShipMethods();
+                for (CneShipMethodDto cneShipMethodDto : cneShipMethodDtos) {
+                    ShipMethodCodeVo shipMethodCodeVo = new ShipMethodCodeVo();
+                    shipMethodCodeVo.setMethodCode(cneShipMethodDto.getOName());
+                    shipMethodCodeVo.setShipCompany(shipCompany);
+                    shipMethodCodeVo.setCName(cneShipMethodDto.getCName());
+                    shipMethodCodeVo.setEName(cneShipMethodDto.getCName());
+                    shipMethodCodeVos.add(shipMethodCodeVo);
+                }
             default:
                 break;
         }
