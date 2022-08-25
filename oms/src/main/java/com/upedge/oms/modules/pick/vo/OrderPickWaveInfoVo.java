@@ -11,5 +11,7 @@ public class OrderPickWaveInfoVo extends OrderPick {
 
     private List<AppOrderVo> orderVos;
 
+    private List<OrderPickInfoVo> orderPickInfoVos;
+
     private List<OrderTwicePickVo.VariantOrderId> variantOrderIds;
 }

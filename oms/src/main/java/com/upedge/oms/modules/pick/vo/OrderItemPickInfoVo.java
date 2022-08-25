@@ -5,6 +5,10 @@ import lombok.Data;
 @Data
 public class OrderItemPickInfoVo {
 
+    private String platOrderName;
+
+    private String storeName;
+
     private Long itemId;
 
     private Long variantId;

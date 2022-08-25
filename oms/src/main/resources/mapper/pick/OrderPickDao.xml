@@ -31,12 +31,14 @@
             <result property="barcode" column="barcode"/>
             <result property="quantity" column="quantity"/>
             <result property="variantImage" column="admin_variant_image"/>
-            <result property="variantName" column="variantName"/>
+            <result property="storeName" column="store_name"/>
+            <result property="platOrderName" column="plat_order_name"/>
         </collection>
     </resultMap>
 
     <sql id="Base_Column_List">
-        `id`,`wave_no`,`pick_type`,`ship_method_id`,`pick_state`,`sku_quantity`,`sku_type`,`create_time`,`update_time`,`operator_id`,`is_printed`
+        `id`
+                ,`wave_no`,`pick_type`,`ship_method_id`,`pick_state`,`sku_quantity`,`sku_type`,`create_time`,`update_time`,`operator_id`,`is_printed`
     </sql>
 
     <select id="selectByPrimaryKey" parameterType="com.upedge.oms.modules.pick.entity.OrderPick"
@@ -304,10 +306,10 @@
         inner join order_item oi
         on o.id = oi.order_id
         where o.pay_state = '1'
-          and o.refund_state = '0'
-          and o.ship_state = '0'
-          and o.pick_type = '0'
-          and o.pack_state = '1'
+        and o.refund_state = '0'
+        and o.ship_state = '0'
+        and o.pick_type = '0'
+        and o.pack_state = '1'
         and oi.quantity > '0'
         and o.ship_method_id in
         <foreach collection="shipMethodIds" item="methodId" open="(" close=")" separator=",">
@@ -322,9 +324,9 @@
         inner join order_item oi
         on o.id = oi.order_id
         where o.pay_state = '1'
-          and o.refund_state = '0'
-          and o.ship_state = '0'
-          and o.pick_type = '1'
+        and o.refund_state = '0'
+        and o.ship_state = '0'
+        and o.pick_type = '1'
         and o.pack_state = '1'
         and oi.quantity > '0'
         and o.ship_method_id in
@@ -339,9 +341,9 @@
         select o.id as `orderId`
         from `order` o
         where o.pay_state = '1'
-          and o.refund_state = '0'
-          and o.ship_state = '0'
-          and o.pick_type = '2'
+        and o.refund_state = '0'
+        and o.ship_state = '0'
+        and o.pick_type = '2'
         and o.pack_state = '1'
         and o.ship_method_id in
         <foreach collection="shipMethodIds" item="methodId" open="(" close=")" separator=",">
@@ -351,15 +353,29 @@
     </select>
 
     <select id="selectOrderPickInfo" resultMap="OrderPickInfoVo">
-        select o.id as `orderId`,o.pick_type as `pickType`,o.ship_state as `shipState`,o.wave_no as `waveNo`,
-            oi.id as `itemId`,oi.barcode,oi.quantity,oi.admin_variant_id as `variantId`,
-            oi.admin_variant_sku as `variantSku`,oi.picked_quantity as `pickedQuantity`,oi.admin_variant_image,
-            oi.admin_variant_name as `variantName`,o.pack_no,o.pick_type
-            from `order` o
+        select o.id                  as `orderId`,
+               o.pick_type           as `pickType`,
+               o.ship_state          as `shipState`,
+               o.wave_no             as `waveNo`,
+               oi.id                 as `itemId`,
+               oi.barcode,
+               oi.quantity,
+               oi.admin_variant_id   as `variantId`,
+               oi.admin_variant_sku  as `variantSku`,
+               oi.picked_quantity    as `pickedQuantity`,
+               oi.admin_variant_image,
+               oi.admin_variant_name as `variantName`,
+               o.pack_no,
+               o.pick_type,
+               sor.store_name,
+               sor.plat_order_name
+        from `order` o
         inner join order_item oi
         on o.id = oi.order_id
+        inner join store_order_relate sor
+        on sor.order_id = oi.order_id
         where o.wave_no = #{waveNo}
-        and oi.quantity > '0'
+          and oi.quantity > '0'
         order by o.id desc
     </select>
 

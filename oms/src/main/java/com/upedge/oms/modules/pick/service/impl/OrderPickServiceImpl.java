@@ -13,7 +13,6 @@ import com.upedge.oms.modules.order.entity.OrderItem;
 import com.upedge.oms.modules.order.request.AppOrderListRequest;
 import com.upedge.oms.modules.order.service.OrderItemService;
 import com.upedge.oms.modules.order.service.OrderService;
-import com.upedge.oms.modules.order.vo.AppOrderVo;
 import com.upedge.oms.modules.pick.dao.OrderPickDao;
 import com.upedge.oms.modules.pick.entity.OrderPick;
 import com.upedge.oms.modules.pick.request.OrderPickCreateRequest;
@@ -88,20 +87,21 @@ public class OrderPickServiceImpl implements OrderPickService {
         request.setT(appOrderListDto);
         request.setPageSize(-1);
 
-        List<AppOrderVo> appOrderVos = orderService.selectAppOrderList(request);
-        orderPickWaveInfoVo.setOrderVos(appOrderVos);
+        List<OrderPickInfoVo> orderPickInfoVos = orderPickDao.selectOrderPickInfo(waveNo);
+
+//        List<AppOrderVo> appOrderVos = orderService.selectAppOrderList(request);
+        orderPickWaveInfoVo.setOrderPickInfoVos(orderPickInfoVos);
 
         List<OrderTwicePickVo.VariantOrderId> variantOrderIds = new ArrayList<>();
 
         Map<String,Set<Long>> barcodeOrderIds = new HashMap<>();
-        appOrderVos.forEach( appOrderVo -> {
-            appOrderVo.getStoreOrderVos().forEach(appStoreOrderVo -> {
-                appStoreOrderVo.getItemVos().forEach(appOrderItemVo -> {
-                    if (!barcodeOrderIds.containsKey(appOrderItemVo.getBarcode())){
-                        barcodeOrderIds.put(appOrderItemVo.getBarcode(),new HashSet<>());
-                    }
-                    barcodeOrderIds.get(appOrderItemVo.getBarcode()).add(appOrderVo.getId());
-                });
+        orderPickInfoVos.forEach( orderPickInfoVo -> {
+            List<OrderItemPickInfoVo> itemPickInfoVos = orderPickInfoVo.getOrderItemPickInfoVos();
+            itemPickInfoVos.forEach(orderItemPickInfoVo -> {
+                if (!barcodeOrderIds.containsKey(orderItemPickInfoVo.getBarcode())){
+                    barcodeOrderIds.put(orderItemPickInfoVo.getBarcode(),new HashSet<>());
+                }
+                barcodeOrderIds.get(orderItemPickInfoVo.getBarcode()).add(orderPickInfoVo.getOrderId());
             });
         });
         barcodeOrderIds.forEach((barcode,orderIds) -> {
