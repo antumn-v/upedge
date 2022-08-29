@@ -17,6 +17,8 @@ public class OrderPickInfoVo {
 
     private Long packNo;
 
+    private Boolean isPrintLabel;
+
     private Integer seq;
 
     List<OrderItemPickInfoVo> orderItemPickInfoVos;

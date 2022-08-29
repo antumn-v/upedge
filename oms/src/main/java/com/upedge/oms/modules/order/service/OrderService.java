@@ -42,7 +42,7 @@ public interface OrderService{
 
     int updateShipState(Long id,Integer shipState);
 
-    int updateOrderPickState( List<Long> orderIds, Integer state,Long waveNo);
+    int updateOrderPickState( List<Long> orderIds, Integer state,Integer waveNo);
 
     void updatePickType(Long id, Integer pickType);
 

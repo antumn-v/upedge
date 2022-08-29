@@ -4,7 +4,6 @@ import com.upedge.common.base.Page;
 import com.upedge.oms.modules.pack.dao.OrderLabelPrintLogDao;
 import com.upedge.oms.modules.pack.entity.OrderLabelPrintLog;
 import com.upedge.oms.modules.pack.service.OrderLabelPrintLogService;
-import com.upedge.oms.modules.pick.vo.OrderPickWaveInfoVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -47,7 +46,7 @@ public class OrderLabelPrintLogServiceImpl implements OrderLabelPrintLogService 
     }
 
     @Override
-    public OrderPickWaveInfoVo selectTheLatestPackLabel(Long packNo) {
+    public OrderLabelPrintLog selectTheLatestPackLabel(Long packNo) {
         return orderLabelPrintLogDao.selectTheLatestPackLabel(packNo);
     }
 

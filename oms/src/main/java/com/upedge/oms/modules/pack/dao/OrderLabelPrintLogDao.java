@@ -2,7 +2,6 @@ package com.upedge.oms.modules.pack.dao;
 
 import com.upedge.common.base.Page;
 import com.upedge.oms.modules.pack.entity.OrderLabelPrintLog;
-import com.upedge.oms.modules.pick.vo.OrderPickWaveInfoVo;
 
 import java.util.List;
 
@@ -12,7 +11,7 @@ import java.util.List;
 public interface OrderLabelPrintLogDao{
 
 
-    OrderPickWaveInfoVo selectTheLatestPackLabel(Long packNo);
+    OrderLabelPrintLog selectTheLatestPackLabel(Long packNo);
 
     List<OrderLabelPrintLog> selectByPackNo(Long packNo);
 

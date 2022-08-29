@@ -7,6 +7,7 @@ import com.upedge.thirdparty.shipcompany.cne.dto.CneOrderDto;
 import com.upedge.thirdparty.shipcompany.cne.dto.CneRequestBase;
 import com.upedge.thirdparty.shipcompany.cne.dto.CneShipMethodDto;
 import okhttp3.*;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.springframework.http.HttpMethod;
 
 import java.util.ArrayList;
@@ -45,12 +46,23 @@ public class CneApi {
         String result = commonRequest(requestUrl,HttpMethod.POST, JSONObject.toJSONString(request));
 
         JSONObject jsonObject = JSONObject.parseObject(result);
-        if (1 != jsonObject.getInteger("OK")){
-            throw new CustomerException(jsonObject.getString("cMess"));
-        }
         List<CneOrderDto> cneOrderDtos = jsonObject.getJSONArray("ErrList").toJavaList(CneOrderDto.class);
+        if (1 != jsonObject.getInteger("OK")){
+            String message = "";
+            for (CneOrderDto cneOrderDto : cneOrderDtos) {
+                message = cneOrderDto.getCMess() + " ";
+            }
+            throw new CustomerException(message);
+        }
         return cneOrderDtos.get(0);
 
+    }
+
+    public static String getLabel(String trackingCode) throws Exception {
+        CneRequestBase cneRequestBase = new CneRequestBase();
+        String md5 = DigestUtils.md5Hex(cneRequestBase.getIcID() + trackingCode + cneRequestBase.getApiToken()).toLowerCase();
+        String url = "https://label.cne.com/CnePrint?icID=8604585&cNos="+trackingCode+"&ptemp=label10x15_0&signature=" + md5;
+        return url;
     }
 
 
@@ -81,6 +93,10 @@ public class CneApi {
     }
 
     public static void main(String[] args) {
-        System.out.println(getCneShipMethods());
+        try {
+            System.out.println(getLabel("00340434496772907676"));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }

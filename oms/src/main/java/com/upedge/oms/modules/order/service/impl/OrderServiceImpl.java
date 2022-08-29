@@ -1298,7 +1298,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public int updateOrderPickState(List<Long> orderIds, Integer state,Long waveNo) {
+    public int updateOrderPickState(List<Long> orderIds, Integer state,Integer waveNo) {
 
         if(ListUtils.isNotEmpty(orderIds)){
             return orderDao.updateOrderPickState(orderIds,state,waveNo);

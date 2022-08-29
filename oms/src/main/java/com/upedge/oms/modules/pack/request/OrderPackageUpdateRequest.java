@@ -33,7 +33,7 @@ public class OrderPackageUpdateRequest{
     /**
      * 
      */
-    private Long waveNo;
+    private Integer waveNo;
     /**
      * 真实追踪号
      */

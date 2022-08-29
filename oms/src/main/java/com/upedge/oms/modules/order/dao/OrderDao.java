@@ -394,6 +394,6 @@ public interface OrderDao {
 
     List<OrderItemQuantityVo> selectOrderItemQuantities(OrderItemQuantityDto orderItemQuantityDto);
 
-    int updateOrderPickState(@Param("orderIds") List<Long> orderIds, @Param("state") Integer state, @Param("waveNo") Long waveNo);
+    int updateOrderPickState(@Param("orderIds") List<Long> orderIds, @Param("state") Integer state, @Param("waveNo") Integer waveNo);
 
 }

@@ -73,6 +73,11 @@ public class OrderPickServiceImpl implements OrderPickService {
     }
 
     @Override
+    public List<OrderPickInfoVo> selectOrderPickInfo(Integer waveNo) {
+        return orderPickDao.selectOrderPickInfo(waveNo);
+    }
+
+    @Override
     public OrderPickWaveInfoVo wavePickInfo(Integer waveNo) {
         OrderPick orderPick = orderPickDao.selectByWaveNo(waveNo);
         if (null == orderPick){
@@ -356,11 +361,11 @@ public class OrderPickServiceImpl implements OrderPickService {
             variantIds.add(orderItem.getAdminVariantId());
         });
 
-        Long waveNo = IdGenerate.nextId();
+        Integer waveNo = getWaveNo();
         OrderPick orderPick = new OrderPick();
         orderPick.setPickType(2);
-        orderPick.setId(waveNo);
-        orderPick.setWaveNo(getWaveNo());
+        orderPick.setId(IdGenerate.nextId());
+        orderPick.setWaveNo(waveNo);
         orderPick.setPickState(OrderPick.TO_BE_PICKED);
         orderPick.setOperatorId(operatorId);
         orderPick.setCreateTime(new Date());
@@ -391,11 +396,11 @@ public class OrderPickServiceImpl implements OrderPickService {
             orderIds.add(orderPickQuantityVo.getOrderId());
         });
 
-        Long waveNo = IdGenerate.nextId();
+        Integer waveNo = getWaveNo();
         OrderPick orderPick = new OrderPick();
         orderPick.setPickType(0);
-        orderPick.setId(waveNo);
-        orderPick.setWaveNo(getWaveNo());
+        orderPick.setId(IdGenerate.nextId());
+        orderPick.setWaveNo(waveNo);
         orderPick.setOperatorId(operatorId);
         orderPick.setCreateTime(new Date());
         orderPick.setUpdateTime(new Date());
@@ -435,11 +440,11 @@ public class OrderPickServiceImpl implements OrderPickService {
             return 0;
         }
 
-        Long waveNo = IdGenerate.nextId();
+        Integer waveNo = getWaveNo();
         OrderPick orderPick = new OrderPick();
         orderPick.setPickType(1);
-        orderPick.setId(waveNo);
-        orderPick.setWaveNo(getWaveNo());
+        orderPick.setId(IdGenerate.nextId());
+        orderPick.setWaveNo(waveNo);
         orderPick.setOperatorId(operatorId);
         orderPick.setCreateTime(new Date());
         orderPick.setUpdateTime(new Date());

@@ -26,7 +26,8 @@ import com.upedge.oms.modules.pack.request.OrderPackageInfoGetRequest;
 import com.upedge.oms.modules.pack.service.OrderLabelPrintLogService;
 import com.upedge.oms.modules.pack.service.OrderPackageService;
 import com.upedge.oms.modules.pack.vo.OrderPackageInfoVo;
-import com.upedge.oms.modules.pick.vo.OrderPickWaveInfoVo;
+import com.upedge.oms.modules.pick.service.OrderPickService;
+import com.upedge.oms.modules.pick.vo.OrderPickInfoVo;
 import com.upedge.thirdparty.shipcompany.cne.api.CneApi;
 import com.upedge.thirdparty.shipcompany.cne.dto.CneCreateOrderRequest;
 import com.upedge.thirdparty.shipcompany.cne.dto.CneOrderDto;
@@ -65,6 +66,9 @@ public class OrderPackageServiceImpl implements OrderPackageService {
 
     @Autowired
     OrderAddressService orderAddressService;
+
+    @Autowired
+    OrderPickService orderPickService;
 
     @Autowired
     OrderLabelPrintLogService orderLabelPrintLogService;
@@ -147,9 +151,9 @@ public class OrderPackageServiceImpl implements OrderPackageService {
             return BaseResponse.failed("包裹不存在");
         }
         Map<String,String> map = new HashMap<>();
-        OrderPickWaveInfoVo orderPickWaveInfoVo = orderLabelPrintLogService.selectTheLatestPackLabel(request.getPackNo());
-        if (null != orderPickWaveInfoVo){
-            map.put("labelUrl",labelUrl);
+        OrderLabelPrintLog orderLabelPrintLog = orderLabelPrintLogService.selectTheLatestPackLabel(request.getPackNo());
+        if (null != orderLabelPrintLog){
+            map.put("labelUrl",orderLabelPrintLog.getLabelUrl());
             return BaseResponse.success(map);
         }
         try {
@@ -160,13 +164,16 @@ public class OrderPackageServiceImpl implements OrderPackageService {
                 case "YunExpress":
                     labelUrl = YunexpressApi.getSinglePackageLabel(orderPackage.getPlatId());
                     break;
+                case "CNE":
+                    labelUrl = CneApi.getLabel(orderPackage.getTrackingCode());
+                    break;
             }
         }catch (Exception e){
 
         }
         map.put("labelUrl",labelUrl);
 
-        OrderLabelPrintLog orderLabelPrintLog = new OrderLabelPrintLog();
+        orderLabelPrintLog = new OrderLabelPrintLog();
         orderLabelPrintLog.setOrderId(orderPackage.getOrderId());
         orderLabelPrintLog.setLabelUrl(labelUrl);
         orderLabelPrintLog.setCreateTime(new Date());
@@ -178,6 +185,11 @@ public class OrderPackageServiceImpl implements OrderPackageService {
         order.setId(orderPackage.getId());
         order.setIsPrintLabel(true);
         orderService.updateByPrimaryKeySelective(order);
+
+        List<OrderPickInfoVo> orderPickInfoVos = orderPickService.selectOrderPickInfo(orderPackage.getWaveNo());
+        for (OrderPickInfoVo orderPickInfoVo : orderPickInfoVos) {
+
+        }
         return BaseResponse.success(map);
     }
 
@@ -199,8 +211,9 @@ public class OrderPackageServiceImpl implements OrderPackageService {
         Order order = orderService.selectByPrimaryKey(orderId);
 
         if (order.getPayState() != 1
-        || order.getPackState() == 1){
-            return BaseResponse.failed("订单未支付或已生成包裹");
+        || order.getPackState() == 1
+        || order.getRefundState() != 0){
+            return BaseResponse.failed("订单未支付或已生成包裹或退款中");
         }
 
         ShippingMethodRedis shippingMethodRedis = (ShippingMethodRedis) redisTemplate.opsForHash().get(RedisKey.SHIPPING_METHOD,order.getShipMethodId().toString());
@@ -258,6 +271,8 @@ public class OrderPackageServiceImpl implements OrderPackageService {
         try {
             cneOrderDto = CneApi.createCneOrder(request);
         } catch (Exception e) {
+            orderService.updateOrderPackInfo(orderId,2,null);
+            redisTemplate.opsForHash().put(RedisKey.HASH_ORDER_CREATE_PACKAGE_FAILED_REASON,orderId.toString(),e.getMessage());
             return BaseResponse.failed(e.getMessage());
         }
 
@@ -576,6 +591,7 @@ public class OrderPackageServiceImpl implements OrderPackageService {
         if (!b){
             no = Long.parseLong(date + "00001");
         }else {
+            no = (Long) redisTemplate.opsForHash().get(key,date);
             if (null != no){
                 no = no + 1;
             }else {

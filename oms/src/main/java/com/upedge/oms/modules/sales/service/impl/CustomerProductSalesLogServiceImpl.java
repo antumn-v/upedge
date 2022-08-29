@@ -119,7 +119,16 @@ public class CustomerProductSalesLogServiceImpl implements CustomerProductSalesL
             OrderPickTypeVo orderPickTypeVo = m.getValue();
             List<OrderItem> orderItems = orderPickTypeVo.getItems();
             if (orderItems.size() > 1){
-                orderPickTypeVo.setPickType(2);
+                Set<Long> adminVariantIds = new HashSet<>();
+                for (OrderItem orderItem : orderItems) {
+                    adminVariantIds.add(orderItem.getAdminVariantId());
+                }
+                if (adminVariantIds.size() > 1){
+                    orderPickTypeVo.setPickType(2);
+                }else {
+                    orderPickTypeVo.setPickType(1);
+                }
+
             }else {
                 int totalQuantity = orderItems.stream().mapToInt(OrderItem::getQuantity).sum();
                 if (totalQuantity > 1){

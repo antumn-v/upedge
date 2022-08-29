@@ -7,6 +7,7 @@ import com.upedge.oms.modules.pick.entity.OrderPick;
 import com.upedge.oms.modules.pick.request.OrderPickCreateRequest;
 import com.upedge.oms.modules.pick.request.OrderPickPreviewListRequest;
 import com.upedge.oms.modules.pick.request.TwicePickSubmitRequest;
+import com.upedge.oms.modules.pick.vo.OrderPickInfoVo;
 import com.upedge.oms.modules.pick.vo.OrderPickWaveInfoVo;
 
 import java.util.List;
@@ -15,6 +16,7 @@ import java.util.List;
  * @author gx
  */
 public interface OrderPickService{
+    List<OrderPickInfoVo> selectOrderPickInfo(Integer waveNo);
 
     OrderPickWaveInfoVo wavePickInfo(Integer waveNo);
 

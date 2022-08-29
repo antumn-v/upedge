@@ -208,7 +208,7 @@ public class ShippingMethodServiceImpl implements ShippingMethodService {
 //                fpxWarehouseMethodListRequest.setSourcePositionCode(warehouseCode);
 //                fpxWarehouseMethodListRequest.setCategoryCode("end");
 //                fpxWarehouseMethodListRequest.setServiceCode("F");
-                List<FpxMethodVo> fpxMethodVos = FpxCommonApi.getTransportMethods(3);
+                List<FpxMethodVo> fpxMethodVos = FpxCommonApi.getTransportMethods(1);
                 fpxMethodVos.forEach(fpxMethodVo -> {
                     ShipMethodCodeVo shipMethodCodeVo = new ShipMethodCodeVo();
                     shipMethodCodeVo.setMethodCode(fpxMethodVo.getLogisticsProductCode());
