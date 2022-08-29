@@ -145,18 +145,22 @@ public class PurchaseServiceImpl implements PurchaseService {
             warehouseCode = "CNHZ";
         }
         Set<String> purchaseSkus = new HashSet<>();
+        //产品信息
         List<ProductVariant> productVariants = productVariantService.listVariantByIds(variantIds);
-
+        //产品库存信息
         List<VariantWarehouseStock> variantWarehouseStocks = variantWarehouseStockService.selectByVariantIdsAndWarehouseCode(variantIds, warehouseCode);
 
+        //产品信息，库存信息匹配
         a:
         for (PurchaseAdviceItemVo purchaseAdviceItemVo : purchaseAdviceItemVos) {
             Long variantId = purchaseAdviceItemVo.getVariantId();
             b:
             for (VariantWarehouseStock variantWarehouseStock : variantWarehouseStocks) {
                 if (variantWarehouseStock.getVariantId().equals(variantId)) {
-                    purchaseAdviceItemVo.setSafeStock(variantWarehouseStock.getAvailableStock());
+                    purchaseAdviceItemVo.setSafeStock(variantWarehouseStock.getSafeStock());
                     purchaseAdviceItemVo.setPurchaseQuantity(variantWarehouseStock.getPurchaseStock());
+                    purchaseAdviceItemVo.setAvailableStock(variantWarehouseStock.getAvailableStock());
+                    purchaseAdviceItemVo.setLockQuantity(variantWarehouseStock.getLockStock());
                     variantWarehouseStocks.remove(variantWarehouseStock);
                     break b;
                 }
@@ -171,6 +175,7 @@ public class PurchaseServiceImpl implements PurchaseService {
             }
         }
 
+        //采购信息匹配
         List<ProductPurchaseInfo> productPurchaseInfos = productPurchaseInfoService.selectByPurchaseSkus(purchaseSkus);
         Map<String, PurchaseAdviceVo> purchaseAdviceVoMap = new HashMap<>();
         a:

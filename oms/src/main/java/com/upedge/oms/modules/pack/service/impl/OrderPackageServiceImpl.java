@@ -294,6 +294,7 @@ public class OrderPackageServiceImpl implements OrderPackageService {
         insert(orderPackage);
 
         orderService.updateOrderPackInfo(orderId,1,packageNo);
+        redisTemplate.opsForHash().delete(RedisKey.HASH_ORDER_CREATE_PACKAGE_FAILED_REASON,orderId.toString());
         return BaseResponse.success(orderPackage);
 
     }
@@ -327,6 +328,7 @@ public class OrderPackageServiceImpl implements OrderPackageService {
         insert(orderPackage);
 
         orderService.updateOrderPackInfo(orderId,1,packageNo);
+        redisTemplate.opsForHash().delete(RedisKey.HASH_ORDER_CREATE_PACKAGE_FAILED_REASON,orderId.toString());
         return BaseResponse.success(orderPackage);
     }
 
@@ -434,6 +436,7 @@ public class OrderPackageServiceImpl implements OrderPackageService {
         insert(orderPackage);
 
         orderService.updateOrderPackInfo(orderId,1,packageNo);
+        redisTemplate.opsForHash().delete(RedisKey.HASH_ORDER_CREATE_PACKAGE_FAILED_REASON,orderId.toString());
         return BaseResponse.success(orderPackage);
     }
 

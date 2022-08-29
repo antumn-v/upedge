@@ -6,15 +6,15 @@ import lombok.Data;
 public class PurchaseAdviceItemVo {
 
     private Long variantId;
-
+    //预购数量
     private int orderQuantity;
-
-    private int stockQuantity;
-
+    //锁定库存
+    private int lockQuantity;
+    //安全库存
     private int safeStock;
-
+    //锁定库存
     private int availableStock;
-
+    //采购中库存
     private int purchaseQuantity;
 
     private String variantImage;
@@ -24,7 +24,7 @@ public class PurchaseAdviceItemVo {
     private String cnName;
 
     private String purchaseSku;
-
+    //建议备库数量
     private int suggestQuantity;
 
 

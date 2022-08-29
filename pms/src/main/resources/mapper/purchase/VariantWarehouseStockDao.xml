@@ -17,8 +17,7 @@
     </resultMap>
 
     <sql id="Base_Column_List">
-        `variant_id`
-                ,`warehouse_code`,`stock_scale`,`available_stock`,`lock_stock`,`purchase_stock`,`remark`,`shelf_num`,`update_time`
+        `variant_id`,`safe_stock`,`warehouse_code`,`stock_scale`,`available_stock`,`lock_stock`,`purchase_stock`,`remark`,`shelf_num`,`update_time`
     </sql>
 
     <select id="selectByPrimaryKey" resultMap="BaseResultMap">

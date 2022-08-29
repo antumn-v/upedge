@@ -5,6 +5,7 @@ import com.upedge.common.component.annotation.Permission;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.utils.IdGenerate;
 import com.upedge.common.web.util.UserUtil;
+import com.upedge.pms.modules.purchase.entity.VariantWarehouseStock;
 import com.upedge.pms.modules.purchase.entity.VariantWarehouseStockRecord;
 import com.upedge.pms.modules.purchase.request.VariantStockExImRecordUpdateRequest;
 import com.upedge.pms.modules.purchase.request.VariantStockUpdateRequest;
@@ -64,6 +65,17 @@ public class VariantWarehouseStockController {
         request.setProcessType(VariantWarehouseStockRecord.CUSTOM_IM);
         request.setRelateId(IdGenerate.nextId());
         return variantWarehouseStockService.variantStockIm(request,session);
+    }
+
+    @ApiOperation("修改安全库存")
+    @PostMapping("/updateSafeQuantity")
+    public BaseResponse updateSafeQuantity(@RequestBody @Valid VariantStockUpdateRequest request){
+        VariantWarehouseStock variantWarehouseStock = new VariantWarehouseStock();
+        variantWarehouseStock.setVariantId(request.getVariantId());
+        variantWarehouseStock.setWarehouseCode(request.getWarehouseCode());
+        variantWarehouseStock.setSafeStock(request.getStock());
+        variantWarehouseStockService.updateByPrimaryKeySelective(variantWarehouseStock);
+        return BaseResponse.success();
     }
 
 
