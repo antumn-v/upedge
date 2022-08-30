@@ -51,6 +51,13 @@ public class Ordercelduler {
             }
         }
 
+    }
+
+    @Scheduled(cron = "0 */10 * ? * *")
+    public void reUploadStockOrderToSaihe(){
+        if (!ifUploadSaihe) {
+            return ;
+        }
         List<Long> stockOrderIds = stockOrderService.selectUploadSaiheFailedIds();
         for (Long stockOrderId : stockOrderIds) {
             CreateProcurementRequest request = new CreateProcurementRequest();
