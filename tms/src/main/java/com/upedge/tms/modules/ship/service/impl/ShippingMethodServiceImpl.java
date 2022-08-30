@@ -24,6 +24,8 @@ import com.upedge.thirdparty.shipcompany.cne.api.CneApi;
 import com.upedge.thirdparty.shipcompany.cne.dto.CneShipMethodDto;
 import com.upedge.thirdparty.shipcompany.fpx.api.FpxCommonApi;
 import com.upedge.thirdparty.shipcompany.fpx.vo.FpxMethodVo;
+import com.upedge.thirdparty.shipcompany.yanwen.YanwenShipMethodVo;
+import com.upedge.thirdparty.shipcompany.yanwen.api.YanwenApi;
 import com.upedge.thirdparty.shipcompany.yunexpress.api.YunexpressApi;
 import com.upedge.thirdparty.shipcompany.yunexpress.vo.YunExpressShipMethodVo;
 import com.upedge.tms.modules.area.dao.AreaDao;
@@ -204,10 +206,6 @@ public class ShippingMethodServiceImpl implements ShippingMethodService {
         List<ShipMethodCodeVo> shipMethodCodeVos = new ArrayList<>();
         switch (shipCompany){
             case "4PX":
-//                FpxWarehouseMethodListRequest fpxWarehouseMethodListRequest = new FpxWarehouseMethodListRequest();
-//                fpxWarehouseMethodListRequest.setSourcePositionCode(warehouseCode);
-//                fpxWarehouseMethodListRequest.setCategoryCode("end");
-//                fpxWarehouseMethodListRequest.setServiceCode("F");
                 List<FpxMethodVo> fpxMethodVos = FpxCommonApi.getTransportMethods(1);
                 fpxMethodVos.forEach(fpxMethodVo -> {
                     ShipMethodCodeVo shipMethodCodeVo = new ShipMethodCodeVo();
@@ -239,6 +237,16 @@ public class ShippingMethodServiceImpl implements ShippingMethodService {
                     shipMethodCodeVo.setEName(cneShipMethodDto.getCName());
                     shipMethodCodeVos.add(shipMethodCodeVo);
                 }
+            case "Yanwen":
+                List<YanwenShipMethodVo> yanwenShipMethodVos = YanwenApi.getYanwenShipMethods();
+                yanwenShipMethodVos.forEach(yanwenShipMethodVo -> {
+                    ShipMethodCodeVo shipMethodCodeVo = new ShipMethodCodeVo();
+                    shipMethodCodeVo.setMethodCode(yanwenShipMethodVo.getId());
+                    shipMethodCodeVo.setShipCompany(shipCompany);
+                    shipMethodCodeVo.setEName(yanwenShipMethodVo.getNameEn());
+                    shipMethodCodeVo.setCName(yanwenShipMethodVo.getName());
+                    shipMethodCodeVos.add(shipMethodCodeVo);
+                });
             default:
                 break;
         }
