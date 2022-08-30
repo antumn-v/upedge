@@ -2,10 +2,7 @@ package com.upedge.thirdparty.shipcompany.cne.api;
 
 import com.alibaba.fastjson.JSONObject;
 import com.upedge.common.exception.CustomerException;
-import com.upedge.thirdparty.shipcompany.cne.dto.CneCreateOrderRequest;
-import com.upedge.thirdparty.shipcompany.cne.dto.CneOrderDto;
-import com.upedge.thirdparty.shipcompany.cne.dto.CneRequestBase;
-import com.upedge.thirdparty.shipcompany.cne.dto.CneShipMethodDto;
+import com.upedge.thirdparty.shipcompany.cne.dto.*;
 import okhttp3.*;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.springframework.http.HttpMethod;
@@ -64,6 +61,28 @@ public class CneApi {
         String url = "https://label.cne.com/CnePrint?icID=8604585&cNos="+trackingCode+"&ptemp=label10x15_0&signature=" + md5;
         return url;
     }
+
+    public static String getTrackNumber(String cNo){
+        String requestUrl = "https://api.cne.com/cgi-bin/EmsData.dll?DoApi";
+        CneGetTrackNumberDto cneGetTrackNumberDto = new CneGetTrackNumberDto();
+        cneGetTrackNumberDto.setCNo(cNo);
+        String result = null;
+        try {
+            result = commonRequest(requestUrl, HttpMethod.POST, JSONObject.toJSONString(cneGetTrackNumberDto));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+        JSONObject jsonObject = JSONObject.parseObject(result);
+        int i = jsonObject.getInteger("ReturnValue");
+        if (i != 100){
+            return null;
+        }
+        jsonObject = jsonObject.getJSONObject("Response_Info");
+        return jsonObject.getString("transNbr");
+    }
+
+
 
 
     static String commonRequest(String url, HttpMethod method, String data) throws Exception {
