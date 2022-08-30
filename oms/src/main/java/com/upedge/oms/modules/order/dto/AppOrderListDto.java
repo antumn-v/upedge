@@ -14,6 +14,8 @@ public class AppOrderListDto {
 
     Integer payState;
 
+    Integer packState;
+
     Integer shipState;
 
     Integer refundState;
