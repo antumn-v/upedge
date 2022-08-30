@@ -318,7 +318,7 @@ public class OrderPackageServiceImpl implements OrderPackageService {
         orderPackage.setPackageState(0);
         orderPackage.setCreateTime(new Date());
         orderPackage.setLogisticsOrderNo(fpxCreateOrderDataDTO.getLogisticsChannelNo());
-        orderPackage.setTrackingCode(fpxCreateOrderDataDTO.getDsConsignmentNo());
+        orderPackage.setTrackingCode(fpxCreateOrderDataDTO.getFpxTrackingNo());
         orderPackage.setPlatId(fpxCreateOrderDataDTO.getLabelBarcode());
         orderPackage.setStoreId(order.getStoreId());
         orderPackage.setCustomerId(order.getCustomerId());
@@ -426,7 +426,7 @@ public class OrderPackageServiceImpl implements OrderPackageService {
         orderPackage.setPackageState(0);
         orderPackage.setCreateTime(new Date());
         orderPackage.setLogisticsOrderNo(wayBillItemVo.getWayBillNumber());
-        orderPackage.setTrackingCode(wayBillItemVo.getWayBillNumber());
+        orderPackage.setTrackingCode(wayBillItemVo.getTrackingNumber());
         orderPackage.setPlatId(wayBillItemVo.getWayBillNumber());
         orderPackage.setStoreId(order.getStoreId());
         orderPackage.setCustomerId(order.getCustomerId());
