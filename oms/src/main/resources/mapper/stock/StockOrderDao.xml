@@ -586,7 +586,7 @@
             <trim prefix=" " suffix=" " suffixOverrides=" and ">
                 1 = 1 and
                 <if test="t.id != null">
-                    id = #{t.id} and
+                    o.id = #{t.id} and
                 </if>
                 <if test="t.warehouseCode != null">
                     warehouse_code = #{t.warehouseCode} and
