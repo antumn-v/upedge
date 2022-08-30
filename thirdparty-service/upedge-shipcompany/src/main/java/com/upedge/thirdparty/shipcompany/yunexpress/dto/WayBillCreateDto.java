@@ -1,6 +1,6 @@
 package com.upedge.thirdparty.shipcompany.yunexpress.dto;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.alibaba.fastjson.annotation.JSONField;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -15,116 +15,116 @@ public class WayBillCreateDto {
     /**
      * 订单ID
      */
-    @JsonProperty("CustomerOrderNumber")
+    @JSONField(name = "CustomerOrderNumber")
     private String CustomerOrderNumber;
     /**
      * 运输方式代码
      */
-    @JsonProperty("ShippingMethodCode")
+    @JSONField(name = "ShippingMethodCode")
     private String ShippingMethodCode;
     /**
      * 包裹号
      */
-    @JsonProperty("TrackingNumber")
+    @JSONField(name = "TrackingNumber")
     private String TrackingNumber;
-    @JsonProperty("TransactionNumber")
+    @JSONField(name = "TransactionNumber")
     private String TransactionNumber;
-    @JsonProperty("IossCode")
+    @JSONField(name = "IossCode")
     private String IossCode;
-    @JsonProperty("BrazilianCode")
+    @JSONField(name = "BrazilianCode")
     private String BrazilianCode;
-    @JsonProperty("Height")
+    @JSONField(name = "Height")
     private Integer Height = 1;
-    @JsonProperty("Length")
+    @JSONField(name = "Length")
     private Integer Length = 1;
-    @JsonProperty("Width")
+    @JSONField(name = "Width")
     private Integer Width = 1;
     /**
      * 包裹数量
      */
-    @JsonProperty("PackageCount")
+    @JSONField(name = "PackageCount")
     private Integer PackageCount;
-    @JsonProperty("Weight")
+    @JSONField(name = "Weight")
     private BigDecimal Weight;
-    @JsonProperty("ApplicationType")
+    @JSONField(name = "ApplicationType")
     private Integer ApplicationType;
-    @JsonProperty("ReturnOption")
+    @JSONField(name = "ReturnOption")
     private Integer ReturnOption;
-    @JsonProperty("TariffPrepay")
+    @JSONField(name = "TariffPrepay")
     private Integer TariffPrepay;
-    @JsonProperty("InsuranceOption")
+    @JSONField(name = "InsuranceOption")
     private Integer InsuranceOption;
-    @JsonProperty("SourceCode")
+    @JSONField(name = "SourceCode")
     private String SourceCode;
-    @JsonProperty("Receiver")
+    @JSONField(name = "Receiver")
     private ReceiverDTO Receiver;
-    @JsonProperty("Sender")
+    @JSONField(name = "Sender")
     private SenderDTO Sender = new SenderDTO();
-    @JsonProperty("OrderExtra")
+    @JSONField(name = "OrderExtra")
     private List<OrderExtraDTO> OrderExtra;
-    @JsonProperty("Parcels")
+    @JSONField(name = "Parcels")
     private List<ParcelsDTO> Parcels;
-    @JsonProperty("ChildOrders")
+    @JSONField(name = "ChildOrders")
     private List<ChildOrdersDTO> ChildOrders = new ArrayList<>();
 
     @NoArgsConstructor
     @Data
     public static class ReceiverDTO {
-        @JsonProperty("CountryCode")
+        @JSONField(name = "CountryCode")
         private String CountryCode;
-        @JsonProperty("FirstName")
+        @JSONField(name = "FirstName")
         private String FirstName;
-        @JsonProperty("LastName")
+        @JSONField(name = "LastName")
         private String LastName;
-        @JsonProperty("Company")
+        @JSONField(name = "Company")
         private String Company;
-        @JsonProperty("Street")
+        @JSONField(name = "Street")
         private String Street;
-        @JsonProperty("City")
+        @JSONField(name = "City")
         private String City;
-        @JsonProperty("State")
+        @JSONField(name = "State")
         private String State;
-        @JsonProperty("Zip")
+        @JSONField(name = "Zip")
         private String Zip;
-        @JsonProperty("Phone")
+        @JSONField(name = "Phone")
         private String Phone;
-        @JsonProperty("HouseNumber")
+        @JSONField(name = "HouseNumber")
         private String HouseNumber;
-        @JsonProperty("Email")
+        @JSONField(name = "Email")
         private String Email;
     }
 
     @NoArgsConstructor
     @Data
     public static class SenderDTO {
-        @JsonProperty("CountryCode")
+        @JSONField(name = "CountryCode")
         private String CountryCode = "CN";
-        @JsonProperty("FirstName")
+        @JSONField(name = "FirstName")
         private String FirstName = "郭";
-        @JsonProperty("LastName")
+        @JSONField(name = "LastName")
         private String LastName = "xin";
-        @JsonProperty("Company")
+        @JSONField(name = "Company")
         private String Company = "upedge";
-        @JsonProperty("Street")
+        @JSONField(name = "Street")
         private String Street = "五常街道";
-        @JsonProperty("City")
+        @JSONField(name = "City")
         private String City = "杭州市";
-        @JsonProperty("State")
+        @JSONField(name = "State")
         private String State = "浙江省";
-        @JsonProperty("Zip")
+        @JSONField(name = "Zip")
         private String Zip = "311100";
-        @JsonProperty("Phone")
+        @JSONField(name = "Phone")
         private String Phone = "18166668888";
-        @JsonProperty("HouseNumber")
+        @JSONField(name = "HouseNumber")
         private String HouseNumber = "406";
     }
 
     @NoArgsConstructor
     @Data
     public static class OrderExtraDTO {
-        @JsonProperty("ExtraCode")
+        @JSONField(name = "ExtraCode")
         private String ExtraCode;
-        @JsonProperty("ExtraName")
+        @JSONField(name = "ExtraName")
         private String ExtraName;
     }
 
@@ -134,53 +134,53 @@ public class WayBillCreateDto {
         /**
          * 报关英文名
          */
-        @JsonProperty("EName")
+        @JSONField(name = "EName")
         private String EName;
         /**
          * 报关中文名
          */
-        @JsonProperty("CName")
+        @JSONField(name = "CName")
         private String CName;
-        @JsonProperty("HSCode")
+        @JSONField(name = "HSCode")
         private Object HSCode;
-        @JsonProperty("Quantity")
+        @JSONField(name = "Quantity")
         private Integer Quantity;
-        @JsonProperty("SKU")
+        @JSONField(name = "SKU")
         private String SKU;
-        @JsonProperty("UnitPrice")
+        @JSONField(name = "UnitPrice")
         private BigDecimal UnitPrice;
-        @JsonProperty("UnitWeight")
+        @JSONField(name = "UnitWeight")
         private BigDecimal UnitWeight;
-        @JsonProperty("Remark")
+        @JSONField(name = "Remark")
         private String Remark;
-        @JsonProperty("InvoiceRemark")
+        @JSONField(name = "InvoiceRemark")
         private String InvoiceRemark;
-        @JsonProperty("CurrencyCode")
+        @JSONField(name = "CurrencyCode")
         private String CurrencyCode = "USD";
     }
 
     @NoArgsConstructor
     @Data
     public static class ChildOrdersDTO {
-        @JsonProperty("BoxNumber")
+        @JSONField(name = "BoxNumber")
         private String BoxNumber;
-        @JsonProperty("Length")
+        @JSONField(name = "Length")
         private Integer Length = 1;
-        @JsonProperty("Width")
+        @JSONField(name = "Width")
         private Integer Width = 1;
-        @JsonProperty("Height")
+        @JSONField(name = "Height")
         private Integer Height = 1;
-        @JsonProperty("BoxWeight")
+        @JSONField(name = "BoxWeight")
         private BigDecimal BoxWeight;
-        @JsonProperty("ChildDetails")
+        @JSONField(name = "ChildDetails")
         private List<ChildDetailsDTO> ChildDetails;
 
         @NoArgsConstructor
         @Data
         public static class ChildDetailsDTO {
-            @JsonProperty("Sku")
+            @JSONField(name = "Sku")
             private String Sku;
-            @JsonProperty("Quantity")
+            @JSONField(name = "Quantity")
             private Integer Quantity;
         }
     }

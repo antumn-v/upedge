@@ -1,6 +1,6 @@
 package com.upedge.thirdparty.shipcompany.fpx.vo;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.alibaba.fastjson.annotation.JSONField;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -9,14 +9,14 @@ import lombok.NoArgsConstructor;
 public class FpxWarehouseVo {
 
 
-    @JsonProperty("warehouse_code")
+    @JSONField(name = "warehouse_code")
     private String warehouseCode;
-    @JsonProperty("warehouse_name_cn")
+    @JSONField(name = "warehouse_name_cn")
     private String warehouseNameCn;
-    @JsonProperty("warehouse_name_en")
+    @JSONField(name = "warehouse_name_en")
     private String warehouseNameEn;
-    @JsonProperty("country")
+    @JSONField(name = "country")
     private String country;
-    @JsonProperty("service_code")
+    @JSONField(name = "service_code")
     private String serviceCode;
 }

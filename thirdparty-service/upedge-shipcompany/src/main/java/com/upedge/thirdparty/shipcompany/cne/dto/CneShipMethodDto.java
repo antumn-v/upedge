@@ -1,6 +1,6 @@
 package com.upedge.thirdparty.shipcompany.cne.dto;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.alibaba.fastjson.annotation.JSONField;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -9,8 +9,8 @@ import lombok.NoArgsConstructor;
 public class CneShipMethodDto {
 
 
-    @JsonProperty("oName")
+    @JSONField(name = "oName")
     private String oName;
-    @JsonProperty("cName")
+    @JSONField(name = "cName")
     private String cName;
 }

@@ -1,5 +1,6 @@
 package com.upedge.thirdparty.shipcompany.fpx.vo;
 
+import com.alibaba.fastjson.annotation.JSONField;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -11,31 +12,31 @@ import java.util.List;
 public class FpxPrintLabelVo {
 
 
-    @JsonProperty("data")
+    @JSONField(name = "data")
     private FpxPrintLabelDTO data;
-    @JsonProperty("msg")
+    @JSONField(name = "msg")
     private String msg;
-    @JsonProperty("result")
+    @JSONField(name = "result")
     private String result;
-    @JsonProperty("errors")
+    @JSONField(name = "errors")
     private List<FpxOrderErrorDTO> errors;
 
     @NoArgsConstructor
     @Data
     public static class FpxPrintLabelDTO {
-        @JsonProperty("label_barcode")
+        @JSONField(name = "label_barcode")
         private String labelBarcode;
-        @JsonProperty("label_url_info")
+        @JSONField(name = "label_url_info")
         private LabelUrlInfoDTO labelUrlInfo;
 
         @NoArgsConstructor
         @Data
         public static class LabelUrlInfoDTO {
-            @JsonProperty("logistics_label")
+            @JSONField(name = "logistics_label")
             private String logisticsLabel;
-            @JsonProperty("custom_label")
+            @JSONField(name = "custom_label")
             private String customLabel;
-            @JsonProperty("package_label")
+            @JSONField(name = "package_label")
             private String packageLabel;
         }
     }

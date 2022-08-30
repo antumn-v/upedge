@@ -1,6 +1,6 @@
 package com.upedge.thirdparty.shipcompany.fpx.vo;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.alibaba.fastjson.annotation.JSONField;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -9,12 +9,12 @@ import lombok.NoArgsConstructor;
 public class FpxMeasureUnit {
 
 
-    @JsonProperty("code")
+    @JSONField(name = "code")
     private String code;
-    @JsonProperty("name_cn")
+    @JSONField(name = "name_cn")
     private String nameCn;
-    @JsonProperty("name_en")
+    @JSONField(name = "name_en")
     private String nameEn;
-    @JsonProperty("symbol")
+    @JSONField(name = "symbol")
     private String symbol;
 }

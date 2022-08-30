@@ -1,6 +1,6 @@
 package com.upedge.thirdparty.shipcompany.yunexpress.dto;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.alibaba.fastjson.annotation.JSONField;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -9,27 +9,27 @@ import lombok.NoArgsConstructor;
 public class WayBillDeleteDto {
 
 
-    @JsonProperty("Item")
+    @JSONField(name = "Item")
     private WayBillDeleteItemDTO item;
-    @JsonProperty("Code")
+    @JSONField(name = "Code")
     private String code;
-    @JsonProperty("Message")
+    @JSONField(name = "Message")
     private String message;
-    @JsonProperty("RequestId")
+    @JSONField(name = "RequestId")
     private String requestId;
-    @JsonProperty("TimeStamp")
+    @JSONField(name = "TimeStamp")
     private String timeStamp;
 
     @NoArgsConstructor
     @Data
     public static class WayBillDeleteItemDTO {
-        @JsonProperty("OrderNumber")
+        @JSONField(name = "OrderNumber")
         private String orderNumber;
-        @JsonProperty("Status")
+        @JSONField(name = "Status")
         private String status;
-        @JsonProperty("Type")
+        @JSONField(name = "Type")
         private Integer type;
-        @JsonProperty("Remark")
+        @JSONField(name = "Remark")
         private String remark;
     }
 }

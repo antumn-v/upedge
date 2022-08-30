@@ -1,6 +1,6 @@
 package com.upedge.thirdparty.shipcompany.fpx.vo;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.alibaba.fastjson.annotation.JSONField;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -11,34 +11,34 @@ import lombok.NoArgsConstructor;
 @Data
 public class FpxInboundSku {
 
-    @JsonProperty("box_no")
+    @JSONField(name = "box_no")
     private String boxNo;
-    @JsonProperty("box_barcode")
+    @JSONField(name = "box_barcode")
     private String boxBarcode;
-    @JsonProperty("sku_id")
+    @JSONField(name = "sku_id")
     private String skuId;
-    @JsonProperty("sku_code")
+    @JSONField(name = "sku_code")
     private String skuCode;
-    @JsonProperty("product_code")
+    @JSONField(name = "product_code")
     private String productCode;
-    @JsonProperty("logistics_package")
+    @JSONField(name = "logistics_package")
     private String logisticsPackage;
-    @JsonProperty("plan_qty")
+    @JSONField(name = "plan_qty")
     private Integer planQty;
-    @JsonProperty("received_qty")
+    @JSONField(name = "received_qty")
     private Integer receivedQty;
-    @JsonProperty("exception_qty")
+    @JSONField(name = "exception_qty")
     private Integer exceptionQty;
-    @JsonProperty("batch_no")
+    @JSONField(name = "batch_no")
     private String batchNo;
-    @JsonProperty("weight")
+    @JSONField(name = "weight")
     private String weight;
-    @JsonProperty("volume")
+    @JSONField(name = "volume")
     private String volume;
-    @JsonProperty("length")
+    @JSONField(name = "length")
     private String length;
-    @JsonProperty("width")
+    @JSONField(name = "width")
     private String width;
-    @JsonProperty("height")
+    @JSONField(name = "height")
     private String height;
 }

@@ -1,5 +1,6 @@
 package com.upedge.thirdparty.shipcompany.yunexpress.vo;
 
+import com.alibaba.fastjson.annotation.JSONField;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -10,21 +11,21 @@ import java.util.List;
 @Data
 public class YunExpressLabelVo {
 
-    @JsonProperty("Url")
+    @JSONField(name = "Url")
     private String url;
 
 
-    @JsonProperty("OrderInfos")
+    @JSONField(name = "OrderInfos")
     private List<OrderInfosDTO> orderInfos;
 
     @NoArgsConstructor
     @Data
     public static class OrderInfosDTO {
-        @JsonProperty("CustomerOrderNumber")
+        @JSONField(name = "CustomerOrderNumber")
         private String customerOrderNumber;
-        @JsonProperty("Error")
+        @JSONField(name = "Error")
         private String error;
-        @JsonProperty("Code")
+        @JSONField(name = "Code")
         private Integer code;
     }
 }

@@ -1,19 +1,19 @@
 package com.upedge.thirdparty.shipcompany.yunexpress.vo;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.alibaba.fastjson.annotation.JSONField;
 import lombok.Data;
 
 @Data
 public class YunExpressShipMethodVo {
 
-    @JsonProperty("Code")
+    @JSONField(name = "Code")
     private String code;
-    @JsonProperty("CName")
+    @JSONField(name = "CName")
     private String cName;
-    @JsonProperty("EName")
+    @JSONField(name = "EName")
     private String eName;
-    @JsonProperty("HasTrackingNumber")
+    @JSONField(name = "HasTrackingNumber")
     private Boolean hasTrackingNumber;
-    @JsonProperty("DisplayName")
+    @JSONField(name = "DisplayName")
     private String displayName;
 }

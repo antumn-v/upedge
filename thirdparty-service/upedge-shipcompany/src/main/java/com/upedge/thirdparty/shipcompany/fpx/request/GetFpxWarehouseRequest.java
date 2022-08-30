@@ -1,6 +1,6 @@
 package com.upedge.thirdparty.shipcompany.fpx.request;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.alibaba.fastjson.annotation.JSONField;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -9,8 +9,8 @@ import lombok.NoArgsConstructor;
 public class GetFpxWarehouseRequest {
 
 
-    @JsonProperty("service_code")
+    @JSONField(name = "service_code")
     private String serviceCode;
-    @JsonProperty("country")
+    @JSONField(name = "country")
     private String country;
 }

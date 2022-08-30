@@ -1,5 +1,6 @@
 package com.upedge.thirdparty.shipcompany.cne.dto;
 
+import com.alibaba.fastjson.annotation.JSONField;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -9,22 +10,22 @@ import lombok.NoArgsConstructor;
 public class CneOrderDto {
 
 
-    @JsonProperty("iIndex")
+    @JSONField(name = "iIndex")
     private Integer iIndex;
-    @JsonProperty("iID")
+    @JSONField(name = "iID")
     private String iID;
-    @JsonProperty("cNum")
+    @JSONField(name = "cNum")
     private String cNum;
-    @JsonProperty("cNo")
+    @JSONField(name = "cNo")
     private String cNo;
-    @JsonProperty("cRNo")
+    @JSONField(name = "cRNo")
     private String cRNo;
-    @JsonProperty("cCNo")
+    @JSONField(name = "cCNo")
     private String cCNo;
-    @JsonProperty("cMess")
+    @JSONField(name = "cMess")
     private String cMess;
-    @JsonProperty("cPNo")
+    @JSONField(name = "cPNo")
     private String cPNo;
-    @JsonProperty("printUrl")
+    @JSONField(name = "printUrl")
     private String printUrl;
 }

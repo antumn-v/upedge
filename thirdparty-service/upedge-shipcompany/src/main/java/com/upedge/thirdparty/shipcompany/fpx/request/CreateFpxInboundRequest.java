@@ -1,6 +1,6 @@
 package com.upedge.thirdparty.shipcompany.fpx.request;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.alibaba.fastjson.annotation.JSONField;
 import com.upedge.thirdparty.shipcompany.fpx.config.FpxConfig;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -11,97 +11,97 @@ import java.util.List;
 @Data
 public class CreateFpxInboundRequest {
 
-    @JsonProperty("business_type")
+    @JSONField(name = "business_type")
     private String businessType = "D";
-    @JsonProperty("customer_code ")
+    @JSONField(name = "customer_code ")
     private String customerCode = FpxConfig.CUSTOMER_CODE;
-    @JsonProperty("ref_no")
+    @JSONField(name = "ref_no")
     private String refNo;
-    @JsonProperty("is_pickup")
+    @JSONField(name = "is_pickup")
     private String isPickup = "N";
-    @JsonProperty("from_warehouse_code")
+    @JSONField(name = "from_warehouse_code")
     private String fromWarehouseCode;
-    @JsonProperty("to_warehouse_code")
+    @JSONField(name = "to_warehouse_code")
     private String toWarehouseCode;
-    @JsonProperty("transport_type")
+    @JSONField(name = "transport_type")
     private String transportType = "E";
-    @JsonProperty("tracking_no")
+    @JSONField(name = "tracking_no")
     private String trackingNo;
-    @JsonProperty("license_plate")
+    @JSONField(name = "license_plate")
     private String licensePlate;
-    @JsonProperty("supplier_address")
+    @JSONField(name = "supplier_address")
     private SupplierAddressDTO supplierAddress = new SupplierAddressDTO();
-    @JsonProperty("logistics_service_info")
+    @JSONField(name = "logistics_service_info")
     private LogisticsServiceInfoDTO logisticsServiceInfo = new LogisticsServiceInfoDTO();
-    @JsonProperty("insure_services")
+    @JSONField(name = "insure_services")
     private String insureServices;
-    @JsonProperty("ocustoms_service")
+    @JSONField(name = "ocustoms_service")
     private String ocustomsService = "D3";
-    @JsonProperty("icustoms_service")
+    @JSONField(name = "icustoms_service")
     private String icustomsService = "D1";
-    @JsonProperty("currency")
+    @JSONField(name = "currency")
     private String currency;
-    @JsonProperty("insure_value")
+    @JSONField(name = "insure_value")
     private String insureValue;
-    @JsonProperty("remark")
+    @JSONField(name = "remark")
     private String remark;
-    @JsonProperty("print_box_no")
+    @JSONField(name = "print_box_no")
     private String printBoxNo = "Y";
-    @JsonProperty("print_box_type")
+    @JSONField(name = "print_box_type")
     private String printBoxType = "Z";
-    @JsonProperty("iconsignment_sku")
+    @JSONField(name = "iconsignment_sku")
     private List<IconsignmentSkuDTO> iconsignmentSku;
 
     @NoArgsConstructor
     @Data
     public static class SupplierAddressDTO {
-        @JsonProperty("country")
+        @JSONField(name = "country")
         private String country = "CN";
-        @JsonProperty("state")
+        @JSONField(name = "state")
         private String state = "浙江省";
-        @JsonProperty("city")
+        @JSONField(name = "city")
         private String city = "杭州市";
-        @JsonProperty("district")
+        @JSONField(name = "district")
         private String district;
-        @JsonProperty("post_code")
+        @JSONField(name = "post_code")
         private String postCode;
-        @JsonProperty("street")
+        @JSONField(name = "street")
         private String street;
-        @JsonProperty("house_number")
+        @JSONField(name = "house_number")
         private String houseNumber;
-        @JsonProperty("company")
+        @JSONField(name = "company")
         private String company;
-        @JsonProperty("contack_name")
+        @JSONField(name = "contack_name")
         private String contackName;
-        @JsonProperty("phone")
+        @JSONField(name = "phone")
         private String phone;
-        @JsonProperty("pickup_time")
+        @JSONField(name = "pickup_time")
         private String pickupTime;
-        @JsonProperty("plan_arrive_time")
+        @JSONField(name = "plan_arrive_time")
         private String planArriveTime;
     }
 
     @NoArgsConstructor
     @Data
     public static class LogisticsServiceInfoDTO {
-        @JsonProperty("logistics_product_code")
+        @JSONField(name = "logistics_product_code")
         private String logisticsProductCode;
-        @JsonProperty("signature_service")
+        @JSONField(name = "signature_service")
         private String signatureService = "N";
     }
 
     @NoArgsConstructor
     @Data
     public static class IconsignmentSkuDTO {
-        @JsonProperty("box_no")
+        @JSONField(name = "box_no")
         private String boxNo;
-        @JsonProperty("box_barcode")
+        @JSONField(name = "box_barcode")
         private String boxBarcode;
-        @JsonProperty("sku_code")
+        @JSONField(name = "sku_code")
         private String skuCode;
-        @JsonProperty("plan_qty")
+        @JSONField(name = "plan_qty")
         private Integer planQty;
-        @JsonProperty("batch_no")
+        @JSONField(name = "batch_no")
         private String batchNo;
     }
 }

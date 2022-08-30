@@ -1,5 +1,6 @@
 package com.upedge.thirdparty.shopify.entity;
 
+import com.alibaba.fastjson.annotation.JSONField;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -11,23 +12,23 @@ import java.util.List;
 public class WebhookCustomerRedact {
 
 
-    @JsonProperty("shop_id")
+    @JSONField(name = "shop_id")
     private String shopId;
-    @JsonProperty("shop_domain")
+    @JSONField(name = "shop_domain")
     private String shopDomain;
-    @JsonProperty("customer")
+    @JSONField(name = "customer")
     private CustomerDTO customer;
-    @JsonProperty("orders_to_redact")
+    @JSONField(name = "orders_to_redact")
     private List<String> ordersToRedact;
 
     @NoArgsConstructor
     @Data
     public static class CustomerDTO {
-        @JsonProperty("id")
+        @JSONField(name = "id")
         private String id;
-        @JsonProperty("email")
+        @JSONField(name = "email")
         private String email;
-        @JsonProperty("phone")
+        @JSONField(name = "phone")
         private String phone;
     }
 }

@@ -1,5 +1,6 @@
 package com.upedge.thirdparty.shopify.moudles.order.entity;
 
+import com.alibaba.fastjson.annotation.JSONField;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -11,100 +12,100 @@ import java.math.BigDecimal;
 public class ShopifyLineItem {
 
 
-    @JsonProperty("id")
+    @JSONField(name = "id")
     private String id;
-    @JsonProperty("admin_graphql_api_id")
+    @JSONField(name = "admin_graphql_api_id")
     private String adminGraphqlApiId;
-    @JsonProperty("fulfillable_quantity")
+    @JSONField(name = "fulfillable_quantity")
     private Integer fulfillable_quantity;
-    @JsonProperty("fulfillment_service")
+    @JSONField(name = "fulfillment_service")
     private String fulfillmentService;
-    @JsonProperty("fulfillment_status")
+    @JSONField(name = "fulfillment_status")
     private String fulfillmentStatus;
-    @JsonProperty("gift_card")
+    @JSONField(name = "gift_card")
     private Boolean giftCard;
-    @JsonProperty("grams")
+    @JSONField(name = "grams")
     private Integer grams;
-    @JsonProperty("name")
+    @JSONField(name = "name")
     private String name;
-    @JsonProperty("origin_location")
+    @JSONField(name = "origin_location")
     private OriginLocationDTO originLocation;
-    @JsonProperty("price")
+    @JSONField(name = "price")
     private BigDecimal price;
-    @JsonProperty("price_set")
+    @JSONField(name = "price_set")
     private PriceSetDTO priceSet;
-    @JsonProperty("product_exists")
+    @JSONField(name = "product_exists")
     private Boolean productExists;
-    @JsonProperty("product_id")
+    @JSONField(name = "product_id")
     private String product_id;
-    @JsonProperty("quantity")
+    @JSONField(name = "quantity")
     private Integer quantity;
-    @JsonProperty("requires_shipping")
+    @JSONField(name = "requires_shipping")
     private Boolean requiresShipping;
-    @JsonProperty("sku")
+    @JSONField(name = "sku")
     private String sku;
-    @JsonProperty("taxable")
+    @JSONField(name = "taxable")
     private Boolean taxable;
-    @JsonProperty("title")
+    @JSONField(name = "title")
     private String title;
-    @JsonProperty("total_discount")
+    @JSONField(name = "total_discount")
     private String totalDiscount;
-    @JsonProperty("total_discount_set")
+    @JSONField(name = "total_discount_set")
     private TotalDiscountSetDTO totalDiscountSet;
-    @JsonProperty("variant_id")
+    @JSONField(name = "variant_id")
     private String variant_id;
-    @JsonProperty("variant_inventory_management")
+    @JSONField(name = "variant_inventory_management")
     private String variantInventoryManagement;
-    @JsonProperty("variant_title")
+    @JSONField(name = "variant_title")
     private String variant_title;
-    @JsonProperty("vendor")
+    @JSONField(name = "vendor")
     private String vendor;
 
 
     @NoArgsConstructor
     @Data
     public static class OriginLocationDTO {
-        @JsonProperty("id")
+        @JSONField(name = "id")
         private Long id;
-        @JsonProperty("country_code")
+        @JSONField(name = "country_code")
         private String countryCode;
-        @JsonProperty("province_code")
+        @JSONField(name = "province_code")
         private String provinceCode;
-        @JsonProperty("name")
+        @JSONField(name = "name")
         private String name;
-        @JsonProperty("address1")
+        @JSONField(name = "address1")
         private String address1;
-        @JsonProperty("address2")
+        @JSONField(name = "address2")
         private String address2;
-        @JsonProperty("city")
+        @JSONField(name = "city")
         private String city;
-        @JsonProperty("zip")
+        @JSONField(name = "zip")
         private String zip;
     }
 
     @NoArgsConstructor
     @Data
     public static class PriceSetDTO {
-        @JsonProperty("shop_money")
+        @JSONField(name = "shop_money")
         private ShopMoneyDTO shopMoney;
-        @JsonProperty("presentment_money")
+        @JSONField(name = "presentment_money")
         private PresentmentMoneyDTO presentmentMoney;
 
         @NoArgsConstructor
         @Data
         public static class ShopMoneyDTO {
-            @JsonProperty("amount")
+            @JSONField(name = "amount")
             private String amount;
-            @JsonProperty("currency_code")
+            @JSONField(name = "currency_code")
             private String currencyCode;
         }
 
         @NoArgsConstructor
         @Data
         public static class PresentmentMoneyDTO {
-            @JsonProperty("amount")
+            @JSONField(name = "amount")
             private String amount;
-            @JsonProperty("currency_code")
+            @JSONField(name = "currency_code")
             private String currencyCode;
         }
     }
@@ -112,26 +113,26 @@ public class ShopifyLineItem {
     @NoArgsConstructor
     @Data
     public static class TotalDiscountSetDTO {
-        @JsonProperty("shop_money")
+        @JSONField(name = "shop_money")
         private ShopMoneyDTO shopMoney;
-        @JsonProperty("presentment_money")
+        @JSONField(name = "presentment_money")
         private PresentmentMoneyDTO presentmentMoney;
 
         @NoArgsConstructor
         @Data
         public static class ShopMoneyDTO {
-            @JsonProperty("amount")
+            @JSONField(name = "amount")
             private String amount;
-            @JsonProperty("currency_code")
+            @JSONField(name = "currency_code")
             private String currencyCode;
         }
 
         @NoArgsConstructor
         @Data
         public static class PresentmentMoneyDTO {
-            @JsonProperty("amount")
+            @JSONField(name = "amount")
             private String amount;
-            @JsonProperty("currency_code")
+            @JSONField(name = "currency_code")
             private String currencyCode;
         }
     }

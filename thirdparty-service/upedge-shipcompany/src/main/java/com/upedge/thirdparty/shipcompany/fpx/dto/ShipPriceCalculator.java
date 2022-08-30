@@ -1,6 +1,6 @@
 package com.upedge.thirdparty.shipcompany.fpx.dto;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.alibaba.fastjson.annotation.JSONField;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -11,42 +11,42 @@ import java.util.List;
 public class ShipPriceCalculator {
 
 
-    @JsonProperty("service_code")
+    @JSONField(name = "service_code")
     private String service_code;
-    @JsonProperty("billing_time")
+    @JSONField(name = "billing_time")
     private Long billing_time;
-    @JsonProperty("product_codes")
+    @JSONField(name = "product_codes")
     private List<String> product_codes;
-    @JsonProperty("warehouse_code")
+    @JSONField(name = "warehouse_code")
     private String warehouse_code;
-    @JsonProperty("length")
+    @JSONField(name = "length")
     private String length;
-    @JsonProperty("width")
+    @JSONField(name = "width")
     private String width;
-    @JsonProperty("height")
+    @JSONField(name = "height")
     private String height;
-    @JsonProperty("weight")
+    @JSONField(name = "weight")
     private String weight;
-    @JsonProperty("cargo_units")
+    @JSONField(name = "cargo_units")
     private List<CargoUnitsDTO> cargo_units;
-    @JsonProperty("destination")
+    @JSONField(name = "destination")
     private DestinationDTO destination;
 
     @NoArgsConstructor
     @Data
     public static class DestinationDTO {
-        @JsonProperty("post_code")
+        @JSONField(name = "post_code")
         private String post_code;
-        @JsonProperty("country")
+        @JSONField(name = "country")
         private String country;
     }
 
     @NoArgsConstructor
     @Data
     public static class CargoUnitsDTO {
-        @JsonProperty("value")
+        @JSONField(name = "value")
         private Integer value;
-        @JsonProperty("unit")
+        @JSONField(name = "unit")
         private String unit;
     }
 }

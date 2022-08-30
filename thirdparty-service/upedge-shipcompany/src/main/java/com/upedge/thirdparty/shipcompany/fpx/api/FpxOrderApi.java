@@ -3,6 +3,8 @@ package com.upedge.thirdparty.shipcompany.fpx.api;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.upedge.thirdparty.shipcompany.fpx.config.FpxConfig;
+import com.upedge.thirdparty.shipcompany.fpx.dto.FpxGetOrderDto;
+import com.upedge.thirdparty.shipcompany.fpx.dto.FpxOrderDto;
 import com.upedge.thirdparty.shipcompany.fpx.utils.ApiHttpClientUtils;
 import com.upedge.thirdparty.shipcompany.fpx.constants.AmbientEnum;
 import com.upedge.thirdparty.shipcompany.fpx.constants.MethodEnum;
@@ -34,6 +36,34 @@ public class FpxOrderApi {
             msg = error.getErrorMsg() + " ";
         }
         throw new Exception(msg);
+    }
+
+    public static FpxOrderDto getFpxOrder(String requestNo) throws Exception {
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("request_no",requestNo);
+
+        FpxConfig.param.setMethod(MethodEnum.order_get.getMethod());
+        String result = ApiHttpClientUtils.apiJsongPost(FpxConfig.param,jsonObject, AmbientEnum.SANDBOX_ADDRESS);
+        if (null == result){
+            return null;
+        }
+        result = result.replace("\\","")
+                .replace("\"data\":\"","\"data\":")
+                .replace("\",\"msg\"",",\"msg\"");
+        System.out.println(result);
+        FpxGetOrderDto fpxGetOrderDto = JSONObject.parseObject(result,FpxGetOrderDto.class);
+        if (fpxGetOrderDto.getResult().equals("1")){
+            FpxOrderDto fpxOrderDto = fpxGetOrderDto.getData().get(0).getFpxOrderDto();
+            return fpxOrderDto;
+        }
+        return null;
+
+//        List<FpxOrderErrorDTO> errors = fpxCreateOrderSuccessVo.getErrors();
+//        String msg = "";
+//        for (FpxOrderErrorDTO error : errors) {
+//            msg = error.getErrorMsg() + " ";
+//        }
+//        throw new Exception(msg);
     }
 
     public static String getSinglePackageLabel(String fpxNo) throws Exception {

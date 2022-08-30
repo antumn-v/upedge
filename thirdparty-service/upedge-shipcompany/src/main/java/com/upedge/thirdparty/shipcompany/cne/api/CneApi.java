@@ -66,6 +66,7 @@ public class CneApi {
         String requestUrl = "https://api.cne.com/cgi-bin/EmsData.dll?DoApi";
         CneGetTrackNumberDto cneGetTrackNumberDto = new CneGetTrackNumberDto();
         cneGetTrackNumberDto.setCNo(cNo);
+        cneGetTrackNumberDto.setRequestName("GetTrackNumber");
         String result = null;
         try {
             result = commonRequest(requestUrl, HttpMethod.POST, JSONObject.toJSONString(cneGetTrackNumberDto));
@@ -112,10 +113,7 @@ public class CneApi {
     }
 
     public static void main(String[] args) {
-        try {
-            System.out.println(getLabel("00340434496772907676"));
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        System.out.println(getTrackNumber("3A5V612110279"));
     }
+
 }

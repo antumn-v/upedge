@@ -1,19 +1,16 @@
 package com.upedge.thirdparty.shipcompany.yunexpress.response;
 
 import com.alibaba.fastjson.annotation.JSONField;
-import com.upedge.thirdparty.shipcompany.yunexpress.vo.WayBillItemVo;
+import com.upedge.thirdparty.shipcompany.yunexpress.dto.YunExpressGetTrackNumDto;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 import java.util.List;
 
-@NoArgsConstructor
 @Data
-public class WayBillCreateResponse {
+public class YunExpressGetTrackNumResponse {
 
-    @JSONField(name = "Item")
-    private List<WayBillItemVo> itemVos;
-
+    @JSONField(name = "Items")
+    private List<YunExpressGetTrackNumDto> yunExpressGetTrackNumDtos;
 
     @JSONField(name = "Code")
     private String code;

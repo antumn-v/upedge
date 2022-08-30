@@ -1,5 +1,6 @@
 package com.upedge.thirdparty.shipcompany.fpx.vo;
 
+import com.alibaba.fastjson.annotation.JSONField;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.upedge.thirdparty.shipcompany.fpx.model.ResponseError;
 import lombok.Data;
@@ -9,13 +10,13 @@ import lombok.NoArgsConstructor;
 @Data
 public class FpxApiResultVo {
 
-    @JsonProperty("result")
+    @JSONField(name = "result")
     private String result;
-    @JsonProperty("msg")
+    @JSONField(name = "msg")
     private String msg;
-    @JsonProperty("errors")
+    @JSONField(name = "errors")
     private ResponseError errors;
-    @JsonProperty("data")
+    @JSONField(name = "data")
     private Object data;
 
 

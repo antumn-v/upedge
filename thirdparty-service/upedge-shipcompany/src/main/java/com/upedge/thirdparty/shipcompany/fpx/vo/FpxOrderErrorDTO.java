@@ -1,6 +1,6 @@
 package com.upedge.thirdparty.shipcompany.fpx.vo;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.alibaba.fastjson.annotation.JSONField;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -9,10 +9,10 @@ import lombok.NoArgsConstructor;
 public class FpxOrderErrorDTO {
 
 
-    @JsonProperty("error_code")
+    @JSONField(name = "error_code")
     private String errorCode;
-    @JsonProperty("error_msg")
+    @JSONField(name = "error_msg")
     private String errorMsg;
-    @JsonProperty("reference_code")
+    @JSONField(name = "reference_code")
     private String referenceCode;
 }

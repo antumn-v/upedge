@@ -1,5 +1,6 @@
 package com.upedge.thirdparty.shipcompany.fpx.dto;
 
+import com.alibaba.fastjson.annotation.JSONField;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.upedge.thirdparty.shipcompany.fpx.vo.FpxOrderErrorDTO;
 import lombok.Data;
@@ -12,13 +13,13 @@ import java.util.List;
 public class FpxCancelOrderDto {
 
 
-    @JsonProperty("result")
+    @JSONField(name = "result")
     private String result;
-    @JsonProperty("msg")
+    @JSONField(name = "msg")
     private String msg;
-    @JsonProperty("errors")
+    @JSONField(name = "errors")
     private List<FpxOrderErrorDTO> errors;
-    @JsonProperty("data")
+    @JSONField(name = "data")
     private Object data;
 
 }

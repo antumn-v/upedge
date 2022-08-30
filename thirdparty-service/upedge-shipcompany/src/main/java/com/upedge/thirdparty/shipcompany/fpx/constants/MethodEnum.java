@@ -46,6 +46,10 @@ public enum MethodEnum {
      */
     order_create("ds.xms.order.create"),
     /**
+     * 查询直发委托单
+     */
+    order_get("ds.xms.order.get"),
+    /**
      * 取消包裹
      */
     order_cancel("ds.xms.order.cancel"),

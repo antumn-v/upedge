@@ -1,5 +1,6 @@
 package com.upedge.thirdparty.shipcompany.fpx.vo;
 
+import com.alibaba.fastjson.annotation.JSONField;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -14,107 +15,107 @@ import java.util.List;
 public class FpxSku {
 
 
-    @JsonProperty("sku_id")
+    @JSONField(name = "sku_id")
     private String skuId;
-    @JsonProperty("sku_code")
+    @JSONField(name = "sku_code")
     private String skuCode;
-    @JsonProperty("product_code")
+    @JSONField(name = "product_code")
     private String productCode;
-    @JsonProperty("sku_name")
+    @JSONField(name = "sku_name")
     private String skuName;
-    @JsonProperty("specification")
+    @JSONField(name = "specification")
     private String specification;
-    @JsonProperty("uom")
+    @JSONField(name = "uom")
     private String uom;
-    @JsonProperty("pcs")
+    @JSONField(name = "pcs")
     private Integer pcs;
-    @JsonProperty("single_sku_code")
+    @JSONField(name = "single_sku_code")
     private String singleSkuCode;
-    @JsonProperty("wrapping")
+    @JSONField(name = "wrapping")
     private String wrapping;
-    @JsonProperty("appearance")
+    @JSONField(name = "appearance")
     private String appearance;
-    @JsonProperty("characteristic")
+    @JSONField(name = "characteristic")
     private List<String> characteristic;
-    @JsonProperty("weight")
+    @JSONField(name = "weight")
     private Double weight;
-    @JsonProperty("length")
+    @JSONField(name = "length")
     private Double length;
-    @JsonProperty("width")
+    @JSONField(name = "width")
     private Double width;
-    @JsonProperty("height")
+    @JSONField(name = "height")
     private Double height;
-    @JsonProperty("logistics_package")
+    @JSONField(name = "logistics_package")
     private String logisticsPackage;
-    @JsonProperty("package_material")
+    @JSONField(name = "package_material")
     private String packageMaterial;
-    @JsonProperty("sn_rule_code")
+    @JSONField(name = "sn_rule_code")
     private String snRuleCode;
-    @JsonProperty("expired_date")
+    @JSONField(name = "expired_date")
     private String expiredDate;
-    @JsonProperty("sales_link")
+    @JSONField(name = "sales_link")
     private String salesLink;
-    @JsonProperty("include_batch")
+    @JSONField(name = "include_batch")
     private String includeBatch;
-    @JsonProperty("include_battery")
+    @JSONField(name = "include_battery")
     private String includeBattery;
-    @JsonProperty("battery_config")
+    @JSONField(name = "battery_config")
     private String batteryConfig;
-    @JsonProperty("battery_type")
+    @JSONField(name = "battery_type")
     private String batteryType;
-    @JsonProperty("battery_power")
+    @JSONField(name = "battery_power")
     private String batteryPower;
-    @JsonProperty("battery_number")
+    @JSONField(name = "battery_number")
     private Integer batteryNumber;
-    @JsonProperty("battery_resource")
+    @JSONField(name = "battery_resource")
     private String batteryResource;
-    @JsonProperty("picture_url")
+    @JSONField(name = "picture_url")
     private List<String> pictureUrl;
-    @JsonProperty("remark")
+    @JSONField(name = "remark")
     private String remark;
-    @JsonProperty("customer_code")
+    @JSONField(name = "customer_code")
     private String customerCode;
-    @JsonProperty("sku_status")
+    @JSONField(name = "sku_status")
     private String skuStatus;
-    @JsonProperty("chinese_name")
+    @JSONField(name = "chinese_name")
     private String chineseName;
-    @JsonProperty("is_brand")
+    @JSONField(name = "is_brand")
     private String isBrand;
-    @JsonProperty("brand_name")
+    @JSONField(name = "brand_name")
     private String brandName;
-    @JsonProperty("origin_country")
+    @JSONField(name = "origin_country")
     private String originCountry;
-    @JsonProperty("declare_country_list")
+    @JSONField(name = "declare_country_list")
     private List<DeclareCountryListDTO> declareCountryList;
 
     @NoArgsConstructor
     @Data
     public static class DeclareCountryListDTO {
-        @JsonProperty("export_country")
+        @JSONField(name = "export_country")
         private String exportCountry;
-        @JsonProperty("export_port")
+        @JSONField(name = "export_port")
         private String exportPort;
-        @JsonProperty("export_declare")
+        @JSONField(name = "export_declare")
         private String exportDeclare;
-        @JsonProperty("export_declare_value")
+        @JSONField(name = "export_declare_value")
         private String exportDeclareValue;
-        @JsonProperty("export_currency")
+        @JSONField(name = "export_currency")
         private String exportCurrency;
-        @JsonProperty("country")
+        @JSONField(name = "country")
         private String country;
-        @JsonProperty("import_port")
+        @JSONField(name = "import_port")
         private String importPort;
-        @JsonProperty("import_declare")
+        @JSONField(name = "import_declare")
         private String importDeclare;
-        @JsonProperty("hs_code")
+        @JSONField(name = "hs_code")
         private String hsCode;
-        @JsonProperty("declare_value")
+        @JSONField(name = "declare_value")
         private String declareValue;
-        @JsonProperty("currency")
+        @JSONField(name = "currency")
         private String currency;
-        @JsonProperty("service_type")
+        @JSONField(name = "service_type")
         private String serviceType;
-        @JsonProperty("transport_way")
+        @JSONField(name = "transport_way")
         private String transportWay;
     }
 }

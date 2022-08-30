@@ -1,6 +1,6 @@
 package com.upedge.thirdparty.shipcompany.yunexpress.vo;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.alibaba.fastjson.annotation.JSONField;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -8,31 +8,31 @@ import java.util.List;
 @Data
 public class WayBillItemVo {
 
-    @JsonProperty("CustomerOrderNumber")
+    @JSONField(name = "CustomerOrderNumber")
     private String customerOrderNumber;
-    @JsonProperty("Success")
+    @JSONField(name = "Success")
     private Integer success;
-    @JsonProperty("TrackType")
+    @JSONField(name = "TrackType")
     private String trackType;
-    @JsonProperty("Remark")
+    @JSONField(name = "Remark")
     private String remark;
-    @JsonProperty("AgentNumber")
+    @JSONField(name = "AgentNumber")
     private String agentNumber;
-    @JsonProperty("WayBillNumber")
+    @JSONField(name = "WayBillNumber")
     private String wayBillNumber;
-    @JsonProperty("RequireSenderAddress")
+    @JSONField(name = "RequireSenderAddress")
     private Integer requireSenderAddress;
-    @JsonProperty("TrackingNumber")
+    @JSONField(name = "TrackingNumber")
     private String trackingNumber;
-    @JsonProperty("ShipperBoxs")
+    @JSONField(name = "ShipperBoxs")
     private List<ShipperBoxsDTO> shipperBoxs;
 
     @NoArgsConstructor
     @Data
     public static class ShipperBoxsDTO {
-        @JsonProperty("BoxNumber")
+        @JSONField(name = "BoxNumber")
         private String boxNumber;
-        @JsonProperty("ShipperHawbcode")
+        @JSONField(name = "ShipperHawbcode")
         private String shipperHawbcode;
     }
 }

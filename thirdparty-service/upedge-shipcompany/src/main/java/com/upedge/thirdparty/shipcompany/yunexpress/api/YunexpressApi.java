@@ -5,8 +5,10 @@ import com.alibaba.fastjson.JSONObject;
 import com.upedge.common.utils.ListUtils;
 import com.upedge.thirdparty.shipcompany.yunexpress.dto.WayBillCreateDto;
 import com.upedge.thirdparty.shipcompany.yunexpress.dto.WayBillDeleteDto;
+import com.upedge.thirdparty.shipcompany.yunexpress.dto.YunExpressGetTrackNumDto;
 import com.upedge.thirdparty.shipcompany.yunexpress.request.WayBillCreateRequest;
 import com.upedge.thirdparty.shipcompany.yunexpress.response.WayBillCreateResponse;
+import com.upedge.thirdparty.shipcompany.yunexpress.response.YunExpressGetTrackNumResponse;
 import com.upedge.thirdparty.shipcompany.yunexpress.vo.WayBillItemVo;
 import com.upedge.thirdparty.shipcompany.yunexpress.vo.YunExpressLabelVo;
 import com.upedge.thirdparty.shipcompany.yunexpress.vo.YunExpressShipMethodVo;
@@ -43,6 +45,25 @@ public class YunexpressApi {
         }
         return new ArrayList<>();
 
+    }
+
+    public static YunExpressGetTrackNumDto getTrackNum(Long orderId){
+        String apiUrl = REQUEST_URL + "/Waybill/GetTrackingNumber?CustomerOrderNumber=" + orderId;
+
+        String result = "";
+        try {
+            result = commonRequest(apiUrl, HttpMethod.GET, null);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+
+        YunExpressGetTrackNumResponse yunExpressGetTrackNumResponse = JSONObject.parseObject(result,YunExpressGetTrackNumResponse.class);
+        if (yunExpressGetTrackNumResponse.getCode().equals("0000")){
+            List<YunExpressGetTrackNumDto> yunExpressGetTrackNumDtos = yunExpressGetTrackNumResponse.getYunExpressGetTrackNumDtos();
+            return yunExpressGetTrackNumDtos.get(0);
+        }
+        return null;
     }
 
     public static WayBillCreateResponse createWayBill(WayBillCreateRequest request) throws Exception {

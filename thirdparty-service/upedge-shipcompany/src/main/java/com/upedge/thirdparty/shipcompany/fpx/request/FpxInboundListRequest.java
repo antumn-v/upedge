@@ -1,5 +1,6 @@
 package com.upedge.thirdparty.shipcompany.fpx.request;
 
+import com.alibaba.fastjson.annotation.JSONField;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -9,24 +10,24 @@ import lombok.NoArgsConstructor;
 public class FpxInboundListRequest {
 
 
-    @JsonProperty("consignment_no")
+    @JSONField(name = "consignment_no")
     private String consignmentNo;
-    @JsonProperty("ref_no")
+    @JSONField(name = "ref_no")
     private String ref_no;
-    @JsonProperty("4px_tracking_no")
+    @JSONField(name = "4px_tracking_no")
     private String $4pxTrackingNo;
-    @JsonProperty("warehouse_code")
+    @JSONField(name = "warehouse_code")
     private String warehouseCode;
-    @JsonProperty("logistics_product_code")
+    @JSONField(name = "logistics_product_code")
     private String logisticsProductCode;
-    @JsonProperty("status")
+    @JSONField(name = "status")
     private String status;
-    @JsonProperty("create_time_start")
+    @JSONField(name = "create_time_start")
     private long create_time_start;
-    @JsonProperty("create_time_end")
+    @JSONField(name = "create_time_end")
     private long create_time_end;
-    @JsonProperty("page_no")
+    @JSONField(name = "page_no")
     private Integer pageNo;
-    @JsonProperty("page_size")
+    @JSONField(name = "page_size")
     private Integer pageSize;
 }

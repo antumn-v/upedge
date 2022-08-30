@@ -1,6 +1,7 @@
 package com.upedge.thirdparty.shipcompany.cne.dto;
 
 import com.alibaba.fastjson.annotation.JSONField;
+import com.alibaba.fastjson.annotation.JSONField;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -20,63 +21,63 @@ public class CneCreateOrderRequest extends CneRequestBase {
     @NoArgsConstructor
     @Data
     public static class RecListDTO {
-        @JsonProperty("cEmsKind")
+        @JSONField(name = "cEmsKind")
         private String cEmsKind;
-        @JsonProperty("nItemType")
+        @JSONField(name = "nItemType")
         private Integer nItemType = 1;
-        @JsonProperty("cAddrFrom")
+        @JSONField(name = "cAddrFrom")
         private String cAddrFrom = "OTHER";
-        @JsonProperty("iItem")
+        @JSONField(name = "iItem")
         private Integer iItem = 1;
-        @JsonProperty("cRNo")
+        @JSONField(name = "cRNo")
         private String cRNo;
-        @JsonProperty("cDes")
+        @JSONField(name = "cDes")
         private String cDes;
-        @JsonProperty("cReceiver")
+        @JSONField(name = "cReceiver")
         private String cReceiver;
-        @JsonProperty("cRUnit")
+        @JSONField(name = "cRUnit")
         private String cRUnit;
-        @JsonProperty("cRAddr")
+        @JSONField(name = "cRAddr")
         private String cRAddr;
-        @JsonProperty("cRCity")
+        @JSONField(name = "cRCity")
         private String cRCity;
-        @JsonProperty("cRPostcode")
+        @JSONField(name = "cRPostcode")
         private String cRPostcode;
-        @JsonProperty("cRProvince")
+        @JSONField(name = "cRProvince")
         private String cRProvince;
-        @JsonProperty("cRCountry")
+        @JSONField(name = "cRCountry")
         private String cRCountry;
-        @JsonProperty("cRPhone")
+        @JSONField(name = "cRPhone")
         private String cRPhone;
-        @JsonProperty("cRSms")
+        @JSONField(name = "cRSms")
         private String cRSms;
-        @JsonProperty("cREMail")
+        @JSONField(name = "cREMail")
         private String cREMail;
-        @JsonProperty("cRTaxCode")
+        @JSONField(name = "cRTaxCode")
         private String cRTaxCode;
-        @JsonProperty("fWeight")
+        @JSONField(name = "fWeight")
         private Double fWeight;
-        @JsonProperty("iLong")
+        @JSONField(name = "iLong")
         private Object iLong;
-        @JsonProperty("iWidth")
+        @JSONField(name = "iWidth")
         private Object iWidth;
-        @JsonProperty("iHeight")
+        @JSONField(name = "iHeight")
         private Object iHeight;
-        @JsonProperty("cMark")
+        @JSONField(name = "cMark")
         private String cMark;
-        @JsonProperty("tradeTime")
+        @JSONField(name = "tradeTime")
         private String tradeTime;
-        @JsonProperty("cMemo")
+        @JSONField(name = "cMemo")
         private String cMemo;
-        @JsonProperty("cReserve")
+        @JSONField(name = "cReserve")
         private String cReserve;
-        @JsonProperty("vatCode")
+        @JSONField(name = "vatCode")
         private String vatCode;
-        @JsonProperty("iossCode")
+        @JSONField(name = "iossCode")
         private String iossCode;
-        @JsonProperty("returnAddress")
+        @JSONField(name = "returnAddress")
         private ReturnAddressDTO returnAddress;
-        @JsonProperty("labelContent")
+        @JSONField(name = "labelContent")
         private LabelContentDTO labelContent;
         @JSONField(name = "GoodsList")
         private List<CneGoodsListDTO> goodsList;
@@ -84,43 +85,43 @@ public class CneCreateOrderRequest extends CneRequestBase {
         @NoArgsConstructor
         @Data
         public static class ReturnAddressDTO {
-            @JsonProperty("name")
+            @JSONField(name = "name")
             private String name;
-            @JsonProperty("addr")
+            @JSONField(name = "addr")
             private String addr;
-            @JsonProperty("city")
+            @JSONField(name = "city")
             private String city;
-            @JsonProperty("postcode")
+            @JSONField(name = "postcode")
             private String postcode;
-            @JsonProperty("province")
+            @JSONField(name = "province")
             private String province;
-            @JsonProperty("country")
+            @JSONField(name = "country")
             private String country;
         }
 
         @NoArgsConstructor
         @Data
         public static class LabelContentDTO {
-            @JsonProperty("fileType")
+            @JSONField(name = "fileType")
             private String fileType;
-            @JsonProperty("labelType")
+            @JSONField(name = "labelType")
             private String labelType;
-            @JsonProperty("pickList")
+            @JSONField(name = "pickList")
             private String pickList;
         }
 
         @NoArgsConstructor
         @Data
         public static class CneGoodsListDTO {
-            @JsonProperty("cxGoods")
+            @JSONField(name = "cxGoods")
             private String cxGoods;
-            @JsonProperty("cxGoodsA")
+            @JSONField(name = "cxGoodsA")
             private String cxGoodsA;
-            @JsonProperty("ixQuantity")
+            @JSONField(name = "ixQuantity")
             private Integer ixQuantity;
-            @JsonProperty("fxPrice")
+            @JSONField(name = "fxPrice")
             private BigDecimal fxPrice;
-            @JsonProperty("cxMoney")
+            @JSONField(name = "cxMoney")
             private String cxMoney = "USD";
         }
     }

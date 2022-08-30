@@ -1,5 +1,6 @@
 package com.upedge.thirdparty.shipcompany.fpx.dto;
 
+import com.alibaba.fastjson.annotation.JSONField;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -11,22 +12,22 @@ import java.util.List;
 @Data
 public class FpxGetLabelDto {
 
-    @JsonProperty("request_no")
+    @JSONField(name = "request_no")
     private List<String> requestNo = new ArrayList<>();
-    @JsonProperty("logistics_product_code")
+    @JSONField(name = "logistics_product_code")
     private String logisticsProductCode;
-    @JsonProperty("label_size")
+    @JSONField(name = "label_size")
     private String labelSize = "label_80x90";
-    @JsonProperty("is_print_time")
+    @JSONField(name = "is_print_time")
     private String isPrintTime = "N";
-    @JsonProperty("is_print_buyer_id")
+    @JSONField(name = "is_print_buyer_id")
     private String isPrintBuyerId = "N";
-    @JsonProperty("is_print_pick_info")
+    @JSONField(name = "is_print_pick_info")
     private String isPrintPickInfo = "N";
-    @JsonProperty("is_print_customer_weight")
+    @JSONField(name = "is_print_customer_weight")
     private String isPrintCustomerWeight = "N";
-    @JsonProperty("is_print_pick_barcode")
+    @JSONField(name = "is_print_pick_barcode")
     private String isPrintPickBarcode = "N";
-    @JsonProperty("create_package_label")
+    @JSONField(name = "create_package_label")
     private String createPackageLabel = "N";
 }

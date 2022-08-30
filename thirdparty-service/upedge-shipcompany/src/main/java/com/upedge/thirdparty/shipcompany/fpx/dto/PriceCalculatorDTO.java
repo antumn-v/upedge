@@ -1,6 +1,6 @@
 package com.upedge.thirdparty.shipcompany.fpx.dto;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.alibaba.fastjson.annotation.JSONField;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -10,29 +10,29 @@ import java.util.List;
 @NoArgsConstructor
 @Data
 public class PriceCalculatorDTO {
-    @JsonProperty("service_code")
+    @JSONField(name = "service_code")
     private String serviceCode;
-    @JsonProperty("product_code")
+    @JSONField(name = "product_code")
     private String productCode;
-    @JsonProperty("quotation_code")
+    @JSONField(name = "quotation_code")
     private String quotationCode;
-    @JsonProperty("total_amount")
+    @JSONField(name = "total_amount")
     private Double totalAmount;
-    @JsonProperty("currency")
+    @JSONField(name = "currency")
     private String currency;
-    @JsonProperty("fees")
+    @JSONField(name = "fees")
     private List<FeesDTO> fees;
-    @JsonProperty("timely")
+    @JSONField(name = "timely")
     private String timely;
 
     @NoArgsConstructor
     @Data
     public static class FeesDTO {
-        @JsonProperty("fee_code")
+        @JSONField(name = "fee_code")
         private String feeCode;
-        @JsonProperty("amount")
+        @JSONField(name = "amount")
         private BigDecimal amount;
-        @JsonProperty("currency")
+        @JSONField(name = "currency")
         private String currency;
     }
 }
