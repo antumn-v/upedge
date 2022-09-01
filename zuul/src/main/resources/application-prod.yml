@@ -45,7 +45,9 @@ files:
   image:
     local: '/root/image/'
     prefix: 'https://app.upedge.cn/image/'
-
+  pdf:
+    local: '/root/pdf/'
+    prefix: 'https://app.upedge.cn/pdf/'
 
 management:
   endpoints:

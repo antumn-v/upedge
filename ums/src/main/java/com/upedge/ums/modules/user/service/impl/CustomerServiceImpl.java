@@ -6,6 +6,7 @@ import com.upedge.common.constant.key.RedisKey;
 import com.upedge.common.model.store.StoreVo;
 import com.upedge.ums.modules.user.dao.CustomerDao;
 import com.upedge.ums.modules.user.entity.Customer;
+import com.upedge.ums.modules.user.entity.CustomerSetting;
 import com.upedge.ums.modules.user.service.CustomerService;
 import com.upedge.ums.modules.user.vo.CustomerDetailVo;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 
@@ -73,6 +75,17 @@ public class CustomerServiceImpl implements CustomerService {
                     }
                 }
                 storeVos.removeAll(customerDetailVo.getStores());
+
+                List<CustomerSetting> customerSettings = customerDetailVo.getCustomerSettings();
+                Map<String,String> map = redisTemplate.opsForHash().entries(RedisKey.HASH_CUSTOMER_SETTING + customerId);
+                for (Map.Entry<String,String> setting : map.entrySet()){
+                    CustomerSetting customerSetting = new CustomerSetting();
+                    customerSetting.setCustomerId(customerId);
+                    customerSetting.setSettingName(setting.getKey());
+                    customerSetting.setSettingValue(setting.getValue());
+                    customerSettings.add(customerSetting);
+                }
+
             }
         } catch (Exception e) {
             e.printStackTrace();

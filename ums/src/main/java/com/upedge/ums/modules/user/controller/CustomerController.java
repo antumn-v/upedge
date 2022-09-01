@@ -73,7 +73,7 @@ public class CustomerController {
         return res;
     }
 
-    @RequestMapping(value="/update/{id}", method=RequestMethod.POST)
+    @RequestMapping(value="/update", method=RequestMethod.POST)
     @Permission(permission = "user:customer:update")
     public CustomerUpdateResponse update(@PathVariable Long id,@RequestBody @Valid CustomerUpdateRequest request) {
         Customer entity=request.toCustomer(id);

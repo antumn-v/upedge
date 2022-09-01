@@ -1,7 +1,6 @@
 package com.upedge.ums.modules.user.request;
 
 import com.upedge.ums.modules.user.entity.CustomerSetting;
-import java.util.Date;
 import lombok.Data;
 /**
  * @author gx
@@ -22,9 +21,8 @@ public class CustomerSettingUpdateRequest{
      */
     private String settingValue;
 
-    public CustomerSetting toCustomerSetting(Integer id){
+    public CustomerSetting toCustomerSetting(){
         CustomerSetting customerSetting=new CustomerSetting();
-        customerSetting.setId(id);
         customerSetting.setCustomerId(customerId);
         customerSetting.setSettingName(settingName);
         customerSetting.setSettingValue(settingValue);

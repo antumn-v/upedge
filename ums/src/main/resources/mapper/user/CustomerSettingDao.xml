@@ -30,17 +30,12 @@
     <update id="updateByPrimaryKeySelective" parameterType="com.upedge.ums.modules.user.entity.CustomerSetting">
         update customer_setting
         <set>
-            <if test="customerId != null">
-                customer_id = #{customerId},
-            </if>
-            <if test="settingName != null">
-                setting_name = #{settingName},
-            </if>
             <if test="settingValue != null">
                 setting_value = #{settingValue},
             </if>
         </set>
-        where id = #{id}
+        where customer_id = #{customerId}
+        and setting_name = #{settingName}
     </update>
 
     <update id="updateByPrimaryKey" parameterType="com.upedge.ums.modules.user.entity.CustomerSetting">

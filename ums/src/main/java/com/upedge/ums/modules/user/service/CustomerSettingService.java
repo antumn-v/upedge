@@ -1,8 +1,7 @@
 package com.upedge.ums.modules.user.service;
 
-import com.upedge.ums.modules.user.entity.CustomerSetting;
 import com.upedge.common.base.Page;
-import org.apache.ibatis.annotations.Param;
+import com.upedge.ums.modules.user.entity.CustomerSetting;
 
 import java.util.List;
 
@@ -10,6 +9,8 @@ import java.util.List;
  * @author gx
  */
 public interface CustomerSettingService{
+
+    void saveNewSetting();
 
     CustomerSetting selectByCustomerAndSettingName(Long customerId,
                                                    String settingName);

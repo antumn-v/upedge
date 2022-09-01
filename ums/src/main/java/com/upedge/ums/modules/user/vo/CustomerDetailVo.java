@@ -1,9 +1,11 @@
 package com.upedge.ums.modules.user.vo;
 
 import com.upedge.common.model.store.StoreVo;
+import com.upedge.ums.modules.user.entity.CustomerSetting;
 import lombok.Data;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -42,11 +44,13 @@ public class CustomerDetailVo {
      */
     private String skype;
 
-    List<StoreVo> stores;
+    private List<StoreVo> stores = new ArrayList<>();
 
     Integer status;
 
     String remark;
 
     Integer vipLevel;
+
+    private List<CustomerSetting> customerSettings = new ArrayList<>();
 }

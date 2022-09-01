@@ -105,8 +105,15 @@ public class RedisInit {
             }
         },threadPoolExecutor);
 
+        CompletableFuture<Void> customerSettingInit = CompletableFuture.runAsync(new Runnable() {
+            @Override
+            public void run() {
+                initCustomerSetting();
+            }
+        },threadPoolExecutor);
+
         try {
-            CompletableFuture.allOf(storeInit,iossInit,affiliateInit,customerManagerInit,customerInfoInit).get();
+            CompletableFuture.allOf(storeInit,iossInit,affiliateInit,customerManagerInit,customerInfoInit,customerSettingInit).get();
         } catch (InterruptedException e) {
             e.printStackTrace();
         } catch (ExecutionException e) {
@@ -189,11 +196,10 @@ public class RedisInit {
         }
     }
 
-//    @PostConstruct
+
     public void initCustomerSetting(){
         Page<CustomerSetting> page = new Page<>();
         page.setPageSize(-1);
-        page.setOrderBy("customer_id desc");
         List<CustomerSetting> customerSettings = customerSettingService.select(page);
         Map<String, HashMap<String,String>> map = new HashMap<>();
         if (ListUtils.isNotEmpty(customerSettings)){

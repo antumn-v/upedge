@@ -7,18 +7,11 @@ package com.upedge.common.enums;
 public enum  CustomerSettingEnum {
 
     /**
-     * 是否可以修改订单产品数量
-     * 1=true
-     * 0=false
+     * 上传店铺物流号类型
+     * 0=物流商单号
+     * 1=真实追踪号
      */
-    order_product_quantity_modify("0"),
-
-    /**
-     * 运输方式排序设置
-     * 1=按默认方式排序
-     * 0=按运费升序排序
-     */
-    ship_method_sort_type("1");
+    upload_store_track_code_type("1");
 
     String value;
 
