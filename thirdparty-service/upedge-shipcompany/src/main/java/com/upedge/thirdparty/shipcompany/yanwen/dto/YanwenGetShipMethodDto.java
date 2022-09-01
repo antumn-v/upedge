@@ -1,7 +1,7 @@
 package com.upedge.thirdparty.shipcompany.yanwen.dto;
 
 import com.alibaba.fastjson.annotation.JSONField;
-import com.upedge.thirdparty.shipcompany.yanwen.YanwenShipMethodVo;
+import com.upedge.thirdparty.shipcompany.yanwen.vo.YanwenShipMethodVo;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 

@@ -10,7 +10,7 @@ public class YanwenCreateExpressResponse {
 
 
     @JSONField(name = "CallSuccess")
-    private String callSuccess;
+    private Boolean callSuccess;
     @JSONField(name = "Response")
     private ResponseDTO response;
     @JSONField(name = "CreatedExpress")
@@ -24,7 +24,7 @@ public class YanwenCreateExpressResponse {
         @JSONField(name = "Operation")
         private String operation;
         @JSONField(name = "Success")
-        private String success;
+        private Boolean success;
         @JSONField(name = "Reason")
         private String reason;
         @JSONField(name = "ReasonMessage")

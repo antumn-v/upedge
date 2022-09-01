@@ -114,6 +114,9 @@ files:
   image:
     local: 'D:/developer/image/'
     prefix: 'http://192.168.2.9:8611/image/'
+  pdf:
+    local: 'D:/developer/pdf/'
+    prefix: 'http://192.168.2.9:8611/pdf/'
 
 upedge:
   thread:

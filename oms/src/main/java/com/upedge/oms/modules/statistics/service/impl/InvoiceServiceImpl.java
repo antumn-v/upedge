@@ -144,7 +144,7 @@ public class InvoiceServiceImpl implements InvoiceService {
                 orderNames.add(appStoreOrderVo.getPlatOrderName());
             }
         }
-        List<String> collect = orderNames.stream().sorted(Comparator.reverseOrder()).collect(Collectors.toList());
+        List<String> collect = orderNames.stream().collect(Collectors.toList());
         String name = "";
         if (collect.size() == 1){
             name = collect.get(0);

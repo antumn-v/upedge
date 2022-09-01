@@ -1,4 +1,4 @@
-package com.upedge.thirdparty.shipcompany.yanwen;
+package com.upedge.thirdparty.shipcompany.yanwen.vo;
 
 
 import com.alibaba.fastjson.annotation.JSONField;

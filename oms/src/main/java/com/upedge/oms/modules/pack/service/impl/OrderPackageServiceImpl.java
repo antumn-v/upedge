@@ -27,7 +27,6 @@ import com.upedge.oms.modules.pack.service.OrderLabelPrintLogService;
 import com.upedge.oms.modules.pack.service.OrderPackageService;
 import com.upedge.oms.modules.pack.vo.OrderPackageInfoVo;
 import com.upedge.oms.modules.pick.service.OrderPickService;
-import com.upedge.oms.modules.pick.vo.OrderPickInfoVo;
 import com.upedge.thirdparty.shipcompany.cne.api.CneApi;
 import com.upedge.thirdparty.shipcompany.cne.dto.CneCreateOrderRequest;
 import com.upedge.thirdparty.shipcompany.cne.dto.CneOrderDto;
@@ -37,6 +36,9 @@ import com.upedge.thirdparty.shipcompany.fpx.dto.FpxOrderCreateDto.ParcelListDTO
 import com.upedge.thirdparty.shipcompany.fpx.dto.FpxOrderCreateDto.RecipientInfoDTO;
 import com.upedge.thirdparty.shipcompany.fpx.request.OrderPackageGetLabelRequest;
 import com.upedge.thirdparty.shipcompany.fpx.vo.FpxCreateOrderSuccessVo;
+import com.upedge.thirdparty.shipcompany.yanwen.api.YanwenApi;
+import com.upedge.thirdparty.shipcompany.yanwen.dto.YanwenCreateExpressResponse;
+import com.upedge.thirdparty.shipcompany.yanwen.dto.YanwenExpressDto;
 import com.upedge.thirdparty.shipcompany.yunexpress.api.YunexpressApi;
 import com.upedge.thirdparty.shipcompany.yunexpress.dto.WayBillCreateDto;
 import com.upedge.thirdparty.shipcompany.yunexpress.request.WayBillCreateRequest;
@@ -45,6 +47,7 @@ import com.upedge.thirdparty.shipcompany.yunexpress.vo.WayBillItemVo;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -78,6 +81,11 @@ public class OrderPackageServiceImpl implements OrderPackageService {
 
     @Autowired
     OrderFulfillmentService orderFulfillmentService;
+
+    @Value("${files.pdf.local}")
+    private String pdfLocalPath;
+    @Value("${files.pdf.prefix}")
+    private String pdfUrlPrefix;
 
     @Transactional
     @Override
@@ -151,6 +159,7 @@ public class OrderPackageServiceImpl implements OrderPackageService {
             return BaseResponse.failed("包裹不存在");
         }
         Map<String,String> map = new HashMap<>();
+        map.put("company",orderPackage.getTrackingCompany());
         OrderLabelPrintLog orderLabelPrintLog = orderLabelPrintLogService.selectTheLatestPackLabel(request.getPackNo());
         if (null != orderLabelPrintLog){
             map.put("labelUrl",orderLabelPrintLog.getLabelUrl());
@@ -165,12 +174,19 @@ public class OrderPackageServiceImpl implements OrderPackageService {
                     labelUrl = YunexpressApi.getSinglePackageLabel(orderPackage.getPlatId());
                     break;
                 case "CNE":
-                    labelUrl = CneApi.getLabel(orderPackage.getTrackingCode());
+                    labelUrl = CneApi.getLabel(orderPackage.getLogisticsOrderNo());
+                    break;
+                case "Yanwen":
+                    labelUrl = YanwenApi.getTrackLabel(orderPackage.getLogisticsOrderNo(),pdfLocalPath);
+                    if (StringUtils.isNotBlank(labelUrl)){
+                        labelUrl = pdfUrlPrefix + labelUrl;
+                    }
                     break;
             }
         }catch (Exception e){
 
         }
+
         map.put("labelUrl",labelUrl);
 
         orderLabelPrintLog = new OrderLabelPrintLog();
@@ -186,10 +202,6 @@ public class OrderPackageServiceImpl implements OrderPackageService {
         order.setIsPrintLabel(true);
         orderService.updateByPrimaryKeySelective(order);
 
-        List<OrderPickInfoVo> orderPickInfoVos = orderPickService.selectOrderPickInfo(orderPackage.getWaveNo());
-        for (OrderPickInfoVo orderPickInfoVo : orderPickInfoVos) {
-
-        }
         return BaseResponse.success(map);
     }
 
@@ -229,9 +241,79 @@ public class OrderPackageServiceImpl implements OrderPackageService {
                  return createYunExpressPackage(order,shippingMethodRedis);
             case "CNE":
                 return createCnePackage(order,shippingMethodRedis);
+            case "Yanwen":
+                return createYanwenPackage(order,shippingMethodRedis);
             default:
                 return BaseResponse.failed("物流公司未对接");
         }
+    }
+
+    public BaseResponse createYanwenPackage(Order order,ShippingMethodRedis shippingMethodRedis){
+        Long orderId = order.getId();
+
+        YanwenExpressDto yanwenExpressDto = new YanwenExpressDto();
+
+        List<OrderItem> orderItems = orderItemService.selectByOrderId(orderId);
+        OrderAddress orderAddress = orderService.getOrderAddress(orderId);
+
+        YanwenExpressDto.YanwenReceiverDTO receiverDTO = yanwenExpressDto.getReceiver();
+        receiverDTO.setName(orderAddress.getFirstName() + " " + orderAddress.getLastName());
+        receiverDTO.setEmail(orderAddress.getEmail());
+        receiverDTO.setPostcode(orderAddress.getZip());
+        receiverDTO.setAddress2(orderAddress.getAddress2());
+        receiverDTO.setAddress1(orderAddress.getAddress1());
+        receiverDTO.setState(orderAddress.getProvince());
+        receiverDTO.setCountry(orderAddress.getCountry());
+        receiverDTO.setPhone("8956232659");
+        receiverDTO.setCity(orderAddress.getCity());
+
+        int i= 0;
+        YanwenExpressDto.YanwenGoodsNameDTO goodsName = new YanwenExpressDto.YanwenGoodsNameDTO();
+        for (OrderItem orderItem : orderItems) {
+            goodsName.setNameCh("宠物服装");
+            goodsName.setNameEn("pet clothes");
+            goodsName.setDeclaredCurrency("USD");
+            goodsName.setDeclaredValue(orderItem.getQuantity() * orderItem.getUsdPrice().doubleValue());
+            goodsName.setWeight(orderItem.getQuantity() * orderItem.getAdminVariantWeight().intValue());
+            i += orderItem.getQuantity();
+            break;
+        }
+
+        yanwenExpressDto.setGoodsName(goodsName);
+        yanwenExpressDto.setSendDate(new Date());
+        yanwenExpressDto.setChannel(shippingMethodRedis.getMethodCode());
+        yanwenExpressDto.setUserOrderNumber(orderId.toString());
+        yanwenExpressDto.setQuantity(i);
+
+        YanwenCreateExpressResponse.CreatedExpressDTO createdExpressDTO = null;
+        try {
+            createdExpressDTO = YanwenApi.createExpress(yanwenExpressDto);
+        } catch (CustomerException e) {
+            orderService.updateOrderPackInfo(orderId,2,null);
+            redisTemplate.opsForHash().put(RedisKey.HASH_ORDER_CREATE_PACKAGE_FAILED_REASON,orderId.toString(),e.getMessage());
+            return BaseResponse.failed(e.getMessage());
+        }
+
+        Long packageNo = getPackageNo();
+        OrderPackage orderPackage = new OrderPackage();
+        orderPackage.setId(packageNo);
+        orderPackage.setPackageNo(packageNo);
+        orderPackage.setOrderId(orderId);
+        orderPackage.setPackageState(0);
+        orderPackage.setCreateTime(new Date());
+        orderPackage.setLogisticsOrderNo(createdExpressDTO.getEpcode());
+        orderPackage.setTrackingCode(createdExpressDTO.getReferenceNo());
+        orderPackage.setPlatId(createdExpressDTO.getEpcode());
+        orderPackage.setStoreId(order.getStoreId());
+        orderPackage.setCustomerId(order.getCustomerId());
+        orderPackage.setTrackingMethodName(shippingMethodRedis.getName());
+        orderPackage.setTrackingMethodCode(shippingMethodRedis.getMethodCode());
+        orderPackage.setTrackingCompany(shippingMethodRedis.getTrackingCompany());
+        insert(orderPackage);
+
+        orderService.updateOrderPackInfo(orderId,1,packageNo);
+        redisTemplate.opsForHash().delete(RedisKey.HASH_ORDER_CREATE_PACKAGE_FAILED_REASON,orderId.toString());
+        return BaseResponse.success(orderPackage);
     }
 
     public BaseResponse createCnePackage(Order order,ShippingMethodRedis shippingMethodRedis){

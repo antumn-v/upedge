@@ -1,15 +1,18 @@
 package com.upedge.thirdparty.shipcompany.yanwen.dto;
 
 import com.alibaba.fastjson.annotation.JSONField;
+import com.upedge.thirdparty.shipcompany.yanwen.api.YanwenApi;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.util.Date;
 
 @NoArgsConstructor
 @Data
 public class YanwenExpressDto {
 
     @JSONField(name = "Userid")
-    private String userid;
+    private String userid = YanwenApi.userId;
     @JSONField(name = "Channel")
     private String channel;
     @JSONField(name = "Epcode")
@@ -19,9 +22,9 @@ public class YanwenExpressDto {
     @JSONField(name = "UserOrderNumber")
     private String userOrderNumber;
     @JSONField(name = "SendDate")
-    private String sendDate;
+    private Date sendDate;
     @JSONField(name = "Quantity")
-    private String quantity;
+    private Integer quantity;
     @JSONField(name = "Insure")
     private String insure;
     @JSONField(name = "MerchantCsName")
@@ -37,7 +40,7 @@ public class YanwenExpressDto {
     @JSONField(name = "ExpiryDate")
     private String expiryDate;
     @JSONField(name = "Receiver")
-    private YanwenReceiverDTO receiver;
+    private YanwenReceiverDTO receiver = new YanwenReceiverDTO();
     @JSONField(name = "Sender")
     private SenderDTO sender;
     @JSONField(name = "GoodsName")
@@ -47,7 +50,7 @@ public class YanwenExpressDto {
     @Data
     public static class YanwenReceiverDTO {
         @JSONField(name = "Userid")
-        private String userid;
+        private String userid = YanwenApi.userId;
         @JSONField(name = "Name")
         private String name;
         @JSONField(name = "Phone")
@@ -91,15 +94,15 @@ public class YanwenExpressDto {
     @Data
     public static class YanwenGoodsNameDTO {
         @JSONField(name = "Userid")
-        private String userid;
+        private String userid = YanwenApi.userId;
         @JSONField(name = "NameCh")
         private String nameCh;
         @JSONField(name = "NameEn")
         private String nameEn;
         @JSONField(name = "Weight")
-        private String weight;
+        private Integer weight;
         @JSONField(name = "DeclaredValue")
-        private String declaredValue;
+        private Double declaredValue;
         @JSONField(name = "DeclaredCurrency")
         private String declaredCurrency;
         @JSONField(name = "HsCode")

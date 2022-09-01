@@ -1,25 +1,36 @@
 package com.upedge.thirdparty.shipcompany.yanwen.api;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.upedge.thirdparty.shipcompany.yanwen.YanwenShipMethodVo;
+import com.upedge.common.exception.CustomerException;
+import com.upedge.thirdparty.shipcompany.yanwen.dto.YanwenCreateExpressResponse;
+import com.upedge.thirdparty.shipcompany.yanwen.dto.YanwenExpressDto;
 import com.upedge.thirdparty.shipcompany.yanwen.dto.YanwenGetShipMethodDto;
+import com.upedge.thirdparty.shipcompany.yanwen.vo.YanwenShipMethodVo;
 import okhttp3.*;
 import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 import org.springframework.http.HttpMethod;
 
+import java.io.*;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 public class YanwenApi {
 
+    public static String ServicePoint = "http://47.96.220.163:802/service";
+
+    public static String userId = "100000";
+
     public static String apiToken = "D6140AA383FD8515B09028C586493DDB";
 
 
     public static List<YanwenShipMethodVo> getYanwenShipMethods(){
-        String url = "http://47.96.220.163:802/service/Users/100000/GetChannels";
+        String url = ServicePoint +  "/Users/"+userId+"/GetChannels";
 
         try {
             String result = commonRequest(url,HttpMethod.GET,null);
@@ -31,6 +42,35 @@ public class YanwenApi {
         }
 
         return null;
+    }
+
+    public static String getTrackLabel(String epCode,String path){
+        String url = ServicePoint + "/Users/"+userId+"/Expresses/"+epCode+"/A10x10LLabel";
+
+        String labelName = uploadLabelPdf(epCode,path);
+
+        return labelName;
+
+    }
+
+    public static YanwenCreateExpressResponse.CreatedExpressDTO createExpress(YanwenExpressDto yanwenExpressDto) throws CustomerException {
+        String url = ServicePoint + "/Users/"+userId+"/Expresses";
+
+        YanwenCreateExpressResponse yanwenGetShipMethodDto = null;
+
+        try {
+            String result = commonRequest(url,HttpMethod.POST, JSON.toJSONString(yanwenExpressDto));
+            JSONObject jsonObject = xmltoJson(result);
+            jsonObject = jsonObject.getJSONObject("CreateExpressResponseType");
+            yanwenGetShipMethodDto = JSONObject.toJavaObject(jsonObject,YanwenCreateExpressResponse.class);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        YanwenCreateExpressResponse.ResponseDTO response = yanwenGetShipMethodDto.getResponse();
+        if (response.getSuccess()){
+            return yanwenGetShipMethodDto.getCreatedExpress();
+        }
+        throw new CustomerException(response.getReasonMessage());
     }
 
 
@@ -133,7 +173,56 @@ public class YanwenApi {
         return;
     }
 
-    public static void main(String[] args) {
-        System.out.println(getYanwenShipMethods());
+
+    public static String uploadLabelPdf(String epCode,String path)  {
+        HttpURLConnection urlConnection = null;
+        FileOutputStream fileOutputStream;
+        InputStream inputStream;
+        String fileName = epCode + ".pdf";
+        try {
+            URL url = new URL(ServicePoint + "/Users/"+userId+"/Expresses/"+epCode+"/A10x10LLabel");
+            urlConnection = (HttpURLConnection) url.openConnection();
+            urlConnection.setRequestMethod("GET");
+            urlConnection.setConnectTimeout(20000);
+            urlConnection.setDoOutput(true);
+            urlConnection.setDoInput(true);
+            urlConnection.setUseCaches(false);
+            urlConnection.setRequestProperty("Authorization", "basic "+ apiToken);
+            urlConnection.connect();
+
+            File file = new File(path +fileName);
+            if (!file.getParentFile().exists()) {
+                file.getParentFile().mkdirs();
+            }
+            if (!file.exists()) {
+                file.createNewFile();
+            }
+            inputStream = urlConnection.getInputStream();
+            BufferedInputStream bufferedInputStream = new BufferedInputStream(inputStream);
+            fileOutputStream = new FileOutputStream(path + fileName);
+            BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(fileOutputStream);
+
+            byte[] buf = new byte[4096];
+            int length = bufferedInputStream.read(buf);
+            while (-1 != length) {
+                bufferedOutputStream.write(buf, 0, length);
+                length = bufferedInputStream.read(buf);
+            }
+            bufferedInputStream.close();
+            bufferedOutputStream.close();
+            return fileName;
+        } catch (Exception e) {
+            System.out.println("getFile error: " + e);
+        } finally {
+            if (null != urlConnection) {
+                urlConnection.disconnect();
+            }
+        }
+        return null;
+    }
+
+
+    public static void main(String[] args){
+
     }
 }

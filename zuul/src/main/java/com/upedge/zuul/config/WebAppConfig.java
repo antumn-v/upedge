@@ -15,11 +15,18 @@ public  class WebAppConfig implements WebMvcConfigurer {
     @Value("${files.image.local}")
     String imageLocal;
 
+    @Value("${files.pdf.local}")
+    String pdfLocal;
+
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         String imageDirectory = "file:" + imageLocal;
         String imageMapping = "/image/**";
         registry.addResourceHandler(imageMapping).addResourceLocations(imageDirectory);
+
+        String pdfDirectory = "file:" + pdfLocal;
+        String pdfMapping = "/pdf/**";
+        registry.addResourceHandler(pdfMapping).addResourceLocations(pdfDirectory);
         System.out.println("========WebAppConfig==========");
         WebMvcConfigurer.super.addResourceHandlers(registry);
     }

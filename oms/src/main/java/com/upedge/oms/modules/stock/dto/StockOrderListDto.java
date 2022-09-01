@@ -1,11 +1,9 @@
 package com.upedge.oms.modules.stock.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.upedge.common.utils.DateUtils;
 import lombok.Data;
 
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
 
 @Data
 public class StockOrderListDto  {
@@ -39,18 +37,6 @@ public class StockOrderListDto  {
     private String dateBegin;
 
     private String dateEnd;
-
-    {
-        try {
-            dateBegin = DateUtils.getDate("yyyy-MM-dd HH:mm:ss", -30, Calendar.DAY_OF_MONTH);
-
-            dateEnd =  DateUtils.getDate("yyyy-MM-dd HH:mm:ss", +1, Calendar.DAY_OF_MONTH);
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
 
     /**
      *

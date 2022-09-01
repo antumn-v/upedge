@@ -41,7 +41,6 @@ public class AuthenticationFilter extends ZuulFilter {
 		freePaths.add("/ums/store/connectShopify");//shopify授权
 		freePaths.add("/cms/website/");
 		freePaths.add("/pms/alibabaApi/auth");
-
 	}
 	
 	private static Logger log=LoggerFactory.getLogger(AuthenticationFilter.class);
@@ -73,6 +72,7 @@ public class AuthenticationFilter extends ZuulFilter {
 					|| path.contains("webHook")
 					|| path.contains("/auth")
 					|| path.contains("/image")
+					|| path.contains("/pdf")
 					|| path.contains("/excel")
 					|| path.contains("/ums/affiliate/bind/")
 					|| path.contains("/cms/web")) {

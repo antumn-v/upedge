@@ -24,7 +24,7 @@ import com.upedge.thirdparty.shipcompany.cne.api.CneApi;
 import com.upedge.thirdparty.shipcompany.cne.dto.CneShipMethodDto;
 import com.upedge.thirdparty.shipcompany.fpx.api.FpxCommonApi;
 import com.upedge.thirdparty.shipcompany.fpx.vo.FpxMethodVo;
-import com.upedge.thirdparty.shipcompany.yanwen.YanwenShipMethodVo;
+import com.upedge.thirdparty.shipcompany.yanwen.vo.YanwenShipMethodVo;
 import com.upedge.thirdparty.shipcompany.yanwen.api.YanwenApi;
 import com.upedge.thirdparty.shipcompany.yunexpress.api.YunexpressApi;
 import com.upedge.thirdparty.shipcompany.yunexpress.vo.YunExpressShipMethodVo;

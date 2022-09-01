@@ -16,6 +16,7 @@ public class WebAppConfig implements WebMvcConfigurer {
         String imageDirectory = "file:" + imageLocal;
         String umsImageMapping = "/image/**";
         registry.addResourceHandler(umsImageMapping).addResourceLocations(imageDirectory);
+
         System.out.println("========WebAppConfig==========");
         WebMvcConfigurer.super.addResourceHandlers(registry);
     }
