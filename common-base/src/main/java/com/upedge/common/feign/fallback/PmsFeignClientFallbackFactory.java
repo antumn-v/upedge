@@ -3,6 +3,7 @@ package com.upedge.common.feign.fallback;
 import com.upedge.common.base.BaseResponse;
 import com.upedge.common.constant.ResultCode;
 import com.upedge.common.feign.PmsFeignClient;
+import com.upedge.common.model.oms.order.OrderItemQuantityVo;
 import com.upedge.common.model.pms.quote.CustomerProductQuoteVo;
 import com.upedge.common.model.pms.request.CustomerProductQuoteSearchRequest;
 import com.upedge.common.model.pms.request.OrderQuoteApplyRequest;
@@ -30,6 +31,11 @@ public class PmsFeignClientFallbackFactory implements FallbackFactory<PmsFeignCl
     @Override
     public PmsFeignClient create(Throwable cause) {
         return new PmsFeignClient() {
+            @Override
+            public BaseResponse packageEx(OrderItemQuantityVo orderItemQuantityVo) {
+                return BaseResponse.failed();
+            }
+
             @Override
             public List<CustomerProductQuoteVo> saveStoreCustomVariantRecords(StoreCustomVariantRecordSaveRequest request) {
                 return new ArrayList<>();

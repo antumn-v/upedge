@@ -104,3 +104,18 @@ upedge:
     coreSize: 20
     maxSize: 200
     keepAliveTime: 10
+
+
+seata:
+  enabled: true
+  application-id: ${spring.application.name}
+  enable-auto-data-source-proxy: true
+  use-jdk-proxy: false
+  tx-service-group: default
+  service:
+    vgroupMapping:
+      default: default
+    enable-degrade: false
+    disable-global-transaction: false
+    grouplist:
+      default: 172.23.127.10:8091

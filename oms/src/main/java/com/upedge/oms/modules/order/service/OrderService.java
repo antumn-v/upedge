@@ -4,6 +4,8 @@ import com.upedge.common.base.BaseResponse;
 import com.upedge.common.base.Page;
 import com.upedge.common.exception.CustomerException;
 import com.upedge.common.model.mq.ChangeManagerVo;
+import com.upedge.common.model.oms.order.OrderItemQuantityVo;
+import com.upedge.common.model.order.OrderItemQuantityDto;
 import com.upedge.common.model.order.request.ManagerActualRequest;
 import com.upedge.common.model.order.vo.AllOrderAmountVo;
 import com.upedge.common.model.order.vo.ManagerActualVo;
@@ -39,6 +41,10 @@ public interface OrderService{
      * @return
      */
     int updateOrderPackInfo(Long id, Integer packageState,Long packNo);
+
+    List<OrderItemQuantityVo> selectOrderItemQuantities(OrderItemQuantityDto orderItemQuantityDto);
+
+    OrderItemQuantityVo selectOrderItemQuantitiesByOrderId(Long orderId);
 
     int updateShipState(Long id,Integer shipState);
 

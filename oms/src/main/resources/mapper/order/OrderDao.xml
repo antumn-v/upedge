@@ -144,8 +144,19 @@
         </collection>
     </resultMap>
 
+    <resultMap id="OrderItemQuantityVo" type="com.upedge.common.model.oms.order.OrderItemQuantityVo">
+        <id property="orderId" column="orderId"/>
+        <result property="warehouseCode" column="warehouseCode"/>
+        <collection property="itemQuantityVos" ofType="com.upedge.common.model.oms.order.ItemQuantityVo">
+            <result property="itemId" column="itemId"/>
+            <result property="quantity" column="quantity"/>
+            <result property="variantId" column="variantId"/>
+        </collection>
+    </resultMap>
+
     <sql id="Base_Column_List">
-        `id`,`customer_id`,`org_id`,`org_path`,`store_id`,`pay_amount`,`ship_method_id`,`ship_price`,
+        `id`
+                ,`customer_id`,`org_id`,`org_path`,`store_id`,`pay_amount`,`ship_method_id`,`ship_price`,
         `total_weight`,`product_amount`,`product_discharge_amount`,`fix_fee`,`fix_fee_percentage`,`service_fee`,
         `pay_method`,`pay_time`,`payment_id`,`pay_state`,`refund_state`,`ship_state`,`order_type`,quote_state,
         `to_area_id`,`cny_rate`,`create_time`,`update_time`,`saihe_order_code`,`vat_amount`,`order_status`,`manager_code`,
@@ -394,7 +405,7 @@
         select id as orderId, '2' as orderType, pay_amount as `amount`, payment_id as payment_id, pay_time as payTime
         from `order`
         where payment_id = #{paymentId}
-        and pay_state = '1'
+          and pay_state = '1'
     </select>
 
     <select id="selectPayAmountByPaymentId" resultType="java.math.BigDecimal">
@@ -450,7 +461,7 @@
                o.order_type,
                o.to_area_id,
                o.vat_amount,
-                o.pick_type,
+               o.pick_type,
                sor.plat_order_name,
                sor.plat_order_create_time,
                sor.`order_customer_name`,
@@ -470,12 +481,12 @@
                `admin_variant_volume`,
                oi.admin_variant_id
         from `order` o
-        inner join order_item oi
-        on o.id = oi.order_id
-        inner join store_order_relate sor
-        on o.id = sor.order_id
+                     inner join order_item oi
+                on o.id = oi.order_id
+                     inner join store_order_relate sor
+                on o.id = sor.order_id
         where o.payment_id = #{paymentId}
-        and o.order_status = '0'
+          and o.order_status = '0'
         order by sor.plat_order_create_time desc
     </select>
 
@@ -486,7 +497,7 @@
                o.pay_amount,
                o.ship_method_id,
                (o.ship_price + service_fee) as `ship_price`,
-                o.service_fee,
+               o.service_fee,
                o.total_weight,
                o.product_amount,
                o.product_discharge_amount,
@@ -501,7 +512,7 @@
                o.to_area_id,
                o.vat_amount,
                o.create_time,
-                o.pick_type
+               o.pick_type
         from `order` o
         where o.id = #{id}
     </select>
@@ -572,9 +583,9 @@
                 inner join
                 (
                 select oo.id as `orderId`,
-                sum(quantity * ifnull(usd_price,'0')) as `productAmount`,
-                sum(quantity * ifnull(cny_price,'0')) as `cnyProductAmount`,
-                sum(discharge_quantity * ifnull(usd_price,'0')) as `dischargeAmount`
+                sum (quantity * ifnull(usd_price,'0')) as `productAmount`,
+                sum (quantity * ifnull(cny_price,'0')) as `cnyProductAmount`,
+                sum (discharge_quantity * ifnull(usd_price,'0')) as `dischargeAmount`
                 from order_item oi
                 inner join `order` oo
                 on oi.order_id = oo.id
@@ -600,11 +611,11 @@
 
     <update id="updateShipDetailById">
         update `order`
-        set ship_price     = #{ship.price},
-            vat_amount     = #{ship.vatAmount},
-            service_fee    = #{ship.serviceFee},
-            total_weight   = #{ship.weight},
-            ship_method_id = #{ship.methodId},
+        set ship_price         = #{ship.price},
+            vat_amount         = #{ship.vatAmount},
+            service_fee        = #{ship.serviceFee},
+            total_weight       = #{ship.weight},
+            ship_method_id     = #{ship.methodId},
             shipping_warehouse = #{ship.warehouseCode}
         where id = #{id}
           and pay_state != '1'
@@ -670,11 +681,11 @@
 
     <update id="updateOrderAsPaid" parameterType="com.upedge.oms.modules.order.dto.OrderTransactionDto">
         update `order`
-        set pay_state          = '1',
-            pay_time           = #{payTime},
-            pay_method         = #{payMethod},
-            pay_amount         = (product_amount + ship_price + vat_amount + service_fee - product_discharge_amount),
-            cny_rate           = #{cnyRate}
+        set pay_state  = '1',
+            pay_time   = #{payTime},
+            pay_method = #{payMethod},
+            pay_amount = (product_amount + ship_price + vat_amount + service_fee - product_discharge_amount),
+            cny_rate   = #{cnyRate}
         where payment_id = #{paymentId}
           and pay_state = '2'
           and order_status = '0'
@@ -1551,7 +1562,7 @@
         update `order`
         set refund_state=#{state}
         where id = #{id}
-        and refund_state = 1
+          and refund_state = 1
     </update>
 
     <select id="querySaiheOrder" resultType="com.upedge.thirdparty.saihe.entity.SaiheOrder">
@@ -1580,10 +1591,10 @@
         from `order` o
                      left join order_address od on o.id = od.order_id
         where o.id = #{id}
-        and o.pay_state = 1
-        and o.ship_state = 0
-        and o.refund_state = 0
-        and o.order_status = 0
+          and o.pay_state = 1
+          and o.ship_state = 0
+          and o.refund_state = 0
+          and o.order_status = 0
     </select>
 
     <update id="updateSaiheOrderCode">
@@ -1602,7 +1613,7 @@
         update `order`
         set ship_method_id = null,
             ship_price     = '0',
-            service_fee = '0'
+            service_fee    = '0'
         where id = #{id}
           and pay_state &lt; 1
     </update>
@@ -1619,11 +1630,11 @@
 
     <update id="updateOrderProductAmount">
         update `order`
-        set product_amount     = #{productAmount},
-            cny_product_amount = #{cnyProductAmount},
+        set product_amount           = #{productAmount},
+            cny_product_amount       = #{cnyProductAmount},
             product_discharge_amount = #{dischargeAmount}
         where id = #{id}
-        and pay_state = '0'
+          and pay_state = '0'
     </update>
     <update id="updateToAreaIdById">
         update `order`
@@ -2034,7 +2045,7 @@
         select
                 date (pay_time) as dayDate,
                 count (1) as orderNum,
-                sum(IFNULL(product_amount, 0)+IFNULL(ship_price, 0)+IFNULL(vat_amount, 0)) as orderAmount
+                sum (IFNULL(product_amount, 0)+IFNULL(ship_price, 0)+IFNULL(vat_amount, 0)) as orderAmount
         from `order`
         where pay_state=1
           and refund_state = 0
@@ -2182,9 +2193,9 @@
     <select id="selectOrderItemAmountByPaymentId"
             resultType="com.upedge.oms.modules.order.vo.OrderProductAmountVo">
         select o.id,
-               sum(quantity * usd_price) as `productAmount`,
-               sum(quantity * cny_price) as `cnyProductAmount`,
-                sum(discharge_quantity * usd_price) as `dischargeAmount`
+               sum(quantity * usd_price)           as `productAmount`,
+               sum(quantity * cny_price)           as `cnyProductAmount`,
+               sum(discharge_quantity * usd_price) as `dischargeAmount`
         from order_item oi
                      inner join `order` o
                 on oi.order_id = o.id
@@ -2265,7 +2276,8 @@
         on o.id = osu.order_id
                 set o.ship_method_id = null, ship_price = '0'
         where osu.ship_unit_id = #{shipUnitId}
-          and o.pay_state &lt; 1
+          and o.pay_state
+         &lt; 1
     </update>
 
     <update id="cancelOrderByIds">
@@ -2296,59 +2308,59 @@
 
     <update id="updateOrderVatAmountByAreaId">
         update `order`
-            set vat_amount = #{vatAmount}
+        set vat_amount = #{vatAmount}
         where pay_state &lt; 1
         and to_area_id in
-            <foreach collection="areaIds" item="areaId" open="(" separator="," close=")">
-                #{areaId}
-            </foreach>
+        <foreach collection="areaIds" item="areaId" open="(" separator="," close=")">
+            #{areaId}
+        </foreach>
     </update>
 
     <select id="selectUnPaidIdsByShipRule" resultType="java.lang.Long">
         select id
         from `order`
         where customer_id = #{rule.customerId}
-        and pay_state = '0'
-        and quote_state = '3'
-        and to_area_id = #{areaId}
-        and ship_method_id != #{rule.shippingMethodId}
+          and pay_state = '0'
+          and quote_state = '3'
+          and to_area_id = #{areaId}
+          and ship_method_id != #{rule.shippingMethodId}
         union all
-        select id
-        from `order`
-        where customer_id = #{rule.customerId}
-        and pay_state = '0'
-        and quote_state = '3'
-        and to_area_id = #{areaId}
-        and ship_method_id is null
+                select id
+                from `order`
+                where customer_id = #{rule.customerId}
+                  and pay_state = '0'
+                  and quote_state = '3'
+                  and to_area_id = #{areaId}
+                  and ship_method_id is null
     </select>
 
     <select id="selectUploadSaiheFailedIds" resultType="java.lang.Long">
         select id
         from `order`
         where pay_state = '1'
-        and saihe_order_code is null
-        and order_status = '0'
-        order by pay_time asc
-        limit 100
+          and saihe_order_code is null
+          and order_status = '0'
+        order by pay_time asc limit 100
     </select>
 
     <update id="updateWarehouseByMethodId">
         update `order`
         set shipping_warehouse = #{warehouseCode}
         where ship_method_id = #{methodId}
-        and pay_state != '1';
+          and pay_state != '1';
     </update>
 
     <select id="selectAllPaymentId" resultMap="BaseResultMap">
-        select DISTINCT payment_id,customer_id,pay_method
+        select DISTINCT payment_id, customer_id, pay_method
         from `order`
         where pay_state = '1'
-        and payment_id is not null
-        and date(pay_time) >= '2022-7-31'
+          and payment_id is not null
+          and date (pay_time) >= '2022-7-31'
     </select>
 
     <select id="selectByIds" resultMap="BaseResultMap">
-        select <include refid="Base_Column_List"/>
+        select
+        <include refid="Base_Column_List"/>
         from `order`
         where id in
         <foreach collection="ids" item="id" open="(" close=")" separator=",">
@@ -2357,7 +2369,8 @@
     </select>
 
     <delete id="deleteReshipOrder">
-        delete o,oi,od,sor
+        delete
+                o,oi,od,sor
         from `order` o
         left join order_item oi
         on o.id = oi.order_id
@@ -2365,30 +2378,31 @@
         on o.id = od.order_id
         left join store_order_relate sor
         on o.id = sor.order_id
-        where o.id = #{id}
+        where o.id =
+                #{id}
     </delete>
 
     <select id="selectShippedIdsByCustomer" resultType="java.lang.Long">
         select id
         from `order`
         where customer_id = #{customerId}
-        and ship_state = '1'
-        and order_type != '1'
+          and ship_state = '1'
+          and order_type != '1'
     </select>
 
     <update id="orderCancelUploadSaihe">
         update `order`
-            set saihe_order_code = '0'
+        set saihe_order_code = '0'
         where id = #{id}
-        and pay_state = '1'
-        and saihe_order_code is null
+          and pay_state = '1'
+          and saihe_order_code is null
     </update>
 
     <select id="selectUnpaidOrderIdsByShipUnitId" resultType="java.lang.Long">
         select distinct o.id
         from `order` o
-        inner join order_shipping_unit osu
-        on o.id = osu.order_id
+                     inner join order_shipping_unit osu
+                on o.id = osu.order_id
         where osu.ship_unit_id = #{shipUnitId}
           and o.pay_state &lt; 1
     </select>
@@ -2398,7 +2412,7 @@
         oi.quantity,oi.id as `itemId`,oi.admin_variant_id as `variantId`
         from `order` o
         inner join order_item oi
-        on o.id = oi.order_id    where o.pay_state = '1'
+        on o.id = oi.order_id where o.pay_state = '1'
         and o.refund_state = '0'
         and o.ship_state = '0'
         and o.stock_state = '0'
@@ -2414,18 +2428,17 @@
         <if test="orderId != null">
             and o.id = #{orderId}
         </if>
-
     </select>
 
     <update id="updatePickType">
         update `order`
-            set pick_type = #{pickType}
+        set pick_type = #{pickType}
         where id = #{id}
     </update>
 
     <update id="updateOrderPickState">
         update `order`
-            set pick_state = #{state},
+        set pick_state = #{state},
         wave_no = #{waveNo}
         where ship_state != '1'
         and id in
@@ -2438,13 +2451,28 @@
         update `order`
         set ship_state = #{shipState}
         where id = #{id}
-        and ship_state != '1'
+          and ship_state != '1'
     </update>
 
     <update id="updateOrderPackInfo">
         update `order`
-            set pack_state = #{packageState},
-                pack_no = #{packNo}
+        set pack_state = #{packageState},
+            pack_no    = #{packNo}
         where id = #{id}
     </update>
+
+    <select id="selectOrderItemQuantitiesByOrderId" resultMap="OrderItemQuantityVo">
+        select o.id                as `orderId`,
+               shipping_warehouse  as `warehouseCode`,
+               oi.quantity,
+               oi.id               as `itemId`,
+               oi.admin_variant_id as `variantId`
+        from `order` o
+        inner join order_item oi
+        on o.id = oi.order_id
+        where o.id = #{orderId}
+          and o.pay_state = '1'
+          and o.refund_state = '0'
+          and o.ship_state = '0'
+    </select>
 </mapper>

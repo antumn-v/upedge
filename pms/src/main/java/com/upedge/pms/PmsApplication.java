@@ -1,6 +1,7 @@
 package com.upedge.pms;
 
 import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
+import io.seata.spring.annotation.datasource.EnableAutoDataSourceProxy;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -13,6 +14,7 @@ import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
+@EnableAutoDataSourceProxy
 @EnableAsync
 @EnableTransactionManagement
 @EnableFeignClients(basePackages = "com.upedge.common.feign")

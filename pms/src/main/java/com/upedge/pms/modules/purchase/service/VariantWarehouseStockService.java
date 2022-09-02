@@ -19,7 +19,7 @@ import java.util.List;
  */
 public interface VariantWarehouseStockService{
 
-    int packageShipped(OrderItemQuantityVo orderItemQuantityVo) throws CustomerException;
+    BaseResponse packageShipped(OrderItemQuantityVo orderItemQuantityVo) throws Exception;
 
     int updateVariantSafeStock(VariantSafeStockUpdateRequest request);
 

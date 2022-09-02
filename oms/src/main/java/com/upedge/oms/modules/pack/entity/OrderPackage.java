@@ -81,4 +81,6 @@ public class OrderPackage{
 
 	private String remark;
 
+	private Boolean isUploadStore;
+
 }

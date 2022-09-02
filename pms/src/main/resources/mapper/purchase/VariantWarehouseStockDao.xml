@@ -294,6 +294,6 @@
         set lock_stock = lock_stock - #{changeQuantity}
         where variant_id = #{variantId}
           and warehouse_code = #{warehouseCode}
-          and lock_stock > #{changeQuantity}
+          and lock_stock >= #{changeQuantity}
     </update>
 </mapper>

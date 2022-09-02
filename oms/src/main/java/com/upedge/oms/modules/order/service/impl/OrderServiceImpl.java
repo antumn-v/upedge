@@ -12,6 +12,8 @@ import com.upedge.common.feign.TmsFeignClient;
 import com.upedge.common.feign.UmsFeignClient;
 import com.upedge.common.model.mq.ChangeManagerVo;
 import com.upedge.common.model.oms.order.OrderExcelItemDto;
+import com.upedge.common.model.oms.order.OrderItemQuantityVo;
+import com.upedge.common.model.order.OrderItemQuantityDto;
 import com.upedge.common.model.order.request.ManagerActualRequest;
 import com.upedge.common.model.order.vo.AllOrderAmountVo;
 import com.upedge.common.model.order.vo.CustomerOrderStatisticalVo;
@@ -1290,6 +1292,16 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public int updateOrderPackInfo(Long id, Integer packageState, Long packNo) {
         return orderDao.updateOrderPackInfo(id, packageState, packNo);
+    }
+
+    @Override
+    public List<OrderItemQuantityVo> selectOrderItemQuantities(OrderItemQuantityDto orderItemQuantityDto) {
+        return orderDao.selectOrderItemQuantities(orderItemQuantityDto);
+    }
+
+    @Override
+    public OrderItemQuantityVo selectOrderItemQuantitiesByOrderId(Long orderId) {
+        return orderDao.selectOrderItemQuantitiesByOrderId(orderId);
     }
 
     @Override

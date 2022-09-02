@@ -3,6 +3,7 @@ package com.upedge.common.feign;
 import com.upedge.common.base.BaseResponse;
 import com.upedge.common.constant.ServiceNameConstants;
 import com.upedge.common.feign.fallback.PmsFeignClientFallbackFactory;
+import com.upedge.common.model.oms.order.OrderItemQuantityVo;
 import com.upedge.common.model.pms.quote.CustomerProductQuoteVo;
 import com.upedge.common.model.pms.request.CustomerProductQuoteSearchRequest;
 import com.upedge.common.model.pms.request.OrderQuoteApplyRequest;
@@ -27,6 +28,9 @@ import java.util.List;
  */
 @FeignClient(name = ServiceNameConstants.PMS_SERVICE,fallbackFactory = PmsFeignClientFallbackFactory.class,decode404 = true)
 public interface PmsFeignClient {
+
+    @PostMapping("/variantWarehouseStock/packageEx")
+    public BaseResponse packageEx(@RequestBody OrderItemQuantityVo orderItemQuantityVo);
 
     @PostMapping("/storeCustomVariantRecord/save")
     public List<CustomerProductQuoteVo> saveStoreCustomVariantRecords(@RequestBody StoreCustomVariantRecordSaveRequest request);

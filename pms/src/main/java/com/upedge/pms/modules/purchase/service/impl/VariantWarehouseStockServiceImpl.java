@@ -3,7 +3,6 @@ package com.upedge.pms.modules.purchase.service.impl;
 import com.upedge.common.base.BaseResponse;
 import com.upedge.common.base.Page;
 import com.upedge.common.constant.key.RedisKey;
-import com.upedge.common.exception.CustomerException;
 import com.upedge.common.feign.OmsFeignClient;
 import com.upedge.common.model.oms.order.ItemQuantityVo;
 import com.upedge.common.model.oms.order.OrderItemQuantityVo;
@@ -27,6 +26,7 @@ import com.upedge.pms.modules.purchase.service.VariantStockExImRecordService;
 import com.upedge.pms.modules.purchase.service.VariantWarehouseStockRecordService;
 import com.upedge.pms.modules.purchase.service.VariantWarehouseStockService;
 import com.upedge.pms.modules.purchase.vo.VariantWarehouseStockVo;
+import io.seata.spring.annotation.GlobalTransactional;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -85,19 +85,19 @@ public class VariantWarehouseStockServiceImpl implements VariantWarehouseStockSe
         return variantWarehouseStockDao.insert(record);
     }
 
-    @Transactional
+    @GlobalTransactional(rollbackFor = Exception.class)
     @Override
-    public int packageShipped(OrderItemQuantityVo orderItemQuantityVo) throws CustomerException {
+    public BaseResponse packageShipped(OrderItemQuantityVo orderItemQuantityVo) throws Exception {
 
         List<ItemQuantityVo> itemQuantityVos = orderItemQuantityVo.getItemQuantityVos();
         for (ItemQuantityVo itemQuantityVo : itemQuantityVos) {
             VariantWarehouseStock variantWarehouseStock = variantWarehouseStockDao.selectByPrimaryKey(itemQuantityVo.getVariantId(), "CNHz");
-            if (variantWarehouseStock.getLockStock() < itemQuantityVo.getQuantity()){
-                throw new CustomerException("库存不足");
+            if (variantWarehouseStock == null || variantWarehouseStock.getLockStock() < itemQuantityVo.getQuantity()){
+                throw new Exception("库存不足");
             }
             int i = variantWarehouseStockDao.reduceVariantLockStock(variantWarehouseStock.getVariantId(), "CNHZ",itemQuantityVo.getQuantity());
             if (i == 0){
-                throw new CustomerException("库存不足");
+                throw new Exception("库存不足");
             }
             VariantWarehouseStockRecord variantWarehouseStockRecord =
                     new VariantWarehouseStockRecord(variantWarehouseStock.getVariantId(),
@@ -112,7 +112,7 @@ public class VariantWarehouseStockServiceImpl implements VariantWarehouseStockSe
                             orderItemQuantityVo.getOperatorId());
             variantWarehouseStockRecordService.insert(variantWarehouseStockRecord);
         }
-        return 1;
+        return BaseResponse.success();
     }
 
     @Override
@@ -389,7 +389,7 @@ public class VariantWarehouseStockServiceImpl implements VariantWarehouseStockSe
 
         OrderItemQuantityDto orderItemQuantityDto = new OrderItemQuantityDto();
         orderItemQuantityDto.setVariantId(variantWarehouseStock.getVariantId());
-        omsFeignClient.checkStock(orderItemQuantityDto);
+//        omsFeignClient.checkStock(orderItemQuantityDto);
         RedisUtil.unLock(redisTemplate,key);
         return BaseResponse.success();
     }

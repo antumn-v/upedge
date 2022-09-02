@@ -2,6 +2,7 @@ package com.upedge.pms.modules.purchase.controller;
 
 import com.upedge.common.base.BaseResponse;
 import com.upedge.common.component.annotation.Permission;
+import com.upedge.common.model.oms.order.OrderItemQuantityVo;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.utils.IdGenerate;
 import com.upedge.common.web.util.UserUtil;
@@ -56,6 +57,12 @@ public class VariantWarehouseStockController {
         request.setProcessType(VariantWarehouseStockRecord.CUSTOM_EX);
         request.setRelateId(IdGenerate.nextId());
         return variantWarehouseStockService.variantStockEx(request,session);
+    }
+
+    @ApiOperation("包裹出库")
+    @PostMapping("/packageEx")
+    public BaseResponse packageEx(@RequestBody OrderItemQuantityVo orderItemQuantityVo) throws Exception {
+        return variantWarehouseStockService.packageShipped(orderItemQuantityVo);
     }
 
     @ApiOperation("手动入库")

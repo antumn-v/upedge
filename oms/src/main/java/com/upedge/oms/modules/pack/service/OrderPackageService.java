@@ -2,6 +2,7 @@ package com.upedge.oms.modules.pack.service;
 
 import com.upedge.common.base.BaseResponse;
 import com.upedge.common.base.Page;
+import com.upedge.common.exception.CustomerException;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.oms.modules.pack.entity.OrderLabelPrintLog;
 import com.upedge.oms.modules.pack.entity.OrderPackage;
@@ -14,7 +15,9 @@ import java.util.List;
 
 public interface OrderPackageService {
 
-    BaseResponse packageExStock(Long packNo,Session session);
+    void packageRefreshTrackCode(OrderPackage orderPackage);
+
+    BaseResponse packageExStock(Long packNo,Session session) throws CustomerException;
 
     BaseResponse orderRevokePackage(OrderPackRevokeRequest request,Session session);
 

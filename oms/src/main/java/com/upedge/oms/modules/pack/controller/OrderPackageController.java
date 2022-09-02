@@ -1,6 +1,7 @@
 package com.upedge.oms.modules.pack.controller;
 
 import com.upedge.common.base.BaseResponse;
+import com.upedge.common.exception.CustomerException;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.web.util.UserUtil;
 import com.upedge.oms.modules.pack.entity.OrderLabelPrintLog;
@@ -73,6 +74,17 @@ public class OrderPackageController {
     public BaseResponse labelPrintLog(@PathVariable Long packNo){
         List<OrderLabelPrintLog> orderLabelPrintLogs = orderPackageService.packLabelPrintLog(packNo);
         return BaseResponse.success(orderLabelPrintLogs);
+    }
+
+    @ApiOperation("包裹出库")
+    @PostMapping("/exStock/{packNo}")
+    public BaseResponse packExStock(@PathVariable Long packNo){
+        Session session = UserUtil.getSession(redisTemplate);
+        try {
+            return orderPackageService.packageExStock(packNo,session);
+        } catch (CustomerException e) {
+            return BaseResponse.failed(e.getMessage());
+        }
     }
 
 

@@ -2,8 +2,11 @@ package com.upedge.oms.modules.pack.service.impl;
 
 import com.upedge.common.base.BaseResponse;
 import com.upedge.common.base.Page;
+import com.upedge.common.constant.ResultCode;
 import com.upedge.common.constant.key.RedisKey;
 import com.upedge.common.exception.CustomerException;
+import com.upedge.common.feign.PmsFeignClient;
+import com.upedge.common.model.oms.order.OrderItemQuantityVo;
 import com.upedge.common.model.ship.vo.ShippingMethodRedis;
 import com.upedge.common.model.user.vo.CustomerIossVo;
 import com.upedge.common.model.user.vo.Session;
@@ -34,6 +37,7 @@ import com.upedge.thirdparty.shipcompany.fpx.api.FpxOrderApi;
 import com.upedge.thirdparty.shipcompany.fpx.dto.FpxOrderCreateDto;
 import com.upedge.thirdparty.shipcompany.fpx.dto.FpxOrderCreateDto.ParcelListDTO;
 import com.upedge.thirdparty.shipcompany.fpx.dto.FpxOrderCreateDto.RecipientInfoDTO;
+import com.upedge.thirdparty.shipcompany.fpx.dto.FpxOrderDto;
 import com.upedge.thirdparty.shipcompany.fpx.request.OrderPackageGetLabelRequest;
 import com.upedge.thirdparty.shipcompany.fpx.vo.FpxCreateOrderSuccessVo;
 import com.upedge.thirdparty.shipcompany.yanwen.api.YanwenApi;
@@ -41,9 +45,11 @@ import com.upedge.thirdparty.shipcompany.yanwen.dto.YanwenCreateExpressResponse;
 import com.upedge.thirdparty.shipcompany.yanwen.dto.YanwenExpressDto;
 import com.upedge.thirdparty.shipcompany.yunexpress.api.YunexpressApi;
 import com.upedge.thirdparty.shipcompany.yunexpress.dto.WayBillCreateDto;
+import com.upedge.thirdparty.shipcompany.yunexpress.dto.YunExpressGetTrackNumDto;
 import com.upedge.thirdparty.shipcompany.yunexpress.request.WayBillCreateRequest;
 import com.upedge.thirdparty.shipcompany.yunexpress.response.WayBillCreateResponse;
 import com.upedge.thirdparty.shipcompany.yunexpress.vo.WayBillItemVo;
+import io.seata.spring.annotation.GlobalTransactional;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -82,32 +88,80 @@ public class OrderPackageServiceImpl implements OrderPackageService {
     @Autowired
     OrderFulfillmentService orderFulfillmentService;
 
+    @Autowired
+    PmsFeignClient pmsFeignClient;
+
     @Value("${files.pdf.local}")
     private String pdfLocalPath;
     @Value("${files.pdf.prefix}")
     private String pdfUrlPrefix;
 
-    @Transactional
     @Override
-    public BaseResponse packageExStock(Long packNo, Session session) {
+    public void packageRefreshTrackCode(OrderPackage orderPackage) {
+        if (StringUtils.isNotBlank(orderPackage.getTrackingCode())){
+            return;
+        }
+        Long packNo = orderPackage.getId();
+        String trackCode = null;
+        switch (orderPackage.getTrackingCompany()){
+            case "CNE":
+                trackCode = CneApi.getTrackNumber(orderPackage.getLogisticsOrderNo());
+                break;
+            case "YunExpress":
+                YunExpressGetTrackNumDto yunExpressGetTrackNumDto = YunexpressApi.getTrackNum(orderPackage.getOrderId());
+                trackCode = yunExpressGetTrackNumDto.getTrackingNumber();
+                break;
+            case "4PX":
+                try {
+                    FpxOrderDto fpxOrderDto = FpxOrderApi.getFpxOrder(orderPackage.getLogisticsOrderNo());
+                    trackCode = fpxOrderDto.getFpxTrackingNo();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                break;
+            case "Yanwen":
+                break;
+            default:
+                break;
+        }
+        if (StringUtils.isNotBlank(trackCode)){
+            orderPackage = new OrderPackage();
+            orderPackage.setId(packNo);
+            orderPackage.setTrackingCode(trackCode);
+            updateByPrimaryKeySelective(orderPackage);
+        }
+        if (!orderPackage.getIsUploadStore()){
+            try {
+                packageExStock(packNo,null);
+            } catch (CustomerException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    @GlobalTransactional(rollbackFor = Exception.class)
+    @Override
+    public BaseResponse packageExStock(Long packNo, Session session) throws CustomerException {
         OrderPackage orderPackage = selectByPrimaryKey(packNo);
         if (orderPackage.getPackageState() != 0){
-            return BaseResponse.failed();
+            return BaseResponse.failed("包裹异常");
+        }
+        Long orderId = orderPackage.getOrderId();
+        OrderItemQuantityVo orderItemQuantityVo=  orderService.selectOrderItemQuantitiesByOrderId(orderId);
+        if (null == orderItemQuantityVo){
+            return BaseResponse.failed("订单异常");
         }
 
-//        orderFulfillmentService.orderFulfillment(orderPackage.getOrderId(),orderPackage.getId());
+        BaseResponse response = pmsFeignClient.packageEx(orderItemQuantityVo);
+        if (response.getCode() != ResultCode.SUCCESS_CODE){
+            return response;
+        }
 
         orderPackage = new OrderPackage();
-        orderPackage.setId(packNo);
+        orderPackage.setId(orderPackage.getId());
         orderPackage.setPackageState(1);
         orderPackage.setSendTime(new Date());
         updateByPrimaryKeySelective(orderPackage);
-
-        Order order = new Order();
-        order.setShipState(1);
-        order.setId(orderPackage.getOrderId());
-        order.setPackState(3);
-        orderService.updateByPrimaryKeySelective(order);
 
         return BaseResponse.success();
     }
@@ -687,5 +741,7 @@ public class OrderPackageServiceImpl implements OrderPackageService {
         RedisUtil.unLock(redisTemplate,lockKey);
         return no;
     }
+
+
 
 }
