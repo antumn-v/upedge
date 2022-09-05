@@ -17,7 +17,7 @@ public interface PurchaseOrderService{
 
     void checkOrderReceiveQuantity(Long id);
 
-    BaseResponse orderReceive(PurchaseOrderReceiveRequest request, Session session);
+    BaseResponse orderReceive(PurchaseOrderReceiveRequest request, Session session) throws Exception;
 
     BaseResponse refreshFrom1688(Long id);
 

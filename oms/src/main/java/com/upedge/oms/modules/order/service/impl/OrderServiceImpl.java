@@ -54,6 +54,7 @@ import com.upedge.oms.modules.order.entity.*;
 import com.upedge.oms.modules.order.request.*;
 import com.upedge.oms.modules.order.response.OrderListResponse;
 import com.upedge.oms.modules.order.response.OrderUpdateResponse;
+import com.upedge.oms.modules.order.service.OrderPayService;
 import com.upedge.oms.modules.order.service.OrderService;
 import com.upedge.oms.modules.order.service.OrderTrackingService;
 import com.upedge.oms.modules.order.vo.*;
@@ -75,7 +76,6 @@ import com.upedge.thirdparty.saihe.service.SaiheService;
 import com.upedge.thirdparty.shipcompany.fpx.api.FpxCommonApi;
 import com.upedge.thirdparty.shipcompany.fpx.dto.PriceCalculatorDTO;
 import com.upedge.thirdparty.shipcompany.fpx.dto.ShipPriceCalculator;
-import io.seata.spring.annotation.GlobalTransactional;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
@@ -169,6 +169,9 @@ public class OrderServiceImpl implements OrderService {
      */
     @Autowired
     private OrderShippingUnitService orderShippingUnitService;
+
+    @Autowired
+    OrderPayService orderPayService;
 
     @Value("${ifUploadSaihe}")
     Boolean ifUploadSaihe;
@@ -1323,19 +1326,11 @@ public class OrderServiceImpl implements OrderService {
         orderDao.updatePickType(id, pickType);
     }
 
-    @GlobalTransactional
+    @Transactional
     @Override
     public int updateStockState(Long id, Integer stockState) {
 
-        Order order = selectByPrimaryKey(id);
-        if (order == null
-        || order.getShipState() == 1){
-            return 0;
-        }
-        order = new Order();
-        order.setId(id);
-        order.setStockState(stockState);
-        return updateByPrimaryKeySelective(order);
+        return orderDao.updateStockState(id, stockState);
     }
 
     @Override

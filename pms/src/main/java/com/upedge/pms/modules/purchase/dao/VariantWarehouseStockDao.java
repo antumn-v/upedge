@@ -26,7 +26,7 @@ public interface VariantWarehouseStockDao {
 
     int updateVariantStockEx(@Param("variantId") Long variantId, @Param("warehouseCode") String warehouseCode, @Param("quantity") Integer quantity);
 
-    int updateVariantStockIm(@Param("variantId") Long variantId, @Param("warehouseCode") String warehouseCode, @Param("quantity") Integer quantity);
+    int updateVariantStockIm(@Param("variantId") Long variantId, @Param("warehouseCode") String warehouseCode, @Param("quantity") Integer quantity, @Param("processType") Integer processType);
 
     int deleteByPrimaryKey(VariantWarehouseStock record);
 

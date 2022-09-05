@@ -85,36 +85,10 @@ public class CustomerProductSalesLogServiceImpl implements CustomerProductSalesL
             records.add(record);
         });
 
-//        switch (orderType){
-//            case OrderType.NORMAL:
-//
-//                break;
-//            case OrderType.WHOLESALE:
-//                List<WholesaleOrderItem> itemList = wholesaleOrderItemDao.selectByOrderPaymentId(paymentId);
-//                if (ListUtils.isEmpty(itemList)){
-//                    return;
-//                }
-//                itemList.forEach(wholesaleOrderItem -> {
-//                    CustomerProductSalesLog record = new CustomerProductSalesLog();
-//                    record.setCreateTime(date);
-//                    record.setCustomerId(customerId);
-//                    record.setOrderId(wholesaleOrderItem.getOrderId());
-//                    record.setOrderItemId(wholesaleOrderItem.getId());
-//                    record.setQuantity(wholesaleOrderItem.getQuantity());
-//                    record.setOrderType(orderType);
-//                    record.setVariantId(wholesaleOrderItem.getAdminVariantId());
-//                    record.setProductId(wholesaleOrderItem.getAdminProductId());
-//                    record.setState(1);
-//                    records.add(record);
-//                });
-//                break;
-//            default:
-//                return;
-//        }
         if (ListUtils.isNotEmpty(records)){
             customerProductSalesLogDao.insertByBatch(records);
         }
-
+        //判断订单拣货类型
         for (Map.Entry<Long,OrderPickTypeVo> m:map.entrySet()){
             OrderPickTypeVo orderPickTypeVo = m.getValue();
             List<OrderItem> orderItems = orderPickTypeVo.getItems();

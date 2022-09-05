@@ -90,7 +90,12 @@ public class PurchaseOrderController {
     @PostMapping("/receive")
     public BaseResponse orderReceive(@RequestBody@Valid PurchaseOrderReceiveRequest request){
         Session session = UserUtil.getSession(redisTemplate);
-        BaseResponse response = purchaseOrderService.orderReceive(request,session);
+        BaseResponse response = null;
+        try {
+            response = purchaseOrderService.orderReceive(request,session);
+        } catch (Exception e) {
+            return BaseResponse.failed(e.getMessage());
+        }
         return response;
     }
 }

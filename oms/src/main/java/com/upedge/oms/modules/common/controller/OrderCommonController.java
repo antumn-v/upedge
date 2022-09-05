@@ -3,6 +3,7 @@ package com.upedge.oms.modules.common.controller;
 
 import com.upedge.common.base.BaseResponse;
 import com.upedge.common.exception.CustomerException;
+import com.upedge.common.model.order.OrderItemQuantityDto;
 import com.upedge.common.model.order.request.OrderStockStateUpdateRequest;
 import com.upedge.common.model.order.vo.UplodaSaiheOnMqVo;
 import com.upedge.oms.modules.common.service.MqOnSaiheService;
@@ -84,13 +85,13 @@ public class OrderCommonController {
     }
 
 
-    @PostMapping("/check")
-    public void checkStock(){
-        orderPayService.checkOrderAccountLog();
+    @PostMapping("/checkStock")
+    public void checkStock(@RequestBody OrderItemQuantityDto orderItemQuantityDto){
+        orderPayService.sendCheckOrderStockMessage(orderItemQuantityDto);
     }
 
     @PostMapping("/updateStockState")
-    public int updateStockState(OrderStockStateUpdateRequest request){
+    public int updateStockState(@RequestBody OrderStockStateUpdateRequest request){
         return orderService.updateStockState(request.getOrderId(), request.getStockState());
     }
 }

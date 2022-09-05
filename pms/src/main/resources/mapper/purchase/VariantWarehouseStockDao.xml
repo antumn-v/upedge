@@ -254,7 +254,7 @@
     <update id="updateVariantWarehouseAvailableStock">
         update variant_warehouse_stock
         set available_stock = available_stock - #{changeQuantity},
-            lock_stock = lock_stock + {changeQuantity}
+            lock_stock = lock_stock + #{changeQuantity}
         where variant_id = #{variantId}
           and warehouse_code = #{warehouseCode}
           and available_stock >= #{changeQuantity}
@@ -278,8 +278,14 @@
     <update id="updateVariantStockIm">
         update variant_warehouse_stock
         set available_stock = available_stock + #{quantity}
+        <if test="processType == 1">
+            ,purchase_stock = purchase_stock - #{quantity}
+        </if>
         where variant_id = #{variantId}
         and warehouse_code = #{warehouseCode}
+        <if test="processType == 1">
+            and purchase_stock >= #{quantity}
+        </if>
     </update>
 
     <update id="updateVariantSafeStock" parameterType="com.upedge.pms.modules.purchase.request.VariantSafeStockUpdateRequest">

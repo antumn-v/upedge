@@ -112,9 +112,9 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
         updateByPrimaryKeySelective(purchaseOrder);
     }
 
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     @Override
-    public BaseResponse orderReceive(PurchaseOrderReceiveRequest request, Session session) {
+    public BaseResponse orderReceive(PurchaseOrderReceiveRequest request, Session session) throws Exception {
         BaseResponse response = orderReceiveItemIm(request, session);
         if (response.getCode() == ResultCode.SUCCESS_CODE){
             checkOrderReceiveQuantity(request.getOrderId());
@@ -123,7 +123,7 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
     }
 
 
-    BaseResponse orderReceiveItemIm(PurchaseOrderReceiveRequest request, Session session){
+    BaseResponse orderReceiveItemIm(PurchaseOrderReceiveRequest request, Session session) throws Exception {
         Long orderId = request.getOrderId();
         PurchaseOrder purchaseOrder = selectByPrimaryKey(orderId);
         if (purchaseOrder == null){
@@ -154,7 +154,10 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
                 && itemReceiveDto.getQuantity() > 0){
                     recordUpdateRequest.setQuantity(itemReceiveDto.getQuantity());
                     recordUpdateRequest.setVariantSku(purchaseOrderItem.getVariantSku());
-                    variantWarehouseStockService.variantStockIm(recordUpdateRequest,session);
+                    BaseResponse response = variantWarehouseStockService.variantStockIm(recordUpdateRequest,session);
+                    if (response.getCode() != ResultCode.SUCCESS_CODE){
+                        throw new Exception(response.getMsg());
+                    }
                     purchaseOrderItem.setReceiveQuantity(itemReceiveDto.getQuantity() + purchaseOrderItem.getReceiveQuantity());
                     purchaseOrderItemService.updateByPrimaryKeySelective(purchaseOrderItem);
                     continue a;

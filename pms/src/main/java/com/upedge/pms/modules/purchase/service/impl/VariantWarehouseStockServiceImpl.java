@@ -7,6 +7,7 @@ import com.upedge.common.feign.OmsFeignClient;
 import com.upedge.common.model.oms.order.ItemQuantityVo;
 import com.upedge.common.model.oms.order.OrderItemQuantityVo;
 import com.upedge.common.model.order.OrderItemQuantityDto;
+import com.upedge.common.model.order.request.OrderStockStateUpdateRequest;
 import com.upedge.common.model.pms.vo.VariantPreSaleQuantity;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.utils.IdGenerate;
@@ -161,7 +162,7 @@ public class VariantWarehouseStockServiceImpl implements VariantWarehouseStockSe
         return true;
     }
 
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     @Override
     public boolean orderCheckStock(OrderItemQuantityVo orderItemQuantityVo) throws Exception {
         List<String> keys = new ArrayList<>();
@@ -219,6 +220,14 @@ public class VariantWarehouseStockServiceImpl implements VariantWarehouseStockSe
                 throw new Exception("库存不足");
             }
         }
+        OrderStockStateUpdateRequest orderStockStateUpdateRequest = new OrderStockStateUpdateRequest();
+        orderStockStateUpdateRequest.setStockState(1);
+        orderStockStateUpdateRequest.setOrderId(orderItemQuantityVo.getOrderId());
+        int i = omsFeignClient.updateStockState(orderStockStateUpdateRequest);
+        if (i != 1){
+            throw new Exception("订单异常");
+        }
+
         variantWarehouseStockRecordService.insertByBatch(records);
         for (String key : keys) {
             RedisUtil.unLock(redisTemplate,key);
@@ -353,7 +362,7 @@ public class VariantWarehouseStockServiceImpl implements VariantWarehouseStockSe
         return BaseResponse.success();
     }
 
-    @GlobalTransactional
+    @Transactional
     @Override
     public BaseResponse variantStockIm(VariantStockExImRecordUpdateRequest request, Session session) {
         ProductVariant productVariant = productVariantService.selectBySku(request.getVariantSku());
@@ -372,6 +381,12 @@ public class VariantWarehouseStockServiceImpl implements VariantWarehouseStockSe
             insert(variantWarehouseStock);
         }
 
+        int i = variantWarehouseStockDao.updateVariantStockIm(productVariant.getId(), request.getWarehouseCode(), request.getQuantity(), request.getProcessType());
+        if (i == 0){
+            RedisUtil.unLock(redisTemplate,key);
+            return BaseResponse.failed();
+        }
+
         VariantWarehouseStockRecord variantWarehouseStockRecord =
                 new VariantWarehouseStockRecord(productVariant.getId(),
                         request.getWarehouseCode(),
@@ -385,7 +400,7 @@ public class VariantWarehouseStockServiceImpl implements VariantWarehouseStockSe
                         session.getId());
         variantWarehouseStockRecordService.insert(variantWarehouseStockRecord);
 
-        variantWarehouseStockDao.updateVariantStockIm(productVariant.getId(), request.getWarehouseCode(), request.getQuantity());
+
 
         OrderItemQuantityDto orderItemQuantityDto = new OrderItemQuantityDto();
         orderItemQuantityDto.setVariantId(variantWarehouseStock.getVariantId());

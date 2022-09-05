@@ -2,11 +2,9 @@ package com.upedge.oms.modules.pack.service.impl;
 
 import com.upedge.common.base.BaseResponse;
 import com.upedge.common.base.Page;
-import com.upedge.common.constant.ResultCode;
 import com.upedge.common.constant.key.RedisKey;
 import com.upedge.common.exception.CustomerException;
 import com.upedge.common.feign.PmsFeignClient;
-import com.upedge.common.model.oms.order.OrderItemQuantityVo;
 import com.upedge.common.model.ship.vo.ShippingMethodRedis;
 import com.upedge.common.model.user.vo.CustomerIossVo;
 import com.upedge.common.model.user.vo.Session;
@@ -147,23 +145,23 @@ public class OrderPackageServiceImpl implements OrderPackageService {
             return BaseResponse.failed("包裹异常");
         }
         Long orderId = orderPackage.getOrderId();
-        OrderItemQuantityVo orderItemQuantityVo=  orderService.selectOrderItemQuantitiesByOrderId(orderId);
-        if (null == orderItemQuantityVo){
-            return BaseResponse.failed("订单异常");
-        }
-
-        BaseResponse response = pmsFeignClient.packageEx(orderItemQuantityVo);
-        if (response.getCode() != ResultCode.SUCCESS_CODE){
-            return response;
-        }
+//        OrderItemQuantityVo orderItemQuantityVo=  orderService.selectOrderItemQuantitiesByOrderId(orderId);
+//        if (null == orderItemQuantityVo){
+//            return BaseResponse.failed("订单异常");
+//        }
+//
+//        BaseResponse response = pmsFeignClient.packageEx(orderItemQuantityVo);
+//        if (response.getCode() != ResultCode.SUCCESS_CODE){
+//            return response;
+//        }
         OrderPackageInfoVo orderPackageInfoVo = new OrderPackageInfoVo();
         BeanUtils.copyProperties(orderPackage,orderPackageInfoVo);
-
-        orderPackage = new OrderPackage();
-        orderPackage.setId(orderPackage.getId());
-        orderPackage.setPackageState(1);
-        orderPackage.setSendTime(new Date());
-        updateByPrimaryKeySelective(orderPackage);
+//
+//        orderPackage = new OrderPackage();
+//        orderPackage.setId(packNo);
+//        orderPackage.setPackageState(1);
+//        orderPackage.setSendTime(new Date());
+//        updateByPrimaryKeySelective(orderPackage);
 
         AppOrderVo appOrderVo = orderService.appOrderDetail(orderId);
         orderPackageInfoVo.setOrderVo(appOrderVo);
