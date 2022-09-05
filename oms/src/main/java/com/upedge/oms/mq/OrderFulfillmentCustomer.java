@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.upedge.common.constant.key.RocketMqConfig;
 import com.upedge.common.feign.UmsFeignClient;
 import com.upedge.oms.modules.fulfillment.service.OrderFulfillmentService;
+import com.upedge.oms.modules.pack.entity.OrderPackage;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.rocketmq.client.consumer.DefaultMQPushConsumer;
 import org.apache.rocketmq.client.consumer.listener.ConsumeConcurrentlyStatus;
@@ -44,8 +45,8 @@ public class OrderFulfillmentCustomer {
                         log.warn("消息内容有误：{}", message);
                         continue;
                     }
-                    Long id = JSONObject.parseObject(new String(message.getBody())).toJavaObject(Long.TYPE);
-                    orderFulfillmentService.orderFulfillment(id);
+                    OrderPackage orderPackage = JSONObject.parseObject(new String(message.getBody())).toJavaObject(OrderPackage.class);
+                    orderFulfillmentService.orderFulfillment(orderPackage);
                 }
             } catch (Exception e) {
                 return ConsumeConcurrentlyStatus.RECONSUME_LATER;

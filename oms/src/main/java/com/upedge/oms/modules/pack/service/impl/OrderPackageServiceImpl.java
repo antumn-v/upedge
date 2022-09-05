@@ -156,6 +156,8 @@ public class OrderPackageServiceImpl implements OrderPackageService {
         if (response.getCode() != ResultCode.SUCCESS_CODE){
             return response;
         }
+        OrderPackageInfoVo orderPackageInfoVo = new OrderPackageInfoVo();
+        BeanUtils.copyProperties(orderPackage,orderPackageInfoVo);
 
         orderPackage = new OrderPackage();
         orderPackage.setId(orderPackage.getId());
@@ -163,7 +165,12 @@ public class OrderPackageServiceImpl implements OrderPackageService {
         orderPackage.setSendTime(new Date());
         updateByPrimaryKeySelective(orderPackage);
 
-        return BaseResponse.success();
+        AppOrderVo appOrderVo = orderService.appOrderDetail(orderId);
+        orderPackageInfoVo.setOrderVo(appOrderVo);
+        orderPackageInfoVo.setPackageState(1);
+        orderPackageInfoVo.setSendTime(new Date());
+
+        return BaseResponse.success(orderPackageInfoVo);
     }
 
     @Transactional

@@ -61,8 +61,12 @@ public class VariantWarehouseStockController {
 
     @ApiOperation("包裹出库")
     @PostMapping("/packageEx")
-    public BaseResponse packageEx(@RequestBody OrderItemQuantityVo orderItemQuantityVo) throws Exception {
-        return variantWarehouseStockService.packageShipped(orderItemQuantityVo);
+    public BaseResponse packageEx(@RequestBody OrderItemQuantityVo orderItemQuantityVo) {
+        try {
+            return variantWarehouseStockService.packageShipped(orderItemQuantityVo);
+        } catch (Exception e) {
+            return BaseResponse.failed(e.getMessage());
+        }
     }
 
     @ApiOperation("手动入库")

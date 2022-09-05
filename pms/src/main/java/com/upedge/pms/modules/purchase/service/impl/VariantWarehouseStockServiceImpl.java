@@ -353,7 +353,7 @@ public class VariantWarehouseStockServiceImpl implements VariantWarehouseStockSe
         return BaseResponse.success();
     }
 
-    @Transactional
+    @GlobalTransactional
     @Override
     public BaseResponse variantStockIm(VariantStockExImRecordUpdateRequest request, Session session) {
         ProductVariant productVariant = productVariantService.selectBySku(request.getVariantSku());
@@ -389,7 +389,7 @@ public class VariantWarehouseStockServiceImpl implements VariantWarehouseStockSe
 
         OrderItemQuantityDto orderItemQuantityDto = new OrderItemQuantityDto();
         orderItemQuantityDto.setVariantId(variantWarehouseStock.getVariantId());
-//        omsFeignClient.checkStock(orderItemQuantityDto);
+        omsFeignClient.checkStock(orderItemQuantityDto);
         RedisUtil.unLock(redisTemplate,key);
         return BaseResponse.success();
     }
