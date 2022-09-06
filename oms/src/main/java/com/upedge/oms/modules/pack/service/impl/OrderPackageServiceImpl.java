@@ -10,6 +10,7 @@ import com.upedge.common.model.user.vo.CustomerIossVo;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.model.user.vo.UserVo;
 import com.upedge.common.utils.DateUtils;
+import com.upedge.common.utils.ListUtils;
 import com.upedge.common.web.util.RedisUtil;
 import com.upedge.oms.modules.fulfillment.service.OrderFulfillmentService;
 import com.upedge.oms.modules.order.entity.Order;
@@ -93,6 +94,15 @@ public class OrderPackageServiceImpl implements OrderPackageService {
     private String pdfLocalPath;
     @Value("${files.pdf.prefix}")
     private String pdfUrlPrefix;
+
+    @Override
+    public List<OrderPackage> selectByOrderIds(List<Long> orderIds) {
+
+        if (ListUtils.isEmpty(orderIds)){
+            return new ArrayList<>();
+        }
+        return orderPackageDao.selectByOrderIds(orderIds);
+    }
 
     @Override
     public void packageRefreshTrackCode(OrderPackage orderPackage) {

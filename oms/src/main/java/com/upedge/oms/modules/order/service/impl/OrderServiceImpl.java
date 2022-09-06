@@ -61,6 +61,8 @@ import com.upedge.oms.modules.order.service.OrderTrackingService;
 import com.upedge.oms.modules.order.vo.*;
 import com.upedge.oms.modules.orderShippingUnit.entity.OrderShippingUnit;
 import com.upedge.oms.modules.orderShippingUnit.service.OrderShippingUnitService;
+import com.upedge.oms.modules.pack.entity.OrderPackage;
+import com.upedge.oms.modules.pack.service.OrderPackageService;
 import com.upedge.oms.modules.redis.OmsRedisService;
 import com.upedge.oms.modules.rules.dto.ShipRuleConditionDto;
 import com.upedge.oms.modules.rules.entity.OrderShipRule;
@@ -133,6 +135,9 @@ public class OrderServiceImpl implements OrderService {
 
     @Autowired
     VatRuleService vatRuleService;
+
+    @Autowired
+    OrderPackageService orderPackageService;
 
     @Autowired
     PmsFeignClient pmsFeignClient;
@@ -2413,10 +2418,35 @@ public class OrderServiceImpl implements OrderService {
                 appOrderVo.setIsPrintPick(false);
             }
         });
+        appOrderVos = completePackageInfo(appOrderVos);
         Long total = selectAppOrderCount(request);
         request.setTotal(total);
         return new OrderListResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS, appOrderVos, request);
     }
+
+    public List<AppOrderVo> completePackageInfo(List<AppOrderVo> appOrderVos){
+        if (ListUtils.isEmpty(appOrderVos)){
+            return appOrderVos;
+        }
+        List<Long> orderIds = new ArrayList<>();
+        appOrderVos.forEach(appOrderVo -> {
+            orderIds.add(appOrderVo.getId());
+        });
+        List<OrderPackage> orderPackages = orderPackageService.selectByOrderIds(orderIds);
+        a:
+        for (AppOrderVo appOrderVo : appOrderVos) {
+            for (OrderPackage orderPackage : orderPackages) {
+                if (appOrderVo.getId().equals(orderPackage.getOrderId())){
+                    appOrderVo.setPackageInfo(orderPackage);
+                    orderPackages.remove(orderPackage);
+                    continue a;
+                }
+            }
+        }
+        return appOrderVos;
+    }
+
+
 
     /**
      * 导入订单到赛盒

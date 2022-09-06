@@ -15,6 +15,8 @@ import java.util.List;
 
 public interface OrderPackageService {
 
+    List<OrderPackage> selectByOrderIds(List<Long> orderIds);
+
     void packageRefreshTrackCode(OrderPackage orderPackage);
 
     BaseResponse packageExStock(Long packNo,Session session) throws CustomerException;

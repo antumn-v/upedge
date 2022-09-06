@@ -16,6 +16,8 @@ public interface OrderPackageDao {
 
     List<OrderPackage> selectByIds(@Param("ids") List<Long> ids);
 
+    List<OrderPackage> selectByOrderIds(@Param("orderIds") List<Long> orderIds);
+
     OrderPackage selectByPrimaryKey(Long id);
 
     OrderPackage selectByOrderId(Long orderId);

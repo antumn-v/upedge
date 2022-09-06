@@ -1,6 +1,7 @@
 package com.upedge.oms.modules.order.vo;
 
 import com.upedge.oms.modules.order.entity.OrderAddress;
+import com.upedge.oms.modules.pack.entity.OrderPackage;
 import lombok.Data;
 
 import java.math.BigDecimal;
@@ -125,6 +126,8 @@ public class AppOrderVo {
     private String shippingWarehouse;
 
     private String createPackFailedReason;
+
+    private OrderPackage packageInfo;
 
     private Set<AppStoreOrderVo> storeOrderVos;
 
