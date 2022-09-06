@@ -47,6 +47,7 @@ import com.upedge.oms.enums.OrderAttrEnum;
 import com.upedge.oms.modules.common.service.OrderCommonService;
 import com.upedge.oms.modules.fulfillment.service.OrderFulfillmentService;
 import com.upedge.oms.modules.order.dao.*;
+import com.upedge.oms.modules.order.dto.AppOrderListDto;
 import com.upedge.oms.modules.order.dto.OrderAnalysisDto;
 import com.upedge.oms.modules.order.dto.OrderExcelImportDto;
 import com.upedge.oms.modules.order.dto.OrderListDto;
@@ -261,6 +262,10 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public List<AppOrderVo> selectAppOrderList(AppOrderListRequest request) {
         request.initFromNum();
+        AppOrderListDto appOrderListDto = request.getT();
+        if (appOrderListDto != null && StringUtils.isNotBlank(appOrderListDto.getShipCompany())){
+            appOrderListDto.setShipMethodIds(getShipMethodIdsByCompany(appOrderListDto.getShipCompany()));
+        }
         List<AppOrderVo> appOrderVos = orderDao.selectAppOrderList(request);
         if (ListUtils.isEmpty(appOrderVos)) {
             return new ArrayList<>();
@@ -290,6 +295,7 @@ public class OrderServiceImpl implements OrderService {
                 orderVo.setShipPrice(orderVo.getShipPrice().add(orderVo.getServiceFee()));
                 ShippingMethodRedis shippingMethodRedis = (ShippingMethodRedis) redisTemplate.opsForHash().get(RedisKey.SHIPPING_METHOD, orderVo.getShipMethodId().toString());
                 if (null != shippingMethodRedis) {
+                    orderVo.setShipCompany(shippingMethodRedis.getTrackingCompany());
                     orderVo.setShipMethodName(shippingMethodRedis.getName());
                 }
             } else {
@@ -309,6 +315,18 @@ public class OrderServiceImpl implements OrderService {
             completeOrderStoreUrl(orderVo);
         }
         return appOrderVos;
+    }
+
+    private List<Long> getShipMethodIdsByCompany(String company){
+        List<ShippingMethodRedis> shippingMethodRedisList = redisTemplate.opsForHash().values(RedisKey.SHIPPING_METHOD);
+        List<Long> methodIds = new ArrayList<>();
+        for (ShippingMethodRedis shippingMethodRedis : shippingMethodRedisList) {
+            if (shippingMethodRedis.getTrackingCompany() != null
+            && shippingMethodRedis.getTrackingCompany().equals(company)){
+                methodIds.add(shippingMethodRedis.getId());
+            }
+        }
+        return methodIds;
     }
 
     private List<AppStoreOrderVo> getAppStoreOrderVos(List<Long> orderIds){
@@ -1295,6 +1313,14 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public int updateOrderPackInfo(Long id, Integer packageState, Long packNo) {
         return orderDao.updateOrderPackInfo(id, packageState, packNo);
+    }
+
+    @Override
+    public List<Order> selectByIds(List<Long> ids) {
+        if (ListUtils.isEmpty(ids)){
+            return new ArrayList<>();
+        }
+        return orderDao.selectByIds(ids);
     }
 
     @Override

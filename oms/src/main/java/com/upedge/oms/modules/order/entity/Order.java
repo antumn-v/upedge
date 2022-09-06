@@ -140,6 +140,8 @@ public class Order{
 
 	private Boolean isPrintLabel;
 
+	private Integer waveNo;
+
 	public Order() {
 	}
 

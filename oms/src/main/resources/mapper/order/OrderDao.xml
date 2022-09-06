@@ -345,6 +345,13 @@
                 <if test="t.shipMethodId != null">
                     o.ship_method_id = #{t.shipMethodId} and
                 </if>
+                <if test="t.shipMethodIds != null and t.shipMethodIds.size() > 0">
+                    o.ship_method_id in
+                    <foreach collection="t.shipMethodIds" item="methodId" open="(" separator="," close=")">
+                        #{methodId}
+                    </foreach>
+                    and
+                </if>
                 <if test="t.beginTime != null and t.endTime != null">
                     date(r.plat_order_create_time) between #{t.beginTime} and #{t.endTime} and
                 </if>

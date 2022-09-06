@@ -80,6 +80,10 @@ public class AppOrderListDto {
 
     Integer waveNo;
 
+    private String shipCompany;
+
+    List<Long> shipMethodIds;
+
     public AppOrderListDto() {
 //        initDateRange();
         initOrderState();

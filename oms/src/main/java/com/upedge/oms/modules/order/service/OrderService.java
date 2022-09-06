@@ -42,6 +42,8 @@ public interface OrderService{
      */
     int updateOrderPackInfo(Long id, Integer packageState,Long packNo);
 
+    List<Order> selectByIds(List<Long> ids);
+
     List<OrderItemQuantityVo> selectOrderItemQuantities(OrderItemQuantityDto orderItemQuantityDto);
 
     OrderItemQuantityVo selectOrderItemQuantitiesByOrderId(Long orderId);
