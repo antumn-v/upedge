@@ -15,4 +15,6 @@ public class VariantWarehouseStockVo  extends VariantWarehouseStock {
     private String purchaseSku;
 
     private String variantImage;
+
+    private String barcode;
 }

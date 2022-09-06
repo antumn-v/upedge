@@ -3,6 +3,8 @@ package com.upedge.pms.modules.purchase.dao;
 import com.upedge.common.base.Page;
 import com.upedge.pms.modules.purchase.entity.VariantWarehouseStock;
 import com.upedge.pms.modules.purchase.request.VariantSafeStockUpdateRequest;
+import com.upedge.pms.modules.purchase.request.VariantStockListRequest;
+import com.upedge.pms.modules.purchase.vo.VariantWarehouseStockVo;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
@@ -11,6 +13,10 @@ import java.util.List;
  * @author gx
  */
 public interface VariantWarehouseStockDao {
+
+    List<VariantWarehouseStockVo> selectVariantStocks(VariantStockListRequest variantStockListRequest);
+
+    long countVariantStocks(VariantStockListRequest variantStockListRequest);
 
     int reduceVariantLockStock(@Param("variantId") Long variantId, @Param("warehouseCode") String warehouseCode, @Param("changeQuantity") Integer changeQuantity);
 

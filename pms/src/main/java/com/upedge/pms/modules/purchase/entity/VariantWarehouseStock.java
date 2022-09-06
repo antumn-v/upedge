@@ -14,6 +14,10 @@ public class VariantWarehouseStock{
 	 * 
 	 */
     private Long variantId;
+
+	private String variantSku;
+
+	private String barcode;
 	/**
 	 * 仓库代码
 	 */

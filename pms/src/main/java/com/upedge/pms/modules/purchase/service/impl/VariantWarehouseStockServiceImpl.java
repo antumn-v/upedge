@@ -19,10 +19,7 @@ import com.upedge.pms.modules.purchase.dao.VariantWarehouseStockDao;
 import com.upedge.pms.modules.purchase.entity.PurchasePlan;
 import com.upedge.pms.modules.purchase.entity.VariantWarehouseStock;
 import com.upedge.pms.modules.purchase.entity.VariantWarehouseStockRecord;
-import com.upedge.pms.modules.purchase.request.VariantSafeStockUpdateRequest;
-import com.upedge.pms.modules.purchase.request.VariantStockExImRecordUpdateRequest;
-import com.upedge.pms.modules.purchase.request.VariantStockUpdateRequest;
-import com.upedge.pms.modules.purchase.request.VariantWarehouseStockListRequest;
+import com.upedge.pms.modules.purchase.request.*;
 import com.upedge.pms.modules.purchase.service.VariantStockExImRecordService;
 import com.upedge.pms.modules.purchase.service.VariantWarehouseStockRecordService;
 import com.upedge.pms.modules.purchase.service.VariantWarehouseStockService;
@@ -84,6 +81,30 @@ public class VariantWarehouseStockServiceImpl implements VariantWarehouseStockSe
     @Transactional
     public int insertSelective(VariantWarehouseStock record) {
         return variantWarehouseStockDao.insert(record);
+    }
+
+    @Override
+    public BaseResponse variantStockList(VariantStockListRequest request) {
+        List<VariantWarehouseStockVo> variantWarehouseStockVos = variantWarehouseStockDao.selectVariantStocks(request);
+        List<Long> variantIds = new ArrayList<>();
+        variantWarehouseStockVos.forEach(variantWarehouseStockVo -> {
+            variantIds.add(variantWarehouseStockVo.getVariantId());
+        });
+        List<VariantPreSaleQuantity> variantPreSaleQuantities = omsFeignClient.selectVariantPreSaleQuantity(variantIds);
+        a:
+        for (VariantWarehouseStockVo variantWarehouseStockVo : variantWarehouseStockVos) {
+            for (VariantPreSaleQuantity variantPreSaleQuantity : variantPreSaleQuantities) {
+                if (variantPreSaleQuantity.getVariantId().equals(variantWarehouseStockVo.getVariantId())){
+                    variantWarehouseStockVo.setPreSaleQuantity(variantPreSaleQuantity.getPreSaleQuantity());
+                    variantPreSaleQuantities.remove(variantPreSaleQuantity);
+                    continue a;
+                }
+            }
+        }
+
+        long count = variantWarehouseStockDao.countVariantStocks(request);
+        request.setTotal(count);
+        return BaseResponse.success(variantWarehouseStockVos,request);
     }
 
     @GlobalTransactional(rollbackFor = Exception.class)

@@ -9,8 +9,8 @@ import com.upedge.common.web.util.UserUtil;
 import com.upedge.pms.modules.purchase.entity.VariantWarehouseStock;
 import com.upedge.pms.modules.purchase.entity.VariantWarehouseStockRecord;
 import com.upedge.pms.modules.purchase.request.VariantStockExImRecordUpdateRequest;
+import com.upedge.pms.modules.purchase.request.VariantStockListRequest;
 import com.upedge.pms.modules.purchase.request.VariantStockUpdateRequest;
-import com.upedge.pms.modules.purchase.request.VariantWarehouseStockListRequest;
 import com.upedge.pms.modules.purchase.service.VariantWarehouseStockService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -38,8 +38,8 @@ public class VariantWarehouseStockController {
     @ApiOperation("仓库清单")
     @RequestMapping(value="/list", method=RequestMethod.POST)
     @Permission(permission = "purchase:variantwarehousestock:list")
-    public BaseResponse list(@RequestBody @Valid VariantWarehouseStockListRequest request) {
-        return variantWarehouseStockService.variantWarehouseStockList(request);
+    public BaseResponse list(@RequestBody @Valid VariantStockListRequest request) {
+        return variantWarehouseStockService.variantStockList(request);
     }
 
     @ApiOperation("修改仓库库存")

@@ -2,15 +2,11 @@ package com.upedge.pms.modules.purchase.service;
 
 import com.upedge.common.base.BaseResponse;
 import com.upedge.common.base.Page;
-import com.upedge.common.exception.CustomerException;
 import com.upedge.common.model.oms.order.OrderItemQuantityVo;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.pms.modules.purchase.entity.PurchasePlan;
 import com.upedge.pms.modules.purchase.entity.VariantWarehouseStock;
-import com.upedge.pms.modules.purchase.request.VariantSafeStockUpdateRequest;
-import com.upedge.pms.modules.purchase.request.VariantStockExImRecordUpdateRequest;
-import com.upedge.pms.modules.purchase.request.VariantStockUpdateRequest;
-import com.upedge.pms.modules.purchase.request.VariantWarehouseStockListRequest;
+import com.upedge.pms.modules.purchase.request.*;
 
 import java.util.List;
 
@@ -18,6 +14,8 @@ import java.util.List;
  * @author gx
  */
 public interface VariantWarehouseStockService{
+
+    BaseResponse variantStockList(VariantStockListRequest request);
 
     BaseResponse packageShipped(OrderItemQuantityVo orderItemQuantityVo) throws Exception;
 

@@ -302,4 +302,54 @@
           and warehouse_code = #{warehouseCode}
           and lock_stock >= #{changeQuantity}
     </update>
+
+    <select id="selectVariantStocks" resultType="com.upedge.pms.modules.purchase.vo.VariantWarehouseStockVo" parameterType="com.upedge.pms.modules.purchase.request.VariantStockListRequest">
+        select vws.`variant_id`,vws.`safe_stock`,vws.`warehouse_code`,vws.`stock_scale`,vws.`available_stock`,
+        vws.`lock_stock`,vws.`purchase_stock`,vws.`remark`,vws.`shelf_num`,vws.`update_time`,
+        pv.cn_name,pv.purchase_sku,pv.variant_sku,pv.variant_image,pv.barcode
+            from variant_warehouse_stock vws
+        inner join product_variant pv
+        on vws.variant_id = pv.id
+        <where>
+            1 = 1
+            <if test="t.variantSku != null">
+                and pv.variant_sku = #{t.variantSku}
+            </if>
+            <if test="t.barcode != null">
+                and pv.barcode = #{t.barcode}
+            </if>
+            <if test="t.purchaseSku != null">
+                and pv.purchase_sku = #{t.purchaseSku}
+            </if>
+            <if test="t.id != null">
+                and pv.id = #{t.id}
+            </if>
+        </where>
+        order by available_stock desc
+        <if test="pageNum != null and pageSize != null">
+            limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+        </if>
+    </select>
+
+    <select id="countVariantStocks" resultType="java.lang.Long" parameterType="com.upedge.pms.modules.purchase.request.VariantStockListRequest">
+        select count(pv.id)
+            from variant_warehouse_stock vws
+        inner join product_variant pv
+        on vws.variant_id = pv.id
+        <where>
+            1 = 1
+            <if test="t.variantSku != null">
+                and pv.variant_sku = #{t.variantSku}
+            </if>
+            <if test="t.barcode != null">
+                and pv.barcode = #{t.barcode}
+            </if>
+            <if test="t.purchaseSku != null">
+                and pv.purchase_sku = #{t.purchaseSku}
+            </if>
+            <if test="t.id != null">
+                and pv.id = #{id}
+            </if>
+        </where>
+    </select>
 </mapper>
