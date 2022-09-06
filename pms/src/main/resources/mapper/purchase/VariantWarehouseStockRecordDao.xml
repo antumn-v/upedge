@@ -272,5 +272,54 @@
         <include refid="Query_Condition"/>
     </select>
 
+    <select id="selectVariantStockRecordVos"
+            resultType="com.upedge.pms.modules.purchase.vo.VariantWarehouseStockRecordVo">
+        select vwsr.`variant_id`,vwsr.`warehouse_code`,vwsr.`change_stock`,vwsr.`process_type`,
+        vwsr.`original_stock`,vwsr.`now_stock`,vwsr.`relate_id`,vwsr.`create_time`,vwsr.`shelf_num`,
+        pv.cn_name,pv.purchase_sku,pv.variant_sku,pv.variant_image,pv.barcode
+        from variant_warehouse_stock_record vwsr
+        inner join product_variant pv
+        on vwsr.variant_id = pv.id
+        <where>
+            1 = 1
+            <if test="t.variantSku != null">
+                and pv.variant_sku = #{t.variantSku}
+            </if>
+            <if test="t.barcode != null">
+                and pv.barcode = #{t.barcode}
+            </if>
+            <if test="t.purchaseSku != null">
+                and pv.purchase_sku = #{t.purchaseSku}
+            </if>
+            <if test="t.id != null">
+                and pv.id = #{t.id}
+            </if>
+        </where>
+        <if test="pageNum != null and pageSize != null">
+            limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+        </if>
+    </select>
 
+    <select id="countVariantStockRecordVos"
+            resultType="java.lang.Long">
+        select count(1)
+        from variant_warehouse_stock_record vwsr
+        inner join product_variant pv
+        on vwsr.variant_id = pv.id
+        <where>
+            1 = 1
+            <if test="t.variantSku != null">
+                and pv.variant_sku = #{t.variantSku}
+            </if>
+            <if test="t.barcode != null">
+                and pv.barcode = #{t.barcode}
+            </if>
+            <if test="t.purchaseSku != null">
+                and pv.purchase_sku = #{t.purchaseSku}
+            </if>
+            <if test="t.id != null">
+                and pv.id = #{t.id}
+            </if>
+        </where>
+    </select>
 </mapper>

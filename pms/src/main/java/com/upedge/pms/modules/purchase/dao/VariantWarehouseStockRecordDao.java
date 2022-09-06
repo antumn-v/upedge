@@ -2,6 +2,8 @@ package com.upedge.pms.modules.purchase.dao;
 
 import com.upedge.common.base.Page;
 import com.upedge.pms.modules.purchase.entity.VariantWarehouseStockRecord;
+import com.upedge.pms.modules.purchase.request.VariantStockListRequest;
+import com.upedge.pms.modules.purchase.vo.VariantWarehouseStockRecordVo;
 
 import java.util.List;
 
@@ -9,6 +11,10 @@ import java.util.List;
  * @author gx
  */
 public interface VariantWarehouseStockRecordDao{
+
+    List<VariantWarehouseStockRecordVo> selectVariantStockRecordVos(VariantStockListRequest request);
+
+    long countVariantStockRecordVos(VariantStockListRequest request);
 
     VariantWarehouseStockRecord selectByPrimaryKey(VariantWarehouseStockRecord record);
 

@@ -3,7 +3,7 @@ package com.upedge.pms.modules.purchase.service;
 import com.upedge.common.base.BaseResponse;
 import com.upedge.common.base.Page;
 import com.upedge.pms.modules.purchase.entity.VariantWarehouseStockRecord;
-import com.upedge.pms.modules.purchase.request.VariantWarehouseStockRecordListRequest;
+import com.upedge.pms.modules.purchase.request.VariantStockListRequest;
 
 import java.util.List;
 
@@ -12,7 +12,7 @@ import java.util.List;
  */
 public interface VariantWarehouseStockRecordService{
 
-    BaseResponse variantStockRecordList(VariantWarehouseStockRecordListRequest request);
+    BaseResponse variantStockRecordList(VariantStockListRequest request);
 
     VariantWarehouseStockRecord selectByPrimaryKey(Integer id);
 

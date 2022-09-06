@@ -3,19 +3,16 @@ package com.upedge.pms.modules.purchase.service.impl;
 import com.upedge.common.base.BaseResponse;
 import com.upedge.common.base.Page;
 import com.upedge.common.utils.ListUtils;
-import com.upedge.pms.modules.product.entity.ProductVariant;
 import com.upedge.pms.modules.product.service.ProductVariantService;
 import com.upedge.pms.modules.purchase.dao.VariantWarehouseStockRecordDao;
 import com.upedge.pms.modules.purchase.entity.VariantWarehouseStockRecord;
-import com.upedge.pms.modules.purchase.request.VariantWarehouseStockRecordListRequest;
+import com.upedge.pms.modules.purchase.request.VariantStockListRequest;
 import com.upedge.pms.modules.purchase.service.VariantWarehouseStockRecordService;
 import com.upedge.pms.modules.purchase.vo.VariantWarehouseStockRecordVo;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
 
 
@@ -65,27 +62,9 @@ public class VariantWarehouseStockRecordServiceImpl implements VariantWarehouseS
     }
 
     @Override
-    public BaseResponse variantStockRecordList(VariantWarehouseStockRecordListRequest request) {
-        List<VariantWarehouseStockRecordVo> variantWarehouseStockRecordVos = new ArrayList<>();
-        List<VariantWarehouseStockRecord> variantWarehouseStockRecords = select(request);
-        if (ListUtils.isNotEmpty(variantWarehouseStockRecords)){
-            List<Long> variantIds = new ArrayList<>();
-            for (VariantWarehouseStockRecord variantWarehouseStockRecord : variantWarehouseStockRecords) {
-                variantIds.add(variantWarehouseStockRecord.getVariantId());
-            }
-            List<ProductVariant> productVariants = productVariantService.listVariantByIds(variantIds);
-            variantWarehouseStockRecords.forEach(variantWarehouseStockRecord -> {
-                VariantWarehouseStockRecordVo variantWarehouseStockRecordVo = new VariantWarehouseStockRecordVo();
-                for (ProductVariant productVariant : productVariants) {
-                    if (productVariant.getId().equals(variantWarehouseStockRecord.getVariantId())){
-                        BeanUtils.copyProperties(productVariant,variantWarehouseStockRecordVo);
-                    }
-                }
-                BeanUtils.copyProperties(variantWarehouseStockRecord,variantWarehouseStockRecordVo);
-                variantWarehouseStockRecordVos.add(variantWarehouseStockRecordVo);
-            });
-        }
-        Long total = count(request);
+    public BaseResponse variantStockRecordList(VariantStockListRequest request) {
+        List<VariantWarehouseStockRecordVo> variantWarehouseStockRecordVos = variantWarehouseStockRecordDao.selectVariantStockRecordVos(request);
+        Long total = variantWarehouseStockRecordDao.countVariantStockRecordVos(request);
         request.setTotal(total);
         return BaseResponse.success(variantWarehouseStockRecordVos,request);
     }
