@@ -9,6 +9,7 @@ import com.upedge.common.utils.IdGenerate;
 import com.upedge.common.utils.ListUtils;
 import com.upedge.common.web.util.RedisUtil;
 import com.upedge.oms.modules.order.dto.AppOrderListDto;
+import com.upedge.oms.modules.order.entity.Order;
 import com.upedge.oms.modules.order.entity.OrderItem;
 import com.upedge.oms.modules.order.request.AppOrderListRequest;
 import com.upedge.oms.modules.order.service.OrderItemService;
@@ -324,6 +325,10 @@ public class OrderPickServiceImpl implements OrderPickService {
         if (!b){
             return BaseResponse.failed();
         }
+        List<Long> orderIds = request.getOrderIds();
+        if (ListUtils.isNotEmpty(orderIds)){
+            return createWaveByOrderIds(orderIds,session.getId());
+        }
         switch (request.getPickType()){
             case 0:
                 oneSkuOneQtyCreateWave(request.getShipMethodIds(),request.getSingleProductQuantity(),session.getId());
@@ -338,6 +343,64 @@ public class OrderPickServiceImpl implements OrderPickService {
                 return BaseResponse.failed();
         }
         RedisUtil.unLock(redisTemplate,key);
+        return BaseResponse.success();
+    }
+
+    public BaseResponse createWaveByOrderIds(List<Long> orderIds,Long operatorId){
+        List<Order> orders = orderService.selectByIds( orderIds);
+        if (ListUtils.isEmpty(orders)){
+            return BaseResponse.failed();
+        }
+        orderIds = new ArrayList<>();
+        Integer pickType = null;
+        String shipCompany = null;
+        for (int i = 0; i < orders.size(); i++) {
+            Order order = orders.get(i);
+            if (order.getPayState() != 1
+            || order.getRefundState() != 0
+            || order.getShipState() != 0
+            || order.getPackState() != 0
+            || order.getWaveNo() != null){
+                continue;
+            }
+            ShippingMethodRedis shippingMethodRedis = (ShippingMethodRedis) redisTemplate.opsForHash().get(RedisKey.SHIPPING_METHOD,order.getShipMethodId().toString());
+            if (i == 0){
+                pickType = order.getPickType();
+                shipCompany = shippingMethodRedis.getTrackingCompany();
+            }else {
+                if (pickType != order.getPickType()
+                || !shipCompany.equals(shippingMethodRedis.getTrackingCompany())){
+                    continue;
+                }
+            }
+            orderIds.add(order.getId());
+        }
+        int skuQuantity = 0;
+        Set<Long>variantIds = new HashSet<>();
+        List<OrderItem> orderItems = orderItemService.selectByOrderIds(orderIds);
+        for (OrderItem orderItem : orderItems) {
+            skuQuantity += orderItem.getQuantity();
+            variantIds.add(orderItem.getAdminVariantId());
+        }
+
+        if (ListUtils.isEmpty(orderIds)){
+            return BaseResponse.failed("同一波次的订单需要属于同一家运输公司，退款、已生成波次或已发货的订单不能再进行此操作");
+        }
+
+        Integer waveNo = getWaveNo();
+        OrderPick orderPick = new OrderPick();
+        orderPick.setPickType(pickType);
+        orderPick.setId(IdGenerate.nextId());
+        orderPick.setWaveNo(waveNo);
+        orderPick.setOperatorId(operatorId);
+        orderPick.setCreateTime(new Date());
+        orderPick.setUpdateTime(new Date());
+        orderPick.setSkuType(variantIds.size());
+        orderPick.setPickState(OrderPick.TO_BE_PACKED);
+        orderPick.setSkuQuantity(skuQuantity);
+        insert(orderPick);
+
+        orderService.updateOrderPickState(orderIds,1,waveNo);
         return BaseResponse.success();
     }
 

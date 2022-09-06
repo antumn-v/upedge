@@ -14,6 +14,8 @@ public class OrderPickCreateRequest {
     @NotNull
     private List<Long> shipMethodIds;
 
+    private List<Long> orderIds;
+
     private int singleProductQuantity;
 
     private int mixedProductQuantity;
