@@ -113,8 +113,8 @@ public class PurchasePlanServiceImpl implements PurchasePlanService {
     }
 
     @Override
-    public int updatePurchaseOrderIdByIds(List<Integer> Ids, Long purchaseOrderId) {
-        return 0;
+    public int updatePurchaseOrderIdByIds(List<Integer> ids, Long purchaseOrderId) {
+        return purchasePlanDao.updatePurchaseOrderIdByIds(ids,purchaseOrderId);
     }
 
     @Override

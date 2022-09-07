@@ -16,7 +16,7 @@ public interface PurchasePlanDao {
 
     int updateVariantStockByIds(@Param("ids") List<Integer> ids);
 
-    int updatePurchaseOrderIdByIds(@Param("Ids") List<Integer> Ids, @Param("purchaseOrderId") Long purchaseOrderId);
+    int updatePurchaseOrderIdByIds(@Param("ids") List<Integer> ids, @Param("purchaseOrderId") Long purchaseOrderId);
 
     List<PurchasePlan> selectByIds(@Param("ids") List<Integer> ids);
 

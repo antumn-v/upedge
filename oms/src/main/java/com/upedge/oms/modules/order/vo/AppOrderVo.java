@@ -127,7 +127,7 @@ public class AppOrderVo {
 
     private String createPackFailedReason;
 
-    private OrderPackage packageInfo;
+    private OrderPackage packageInfo = new OrderPackage();
 
     private Set<AppStoreOrderVo> storeOrderVos;
 

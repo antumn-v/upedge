@@ -46,7 +46,10 @@ public class OrderCheckStockCustomer {
                     }
 
                     OrderItemQuantityVo orderItemQuantityVo = JSONObject.parseObject(message.getBody(),OrderItemQuantityVo.class);
-                    variantWarehouseStockService.orderCheckStock(orderItemQuantityVo);
+                    boolean b = variantWarehouseStockService.orderCheckStock(orderItemQuantityVo);
+                    if (!b){
+                        return ConsumeConcurrentlyStatus.RECONSUME_LATER;
+                    }
                     log.warn("Consumer-获取消息-主题topic为={}, key={}", message.getTopic(), message.getKeys());
                 }
             } catch (Exception e) {

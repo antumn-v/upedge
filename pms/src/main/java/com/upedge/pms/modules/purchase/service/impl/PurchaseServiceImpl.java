@@ -330,18 +330,20 @@ public class PurchaseServiceImpl implements PurchaseService {
         for (Map.Entry<String, List<AlibabaTradeFastCargo>> map : supplierCargosMap.entrySet()) {
             List<AlibabaTradeFastCargo> tradeFastCargos = map.getValue();
             AlibabaTradeFastResult alibabaTradeFastResult = null;
-            try {
-                alibabaTradeFastResult = Ali1688Service.createOrder(tradeFastCargos, alibabaApiVo);
-            } catch (CustomerException e) {
-                e.printStackTrace();
-                continue;
-            }
+//            try {
+//                alibabaTradeFastResult = Ali1688Service.createOrder(tradeFastCargos, alibabaApiVo);
+//            } catch (CustomerException e) {
+//                e.printStackTrace();
+//                continue;
+//            }
             Long id = IdGenerate.nextId();
             orderIds.add(id);
-            PurchaseOrder purchaseOrder = new PurchaseOrder(id, alibabaTradeFastResult.getOrderId(),
+            PurchaseOrder purchaseOrder = new PurchaseOrder(id, IdGenerate.generateUniqueId(),
                     BigDecimal.ZERO,
-                    new BigDecimal((alibabaTradeFastResult.getPostFee().doubleValue() / 100)),
-                    new BigDecimal(alibabaTradeFastResult.getTotalSuccessAmount().doubleValue() / 100),
+                    BigDecimal.TEN,
+                    BigDecimal.TEN,
+//                    new BigDecimal((alibabaTradeFastResult.getPostFee().doubleValue() / 100)),
+//                    new BigDecimal(alibabaTradeFastResult.getTotalSuccessAmount().doubleValue() / 100),
                     BigDecimal.ZERO,
                     map.getKey(),
                     0, 0, session.getId(), 0);

@@ -1191,7 +1191,7 @@ public class OrderServiceImpl implements OrderService {
                 boolean quoted = false;
                 for (Long splitVariantId : splitVariantIds) {
                     CustomerProductQuoteVo customerProductQuoteVo = (CustomerProductQuoteVo) redisTemplate.opsForValue().get(RedisKey.STRING_QUOTED_STORE_VARIANT + splitVariantId);
-                    if (customerProductQuoteVo != null) {
+                    if (customerProductQuoteVo != null && customerProductQuoteVo.getQuotePrice() != null) {
                         quoted = true;
                     } else {
                         continue;

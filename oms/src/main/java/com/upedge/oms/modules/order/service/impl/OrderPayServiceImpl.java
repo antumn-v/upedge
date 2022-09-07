@@ -727,28 +727,12 @@ public class OrderPayServiceImpl implements OrderPayService {
             }
         },threadPoolExecutor);
 
-//        CompletableFuture<Void> sendCheckOrderStockMessage = CompletableFuture.runAsync(new Runnable() {
-//            @Override
-//            public void run() {
-//                sendCheckOrderStockMessage(paymentId);
-//            }
-//        }, threadPoolExecutor);
-
 
         try {
             CompletableFuture.allOf( saveDischargeStockRecord, saveProductSaleRecord, updateCustomerOrderDailyCount,saveTransactionRecordMessage).get();
         } catch (Exception e) {
             e.printStackTrace();
         }
-
-//        List<AppOrderVo> orderVos = orderDao.selectPayOrderListByPaymentId(paymentId);
-//        if (ListUtils.isNotEmpty(orderVos)) {
-//            for (AppOrderVo orderVo : orderVos) {
-//                if (orderVo.getPayState() == 1) {
-//                    orderProfitService.updateOrderProfit(orderVo.getId());
-//                }
-//            }
-//        }
 
     }
 
