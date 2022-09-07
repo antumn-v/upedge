@@ -2,9 +2,14 @@ package com.upedge.pms.modules.product.request;
 
 import lombok.Data;
 
+import java.util.List;
+
 @Data
 public class ClaimQuoteApplyRequest {
 
-    Long quoteApplyId;
+    private Long quoteApplyId;
+
+
+    private List<Long> quoteApplyIds;
 
 }

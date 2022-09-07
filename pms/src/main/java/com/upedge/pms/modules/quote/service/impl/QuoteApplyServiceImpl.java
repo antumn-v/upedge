@@ -302,21 +302,35 @@ public class QuoteApplyServiceImpl implements QuoteApplyService {
     @Override
     public BaseResponse claimQuoteApply(ClaimQuoteApplyRequest request, Session session) {
         Long applyId = request.getQuoteApplyId();
+        List<Long> applyIds = request.getQuoteApplyIds();
+        try {
+            if (ListUtils.isNotEmpty(applyIds)){
+                for (Long id : applyIds) {
+                    claimQuoteApply(id,session.getId());
+                }
+            }else {
+                claimQuoteApply(applyId,session.getId());
+            }
+        }catch (CustomerException e){
+            return BaseResponse.failed(e.getMessage());
+        }
+        return BaseResponse.success();
+    }
 
+    void claimQuoteApply(Long applyId,Long operatorId) throws CustomerException {
         QuoteApply quoteApply = quoteApplyDao.selectByPrimaryKey(applyId);
         if (quoteApply == null) {
-            return BaseResponse.failed("报价请求不存在");
+            throw new CustomerException("报价请求不存在");
         }
         if (quoteApply.getQuoteState() != QuoteApply.STATE_INIT) {
-            return BaseResponse.failed("报价请求已被处理");
+            throw new CustomerException("报价请求已被处理");
         }
         quoteApply = new QuoteApply();
         quoteApply.setId(applyId);
-        quoteApply.setHandleUserId(session.getId());
+        quoteApply.setHandleUserId(operatorId);
         quoteApply.setQuoteState(QuoteApply.STATE_PROCESSING);
         quoteApply.setUpdateTime(new Date());
         quoteApplyDao.updateByPrimaryKeySelective(quoteApply);
-        return BaseResponse.success();
     }
 
     @Transactional
