@@ -340,7 +340,7 @@ public class OrderPackageServiceImpl implements OrderPackageService {
         receiverDTO.setAddress1(orderAddress.getAddress1());
         receiverDTO.setState(orderAddress.getProvince());
         receiverDTO.setCountry(orderAddress.getCountry());
-        receiverDTO.setPhone("8956232659");
+        receiverDTO.setPhone(orderAddress.getPhone());
         receiverDTO.setCity(orderAddress.getCity());
 
         int i= 0;
@@ -384,7 +384,7 @@ public class OrderPackageServiceImpl implements OrderPackageService {
         recListDTO.setCEmsKind(shippingMethodRedis.getMethodCode());
         recListDTO.setCRNo(orderId.toString());
         recListDTO.setCDes(orderAddress.getCountryCode());
-        recListDTO.setCReceiver(orderAddress.getName());
+        recListDTO.setCReceiver(orderAddress.getFirstName() + " " + orderAddress.getLastName());
         recListDTO.setCRUnit(orderAddress.getCompany());
         recListDTO.setCRAddr(orderAddress.getAddress1() + " " + orderAddress.getAddress2());
         recListDTO.setCRCity(orderAddress.getCity());
@@ -451,14 +451,14 @@ public class OrderPackageServiceImpl implements OrderPackageService {
         List<OrderItem> orderItems = orderItemService.selectByOrderId(orderId);
         OrderAddress orderAddress = orderService.getOrderAddress(orderId);
 
-        receiverDTO.setFirstName("测");
-        receiverDTO.setLastName("试");
+        receiverDTO.setFirstName(orderAddress.getFirstName());
+        receiverDTO.setLastName(orderAddress.getLastName());
         receiverDTO.setZip(orderAddress.getZip());
         receiverDTO.setHouseNumber(orderAddress.getAddress2());
         receiverDTO.setStreet(orderAddress.getAddress1());
         receiverDTO.setState(orderAddress.getProvince());
         receiverDTO.setCountryCode(orderAddress.getCountryCode());
-        receiverDTO.setPhone("8956232659");
+        receiverDTO.setPhone(orderAddress.getPhone());
         receiverDTO.setCity(orderAddress.getCity());
 
         for (OrderItem orderItem : orderItems) {
@@ -572,15 +572,15 @@ public class OrderPackageServiceImpl implements OrderPackageService {
 
         RecipientInfoDTO recipientInfo = fpxOrderCreateDto.getRecipientInfo();
         BeanUtils.copyProperties(orderAddress,recipientInfo);
-        recipientInfo.setFirstName("测");
-        recipientInfo.setLastName("试");
+        recipientInfo.setFirstName(orderAddress.getFirstName());
+        recipientInfo.setLastName(orderAddress.getLastName());
         recipientInfo.setPostCode(orderAddress.getZip());
         recipientInfo.setDistrict(orderAddress.getAddress2());
         recipientInfo.setStreet(orderAddress.getAddress1());
         recipientInfo.setState(orderAddress.getProvince());
         recipientInfo.setCountry(orderAddress.getCountryCode());
-        recipientInfo.setPhone("8956232659");
-        recipientInfo.setPhone2("18562356856");
+        recipientInfo.setPhone(orderAddress.getPhone());
+        recipientInfo.setPhone2(orderAddress.getPhone());
 
         fpxOrderCreateDto.getLogisticsServiceInfo().setLogisticsProductCode(shippingMethodRedis.getMethodCode());
 

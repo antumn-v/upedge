@@ -88,4 +88,25 @@ public class OrderAddressServiceImpl implements OrderAddressService {
         storeOrderRelateService.updateCustomerNameByOrderId(order.getId(),orderAddress.getName());
         return BaseResponse.success();
     }
+
+    @Override
+    public BaseResponse managerUpdate(OrderAddress orderAddress, Session session) {
+        OrderAddress address = orderAddressDao.selectByPrimaryKey(orderAddress.getId());
+        if (null == address){
+            return BaseResponse.failed();
+        }
+        Order order = orderService.selectByPrimaryKey(address.getOrderId());
+        if (order.getPackState() == 1
+        || order.getShipState() == 1){
+            return BaseResponse.failed("已生包的订单不能修改地址");
+        }
+        if(!orderAddress.getCountryCode().equals(address.getCountryCode())){
+            return BaseResponse.failed("不能修改国家信息");
+        }
+        orderAddress.setOrderId(orderAddress.getOrderId());
+        orderAddressDao.updateByPrimaryKey(orderAddress);
+
+        storeOrderRelateService.updateCustomerNameByOrderId(order.getId(),orderAddress.getName());
+        return BaseResponse.success();
+    }
 }

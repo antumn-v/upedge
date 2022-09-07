@@ -11,4 +11,6 @@ public interface OrderAddressService {
 
     BaseResponse update(OrderAddress orderAddress, Session session);
 
+    BaseResponse managerUpdate(OrderAddress orderAddress, Session session);
+
 }
