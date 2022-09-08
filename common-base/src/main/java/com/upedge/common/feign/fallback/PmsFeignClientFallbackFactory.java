@@ -32,6 +32,11 @@ public class PmsFeignClientFallbackFactory implements FallbackFactory<PmsFeignCl
     public PmsFeignClient create(Throwable cause) {
         return new PmsFeignClient() {
             @Override
+            public BaseResponse customsInfo(Long id) {
+                return BaseResponse.failed();
+            }
+
+            @Override
             public BaseResponse packageEx(OrderItemQuantityVo orderItemQuantityVo) {
                 return BaseResponse.failed();
             }

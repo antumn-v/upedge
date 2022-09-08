@@ -204,16 +204,9 @@ public class ProductServiceImpl implements ProductService {
         updateProductSku(product, productSku,session);
         BeanUtils.copyProperties(request,product);
         productDao.updateByPrimaryKeySelective(product);
-//        if (!StringUtils.isBlank(request.getEntryCname()) || !StringUtils.isBlank(request.getEntryCname())
-//                || request.getWarehouseCode() != null) {
-//            ProductAttribute attribute = new ProductAttribute();
-//            attribute.setId(productAttribute.getId());
-//            attribute.setEntryCname(request.getEntryCname());
-//            attribute.setEntryEname(request.getEntryEname());
-//            attribute.setWarehouseCode(request.getWarehouseCode());
-////            attribute.setShippingAttributeId(request.getShippingAttributeId());
-//            productAttributeService.updateByPrimaryKeySelective(attribute);
-//        }
+        redisTemplate.opsForHash().put(RedisKey.HASH_PRODUCT_CUSTOMS_INFO ,product.getId() + ":en",product.getEntryEname());
+        redisTemplate.opsForHash().put(RedisKey.HASH_PRODUCT_CUSTOMS_INFO ,product.getId() + "：cn",product.getEntryCname());
+
 
         if (request.getShippingId() != null
                 && !request.getShippingId().equals(shippingId)) {

@@ -29,6 +29,9 @@ import java.util.List;
 @FeignClient(name = ServiceNameConstants.PMS_SERVICE,fallbackFactory = PmsFeignClientFallbackFactory.class,decode404 = true)
 public interface PmsFeignClient {
 
+    @PostMapping("/product/customsInfo/{id}")
+    public BaseResponse customsInfo(@PathVariable Long id);
+
     @PostMapping("/variantWarehouseStock/packageEx")
     public BaseResponse packageEx(@RequestBody OrderItemQuantityVo orderItemQuantityVo);
 

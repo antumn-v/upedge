@@ -346,8 +346,15 @@ public class OrderPackageServiceImpl implements OrderPackageService {
         int i= 0;
         YanwenExpressDto.YanwenGoodsNameDTO goodsName = new YanwenExpressDto.YanwenGoodsNameDTO();
         for (OrderItem orderItem : orderItems) {
-            goodsName.setNameCh("宠物服装");
-            goodsName.setNameEn("pet clothes");
+            String entryCName = getProductEntryName(orderItem.getAdminProductId(),"cn");
+            String entryEName = getProductEntryName(orderItem.getAdminProductId(),"en");
+            if (StringUtils.isBlank(entryCName) || StringUtils.isBlank(entryEName)){
+                orderService.updateOrderPackInfo(orderId,2,null);
+                redisTemplate.opsForHash().put(RedisKey.HASH_ORDER_CREATE_PACKAGE_FAILED_REASON,orderId.toString(),"产品缺少报关信息");
+                return BaseResponse.failed("产品缺少报关信息");
+            }
+            goodsName.setNameCh(entryCName);
+            goodsName.setNameEn(entryEName);
             goodsName.setDeclaredCurrency("USD");
             goodsName.setDeclaredValue(orderItem.getQuantity() * orderItem.getUsdPrice().doubleValue());
             goodsName.setWeight(orderItem.getQuantity() * orderItem.getAdminVariantWeight().intValue());
@@ -398,14 +405,21 @@ public class OrderPackageServiceImpl implements OrderPackageService {
 
         List<OrderItem> orderItems = orderItemService.selectByOrderId(orderId);
         List<CneCreateOrderRequest.RecListDTO.CneGoodsListDTO> cneGoodsListDTOS = new ArrayList<>();
-        orderItems.forEach(orderItem -> {
+        for (OrderItem orderItem : orderItems) {
+            String entryCName = getProductEntryName(orderItem.getAdminProductId(),"cn");
+            String entryEName = getProductEntryName(orderItem.getAdminProductId(),"en");
+            if (StringUtils.isBlank(entryCName) || StringUtils.isBlank(entryEName)){
+                orderService.updateOrderPackInfo(orderId,2,null);
+                redisTemplate.opsForHash().put(RedisKey.HASH_ORDER_CREATE_PACKAGE_FAILED_REASON,orderId.toString(),"产品缺少报关信息");
+                return BaseResponse.failed("产品缺少报关信息");
+            }
             CneCreateOrderRequest.RecListDTO.CneGoodsListDTO cneGoodsListDTO = new CneCreateOrderRequest.RecListDTO.CneGoodsListDTO();
-            cneGoodsListDTO.setCxGoods("宠物服装");
-            cneGoodsListDTO.setCxGoodsA("pet clothes");
+            cneGoodsListDTO.setCxGoods(entryCName);
+            cneGoodsListDTO.setCxGoodsA(entryEName);
             cneGoodsListDTO.setIxQuantity(orderItem.getQuantity());
             cneGoodsListDTO.setFxPrice(orderItem.getUsdPrice());
             cneGoodsListDTOS.add(cneGoodsListDTO);
-        });
+        }
         recListDTO.setGoodsList(cneGoodsListDTOS);
         request.getRecList().add(recListDTO);
         CneOrderDto cneOrderDto = null;
@@ -462,20 +476,26 @@ public class OrderPackageServiceImpl implements OrderPackageService {
         receiverDTO.setCity(orderAddress.getCity());
 
         for (OrderItem orderItem : orderItems) {
+            String entryCName = getProductEntryName(orderItem.getAdminProductId(),"cn");
+            String entryEName = getProductEntryName(orderItem.getAdminProductId(),"en");
+            if (StringUtils.isBlank(entryCName) || StringUtils.isBlank(entryEName)){
+                orderService.updateOrderPackInfo(orderId,2,null);
+                redisTemplate.opsForHash().put(RedisKey.HASH_ORDER_CREATE_PACKAGE_FAILED_REASON,orderId.toString(),"产品缺少报关信息");
+                return BaseResponse.failed("产品缺少报关信息");
+            }
             WayBillCreateDto.ChildOrdersDTO.ChildDetailsDTO childDetailsDTO = new WayBillCreateDto.ChildOrdersDTO.ChildDetailsDTO();
             childDetailsDTO.setSku(orderItem.getAdminVariantSku());
             childDetailsDTO.setQuantity(orderItem.getQuantity());
             childDetailsDTOS.add(childDetailsDTO);
             WayBillCreateDto.ParcelsDTO parcelsDTO = new WayBillCreateDto.ParcelsDTO();
-            parcelsDTO.setEName("pet clothes");
-            parcelsDTO.setCName("宠物服装");
+            parcelsDTO.setEName(entryEName);
+            parcelsDTO.setCName(entryCName);
             parcelsDTO.setCurrencyCode("USD");
             parcelsDTO.setSKU(orderItem.getAdminVariantSku());
             parcelsDTO.setQuantity(orderItem.getQuantity());
             parcelsDTO.setUnitPrice(orderItem.getUsdPrice());
             parcelsDTO.setUnitWeight(orderItem.getAdminVariantWeight().divide(new BigDecimal("1000"),2,BigDecimal.ROUND_UP));
             parcels.add(parcelsDTO);
-            break;
         }
 
         WayBillCreateDto.ChildOrdersDTO childOrdersDTO = new WayBillCreateDto.ChildOrdersDTO();
@@ -485,8 +505,8 @@ public class OrderPackageServiceImpl implements OrderPackageService {
         childOrdersDTOS.add(childOrdersDTO);
 
         WayBillCreateDto.OrderExtraDTO orderExtraDTO = new WayBillCreateDto.OrderExtraDTO();
-        orderExtraDTO.setExtraCode("V1");
-        orderExtraDTO.setExtraName("云涂预缴");
+        orderExtraDTO.setExtraCode(shippingMethodRedis.getMethodCode());
+        orderExtraDTO.setExtraName(shippingMethodRedis.getMethodCode());
         orderExtraDTOs.add(orderExtraDTO);
 
         wayBillCreateDto.setChildOrders(childOrdersDTOS);
@@ -494,7 +514,7 @@ public class OrderPackageServiceImpl implements OrderPackageService {
         wayBillCreateDto.setShippingMethodCode(shippingMethodRedis.getMethodCode());
         wayBillCreateDto.setPackageCount(1);
         wayBillCreateDto.setWeight(order.getTotalWeight().divide(new BigDecimal("1000"),2,BigDecimal.ROUND_UP));
-        wayBillCreateDto.setIossCode("IOSS0690112210251452600");
+        wayBillCreateDto.setIossCode((String) redisTemplate.opsForValue().get(RedisKey.STRING_CUSTOMER_IOSS + order.getCustomerId()));
         wayBillCreateDto.setReturnOption(0);
         wayBillCreateDto.setTariffPrepay(0);
         wayBillCreateDto.setInsuranceOption(0);
@@ -552,15 +572,20 @@ public class OrderPackageServiceImpl implements OrderPackageService {
         List<ParcelListDTO> parcelListDTOS = new ArrayList<>();
 
         List<ParcelListDTO.DeclareProductInfoDTO> declareProductInfoDTOS = new ArrayList<>();
-        orderItems.forEach(orderItem -> {
+        for (OrderItem orderItem : orderItems) {
+            String entryCName = getProductEntryName(orderItem.getAdminProductId(),"cn");
+            String entryEName = getProductEntryName(orderItem.getAdminProductId(),"en");
+            if (StringUtils.isBlank(entryCName) || StringUtils.isBlank(entryEName)){
+                throw new CustomerException("产品缺少报关信息");
+            }
             ParcelListDTO.DeclareProductInfoDTO declareProductInfoDTO = new ParcelListDTO.DeclareProductInfoDTO();
-            declareProductInfoDTO.setDeclareProductNameEn("pet clothes");
-            declareProductInfoDTO.setDeclareProductNameCn("宠物服装");
+            declareProductInfoDTO.setDeclareProductNameEn(entryEName);
+            declareProductInfoDTO.setDeclareProductNameCn(entryCName);
             declareProductInfoDTO.setDeclareProductCodeQty(orderItem.getQuantity());
             declareProductInfoDTO.setDeclareUnitPriceExport(orderItem.getUsdPrice());
             declareProductInfoDTO.setDeclareUnitPriceImport(orderItem.getUsdPrice());
             declareProductInfoDTOS.add(declareProductInfoDTO);
-        });
+        }
 
         ParcelListDTO parcelListDTO = new ParcelListDTO();
         parcelListDTO.setWeight(order.getTotalWeight().intValue());
@@ -721,6 +746,15 @@ public class OrderPackageServiceImpl implements OrderPackageService {
         redisTemplate.opsForHash().put(key,date,no);
         RedisUtil.unLock(redisTemplate,lockKey);
         return no;
+    }
+
+    private String getProductEntryName(Long productId,String entryType){
+        String entryName = (String) redisTemplate.opsForHash().get(RedisKey.HASH_PRODUCT_CUSTOMS_INFO, productId + ":" + entryType);
+        if (StringUtils.isBlank(entryName)){
+            pmsFeignClient.customsInfo(productId);
+            entryName = (String) redisTemplate.opsForHash().get(RedisKey.HASH_PRODUCT_CUSTOMS_INFO, productId + ":" + entryType);
+        }
+        return entryName;
     }
 
 

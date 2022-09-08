@@ -143,7 +143,7 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
         purchaseOrderImRecordService.insert(purchaseOrderImRecord);
 
         VariantStockExImRecordUpdateRequest recordUpdateRequest = new VariantStockExImRecordUpdateRequest();
-        recordUpdateRequest.setRelateId(relateId);
+
         recordUpdateRequest.setProcessType(VariantWarehouseStockRecord.PURCHASE_ADD);
         recordUpdateRequest.setWarehouseCode(purchaseOrder.getWarehouseCode());
         recordUpdateRequest.setTrackingCode(recordUpdateRequest.getTrackingCode());
@@ -154,6 +154,7 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
                 && itemReceiveDto.getQuantity() > 0){
                     recordUpdateRequest.setQuantity(itemReceiveDto.getQuantity());
                     recordUpdateRequest.setVariantSku(purchaseOrderItem.getVariantSku());
+                    recordUpdateRequest.setRelateId(purchaseOrderItem.getId());
                     BaseResponse response = variantWarehouseStockService.variantStockIm(recordUpdateRequest,session);
                     if (response.getCode() != ResultCode.SUCCESS_CODE){
                         throw new Exception(response.getMsg());

@@ -5,6 +5,7 @@ import com.upedge.common.base.Page;
 import com.upedge.common.component.annotation.Permission;
 import com.upedge.common.constant.Constant;
 import com.upedge.common.constant.ResultCode;
+import com.upedge.common.constant.key.RedisKey;
 import com.upedge.common.exception.CustomerException;
 import com.upedge.common.feign.OmsFeignClient;
 import com.upedge.common.model.cart.request.CartAddRequest;
@@ -417,8 +418,14 @@ public class ProductController {
     }
 
 
-    @PostMapping("/test")
-    public BaseResponse test(){
-        return productService.test();
+    @PostMapping("/customsInfo/{id}")
+    public BaseResponse customsInfo(@PathVariable Long id){
+        Product product = productService.selectByPrimaryKey(id);
+        if (product != null){
+            redisTemplate.opsForHash().put(RedisKey.HASH_PRODUCT_CUSTOMS_INFO,id+":en", product.getEntryEname());
+            redisTemplate.opsForHash().put(RedisKey.HASH_PRODUCT_CUSTOMS_INFO,id+":cn", product.getEntryCname());
+        }
+
+        return BaseResponse.success(product);
     }
 }

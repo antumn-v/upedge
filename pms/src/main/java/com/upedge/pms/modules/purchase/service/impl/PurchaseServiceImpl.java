@@ -273,8 +273,7 @@ public class PurchaseServiceImpl implements PurchaseService {
                     purchaseOrderVos.add(purchaseOrderVo);
                 }
             } catch (CustomerException e) {
-                e.printStackTrace();
-                continue;
+                return BaseResponse.failed(e.getMessage());
             }
         }
 

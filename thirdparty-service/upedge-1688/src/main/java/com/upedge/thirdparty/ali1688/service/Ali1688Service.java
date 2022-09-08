@@ -381,6 +381,9 @@ public class Ali1688Service {
             throw new CustomerException(sdkResult.getErrorMessage());
         }
         AlibabaCreateOrderPreviewResult result=sdkResult.getResult();
+        if (result.getErrorMsg() != null){
+            throw new CustomerException(result.getErrorMsg());
+        }
         return Arrays.asList(result.getOrderPreviewResuslt());
     }
 

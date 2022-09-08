@@ -163,7 +163,7 @@ public class VariantWarehouseStockServiceImpl implements VariantWarehouseStockSe
     boolean updateVariantPurchaseStockByPlan(PurchasePlan purchasePlan){
         VariantWarehouseStock variantWarehouseStock = variantWarehouseStockDao.selectByPrimaryKey(purchasePlan.getVariantId(), "CNHZ");
         if (variantWarehouseStock == null){
-            variantWarehouseStock = new VariantWarehouseStock(purchasePlan.getVariantId(), "CNHZ",1, 0, purchasePlan.getQuantity(),0,"","");
+            variantWarehouseStock = new VariantWarehouseStock(purchasePlan.getVariantId(), "CNHZ",1, 0,0,purchasePlan.getQuantity(),"","");
             insert(variantWarehouseStock);
         }else {
             variantWarehouseStockDao.updateVariantPurchaseStock(purchasePlan.getVariantId(), "CNHZ",purchasePlan.getQuantity());
