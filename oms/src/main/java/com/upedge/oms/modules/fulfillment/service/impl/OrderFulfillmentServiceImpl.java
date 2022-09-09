@@ -167,7 +167,9 @@ public class OrderFulfillmentServiceImpl implements OrderFulfillmentService {
     }
 
     public boolean orderFulfillment(OrderPackage orderPackage) {
-        Order order = orderDao.selectByPrimaryKey(orderPackage.getOrderId());
+        Long packNo = orderPackage.getId();
+        Long orderId = orderPackage.getOrderId();
+        Order order = orderDao.selectByPrimaryKey(orderId);
         if (order == null){
             return false;
         }
@@ -184,7 +186,6 @@ public class OrderFulfillmentServiceImpl implements OrderFulfillmentService {
         if (StringUtils.isBlank(trackCode)){
             return false;
         }
-        Long orderId = order.getId();
 
         List<StoreOrderRelate> storeOrderRelates = storeOrderRelateDao.selectByOrderId(orderId);
         try {
@@ -213,7 +214,12 @@ public class OrderFulfillmentServiceImpl implements OrderFulfillmentService {
             e.printStackTrace();
             return false;
         }
+        orderPackage = new OrderPackage();
+        orderPackage.setId(packNo);
+        orderPackage.setIsUploadStore(true);
+        orderPackageService.updateByPrimaryKeySelective(orderPackage);
 
+        orderDao.updateOrderAsTracked(orderId,trackCode);
         return true;
     }
 

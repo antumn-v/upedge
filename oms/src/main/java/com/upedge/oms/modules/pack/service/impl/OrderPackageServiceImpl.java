@@ -1,9 +1,11 @@
 package com.upedge.oms.modules.pack.service.impl;
 
+import com.alibaba.fastjson.JSON;
 import com.upedge.common.base.BaseResponse;
 import com.upedge.common.base.Page;
 import com.upedge.common.constant.ResultCode;
 import com.upedge.common.constant.key.RedisKey;
+import com.upedge.common.constant.key.RocketMqConfig;
 import com.upedge.common.exception.CustomerException;
 import com.upedge.common.feign.PmsFeignClient;
 import com.upedge.common.model.oms.order.OrderItemQuantityVo;
@@ -54,6 +56,8 @@ import com.upedge.thirdparty.shipcompany.yunexpress.response.WayBillCreateRespon
 import com.upedge.thirdparty.shipcompany.yunexpress.vo.WayBillItemVo;
 import io.seata.spring.annotation.GlobalTransactional;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.rocketmq.client.producer.DefaultMQProducer;
+import org.apache.rocketmq.common.message.Message;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -96,6 +100,9 @@ public class OrderPackageServiceImpl implements OrderPackageService {
 
     @Autowired
     OrderPayService orderPayService;
+
+    @Autowired
+    DefaultMQProducer defaultMQProducer;
 
     @Value("${files.pdf.local}")
     private String pdfLocalPath;
@@ -157,18 +164,26 @@ public class OrderPackageServiceImpl implements OrderPackageService {
     @GlobalTransactional(rollbackFor = Exception.class)
     @Override
     public BaseResponse packageExStock(Long packNo, Session session) throws CustomerException {
+        String key = "order:package:ex:" + packNo;
+        boolean b = RedisUtil.lock(redisTemplate,key,10L,60 * 1000L);
+        if (!b){
+            return BaseResponse.failed();
+        }
         OrderPackage orderPackage = selectByPrimaryKey(packNo);
-//        if (orderPackage.getPackageState() != 0){
-//            return BaseResponse.failed("包裹异常");
-//        }
+        if (orderPackage.getPackageState() != 0){
+            RedisUtil.unLock(redisTemplate,key);
+            return BaseResponse.failed("包裹已出库或已搁置");
+        }
         Long orderId = orderPackage.getOrderId();
         OrderItemQuantityVo orderItemQuantityVo=  orderService.selectOrderItemQuantitiesByOrderId(orderId);
         if (null == orderItemQuantityVo){
+            RedisUtil.unLock(redisTemplate,key);
             return BaseResponse.failed("订单异常");
         }
 
         BaseResponse response = pmsFeignClient.packageEx(orderItemQuantityVo);
         if (response.getCode() != ResultCode.SUCCESS_CODE){
+            RedisUtil.unLock(redisTemplate,key);
             return response;
         }
         OrderPackageInfoVo orderPackageInfoVo = new OrderPackageInfoVo();
@@ -184,7 +199,8 @@ public class OrderPackageServiceImpl implements OrderPackageService {
         orderPackageInfoVo.setOrderVo(appOrderVo);
         orderPackageInfoVo.setPackageState(1);
         orderPackageInfoVo.setSendTime(new Date());
-
+        RedisUtil.unLock(redisTemplate,key);
+        sendPackageFulfillmentMessage(packNo);
         return BaseResponse.success(orderPackageInfoVo);
     }
 
@@ -755,6 +771,15 @@ public class OrderPackageServiceImpl implements OrderPackageService {
             entryName = (String) redisTemplate.opsForHash().get(RedisKey.HASH_PRODUCT_CUSTOMS_INFO, productId + ":" + entryType);
         }
         return entryName;
+    }
+
+    private void sendPackageFulfillmentMessage(Long packageNo){
+        Message message = new Message(RocketMqConfig.TOPIC_ORDER_PACKAGE_EX_FULFILLMENT, "", packageNo.toString(), JSON.toJSONBytes(packageNo));
+        try {
+            defaultMQProducer.send(message);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
 

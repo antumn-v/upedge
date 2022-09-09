@@ -22,6 +22,7 @@ import com.upedge.common.model.pms.quote.CustomerProductQuoteVo;
 import com.upedge.common.model.pms.request.CustomerProductQuoteSearchRequest;
 import com.upedge.common.model.pms.request.QuotedProductSelectBySkuRequest;
 import com.upedge.common.model.pms.response.QuotedProductSelectBySkuResponse;
+import com.upedge.common.model.pms.vo.VariantWarehouseStockModel;
 import com.upedge.common.model.product.ListVariantsRequest;
 import com.upedge.common.model.product.ProductVariantTo;
 import com.upedge.common.model.ship.request.ShipMethodSearchRequest;
@@ -2417,6 +2418,16 @@ public class OrderServiceImpl implements OrderService {
             }else {
                 appOrderVo.setIsPrintPick(false);
             }
+            Set<AppStoreOrderVo> appStoreOrderVos = appOrderVo.getStoreOrderVos();
+            appStoreOrderVos.forEach(appStoreOrderVo -> {
+                List<AppOrderItemVo> itemVos = appStoreOrderVo.getItemVos();
+                itemVos.forEach(appOrderItemVo -> {
+                    VariantWarehouseStockModel variantWarehouseStockModel = (VariantWarehouseStockModel) redisTemplate.opsForHash().get(RedisKey.HASH_VARIANT_WAREHOUSE_STOCK + appOrderVo.getShippingWarehouse(),appOrderItemVo.getAdminVariantId().toString());
+                    if (variantWarehouseStockModel != null){
+                        appOrderItemVo.setAvailableStock(variantWarehouseStockModel.getAvailableStock());
+                    }
+                });
+            });
         });
         appOrderVos = completePackageInfo(appOrderVos);
         Long total = selectAppOrderCount(request);

@@ -12,6 +12,7 @@ import com.upedge.common.feign.OmsFeignClient;
 import com.upedge.common.model.store.StoreVo;
 import com.upedge.common.model.store.config.ShopifyConfig;
 import com.upedge.common.model.store.request.CustomStoreSelectRequest;
+import com.upedge.common.model.store.request.StoreFuzzySearchRequest;
 import com.upedge.common.model.store.request.StoreSearchRequest;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.utils.HMACValidation;
@@ -41,10 +42,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
@@ -269,7 +267,6 @@ public class StoreController {
             request.setTotal(total);
         }
 
-
         StoreListResponse res = new StoreListResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS, results, request);
         return res;
     }
@@ -336,6 +333,38 @@ public class StoreController {
             return new BaseResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS, storeVo);
         }
         return BaseResponse.failed("The shop does not exist");
+
+    }
+
+    @ApiOperation("店铺名模糊搜索")
+    @PostMapping("/fuzzySearch")
+    public BaseResponse fuzzySearch(@RequestBody@Valid StoreFuzzySearchRequest request) {
+        String storeName = request.getStoreName();
+        List<StoreVo> storeVos = new ArrayList<>();
+        Set<String> keys = redisTemplate.keys(RedisKey.STRING_STORE + "*");
+        for (String key : keys) {
+            StoreVo storeVo = (StoreVo) redisTemplate.opsForValue().get(key);
+            if (storeVo.getStoreName().contains(storeName)){
+                storeVos.add(storeVo);
+            }
+        }
+        return BaseResponse.success(storeVos);
+
+    }
+
+    @ApiOperation("所有店铺")
+    @GetMapping("/all")
+    public BaseResponse all() {
+        List<StoreVo> storeVos = new ArrayList<>();
+        Set<String> keys = redisTemplate.keys(RedisKey.STRING_STORE + "*");
+        for (String key : keys) {
+            StoreVo storeVo = (StoreVo) redisTemplate.opsForValue().get(key);
+            if (null == storeVo || StringUtils.isBlank(storeVo.getStoreName())){
+                continue;
+            }
+            storeVos.add(storeVo);
+        }
+        return BaseResponse.success(storeVos);
 
     }
 

@@ -135,6 +135,7 @@ public class RedisInit {
     }
 
     public void storeInit(){
+
         Page<Store> page = new Page<>();
         page.setPageSize( -1);
         List<Store> stores = storeService.select(page);

@@ -151,4 +151,6 @@ public class RedisKey {
     public static final String HASH_ORDER_PICK_WAVE_PRINTED = "order:pick:wave:printed";
     //产品报关信息
     public static final String HASH_PRODUCT_CUSTOMS_INFO = "product:customs:info";
+    //产品库存
+    public static final String HASH_VARIANT_WAREHOUSE_STOCK = "variant:stock:warehouse:";
 }

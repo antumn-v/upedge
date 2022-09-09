@@ -337,6 +337,8 @@ public class VariantWarehouseStockServiceImpl implements VariantWarehouseStockSe
                         null,
                         session.getId());
         variantWarehouseStockRecordService.insert(variantWarehouseStockRecord);
+
+//        refreshRedisVariantStock(variantWarehouseStock.getVariantId(), variantWarehouseStock.getWarehouseCode());
         if (request.getStock() > 0){
             OrderItemQuantityDto orderItemQuantityDto = new OrderItemQuantityDto();
             orderItemQuantityDto.setVariantId(variantWarehouseStock.getVariantId());
@@ -380,6 +382,9 @@ public class VariantWarehouseStockServiceImpl implements VariantWarehouseStockSe
         variantWarehouseStockRecordService.insert(variantWarehouseStockRecord);
 
         variantWarehouseStockDao.updateVariantStockEx(productVariant.getId(), request.getWarehouseCode(), request.getQuantity());
+
+//        refreshRedisVariantStock(variantWarehouseStock.getVariantId(), variantWarehouseStock.getWarehouseCode());
+
         RedisUtil.unLock(redisTemplate,key);
         return BaseResponse.success();
     }
@@ -422,6 +427,8 @@ public class VariantWarehouseStockServiceImpl implements VariantWarehouseStockSe
                         "",
                         session.getId());
         variantWarehouseStockRecordService.insert(variantWarehouseStockRecord);
+
+//        refreshRedisVariantStock(variantWarehouseStock.getVariantId(), variantWarehouseStock.getWarehouseCode());
 
         OrderItemQuantityDto orderItemQuantityDto = new OrderItemQuantityDto();
         orderItemQuantityDto.setVariantId(variantWarehouseStock.getVariantId());
@@ -467,6 +474,10 @@ public class VariantWarehouseStockServiceImpl implements VariantWarehouseStockSe
     */
     public long count(Page<VariantWarehouseStock> record){
         return variantWarehouseStockDao.count(record);
+    }
+
+    public void refreshRedisVariantStock(Long variantId,String warehouseCode){
+
     }
 
 }
