@@ -22,7 +22,6 @@ import com.upedge.pms.modules.purchase.request.VariantStockExImRecordUpdateReque
 import com.upedge.pms.modules.purchase.service.*;
 import com.upedge.pms.modules.purchase.vo.PurchaseOrderVo;
 import com.upedge.thirdparty.ali1688.service.Ali1688Service;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -98,15 +97,15 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
             purchaseQuantity += item.getQuantity();
             receiveQuantity += item.getReceiveQuantity();
         }
-        if (receiveQuantity == 0){
+        if (receiveQuantity == 0) {
             return;
         }
         PurchaseOrder purchaseOrder = new PurchaseOrder();
         purchaseOrder.setId(id);
         purchaseOrder.setUpdateTime(new Date());
-        if (receiveQuantity < purchaseQuantity){
+        if (receiveQuantity < purchaseQuantity) {
             purchaseOrder.setPurchaseState(1);
-        }else {
+        } else {
             purchaseOrder.setPurchaseState(2);
         }
         updateByPrimaryKeySelective(purchaseOrder);
@@ -116,7 +115,7 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
     @Override
     public BaseResponse orderReceive(PurchaseOrderReceiveRequest request, Session session) throws Exception {
         BaseResponse response = orderReceiveItemIm(request, session);
-        if (response.getCode() == ResultCode.SUCCESS_CODE){
+        if (response.getCode() == ResultCode.SUCCESS_CODE) {
             checkOrderReceiveQuantity(request.getOrderId());
         }
         return response;
@@ -126,7 +125,7 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
     BaseResponse orderReceiveItemIm(PurchaseOrderReceiveRequest request, Session session) throws Exception {
         Long orderId = request.getOrderId();
         PurchaseOrder purchaseOrder = selectByPrimaryKey(orderId);
-        if (purchaseOrder == null){
+        if (purchaseOrder == null) {
             return BaseResponse.failed("订单不存在");
         }
         List<PurchaseOrderItemReceiveDto> itemReceiveDtos = request.getItemReceiveDtos();
@@ -151,12 +150,12 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
         for (PurchaseOrderItem purchaseOrderItem : purchaseOrderItems) {
             for (PurchaseOrderItemReceiveDto itemReceiveDto : itemReceiveDtos) {
                 if (purchaseOrderItem.getId().equals(itemReceiveDto.getItemId())
-                && itemReceiveDto.getQuantity() > 0){
+                        && itemReceiveDto.getQuantity() > 0) {
                     recordUpdateRequest.setQuantity(itemReceiveDto.getQuantity());
                     recordUpdateRequest.setVariantSku(purchaseOrderItem.getVariantSku());
                     recordUpdateRequest.setRelateId(purchaseOrderItem.getId());
-                    BaseResponse response = variantWarehouseStockService.variantStockIm(recordUpdateRequest,session);
-                    if (response.getCode() != ResultCode.SUCCESS_CODE){
+                    BaseResponse response = variantWarehouseStockService.variantStockIm(recordUpdateRequest, session);
+                    if (response.getCode() != ResultCode.SUCCESS_CODE) {
                         throw new Exception(response.getMsg());
                     }
                     purchaseOrderItem.setReceiveQuantity(itemReceiveDto.getQuantity() + purchaseOrderItem.getReceiveQuantity());
@@ -171,7 +170,7 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
     @Override
     public BaseResponse refreshFrom1688(Long id) {
         PurchaseOrder purchaseOrder = selectByPrimaryKey(id);
-        if (null == purchaseOrder){
+        if (null == purchaseOrder) {
             return BaseResponse.failed("订单不存在");
         }
         try {
@@ -182,19 +181,19 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
 
         List<AlibabaLogisticsOpenPlatformLogisticsTrace> alibabaLogisticsOpenPlatformLogisticsTraces = null;
         try {
-            alibabaLogisticsOpenPlatformLogisticsTraces = Ali1688Service.orderShipDetail(Long.parseLong(purchaseOrder.getPurchaseId()),null);
+            alibabaLogisticsOpenPlatformLogisticsTraces = Ali1688Service.orderShipDetail(Long.parseLong(purchaseOrder.getPurchaseId()), null);
         } catch (CustomerException e) {
         }
-        purchaseOrderTrackingService.updateOrderTrackingLatestUpdateInfo(id,alibabaLogisticsOpenPlatformLogisticsTraces);
+        purchaseOrderTrackingService.updateOrderTrackingLatestUpdateInfo(id, alibabaLogisticsOpenPlatformLogisticsTraces);
 
         return BaseResponse.success();
     }
 
 
-    void updateBaseInfo(Long id,String purchaseId,String trackingCode) throws CustomerException {
+    void updateBaseInfo(Long id, String purchaseId, String trackingCode) throws CustomerException {
         AlibabaOpenplatformTradeModelTradeInfo alibabaOpenplatformTradeModelTradeInfo = null;
         try {
-            alibabaOpenplatformTradeModelTradeInfo = Ali1688Service.orderDetail(Long.parseLong(purchaseId),null);
+            alibabaOpenplatformTradeModelTradeInfo = Ali1688Service.orderDetail(Long.parseLong(purchaseId), null);
         } catch (CustomerException e) {
             throw new CustomerException(e.getMessage());
         }
@@ -209,20 +208,20 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
         purchaseOrder.setDiscountAmount(new BigDecimal(baseInfo.getDiscount()));
         purchaseOrder.setUpdateTime(new Date());
         AlibabaOpenplatformTradeModelNativeLogisticsInfo alibabaOpenplatformTradeModelNativeLogisticsInfo = alibabaOpenplatformTradeModelTradeInfo.getNativeLogistics();
-        if (alibabaOpenplatformTradeModelNativeLogisticsInfo != null){
+        if (alibabaOpenplatformTradeModelNativeLogisticsInfo != null) {
             List<AlibabaOpenplatformTradeModelNativeLogisticsItemsInfo> logisticsItemsInfos = Arrays.asList(alibabaOpenplatformTradeModelNativeLogisticsInfo.getLogisticsItems());
-            if (ListUtils.isNotEmpty(logisticsItemsInfos)){
+            if (ListUtils.isNotEmpty(logisticsItemsInfos)) {
                 List<PurchaseOrderTracking> orderTrackingList = new ArrayList<>();
                 StringBuffer code = new StringBuffer();
                 for (int i = 0; i < logisticsItemsInfos.size(); i++) {
                     AlibabaOpenplatformTradeModelNativeLogisticsItemsInfo logisticsItemsInfo = logisticsItemsInfos.get(i);
 
-                    if (code == null){
+                    if (code == null) {
                         code = code.append(logisticsItemsInfo.getLogisticsCode());
-                    }else {
+                    } else {
                         code = code.append(",").append(logisticsItemsInfo.getLogisticsCode());
                     }
-                    if (trackingCode.contains(logisticsItemsInfo.getLogisticsCode())){
+                    if (trackingCode.contains(logisticsItemsInfo.getLogisticsCode())) {
                         continue;
                     }
                     PurchaseOrderTracking purchaseOrderTracking = new PurchaseOrderTracking(id, purchaseId, logisticsItemsInfo.getLogisticsCode(), logisticsItemsInfo.getLogisticsCompanyName());
@@ -240,88 +239,99 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
 
     @Override
     public List<PurchaseOrderVo> orderList(PurchaseOrderListRequest request) {
-        List<PurchaseOrderVo> purchaseOrderVos = new ArrayList<>();
-        List<PurchaseOrder> purchaseOrders = select(request);
-        if (ListUtils.isNotEmpty(purchaseOrders)){
-            List<Long> orderIds = new ArrayList<>();
+        PurchaseOrderListDto purchaseOrderListDto = request.getT();
+        List<Long> orderIds = new ArrayList<>();
+        //判断是否是变体条件查询的订单
+        List<PurchaseOrderItem> purchaseOrderItems = purchaseOrderItemService.selectByOrderListDto(purchaseOrderListDto);
+        //获取变体的订单ID集合
+        if (ListUtils.isNotEmpty(purchaseOrderItems)) {
+            for (PurchaseOrderItem purchaseOrderItem : purchaseOrderItems) {
+                if (!orderIds.contains(purchaseOrderItem.getOrderId())) {
+                    orderIds.add(purchaseOrderItem.getOrderId());
+                }
+            }
+            purchaseOrderListDto.setIds(orderIds);
+        }
+        List<PurchaseOrder> purchaseOrders = purchaseOrderDao.selectPurchaseOrders(request);
+        if (ListUtils.isEmpty(purchaseOrders)) {
+            return new ArrayList<>();
+        }
+        //如果刚才没查询到变体,但是查询到订单则重新根据订单查询变体
+        if (ListUtils.isEmpty(purchaseOrderItems)){
             purchaseOrders.forEach(purchaseOrder -> {
                 orderIds.add(purchaseOrder.getId());
             });
-            List<PurchaseOrderItem> orderItems = purchaseOrderItemService.selectByOrderIds(orderIds);
-            List<PurchaseOrderTracking> orderTrackings = purchaseOrderTrackingService.selectByOrderIds(orderIds);
-            for (PurchaseOrder purchaseOrder : purchaseOrders) {
-                PurchaseOrderVo purchaseOrderVo = new PurchaseOrderVo();
-                BeanUtils.copyProperties(purchaseOrder,purchaseOrderVo);
-                List<PurchaseOrderItem> purchaseOrderItems = new ArrayList<>();
-                for (PurchaseOrderItem orderItem : orderItems) {
-                    if (orderItem.getOrderId().equals(purchaseOrder.getId())){
-                        purchaseOrderItems.add(orderItem);
-                    }
-                }
-                for (PurchaseOrderTracking orderTracking : orderTrackings) {
-                    if (orderTracking.getPurchaseOrderId().equals(purchaseOrder.getId())){
-                        purchaseOrderVo.getTrackingList().add(orderTracking);
-                    }
-                }
-                orderItems.removeAll(purchaseOrderItems);
-                purchaseOrderVo.setPurchaseItemVos(purchaseOrderItems);
-                purchaseOrderVos.add(purchaseOrderVo);
-            }
+            purchaseOrderItems = purchaseOrderItemService.selectByOrderIds(orderIds);
         }
+
+        List<PurchaseOrderTracking> orderTrackings = purchaseOrderTrackingService.selectByOrderIds(orderIds);
+        //匹配同个订单下的数据
+        List<PurchaseOrderVo> purchaseOrderVos = new ArrayList<>();
+        for (PurchaseOrder purchaseOrder : purchaseOrders) {
+            List<PurchaseOrderItem> orderItems = new ArrayList<>();
+            PurchaseOrderVo purchaseOrderVo = new PurchaseOrderVo();
+            BeanUtils.copyProperties(purchaseOrder, purchaseOrderVo);
+            for (PurchaseOrderItem orderItem : purchaseOrderItems) {
+                if (orderItem.getOrderId().equals(purchaseOrder.getId())) {
+                    orderItems.add(orderItem);
+                }
+            }
+            for (PurchaseOrderTracking orderTracking : orderTrackings) {
+                if (orderTracking.getPurchaseOrderId().equals(purchaseOrder.getId())) {
+                    purchaseOrderVo.getTrackingList().add(orderTracking);
+                }
+            }
+            purchaseOrderItems.removeAll(orderItems);
+            purchaseOrderVo.setPurchaseItemVos(orderItems);
+            purchaseOrderVos.add(purchaseOrderVo);
+        }
+
         return purchaseOrderVos;
     }
 
     /**
      *
      */
-    public PurchaseOrder selectByPrimaryKey(Long id){
+    public PurchaseOrder selectByPrimaryKey(Long id) {
         PurchaseOrder record = new PurchaseOrder();
         record.setId(id);
         return purchaseOrderDao.selectByPrimaryKey(record);
     }
 
     /**
-    *
-    */
+     *
+     */
     @Transactional
     public int updateByPrimaryKeySelective(PurchaseOrder record) {
         return purchaseOrderDao.updateByPrimaryKeySelective(record);
     }
 
     /**
-    *
-    */
+     *
+     */
     @Transactional
     public int updateByPrimaryKey(PurchaseOrder record) {
         return purchaseOrderDao.updateByPrimaryKey(record);
     }
 
     /**
-    *
-    */
-    public List<PurchaseOrder> select(PurchaseOrderListRequest request){
-        PurchaseOrderListDto purchaseOrderListDto = new PurchaseOrderListDto();
-        Page<PurchaseOrder> page = new Page<>();
-        if (null != purchaseOrderListDto){
-            PurchaseOrder purchaseOrderDto = new PurchaseOrder();
-            BeanUtils.copyProperties(request.getT(),purchaseOrderDto);
-            page.setT(purchaseOrderDto);
-            if (StringUtils.isNotBlank(purchaseOrderListDto.getPurchaseSku())
-            || StringUtils.isNotBlank(purchaseOrderListDto.getVariantName())
-            || StringUtils.isNotBlank(purchaseOrderListDto.getVariantSku())
-            || StringUtils.isNotBlank(purchaseOrderListDto.getBarcode())){
-
-            }
-        }
+     *
+     */
+    public List<PurchaseOrder> select(Page<PurchaseOrder> page) {
         page.initFromNum();
         return purchaseOrderDao.select(page);
     }
 
     /**
-    *
-    */
-    public long count(Page<PurchaseOrder> record){
+     *
+     */
+    public long count(Page<PurchaseOrder> record) {
         return purchaseOrderDao.count(record);
+    }
+
+    @Override
+    public long countPurchaseOrder(PurchaseOrderListRequest request) {
+        return purchaseOrderDao.countPurchaseOrders(request);
     }
 
 }

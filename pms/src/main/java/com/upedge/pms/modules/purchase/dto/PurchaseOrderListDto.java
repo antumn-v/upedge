@@ -2,8 +2,12 @@ package com.upedge.pms.modules.purchase.dto;
 
 import lombok.Data;
 
+import java.util.List;
+
 @Data
 public class PurchaseOrderListDto {
+
+    private Long id;
 
     private Long purchaseId;
 
@@ -15,6 +19,10 @@ public class PurchaseOrderListDto {
 
     private Integer purchaseState;
 
+    private Long productId;
+
+    private String purchaseLink;
+
     private String variantSku;
 
     private String variantName;
@@ -22,5 +30,7 @@ public class PurchaseOrderListDto {
     private String purchaseSku;
 
     private String barcode;
+
+    private List<Long> ids;
 
 }

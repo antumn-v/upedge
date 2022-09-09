@@ -420,4 +420,66 @@
         from purchase_order
         <include refid="Query_Condition"/>
     </select>
+
+    <select id="selectPurchaseOrders" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from purchase_order
+        <include refid="Search_Condition"/>
+        order by create_time desc
+        <if test="pageNum != null and pageSize != null">
+            limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+        </if>
+    </select>
+
+    <sql id="Search_Condition">
+        <if test="t != null">
+            where
+            <trim prefix=" " suffix=" " suffixOverrides=" and ">
+                1 = 1 and
+                <if test="t.id != null">
+                    id = #{t.id} and
+                </if>
+                <if test="t.purchaseId != null">
+                    purchase_id = #{t.purchaseId} and
+                </if>
+                <if test="t.supplierName != null">
+                    supplier_name = #{t.supplierName} and
+                </if>
+                <if test="t.purchaseStatus != null">
+                    purchase_status = #{t.purchaseStatus} and
+                </if>
+                <if test="t.purchaseState != null">
+                    purchase_state = #{t.purchaseState} and
+                </if>
+                <if test="t.purchaseType != null">
+                    purchase_type = #{t.purchaseType} and
+                </if>
+                <if test="t.operatorId != null">
+                    operator_id = #{t.operatorId} and
+                </if>
+                <if test="t.warehouseCode != null">
+                    warehouse_code = #{t.warehouseCode} and
+                </if>
+                <if test="t.remark != null">
+                    remark = #{t.remark} and
+                </if>
+                <if test="t.trackingCode != null">
+                    tracking_code = #{t.trackingCode} and
+                </if>
+                <if test="t.ids != null">
+                    id in
+                    <foreach collection="t.ids" item="orderId" open="(" separator="," close=")">
+                        #{orderId}
+                    </foreach>
+                </if>
+            </trim>
+        </if>
+    </sql>
+
+    <select id="countPurchaseOrders" resultType="long">
+        select count(1)
+        from purchase_order
+        <include refid="Search_Condition"/>
+    </select>
 </mapper>

@@ -2,6 +2,7 @@ package com.upedge.pms.modules.purchase.dao;
 
 import com.upedge.common.base.Page;
 import com.upedge.pms.modules.purchase.entity.PurchaseOrder;
+import com.upedge.pms.modules.purchase.request.PurchaseOrderListRequest;
 
 import java.util.List;
 
@@ -9,6 +10,10 @@ import java.util.List;
  * @author gx
  */
 public interface PurchaseOrderDao{
+
+    List<PurchaseOrder> selectPurchaseOrders(PurchaseOrderListRequest request);
+
+    long countPurchaseOrders(PurchaseOrderListRequest request);
 
     PurchaseOrder selectByPrimaryKey(PurchaseOrder record);
 

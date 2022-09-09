@@ -3,6 +3,7 @@ package com.upedge.pms.modules.purchase.service.impl;
 import com.upedge.common.base.Page;
 import com.upedge.common.utils.ListUtils;
 import com.upedge.pms.modules.purchase.dao.PurchaseOrderItemDao;
+import com.upedge.pms.modules.purchase.dto.PurchaseOrderListDto;
 import com.upedge.pms.modules.purchase.entity.PurchaseOrderItem;
 import com.upedge.pms.modules.purchase.service.PurchaseOrderItemService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,6 +54,22 @@ public class PurchaseOrderItemServiceImpl implements PurchaseOrderItemService {
     @Transactional
     public int insertSelective(PurchaseOrderItem record) {
         return purchaseOrderItemDao.insert(record);
+    }
+
+    @Override
+    public List<PurchaseOrderItem> selectByOrderListDto(PurchaseOrderListDto purchaseOrderListDto) {
+        if ( null == purchaseOrderListDto){
+            return new ArrayList<>();
+        }
+        if (null != purchaseOrderListDto.getPurchaseSku()
+        || null != purchaseOrderListDto.getPurchaseLink()
+        || null != purchaseOrderListDto.getVariantName()
+        || null != purchaseOrderListDto.getProductId()
+        || null != purchaseOrderListDto.getVariantSku()
+        || null != purchaseOrderListDto.getBarcode()){
+            return purchaseOrderItemDao.selectByOrderListDto(purchaseOrderListDto);
+        }
+        return new ArrayList<>();
     }
 
     @Override

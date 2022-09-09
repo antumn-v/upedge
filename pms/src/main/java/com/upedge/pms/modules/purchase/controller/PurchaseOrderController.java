@@ -55,7 +55,7 @@ public class PurchaseOrderController {
     @Permission(permission = "purchase:purchaseorder:list")
     public PurchaseOrderListResponse list(@RequestBody @Valid PurchaseOrderListRequest request) {
         List<PurchaseOrderVo> results = purchaseOrderService.orderList(request);
-        Long total = purchaseOrderService.count(request);
+        Long total = purchaseOrderService.countPurchaseOrder(request);
         request.setTotal(total);
         PurchaseOrderListResponse res = new PurchaseOrderListResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS,results,request);
         return res;
