@@ -455,15 +455,6 @@
                 <if test="t.purchaseType != null">
                     purchase_type = #{t.purchaseType} and
                 </if>
-                <if test="t.operatorId != null">
-                    operator_id = #{t.operatorId} and
-                </if>
-                <if test="t.warehouseCode != null">
-                    warehouse_code = #{t.warehouseCode} and
-                </if>
-                <if test="t.remark != null">
-                    remark = #{t.remark} and
-                </if>
                 <if test="t.trackingCode != null">
                     tracking_code = #{t.trackingCode} and
                 </if>

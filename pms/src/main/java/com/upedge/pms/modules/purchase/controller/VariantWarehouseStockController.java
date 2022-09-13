@@ -2,9 +2,11 @@ package com.upedge.pms.modules.purchase.controller;
 
 import com.upedge.common.base.BaseResponse;
 import com.upedge.common.component.annotation.Permission;
+import com.upedge.common.constant.key.RedisKey;
 import com.upedge.common.model.oms.order.OrderItemQuantityVo;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.utils.IdGenerate;
+import com.upedge.common.web.util.RedisUtil;
 import com.upedge.common.web.util.UserUtil;
 import com.upedge.pms.modules.purchase.entity.VariantWarehouseStock;
 import com.upedge.pms.modules.purchase.entity.VariantWarehouseStockRecord;
@@ -14,17 +16,20 @@ import com.upedge.pms.modules.purchase.request.VariantStockUpdateRequest;
 import com.upedge.pms.modules.purchase.service.VariantWarehouseStockService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.List;
 
 /**
  * 
  *
  * @author gx
  */
+@Slf4j
 @Api(tags = "变体仓库库存管理")
 @RestController
 @RequestMapping("/variantWarehouseStock")
@@ -86,6 +91,17 @@ public class VariantWarehouseStockController {
         variantWarehouseStock.setWarehouseCode(request.getWarehouseCode());
         variantWarehouseStock.setSafeStock(request.getStock());
         variantWarehouseStockService.updateByPrimaryKeySelective(variantWarehouseStock);
+        return BaseResponse.success();
+    }
+
+
+    @PostMapping("/redisKeyTest")
+    public BaseResponse redisKeyTest(@RequestBody List<Long> variantIds){
+        for (Long variantId : variantIds) {
+            String key = RedisKey.KEY_VARIANT_WAREHOUSE_STOCK_LOCK + "CNHZ:"  + variantId;
+            boolean b = RedisUtil.lock(redisTemplate,key,10L,10 * 1000L);
+            log.warn("{}---> 加锁结果: {}" ,variantId,b);
+        }
         return BaseResponse.success();
     }
 

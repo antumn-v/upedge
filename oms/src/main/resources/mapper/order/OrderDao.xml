@@ -2424,6 +2424,7 @@
         and o.refund_state = '0'
         and o.ship_state = '0'
         and o.stock_state = '0'
+        and o.pack_state = '1'
         <if test="variantId != null">
             and oi.admin_variant_id = #{variantId}
         </if>

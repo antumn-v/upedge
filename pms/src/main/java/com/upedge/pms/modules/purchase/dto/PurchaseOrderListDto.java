@@ -17,6 +17,8 @@ public class PurchaseOrderListDto {
 
     private String purchaseStatus;
 
+    private Integer purchaseType;
+
     private Integer purchaseState;
 
     private Long productId;

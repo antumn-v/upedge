@@ -295,6 +295,7 @@
                 and pv.id = #{t.id}
             </if>
         </where>
+        order by create_time desc
         <if test="pageNum != null and pageSize != null">
             limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
         </if>

@@ -123,7 +123,8 @@ public class PurchaseServiceImpl implements PurchaseService {
         CompletableFuture<Void> cancel = CompletableFuture.runAsync(new Runnable() {
             @Override
             public void run() {
-                List<PurchaseAdviceVo> adviceVos = getPurchaseAdvices(cancelPurchaseVariantIds,warehouseCode,purchaseAdviceItemVos);
+                List<PurchaseAdviceVo> adviceVos = new ArrayList<>();
+//                        getPurchaseAdvices(cancelPurchaseVariantIds,warehouseCode,purchaseAdviceItemVos);
                 map.put("cancel",adviceVos);
             }
         },threadPoolExecutor);
