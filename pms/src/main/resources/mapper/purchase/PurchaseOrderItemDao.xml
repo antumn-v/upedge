@@ -16,14 +16,16 @@
         <result property="variantSku" column="variant_sku"/>
         <result property="purchaseSku" column="purchase_sku"/>
         <result property="quantity" column="quantity"/>
+        <result property="originalQuantity" column="original_quantity"/>
         <result property="receiveQuantity" column="receive_quantity"/>
         <result property="price" column="price"/>
+        <result property="originalPrice" column="original_price"/>
         <result property="specId" column="spec_id"/>
         <result property="weight" column="weight"/>
     </resultMap>
 
     <sql id="Base_Column_List">
-        `id`,`order_id`,`variant_id`,`product_id`,`purchase_link`,`variant_name`,`barcode`,
+        `id`,`order_id`,`variant_id`,`product_id`,`purchase_link`,`variant_name`,`barcode`,original_price,original_quantity,
         `variant_image`,`variant_sku`,`purchase_sku`,`quantity`,`price`,`spec_id`,`receive_quantity`
     </sql>
 
@@ -230,7 +232,9 @@
            variant_sku,
            purchase_sku,
            quantity,
+           original_quantity,
            price,
+           original_price,
            spec_id
         </trim>
         values
@@ -246,7 +250,9 @@
                #{item.variantSku},
                #{item.purchaseSku},
                #{item.quantity},
+               #{item.originalQuantity},
                #{item.price},
+               #{item.originalPrice},
                #{item.specId}
             </trim>
         </foreach>
@@ -320,7 +326,7 @@
     <select id="selectByOrderIds" resultMap="BaseResultMap">
         select
         poi.`id`,poi.`order_id`,poi.`variant_id`,poi.`product_id`,poi.`purchase_link`,poi.`variant_name`,poi.`variant_image`,poi.`variant_sku`,
-        poi.`purchase_sku`,poi.`quantity`,poi.`price`,poi.`spec_id`,poi.`receive_quantity`,pv.weight,pv.barcode
+        poi.`purchase_sku`,poi.`quantity`,poi.`price`,poi.`spec_id`,poi.`receive_quantity`,pv.weight,pv.barcode,poi.original_quantity,poi.original_price
         from purchase_order_item poi
         left join product_variant pv
         on poi.variant_id = pv.id
@@ -339,7 +345,7 @@
 
     <select id="selectByOrderListDto" resultMap="BaseResultMap">
         select poi.`id`,poi.`order_id`,poi.`variant_id`,poi.`product_id`,poi.`purchase_link`,poi.`variant_name`,poi.`variant_image`,poi.`variant_sku`,
-        poi.`purchase_sku`,poi.`quantity`,poi.`price`,poi.`spec_id`,poi.`receive_quantity`,pv.weigh,pv.barcode
+        poi.`purchase_sku`,poi.`quantity`,poi.`price`,poi.`spec_id`,poi.`receive_quantity`,pv.weigh,pv.barcode,poi.original_quantity,poi.original_price
         from purchase_order_item poi
         left join product_variant pv
         on poi.variant_id = pv.id

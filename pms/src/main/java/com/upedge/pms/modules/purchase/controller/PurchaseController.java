@@ -63,7 +63,7 @@ public class PurchaseController {
     }
 
 
-    @ApiOperation("创建1688采购单,暂不对接")
+    @ApiOperation("创建1688采购单")
     @PostMapping("/createOrder")
     public BaseResponse createOrder(@RequestBody@Valid PurchaseOrderCreateRequest request){
         Session session = UserUtil.getSession(redisTemplate);

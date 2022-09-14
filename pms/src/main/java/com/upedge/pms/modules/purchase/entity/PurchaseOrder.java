@@ -46,6 +46,8 @@ public class PurchaseOrder{
 	/**
 	 * 
 	 */
+	private Integer editState;
+
     private Integer purchaseState;
 	/**
 	 * 0=1688采购

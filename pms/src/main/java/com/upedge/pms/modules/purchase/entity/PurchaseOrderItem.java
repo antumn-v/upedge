@@ -51,11 +51,15 @@ public class PurchaseOrderItem{
 	 */
     private Integer quantity;
 
+	private Integer originalQuantity;
+
 	private Integer receiveQuantity;
 	/**
 	 * 
 	 */
     private BigDecimal price;
+
+	private BigDecimal originalPrice;
 	/**
 	 * 
 	 */

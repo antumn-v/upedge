@@ -356,6 +356,8 @@ public class PurchaseServiceImpl implements PurchaseService {
                 }
                 PurchaseOrderItem purchaseItem = new PurchaseOrderItem();
                 BeanUtils.copyProperties(purchasePlan, purchaseItem);
+                purchaseItem.setOriginalPrice(purchasePlan.getPrice());
+                purchaseItem.setOriginalQuantity(purchasePlan.getQuantity());
                 purchaseItem.setOrderId(id);
                 purchaseItem.setId(IdGenerate.nextId());
                 purchaseItems.add(purchaseItem);
