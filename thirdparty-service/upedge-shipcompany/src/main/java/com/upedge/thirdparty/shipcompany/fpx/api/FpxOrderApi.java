@@ -89,6 +89,14 @@ public class FpxOrderApi {
         }
     }
 
+    public static void main(String[] args) {
+        try {
+            System.out.println(getSinglePackageLabel("4PX3000270843649CN"));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
 
     public static String cancelPack(Long orderId){
         FpxConfig.param.setMethod(MethodEnum.order_cancel.getMethod());

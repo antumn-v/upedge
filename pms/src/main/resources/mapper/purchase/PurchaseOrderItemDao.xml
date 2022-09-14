@@ -320,7 +320,7 @@
     <select id="selectByOrderIds" resultMap="BaseResultMap">
         select
         poi.`id`,poi.`order_id`,poi.`variant_id`,poi.`product_id`,poi.`purchase_link`,poi.`variant_name`,poi.`variant_image`,poi.`variant_sku`,
-        poi.`purchase_sku`,poi.`quantity`,poi.`price`,poi.`spec_id`,poi.`receive_quantity`,pv.weight
+        poi.`purchase_sku`,poi.`quantity`,poi.`price`,poi.`spec_id`,poi.`receive_quantity`,pv.weight,pv.barcode
         from purchase_order_item poi
         left join product_variant pv
         on poi.variant_id = pv.id
@@ -339,7 +339,7 @@
 
     <select id="selectByOrderListDto" resultMap="BaseResultMap">
         select poi.`id`,poi.`order_id`,poi.`variant_id`,poi.`product_id`,poi.`purchase_link`,poi.`variant_name`,poi.`variant_image`,poi.`variant_sku`,
-        poi.`purchase_sku`,poi.`quantity`,poi.`price`,poi.`spec_id`,poi.`receive_quantity`,pv.weight
+        poi.`purchase_sku`,poi.`quantity`,poi.`price`,poi.`spec_id`,poi.`receive_quantity`,pv.weigh,pv.barcode
         from purchase_order_item poi
         left join product_variant pv
         on poi.variant_id = pv.id

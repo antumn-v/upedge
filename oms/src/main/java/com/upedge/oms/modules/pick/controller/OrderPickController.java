@@ -39,6 +39,9 @@ public class OrderPickController {
     @PostMapping("/waveInfo/{waveNo}")
     public BaseResponse waveInfo(@PathVariable Integer waveNo){
         OrderPickWaveInfoVo orderPickWaveInfoVo = orderPickService.wavePickInfo(waveNo);
+        if (null == orderPickWaveInfoVo){
+            return BaseResponse.failed("波次不存在");
+        }
         return BaseResponse.success(orderPickWaveInfoVo);
     }
 

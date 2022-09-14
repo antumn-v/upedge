@@ -148,16 +148,20 @@ public class PurchasePlanServiceImpl implements PurchasePlanService {
         if (null == productPurchaseInfo){
             return BaseResponse.failed("采购信息异常");
         }
-        PurchasePlan purchasePlan = new PurchasePlan();
-        BeanUtils.copyProperties(productPurchaseInfo,purchasePlan);
-        BeanUtils.copyProperties(productVariant,purchasePlan);
-        purchasePlan.setState(0);
-        purchasePlan.setVariantId(variantId);
-        purchasePlan.setQuantity(request.getQuantity());
-        purchasePlan.setCreateTime(new Date());
-        purchasePlan.setUpdateTime(new Date());
-        purchasePlan.setOperatorId(session.getId());
-        insert(purchasePlan);
+        PurchasePlan purchasePlan = purchasePlanDao.selectBySkuAndState(productVariant.getPurchaseSku(),0);
+        if (null == purchasePlan){
+            BeanUtils.copyProperties(productPurchaseInfo,purchasePlan);
+            BeanUtils.copyProperties(productVariant,purchasePlan);
+            purchasePlan.setState(0);
+            purchasePlan.setVariantId(variantId);
+            purchasePlan.setQuantity(request.getQuantity());
+            purchasePlan.setCreateTime(new Date());
+            purchasePlan.setUpdateTime(new Date());
+            purchasePlan.setOperatorId(session.getId());
+            insert(purchasePlan);
+        }else {
+            purchasePlanDao.addQuantityById(purchasePlan.getId(), request.getQuantity());
+        }
         return BaseResponse.success();
     }
 

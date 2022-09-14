@@ -12,11 +12,15 @@ import java.util.List;
  */
 public interface PurchasePlanDao {
 
+    int addQuantityById(@Param("id") Integer id, @Param("quantity") Integer quantity);
+
     int updatePriceById(@Param("id") Integer id, @Param("price") BigDecimal price);
 
     int updateVariantStockByIds(@Param("ids") List<Integer> ids);
 
     int updatePurchaseOrderIdByIds(@Param("ids") List<Integer> ids, @Param("purchaseOrderId") Long purchaseOrderId);
+
+    PurchasePlan selectBySkuAndState(@Param("sku") String sku, @Param("state") Integer state);
 
     List<PurchasePlan> selectByIds(@Param("ids") List<Integer> ids);
 

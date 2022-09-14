@@ -205,7 +205,7 @@ public class ProductServiceImpl implements ProductService {
         BeanUtils.copyProperties(request,product);
         productDao.updateByPrimaryKeySelective(product);
         redisTemplate.opsForHash().put(RedisKey.HASH_PRODUCT_CUSTOMS_INFO ,product.getId() + ":en",product.getEntryEname());
-        redisTemplate.opsForHash().put(RedisKey.HASH_PRODUCT_CUSTOMS_INFO ,product.getId() + "：cn",product.getEntryCname());
+        redisTemplate.opsForHash().put(RedisKey.HASH_PRODUCT_CUSTOMS_INFO ,product.getId() + ":cn",product.getEntryCname());
 
 
         if (request.getShippingId() != null

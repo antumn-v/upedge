@@ -24,7 +24,8 @@ public class YunexpressApi {
     private static final String TOKEN = "Basic QzA2NjE2JjB4VlVRV0Rtb2VvPQ==";
 
 
-    public static String REQUEST_URL = "http://omsapi.uat.yunexpress.com/api";
+//    public static String REQUEST_URL = "http://omsapi.uat.yunexpress.com/api";
+    public static String REQUEST_URL = "http://oms2pub.uat.yunexpress.com/api";
 
 
     public static List<YunExpressShipMethodVo> getShipMethods(String countryCode) {

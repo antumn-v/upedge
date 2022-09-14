@@ -835,6 +835,7 @@ public class OrderServiceImpl implements OrderService {
             }
             OrderItem orderItem = new OrderItem();
             BeanUtils.copyProperties(customerProductQuoteVo, orderItem);
+            orderItem.setBarcode(customerProductQuoteVo.getBarcode());
             orderItem.setStoreVariantImage(customerProductQuoteVo.getVariantImage());
             orderItem.setStoreVariantSku(customerProductQuoteVo.getVariantSku());
             orderItem.setStoreVariantName(customerProductQuoteVo.getVariantName());

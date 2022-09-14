@@ -430,4 +430,20 @@
         where id = #{id}
         and state = '0';
     </update>
+
+    <select id="selectBySkuAndState" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from purchase_plan
+        where purchase_sku = #{sku}
+        and state = #{state}
+        limit 1
+    </select>
+
+    <update id="addQuantityById">
+        update purchase_plan
+        set quantity = quantity + #{quantity}
+        where id = #{id}
+        and state = '0';
+    </update>
 </mapper>

@@ -189,7 +189,7 @@ public class OrderPickServiceImpl implements OrderPickService {
 
                 OrderItemPickInfoVo orderItemPickInfoVo = map.get(itemPickInfoVo.getItemId());
                 Integer pickedQuantity = itemPickInfoVo.getPickedQuantity();
-                if (!itemPickInfoVo.getQuantity().equals(orderItemPickInfoVo.getPickedQuantity())){
+                if (pickedQuantity != orderItemPickInfoVo.getQuantity()){
                     b = false;
                 }
                 if (pickedQuantity != orderItemPickInfoVo.getPickedQuantity()){
@@ -308,6 +308,17 @@ public class OrderPickServiceImpl implements OrderPickService {
 
     @Override
     public BaseResponse create(OrderPickCreateRequest request, Session session) {
+        String key = "key:createOrderPickWave";
+        boolean b = RedisUtil.lock(redisTemplate,key,10L,60 * 1000L);
+        if (!b){
+            return BaseResponse.failed();
+        }
+        List<Long> orderIds = request.getOrderIds();
+        if (ListUtils.isNotEmpty(orderIds)){
+            BaseResponse response = createWaveByOrderIds(orderIds,session.getId());
+            RedisUtil.unLock(redisTemplate,key);
+            return response;
+        }
         List<Long> shipMethodIds = request.getShipMethodIds();
         String companyName = "";
         for (int i = 0; i < shipMethodIds.size(); i++) {
@@ -316,19 +327,13 @@ public class OrderPickServiceImpl implements OrderPickService {
             if (i == 0){
                 companyName = shippingMethodRedis.getTrackingCompany();
             }else if (!companyName.equals(shippingMethodRedis.getTrackingCompany())){
+                RedisUtil.unLock(redisTemplate,key);
                 return BaseResponse.failed("不同物流公司的订单无法生成到同一波次");
             }
         }
 
-        String key = "key:createOrderPickWave";
-        boolean b = RedisUtil.lock(redisTemplate,key,10L,60 * 1000L);
-        if (!b){
-            return BaseResponse.failed();
-        }
-        List<Long> orderIds = request.getOrderIds();
-        if (ListUtils.isNotEmpty(orderIds)){
-            return createWaveByOrderIds(orderIds,session.getId());
-        }
+
+
         switch (request.getPickType()){
             case 0:
                 oneSkuOneQtyCreateWave(request.getShipMethodIds(),request.getSingleProductQuantity(),session.getId());
@@ -340,6 +345,7 @@ public class OrderPickServiceImpl implements OrderPickService {
                 multiSkuCreateWave(request.getShipMethodIds(),request.getMixedProductQuantity(),session.getId());
                 break;
             default:
+                RedisUtil.unLock(redisTemplate,key);
                 return BaseResponse.failed();
         }
         RedisUtil.unLock(redisTemplate,key);
@@ -359,7 +365,8 @@ public class OrderPickServiceImpl implements OrderPickService {
             if (order.getPayState() != 1
             || order.getRefundState() != 0
             || order.getShipState() != 0
-            || order.getPackState() != 0
+            || order.getPackState() != 1
+            || order.getPickState() != 0
             || order.getWaveNo() != null){
                 continue;
             }
@@ -384,7 +391,7 @@ public class OrderPickServiceImpl implements OrderPickService {
         }
 
         if (ListUtils.isEmpty(orderIds)){
-            return BaseResponse.failed("同一波次的订单需要属于同一家运输公司，退款、已生成波次或已发货的订单不能再进行此操作");
+            return BaseResponse.failed("未创建包裹的订单不能生成波次，同一波次的订单需要属于同一家运输公司，退款、已生成波次或已发货的订单不能再进行此操作");
         }
 
         Integer waveNo = getWaveNo();
@@ -396,7 +403,11 @@ public class OrderPickServiceImpl implements OrderPickService {
         orderPick.setCreateTime(new Date());
         orderPick.setUpdateTime(new Date());
         orderPick.setSkuType(variantIds.size());
-        orderPick.setPickState(OrderPick.TO_BE_PACKED);
+        if (pickType == 2){
+            orderPick.setPickState(OrderPick.TO_BE_PICKED);
+        }else {
+            orderPick.setPickState(OrderPick.TO_BE_PACKED);
+        }
         orderPick.setSkuQuantity(skuQuantity);
         insert(orderPick);
 

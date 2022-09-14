@@ -260,7 +260,7 @@ public class OrderPackageServiceImpl implements OrderPackageService {
         try {
             switch (orderPackage.getTrackingCompany()){
                 case "4PX":
-                    labelUrl = FpxOrderApi.getSinglePackageLabel(orderPackage.getPlatId());
+                    labelUrl = FpxOrderApi.getSinglePackageLabel(orderPackage.getLogisticsOrderNo());
                     break;
                 case "YunExpress":
                     labelUrl = YunexpressApi.getSinglePackageLabel(orderPackage.getPlatId());
@@ -276,7 +276,7 @@ public class OrderPackageServiceImpl implements OrderPackageService {
                     break;
             }
         }catch (Exception e){
-
+            return BaseResponse.failed(e.getMessage());
         }
 
         map.put("labelUrl",labelUrl);
