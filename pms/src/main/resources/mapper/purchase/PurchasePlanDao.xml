@@ -16,6 +16,7 @@
         <result property="variantImage" column="variant_image"/>
         <result property="purchaseLink" column="purchase_link"/>
         <result property="quantity" column="quantity"/>
+        <result property="requireQuantity" column="require_quantity"/>
         <result property="price" column="price"/>
         <result property="specId" column="spec_id"/>
         <result property="operatorId" column="operator_id"/>
@@ -27,8 +28,7 @@
 
     <sql id="Base_Column_List">
         `id`,`purchase_sku`,`supplier_name`,`product_id`,`variant_id`,`variant_sku`,`barcode`,
-        `variant_name`,`variant_image`,`purchase_link`,`quantity`,`price`,
-                                                                                                                                                                                                                                                                                                            `spec_id`,`operator_id`,`state`,`purchase_order_id`,`create_time`,`update_time`
+        `variant_name`,`variant_image`,`purchase_link`,`quantity`,`price`,require_quantity,spec_id                                                                                                                                                                                                                                                                                           `spec_id`,`operator_id`,`state`,`purchase_order_id`,`create_time`,`update_time`
     </sql>
 
     <select id="selectByPrimaryKey" parameterType="com.upedge.pms.modules.purchase.entity.PurchasePlan" resultMap="BaseResultMap">
@@ -133,13 +133,15 @@
             variant_image,
             purchase_link,
             quantity,
+            require_quantity,
             spec_id,
             operator_id,
             `state`,
             purchase_order_id,
             warehouse_code,
             create_time,
-            update_time
+            update_time,
+            price
         </trim>
         values (
         #{id},
@@ -153,13 +155,15 @@
         #{variantImage},
         #{purchaseLink},
         #{quantity},
+        #{requireQuantity},
         #{specId},
         #{operatorId},
         #{state},
         #{purchaseOrderId},
         'CNHZ',
         #{createTime},
-        #{updateTime}
+        #{updateTime},
+        #{price}
         )
     </insert>
 
@@ -282,12 +286,14 @@
            variant_image,
            purchase_link,
            quantity,
+           require_quantity,
            spec_id,
            operator_id,
            state,
            purchase_order_id,
            create_time,
-           update_time
+           update_time,
+            price
         </trim>
         values
         <foreach collection="list" item="item" index="index" separator=",">
@@ -302,12 +308,14 @@
                #{item.variantImage},
                #{item.purchaseLink},
                #{item.quantity},
+                #{item.requireQuantity},
                #{item.specId},
                #{item.operatorId},
                #{item.state},
                #{item.purchaseOrderId},
                #{item.createTime},
-               #{item.updateTime}
+               #{item.updateTime},
+                #{item.price}
             </trim>
         </foreach>
     </insert>

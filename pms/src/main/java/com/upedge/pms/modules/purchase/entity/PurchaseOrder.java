@@ -23,6 +23,8 @@ public class PurchaseOrder{
 	 * 
 	 */
     private BigDecimal productAmount;
+
+	private BigDecimal originalProductAmount;
 	/**
 	 * 
 	 */
@@ -31,6 +33,8 @@ public class PurchaseOrder{
 	 * 
 	 */
     private BigDecimal amount;
+
+	private BigDecimal originalAmount;
 	/**
 	 * 
 	 */
@@ -96,8 +100,10 @@ public class PurchaseOrder{
 		this.id = id;
 		this.purchaseId = purchaseId;
 		this.productAmount = productAmount;
+		this.originalProductAmount = productAmount;
 		this.shipPrice = shipPrice;
 		this.amount = amount;
+		this.originalAmount = amount;
 		this.discountAmount = discountAmount;
 		this.supplierName = supplierName;
 		this.purchaseState = purchaseState;
@@ -107,5 +113,6 @@ public class PurchaseOrder{
 		this.createTime = new Date();
 		this.updateTime = new Date();
 		this.purchaseQuantity = purchaseQuantity;
+		this.editState = 0;
 	}
 }

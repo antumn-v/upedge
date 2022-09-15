@@ -114,6 +114,7 @@ public class StoreProductServiceImpl implements StoreProductService {
             for (StoreProductVariant storeProductVariant : storeProductVariants) {
                 Long variantId = IdGenerate.nextId();
                 ProductVariant productVariant = storeProductVariant.toProductVariant(newProductId, variantId);
+                productVariant.setOriginalVariantId(storeProductVariant.getId().toString());
                 productVariants.add(productVariant);
                 ProductVariantAttr productVariantAttr = new ProductVariantAttr();
                 productVariantAttr.setVariantId(variantId);

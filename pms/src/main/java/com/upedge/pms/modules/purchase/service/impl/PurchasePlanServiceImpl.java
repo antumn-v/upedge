@@ -150,9 +150,12 @@ public class PurchasePlanServiceImpl implements PurchasePlanService {
         }
         PurchasePlan purchasePlan = purchasePlanDao.selectBySkuAndState(productVariant.getPurchaseSku(),0);
         if (null == purchasePlan){
+            purchasePlan = new PurchasePlan();
             BeanUtils.copyProperties(productPurchaseInfo,purchasePlan);
             BeanUtils.copyProperties(productVariant,purchasePlan);
             purchasePlan.setState(0);
+            purchasePlan.setPrice(productVariant.getVariantPrice());
+            purchasePlan.setRequireQuantity(request.getQuantity());
             purchasePlan.setVariantId(variantId);
             purchasePlan.setQuantity(request.getQuantity());
             purchasePlan.setCreateTime(new Date());

@@ -10,6 +10,7 @@ import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.utils.ListUtils;
 import com.upedge.common.web.util.UserUtil;
 import com.upedge.pms.modules.purchase.entity.PurchaseOrder;
+import com.upedge.pms.modules.purchase.request.PurchaseOrderEditStateUpdateRequest;
 import com.upedge.pms.modules.purchase.request.PurchaseOrderListRequest;
 import com.upedge.pms.modules.purchase.request.PurchaseOrderReceiveRequest;
 import com.upedge.pms.modules.purchase.response.PurchaseOrderListResponse;
@@ -97,5 +98,12 @@ public class PurchaseOrderController {
             return BaseResponse.failed(e.getMessage());
         }
         return response;
+    }
+
+    @ApiOperation("修改订单编辑状态")
+    @PostMapping("/updateEditState")
+    public BaseResponse updateEditState(@RequestBody@Valid PurchaseOrderEditStateUpdateRequest request){
+        Session session = UserUtil.getSession(redisTemplate);
+        return purchaseOrderService.updateEditState(request,session);
     }
 }

@@ -1,15 +1,15 @@
 package com.upedge.pms.modules.purchase.controller;
 
+import com.upedge.common.base.BaseResponse;
 import com.upedge.common.component.annotation.Permission;
 import com.upedge.common.constant.Constant;
 import com.upedge.common.constant.ResultCode;
 import com.upedge.pms.modules.purchase.entity.PurchaseOrderItem;
-import com.upedge.pms.modules.purchase.request.PurchaseOrderItemAddRequest;
-import com.upedge.pms.modules.purchase.request.PurchaseOrderItemListRequest;
-import com.upedge.pms.modules.purchase.request.PurchaseOrderItemUpdateRequest;
+import com.upedge.pms.modules.purchase.request.*;
 import com.upedge.pms.modules.purchase.response.*;
 import com.upedge.pms.modules.purchase.service.PurchaseOrderItemService;
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -28,6 +28,17 @@ public class PurchaseOrderItemController {
     @Autowired
     private PurchaseOrderItemService purchaseOrderItemService;
 
+    @ApiOperation("修改价格")
+    @PostMapping("/updatePrice")
+    public BaseResponse updatePrice(@RequestBody@Valid PurchaseOrderItemUpdatePriceRequest request){
+        return purchaseOrderItemService.updatePriceById(request);
+    }
+
+    @ApiOperation("修改数量")
+    @PostMapping("/updateQuantity")
+    public BaseResponse updateQuantity(@RequestBody@Valid PurchaseOrderItemUpdateQuantityRequest request){
+        return purchaseOrderItemService.updateQuantityById(request);
+    }
 
     @RequestMapping(value="/info/{id}", method=RequestMethod.GET)
     @Permission(permission = "purchase:purchaseorderitem:info:id")

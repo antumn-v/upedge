@@ -1,8 +1,12 @@
 package com.upedge.pms.modules.purchase.service;
 
+import com.upedge.common.base.BaseResponse;
 import com.upedge.common.base.Page;
 import com.upedge.pms.modules.purchase.dto.PurchaseOrderListDto;
 import com.upedge.pms.modules.purchase.entity.PurchaseOrderItem;
+import com.upedge.pms.modules.purchase.request.PurchaseOrderItemUpdatePriceRequest;
+import com.upedge.pms.modules.purchase.request.PurchaseOrderItemUpdateQuantityRequest;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -10,6 +14,12 @@ import java.util.List;
  * @author gx
  */
 public interface PurchaseOrderItemService{
+
+    int updatePriceBySpecId( List<PurchaseOrderItem> items);
+
+    BaseResponse updatePriceById(PurchaseOrderItemUpdatePriceRequest request);
+
+    BaseResponse updateQuantityById(PurchaseOrderItemUpdateQuantityRequest request);
 
     List<PurchaseOrderItem> selectByOrderListDto(PurchaseOrderListDto purchaseOrderListDto);
 

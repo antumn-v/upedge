@@ -73,7 +73,7 @@ public class PurchaseController {
                 CompletableFuture.runAsync(new Runnable() {
                     @Override
                     public void run() {
-                        purchaseOrderService.refreshFrom1688(id);
+                        purchaseOrderService.completeOrderInfo(id);
                     }
                 },threadPoolExecutor);
             }

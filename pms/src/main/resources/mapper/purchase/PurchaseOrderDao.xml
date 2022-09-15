@@ -8,8 +8,10 @@
         <result property="id" column="id"/>
         <result property="purchaseId" column="purchase_id"/>
         <result property="productAmount" column="product_amount"/>
+        <result property="originalProductAmount" column="original_product_amount"/>
         <result property="shipPrice" column="ship_price"/>
         <result property="amount" column="amount"/>
+        <result property="originalAmount" column="original_amount"/>
         <result property="discountAmount" column="discount_amount"/>
         <result property="supplierName" column="supplier_name"/>
         <result property="purchaseQuantity" column="purchase_quantity"/>
@@ -28,8 +30,8 @@
     </resultMap>
 
     <sql id="Base_Column_List">
-        `id`,`purchase_id`,`product_amount`,`ship_price`,`amount`,`discount_amount`,`edit_state`,
-        `supplier_name`,`purchase_status`,`purchase_state`,`purchase_type`,`operator_id`,`purchase_quantity`,
+        `id`,`purchase_id`,`product_amount`,`ship_price`,`amount`,`discount_amount`,`edit_state`,`original_product_amount`,
+        `supplier_name`,`purchase_status`,`purchase_state`,`purchase_type`,`operator_id`,`purchase_quantity`,`original_amount`,
         `warehouse_code`,`remark`,`tracking_code`,`delivered_time`,`receive_time`,`create_time`,`update_time`
     </sql>
 
@@ -134,11 +136,14 @@
             id,
             purchase_id,
             product_amount,
+            original_product_amount,
             ship_price,
             amount,
+            original_amount,
             discount_amount,
             supplier_name,
             purchase_status,
+            edit_state,
             purchase_state,
             purchase_type,
             operator_id,
@@ -155,11 +160,14 @@
         #{id},
         #{purchaseId},
         #{productAmount},
+        #{originalProductAmount},
         #{shipPrice},
         #{amount},
+        #{originalAmount},
         #{discountAmount},
         #{supplierName},
         #{purchaseStatus},
+        #{editState},
         #{purchaseState},
         #{purchaseType},
         #{operatorId},
@@ -474,4 +482,19 @@
         from purchase_order
         <include refid="Search_Condition"/>
     </select>
+
+    <update id="updateProductAmount">
+        update purchase_order
+            set product_amount = #{productAmount},
+                amount = (ship_price + #{productAmount} - discount_amount)
+        where id = #{id}
+        and edit_state = '0';
+    </update>
+
+    <update id="updateEditState">
+        update purchase_order
+            set edit_state = #{editState}
+        where id = #{id}
+        and edit_state != '1'
+    </update>
 </mapper>

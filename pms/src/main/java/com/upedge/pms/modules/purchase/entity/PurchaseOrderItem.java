@@ -54,6 +54,8 @@ public class PurchaseOrderItem{
 	private Integer originalQuantity;
 
 	private Integer receiveQuantity;
+
+	private Integer requireQuantity;
 	/**
 	 * 
 	 */

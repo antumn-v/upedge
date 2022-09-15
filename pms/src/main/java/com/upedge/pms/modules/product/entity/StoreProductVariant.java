@@ -79,7 +79,6 @@ public class StoreProductVariant {
         productVariant.setVariantSku(sku + ":" + IdGenerate.generateUniqueId(8));
         productVariant.setEnName(title);
         productVariant.setCnName(title);
-        productVariant.setOriginalVariantId(id.toString());
         productVariant.setVariantType(0);
         return productVariant;
     }

@@ -3,13 +3,19 @@ package com.upedge.pms.modules.purchase.dao;
 import com.upedge.common.base.Page;
 import com.upedge.pms.modules.purchase.entity.PurchaseOrder;
 import com.upedge.pms.modules.purchase.request.PurchaseOrderListRequest;
+import org.apache.ibatis.annotations.Param;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 /**
  * @author gx
  */
-public interface PurchaseOrderDao{
+public interface PurchaseOrderDao {
+
+    int updateEditState(@Param("id") Long id, @Param("editState") Integer editState);
+
+    int updateProductAmount(@Param("id") Long id, @Param("productAmount") BigDecimal productAmount);
 
     List<PurchaseOrder> selectPurchaseOrders(PurchaseOrderListRequest request);
 

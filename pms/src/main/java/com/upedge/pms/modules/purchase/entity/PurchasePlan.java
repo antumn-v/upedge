@@ -54,6 +54,8 @@ public class PurchasePlan{
 	 */
     private Integer quantity;
 
+	private Integer requireQuantity;
+
 	private BigDecimal price;
 	/**
 	 * 

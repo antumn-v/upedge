@@ -4,16 +4,24 @@ import com.upedge.common.base.BaseResponse;
 import com.upedge.common.base.Page;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.pms.modules.purchase.entity.PurchaseOrder;
+import com.upedge.pms.modules.purchase.request.PurchaseOrderEditStateUpdateRequest;
 import com.upedge.pms.modules.purchase.request.PurchaseOrderListRequest;
 import com.upedge.pms.modules.purchase.request.PurchaseOrderReceiveRequest;
 import com.upedge.pms.modules.purchase.vo.PurchaseOrderVo;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 /**
  * @author gx
  */
 public interface PurchaseOrderService{
+
+    void completeOrderInfo(Long orderId);
+
+    int updateProductAmount(Long id, BigDecimal productAmount);
+
+    BaseResponse updateEditState(PurchaseOrderEditStateUpdateRequest request,Session session);
 
     void checkOrderReceiveQuantity(Long id);
 

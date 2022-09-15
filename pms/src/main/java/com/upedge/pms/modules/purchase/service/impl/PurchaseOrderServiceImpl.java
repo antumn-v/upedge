@@ -1,10 +1,7 @@
 package com.upedge.pms.modules.purchase.service.impl;
 
 import com.alibaba.logistics.param.AlibabaLogisticsOpenPlatformLogisticsTrace;
-import com.alibaba.trade.param.AlibabaOpenplatformTradeModelNativeLogisticsInfo;
-import com.alibaba.trade.param.AlibabaOpenplatformTradeModelNativeLogisticsItemsInfo;
-import com.alibaba.trade.param.AlibabaOpenplatformTradeModelOrderBaseInfo;
-import com.alibaba.trade.param.AlibabaOpenplatformTradeModelTradeInfo;
+import com.alibaba.trade.param.*;
 import com.upedge.common.base.BaseResponse;
 import com.upedge.common.base.Page;
 import com.upedge.common.constant.ResultCode;
@@ -16,6 +13,7 @@ import com.upedge.pms.modules.purchase.dao.PurchaseOrderDao;
 import com.upedge.pms.modules.purchase.dto.PurchaseOrderItemReceiveDto;
 import com.upedge.pms.modules.purchase.dto.PurchaseOrderListDto;
 import com.upedge.pms.modules.purchase.entity.*;
+import com.upedge.pms.modules.purchase.request.PurchaseOrderEditStateUpdateRequest;
 import com.upedge.pms.modules.purchase.request.PurchaseOrderListRequest;
 import com.upedge.pms.modules.purchase.request.PurchaseOrderReceiveRequest;
 import com.upedge.pms.modules.purchase.request.VariantStockExImRecordUpdateRequest;
@@ -87,6 +85,44 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
     }
 
     @Override
+    public void completeOrderInfo(Long id) {
+        PurchaseOrder purchaseOrder = selectByPrimaryKey(id);
+        if (null == purchaseOrder) {
+            return ;
+        }
+        String purchaseId = purchaseOrder.getPurchaseId();
+        AlibabaOpenplatformTradeModelTradeInfo alibabaOpenplatformTradeModelTradeInfo = null;
+        try {
+            alibabaOpenplatformTradeModelTradeInfo = Ali1688Service.orderDetail(Long.parseLong(purchaseId), null);
+        } catch (CustomerException e) {
+            e.printStackTrace();
+            return;
+        }
+        updateBaseInfo(id,purchaseOrder.getPurchaseId(),purchaseOrder.getTrackingCode(),alibabaOpenplatformTradeModelTradeInfo);
+        completeItemPrice(id, alibabaOpenplatformTradeModelTradeInfo);
+    }
+
+    @Override
+    public int updateProductAmount(Long id, BigDecimal productAmount) {
+        return purchaseOrderDao.updateProductAmount(id, productAmount);
+    }
+
+    @Override
+    public BaseResponse updateEditState(PurchaseOrderEditStateUpdateRequest request, Session session) {
+        Long id = request.getId();
+        Integer state = request.getEditState();
+        PurchaseOrder purchaseOrder = selectByPrimaryKey(id);
+        if (purchaseOrder.getEditState() == 1){
+            return BaseResponse.failed("已提交的订单无法修改状态");
+        }
+        if (state == purchaseOrder.getEditState()){
+            return BaseResponse.success();
+        }
+        purchaseOrderDao.updateEditState(id,state);
+        return BaseResponse.success();
+    }
+
+    @Override
     public void checkOrderReceiveQuantity(Long id) {
         Integer purchaseQuantity = 0;
 
@@ -125,8 +161,8 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
     BaseResponse orderReceiveItemIm(PurchaseOrderReceiveRequest request, Session session) throws Exception {
         Long orderId = request.getOrderId();
         PurchaseOrder purchaseOrder = selectByPrimaryKey(orderId);
-        if (purchaseOrder == null) {
-            return BaseResponse.failed("订单不存在");
+        if (purchaseOrder == null || purchaseOrder.getEditState() != 1) {
+            return BaseResponse.failed("订单不存在或编辑未完成");
         }
         List<PurchaseOrderItemReceiveDto> itemReceiveDtos = request.getItemReceiveDtos();
         List<PurchaseOrderItem> purchaseOrderItems = purchaseOrderItemService.selectByOrderId(orderId);
@@ -235,6 +271,66 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
         }
         purchaseOrder.setId(id);
         updateByPrimaryKeySelective(purchaseOrder);
+
+
+
+    }
+
+    void updateBaseInfo(Long id,String purchaseId,String trackingCode,AlibabaOpenplatformTradeModelTradeInfo alibabaOpenplatformTradeModelTradeInfo) {
+
+
+        PurchaseOrder purchaseOrder = new PurchaseOrder();
+        AlibabaOpenplatformTradeModelOrderBaseInfo baseInfo = alibabaOpenplatformTradeModelTradeInfo.getBaseInfo();
+        purchaseOrder.setPurchaseStatus(baseInfo.getStatus());
+        purchaseOrder.setReceiveTime(baseInfo.getReceivingTime());
+        purchaseOrder.setDeliveredTime(baseInfo.getAllDeliveredTime());
+        purchaseOrder.setRemark(baseInfo.getRemark());
+        purchaseOrder.setProductAmount(baseInfo.getSumProductPayment());
+        purchaseOrder.setShipPrice(baseInfo.getShippingFee());
+        purchaseOrder.setDiscountAmount(new BigDecimal(baseInfo.getDiscount()));
+        purchaseOrder.setUpdateTime(new Date());
+        AlibabaOpenplatformTradeModelNativeLogisticsInfo alibabaOpenplatformTradeModelNativeLogisticsInfo = alibabaOpenplatformTradeModelTradeInfo.getNativeLogistics();
+        if (alibabaOpenplatformTradeModelNativeLogisticsInfo != null) {
+            List<AlibabaOpenplatformTradeModelNativeLogisticsItemsInfo> logisticsItemsInfos = Arrays.asList(alibabaOpenplatformTradeModelNativeLogisticsInfo.getLogisticsItems());
+            if (ListUtils.isNotEmpty(logisticsItemsInfos)) {
+                List<PurchaseOrderTracking> orderTrackingList = new ArrayList<>();
+                StringBuffer code = new StringBuffer();
+                for (int i = 0; i < logisticsItemsInfos.size(); i++) {
+                    AlibabaOpenplatformTradeModelNativeLogisticsItemsInfo logisticsItemsInfo = logisticsItemsInfos.get(i);
+
+                    if (code == null) {
+                        code = code.append(logisticsItemsInfo.getLogisticsCode());
+                    } else {
+                        code = code.append(",").append(logisticsItemsInfo.getLogisticsCode());
+                    }
+                    if (trackingCode.contains(logisticsItemsInfo.getLogisticsCode())) {
+                        continue;
+                    }
+                    PurchaseOrderTracking purchaseOrderTracking = new PurchaseOrderTracking(id, purchaseId, logisticsItemsInfo.getLogisticsCode(), logisticsItemsInfo.getLogisticsCompanyName());
+                    purchaseOrderTracking.setUpdateTime(logisticsItemsInfo.getDeliveredTime());
+                    orderTrackingList.add(purchaseOrderTracking);
+                }
+                purchaseOrder.setTrackingCode(code.toString());
+                purchaseOrderTrackingService.insertByBatch(orderTrackingList);
+            }
+
+        }
+        purchaseOrder.setId(id);
+        updateByPrimaryKeySelective(purchaseOrder);
+    }
+
+    void completeItemPrice(Long id, AlibabaOpenplatformTradeModelTradeInfo alibabaOpenplatformTradeModelTradeInfo){
+        List<AlibabaOpenplatformTradeModelProductItemInfo> productItems = Arrays.asList(alibabaOpenplatformTradeModelTradeInfo.getProductItems());
+        List<PurchaseOrderItem> purchaseOrderItems = new ArrayList<>();
+        for (AlibabaOpenplatformTradeModelProductItemInfo productItem : productItems) {
+            PurchaseOrderItem purchaseOrderItem = new PurchaseOrderItem();
+            purchaseOrderItem.setOrderId(id);
+            purchaseOrderItem.setSpecId(productItem.getSpecId());
+            purchaseOrderItem.setPrice(productItem.getPrice());
+            purchaseOrderItem.setOriginalPrice(productItem.getPrice());
+            purchaseOrderItems.add(purchaseOrderItem);
+        }
+        purchaseOrderItemService.updatePriceBySpecId(purchaseOrderItems);
     }
 
     @Override
