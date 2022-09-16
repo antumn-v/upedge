@@ -1,6 +1,7 @@
 package com.upedge.pms.modules.purchase.controller;
 
 import com.alibaba.logistics.param.AlibabaLogisticsOpenPlatformLogisticsTrace;
+import com.alibaba.trade.param.AlibabaOpenplatformTradeModelTradeInfo;
 import com.upedge.common.base.BaseResponse;
 import com.upedge.common.component.annotation.Permission;
 import com.upedge.common.constant.Constant;
@@ -43,13 +44,21 @@ public class PurchaseOrderController {
     RedisTemplate redisTemplate;
 
 
-//    @RequestMapping(value="/info/{id}", method=RequestMethod.GET)
-//    @Permission(permission = "purchase:purchaseorder:info:id")
-//    public PurchaseOrderInfoResponse info(@PathVariable Long id) {
-//        PurchaseOrder result = purchaseOrderService.selectByPrimaryKey(id);
-//        PurchaseOrderInfoResponse res = new PurchaseOrderInfoResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS,result,id);
-//        return res;
-//    }
+    @RequestMapping(value="/1688info/{id}", method=RequestMethod.GET)
+    @Permission(permission = "purchase:purchaseorder:info:id")
+    public BaseResponse info(@PathVariable Long id) {
+        PurchaseOrder purchaseOrder = purchaseOrderService.selectByPrimaryKey(id);
+        if (null == purchaseOrder || purchaseOrder.getPurchaseType() != 0){
+            return BaseResponse.failed();
+        }
+        AlibabaOpenplatformTradeModelTradeInfo alibabaOpenplatformTradeModelTradeInfo = null;
+        try {
+            alibabaOpenplatformTradeModelTradeInfo = Ali1688Service.orderDetail(Long.parseLong(purchaseOrder.getPurchaseId()), null);
+        } catch (CustomerException e) {
+            return BaseResponse.failed(e.getMessage());
+        }
+        return BaseResponse.success(alibabaOpenplatformTradeModelTradeInfo.getBaseInfo());
+    }
 
     @ApiOperation("订单列表")
     @RequestMapping(value="/list", method=RequestMethod.POST)

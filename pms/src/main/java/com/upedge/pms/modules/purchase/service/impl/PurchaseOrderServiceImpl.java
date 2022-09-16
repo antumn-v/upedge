@@ -239,7 +239,6 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
         purchaseOrder.setReceiveTime(baseInfo.getReceivingTime());
         purchaseOrder.setDeliveredTime(baseInfo.getAllDeliveredTime());
         purchaseOrder.setRemark(baseInfo.getRemark());
-        purchaseOrder.setProductAmount(baseInfo.getSumProductPayment());
         purchaseOrder.setShipPrice(baseInfo.getShippingFee());
         purchaseOrder.setDiscountAmount(new BigDecimal(baseInfo.getDiscount()));
         purchaseOrder.setUpdateTime(new Date());

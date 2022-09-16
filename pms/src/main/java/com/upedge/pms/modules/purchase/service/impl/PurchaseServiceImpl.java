@@ -150,6 +150,7 @@ public class PurchaseServiceImpl implements PurchaseService {
         //产品库存信息
         List<VariantWarehouseStock> variantWarehouseStocks = variantWarehouseStockService.selectByVariantIdsAndWarehouseCode(variantIds, warehouseCode);
 
+        List<PurchaseAdviceItemVo> removeItems = new ArrayList<>();
         //产品信息，库存信息匹配
         a:
         for (PurchaseAdviceItemVo purchaseAdviceItemVo : purchaseAdviceItemVos) {
@@ -162,6 +163,12 @@ public class PurchaseServiceImpl implements PurchaseService {
                     purchaseAdviceItemVo.setAvailableStock(variantWarehouseStock.getAvailableStock());
                     purchaseAdviceItemVo.setLockQuantity(variantWarehouseStock.getLockStock());
                     variantWarehouseStocks.remove(variantWarehouseStock);
+
+                    if (purchaseAdviceItemVo.getOrderQuantity() - purchaseAdviceItemVo.getPurchaseQuantity() - purchaseAdviceItemVo.getAvailableStock() < 1){
+                        removeItems.add(purchaseAdviceItemVo);
+                        continue a;
+                    }
+
                     break b;
                 }
             }
@@ -174,6 +181,8 @@ public class PurchaseServiceImpl implements PurchaseService {
                 }
             }
         }
+
+        purchaseAdviceItemVos.removeAll(removeItems);
 
         //采购信息匹配
         List<ProductPurchaseInfo> productPurchaseInfos = productPurchaseInfoService.selectByPurchaseSkus(purchaseSkus);
