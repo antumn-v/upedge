@@ -467,6 +467,9 @@
                 <if test="t.trackingCode != null">
                     tracking_code = #{t.trackingCode} and
                 </if>
+                <if test="t.editState != null">
+                    edit_state = #{t.editState} and
+                </if>
                 <if test="t.ids != null">
                     id in
                     <foreach collection="t.ids" item="orderId" open="(" separator="," close=")">

@@ -338,13 +338,15 @@ public class PurchaseServiceImpl implements PurchaseService {
         for (Map.Entry<String, List<AlibabaTradeFastCargo>> map : supplierCargosMap.entrySet()) {
             List<AlibabaTradeFastCargo> tradeFastCargos = map.getValue();
             AlibabaTradeFastResult alibabaTradeFastResult = null;
+            Long id = getNextPurchaseOrderId();
+            String message = "下单号： " + id;
 //            try {
-//                alibabaTradeFastResult = Ali1688Service.createOrder(tradeFastCargos, alibabaApiVo);
+//                alibabaTradeFastResult = Ali1688Service.createOrder(tradeFastCargos, alibabaApiVo,message);
 //            } catch (CustomerException e) {
 //                e.printStackTrace();
 //                continue;
 //            }
-            Long id = IdGenerate.nextId();
+
             orderIds.add(id);
             PurchaseOrder purchaseOrder = new PurchaseOrder(id, IdGenerate.generateUniqueId(),
                     BigDecimal.ZERO,
@@ -382,5 +384,17 @@ public class PurchaseServiceImpl implements PurchaseService {
         variantWarehouseStockService.updateVariantPurchaseStockByPlan(purchasePlans);
         RedisUtil.unLock(redisTemplate,key);
         return orderIds;
+    }
+
+    private Long getNextPurchaseOrderId(){
+        String key = "purchase:order:no:latest";
+        Long no = (Long) redisTemplate.opsForValue().get(key);
+        if(null == no){
+            no = 10001L;
+        }else {
+            no += 1;
+        }
+        redisTemplate.opsForValue().set(key,no);
+        return no;
     }
 }

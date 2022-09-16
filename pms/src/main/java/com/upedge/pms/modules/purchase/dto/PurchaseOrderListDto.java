@@ -33,6 +33,8 @@ public class PurchaseOrderListDto {
 
     private String barcode;
 
+    private Integer editState;
+
     private List<Long> ids;
 
 }

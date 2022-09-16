@@ -349,7 +349,7 @@
 
     <select id="selectByOrderListDto" resultMap="BaseResultMap">
         select poi.`id`,poi.`order_id`,poi.`variant_id`,poi.`product_id`,poi.`purchase_link`,poi.`variant_name`,poi.`variant_image`,poi.`variant_sku`,
-        poi.`purchase_sku`,poi.`quantity`,poi.`price`,poi.`spec_id`,poi.`receive_quantity`,pv.weigh,pv.barcode,
+        poi.`purchase_sku`,poi.`quantity`,poi.`price`,poi.`spec_id`,poi.`receive_quantity`,pv.weight,pv.barcode,
         poi.original_quantity,poi.original_price,poi.require_quantity
         from purchase_order_item poi
         left join product_variant pv
@@ -361,29 +361,23 @@
              where 1 = 1
              <trim prefix=" " suffix=" " suffixOverrides=" and ">
 
-                 <if test="orderId != null">
-                     and order_id = #{orderId} and
-                 </if>
-                 <if test="variantId != null">
-                     and variant_id = #{variantId} and
+                 <if test="id != null">
+                     and poi.order_id = #{id} and
                  </if>
                  <if test="productId != null">
-                     and product_id = #{productId} and
-                 </if>
-                 <if test="purchaseLink != null">
-                     and purchase_link = #{purchaseLink} and
+                     and pv.product_id = #{productId} and
                  </if>
                  <if test="variantName != null">
-                     and variant_name = #{variantName} and
-                 </if>
-                 <if test="variantImage != null">
-                     and variant_image = #{variantImage} and
+                     and pv.variant_name = #{variantName} and
                  </if>
                  <if test="variantSku != null">
-                     and variant_sku = #{variantSku} and
+                     and pv.variant_sku = #{variantSku} and
                  </if>
                  <if test="purchaseSku != null">
-                     and purchase_sku = #{purchaseSku} and
+                     and pv.purchase_sku = #{purchaseSku} and
+                 </if>
+                 <if test="barcode != null">
+                     and pv.barcode = #{barcode} and
                  </if>
              </trim>
      </sql>
