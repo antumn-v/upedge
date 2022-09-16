@@ -564,4 +564,60 @@
             #{sku}
         </foreach>
     </select>
+
+    <select id="all" resultMap="BaseResultMap">
+        select
+        cpq.`store_variant_id`,cpq.`customer_id`,cpq.`store_product_id`,cpq.`product_id`,cpq.`variant_id`,
+        cpq.`store_variant_name`,cpq.`store_product_title`,cpq.`store_variant_sku`,spv.image as `store_variant_image`,
+        cpq.`product_title`,cpq.`variant_name`,cpq.`variant_sku`,pv.`variant_image`,cpq.`quote_price`,cpq.`quote_apply_id`,
+        cpq.`quote_state`,cpq.`quote_scale`,cpq.`store_parent_variant_id`
+        from customer_product_quote cpq
+        left join product_variant pv
+        on pv.id = cpq.variant_id
+        left join store_product_variant spv
+        on spv.id = cpq.store_variant_id
+        <if test="t != null">
+            where 1 =1
+            <if test="t.storeVariantName != null">
+                and cpq.store_variant_name = #{t.storeVariantName}
+            </if>
+            <if test="t.customerId != null">
+                and cpq.customer_id = #{t.customerId}
+            </if>
+            <if test="t.storeVariantSku != null">
+                and cpq.store_variant_sku like concat(#{t.storeVariantSku},'%')
+            </if>
+            <if test="t.storeProductId != null">
+                and cpq.store_product_id = #{t.storeProductId}
+            </if>
+        </if>
+        order by update_time desc
+        <if test="pageNum != null and pageSize != null">
+            limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+        </if>
+    </select>
+
+    <select id="countAllQuoteProduct" resultType="java.lang.Long">
+        select count(1)
+        from customer_product_quote cpq
+        left join product_variant pv
+        on pv.id = cpq.variant_id
+        left join store_product_variant spv
+        on spv.id = cpq.store_variant_id
+        <if test="t != null">
+            where 1 =1
+            <if test="t.storeVariantName != null">
+                and cpq.store_variant_name = #{t.storeVariantName}
+            </if>
+            <if test="t.customerId != null">
+                and cpq.customer_id = #{t.customerId}
+            </if>
+            <if test="t.storeVariantSku != null">
+                and cpq.store_variant_sku like concat(#{t.storeVariantSku},'%')
+            </if>
+            <if test="t.storeProductId != null">
+                and cpq.store_product_id = #{t.storeProductId}
+            </if>
+        </if>
+    </select>
 </mapper>

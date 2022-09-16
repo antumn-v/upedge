@@ -9,6 +9,7 @@ import com.upedge.common.model.pms.request.QuotedProductSelectBySkuRequest;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.pms.modules.product.entity.StoreProductVariant;
 import com.upedge.pms.modules.quote.entity.CustomerProductQuote;
+import com.upedge.pms.modules.quote.request.AllCustomerQuoteProductSearchRequest;
 import com.upedge.pms.modules.quote.request.CustomerProductQuoteUpdateRequest;
 
 import java.util.List;
@@ -44,6 +45,10 @@ public interface CustomerProductQuoteService{
     int insertSelective(CustomerProductQuote record);
 
     List<CustomerProductQuote> select(Page<CustomerProductQuote> record);
+
+    List<CustomerProductQuote> all(AllCustomerQuoteProductSearchRequest request);
+
+    long countAllQuoteProduct(AllCustomerQuoteProductSearchRequest request);
 
     long count(Page<CustomerProductQuote> record);
 

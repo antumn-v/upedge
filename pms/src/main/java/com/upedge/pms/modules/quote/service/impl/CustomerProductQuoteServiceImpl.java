@@ -21,6 +21,7 @@ import com.upedge.pms.modules.product.service.StoreProductVariantService;
 import com.upedge.pms.modules.quote.dao.CustomerProductQuoteDao;
 import com.upedge.pms.modules.quote.entity.CustomerProductQuote;
 import com.upedge.pms.modules.quote.entity.ProductQuoteRecord;
+import com.upedge.pms.modules.quote.request.AllCustomerQuoteProductSearchRequest;
 import com.upedge.pms.modules.quote.request.CustomerProductQuoteUpdateRequest;
 import com.upedge.pms.modules.quote.service.CustomerProductQuoteService;
 import com.upedge.pms.modules.quote.service.ProductQuoteRecordService;
@@ -345,6 +346,16 @@ public class CustomerProductQuoteServiceImpl implements CustomerProductQuoteServ
     public List<CustomerProductQuote> select(Page<CustomerProductQuote> record) {
         record.initFromNum();
         return customerProductQuoteDao.select(record);
+    }
+
+    @Override
+    public List<CustomerProductQuote> all(AllCustomerQuoteProductSearchRequest request) {
+        return customerProductQuoteDao.all(request);
+    }
+
+    @Override
+    public long countAllQuoteProduct(AllCustomerQuoteProductSearchRequest request) {
+        return customerProductQuoteDao.countAllQuoteProduct(request);
     }
 
     /**

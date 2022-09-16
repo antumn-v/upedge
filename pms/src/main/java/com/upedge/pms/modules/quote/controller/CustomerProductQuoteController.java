@@ -17,6 +17,7 @@ import com.upedge.common.web.util.UserUtil;
 import com.upedge.pms.modules.product.entity.ProductVariant;
 import com.upedge.pms.modules.product.service.ProductVariantService;
 import com.upedge.pms.modules.quote.entity.CustomerProductQuote;
+import com.upedge.pms.modules.quote.request.AllCustomerQuoteProductSearchRequest;
 import com.upedge.pms.modules.quote.request.CustomerProductQuoteListRequest;
 import com.upedge.pms.modules.quote.request.CustomerProductQuoteUpdateRequest;
 import com.upedge.pms.modules.quote.request.QuoteProductImportCartRequest;
@@ -77,9 +78,9 @@ public class CustomerProductQuoteController {
 
     @ApiOperation("所有已报价产品")
     @PostMapping("/all")
-    public BaseResponse allProductQuote(@RequestBody CustomerProductQuoteListRequest request){
-        List<CustomerProductQuote> customerProductQuotes = customerProductQuoteService.select(request);
-        Long total = customerProductQuoteService.count(request);
+    public BaseResponse allProductQuote(@RequestBody AllCustomerQuoteProductSearchRequest request){
+        List<CustomerProductQuote> customerProductQuotes = customerProductQuoteService.all(request);
+        long total = customerProductQuoteService.countAllQuoteProduct(request);
         request.setTotal(total);
         return BaseResponse.success(customerProductQuotes,request);
     }

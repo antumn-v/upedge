@@ -5,6 +5,7 @@ import com.upedge.common.model.pms.quote.CustomerProductQuoteVo;
 import com.upedge.common.model.pms.request.CustomerProductQuoteSearchRequest;
 import com.upedge.pms.modules.product.entity.StoreProductVariant;
 import com.upedge.pms.modules.quote.entity.CustomerProductQuote;
+import com.upedge.pms.modules.quote.request.AllCustomerQuoteProductSearchRequest;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
@@ -40,6 +41,10 @@ public interface CustomerProductQuoteDao {
     int insertByBatch(List<CustomerProductQuote> list);
 
     List<CustomerProductQuote> select(Page<CustomerProductQuote> record);
+
+    List<CustomerProductQuote> all(AllCustomerQuoteProductSearchRequest request);
+
+    long countAllQuoteProduct(AllCustomerQuoteProductSearchRequest request);
 
     long count(Page<CustomerProductQuote> record);
 
