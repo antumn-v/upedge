@@ -55,6 +55,7 @@ import com.upedge.thirdparty.shipcompany.yunexpress.request.WayBillCreateRequest
 import com.upedge.thirdparty.shipcompany.yunexpress.response.WayBillCreateResponse;
 import com.upedge.thirdparty.shipcompany.yunexpress.vo.WayBillItemVo;
 import io.seata.spring.annotation.GlobalTransactional;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.rocketmq.client.producer.DefaultMQProducer;
 import org.apache.rocketmq.common.message.Message;
@@ -65,7 +66,9 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.File;
 import java.math.BigDecimal;
+import java.net.URL;
 import java.util.*;
 
 @Service
@@ -112,7 +115,7 @@ public class OrderPackageServiceImpl implements OrderPackageService {
     @Override
     public List<OrderPackage> selectByOrderIds(List<Long> orderIds) {
 
-        if (ListUtils.isEmpty(orderIds)){
+        if (ListUtils.isEmpty(orderIds)) {
             return new ArrayList<>();
         }
         return orderPackageDao.selectByOrderIds(orderIds);
@@ -120,12 +123,12 @@ public class OrderPackageServiceImpl implements OrderPackageService {
 
     @Override
     public void packageRefreshTrackCode(OrderPackage orderPackage) {
-        if (StringUtils.isNotBlank(orderPackage.getTrackingCode())){
+        if (StringUtils.isNotBlank(orderPackage.getTrackingCode())) {
             return;
         }
         Long packNo = orderPackage.getId();
         String trackCode = null;
-        switch (orderPackage.getTrackingCompany()){
+        switch (orderPackage.getTrackingCompany()) {
             case "CNE":
                 trackCode = CneApi.getTrackNumber(orderPackage.getLogisticsOrderNo());
                 break;
@@ -146,15 +149,15 @@ public class OrderPackageServiceImpl implements OrderPackageService {
             default:
                 break;
         }
-        if (StringUtils.isNotBlank(trackCode)){
+        if (StringUtils.isNotBlank(trackCode)) {
             orderPackage = new OrderPackage();
             orderPackage.setId(packNo);
             orderPackage.setTrackingCode(trackCode);
             updateByPrimaryKeySelective(orderPackage);
         }
-        if (!orderPackage.getIsUploadStore()){
+        if (!orderPackage.getIsUploadStore()) {
             try {
-                packageExStock(packNo,null);
+                packageExStock(packNo, null);
             } catch (CustomerException e) {
                 e.printStackTrace();
             }
@@ -165,29 +168,29 @@ public class OrderPackageServiceImpl implements OrderPackageService {
     @Override
     public BaseResponse packageExStock(Long packNo, Session session) throws CustomerException {
         String key = "order:package:ex:" + packNo;
-        boolean b = RedisUtil.lock(redisTemplate,key,10L,60 * 1000L);
-        if (!b){
+        boolean b = RedisUtil.lock(redisTemplate, key, 10L, 60 * 1000L);
+        if (!b) {
             return BaseResponse.failed();
         }
         OrderPackage orderPackage = selectByPrimaryKey(packNo);
-        if (orderPackage.getPackageState() != 0){
-            RedisUtil.unLock(redisTemplate,key);
+        if (orderPackage.getPackageState() != 0) {
+            RedisUtil.unLock(redisTemplate, key);
             return BaseResponse.failed("包裹已出库或已搁置");
         }
         Long orderId = orderPackage.getOrderId();
-        OrderItemQuantityVo orderItemQuantityVo=  orderService.selectOrderItemQuantitiesByOrderId(orderId);
-        if (null == orderItemQuantityVo){
-            RedisUtil.unLock(redisTemplate,key);
+        OrderItemQuantityVo orderItemQuantityVo = orderService.selectOrderItemQuantitiesByOrderId(orderId);
+        if (null == orderItemQuantityVo) {
+            RedisUtil.unLock(redisTemplate, key);
             return BaseResponse.failed("订单异常");
         }
 
         BaseResponse response = pmsFeignClient.packageEx(orderItemQuantityVo);
-        if (response.getCode() != ResultCode.SUCCESS_CODE){
-            RedisUtil.unLock(redisTemplate,key);
+        if (response.getCode() != ResultCode.SUCCESS_CODE) {
+            RedisUtil.unLock(redisTemplate, key);
             return response;
         }
         OrderPackageInfoVo orderPackageInfoVo = new OrderPackageInfoVo();
-        BeanUtils.copyProperties(orderPackage,orderPackageInfoVo);
+        BeanUtils.copyProperties(orderPackage, orderPackageInfoVo);
 
         orderPackage = new OrderPackage();
         orderPackage.setId(packNo);
@@ -199,7 +202,7 @@ public class OrderPackageServiceImpl implements OrderPackageService {
         orderPackageInfoVo.setOrderVo(appOrderVo);
         orderPackageInfoVo.setPackageState(1);
         orderPackageInfoVo.setSendTime(new Date());
-        RedisUtil.unLock(redisTemplate,key);
+        RedisUtil.unLock(redisTemplate, key);
         sendPackageFulfillmentMessage(packNo);
         return BaseResponse.success(orderPackageInfoVo);
     }
@@ -208,11 +211,11 @@ public class OrderPackageServiceImpl implements OrderPackageService {
     @Override
     public BaseResponse orderRevokePackage(OrderPackRevokeRequest request, Session session) {
         OrderPackage orderPackage = selectByPrimaryKey(request.getPackNo(), request.getOrderId(), request.getTrackingCode());
-        if (null == orderPackage){
+        if (null == orderPackage) {
             return BaseResponse.failed();
         }
         String result = "";
-        switch (orderPackage.getTrackingCompany()){
+        switch (orderPackage.getTrackingCompany()) {
             case "4PX":
                 result = FpxOrderApi.cancelPack(orderPackage.getOrderId());
                 break;
@@ -222,19 +225,19 @@ public class OrderPackageServiceImpl implements OrderPackageService {
             default:
                 break;
         }
-        if (!result.equals("success")){
+        if (!result.equals("success")) {
             return BaseResponse.failed(result);
         }
         String reason = request.getReason();
-        if (StringUtils.isNotBlank(reason)){
-            if (StringUtils.isNotBlank(orderPackage.getRemark())){
+        if (StringUtils.isNotBlank(reason)) {
+            if (StringUtils.isNotBlank(orderPackage.getRemark())) {
                 reason = orderPackage.getRemark() + "," + reason;
             }
         }
 
-        orderService.updateOrderPackInfo(orderPackage.getOrderId(),-1, orderPackage.getPackageNo());
+        orderService.updateOrderPackInfo(orderPackage.getOrderId(), -1, orderPackage.getPackageNo());
 
-        orderPackageDao.revokePackageById(orderPackage.getId(),reason);
+        orderPackageDao.revokePackageById(orderPackage.getId(), reason);
         return BaseResponse.success();
     }
 
@@ -247,64 +250,68 @@ public class OrderPackageServiceImpl implements OrderPackageService {
     public BaseResponse printPackLabel(OrderPackageGetLabelRequest request, Session session) {
         String labelUrl = "";
         OrderPackage orderPackage = selectByPrimaryKey(request.getPackNo());
-        if (null == orderPackage){
+        if (null == orderPackage) {
             return BaseResponse.failed("包裹不存在");
         }
-        Map<String,String> map = new HashMap<>();
-        map.put("company",orderPackage.getTrackingCompany());
+        Map<String, String> map = new HashMap<>();
+        map.put("company", orderPackage.getTrackingCompany());
         OrderLabelPrintLog orderLabelPrintLog = orderLabelPrintLogService.selectTheLatestPackLabel(request.getPackNo());
-        if (null != orderLabelPrintLog){
-            map.put("labelUrl",orderLabelPrintLog.getLabelUrl());
+        if (null != orderLabelPrintLog) {
+            map.put("labelUrl", orderLabelPrintLog.getLabelUrl());
             return BaseResponse.success(map);
         }
+        String fileName = orderPackage.getPackageNo() + ".pdf";
         try {
-            switch (orderPackage.getTrackingCompany()){
+            switch (orderPackage.getTrackingCompany()) {
                 case "4PX":
                     labelUrl = FpxOrderApi.getSinglePackageLabel(orderPackage.getLogisticsOrderNo());
+                    labelUrl = uploadPackageLabelPdf(labelUrl, orderPackage.getPackageNo());
                     break;
                 case "YunExpress":
                     labelUrl = YunexpressApi.getSinglePackageLabel(orderPackage.getPlatId());
+                    labelUrl = uploadPackageLabelPdf(labelUrl, orderPackage.getPackageNo());
                     break;
                 case "CNE":
                     labelUrl = CneApi.getLabel(orderPackage.getLogisticsOrderNo());
+                    labelUrl = uploadPackageLabelPdf(labelUrl, orderPackage.getPackageNo());
                     break;
                 case "Yanwen":
-                    labelUrl = YanwenApi.getTrackLabel(orderPackage.getLogisticsOrderNo(),pdfLocalPath);
-                    if (StringUtils.isNotBlank(labelUrl)){
+                    labelUrl = YanwenApi.getTrackLabel(orderPackage.getLogisticsOrderNo(), pdfLocalPath);
+                    if (StringUtils.isNotBlank(labelUrl)) {
                         labelUrl = pdfUrlPrefix + labelUrl;
                     }
                     break;
             }
-        }catch (Exception e){
+        } catch (Exception e) {
             return BaseResponse.failed(e.getMessage());
         }
 
-        map.put("labelUrl",labelUrl);
+        map.put("labelUrl", labelUrl);
+        if (StringUtils.isNotBlank(labelUrl)){
+            orderLabelPrintLog = new OrderLabelPrintLog();
+            orderLabelPrintLog.setOrderId(orderPackage.getOrderId());
+            orderLabelPrintLog.setLabelUrl(labelUrl);
+            orderLabelPrintLog.setCreateTime(new Date());
+            orderLabelPrintLog.setPackNo(orderPackage.getPackageNo());
+            orderLabelPrintLog.setOperatorId(session.getId());
+            orderLabelPrintLogService.insert(orderLabelPrintLog);
 
-        orderLabelPrintLog = new OrderLabelPrintLog();
-        orderLabelPrintLog.setOrderId(orderPackage.getOrderId());
-        orderLabelPrintLog.setLabelUrl(labelUrl);
-        orderLabelPrintLog.setCreateTime(new Date());
-        orderLabelPrintLog.setPackNo(orderPackage.getPackageNo());
-        orderLabelPrintLog.setOperatorId(session.getId());
-        orderLabelPrintLogService.insert(orderLabelPrintLog);
-
-        Order order = new Order();
-        order.setId(orderPackage.getOrderId());
-        order.setIsPrintLabel(true);
-        orderService.updateByPrimaryKeySelective(order);
-
+            Order order = new Order();
+            order.setId(orderPackage.getOrderId());
+            order.setIsPrintLabel(true);
+            orderService.updateByPrimaryKeySelective(order);
+        }
         return BaseResponse.success(map);
     }
 
     @Override
     public OrderPackageInfoVo packageInfo(OrderPackageInfoGetRequest request) {
         OrderPackage orderPackage = selectByPrimaryKey(request.getPackNo(), request.getOrderId(), request.getTrackingCode());
-        if (null == orderPackage){
+        if (null == orderPackage) {
             return null;
         }
         OrderPackageInfoVo orderPackageInfoVo = new OrderPackageInfoVo();
-        BeanUtils.copyProperties(orderPackage,orderPackageInfoVo);
+        BeanUtils.copyProperties(orderPackage, orderPackageInfoVo);
         AppOrderVo appOrderVo = orderService.appOrderDetail(orderPackage.getOrderId());
         orderPackageInfoVo.setOrderVo(appOrderVo);
         return orderPackageInfoVo;
@@ -315,32 +322,37 @@ public class OrderPackageServiceImpl implements OrderPackageService {
         Order order = orderService.selectByPrimaryKey(orderId);
 
         if (order.getPayState() != 1
-        || order.getPackState() == 1
-        || order.getRefundState() != 0){
+                || order.getPackState() == 1
+                || order.getRefundState() != 0) {
             return BaseResponse.failed("订单未支付或已生成包裹或退款中");
         }
 
-        ShippingMethodRedis shippingMethodRedis = (ShippingMethodRedis) redisTemplate.opsForHash().get(RedisKey.SHIPPING_METHOD,order.getShipMethodId().toString());
+        OrderPackage orderPackage = orderPackageDao.selectByOrderId(orderId);
+        if (orderPackage.getPackageState() != null){
+            return BaseResponse.failed("订单已生成包裹");
+        }
+
+        ShippingMethodRedis shippingMethodRedis = (ShippingMethodRedis) redisTemplate.opsForHash().get(RedisKey.SHIPPING_METHOD, order.getShipMethodId().toString());
         String shipCompany = shippingMethodRedis.getTrackingCompany();
-        if (StringUtils.isBlank(shipCompany) || StringUtils.isBlank(shippingMethodRedis.getMethodCode())){
+        if (StringUtils.isBlank(shipCompany) || StringUtils.isBlank(shippingMethodRedis.getMethodCode())) {
             return BaseResponse.failed("请完善运输方式公司信息");
         }
 
-        switch (shipCompany){
+        switch (shipCompany) {
             case "4PX":
-                 return createFpxPackage(order,shippingMethodRedis);
+                return createFpxPackage(order, shippingMethodRedis);
             case "YunExpress":
-                 return createYunExpressPackage(order,shippingMethodRedis);
+                return createYunExpressPackage(order, shippingMethodRedis);
             case "CNE":
-                return createCnePackage(order,shippingMethodRedis);
+                return createCnePackage(order, shippingMethodRedis);
             case "Yanwen":
-                return createYanwenPackage(order,shippingMethodRedis);
+                return createYanwenPackage(order, shippingMethodRedis);
             default:
                 return BaseResponse.failed("物流公司未对接");
         }
     }
 
-    public BaseResponse createYanwenPackage(Order order,ShippingMethodRedis shippingMethodRedis){
+    public BaseResponse createYanwenPackage(Order order, ShippingMethodRedis shippingMethodRedis) {
         Long orderId = order.getId();
 
         YanwenExpressDto yanwenExpressDto = new YanwenExpressDto();
@@ -359,14 +371,14 @@ public class OrderPackageServiceImpl implements OrderPackageService {
         receiverDTO.setPhone(orderAddress.getPhone());
         receiverDTO.setCity(orderAddress.getCity());
 
-        int i= 0;
+        int i = 0;
         YanwenExpressDto.YanwenGoodsNameDTO goodsName = new YanwenExpressDto.YanwenGoodsNameDTO();
         for (OrderItem orderItem : orderItems) {
-            String entryCName = getProductEntryName(orderItem.getAdminProductId(),"cn");
-            String entryEName = getProductEntryName(orderItem.getAdminProductId(),"en");
-            if (StringUtils.isBlank(entryCName) || StringUtils.isBlank(entryEName)){
-                orderService.updateOrderPackInfo(orderId,2,null);
-                redisTemplate.opsForHash().put(RedisKey.HASH_ORDER_CREATE_PACKAGE_FAILED_REASON,orderId.toString(),"产品缺少报关信息");
+            String entryCName = getProductEntryName(orderItem.getAdminProductId(), "cn");
+            String entryEName = getProductEntryName(orderItem.getAdminProductId(), "en");
+            if (StringUtils.isBlank(entryCName) || StringUtils.isBlank(entryEName)) {
+                orderService.updateOrderPackInfo(orderId, 2, null);
+                redisTemplate.opsForHash().put(RedisKey.HASH_ORDER_CREATE_PACKAGE_FAILED_REASON, orderId.toString(), "产品缺少报关信息");
                 return BaseResponse.failed("产品缺少报关信息");
             }
             goodsName.setNameCh(entryCName);
@@ -388,17 +400,17 @@ public class OrderPackageServiceImpl implements OrderPackageService {
         try {
             createdExpressDTO = YanwenApi.createExpress(yanwenExpressDto);
         } catch (CustomerException e) {
-            orderService.updateOrderPackInfo(orderId,2,null);
-            redisTemplate.opsForHash().put(RedisKey.HASH_ORDER_CREATE_PACKAGE_FAILED_REASON,orderId.toString(),e.getMessage());
+            orderService.updateOrderPackInfo(orderId, 2, null);
+            redisTemplate.opsForHash().put(RedisKey.HASH_ORDER_CREATE_PACKAGE_FAILED_REASON, orderId.toString(), e.getMessage());
             return BaseResponse.failed(e.getMessage());
         }
 
-        OrderPackage orderPackage = savePackage(order,shippingMethodRedis,createdExpressDTO.getEpcode(),createdExpressDTO.getReferenceNo(),createdExpressDTO.getEpcode());
+        OrderPackage orderPackage = savePackage(order, shippingMethodRedis, createdExpressDTO.getEpcode(), createdExpressDTO.getReferenceNo(), createdExpressDTO.getEpcode());
 
         return BaseResponse.success(orderPackage);
     }
 
-    public BaseResponse createCnePackage(Order order,ShippingMethodRedis shippingMethodRedis){
+    public BaseResponse createCnePackage(Order order, ShippingMethodRedis shippingMethodRedis) {
         Long orderId = order.getId();
         OrderAddress orderAddress = orderService.getOrderAddress(orderId);
 
@@ -422,11 +434,11 @@ public class OrderPackageServiceImpl implements OrderPackageService {
         List<OrderItem> orderItems = orderItemService.selectByOrderId(orderId);
         List<CneCreateOrderRequest.RecListDTO.CneGoodsListDTO> cneGoodsListDTOS = new ArrayList<>();
         for (OrderItem orderItem : orderItems) {
-            String entryCName = getProductEntryName(orderItem.getAdminProductId(),"cn");
-            String entryEName = getProductEntryName(orderItem.getAdminProductId(),"en");
-            if (StringUtils.isBlank(entryCName) || StringUtils.isBlank(entryEName)){
-                orderService.updateOrderPackInfo(orderId,2,null);
-                redisTemplate.opsForHash().put(RedisKey.HASH_ORDER_CREATE_PACKAGE_FAILED_REASON,orderId.toString(),"产品缺少报关信息");
+            String entryCName = getProductEntryName(orderItem.getAdminProductId(), "cn");
+            String entryEName = getProductEntryName(orderItem.getAdminProductId(), "en");
+            if (StringUtils.isBlank(entryCName) || StringUtils.isBlank(entryEName)) {
+                orderService.updateOrderPackInfo(orderId, 2, null);
+                redisTemplate.opsForHash().put(RedisKey.HASH_ORDER_CREATE_PACKAGE_FAILED_REASON, orderId.toString(), "产品缺少报关信息");
                 return BaseResponse.failed("产品缺少报关信息");
             }
             CneCreateOrderRequest.RecListDTO.CneGoodsListDTO cneGoodsListDTO = new CneCreateOrderRequest.RecListDTO.CneGoodsListDTO();
@@ -442,39 +454,45 @@ public class OrderPackageServiceImpl implements OrderPackageService {
         try {
             cneOrderDto = CneApi.createCneOrder(request);
         } catch (Exception e) {
-            orderService.updateOrderPackInfo(orderId,2,null);
-            redisTemplate.opsForHash().put(RedisKey.HASH_ORDER_CREATE_PACKAGE_FAILED_REASON,orderId.toString(),e.getMessage());
+            orderService.updateOrderPackInfo(orderId, 2, null);
+            redisTemplate.opsForHash().put(RedisKey.HASH_ORDER_CREATE_PACKAGE_FAILED_REASON, orderId.toString(), e.getMessage());
             return BaseResponse.failed(e.getMessage());
         }
 
-        OrderPackage orderPackage = savePackage(order,shippingMethodRedis,cneOrderDto.getCPNo(),cneOrderDto.getCNo(),cneOrderDto.getIID());
+        OrderPackage orderPackage = savePackage(order, shippingMethodRedis, cneOrderDto.getCPNo(), cneOrderDto.getCNo(), cneOrderDto.getIID());
         return BaseResponse.success(orderPackage);
 
     }
 
-    private BaseResponse createFpxPackage(Order order,ShippingMethodRedis shippingMethodRedis){
+    private BaseResponse createFpxPackage(Order order, ShippingMethodRedis shippingMethodRedis) {
         Long orderId = order.getId();
         FpxCreateOrderSuccessVo.FpxCreateOrderDataDTO fpxCreateOrderDataDTO = null;
         try {
             fpxCreateOrderDataDTO = createFpxPackage(order);
         } catch (Exception e) {
-            orderService.updateOrderPackInfo(orderId,2,null);
-            redisTemplate.opsForHash().put(RedisKey.HASH_ORDER_CREATE_PACKAGE_FAILED_REASON,orderId.toString(),e.getMessage());
+            orderService.updateOrderPackInfo(orderId, 2, null);
+            redisTemplate.opsForHash().put(RedisKey.HASH_ORDER_CREATE_PACKAGE_FAILED_REASON, orderId.toString(), e.getMessage());
             return BaseResponse.failed(e.getMessage());
         }
 
 
-        OrderPackage orderPackage = savePackage(order,shippingMethodRedis,fpxCreateOrderDataDTO.getLogisticsChannelNo(),fpxCreateOrderDataDTO.getFpxTrackingNo(),fpxCreateOrderDataDTO.getLabelBarcode());
+        OrderPackage orderPackage = savePackage(order, shippingMethodRedis, fpxCreateOrderDataDTO.getLogisticsChannelNo(), fpxCreateOrderDataDTO.getFpxTrackingNo(), fpxCreateOrderDataDTO.getLabelBarcode());
         return BaseResponse.success(orderPackage);
     }
 
-    private BaseResponse createYunExpressPackage(Order order,ShippingMethodRedis shippingMethodRedis){
+    private BaseResponse createYunExpressPackage(Order order, ShippingMethodRedis shippingMethodRedis) {
         Long orderId = order.getId();
         WayBillCreateDto wayBillCreateDto = new WayBillCreateDto();
         WayBillCreateDto.ReceiverDTO receiverDTO = new WayBillCreateDto.ReceiverDTO();
         List<WayBillCreateDto.ParcelsDTO> parcels = new ArrayList<>();
         List<WayBillCreateDto.OrderExtraDTO> orderExtraDTOs = new ArrayList<>();
         List<WayBillCreateDto.ChildOrdersDTO> childOrdersDTOS = new ArrayList<>();
+
+        CustomerIossVo customerIossVo = null;
+        String key = RedisKey.STRING_CUSTOMER_IOSS + order.getCustomerId();
+        if (redisTemplate.hasKey(key)) {
+            customerIossVo = (CustomerIossVo) redisTemplate.opsForValue().get(key);
+        }
 
         List<WayBillCreateDto.ChildOrdersDTO.ChildDetailsDTO> childDetailsDTOS = new ArrayList<>();
 
@@ -492,11 +510,11 @@ public class OrderPackageServiceImpl implements OrderPackageService {
         receiverDTO.setCity(orderAddress.getCity());
 
         for (OrderItem orderItem : orderItems) {
-            String entryCName = getProductEntryName(orderItem.getAdminProductId(),"cn");
-            String entryEName = getProductEntryName(orderItem.getAdminProductId(),"en");
-            if (StringUtils.isBlank(entryCName) || StringUtils.isBlank(entryEName)){
-                orderService.updateOrderPackInfo(orderId,2,null);
-                redisTemplate.opsForHash().put(RedisKey.HASH_ORDER_CREATE_PACKAGE_FAILED_REASON,orderId.toString(),"产品缺少报关信息");
+            String entryCName = getProductEntryName(orderItem.getAdminProductId(), "cn");
+            String entryEName = getProductEntryName(orderItem.getAdminProductId(), "en");
+            if (StringUtils.isBlank(entryCName) || StringUtils.isBlank(entryEName)) {
+                orderService.updateOrderPackInfo(orderId, 2, null);
+                redisTemplate.opsForHash().put(RedisKey.HASH_ORDER_CREATE_PACKAGE_FAILED_REASON, orderId.toString(), "产品缺少报关信息");
                 return BaseResponse.failed("产品缺少报关信息");
             }
             WayBillCreateDto.ChildOrdersDTO.ChildDetailsDTO childDetailsDTO = new WayBillCreateDto.ChildOrdersDTO.ChildDetailsDTO();
@@ -510,7 +528,7 @@ public class OrderPackageServiceImpl implements OrderPackageService {
             parcelsDTO.setSKU(orderItem.getAdminVariantSku());
             parcelsDTO.setQuantity(orderItem.getQuantity());
             parcelsDTO.setUnitPrice(orderItem.getUsdPrice());
-            parcelsDTO.setUnitWeight(orderItem.getAdminVariantWeight().divide(new BigDecimal("1000"),2,BigDecimal.ROUND_UP));
+            parcelsDTO.setUnitWeight(orderItem.getAdminVariantWeight().divide(new BigDecimal("1000"), 2, BigDecimal.ROUND_UP));
             parcels.add(parcelsDTO);
         }
 
@@ -529,8 +547,10 @@ public class OrderPackageServiceImpl implements OrderPackageService {
         wayBillCreateDto.setCustomerOrderNumber(orderId.toString());
         wayBillCreateDto.setShippingMethodCode(shippingMethodRedis.getMethodCode());
         wayBillCreateDto.setPackageCount(1);
-        wayBillCreateDto.setWeight(order.getTotalWeight().divide(new BigDecimal("1000"),2,BigDecimal.ROUND_UP));
-        wayBillCreateDto.setIossCode((String) redisTemplate.opsForValue().get(RedisKey.STRING_CUSTOMER_IOSS + order.getCustomerId()));
+        wayBillCreateDto.setWeight(order.getTotalWeight().divide(new BigDecimal("1000"), 2, BigDecimal.ROUND_UP));
+        if (customerIossVo != null){
+            wayBillCreateDto.setIossCode(customerIossVo.getIossNum());
+        }
         wayBillCreateDto.setReturnOption(0);
         wayBillCreateDto.setTariffPrepay(0);
         wayBillCreateDto.setInsuranceOption(0);
@@ -549,39 +569,43 @@ public class OrderPackageServiceImpl implements OrderPackageService {
             wayBillCreateResponse = YunexpressApi.createWayBill(wayBillCreateRequest);
             wayBillItemVo = wayBillCreateResponse.getItemVos().get(0);
 
-            if (wayBillItemVo.getSuccess() != 1){
-                orderService.updateOrderPackInfo(orderId,2,null);
-                redisTemplate.opsForHash().put(RedisKey.HASH_ORDER_CREATE_PACKAGE_FAILED_REASON,orderId.toString(),wayBillItemVo.getRemark());
+            if (wayBillItemVo.getSuccess() != 1) {
+                orderService.updateOrderPackInfo(orderId, 2, null);
+                redisTemplate.opsForHash().put(RedisKey.HASH_ORDER_CREATE_PACKAGE_FAILED_REASON, orderId.toString(), wayBillItemVo.getRemark());
                 return BaseResponse.failed(wayBillCreateResponse.getMessage());
             }
         } catch (Exception e) {
-            orderService.updateOrderPackInfo(orderId,2,null);
-            redisTemplate.opsForHash().put(RedisKey.HASH_ORDER_CREATE_PACKAGE_FAILED_REASON,orderId.toString(),e.getMessage());
+            orderService.updateOrderPackInfo(orderId, 2, null);
+            redisTemplate.opsForHash().put(RedisKey.HASH_ORDER_CREATE_PACKAGE_FAILED_REASON, orderId.toString(), e.getMessage());
             return BaseResponse.failed(e.getMessage());
         }
 
-        OrderPackage orderPackage = savePackage(order,shippingMethodRedis,wayBillItemVo.getWayBillNumber(),wayBillItemVo.getTrackingNumber(),wayBillItemVo.getWayBillNumber());
+        OrderPackage orderPackage = savePackage(order, shippingMethodRedis, wayBillItemVo.getWayBillNumber(), wayBillItemVo.getTrackingNumber(), wayBillItemVo.getWayBillNumber());
 
         return BaseResponse.success(orderPackage);
     }
 
     public FpxCreateOrderSuccessVo.FpxCreateOrderDataDTO createFpxPackage(Order order) throws CustomerException {
-       Long orderId = order.getId();
+        Long orderId = order.getId();
 
         List<OrderItem> orderItems = orderItemService.selectByOrderId(orderId);
 
-        UserVo userVo = (UserVo) redisTemplate.opsForHash().get(RedisKey.STRING_CUSTOMER_INFO,order.getCustomerId().toString());
+        UserVo userVo = (UserVo) redisTemplate.opsForHash().get(RedisKey.STRING_CUSTOMER_INFO, order.getCustomerId().toString());
 
-        CustomerIossVo customerIossVo = (CustomerIossVo) redisTemplate.opsForValue().get(RedisKey.STRING_CUSTOMER_IOSS + order.getCustomerId());
+        CustomerIossVo customerIossVo = null;
+        String key = RedisKey.STRING_CUSTOMER_IOSS + order.getCustomerId();
+        if (redisTemplate.hasKey(key)) {
+            customerIossVo = (CustomerIossVo) redisTemplate.opsForValue().get(key);
+        }
 
-        ShippingMethodRedis shippingMethodRedis = (ShippingMethodRedis) redisTemplate.opsForHash().get(RedisKey.SHIPPING_METHOD,order.getShipMethodId().toString());
+        ShippingMethodRedis shippingMethodRedis = (ShippingMethodRedis) redisTemplate.opsForHash().get(RedisKey.SHIPPING_METHOD, order.getShipMethodId().toString());
 
         OrderAddress orderAddress = orderService.getOrderAddress(orderId);
 
         FpxOrderCreateDto fpxOrderCreateDto = new FpxOrderCreateDto();
         fpxOrderCreateDto.setRefNo(order.getId().toString());
         fpxOrderCreateDto.setBuyerId(userVo.getUsername());
-        if (customerIossVo != null){
+        if (customerIossVo != null) {
             fpxOrderCreateDto.setVatNo(customerIossVo.getIossNum());
         }
 
@@ -589,9 +613,9 @@ public class OrderPackageServiceImpl implements OrderPackageService {
 
         List<ParcelListDTO.DeclareProductInfoDTO> declareProductInfoDTOS = new ArrayList<>();
         for (OrderItem orderItem : orderItems) {
-            String entryCName = getProductEntryName(orderItem.getAdminProductId(),"cn");
-            String entryEName = getProductEntryName(orderItem.getAdminProductId(),"en");
-            if (StringUtils.isBlank(entryCName) || StringUtils.isBlank(entryEName)){
+            String entryCName = getProductEntryName(orderItem.getAdminProductId(), "cn");
+            String entryEName = getProductEntryName(orderItem.getAdminProductId(), "en");
+            if (StringUtils.isBlank(entryCName) || StringUtils.isBlank(entryEName)) {
                 throw new CustomerException("产品缺少报关信息");
             }
             ParcelListDTO.DeclareProductInfoDTO declareProductInfoDTO = new ParcelListDTO.DeclareProductInfoDTO();
@@ -612,7 +636,7 @@ public class OrderPackageServiceImpl implements OrderPackageService {
         fpxOrderCreateDto.setParcelList(parcelListDTOS);
 
         RecipientInfoDTO recipientInfo = fpxOrderCreateDto.getRecipientInfo();
-        BeanUtils.copyProperties(orderAddress,recipientInfo);
+        BeanUtils.copyProperties(orderAddress, recipientInfo);
         recipientInfo.setFirstName(orderAddress.getFirstName());
         recipientInfo.setLastName(orderAddress.getLastName());
         recipientInfo.setPostCode(orderAddress.getZip());
@@ -636,7 +660,7 @@ public class OrderPackageServiceImpl implements OrderPackageService {
     }
 
 
-    public OrderPackage savePackage(Order order,ShippingMethodRedis shippingMethodRedis,String logisticsOrderNo,String trackCode,String platId){
+    public OrderPackage savePackage(Order order, ShippingMethodRedis shippingMethodRedis, String logisticsOrderNo, String trackCode, String platId) {
         Long orderId = order.getId();
         Long packageNo = getPackageNo();
         OrderPackage orderPackage = new OrderPackage();
@@ -654,8 +678,8 @@ public class OrderPackageServiceImpl implements OrderPackageService {
         orderPackage.setTrackingMethodCode(shippingMethodRedis.getMethodCode());
         orderPackage.setTrackingCompany(shippingMethodRedis.getTrackingCompany());
         insert(orderPackage);
-        orderService.updateOrderPackInfo(orderId, 1,packageNo);
-        redisTemplate.opsForHash().delete(RedisKey.HASH_ORDER_CREATE_PACKAGE_FAILED_REASON,orderId.toString());
+        orderService.updateOrderPackInfo(orderId, 1, packageNo);
+        redisTemplate.opsForHash().delete(RedisKey.HASH_ORDER_CREATE_PACKAGE_FAILED_REASON, orderId.toString());
 
         OrderItemQuantityDto orderItemQuantityDto = new OrderItemQuantityDto();
         orderItemQuantityDto.setOrderId(orderId);
@@ -690,20 +714,20 @@ public class OrderPackageServiceImpl implements OrderPackageService {
     /**
      *
      */
-    public OrderPackage selectByPrimaryKey(Long id,Long orderId,String trackingCode){
-        if(null != id){
+    public OrderPackage selectByPrimaryKey(Long id, Long orderId, String trackingCode) {
+        if (null != id) {
             return orderPackageDao.selectByPrimaryKey(id);
         }
-        if (null != orderId){
+        if (null != orderId) {
             return orderPackageDao.selectByOrderId(orderId);
         }
-        if (null != trackingCode){
+        if (null != trackingCode) {
             return orderPackageDao.selectByTrackingCode(trackingCode);
         }
         return null;
     }
 
-    public OrderPackage selectByPrimaryKey(Long id){
+    public OrderPackage selectByPrimaryKey(Long id) {
         return orderPackageDao.selectByPrimaryKey(id);
     }
 
@@ -726,7 +750,7 @@ public class OrderPackageServiceImpl implements OrderPackageService {
     /**
      *
      */
-    public List<OrderPackage> select(Page<OrderPackage> record){
+    public List<OrderPackage> select(Page<OrderPackage> record) {
         record.initFromNum();
         return orderPackageDao.select(record);
     }
@@ -734,46 +758,46 @@ public class OrderPackageServiceImpl implements OrderPackageService {
     /**
      *
      */
-    public long count(Page<OrderPackage> record){
+    public long count(Page<OrderPackage> record) {
         return orderPackageDao.count(record);
     }
 
-    public Long getPackageNo(){
+    public Long getPackageNo() {
         String lockKey = "order:package:no:lock";
 
-        boolean b = RedisUtil.lock(redisTemplate,lockKey,5L,10L);
-        if (!b){
+        boolean b = RedisUtil.lock(redisTemplate, lockKey, 5L, 10L);
+        if (!b) {
             return null;
         }
         String key = "order:package:no";
         String date = DateUtils.getDate("yyyyMMdd");
-        b = redisTemplate.opsForHash().hasKey(key,date);
+        b = redisTemplate.opsForHash().hasKey(key, date);
         Long no = null;
-        if (!b){
+        if (!b) {
             no = Long.parseLong(date + "00001");
-        }else {
-            no = (Long) redisTemplate.opsForHash().get(key,date);
-            if (null != no){
+        } else {
+            no = (Long) redisTemplate.opsForHash().get(key, date);
+            if (null != no) {
                 no = no + 1;
-            }else {
+            } else {
                 no = Long.parseLong(date + "00001");
             }
         }
-        redisTemplate.opsForHash().put(key,date,no);
-        RedisUtil.unLock(redisTemplate,lockKey);
+        redisTemplate.opsForHash().put(key, date, no);
+        RedisUtil.unLock(redisTemplate, lockKey);
         return no;
     }
 
-    private String getProductEntryName(Long productId,String entryType){
+    private String getProductEntryName(Long productId, String entryType) {
         String entryName = (String) redisTemplate.opsForHash().get(RedisKey.HASH_PRODUCT_CUSTOMS_INFO, productId + ":" + entryType);
-        if (StringUtils.isBlank(entryName)){
+        if (StringUtils.isBlank(entryName)) {
             pmsFeignClient.customsInfo(productId);
             entryName = (String) redisTemplate.opsForHash().get(RedisKey.HASH_PRODUCT_CUSTOMS_INFO, productId + ":" + entryType);
         }
         return entryName;
     }
 
-    private void sendPackageFulfillmentMessage(Long packageNo){
+    private void sendPackageFulfillmentMessage(Long packageNo) {
         Message message = new Message(RocketMqConfig.TOPIC_ORDER_PACKAGE_EX_FULFILLMENT, "", packageNo.toString(), JSON.toJSONBytes(packageNo));
         try {
             defaultMQProducer.send(message);
@@ -782,6 +806,21 @@ public class OrderPackageServiceImpl implements OrderPackageService {
         }
     }
 
+    private String uploadPackageLabelPdf(String labelUrl,Long packageNo){
+        if (StringUtils.isBlank(labelUrl)){
+            return null;
+        }
+        try {
+            String fileName = packageNo + ".pdf";
+            URL url = new URL(labelUrl);
+            String localPath = pdfLocalPath + fileName;
+            FileUtils.copyURLToFile(url, new File(localPath));
+            return pdfUrlPrefix + fileName;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return labelUrl;
+    }
 
 
 }

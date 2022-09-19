@@ -217,7 +217,7 @@ public class ShippingMethodServiceImpl implements ShippingMethodService {
                 });
                 break;
             case "YunExpress":
-                List<YunExpressShipMethodVo> yunExpressShipMethodVos = YunexpressApi.getShipMethods("CN");
+                List<YunExpressShipMethodVo> yunExpressShipMethodVos = YunexpressApi.getShipMethods();
                 for (YunExpressShipMethodVo yunExpressShipMethodVo : yunExpressShipMethodVos) {
                     ShipMethodCodeVo shipMethodCodeVo = new ShipMethodCodeVo();
                     shipMethodCodeVo.setMethodCode(yunExpressShipMethodVo.getCode());

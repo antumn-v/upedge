@@ -22,11 +22,12 @@ import java.util.concurrent.TimeUnit;
 
 public class YanwenApi {
 
-    public static String ServicePoint = "http://47.96.220.163:802/service";
+//    public static String ServicePoint = "http://47.96.220.163:802/service";
+    public static String ServicePoint = "http://online.yw56.com.cn/service";
 
-    public static String userId = "100000";
+    public static String userId = "20074603";
 
-    public static String apiToken = "D6140AA383FD8515B09028C586493DDB";
+    public static String apiToken = "55D9B8F3C8AE85644AC393B92C159CF9";
 
 
     public static List<YanwenShipMethodVo> getYanwenShipMethods(){

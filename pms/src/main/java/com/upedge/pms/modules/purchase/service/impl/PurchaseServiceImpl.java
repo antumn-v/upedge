@@ -106,10 +106,15 @@ public class PurchaseServiceImpl implements PurchaseService {
         if (ListUtils.isNotEmpty(planingVariantIds)) {
             variantIds.removeAll(planingVariantIds);
         }
-
+        List<Long> cancelIds = new ArrayList<>();
         List<Long> cancelPurchaseVariantIds = redisTemplate.opsForList().range(RedisKey.STRING_VARIANT_CANCEL_PURCHASE_LIST,0,-1);
         if (ListUtils.isNotEmpty(cancelPurchaseVariantIds)){
-            variantIds.removeAll(cancelPurchaseVariantIds);
+            for (Long variantId : variantIds) {
+                if (cancelPurchaseVariantIds.contains(variantId)){
+                    cancelIds.add(variantId);
+                }
+            }
+            variantIds.removeAll(cancelIds);
         }
 
         Map<String,List<PurchaseAdviceVo>> map = new HashMap<>();
@@ -120,6 +125,7 @@ public class PurchaseServiceImpl implements PurchaseService {
                 map.put("advice",adviceVos);
             }
         },threadPoolExecutor);
+
         CompletableFuture<Void> cancel = CompletableFuture.runAsync(new Runnable() {
             @Override
             public void run() {
@@ -190,6 +196,16 @@ public class PurchaseServiceImpl implements PurchaseService {
         a:
         for (PurchaseAdviceItemVo purchaseAdviceItemVo : purchaseAdviceItemVos) {
             if (purchaseAdviceItemVo.getPurchaseSku() == null) {
+                if (variantIds.contains(purchaseAdviceItemVo.getVariantId())){
+                    String noSupplier = "缺少供应商信息";
+                    if (!purchaseAdviceVoMap.containsKey(noSupplier)){
+                        PurchaseAdviceVo purchaseAdviceVo = new PurchaseAdviceVo();
+                        purchaseAdviceVo.setSupplierName(noSupplier);
+                        purchaseAdviceVo.setWarehouseCode(warehouseCode);
+                        purchaseAdviceVoMap.put(noSupplier,purchaseAdviceVo);
+                    }
+                    purchaseAdviceVoMap.get(noSupplier).getPurchaseAdviceItemVos().add(purchaseAdviceItemVo);
+                }
                 continue;
             }
             for (ProductPurchaseInfo productPurchaseInfo : productPurchaseInfos) {

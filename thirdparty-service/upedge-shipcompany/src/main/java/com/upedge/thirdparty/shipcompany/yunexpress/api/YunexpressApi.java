@@ -24,12 +24,12 @@ public class YunexpressApi {
     private static final String TOKEN = "Basic QzA2NjE2JjB4VlVRV0Rtb2VvPQ==";
 
 
-//    public static String REQUEST_URL = "http://omsapi.uat.yunexpress.com/api";
-    public static String REQUEST_URL = "http://oms2pub.uat.yunexpress.com/api";
+    public static String REQUEST_URL = "http://oms.api.yunexpress.com/api";
+//    public static String REQUEST_URL = "http://oms2pub.uat.yunexpress.com/api";
 
 
-    public static List<YunExpressShipMethodVo> getShipMethods(String countryCode) {
-        String apiUrl = REQUEST_URL + "/Common/GetShippingMethods?CountryCode=CN";
+    public static List<YunExpressShipMethodVo> getShipMethods() {
+        String apiUrl = REQUEST_URL + "/Common/GetShippingMethods" ;
 
         String result = null;
         try {
@@ -152,5 +152,6 @@ public class YunexpressApi {
         return response.body().string();
 
     }
+
 
 }

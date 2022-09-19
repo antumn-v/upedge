@@ -196,7 +196,7 @@ public class ProductVariantServiceImpl implements ProductVariantService {
         if (null == productVariant){
             return;
         }
-        if (productVariant.getPurchaseSku().equals(purchaseSku)){
+        if (productVariant.getPurchaseSku() != null && productVariant.getPurchaseSku().equals(purchaseSku)){
             return ;
         }
         ProductPurchaseInfo productPurchaseInfo = productPurchaseInfoService.selectByPrimaryKey(purchaseSku);
