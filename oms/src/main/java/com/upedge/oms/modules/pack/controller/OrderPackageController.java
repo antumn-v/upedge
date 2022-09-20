@@ -4,6 +4,7 @@ import com.upedge.common.base.BaseResponse;
 import com.upedge.common.exception.CustomerException;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.web.util.UserUtil;
+import com.upedge.oms.modules.fulfillment.service.OrderFulfillmentService;
 import com.upedge.oms.modules.pack.entity.OrderLabelPrintLog;
 import com.upedge.oms.modules.pack.entity.OrderPackage;
 import com.upedge.oms.modules.pack.request.OrderPackRevokeRequest;
@@ -27,6 +28,9 @@ public class OrderPackageController {
 
     @Autowired
     OrderPackageService orderPackageService;
+
+    @Autowired
+    OrderFulfillmentService orderFulfillmentService;
 
     @Autowired
     RedisTemplate redisTemplate;
@@ -85,6 +89,14 @@ public class OrderPackageController {
         } catch (CustomerException e) {
             return BaseResponse.failed(e.getMessage());
         }
+    }
+
+    @ApiOperation("回传物流")
+    @PostMapping("/uploadStore/{packNo}")
+    public BaseResponse uploadStore(@PathVariable Long packNo){
+        OrderPackage orderPackage = orderPackageService.selectByPrimaryKey(packNo);
+        orderFulfillmentService.orderFulfillment(orderPackage);
+        return BaseResponse.success();
     }
 
 

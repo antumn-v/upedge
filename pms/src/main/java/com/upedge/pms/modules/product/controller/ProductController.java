@@ -428,4 +428,9 @@ public class ProductController {
 
         return BaseResponse.success(product);
     }
+
+    @PostMapping("/test")
+    public BaseResponse test(){
+        return productService.test();
+    }
 }

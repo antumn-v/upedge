@@ -290,29 +290,32 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
         purchaseOrder.setUpdateTime(new Date());
         AlibabaOpenplatformTradeModelNativeLogisticsInfo alibabaOpenplatformTradeModelNativeLogisticsInfo = alibabaOpenplatformTradeModelTradeInfo.getNativeLogistics();
         if (alibabaOpenplatformTradeModelNativeLogisticsInfo != null) {
-            List<AlibabaOpenplatformTradeModelNativeLogisticsItemsInfo> logisticsItemsInfos = Arrays.asList(alibabaOpenplatformTradeModelNativeLogisticsInfo.getLogisticsItems());
-            if (ListUtils.isNotEmpty(logisticsItemsInfos)) {
-                List<PurchaseOrderTracking> orderTrackingList = new ArrayList<>();
-                StringBuffer code = new StringBuffer();
-                for (int i = 0; i < logisticsItemsInfos.size(); i++) {
-                    AlibabaOpenplatformTradeModelNativeLogisticsItemsInfo logisticsItemsInfo = logisticsItemsInfos.get(i);
+            AlibabaOpenplatformTradeModelNativeLogisticsItemsInfo[] logisticsInfoLogisticsItems = alibabaOpenplatformTradeModelNativeLogisticsInfo.getLogisticsItems();
+            if (logisticsInfoLogisticsItems != null
+            && logisticsInfoLogisticsItems.length > 0){
+                List<AlibabaOpenplatformTradeModelNativeLogisticsItemsInfo> logisticsItemsInfos = Arrays.asList(alibabaOpenplatformTradeModelNativeLogisticsInfo.getLogisticsItems());
+                if (ListUtils.isNotEmpty(logisticsItemsInfos)) {
+                    List<PurchaseOrderTracking> orderTrackingList = new ArrayList<>();
+                    StringBuffer code = new StringBuffer();
+                    for (int i = 0; i < logisticsItemsInfos.size(); i++) {
+                        AlibabaOpenplatformTradeModelNativeLogisticsItemsInfo logisticsItemsInfo = logisticsItemsInfos.get(i);
 
-                    if (code == null) {
-                        code = code.append(logisticsItemsInfo.getLogisticsCode());
-                    } else {
-                        code = code.append(",").append(logisticsItemsInfo.getLogisticsCode());
+                        if (code == null) {
+                            code = code.append(logisticsItemsInfo.getLogisticsCode());
+                        } else {
+                            code = code.append(",").append(logisticsItemsInfo.getLogisticsCode());
+                        }
+                        if (trackingCode.contains(logisticsItemsInfo.getLogisticsCode())) {
+                            continue;
+                        }
+                        PurchaseOrderTracking purchaseOrderTracking = new PurchaseOrderTracking(id, purchaseId, logisticsItemsInfo.getLogisticsCode(), logisticsItemsInfo.getLogisticsCompanyName());
+                        purchaseOrderTracking.setUpdateTime(logisticsItemsInfo.getDeliveredTime());
+                        orderTrackingList.add(purchaseOrderTracking);
                     }
-                    if (trackingCode.contains(logisticsItemsInfo.getLogisticsCode())) {
-                        continue;
-                    }
-                    PurchaseOrderTracking purchaseOrderTracking = new PurchaseOrderTracking(id, purchaseId, logisticsItemsInfo.getLogisticsCode(), logisticsItemsInfo.getLogisticsCompanyName());
-                    purchaseOrderTracking.setUpdateTime(logisticsItemsInfo.getDeliveredTime());
-                    orderTrackingList.add(purchaseOrderTracking);
+                    purchaseOrder.setTrackingCode(code.toString());
+                    purchaseOrderTrackingService.insertByBatch(orderTrackingList);
                 }
-                purchaseOrder.setTrackingCode(code.toString());
-                purchaseOrderTrackingService.insertByBatch(orderTrackingList);
             }
-
         }
         purchaseOrder.setId(id);
         updateByPrimaryKeySelective(purchaseOrder);

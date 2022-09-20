@@ -354,7 +354,8 @@ public class OrderPackageServiceImpl implements OrderPackageService {
 
     public BaseResponse createYanwenPackage(Order order, ShippingMethodRedis shippingMethodRedis) {
         Long orderId = order.getId();
-
+        Long packNo = getPackageNo();
+        order.setPackNo(packNo);
         YanwenExpressDto yanwenExpressDto = new YanwenExpressDto();
 
         List<OrderItem> orderItems = orderItemService.selectByOrderId(orderId);
@@ -393,7 +394,7 @@ public class OrderPackageServiceImpl implements OrderPackageService {
         yanwenExpressDto.setGoodsName(goodsName);
         yanwenExpressDto.setSendDate(new Date());
         yanwenExpressDto.setChannel(shippingMethodRedis.getMethodCode());
-        yanwenExpressDto.setUserOrderNumber(orderId.toString());
+        yanwenExpressDto.setUserOrderNumber(order.getPackNo().toString());
         yanwenExpressDto.setQuantity(i);
 
         YanwenCreateExpressResponse.CreatedExpressDTO createdExpressDTO = null;
@@ -412,12 +413,14 @@ public class OrderPackageServiceImpl implements OrderPackageService {
 
     public BaseResponse createCnePackage(Order order, ShippingMethodRedis shippingMethodRedis) {
         Long orderId = order.getId();
+        Long packNo = getPackageNo();
+        order.setPackNo(packNo);
         OrderAddress orderAddress = orderService.getOrderAddress(orderId);
 
         CneCreateOrderRequest request = new CneCreateOrderRequest();
         CneCreateOrderRequest.RecListDTO recListDTO = new CneCreateOrderRequest.RecListDTO();
         recListDTO.setCEmsKind(shippingMethodRedis.getMethodCode());
-        recListDTO.setCRNo(orderId.toString());
+        recListDTO.setCRNo(order.getPackNo().toString());
         recListDTO.setCDes(orderAddress.getCountryCode());
         recListDTO.setCReceiver(orderAddress.getFirstName() + " " + orderAddress.getLastName());
         recListDTO.setCRUnit(orderAddress.getCompany());
@@ -482,6 +485,8 @@ public class OrderPackageServiceImpl implements OrderPackageService {
 
     private BaseResponse createYunExpressPackage(Order order, ShippingMethodRedis shippingMethodRedis) {
         Long orderId = order.getId();
+        Long packNo = getPackageNo();
+        order.setPackNo(packNo);
         WayBillCreateDto wayBillCreateDto = new WayBillCreateDto();
         WayBillCreateDto.ReceiverDTO receiverDTO = new WayBillCreateDto.ReceiverDTO();
         List<WayBillCreateDto.ParcelsDTO> parcels = new ArrayList<>();
@@ -534,7 +539,7 @@ public class OrderPackageServiceImpl implements OrderPackageService {
 
         WayBillCreateDto.ChildOrdersDTO childOrdersDTO = new WayBillCreateDto.ChildOrdersDTO();
         childOrdersDTO.setChildDetails(childDetailsDTOS);
-        childOrdersDTO.setBoxNumber(orderId.toString());
+        childOrdersDTO.setBoxNumber(order.getPackNo().toString());
         childOrdersDTO.setBoxWeight(BigDecimal.ONE);
         childOrdersDTOS.add(childOrdersDTO);
 
@@ -587,7 +592,8 @@ public class OrderPackageServiceImpl implements OrderPackageService {
 
     public FpxCreateOrderSuccessVo.FpxCreateOrderDataDTO createFpxPackage(Order order) throws CustomerException {
         Long orderId = order.getId();
-
+        Long packNo = getPackageNo();
+        order.setPackNo(packNo);
         List<OrderItem> orderItems = orderItemService.selectByOrderId(orderId);
 
         UserVo userVo = (UserVo) redisTemplate.opsForHash().get(RedisKey.STRING_CUSTOMER_INFO, order.getCustomerId().toString());
@@ -603,7 +609,7 @@ public class OrderPackageServiceImpl implements OrderPackageService {
         OrderAddress orderAddress = orderService.getOrderAddress(orderId);
 
         FpxOrderCreateDto fpxOrderCreateDto = new FpxOrderCreateDto();
-        fpxOrderCreateDto.setRefNo(order.getId().toString());
+        fpxOrderCreateDto.setRefNo(order.getPackNo().toString());
         fpxOrderCreateDto.setBuyerId(userVo.getUsername());
         if (customerIossVo != null) {
             fpxOrderCreateDto.setVatNo(customerIossVo.getIossNum());
@@ -662,7 +668,7 @@ public class OrderPackageServiceImpl implements OrderPackageService {
 
     public OrderPackage savePackage(Order order, ShippingMethodRedis shippingMethodRedis, String logisticsOrderNo, String trackCode, String platId) {
         Long orderId = order.getId();
-        Long packageNo = getPackageNo();
+        Long packageNo = order.getPackNo();
         OrderPackage orderPackage = new OrderPackage();
         orderPackage.setId(packageNo);
         orderPackage.setPackageNo(packageNo);

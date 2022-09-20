@@ -4,6 +4,7 @@ import com.upedge.common.base.Page;
 import com.upedge.pms.modules.purchase.entity.VariantWarehouseStock;
 import com.upedge.pms.modules.purchase.request.VariantSafeStockUpdateRequest;
 import com.upedge.pms.modules.purchase.request.VariantStockListRequest;
+import com.upedge.pms.modules.purchase.request.VariantWarehouseStockDeleteRequest;
 import com.upedge.pms.modules.purchase.vo.VariantWarehouseStockVo;
 import org.apache.ibatis.annotations.Param;
 
@@ -13,6 +14,8 @@ import java.util.List;
  * @author gx
  */
 public interface VariantWarehouseStockDao {
+
+    int markAsDeleted(VariantWarehouseStockDeleteRequest request);
 
     List<VariantWarehouseStockVo> selectVariantStocks(VariantStockListRequest variantStockListRequest);
 

@@ -15,6 +15,8 @@ import java.util.List;
  */
 public interface VariantWarehouseStockService{
 
+    BaseResponse deleteVariantStock(VariantWarehouseStockDeleteRequest request,Session session);
+
     BaseResponse variantStockList(VariantStockListRequest request);
 
     BaseResponse packageShipped(OrderItemQuantityVo orderItemQuantityVo) throws Exception;

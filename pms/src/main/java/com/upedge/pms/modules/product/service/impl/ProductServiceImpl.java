@@ -580,7 +580,7 @@ public class ProductServiceImpl implements ProductService {
     public BaseResponse importFrom1688(AlibabaProductVo alibabaProductVo, Long operatorId) {
 
         Product p = selectByOriginalId(alibabaProductVo.getProductSku());
-        if (null == p){
+        if (null == p || p.getProductSource() != 0){
             addNewProduct(alibabaProductVo,operatorId);
         }else {
             updateAlibabaProduct(alibabaProductVo, p.getId());
@@ -1177,6 +1177,7 @@ public class ProductServiceImpl implements ProductService {
         Page<Product> page = new Page<>();
         Product product = new Product();
         product.setProductSource(0);
+        product.setId(1547223688078925824L);
         page.setT(product);
         page.setPageSize(-1);
         page.initFromNum();

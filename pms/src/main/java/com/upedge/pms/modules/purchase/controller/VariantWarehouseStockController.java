@@ -13,6 +13,7 @@ import com.upedge.pms.modules.purchase.entity.VariantWarehouseStockRecord;
 import com.upedge.pms.modules.purchase.request.VariantStockExImRecordUpdateRequest;
 import com.upedge.pms.modules.purchase.request.VariantStockListRequest;
 import com.upedge.pms.modules.purchase.request.VariantStockUpdateRequest;
+import com.upedge.pms.modules.purchase.request.VariantWarehouseStockDeleteRequest;
 import com.upedge.pms.modules.purchase.service.VariantWarehouseStockService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -103,6 +104,13 @@ public class VariantWarehouseStockController {
             log.warn("{}---> 加锁结果: {}" ,variantId,b);
         }
         return BaseResponse.success();
+    }
+
+    @ApiOperation("删除库存")
+    @PostMapping("/delete")
+    public BaseResponse deleteVariantStock(@RequestBody@Valid VariantWarehouseStockDeleteRequest request){
+        Session session = UserUtil.getSession(redisTemplate);
+        return variantWarehouseStockService.deleteVariantStock(request,session);
     }
 
 

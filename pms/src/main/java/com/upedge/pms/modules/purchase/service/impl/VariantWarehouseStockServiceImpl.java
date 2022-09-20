@@ -84,6 +84,30 @@ public class VariantWarehouseStockServiceImpl implements VariantWarehouseStockSe
         return variantWarehouseStockDao.insert(record);
     }
 
+    @Transactional
+    @Override
+    public BaseResponse deleteVariantStock(VariantWarehouseStockDeleteRequest request,Session session) {
+        VariantWarehouseStock variantWarehouseStock = selectByPrimaryKey(request.getVariantId(), request.getWarehouseCode());
+        if (null == variantWarehouseStock || variantWarehouseStock.getStockState() == 0){
+            return BaseResponse.success();
+        }
+        if (variantWarehouseStock.getPurchaseStock() > 0
+        || variantWarehouseStock.getLockStock() > 0){
+            return BaseResponse.failed("库存采购数量和锁定数量为0时才可以删除");
+        }
+        VariantStockExImRecordUpdateRequest variantStockExImRecordUpdateRequest = new VariantStockExImRecordUpdateRequest();
+        variantStockExImRecordUpdateRequest.setWarehouseCode(variantWarehouseStock.getWarehouseCode());
+        variantStockExImRecordUpdateRequest.setVariantSku(variantWarehouseStock.getVariantSku());
+        variantStockExImRecordUpdateRequest.setQuantity(variantWarehouseStock.getAvailableStock());
+        variantStockExImRecordUpdateRequest.setProcessType(5);
+        variantStockExImRecordUpdateRequest.setRelateId(System.currentTimeMillis());
+        variantStockEx(variantStockExImRecordUpdateRequest,session);
+
+        variantWarehouseStockDao.markAsDeleted(request);
+
+        return BaseResponse.success();
+    }
+
     @Override
     public BaseResponse variantStockList(VariantStockListRequest request) {
         List<VariantWarehouseStockVo> variantWarehouseStockVos = variantWarehouseStockDao.selectVariantStocks(request);
@@ -117,6 +141,9 @@ public class VariantWarehouseStockServiceImpl implements VariantWarehouseStockSe
             VariantWarehouseStock variantWarehouseStock = variantWarehouseStockDao.selectByPrimaryKey(itemQuantityVo.getVariantId(), "CNHz");
             if (variantWarehouseStock == null || variantWarehouseStock.getLockStock() < itemQuantityVo.getQuantity()){
                 throw new Exception("库存不足");
+            }
+            if (variantWarehouseStock.getStockState() == 0){
+                return BaseResponse.failed("库存已被删除");
             }
             int i = variantWarehouseStockDao.reduceVariantLockStock(variantWarehouseStock.getVariantId(), "CNHZ",itemQuantityVo.getQuantity());
             if (i == 0){
@@ -317,6 +344,9 @@ public class VariantWarehouseStockServiceImpl implements VariantWarehouseStockSe
             variantWarehouseStock = new VariantWarehouseStock(variantId,warehouseCode,1, request.getStock(), 0,0,"","");
             insert(variantWarehouseStock);
         }else {
+            if (variantWarehouseStock.getStockState() == 0){
+                return BaseResponse.failed("库存已被删除");
+            }
             originalQuantity = variantWarehouseStock.getAvailableStock();
             variantWarehouseStock = new VariantWarehouseStock();
             variantWarehouseStock.setAvailableStock(request.getStock());
@@ -367,6 +397,9 @@ public class VariantWarehouseStockServiceImpl implements VariantWarehouseStockSe
         }
 
         VariantWarehouseStock variantWarehouseStock = variantWarehouseStockDao.selectByPrimaryKey(productVariant.getId(), request.getWarehouseCode());
+        if (variantWarehouseStock.getStockState() == 0){
+            return BaseResponse.failed("库存已被删除");
+        }
         if (variantWarehouseStock.getAvailableStock() < request.getQuantity()){
             RedisUtil.unLock(redisTemplate,key);
             return BaseResponse.failed("仓库数量不足");

@@ -385,7 +385,7 @@
     <update id="updatePriceBySpecId">
         <foreach collection="items" item="item" separator=";">
             update purchase_order_item
-            set price = #{item.price}
+            set price = #{item.price},original_price = #{originalPrice}
             where order_id = #{item.orderId}
             and spec_id = #{item.specId}
         </foreach>

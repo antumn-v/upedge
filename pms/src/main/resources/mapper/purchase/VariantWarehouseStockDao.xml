@@ -14,10 +14,12 @@
         <result property="remark" column="remark"/>
         <result property="shelfNum" column="shelf_num"/>
         <result property="updateTime" column="update_time"/>
+        <result property="stockState" column="stock_state"/>
     </resultMap>
 
     <sql id="Base_Column_List">
-        `variant_id`,`safe_stock`,`warehouse_code`,`stock_scale`,`available_stock`,`lock_stock`,`purchase_stock`,`remark`,`shelf_num`,`update_time`
+        `variant_id`,`safe_stock`,`warehouse_code`,`stock_scale`,`available_stock`,
+        `lock_stock`,`purchase_stock`,`remark`,`shelf_num`,`update_time`,`stock_state`
     </sql>
 
     <select id="selectByPrimaryKey" resultMap="BaseResultMap">
@@ -32,6 +34,7 @@
         delete
         from variant_warehouse_stock
         where variant_id = #{variantId}
+        and warehouse_code = #{warehouseCode}
     </delete>
 
     <update id="updateByPrimaryKeySelective"
@@ -249,6 +252,7 @@
         <foreach collection="variantIds" item="variantId" open="(" separator="," close=")">
             #{variantId}
         </foreach>
+        and stock_state = '1'
     </select>
 
     <update id="updateVariantWarehouseAvailableStock">
@@ -277,7 +281,8 @@
 
     <update id="updateVariantStockIm">
         update variant_warehouse_stock
-        set available_stock = available_stock + #{quantity}
+        set available_stock = available_stock + #{quantity},
+        stock_state = '1'
         <if test="processType == 1">
             ,purchase_stock = purchase_stock - #{quantity}
         </if>
@@ -307,11 +312,11 @@
         select vws.`variant_id`,vws.`safe_stock`,vws.`warehouse_code`,vws.`stock_scale`,vws.`available_stock`,
         vws.`lock_stock`,vws.`purchase_stock`,vws.`remark`,vws.`shelf_num`,vws.`update_time`,
         pv.cn_name,pv.purchase_sku,pv.variant_sku,pv.variant_image,pv.barcode
-            from variant_warehouse_stock vws
+        from variant_warehouse_stock vws
         inner join product_variant pv
         on vws.variant_id = pv.id
         <where>
-            1 = 1
+            stock_state = '1'
             <if test="t.variantSku != null">
                 and pv.variant_sku = #{t.variantSku}
             </if>
@@ -337,7 +342,7 @@
         inner join product_variant pv
         on vws.variant_id = pv.id
         <where>
-            1 = 1
+            stock_state = '1'
             <if test="t.variantSku != null">
                 and pv.variant_sku = #{t.variantSku}
             </if>
@@ -352,4 +357,14 @@
             </if>
         </where>
     </select>
+
+    <update id="markAsDeleted">
+        update variant_warehouse_stock
+            set stock_state = '0'
+        where variant_id = #{variantId}
+        and warehouse_code = #{warehouseCode}
+        and stock_state = '1'
+        and purchase_stock = '0'
+        and lock_stock = '0';
+    </update>
 </mapper>

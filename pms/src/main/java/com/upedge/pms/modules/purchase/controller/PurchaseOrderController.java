@@ -115,4 +115,10 @@ public class PurchaseOrderController {
         Session session = UserUtil.getSession(redisTemplate);
         return purchaseOrderService.updateEditState(request,session);
     }
+
+    @PostMapping("/completeInfo/{id}")
+    public BaseResponse completeOrderInfo(@PathVariable Long id){
+        purchaseOrderService.completeOrderInfo(id);
+        return BaseResponse.success();
+    }
 }

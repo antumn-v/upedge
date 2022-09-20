@@ -167,6 +167,12 @@ public class OrderFulfillmentServiceImpl implements OrderFulfillmentService {
     }
 
     public boolean orderFulfillment(OrderPackage orderPackage) {
+        if(orderPackage == null){
+            return false;
+        }
+        if (orderPackage.getIsUploadStore()){
+            return true;
+        }
         Long packNo = orderPackage.getId();
         Long orderId = orderPackage.getOrderId();
         Order order = orderDao.selectByPrimaryKey(orderId);

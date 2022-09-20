@@ -53,6 +53,8 @@ public class VariantWarehouseStock{
 
 	private Date updateTime;
 
+	private Integer stockState;
+
 	public VariantWarehouseStock() {
 	}
 

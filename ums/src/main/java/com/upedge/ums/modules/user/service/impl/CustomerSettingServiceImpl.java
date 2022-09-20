@@ -1,12 +1,14 @@
 package com.upedge.ums.modules.user.service.impl;
 
 import com.upedge.common.base.Page;
+import com.upedge.common.constant.key.RedisKey;
 import com.upedge.ums.modules.user.dao.CustomerSettingDao;
 import com.upedge.ums.modules.user.entity.Customer;
 import com.upedge.ums.modules.user.entity.CustomerSetting;
 import com.upedge.ums.modules.user.service.CustomerService;
 import com.upedge.ums.modules.user.service.CustomerSettingService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,6 +24,9 @@ public class CustomerSettingServiceImpl implements CustomerSettingService {
 
     @Autowired
     CustomerService customerService;
+
+    @Autowired
+    RedisTemplate redisTemplate;
 
 
 
@@ -93,6 +98,8 @@ public class CustomerSettingServiceImpl implements CustomerSettingService {
     */
     @Transactional
     public int updateByPrimaryKeySelective(CustomerSetting record) {
+        String key = RedisKey.HASH_CUSTOMER_SETTING + record.getCustomerId();
+        redisTemplate.opsForHash().put(key,record.getSettingName(),record.getSettingValue());
         return customerSettingDao.updateByPrimaryKeySelective(record);
     }
 
