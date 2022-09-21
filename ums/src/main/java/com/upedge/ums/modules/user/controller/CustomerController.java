@@ -17,12 +17,15 @@ import com.upedge.ums.modules.user.response.CustomerUpdateResponse;
 import com.upedge.ums.modules.user.service.CustomerService;
 import com.upedge.ums.modules.user.service.UserService;
 import com.upedge.ums.modules.user.vo.CustomerDetailVo;
+import io.swagger.annotations.ApiOperation;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * 
@@ -86,6 +89,22 @@ public class CustomerController {
 
         CustomerUpdateResponse res = new CustomerUpdateResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS);
         return res;
+    }
+
+    @ApiOperation("根据用户名查询客户列表")
+    @GetMapping("/search/{name}")
+    public BaseResponse searchByName(@PathVariable String name){
+        List<UserVo> userVos = redisTemplate.opsForHash().values(RedisKey.STRING_CUSTOMER_INFO);
+        List<Customer> customers = new ArrayList<>();
+        userVos.forEach(userVo -> {
+            if (userVo.getUsername().contains(name)){
+                Customer customer = new Customer();
+                customer.setCname(userVo.getUsername());
+                customer.setId(userVo.getCustomerId());
+                customers.add(customer);
+            }
+        });
+        return BaseResponse.success(customers);
     }
 
 

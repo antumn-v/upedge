@@ -3,6 +3,7 @@ package com.upedge.pms.modules.purchase.service;
 import com.upedge.common.base.BaseResponse;
 import com.upedge.common.exception.CustomerException;
 import com.upedge.common.model.user.vo.Session;
+import com.upedge.pms.modules.purchase.request.PurchaseAdviceRequest;
 import com.upedge.pms.modules.purchase.request.PurchaseOrderCreateRequest;
 
 import java.util.List;
@@ -13,7 +14,9 @@ public interface PurchaseService {
 
     BaseResponse restorePurchase(List<Long> variantIds,Session session);
 
-    BaseResponse purchaseAdvice(String warehouseCode);
+    BaseResponse purchaseAdvice();
+
+    BaseResponse purchaseAdviceCache(PurchaseAdviceRequest request);
 
     BaseResponse previewPurchaseOrder(PurchaseOrderCreateRequest request, Session session);
 

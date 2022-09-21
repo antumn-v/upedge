@@ -19,6 +19,7 @@ import com.upedge.pms.modules.purchase.service.VariantWarehouseStockService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -45,6 +46,9 @@ public class PurchasePlanServiceImpl implements PurchasePlanService {
 
     @Autowired
     VariantWarehouseStockService variantWarehouseStockService;
+
+    @Autowired
+    RedisTemplate redisTemplate;
 
 
 

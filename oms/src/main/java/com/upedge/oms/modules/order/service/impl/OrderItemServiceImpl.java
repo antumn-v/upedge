@@ -8,6 +8,8 @@ import com.upedge.common.constant.ResultCode;
 import com.upedge.common.constant.key.RedisKey;
 import com.upedge.common.exception.CustomerException;
 import com.upedge.common.feign.PmsFeignClient;
+import com.upedge.common.model.order.dto.OrderItemPurchaseAdviceDto;
+import com.upedge.common.model.order.vo.OrderItemPurchaseAdviceVo;
 import com.upedge.common.model.order.vo.OrderItemUpdateImageNameRequest;
 import com.upedge.common.model.pms.quote.CustomerProductQuoteVo;
 import com.upedge.common.model.pms.request.OrderQuoteApplyRequest;
@@ -97,6 +99,11 @@ public class OrderItemServiceImpl implements OrderItemService {
     @Transactional
     public int insertSelective(OrderItem record) {
         return orderItemDao.insert(record);
+    }
+
+    @Override
+    public List<Long> selectItemAdminVariantIds(OrderItemPurchaseAdviceDto orderItemPurchaseAdviceDto) {
+        return orderItemDao.selectItemAdminVariantIds(orderItemPurchaseAdviceDto);
     }
 
     @Override
@@ -601,10 +608,10 @@ public class OrderItemServiceImpl implements OrderItemService {
     }
 
     @Override
-    public List<PurchaseAdviceItemVo> selectUnStockOrderItems() {
+    public OrderItemPurchaseAdviceVo selectUnStockOrderItems() {
         List<OrderItem> orderItems = orderItemDao.selectUnStockOrderItems();
         if (ListUtils.isEmpty(orderItems)){
-            return new ArrayList<>();
+            return null;
         }
         List<PurchaseAdviceItemVo> purchaseAdviceItemVos = new ArrayList<>();
         for (OrderItem orderItem : orderItems) {
@@ -613,7 +620,11 @@ public class OrderItemServiceImpl implements OrderItemService {
             purchaseAdviceItemVo.setOrderQuantity(orderItem.getQuantity());
             purchaseAdviceItemVos.add(purchaseAdviceItemVo);
         }
-        return purchaseAdviceItemVos;
+//        long total = orderItemDao.countUnStockOrderItems(request);
+        OrderItemPurchaseAdviceVo orderItemPurchaseAdviceVo = new OrderItemPurchaseAdviceVo();
+        orderItemPurchaseAdviceVo.setPurchaseAdviceItemVos(purchaseAdviceItemVos);
+//        orderItemPurchaseAdviceVo.setTotal(total);
+        return orderItemPurchaseAdviceVo;
     }
 
 

@@ -143,8 +143,10 @@ public class RedisKey {
     public static final String KEY_VARIANT_WAREHOUSE_STOCK_LOCK = "key:variant:warehouse:stock:lock:";
     //变体目前最大编号
     public static final String STRING_VARIANT_MAX_NUMBER = "variant:max:number";
-
+    //取消采购的产品列表
     public static final String STRING_VARIANT_CANCEL_PURCHASE_LIST = "variant:cancel:purchase:list";
+    //搁置采购的产品列表
+    public static final String STRING_VARIANT_SHUNT_PURCHASE_LIST = "variant:shunt:purchase:list";
 
     public static final String HASH_ORDER_CREATE_PACKAGE_FAILED_REASON = "order:create:package:failed:reason";
     //已打印的波次
@@ -153,4 +155,6 @@ public class RedisKey {
     public static final String HASH_PRODUCT_CUSTOMS_INFO = "product:customs:info";
     //产品库存
     public static final String HASH_VARIANT_WAREHOUSE_STOCK = "variant:stock:warehouse:";
+    //备库建议列表
+    public static final String HASH_PURCHASE_ADVICE_LIST = "purchase:advice:list:cache";
 }

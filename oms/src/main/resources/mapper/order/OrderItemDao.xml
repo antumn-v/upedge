@@ -1240,8 +1240,8 @@
         group by admin_variant_id
     </select>
 
-    <select id="selectUnStockOrderItems" resultMap="BaseResultMap">
-        select oi.admin_variant_id, sum(oi.quantity) as `quantity`
+    <select id="selectUnStockOrderItems" resultMap="BaseResultMap" parameterType="com.upedge.common.model.order.request.OrderItemPurchaseAdviceRequest">
+        select oi.admin_variant_id,o.customer_id, sum(oi.quantity) as `quantity`
         from `order` o
         inner join `order_item` oi
         on o.id = oi.order_id
@@ -1249,8 +1249,44 @@
           and o.refund_state = '0'
           and o.ship_state = '0'
           and o.stock_state = '0'
-        group by oi.admin_variant_id
+        group by oi.admin_variant_id,o.customer_id
+        order by `quantity` desc
     </select>
+
+    <select id="countUnStockOrderItems" resultType="java.lang.Long" parameterType="com.upedge.common.model.order.request.OrderItemPurchaseAdviceRequest">
+        select count(distinct oi.admin_variant_id)
+        from `order` o
+        inner join `order_item` oi
+        on o.id = oi.order_id
+        where o.pay_state = '1'
+          and o.refund_state = '0'
+          and o.ship_state = '0'
+          and o.stock_state = '0'
+        <include refid="OrderItemPurchaseAdvice"/>
+    </select>
+
+    <sql id="OrderItemPurchaseAdvice">
+        <if test="t != null">
+            <if test="t.adminVariantId != null">
+                oi.admin_variant_id = #{t.adminVariantId}
+            </if>
+            <if test="t.adminProductId != null">
+                oi.admin_product_id = #{t.adminProductId}
+            </if>
+            <if test="t.storeVariantSku != null">
+                oi.store_variant_sku = #{t.storeVariantSku}
+            </if>
+            <if test="t.storeProductId != null">
+                oi.store_product_id = #{t.storeProductId}
+            </if>
+            <if test="t.customerId != null">
+                oi.customer_id = #{t.customerId}
+            </if>
+            <if test="t.orderId != null">
+                o.id = #{t.orderId}
+            </if>
+        </if>
+    </sql>
 
     <update id="batchUpdatePickedQuantity">
         <foreach collection="orderItems" item="item" separator=";">
@@ -1268,5 +1304,34 @@
         <foreach collection="orderIds" item="orderId" open="(" separator="," close=")">
             #{orderId}
         </foreach>
+    </select>
+
+    <select id="selectItemAdminVariantIds" resultType="java.lang.Long">
+        select distinct admin_variant_id
+        from `order` o
+        inner join `order_item` oi
+        on o.id = oi.order_id
+        where o.pay_state = '1'
+        and o.refund_state = '0'
+        and o.ship_state = '0'
+        and o.stock_state = '0'
+        <if test="adminVariantId != null">
+            oi.admin_variant_id = #{adminVariantId}
+        </if>
+        <if test="adminProductId != null">
+            oi.admin_product_id = #{adminProductId}
+        </if>
+        <if test="storeVariantSku != null">
+            oi.store_variant_sku = #{storeVariantSku}
+        </if>
+        <if test="storeProductId != null">
+            oi.store_product_id = #{storeProductId}
+        </if>
+        <if test="customerId != null">
+            oi.customer_id = #{customerId}
+        </if>
+        <if test="orderId != null">
+            o.id = #{orderId}
+        </if>
     </select>
 </mapper>

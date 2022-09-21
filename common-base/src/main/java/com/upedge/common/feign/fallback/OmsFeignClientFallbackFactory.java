@@ -12,13 +12,14 @@ import com.upedge.common.model.cart.request.CartSubmitRequest;
 import com.upedge.common.model.cart.request.CartVo;
 import com.upedge.common.model.oms.stock.StockOrderVo;
 import com.upedge.common.model.order.OrderItemQuantityDto;
+import com.upedge.common.model.order.dto.OrderItemPurchaseAdviceDto;
 import com.upedge.common.model.order.request.ManagerActualRequest;
 import com.upedge.common.model.order.request.OrderDailyCountRequest;
 import com.upedge.common.model.order.request.OrderStockStateUpdateRequest;
 import com.upedge.common.model.order.vo.AllOrderAmountVo;
+import com.upedge.common.model.order.vo.OrderItemPurchaseAdviceVo;
 import com.upedge.common.model.order.vo.OrderItemUpdateImageNameRequest;
 import com.upedge.common.model.order.vo.UplodaSaiheOnMqVo;
-import com.upedge.common.model.pms.vo.PurchaseAdviceItemVo;
 import com.upedge.common.model.pms.vo.VariantPreSaleQuantity;
 import com.upedge.common.model.statistics.request.ManagerPackageStatisticsRequest;
 import com.upedge.common.model.statistics.request.OrderStatisticsRequest;
@@ -71,7 +72,12 @@ public class OmsFeignClientFallbackFactory implements FallbackFactory<OmsFeignCl
             }
 
             @Override
-            public List<PurchaseAdviceItemVo> purchaseItems() {
+            public OrderItemPurchaseAdviceVo purchaseItems() {
+                return null;
+            }
+
+            @Override
+            public List<Long> selectItemAdminVariantIds(OrderItemPurchaseAdviceDto orderItemPurchaseAdviceDto) {
                 return new ArrayList<>();
             }
 

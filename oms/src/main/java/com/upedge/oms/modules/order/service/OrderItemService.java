@@ -3,9 +3,10 @@ package com.upedge.oms.modules.order.service;
 import com.upedge.common.base.BaseResponse;
 import com.upedge.common.base.Page;
 import com.upedge.common.exception.CustomerException;
+import com.upedge.common.model.order.dto.OrderItemPurchaseAdviceDto;
+import com.upedge.common.model.order.vo.OrderItemPurchaseAdviceVo;
 import com.upedge.common.model.order.vo.OrderItemUpdateImageNameRequest;
 import com.upedge.common.model.pms.quote.CustomerProductQuoteVo;
-import com.upedge.common.model.pms.vo.PurchaseAdviceItemVo;
 import com.upedge.common.model.pms.vo.VariantPreSaleQuantity;
 import com.upedge.common.model.product.RelateDetailVo;
 import com.upedge.common.model.product.RelateVariantVo;
@@ -26,6 +27,9 @@ import java.util.List;
  * @author author
  */
 public interface OrderItemService {
+
+
+    List<Long> selectItemAdminVariantIds(OrderItemPurchaseAdviceDto orderItemPurchaseAdviceDto);
 
     List<OrderItem> selectByOrderIds(List<Long> orderIds);
 
@@ -90,6 +94,6 @@ public interface OrderItemService {
 
     List<VariantPreSaleQuantity> selectVariantPreSaleQuantity(List<Long> variantIds);
 
-    List<PurchaseAdviceItemVo> selectUnStockOrderItems();
+    OrderItemPurchaseAdviceVo selectUnStockOrderItems();
 }
 

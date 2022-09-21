@@ -22,6 +22,8 @@ import java.util.Set;
  */
 public interface ProductVariantService{
 
+    ProductVariant selectByBarcode(String barcode);
+
     BaseResponse updateSku(ProductVariantUpdateSkuRequest request,Session session);
 
     BaseResponse updateAttrs(ProductVariantUpdateRequest request,Session session);

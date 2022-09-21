@@ -575,4 +575,11 @@
         select max(barcode)
         from product_variant
     </select>
+
+    <select id="selectByBarcode" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from product_variant
+        where barcode = #{barcode}
+    </select>
 </mapper>

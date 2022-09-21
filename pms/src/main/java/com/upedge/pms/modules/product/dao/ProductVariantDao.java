@@ -15,6 +15,8 @@ import java.util.Map;
  */
 public interface ProductVariantDao {
 
+    ProductVariant selectByBarcode(String barcode);
+
     Long selectMaxBarcode();
 
     void updateByBatch(List<ProductVariant> list);

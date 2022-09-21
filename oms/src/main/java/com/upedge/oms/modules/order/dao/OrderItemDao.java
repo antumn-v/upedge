@@ -1,6 +1,8 @@
 package com.upedge.oms.modules.order.dao;
 
 import com.upedge.common.base.Page;
+import com.upedge.common.model.order.dto.OrderItemPurchaseAdviceDto;
+import com.upedge.common.model.order.request.OrderItemPurchaseAdviceRequest;
 import com.upedge.common.model.order.vo.OrderItemUpdateImageNameRequest;
 import com.upedge.common.model.pms.quote.CustomerProductQuoteVo;
 import com.upedge.common.model.pms.vo.VariantPreSaleQuantity;
@@ -21,6 +23,8 @@ import java.util.Map;
  * @author author
  */
 public interface OrderItemDao {
+
+    List<Long> selectItemAdminVariantIds(OrderItemPurchaseAdviceDto orderItemPurchaseAdviceDto);
 
     List<OrderItem> selectByOrderIds(@Param("orderIds") List<Long> orderIds);
 
@@ -138,4 +142,6 @@ public interface OrderItemDao {
     List<VariantPreSaleQuantity> selectVariantPreSaleQuantity(@Param("variantIds") List<Long> variantIds);
 
     List<OrderItem> selectUnStockOrderItems();
+
+    long countUnStockOrderItems(OrderItemPurchaseAdviceRequest request);
 }

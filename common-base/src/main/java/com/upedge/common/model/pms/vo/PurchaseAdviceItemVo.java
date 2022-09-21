@@ -27,5 +27,11 @@ public class PurchaseAdviceItemVo {
     //建议备库数量
     private int suggestQuantity;
 
+    private Long customerId;
+
+    private String barcode;
+
+
+
 
 }

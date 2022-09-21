@@ -173,6 +173,14 @@ public class ProductVariantServiceImpl implements ProductVariantService {
         return new ProductVariantUpdateAttrResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS);
     }
 
+    @Override
+    public ProductVariant selectByBarcode(String barcode) {
+        if (StringUtils.isBlank(barcode)){
+            return null;
+        }
+        return productVariantDao.selectByBarcode(barcode);
+    }
+
     @Transactional
     @Override
     public BaseResponse updateSku(ProductVariantUpdateSkuRequest request, Session session) {
