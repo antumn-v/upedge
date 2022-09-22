@@ -207,12 +207,23 @@ public class OrderPackageServiceImpl implements OrderPackageService {
         return BaseResponse.success(orderPackageInfoVo);
     }
 
-    @Transactional
     @Override
     public BaseResponse orderRevokePackage(OrderPackRevokeRequest request, Session session) {
-        OrderPackage orderPackage = orderPackageDao.selectByOrderId(request.getOrderId());
+        List<Long> orderIds = request.getOrderIds();
+        orderIds.forEach(orderId -> {
+            revokePackage(orderId,request.getReason());
+        });
+        return BaseResponse.success();
+    }
+
+    @Transactional
+    void revokePackage(Long orderId,String reason){
+        if (orderId == null){
+            return;
+        }
+        OrderPackage orderPackage = orderPackageDao.selectByOrderId(orderId);
         if (null == orderPackage) {
-            return BaseResponse.failed();
+            return ;
         }
 //        String result = "";
 //        switch (orderPackage.getTrackingCompany()) {
@@ -228,7 +239,6 @@ public class OrderPackageServiceImpl implements OrderPackageService {
 //        if (!result.equals("success")) {
 //            return BaseResponse.failed(result);
 //        }
-        String reason = request.getReason();
         if (StringUtils.isNotBlank(reason)) {
             if (StringUtils.isNotBlank(orderPackage.getRemark())) {
                 reason = orderPackage.getRemark() + "," + reason;
@@ -238,7 +248,6 @@ public class OrderPackageServiceImpl implements OrderPackageService {
         orderService.updateOrderPackInfo(orderPackage.getOrderId(), -1, orderPackage.getPackageNo());
 
         orderPackageDao.revokePackageById(orderPackage.getId(), reason);
-        return BaseResponse.success();
     }
 
     @Override
