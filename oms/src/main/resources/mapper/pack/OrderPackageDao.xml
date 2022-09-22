@@ -2,8 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="com.upedge.oms.modules.pack.dao.OrderPackageDao">
-
-	<!-- 可根据自己的需求，是否要使用 -->
+    <!-- 可根据自己的需求，是否要使用 -->
     <resultMap type="com.upedge.oms.modules.pack.entity.OrderPackage" id="BaseResultMap">
         <result property="id" column="id"/>
         <result property="customerId" column="customer_id"/>
@@ -26,20 +25,23 @@
     </resultMap>
 
     <sql id="Base_Column_List">
-        `id`,`customer_id`,`store_id`,`org_path`,`package_no`,`order_id`,`wave_no`,`tracking_code`,`logistics_order_no`,
+        `id`
+                ,`customer_id`,`store_id`,`org_path`,`package_no`,`order_id`,`wave_no`,`tracking_code`,`logistics_order_no`,
         `tracking_company`,`tracking_method_name`,`tracking_method_code`,`plat_id`,`package_state`,`create_time`,`send_time`,
         `receive_time`,`is_upload_store`
     </sql>
 
-    <select id="selectByPrimaryKey" parameterType="com.upedge.oms.modules.pack.entity.OrderPackage" resultMap="BaseResultMap">
+    <select id="selectByPrimaryKey" parameterType="com.upedge.oms.modules.pack.entity.OrderPackage"
+            resultMap="BaseResultMap">
         select
-        <include refid="Base_Column_List" />
+        <include refid="Base_Column_List"/>
         from order_package
         where id = #{id}
     </select>
 
     <delete id="deleteByPrimaryKey" parameterType="com.upedge.oms.modules.pack.entity.OrderPackage">
-        delete from order_package
+        delete
+        from order_package
         where id = #{id}
     </delete>
 
@@ -104,28 +106,29 @@
     <update id="updateByPrimaryKey" parameterType="com.upedge.oms.modules.pack.entity.OrderPackage">
         update order_package
         <set>
-        id = #{id},
-        customer_id = #{customerId},
-        store_id = #{storeId},
-        org_path = #{orgPath},
-        package_no = #{packageNo},
-        order_id = #{orderId},
-        wave_no = #{waveNo},
-        tracking_code = #{trackingCode},
-        logistics_order_no = #{logisticsOrderNo},
-        tracking_company = #{trackingCompany},
-        tracking_method_name = #{trackingMethodName},
-        tracking_method_code = #{trackingMethodCode},
-        plat_id = #{platId},
-        package_state = #{packageState},
-        create_time = #{createTime},
-        send_time = #{sendTime},
-        receive_time = #{receiveTime},
+            id = #{id},
+            customer_id = #{customerId},
+            store_id = #{storeId},
+            org_path = #{orgPath},
+            package_no = #{packageNo},
+            order_id = #{orderId},
+            wave_no = #{waveNo},
+            tracking_code = #{trackingCode},
+            logistics_order_no = #{logisticsOrderNo},
+            tracking_company = #{trackingCompany},
+            tracking_method_name = #{trackingMethodName},
+            tracking_method_code = #{trackingMethodCode},
+            plat_id = #{platId},
+            package_state = #{packageState},
+            create_time = #{createTime},
+            send_time = #{sendTime},
+            receive_time = #{receiveTime},
         </set>
         where id = #{id}
     </update>
 
-    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.upedge.oms.modules.pack.entity.OrderPackage" useGeneratedKeys="true">
+    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.upedge.oms.modules.pack.entity.OrderPackage"
+            useGeneratedKeys="true">
         insert into order_package
         <trim prefix="(" suffix=")" suffixOverrides=",">
             id,
@@ -167,159 +170,158 @@
         )
     </insert>
 
-    <insert id="insertSelective"  keyColumn="id" keyProperty="id"  parameterType="com.upedge.oms.modules.pack.entity.OrderPackage" useGeneratedKeys="true">
+    <insert id="insertSelective" keyColumn="id" keyProperty="id"
+            parameterType="com.upedge.oms.modules.pack.entity.OrderPackage" useGeneratedKeys="true">
         insert into order_package
         <trim prefix="(" suffix=")" suffixOverrides=",">
-            <if test="id != null" >
-              id
+            <if test="id != null">
+                id
             </if>
-            <if test="customerId != null" >
-              customer_id
+            <if test="customerId != null">
+                customer_id
             </if>
-            <if test="storeId != null" >
-              store_id
+            <if test="storeId != null">
+                store_id
             </if>
-            <if test="orgPath != null" >
-              org_path
+            <if test="orgPath != null">
+                org_path
             </if>
-            <if test="packageNo != null" >
-              package_no
+            <if test="packageNo != null">
+                package_no
             </if>
-            <if test="orderId != null" >
-              order_id
+            <if test="orderId != null">
+                order_id
             </if>
-            <if test="waveNo != null" >
-              wave_no
+            <if test="waveNo != null">
+                wave_no
             </if>
-            <if test="trackingCode != null" >
-              tracking_code
+            <if test="trackingCode != null">
+                tracking_code
             </if>
-            <if test="logisticsOrderNo != null" >
-              logistics_order_no
+            <if test="logisticsOrderNo != null">
+                logistics_order_no
             </if>
-            <if test="trackingCompany != null" >
-              tracking_company
+            <if test="trackingCompany != null">
+                tracking_company
             </if>
-            <if test="trackingMethodName != null" >
-              tracking_method_name
+            <if test="trackingMethodName != null">
+                tracking_method_name
             </if>
-            <if test="trackingMethodCode != null" >
-              tracking_method_code
+            <if test="trackingMethodCode != null">
+                tracking_method_code
             </if>
-            <if test="platId != null" >
-              plat_id
+            <if test="platId != null">
+                plat_id
             </if>
-            <if test="packageState != null" >
-              package_state
+            <if test="packageState != null">
+                package_state
             </if>
-            <if test="createTime != null" >
-              create_time
+            <if test="createTime != null">
+                create_time
             </if>
-            <if test="sendTime != null" >
-              send_time
+            <if test="sendTime != null">
+                send_time
             </if>
-            <if test="receiveTime != null" >
-              receive_time
+            <if test="receiveTime != null">
+                receive_time
             </if>
-
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
-            <if test="id != null" >
+            <if test="id != null">
                 #{id}
             </if>
-            <if test="customerId != null" >
+            <if test="customerId != null">
                 #{customerId}
             </if>
-            <if test="storeId != null" >
+            <if test="storeId != null">
                 #{storeId}
             </if>
-            <if test="orgPath != null" >
+            <if test="orgPath != null">
                 #{orgPath}
             </if>
-            <if test="packageNo != null" >
+            <if test="packageNo != null">
                 #{packageNo}
             </if>
-            <if test="orderId != null" >
+            <if test="orderId != null">
                 #{orderId}
             </if>
-            <if test="waveNo != null" >
+            <if test="waveNo != null">
                 #{waveNo}
             </if>
-            <if test="trackingCode != null" >
+            <if test="trackingCode != null">
                 #{trackingCode}
             </if>
-            <if test="logisticsOrderNo != null" >
+            <if test="logisticsOrderNo != null">
                 #{logisticsOrderNo}
             </if>
-            <if test="trackingCompany != null" >
+            <if test="trackingCompany != null">
                 #{trackingCompany}
             </if>
-            <if test="trackingMethodName != null" >
+            <if test="trackingMethodName != null">
                 #{trackingMethodName}
             </if>
-            <if test="trackingMethodCode != null" >
+            <if test="trackingMethodCode != null">
                 #{trackingMethodCode}
             </if>
-            <if test="platId != null" >
+            <if test="platId != null">
                 #{platId}
             </if>
-            <if test="packageState != null" >
+            <if test="packageState != null">
                 #{packageState}
             </if>
-            <if test="createTime != null" >
+            <if test="createTime != null">
                 #{createTime}
             </if>
-            <if test="sendTime != null" >
+            <if test="sendTime != null">
                 #{sendTime}
             </if>
-            <if test="receiveTime != null" >
+            <if test="receiveTime != null">
                 #{receiveTime}
             </if>
-
         </trim>
     </insert>
 
     <insert id="insertByBatch" parameterType="java.util.List">
         insert into order_package
         <trim prefix="(" suffix=")" suffixOverrides=",">
-           id,
-           customer_id,
-           store_id,
-           org_path,
-           package_no,
-           order_id,
-           wave_no,
-           tracking_code,
-           logistics_order_no,
-           tracking_company,
-           tracking_method_name,
-           tracking_method_code,
-           plat_id,
-           package_state,
-           create_time,
-           send_time,
-           receive_time
+            id,
+            customer_id,
+            store_id,
+            org_path,
+            package_no,
+            order_id,
+            wave_no,
+            tracking_code,
+            logistics_order_no,
+            tracking_company,
+            tracking_method_name,
+            tracking_method_code,
+            plat_id,
+            package_state,
+            create_time,
+            send_time,
+            receive_time
         </trim>
         values
         <foreach collection="list" item="item" index="index" separator=",">
             <trim prefix="(" suffix=")" suffixOverrides=",">
-               #{item.id},
-               #{item.customerId},
-               #{item.storeId},
-               #{item.orgPath},
-               #{item.packageNo},
-               #{item.orderId},
-               #{item.waveNo},
-               #{item.trackingCode},
-               #{item.logisticsOrderNo},
-               #{item.trackingCompany},
-               #{item.trackingMethodName},
-               #{item.trackingMethodCode},
-               #{item.platId},
-               #{item.packageState},
-               #{item.createTime},
-               #{item.sendTime},
-               #{item.receiveTime}
+                #{item.id},
+                #{item.customerId},
+                #{item.storeId},
+                #{item.orgPath},
+                #{item.packageNo},
+                #{item.orderId},
+                #{item.waveNo},
+                #{item.trackingCode},
+                #{item.logisticsOrderNo},
+                #{item.trackingCompany},
+                #{item.trackingMethodName},
+                #{item.trackingMethodCode},
+                #{item.platId},
+                #{item.packageState},
+                #{item.createTime},
+                #{item.sendTime},
+                #{item.receiveTime}
             </trim>
         </foreach>
     </insert>
@@ -329,64 +331,64 @@
             where
             <trim prefix=" " suffix=" " suffixOverrides=" and ">
                 1 = 1 and
-                    <if test="t.id != null">
-                        id = #{t.id} and
-                    </if>
-                    <if test="t.customerId != null">
-                        customer_id = #{t.customerId} and
-                    </if>
-                    <if test="t.storeId != null">
-                        store_id = #{t.storeId} and
-                    </if>
-                    <if test="t.orgPath != null">
-                        org_path = #{t.orgPath} and
-                    </if>
-                    <if test="t.packageNo != null">
-                        package_no = #{t.packageNo} and
-                    </if>
-                    <if test="t.orderId != null">
-                        order_id = #{t.orderId} and
-                    </if>
-                    <if test="t.waveNo != null">
-                        wave_no = #{t.waveNo} and
-                    </if>
-                    <if test="t.trackingCode != null">
-                        tracking_code = #{t.trackingCode} and
-                    </if>
-                    <if test="t.logisticsOrderNo != null">
-                        logistics_order_no = #{t.logisticsOrderNo} and
-                    </if>
-                    <if test="t.trackingCompany != null">
-                        tracking_company = #{t.trackingCompany} and
-                    </if>
-                    <if test="t.trackingMethodName != null">
-                        tracking_method_name = #{t.trackingMethodName} and
-                    </if>
-                    <if test="t.trackingMethodCode != null">
-                        tracking_method_code = #{t.trackingMethodCode} and
-                    </if>
-                    <if test="t.platId != null">
-                        plat_id = #{t.platId} and
-                    </if>
-                    <if test="t.packageState != null">
-                        package_state = #{t.packageState} and
-                    </if>
-                    <if test="t.createTime != null">
-                        create_time = #{t.createTime} and
-                    </if>
-                    <if test="t.sendTime != null">
-                        send_time = #{t.sendTime} and
-                    </if>
-                    <if test="t.receiveTime != null">
-                        receive_time = #{t.receiveTime} and
-                    </if>
+                <if test="t.id != null">
+                    id = #{t.id} and
+                </if>
+                <if test="t.customerId != null">
+                    customer_id = #{t.customerId} and
+                </if>
+                <if test="t.storeId != null">
+                    store_id = #{t.storeId} and
+                </if>
+                <if test="t.orgPath != null">
+                    org_path = #{t.orgPath} and
+                </if>
+                <if test="t.packageNo != null">
+                    package_no = #{t.packageNo} and
+                </if>
+                <if test="t.orderId != null">
+                    order_id = #{t.orderId} and
+                </if>
+                <if test="t.waveNo != null">
+                    wave_no = #{t.waveNo} and
+                </if>
+                <if test="t.trackingCode != null">
+                    tracking_code = #{t.trackingCode} and
+                </if>
+                <if test="t.logisticsOrderNo != null">
+                    logistics_order_no = #{t.logisticsOrderNo} and
+                </if>
+                <if test="t.trackingCompany != null">
+                    tracking_company = #{t.trackingCompany} and
+                </if>
+                <if test="t.trackingMethodName != null">
+                    tracking_method_name = #{t.trackingMethodName} and
+                </if>
+                <if test="t.trackingMethodCode != null">
+                    tracking_method_code = #{t.trackingMethodCode} and
+                </if>
+                <if test="t.platId != null">
+                    plat_id = #{t.platId} and
+                </if>
+                <if test="t.packageState != null">
+                    package_state = #{t.packageState} and
+                </if>
+                <if test="t.createTime != null">
+                    create_time = #{t.createTime} and
+                </if>
+                <if test="t.sendTime != null">
+                    send_time = #{t.sendTime} and
+                </if>
+                <if test="t.receiveTime != null">
+                    receive_time = #{t.receiveTime} and
+                </if>
             </trim>
         </if>
     </sql>
 
     <select id="select" parameterType="com.upedge.common.base.Page" resultMap="BaseResultMap">
         select
-        <include refid="Base_Column_List" />
+        <include refid="Base_Column_List"/>
         from order_package
         <include refid="Query_Condition"/>
         <if test="orderBy != null">
@@ -416,24 +418,24 @@
 
     <select id="selectByOrderId" resultMap="BaseResultMap">
         select
-        <include refid="Base_Column_List" />
+        <include refid="Base_Column_List"/>
         from order_package
         where order_id = #{orderId}
     </select>
 
     <select id="selectByTrackingCode" resultMap="BaseResultMap">
         select
-        <include refid="Base_Column_List" />
+        <include refid="Base_Column_List"/>
         from order_package
         where tracking_code = #{trackingCode}
     </select>
 
     <update id="revokePackageById">
         update order_package
-            set package_state = '-1',
-                remark = #{reason}
+        set package_state = '-1',
+            remark        = #{reason}
         where id = #{id}
-        and package_state = '0'
+          and package_state = '0'
     </update>
 
     <select id="selectByOrderIds" resultMap="BaseResultMap">
@@ -444,5 +446,23 @@
         <foreach collection="orderIds" item="orderId" open="(" close=")" separator=",">
             #{orderId}
         </foreach>
+    </select>
+
+    <select id="selectByScanNo" resultMap="BaseResultMap">
+        select *
+        from (
+             select <include refid="Base_Column_List"/>
+             from order_package
+             where id = #{scanNo}
+             union
+             select <include refid="Base_Column_List"/>
+             from order_package
+             where logistics_order_no = #{scanNo}
+             union
+             select <include refid="Base_Column_List"/>
+             from order_package
+             where tracking_code = #{scanNo}
+             )
+        limit 1
     </select>
 </mapper>

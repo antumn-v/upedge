@@ -155,28 +155,28 @@ public class OrderPackageServiceImpl implements OrderPackageService {
             orderPackage.setTrackingCode(trackCode);
             updateByPrimaryKeySelective(orderPackage);
         }
-        if (!orderPackage.getIsUploadStore()) {
-            try {
-                packageExStock(packNo, null);
-            } catch (CustomerException e) {
-                e.printStackTrace();
-            }
+        if (orderPackage.getPackageState() == 1 && !orderPackage.getIsUploadStore()) {
+            sendPackageFulfillmentMessage(packNo);
         }
     }
 
     @GlobalTransactional(rollbackFor = Exception.class)
     @Override
-    public BaseResponse packageExStock(Long packNo, Session session) throws CustomerException {
+    public BaseResponse packageExStock(String scanNo, Session session) {
+        OrderPackage orderPackage = orderPackageDao.selectByScanNo(scanNo);
+        if (null == orderPackage){
+            return BaseResponse.failed("包裹不存在");
+        }
+        if (orderPackage.getPackageState() != 0) {
+            return BaseResponse.failed("包裹已出库或已搁置");
+        }
+        Long packNo = orderPackage.getPackageNo();
         String key = "order:package:ex:" + packNo;
         boolean b = RedisUtil.lock(redisTemplate, key, 10L, 60 * 1000L);
         if (!b) {
             return BaseResponse.failed();
         }
-        OrderPackage orderPackage = selectByPrimaryKey(packNo);
-        if (orderPackage.getPackageState() != 0) {
-            RedisUtil.unLock(redisTemplate, key);
-            return BaseResponse.failed("包裹已出库或已搁置");
-        }
+
         Long orderId = orderPackage.getOrderId();
         OrderItemQuantityVo orderItemQuantityVo = orderService.selectOrderItemQuantitiesByOrderId(orderId);
         if (null == orderItemQuantityVo) {

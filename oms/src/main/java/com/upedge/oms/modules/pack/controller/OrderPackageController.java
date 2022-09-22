@@ -1,7 +1,6 @@
 package com.upedge.oms.modules.pack.controller;
 
 import com.upedge.common.base.BaseResponse;
-import com.upedge.common.exception.CustomerException;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.web.util.UserUtil;
 import com.upedge.oms.modules.fulfillment.service.OrderFulfillmentService;
@@ -37,7 +36,7 @@ public class OrderPackageController {
 
     @ApiOperation("包裹信息")
     @PostMapping("/info")
-    public BaseResponse packageInfo(@RequestBody OrderPackageInfoGetRequest request){
+    public BaseResponse packageInfo(@RequestBody OrderPackageInfoGetRequest request) {
         OrderPackageInfoVo orderPackageInfoVo = orderPackageService.packageInfo(request);
         return BaseResponse.success(orderPackageInfoVo);
     }
@@ -50,9 +49,9 @@ public class OrderPackageController {
 
     @ApiOperation("撤销包裹")
     @PostMapping("/revoke")
-    public BaseResponse revokePackage(@RequestBody OrderPackRevokeRequest request){
+    public BaseResponse revokePackage(@RequestBody OrderPackRevokeRequest request) {
         Session session = UserUtil.getSession(redisTemplate);
-        return orderPackageService.orderRevokePackage(request,session);
+        return orderPackageService.orderRevokePackage(request, session);
     }
 
     @ApiOperation("包裹列表")
@@ -70,30 +69,26 @@ public class OrderPackageController {
     @PostMapping("/label")
     public BaseResponse getLabel(@RequestBody OrderPackageGetLabelRequest request) {
         Session session = UserUtil.getSession(redisTemplate);
-        return orderPackageService.printPackLabel(request,session);
+        return orderPackageService.printPackLabel(request, session);
     }
 
     @ApiOperation("面单打印记录")
     @GetMapping("/labelLog/{packNo}")
-    public BaseResponse labelPrintLog(@PathVariable Long packNo){
+    public BaseResponse labelPrintLog(@PathVariable Long packNo) {
         List<OrderLabelPrintLog> orderLabelPrintLogs = orderPackageService.packLabelPrintLog(packNo);
         return BaseResponse.success(orderLabelPrintLogs);
     }
 
     @ApiOperation("包裹出库")
-    @PostMapping("/exStock/{packNo}")
-    public BaseResponse packExStock(@PathVariable Long packNo){
+    @PostMapping("/exStock/{scanNo}")
+    public BaseResponse packExStock(@PathVariable String scanNo) {
         Session session = UserUtil.getSession(redisTemplate);
-        try {
-            return orderPackageService.packageExStock(packNo,session);
-        } catch (CustomerException e) {
-            return BaseResponse.failed(e.getMessage());
-        }
+        return orderPackageService.packageExStock(scanNo, session);
     }
 
     @ApiOperation("回传物流")
     @PostMapping("/uploadStore/{packNo}")
-    public BaseResponse uploadStore(@PathVariable Long packNo){
+    public BaseResponse uploadStore(@PathVariable Long packNo) {
         OrderPackage orderPackage = orderPackageService.selectByPrimaryKey(packNo);
         orderFulfillmentService.orderFulfillment(orderPackage);
         return BaseResponse.success();
