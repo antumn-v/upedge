@@ -47,7 +47,7 @@ public class OrderPackageController {
         return orderPackageService.createPackage(id);
     }
 
-    @ApiOperation("撤销包裹")
+    @ApiOperation("搁置发货")
     @PostMapping("/revoke")
     public BaseResponse revokePackage(@RequestBody OrderPackRevokeRequest request) {
         Session session = UserUtil.getSession(redisTemplate);

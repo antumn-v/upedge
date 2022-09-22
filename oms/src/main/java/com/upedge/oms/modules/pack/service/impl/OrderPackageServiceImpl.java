@@ -210,24 +210,24 @@ public class OrderPackageServiceImpl implements OrderPackageService {
     @Transactional
     @Override
     public BaseResponse orderRevokePackage(OrderPackRevokeRequest request, Session session) {
-        OrderPackage orderPackage = selectByPrimaryKey(request.getPackNo(), request.getOrderId(), request.getTrackingCode());
+        OrderPackage orderPackage = orderPackageDao.selectByOrderId(request.getOrderId());
         if (null == orderPackage) {
             return BaseResponse.failed();
         }
-        String result = "";
-        switch (orderPackage.getTrackingCompany()) {
-            case "4PX":
-                result = FpxOrderApi.cancelPack(orderPackage.getOrderId());
-                break;
-            case "YunExpress":
-                result = YunexpressApi.cancelYunExpressPack(orderPackage.getOrderId());
-                break;
-            default:
-                break;
-        }
-        if (!result.equals("success")) {
-            return BaseResponse.failed(result);
-        }
+//        String result = "";
+//        switch (orderPackage.getTrackingCompany()) {
+//            case "4PX":
+//                result = FpxOrderApi.cancelPack(orderPackage.getOrderId());
+//                break;
+//            case "YunExpress":
+//                result = YunexpressApi.cancelYunExpressPack(orderPackage.getOrderId());
+//                break;
+//            default:
+//                break;
+//        }
+//        if (!result.equals("success")) {
+//            return BaseResponse.failed(result);
+//        }
         String reason = request.getReason();
         if (StringUtils.isNotBlank(reason)) {
             if (StringUtils.isNotBlank(orderPackage.getRemark())) {
