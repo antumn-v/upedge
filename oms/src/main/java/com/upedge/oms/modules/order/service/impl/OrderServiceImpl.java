@@ -303,6 +303,7 @@ public class OrderServiceImpl implements OrderService {
                 if (null != shippingMethodRedis) {
                     orderVo.setShipCompany(shippingMethodRedis.getTrackingCompany());
                     orderVo.setShipMethodName(shippingMethodRedis.getName());
+                    orderVo.setShipMethodDesc(shippingMethodRedis.getDesc());
                 }
             } else {
                 orderVo.setShipPrice(BigDecimal.ZERO);

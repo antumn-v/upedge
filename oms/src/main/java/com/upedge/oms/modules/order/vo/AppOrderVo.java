@@ -37,6 +37,9 @@ public class AppOrderVo {
     private Long shipMethodId;
 
     private String shipMethodName;
+
+    private String shipMethodDesc;
+
     private String shipCompany;
 
     private String trackingCode;
