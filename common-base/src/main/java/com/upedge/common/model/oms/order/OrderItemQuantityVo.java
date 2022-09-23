@@ -13,5 +13,7 @@ public class OrderItemQuantityVo {
 
     private Long operatorId;
 
+    private Integer stockState;
+
     private List<ItemQuantityVo> itemQuantityVos;
 }

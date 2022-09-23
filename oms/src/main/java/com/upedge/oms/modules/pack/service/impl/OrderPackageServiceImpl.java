@@ -337,7 +337,7 @@ public class OrderPackageServiceImpl implements OrderPackageService {
         }
 
         OrderPackage orderPackage = orderPackageDao.selectByOrderId(orderId);
-        if (orderPackage.getPackageState() != null){
+        if (orderPackage != null){
             return BaseResponse.failed("订单已生成包裹");
         }
 

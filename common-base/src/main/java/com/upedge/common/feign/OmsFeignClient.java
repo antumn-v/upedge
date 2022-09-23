@@ -59,7 +59,7 @@ public interface OmsFeignClient  {
     public OrderItemPurchaseAdviceVo purchaseItems();
 
     @PostMapping("/orderItem/selectItemAdminVariantIds")
-    public List<Long> selectItemAdminVariantIds(OrderItemPurchaseAdviceDto orderItemPurchaseAdviceDto);
+    public List<Long> selectItemAdminVariantIds(@RequestBody OrderItemPurchaseAdviceDto orderItemPurchaseAdviceDto);
     /**
      * 客户经理包裹统计
      * @param request

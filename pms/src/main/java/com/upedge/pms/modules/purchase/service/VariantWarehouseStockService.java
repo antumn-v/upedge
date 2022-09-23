@@ -15,6 +15,8 @@ import java.util.List;
  */
 public interface VariantWarehouseStockService{
 
+    int orderCancelShip(OrderItemQuantityVo orderItemQuantityVo) throws Exception;
+
     BaseResponse deleteVariantStock(VariantWarehouseStockDeleteRequest request,Session session);
 
     BaseResponse variantStockList(VariantStockListRequest request);

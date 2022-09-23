@@ -91,7 +91,7 @@ public class OrderItemController {
     }
 
     @PostMapping("/selectItemAdminVariantIds")
-    public List<Long> selectItemAdminVariantIds(OrderItemPurchaseAdviceDto orderItemPurchaseAdviceDto) {
+    public List<Long> selectItemAdminVariantIds(@RequestBody OrderItemPurchaseAdviceDto orderItemPurchaseAdviceDto) {
 
         return orderItemService.selectItemAdminVariantIds(orderItemPurchaseAdviceDto);
     }

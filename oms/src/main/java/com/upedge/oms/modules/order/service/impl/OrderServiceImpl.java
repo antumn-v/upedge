@@ -1333,6 +1333,16 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public List<OrderItemQuantityVo> selectOrderItemQuantities(OrderItemQuantityDto orderItemQuantityDto) {
+        if (null == orderItemQuantityDto){
+            return null;
+        }
+        if (orderItemQuantityDto.getVariantId() != null){
+            List<Long> orderIds = orderItemDao.selectOutStockOrderIdsByVariantId(orderItemQuantityDto.getVariantId());
+            if (ListUtils.isEmpty(orderIds)){
+                return null;
+            }
+            orderItemQuantityDto.setOrderIds(orderIds);
+        }
         return orderDao.selectOrderItemQuantities(orderItemQuantityDto);
     }
 

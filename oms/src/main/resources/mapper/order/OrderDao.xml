@@ -578,7 +578,7 @@
         from `order` o
         inner join store_order_relate r
         on o.id = r.order_id
-        <if test="t.productTitle != null or t.sku != null">
+        <if test="t != null and (t.productTitle != null or t.sku != null)">
             inner join order_item oi
             on oi.order_id = o.id
         </if>
@@ -2416,7 +2416,7 @@
 
     <select id="selectOrderItemQuantities" resultMap="OrderItemQuantityVo">
         select o.id as `orderId`,shipping_warehouse as `warehouseCode`,
-        oi.quantity,oi.id as `itemId`,oi.admin_variant_id as `variantId`
+        oi.quantity,oi.id as `itemId`,oi.admin_variant_id as `variantId`,o.stock_state
         from `order` o
         inner join order_item oi
         on o.id = oi.order_id
@@ -2425,9 +2425,6 @@
         and o.ship_state = '0'
         and o.stock_state = '0'
         and o.pack_state = '1'
-        <if test="variantId != null">
-            and oi.admin_variant_id = #{variantId}
-        </if>
         <if test="customerId != null">
             and o.customer_id = #{customerId}
         </if>
@@ -2436,6 +2433,12 @@
         </if>
         <if test="orderId != null">
             and o.id = #{orderId}
+        </if>
+        <if test="orderIds != null and orderIds.size() > 0">
+            and o.id in
+            <foreach collection="orderIds" item="id" open="(" close=")" separator=",">
+                #{id}
+            </foreach>
         </if>
     </select>
 
@@ -2468,6 +2471,7 @@
         set pack_state = #{packageState},
             pack_no    = #{packNo}
         where id = #{id}
+        and pack_state = '0'
     </update>
 
     <select id="selectOrderItemQuantitiesByOrderId" resultMap="OrderItemQuantityVo">
@@ -2492,5 +2496,17 @@
         and pay_state = '1'
         and refund_state = '0'
         and ship_state = '0'
+    </update>
+
+    <update id="updateStockStateByIds">
+        update `order`
+        set stock_state = #{stockState}
+        where id in
+        <foreach collection="ids" item="orderId" open="(" separator="," close=")">
+            #{orderId}
+        </foreach>
+          and pay_state = '1'
+          and refund_state = '0'
+          and ship_state = '0'
     </update>
 </mapper>

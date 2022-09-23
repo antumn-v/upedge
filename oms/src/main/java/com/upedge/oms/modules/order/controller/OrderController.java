@@ -157,8 +157,61 @@ public class OrderController {
     @ApiOperation("订单数量,参数同订单列表")
     @PostMapping("/count")
     public BaseResponse appOrderCount(@RequestBody AppOrderListRequest appOrderListRequest) {
-
+        AppOrderListDto appOrderListDto = appOrderListRequest.getT();
+        if (null == appOrderListDto || ListUtils.isEmpty(appOrderListDto.getTagList())){
+            return BaseResponse.failed();
+        }
+        List<String> tags = appOrderListDto.getTagList();
         Session session = UserUtil.getSession(redisTemplate);
+
+        ConcurrentHashMap<String, Long> map = new ConcurrentHashMap();
+        CountDownLatch latch = new CountDownLatch(tags.size());
+        for (OrderTagEnum tag : OrderTagEnum.values()) {
+            if (!tags.contains(tag.name())){
+                continue;
+            }
+            threadPoolExecutor.submit(new Callable<Boolean>() {
+                @Override
+                public Boolean call() throws Exception {
+                    AppOrderListRequest request = new AppOrderListRequest();
+                    BeanUtils.copyProperties(appOrderListRequest, request);
+                    try {
+                        AppOrderListDto appOrderList = new AppOrderListDto();
+                        BeanUtils.copyProperties(appOrderListDto, appOrderList);
+                        appOrderList.setTags(tag.name());
+                        appOrderList.initOrderState();
+                        request.setT(appOrderList);
+                        if (session.getApplicationId() == Constant.APP_APPLICATION_ID){
+                            request.init(session.getCustomerId());
+                        }
+                        Long total = orderService.selectAppOrderCount(request);
+                        map.put(tag.name(), total);
+                        return true;
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        throw e;
+                    } finally {
+                        latch.countDown();
+                    }
+                }
+            });
+        }
+        try {
+            latch.await();
+        } catch (InterruptedException e1) {
+            e1.printStackTrace();
+        }
+        return new OrderListResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS, map, appOrderListRequest);
+    }
+
+
+    @PostMapping("/tagCount")
+    public BaseResponse singleCount(@RequestBody AppOrderListRequest appOrderListRequest){
+        AppOrderListDto appOrderListDto = appOrderListRequest.getT();
+        if (null == appOrderListDto || ListUtils.isEmpty(appOrderListDto.getTagList())){
+            return BaseResponse.failed();
+        }
+        List<String> tags = appOrderListDto.getTagList();
 
         ConcurrentHashMap<String, Long> map = new ConcurrentHashMap();
         CountDownLatch latch = new CountDownLatch(OrderTagEnum.values().length);
@@ -174,7 +227,6 @@ public class OrderController {
                         BeanUtils.copyProperties(appOrderList, appOrderListDto);
                         appOrderListDto.setTags(tag.name());
                         request.setT(appOrderListDto);
-                        request.init(session.getCustomerId());
                         Long total = orderService.selectAppOrderCount(request);
                         map.put(tag.name(), total);
                         return true;

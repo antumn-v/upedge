@@ -28,6 +28,7 @@ import java.util.List;
  */
 public interface OrderItemService {
 
+    List<Long> selectOutStockOrderIdsByVariantId(Long variantId);
 
     List<Long> selectItemAdminVariantIds(OrderItemPurchaseAdviceDto orderItemPurchaseAdviceDto);
 

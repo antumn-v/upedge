@@ -15,6 +15,8 @@ import java.util.List;
  */
 public interface VariantWarehouseStockDao {
 
+    int restoreStockByLockStock(@Param("variantId") Long variantId, @Param("warehouseCode") String warehouseCode, @Param("changeQuantity") Integer changeQuantity);
+
     int markAsDeleted(VariantWarehouseStockDeleteRequest request);
 
     List<VariantWarehouseStockVo> selectVariantStocks(VariantStockListRequest variantStockListRequest);

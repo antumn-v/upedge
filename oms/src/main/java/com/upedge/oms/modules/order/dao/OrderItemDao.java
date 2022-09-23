@@ -24,6 +24,8 @@ import java.util.Map;
  */
 public interface OrderItemDao {
 
+    List<Long> selectOutStockOrderIdsByVariantId(Long variantId);
+
     List<Long> selectItemAdminVariantIds(OrderItemPurchaseAdviceDto orderItemPurchaseAdviceDto);
 
     List<OrderItem> selectByOrderIds(@Param("orderIds") List<Long> orderIds);

@@ -449,7 +449,7 @@
     </select>
 
     <select id="selectByScanNo" resultMap="BaseResultMap">
-        select *
+        select t.*
         from (
              select <include refid="Base_Column_List"/>
              from order_package
@@ -462,7 +462,7 @@
              select <include refid="Base_Column_List"/>
              from order_package
              where tracking_code = #{scanNo}
-             )
+             ) t
         limit 1
     </select>
 </mapper>

@@ -10,7 +10,7 @@ public class AppOrderListDto {
 
     Long customerId;
 
-    String tags = "ALL";
+    String tags;
 
     Integer payState;
 
@@ -84,6 +84,8 @@ public class AppOrderListDto {
 
     List<Long> shipMethodIds;
 
+    private List<String> tagList;
+
     public AppOrderListDto() {
 //        initDateRange();
         initOrderState();
@@ -96,6 +98,8 @@ public class AppOrderListDto {
                 this.shipState = tag.getShipState();
                 this.refundState = tag.getRefundState();
                 this.quoteState = tag.getQuoteState();
+                this.packState = tag.getPackState();
+                this.stockState = tag.getStockState();
                 if (tag.name().equals("RESHIPPED")) {
                     this.orderType = 1;
                 } else {

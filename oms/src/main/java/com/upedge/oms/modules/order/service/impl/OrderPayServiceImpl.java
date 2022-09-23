@@ -932,7 +932,7 @@ public class OrderPayServiceImpl implements OrderPayService {
 
     @Override
     public void sendCheckOrderStockMessage(OrderItemQuantityDto orderItemQuantityDto) {
-        List<OrderItemQuantityVo> orderItemQuantityVos = orderDao.selectOrderItemQuantities(orderItemQuantityDto);
+        List<OrderItemQuantityVo> orderItemQuantityVos = orderService.selectOrderItemQuantities(orderItemQuantityDto);
         if (ListUtils.isNotEmpty(orderItemQuantityVos)) {
             List<Message> messages = new ArrayList<>();
             orderItemQuantityVos.forEach(orderItemQuantityVo -> {

@@ -2,18 +2,14 @@ package com.upedge.pms.modules.purchase.service.impl;
 
 import com.upedge.common.base.BaseResponse;
 import com.upedge.common.base.Page;
-import com.upedge.common.constant.key.RedisKey;
-import com.upedge.common.model.pms.vo.VariantWarehouseStockModel;
 import com.upedge.common.utils.ListUtils;
 import com.upedge.pms.modules.product.service.ProductVariantService;
 import com.upedge.pms.modules.purchase.dao.VariantWarehouseStockRecordDao;
-import com.upedge.pms.modules.purchase.entity.VariantWarehouseStock;
 import com.upedge.pms.modules.purchase.entity.VariantWarehouseStockRecord;
 import com.upedge.pms.modules.purchase.request.VariantStockListRequest;
 import com.upedge.pms.modules.purchase.service.VariantWarehouseStockRecordService;
 import com.upedge.pms.modules.purchase.service.VariantWarehouseStockService;
 import com.upedge.pms.modules.purchase.vo.VariantWarehouseStockRecordVo;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
@@ -53,26 +49,12 @@ public class VariantWarehouseStockRecordServiceImpl implements VariantWarehouseS
      */
     @Transactional
     public int insert(VariantWarehouseStockRecord record) {
-        Long variantId = record.getVariantId();
-        String warehouseCode = record.getWarehouseCode();;
-        VariantWarehouseStock variantWarehouseStock = variantWarehouseStockService.selectByPrimaryKey(variantId, warehouseCode);
-        VariantWarehouseStockModel variantWarehouseStockModel = new VariantWarehouseStockModel();
-        BeanUtils.copyProperties(variantWarehouseStock,variantWarehouseStockModel);
-        redisTemplate.opsForHash().put(RedisKey.HASH_VARIANT_WAREHOUSE_STOCK + warehouseCode,variantId.toString(),variantWarehouseStockModel);
         return variantWarehouseStockRecordDao.insert(record);
     }
 
     @Override
     public int insertByBatch(List<VariantWarehouseStockRecord> records) {
         if (ListUtils.isNotEmpty(records)){
-            for (VariantWarehouseStockRecord record : records) {
-                Long variantId = record.getVariantId();
-                String warehouseCode = record.getWarehouseCode();;
-                VariantWarehouseStock variantWarehouseStock = variantWarehouseStockService.selectByPrimaryKey(variantId, warehouseCode);
-                VariantWarehouseStockModel variantWarehouseStockModel = new VariantWarehouseStockModel();
-                BeanUtils.copyProperties(variantWarehouseStock,variantWarehouseStockModel);
-                redisTemplate.opsForHash().put(RedisKey.HASH_VARIANT_WAREHOUSE_STOCK + warehouseCode,variantId.toString(),variantWarehouseStockModel);
-            }
             return variantWarehouseStockRecordDao.insertByBatch(records);
         }
         return 0;

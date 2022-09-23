@@ -439,18 +439,22 @@ public class PurchaseServiceImpl implements PurchaseService {
             AlibabaTradeFastResult alibabaTradeFastResult = null;
             Long id = getNextPurchaseOrderId();
             String message = "下单号： " + id;
-            try {
-                alibabaTradeFastResult = Ali1688Service.createOrder(tradeFastCargos, alibabaApiVo,message);
-            } catch (CustomerException e) {
-                e.printStackTrace();
-                continue;
-            }
+//            try {
+//                alibabaTradeFastResult = Ali1688Service.createOrder(tradeFastCargos, alibabaApiVo,message);
+//            } catch (CustomerException e) {
+//                e.printStackTrace();
+//                continue;
+//            }
 
             orderIds.add(id);
-            PurchaseOrder purchaseOrder = new PurchaseOrder(id, alibabaTradeFastResult.getOrderId(),
+            PurchaseOrder purchaseOrder = new PurchaseOrder(id,
+                    "2899795719817530454",
+//                    alibabaTradeFastResult.getOrderId(),
                     BigDecimal.ZERO,
-                    new BigDecimal((alibabaTradeFastResult.getPostFee().doubleValue() / 100)),
-                    new BigDecimal(alibabaTradeFastResult.getTotalSuccessAmount().doubleValue() / 100),
+//                    new BigDecimal((alibabaTradeFastResult.getPostFee().doubleValue() / 100)),
+//                    new BigDecimal(alibabaTradeFastResult.getTotalSuccessAmount().doubleValue() / 100),
+                    BigDecimal.TEN,
+                    BigDecimal.TEN,
                     BigDecimal.ZERO,
                     map.getKey(),
                     0, 0, session.getId(), 0);

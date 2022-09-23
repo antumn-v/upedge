@@ -55,5 +55,7 @@ public class RocketMqConfig {
     public final static String TOPIC_GET_STORE_DATA = "get_store_data";
     //包裹出去，物流单号回传店铺
     public final static String TOPIC_ORDER_PACKAGE_EX_FULFILLMENT = "order_package_ex_fulfillment";
+    //产品更新库存
+    public static final String TOPIC_VARIANT_WAREHOUSE_STOCK_REFRESH = "variant_warehouse_stock_refresh";
 
 }

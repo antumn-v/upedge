@@ -2,6 +2,8 @@ package com.upedge.common.model.order;
 
 import lombok.Data;
 
+import java.util.List;
+
 @Data
 public class OrderItemQuantityDto {
 
@@ -12,6 +14,10 @@ public class OrderItemQuantityDto {
     private Long customerId;
 
     private Long orderId;
+
+    private Integer stockType;
+
+    private List<Long> orderIds;
 
 
 }

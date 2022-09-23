@@ -102,6 +102,11 @@ public class OrderItemServiceImpl implements OrderItemService {
     }
 
     @Override
+    public List<Long> selectOutStockOrderIdsByVariantId(Long variantId) {
+        return orderItemDao.selectOutStockOrderIdsByVariantId(variantId);
+    }
+
+    @Override
     public List<Long> selectItemAdminVariantIds(OrderItemPurchaseAdviceDto orderItemPurchaseAdviceDto) {
         return orderItemDao.selectItemAdminVariantIds(orderItemPurchaseAdviceDto);
     }
