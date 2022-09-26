@@ -14,6 +14,7 @@ import com.upedge.common.model.account.AccountPaymentRequest;
 import com.upedge.common.model.account.PaypalOrder;
 import com.upedge.common.model.account.PaypalOrder.PaypalOrderItem;
 import com.upedge.common.model.oms.order.OrderItemQuantityVo;
+import com.upedge.common.model.order.OrderItemQuantityDto;
 import com.upedge.common.model.order.PaymentDetail;
 import com.upedge.common.model.order.TransactionDetail;
 import com.upedge.common.model.order.request.CustomerOrderDailyCountUpdateRequest;
@@ -34,7 +35,6 @@ import com.upedge.oms.modules.common.vo.OrderPayCheckResultVo;
 import com.upedge.oms.modules.order.dao.OrderDao;
 import com.upedge.oms.modules.order.dao.OrderItemDao;
 import com.upedge.oms.modules.order.dto.AppOrderListDto;
-import com.upedge.common.model.order.OrderItemQuantityDto;
 import com.upedge.oms.modules.order.dto.OrderTransactionDto;
 import com.upedge.oms.modules.order.entity.Order;
 import com.upedge.oms.modules.order.entity.OrderItem;
@@ -757,6 +757,22 @@ public class OrderPayServiceImpl implements OrderPayService {
         detail.setOrderTransactions(transactionDetails);
 
         umsFeignClient.saveTransactionDetails(detail);
+
+        List<Long> orderIds = new ArrayList<>();
+        for (TransactionDetail transactionDetail : transactionDetails) {
+            orderIds.add(transactionDetail.getOrderId());
+        }
+        sendCreatePackageMessage(orderIds);
+    }
+
+
+    public void sendCreatePackageMessage(List<Long> orderIds){
+        Message message = new Message(RocketMqConfig.TOPIC_ORDER_CREATE_PACKAGE,JSON.toJSONBytes(orderIds));
+        try {
+            defaultMQProducer.send(message);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
 

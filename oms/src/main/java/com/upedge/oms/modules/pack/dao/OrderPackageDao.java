@@ -11,6 +11,8 @@ import java.util.List;
  */
 public interface OrderPackageDao {
 
+    List<OrderPackage> selectUploadStoreFailedPackages();
+
     OrderPackage selectByScanNo(String scanNo);
 
     int revokePackageById(@Param("id") Long id, @Param("reason") String reason);

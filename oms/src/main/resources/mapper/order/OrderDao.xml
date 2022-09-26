@@ -2471,7 +2471,6 @@
         set pack_state = #{packageState},
             pack_no    = #{packNo}
         where id = #{id}
-        and pack_state = '0'
     </update>
 
     <select id="selectOrderItemQuantitiesByOrderId" resultMap="OrderItemQuantityVo">

@@ -47,6 +47,14 @@ public class OrderPackageController {
         return orderPackageService.createPackage(id);
     }
 
+    @PostMapping("/createBatch")
+    public BaseResponse createPackageBatch(@RequestBody List<Long> orderIds) {
+        for (Long orderId : orderIds) {
+            orderPackageService.createPackage(orderId);
+        }
+        return BaseResponse.success();
+    }
+
     @ApiOperation("搁置发货")
     @PostMapping("/revoke")
     public BaseResponse revokePackage(@RequestBody OrderPackRevokeRequest request) {

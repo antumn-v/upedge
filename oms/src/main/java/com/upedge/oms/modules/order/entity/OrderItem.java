@@ -113,6 +113,8 @@ public class OrderItem{
 
 	private String barcode;
 
+	private Long customerId;
+
 
 	public OrderItem(StoreOrderItem storeOrderItem) {
 		this.storeVariantId = storeOrderItem.getStoreVariantId();

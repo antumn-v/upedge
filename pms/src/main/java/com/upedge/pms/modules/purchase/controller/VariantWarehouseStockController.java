@@ -113,6 +113,17 @@ public class VariantWarehouseStockController {
         return variantWarehouseStockService.deleteVariantStock(request,session);
     }
 
+    @PostMapping("/orderCancelShip")
+    public int orderCancelShip(@RequestBody OrderItemQuantityVo orderItemQuantityVo){
+        try {
+            int i = variantWarehouseStockService.orderCancelShip(orderItemQuantityVo);
+            return i;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return 0;
+        }
+    }
+
 
 
 }

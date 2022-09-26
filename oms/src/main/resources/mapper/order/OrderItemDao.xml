@@ -1249,6 +1249,7 @@
           and o.refund_state = '0'
           and o.ship_state = '0'
           and o.stock_state = '0'
+          and o.pack_state = '1'
         group by oi.admin_variant_id,o.customer_id
         order by `quantity` desc
     </select>

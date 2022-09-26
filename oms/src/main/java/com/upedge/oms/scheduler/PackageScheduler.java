@@ -5,6 +5,8 @@ import com.upedge.common.utils.DateUtils;
 import com.upedge.oms.modules.order.entity.Order;
 import com.upedge.oms.modules.order.service.OrderService;
 import com.upedge.oms.modules.order.vo.OrderVo;
+import com.upedge.oms.modules.pack.entity.OrderPackage;
+import com.upedge.oms.modules.pack.service.OrderPackageService;
 import io.micrometer.core.instrument.util.StringUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
@@ -22,6 +24,9 @@ public class PackageScheduler {
 
     @Autowired
     private OrderService orderService;
+
+    @Autowired
+    OrderPackageService orderPackageService;
 
 
     /**
@@ -70,6 +75,16 @@ public class PackageScheduler {
             } catch (Exception e) {
                 log.error("从赛盒获取物流pullNormalTracking信息出错：order:{},exception:{}",order,e);
             }
+        }
+    }
+
+
+    @Async
+    @Scheduled(cron = "0 00 */2 ? * *")
+    public void syncPackageInfo(){
+        List<OrderPackage> orderPackages = orderPackageService.selectUploadStoreFailedPackages();
+        for (OrderPackage orderPackage : orderPackages) {
+            orderPackageService.packageRefreshTrackCode(orderPackage);
         }
     }
 

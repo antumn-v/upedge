@@ -623,6 +623,7 @@ public class OrderItemServiceImpl implements OrderItemService {
             PurchaseAdviceItemVo purchaseAdviceItemVo = new PurchaseAdviceItemVo();
             purchaseAdviceItemVo.setVariantId(orderItem.getAdminVariantId());
             purchaseAdviceItemVo.setOrderQuantity(orderItem.getQuantity());
+            purchaseAdviceItemVo.setCustomerId(orderItem.getCustomerId());
             purchaseAdviceItemVos.add(purchaseAdviceItemVo);
         }
 //        long total = orderItemDao.countUnStockOrderItems(request);

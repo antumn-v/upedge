@@ -14,6 +14,8 @@ import java.util.List;
 
 public interface OrderPackageService {
 
+    List<OrderPackage> selectUploadStoreFailedPackages();
+
     List<OrderPackage> selectByOrderIds(List<Long> orderIds);
 
     void packageRefreshTrackCode(OrderPackage orderPackage);

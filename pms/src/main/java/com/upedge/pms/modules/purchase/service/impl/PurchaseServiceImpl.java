@@ -448,13 +448,10 @@ public class PurchaseServiceImpl implements PurchaseService {
 
             orderIds.add(id);
             PurchaseOrder purchaseOrder = new PurchaseOrder(id,
-                    "2899795719817530454",
-//                    alibabaTradeFastResult.getOrderId(),
+                    alibabaTradeFastResult.getOrderId(),
                     BigDecimal.ZERO,
-//                    new BigDecimal((alibabaTradeFastResult.getPostFee().doubleValue() / 100)),
-//                    new BigDecimal(alibabaTradeFastResult.getTotalSuccessAmount().doubleValue() / 100),
-                    BigDecimal.TEN,
-                    BigDecimal.TEN,
+                    new BigDecimal((alibabaTradeFastResult.getPostFee().doubleValue() / 100)),
+                    new BigDecimal(alibabaTradeFastResult.getTotalSuccessAmount().doubleValue() / 100),
                     BigDecimal.ZERO,
                     map.getKey(),
                     0, 0, session.getId(), 0);

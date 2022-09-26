@@ -451,18 +451,31 @@
     <select id="selectByScanNo" resultMap="BaseResultMap">
         select t.*
         from (
-             select <include refid="Base_Column_List"/>
-             from order_package
-             where id = #{scanNo}
-             union
-             select <include refid="Base_Column_List"/>
-             from order_package
-             where logistics_order_no = #{scanNo}
-             union
-             select <include refid="Base_Column_List"/>
-             from order_package
-             where tracking_code = #{scanNo}
-             ) t
+        select
+        <include refid="Base_Column_List"/>
+        from order_package
+        where id = #{scanNo}
+        union
+        select
+        <include refid="Base_Column_List"/>
+        from order_package
+        where logistics_order_no = #{scanNo}
+        union
+        select
+        <include refid="Base_Column_List"/>
+        from order_package
+        where tracking_code = #{scanNo}
+        ) t
         limit 1
+    </select>
+
+    <select id="selectUploadStoreFailedPackages" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from order_package
+        where package_state = '1'
+        and is_upload_store = '0'
+        order by create_time desc
+        limit 500
     </select>
 </mapper>

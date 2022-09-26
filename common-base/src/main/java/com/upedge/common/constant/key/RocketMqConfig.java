@@ -57,5 +57,7 @@ public class RocketMqConfig {
     public final static String TOPIC_ORDER_PACKAGE_EX_FULFILLMENT = "order_package_ex_fulfillment";
     //产品更新库存
     public static final String TOPIC_VARIANT_WAREHOUSE_STOCK_REFRESH = "variant_warehouse_stock_refresh";
+    //订单创建包裹
+    public static final String TOPIC_ORDER_CREATE_PACKAGE = "order_create_package";
 
 }

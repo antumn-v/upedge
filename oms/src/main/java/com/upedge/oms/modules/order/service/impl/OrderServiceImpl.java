@@ -2431,15 +2431,17 @@ public class OrderServiceImpl implements OrderService {
                 appOrderVo.setIsPrintPick(false);
             }
             Set<AppStoreOrderVo> appStoreOrderVos = appOrderVo.getStoreOrderVos();
-            appStoreOrderVos.forEach(appStoreOrderVo -> {
-                List<AppOrderItemVo> itemVos = appStoreOrderVo.getItemVos();
-                itemVos.forEach(appOrderItemVo -> {
-                    VariantWarehouseStockModel variantWarehouseStockModel = (VariantWarehouseStockModel) redisTemplate.opsForHash().get(RedisKey.HASH_VARIANT_WAREHOUSE_STOCK + appOrderVo.getShippingWarehouse(),appOrderItemVo.getAdminVariantId().toString());
-                    if (variantWarehouseStockModel != null){
-                        appOrderItemVo.setAvailableStock(variantWarehouseStockModel.getAvailableStock());
-                    }
+            if (appOrderVo.getPayState() == 1){
+                appStoreOrderVos.forEach(appStoreOrderVo -> {
+                    List<AppOrderItemVo> itemVos = appStoreOrderVo.getItemVos();
+                    itemVos.forEach(appOrderItemVo -> {
+                        VariantWarehouseStockModel variantWarehouseStockModel = (VariantWarehouseStockModel) redisTemplate.opsForHash().get(RedisKey.HASH_VARIANT_WAREHOUSE_STOCK + appOrderVo.getShippingWarehouse(),appOrderItemVo.getAdminVariantId().toString());
+                        if (variantWarehouseStockModel != null){
+                            appOrderItemVo.setAvailableStock(variantWarehouseStockModel.getAvailableStock());
+                        }
+                    });
                 });
-            });
+            }
         });
         appOrderVos = completePackageInfo(appOrderVos);
         Long total = selectAppOrderCount(request);

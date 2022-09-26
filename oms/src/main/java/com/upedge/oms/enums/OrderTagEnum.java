@@ -26,7 +26,7 @@ public enum  OrderTagEnum {
     /**
      * 已发货
      */
-    SHIPPED(1,0,1,null,null,null),
+    SHIPPED(1,1,0,null,null,null),
 
     /**
      * 取消订单
@@ -36,7 +36,7 @@ public enum  OrderTagEnum {
     /**
      * 退款：包括退款申请中 部分退款  全部退款
      */
-    REFUNDS(1,1,null,null,null,null),
+    REFUNDS(1,null,1,null,null,null),
 
     /**
      * 补发

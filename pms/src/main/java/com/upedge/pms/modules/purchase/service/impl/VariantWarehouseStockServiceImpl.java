@@ -94,9 +94,6 @@ public class VariantWarehouseStockServiceImpl implements VariantWarehouseStockSe
     @Transactional(rollbackFor = Exception.class)
     @Override
     public int orderCancelShip(OrderItemQuantityVo orderItemQuantityVo) throws Exception {
-        if (orderItemQuantityVo.getStockState() == 0){
-            return 0;
-        }
         List<ItemQuantityVo> itemQuantityVos = orderItemQuantityVo.getItemQuantityVos();
         for (ItemQuantityVo itemQuantityVo : itemQuantityVos) {
            int i = variantWarehouseStockDao.restoreStockByLockStock(itemQuantityVo.getVariantId(), orderItemQuantityVo.getWarehouseCode(),itemQuantityVo.getQuantity());
@@ -104,10 +101,6 @@ public class VariantWarehouseStockServiceImpl implements VariantWarehouseStockSe
                 throw new Exception("锁定库存异常");
             }
         }
-        OrderStockStateUpdateRequest orderStockStateUpdateRequest = new OrderStockStateUpdateRequest();
-        orderStockStateUpdateRequest.setStockState(0);
-        orderStockStateUpdateRequest.setOrderId(orderItemQuantityVo.getOrderId());
-        omsFeignClient.updateStockState(orderStockStateUpdateRequest);
         return 1;
     }
 
@@ -284,7 +277,7 @@ public class VariantWarehouseStockServiceImpl implements VariantWarehouseStockSe
             }
 
             if (itemQuantityVo.getVariantId().equals(variantId)){
-                Integer changeQuantity = itemQuantityVo.getQuantity();
+                Integer changeQuantity = itemQuantityVo.getQuantity() * variantWarehouseStock.getStockScale();
                 //安全数量小于变动库存，返回
                 if (changeQuantity > variantWarehouseStock.getAvailableStock()){
                     return true;

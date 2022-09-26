@@ -184,10 +184,10 @@ public class OrderFulfillmentServiceImpl implements OrderFulfillmentService {
         Long customerId = orderPackage.getCustomerId();
         String trackCode = null;
         String uploadStoreTrackCodeType = (String) redisTemplate.opsForHash().get(RedisKey.HASH_CUSTOMER_SETTING + customerId, CustomerSettingEnum.upload_store_track_code_type.name());
-        if (uploadStoreTrackCodeType == null || uploadStoreTrackCodeType.equals("1")){
-            trackCode = orderPackage.getTrackingCode();
-        }else {
+        if (uploadStoreTrackCodeType == null || uploadStoreTrackCodeType.equals("0")){
             trackCode = orderPackage.getLogisticsOrderNo();
+        }else {
+            trackCode = orderPackage.getTrackingCode();
         }
         if (StringUtils.isBlank(trackCode)){
             return false;
