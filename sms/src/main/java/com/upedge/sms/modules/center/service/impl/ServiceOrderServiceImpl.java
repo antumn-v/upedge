@@ -76,6 +76,34 @@ public class ServiceOrderServiceImpl implements ServiceOrderService {
     }
 
     @Override
+    public void saveTransaction() {
+        ServiceOrder serviceOrder = new ServiceOrder();
+        serviceOrder.setPayState(1);
+        Page<ServiceOrder> page = new Page<>();
+        page.setT(serviceOrder);
+        page.setPageSize(-1);
+        List<ServiceOrder> serviceOrders = select(page);
+        for (ServiceOrder order : serviceOrders) {
+            switch (order.getServiceType()){
+                case OrderType.EXTRA_SERVICE_OVERSEA_WAREHOUSE:
+                    overseaWarehouseServiceOrderService.saveTransactionRecord(order.getCustomerId(),order.getId());
+                    break;
+                case OrderType.EXTRA_SERVICE_WHOLESALE:
+                    wholesaleOrderService.saveTransactionRecordMessage(order.getCustomerId(),order.getId());
+                    break;
+                case OrderType.EXTRA_SERVICE_WINNING_PRODUCT:
+                    winningProductServiceOrderService.saveTransactionRecordMessage(order.getCustomerId(),order.getId());
+                    break;
+                case OrderType.EXTRA_SERVICE_PRODUCT_PHOTOGRAPHY:
+                    productPhotographyOrderService.saveTransactionRecord(order.getCustomerId(), order.getId());
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+
+    @Override
     public BaseResponse cancelOrder(Long id, Session session) {
         ServiceOrder serviceOrder = selectByPrimaryKey(id);
         if (serviceOrder == null

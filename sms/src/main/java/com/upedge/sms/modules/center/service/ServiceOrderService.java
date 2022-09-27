@@ -14,6 +14,8 @@ import java.util.List;
  */
 public interface ServiceOrderService{
 
+    void saveTransaction();
+
     BaseResponse cancelOrder(Long id, Session session);
 
     BaseResponse restoreCanceledOrder(Long id, Session session);
