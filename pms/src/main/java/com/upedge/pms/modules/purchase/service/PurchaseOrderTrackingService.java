@@ -10,6 +10,9 @@ import java.util.List;
  * @author gx
  */
 public interface PurchaseOrderTrackingService{
+
+    List<PurchaseOrderTracking> selectByTrackCode(String trackCode);
+
     List<PurchaseOrderTracking> selectByOrderId(Long orderId);
 
 

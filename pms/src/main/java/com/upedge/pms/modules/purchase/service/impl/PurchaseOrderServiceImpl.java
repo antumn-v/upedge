@@ -20,6 +20,7 @@ import com.upedge.pms.modules.purchase.request.VariantStockExImRecordUpdateReque
 import com.upedge.pms.modules.purchase.service.*;
 import com.upedge.pms.modules.purchase.vo.PurchaseOrderVo;
 import com.upedge.thirdparty.ali1688.service.Ali1688Service;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -227,6 +228,9 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
 
 
     void updateBaseInfo(Long id, String purchaseId, String trackingCode) throws CustomerException {
+        if (StringUtils.isBlank(trackingCode)){
+            trackingCode = "";
+        }
         AlibabaOpenplatformTradeModelTradeInfo alibabaOpenplatformTradeModelTradeInfo = null;
         try {
             alibabaOpenplatformTradeModelTradeInfo = Ali1688Service.orderDetail(Long.parseLong(purchaseId), null);
@@ -250,7 +254,9 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
                 StringBuffer code = new StringBuffer();
                 for (int i = 0; i < logisticsItemsInfos.size(); i++) {
                     AlibabaOpenplatformTradeModelNativeLogisticsItemsInfo logisticsItemsInfo = logisticsItemsInfos.get(i);
-
+                    if (logisticsItemsInfo.getLogisticsCode() == null){
+                        continue;
+                    }
                     if (code == null) {
                         code = code.append(logisticsItemsInfo.getLogisticsCode());
                     } else {
@@ -338,6 +344,9 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
     @Override
     public List<PurchaseOrderVo> orderList(PurchaseOrderListRequest request) {
         PurchaseOrderListDto purchaseOrderListDto = request.getT();
+        if (null == purchaseOrderListDto){
+            purchaseOrderListDto = new PurchaseOrderListDto();
+        }
         List<Long> orderIds = new ArrayList<>();
         //判断是否是变体条件查询的订单
         List<PurchaseOrderItem> purchaseOrderItems = purchaseOrderItemService.selectByOrderListDto(purchaseOrderListDto);
@@ -348,8 +357,17 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
                     orderIds.add(purchaseOrderItem.getOrderId());
                 }
             }
-            purchaseOrderListDto.setIds(orderIds);
         }
+
+        String trackCode = purchaseOrderListDto.getTrackingCode();
+        List<PurchaseOrderTracking> purchaseOrderTracks = purchaseOrderTrackingService.selectByTrackCode(trackCode);
+        if (ListUtils.isNotEmpty(purchaseOrderTracks)){
+            for (PurchaseOrderTracking purchaseOrderTrack : purchaseOrderTracks) {
+                orderIds.add(purchaseOrderTrack.getPurchaseOrderId());
+            }
+        }
+
+        purchaseOrderListDto.setIds(orderIds);
         List<PurchaseOrder> purchaseOrders = purchaseOrderDao.selectPurchaseOrders(request);
         if (ListUtils.isEmpty(purchaseOrders)) {
             return new ArrayList<>();

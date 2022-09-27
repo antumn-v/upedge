@@ -8,10 +8,12 @@ import com.upedge.common.utils.ListUtils;
 import com.upedge.pms.modules.purchase.dao.PurchaseOrderTrackingDao;
 import com.upedge.pms.modules.purchase.entity.PurchaseOrderTracking;
 import com.upedge.pms.modules.purchase.service.PurchaseOrderTrackingService;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -56,6 +58,14 @@ public class PurchaseOrderTrackingServiceImpl implements PurchaseOrderTrackingSe
     @Transactional
     public int insertSelective(PurchaseOrderTracking record) {
         return purchaseOrderTrackingDao.insert(record);
+    }
+
+    @Override
+    public List<PurchaseOrderTracking> selectByTrackCode(String trackCode) {
+        if (StringUtils.isNotBlank(trackCode)){
+            return purchaseOrderTrackingDao.selectByTrackCode(trackCode);
+        }
+        return new ArrayList<>();
     }
 
     @Override

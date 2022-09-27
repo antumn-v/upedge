@@ -223,4 +223,11 @@
         from purchase_order_tracking
         where purchase_order_id = #{orderId}
     </select>
+
+    <select id="selectByTrackCode" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from purchase_order_tracking
+        where tracking_code = #{trackCode}
+    </select>
 </mapper>
