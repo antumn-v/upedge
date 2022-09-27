@@ -392,7 +392,14 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public OrderAddress getOrderAddress(Long id) {
-        return orderAddressDao.queryOrderAddressByOrderId(id);
+        OrderAddress orderAddress =  orderAddressDao.queryOrderAddressByOrderId(id);
+        if (null == orderAddress){
+            return null;
+        }
+        if (StringUtils.isBlank(orderAddress.getPhone())){
+            orderAddress.setPhone("00000000000");
+        }
+        return orderAddress;
     }
 
     @Override
