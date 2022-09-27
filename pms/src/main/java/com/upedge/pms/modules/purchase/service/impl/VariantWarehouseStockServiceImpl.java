@@ -185,7 +185,6 @@ public class VariantWarehouseStockServiceImpl implements VariantWarehouseStockSe
             variantWarehouseStockRecordService.insert(variantWarehouseStockRecord);
             variantIds.add(itemQuantityVo.getVariantId());
         }
-        sendRefreshVariantStockMessage(variantIds, orderItemQuantityVo.getWarehouseCode());
         return BaseResponse.success();
     }
 
@@ -408,7 +407,7 @@ public class VariantWarehouseStockServiceImpl implements VariantWarehouseStockSe
                         session.getId());
         variantWarehouseStockRecordService.insert(variantWarehouseStockRecord);
 
-        redisTemplate.opsForHash().put(RedisKey.HASH_VARIANT_WAREHOUSE_STOCK,variantId.toString(),variantWarehouseStockModel);
+        redisTemplate.opsForHash().put(RedisKey.HASH_VARIANT_WAREHOUSE_STOCK + warehouseCode,variantId.toString(),variantWarehouseStockModel);
 
         if (request.getStock() > 0 && variantWarehouseStockRecord.getOriginalStock() != variantWarehouseStockRecord.getNowStock()){
             OrderItemQuantityDto orderItemQuantityDto = new OrderItemQuantityDto();

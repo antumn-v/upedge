@@ -1,7 +1,9 @@
 package com.upedge.pms.init;
 
+import com.upedge.common.base.Page;
 import com.upedge.common.constant.key.RedisKey;
 import com.upedge.common.model.pms.quote.CustomerProductQuoteVo;
+import com.upedge.common.model.pms.vo.VariantWarehouseStockModel;
 import com.upedge.common.model.product.AlibabaApiVo;
 import com.upedge.common.utils.ListUtils;
 import com.upedge.pms.modules.alibaba.entity.AlibabaApi;
@@ -9,6 +11,8 @@ import com.upedge.pms.modules.alibaba.service.Ali1688Service;
 import com.upedge.pms.modules.alibaba.service.AlibabaApiService;
 import com.upedge.pms.modules.product.service.StoreProductVariantService;
 import com.upedge.pms.modules.product.vo.SplitVariantIdVo;
+import com.upedge.pms.modules.purchase.entity.VariantWarehouseStock;
+import com.upedge.pms.modules.purchase.service.VariantWarehouseStockService;
 import com.upedge.pms.modules.quote.service.CustomerProductQuoteService;
 import com.upedge.pms.modules.quote.service.QuoteApplyItemService;
 import lombok.extern.slf4j.Slf4j;
@@ -40,6 +44,9 @@ public class RedisInit {
 
     @Autowired
     CustomerProductQuoteService customerProductQuoteService;
+
+    @Autowired
+    VariantWarehouseStockService variantWarehouseStockService;
 
     @Autowired
     RedisTemplate redisTemplate;
@@ -122,10 +129,31 @@ public class RedisInit {
             }
         },threadPoolExecutor);
 
+        CompletableFuture<Void> stock = CompletableFuture.runAsync(new Runnable() {
+            @Override
+            public void run() {
+                initVariantStock();
+            }
+        },threadPoolExecutor);
+
         try {
-            CompletableFuture.allOf(quoted,quoting,split).get();
+            CompletableFuture.allOf(quoted,quoting,split,stock).get();
         } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+
+    public void initVariantStock(){
+        VariantWarehouseStock variantWarehouseStock = new VariantWarehouseStock();
+        variantWarehouseStock.setStockState(1);
+        Page<VariantWarehouseStock> page = new Page<>();
+        page.setT(variantWarehouseStock);
+        page.setPageSize(-1);
+        List<VariantWarehouseStock> variantWarehouseStocks = variantWarehouseStockService.select(page);
+        for (VariantWarehouseStock warehouseStock : variantWarehouseStocks) {
+            VariantWarehouseStockModel variantWarehouseStockModel = new VariantWarehouseStockModel();
+            BeanUtils.copyProperties(warehouseStock,variantWarehouseStockModel);
+            redisTemplate.opsForHash().put(RedisKey.HASH_VARIANT_WAREHOUSE_STOCK + warehouseStock.getWarehouseCode(),warehouseStock.getVariantId().toString(),variantWarehouseStockModel);
         }
     }
 

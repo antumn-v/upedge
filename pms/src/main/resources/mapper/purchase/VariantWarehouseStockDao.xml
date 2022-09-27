@@ -221,6 +221,9 @@
                 <if test="t.shelfNum != null">
                     shelf_num = #{t.shelfNum} and
                 </if>
+                <if test="t.stockState != null">
+                    stock_state = #{t.stockState} and
+                </if>
             </trim>
         </if>
     </sql>
