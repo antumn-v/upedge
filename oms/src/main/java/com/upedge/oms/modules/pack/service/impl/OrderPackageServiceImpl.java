@@ -342,7 +342,7 @@ public class OrderPackageServiceImpl implements OrderPackageService {
         Order order = orderService.selectByPrimaryKey(orderId);
 
         if (order.getPayState() != 1
-                || order.getPackState() == 1
+                || order.getPackState() !=0
                 || order.getRefundState() != 0) {
             return BaseResponse.failed("订单未支付或已生成包裹或退款中");
         }
@@ -355,6 +355,7 @@ public class OrderPackageServiceImpl implements OrderPackageService {
         ShippingMethodRedis shippingMethodRedis = (ShippingMethodRedis) redisTemplate.opsForHash().get(RedisKey.SHIPPING_METHOD, order.getShipMethodId().toString());
         String shipCompany = shippingMethodRedis.getTrackingCompany();
         if (StringUtils.isBlank(shipCompany) || StringUtils.isBlank(shippingMethodRedis.getMethodCode())) {
+            redisTemplate.opsForHash().put(RedisKey.HASH_ORDER_CREATE_PACKAGE_FAILED_REASON, orderId.toString(), "请完善运输方式公司信息");
             return BaseResponse.failed("请完善运输方式公司信息");
         }
 

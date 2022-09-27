@@ -2426,7 +2426,7 @@ public class OrderServiceImpl implements OrderService {
     public OrderListResponse manageList(AppOrderListRequest request, Session session) {
         List<AppOrderVo> appOrderVos = selectAppOrderList(request);
         appOrderVos.forEach(appOrderVo -> {
-            if (appOrderVo.getPackState() == 2){
+            if (appOrderVo.getPackState() == 0){
                 String reason = (String) redisTemplate.opsForHash().get(RedisKey.HASH_ORDER_CREATE_PACKAGE_FAILED_REASON,appOrderVo.getId().toString());
                 appOrderVo.setCreatePackFailedReason(reason);
             }
