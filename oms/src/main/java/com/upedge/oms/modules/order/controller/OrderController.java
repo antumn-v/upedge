@@ -31,6 +31,7 @@ import com.upedge.oms.modules.order.service.OrderService;
 import com.upedge.oms.modules.order.vo.*;
 import com.upedge.oms.modules.orderShippingUnit.service.OrderShippingUnitService;
 import com.upedge.oms.modules.orderShippingUnit.vo.OrderShippingUnitVo;
+import com.upedge.oms.modules.pack.service.OrderPackageService;
 import com.upedge.oms.modules.tickets.service.SupportTicketsService;
 import com.upedge.oms.modules.tickets.vo.SupportTicketsVo;
 import com.upedge.oms.scheduler.PackageScheduler;
@@ -70,6 +71,9 @@ public class OrderController {
 
     @Autowired
     SupportTicketsService supportTicketsService;
+
+    @Autowired
+    OrderPackageService orderPackageService;
 
     @Autowired
     RedisTemplate<String, Object> redisTemplate;
@@ -486,6 +490,8 @@ public class OrderController {
             Order order = (Order) response.getData();
             if (request.getNeedPay() && order.getShipMethodId() == null) {
                 orderService.matchShipRule(order.getId());
+            }else if (!request.getNeedPay()){
+                orderPackageService.createPackage(order.getId());
             }
             return response;
         }
