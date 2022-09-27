@@ -230,13 +230,17 @@ public class OrderPackageServiceImpl implements OrderPackageService {
         if (orderId == null){
             return;
         }
-        OrderItemQuantityVo orderItemQuantityVo = orderService.selectOrderItemQuantitiesByOrderId(orderId);
-        if (null == orderItemQuantityVo){
-            return;
-        }
-        int i = pmsFeignClient.orderCancelShip(orderItemQuantityVo);
-        if (i == 0){
-            return;
+        Order order = orderService.selectByPrimaryKey(orderId);
+        if (order.getStockState() == 1){
+            OrderItemQuantityVo orderItemQuantityVo = orderService.selectOrderItemQuantitiesByOrderId(orderId);
+            if (null == orderItemQuantityVo){
+                return;
+            }
+            int i = pmsFeignClient.orderCancelShip(orderItemQuantityVo);
+            if (i == 0){
+                return;
+            }
+            orderService.updateStockState(orderId,0);
         }
 
         Long packNo = null;
@@ -251,9 +255,9 @@ public class OrderPackageServiceImpl implements OrderPackageService {
             packNo = orderPackage.getPackageNo();
         }
 
-        orderService.updateOrderPackInfo(orderPackage.getOrderId(), -1, packNo);
+        orderService.updateOrderPackInfo(orderId, -1, packNo);
 
-        orderService.updateStockState(orderId,0);
+
 
     }
 
