@@ -330,6 +330,9 @@
                 <if test="t.productTitle">
                     oi.store_product_title like "%"#{t.productTitle}"%" and
                 </if>
+                <if test="t.barcode != null">
+                    oi.barcode = #{t.barcode} and
+                </if>
                 <if test="t.shipNumber != null">
                     o.tracking_code = #{t.shipNumber} and
                 </if>
@@ -536,7 +539,7 @@
         from `order` o
         left join store_order_relate r
         on o.id = r.order_id
-        <if test="t.productTitle != null or t.sku != null">
+        <if test="t != null and (t.productTitle != null or t.sku != null or t.barcode != null)">
             inner join order_item oi
             on oi.order_id = o.id
         </if>
@@ -578,7 +581,7 @@
         from `order` o
         inner join store_order_relate r
         on o.id = r.order_id
-        <if test="t != null and (t.productTitle != null or t.sku != null)">
+        <if test="t != null and (t.productTitle != null or t.sku != null or t.barcode != null)">
             inner join order_item oi
             on oi.order_id = o.id
         </if>

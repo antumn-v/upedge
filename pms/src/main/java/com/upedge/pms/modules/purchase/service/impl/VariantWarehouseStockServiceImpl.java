@@ -276,7 +276,7 @@ public class VariantWarehouseStockServiceImpl implements VariantWarehouseStockSe
             }
 
             if (itemQuantityVo.getVariantId().equals(variantId)){
-                Integer changeQuantity = itemQuantityVo.getQuantity() * variantWarehouseStock.getStockScale();
+                Integer changeQuantity = itemQuantityVo.getQuantity();
                 //安全数量小于变动库存，返回
                 if (changeQuantity > variantWarehouseStock.getAvailableStock()){
                     return true;

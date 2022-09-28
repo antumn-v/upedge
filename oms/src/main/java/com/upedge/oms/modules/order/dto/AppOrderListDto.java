@@ -70,6 +70,8 @@ public class AppOrderListDto {
 
     String sku;
 
+    String barcode;
+
     Integer saiheState;
 
     Integer pickType;
