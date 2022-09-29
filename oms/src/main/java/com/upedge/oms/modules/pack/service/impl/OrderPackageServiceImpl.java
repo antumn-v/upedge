@@ -14,6 +14,7 @@ import com.upedge.common.model.ship.vo.ShippingMethodRedis;
 import com.upedge.common.model.user.vo.CustomerIossVo;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.model.user.vo.UserVo;
+import com.upedge.common.utils.AliYunOssService;
 import com.upedge.common.utils.DateUtils;
 import com.upedge.common.utils.ListUtils;
 import com.upedge.common.web.util.RedisUtil;
@@ -111,6 +112,17 @@ public class OrderPackageServiceImpl implements OrderPackageService {
     private String pdfLocalPath;
     @Value("${files.pdf.prefix}")
     private String pdfUrlPrefix;
+
+    @Override
+    public void saveAllLabelUrl() {
+        OrderPackage orderPackage = new OrderPackage();
+        Page<OrderPackage> page = new Page<>();
+        page.setPageSize(-1);
+        List<OrderPackage> orderPackages = select(page);
+        for (OrderPackage aPackage : orderPackages) {
+            savePrintLabel(aPackage);
+        }
+    }
 
     @Override
     public List<OrderPackage> selectUploadStoreFailedPackages() {
@@ -275,53 +287,69 @@ public class OrderPackageServiceImpl implements OrderPackageService {
         }
         Map<String, String> map = new HashMap<>();
         map.put("company", orderPackage.getTrackingCompany());
+
         OrderLabelPrintLog orderLabelPrintLog = orderLabelPrintLogService.selectTheLatestPackLabel(request.getPackNo());
         if (null != orderLabelPrintLog) {
-            map.put("labelUrl", orderLabelPrintLog.getLabelUrl());
-            return BaseResponse.success(map);
-        }
-        String fileName = orderPackage.getPackageNo() + ".pdf";
-        try {
-            switch (orderPackage.getTrackingCompany()) {
-                case "4PX":
-                    labelUrl = FpxOrderApi.getSinglePackageLabel(orderPackage.getLogisticsOrderNo());
-                    labelUrl = uploadPackageLabelPdf(labelUrl, orderPackage.getPackageNo());
-                    break;
-                case "YunExpress":
-                    labelUrl = YunexpressApi.getSinglePackageLabel(orderPackage.getPlatId());
-                    labelUrl = uploadPackageLabelPdf(labelUrl, orderPackage.getPackageNo());
-                    break;
-                case "CNE":
-                    labelUrl = CneApi.getLabel(orderPackage.getLogisticsOrderNo());
-                    labelUrl = uploadPackageLabelPdf(labelUrl, orderPackage.getPackageNo());
-                    break;
-                case "Yanwen":
-                    labelUrl = YanwenApi.getTrackLabel(orderPackage.getLogisticsOrderNo(), pdfLocalPath);
-                    if (StringUtils.isNotBlank(labelUrl)) {
-                        labelUrl = pdfUrlPrefix + labelUrl;
-                    }
-                    break;
-            }
-        } catch (Exception e) {
-            return BaseResponse.failed(e.getMessage());
+            labelUrl = orderLabelPrintLog.getLabelUrl();
+        }else {
+            labelUrl = savePrintLabel(orderPackage);
         }
 
         map.put("labelUrl", labelUrl);
         if (StringUtils.isNotBlank(labelUrl)){
-            orderLabelPrintLog = new OrderLabelPrintLog();
-            orderLabelPrintLog.setOrderId(orderPackage.getOrderId());
-            orderLabelPrintLog.setLabelUrl(labelUrl);
-            orderLabelPrintLog.setCreateTime(new Date());
-            orderLabelPrintLog.setPackNo(orderPackage.getPackageNo());
-            orderLabelPrintLog.setOperatorId(session.getId());
-            orderLabelPrintLogService.insert(orderLabelPrintLog);
-
             Order order = new Order();
             order.setId(orderPackage.getOrderId());
             order.setIsPrintLabel(true);
             orderService.updateByPrimaryKeySelective(order);
         }
         return BaseResponse.success(map);
+    }
+
+
+    private String savePrintLabel(OrderPackage orderPackage){
+        if (null == orderPackage){
+            return null;
+        }
+        OrderLabelPrintLog orderLabelPrintLog = orderLabelPrintLogService.selectTheLatestPackLabel(orderPackage.getPackageNo());
+        if (null != orderLabelPrintLog){
+            return orderLabelPrintLog.getLabelUrl();
+        }
+        String labelUrl = null;
+        try {
+            switch (orderPackage.getTrackingCompany()) {
+                case "4PX":
+                    labelUrl = FpxOrderApi.getSinglePackageLabel(orderPackage.getLogisticsOrderNo());
+                    labelUrl = AliYunOssService.uploadLabel(labelUrl,"4PX",orderPackage.getId() + ".pdf");
+                    break;
+                case "YunExpress":
+                    labelUrl = YunexpressApi.getSinglePackageLabel(orderPackage.getPlatId());
+                    labelUrl = AliYunOssService.uploadLabel(labelUrl,"4PX",orderPackage.getId() + ".pdf");
+                    break;
+                case "CNE":
+                    labelUrl = CneApi.getLabel(orderPackage.getLogisticsOrderNo());
+                    labelUrl = AliYunOssService.uploadLabel(labelUrl,"4PX",orderPackage.getId() + ".pdf");
+                    break;
+                case "Yanwen":
+                    labelUrl = YanwenApi.getTrackLabel(orderPackage.getLogisticsOrderNo(), pdfLocalPath);
+                    if (StringUtils.isNotBlank(labelUrl)) {
+                        labelUrl = pdfUrlPrefix + labelUrl;
+                        labelUrl = AliYunOssService.uploadLabel(labelUrl,"4PX",orderPackage.getId() + ".pdf");
+                    }
+                    break;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+        if (StringUtils.isNotBlank(labelUrl)) {
+            orderLabelPrintLog = new OrderLabelPrintLog();
+            orderLabelPrintLog.setOrderId(orderPackage.getOrderId());
+            orderLabelPrintLog.setLabelUrl(labelUrl);
+            orderLabelPrintLog.setCreateTime(new Date());
+            orderLabelPrintLog.setPackNo(orderPackage.getPackageNo());
+            orderLabelPrintLogService.insert(orderLabelPrintLog);
+        }
+        return labelUrl;
     }
 
     @Override
@@ -403,6 +431,7 @@ public class OrderPackageServiceImpl implements OrderPackageService {
                 redisTemplate.opsForHash().put(RedisKey.HASH_ORDER_CREATE_PACKAGE_FAILED_REASON, orderId.toString(), "产品缺少报关信息");
                 return BaseResponse.failed("产品缺少报关信息");
             }
+            goodsName.setMoreGoodsName(orderItem.getBarcode());
             goodsName.setNameCh(entryCName);
             goodsName.setNameEn(entryEName);
             goodsName.setDeclaredCurrency("USD");
@@ -551,9 +580,11 @@ public class OrderPackageServiceImpl implements OrderPackageService {
             parcelsDTO.setEName(entryEName);
             parcelsDTO.setCName(entryCName);
             parcelsDTO.setCurrencyCode("USD");
-            parcelsDTO.setSKU(orderItem.getAdminVariantSku());
+            parcelsDTO.setHSCode(orderItem.getBarcode());
+            parcelsDTO.setSKU(orderItem.getStoreVariantSku());
             parcelsDTO.setQuantity(orderItem.getQuantity());
             parcelsDTO.setUnitPrice(orderItem.getUsdPrice());
+            parcelsDTO.setInvoiceRemark(orderItem.getBarcode());
             parcelsDTO.setUnitWeight(orderItem.getAdminVariantWeight().divide(new BigDecimal("1000"), 2, BigDecimal.ROUND_UP));
             parcels.add(parcelsDTO);
         }
@@ -648,6 +679,7 @@ public class OrderPackageServiceImpl implements OrderPackageService {
             ParcelListDTO.DeclareProductInfoDTO declareProductInfoDTO = new ParcelListDTO.DeclareProductInfoDTO();
             declareProductInfoDTO.setDeclareProductNameEn(entryEName);
             declareProductInfoDTO.setDeclareProductNameCn(entryCName);
+            declareProductInfoDTO.setDeclareProductCode(orderItem.getBarcode());
             declareProductInfoDTO.setDeclareProductCodeQty(orderItem.getQuantity());
             declareProductInfoDTO.setDeclareUnitPriceExport(orderItem.getUsdPrice());
             declareProductInfoDTO.setDeclareUnitPriceImport(orderItem.getUsdPrice());
@@ -707,6 +739,8 @@ public class OrderPackageServiceImpl implements OrderPackageService {
         insert(orderPackage);
         orderService.updateOrderPackInfo(orderId, 1, packageNo);
         redisTemplate.opsForHash().delete(RedisKey.HASH_ORDER_CREATE_PACKAGE_FAILED_REASON, orderId.toString());
+
+        savePrintLabel(orderPackage);
 
         OrderItemQuantityDto orderItemQuantityDto = new OrderItemQuantityDto();
         orderItemQuantityDto.setOrderId(orderId);

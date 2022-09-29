@@ -278,6 +278,8 @@ public class OrderPickServiceImpl implements OrderPickService {
                 map.put(orderPickPreviewVo.getPickType(),orderPickWaveVo);
             }
             ShippingMethodRedis shippingMethodRedis = (ShippingMethodRedis) redisTemplate.opsForHash().get(RedisKey.SHIPPING_METHOD,String.valueOf(orderPickPreviewVo.getShipMethodId()));
+            orderPickPreviewVo.setShipMethodName(shippingMethodRedis.getName());
+            orderPickPreviewVo.setShipMethodDesc(shippingMethodRedis.getDesc());
             if (null == shippingMethodRedis.getTrackingCompany()){
                 shippingMethodRedis.setTrackingCompany("默认");
             }
@@ -292,8 +294,6 @@ public class OrderPickServiceImpl implements OrderPickService {
             OrderPickWaveVo.ShipCompanyPickVo shipCompanyPickVo = new OrderPickWaveVo.ShipCompanyPickVo();
             shipCompanyPickVo.setCompany(shippingMethodRedis.getTrackingCompany());
             shipCompanyPickVo.setTotal(orderPickPreviewVo.getTotal());
-            orderPickPreviewVo.setShipMethodName(shippingMethodRedis.getName());
-            orderPickPreviewVo.setShipMethodDesc(shippingMethodRedis.getDesc());
             shipCompanyPickVo.getOrderPickPreviewVos().add(orderPickPreviewVo);
             orderPickWaveVo.getShipCompanyPickVos().add(shipCompanyPickVo);
         }

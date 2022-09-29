@@ -165,5 +165,12 @@ public class Order{
 		this.saiheOrderCode = null;
 		this.shippingWarehouse = null;
 		this.shipMethodId = null;
+		this.packState = 0;
+		this.pickType = 2;
+		this.pickState = 0;
+		this.stockState = 0;
+		this.isPrintLabel = false;
+		this.packNo = null;
+		this.waveNo = null;
 	}
 }

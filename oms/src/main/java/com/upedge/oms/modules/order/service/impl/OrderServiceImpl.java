@@ -1326,6 +1326,36 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
+    public int initPickType(Long id) {
+        List<OrderItem> orderItems = orderItemDao.selectItemByOrderId(id);
+        if (ListUtils.isEmpty(orderItems)){
+            return 0;
+        }
+        Integer pickType = 0;
+        if (orderItems.size() > 1){
+            Set<Long> adminVariantIds = new HashSet<>();
+            for (OrderItem orderItem : orderItems) {
+                adminVariantIds.add(orderItem.getAdminVariantId());
+            }
+            if (adminVariantIds.size() > 1){
+                pickType = 2;
+            }else {
+                pickType = 1;
+            }
+
+        }else {
+            int totalQuantity = orderItems.stream().mapToInt(OrderItem::getQuantity).sum();
+            if (totalQuantity > 1){
+                pickType = 1;
+            }else {
+                pickType = 0;
+            }
+        }
+        orderDao.updatePickType(id,pickType);
+        return 1;
+    }
+
+    @Override
     public int updateOrderPackInfo(Long id, Integer packageState, Long packNo) {
         return orderDao.updateOrderPackInfo(id, packageState, packNo);
     }

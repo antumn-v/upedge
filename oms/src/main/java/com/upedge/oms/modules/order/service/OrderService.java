@@ -33,6 +33,8 @@ import java.util.Set;
  * @author author
  */
 public interface OrderService{
+
+    int initPickType(Long id);
     /**
      * 修改订单包裹信息
      * @param id

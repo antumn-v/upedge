@@ -103,4 +103,11 @@ public class OrderPackageController {
     }
 
 
+    @PostMapping("/saveLabelUrl")
+    public BaseResponse saveLabelUrl(){
+        orderPackageService.saveAllLabelUrl();
+        return BaseResponse.success();
+    }
+
+
 }

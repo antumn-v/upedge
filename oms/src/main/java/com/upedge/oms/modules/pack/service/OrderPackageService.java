@@ -14,6 +14,8 @@ import java.util.List;
 
 public interface OrderPackageService {
 
+    void saveAllLabelUrl();
+
     List<OrderPackage> selectUploadStoreFailedPackages();
 
     List<OrderPackage> selectByOrderIds(List<Long> orderIds);
