@@ -50,7 +50,6 @@ public class FpxOrderApi {
         result = result.replace("\\","")
                 .replace("\"data\":\"","\"data\":")
                 .replace("\",\"msg\"",",\"msg\"");
-        System.out.println(result);
         FpxGetOrderDto fpxGetOrderDto = JSONObject.parseObject(result,FpxGetOrderDto.class);
         if (fpxGetOrderDto.getResult().equals("1")){
             FpxOrderDto fpxOrderDto = fpxGetOrderDto.getData().get(0).getFpxOrderDto();
@@ -91,7 +90,7 @@ public class FpxOrderApi {
 
     public static void main(String[] args) {
         try {
-            System.out.println(getSinglePackageLabel("4PX3000270843649CN"));
+            System.out.println(getFpxOrder("4PX3000290016108CN"));
         } catch (Exception e) {
             e.printStackTrace();
         }

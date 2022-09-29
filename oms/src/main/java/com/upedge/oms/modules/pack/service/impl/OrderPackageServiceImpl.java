@@ -529,7 +529,7 @@ public class OrderPackageServiceImpl implements OrderPackageService {
         }
 
 
-        OrderPackage orderPackage = savePackage(order, shippingMethodRedis, fpxCreateOrderDataDTO.getLogisticsChannelNo(), fpxCreateOrderDataDTO.getFpxTrackingNo(), fpxCreateOrderDataDTO.getLabelBarcode());
+        OrderPackage orderPackage = savePackage(order, shippingMethodRedis, fpxCreateOrderDataDTO.getFpxTrackingNo(), fpxCreateOrderDataDTO.getLogisticsChannelNo(), fpxCreateOrderDataDTO.getLabelBarcode());
         return BaseResponse.success(orderPackage);
     }
 

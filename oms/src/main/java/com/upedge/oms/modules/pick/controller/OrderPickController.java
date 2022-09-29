@@ -49,6 +49,10 @@ public class OrderPickController {
     @PostMapping("/waveList")
     public BaseResponse wareList(@RequestBody OrderPickListRequest request){
         List<OrderPick> orderPicks = orderPickService.select(request);
+        for (OrderPick orderPick : orderPicks) {
+            boolean b = redisTemplate.opsForHash().hasKey(RedisKey.HASH_ORDER_PICK_WAVE_PRINTED,orderPick.getWaveNo().toString());
+            orderPick.setIsPrinted(b);
+        }
         Long count = orderPickService.count(request);
 
         request.setTotal(count);
