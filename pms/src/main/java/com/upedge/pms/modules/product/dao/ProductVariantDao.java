@@ -15,6 +15,9 @@ import java.util.Map;
  */
 public interface ProductVariantDao {
 
+
+    int refreshTransformVariant(@Param("productId") Long productId, @Param("storeProductId") Long storeProductId);
+
     ProductVariant selectByBarcode(String barcode);
 
     Long selectMaxBarcode();

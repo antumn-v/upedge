@@ -220,6 +220,17 @@ public class ProductController {
         return appProductService.variantShips(request, session);
     }
 
+
+    @PostMapping("/refreshTransform/{id}")
+    public BaseResponse refreshTransform(@PathVariable Long id){
+        Product product = productService.selectByPrimaryKey(id);
+        if (null == product || product.getProductSource() != 4){
+            return BaseResponse.failed();
+        }
+        productVariantService.refreshTransformVariant(Long.parseLong(product.getOriginalId()));
+        return BaseResponse.success();
+    }
+
     /**
      * 产品上架
      */

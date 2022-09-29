@@ -582,4 +582,13 @@
         from product_variant
         where barcode = #{barcode}
     </select>
+
+    <update id="refreshTransformVariant">
+        update product_variant pv
+            inner join store_product_variant spv
+        on pv.en_name = spv.title
+        set pv.variant_image = spv.image
+        where pv.product_id = #{productId}
+        and spv.product_id = #{storeProductId}
+    </update>
 </mapper>

@@ -174,6 +174,15 @@ public class ProductVariantServiceImpl implements ProductVariantService {
     }
 
     @Override
+    public void refreshTransformVariant( Long storeProductId) {
+        Product product = productService.selectByOriginalId(storeProductId.toString());
+        if (null == product || product.getProductSource() != 4){
+            return;
+        }
+        productVariantDao.refreshTransformVariant(product.getId(),storeProductId);
+    }
+
+    @Override
     public ProductVariant selectByBarcode(String barcode) {
         if (StringUtils.isBlank(barcode)){
             return null;

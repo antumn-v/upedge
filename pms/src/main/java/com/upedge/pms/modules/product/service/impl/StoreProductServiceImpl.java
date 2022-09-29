@@ -343,12 +343,9 @@ public class StoreProductServiceImpl implements StoreProductService {
             if (storeProductVariantMap.containsKey(variant.getId())) {
                 //比较新老变体图片属性名sku
                 StoreProductVariant oldVariant = storeProductVariantMap.get(variant.getId());
-                if (StringUtils.isBlank(oldVariant.getImage())
-                    || StringUtils.isBlank(oldVariant.getTitle())
-                    || StringUtils.isBlank(oldVariant.getSku())
-                    || !oldVariant.getTitle().equals(storeVariant.getTitle())
-                    || !oldVariant.getImage().equals(storeVariant.getImage())
-                    || !oldVariant.getSku().equals(storeVariant.getSku())){
+                if (    (StringUtils.isBlank(oldVariant.getImage()) && !oldVariant.getImage().equals(storeVariant.getImage()))
+                    || (StringUtils.isBlank(oldVariant.getTitle()) && !oldVariant.getTitle().equals(storeVariant.getTitle()))
+                    || (StringUtils.isBlank(oldVariant.getSku()) && !oldVariant.getSku().equals(storeVariant.getSku())) ){
                     storeVariant.setId(oldVariant.getId());
                     updateVariants.add(storeVariant);
                 }
@@ -368,6 +365,7 @@ public class StoreProductServiceImpl implements StoreProductService {
         if (updateVariants.size() > 0) {
             storeProductVariantDao.updateByBatch(updateVariants);
             customerProductQuoteService.updateBatchByStoreProductVariant(updateVariants);
+            productVariantService.refreshTransformVariant(storeProductId);
         }
         platVariantIds.removeAll(newPlatVariantIds);
         if(ListUtils.isNotEmpty(platVariantIds)){
