@@ -424,6 +424,9 @@ public class OrderPackageServiceImpl implements OrderPackageService {
         int i = 0;
         YanwenExpressDto.YanwenGoodsNameDTO goodsName = new YanwenExpressDto.YanwenGoodsNameDTO();
         for (OrderItem orderItem : orderItems) {
+            if(orderItem.getQuantity() < 1){
+                continue;
+            }
             String entryCName = getProductEntryName(orderItem.getAdminProductId(), "cn");
             String entryEName = getProductEntryName(orderItem.getAdminProductId(), "en");
             if (StringUtils.isBlank(entryCName) || StringUtils.isBlank(entryEName)) {
@@ -487,6 +490,9 @@ public class OrderPackageServiceImpl implements OrderPackageService {
         List<OrderItem> orderItems = orderItemService.selectByOrderId(orderId);
         List<CneCreateOrderRequest.RecListDTO.CneGoodsListDTO> cneGoodsListDTOS = new ArrayList<>();
         for (OrderItem orderItem : orderItems) {
+            if(orderItem.getQuantity() < 1){
+                continue;
+            }
             String entryCName = getProductEntryName(orderItem.getAdminProductId(), "cn");
             String entryEName = getProductEntryName(orderItem.getAdminProductId(), "en");
             if (StringUtils.isBlank(entryCName) || StringUtils.isBlank(entryEName)) {
@@ -565,6 +571,9 @@ public class OrderPackageServiceImpl implements OrderPackageService {
         receiverDTO.setCity(orderAddress.getCity());
 
         for (OrderItem orderItem : orderItems) {
+            if(orderItem.getQuantity() < 1){
+                continue;
+            }
             String entryCName = getProductEntryName(orderItem.getAdminProductId(), "cn");
             String entryEName = getProductEntryName(orderItem.getAdminProductId(), "en");
             if (StringUtils.isBlank(entryCName) || StringUtils.isBlank(entryEName)) {
@@ -671,6 +680,9 @@ public class OrderPackageServiceImpl implements OrderPackageService {
 
         List<ParcelListDTO.DeclareProductInfoDTO> declareProductInfoDTOS = new ArrayList<>();
         for (OrderItem orderItem : orderItems) {
+            if(orderItem.getQuantity() < 1){
+                continue;
+            }
             String entryCName = getProductEntryName(orderItem.getAdminProductId(), "cn");
             String entryEName = getProductEntryName(orderItem.getAdminProductId(), "en");
             if (StringUtils.isBlank(entryCName) || StringUtils.isBlank(entryEName)) {

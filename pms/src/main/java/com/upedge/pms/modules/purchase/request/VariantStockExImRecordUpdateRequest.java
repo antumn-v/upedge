@@ -16,8 +16,10 @@ public class VariantStockExImRecordUpdateRequest{
     /**
      * 
      */
-    @NotNull
+
     private String variantSku;
+
+    private String barcode;
     /**
      * 
      */
