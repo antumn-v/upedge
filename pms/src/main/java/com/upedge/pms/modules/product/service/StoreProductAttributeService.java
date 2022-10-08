@@ -11,6 +11,8 @@ import java.util.List;
  */
 public interface StoreProductAttributeService{
 
+    void refresh(Long productId);
+
     List<StoreProductAttribute> selectStoreProduct(StoreProductListRequest request);
 
     StoreProductAttribute saveDefaultCustomProduct(Long customerId);

@@ -60,7 +60,7 @@ public class ShopifyProductApi {
         return response.success();
     }
 
-    public static ShopifyProduct getSingleProduct(String shop, String token, Long id, String param) {
+    public static ShopifyProduct getSingleProduct(String shop, String token, String id, String param) {
         String url = "https://" + shop + ".myshopify.com/admin/api/" + Shopify.version + "/products/"+id+".json";
 
         ResponseEntity<JSONObject> entity =

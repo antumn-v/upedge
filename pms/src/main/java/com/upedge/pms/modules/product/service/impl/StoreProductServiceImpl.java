@@ -293,6 +293,9 @@ public class StoreProductServiceImpl implements StoreProductService {
     @Transactional(rollbackFor = Exception.class)
     @Override
     public Long saveShopifyProduct(ShopifyProduct product, StoreVo storeVo) {
+        if (null == product || ListUtils.isEmpty(product.getVariants())){
+            return null;
+        }
         String platProductId = product.getId();
         String key = RedisKey.STRING_STORE_PLAT_PRODUCT + storeVo.getId() + ":" + platProductId;
         boolean b = RedisUtil.lock(redisTemplate, key, 5L, 5 * 1000L);

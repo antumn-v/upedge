@@ -1,12 +1,18 @@
 package com.upedge.pms.modules.product.service.impl;
 
 import com.upedge.common.base.Page;
+import com.upedge.common.constant.key.RedisKey;
+import com.upedge.common.model.store.StoreVo;
 import com.upedge.common.utils.IdGenerate;
 import com.upedge.pms.modules.product.dao.StoreProductAttributeDao;
 import com.upedge.pms.modules.product.entity.StoreProductAttribute;
 import com.upedge.pms.modules.product.request.StoreProductListRequest;
 import com.upedge.pms.modules.product.service.StoreProductAttributeService;
+import com.upedge.pms.modules.product.service.StoreProductService;
+import com.upedge.thirdparty.shopify.moudles.product.controller.ShopifyProductApi;
+import com.upedge.thirdparty.shopify.moudles.product.entity.ShopifyProduct;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,6 +25,12 @@ public class StoreProductAttributeServiceImpl implements StoreProductAttributeSe
 
     @Autowired
     private StoreProductAttributeDao storeProductAttributeDao;
+
+    @Autowired
+    StoreProductService storeProductService;
+
+    @Autowired
+    RedisTemplate redisTemplate;
 
 
 
@@ -46,6 +58,18 @@ public class StoreProductAttributeServiceImpl implements StoreProductAttributeSe
     @Transactional
     public int insertSelective(StoreProductAttribute record) {
         return storeProductAttributeDao.insert(record);
+    }
+
+    @Override
+    public void refresh(Long productId) {
+        StoreProductAttribute storeProductAttribute = selectByPrimaryKey(productId);
+        if(null == storeProductAttribute){
+            return;
+        }
+        StoreVo storeVo = (StoreVo) redisTemplate.opsForValue().get(RedisKey.STRING_STORE + storeProductAttribute.getStoreId());
+        ShopifyProduct shopifyProduct = ShopifyProductApi.getSingleProduct(storeVo.getStoreName(),storeVo.getApiToken(),storeProductAttribute.getPlatProductId(),null);
+
+        storeProductService.saveShopifyProduct(shopifyProduct,storeVo);
     }
 
     @Override

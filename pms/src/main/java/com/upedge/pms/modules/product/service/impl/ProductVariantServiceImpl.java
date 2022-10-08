@@ -18,10 +18,7 @@ import com.upedge.pms.modules.product.dao.ProductVariantDao;
 import com.upedge.pms.modules.product.entity.*;
 import com.upedge.pms.modules.product.request.*;
 import com.upedge.pms.modules.product.response.*;
-import com.upedge.pms.modules.product.service.ProductService;
-import com.upedge.pms.modules.product.service.ProductVariantAttrService;
-import com.upedge.pms.modules.product.service.ProductVariantService;
-import com.upedge.pms.modules.product.service.VariantSkuUpdateLogService;
+import com.upedge.pms.modules.product.service.*;
 import com.upedge.pms.modules.product.vo.SaiheSkuVo;
 import com.upedge.pms.modules.product.vo.VariantAttrVo;
 import com.upedge.pms.modules.product.vo.VariantValVo;
@@ -60,6 +57,9 @@ public class ProductVariantServiceImpl implements ProductVariantService {
 
     @Autowired
     ProductPurchaseInfoService productPurchaseInfoService;
+
+    @Autowired
+    StoreProductAttributeService storeProductAttributeService;
 
     @Autowired
     RedisTemplate redisTemplate;
@@ -175,6 +175,7 @@ public class ProductVariantServiceImpl implements ProductVariantService {
 
     @Override
     public void refreshTransformVariant( Long storeProductId) {
+
         Product product = productService.selectByOriginalId(storeProductId.toString());
         if (null == product || product.getProductSource() != 4){
             return;

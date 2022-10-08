@@ -21,6 +21,7 @@ import com.upedge.pms.modules.product.response.*;
 import com.upedge.pms.modules.product.service.AppProductService;
 import com.upedge.pms.modules.product.service.ProductService;
 import com.upedge.pms.modules.product.service.ProductVariantService;
+import com.upedge.pms.modules.product.service.StoreProductAttributeService;
 import com.upedge.pms.modules.product.vo.AddProductVo;
 import com.upedge.pms.modules.product.vo.AppProductVo;
 import com.upedge.pms.modules.product.vo.ProductVo;
@@ -57,6 +58,9 @@ public class ProductController {
 
     @Autowired
     ProductVariantService productVariantService;
+
+    @Autowired
+    StoreProductAttributeService storeProductAttributeService;
 
     @Autowired
     OmsFeignClient omsFeignClient;
@@ -223,11 +227,12 @@ public class ProductController {
 
     @PostMapping("/refreshTransform/{id}")
     public BaseResponse refreshTransform(@PathVariable Long id){
+
         Product product = productService.selectByPrimaryKey(id);
         if (null == product || product.getProductSource() != 4){
             return BaseResponse.failed();
         }
-        productVariantService.refreshTransformVariant(Long.parseLong(product.getOriginalId()));
+        storeProductAttributeService.refresh(Long.parseLong(product.getOriginalId()));
         return BaseResponse.success();
     }
 
