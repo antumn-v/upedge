@@ -1250,6 +1250,7 @@
           and o.ship_state = '0'
           and o.stock_state = '0'
           and o.pack_state = '1'
+          and oi.admin_variant_id is not null
         group by oi.admin_variant_id,o.customer_id
         order by `quantity` desc
     </select>
@@ -1281,7 +1282,7 @@
                 oi.store_product_id = #{t.storeProductId}
             </if>
             <if test="t.customerId != null">
-                oi.customer_id = #{t.customerId}
+                o.customer_id = #{t.customerId}
             </if>
             <if test="t.orderId != null">
                 o.id = #{t.orderId}
@@ -1316,6 +1317,8 @@
         and o.refund_state = '0'
         and o.ship_state = '0'
         and o.stock_state = '0'
+        and oi.admin_variant_id is not null
+        and o.pack_state = '1'
         <if test="adminVariantId != null">
            and oi.admin_variant_id = #{adminVariantId}
         </if>
@@ -1329,7 +1332,7 @@
             and oi.store_product_id = #{storeProductId}
         </if>
         <if test="customerId != null">
-            and oi.customer_id = #{customerId}
+            and o.customer_id = #{customerId}
         </if>
         <if test="orderId != null">
             and o.id = #{orderId}

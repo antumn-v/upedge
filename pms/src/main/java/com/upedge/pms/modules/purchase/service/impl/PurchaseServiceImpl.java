@@ -214,9 +214,11 @@ public class PurchaseServiceImpl implements PurchaseService {
         }
         List<PurchaseAdviceItemVo> purchaseAdviceItemVos = new ArrayList<>();
         variantIds.forEach(variantId -> {
-            PurchaseAdviceItemVo purchaseAdviceItemVo = (PurchaseAdviceItemVo) redisTemplate.opsForHash().get(RedisKey.HASH_PURCHASE_ADVICE_LIST,variantId.toString());
-            if (null != purchaseAdviceItemVo){
-                purchaseAdviceItemVos.add(purchaseAdviceItemVo);
+            if (variantId != null && redisTemplate.opsForHash().hasKey(RedisKey.HASH_PURCHASE_ADVICE_LIST,variantId.toString())){
+                PurchaseAdviceItemVo purchaseAdviceItemVo = (PurchaseAdviceItemVo) redisTemplate.opsForHash().get(RedisKey.HASH_PURCHASE_ADVICE_LIST,variantId.toString());
+                if (null != purchaseAdviceItemVo){
+                    purchaseAdviceItemVos.add(purchaseAdviceItemVo);
+                }
             }
         });
         List<PurchaseAdviceVo> adviceVos = getPurchaseAdvices(variantIds,"CNHZ",purchaseAdviceItemVos);
