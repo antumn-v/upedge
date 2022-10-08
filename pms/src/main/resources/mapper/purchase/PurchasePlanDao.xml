@@ -377,7 +377,7 @@
         </if>
     </sql>
 
-    <select id="select" parameterType="com.upedge.common.base.Page" resultMap="BaseResultMap">
+    <select id="select" parameterType="com.upedge.pms.modules.purchase.request.PurchasePlanListRequest" resultMap="BaseResultMap">
         select
         <include refid="Base_Column_List" />
         from purchase_plan
@@ -388,7 +388,7 @@
         </if>
     </select>
 
-    <select id="count" parameterType="com.upedge.common.base.Page" resultType="java.lang.Long">
+    <select id="count" parameterType="com.upedge.pms.modules.purchase.request.PurchasePlanListRequest"  resultType="java.lang.Long">
         select
         count(1)
         from purchase_plan

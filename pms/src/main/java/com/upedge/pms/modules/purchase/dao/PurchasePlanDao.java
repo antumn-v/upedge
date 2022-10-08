@@ -2,6 +2,7 @@ package com.upedge.pms.modules.purchase.dao;
 
 import com.upedge.common.base.Page;
 import com.upedge.pms.modules.purchase.entity.PurchasePlan;
+import com.upedge.pms.modules.purchase.request.PurchasePlanListRequest;
 import org.apache.ibatis.annotations.Param;
 
 import java.math.BigDecimal;
@@ -40,7 +41,7 @@ public interface PurchasePlanDao {
 
     int insertByBatch(List<PurchasePlan> list);
 
-    List<PurchasePlan> select(Page<PurchasePlan> record);
+    List<PurchasePlan> select(PurchasePlanListRequest request);
 
     long count(Page<PurchasePlan> record);
 

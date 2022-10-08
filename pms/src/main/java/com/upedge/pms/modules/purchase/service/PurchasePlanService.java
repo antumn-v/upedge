@@ -5,6 +5,7 @@ import com.upedge.common.base.Page;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.pms.modules.purchase.entity.PurchasePlan;
 import com.upedge.pms.modules.purchase.request.PurchasePlanAddRequest;
+import com.upedge.pms.modules.purchase.request.PurchasePlanListRequest;
 import com.upedge.pms.modules.purchase.request.PurchasePlanUpdateRequest;
 
 import java.math.BigDecimal;
@@ -41,7 +42,7 @@ public interface PurchasePlanService{
 
     int insertSelective(PurchasePlan record);
 
-    List<PurchasePlan> select(Page<PurchasePlan> record);
+    List<PurchasePlan> select(PurchasePlanListRequest request);
 
     long count(Page<PurchasePlan> record);
 }

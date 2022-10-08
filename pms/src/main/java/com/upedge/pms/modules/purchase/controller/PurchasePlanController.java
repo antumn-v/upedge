@@ -50,7 +50,6 @@ public class PurchasePlanController {
         }
         request.getT().setState(0);
         request.setPageSize(-1);
-        request.initFromNum();
         List<PurchasePlan> results = purchasePlanService.select(request);
         Map<String,List<PurchasePlan>> map = new HashMap<>();
         for (PurchasePlan result : results) {

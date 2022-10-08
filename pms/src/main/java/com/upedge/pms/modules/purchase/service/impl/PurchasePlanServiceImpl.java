@@ -12,6 +12,7 @@ import com.upedge.pms.modules.purchase.dao.PurchasePlanDao;
 import com.upedge.pms.modules.purchase.entity.ProductPurchaseInfo;
 import com.upedge.pms.modules.purchase.entity.PurchasePlan;
 import com.upedge.pms.modules.purchase.request.PurchasePlanAddRequest;
+import com.upedge.pms.modules.purchase.request.PurchasePlanListRequest;
 import com.upedge.pms.modules.purchase.request.PurchasePlanUpdateRequest;
 import com.upedge.pms.modules.purchase.service.ProductPurchaseInfoService;
 import com.upedge.pms.modules.purchase.service.PurchasePlanService;
@@ -200,9 +201,9 @@ public class PurchasePlanServiceImpl implements PurchasePlanService {
     /**
     *
     */
-    public List<PurchasePlan> select(Page<PurchasePlan> record){
-        record.initFromNum();
-        return purchasePlanDao.select(record);
+    public List<PurchasePlan> select(PurchasePlanListRequest request){
+        request.initFromNum();
+        return purchasePlanDao.select(request);
     }
 
     /**
