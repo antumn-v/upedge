@@ -66,7 +66,6 @@ public class CustomerProductStockController {
         recordListRequest.getT().setVariantId(result.getVariantId());
         recordListRequest.getT().setProductId(result.getProductId());
         recordListRequest.setOrderBy("create_time desc");
-        recordListRequest.setPageSize(20);
         List<CustomerStockRecord> records = customerStockRecordService.select(recordListRequest);
         List<CustomerStockRecordDetailVo> resultList = new ArrayList<>();
         for (CustomerStockRecord record : records) {

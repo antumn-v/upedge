@@ -1,37 +1,30 @@
 package com.upedge.ums.modules.application.controller;
 
-import java.util.Arrays;
-import java.util.Map;
-
 import com.upedge.common.base.BaseResponse;
+import com.upedge.common.component.annotation.Permission;
+import com.upedge.common.constant.Constant;
 import com.upedge.common.constant.ResultCode;
 import com.upedge.common.exception.CustomerException;
 import com.upedge.common.model.user.vo.MenuVo;
 import com.upedge.common.model.user.vo.PermissionVo;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.web.util.UserUtil;
+import com.upedge.ums.modules.application.entity.Menu;
+import com.upedge.ums.modules.application.request.MenuAddRequest;
+import com.upedge.ums.modules.application.request.MenuListRequest;
 import com.upedge.ums.modules.application.request.MenuTreeRequest;
+import com.upedge.ums.modules.application.request.MenuUpdateRequest;
+import com.upedge.ums.modules.application.response.*;
+import com.upedge.ums.modules.application.service.MenuService;
 import com.upedge.ums.modules.application.service.TPermissionService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
-import com.upedge.common.component.annotation.Permission;
-import com.upedge.ums.modules.application.entity.Menu;
-import com.upedge.ums.modules.application.service.MenuService;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.*;
-import java.util.List;
-import com.upedge.common.constant.Constant;
-import com.upedge.ums.modules.application.request.MenuAddRequest;
-import com.upedge.ums.modules.application.request.MenuListRequest;
-import com.upedge.ums.modules.application.request.MenuUpdateRequest;
 
-import com.upedge.ums.modules.application.response.MenuAddResponse;
-import com.upedge.ums.modules.application.response.MenuDelResponse;
-import com.upedge.ums.modules.application.response.MenuInfoResponse;
-import com.upedge.ums.modules.application.response.MenuListResponse;
-import com.upedge.ums.modules.application.response.MenuUpdateResponse;
 import javax.validation.Valid;
+import java.util.List;
 
 /**
  * 
@@ -111,5 +104,11 @@ public class MenuController {
         return BaseResponse.success(permissionVos);
     }
 
+    @ApiOperation("批量增加菜单")
+    @PostMapping("/addMenus")
+    public BaseResponse addMenus(@RequestBody List<Menu> menus){
+        menuService.addMenus(menus,null);
+        return BaseResponse.success();
+    }
 
 }

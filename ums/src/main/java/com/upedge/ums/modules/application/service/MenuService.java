@@ -14,6 +14,8 @@ import java.util.List;
  */
 public interface MenuService{
 
+    void addMenus(List<Menu> menus,Session session);
+
     List<MenuVo> menuTree(Session session, MenuTreeRequest request) throws CustomerException;
 
     Menu selectByPrimaryKey(Long id);

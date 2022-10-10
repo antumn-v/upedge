@@ -582,7 +582,7 @@ public class ProductServiceImpl implements ProductService {
         Product p = selectByOriginalId(alibabaProductVo.getProductSku());
         if (null == p || p.getProductSource() != 0){
             addNewProduct(alibabaProductVo,operatorId);
-        }else {
+        } else {
             updateAlibabaProduct(alibabaProductVo, p.getId());
         }
         return new BaseResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS);

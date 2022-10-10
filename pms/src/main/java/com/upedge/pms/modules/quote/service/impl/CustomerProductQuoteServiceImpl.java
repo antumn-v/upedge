@@ -350,6 +350,7 @@ public class CustomerProductQuoteServiceImpl implements CustomerProductQuoteServ
 
     @Override
     public List<CustomerProductQuote> all(AllCustomerQuoteProductSearchRequest request) {
+        request.initFromNum();
         return customerProductQuoteDao.all(request);
     }
 

@@ -37,6 +37,9 @@ public class UserAddRequest{
     */
     @NotBlank
     private String username;
+
+    @NotNull
+    private Long roleId;
     /**
     * 
     */

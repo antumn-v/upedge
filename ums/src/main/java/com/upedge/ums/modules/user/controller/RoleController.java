@@ -1,33 +1,28 @@
 package com.upedge.ums.modules.user.controller;
 
-import java.util.Arrays;
-import java.util.Map;
-
 import com.upedge.common.base.BaseResponse;
+import com.upedge.common.component.annotation.Permission;
+import com.upedge.common.constant.Constant;
 import com.upedge.common.constant.ResultCode;
 import com.upedge.common.model.user.vo.RoleVo;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.web.util.UserUtil;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import org.springframework.beans.factory.annotation.Autowired;
-import com.upedge.common.component.annotation.Permission;
 import com.upedge.ums.modules.user.entity.Role;
-import com.upedge.ums.modules.user.service.RoleService;
-import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.web.bind.annotation.*;
-import java.util.List;
-import com.upedge.common.constant.Constant;
 import com.upedge.ums.modules.user.request.RoleAddRequest;
 import com.upedge.ums.modules.user.request.RoleListRequest;
 import com.upedge.ums.modules.user.request.RoleUpdateRequest;
-
-import com.upedge.ums.modules.user.response.RoleAddResponse;
 import com.upedge.ums.modules.user.response.RoleDelResponse;
 import com.upedge.ums.modules.user.response.RoleInfoResponse;
 import com.upedge.ums.modules.user.response.RoleListResponse;
-import com.upedge.ums.modules.user.response.RoleUpdateResponse;
+import com.upedge.ums.modules.user.service.RoleService;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.web.bind.annotation.*;
+
 import javax.validation.Valid;
+import java.util.List;
 
 /**
  * 
@@ -85,11 +80,11 @@ public class RoleController {
         return res;
     }
 
-    @RequestMapping(value="/update/{id}", method=RequestMethod.POST)
+    @RequestMapping(value="/update", method=RequestMethod.POST)
     @Permission(permission = "user:role:update")
-    public BaseResponse update(@PathVariable Long id, @RequestBody @Valid RoleUpdateRequest request) {
+    public BaseResponse update(@RequestBody @Valid RoleUpdateRequest request) {
 
-        return roleService.updateRole(request,id);
+        return roleService.updateRole(request,request.getId());
     }
 
 

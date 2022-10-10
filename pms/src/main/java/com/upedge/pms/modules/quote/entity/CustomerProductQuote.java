@@ -81,6 +81,8 @@ public class CustomerProductQuote{
 
 	private Date updateTime;
 
+	private String originalId;
+
 	public CustomerProductQuote(StoreProductVariant storeProductVariant) {
 		this.storeProductId = storeProductVariant.getProductId();
 		this.storeProductTitle = storeProductVariant.getTitle();

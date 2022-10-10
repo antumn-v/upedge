@@ -1,24 +1,23 @@
 package com.upedge.ums.modules.application.service.impl;
 
+import com.upedge.common.base.Page;
 import com.upedge.common.constant.BaseCode;
 import com.upedge.common.constant.Constant;
 import com.upedge.common.constant.ResultCode;
 import com.upedge.common.exception.CustomerException;
 import com.upedge.common.model.user.vo.MenuVo;
 import com.upedge.common.model.user.vo.Session;
+import com.upedge.ums.modules.application.dao.MenuDao;
+import com.upedge.ums.modules.application.entity.Menu;
 import com.upedge.ums.modules.application.request.MenuTreeRequest;
+import com.upedge.ums.modules.application.service.MenuService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
-
-import com.upedge.common.base.Page;
-import org.springframework.beans.factory.annotation.Autowired;
-import com.upedge.ums.modules.application.dao.MenuDao;
-import com.upedge.ums.modules.application.entity.Menu;
-import com.upedge.ums.modules.application.service.MenuService;
 
 
 @Service
@@ -56,6 +55,16 @@ public class MenuServiceImpl implements MenuService {
     }
 
     @Override
+    public void addMenus(List<Menu> menus, Session session) {
+        Date date = new Date();
+        for (Menu menu : menus) {
+            menu.setCreateTime(date);
+            menu.setUpdateTime(date);
+        }
+        menuDao.insertByBatch(menus);
+    }
+
+    @Override
     public List<MenuVo> menuTree(Session session, MenuTreeRequest request) throws CustomerException {
         List<MenuVo> menus=new ArrayList<>();
         //超级管理员
@@ -72,7 +81,6 @@ public class MenuServiceImpl implements MenuService {
             }
             menu.setApplicationId(applicationId);
             //所有菜单
-            menu.setMenuType(BaseCode.MENU_SUPERADMIN);
             menuPage.setPageSize(-1);
             menuPage.setT(menu);
             List<Menu> list=menuDao.select(menuPage);

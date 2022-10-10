@@ -441,12 +441,12 @@ public class PurchaseServiceImpl implements PurchaseService {
             AlibabaTradeFastResult alibabaTradeFastResult = null;
             Long id = getNextPurchaseOrderId();
             String message = "下单号： " + id;
-//            try {
-//                alibabaTradeFastResult = Ali1688Service.createOrder(tradeFastCargos, alibabaApiVo,message);
-//            } catch (CustomerException e) {
-//                e.printStackTrace();
-//                continue;
-//            }
+            try {
+                alibabaTradeFastResult = Ali1688Service.createOrder(tradeFastCargos, alibabaApiVo,message);
+            } catch (CustomerException e) {
+                e.printStackTrace();
+                continue;
+            }
 
             orderIds.add(id);
             PurchaseOrder purchaseOrder = new PurchaseOrder(id,

@@ -301,8 +301,10 @@ public class OrderPackageServiceImpl implements OrderPackageService {
             order.setId(orderPackage.getOrderId());
             order.setIsPrintLabel(true);
             orderService.updateByPrimaryKeySelective(order);
+            return BaseResponse.success(map);
+        }else {
+            return BaseResponse.failed("包裹号：" + request.getPackNo() + " 获取面单失败");
         }
-        return BaseResponse.success(map);
     }
 
 

@@ -440,7 +440,7 @@ public class UserServiceImpl implements UserService {
 
         Account account = accountService.selectCustomerDefaultAccount(customerId);
 
-        userBindAccountOrgApp(userId,session.getApplicationId(),account.getId(),session.getParentOrganization().getId(),session.getRole().getId());
+        userBindAccountOrgApp(userId,session.getApplicationId(),account.getId(),session.getParentOrganization().getId(), request.getRoleId());
 
         return BaseResponse.success();
     }

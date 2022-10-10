@@ -1,15 +1,17 @@
 package com.upedge.ums.modules.user.request;
 
 import com.upedge.ums.modules.user.entity.Role;
+import lombok.Data;
+
 import java.util.Date;
 import java.util.List;
-
-import lombok.Data;
 /**
  * @author gx
  */
 @Data
 public class RoleUpdateRequest{
+
+    private Long id;
 
     /**
      * 
