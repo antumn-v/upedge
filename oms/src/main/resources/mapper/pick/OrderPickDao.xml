@@ -294,6 +294,7 @@
         and o.ship_state = '0'
         and o.pack_state = '1'
         and o.pick_state = '0'
+        and o.stock_state = '1'
         and oi.quantity > '0'
         and o.pick_type is not null
         <if test="shipMethodId != null">

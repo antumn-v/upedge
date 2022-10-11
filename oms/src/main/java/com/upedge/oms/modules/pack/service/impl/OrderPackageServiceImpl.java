@@ -607,7 +607,7 @@ public class OrderPackageServiceImpl implements OrderPackageService {
         childOrdersDTOS.add(childOrdersDTO);
 
         wayBillCreateDto.setChildOrders(childOrdersDTOS);
-        wayBillCreateDto.setCustomerOrderNumber(orderId.toString());
+        wayBillCreateDto.setCustomerOrderNumber(packNo.toString());
         wayBillCreateDto.setShippingMethodCode(shippingMethodRedis.getMethodCode());
         wayBillCreateDto.setPackageCount(1);
         wayBillCreateDto.setWeight(order.getTotalWeight().divide(new BigDecimal("1000"), 2, BigDecimal.ROUND_UP));
