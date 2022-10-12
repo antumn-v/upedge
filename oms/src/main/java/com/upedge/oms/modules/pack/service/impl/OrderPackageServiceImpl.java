@@ -325,17 +325,17 @@ public class OrderPackageServiceImpl implements OrderPackageService {
                     break;
                 case "YunExpress":
                     labelUrl = YunexpressApi.getSinglePackageLabel(orderPackage.getPlatId());
-                    labelUrl = AliYunOssService.uploadLabel(labelUrl,"4PX",orderPackage.getId() + ".pdf");
+                    labelUrl = AliYunOssService.uploadLabel(labelUrl,"YunExpress",orderPackage.getId() + ".pdf");
                     break;
                 case "CNE":
                     labelUrl = CneApi.getLabel(orderPackage.getLogisticsOrderNo());
-                    labelUrl = AliYunOssService.uploadLabel(labelUrl,"4PX",orderPackage.getId() + ".pdf");
+                    labelUrl = AliYunOssService.uploadLabel(labelUrl,"CNE",orderPackage.getId() + ".pdf");
                     break;
                 case "Yanwen":
                     labelUrl = YanwenApi.getTrackLabel(orderPackage.getLogisticsOrderNo(), pdfLocalPath);
                     if (StringUtils.isNotBlank(labelUrl)) {
                         labelUrl = pdfUrlPrefix + labelUrl;
-                        labelUrl = AliYunOssService.uploadLabel(labelUrl,"4PX",orderPackage.getId() + ".pdf");
+                        labelUrl = AliYunOssService.uploadLabel(labelUrl,"Yanwen",orderPackage.getId() + ".pdf");
                     }
                     break;
             }

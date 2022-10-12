@@ -19,6 +19,9 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ThreadPoolExecutor;
 
 @Api(tags = "订单包裹")
 @RestController
@@ -30,6 +33,9 @@ public class OrderPackageController {
 
     @Autowired
     OrderFulfillmentService orderFulfillmentService;
+
+    @Autowired
+    ThreadPoolExecutor threadPoolExecutor;
 
     @Autowired
     RedisTemplate redisTemplate;
@@ -49,8 +55,29 @@ public class OrderPackageController {
 
     @PostMapping("/createBatch")
     public BaseResponse createPackageBatch(@RequestBody List<Long> orderIds) {
+
+        CountDownLatch latch = new CountDownLatch(orderIds.size());
+
         for (Long orderId : orderIds) {
-            orderPackageService.createPackage(orderId);
+            threadPoolExecutor.submit(new Callable<Integer>() {
+                @Override
+                public Integer call() throws Exception {
+                    try {
+                        orderPackageService.createPackage(orderId);
+                        return 1;
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        return 0;
+                    } finally {
+                        latch.countDown();
+                    }
+                }
+            });
+        }
+        try {
+            latch.await();
+        } catch (InterruptedException e1) {
+            e1.printStackTrace();
         }
         return BaseResponse.success();
     }
@@ -104,7 +131,7 @@ public class OrderPackageController {
 
 
     @PostMapping("/saveLabelUrl")
-    public BaseResponse saveLabelUrl(){
+    public BaseResponse saveLabelUrl() {
         orderPackageService.saveAllLabelUrl();
         return BaseResponse.success();
     }
