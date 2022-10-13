@@ -17,5 +17,5 @@ public class ShopifyImage {
     private Integer height;
     private String src;
     private String admin_graphql_api_id;
-    private List<Long> variant_ids;
+    private List<String> variant_ids;
 }

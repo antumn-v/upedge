@@ -1431,7 +1431,7 @@ public class OrderServiceImpl implements OrderService {
         Order order = selectByPrimaryKey(orderId);
         if (null == order
                 || order.getPayState() != OrderConstant.PAY_STATE_UNPAID
-                || order.getOrderType() > 1) {
+                || order.getOrderType() > 2) {
             return BaseResponse.failed();
         }
         List<OrderItem> items = orderItemDao.selectItemByOrderId(orderId);

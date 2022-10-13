@@ -3,6 +3,7 @@ package com.upedge.pms.modules.product.service;
 import com.upedge.common.base.BaseResponse;
 import com.upedge.common.base.Page;
 import com.upedge.common.model.pms.quote.CustomerProductQuoteVo;
+import com.upedge.common.model.product.StoreProductVariantVo;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.pms.modules.product.entity.StoreProductVariant;
 import com.upedge.pms.modules.product.request.StoreProductVariantQuoteRequest;
@@ -10,6 +11,8 @@ import com.upedge.pms.modules.product.request.StoreProductVariantSplitRequest;
 import com.upedge.pms.modules.product.request.StoreProductVariantUnSplitListRequest;
 import com.upedge.pms.modules.product.request.StoreSplitVariantUpdateRequest;
 import com.upedge.pms.modules.product.vo.SplitVariantIdVo;
+import com.upedge.pms.modules.product.vo.StoreProductRelateVo;
+import com.upedge.thirdparty.shopify.moudles.product.entity.ShopifyImage;
 
 import java.util.List;
 
@@ -17,6 +20,8 @@ import java.util.List;
  * @author author
  */
 public interface StoreProductVariantService{
+
+    void uploadShopifyImage(List<ShopifyImage> shopifyImages,Long storeProductId);
 
     Long countCustomerUnSplitVariant(StoreProductVariantUnSplitListRequest request);
 
@@ -71,5 +76,25 @@ public interface StoreProductVariantService{
     List<Long> getSplitVariantIdsByParentId(Long storeVariantId);
 
     StoreProductVariant createCustomVariant(String sku,String image,String saleLink,Session session);
+
+    List<StoreProductRelateVo> selectStoreVariantRelateDetail(Long storeProductId);
+
+    List<StoreProductVariant> listUseVariantProductId(Long id);
+
+    StoreProductVariantVo selectByPlatVariantId(Long storeId, String platVariantId, String platProductId);
+
+    List<String> selectPlatVariantIdByProductId(Long storeProductId);
+
+    void updateByBatch(List<StoreProductVariant> updateVariants);
+
+    void markStoreVariantAsRemovedByPlatId(Long storeProductId, List<String> platVariantIds);
+
+    void updateAdminVariantIdByImportId(Long id, Long storeProductId);
+
+    void updateByPlatVariantId(StoreProductVariant variant);
+
+    List<StoreProductVariant> selectByPlatVariantIds(Long storeProductId, List<String> platVariantIds);
+
+    void updateImageByPlatVariantIds(String newImage, Long storeProductId, List<String> platVariantIds);
 }
 

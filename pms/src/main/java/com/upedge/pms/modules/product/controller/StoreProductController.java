@@ -123,7 +123,6 @@ public class StoreProductController {
     public BaseResponse getSingleShopifyProduct(Long storeId,String productId){
         StoreVo storeVo = (StoreVo) redisTemplate.opsForValue().get(RedisKey.STRING_STORE + storeId);
         JSONObject jsonObject = ShopifyProductApi.getProduct(productId,storeVo.getApiToken(),storeVo.getStoreName());
-
         ShopifyProduct shopifyProduct = jsonObject.getJSONObject("product").toJavaObject(ShopifyProduct.class);
         storeProductService.saveShopifyProduct(shopifyProduct, storeVo);
         return BaseResponse.success();

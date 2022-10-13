@@ -623,4 +623,10 @@
             </if>
         </if>
     </select>
+
+    <update id="updateStoreVariantImageById">
+        update customer_product_quote
+            set store_variant_image = #{image}
+        where store_variant_id = #{storeVariantId}
+    </update>
 </mapper>

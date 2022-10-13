@@ -18,9 +18,13 @@ import java.util.List;
  */
 public interface StoreProductVariantDao {
 
+    List<StoreProductVariant> selectByPlatVariantIds(@Param("productId") Long productId, @Param("platVariantIds") List<String> platVariantIds);
+
     List<StoreProductVariant> selectCustomerUnSplitVariant(StoreProductVariantUnSplitListRequest request);
 
     Long countCustomerUnSplitVariant(StoreProductVariantUnSplitListRequest request);
+
+    int updateImageByPlatVariantIds(@Param("newImage") String newImage, @Param("productId") Long productId, @Param("platVariantIds") List<String> platVariantIds);
 
 
     StoreProductVariant selectByPlatId(String platVariantId);

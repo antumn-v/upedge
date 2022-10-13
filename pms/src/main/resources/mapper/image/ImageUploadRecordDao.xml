@@ -1,0 +1,209 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.upedge.pms.modules.image.dao.ImageUploadRecordDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.upedge.pms.modules.image.entity.ImageUploadRecord" id="BaseResultMap">
+        <result property="id" column="id"/>
+        <result property="oldImage" column="old_image"/>
+        <result property="newImage" column="new_image"/>
+        <result property="imageSource" column="image_source"/>
+        <result property="imageSourceId" column="image_source_id"/>
+        <result property="createTime" column="create_time"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        `id`,`old_image`,`new_image`,`image_source`,`image_source_id`,`create_time`
+    </sql>
+
+    <select id="selectByPrimaryKey" parameterType="com.upedge.pms.modules.image.entity.ImageUploadRecord" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from image_upload_record
+        where id = #{id}
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="com.upedge.pms.modules.image.entity.ImageUploadRecord">
+        delete from image_upload_record
+        where id = #{id}
+    </delete>
+
+    <update id="updateByPrimaryKeySelective" parameterType="com.upedge.pms.modules.image.entity.ImageUploadRecord">
+        update image_upload_record
+        <set>
+            <if test="oldImage != null">
+                old_image = #{oldImage},
+            </if>
+            <if test="newImage != null">
+                new_image = #{newImage},
+            </if>
+            <if test="imageSource != null">
+                image_source = #{imageSource},
+            </if>
+            <if test="imageSourceId != null">
+                image_source_id = #{imageSourceId},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <update id="updateByPrimaryKey" parameterType="com.upedge.pms.modules.image.entity.ImageUploadRecord">
+        update image_upload_record
+        <set>
+        id = #{id},
+        old_image = #{oldImage},
+        new_image = #{newImage},
+        image_source = #{imageSource},
+        image_source_id = #{imageSourceId},
+        create_time = #{createTime},
+        </set>
+        where id = #{id}
+    </update>
+
+    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.upedge.pms.modules.image.entity.ImageUploadRecord" useGeneratedKeys="true">
+        insert into image_upload_record
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            id,
+            old_image,
+            new_image,
+            image_source,
+            image_source_id,
+            create_time
+        </trim>
+        values (
+        #{id},
+        #{oldImage},
+        #{newImage},
+        #{imageSource},
+        #{imageSourceId},
+        #{createTime}
+        )
+    </insert>
+
+    <insert id="insertSelective"  keyColumn="id" keyProperty="id"  parameterType="com.upedge.pms.modules.image.entity.ImageUploadRecord" useGeneratedKeys="true">
+        insert into image_upload_record
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null" >
+              id
+            </if>
+            <if test="oldImage != null" >
+              old_image
+            </if>
+            <if test="newImage != null" >
+              new_image
+            </if>
+            <if test="imageSource != null" >
+              image_source
+            </if>
+            <if test="imageSourceId != null" >
+              image_source_id
+            </if>
+            <if test="createTime != null" >
+              create_time
+            </if>
+
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null" >
+                #{id}
+            </if>
+            <if test="oldImage != null" >
+                #{oldImage}
+            </if>
+            <if test="newImage != null" >
+                #{newImage}
+            </if>
+            <if test="imageSource != null" >
+                #{imageSource}
+            </if>
+            <if test="imageSourceId != null" >
+                #{imageSourceId}
+            </if>
+            <if test="createTime != null" >
+                #{createTime}
+            </if>
+
+        </trim>
+    </insert>
+
+    <insert id="insertByBatch" parameterType="java.util.List">
+        insert into image_upload_record
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+           id,
+           old_image,
+           new_image,
+           image_source,
+           image_source_id,
+           create_time
+        </trim>
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+               #{item.id},
+               #{item.oldImage},
+               #{item.newImage},
+               #{item.imageSource},
+               #{item.imageSourceId},
+               #{item.createTime}
+            </trim>
+        </foreach>
+    </insert>
+
+    <sql id="Query_Condition">
+        <if test="t != null">
+            where
+            <trim prefix=" " suffix=" " suffixOverrides=" and ">
+                1 = 1 and
+                    <if test="t.id != null">
+                        id = #{t.id} and
+                    </if>
+                    <if test="t.oldImage != null">
+                        old_image = #{t.oldImage} and
+                    </if>
+                    <if test="t.newImage != null">
+                        new_image = #{t.newImage} and
+                    </if>
+                    <if test="t.imageSource != null">
+                        image_source = #{t.imageSource} and
+                    </if>
+                    <if test="t.imageSourceId != null">
+                        image_source_id = #{t.imageSourceId} and
+                    </if>
+                    <if test="t.createTime != null">
+                        create_time = #{t.createTime} and
+                    </if>
+            </trim>
+        </if>
+    </sql>
+
+    <select id="select" parameterType="com.upedge.common.base.Page" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from image_upload_record
+        <include refid="Query_Condition"/>
+        <if test="orderBy != null">
+            order by ${orderBy}
+        </if>
+        <if test="pageNum != null and pageSize != null">
+            limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+        </if>
+    </select>
+
+    <select id="count" parameterType="com.upedge.common.base.Page" resultType="java.lang.Long">
+        select
+        count(1)
+        from image_upload_record
+        <include refid="Query_Condition"/>
+    </select>
+
+    <select id="selectByImageId" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from image_upload_record
+        where image_source_id = #{imageId}
+    </select>
+</mapper>

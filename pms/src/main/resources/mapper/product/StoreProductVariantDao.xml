@@ -113,7 +113,7 @@
         select distinct plat_variant_id
         from store_product_variant
         where product_id = #{productId}
-        and parent_variant_id = '0'
+          and parent_variant_id = '0'
     </select>
 
     <update id="updateByPlatVariantId" parameterType="com.upedge.pms.modules.product.entity.StoreProductVariant">
@@ -604,20 +604,20 @@
         select parent_variant_id
         from store_product_variant
         where product_id = #{productId}
-        and plat_variant_id = #{platVariantId}
-        and parent_variant_id != '0'
+          and plat_variant_id = #{platVariantId}
+          and parent_variant_id != '0'
         limit 1
     </select>
 
     <select id="selectWrongParentVariants" resultMap="BaseResultMap">
-        select DISTINCT plat_product_id,plat_variant_id
+        select DISTINCT plat_product_id, plat_variant_id
         from store_product_variant
         where split_type = '2'
-        and parent_variant_id not in
-        (
-            select id
-            from store_product_variant
-        )
+          and parent_variant_id not in
+              (
+                      select id
+                      from store_product_variant
+                      )
     </select>
 
     <select id="selectSplitVariantsByPlatVariantId" resultMap="BaseResultMap">
@@ -630,8 +630,8 @@
 
     <update id="updateId">
         update store_product_variant
-            set id = #{newId},
-                split_type = '1'
+        set id         = #{newId},
+            split_type = '1'
         where id = #{oldId}
     </update>
 
@@ -644,7 +644,8 @@
         limit 1
     </select>
 
-    <select id="selectCustomerUnSplitVariant" resultMap="BaseResultMap" parameterType="com.upedge.pms.modules.product.request.StoreProductVariantUnSplitListRequest">
+    <select id="selectCustomerUnSplitVariant" resultMap="BaseResultMap"
+            parameterType="com.upedge.pms.modules.product.request.StoreProductVariantUnSplitListRequest">
         select spv.`id`,spv.`product_id`,spv.`plat_variant_id`,spv.`plat_product_id`,
         spv.`title`,spv.`price`,spv.`sku`,spv.`image`,spv.`state`,spv.`import_time`,
         spv.`split_type`,spv.`parent_variant_id`
@@ -668,7 +669,8 @@
         </if>
     </select>
 
-    <select id="countCustomerUnSplitVariant" resultType="java.lang.Long" parameterType="com.upedge.pms.modules.product.request.StoreProductVariantUnSplitListRequest">
+    <select id="countCustomerUnSplitVariant" resultType="java.lang.Long"
+            parameterType="com.upedge.pms.modules.product.request.StoreProductVariantUnSplitListRequest">
         select count(spv.id)
         from store_product_attribute spa
         inner join store_product_variant spv
@@ -684,5 +686,26 @@
         <if test="t.productTitle != null and t.productTitle != ''">
             and spa.title = #{t.productTitle}
         </if>
+    </select>
+
+    <update id="updateImageByPlatVariantIds">
+        update store_product_variant
+        set image = #{newImage}
+        where product_id = #{productId}
+        and plat_variant_id in
+        <foreach collection="platVariantIds" item="platVariantId" open="(" separator="," close=")">
+            #{platVariantId}
+        </foreach>
+    </update>
+
+    <select id="selectByPlatVariantIds" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from store_product_variant
+        where product_id = #{productId}
+        and plat_variant_id in
+        <foreach collection="platVariantIds" item="platVariantId" open="(" separator="," close=")">
+            #{platVariantId}
+        </foreach>
     </select>
 </mapper>

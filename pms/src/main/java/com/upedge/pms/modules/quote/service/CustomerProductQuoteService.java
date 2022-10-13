@@ -19,6 +19,8 @@ import java.util.List;
  */
 public interface CustomerProductQuoteService{
 
+    int updateStoreVariantImageById(Long storeVariantId, String image);
+
     List<CustomerProductQuoteVo> selectAllQuoteDetail();
 
     BaseResponse revokeQuote(Long id,Session session);

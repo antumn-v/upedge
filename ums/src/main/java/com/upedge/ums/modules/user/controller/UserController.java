@@ -3,7 +3,6 @@ package com.upedge.ums.modules.user.controller;
 import com.alibaba.fastjson.JSONObject;
 import com.upedge.common.base.BaseResponse;
 import com.upedge.common.component.annotation.Permission;
-import com.upedge.common.constant.BaseCode;
 import com.upedge.common.constant.Constant;
 import com.upedge.common.constant.EmailTemplate;
 import com.upedge.common.constant.ResultCode;
@@ -205,9 +204,9 @@ public class UserController {
     @PostMapping("/getToken/{customerId}")
     public BaseResponse getCustometLoginToken(@PathVariable Long customerId){
         Session session = UserUtil.getSession(redisTemplate);
-        if (session.getUserType() != BaseCode.USER_ROLE_SUPERADMIN){
-            return BaseResponse.failed("权限不足,超级管理员可操作");
-        }
+//        if (session.getUserType() != BaseCode.USER_ROLE_SUPERADMIN){
+//            return BaseResponse.failed("权限不足,超级管理员可操作");
+//        }
         Customer customer = customerService.selectByPrimaryKey(customerId);
         if (customer == null){
             return BaseResponse.failed("用户不存在");

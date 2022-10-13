@@ -7,10 +7,13 @@ import com.upedge.common.exception.CustomerException;
 import com.upedge.common.feign.OmsFeignClient;
 import com.upedge.common.model.order.vo.OrderItemUpdateImageNameRequest;
 import com.upedge.common.model.pms.quote.CustomerProductQuoteVo;
+import com.upedge.common.model.product.StoreProductVariantVo;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.utils.FileUtil;
 import com.upedge.common.utils.IdGenerate;
 import com.upedge.common.utils.ListUtils;
+import com.upedge.pms.modules.image.entity.ImageUploadRecord;
+import com.upedge.pms.modules.image.service.ImageUploadRecordService;
 import com.upedge.pms.modules.product.dao.StoreProductVariantDao;
 import com.upedge.pms.modules.product.dto.StoreProductVariantSplitVo;
 import com.upedge.pms.modules.product.entity.StoreProductAttribute;
@@ -22,11 +25,13 @@ import com.upedge.pms.modules.product.request.StoreSplitVariantUpdateRequest;
 import com.upedge.pms.modules.product.service.StoreProductAttributeService;
 import com.upedge.pms.modules.product.service.StoreProductVariantService;
 import com.upedge.pms.modules.product.vo.SplitVariantIdVo;
+import com.upedge.pms.modules.product.vo.StoreProductRelateVo;
 import com.upedge.pms.modules.quote.entity.CustomerProductQuote;
 import com.upedge.pms.modules.quote.entity.QuoteApplyItem;
 import com.upedge.pms.modules.quote.request.CustomerProductQuoteUpdateRequest;
 import com.upedge.pms.modules.quote.service.CustomerProductQuoteService;
 import com.upedge.pms.modules.quote.service.QuoteApplyItemService;
+import com.upedge.thirdparty.shopify.moudles.product.entity.ShopifyImage;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,6 +58,9 @@ public class StoreProductVariantServiceImpl implements StoreProductVariantServic
 
     @Autowired
     QuoteApplyItemService quoteApplyItemService;
+
+    @Autowired
+    ImageUploadRecordService imageUploadRecordService;
 
     @Autowired
     RedisTemplate redisTemplate;
@@ -100,6 +108,33 @@ public class StoreProductVariantServiceImpl implements StoreProductVariantServic
     @Transactional
     public int insertSelective(StoreProductVariant record) {
         return storeProductVariantDao.insert(record);
+    }
+
+    @Override
+    public void uploadShopifyImage(List<ShopifyImage> shopifyImages, Long storeProductId) {
+        shopifyImages.forEach(shopifyImage -> {
+            List<String> platVariantIds = shopifyImage.getVariant_ids();
+            if (ListUtils.isEmpty(platVariantIds)){
+                return;
+            }
+            ImageUploadRecord imageUploadRecord = imageUploadRecordService.uploadStoreImage(shopifyImage);
+            if (imageUploadRecord == null){
+                return;
+            }
+            String newImage = imageUploadRecord.getNewImage();
+            List<StoreProductVariant> storeProductVariants = storeProductVariantDao.selectByPlatVariantIds(storeProductId,platVariantIds);
+            for (StoreProductVariant storeProductVariant : storeProductVariants) {
+                String image = storeProductVariant.getImage();
+                if (image != null && image.equals(newImage)){
+                    platVariantIds.remove(storeProductVariant.getPlatVariantId());
+                }else {
+                    customerProductQuoteService.updateStoreVariantImageById(storeProductVariant.getId(),newImage);
+                }
+            }
+            if (ListUtils.isNotEmpty(platVariantIds)){
+                storeProductVariantDao.updateImageByPlatVariantIds(newImage,storeProductId,platVariantIds);
+            }
+        });
     }
 
     @Override
@@ -395,6 +430,63 @@ public class StoreProductVariantServiceImpl implements StoreProductVariantServic
     @Override
     public StoreProductVariant createCustomVariant(String sku, String image, String saleLink, Session session) {
         return null;
+    }
+
+    @Override
+    public List<StoreProductRelateVo> selectStoreVariantRelateDetail(Long storeProductId) {
+        return storeProductVariantDao.selectStoreVariantRelateDetail(storeProductId);
+    }
+
+    @Override
+    public List<StoreProductVariant> listUseVariantProductId(Long id) {
+        return storeProductVariantDao.listUseVariantProductId(id);
+    }
+
+    @Override
+    public StoreProductVariantVo selectByPlatVariantId(Long storeId, String platVariantId, String platProductId) {
+        return storeProductVariantDao.selectByPlatVariantId(storeId, platVariantId, platProductId);
+    }
+
+    @Override
+    public List<String> selectPlatVariantIdByProductId(Long storeProductId) {
+        return storeProductVariantDao.selectPlatVariantIdByProductId(storeProductId);
+    }
+
+    @Override
+    public void updateByBatch(List<StoreProductVariant> updateVariants) {
+        if (ListUtils.isNotEmpty(updateVariants)){
+            storeProductVariantDao.updateByBatch(updateVariants);
+        }
+    }
+
+    @Override
+    public void markStoreVariantAsRemovedByPlatId(Long storeProductId, List<String> platVariantIds) {
+        if (ListUtils.isNotEmpty(platVariantIds)){
+            storeProductVariantDao.markStoreVariantAsRemovedByPlatId(storeProductId,platVariantIds);
+        }
+    }
+
+    @Override
+    public void updateAdminVariantIdByImportId(Long id, Long storeProductId) {
+        storeProductVariantDao.updateAdminVariantIdByImportId(id, storeProductId);
+    }
+
+    @Override
+    public void updateByPlatVariantId(StoreProductVariant variant) {
+        storeProductVariantDao.updateByPlatVariantId(variant);
+    }
+
+    @Override
+    public List<StoreProductVariant> selectByPlatVariantIds(Long storeProductId, List<String> platVariantIds) {
+        return storeProductVariantDao.selectByPlatVariantIds(storeProductId,platVariantIds);
+    }
+
+    @Override
+    public void updateImageByPlatVariantIds(String newImage, Long storeProductId, List<String> platVariantIds) {
+        if (ListUtils.isNotEmpty(platVariantIds) && StringUtils.isNotBlank(newImage)){
+            storeProductVariantDao.updateImageByPlatVariantIds(newImage, storeProductId, platVariantIds);
+        }
+
     }
 
     public void redisDeleteIfSplitVariant(Long storeVariantId){

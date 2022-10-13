@@ -104,6 +104,20 @@ public class CustomerProductQuoteServiceImpl implements CustomerProductQuoteServ
     }
 
     @Override
+    public int updateStoreVariantImageById(Long storeVariantId, String image) {
+        if (StringUtil.isBlank(image)){
+            return 0;
+        }
+        String key = RedisKey.STRING_QUOTED_STORE_VARIANT + storeVariantId;
+        CustomerProductQuoteVo customerProductQuoteVo = (CustomerProductQuoteVo) redisTemplate.opsForValue().get(key);
+        if (customerProductQuoteVo != null){
+            customerProductQuoteVo.setStoreVariantImage(image);
+            redisTemplate.opsForValue().set(key,customerProductQuoteVo);
+        }
+        return customerProductQuoteDao.updateStoreVariantImageById(storeVariantId,image);
+    }
+
+    @Override
     public List<CustomerProductQuoteVo> selectAllQuoteDetail() {
         return customerProductQuoteDao.selectAllQuoteDetail();
     }
