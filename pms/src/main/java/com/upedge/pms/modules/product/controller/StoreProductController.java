@@ -17,6 +17,7 @@ import com.upedge.pms.modules.product.service.StoreProductAttributeService;
 import com.upedge.pms.modules.product.service.StoreProductService;
 import com.upedge.pms.modules.product.service.StoreProductVariantService;
 import com.upedge.pms.modules.product.vo.StoreProductRelateVo;
+import com.upedge.pms.modules.quote.service.CustomerProductQuoteService;
 import com.upedge.thirdparty.shopify.moudles.product.controller.ShopifyProductApi;
 import com.upedge.thirdparty.shopify.moudles.product.entity.ShopifyImage;
 import com.upedge.thirdparty.shopify.moudles.product.entity.ShopifyProduct;
@@ -46,6 +47,9 @@ public class StoreProductController {
 
     @Autowired
     StoreProductVariantService storeProductVariantService;
+
+    @Autowired
+    CustomerProductQuoteService customerProductQuoteService;
 
     @Autowired
     RedisTemplate redisTemplate;
@@ -127,4 +131,6 @@ public class StoreProductController {
         storeProductService.saveShopifyProduct(shopifyProduct, storeVo);
         return BaseResponse.success();
     }
+
+
 }

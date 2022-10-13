@@ -26,6 +26,8 @@ import com.upedge.pms.modules.category.entity.Category;
 import com.upedge.pms.modules.category.entity.CategoryMapping;
 import com.upedge.pms.modules.category.service.CategoryMappingService;
 import com.upedge.pms.modules.category.service.CategoryService;
+import com.upedge.pms.modules.image.entity.ImageUploadRecord;
+import com.upedge.pms.modules.image.service.ImageUploadRecordService;
 import com.upedge.pms.modules.product.dao.AppProductVariantDao;
 import com.upedge.pms.modules.product.dao.ImportProductAttributeDao;
 import com.upedge.pms.modules.product.dao.ProductDao;
@@ -126,6 +128,9 @@ public class ProductServiceImpl implements ProductService {
 
     @Autowired
     ProductPurchaseInfoService productPurchaseInfoService;
+
+    @Autowired
+    ImageUploadRecordService imageUploadRecordService;
 
 
     /**
@@ -722,6 +727,7 @@ public class ProductServiceImpl implements ProductService {
 
             ProductVariant productVariant = new ProductVariant();
             BeanUtils.copyProperties(productVariantVo, productVariant);
+            String variantImage = productVariant.getVariantImage();
             Long variantId = IdGenerate.nextId();
             productVariant.setProductId(productId);
             productVariant.setId(variantId);
@@ -744,8 +750,14 @@ public class ProductServiceImpl implements ProductService {
             if (null == productVariant.getWeight()) {
                 productVariant.setWeight(BigDecimal.ZERO);
             }
-            if (null == productVariant.getVariantImage()){
-                productVariant.setVariantImage(mainImage);
+            if (StringUtils.isBlank(variantImage)){
+                variantImage = mainImage;
+            }
+            ImageUploadRecord imageUploadRecord = imageUploadRecordService.uploadImageByUrl(variantImage,variantId.toString());
+            if (null == imageUploadRecord){
+                productVariant.setVariantImage(variantImage);
+            }else {
+                productVariant.setVariantImage(imageUploadRecord.getNewImage());
             }
             productVariantList.add(productVariant);
             productVariantVo.getVariantAttrVoList().forEach(productVariantAttrVo -> {

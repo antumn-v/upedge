@@ -206,4 +206,11 @@
         from image_upload_record
         where image_source_id = #{imageId}
     </select>
+
+    <select id="selectByOldImage" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from image_upload_record
+        where old_image = #{imageUrl}
+    </select>
 </mapper>

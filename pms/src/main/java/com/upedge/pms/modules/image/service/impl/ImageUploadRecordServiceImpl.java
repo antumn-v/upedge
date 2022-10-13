@@ -97,7 +97,7 @@ public class ImageUploadRecordServiceImpl implements ImageUploadRecordService {
         if (null != imageUploadRecord){
             return imageUploadRecord;
         }
-        String newImage = uploadImage(imageUrl,"store");
+        String newImage = uploadImage(imageUrl,"alibaba");
         if (StringUtils.isBlank(newImage)){
             return null;
         }
@@ -109,6 +109,26 @@ public class ImageUploadRecordServiceImpl implements ImageUploadRecordService {
         imageUploadRecord.setCreateTime(new Date());
         imageUploadRecordDao.insert(imageUploadRecord);
 
+        return imageUploadRecord;
+    }
+
+    @Override
+    public ImageUploadRecord uploadImageByUrl(String image,String imageId) {
+        ImageUploadRecord imageUploadRecord = imageUploadRecordDao.selectByOldImage(image);
+        if (null != imageUploadRecord){
+            return imageUploadRecord;
+        }
+        String newImage = uploadImage(image,"alibaba");
+        if (StringUtils.isBlank(newImage)){
+            return null;
+        }
+        imageUploadRecord = new ImageUploadRecord();
+        imageUploadRecord.setNewImage(newImage);
+        imageUploadRecord.setOldImage(image);
+        imageUploadRecord.setImageSource(1);
+        imageUploadRecord.setImageSourceId(imageId);
+        imageUploadRecord.setCreateTime(new Date());
+        imageUploadRecordDao.insert(imageUploadRecord);
         return imageUploadRecord;
     }
 

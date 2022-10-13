@@ -18,6 +18,8 @@ public interface ImageUploadRecordService{
 
     ImageUploadRecord uploadAlibabaImage(ProductImgVo productImgVo);
 
+    ImageUploadRecord uploadImageByUrl(String image,String imageId);
+
     ImageUploadRecord selectByPrimaryKey(Integer id);
 
     int deleteByPrimaryKey(Integer id);

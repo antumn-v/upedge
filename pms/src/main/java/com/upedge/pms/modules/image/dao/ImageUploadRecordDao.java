@@ -12,6 +12,8 @@ public interface ImageUploadRecordDao{
 
     ImageUploadRecord selectByImageId(String imageId);
 
+    ImageUploadRecord selectByOldImage(String imageUrl);
+
     ImageUploadRecord selectByPrimaryKey(ImageUploadRecord record);
 
     int deleteByPrimaryKey(ImageUploadRecord record);
