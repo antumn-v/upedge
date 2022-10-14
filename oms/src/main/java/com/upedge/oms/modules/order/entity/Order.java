@@ -40,6 +40,8 @@ public class Order{
 	 * 
 	 */
     private Long shipMethodId;
+
+	private Long actualShipMethodId;
 	/**
 	 * 
 	 */

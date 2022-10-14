@@ -39,6 +39,8 @@ import java.util.Set;
  */
 public interface OrderDao {
 
+    int updateActualShipMethodById(@Param("orderId") Long orderId, @Param("shipMethodId") Long shipMethodId);
+
     int updateStockState(@Param("id") Long id, @Param("stockState") Integer stockState);
 
     int updateOrderPackInfo(@Param("id") Long id, @Param("packageState") Integer packageState, @Param("packNo") Long packNo);

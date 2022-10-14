@@ -382,28 +382,33 @@ public class OrderPackageServiceImpl implements OrderPackageService {
             return BaseResponse.failed("订单已生成包裹");
         }
 
-        ShippingMethodRedis shippingMethodRedis = (ShippingMethodRedis) redisTemplate.opsForHash().get(RedisKey.SHIPPING_METHOD, order.getShipMethodId().toString());
+        ShippingMethodRedis shippingMethodRedis = (ShippingMethodRedis) redisTemplate.opsForHash().get(RedisKey.SHIPPING_METHOD, order.getActualShipMethodId().toString());
         String shipCompany = shippingMethodRedis.getTrackingCompany();
         if (StringUtils.isBlank(shipCompany) || StringUtils.isBlank(shippingMethodRedis.getMethodCode())) {
             redisTemplate.opsForHash().put(RedisKey.HASH_ORDER_CREATE_PACKAGE_FAILED_REASON, orderId.toString(), "请完善运输方式公司信息");
             return BaseResponse.failed("请完善运输方式公司信息");
         }
 
-        switch (shipCompany) {
-            case "4PX":
-                return createFpxPackage(order, shippingMethodRedis);
-            case "YunExpress":
-                return createYunExpressPackage(order, shippingMethodRedis);
-            case "CNE":
-                return createCnePackage(order, shippingMethodRedis);
-            case "Yanwen":
-                return createYanwenPackage(order, shippingMethodRedis);
-            default:
-                return BaseResponse.failed("物流公司未对接");
+        try {
+            switch (shipCompany) {
+                case "4PX":
+                    return createFpxPackage(order, shippingMethodRedis);
+                case "YunExpress":
+                    return createYunExpressPackage(order, shippingMethodRedis);
+                case "CNE":
+                    return createCnePackage(order, shippingMethodRedis);
+                case "Yanwen":
+                    return createYanwenPackage(order, shippingMethodRedis);
+                default:
+                    return BaseResponse.failed("物流公司未对接");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return BaseResponse.failed(e.getMessage());
         }
     }
 
-    public BaseResponse createYanwenPackage(Order order, ShippingMethodRedis shippingMethodRedis) {
+    public BaseResponse createYanwenPackage(Order order, ShippingMethodRedis shippingMethodRedis) throws CustomerException {
         Long orderId = order.getId();
         Long packNo = getPackageNo();
         order.setPackNo(packNo);
@@ -466,7 +471,7 @@ public class OrderPackageServiceImpl implements OrderPackageService {
         return BaseResponse.success(orderPackage);
     }
 
-    public BaseResponse createCnePackage(Order order, ShippingMethodRedis shippingMethodRedis) {
+    public BaseResponse createCnePackage(Order order, ShippingMethodRedis shippingMethodRedis) throws CustomerException {
         Long orderId = order.getId();
         Long packNo = getPackageNo();
         order.setPackNo(packNo);
@@ -541,7 +546,7 @@ public class OrderPackageServiceImpl implements OrderPackageService {
         return BaseResponse.success(orderPackage);
     }
 
-    private BaseResponse createYunExpressPackage(Order order, ShippingMethodRedis shippingMethodRedis) {
+    private BaseResponse createYunExpressPackage(Order order, ShippingMethodRedis shippingMethodRedis) throws CustomerException {
         Long orderId = order.getId();
         Long packNo = getPackageNo();
         order.setPackNo(packNo);
@@ -837,12 +842,12 @@ public class OrderPackageServiceImpl implements OrderPackageService {
         return orderPackageDao.count(record);
     }
 
-    public Long getPackageNo() {
+    public Long getPackageNo() throws CustomerException {
         String lockKey = "order:package:no:lock";
 
-        boolean b = RedisUtil.lock(redisTemplate, lockKey, 5L, 10L);
+        boolean b = RedisUtil.lock(redisTemplate, lockKey, 9L, 10L);
         if (!b) {
-            return null;
+            throw new CustomerException("获取包裹号失败，请重试");
         }
         String key = "order:package:no";
         String date = DateUtils.getDate("yyyyMMdd");

@@ -51,6 +51,7 @@
         <result property="orderCustomerName" column="order_customer_name"/>
         <result property="payAmount" column="pay_amount"/>
         <result property="shipMethodId" column="ship_method_id"/>
+        <result property="actualShipMethodId" column="actual_ship_method_id"/>
         <result property="shipPrice" column="ship_price"/>
         <result property="serviceFee" column="service_fee"/>
         <result property="totalWeight" column="total_weight"/>
@@ -160,7 +161,7 @@
         `total_weight`,`product_amount`,`product_discharge_amount`,`fix_fee`,`fix_fee_percentage`,`service_fee`,
         `pay_method`,`pay_time`,`payment_id`,`pay_state`,`refund_state`,`ship_state`,`order_type`,quote_state,
         `to_area_id`,`cny_rate`,`create_time`,`update_time`,`saihe_order_code`,`vat_amount`,`order_status`,`manager_code`,
-        `shipping_warehouse`,`tracking_code`,pick_type,pick_state,pack_state,pack_no,`stock_state`
+        `shipping_warehouse`,`tracking_code`,pick_type,pick_state,pack_state,pack_no,`stock_state`,`actual_ship_method_id`
     </sql>
 
 
@@ -535,7 +536,7 @@
         o.pay_time,o.payment_id,o.pay_state,o.refund_state,o.ship_state,o.order_type,o.to_area_id,
         o.vat_amount,o.create_time,o.store_id,r.plat_order_create_time,o.quote_state,o.saihe_order_code,
         o.shipping_warehouse,o.tracking_code,o.pick_type,o.wave_no,o.pick_state,o.pack_state,o.pack_no,
-        o.is_print_label
+        o.is_print_label,o.actual_ship_method_id
         from `order` o
         left join store_order_relate r
         on o.id = r.order_id
@@ -695,10 +696,10 @@
             pay_time   = #{payTime},
             pay_method = #{payMethod},
             pay_amount = (product_amount + ship_price + vat_amount + service_fee - product_discharge_amount),
-            cny_rate   = #{cnyRate}
+            cny_rate   = #{cnyRate},
+            actual_ship_method_id = ship_method_id
         where payment_id = #{paymentId}
           and pay_state = '2'
-          and order_status = '0'
     </update>
 
     <delete id="deleteByIds">
@@ -2483,8 +2484,8 @@
                oi.id               as `itemId`,
                oi.admin_variant_id as `variantId`
         from `order` o
-        inner join order_item oi
-        on o.id = oi.order_id
+                     inner join order_item oi
+                on o.id = oi.order_id
         where o.id = #{orderId}
           and o.pay_state = '1'
           and o.refund_state = '0'
@@ -2493,11 +2494,11 @@
 
     <update id="updateStockState">
         update `order`
-            set stock_state = #{stockState}
+        set stock_state = #{stockState}
         where id = #{id}
-        and pay_state = '1'
-        and refund_state = '0'
-        and ship_state = '0'
+          and pay_state = '1'
+          and refund_state = '0'
+          and ship_state = '0'
     </update>
 
     <update id="updateStockStateByIds">
@@ -2507,8 +2508,18 @@
         <foreach collection="ids" item="orderId" open="(" separator="," close=")">
             #{orderId}
         </foreach>
+        and pay_state = '1'
+        and refund_state = '0'
+        and ship_state = '0'
+    </update>
+
+    <update id="updateActualShipMethodById">
+        update `order`
+        set actual_ship_method_id = #{shipMethodId}
+        where id = #{orderId}
           and pay_state = '1'
           and refund_state = '0'
           and ship_state = '0'
+          and pack_state = '0'
     </update>
 </mapper>

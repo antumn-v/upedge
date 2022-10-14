@@ -1326,6 +1326,25 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
+    public BaseResponse updateActualShipMethod(OrderUpdateActualShipMethodRequest request, Session session) {
+        Long actualMethodId = request.getShipMethodId();
+        Order order = selectByPrimaryKey(request.getOrderId());
+        if (order.getPayState() != 1
+        || order.getRefundState() != 0
+        || order.getShipState() != 0
+        || order.getPackState() != 0){
+            return BaseResponse.failed();
+        }
+        ShippingMethodRedis shippingMethodRedis = (ShippingMethodRedis) redisTemplate.opsForHash().get(RedisKey.SHIPPING_METHOD,actualMethodId.toString());
+        if (null == shippingMethodRedis){
+            return BaseResponse.failed("运输方式错误");
+        }
+        orderDao.updateActualShipMethodById(request.getOrderId(),actualMethodId);
+
+        return BaseResponse.success();
+    }
+
+    @Override
     public int initPickType(Long id) {
         List<OrderItem> orderItems = orderItemDao.selectItemByOrderId(id);
         if (ListUtils.isEmpty(orderItems)){
@@ -1613,14 +1632,18 @@ public class OrderServiceImpl implements OrderService {
             }
             OrderItem reshipOrderItem = new OrderItem();
             BeanUtils.copyProperties(orderItem, reshipOrderItem);
-            CustomerProductQuoteVo customerProductQuoteVo = map.get(orderItem.getStoreVariantId());
-            if (null == customerProductQuoteVo || customerProductQuoteVo.getQuoteState() != 1) {
-                return BaseResponse.failed("sku: " + orderItem.getStoreVariantSku() + " 报价信息不存在");
+            if (order.getOrderType() != 4){
+                CustomerProductQuoteVo customerProductQuoteVo = map.get(orderItem.getStoreVariantId());
+                if (null == customerProductQuoteVo || customerProductQuoteVo.getQuoteState() != 1) {
+                    return BaseResponse.failed("sku: " + orderItem.getStoreVariantSku() + " 报价信息不存在");
+                }
+                reshipOrderItem.quoteProductToItem(customerProductQuoteVo);
             }
+
             reshipOrderItem.setDischargeQuantity(0);
             reshipOrderItem.setOrderId(reshipOrderId);
             reshipOrderItem.setId(IdGenerate.nextId());
-            reshipOrderItem.quoteProductToItem(customerProductQuoteVo);
+
             reshipOrderItem.setQuantity(orderItem.getQuantity());
             reshipOrderItems.add(reshipOrderItem);
 
@@ -2469,6 +2492,14 @@ public class OrderServiceImpl implements OrderService {
             }
             Set<AppStoreOrderVo> appStoreOrderVos = appOrderVo.getStoreOrderVos();
             if (appOrderVo.getPayState() == 1){
+                Long actualShipMethodId = appOrderVo.getActualShipMethodId();
+                if (actualShipMethodId != null){
+                    ShippingMethodRedis shippingMethodRedis = (ShippingMethodRedis) redisTemplate.opsForHash().get(RedisKey.SHIPPING_METHOD,actualShipMethodId.toString());
+                    if (shippingMethodRedis != null){
+                        appOrderVo.setActualShipMethodName(shippingMethodRedis.getDesc());
+                    }
+                }
+
                 appStoreOrderVos.forEach(appStoreOrderVo -> {
                     List<AppOrderItemVo> itemVos = appStoreOrderVo.getItemVos();
                     itemVos.forEach(appOrderItemVo -> {

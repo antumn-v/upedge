@@ -308,6 +308,13 @@ public class OrderController {
         return new BaseResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS, orderAddress);
     }
 
+    @ApiOperation("修改实际发货方式")
+    @PostMapping("/updateActualShipMethod")
+    public BaseResponse updateActualShipMethod(@RequestBody@Valid OrderUpdateActualShipMethodRequest request){
+        Session session = UserUtil.getSession(redisTemplate);
+        return orderService.updateActualShipMethod(request,session);
+    }
+
     /**
      * 订单匹配运输规则
      *

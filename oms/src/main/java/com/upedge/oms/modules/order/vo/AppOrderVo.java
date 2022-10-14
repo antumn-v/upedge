@@ -36,7 +36,11 @@ public class AppOrderVo {
 
     private Long shipMethodId;
 
+    private Long actualShipMethodId;
+
     private String shipMethodName;
+
+    private String actualShipMethodName;
 
     private String shipMethodDesc;
 

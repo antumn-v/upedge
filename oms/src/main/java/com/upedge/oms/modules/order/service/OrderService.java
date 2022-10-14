@@ -34,6 +34,9 @@ import java.util.Set;
  */
 public interface OrderService{
 
+
+    BaseResponse updateActualShipMethod(OrderUpdateActualShipMethodRequest request,Session session);
+
     int initPickType(Long id);
     /**
      * 修改订单包裹信息
