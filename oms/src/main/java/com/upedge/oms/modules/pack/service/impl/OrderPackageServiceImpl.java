@@ -115,12 +115,15 @@ public class OrderPackageServiceImpl implements OrderPackageService {
 
     @Override
     public void saveAllLabelUrl() {
-        OrderPackage orderPackage = new OrderPackage();
         Page<OrderPackage> page = new Page<>();
         page.setPageSize(-1);
         List<OrderPackage> orderPackages = select(page);
         for (OrderPackage aPackage : orderPackages) {
-            savePrintLabel(aPackage);
+            try {
+                savePrintLabel(aPackage);
+            } catch (CustomerException e) {
+
+            }
         }
     }
 
@@ -290,7 +293,11 @@ public class OrderPackageServiceImpl implements OrderPackageService {
         if (null != orderLabelPrintLog) {
             labelUrl = orderLabelPrintLog.getLabelUrl();
         }else {
-            labelUrl = savePrintLabel(orderPackage);
+            try {
+                labelUrl = savePrintLabel(orderPackage);
+            } catch (CustomerException e) {
+                return BaseResponse.failed(e.getMessage());
+            }
         }
 
         map.put("labelUrl", labelUrl);
@@ -306,7 +313,7 @@ public class OrderPackageServiceImpl implements OrderPackageService {
     }
 
 
-    private String savePrintLabel(OrderPackage orderPackage){
+    private String savePrintLabel(OrderPackage orderPackage) throws CustomerException {
         if (null == orderPackage){
             return null;
         }
@@ -338,8 +345,7 @@ public class OrderPackageServiceImpl implements OrderPackageService {
                     break;
             }
         } catch (Exception e) {
-            e.printStackTrace();
-            return null;
+            throw new CustomerException(e.getMessage());
         }
         if (StringUtils.isNotBlank(labelUrl)) {
             orderLabelPrintLog = new OrderLabelPrintLog();
@@ -780,7 +786,11 @@ public class OrderPackageServiceImpl implements OrderPackageService {
         orderService.updateOrderPackInfo(orderId, 1, packageNo);
         redisTemplate.opsForHash().delete(RedisKey.HASH_ORDER_CREATE_PACKAGE_FAILED_REASON, orderId.toString());
 
-        savePrintLabel(orderPackage);
+        try {
+            savePrintLabel(orderPackage);
+        } catch (CustomerException e) {
+
+        }
 
         OrderItemQuantityDto orderItemQuantityDto = new OrderItemQuantityDto();
         orderItemQuantityDto.setOrderId(orderId);
