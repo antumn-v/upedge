@@ -139,11 +139,27 @@ public class PurchasePlanServiceImpl implements PurchasePlanService {
 
     @Override
     public BaseResponse addPurchasePlan(PurchasePlanAddRequest request, Session session) {
-        Long variantId = request.getVariantId();
+
+        String message = "";
+        List<PurchasePlan> purchasePlans = request.getPurchasePlans();
+        for (PurchasePlan purchasePlan : purchasePlans) {
+            String result = addVariantToPurchasePlan(purchasePlan.getVariantId(), purchasePlan.getQuantity(),session.getId());
+            if (!result.equals("success")){
+                message = message + "  " + result;
+            }
+        }
+        if (!message.equals("")){
+            return BaseResponse.failed(message);
+        }
+
+        return BaseResponse.success();
+    }
+
+    private String addVariantToPurchasePlan(Long variantId,Integer quantity,Long operatorId){
         ProductVariant productVariant = productVariantService.selectByPrimaryKey(variantId);
         if (null == productVariant
-        || null == productVariant.getPurchaseSku()){
-            return BaseResponse.failed("产品未配置采购信息");
+                || null == productVariant.getPurchaseSku()){
+            return "产品未配置采购信息";
         }
         if(null == productVariant.getVariantImage()){
             Product product = productService.selectByPrimaryKey(productVariant.getProductId());
@@ -151,7 +167,7 @@ public class PurchasePlanServiceImpl implements PurchasePlanService {
         }
         ProductPurchaseInfo productPurchaseInfo = productPurchaseInfoService.selectByPrimaryKey(productVariant.getPurchaseSku());
         if (null == productPurchaseInfo){
-            return BaseResponse.failed("采购信息异常");
+            return productVariant.getBarcode() + " 采购信息异常";
         }
         PurchasePlan purchasePlan = purchasePlanDao.selectBySkuAndState(productVariant.getPurchaseSku(),0);
         if (null == purchasePlan){
@@ -160,17 +176,17 @@ public class PurchasePlanServiceImpl implements PurchasePlanService {
             BeanUtils.copyProperties(productVariant,purchasePlan);
             purchasePlan.setState(0);
             purchasePlan.setPrice(productVariant.getVariantPrice());
-            purchasePlan.setRequireQuantity(request.getQuantity());
+            purchasePlan.setRequireQuantity(quantity);
             purchasePlan.setVariantId(variantId);
-            purchasePlan.setQuantity(request.getQuantity());
+            purchasePlan.setQuantity(quantity);
             purchasePlan.setCreateTime(new Date());
             purchasePlan.setUpdateTime(new Date());
-            purchasePlan.setOperatorId(session.getId());
+            purchasePlan.setOperatorId(operatorId);
             insert(purchasePlan);
         }else {
-            purchasePlanDao.addQuantityById(purchasePlan.getId(), request.getQuantity());
+            purchasePlanDao.addQuantityById(purchasePlan.getId(), quantity);
         }
-        return BaseResponse.success();
+        return "success";
     }
 
     /**

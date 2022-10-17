@@ -1,9 +1,10 @@
 package com.upedge.pms.modules.purchase.request;
 
+import com.upedge.pms.modules.purchase.entity.PurchasePlan;
 import lombok.Data;
 
-import javax.validation.constraints.Min;
-import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
+import java.util.List;
 
 /**
  * @author gx
@@ -15,13 +16,14 @@ public class PurchasePlanAddRequest{
     /**
     * 
     */
-    @NotNull
     private Long variantId;
 
     /**
     * 
     */
-    @Min(1)
     private Integer quantity;
+
+    @Size(min = 1)
+    private List<PurchasePlan> purchasePlans;
 
 }
