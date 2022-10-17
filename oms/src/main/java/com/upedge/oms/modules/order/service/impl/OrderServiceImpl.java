@@ -1328,11 +1328,11 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public BaseResponse updateActualShipMethod(OrderUpdateActualShipMethodRequest request, Session session) {
         Long actualMethodId = request.getShipMethodId();
+        Long orderId = request.getOrderId();
         Order order = selectByPrimaryKey(request.getOrderId());
         if (order.getPayState() != 1
         || order.getRefundState() != 0
-        || order.getShipState() != 0
-        || order.getPackState() != 0){
+        || order.getShipState() != 0){
             return BaseResponse.failed();
         }
         ShippingMethodRedis shippingMethodRedis = (ShippingMethodRedis) redisTemplate.opsForHash().get(RedisKey.SHIPPING_METHOD,actualMethodId.toString());
@@ -1341,6 +1341,7 @@ public class OrderServiceImpl implements OrderService {
         }
         orderDao.updateActualShipMethodById(request.getOrderId(),actualMethodId);
 
+        orderPackageService.reCreatePackage(orderId);
         return BaseResponse.success();
     }
 

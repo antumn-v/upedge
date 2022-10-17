@@ -9,6 +9,7 @@ import com.upedge.oms.modules.pack.request.OrderPackRevokeRequest;
 import com.upedge.oms.modules.pack.request.OrderPackageInfoGetRequest;
 import com.upedge.oms.modules.pack.vo.OrderPackageInfoVo;
 import com.upedge.thirdparty.shipcompany.fpx.request.OrderPackageGetLabelRequest;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -26,6 +27,9 @@ public interface OrderPackageService {
 
     BaseResponse orderRevokePackage(OrderPackRevokeRequest request,Session session);
 
+    @Transactional
+    void revokePackage(Long orderId, String reason);
+
     List<OrderLabelPrintLog> packLabelPrintLog(Long packNo);
 
     BaseResponse printPackLabel(OrderPackageGetLabelRequest request, Session session);
@@ -33,6 +37,8 @@ public interface OrderPackageService {
     OrderPackageInfoVo packageInfo(OrderPackageInfoGetRequest request);
 
     BaseResponse createPackage(Long orderId);
+
+    void reCreatePackage(Long orderId);
 
     OrderPackage selectByPrimaryKey(Long id,Long orderId,String trackingCode);
 

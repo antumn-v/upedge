@@ -237,7 +237,8 @@ public class OrderPackageServiceImpl implements OrderPackageService {
     }
 
     @Transactional
-    void revokePackage(Long orderId,String reason){
+    @Override
+    public void revokePackage(Long orderId, String reason){
 
         if (orderId == null){
             return;
@@ -268,9 +269,6 @@ public class OrderPackageServiceImpl implements OrderPackageService {
         }
 
         orderService.updateOrderPackInfo(orderId, -1, packNo);
-
-
-
     }
 
     @Override
@@ -406,6 +404,29 @@ public class OrderPackageServiceImpl implements OrderPackageService {
             e.printStackTrace();
             return BaseResponse.failed(e.getMessage());
         }
+    }
+
+    @Transactional
+    @Override
+    public void reCreatePackage(Long orderId) {
+        OrderPackage orderPackage = orderPackageDao.selectByOrderId(orderId);
+        if (null != orderPackage){
+            Order order = orderService.selectByPrimaryKey(orderId);
+            if (order.getStockState() == 1){
+                OrderItemQuantityVo orderItemQuantityVo = orderService.selectOrderItemQuantitiesByOrderId(orderId);
+                if (null == orderItemQuantityVo){
+                    return;
+                }
+                int i = pmsFeignClient.orderCancelShip(orderItemQuantityVo);
+                if (i == 0){
+                    return;
+                }
+                orderService.updateStockState(orderId,0);
+            }
+
+            deleteByPrimaryKey(orderPackage.getId());
+        }
+        createPackage(orderId);
     }
 
     public BaseResponse createYanwenPackage(Order order, ShippingMethodRedis shippingMethodRedis) throws CustomerException {

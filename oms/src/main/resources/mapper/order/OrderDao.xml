@@ -2519,11 +2519,11 @@
 
     <update id="updateActualShipMethodById">
         update `order`
-        set actual_ship_method_id = #{shipMethodId}
+        set actual_ship_method_id = #{shipMethodId},
+            pack_state = '0'
         where id = #{orderId}
           and pay_state = '1'
           and refund_state = '0'
           and ship_state = '0'
-          and pack_state = '0'
     </update>
 </mapper>
