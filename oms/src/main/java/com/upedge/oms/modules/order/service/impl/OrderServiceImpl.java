@@ -1586,6 +1586,7 @@ public class OrderServiceImpl implements OrderService {
         ShipDetail shipDetail = request.getShipDetail();
         if (null != shipDetail
                 && shipDetail.isCouldShip()) {
+            reshipOrder.setActualShipMethodId(shipDetail.getMethodId());
             reshipOrder.setShipMethodId(shipDetail.getMethodId());
             reshipOrder.setShipPrice(shipDetail.getPrice().subtract(shipDetail.getServiceFee()));
             reshipOrder.setServiceFee(shipDetail.getServiceFee());
