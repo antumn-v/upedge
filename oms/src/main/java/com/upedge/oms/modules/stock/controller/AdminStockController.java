@@ -64,13 +64,12 @@ public class  AdminStockController {
     @RequestMapping(value = "/createProcurement", method= RequestMethod.POST)
     public BaseResponse createProcurement(@RequestBody @Valid CreateProcurementRequest request) {
         String key=RedisUtil.KEY_STOCK_CREATE_PROCUREMENT+request.getId();
-        boolean flag= RedisUtil.lock(redisTemplate,key,2L,1000L*60);
+        boolean flag= RedisUtil.lock(redisTemplate,key,2L,1000L*3);
         //获取锁成功
         if(!flag){
             log.debug("获取锁失败:{}",key);
             return new BaseResponse(ResultCode.FAIL_CODE,"操作中...");
         }
-        log.debug("获取锁:{}",key);
         try {
             //生成备库订单 上传备库单到赛盒
             return adminStockService.createProcurement(request);

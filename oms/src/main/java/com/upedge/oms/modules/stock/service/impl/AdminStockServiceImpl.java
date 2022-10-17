@@ -131,6 +131,7 @@ public class AdminStockServiceImpl implements AdminStockService {
     @Transactional(rollbackFor = Exception.class)
     @Override
     public BaseResponse createProcurement(CreateProcurementRequest request) throws CustomerException {
+
         if(!SaiheConfig.SAIHE_ORDER_SWITCH){
             return new BaseResponse(ResultCode.FAIL_CODE,"未开启");
         }
@@ -146,7 +147,7 @@ public class AdminStockServiceImpl implements AdminStockService {
         if(stockOrder.getSaiheCode()!=null){
             return new BaseResponse(ResultCode.FAIL_CODE,"已导入赛盒!");
         }
-        refreshSaiheSku(request.getId());
+//        refreshSaiheSku(request.getId());
         long num=stockOrderDao.countWithOutSaiheSku(request.getId());
         if(num>0){
             return new BaseResponse(ResultCode.FAIL_CODE,"存在不匹配赛盒sku的子体，<br/>请先同步赛盒sku！");
