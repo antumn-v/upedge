@@ -23,6 +23,7 @@ import com.upedge.oms.modules.order.service.OrderRefundService;
 import com.upedge.oms.modules.order.service.OrderService;
 import com.upedge.oms.modules.order.vo.AppOrderItemVo;
 import com.upedge.oms.modules.order.vo.OrderRefundVo;
+import com.upedge.oms.modules.pack.service.OrderPackageService;
 import com.upedge.oms.modules.statistics.request.OrderRefundDailyCountRequest;
 import com.upedge.oms.modules.statistics.service.OrderDailyRefundCountService;
 import com.upedge.oms.modules.stock.entity.CustomerStockRecord;
@@ -71,6 +72,9 @@ public class OrderRefundServiceImpl implements OrderRefundService {
 
     @Autowired
     CustomerProductStockService customerProductStockService;
+
+    @Autowired
+    OrderPackageService orderPackageService;
 
     /**
      *
@@ -600,27 +604,11 @@ public class OrderRefundServiceImpl implements OrderRefundService {
         BigDecimal actualRefundAmount = request.getServiceFee().add(request.getRefundShipPrice()).add(refundProductAmount).add(request.getRefundVatAmount());
         //检查申请退款金额
         //检查申请退款金额  不能大于支付总金额  支付商品总金额/USD+运费/USD+VAT税费
-        BigDecimal shippingPrice = order.getShipPrice() == null ? BigDecimal.ZERO : order.getShipPrice();
-        BigDecimal vatAmount = order.getVatAmount() == null ? BigDecimal.ZERO : order.getVatAmount();
-        BigDecimal productAmount = order.getProductAmount() == null ? BigDecimal.ZERO : order.getProductAmount();
         BigDecimal payAmount = order.getPayAmount();
         if (actualRefundAmount.compareTo(payAmount) > 0) {
             return new BaseResponse(ResultCode.FAIL_CODE, "退款金额超过可退金额");
         }
 
-//        BigDecimal refundShippingPrice = request.getRefundShipPrice();
-//        if (refundShippingPrice == null || refundShippingPrice.compareTo(shippingPrice) > 0) {
-//            return new BaseResponse(ResultCode.FAIL_CODE, "退款运费金额异常");
-//        }
-//        BigDecimal refundVatAmount = request.getRefundVatAmount();
-//        if (refundVatAmount == null || refundVatAmount.compareTo(vatAmount) > 0) {
-//            return new BaseResponse(ResultCode.FAIL_CODE, "退款VAT金额异常");
-//        }
-//
-//
-//        if (refundProductAmount.compareTo(productAmount) > 0) {
-//            return new BaseResponse(ResultCode.FAIL_CODE, "退款产品金额超出限制");
-//        }
 
         Integer state = 2;//AppStockOrderEnum.PARTREFUNDED.getValue();
         //与可退金额做对比
@@ -668,6 +656,7 @@ public class OrderRefundServiceImpl implements OrderRefundService {
         if (response.getCode() != 1) {
             throw new CustomerException(ResultCode.FAIL_CODE, response.getMsg());
         }
+        orderPackageService.revokePackage(orderId,orderRefund.getReason());
         return new BaseResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS);
     }
 
