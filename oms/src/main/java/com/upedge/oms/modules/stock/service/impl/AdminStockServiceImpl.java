@@ -147,11 +147,14 @@ public class AdminStockServiceImpl implements AdminStockService {
         if(stockOrder.getSaiheCode()!=null){
             return new BaseResponse(ResultCode.FAIL_CODE,"已导入赛盒!");
         }
-//        refreshSaiheSku(request.getId());
-        long num=stockOrderDao.countWithOutSaiheSku(request.getId());
-        if(num>0){
-            return new BaseResponse(ResultCode.FAIL_CODE,"存在不匹配赛盒sku的子体，<br/>请先同步赛盒sku！");
+        BaseResponse response = refreshSaiheSku(request.getId());
+        if (response.getCode() != ResultCode.SUCCESS_CODE){
+            return response;
         }
+//        long num=stockOrderDao.countWithOutSaiheSku(request.getId());
+//        if(num>0){
+//            return new BaseResponse(ResultCode.FAIL_CODE,"存在不匹配赛盒sku的子体，<br/>请先同步赛盒sku！");
+//        }
         List<StockOrderItem> itemList=stockOrderItemDao.listOrderItemByOrderId(stockOrder.getId());
         List<ApiCreateProcurementProductList> procurementProductList=new ArrayList<>();
         for(StockOrderItem orderItem:itemList){
@@ -214,24 +217,26 @@ public class AdminStockServiceImpl implements AdminStockService {
         request.setVariantIds(variantIds);
         BaseResponse baseResponse = pmsFeignClient.listVariantByIds(request);
         List<LinkedHashMap> variantDetailList = (List<LinkedHashMap>) baseResponse.getData();
-        List<String> listGroupSku = new ArrayList<>();
-        variantDetailList.forEach(v -> {
-            ProductVariantTo variantDetail = JSON.parseObject(JSON.toJSONString(v), ProductVariantTo.class);
-            listGroupSku.add(variantDetail.getVariantSku());
-        });
-
-        for(String groupSku:listGroupSku) {
-            ApiGetProductResponse response = SaiheService.getProductsByClientSKUs(groupSku,null);
-            if (response.getGetProductsResult().getStatus().equals("OK")) {
-                ProductInfoList pInfoList = response.getGetProductsResult().getProductInfoList();
-                if (pInfoList != null && pInfoList.getProductInfoList() != null
-                        && pInfoList.getProductInfoList().size() > 0) {
-                    for (ApiProductInfo apiProductInfo : pInfoList.getProductInfoList()) {
-                        saveAdminVariantSku(apiProductInfo.getClientSKU(),apiProductInfo.getSKU());
-                    }
-                }
+        for (LinkedHashMap linkedHashMap : variantDetailList) {
+            ProductVariantTo variantDetail = JSON.parseObject(JSON.toJSONString(linkedHashMap), ProductVariantTo.class);
+            if (StringUtils.isBlank(variantDetail.getSaiheSku())){
+                return BaseResponse.failed(variantDetail.getVariantSku() + " 未上传赛盒");
             }
         }
+
+
+//        for(String groupSku:listGroupSku) {
+//            ApiGetProductResponse response = SaiheService.getProductsByClientSKUs(groupSku,null);
+//            if (response.getGetProductsResult().getStatus().equals("OK")) {
+//                ProductInfoList pInfoList = response.getGetProductsResult().getProductInfoList();
+//                if (pInfoList != null && pInfoList.getProductInfoList() != null
+//                        && pInfoList.getProductInfoList().size() > 0) {
+//                    for (ApiProductInfo apiProductInfo : pInfoList.getProductInfoList()) {
+//                        saveAdminVariantSku(apiProductInfo.getClientSKU(),apiProductInfo.getSKU());
+//                    }
+//                }
+//            }
+//        }
         return new BaseResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS);
     }
 

@@ -3,6 +3,7 @@ package com.upedge.pms.modules.image.service.impl;
 import com.aliyun.oss.OSS;
 import com.aliyun.oss.OSSClientBuilder;
 import com.aliyun.oss.model.CannedAccessControlList;
+import com.upedge.common.base.BaseResponse;
 import com.upedge.common.base.Page;
 import com.upedge.common.utils.IdGenerate;
 import com.upedge.pms.modules.image.dao.ImageUploadRecordDao;
@@ -14,11 +15,15 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 @Service
@@ -26,7 +31,6 @@ public class ImageUploadRecordServiceImpl implements ImageUploadRecordService {
 
     @Autowired
     private ImageUploadRecordDao imageUploadRecordDao;
-
 
 
     /**
@@ -85,6 +89,44 @@ public class ImageUploadRecordServiceImpl implements ImageUploadRecordService {
 
         return imageUploadRecord;
     }
+
+    @Override
+    public BaseResponse uploadImageByFile(MultipartFile file) {
+        String fileName = IdGenerate.uuid() + ".jpg";
+        String endPoint = "oss-us-east-1.aliyuncs.com";
+        String keyId = "LTAI4G11r85nKNnKxhtHrAQ6";
+        String keySecret = "51qt1QMGeGez01wKCqqA1od6U5RROb";
+        String bucketName = "upedge-image";
+        InputStream inputStream = null;
+        try {
+            inputStream = file.getInputStream();
+        } catch (IOException e) {
+            e.printStackTrace();
+            return BaseResponse.failed(e.getMessage());
+        }
+        //判断oss实例是否存在：如果不存在则创建，如果存在则获取
+        OSS ossClient = new OSSClientBuilder().build(endPoint, keyId, keySecret);
+        if (!ossClient.doesBucketExist(bucketName)) {
+            //创建bucket
+            ossClient.createBucket(bucketName);
+            //设置oss实例的访问权限：公共读
+            ossClient.setBucketAcl(bucketName, CannedAccessControlList.PublicRead);
+        }
+        //文件名：uuid.扩展名
+        String key =  "product/" + fileName;
+        //文件上传至阿里云
+        ossClient.putObject(bucketName, key, inputStream);
+        // 关闭OSSClient。
+        ossClient.shutdown();
+        //返回url地址
+        String url = "https://" + bucketName + "." + endPoint + "/" + key;
+
+        Map<String,String> map = new HashMap<>();
+        map.put("url",url);
+        return BaseResponse.success(map);
+
+    }
+
 
     @Override
     public ImageUploadRecord uploadAlibabaImage(ProductImgVo productImgVo) {

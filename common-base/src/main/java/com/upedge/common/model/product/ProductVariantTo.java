@@ -58,4 +58,6 @@ public class ProductVariantTo {
 	private String cnName;
 
 	private String enName;
+
+	private String saiheSku;
 }
