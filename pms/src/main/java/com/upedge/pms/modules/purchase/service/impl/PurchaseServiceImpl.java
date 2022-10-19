@@ -31,7 +31,6 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.*;
@@ -71,7 +70,7 @@ public class PurchaseServiceImpl implements PurchaseService {
 
     @Override
     public BaseResponse cancelPurchase(List<Long> variantIds, Session session) {
-        redisTemplate.opsForList().leftPushAll(RedisKey.STRING_VARIANT_CANCEL_PURCHASE_LIST,variantIds);
+        redisTemplate.opsForList().leftPushAll(RedisKey.STRING_VARIANT_CANCEL_PURCHASE_LIST, variantIds);
         return BaseResponse.success();
     }
 
@@ -87,7 +86,7 @@ public class PurchaseServiceImpl implements PurchaseService {
             return BaseResponse.success();
         }
         cancelPurchaseVariantIds = cancelPurchaseVariantIds.stream().distinct().collect(Collectors.toList());
-        redisTemplate.opsForList().leftPushAll(RedisKey.STRING_VARIANT_CANCEL_PURCHASE_LIST,cancelPurchaseVariantIds);
+        redisTemplate.opsForList().leftPushAll(RedisKey.STRING_VARIANT_CANCEL_PURCHASE_LIST, cancelPurchaseVariantIds);
         return BaseResponse.success();
     }
 
@@ -101,14 +100,14 @@ public class PurchaseServiceImpl implements PurchaseService {
         }
 
         List<PurchaseAdviceItemVo> purchaseAdviceItemVos = purchaseAdviceVo.getPurchaseAdviceItemVos();
-        if (ListUtils.isNotEmpty(purchaseAdviceItemVos)){
+        if (ListUtils.isNotEmpty(purchaseAdviceItemVos)) {
             List<Long> planingVariantIds = purchasePlanService.selectPlaningVariantIds();
-            if (null == planingVariantIds){
+            if (null == planingVariantIds) {
                 planingVariantIds = new ArrayList<>();
             }
             for (PurchaseAdviceItemVo purchaseAdviceItemVo : purchaseAdviceItemVos) {
                 if (!planingVariantIds.contains(purchaseAdviceItemVo.getVariantId()))
-                    redisTemplate.opsForHash().put(RedisKey.HASH_PURCHASE_ADVICE_LIST,purchaseAdviceItemVo.getVariantId().toString(),purchaseAdviceItemVo);
+                    redisTemplate.opsForHash().put(RedisKey.HASH_PURCHASE_ADVICE_LIST, purchaseAdviceItemVo.getVariantId().toString(), purchaseAdviceItemVo);
             }
         }
 
@@ -118,14 +117,12 @@ public class PurchaseServiceImpl implements PurchaseService {
         }
 
 
-
-
-        List<Long> cancelPurchaseVariantIds = redisTemplate.opsForList().range(RedisKey.STRING_VARIANT_CANCEL_PURCHASE_LIST,0,-1);
-        List<Long> shuntPurchaseVariantIds = redisTemplate.opsForList().range(RedisKey.STRING_VARIANT_SHUNT_PURCHASE_LIST,0,-1);
+        List<Long> cancelPurchaseVariantIds = redisTemplate.opsForList().range(RedisKey.STRING_VARIANT_CANCEL_PURCHASE_LIST, 0, -1);
+        List<Long> shuntPurchaseVariantIds = redisTemplate.opsForList().range(RedisKey.STRING_VARIANT_SHUNT_PURCHASE_LIST, 0, -1);
         variantIds.removeAll(cancelPurchaseVariantIds);
         variantIds.removeAll(shuntPurchaseVariantIds);
 
-        List<PurchaseAdviceVo> adviceVos = getPurchaseAdvices(variantIds,warehouseCode,purchaseAdviceItemVos);
+        List<PurchaseAdviceVo> adviceVos = getPurchaseAdvices(variantIds, warehouseCode, purchaseAdviceItemVos);
 //        Map<String,List<PurchaseAdviceVo>> map = new HashMap<>();
 //        CompletableFuture<Void> advice = CompletableFuture.runAsync(new Runnable() {
 //            @Override
@@ -158,36 +155,36 @@ public class PurchaseServiceImpl implements PurchaseService {
         List<Long> variantIds = new ArrayList<>();
 
         OrderItemPurchaseAdviceDto orderItemPurchaseAdviceDto = request;
-        if (null == orderItemPurchaseAdviceDto){
+        if (null == orderItemPurchaseAdviceDto) {
             orderItemPurchaseAdviceDto = new OrderItemPurchaseAdviceDto();
         }
         String barcode = request.getBarcode();
         String variantSku = request.getVariantSku();
         ProductVariant productVariant = productVariantService.selectByBarcode(barcode);
-        if (null == productVariant){
+        if (null == productVariant) {
             productVariant = productVariantService.selectBySku(variantSku);
         }
-        if (null != productVariant){
+        if (null != productVariant) {
             variantIds.add(productVariant.getId());
-        }else {
+        } else {
             variantIds = omsFeignClient.selectItemAdminVariantIds(orderItemPurchaseAdviceDto);
         }
         List<Long> planingVariantIds = purchasePlanService.selectPlaningVariantIds();
         variantIds.removeAll(planingVariantIds);
-        if (ListUtils.isEmpty(variantIds)){
+        if (ListUtils.isEmpty(variantIds)) {
             return BaseResponse.success();
         }
-        List<Long> cancelPurchaseVariantIds = redisTemplate.opsForList().range(RedisKey.STRING_VARIANT_CANCEL_PURCHASE_LIST,0,-1);
-        List<Long> shuntPurchaseVariantIds = redisTemplate.opsForList().range(RedisKey.STRING_VARIANT_SHUNT_PURCHASE_LIST,0,-1);
+        List<Long> cancelPurchaseVariantIds = redisTemplate.opsForList().range(RedisKey.STRING_VARIANT_CANCEL_PURCHASE_LIST, 0, -1);
+        List<Long> shuntPurchaseVariantIds = redisTemplate.opsForList().range(RedisKey.STRING_VARIANT_SHUNT_PURCHASE_LIST, 0, -1);
         List<Long> removeIds = new ArrayList<>();
-        switch (type){
+        switch (type) {
             case 0://取消采购的产品
-                if (ListUtils.isEmpty(cancelPurchaseVariantIds)){
+                if (ListUtils.isEmpty(cancelPurchaseVariantIds)) {
                     variantIds.clear();
                     break;
                 }
                 for (Long variantId : variantIds) {
-                    if (!cancelPurchaseVariantIds.contains(variantId)){
+                    if (!cancelPurchaseVariantIds.contains(variantId)) {
                         removeIds.add(variantId);
                     }
                 }
@@ -197,39 +194,39 @@ public class PurchaseServiceImpl implements PurchaseService {
                 variantIds.removeAll(shuntPurchaseVariantIds);
                 break;
             case -1://搁置采购的产品
-                if (ListUtils.isEmpty(shuntPurchaseVariantIds)){
+                if (ListUtils.isEmpty(shuntPurchaseVariantIds)) {
                     variantIds.clear();
                     break;
                 }
                 for (Long variantId : variantIds) {
-                    if (!shuntPurchaseVariantIds.contains(variantId)){
+                    if (!shuntPurchaseVariantIds.contains(variantId)) {
                         removeIds.add(variantId);
                     }
                 }
                 break;
         }
         variantIds.removeAll(removeIds);
-        if (ListUtils.isEmpty(variantIds)){
+        if (ListUtils.isEmpty(variantIds)) {
             return BaseResponse.success();
         }
         List<PurchaseAdviceItemVo> purchaseAdviceItemVos = new ArrayList<>();
         variantIds.forEach(variantId -> {
-            if (variantId != null && redisTemplate.opsForHash().hasKey(RedisKey.HASH_PURCHASE_ADVICE_LIST,variantId.toString())){
-                PurchaseAdviceItemVo purchaseAdviceItemVo = (PurchaseAdviceItemVo) redisTemplate.opsForHash().get(RedisKey.HASH_PURCHASE_ADVICE_LIST,variantId.toString());
-                if (null != purchaseAdviceItemVo){
+            if (variantId != null && redisTemplate.opsForHash().hasKey(RedisKey.HASH_PURCHASE_ADVICE_LIST, variantId.toString())) {
+                PurchaseAdviceItemVo purchaseAdviceItemVo = (PurchaseAdviceItemVo) redisTemplate.opsForHash().get(RedisKey.HASH_PURCHASE_ADVICE_LIST, variantId.toString());
+                if (null != purchaseAdviceItemVo) {
                     purchaseAdviceItemVos.add(purchaseAdviceItemVo);
                 }
             }
         });
-        List<PurchaseAdviceVo> adviceVos = getPurchaseAdvices(variantIds,"CNHZ",purchaseAdviceItemVos);
+        List<PurchaseAdviceVo> adviceVos = getPurchaseAdvices(variantIds, "CNHZ", purchaseAdviceItemVos);
         return BaseResponse.success(adviceVos);
     }
 
-    private List<PurchaseAdviceVo> getPurchaseAdvices(List<Long> variantIds,String warehouseCode,List<PurchaseAdviceItemVo> purchaseAdviceItemVos){
-        if (ListUtils.isEmpty(variantIds) || ListUtils.isEmpty(purchaseAdviceItemVos)){
+    private List<PurchaseAdviceVo> getPurchaseAdvices(List<Long> variantIds, String warehouseCode, List<PurchaseAdviceItemVo> purchaseAdviceItemVos) {
+        if (ListUtils.isEmpty(variantIds) || ListUtils.isEmpty(purchaseAdviceItemVos)) {
             return new ArrayList<>();
         }
-        if (StringUtils.isBlank(warehouseCode)){
+        if (StringUtils.isBlank(warehouseCode)) {
             warehouseCode = "CNHZ";
         }
         Set<String> purchaseSkus = new HashSet<>();
@@ -243,7 +240,7 @@ public class PurchaseServiceImpl implements PurchaseService {
         a:
         for (PurchaseAdviceItemVo purchaseAdviceItemVo : purchaseAdviceItemVos) {
             Long variantId = purchaseAdviceItemVo.getVariantId();
-            if (!variantIds.contains(variantId)){
+            if (!variantIds.contains(variantId)) {
                 continue a;
             }
             b:
@@ -255,7 +252,7 @@ public class PurchaseServiceImpl implements PurchaseService {
                     purchaseAdviceItemVo.setLockQuantity(variantWarehouseStock.getLockStock());
                     variantWarehouseStocks.remove(variantWarehouseStock);
 
-                    if (purchaseAdviceItemVo.getOrderQuantity() - purchaseAdviceItemVo.getPurchaseQuantity() - purchaseAdviceItemVo.getAvailableStock() < 1){
+                    if (purchaseAdviceItemVo.getOrderQuantity() - purchaseAdviceItemVo.getPurchaseQuantity() - purchaseAdviceItemVo.getAvailableStock() < 1) {
                         removeItems.add(purchaseAdviceItemVo);
                         continue a;
                     }
@@ -281,13 +278,13 @@ public class PurchaseServiceImpl implements PurchaseService {
         a:
         for (PurchaseAdviceItemVo purchaseAdviceItemVo : purchaseAdviceItemVos) {
             if (purchaseAdviceItemVo.getPurchaseSku() == null) {
-                if (variantIds.contains(purchaseAdviceItemVo.getVariantId())){
+                if (variantIds.contains(purchaseAdviceItemVo.getVariantId())) {
                     String noSupplier = "缺少供应商信息";
-                    if (!purchaseAdviceVoMap.containsKey(noSupplier)){
+                    if (!purchaseAdviceVoMap.containsKey(noSupplier)) {
                         PurchaseAdviceVo purchaseAdviceVo = new PurchaseAdviceVo();
                         purchaseAdviceVo.setSupplierName(noSupplier);
                         purchaseAdviceVo.setWarehouseCode(warehouseCode);
-                        purchaseAdviceVoMap.put(noSupplier,purchaseAdviceVo);
+                        purchaseAdviceVoMap.put(noSupplier, purchaseAdviceVo);
                     }
                     purchaseAdviceVoMap.get(noSupplier).getPurchaseAdviceItemVos().add(purchaseAdviceItemVo);
                 }
@@ -377,7 +374,7 @@ public class PurchaseServiceImpl implements PurchaseService {
                         purchaseItemVo.setPrice(price);
                         purchaseItemVos.add(purchaseItemVo);
                         purchaseOrderVo.setCargoPromotionList(Arrays.asList(resultCargoModel.getCargoPromotionList()));
-                        purchasePlanService.updatePriceById(purchasePlan.getId(),price);
+                        purchasePlanService.updatePriceById(purchasePlan.getId(), price);
                     }
                     purchaseOrderVo.setPurchaseItemVos(purchaseItemVos);
                     purchaseOrderVos.add(purchaseOrderVo);
@@ -391,12 +388,11 @@ public class PurchaseServiceImpl implements PurchaseService {
     }
 
 
-    @Transactional
     @Override
     public List<Long> createPurchaseOrder(PurchaseOrderCreateRequest request, Session session) throws CustomerException {
         String key = "key:createPurchaseOrder";
-        boolean b = RedisUtil.lock(redisTemplate,key,10L,60 * 1000L);
-        if (!b){
+        boolean b = RedisUtil.lock(redisTemplate, key, 10L, 60 * 1000L);
+        if (!b) {
             throw new CustomerException("其他采购单正在生成中，请稍候。");
         }
 
@@ -437,14 +433,16 @@ public class PurchaseServiceImpl implements PurchaseService {
 
         List<Long> orderIds = new ArrayList<>();
         for (Map.Entry<String, List<AlibabaTradeFastCargo>> map : supplierCargosMap.entrySet()) {
+            List<PurchasePlan> purchasePlanList = new ArrayList<>();
+
             List<AlibabaTradeFastCargo> tradeFastCargos = map.getValue();
             AlibabaTradeFastResult alibabaTradeFastResult = null;
             Long id = getNextPurchaseOrderId();
             String message = "下单号： " + id;
-            try {
-                alibabaTradeFastResult = Ali1688Service.createOrder(tradeFastCargos, alibabaApiVo,message);
-            } catch (CustomerException e) {
-                e.printStackTrace();
+
+            alibabaTradeFastResult = Ali1688Service.createOrder(tradeFastCargos, alibabaApiVo, message);
+
+            if (alibabaTradeFastResult == null) {
                 continue;
             }
 
@@ -474,27 +472,29 @@ public class PurchaseServiceImpl implements PurchaseService {
                 purchaseItem.setId(IdGenerate.nextId());
                 purchaseItems.add(purchaseItem);
                 purchaseQuantity += tradeFastCargo.getQuantity();
+                purchasePlanList.add(purchasePlan);
             }
             purchaseOrder.setPurchaseQuantity(purchaseQuantity.intValue());
             List<Integer> planIds = supplierPurchasePlans.get(map.getKey());
             purchaseOrderService.insert(purchaseOrder);
             purchaseOrderItemService.insertByBatch(purchaseItems);
-            purchasePlanService.updatePurchaseOrderIdByIds(planIds,id);
+            purchasePlanService.updatePurchaseOrderIdByIds(planIds, id);
+            variantWarehouseStockService.updateVariantPurchaseStockByPlan(purchasePlanList);
+
         }
-        variantWarehouseStockService.updateVariantPurchaseStockByPlan(purchasePlans);
-        RedisUtil.unLock(redisTemplate,key);
+        RedisUtil.unLock(redisTemplate, key);
         return orderIds;
     }
 
-    private Long getNextPurchaseOrderId(){
+    private Long getNextPurchaseOrderId() {
         String key = "purchase:order:no:latest";
         Long no = (Long) redisTemplate.opsForValue().get(key);
-        if(null == no){
+        if (null == no) {
             no = 10001L;
-        }else {
+        } else {
             no += 1;
         }
-        redisTemplate.opsForValue().set(key,no);
+        redisTemplate.opsForValue().set(key, no);
         return no;
     }
 }

@@ -212,5 +212,6 @@
         <include refid="Base_Column_List" />
         from image_upload_record
         where old_image = #{imageUrl}
+        limit 1
     </select>
 </mapper>

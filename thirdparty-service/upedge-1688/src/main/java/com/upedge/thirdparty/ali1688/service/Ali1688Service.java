@@ -413,7 +413,11 @@ public class Ali1688Service {
             throw new CustomerException(sdkResult.getErrorMessage());
         }
         AlibabaTradeFastCreateOrderResult result=sdkResult.getResult();
-        return result.getResult();
+        AlibabaTradeFastResult alibabaTradeFastResult = result.getResult();
+        if (alibabaTradeFastResult == null){
+            throw new CustomerException(result.getMessage());
+        }
+        return alibabaTradeFastResult;
     }
 
 

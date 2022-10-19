@@ -29,6 +29,7 @@
             <result property="itemId" column="itemId"/>
             <result property="variantId" column="variantId"/>
             <result property="variantSku" column="variantSku"/>
+            <result property="variantName" column="variantName"/>
             <result property="barcode" column="barcode"/>
             <result property="quantity" column="quantity"/>
             <result property="variantImage" column="admin_variant_image"/>
