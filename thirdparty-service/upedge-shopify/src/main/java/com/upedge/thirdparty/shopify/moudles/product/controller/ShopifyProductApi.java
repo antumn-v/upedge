@@ -85,6 +85,9 @@ public class ShopifyProductApi {
         }
         ResponseEntity<JSONObject> entity =
                 RequestUtils.sendRequest(url, token, param, HttpMethod.GET, null);
+        if(entity == null){
+            return null;
+        }
         JSONObject jsonObject = entity.getBody();
         HttpHeaders headers = entity.getHeaders();
         String link = headers.getFirst("Link");
