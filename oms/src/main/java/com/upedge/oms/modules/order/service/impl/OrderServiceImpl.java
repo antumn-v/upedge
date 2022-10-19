@@ -2479,6 +2479,12 @@ public class OrderServiceImpl implements OrderService {
      */
     @Override
     public OrderListResponse manageList(AppOrderListRequest request, Session session) {
+        AppOrderListDto appOrderListDto = request.getT();
+        if (appOrderListDto != null
+                && StringUtils.isNotBlank(appOrderListDto.getTags())
+                && appOrderListDto.getTags().equals("REFUNDS")) {
+            request.setCondition("o.refund_state > 0");
+        }
         List<AppOrderVo> appOrderVos = selectAppOrderList(request);
         appOrderVos.forEach(appOrderVo -> {
             if (appOrderVo.getPackState() == 0){
