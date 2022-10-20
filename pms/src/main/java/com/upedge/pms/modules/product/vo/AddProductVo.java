@@ -8,7 +8,6 @@ import com.upedge.pms.modules.product.entity.ProductVariant;
 import lombok.Data;
 
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.util.ArrayList;
 import java.util.List;
@@ -29,17 +28,14 @@ public class AddProductVo {
     /**
      * 运输模板id
      */
-    @NotNull(message = "shippingId")
     private Long shippingId;
     /**
      * 商品类目code
      */
-    @NotNull(message = "cateCode")
     private Long cateCode;
     /**
      * 0:普通商品 1:定制包装
      */
-    @NotNull(message = "cateType")
     private Integer cateType;
 
     @Size(min = 1,message = "upedgeVariantList")

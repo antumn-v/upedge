@@ -19,9 +19,7 @@ import com.upedge.common.utils.IdGenerate;
 import com.upedge.common.utils.ListUtils;
 import com.upedge.common.utils.PriceUtils;
 import com.upedge.common.utils.UrlUtils;
-import com.upedge.pms.modules.alibaba.entity.translate.TranslateResult;
 import com.upedge.pms.modules.alibaba.service.Ali1688Service;
-import com.upedge.pms.modules.alibaba.service.TranslateService;
 import com.upedge.pms.modules.category.entity.Category;
 import com.upedge.pms.modules.category.entity.CategoryMapping;
 import com.upedge.pms.modules.category.service.CategoryMappingService;
@@ -465,8 +463,7 @@ public class ProductServiceImpl implements ProductService {
             productVariant.setVariantSku(variantSku);
             //重量库存异常的禁用  价格要大于0
             if (productVariant.getVariantPrice() == null || productVariant.getVariantPrice().compareTo(BigDecimal.ZERO) <= 0
-                    || productVariant.getWeight() == null || productVariant.getWeight().compareTo(BigDecimal.ZERO) <= 0
-                    || productVariant.getVolumeWeight() == null || productVariant.getVolumeWeight().compareTo(BigDecimal.ZERO) <= 0) {
+                    || productVariant.getWeight() == null || productVariant.getWeight().compareTo(BigDecimal.ZERO) <= 0) {
                 return new BaseResponse(ResultCode.FAIL_CODE, "变体价格或重量异常!");
             } else {
                 //设置状态勾选
@@ -475,8 +472,8 @@ public class ProductServiceImpl implements ProductService {
             productVariant.setVariantType(0);
             List<ProductVariantAttr> variantAttrList = productVariant.getProductVariantAttrList();
             // product_variant  的中英文名{cn_name ,en_name}
-            String cnName = "[";
-            String enName = "[";
+            String cnName = "";
+            String enName = "";
             // 英汉互译api参数为list
             ArrayList<String> strList = new ArrayList<>();
             for (int i = 0; i < variantAttrList.size(); i++) {
@@ -491,23 +488,13 @@ public class ProductServiceImpl implements ProductService {
                 // 在这里将 variantAttrList的属性转为英文 拼接格式 并存入 productVariant的cname  ename
                 String variantAttrCvalue = productVariantAttr.getVariantAttrCvalue();
                 if (i + 1 == variantAttrList.size()) {
-                    cnName += variantAttrCvalue + "]";
+                    cnName += variantAttrCvalue;
                 } else {
                     cnName += variantAttrCvalue + ",";
                 }
                 strList.clear();
                 strList.add(variantAttrCvalue);
-                TranslateResult translateResult = TranslateService.translate(strList);
-                if (translateResult != null && translateResult.getResult() != null) {
-                    //英文属性值
-                    String cValue = translateResult.getResult().get(variantAttrCvalue);
-                    productVariantAttr.setVariantAttrCvalue(cValue);
-                    if (i + 1 == variantAttrList.size()) {
-                        enName += cValue + "]";
-                    } else {
-                        enName += cValue + ",";
-                    }
-                }
+
                 productVariant.setInventory(999L);
                 productVariantAttr.setVariantId(variantId);
                 productVariantAttr.setProductId(productId);
@@ -518,6 +505,7 @@ public class ProductServiceImpl implements ProductService {
 
             productVariant.setEnName(enName);
             productVariant.setCnName(cnName);
+
         }
 
         Product product = new Product();
@@ -602,6 +590,10 @@ public class ProductServiceImpl implements ProductService {
         }
         if (StringUtils.isBlank(aliProductId)) {
             return new BaseResponse(ResultCode.FAIL_CODE, Constant.MESSAGE_FAIL);
+        }
+        Product p = selectByOriginalId(aliProductId);
+        if (null != p && p.getProductSource() == 0){
+            return BaseResponse.success();
         }
         AlibabaApiVo alibabaApiVo = (AlibabaApiVo) redisTemplate.opsForValue().get(RedisKey.STRING_ALI1688_API);
         AlibabaProductVo alibabaProductVo = Ali1688Service.getProduct(aliProductId, alibabaApiVo);
