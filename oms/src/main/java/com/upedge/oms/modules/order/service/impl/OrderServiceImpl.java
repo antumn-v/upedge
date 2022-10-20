@@ -1346,6 +1346,11 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
+    public int updateOrderAsTracked(Long id, String trackNum) {
+        return orderDao.updateOrderAsTracked(id, trackNum);
+    }
+
+    @Override
     public int initPickType(Long id) {
         List<OrderItem> orderItems = orderItemDao.selectItemByOrderId(id);
         if (ListUtils.isEmpty(orderItems)){

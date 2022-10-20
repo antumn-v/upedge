@@ -6,5 +6,6 @@ public interface OrderFulfillmentService {
 
 
     void orderFulfillment(Long id);
-    boolean orderFulfillment(OrderPackage orderPackage);
+
+    boolean orderFulfillment(OrderPackage orderPackage,boolean isPreUpload);
 }

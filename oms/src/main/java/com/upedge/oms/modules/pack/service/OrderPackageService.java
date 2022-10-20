@@ -7,6 +7,7 @@ import com.upedge.oms.modules.pack.entity.OrderLabelPrintLog;
 import com.upedge.oms.modules.pack.entity.OrderPackage;
 import com.upedge.oms.modules.pack.request.OrderPackRevokeRequest;
 import com.upedge.oms.modules.pack.request.OrderPackageInfoGetRequest;
+import com.upedge.oms.modules.pack.request.PackagePreUploadStoreRequest;
 import com.upedge.oms.modules.pack.vo.OrderPackageInfoVo;
 import com.upedge.thirdparty.shipcompany.fpx.request.OrderPackageGetLabelRequest;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,6 +17,9 @@ import java.util.List;
 public interface OrderPackageService {
 
     void saveAllLabelUrl();
+
+
+    BaseResponse preUploadStore(PackagePreUploadStoreRequest request,Session session);
 
     List<OrderPackage> selectUploadStoreFailedPackages();
 

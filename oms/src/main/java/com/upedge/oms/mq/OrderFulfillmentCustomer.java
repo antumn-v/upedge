@@ -50,7 +50,7 @@ public class OrderFulfillmentCustomer {
                     }
                     Long packNo = Long.parseLong(new String(message.getBody()));
                     OrderPackage orderPackage = orderPackageService.selectByPrimaryKey(packNo);
-                    orderFulfillmentService.orderFulfillment(orderPackage);
+                    orderFulfillmentService.orderFulfillment(orderPackage,false);
                 }
             } catch (Exception e) {
                 return ConsumeConcurrentlyStatus.RECONSUME_LATER;

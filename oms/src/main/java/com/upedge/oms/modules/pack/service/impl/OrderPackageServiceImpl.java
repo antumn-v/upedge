@@ -32,6 +32,7 @@ import com.upedge.oms.modules.pack.entity.OrderLabelPrintLog;
 import com.upedge.oms.modules.pack.entity.OrderPackage;
 import com.upedge.oms.modules.pack.request.OrderPackRevokeRequest;
 import com.upedge.oms.modules.pack.request.OrderPackageInfoGetRequest;
+import com.upedge.oms.modules.pack.request.PackagePreUploadStoreRequest;
 import com.upedge.oms.modules.pack.service.OrderLabelPrintLogService;
 import com.upedge.oms.modules.pack.service.OrderPackageService;
 import com.upedge.oms.modules.pack.vo.OrderPackageInfoVo;
@@ -128,6 +129,16 @@ public class OrderPackageServiceImpl implements OrderPackageService {
     }
 
     @Override
+    public BaseResponse preUploadStore(PackagePreUploadStoreRequest request, Session session) {
+        List<Long> orderIds = request.getOrderIds();
+        List<OrderPackage> orderPackages = orderPackageDao.selectByOrderIds(orderIds);
+        for (OrderPackage orderPackage : orderPackages) {
+            orderFulfillmentService.orderFulfillment(orderPackage,true);
+        }
+        return BaseResponse.success();
+    }
+
+    @Override
     public List<OrderPackage> selectUploadStoreFailedPackages() {
         return orderPackageDao.selectUploadStoreFailedPackages();
     }
@@ -193,6 +204,9 @@ public class OrderPackageServiceImpl implements OrderPackageService {
         if (orderPackage.getPackageState() != 0) {
             return BaseResponse.failed("包裹已出库或已搁置");
         }
+        boolean isUploadStore = orderPackage.getIsUploadStore();
+        String trackCode = orderPackage.getLogisticsOrderNo();
+
         Long packNo = orderPackage.getPackageNo();
         String key = "order:package:ex:" + packNo;
         boolean b = RedisUtil.lock(redisTemplate, key, 10L, 60 * 1000L);
@@ -212,6 +226,8 @@ public class OrderPackageServiceImpl implements OrderPackageService {
             RedisUtil.unLock(redisTemplate, key);
             return response;
         }
+
+
         OrderPackageInfoVo orderPackageInfoVo = new OrderPackageInfoVo();
         BeanUtils.copyProperties(orderPackage, orderPackageInfoVo);
 
@@ -226,7 +242,13 @@ public class OrderPackageServiceImpl implements OrderPackageService {
         orderPackageInfoVo.setPackageState(1);
         orderPackageInfoVo.setSendTime(new Date());
         RedisUtil.unLock(redisTemplate, key);
-        sendPackageFulfillmentMessage(packNo);
+        //物流已上传店铺，直接修改订单发货状态
+        if(isUploadStore){
+            orderService.updateOrderAsTracked(orderId,trackCode);
+        }else {
+            sendPackageFulfillmentMessage(packNo);
+        }
+
         return BaseResponse.success(orderPackageInfoVo);
     }
 

@@ -37,6 +37,9 @@ public interface OrderService{
 
     BaseResponse updateActualShipMethod(OrderUpdateActualShipMethodRequest request,Session session);
 
+    int updateOrderAsTracked( Long id,
+                             String trackNum);
+
     int initPickType(Long id);
     /**
      * 修改订单包裹信息

@@ -9,6 +9,7 @@ import com.upedge.oms.modules.pack.entity.OrderPackage;
 import com.upedge.oms.modules.pack.request.OrderPackRevokeRequest;
 import com.upedge.oms.modules.pack.request.OrderPackageInfoGetRequest;
 import com.upedge.oms.modules.pack.request.OrderPackageListRequest;
+import com.upedge.oms.modules.pack.request.PackagePreUploadStoreRequest;
 import com.upedge.oms.modules.pack.service.OrderPackageService;
 import com.upedge.oms.modules.pack.vo.OrderPackageInfoVo;
 import com.upedge.thirdparty.shipcompany.fpx.request.OrderPackageGetLabelRequest;
@@ -18,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
@@ -125,8 +127,15 @@ public class OrderPackageController {
     @PostMapping("/uploadStore/{packNo}")
     public BaseResponse uploadStore(@PathVariable Long packNo) {
         OrderPackage orderPackage = orderPackageService.selectByPrimaryKey(packNo);
-        orderFulfillmentService.orderFulfillment(orderPackage);
+        orderFulfillmentService.orderFulfillment(orderPackage,false);
         return BaseResponse.success();
+    }
+
+    @ApiOperation("预上传物流单号到店铺")
+    @PostMapping("/preUploadStore")
+    public BaseResponse preUploadStore(@RequestBody@Valid PackagePreUploadStoreRequest request){
+        Session session = UserUtil.getSession(redisTemplate);
+        return orderPackageService.preUploadStore(request,session);
     }
 
 

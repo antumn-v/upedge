@@ -174,7 +174,7 @@ public class OrderFulfillmentServiceImpl implements OrderFulfillmentService {
         orderTrackingDao.updateOrderTracking(orderTracking);
     }
 
-    public boolean orderFulfillment(OrderPackage orderPackage) {
+    public boolean orderFulfillment(OrderPackage orderPackage,boolean isPreUpload) {
         if(orderPackage == null){
             return false;
         }
@@ -232,8 +232,9 @@ public class OrderFulfillmentServiceImpl implements OrderFulfillmentService {
         orderPackage.setId(packNo);
         orderPackage.setIsUploadStore(true);
         orderPackageService.updateByPrimaryKeySelective(orderPackage);
-
-        orderDao.updateOrderAsTracked(orderId,trackCode);
+        if (!isPreUpload){//预上传不修改订单发货状态
+            orderDao.updateOrderAsTracked(orderId,trackCode);
+        }
         return true;
     }
 
