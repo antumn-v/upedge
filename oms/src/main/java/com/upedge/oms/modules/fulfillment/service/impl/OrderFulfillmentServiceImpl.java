@@ -120,17 +120,25 @@ public class OrderFulfillmentServiceImpl implements OrderFulfillmentService {
         }else {
             return;
         }
-        if (shippingMethodRedis.getTrackType() == 0){
-            orderTracking.setTrackingCode(orderTracking.getTrackNumbers());
+        String trackCode = null;
+        String uploadStoreTrackCodeType = (String) redisTemplate.opsForHash().get(RedisKey.HASH_CUSTOMER_SETTING + order.getCustomerId(), CustomerSettingEnum.upload_store_track_code_type.name());
+        if (uploadStoreTrackCodeType == null || uploadStoreTrackCodeType.equals("0")){
+            trackCode = orderTracking.getLogisticsOrderNo();
+        }else {
+            trackCode = orderTracking.getTrackNumbers();
         }
-        if (shippingMethodRedis.getTrackType() == 1){
-            orderTracking.setTrackingCode(orderTracking.getLogisticsOrderNo());
-        }
-        if (StringUtils.isBlank(orderTracking.getTrackingCode())){
+//        if (shippingMethodRedis.getTrackType() == 0){
+//            orderTracking.setTrackingCode(orderTracking.getTrackNumbers());
+//        }
+//        if (shippingMethodRedis.getTrackType() == 1){
+//            orderTracking.setTrackingCode(orderTracking.getLogisticsOrderNo());
+//        }
+        if (StringUtils.isBlank(trackCode)){
             orderTracking.setState(4);
             orderTrackingDao.updateOrderTracking(orderTracking);
             return;
         }
+        orderTracking.setTrackingCode(trackCode);
         Long orderId = order.getId();
         StoreVo storeVo = getStoreVo(order.getStoreId());
         List<StoreOrderRelate> storeOrderRelates = storeOrderRelateDao.selectByOrderId(orderId);
