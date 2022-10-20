@@ -222,6 +222,7 @@ public class AdminStockServiceImpl implements AdminStockService {
             if (StringUtils.isBlank(variantDetail.getSaiheSku())){
                 return BaseResponse.failed(variantDetail.getVariantSku() + " 未上传赛盒");
             }
+            saveAdminVariantSku(variantDetail.getVariantSku(),variantDetail.getSaiheSku());
         }
 
 

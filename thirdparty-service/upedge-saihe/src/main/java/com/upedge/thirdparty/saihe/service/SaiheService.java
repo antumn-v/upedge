@@ -623,24 +623,24 @@ public class SaiheService {
 //        System.out.println(apiGetProductResponse);
 
 
-//        ApiGetOrderResponse apiGetOrderResponse =  getOrderByClientOrderCode("1504079038278926336 ");
-//        System.out.println(apiGetOrderResponse);
+        ApiGetOrderResponse apiGetOrderResponse =  getOrderByClientOrderCode("1582120204684468224 ");
+        System.out.println(apiGetOrderResponse);
 //        System.out.println(getProductsByClientSKUs("The Beard Roller:1646923580001",null));
 
 //        ApiGetWareHouseResponse apiGetWareHouseResponse = getWareHouseList();
 //        System.out.println(apiGetWareHouseResponse.getGetWareHouseListResult().getWareHouseList());
 
-        ApiGetProductResponse response = getProductsByClientSKUs(null,null);
-        GetProductsResult result = response.getGetProductsResult();
-        if (result.getStatus().equals("OK")){
-            Integer nextToken = result.getNextToken();
-            List<ApiProductInfo> apiProductInfos = result.getProductInfoList().getProductInfoList();
-            for (ApiProductInfo apiProductInfo : apiProductInfos) {
-
-            }
-        }
-
-        System.out.println(response);
+//        ApiGetProductResponse response = getProductsByClientSKUs(null,null);
+//        GetProductsResult result = response.getGetProductsResult();
+//        if (result.getStatus().equals("OK")){
+//            Integer nextToken = result.getNextToken();
+//            List<ApiProductInfo> apiProductInfos = result.getProductInfoList().getProductInfoList();
+//            for (ApiProductInfo apiProductInfo : apiProductInfos) {
+//
+//            }
+//        }
+//
+//        System.out.println(response);
     }
 
 
