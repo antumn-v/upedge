@@ -491,4 +491,12 @@
         from customer_product_stock
         where customer_id = #{customerId}
     </select>
+
+    <update id="customUpdateCustomerProductStock">
+        update customer_product_stock
+            set stock = #{quantity}
+        where customer_id = #{customerId}
+        and variant_id = #{variantId}
+        and warehouse_code = #{warehouseCode}
+    </update>
 </mapper>

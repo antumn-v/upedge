@@ -9,6 +9,7 @@ import com.upedge.common.model.user.vo.Session;
 import com.upedge.oms.modules.order.vo.ItemDischargeQuantityVo;
 import com.upedge.oms.modules.stock.entity.CustomerProductStock;
 import com.upedge.oms.modules.stock.entity.CustomerStockRecord;
+import com.upedge.oms.modules.stock.request.CustomerProductStockCustomUpdateRequest;
 import com.upedge.oms.modules.stock.request.ManualAddCustomerStockRequest;
 
 import java.util.List;
@@ -18,6 +19,8 @@ import java.util.List;
  */
 public interface CustomerProductStockService{
 
+
+    BaseResponse customUpdateCustomerProductStock(CustomerProductStockCustomUpdateRequest request, Session session);
 
     void orderRefundItemStock(Long customerId,String warehouseCode, List<CustomerStockRecord> customerStockRecords);
 

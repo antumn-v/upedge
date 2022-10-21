@@ -4,6 +4,7 @@ import com.upedge.common.base.Page;
 import com.upedge.common.model.order.vo.CustomerProductStockNumVo;
 import com.upedge.oms.modules.order.vo.ItemDischargeQuantityVo;
 import com.upedge.oms.modules.stock.entity.CustomerProductStock;
+import com.upedge.oms.modules.stock.request.CustomerProductStockCustomUpdateRequest;
 import com.upedge.oms.modules.stock.vo.CustomerWarehouseVariantStockVo;
 import org.apache.ibatis.annotations.Param;
 
@@ -91,4 +92,6 @@ public interface CustomerProductStockDao{
     CustomerProductStock selectStockByVariantAndCustomerId(@Param("variantId") Long variantId,
                                                            @Param("customerId") Long customerId,
                                                            @Param("warehouseCode")String warehouseCode);
+
+    int customUpdateCustomerProductStock(CustomerProductStockCustomUpdateRequest request);
 }

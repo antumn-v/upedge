@@ -19,6 +19,7 @@ import com.upedge.oms.modules.stock.dao.CustomerProductStockDao;
 import com.upedge.oms.modules.stock.dao.CustomerStockRecordDao;
 import com.upedge.oms.modules.stock.entity.CustomerProductStock;
 import com.upedge.oms.modules.stock.entity.CustomerStockRecord;
+import com.upedge.oms.modules.stock.request.CustomerProductStockCustomUpdateRequest;
 import com.upedge.oms.modules.stock.request.ManualAddCustomerStockRequest;
 import com.upedge.oms.modules.stock.service.CustomerProductStockService;
 import com.upedge.oms.modules.stock.vo.CustomerSkuStockVo;
@@ -373,6 +374,58 @@ public class CustomerProductStockServiceImpl implements CustomerProductStockServ
 
     @Transactional
     @Override
+    public BaseResponse customUpdateCustomerProductStock(CustomerProductStockCustomUpdateRequest request, Session session) {
+        Long variantId = request.getVariantId();
+        Long customerId = request.getCustomerId();
+        String warehouseCode = request.getWarehouseCode();
+        Integer quantity = request.getQuantity();
+
+        String lockKey = RedisKey.LOCK_CUSTOMER_PRODUCT_STOCK_UPDATE + customerId + ":" + warehouseCode + ":" + variantId;
+        boolean b = RedisUtil.lock(redisTemplate,lockKey,1000L,1000L);
+        if (!b){
+            return BaseResponse.failed();
+        }
+
+        CustomerProductStock customerProductStock = customerProductStockDao.selectStockByVariantAndCustomerId(variantId,request.getCustomerId(),request.getWarehouseCode());
+
+        if (null == customerProductStock){
+            RedisUtil.unLock(redisTemplate,lockKey);
+            return BaseResponse.failed();
+        }
+        Integer nowStock = customerProductStock.getStock();
+        if (quantity == nowStock){
+            RedisUtil.unLock(redisTemplate,lockKey);
+            return BaseResponse.success();
+        }
+
+        String key = RedisKey.STRING_CUSTOMER_VARIANT_STOCK + customerId + ":" + warehouseCode + ":" + variantId;
+        redisTemplate.opsForValue().set(key,quantity);
+
+        customerProductStockDao.customUpdateCustomerProductStock(request);
+
+        CustomerStockRecord customerStockRecord = new CustomerStockRecord();
+        customerStockRecord.setCustomerId(customerId);
+        customerStockRecord.setCreateTime(new Date());
+        customerStockRecord.setVariantId(variantId);
+        customerStockRecord.setVariantSku(customerProductStock.getVariantSku());
+        customerStockRecord.setProductId(customerProductStock.getProductId());
+        customerStockRecord.setOrderType(4);
+        customerStockRecord.setType(6);
+        customerStockRecord.setQuantity(quantity);
+        customerStockRecord.setWarehouseCode(warehouseCode);
+        customerStockRecord.setRelateId(IdGenerate.nextId());
+        customerStockRecord.setVariantImage(customerProductStock.getVariantImage());
+        customerStockRecord.setUpdateTime(new Date());
+        customerStockRecord.setRevokeState(0);
+        customerStockRecord.setVariantName(customerProductStock.getVariantName());
+        customerStockRecord.setCustomerShowState(1);
+        customerProductStockDao.insert(customerProductStock);
+        RedisUtil.unLock(redisTemplate,lockKey);
+        return BaseResponse.success();
+    }
+
+    @Transactional
+    @Override
     public void orderRefundItemStock(Long customerId, String warehouseCode,List<CustomerStockRecord> customerStockRecords) {
         if (ListUtils.isEmpty(customerStockRecords)){
             return;
@@ -450,13 +503,12 @@ public class CustomerProductStockServiceImpl implements CustomerProductStockServ
     public void redisAddCustomerVariantStock(Long customerId, Long variantId, String warehouseCode, long stock){
         String lockKey = RedisKey.LOCK_CUSTOMER_PRODUCT_STOCK_UPDATE + customerId + ":" + warehouseCode + ":" + variantId;
         boolean b = RedisUtil.lock(redisTemplate,lockKey,1000L,1000L);
+        String key = RedisKey.STRING_CUSTOMER_VARIANT_STOCK + customerId + ":" + warehouseCode + ":" + variantId;
         if (!b){
-            long nowStock = customerProductStockDao.selectVariantStockByCustomer(customerId, variantId, warehouseCode);
-            redisTemplate.opsForValue().set(redisTemplate,nowStock);
             //从数据库读取最新数据更新
             return;
         }
-        String key = RedisKey.STRING_CUSTOMER_VARIANT_STOCK + customerId + ":" + warehouseCode + ":" + variantId;
+
         b = redisTemplate.hasKey(key);
         if (b) {
             long nowStock = (long) redisTemplate.opsForValue().get(key);
