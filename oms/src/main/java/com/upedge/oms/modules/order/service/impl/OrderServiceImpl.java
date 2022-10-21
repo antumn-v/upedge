@@ -2516,9 +2516,11 @@ public class OrderServiceImpl implements OrderService {
                 appStoreOrderVos.forEach(appStoreOrderVo -> {
                     List<AppOrderItemVo> itemVos = appStoreOrderVo.getItemVos();
                     itemVos.forEach(appOrderItemVo -> {
-                        VariantWarehouseStockModel variantWarehouseStockModel = (VariantWarehouseStockModel) redisTemplate.opsForHash().get(RedisKey.HASH_VARIANT_WAREHOUSE_STOCK + appOrderVo.getShippingWarehouse(),appOrderItemVo.getAdminVariantId().toString());
-                        if (variantWarehouseStockModel != null){
-                            appOrderItemVo.setAvailableStock(variantWarehouseStockModel.getAvailableStock());
+                        if(appOrderItemVo.getAdminVariantId() != null){
+                            VariantWarehouseStockModel variantWarehouseStockModel = (VariantWarehouseStockModel) redisTemplate.opsForHash().get(RedisKey.HASH_VARIANT_WAREHOUSE_STOCK + appOrderVo.getShippingWarehouse(),appOrderItemVo.getAdminVariantId().toString());
+                            if (variantWarehouseStockModel != null){
+                                appOrderItemVo.setAvailableStock(variantWarehouseStockModel.getAvailableStock());
+                            }
                         }
                     });
                 });

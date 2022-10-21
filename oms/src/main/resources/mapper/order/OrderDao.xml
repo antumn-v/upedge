@@ -241,139 +241,134 @@
 
     <sql id="App_Order_Condition">
         <if test="t != null">
-            where 1 = 1 and
+            where 1 = 1
             <trim prefix=" " suffix=" " suffixOverrides=" and ">
                 <if test="t.customerId != null">
-                    o.customer_id = #{t.customerId} and
+                    and  o.customer_id = #{t.customerId}
                 </if>
-                o.order_status = '0' and
+                and o.order_status = '0'
                 <if test="t.orderId != null">
-                    o.id = #{t.orderId} and
+                    and  o.id = #{t.orderId}
                 </if>
                 <if test="t.storeId != null">
-                    o.store_id = #{t.storeId} and
+                    and o.store_id = #{t.storeId}
                 </if>
                 <if test="t.orgId != null">
-                    o.org_id = #{t.orgId} and
+                    and o.org_id = #{t.orgId}
                 </if>
                 <if test="t.orgIds != null and t.orgIds.length > 0">
-                    o.org_id in
+                    and o.org_id in
                     <foreach collection="t.orgIds" item="sId" open="(" close=")" separator=",">
                         #{sId}
                     </foreach>
-                    and
                 </if>
                 <if test="t.orderIds != null and t.orderIds.size() > 0">
-                    o.id in
+                    and o.id in
                     <foreach collection="t.orderIds" item="oId" open="(" close=")" separator=",">
                         #{oId}
                     </foreach>
-                    and
                 </if>
                 <if test="t.paymentId != null">
-                    o.payment_id = #{t.paymentId} and
+                    and o.payment_id = #{t.paymentId}
                 </if>
                 <if test="t.paymentIds != null and t.paymentIds.size() > 0">
-                    o.payment_id in
+                    and o.payment_id in
                     <foreach collection="t.paymentIds" item="pId" open="(" close=")" separator=",">
                         #{pId}
                     </foreach>
-                    and
                 </if>
                 <if test="t.payState != null">
-                    o.pay_state = #{t.payState} and
+                    and o.pay_state = #{t.payState}
                 </if>
                 <if test="t.refundState != null">
-                    o.refund_state = #{t.refundState} and
+                    and o.refund_state = #{t.refundState}
                 </if>
                 <if test="t.shipState != null">
-                    o.ship_state = #{t.shipState} and
+                    and o.ship_state = #{t.shipState}
                 </if>
                 <if test="t.quoteState != null">
-                    o.quote_state = #{t.quoteState} and
+                    and o.quote_state = #{t.quoteState}
                 </if>
                 <if test="t.packState != null">
-                    o.pack_state = #{t.packState} and
+                    and o.pack_state = #{t.packState}
                 </if>
                 <if test="t.orderType != null">
-                    o.order_type = #{t.orderType} and
+                    and o.order_type = #{t.orderType}
                 </if>
                 <if test="t.toAreaId != null">
-                    o.to_area_id = #{t.toAreaId} and
+                    and o.to_area_id = #{t.toAreaId}
                 </if>
                 <if test="t.waveNo != null">
-                    o.wave_no = #{t.waveNo} and
+                    and o.wave_no = #{t.waveNo}
                 </if>
                 <if test="t.platOrderName != null">
-                    r.plat_order_name = #{t.platOrderName} and
+                    and r.plat_order_name = #{t.platOrderName}
                 </if>
                 <if test="t.orderNameBegin != null and t.orderNameEnd != null">
-                    r.plat_order_name
+                    and r.plat_order_name
                     between #{t.orderNameBegin}
-                    and #{t.orderNameEnd} and
+                    and #{t.orderNameEnd}
                 </if>
                 <if test="t.platOrderNames != null and t.platOrderNames.size() > 0">
-                    r.plat_order_name in
+                    and r.plat_order_name in
                     <foreach collection="t.platOrderNames" item="name" open="(" separator="," close=")">
                         #{name}
                     </foreach>
-                    and
                 </if>
                 <if test="t.financialStatus != null">
-                    r.financial_status = #{t.financialStatus} and
+                    and r.financial_status = #{t.financialStatus}
                 </if>
                 <if test="t.fulfillmentStatus != null">
-                    r.fulfillment_status = #{t.fulfillmentStatus} and
+                    and r.fulfillment_status = #{t.fulfillmentStatus}
                 </if>
                 <if test="t.sku != null">
-                    oi.store_variant_sku = #{t.sku} and
+                    and oi.store_variant_sku = #{t.sku}
                 </if>
                 <if test="t.productTitle">
-                    oi.store_product_title like "%"#{t.productTitle}"%" and
+                    and oi.store_product_title like "%"#{t.productTitle}"%"
                 </if>
                 <if test="t.barcode != null">
-                    oi.barcode = #{t.barcode} and
+                    and oi.barcode = #{t.barcode}
                 </if>
                 <if test="t.shipNumber != null">
-                    o.tracking_code = #{t.shipNumber} and
+                    and o.tracking_code = #{t.shipNumber}
                 </if>
                 <if test="t.customer != null">
-                    r.order_customer_name = #{t.customer} and
+                    and r.order_customer_name = #{t.customer}
                 </if>
                 <if test="t.pickType != null">
-                    o.pick_type = #{t.pickType} and
+                    and o.pick_type = #{t.pickType}
                 </if>
                 <if test="t.stockState != null">
-                    o.stock_state = #{t.stockState} and
+                    and o.stock_state = #{t.stockState}
                 </if>
                 <if test="t.shipMethodId != null">
-                    o.ship_method_id = #{t.shipMethodId} and
+                    and o.ship_method_id = #{t.shipMethodId}
                 </if>
                 <if test="t.shipMethodIds != null and t.shipMethodIds.size() > 0">
-                    o.ship_method_id in
+                    and o.ship_method_id in
                     <foreach collection="t.shipMethodIds" item="methodId" open="(" separator="," close=")">
                         #{methodId}
                     </foreach>
-                    and
                 </if>
                 <if test="t.beginTime != null and t.endTime != null">
-                    date(r.plat_order_create_time) between #{t.beginTime} and #{t.endTime} and
+                    and  date(r.plat_order_create_time) between #{t.beginTime} and #{t.endTime}
                 </if>
                 <if test="t.saiheState != null">
                     <if test="t.saiheState == 1">
-                        o.saihe_order_code is not null and
+                        and  o.saihe_order_code is not null
                     </if>
                     <if test="t.saiheState == 2">
-                        o.saihe_order_code = '0'
+                        and o.saihe_order_code = '0'
                     </if>
                     <if test="t.saiheState == 0">
-                        o.saihe_order_code is null and
+                        and o.saihe_order_code is null and
                         o.pay_state > '0' and
-                        o.refund_state = '0' and
+                        o.refund_state = '0'
                     </if>
                 </if>
                 <if test="condition != null">
-                    ${condition} and
+                    and ${condition}
                 </if>
             </trim>
         </if>
