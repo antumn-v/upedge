@@ -786,6 +786,21 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    public Product select1688Product(String alibabaProductId) {
+        Product product =  productDao.select1688Product(alibabaProductId);
+        if(product == null){
+            importFrom1688Url(alibabaProductId,null);
+        }
+        product =  productDao.select1688Product(alibabaProductId);
+        return product;
+    }
+
+    @Override
+    public Product selectStoreTransformProduct(String storeProductId) {
+        return productDao.selectStoreTransformProduct(storeProductId);
+    }
+
+    @Override
     public Product selectByOriginalId(String originalId) {
         if (StringUtils.isBlank(originalId)) {
             return null;

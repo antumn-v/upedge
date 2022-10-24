@@ -50,6 +50,10 @@ public interface ProductService{
 
     Product selectByProductSku(String productSku);
 
+    Product select1688Product(String alibabaProductId);
+
+    Product selectStoreTransformProduct(String storeProductId);
+
     Product selectByOriginalId(String originalId);
 
     BaseResponse putawayProduct(Long id, Session session) throws CustomerException;

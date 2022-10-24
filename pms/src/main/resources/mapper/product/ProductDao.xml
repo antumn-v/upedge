@@ -636,6 +636,7 @@
         <include refid="Base_Column_List"/>
         from product
         where original_id = #{originalId}
+        limit 1
     </select>
 
     <select id="selectByIds" resultMap="BaseResultMap">
@@ -675,5 +676,21 @@
         <if test="t.customerId != null">
             and cpp.customer_id = #{t.customerId}
         </if>
+    </select>
+
+    <select id="select1688Product" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from product
+        where original_id = #{alibabaProductId}
+        and product_source = '0'
+    </select>
+
+    <select id="selectStoreTransformProduct" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from product
+        where original_id = #{storeProductId}
+        and product_source = '4'
     </select>
 </mapper>

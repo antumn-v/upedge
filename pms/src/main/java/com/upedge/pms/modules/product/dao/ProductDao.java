@@ -42,6 +42,10 @@ public interface ProductDao {
 
     void privateProduct(Long id);
 
+    Product select1688Product(String alibabaProductId);
+
+    Product selectStoreTransformProduct(String storeProductId);
+
     Product selectByProductSku(String productSku);
 
     Product selectByOriginalId(String originalId);

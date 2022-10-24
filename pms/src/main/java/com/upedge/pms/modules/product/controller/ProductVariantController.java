@@ -69,6 +69,30 @@ public class ProductVariantController {
         List<ProductVariant> variants = productVariantService.selectByProductId(product.getId());
         return BaseResponse.success(variants);
     }
+
+
+    @ApiOperation("根据店铺产品ID查询变体")
+    @RequestMapping(value="/listByStoreProductId/{storeProductId}", method=RequestMethod.GET)
+    public BaseResponse listByStoreProductId(@PathVariable String storeProductId){
+        Product product = productService.selectStoreTransformProduct(storeProductId);
+        if (null == product){
+            return BaseResponse.failed("产品不存在");
+        }
+        List<ProductVariant> variants = productVariantService.selectByProductId(product.getId());
+        return BaseResponse.success(variants);
+    }
+
+    @ApiOperation("根据1688产品ID查询变体")
+    @RequestMapping(value="/listByAlibabaProductId/{storeProductId}", method=RequestMethod.GET)
+    public BaseResponse listByAlibabaProductId(@PathVariable String alibabaProductId){
+        Product product = productService.select1688Product(alibabaProductId);
+        if (null == product){
+            return BaseResponse.failed("产品不存在");
+        }
+        List<ProductVariant> variants = productVariantService.selectByProductId(product.getId());
+        return BaseResponse.success(variants);
+    }
+
     /**
      * 更新变体属性
      */
