@@ -24,6 +24,8 @@ import java.util.List;
  */
 public interface ProductService{
 
+    BaseResponse copyProduct(Long productId,Session session);
+
     BaseResponse test();
 
     BaseResponse selectCustomerPrivateProduct(Page<ProductListDto> record);

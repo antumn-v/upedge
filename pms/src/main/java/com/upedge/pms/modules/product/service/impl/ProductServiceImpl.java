@@ -572,7 +572,7 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public BaseResponse importFrom1688(AlibabaProductVo alibabaProductVo, Long operatorId) {
 
-        Product p = selectByOriginalId(alibabaProductVo.getProductSku());
+        Product p = productDao.selectByProductSku(alibabaProductVo.getProductSku());
         if (null == p || p.getProductSource() != 0){
             addNewProduct(alibabaProductVo,operatorId);
         } else {
@@ -591,8 +591,13 @@ public class ProductServiceImpl implements ProductService {
         if (StringUtils.isBlank(aliProductId)) {
             return new BaseResponse(ResultCode.FAIL_CODE, Constant.MESSAGE_FAIL);
         }
-        Product p = selectByOriginalId(aliProductId);
+        Product p = productDao.select1688Product(aliProductId);
         if (null != p && p.getProductSource() == 0){
+            Long id = p.getId();
+            p = new Product();
+            p.setId(id);
+            p.setUpdateTime(new Date());
+            productDao.updateByPrimaryKeySelective(p);
             return BaseResponse.success();
         }
         AlibabaApiVo alibabaApiVo = (AlibabaApiVo) redisTemplate.opsForValue().get(RedisKey.STRING_ALI1688_API);
@@ -1189,6 +1194,11 @@ public class ProductServiceImpl implements ProductService {
         return apiImportProductInfo;
     }
 
+
+    @Override
+    public BaseResponse copyProduct(Long productId, Session session) {
+        return null;
+    }
 
     @Override
     public BaseResponse test() {
