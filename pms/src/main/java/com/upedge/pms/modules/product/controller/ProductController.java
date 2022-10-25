@@ -84,6 +84,13 @@ public class ProductController {
     }
 
 
+    @ApiOperation("复制产品")
+    @PostMapping("/copy/{id}")
+    public BaseResponse copyProduct(@PathVariable Long id){
+        Session session = UserUtil.getSession(redisTemplate);
+        return productService.copyProduct(id,session);
+    }
+
     /**
      * 选品池列表
      *

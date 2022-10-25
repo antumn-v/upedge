@@ -511,6 +511,7 @@ public class ProductServiceImpl implements ProductService {
         Product product = new Product();
         BeanUtils.copyProperties(addProductVo, product);
         product.setId(productId);
+        product.setState(1);
         //生成sku
         String productSku = IdGenerate.generateUniqueId();
         Product p = productDao.selectByProductSku(productSku);
@@ -1194,10 +1195,86 @@ public class ProductServiceImpl implements ProductService {
         return apiImportProductInfo;
     }
 
-
+    @Transactional
     @Override
     public BaseResponse copyProduct(Long productId, Session session) {
-        return null;
+        Product product = productDao.selectByPrimaryKey(productId);
+        if(null == product){
+            return BaseResponse.failed();
+        }
+        ProductAttribute productAttribute = productAttributeService.selectByProductId(productId);
+        ProductInfo productInfo = productInfoService.selectByProductId(productId);
+        List<ProductVariant> productVariants = productVariantService.selectByProductId(productId);
+        List<ProductVariantAttr> productVariantAttrs = productVariantAttrService.selectByProductId(productId);
+        List<ProductImg> productImgs = productImgService.selectByProductId(productId);
+
+        Date date = new Date();
+        Long newProductId = IdGenerate.nextId();
+        Product copyProduct = new Product();
+        ProductAttribute copyProductAttribute = new ProductAttribute();
+        ProductInfo copyProductInfo = new ProductInfo();
+        List<ProductVariant> copyProductVariants = new ArrayList<>();
+        List<ProductImg> copyProductImgs = new ArrayList<>();
+        List<ProductVariantAttr> copyProductVariantAttrs = new ArrayList<>();
+
+        BeanUtils.copyProperties(product,copyProduct);
+        copyProduct.setId(newProductId);
+        copyProduct.setSaiheState(0);
+        copyProduct.setReplaceState(0);
+        copyProduct.setProductType(0);
+        copyProduct.setState(1);
+        copyProduct.setOriginalId(productId.toString());
+        copyProduct.setProductSource(2);
+        copyProduct.setRemark(null);
+        copyProduct.setCreateTime(date);
+        copyProduct.setUpdateTime(date);
+        insert(copyProduct);
+
+        BeanUtils.copyProperties(productAttribute,copyProductAttribute);
+        copyProductAttribute.setProductId(newProductId);
+        copyProductAttribute.setId(IdGenerate.nextId());
+        productAttributeService.insert(copyProductAttribute);
+
+        BeanUtils.copyProperties(productInfo,copyProductInfo);
+        copyProductInfo.setId(IdGenerate.nextId());
+        copyProductInfo.setProductId(newProductId);
+        productInfoService.insert(copyProductInfo);
+
+        Map<Long,Long> oldNewVariantIdMap = new HashMap<>();
+        for (ProductVariant productVariant : productVariants) {
+            Long id = IdGenerate.nextId();
+            ProductVariant copyVariant = new ProductVariant();
+            BeanUtils.copyProperties(productVariant,copyVariant);
+            copyVariant.setProductId(newProductId);
+            copyVariant.setVariantSku(IdGenerate.nextId().toString());
+            copyVariant.setId(id);
+            copyProductVariants.add(copyVariant);
+            oldNewVariantIdMap.put(productVariant.getId(),id);
+        }
+        productVariantService.insertByBatch(copyProductVariants);
+
+        for (ProductVariantAttr productVariantAttr : productVariantAttrs) {
+            Long oldVariantId = productVariantAttr.getVariantId();
+            Long newVariantId = oldNewVariantIdMap.get(oldVariantId);
+            ProductVariantAttr copyProductVariantAttr = new ProductVariantAttr();
+            BeanUtils.copyProperties(productVariantAttr,copyProductVariantAttr);
+            copyProductVariantAttr.setProductId(newProductId);
+            copyProductVariantAttr.setVariantId(newVariantId);
+            copyProductVariantAttr.setId(IdGenerate.nextId());
+            copyProductVariantAttrs.add(copyProductVariantAttr);
+        }
+        productVariantAttrService.insertByBatch(copyProductVariantAttrs);
+
+        for (ProductImg productImg : productImgs) {
+            ProductImg copyProductImage = new ProductImg();
+            BeanUtils.copyProperties(productImg,copyProductImage);
+            copyProductImage.setProductId(newProductId);
+            copyProductImage.setId(IdGenerate.nextId());
+            copyProductImgs.add(copyProductImage);
+        }
+        productImgService.insertByBatch(copyProductImgs);
+
+        return BaseResponse.success(copyProduct);
     }
 
     @Override
