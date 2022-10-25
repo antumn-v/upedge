@@ -46,6 +46,13 @@ public class CustomerProductStockController {
     @Autowired
     RedisTemplate<String, Object> redisTemplate;
 
+    @ApiOperation("手动修改客户产品库存")
+    @PostMapping("/customUpdate")
+    public BaseResponse customUpdateCustomerProductStock(@RequestBody@Valid CustomerProductStockCustomUpdateRequest request){
+        Session session = UserUtil.getSession(redisTemplate);
+        return customerProductStockService.customUpdateCustomerProductStock(request,session);
+    }
+
     @ApiOperation("使用记录")
     @RequestMapping(value="/{id}/record", method=RequestMethod.POST)
     @Permission(permission = "stock:customerproductstock:info:id")

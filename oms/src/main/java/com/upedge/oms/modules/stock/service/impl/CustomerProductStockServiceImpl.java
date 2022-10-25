@@ -419,7 +419,7 @@ public class CustomerProductStockServiceImpl implements CustomerProductStockServ
         customerStockRecord.setRevokeState(0);
         customerStockRecord.setVariantName(customerProductStock.getVariantName());
         customerStockRecord.setCustomerShowState(1);
-        customerProductStockDao.insert(customerProductStock);
+        customerStockRecordDao.insert(customerStockRecord);
         RedisUtil.unLock(redisTemplate,lockKey);
         return BaseResponse.success();
     }
