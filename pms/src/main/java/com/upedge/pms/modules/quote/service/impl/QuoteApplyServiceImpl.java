@@ -276,7 +276,7 @@ public class QuoteApplyServiceImpl implements QuoteApplyService {
         }
         quoteApplyDao.updateByPrimaryKeySelective(quoteApply);
         if (ListUtils.isNotEmpty(customerProductQuotes)) {
-            customerProductQuoteDao.insertByBatch(customerProductQuotes);
+            customerProductQuoteService.insertByBatch(customerProductQuotes);
         }
         if (ListUtils.isNotEmpty(productQuoteRecords)) {
             productQuoteRecordService.insertByBatch(productQuoteRecords);

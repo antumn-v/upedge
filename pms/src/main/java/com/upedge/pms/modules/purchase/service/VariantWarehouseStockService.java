@@ -59,6 +59,8 @@ public interface VariantWarehouseStockService{
 
     int insert(VariantWarehouseStock record);
 
+    int insertByBatch(List<VariantWarehouseStock> records);
+
     int insertSelective(VariantWarehouseStock record);
 
     List<VariantWarehouseStock> select(Page<VariantWarehouseStock> record);

@@ -18,6 +18,8 @@ import com.upedge.pms.modules.product.entity.StoreProductVariant;
 import com.upedge.pms.modules.product.service.ProductService;
 import com.upedge.pms.modules.product.service.ProductVariantService;
 import com.upedge.pms.modules.product.service.StoreProductVariantService;
+import com.upedge.pms.modules.purchase.entity.VariantWarehouseStock;
+import com.upedge.pms.modules.purchase.service.VariantWarehouseStockService;
 import com.upedge.pms.modules.quote.dao.CustomerProductQuoteDao;
 import com.upedge.pms.modules.quote.entity.CustomerProductQuote;
 import com.upedge.pms.modules.quote.entity.ProductQuoteRecord;
@@ -74,6 +76,9 @@ public class CustomerProductQuoteServiceImpl implements CustomerProductQuoteServ
     StoreProductVariantService storeProductVariantService;
 
     @Autowired
+    VariantWarehouseStockService variantWarehouseStockService;
+
+    @Autowired
     RedisTemplate redisTemplate;
 
 
@@ -92,7 +97,39 @@ public class CustomerProductQuoteServiceImpl implements CustomerProductQuoteServ
      */
     @Transactional
     public int insert(CustomerProductQuote record) {
+        if (record.getQuoteState() == 1){
+            VariantWarehouseStock variantWarehouseStock = variantWarehouseStockService.selectByPrimaryKey(record.getVariantId(),"CNHZ");
+            if (null == variantWarehouseStock){
+                variantWarehouseStock = new VariantWarehouseStock(record.getVariantId(), "CNHZ", 0, 0, 0,0,"","");
+                variantWarehouseStockService.insert(variantWarehouseStock);
+            }
+        }
         return customerProductQuoteDao.insert(record);
+    }
+
+    @Override
+    public int insertByBatch(List<CustomerProductQuote> records) {
+
+        if (ListUtils.isEmpty(records)){
+            return 0;
+        }
+        List<VariantWarehouseStock> variantWarehouseStocks = new ArrayList<>();
+        List<Long> variantIds = new ArrayList<>();
+        for (CustomerProductQuote record : records) {
+            if (record.getQuoteState() != 1 || variantIds.contains(record.getVariantId())){
+                continue;
+            }
+            variantIds.add(record.getVariantId());
+            VariantWarehouseStock variantWarehouseStock = variantWarehouseStockService.selectByPrimaryKey(record.getVariantId(), "CNHZ");
+            if (variantWarehouseStock == null){
+                variantWarehouseStock = new VariantWarehouseStock(record.getVariantId(), "CNHZ", 0, 0, 0,0,"","");
+                variantWarehouseStocks.add(variantWarehouseStock);
+            }
+        }
+        if (ListUtils.isNotEmpty(variantWarehouseStocks)){
+            variantWarehouseStockService.insertByBatch(variantWarehouseStocks);
+        }
+        return customerProductQuoteDao.insertByBatch(records);
     }
 
     /**
@@ -202,7 +239,7 @@ public class CustomerProductQuoteServiceImpl implements CustomerProductQuoteServ
         if (customerProductQuote.getStoreVariantImage() == null){
             customerProductQuote.setStoreVariantImage(productVariant.getVariantImage());
         }
-        customerProductQuoteDao.insert(customerProductQuote);
+        insert(customerProductQuote);
 
         ProductQuoteRecord productQuoteRecord = new ProductQuoteRecord();
         BeanUtils.copyProperties(customerProductQuote, productQuoteRecord);

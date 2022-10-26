@@ -44,6 +44,8 @@ public interface CustomerProductQuoteService{
 
     int insert(CustomerProductQuote record);
 
+    int insertByBatch(List<CustomerProductQuote> records);
+
     int insertSelective(CustomerProductQuote record);
 
     List<CustomerProductQuote> select(Page<CustomerProductQuote> record);

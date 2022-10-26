@@ -175,7 +175,8 @@
             lock_stock,
             purchase_stock,
             remark,
-            shelf_num
+            shelf_num,
+            update_time
         </trim>
         values
         <foreach collection="list" item="item" index="index" separator=",">
@@ -187,7 +188,8 @@
                 #{item.lockStock},
                 #{item.purchaseStock},
                 #{item.remark},
-                #{item.shelfNum}
+                #{item.shelfNum},
+                #{item.updateTime}
             </trim>
         </foreach>
     </insert>
