@@ -351,9 +351,12 @@ public class StoreProductServiceImpl implements StoreProductService {
                 //比较新老变体图片属性名sku
                 try {
                     StoreProductVariant oldVariant = storeProductVariantMap.get(variant.getId());
-                    if (!oldVariant.getTitle().equals(variant.getTitle())
-                    || !oldVariant.getSku().equals(variant.getSku())
-                    || !oldVariant.getImage().equals(storeVariant.getImage())){
+                    boolean titleCompare = StringUtils.isNotBlank(oldVariant.getTitle()) && oldVariant.getTitle().equals(storeVariant.getTitle());
+                    boolean skuCompare = StringUtils.isNotBlank(oldVariant.getSku()) && oldVariant.getSku().equals(storeVariant.getSku());
+                    boolean imageCompare = StringUtils.isNotBlank(oldVariant.getImage()) && oldVariant.getImage().equals(storeVariant.getImage());
+                    if (!titleCompare
+                    || !skuCompare
+                    || !imageCompare){
                         storeVariant.setId(oldVariant.getId());
                         updateVariants.add(storeVariant);
                     }

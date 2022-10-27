@@ -83,7 +83,7 @@ public class ProductVariantController {
     }
 
     @ApiOperation("根据1688产品ID查询变体")
-    @RequestMapping(value="/listByAlibabaProductId/{storeProductId}", method=RequestMethod.GET)
+    @RequestMapping(value="/listByAlibabaProductId/{alibabaProductId}", method=RequestMethod.GET)
     public BaseResponse listByAlibabaProductId(@PathVariable String alibabaProductId){
         Product product = productService.select1688Product(alibabaProductId);
         if (null == product){
