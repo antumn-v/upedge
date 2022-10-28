@@ -479,7 +479,7 @@ public class ProductVariantServiceImpl implements ProductVariantService {
 
                 VariantDetail variantDetail = new VariantDetail();
                 variantDetail.setCnyPrice(productVariant.getVariantPrice());
-                variantDetail.setUsdPrice(productVariant.getUsdPrice());
+                variantDetail.setUsdPrice(usdPrice);
                 variantDetail.setVariantId(productVariant.getId());
                 variantDetails.add(variantDetail);
             }else {

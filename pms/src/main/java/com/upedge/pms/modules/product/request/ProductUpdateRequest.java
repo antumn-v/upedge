@@ -112,8 +112,7 @@ public class ProductUpdateRequest{
         product.setProductType(productType);
         product.setCateType(cateType);
         product.setUserId(userId);
-        product.setCreateTime(createTime);
-        product.setUpdateTime(updateTime);
+        product.setUpdateTime(new Date());
         product.setPriceRange(priceRange);
         product.setRemark(remark);
         return product;

@@ -457,6 +457,9 @@ public class ProductServiceImpl implements ProductService {
         for (ProductVariant productVariant : productVariantList) {
             Long variantId = IdGenerate.nextId();
             productVariant.setId(variantId);
+            if (null == productVariant.getVolumeWeight()){
+                productVariant.setVolumeWeight(BigDecimal.ONE);
+            }
             productVariant.setProductId(productId);
             //生成sku
             String variantSku = IdGenerate.generateUniqueId();
@@ -494,7 +497,7 @@ public class ProductServiceImpl implements ProductService {
                 }
                 strList.clear();
                 strList.add(variantAttrCvalue);
-
+                productVariant.setUsdPrice(PriceUtils.cnyToUsdByDefaultRate(productVariant.getVariantPrice()));
                 productVariant.setInventory(999L);
                 productVariantAttr.setVariantId(variantId);
                 productVariantAttr.setProductId(productId);
@@ -512,13 +515,11 @@ public class ProductServiceImpl implements ProductService {
         BeanUtils.copyProperties(addProductVo, product);
         product.setId(productId);
         product.setState(1);
-        //生成sku
-        String productSku = IdGenerate.generateUniqueId();
-        Product p = productDao.selectByProductSku(productSku);
-        if (p != null) {
-            return new BaseResponse(ResultCode.FAIL_CODE, "重复sku请重试");
+        if (null == product.getCateType()){
+            product.setCateType(0);
         }
-        product.setProductSku(productSku);
+        product.setUserId(session.getId());
+
         product.setOriginalId(null);
         product.setSupplierName(null);
         product.setOriginalTitle(addProductVo.getProductTitle());
