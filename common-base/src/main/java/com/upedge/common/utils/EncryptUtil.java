@@ -21,7 +21,7 @@ public class EncryptUtil {
     public static final String AES = "AES";
 
     /**编码格式；默认使用uft-8*/
-    public String charset = "utf-8";
+    public static String charset = "utf-8";
     /**DES*/
     public int keysizeDES = 0;
     /**AES*/
@@ -50,7 +50,7 @@ public class EncryptUtil {
      * @param algorithm 加密算法名称
      * @return
      */
-    private String messageDigest(String res, String algorithm){
+    private static String messageDigest(String res, String algorithm){
         try {
             MessageDigest md = MessageDigest.getInstance(algorithm);
             byte[] resBytes = charset==null?res.getBytes():res.getBytes(charset);
@@ -132,7 +132,7 @@ public class EncryptUtil {
         return null;
     }
 
-    private String base64(byte[] res){
+    private static String base64(byte[] res){
         return Base64.getEncoder().encodeToString(res);
     }
 
@@ -166,7 +166,7 @@ public class EncryptUtil {
      * @param res 需要加密的原文
      * @return
      */
-    public String MD5(String res) {
+    public static String MD5(String res) {
         return messageDigest(res, MD5);
     }
 

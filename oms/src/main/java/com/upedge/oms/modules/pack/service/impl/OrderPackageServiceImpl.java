@@ -1,6 +1,9 @@
 package com.upedge.oms.modules.pack.service.impl;
 
 import com.alibaba.fastjson.JSON;
+import com.aliyun.oss.OSS;
+import com.aliyun.oss.OSSClientBuilder;
+import com.aliyun.oss.model.CannedAccessControlList;
 import com.upedge.common.base.BaseResponse;
 import com.upedge.common.base.Page;
 import com.upedge.common.constant.ResultCode;
@@ -16,6 +19,7 @@ import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.model.user.vo.UserVo;
 import com.upedge.common.utils.AliYunOssService;
 import com.upedge.common.utils.DateUtils;
+import com.upedge.common.utils.IdGenerate;
 import com.upedge.common.utils.ListUtils;
 import com.upedge.common.web.util.RedisUtil;
 import com.upedge.oms.modules.fulfillment.service.OrderFulfillmentService;
@@ -67,8 +71,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import sun.misc.BASE64Decoder;
 
-import java.io.File;
+import java.io.*;
 import java.math.BigDecimal;
 import java.net.URL;
 import java.util.*;
@@ -133,7 +138,7 @@ public class OrderPackageServiceImpl implements OrderPackageService {
         List<Long> orderIds = request.getOrderIds();
         List<OrderPackage> orderPackages = orderPackageDao.selectByOrderIds(orderIds);
         for (OrderPackage orderPackage : orderPackages) {
-            orderFulfillmentService.orderFulfillment(orderPackage,true);
+            orderFulfillmentService.orderFulfillment(orderPackage, true);
         }
         return BaseResponse.success();
     }
@@ -159,7 +164,7 @@ public class OrderPackageServiceImpl implements OrderPackageService {
         }
         Long packNo = orderPackage.getId();
         String trackCode = orderPackage.getTrackingCode();
-        if (StringUtils.isBlank(trackCode)){
+        if (StringUtils.isBlank(trackCode)) {
             switch (orderPackage.getTrackingCompany()) {
                 case "CNE":
                     trackCode = CneApi.getTrackNumber(orderPackage.getLogisticsOrderNo());
@@ -198,7 +203,7 @@ public class OrderPackageServiceImpl implements OrderPackageService {
     @Override
     public BaseResponse packageExStock(String scanNo, Session session) {
         OrderPackage orderPackage = orderPackageDao.selectByScanNo(scanNo);
-        if (null == orderPackage){
+        if (null == orderPackage) {
             return BaseResponse.failed("包裹不存在");
         }
         if (orderPackage.getPackageState() != 0) {
@@ -243,9 +248,9 @@ public class OrderPackageServiceImpl implements OrderPackageService {
         orderPackageInfoVo.setSendTime(new Date());
         RedisUtil.unLock(redisTemplate, key);
         //物流已上传店铺，直接修改订单发货状态
-        if(isUploadStore){
-            orderService.updateOrderAsTracked(orderId,trackCode);
-        }else {
+        if (isUploadStore) {
+            orderService.updateOrderAsTracked(orderId, trackCode);
+        } else {
             sendPackageFulfillmentMessage(packNo);
         }
 
@@ -256,29 +261,29 @@ public class OrderPackageServiceImpl implements OrderPackageService {
     public BaseResponse orderRevokePackage(OrderPackRevokeRequest request, Session session) {
         List<Long> orderIds = request.getOrderIds();
         orderIds.forEach(orderId -> {
-            revokePackage(orderId,request.getReason());
+            revokePackage(orderId, request.getReason());
         });
         return BaseResponse.success();
     }
 
     @Transactional
     @Override
-    public void revokePackage(Long orderId, String reason){
+    public void revokePackage(Long orderId, String reason) {
 
-        if (orderId == null){
+        if (orderId == null) {
             return;
         }
         Order order = orderService.selectByPrimaryKey(orderId);
-        if (order.getStockState() == 1){
+        if (order.getStockState() == 1) {
             OrderItemQuantityVo orderItemQuantityVo = orderService.selectOrderItemQuantitiesByOrderId(orderId);
-            if (null == orderItemQuantityVo){
+            if (null == orderItemQuantityVo) {
                 return;
             }
             int i = pmsFeignClient.orderCancelShip(orderItemQuantityVo);
-            if (i == 0){
+            if (i == 0) {
                 return;
             }
-            orderService.updateStockState(orderId,0);
+            orderService.updateStockState(orderId, 0);
         }
 
         Long packNo = null;
@@ -314,7 +319,7 @@ public class OrderPackageServiceImpl implements OrderPackageService {
         OrderLabelPrintLog orderLabelPrintLog = orderLabelPrintLogService.selectTheLatestPackLabel(request.getPackNo());
         if (null != orderLabelPrintLog) {
             labelUrl = orderLabelPrintLog.getLabelUrl();
-        }else {
+        } else {
             try {
                 labelUrl = savePrintLabel(orderPackage);
             } catch (CustomerException e) {
@@ -323,24 +328,24 @@ public class OrderPackageServiceImpl implements OrderPackageService {
         }
 
         map.put("labelUrl", labelUrl);
-        if (StringUtils.isNotBlank(labelUrl)){
+        if (StringUtils.isNotBlank(labelUrl)) {
             Order order = new Order();
             order.setId(orderPackage.getOrderId());
             order.setIsPrintLabel(true);
             orderService.updateByPrimaryKeySelective(order);
             return BaseResponse.success(map);
-        }else {
+        } else {
             return BaseResponse.failed("包裹号：" + request.getPackNo() + " 获取面单失败");
         }
     }
 
 
     private String savePrintLabel(OrderPackage orderPackage) throws CustomerException {
-        if (null == orderPackage){
+        if (null == orderPackage) {
             return null;
         }
         OrderLabelPrintLog orderLabelPrintLog = orderLabelPrintLogService.selectTheLatestPackLabel(orderPackage.getPackageNo());
-        if (null != orderLabelPrintLog){
+        if (null != orderLabelPrintLog) {
             return orderLabelPrintLog.getLabelUrl();
         }
         String labelUrl = null;
@@ -348,22 +353,19 @@ public class OrderPackageServiceImpl implements OrderPackageService {
             switch (orderPackage.getTrackingCompany()) {
                 case "4PX":
                     labelUrl = FpxOrderApi.getSinglePackageLabel(orderPackage.getLogisticsOrderNo());
-                    labelUrl = AliYunOssService.uploadLabel(labelUrl,"4PX",orderPackage.getId() + ".pdf");
+                    labelUrl = AliYunOssService.uploadLabel(labelUrl, "4PX", orderPackage.getId() + ".pdf");
                     break;
                 case "YunExpress":
                     labelUrl = YunexpressApi.getSinglePackageLabel(orderPackage.getPlatId());
-                    labelUrl = AliYunOssService.uploadLabel(labelUrl,"YunExpress",orderPackage.getId() + ".pdf");
+                    labelUrl = AliYunOssService.uploadLabel(labelUrl, "YunExpress", orderPackage.getId() + ".pdf");
                     break;
                 case "CNE":
                     labelUrl = CneApi.getLabel(orderPackage.getLogisticsOrderNo());
-                    labelUrl = AliYunOssService.uploadLabel(labelUrl,"CNE",orderPackage.getId() + ".pdf");
+                    labelUrl = AliYunOssService.uploadLabel(labelUrl, "CNE", orderPackage.getId() + ".pdf");
                     break;
                 case "Yanwen":
-                    labelUrl = YanwenApi.getTrackLabel(orderPackage.getLogisticsOrderNo(), pdfLocalPath);
-                    if (StringUtils.isNotBlank(labelUrl)) {
-                        labelUrl = pdfUrlPrefix + labelUrl;
-                        labelUrl = AliYunOssService.uploadLabel(labelUrl,"Yanwen",orderPackage.getId() + ".pdf");
-                    }
+                    String baseString = YanwenApi.getTrackLabel(orderPackage.getLogisticsOrderNo(), pdfLocalPath);
+                    labelUrl = uploadBase64PdfToOss(baseString, orderPackage.getId());
                     break;
             }
         } catch (Exception e) {
@@ -378,6 +380,55 @@ public class OrderPackageServiceImpl implements OrderPackageService {
             orderLabelPrintLogService.insert(orderLabelPrintLog);
         }
         return labelUrl;
+    }
+
+
+    private String uploadBase64PdfToOss(String base64, Long packNo) {
+        String fileName = packNo + ".pdf";
+        String id = IdGenerate.uuid();
+
+        String endPoint = "oss-cn-hangzhou.aliyuncs.com";
+        String keyId = "LTAI4G11r85nKNnKxhtHrAQ6";
+        String keySecret = "51qt1QMGeGez01wKCqqA1od6U5RROb";
+        String bucketName = "label-pdf";
+
+        try {
+            File tempPdf = File.createTempFile(id, "pdf");
+
+            String path = tempPdf.getAbsolutePath();
+
+            BASE64Decoder decoder = new BASE64Decoder();
+            byte[] bytes = decoder.decodeBuffer(base64);
+            File file = new File(path);
+            FileOutputStream fos = new FileOutputStream(file);
+            BufferedOutputStream bos = new BufferedOutputStream(fos);
+            bos.write(bytes);
+
+            InputStream inputStream = new FileInputStream(path);
+
+            OSS ossClient = new OSSClientBuilder().build(endPoint, keyId, keySecret);
+            if (!ossClient.doesBucketExist(bucketName)) {
+                //创建bucket
+                ossClient.createBucket(bucketName);
+                //设置oss实例的访问权限：公共读
+                ossClient.setBucketAcl(bucketName, CannedAccessControlList.PublicRead);
+            }
+
+            //文件名：uuid.扩展名
+            String key = "Yanwen/" + fileName;
+
+            //文件上传至阿里云
+            ossClient.putObject(bucketName, key, inputStream);
+
+            // 关闭OSSClient。
+            ossClient.shutdown();
+            file.delete();
+            //返回url地址
+            return "https://" + bucketName + "." + endPoint + "/" + key;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     @Override
@@ -398,13 +449,13 @@ public class OrderPackageServiceImpl implements OrderPackageService {
         Order order = orderService.selectByPrimaryKey(orderId);
 
         if (order.getPayState() != 1
-                || order.getPackState() !=0
+                || order.getPackState() != 0
                 || order.getRefundState() != 0) {
             return BaseResponse.failed("订单未支付或已生成包裹或退款中");
         }
 
         OrderPackage orderPackage = orderPackageDao.selectByOrderId(orderId);
-        if (orderPackage != null){
+        if (orderPackage != null) {
             return BaseResponse.failed("订单已生成包裹");
         }
 
@@ -438,18 +489,18 @@ public class OrderPackageServiceImpl implements OrderPackageService {
     @Override
     public void reCreatePackage(Long orderId) {
         OrderPackage orderPackage = orderPackageDao.selectByOrderId(orderId);
-        if (null != orderPackage){
+        if (null != orderPackage) {
             Order order = orderService.selectByPrimaryKey(orderId);
-            if (order.getStockState() == 1){
+            if (order.getStockState() == 1) {
                 OrderItemQuantityVo orderItemQuantityVo = orderService.selectOrderItemQuantitiesByOrderId(orderId);
-                if (null == orderItemQuantityVo){
+                if (null == orderItemQuantityVo) {
                     return;
                 }
                 int i = pmsFeignClient.orderCancelShip(orderItemQuantityVo);
-                if (i == 0){
+                if (i == 0) {
                     return;
                 }
-                orderService.updateStockState(orderId,0);
+                orderService.updateStockState(orderId, 0);
             }
 
             deleteByPrimaryKey(orderPackage.getId());
@@ -466,23 +517,24 @@ public class OrderPackageServiceImpl implements OrderPackageService {
         List<OrderItem> orderItems = orderItemService.selectByOrderId(orderId);
         OrderAddress orderAddress = orderService.getOrderAddress(orderId);
 
-        YanwenExpressDto.YanwenReceiverDTO receiverDTO = yanwenExpressDto.getReceiver();
+        YanwenExpressDto.YanwenReceiverInfoDTO receiverDTO = yanwenExpressDto.getReceiverInfo();
         receiverDTO.setName(orderAddress.getFirstName() + " " + orderAddress.getLastName());
         receiverDTO.setEmail(orderAddress.getEmail());
-        receiverDTO.setPostcode(orderAddress.getZip());
-        receiverDTO.setAddress2(orderAddress.getAddress2());
-        receiverDTO.setAddress1(orderAddress.getAddress1());
+        receiverDTO.setZipCode(orderAddress.getZip());
+        receiverDTO.setHouseNumber(orderAddress.getAddress2());
+        receiverDTO.setAddress(orderAddress.getAddress1());
         receiverDTO.setState(orderAddress.getProvince());
-        receiverDTO.setCountry(orderAddress.getCountry());
+        receiverDTO.setCountry(orderAddress.getCountryCode());
         receiverDTO.setPhone(orderAddress.getPhone());
         receiverDTO.setCity(orderAddress.getCity());
 
         int i = 0;
-        YanwenExpressDto.YanwenGoodsNameDTO goodsName = new YanwenExpressDto.YanwenGoodsNameDTO();
+        StringBuffer remark = new StringBuffer();
+        YanwenExpressDto.YanwenParcelInfoDTO yanwenParcelInfoDTO = new YanwenExpressDto.YanwenParcelInfoDTO();
+        List<YanwenExpressDto.YanwenParcelInfoDTO.YanwenProductListDTO> yanwenProductListDTOS = new ArrayList<>();
+
         for (OrderItem orderItem : orderItems) {
-            if(orderItem.getQuantity() < 1){
-                continue;
-            }
+            YanwenExpressDto.YanwenParcelInfoDTO.YanwenProductListDTO yanwenProductListDTO = new YanwenExpressDto.YanwenParcelInfoDTO.YanwenProductListDTO();
             String entryCName = getProductEntryName(orderItem.getAdminProductId(), "cn");
             String entryEName = getProductEntryName(orderItem.getAdminProductId(), "en");
             if (StringUtils.isBlank(entryCName) || StringUtils.isBlank(entryEName)) {
@@ -490,23 +542,27 @@ public class OrderPackageServiceImpl implements OrderPackageService {
                 redisTemplate.opsForHash().put(RedisKey.HASH_ORDER_CREATE_PACKAGE_FAILED_REASON, orderId.toString(), "产品缺少报关信息");
                 return BaseResponse.failed("产品缺少报关信息");
             }
-            goodsName.setMoreGoodsName(orderItem.getBarcode());
-            goodsName.setNameCh(entryCName);
-            goodsName.setNameEn(entryEName);
-            goodsName.setDeclaredCurrency("USD");
-            goodsName.setDeclaredValue(orderItem.getQuantity() * orderItem.getUsdPrice().doubleValue());
-            goodsName.setWeight(orderItem.getQuantity() * orderItem.getAdminVariantWeight().intValue());
+            yanwenProductListDTO.setGoodsNameCh(entryCName);
+            yanwenProductListDTO.setGoodsNameEn(entryEName);
+            yanwenProductListDTO.setPrice(orderItem.getUsdPrice());
+            yanwenProductListDTO.setWeight(orderItem.getAdminVariantWeight().intValue());
+            yanwenProductListDTO.setQuantity(orderItem.getQuantity());
+            yanwenProductListDTOS.add(yanwenProductListDTO);
+            remark.append(orderItem.getBarcode()).append("*").append(orderItem.getQuantity()).append(" ");
             i += orderItem.getQuantity();
-            break;
         }
+        yanwenParcelInfoDTO.setCurrency("USD");
+        yanwenParcelInfoDTO.setProductList(yanwenProductListDTOS);
+        yanwenParcelInfoDTO.setTotalQuantity(i);
+        yanwenParcelInfoDTO.setTotalPrice(order.getProductAmount());
+        yanwenParcelInfoDTO.setTotalWeight(order.getTotalWeight().intValue());
 
-        yanwenExpressDto.setGoodsName(goodsName);
-        yanwenExpressDto.setSendDate(new Date());
-        yanwenExpressDto.setChannel(shippingMethodRedis.getMethodCode());
-        yanwenExpressDto.setUserOrderNumber(order.getPackNo().toString());
-        yanwenExpressDto.setQuantity(i);
+        yanwenExpressDto.setParcelInfo(yanwenParcelInfoDTO);
+        yanwenExpressDto.setChannelId(shippingMethodRedis.getMethodCode());
+        yanwenExpressDto.setOrderNumber(order.getPackNo().toString());
+        yanwenExpressDto.setRemark(remark.toString());
 
-        YanwenCreateExpressResponse.CreatedExpressDTO createdExpressDTO = null;
+        YanwenCreateExpressResponse.YanwenCreateExpressResponseDataDTO createdExpressDTO = null;
         try {
             createdExpressDTO = YanwenApi.createExpress(yanwenExpressDto);
         } catch (CustomerException e) {
@@ -515,7 +571,7 @@ public class OrderPackageServiceImpl implements OrderPackageService {
             return BaseResponse.failed(e.getMessage());
         }
 
-        OrderPackage orderPackage = savePackage(order, shippingMethodRedis, createdExpressDTO.getEpcode(), createdExpressDTO.getReferenceNo(), createdExpressDTO.getEpcode());
+        OrderPackage orderPackage = savePackage(order, shippingMethodRedis, createdExpressDTO.getWaybillNumber(), createdExpressDTO.getReferenceNumber(), createdExpressDTO.getYanwenNumber());
 
         return BaseResponse.success(orderPackage);
     }
@@ -546,7 +602,7 @@ public class OrderPackageServiceImpl implements OrderPackageService {
         List<OrderItem> orderItems = orderItemService.selectByOrderId(orderId);
         List<CneCreateOrderRequest.RecListDTO.CneGoodsListDTO> cneGoodsListDTOS = new ArrayList<>();
         for (OrderItem orderItem : orderItems) {
-            if(orderItem.getQuantity() < 1){
+            if (orderItem.getQuantity() < 1) {
                 continue;
             }
             String entryCName = getProductEntryName(orderItem.getAdminProductId(), "cn");
@@ -627,7 +683,7 @@ public class OrderPackageServiceImpl implements OrderPackageService {
         receiverDTO.setCity(orderAddress.getCity());
 
         for (OrderItem orderItem : orderItems) {
-            if(orderItem.getQuantity() < 1){
+            if (orderItem.getQuantity() < 1) {
                 continue;
             }
             String entryCName = getProductEntryName(orderItem.getAdminProductId(), "cn");
@@ -646,10 +702,11 @@ public class OrderPackageServiceImpl implements OrderPackageService {
             parcelsDTO.setCName(entryCName);
             parcelsDTO.setCurrencyCode("USD");
             parcelsDTO.setHSCode(orderItem.getBarcode());
-            parcelsDTO.setSKU(orderItem.getStoreVariantSku());
+            parcelsDTO.setSKU(orderItem.getBarcode());
             parcelsDTO.setQuantity(orderItem.getQuantity());
             parcelsDTO.setUnitPrice(orderItem.getUsdPrice());
             parcelsDTO.setInvoiceRemark(orderItem.getBarcode());
+            parcelsDTO.setRemark(orderItem.getBarcode() + "*" + orderItem.getQuantity());
             parcelsDTO.setUnitWeight(orderItem.getAdminVariantWeight().divide(new BigDecimal("1000"), 2, BigDecimal.ROUND_UP));
             parcels.add(parcelsDTO);
         }
@@ -665,9 +722,9 @@ public class OrderPackageServiceImpl implements OrderPackageService {
         wayBillCreateDto.setShippingMethodCode(shippingMethodRedis.getMethodCode());
         wayBillCreateDto.setPackageCount(1);
         wayBillCreateDto.setWeight(order.getTotalWeight().divide(new BigDecimal("1000"), 2, BigDecimal.ROUND_UP));
-        if (customerIossVo != null){
+        if (customerIossVo != null) {
             wayBillCreateDto.setIossCode(customerIossVo.getIossNum());
-        }else {
+        } else {
             WayBillCreateDto.OrderExtraDTO extraDTO = new WayBillCreateDto.OrderExtraDTO();
             extraDTO.setExtraCode("V1");
             extraDTO.setExtraName("云涂预缴");
@@ -736,7 +793,7 @@ public class OrderPackageServiceImpl implements OrderPackageService {
 
         List<ParcelListDTO.DeclareProductInfoDTO> declareProductInfoDTOS = new ArrayList<>();
         for (OrderItem orderItem : orderItems) {
-            if(orderItem.getQuantity() < 1){
+            if (orderItem.getQuantity() < 1) {
                 continue;
             }
             String entryCName = getProductEntryName(orderItem.getAdminProductId(), "cn");
@@ -751,6 +808,7 @@ public class OrderPackageServiceImpl implements OrderPackageService {
             declareProductInfoDTO.setDeclareProductCodeQty(orderItem.getQuantity());
             declareProductInfoDTO.setDeclareUnitPriceExport(orderItem.getUsdPrice());
             declareProductInfoDTO.setDeclareUnitPriceImport(orderItem.getUsdPrice());
+            declareProductInfoDTO.setPackageRemarks(orderItem.getBarcode() + "*" + orderItem.getQuantity());
             declareProductInfoDTOS.add(declareProductInfoDTO);
         }
 
@@ -939,8 +997,8 @@ public class OrderPackageServiceImpl implements OrderPackageService {
         }
     }
 
-    private String uploadPackageLabelPdf(String labelUrl,Long packageNo){
-        if (StringUtils.isBlank(labelUrl)){
+    private String uploadPackageLabelPdf(String labelUrl, Long packageNo) {
+        if (StringUtils.isBlank(labelUrl)) {
             return null;
         }
         try {

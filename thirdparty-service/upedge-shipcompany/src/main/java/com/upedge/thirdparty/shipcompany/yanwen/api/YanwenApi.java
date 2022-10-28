@@ -1,9 +1,9 @@
 package com.upedge.thirdparty.shipcompany.yanwen.api;
 
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.upedge.common.exception.CustomerException;
+import com.upedge.thirdparty.shipcompany.yanwen.dto.YanwenApiRequestBase;
 import com.upedge.thirdparty.shipcompany.yanwen.dto.YanwenCreateExpressResponse;
 import com.upedge.thirdparty.shipcompany.yanwen.dto.YanwenExpressDto;
 import com.upedge.thirdparty.shipcompany.yanwen.dto.YanwenGetShipMethodDto;
@@ -45,38 +45,96 @@ public class YanwenApi {
         return null;
     }
 
-    public static String getTrackLabel(String epCode,String path){
-        String url = ServicePoint + "/Users/"+userId+"/Expresses/"+epCode+"/A10x10LLabel";
+    public static String getTrackLabel(String epCode,String path) throws CustomerException {
+//        String url = ServicePoint + "/Users/"+userId+"/Expresses/"+epCode+"/A10x10LLabel";
 
-        String labelName = uploadLabelPdf(epCode,path);
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("waybillNumber",epCode);
 
-        return labelName;
+        YanwenApiRequestBase requestBase = new YanwenApiRequestBase();
+        requestBase.setData(null);
+        requestBase.initSign(jsonObject.toJSONString(), "express.order.label.get");
+
+        String url = "https://open.yw56.com.cn/api/order?user_id="+requestBase.getUser_id()+"&method=express.order.label.get&format=json&timestamp="+requestBase.getTimestamp()+"&sign="+requestBase.getSign()+"&version=V1.0";
+
+
+        OkHttpClient client = new OkHttpClient().newBuilder()
+                .readTimeout(60, TimeUnit.SECONDS)
+                .connectTimeout(60, TimeUnit.SECONDS)
+                .build();
+        MediaType mediaType = MediaType.parse("application/json");
+
+        String s= jsonObject.toJSONString();
+
+        RequestBody body = RequestBody.create(mediaType,s);
+
+
+        Request request = new Request.Builder()
+                .url(url)
+                .addHeader("Content-Type","application/json")
+                .method(HttpMethod.POST.toString(), body)
+                .build();
+        Response response = null;
+
+        try {
+            response = client.newCall(request).execute();
+            jsonObject = JSONObject.parseObject(response.body().string());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        Integer code = jsonObject.getInteger("code");
+        if (code != 0){
+            throw new CustomerException(jsonObject.getString("message"));
+        }
+
+        return jsonObject.getJSONObject("data").getString("base64String");
 
     }
 
-    public static YanwenCreateExpressResponse.CreatedExpressDTO createExpress(YanwenExpressDto yanwenExpressDto) throws CustomerException {
-        String url = ServicePoint + "/Users/"+userId+"/Expresses";
+    public static YanwenCreateExpressResponse.YanwenCreateExpressResponseDataDTO createExpress(YanwenExpressDto yanwenExpressDto) throws CustomerException {
 
-        YanwenCreateExpressResponse yanwenGetShipMethodDto = null;
+
+        YanwenApiRequestBase requestBase = new YanwenApiRequestBase();
+        requestBase.setData(yanwenExpressDto);
+        requestBase.initSign(JSONObject.toJSONString(yanwenExpressDto),"express.order.create");
+
+        String url = "https://open.yw56.com.cn/api/order?user_id="+requestBase.getUser_id()+"&method=express.order.create&format=json&timestamp="+requestBase.getTimestamp()+"&sign="+requestBase.getSign()+"&version=V1.0";
 
         try {
-            String result = commonRequest(url,HttpMethod.POST, JSON.toJSONString(yanwenExpressDto));
-            JSONObject jsonObject = xmltoJson(result);
-            jsonObject = jsonObject.getJSONObject("CreateExpressResponseType");
-            yanwenGetShipMethodDto = JSONObject.toJavaObject(jsonObject,YanwenCreateExpressResponse.class);
+            OkHttpClient client = new OkHttpClient().newBuilder()
+                    .readTimeout(60, TimeUnit.SECONDS)
+                    .connectTimeout(60, TimeUnit.SECONDS)
+                    .build();
+            MediaType mediaType = MediaType.parse("application/json");
+
+            String s= JSONObject.toJSONString(yanwenExpressDto);
+
+            RequestBody body = RequestBody.create(mediaType,s);
+
+
+            Request request = new Request.Builder()
+                    .url(url)
+                    .addHeader("Content-Type","application/json")
+                    .method(HttpMethod.POST.toString(), body)
+                    .build();
+            Response response = null;
+
+            response = client.newCall(request).execute();
+            JSONObject jsonObject = JSONObject.parseObject(response.body().string());
+            YanwenCreateExpressResponse yanwenCreateExpressResponse = jsonObject.toJavaObject(YanwenCreateExpressResponse.class);
+            if (yanwenCreateExpressResponse.getSuccess()){
+                return yanwenCreateExpressResponse.getData();
+            }
+            throw new CustomerException(yanwenCreateExpressResponse.getMessage());
         } catch (Exception e) {
             e.printStackTrace();
+            throw new CustomerException(e.getMessage());
         }
-        YanwenCreateExpressResponse.ResponseDTO response = yanwenGetShipMethodDto.getResponse();
-        if (response.getSuccess()){
-            return yanwenGetShipMethodDto.getCreatedExpress();
-        }
-        throw new CustomerException(response.getReasonMessage());
+
     }
 
 
     static String commonRequest(String url, HttpMethod method, String data) throws Exception {
-
         OkHttpClient client = new OkHttpClient().newBuilder()
                 .readTimeout(60, TimeUnit.SECONDS)
                 .connectTimeout(60, TimeUnit.SECONDS)
@@ -223,7 +281,4 @@ public class YanwenApi {
     }
 
 
-    public static void main(String[] args){
-
-    }
 }

@@ -71,6 +71,8 @@ public class FpxOrderApi {
 
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("request_no",fpxNo);
+        jsonObject.put("is_print_pick_info","Y");
+        jsonObject.put("is_print_pick_barcode","Y");
 
         String result = ApiHttpClientUtils.apiJsongPost(FpxConfig.param,jsonObject, AmbientEnum.SANDBOX_ADDRESS);
 
@@ -90,7 +92,8 @@ public class FpxOrderApi {
 
     public static void main(String[] args) {
         try {
-            System.out.println(getFpxOrder("4PX3000290016108CN"));
+            System.out.println(getSinglePackageLabel("4PX3000334953055CN"));
+//            System.out.println(getFpxOrder("4PX3000290016108CN"));
         } catch (Exception e) {
             e.printStackTrace();
         }

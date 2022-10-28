@@ -1,123 +1,134 @@
 package com.upedge.thirdparty.shipcompany.yanwen.dto;
 
-import com.alibaba.fastjson.annotation.JSONField;
-import com.upedge.thirdparty.shipcompany.yanwen.api.YanwenApi;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.Date;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 
 @NoArgsConstructor
 @Data
-public class YanwenExpressDto {
+public class YanwenExpressDto   {
 
-    @JSONField(name = "Userid")
-    private String userid = YanwenApi.userId;
-    @JSONField(name = "Channel")
-    private String channel;
-    @JSONField(name = "Epcode")
-    private String epcode;
-    @JSONField(name = "ReferenceNo")
-    private String referenceNo;
-    @JSONField(name = "UserOrderNumber")
-    private String userOrderNumber;
-    @JSONField(name = "SendDate")
-    private Date sendDate;
-    @JSONField(name = "Quantity")
-    private Integer quantity;
-    @JSONField(name = "Insure")
-    private String insure;
-    @JSONField(name = "MerchantCsName")
-    private String merchantCsName;
-    @JSONField(name = "ProductLink")
-    private String productLink;
-    @JSONField(name = "Memo")
-    private String memo;
-    @JSONField(name = "DateOfReceipt")
+
+    @JsonProperty("channelId")
+    private String channelId;
+    @JsonProperty("orderSource")
+    private String orderSource;
+    @JsonProperty("userId")
+    private String userId;
+    @JsonProperty("orderNumber")
+    private String orderNumber;
+    @JsonProperty("dateOfReceipt")
     private String dateOfReceipt;
-    @JSONField(name = "MRP")
-    private String mrp;
-    @JSONField(name = "ExpiryDate")
-    private String expiryDate;
-    @JSONField(name = "Receiver")
-    private YanwenReceiverDTO receiver = new YanwenReceiverDTO();
-    @JSONField(name = "Sender")
-    private SenderDTO sender;
-    @JSONField(name = "GoodsName")
-    private YanwenGoodsNameDTO goodsName;
+    @JsonProperty("remark")
+    private String remark;
+    @JsonProperty("receiverInfo")
+    private YanwenReceiverInfoDTO receiverInfo = new YanwenReceiverInfoDTO();
+    @JsonProperty("parcelInfo")
+    private YanwenParcelInfoDTO parcelInfo = new YanwenParcelInfoDTO();
+    @JsonProperty("senderInfo")
+    private YanwenSenderInfoDTO senderInfo;
 
     @NoArgsConstructor
     @Data
-    public static class YanwenReceiverDTO {
-        @JSONField(name = "Userid")
-        private String userid = YanwenApi.userId;
-        @JSONField(name = "Name")
+    public static class YanwenReceiverInfoDTO {
+        @JsonProperty("name")
         private String name;
-        @JSONField(name = "Phone")
+        @JsonProperty("phone")
         private String phone;
-        @JSONField(name = "Email")
+        @JsonProperty("email")
         private String email;
-        @JSONField(name = "Company")
+        @JsonProperty("company")
         private String company;
-        @JSONField(name = "Country")
+        @JsonProperty("country")
         private String country;
-        @JSONField(name = "Postcode")
-        private String postcode;
-        @JSONField(name = "State")
+        @JsonProperty("state")
         private String state;
-        @JSONField(name = "City")
+        @JsonProperty("city")
         private String city;
-        @JSONField(name = "District")
-        private String district;
-        @JSONField(name = "Address1")
-        private String address1;
-        @JSONField(name = "Address2")
-        private String address2;
-        @JSONField(name = "NationalId")
-        private String nationalId;
-        @JSONField(name = "NationalIdFullName")
-        private String nationalIdFullName;
-        @JSONField(name = "NationalIdIssueDate")
-        private String nationalIdIssueDate;
-        @JSONField(name = "NationalIdExpireDate")
-        private String nationalIdExpireDate;
-    }
-
-    @NoArgsConstructor
-    @Data
-    public static class SenderDTO {
-        @JSONField(name = "TaxNumber")
+        @JsonProperty("zipCode")
+        private String zipCode;
+        @JsonProperty("houseNumber")
+        private String houseNumber;
+        @JsonProperty("address")
+        private String address;
+        @JsonProperty("taxNumber")
         private String taxNumber;
     }
 
     @NoArgsConstructor
     @Data
-    public static class YanwenGoodsNameDTO {
-        @JSONField(name = "Userid")
-        private String userid = YanwenApi.userId;
-        @JSONField(name = "NameCh")
-        private String nameCh;
-        @JSONField(name = "NameEn")
-        private String nameEn;
-        @JSONField(name = "Weight")
-        private Integer weight;
-        @JSONField(name = "DeclaredValue")
-        private Double declaredValue;
-        @JSONField(name = "DeclaredCurrency")
-        private String declaredCurrency;
-        @JSONField(name = "HsCode")
-        private String hsCode;
-        @JSONField(name = "BatteryStatus")
-        private String batteryStatus;
-        @JSONField(name = "MoreGoodsName")
-        private String moreGoodsName;
-        @JSONField(name = "ProductBrand")
-        private String productBrand;
-        @JSONField(name = "ProductSize")
-        private String productSize;
-        @JSONField(name = "ProductColor")
-        private String productColor;
-        @JSONField(name = "ProductMaterial")
-        private String productMaterial;
+    public static class YanwenParcelInfoDTO {
+        @JsonProperty("productList")
+        private List<YanwenProductListDTO> productList = new ArrayList<>();
+        @JsonProperty("hasBattery")
+        private Integer hasBattery = 0;
+        @JsonProperty("currency")
+        private String currency;
+        @JsonProperty("totalPrice")
+        private BigDecimal totalPrice;
+        @JsonProperty("totalQuantity")
+        private Integer totalQuantity;
+        @JsonProperty("totalWeight")
+        private Integer totalWeight;
+        @JsonProperty("height")
+        private String height;
+        @JsonProperty("width")
+        private String width;
+        @JsonProperty("length")
+        private String length;
+        @JsonProperty("ioss")
+        private String ioss;
+
+        @NoArgsConstructor
+        @Data
+        public static class YanwenProductListDTO {
+            @JsonProperty("goodsNameCh")
+            private String goodsNameCh;
+            @JsonProperty("goodsNameEn")
+            private String goodsNameEn;
+            @JsonProperty("price")
+            private BigDecimal price;
+            @JsonProperty("quantity")
+            private Integer quantity;
+            @JsonProperty("weight")
+            private Integer weight;
+            @JsonProperty("hscode")
+            private String hscode;
+            @JsonProperty("url")
+            private String url;
+            @JsonProperty("material")
+            private String material;
+        }
+    }
+
+    @NoArgsConstructor
+    @Data
+    public static class YanwenSenderInfoDTO {
+        @JsonProperty("name")
+        private String name;
+        @JsonProperty("phone")
+        private String phone;
+        @JsonProperty("company")
+        private String company;
+        @JsonProperty("email")
+        private String email;
+        @JsonProperty("country")
+        private String country;
+        @JsonProperty("state")
+        private String state;
+        @JsonProperty("city")
+        private String city;
+        @JsonProperty("zipCode")
+        private String zipCode;
+        @JsonProperty("houseNumber")
+        private String houseNumber;
+        @JsonProperty("address")
+        private String address;
+        @JsonProperty("taxNumber")
+        private String taxNumber;
     }
 }
