@@ -1,8 +1,6 @@
 package com.upedge.thirdparty.shipcompany.cne.dto;
 
 import com.alibaba.fastjson.annotation.JSONField;
-import com.alibaba.fastjson.annotation.JSONField;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -123,6 +121,8 @@ public class CneCreateOrderRequest extends CneRequestBase {
             private BigDecimal fxPrice;
             @JSONField(name = "cxMoney")
             private String cxMoney = "USD";
+            @JSONField(name = "cxGCodeA")
+            private String cxGCodeA;
         }
     }
 }

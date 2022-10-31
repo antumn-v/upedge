@@ -615,6 +615,7 @@ public class OrderPackageServiceImpl implements OrderPackageService {
             CneCreateOrderRequest.RecListDTO.CneGoodsListDTO cneGoodsListDTO = new CneCreateOrderRequest.RecListDTO.CneGoodsListDTO();
             cneGoodsListDTO.setCxGoods(entryCName);
             cneGoodsListDTO.setCxGoodsA(entryEName);
+            cneGoodsListDTO.setCxGCodeA(orderItem.getBarcode());
             cneGoodsListDTO.setIxQuantity(orderItem.getQuantity());
             cneGoodsListDTO.setFxPrice(orderItem.getUsdPrice());
             cneGoodsListDTOS.add(cneGoodsListDTO);
@@ -706,7 +707,7 @@ public class OrderPackageServiceImpl implements OrderPackageService {
             parcelsDTO.setQuantity(orderItem.getQuantity());
             parcelsDTO.setUnitPrice(orderItem.getUsdPrice());
             parcelsDTO.setInvoiceRemark(orderItem.getBarcode());
-            parcelsDTO.setRemark(orderItem.getBarcode() + "*" + orderItem.getQuantity());
+            parcelsDTO.setRemark(orderItem.getBarcode());
             parcelsDTO.setUnitWeight(orderItem.getAdminVariantWeight().divide(new BigDecimal("1000"), 2, BigDecimal.ROUND_UP));
             parcels.add(parcelsDTO);
         }

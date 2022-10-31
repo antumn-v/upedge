@@ -1,8 +1,12 @@
 package com.upedge.oms.modules.pick.service.impl;
 
+import com.alibaba.fastjson.JSON;
 import com.upedge.common.base.BaseResponse;
 import com.upedge.common.base.Page;
 import com.upedge.common.constant.key.RedisKey;
+import com.upedge.common.feign.PmsFeignClient;
+import com.upedge.common.model.product.ListVariantsRequest;
+import com.upedge.common.model.product.ProductVariantTo;
 import com.upedge.common.model.ship.vo.ShippingMethodRedis;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.utils.IdGenerate;
@@ -44,6 +48,9 @@ public class OrderPickServiceImpl implements OrderPickService {
 
     @Autowired
     RedisTemplate redisTemplate;
+
+    @Autowired
+    PmsFeignClient pmsFeignClient;
 
 
 
@@ -132,10 +139,9 @@ public class OrderPickServiceImpl implements OrderPickService {
         }
 
         Integer quantity = 0;
-        Set<Long> variantIds = new HashSet<>();
+        List<Long> variantIds = new ArrayList<>();
 
         Map<Long,OrderItemPickInfoVo> map = new HashMap<>();
-
         for (OrderPickInfoVo orderPickInfoVo : orderPickInfoVoList) {
             List<OrderItemPickInfoVo> orderItemPickInfoVos = orderPickInfoVo.getOrderItemPickInfoVos();
             for (OrderItemPickInfoVo orderItemPickInfoVo : orderItemPickInfoVos) {
@@ -150,8 +156,22 @@ public class OrderPickServiceImpl implements OrderPickService {
             }
         }
 
+        ListVariantsRequest listVariantsRequest = new ListVariantsRequest();
+        listVariantsRequest.setVariantIds(variantIds);
+        BaseResponse response = pmsFeignClient.listVariantByIds(listVariantsRequest);
+        List<LinkedHashMap> variantDetailList = (List<LinkedHashMap>) response.getData();
+        Map<Long,ProductVariantTo> variantToMap = new HashMap<>();
+        variantDetailList.forEach(v -> {
+            ProductVariantTo variantDetail = JSON.parseObject(JSON.toJSONString(v), ProductVariantTo.class);
+            variantToMap.put(variantDetail.getId(),variantDetail);
+        });
+
         List<OrderItemPickInfoVo> orderItemPickInfoVos = new ArrayList<>();
         map.forEach((variantId,item)-> {
+            ProductVariantTo productVariantTo = variantToMap.get(item.getVariantId());
+            if (productVariantTo != null){
+                item.setVariantName(productVariantTo.getCnName());
+            }
             orderItemPickInfoVos.add(item);
         });
 
@@ -159,7 +179,7 @@ public class OrderPickServiceImpl implements OrderPickService {
         orderPrintVo.setWaveNo(orderPick.getWaveNo());
         orderPrintVo.setOrderItemPickInfoVos(orderItemPickInfoVos);
         orderPrintVo.setSkuQuantity(quantity);
-        orderPrintVo.setSkuType(variantIds.size());
+        orderPrintVo.setSkuType(map.size());
         orderPrintVo.setPackageCount(orderPickInfoVoList.size());
         return BaseResponse.success(orderPrintVo);
     }
