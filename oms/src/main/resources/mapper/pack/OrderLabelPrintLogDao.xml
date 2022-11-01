@@ -186,7 +186,7 @@
         from order_label_print_log
         <include refid="Query_Condition"/>
         <if test="orderBy != null">
-            order by ${orderBy}
+            order by create_time desc
         </if>
         <if test="pageNum != null and pageSize != null">
             limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}

@@ -39,7 +39,6 @@ public class OrderAddressController {
     public BaseResponse managerUpdateAddress(@PathVariable Long id,@RequestBody@Valid OrderAddressUpdateRequest request){
         Session session = UserUtil.getSession(redisTemplate);
         OrderAddress address = request.toOrderAddress(id);
-        orderAddressService.managerUpdate(address,session);
-        return BaseResponse.success();
+        return orderAddressService.managerUpdate(address,session);
     }
 }

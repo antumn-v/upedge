@@ -99,7 +99,21 @@ public class OrderPackageController {
         Long total = orderPackageService.count(request);
 
         request.setTotal(total);
-        return BaseResponse.success(packageList, total);
+        return BaseResponse.success(packageList, request);
+    }
+
+    @ApiOperation("包裹出库记录")
+    @PostMapping("/exStockRecord")
+    public BaseResponse packageExStockRecord(@RequestBody OrderPackageListRequest request){
+        request.setOrderBy("send_time desc");
+        OrderPackage orderPackage = request.getT();
+        if (orderPackage == null){
+            orderPackage = new OrderPackage();
+        }
+        orderPackage.setPackageState(1);
+        request.setT(orderPackage);
+
+        return packageList(request);
     }
 
     @ApiOperation("获取包裹面单")
