@@ -15,4 +15,8 @@ public class VariantStockListDto {
 
     private String variantName;
 
+    private String beginTime;
+
+    private String endTime;
+
 }

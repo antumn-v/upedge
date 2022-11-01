@@ -13,4 +13,6 @@ public class VariantWarehouseStockRecordVo extends VariantWarehouseStockRecord {
     private String purchaseSku;
 
     private String variantImage;
+
+    private String barcode;
 }

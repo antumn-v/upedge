@@ -294,6 +294,9 @@
             <if test="t.id != null">
                 and pv.id = #{t.id}
             </if>
+            <if test="t.beginTime != null and t.endTime != null">
+                and date(vwsr.create_time) between #{t.beginTime} and #{t.endTime}
+            </if>
         </where>
         order by create_time desc
         <if test="pageNum != null and pageSize != null">
@@ -320,6 +323,9 @@
             </if>
             <if test="t.id != null">
                 and pv.id = #{t.id}
+            </if>
+            <if test="t.beginTime != null and t.endTime != null">
+                and date(vwsr.create_time) between #{t.beginTime} and #{t.endTime}
             </if>
         </where>
     </select>
