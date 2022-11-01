@@ -91,6 +91,13 @@ public class OrderPackageController {
         return orderPackageService.orderRevokePackage(request, session);
     }
 
+    @ApiOperation("恢复搁置发货的订单")
+    @PostMapping("/restore/{orderId}")
+    public BaseResponse restoreRevokedPackage(@PathVariable Long orderId){
+        Session session = UserUtil.getSession(redisTemplate);
+        return orderPackageService.restoreRevokedPackage(orderId,session);
+    }
+
     @ApiOperation("包裹列表")
     @PostMapping("/list")
     public BaseResponse packageList(@RequestBody OrderPackageListRequest request) {

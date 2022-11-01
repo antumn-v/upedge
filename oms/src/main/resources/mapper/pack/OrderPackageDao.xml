@@ -477,4 +477,11 @@
         order by create_time desc
         limit 500
     </select>
+
+    <update id="restoreRevokedPackage">
+        update order_package
+            set package_state = '0'
+        where id = #{id}
+        and package_state = '-1';
+    </update>
 </mapper>

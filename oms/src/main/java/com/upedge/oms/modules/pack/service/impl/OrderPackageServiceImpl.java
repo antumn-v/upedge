@@ -134,6 +134,26 @@ public class OrderPackageServiceImpl implements OrderPackageService {
     }
 
     @Override
+    public BaseResponse restoreRevokedPackage(Long orderId, Session session) {
+        Order order = orderService.selectByPrimaryKey(orderId);
+        if (order.getPackState() != -1){
+            return BaseResponse.failed("订单非搁置状态");
+        }
+
+        OrderPackage orderPackage = orderPackageDao.selectByOrderId(orderId);
+        Long packNo = null;
+        if (orderPackage != null){
+            packNo = orderPackage.getId();
+            orderPackageDao.restoreRevokedPackage(packNo);
+            orderService.updateOrderPackInfo(orderId, 0, packNo);
+        }else {
+            orderService.updateOrderPackInfo(orderId, 0, null);
+            createPackage(orderId);
+        }
+        return BaseResponse.success();
+    }
+
+    @Override
     public BaseResponse preUploadStore(PackagePreUploadStoreRequest request, Session session) {
         List<Long> orderIds = request.getOrderIds();
         List<OrderPackage> orderPackages = orderPackageDao.selectByOrderIds(orderIds);

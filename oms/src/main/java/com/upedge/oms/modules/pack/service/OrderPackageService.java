@@ -18,6 +18,7 @@ public interface OrderPackageService {
 
     void saveAllLabelUrl();
 
+    BaseResponse restoreRevokedPackage(Long orderId,Session session);
 
     BaseResponse preUploadStore(PackagePreUploadStoreRequest request,Session session);
 
