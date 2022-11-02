@@ -4,6 +4,7 @@ import com.upedge.common.base.BaseResponse;
 import com.upedge.common.base.Page;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.pms.modules.purchase.entity.PurchaseOrder;
+import com.upedge.pms.modules.purchase.request.PurchaseOrderCustomCreateRequest;
 import com.upedge.pms.modules.purchase.request.PurchaseOrderEditStateUpdateRequest;
 import com.upedge.pms.modules.purchase.request.PurchaseOrderListRequest;
 import com.upedge.pms.modules.purchase.request.PurchaseOrderReceiveRequest;
@@ -16,6 +17,8 @@ import java.util.List;
  * @author gx
  */
 public interface PurchaseOrderService{
+
+    BaseResponse customCreate(PurchaseOrderCustomCreateRequest request,Session session);
 
     void completeOrderInfo(Long orderId);
 

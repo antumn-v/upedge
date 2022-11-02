@@ -9,14 +9,13 @@ import com.upedge.common.exception.CustomerException;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.utils.IdGenerate;
 import com.upedge.common.utils.ListUtils;
+import com.upedge.pms.modules.product.entity.ProductVariant;
+import com.upedge.pms.modules.product.service.ProductVariantService;
 import com.upedge.pms.modules.purchase.dao.PurchaseOrderDao;
 import com.upedge.pms.modules.purchase.dto.PurchaseOrderItemReceiveDto;
 import com.upedge.pms.modules.purchase.dto.PurchaseOrderListDto;
 import com.upedge.pms.modules.purchase.entity.*;
-import com.upedge.pms.modules.purchase.request.PurchaseOrderEditStateUpdateRequest;
-import com.upedge.pms.modules.purchase.request.PurchaseOrderListRequest;
-import com.upedge.pms.modules.purchase.request.PurchaseOrderReceiveRequest;
-import com.upedge.pms.modules.purchase.request.VariantStockExImRecordUpdateRequest;
+import com.upedge.pms.modules.purchase.request.*;
 import com.upedge.pms.modules.purchase.service.*;
 import com.upedge.pms.modules.purchase.vo.PurchaseOrderVo;
 import com.upedge.thirdparty.ali1688.service.Ali1688Service;
@@ -27,10 +26,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.ThreadPoolExecutor;
 
 
@@ -58,6 +54,12 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
     @Autowired
     PurchaseOrderImItemService purchaseOrderImItemService;
 
+    @Autowired
+    ProductVariantService productVariantService;
+
+    @Autowired
+    ProductPurchaseInfoService productPurchaseInfoService;
+
 
     /**
      *
@@ -83,6 +85,51 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
     @Transactional
     public int insertSelective(PurchaseOrder record) {
         return purchaseOrderDao.insert(record);
+    }
+
+    @Transactional
+    @Override
+    public BaseResponse customCreate(PurchaseOrderCustomCreateRequest request, Session session) {
+        List<PurchasePlan> purchasePlans = request.getPurchasePlans();
+
+        Map<Long,Integer> variantQuantityMap = new HashMap<>();
+        List<Long> variantIds = new ArrayList<>();
+        for (PurchasePlan purchasePlan : purchasePlans) {
+            variantIds.add(purchasePlan.getVariantId());
+            variantQuantityMap.put(purchasePlan.getVariantId(),purchasePlan.getQuantity());
+        }
+        List<ProductVariant> productVariants = productVariantService.listVariantByIds(variantIds);
+        if (ListUtils.isEmpty(productVariants)){
+            return BaseResponse.failed("商品信息不存在");
+        }
+        Set<String> purchaseSkus = new HashSet<>();
+        for (ProductVariant productVariant : productVariants) {
+            purchaseSkus.add(productVariant.getPurchaseSku());
+        }
+
+        List<ProductPurchaseInfo> productPurchaseInfos = productPurchaseInfoService.selectByPurchaseSkus(purchaseSkus);
+
+        Map<String, List<AlibabaTradeFastCargo>> supplierCargosMap = new HashMap<>();
+
+        for (ProductVariant productVariant : productVariants) {
+
+            for (ProductPurchaseInfo productPurchaseInfo : productPurchaseInfos) {
+                String supplierName = productPurchaseInfo.getSupplierName();
+                if (productPurchaseInfo.getPurchaseSku().equals(productVariant.getPurchaseSku())) {
+                    AlibabaTradeFastCargo alibabaTradeFastCargo = new AlibabaTradeFastCargo();
+                    alibabaTradeFastCargo.setOfferId(Long.parseLong(productPurchaseInfo.getPurchaseLink()));
+                    alibabaTradeFastCargo.setSpecId(productPurchaseInfo.getSpecId());
+                    alibabaTradeFastCargo.setQuantity(variantQuantityMap.get(productVariant.getId()).doubleValue());
+
+                    if (!supplierCargosMap.containsKey(supplierName)) {
+                        supplierCargosMap.put(supplierName, new ArrayList<AlibabaTradeFastCargo>());
+                    }
+                    supplierCargosMap.get(supplierName).add(alibabaTradeFastCargo);
+                }
+            }
+        }
+
+        return null;
     }
 
     @Override
