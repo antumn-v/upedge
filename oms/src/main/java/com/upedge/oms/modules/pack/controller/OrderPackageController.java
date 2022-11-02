@@ -6,10 +6,7 @@ import com.upedge.common.web.util.UserUtil;
 import com.upedge.oms.modules.fulfillment.service.OrderFulfillmentService;
 import com.upedge.oms.modules.pack.entity.OrderLabelPrintLog;
 import com.upedge.oms.modules.pack.entity.OrderPackage;
-import com.upedge.oms.modules.pack.request.OrderPackRevokeRequest;
-import com.upedge.oms.modules.pack.request.OrderPackageInfoGetRequest;
-import com.upedge.oms.modules.pack.request.OrderPackageListRequest;
-import com.upedge.oms.modules.pack.request.PackagePreUploadStoreRequest;
+import com.upedge.oms.modules.pack.request.*;
 import com.upedge.oms.modules.pack.service.OrderPackageService;
 import com.upedge.oms.modules.pack.vo.OrderPackageInfoVo;
 import com.upedge.thirdparty.shipcompany.fpx.request.OrderPackageGetLabelRequest;
@@ -138,10 +135,10 @@ public class OrderPackageController {
     }
 
     @ApiOperation("包裹出库")
-    @PostMapping("/exStock/{scanNo}")
-    public BaseResponse packExStock(@PathVariable String scanNo) {
+    @PostMapping("/exStock")
+    public BaseResponse packExStock(@RequestBody@Valid PackageExStockRequest request) {
         Session session = UserUtil.getSession(redisTemplate);
-        return orderPackageService.packageExStock(scanNo, session);
+        return orderPackageService.packageExStock(request, session);
     }
 
     @ApiOperation("回传物流")

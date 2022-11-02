@@ -36,6 +36,7 @@ import com.upedge.oms.modules.pack.entity.OrderLabelPrintLog;
 import com.upedge.oms.modules.pack.entity.OrderPackage;
 import com.upedge.oms.modules.pack.request.OrderPackRevokeRequest;
 import com.upedge.oms.modules.pack.request.OrderPackageInfoGetRequest;
+import com.upedge.oms.modules.pack.request.PackageExStockRequest;
 import com.upedge.oms.modules.pack.request.PackagePreUploadStoreRequest;
 import com.upedge.oms.modules.pack.service.OrderLabelPrintLogService;
 import com.upedge.oms.modules.pack.service.OrderPackageService;
@@ -221,13 +222,18 @@ public class OrderPackageServiceImpl implements OrderPackageService {
 
     @GlobalTransactional(rollbackFor = Exception.class)
     @Override
-    public BaseResponse packageExStock(String scanNo, Session session) {
+    public BaseResponse packageExStock(PackageExStockRequest request, Session session) {
+        String scanNo = request.getScanNo();
+        String company = request.getTrackCompany();
         OrderPackage orderPackage = orderPackageDao.selectByScanNo(scanNo);
         if (null == orderPackage) {
             return BaseResponse.failed("包裹不存在");
         }
         if (orderPackage.getPackageState() != 0) {
             return BaseResponse.failed("包裹已出库或已搁置");
+        }
+        if (!company.equals(orderPackage.getTrackingCompany())){
+            return BaseResponse.failed("该包裹所属物流公司不是" + company);
         }
         boolean isUploadStore = orderPackage.getIsUploadStore();
         String trackCode = orderPackage.getLogisticsOrderNo();

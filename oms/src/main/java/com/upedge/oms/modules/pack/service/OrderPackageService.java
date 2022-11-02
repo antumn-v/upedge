@@ -7,6 +7,7 @@ import com.upedge.oms.modules.pack.entity.OrderLabelPrintLog;
 import com.upedge.oms.modules.pack.entity.OrderPackage;
 import com.upedge.oms.modules.pack.request.OrderPackRevokeRequest;
 import com.upedge.oms.modules.pack.request.OrderPackageInfoGetRequest;
+import com.upedge.oms.modules.pack.request.PackageExStockRequest;
 import com.upedge.oms.modules.pack.request.PackagePreUploadStoreRequest;
 import com.upedge.oms.modules.pack.vo.OrderPackageInfoVo;
 import com.upedge.thirdparty.shipcompany.fpx.request.OrderPackageGetLabelRequest;
@@ -28,7 +29,7 @@ public interface OrderPackageService {
 
     void packageRefreshTrackCode(OrderPackage orderPackage);
 
-    BaseResponse packageExStock(String scanNo,Session session);
+    BaseResponse packageExStock(PackageExStockRequest request, Session session);
 
     BaseResponse orderRevokePackage(OrderPackRevokeRequest request,Session session);
 
