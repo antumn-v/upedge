@@ -46,7 +46,7 @@ public class OrderCheckStockCustomer {
                     }
                     Thread.sleep(500L);
                     OrderItemQuantityVo orderItemQuantityVo = JSONObject.parseObject(message.getBody(),OrderItemQuantityVo.class);
-                    boolean b = variantWarehouseStockService.orderCheckStock(orderItemQuantityVo);
+                    boolean b = variantWarehouseStockService.orderCheckStockTest(orderItemQuantityVo);
                     if (!b){
                         return ConsumeConcurrentlyStatus.RECONSUME_LATER;
                     }

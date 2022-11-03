@@ -115,6 +115,8 @@ public class OrderItem{
 
 	private Long customerId;
 
+	private Integer lockedQuantity;
+
 
 	public OrderItem(StoreOrderItem storeOrderItem) {
 		this.storeVariantId = storeOrderItem.getStoreVariantId();

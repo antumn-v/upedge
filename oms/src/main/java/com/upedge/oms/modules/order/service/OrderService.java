@@ -4,6 +4,7 @@ import com.upedge.common.base.BaseResponse;
 import com.upedge.common.base.Page;
 import com.upedge.common.exception.CustomerException;
 import com.upedge.common.model.mq.ChangeManagerVo;
+import com.upedge.common.model.oms.order.ItemQuantityVo;
 import com.upedge.common.model.oms.order.OrderItemQuantityVo;
 import com.upedge.common.model.order.OrderItemQuantityDto;
 import com.upedge.common.model.order.request.ManagerActualRequest;
@@ -63,6 +64,8 @@ public interface OrderService{
     void updatePickType(Long id, Integer pickType);
 
     int updateStockState(Long id,Integer stockState);
+
+    int updateStockState(Long id, List<ItemQuantityVo> itemQuantityVos);
 
     BaseResponse updateOrderShippingWarehouse(Long shipMethodId);
 

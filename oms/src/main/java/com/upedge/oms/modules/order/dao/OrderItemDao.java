@@ -24,6 +24,8 @@ import java.util.Map;
  */
 public interface OrderItemDao {
 
+    int increaseLockQuantity(@Param("items") List<OrderItem> orderItems);
+
     List<Long> selectOutStockOrderIdsByVariantId(Long variantId);
 
     List<Long> selectItemAdminVariantIds(OrderItemPurchaseAdviceDto orderItemPurchaseAdviceDto);

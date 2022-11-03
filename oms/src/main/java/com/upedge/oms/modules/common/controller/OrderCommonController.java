@@ -92,6 +92,7 @@ public class OrderCommonController {
 
     @PostMapping("/updateStockState")
     public int updateStockState(@RequestBody OrderStockStateUpdateRequest request){
-        return orderService.updateStockState(request.getOrderId(), request.getStockState());
+//        return orderService.updateStockState(request.getOrderId(), request.getStockState());
+        return orderService.updateStockState(request.getOrderId(), request.getItemQuantityVos());
     }
 }

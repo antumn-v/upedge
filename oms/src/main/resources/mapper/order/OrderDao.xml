@@ -152,12 +152,12 @@
             <result property="itemId" column="itemId"/>
             <result property="quantity" column="quantity"/>
             <result property="variantId" column="variantId"/>
+            <result property="lockedQuantity" column="lockedQuantity"/>
         </collection>
     </resultMap>
 
     <sql id="Base_Column_List">
-        `id`
-                ,`customer_id`,`org_id`,`org_path`,`store_id`,`pay_amount`,`ship_method_id`,`ship_price`,
+        `id`,`customer_id`,`org_id`,`org_path`,`store_id`,`pay_amount`,`ship_method_id`,`ship_price`,
         `total_weight`,`product_amount`,`product_discharge_amount`,`fix_fee`,`fix_fee_percentage`,`service_fee`,
         `pay_method`,`pay_time`,`payment_id`,`pay_state`,`refund_state`,`ship_state`,`order_type`,quote_state,
         `to_area_id`,`cny_rate`,`create_time`,`update_time`,`saihe_order_code`,`vat_amount`,`order_status`,`manager_code`,
@@ -2419,7 +2419,8 @@
 
     <select id="selectOrderItemQuantities" resultMap="OrderItemQuantityVo">
         select o.id as `orderId`,shipping_warehouse as `warehouseCode`,
-        oi.quantity,oi.id as `itemId`,oi.admin_variant_id as `variantId`,o.stock_state
+        oi.quantity,oi.id as `itemId`,oi.admin_variant_id as `variantId`,o.stock_state,
+        oi.locked_quantity  as lockedQuantity
         from `order` o
         inner join order_item oi
         on o.id = oi.order_id
@@ -2481,7 +2482,8 @@
                shipping_warehouse  as `warehouseCode`,
                oi.quantity,
                oi.id               as `itemId`,
-               oi.admin_variant_id as `variantId`
+               oi.admin_variant_id as `variantId`,
+               oi.locked_quantity  as lockedQuantity
         from `order` o
                      inner join order_item oi
                 on o.id = oi.order_id

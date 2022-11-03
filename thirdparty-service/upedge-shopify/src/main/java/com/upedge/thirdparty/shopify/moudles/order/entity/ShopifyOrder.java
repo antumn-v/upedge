@@ -117,7 +117,7 @@ public class ShopifyOrder {
     private String device_id;
     private String phone;
     private String customer_locale;
-    private Integer app_id;
+    private String app_id;
     private String browser_ip;
     private String landing_site_ref;
     private Integer order_number;

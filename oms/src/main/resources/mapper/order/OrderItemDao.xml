@@ -30,6 +30,7 @@
         <result property="originalQuantity" column="original_quantity"/>
         <result property="shippingWarehouse" column="shipping_warehouse"/>
         <result property="pickedQuantity" column="picked_quantity"/>
+        <result property="lockedQuantity" column="locked_quantity"/>
         <result property="barcode" column="barcode"/>
     </resultMap>
 
@@ -130,7 +131,7 @@
         `id`,`order_id`,`store_order_id`,`store_order_item_id`,`store_variant_id`,
         `admin_variant_id`,`store_product_id`,`admin_product_id`,`picked_quantity`,
         `store_variant_name`,`store_variant_sku`,`store_product_title`,`store_variant_image`,
-        `admin_variant_image`,`admin_variant_sku`,`usd_price`,`usd_rate`,`cny_price`,`barcode`,
+        `admin_variant_image`,`admin_variant_sku`,`usd_price`,`usd_rate`,`cny_price`,`barcode`,`locked_quantity`,
         `quantity`,`discharge_quantity`,`admin_variant_weight`,`admin_variant_volume`,`item_type`,`shipping_id`,`quote_state`,`original_quantity`
     </sql>
 
@@ -1351,4 +1352,12 @@
         and o.pack_state = '1'
         and oi.admin_variant_id = #{variantId}
     </select>
+
+    <update id="increaseLockQuantity">
+        <foreach collection="items" item="item" separator=";">
+            update order_item
+            set locked_quantity = locked_quantity + #{item.lockedQuantity}
+            where id = #{item.id}
+        </foreach>
+    </update>
 </mapper>

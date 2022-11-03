@@ -7,6 +7,7 @@ import com.upedge.common.model.user.vo.Session;
 import com.upedge.pms.modules.purchase.entity.PurchasePlan;
 import com.upedge.pms.modules.purchase.entity.VariantWarehouseStock;
 import com.upedge.pms.modules.purchase.request.*;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -30,6 +31,9 @@ public interface VariantWarehouseStockService{
     boolean updateVariantPurchaseStockByPlan(List<PurchasePlan> purchasePlans);
 
     boolean orderCheckStock(OrderItemQuantityVo orderItemQuantityVo) throws Exception;
+
+    @Transactional(rollbackFor = Exception.class)
+    boolean orderCheckStockTest(OrderItemQuantityVo orderItemQuantityVo) throws Exception;
 
     BaseResponse variantWarehouseStockList(VariantWarehouseStockListRequest request);
 

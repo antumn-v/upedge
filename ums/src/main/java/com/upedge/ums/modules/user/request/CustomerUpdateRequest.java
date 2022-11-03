@@ -38,6 +38,10 @@ public class CustomerUpdateRequest{
         customer.setCustomerSignupUserId(customerSignupUserId);
         customer.setRemark(remark);
         return customer;
+
+
+
+
     }
 
 }

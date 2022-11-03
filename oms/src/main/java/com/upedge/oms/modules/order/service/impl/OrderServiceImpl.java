@@ -11,6 +11,7 @@ import com.upedge.common.feign.PmsFeignClient;
 import com.upedge.common.feign.TmsFeignClient;
 import com.upedge.common.feign.UmsFeignClient;
 import com.upedge.common.model.mq.ChangeManagerVo;
+import com.upedge.common.model.oms.order.ItemQuantityVo;
 import com.upedge.common.model.oms.order.OrderExcelItemDto;
 import com.upedge.common.model.oms.order.OrderItemQuantityVo;
 import com.upedge.common.model.order.OrderItemQuantityDto;
@@ -1432,11 +1433,45 @@ public class OrderServiceImpl implements OrderService {
         orderDao.updatePickType(id, pickType);
     }
 
-    @Transactional
     @Override
     public int updateStockState(Long id, Integer stockState) {
 
         return orderDao.updateStockState(id, stockState);
+    }
+
+    @Transactional
+    @Override
+    public int updateStockState(Long id, List<ItemQuantityVo> itemQuantityVos) {
+        int stockState = 1;
+        List<OrderItem> orderItems = orderItemDao.selectItemByOrderId(id);
+        if(ListUtils.isEmpty(orderItems)){
+            return 0;
+        }
+        a:
+        for (OrderItem orderItem : orderItems) {
+            Integer unLockQuantity = orderItem.getQuantity() - orderItem.getLockedQuantity();
+            for (ItemQuantityVo itemQuantityVo : itemQuantityVos) {
+                if (itemQuantityVo.getItemId().equals(orderItem.getId())){
+                    Integer lockQuantity = itemQuantityVo.getLockQuantity();
+                    if (unLockQuantity < lockQuantity){//分配库存数量＞所需数量
+                        return 0;
+                    }
+                    if (unLockQuantity > lockQuantity){//分配库存数量＜所需数量  订单状态修改为缺货
+                        stockState = 0;
+                    }
+                    orderItem.setLockedQuantity(lockQuantity);
+                    itemQuantityVos.remove(itemQuantityVo);
+                    continue a;
+                }
+            }
+            return 0;
+        }
+        if (itemQuantityVos.size() != 0){//库存分配异常
+            return 0;
+        }
+        updateStockState(id,stockState);
+        orderItemDao.increaseLockQuantity(orderItems);
+        return 1;
     }
 
     @Override

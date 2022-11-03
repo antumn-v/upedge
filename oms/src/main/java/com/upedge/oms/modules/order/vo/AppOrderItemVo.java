@@ -70,4 +70,6 @@ public class AppOrderItemVo {
     private Integer pickedQuantity;
 
     private int availableStock;
+
+    private Integer lockedQuantity;
 }
