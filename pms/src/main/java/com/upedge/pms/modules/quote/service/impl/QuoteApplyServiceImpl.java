@@ -343,7 +343,7 @@ public class QuoteApplyServiceImpl implements QuoteApplyService {
         List<QuoteApplyItem> quoteApplyItems = new ArrayList<>();
         List<Long> quotingVariantIds = new ArrayList<>();
         List<StoreProductVariant> storeProductVariants = storeProductVariantDao.selectByIds(storeVariantIds);
-        storeProductService.toNormalProduct(storeProductVariants.get(0).getProductId(),0L);
+//        storeProductService.toNormalProduct(storeProductVariants.get(0).getProductId(),0L);
         for (StoreProductVariant storeProductVariant : storeProductVariants) {
             //判断产品是否已报价
             String key = RedisKey.STRING_QUOTED_STORE_VARIANT + storeProductVariant.getId();
