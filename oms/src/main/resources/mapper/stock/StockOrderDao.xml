@@ -871,7 +871,7 @@
         from `stock_order`
         where pay_state = '1'
           and saihe_code is null
-        order by pay_time asc
-        limit 10
+        order by pay_time desc
+        limit 20
     </select>
 </mapper>

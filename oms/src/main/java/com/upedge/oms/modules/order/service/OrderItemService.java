@@ -50,6 +50,8 @@ public interface OrderItemService {
 
     void updateItemQuoteDetail(CustomerProductQuoteVo customerProductQuoteVo);
 
+    void updatePaidOrderItemQuoteDetail(CustomerProductQuoteVo customerProductQuoteVo);
+
     @Transactional
     void updateSplitVariantItemQuoteDetail(CustomerProductQuoteVo customerProductQuoteVo) throws CustomerException;
 

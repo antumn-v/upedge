@@ -293,6 +293,11 @@ public class OrderItemServiceImpl implements OrderItemService {
         }
     }
 
+    @Override
+    public void updatePaidOrderItemQuoteDetail(CustomerProductQuoteVo customerProductQuoteVo) {
+        Long storeVariantId = customerProductQuoteVo.getStoreVariantId();
+    }
+
     @Transactional
     @Override
     public void updateSplitVariantItemQuoteDetail(CustomerProductQuoteVo customerProductQuoteVo) throws CustomerException {
@@ -369,42 +374,10 @@ public class OrderItemServiceImpl implements OrderItemService {
                 insert(orderItem);
                 orderIds.add(orderId);
             }
-//            orderIds = orderItemDao.selectUnpaidOrderIdByStoreVariantId(storeVariantId);
-//            if (ListUtils.isNotEmpty(orderIds)){
-//                //父变体无订单而子变体有订单，更新订单产品信息
-//                type = 1;
-//            }else {
-//                splitVariantIds.remove(storeVariantId);
-//                if (ListUtils.isEmpty(splitVariantIds)){
-//                    return;
-//                }
-//                for (Long splitVariantId : splitVariantIds) {
-//                    orderIds = orderItemDao.selectUnpaidOrderIdByStoreVariantId(splitVariantId);
-//                    if (ListUtils.isNotEmpty(orderIds)){
-//                        storeParentVariantId = splitVariantId;
-//                        break;
-//                    }
-//                }
-//                if (ListUtils.isEmpty(orderIds)) {
-//                    return;
-//                }
-//                type = 2;
-//            }
         } else {
             //父变体有订单，删除订单里的副产品，插入子产品
             variantFirstSplit(orderIds, customerProductQuoteVo, storeParentVariantId, true);
         }
-//        switch (type){
-//            case 0:
-//                //父变体有订单，删除订单里的副产品，插入子产品
-//
-//                break;
-//            case 2:
-//                variantFirstSplit(orderIds,customerProductQuoteVo,storeParentVariantId,false);
-//                break;
-//            default:
-//                return;
-//        }
         if (ListUtils.isEmpty(orderIds)) {
             return;
         }

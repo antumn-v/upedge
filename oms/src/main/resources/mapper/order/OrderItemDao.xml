@@ -128,7 +128,8 @@
 
 
     <sql id="Base_Column_List">
-        `id`,`order_id`,`store_order_id`,`store_order_item_id`,`store_variant_id`,
+        `id`
+                ,`order_id`,`store_order_id`,`store_order_item_id`,`store_variant_id`,
         `admin_variant_id`,`store_product_id`,`admin_product_id`,`picked_quantity`,
         `store_variant_name`,`store_variant_sku`,`store_product_title`,`store_variant_image`,
         `admin_variant_image`,`admin_variant_sku`,`usd_price`,`usd_rate`,`cny_price`,`barcode`,`locked_quantity`,
@@ -154,8 +155,8 @@
                         `item_type`,
                         o.shipping_warehouse
         from `order` o
-        inner join order_item oi
-        on oi.order_id = o.id
+                     inner join order_item oi
+                on oi.order_id = o.id
         where o.payment_id = #{paymentId}
     </select>
 
@@ -909,6 +910,7 @@
         oi.admin_variant_image = #{variantImage},
         oi.admin_variant_volume = #{volume},
         oi.admin_variant_weight = #{weight},
+        oi.admin_variant_name = #{cnName},
         oi.shipping_id = #{productShippingId},
         oi.usd_price = #{usdPrice},
         oi.cny_price = #{cnyPrice},
@@ -989,7 +991,7 @@
                         oi.id                as orderItemId,
                         so.plat_order_name   as orderName,
                         so.store_id          as storeId,
-                        oi.admin_variant_id as variantId
+                        oi.admin_variant_id  as variantId
         from order_item oi
                      left join store_order so on so.id = oi.store_order_id
         where oi.order_id = #{orderId}
@@ -1241,30 +1243,32 @@
         group by admin_variant_id
     </select>
 
-    <select id="selectUnStockOrderItems" resultMap="BaseResultMap" parameterType="com.upedge.common.model.order.request.OrderItemPurchaseAdviceRequest">
-        select oi.admin_variant_id,o.customer_id, sum(oi.quantity) as `quantity`
+    <select id="selectUnStockOrderItems" resultMap="BaseResultMap"
+            parameterType="com.upedge.common.model.order.request.OrderItemPurchaseAdviceRequest">
+        select oi.admin_variant_id, o.customer_id, sum(oi.quantity) as `quantity`
         from `order` o
-        inner join `order_item` oi
-        on o.id = oi.order_id
+                     inner join `order_item` oi
+                on o.id = oi.order_id
         where o.pay_state = '1'
           and o.refund_state = '0'
           and o.ship_state = '0'
           and o.stock_state = '0'
           and o.pack_state = '1'
           and oi.admin_variant_id is not null
-        group by oi.admin_variant_id,o.customer_id
+        group by oi.admin_variant_id, o.customer_id
         order by `quantity` desc
     </select>
 
-    <select id="countUnStockOrderItems" resultType="java.lang.Long" parameterType="com.upedge.common.model.order.request.OrderItemPurchaseAdviceRequest">
+    <select id="countUnStockOrderItems" resultType="java.lang.Long"
+            parameterType="com.upedge.common.model.order.request.OrderItemPurchaseAdviceRequest">
         select count(distinct oi.admin_variant_id)
         from `order` o
         inner join `order_item` oi
         on o.id = oi.order_id
         where o.pay_state = '1'
-          and o.refund_state = '0'
-          and o.ship_state = '0'
-          and o.stock_state = '0'
+        and o.refund_state = '0'
+        and o.ship_state = '0'
+        and o.stock_state = '0'
         <include refid="OrderItemPurchaseAdvice"/>
     </select>
 
@@ -1321,7 +1325,7 @@
         and oi.admin_variant_id is not null
         and o.pack_state = '1'
         <if test="adminVariantId != null">
-           and oi.admin_variant_id = #{adminVariantId}
+            and oi.admin_variant_id = #{adminVariantId}
         </if>
         <if test="adminProductId != null">
             and oi.admin_product_id = #{adminProductId}
@@ -1343,14 +1347,14 @@
     <select id="selectOutStockOrderIdsByVariantId" resultType="java.lang.Long">
         select distinct o.id
         from `order` o
-        inner join order_item oi
-        on o.id = oi.order_id
+                     inner join order_item oi
+                on o.id = oi.order_id
         where o.pay_state = '1'
-        and o.refund_state = '0'
-        and o.ship_state = '0'
-        and o.stock_state = '0'
-        and o.pack_state = '1'
-        and oi.admin_variant_id = #{variantId}
+          and o.refund_state = '0'
+          and o.ship_state = '0'
+          and o.stock_state = '0'
+          and o.pack_state = '1'
+          and oi.admin_variant_id = #{variantId}
     </select>
 
     <update id="increaseLockQuantity">
