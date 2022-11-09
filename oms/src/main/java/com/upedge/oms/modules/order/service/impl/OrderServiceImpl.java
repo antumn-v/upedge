@@ -81,6 +81,7 @@ import com.upedge.thirdparty.saihe.service.SaiheService;
 import com.upedge.thirdparty.shipcompany.fpx.api.FpxCommonApi;
 import com.upedge.thirdparty.shipcompany.fpx.dto.PriceCalculatorDTO;
 import com.upedge.thirdparty.shipcompany.fpx.dto.ShipPriceCalculator;
+import io.seata.spring.annotation.GlobalTransactional;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
@@ -1435,11 +1436,14 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public int updateStockState(Long id, Integer stockState) {
-
+        Order order = selectByPrimaryKey(id);
+        if (order != null && order.getStockState() == stockState){
+            return 1;
+        }
         return orderDao.updateStockState(id, stockState);
     }
 
-    @Transactional
+    @GlobalTransactional(rollbackFor = Exception.class)
     @Override
     public int updateStockState(Long id, List<ItemQuantityVo> itemQuantityVos) {
         int stockState = 1;
@@ -1453,11 +1457,16 @@ public class OrderServiceImpl implements OrderService {
             for (ItemQuantityVo itemQuantityVo : itemQuantityVos) {
                 if (itemQuantityVo.getItemId().equals(orderItem.getId())){
                     Integer lockQuantity = itemQuantityVo.getLockQuantity();
-                    if (unLockQuantity < lockQuantity){//分配库存数量＞所需数量
-                        return 0;
-                    }
-                    if (unLockQuantity > lockQuantity){//分配库存数量＜所需数量  订单状态修改为缺货
-                        stockState = 0;
+                    if (unLockQuantity == 0 && lockQuantity == 0){
+                        //do nothing
+                    }else {
+                        if (lockQuantity > unLockQuantity){//分配库存数量＞所需数量
+                            log.warn("分配库存数量＞所需数量,{}",itemQuantityVo);
+                            return 0;
+                        }
+                        if (lockQuantity < unLockQuantity){//分配库存数量＜所需数量  订单状态修改为缺货
+                            stockState = 0;
+                        }
                     }
                     orderItem.setLockedQuantity(lockQuantity);
                     itemQuantityVos.remove(itemQuantityVo);
@@ -1467,7 +1476,7 @@ public class OrderServiceImpl implements OrderService {
             return 0;
         }
         if (itemQuantityVos.size() != 0){//库存分配异常
-            return 0;
+            log.warn("库存分配异常:{}",itemQuantityVos.toString());
         }
         updateStockState(id,stockState);
         orderItemDao.increaseLockQuantity(orderItems);

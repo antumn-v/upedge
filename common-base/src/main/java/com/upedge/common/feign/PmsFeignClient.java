@@ -5,10 +5,7 @@ import com.upedge.common.constant.ServiceNameConstants;
 import com.upedge.common.feign.fallback.PmsFeignClientFallbackFactory;
 import com.upedge.common.model.oms.order.OrderItemQuantityVo;
 import com.upedge.common.model.pms.quote.CustomerProductQuoteVo;
-import com.upedge.common.model.pms.request.CustomerProductQuoteSearchRequest;
-import com.upedge.common.model.pms.request.OrderQuoteApplyRequest;
-import com.upedge.common.model.pms.request.QuotedProductSelectBySkuRequest;
-import com.upedge.common.model.pms.request.StoreCustomVariantRecordSaveRequest;
+import com.upedge.common.model.pms.request.*;
 import com.upedge.common.model.pms.response.QuotedProductSelectBySkuResponse;
 import com.upedge.common.model.product.ListVariantsRequest;
 import com.upedge.common.model.product.ProductSaiheInventoryVo;
@@ -31,6 +28,12 @@ public interface PmsFeignClient {
 
     @PostMapping("/variantWarehouseStock/orderCancelShip")
     public int orderCancelShip(@RequestBody OrderItemQuantityVo orderItemQuantityVo);
+
+    @PostMapping("/variantWarehouseStock/restoreLockQuantity")
+    public BaseResponse restoreLockQuantity(@RequestBody VariantStockRestoreLockQuantityRequest request);
+
+    @PostMapping("/variantWarehouseStock/orderCheckStock")
+    public BaseResponse orderCheckStock(@RequestBody List<OrderItemQuantityVo> orderItemQuantityVos);
 
     @PostMapping("/product/customsInfo/{id}")
     public BaseResponse customsInfo(@PathVariable Long id);

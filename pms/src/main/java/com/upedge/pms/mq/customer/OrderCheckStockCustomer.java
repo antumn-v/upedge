@@ -3,6 +3,7 @@ package com.upedge.pms.mq.customer;
 import com.alibaba.fastjson.JSONObject;
 import com.upedge.common.constant.key.RocketMqConfig;
 import com.upedge.common.model.oms.order.OrderItemQuantityVo;
+import com.upedge.common.web.util.RedisUtil;
 import com.upedge.pms.modules.purchase.service.VariantWarehouseStockService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.rocketmq.client.consumer.DefaultMQPushConsumer;
@@ -44,9 +45,20 @@ public class OrderCheckStockCustomer {
                         log.warn("消息内容有误：{}",message);
                         continue;
                     }
-                    Thread.sleep(500L);
+
                     OrderItemQuantityVo orderItemQuantityVo = JSONObject.parseObject(message.getBody(),OrderItemQuantityVo.class);
-                    boolean b = variantWarehouseStockService.orderCheckStockTest(orderItemQuantityVo);
+                    String key = message.getTopic() + ":" + orderItemQuantityVo.getOrderId();
+                    boolean b = RedisUtil.lock(redisTemplate,key,3L,30L*1000L);
+                    if (!b){
+                        return ConsumeConcurrentlyStatus.CONSUME_SUCCESS;
+                    }
+                    for (int i = 0; i < 3; i++) {
+                        b = variantWarehouseStockService.orderCheckStock(orderItemQuantityVo);
+                        if (!b){
+                            Thread.sleep(500L);
+                        }
+                    }
+                    RedisUtil.unLock(redisTemplate,key);
                     if (!b){
                         return ConsumeConcurrentlyStatus.RECONSUME_LATER;
                     }

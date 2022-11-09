@@ -8,11 +8,14 @@ import com.upedge.common.constant.ResultCode;
 import com.upedge.common.constant.key.RedisKey;
 import com.upedge.common.exception.CustomerException;
 import com.upedge.common.feign.PmsFeignClient;
+import com.upedge.common.model.oms.order.OrderItemQuantityVo;
+import com.upedge.common.model.order.OrderItemQuantityDto;
 import com.upedge.common.model.order.dto.OrderItemPurchaseAdviceDto;
 import com.upedge.common.model.order.vo.OrderItemPurchaseAdviceVo;
 import com.upedge.common.model.order.vo.OrderItemUpdateImageNameRequest;
 import com.upedge.common.model.pms.quote.CustomerProductQuoteVo;
 import com.upedge.common.model.pms.request.OrderQuoteApplyRequest;
+import com.upedge.common.model.pms.request.VariantStockRestoreLockQuantityRequest;
 import com.upedge.common.model.pms.vo.PurchaseAdviceItemVo;
 import com.upedge.common.model.pms.vo.VariantPreSaleQuantity;
 import com.upedge.common.model.product.RelateDetailVo;
@@ -33,6 +36,7 @@ import com.upedge.oms.modules.order.request.AirwallexRequest;
 import com.upedge.oms.modules.order.request.OrderItemQuoteRequest;
 import com.upedge.oms.modules.order.request.OrderItemUpdateQuantityRequest;
 import com.upedge.oms.modules.order.service.OrderItemService;
+import com.upedge.oms.modules.order.service.OrderPayService;
 import com.upedge.oms.modules.order.service.OrderService;
 import com.upedge.oms.modules.order.vo.AirwallexVo;
 import com.upedge.oms.modules.order.vo.ItemDischargeQuantityVo;
@@ -70,6 +74,9 @@ public class OrderItemServiceImpl implements OrderItemService {
 
     @Autowired
     private OrderShippingUnitService orderShippingUnitService;
+
+    @Autowired
+    OrderPayService orderPayService;
 
     @Autowired
     RedisTemplate redisTemplate;
@@ -113,7 +120,7 @@ public class OrderItemServiceImpl implements OrderItemService {
 
     @Override
     public List<OrderItem> selectByOrderIds(List<Long> orderIds) {
-        if (ListUtils.isNotEmpty(orderIds)){
+        if (ListUtils.isNotEmpty(orderIds)) {
             return orderItemDao.selectByOrderIds(orderIds);
         }
         return new ArrayList<>();
@@ -121,7 +128,7 @@ public class OrderItemServiceImpl implements OrderItemService {
 
     @Override
     public int batchUpdatePickedQuantity(List<OrderItem> orderItems) {
-        if (ListUtils.isNotEmpty(orderItems)){
+        if (ListUtils.isNotEmpty(orderItems)) {
             return orderItemDao.batchUpdatePickedQuantity(orderItems);
         }
         return 0;
@@ -201,41 +208,6 @@ public class OrderItemServiceImpl implements OrderItemService {
             orderItemDao.updateOrderAsQuotingByStoreVariantIds(storeVariantIds);
         }
         return response;
-//        Order order = orderService.selectByPrimaryKey(request.getOrderId());
-//        if (order.getPayState() != OrderConstant.PAY_STATE_UNPAID
-//                || order.getQuoteState() == OrderConstant.QUOTE_STATE_QUOTED) {
-//            return BaseResponse.failed("order error");
-//        }
-//        Page<OrderItem> orderItemPage = new Page<>();
-//        OrderItem orderItem = new OrderItem();
-//        orderItem.setOrderId(request.getOrderId());
-//        orderItemPage.setPageSize(-1);
-//        orderItemPage.setT(orderItem);
-//        List<OrderItem> orderItems = select(orderItemPage);
-//        List<Long> itemIds = request.getItemIds();
-//        List<Long> storeVariantIds = new ArrayList<>();
-//        for (Long itemId : itemIds) {
-//            for (OrderItem item : orderItems) {
-//                if (itemId.equals(item.getId())){
-//                    storeVariantIds.add(item.getStoreVariantId());
-//                }
-//            }
-//        }
-//        if (ListUtils.isEmpty(storeVariantIds)){
-//            return BaseResponse.failed("item error");
-//        }
-//        OrderQuoteApplyRequest orderQuoteApplyRequest = new OrderQuoteApplyRequest();
-//        orderQuoteApplyRequest.setOrderId(request.getOrderId());
-//        orderQuoteApplyRequest.setStoreId(order.getStoreId());
-//        orderQuoteApplyRequest.setCustomerId(session.getCustomerId());
-//        orderQuoteApplyRequest.setUserId(session.getId());
-//        orderQuoteApplyRequest.setStoreVariantId(storeVariantIds);
-//        BaseResponse response = pmsFeignClient.orderQuoteApply(orderQuoteApplyRequest);
-//        if (response.getCode() == ResultCode.SUCCESS_CODE) {
-//            orderItemDao.updateOrderAsQuotingByStoreVariantIds(storeVariantIds);
-////            orderItemDao.updateQuoteStateByIds(itemIds, 5);
-//        }
-//        return response;
     }
 
     @Transactional
@@ -294,8 +266,44 @@ public class OrderItemServiceImpl implements OrderItemService {
     }
 
     @Override
-    public void updatePaidOrderItemQuoteDetail(CustomerProductQuoteVo customerProductQuoteVo) {
+    public void updatePaidOrderItemQuoteDetail(CustomerProductQuoteVo customerProductQuoteVo) throws CustomerException {
+        if (customerProductQuoteVo == null || customerProductQuoteVo.getQuoteState() == 0) {
+            return;
+        }
+        Long newVariantId = customerProductQuoteVo.getVariantId();
+        List<Long> orderIds = new ArrayList<>();
         Long storeVariantId = customerProductQuoteVo.getStoreVariantId();
+        List<OrderItem> orderItems = orderItemDao.selectPaidItemLockedQuantityByStoreVariantId(storeVariantId);
+        Integer totalLockedQuantity = 0;
+        for (OrderItem orderItem : orderItems) {
+            Long variantId = orderItem.getAdminVariantId();
+            if (variantId.equals(newVariantId)){
+                return;
+            }
+            totalLockedQuantity += orderItem.getLockedQuantity();
+
+            if (!orderIds.contains(orderItem.getOrderId())){
+                orderIds.add(orderItem.getOrderId());
+            }
+        }
+
+        if (0 != totalLockedQuantity) {
+            VariantStockRestoreLockQuantityRequest request = new VariantStockRestoreLockQuantityRequest();
+            request.setLockQuantity(totalLockedQuantity);
+            request.setWarehouseStock("CNHZ");
+            request.setVariantId(orderItems.get(0).getAdminVariantId());
+            BaseResponse response = pmsFeignClient.restoreLockQuantity(request);
+            if (response.getCode() != ResultCode.SUCCESS_CODE) {
+                throw new CustomerException("数据异常");
+            }
+        }
+
+        orderItemDao.updatePaidItemQuoteDetail(customerProductQuoteVo);
+        OrderItemQuantityDto orderItemQuantityDto = new OrderItemQuantityDto();
+        orderItemQuantityDto.setOrderIds(orderIds);
+
+        List<OrderItemQuantityVo> orderItemQuantityVos = orderDao.selectOrderItemQuantities(orderItemQuantityDto);
+        pmsFeignClient.orderCheckStock(orderItemQuantityVos);
     }
 
     @Transactional
@@ -478,7 +486,7 @@ public class OrderItemServiceImpl implements OrderItemService {
                 return;
         }
 
-        if (ListUtils.isNotEmpty(list)){
+        if (ListUtils.isNotEmpty(list)) {
             orderShippingUnitService.deleteByOrderIds(list, OrderType.NORMAL);
             orderService.orderInitShipDetailByIds(list);
         }
@@ -579,7 +587,7 @@ public class OrderItemServiceImpl implements OrderItemService {
 
     @Override
     public List<VariantPreSaleQuantity> selectVariantPreSaleQuantity(List<Long> variantIds) {
-        if (ListUtils.isEmpty(variantIds)){
+        if (ListUtils.isEmpty(variantIds)) {
             return new ArrayList<>();
         }
         return orderItemDao.selectVariantPreSaleQuantity(variantIds);
@@ -588,7 +596,7 @@ public class OrderItemServiceImpl implements OrderItemService {
     @Override
     public OrderItemPurchaseAdviceVo selectUnStockOrderItems() {
         List<OrderItem> orderItems = orderItemDao.selectUnStockOrderItems();
-        if (ListUtils.isEmpty(orderItems)){
+        if (ListUtils.isEmpty(orderItems)) {
             return null;
         }
         List<PurchaseAdviceItemVo> purchaseAdviceItemVos = new ArrayList<>();

@@ -97,7 +97,7 @@ public class CustomerController {
         List<UserVo> userVos = redisTemplate.opsForHash().values(RedisKey.STRING_CUSTOMER_INFO);
         List<Customer> customers = new ArrayList<>();
         userVos.forEach(userVo -> {
-            if (userVo.getUsername().contains(name)){
+            if (userVo.getUsername().toLowerCase().contains(name.toLowerCase())){
                 Customer customer = new Customer();
                 customer.setCname(userVo.getUsername());
                 customer.setId(userVo.getCustomerId());

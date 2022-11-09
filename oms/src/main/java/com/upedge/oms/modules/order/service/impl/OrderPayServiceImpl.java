@@ -374,10 +374,13 @@ public class OrderPayServiceImpl implements OrderPayService {
         }
         List<OrderItem> orderItems = orderItemDao.selectItemByPaymentId(paymentId);
         for (OrderItem orderItem : orderItems) {
+            if (orderItem.getQuantity() == 0){
+                itemDischargeMap.put(orderItem.getId(), 0);
+                continue;
+            }
             String key = orderItem.getAdminVariantId() + orderItem.getShippingWarehouse();
             Integer stock = variantWarehouseStockMap.get(key);
-            if (stock == null
-                    || stock == 0) {
+            if (stock == null || stock == 0) {
                 if (orderItem.getDischargeQuantity() != 0) {
                     orderItem.setDischargeQuantity(0);
                     itemDischargeMap.put(orderItem.getId(), 0);
@@ -653,7 +656,7 @@ public class OrderPayServiceImpl implements OrderPayService {
         return true;
     }
 
-    @GlobalTransactional
+    @GlobalTransactional(rollbackFor = Exception.class)
     //余额支付订单
     @Override
     public String payOrderByBalance(Session session, BigDecimal amount, Long paymentId, List<ItemDischargeQuantityVo> dischargeQuantityVos) {

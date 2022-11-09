@@ -28,6 +28,7 @@ import com.upedge.pms.modules.purchase.service.VariantWarehouseStockRecordServic
 import com.upedge.pms.modules.purchase.service.VariantWarehouseStockService;
 import com.upedge.pms.modules.purchase.vo.VariantWarehouseStockVo;
 import io.seata.spring.annotation.GlobalTransactional;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.rocketmq.client.producer.DefaultMQProducer;
 import org.apache.rocketmq.common.message.Message;
@@ -40,6 +41,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.*;
 
 
+@Slf4j
 @Service
 public class VariantWarehouseStockServiceImpl implements VariantWarehouseStockService {
 
@@ -135,6 +137,14 @@ public class VariantWarehouseStockServiceImpl implements VariantWarehouseStockSe
 
         redisTemplate.opsForHash().delete(RedisKey.HASH_VARIANT_WAREHOUSE_STOCK + request.getWarehouseCode(),request.getVariantId().toString());
         return BaseResponse.success();
+    }
+
+    @Override
+    public int restoreStockByLockStock(Long variantId, String warehouseCode, Integer changeQuantity) {
+        if (changeQuantity != null){
+            return variantWarehouseStockDao.restoreStockByLockStock(variantId, warehouseCode, changeQuantity);
+        }
+        return 0;
     }
 
     @Override
@@ -242,7 +252,92 @@ public class VariantWarehouseStockServiceImpl implements VariantWarehouseStockSe
         return true;
     }
 
-    @Transactional(rollbackFor = Exception.class)
+//    @Transactional(rollbackFor = Exception.class)
+//    @Override
+//    public boolean orderCheckStock(OrderItemQuantityVo orderItemQuantityVo) throws Exception {
+//        List<String> keys = new ArrayList<>();
+//        List<ItemQuantityVo> itemQuantityVos = orderItemQuantityVo.getItemQuantityVos();
+//        String warehouseCode = orderItemQuantityVo.getWarehouseCode();
+//        Set<Long> variantIds = new HashSet<>();
+//        //所有对应发货仓库的产品先加锁
+//        for (ItemQuantityVo itemQuantityVo : itemQuantityVos) {
+//            String key = RedisKey.KEY_VARIANT_WAREHOUSE_STOCK_LOCK+warehouseCode+":"+itemQuantityVo.getVariantId();
+//            if (keys.contains(key)){
+//                continue;
+//            }
+//            boolean b = RedisUtil.lock(redisTemplate,key,10L,10*1000L);
+//            if (!b){
+//                if (ListUtils.isNotEmpty(keys)){
+//                    for (String s : keys) {
+//                        RedisUtil.unLock(redisTemplate,s);
+//                    }
+//                    return false;
+//                }
+//            }
+//            keys.add(key);
+//            variantIds.add(itemQuantityVo.getVariantId());
+//        }
+//        Map<Long,VariantWarehouseStock> variantWarehouseStockModelMap = new HashMap<>();
+//        Map<Long,Integer> variantChangeQuantity = new HashMap<>();
+//        List<VariantWarehouseStockRecord> records = new ArrayList<>();
+////        List<VariantWarehouseStock> variantWarehouseStocks = variantWarehouseStockDao.selectByVariantIdsAndWarehouseCode(variantIds,warehouseCode);
+//        //判断订单下所有产品是否都有货
+//        for (ItemQuantityVo itemQuantityVo : itemQuantityVos) {
+//            Long variantId = itemQuantityVo.getVariantId();
+//            //先从map里拿库存信息，没有就从redis拿
+//            VariantWarehouseStock variantWarehouseStock = variantWarehouseStockModelMap.get(variantId);
+//            if (null == variantWarehouseStock){
+//                variantWarehouseStock = variantWarehouseStockDao.selectByPrimaryKey(variantId,warehouseCode);
+//            }
+//            if (null == variantWarehouseStock){
+//                return true;
+//            }
+//
+//            if (itemQuantityVo.getVariantId().equals(variantId)){
+//                Integer changeQuantity = itemQuantityVo.getQuantity();
+//                //安全数量小于变动库存，返回
+//                if (changeQuantity > variantWarehouseStock.getAvailableStock()){
+//                    return true;
+//                }
+//                Integer nowStock = variantWarehouseStock.getAvailableStock() - changeQuantity;
+//                //保存库存锁定记录
+//                VariantWarehouseStockRecord record = new VariantWarehouseStockRecord(variantId, warehouseCode, changeQuantity, VariantWarehouseStockRecord.STOCK_LOCK, variantWarehouseStock.getAvailableStock(), nowStock, itemQuantityVo.getItemId(), new Date(), "",0L);
+//                records.add(record);
+//                //更新对象最新安全库存
+//                variantWarehouseStock.setAvailableStock(nowStock);
+//                variantWarehouseStockModelMap.put(variantId,variantWarehouseStock);
+//                //变体变动的库存
+//                if (variantChangeQuantity.containsKey(variantId)){
+//                    changeQuantity = changeQuantity + variantChangeQuantity.get(variantId);
+//                }
+//                variantChangeQuantity.put(variantId,changeQuantity);
+//            }
+//        }
+//        //挨个修改锁定库存数量，修改失败则回滚
+//        for (Map.Entry<Long,Integer> map:variantChangeQuantity.entrySet()){
+//            int i = variantWarehouseStockDao.updateVariantWarehouseAvailableStock(map.getKey(), warehouseCode,map.getValue());
+//            if (i == 0){
+//                throw new Exception("库存不足");
+//            }
+//        }
+//        OrderStockStateUpdateRequest orderStockStateUpdateRequest = new OrderStockStateUpdateRequest();
+//        orderStockStateUpdateRequest.setStockState(1);
+//        orderStockStateUpdateRequest.setOrderId(orderItemQuantityVo.getOrderId());
+//        int i = omsFeignClient.updateStockState(orderStockStateUpdateRequest);
+//        if (i != 1){
+//            throw new Exception("订单异常");
+//        }
+//        variantWarehouseStockRecordService.insertByBatch(records);
+//
+//        sendRefreshVariantStockMessage(variantIds,warehouseCode);
+//        for (String key : keys) {
+//            RedisUtil.unLock(redisTemplate,key);
+//        }
+//        //修改订单缺货状态
+//        return true;
+//    }
+
+    @GlobalTransactional(rollbackFor = Exception.class)
     @Override
     public boolean orderCheckStock(OrderItemQuantityVo orderItemQuantityVo) throws Exception {
         List<String> keys = new ArrayList<>();
@@ -267,91 +362,7 @@ public class VariantWarehouseStockServiceImpl implements VariantWarehouseStockSe
             keys.add(key);
             variantIds.add(itemQuantityVo.getVariantId());
         }
-        Map<Long,VariantWarehouseStock> variantWarehouseStockModelMap = new HashMap<>();
-        Map<Long,Integer> variantChangeQuantity = new HashMap<>();
-        List<VariantWarehouseStockRecord> records = new ArrayList<>();
-//        List<VariantWarehouseStock> variantWarehouseStocks = variantWarehouseStockDao.selectByVariantIdsAndWarehouseCode(variantIds,warehouseCode);
-        //判断订单下所有产品是否都有货
-        for (ItemQuantityVo itemQuantityVo : itemQuantityVos) {
-            Long variantId = itemQuantityVo.getVariantId();
-            //先从map里拿库存信息，没有就从redis拿
-            VariantWarehouseStock variantWarehouseStock = variantWarehouseStockModelMap.get(variantId);
-            if (null == variantWarehouseStock){
-                variantWarehouseStock = variantWarehouseStockDao.selectByPrimaryKey(variantId,warehouseCode);
-            }
-            if (null == variantWarehouseStock){
-                return true;
-            }
 
-            if (itemQuantityVo.getVariantId().equals(variantId)){
-                Integer changeQuantity = itemQuantityVo.getQuantity();
-                //安全数量小于变动库存，返回
-                if (changeQuantity > variantWarehouseStock.getAvailableStock()){
-                    return true;
-                }
-                Integer nowStock = variantWarehouseStock.getAvailableStock() - changeQuantity;
-                //保存库存锁定记录
-                VariantWarehouseStockRecord record = new VariantWarehouseStockRecord(variantId, warehouseCode, changeQuantity, VariantWarehouseStockRecord.STOCK_LOCK, variantWarehouseStock.getAvailableStock(), nowStock, itemQuantityVo.getItemId(), new Date(), "",0L);
-                records.add(record);
-                //更新对象最新安全库存
-                variantWarehouseStock.setAvailableStock(nowStock);
-                variantWarehouseStockModelMap.put(variantId,variantWarehouseStock);
-                //变体变动的库存
-                if (variantChangeQuantity.containsKey(variantId)){
-                    changeQuantity = changeQuantity + variantChangeQuantity.get(variantId);
-                }
-                variantChangeQuantity.put(variantId,changeQuantity);
-            }
-        }
-        //挨个修改锁定库存数量，修改失败则回滚
-        for (Map.Entry<Long,Integer> map:variantChangeQuantity.entrySet()){
-            int i = variantWarehouseStockDao.updateVariantWarehouseAvailableStock(map.getKey(), warehouseCode,map.getValue());
-            if (i == 0){
-                throw new Exception("库存不足");
-            }
-        }
-        OrderStockStateUpdateRequest orderStockStateUpdateRequest = new OrderStockStateUpdateRequest();
-        orderStockStateUpdateRequest.setStockState(1);
-        orderStockStateUpdateRequest.setOrderId(orderItemQuantityVo.getOrderId());
-        int i = omsFeignClient.updateStockState(orderStockStateUpdateRequest);
-        if (i != 1){
-            throw new Exception("订单异常");
-        }
-        variantWarehouseStockRecordService.insertByBatch(records);
-
-        sendRefreshVariantStockMessage(variantIds,warehouseCode);
-        for (String key : keys) {
-            RedisUtil.unLock(redisTemplate,key);
-        }
-        //修改订单缺货状态
-        return true;
-    }
-
-    @Transactional(rollbackFor = Exception.class)
-    @Override
-    public boolean orderCheckStockTest(OrderItemQuantityVo orderItemQuantityVo) throws Exception {
-        List<String> keys = new ArrayList<>();
-        List<ItemQuantityVo> itemQuantityVos = orderItemQuantityVo.getItemQuantityVos();
-        String warehouseCode = orderItemQuantityVo.getWarehouseCode();
-        Set<Long> variantIds = new HashSet<>();
-        //所有对应发货仓库的产品先加锁
-        for (ItemQuantityVo itemQuantityVo : itemQuantityVos) {
-            String key = RedisKey.KEY_VARIANT_WAREHOUSE_STOCK_LOCK+warehouseCode+":"+itemQuantityVo.getVariantId();
-            if (keys.contains(key)){
-                continue;
-            }
-            boolean b = RedisUtil.lock(redisTemplate,key,10L,10*1000L);
-            if (!b){
-                if (ListUtils.isNotEmpty(keys)){
-                    for (String s : keys) {
-                        RedisUtil.unLock(redisTemplate,s);
-                    }
-                    return false;
-                }
-            }
-            keys.add(key);
-            variantIds.add(itemQuantityVo.getVariantId());
-        }
         orderItemQuantityVo.setStockState(1);
         Map<Long,VariantWarehouseStock> variantWarehouseStockModelMap = new HashMap<>();
         Map<Long,Integer> variantChangeQuantity = new HashMap<>();
@@ -361,6 +372,7 @@ public class VariantWarehouseStockServiceImpl implements VariantWarehouseStockSe
         for (ItemQuantityVo itemQuantityVo : itemQuantityVos) {
             Integer changeQuantity = itemQuantityVo.getQuantity() - itemQuantityVo.getLockedQuantity();
             if (changeQuantity == 0){
+                itemQuantityVo.setLockQuantity(0);
                 continue;
             }
             Long variantId = itemQuantityVo.getVariantId();
@@ -369,14 +381,14 @@ public class VariantWarehouseStockServiceImpl implements VariantWarehouseStockSe
             if (null == variantWarehouseStock){
                 variantWarehouseStock = variantWarehouseStockDao.selectByPrimaryKey(variantId,warehouseCode);
             }
-            if (null == variantWarehouseStock){
+            if (null == variantWarehouseStock || variantWarehouseStock.getAvailableStock() == 0){
                 itemQuantityVo.setLockQuantity(0);
                 orderItemQuantityVo.setStockState(0);
                 continue;
             }
 
             if (itemQuantityVo.getVariantId().equals(variantId)){
-                //安全数量小于变动库存，返回
+                //剩余库存小于所需库存，订单标记为缺货，剩余库存分配给该产品
                 if (changeQuantity > variantWarehouseStock.getAvailableStock()){
                     orderItemQuantityVo.setStockState(0);
                     changeQuantity = variantWarehouseStock.getAvailableStock();
@@ -391,7 +403,7 @@ public class VariantWarehouseStockServiceImpl implements VariantWarehouseStockSe
                 variantWarehouseStockModelMap.put(variantId,variantWarehouseStock);
                 //变体变动的库存
                 if (variantChangeQuantity.containsKey(variantId)){
-                    changeQuantity = changeQuantity + variantChangeQuantity.get(variantId);
+                    changeQuantity += variantChangeQuantity.get(variantId);
                 }
                 variantChangeQuantity.put(variantId,changeQuantity);
             }
@@ -473,12 +485,15 @@ public class VariantWarehouseStockServiceImpl implements VariantWarehouseStockSe
 
         VariantWarehouseStockModel variantWarehouseStockModel = (VariantWarehouseStockModel) redisTemplate.opsForHash().get(RedisKey.HASH_VARIANT_WAREHOUSE_STOCK+warehouseCode,variantId.toString());
         VariantWarehouseStock variantWarehouseStock = selectByPrimaryKey(variantId,warehouseCode);
-        if (null == variantWarehouseStock){
+        if (null == variantWarehouseStock ){
             variantWarehouseStock = new VariantWarehouseStock(variantId,warehouseCode,1, request.getStock(), 0,0,"","");
             insert(variantWarehouseStock);
             variantWarehouseStockModel = new VariantWarehouseStockModel();
             BeanUtils.copyProperties(variantWarehouseStock,variantWarehouseStockModel);
         }else {
+            if (variantWarehouseStockModel == null){
+                variantWarehouseStockModel = new VariantWarehouseStockModel();
+            }
             BeanUtils.copyProperties(variantWarehouseStock,variantWarehouseStockModel);
             if (variantWarehouseStock.getStockState() == 0){
                 return BaseResponse.failed("库存已被删除");

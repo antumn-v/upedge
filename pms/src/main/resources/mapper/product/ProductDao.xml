@@ -471,7 +471,7 @@
                     and product_sku = #{t.productSku}
                 </if>
                 <if test="t.originalTitle != null">
-                    and original_title = #{t.originalTitle}
+                    and original_title like concat('%',#{t.originalTitle},'%')
                 </if>
                 <if test="t.productTitle != null and t.productTitle != ''">
                     and product_title = #{t.productTitle}

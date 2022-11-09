@@ -24,6 +24,8 @@ import java.util.Map;
  */
 public interface OrderItemDao {
 
+    List<OrderItem> selectPaidItemLockedQuantityByStoreVariantId(Long storeVariantId);
+
     int increaseLockQuantity(@Param("items") List<OrderItem> orderItems);
 
     List<Long> selectOutStockOrderIdsByVariantId(Long variantId);
@@ -71,6 +73,8 @@ public interface OrderItemDao {
                                                            @Param("customerId") Long customerId);
 
     void updateItemQuoteDetail(CustomerProductQuoteVo customerProductQuoteVo);
+
+    void updatePaidItemQuoteDetail(CustomerProductQuoteVo customerProductQuoteVo);
 
     void cancelItemQuoteDetail(CustomerProductQuoteVo customerProductQuoteVo);
 

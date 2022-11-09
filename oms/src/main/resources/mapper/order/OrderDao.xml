@@ -686,16 +686,13 @@
     </update>
 
     <update id="updateOrderAsPaid" parameterType="com.upedge.oms.modules.order.dto.OrderTransactionDto">
-        update `order` o
-            inner join order_item oi
-            on o.id = oi.order_id
+        update `order`
         set pay_state  = '1',
             pay_time   = #{payTime},
             pay_method = #{payMethod},
             pay_amount = (product_amount + ship_price + vat_amount + service_fee - product_discharge_amount),
             cny_rate   = #{cnyRate},
-            actual_ship_method_id = ship_method_id,
-            oi.pay_variant_id = oi.admin_variant_id
+            actual_ship_method_id = ship_method_id
         where payment_id = #{paymentId}
           and pay_state = '2'
     </update>
@@ -2432,6 +2429,7 @@
         and o.ship_state = '0'
         and o.stock_state = '0'
         and o.pack_state = '1'
+        and o.pick_state = '0'
         <if test="customerId != null">
             and o.customer_id = #{customerId}
         </if>

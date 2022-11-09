@@ -9,4 +9,5 @@ public class ProductListDto extends Product {
     private String sku;
 
     private String customerId;
+
 }

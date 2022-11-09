@@ -574,7 +574,7 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public BaseResponse importFrom1688(AlibabaProductVo alibabaProductVo, Long operatorId) {
 
-        Product p = productDao.selectByProductSku(alibabaProductVo.getProductSku());
+        Product p = productDao.select1688Product(alibabaProductVo.getProductSku());
         if (null == p || p.getProductSource() != 0){
             addNewProduct(alibabaProductVo,operatorId);
         } else {

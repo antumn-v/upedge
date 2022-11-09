@@ -4,6 +4,7 @@ import com.upedge.common.base.BaseResponse;
 import com.upedge.common.component.annotation.Permission;
 import com.upedge.common.constant.key.RedisKey;
 import com.upedge.common.model.oms.order.OrderItemQuantityVo;
+import com.upedge.common.model.pms.request.VariantStockRestoreLockQuantityRequest;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.utils.IdGenerate;
 import com.upedge.common.web.util.RedisUtil;
@@ -122,6 +123,29 @@ public class VariantWarehouseStockController {
             e.printStackTrace();
             return 0;
         }
+    }
+
+    @PostMapping("/restoreLockQuantity")
+    public BaseResponse restoreLockQuantity(@RequestBody VariantStockRestoreLockQuantityRequest request){
+        int i = variantWarehouseStockService.restoreStockByLockStock(request.getVariantId(), request.getWarehouseStock(), request.getLockQuantity());
+        if (i == 1){
+            return BaseResponse.success();
+        }
+        return BaseResponse.failed();
+    }
+
+
+    @PostMapping("/orderCheckStock")
+    public BaseResponse orderCheckStock(@RequestBody List<OrderItemQuantityVo> orderItemQuantityVos){
+        for (OrderItemQuantityVo orderItemQuantityVo : orderItemQuantityVos) {
+            try {
+                boolean b = variantWarehouseStockService.orderCheckStock(orderItemQuantityVo);
+                log.warn("orderID:{},结果：{}",orderItemQuantityVo.getOrderId(),b);
+            } catch (Exception e) {
+                return BaseResponse.failed(e.getMessage());
+            }
+        }
+        return BaseResponse.success();
     }
 
 

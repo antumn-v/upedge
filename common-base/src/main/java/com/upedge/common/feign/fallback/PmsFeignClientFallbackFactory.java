@@ -5,10 +5,7 @@ import com.upedge.common.constant.ResultCode;
 import com.upedge.common.feign.PmsFeignClient;
 import com.upedge.common.model.oms.order.OrderItemQuantityVo;
 import com.upedge.common.model.pms.quote.CustomerProductQuoteVo;
-import com.upedge.common.model.pms.request.CustomerProductQuoteSearchRequest;
-import com.upedge.common.model.pms.request.OrderQuoteApplyRequest;
-import com.upedge.common.model.pms.request.QuotedProductSelectBySkuRequest;
-import com.upedge.common.model.pms.request.StoreCustomVariantRecordSaveRequest;
+import com.upedge.common.model.pms.request.*;
 import com.upedge.common.model.pms.response.QuotedProductSelectBySkuResponse;
 import com.upedge.common.model.product.ListVariantsRequest;
 import com.upedge.common.model.product.ProductSaiheInventoryVo;
@@ -34,6 +31,16 @@ public class PmsFeignClientFallbackFactory implements FallbackFactory<PmsFeignCl
             @Override
             public int orderCancelShip(OrderItemQuantityVo orderItemQuantityVo) {
                 return 0;
+            }
+
+            @Override
+            public BaseResponse restoreLockQuantity(VariantStockRestoreLockQuantityRequest request) {
+                return BaseResponse.failed();
+            }
+
+            @Override
+            public BaseResponse orderCheckStock(List<OrderItemQuantityVo> orderItemQuantityVos) {
+                return BaseResponse.failed("system error");
             }
 
             @Override

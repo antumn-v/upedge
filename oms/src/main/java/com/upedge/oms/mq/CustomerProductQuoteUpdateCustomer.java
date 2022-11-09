@@ -81,6 +81,7 @@ public class CustomerProductQuoteUpdateCustomer {
                                 //组合产品更新报价信息
                                 orderItemService.updateSplitVariantItemQuoteDetail(customerProductQuoteVo);
                             }
+                            orderItemService.updatePaidOrderItemQuoteDetail(customerProductQuoteVo);
                         }
                     }
                     if (null == mqMessageLog) {
