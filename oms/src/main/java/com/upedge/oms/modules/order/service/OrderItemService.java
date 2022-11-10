@@ -3,6 +3,7 @@ package com.upedge.oms.modules.order.service;
 import com.upedge.common.base.BaseResponse;
 import com.upedge.common.base.Page;
 import com.upedge.common.exception.CustomerException;
+import com.upedge.common.model.oms.order.OrderStockClearRequest;
 import com.upedge.common.model.order.dto.OrderItemPurchaseAdviceDto;
 import com.upedge.common.model.order.vo.OrderItemPurchaseAdviceVo;
 import com.upedge.common.model.order.vo.OrderItemUpdateImageNameRequest;
@@ -27,6 +28,8 @@ import java.util.List;
  * @author author
  */
 public interface OrderItemService {
+
+    int updateLockedQuantityClear(OrderStockClearRequest request);
 
     List<Long> selectOutStockOrderIdsByVariantId(Long variantId);
 

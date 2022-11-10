@@ -366,7 +366,8 @@
     <update id="markAsDeleted">
         update variant_warehouse_stock
             set stock_state = '0',
-                available_stock = '0'
+                available_stock = '0',
+                lock_stock = '0'
         where variant_id = #{variantId}
         and warehouse_code = #{warehouseCode}
         and stock_state = '1'

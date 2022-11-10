@@ -10,6 +10,7 @@ import com.upedge.common.model.cart.request.CartAddRequest;
 import com.upedge.common.model.cart.request.CartSelectByIdsRequest;
 import com.upedge.common.model.cart.request.CartSubmitRequest;
 import com.upedge.common.model.cart.request.CartVo;
+import com.upedge.common.model.oms.order.OrderStockClearRequest;
 import com.upedge.common.model.oms.stock.StockOrderVo;
 import com.upedge.common.model.order.OrderItemQuantityDto;
 import com.upedge.common.model.order.dto.OrderItemPurchaseAdviceDto;
@@ -44,6 +45,11 @@ public class OmsFeignClientFallbackFactory implements FallbackFactory<OmsFeignCl
 
             @Override
             public void checkStock(OrderItemQuantityDto orderItemQuantityDto) {
+            }
+
+            @Override
+            public BaseResponse itemStockClear(OrderStockClearRequest request) {
+                return BaseResponse.failed();
             }
 
             @Override

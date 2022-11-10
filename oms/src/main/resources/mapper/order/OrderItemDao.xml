@@ -1368,10 +1368,10 @@
     </update>
 
     <select id="selectPaidItemLockedQuantityByStoreVariantId" resultMap="BaseResultMap">
-        select oi.order_id,oi.admin_variant_id,locked_quantity
+        select oi.order_id, oi.admin_variant_id, locked_quantity
         from `order` o
-        inner join order_item oi
-        on o.id = oi.order_id
+                     inner join order_item oi
+                on o.id = oi.order_id
         where oi.store_variant_id = #{storeVariantId}
           and o.pay_state = '1'
           and o.refund_state = '0'
@@ -1381,20 +1381,33 @@
 
     <update id="updatePaidItemQuoteDetail">
         update order_item oi
-        inner join `order` o
+                inner join `order` o
         on oi.order_id = o.id
-        set oi.admin_product_id = #{productId},
-        oi.admin_variant_id = #{variantId},
-        oi.admin_variant_sku = #{variantSku},
-        oi.admin_variant_image = #{variantImage},
-        oi.admin_variant_name = #{cnName},
-        oi.barcode = #{barcode},
-        oi.locked_quantity = '0',
-        o.stock_state = '0'
+                set oi.admin_product_id = #{productId},
+                        oi.admin_variant_id = #{variantId},
+                        oi.admin_variant_sku = #{variantSku},
+                        oi.admin_variant_image = #{variantImage},
+                        oi.admin_variant_name = #{cnName},
+                        oi.barcode = #{barcode},
+                        oi.locked_quantity = '0',
+                        o.stock_state = '0'
         where oi.store_variant_id = #{storeVariantId}
-        and o.pay_state = '1'
-        and o.pick_state = '0'
-        and o.ship_state = '0'
-        and o.refund_state = '0'
+          and o.pay_state = '1'
+          and o.pick_state = '0'
+          and o.ship_state = '0'
+          and o.refund_state = '0'
+    </update>
+
+    <update id="updateLockedQuantityClear">
+        update `order` o
+                inner join order_item oi
+        on o.id = oi.order_id
+            set oi.locked_quantity = '0', o.stock_state = '0'
+        where o.pay_state = '1'
+          and o.pick_state = '0'
+          and o.ship_state = '0'
+          and o.refund_state = '0'
+          and oi.admin_variant_id = #{variantId}
+        and o.shipping_warehouse = #{warehouseCode}
     </update>
 </mapper>

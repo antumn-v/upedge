@@ -35,7 +35,6 @@ import java.util.Set;
  */
 public interface OrderService{
 
-
     BaseResponse updateActualShipMethod(OrderUpdateActualShipMethodRequest request,Session session);
 
     int updateOrderAsTracked( Long id,

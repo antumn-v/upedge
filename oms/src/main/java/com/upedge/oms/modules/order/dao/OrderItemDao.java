@@ -1,6 +1,7 @@
 package com.upedge.oms.modules.order.dao;
 
 import com.upedge.common.base.Page;
+import com.upedge.common.model.oms.order.OrderStockClearRequest;
 import com.upedge.common.model.order.dto.OrderItemPurchaseAdviceDto;
 import com.upedge.common.model.order.request.OrderItemPurchaseAdviceRequest;
 import com.upedge.common.model.order.vo.OrderItemUpdateImageNameRequest;
@@ -23,6 +24,8 @@ import java.util.Map;
  * @author author
  */
 public interface OrderItemDao {
+
+    int updateLockedQuantityClear(OrderStockClearRequest request);
 
     List<OrderItem> selectPaidItemLockedQuantityByStoreVariantId(Long storeVariantId);
 

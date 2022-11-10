@@ -3,6 +3,7 @@ package com.upedge.oms.modules.common.controller;
 
 import com.upedge.common.base.BaseResponse;
 import com.upedge.common.exception.CustomerException;
+import com.upedge.common.model.oms.order.OrderStockClearRequest;
 import com.upedge.common.model.order.OrderItemQuantityDto;
 import com.upedge.common.model.order.request.OrderStockStateUpdateRequest;
 import com.upedge.common.model.order.vo.UplodaSaiheOnMqVo;
@@ -95,4 +96,12 @@ public class OrderCommonController {
 //        return orderService.updateStockState(request.getOrderId(), request.getStockState());
         return orderService.updateStockState(request.getOrderId(), request.getItemQuantityVos());
     }
+
+
+    @PostMapping("/stockClear")
+    public BaseResponse itemStockClear(@RequestBody OrderStockClearRequest request){
+        orderItemService.updateLockedQuantityClear(request);
+        return BaseResponse.success();
+    }
+
 }

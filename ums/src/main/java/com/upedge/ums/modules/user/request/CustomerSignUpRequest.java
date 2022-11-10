@@ -97,6 +97,10 @@ public class CustomerSignUpRequest {
 
     private boolean isDefault;
 
+    private String skype;
+
+    private String whatsapp;
+
     /**
      * 获取注册用的Customer对象
      * @return
@@ -163,6 +167,8 @@ public class CustomerSignUpRequest {
         user.setUpdateTime(this.createTime);
         user.setLastLoginTime(new Date());
         user.setIsDefault(isDefault);
+        user.setWhatsapp(whatsapp);
+        user.setSkype(skype);
         return user;
     }
 

@@ -8,6 +8,7 @@ import com.upedge.common.constant.key.RocketMqConfig;
 import com.upedge.common.feign.OmsFeignClient;
 import com.upedge.common.model.oms.order.ItemQuantityVo;
 import com.upedge.common.model.oms.order.OrderItemQuantityVo;
+import com.upedge.common.model.oms.order.OrderStockClearRequest;
 import com.upedge.common.model.order.OrderItemQuantityDto;
 import com.upedge.common.model.order.request.OrderStockStateUpdateRequest;
 import com.upedge.common.model.pms.vo.VariantPreSaleQuantity;
@@ -121,10 +122,10 @@ public class VariantWarehouseStockServiceImpl implements VariantWarehouseStockSe
         if (null == variantWarehouseStock || variantWarehouseStock.getStockState() == 0){
             return BaseResponse.success();
         }
-        if (variantWarehouseStock.getPurchaseStock() > 0
-        || variantWarehouseStock.getLockStock() > 0){
-            return BaseResponse.failed("库存采购数量和锁定数量为0时才可以删除");
-        }
+//        if (variantWarehouseStock.getPurchaseStock() > 0
+//        || variantWarehouseStock.getLockStock() > 0){
+//            return BaseResponse.failed("库存采购数量和锁定数量为0时才可以删除");
+//        }
         VariantStockExImRecordUpdateRequest variantStockExImRecordUpdateRequest = new VariantStockExImRecordUpdateRequest();
         variantStockExImRecordUpdateRequest.setWarehouseCode(variantWarehouseStock.getWarehouseCode());
         variantStockExImRecordUpdateRequest.setVariantSku(variantWarehouseStock.getVariantSku());
@@ -134,6 +135,11 @@ public class VariantWarehouseStockServiceImpl implements VariantWarehouseStockSe
         variantStockEx(variantStockExImRecordUpdateRequest,session);
 
         variantWarehouseStockDao.markAsDeleted(request);
+
+        OrderStockClearRequest orderStockClearRequest = new OrderStockClearRequest();
+        orderStockClearRequest.setVariantId(request.getVariantId());
+        orderStockClearRequest.setWarehouseCode(request.getWarehouseCode());
+        omsFeignClient.itemStockClear(orderStockClearRequest);
 
         redisTemplate.opsForHash().delete(RedisKey.HASH_VARIANT_WAREHOUSE_STOCK + request.getWarehouseCode(),request.getVariantId().toString());
         return BaseResponse.success();
@@ -364,7 +370,7 @@ public class VariantWarehouseStockServiceImpl implements VariantWarehouseStockSe
         }
 
         orderItemQuantityVo.setStockState(1);
-        Map<Long,VariantWarehouseStock> variantWarehouseStockModelMap = new HashMap<>();
+        Map<Long,VariantWarehouseStockModel> variantWarehouseStockModelMap = new HashMap<>();
         Map<Long,Integer> variantChangeQuantity = new HashMap<>();
         List<VariantWarehouseStockRecord> records = new ArrayList<>();
 //        List<VariantWarehouseStock> variantWarehouseStocks = variantWarehouseStockDao.selectByVariantIdsAndWarehouseCode(variantIds,warehouseCode);
@@ -377,9 +383,10 @@ public class VariantWarehouseStockServiceImpl implements VariantWarehouseStockSe
             }
             Long variantId = itemQuantityVo.getVariantId();
             //先从map里拿库存信息，没有就从redis拿
-            VariantWarehouseStock variantWarehouseStock = variantWarehouseStockModelMap.get(variantId);
+
+            VariantWarehouseStockModel variantWarehouseStock = variantWarehouseStockModelMap.get(variantId);
             if (null == variantWarehouseStock){
-                variantWarehouseStock = variantWarehouseStockDao.selectByPrimaryKey(variantId,warehouseCode);
+                variantWarehouseStock = (VariantWarehouseStockModel) redisTemplate.opsForHash().get(RedisKey.HASH_VARIANT_WAREHOUSE_STOCK+warehouseCode,variantId.toString());
             }
             if (null == variantWarehouseStock || variantWarehouseStock.getAvailableStock() == 0){
                 itemQuantityVo.setLockQuantity(0);
@@ -424,8 +431,9 @@ public class VariantWarehouseStockServiceImpl implements VariantWarehouseStockSe
             throw new Exception("订单异常");
         }
         variantWarehouseStockRecordService.insertByBatch(records);
-
-        sendRefreshVariantStockMessage(variantIds,warehouseCode);
+        variantWarehouseStockModelMap.forEach((variantId,model) ->{
+            redisTemplate.opsForHash().put(RedisKey.HASH_VARIANT_WAREHOUSE_STOCK+warehouseCode,variantId.toString(),model);
+        });
         for (String key : keys) {
             RedisUtil.unLock(redisTemplate,key);
         }

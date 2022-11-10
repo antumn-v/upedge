@@ -9,6 +9,7 @@ import com.upedge.common.constant.key.RedisKey;
 import com.upedge.common.exception.CustomerException;
 import com.upedge.common.feign.PmsFeignClient;
 import com.upedge.common.model.oms.order.OrderItemQuantityVo;
+import com.upedge.common.model.oms.order.OrderStockClearRequest;
 import com.upedge.common.model.order.OrderItemQuantityDto;
 import com.upedge.common.model.order.dto.OrderItemPurchaseAdviceDto;
 import com.upedge.common.model.order.vo.OrderItemPurchaseAdviceVo;
@@ -106,6 +107,11 @@ public class OrderItemServiceImpl implements OrderItemService {
     @Transactional
     public int insertSelective(OrderItem record) {
         return orderItemDao.insert(record);
+    }
+
+    @Override
+    public int updateLockedQuantityClear(OrderStockClearRequest request) {
+        return orderItemDao.updateLockedQuantityClear(request);
     }
 
     @Override
