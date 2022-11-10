@@ -15,6 +15,8 @@ import java.util.List;
  */
 public interface CustomerProductQuoteDao {
 
+    int updateVariantImageByVariantIds(@Param("variantImage") String variantImage, @Param("variantIds") List<Long> variantIds);
+
     int updateStoreVariantImageById(@Param("storeVariantId") Long storeVariantId, @Param("image") String image);
 
     List<CustomerProductQuoteVo> selectQuoteProductBySkus(@Param("customerId") Long customerId, @Param("skus") List<String> skus);

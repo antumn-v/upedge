@@ -569,14 +569,10 @@
     <select id="all" resultMap="BaseResultMap">
         select
         cpq.`store_variant_id`,cpq.`customer_id`,cpq.`store_product_id`,cpq.`product_id`,cpq.`variant_id`,
-        cpq.`store_variant_name`,cpq.`store_product_title`,cpq.`store_variant_sku`,spv.image as `store_variant_image`,
-        cpq.`product_title`,cpq.`variant_name`,cpq.`variant_sku`,pv.`variant_image`,cpq.`quote_price`,cpq.`quote_apply_id`,
+        cpq.`store_variant_name`,cpq.`store_product_title`,cpq.`store_variant_sku`,
+        cpq.`product_title`,cpq.`variant_name`,cpq.`variant_sku`,cpq.`variant_image`,cpq.`quote_price`,cpq.`quote_apply_id`,
         cpq.`quote_state`,cpq.`quote_scale`,cpq.`store_parent_variant_id`,p.original_id
         from customer_product_quote cpq
-        left join product_variant pv
-        on pv.id = cpq.variant_id
-        left join store_product_variant spv
-        on spv.id = cpq.store_variant_id
         left join product p
         on p.id = cpq.product_id
         <if test="t != null">
@@ -628,5 +624,14 @@
         update customer_product_quote
             set store_variant_image = #{image}
         where store_variant_id = #{storeVariantId}
+    </update>
+
+    <update id="updateVariantImageByVariantIds">
+        update customer_product_quote
+            set variant_image = #{variantImage}
+        where variant_id in
+            <foreach collection="variantIds" item="variantId" open="(" separator="," close=")">
+                #{variantId}
+            </foreach>
     </update>
 </mapper>

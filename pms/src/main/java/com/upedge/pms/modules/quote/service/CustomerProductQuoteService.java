@@ -19,6 +19,8 @@ import java.util.List;
  */
 public interface CustomerProductQuoteService{
 
+    int updateVariantImageByVariantIds(String variantImage, List<Long> variantIds);
+
     int updateStoreVariantImageById(Long storeVariantId, String image);
 
     List<CustomerProductQuoteVo> selectAllQuoteDetail();

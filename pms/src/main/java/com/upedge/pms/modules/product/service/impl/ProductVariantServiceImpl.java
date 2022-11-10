@@ -24,6 +24,7 @@ import com.upedge.pms.modules.product.vo.VariantAttrVo;
 import com.upedge.pms.modules.product.vo.VariantValVo;
 import com.upedge.pms.modules.purchase.entity.ProductPurchaseInfo;
 import com.upedge.pms.modules.purchase.service.ProductPurchaseInfoService;
+import com.upedge.pms.modules.quote.service.CustomerProductQuoteService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -60,6 +61,9 @@ public class ProductVariantServiceImpl implements ProductVariantService {
 
     @Autowired
     StoreProductAttributeService storeProductAttributeService;
+
+    @Autowired
+    CustomerProductQuoteService customerProductQuoteService;
 
     @Autowired
     RedisTemplate redisTemplate;
@@ -511,6 +515,7 @@ public class ProductVariantServiceImpl implements ProductVariantService {
     @Override
     public ProductVariantUpdateVariantImageResponse updateVariantImage(ProductVariantUpdateVariantImageRequest request, Session session) {
         productVariantDao.updateVariantImage(request.getIds(), request.getVariantImage());
+        customerProductQuoteService.updateVariantImageByVariantIds(request.getVariantImage(), request.getIds());
         return new ProductVariantUpdateVariantImageResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS);
     }
 

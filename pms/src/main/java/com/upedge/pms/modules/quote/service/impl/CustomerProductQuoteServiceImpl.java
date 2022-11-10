@@ -141,6 +141,14 @@ public class CustomerProductQuoteServiceImpl implements CustomerProductQuoteServ
     }
 
     @Override
+    public int updateVariantImageByVariantIds(String variantImage, List<Long> variantIds) {
+        if (StringUtil.isBlank(variantImage) || ListUtils.isEmpty(variantIds)){
+            return 0;
+        }
+        return customerProductQuoteDao.updateVariantImageByVariantIds(variantImage, variantIds);
+    }
+
+    @Override
     public int updateStoreVariantImageById(Long storeVariantId, String image) {
         if (StringUtil.isBlank(image)){
             return 0;
