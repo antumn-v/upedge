@@ -1,14 +1,16 @@
 package com.upedge.ums.modules.account.dao;
 
-import com.upedge.ums.modules.account.entity.AccountWithdrawLog;
-import org.apache.ibatis.annotations.Mapper;
-import java.util.List;
 import com.upedge.common.base.Page;
+import com.upedge.ums.modules.account.entity.AccountWithdrawLog;
+
+import java.util.List;
 
 /**
  * @author gx
  */
 public interface AccountWithdrawLogDao{
+
+    List<AccountWithdrawLog> selectAccountPendingWithdrawRequest(Long accountId);
 
     AccountWithdrawLog selectByPrimaryKey(AccountWithdrawLog record);
 

@@ -308,5 +308,11 @@
         <include refid="Query_Condition"/>
     </select>
 
-
+    <select id="selectAccountPendingWithdrawRequest" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from account_withdraw_log
+        where account_id = #{accountId}
+        and status = '0'
+    </select>
 </mapper>

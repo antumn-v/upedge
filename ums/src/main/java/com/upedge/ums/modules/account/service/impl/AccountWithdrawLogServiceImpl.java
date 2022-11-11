@@ -7,6 +7,7 @@ import com.upedge.common.constant.key.RedisKey;
 import com.upedge.common.enums.TransactionConstant;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.utils.IdGenerate;
+import com.upedge.common.utils.ListUtils;
 import com.upedge.common.web.util.*;
 import com.upedge.ums.modules.account.dao.AccountWithdrawLogDao;
 import com.upedge.ums.modules.account.entity.Account;
@@ -79,6 +80,17 @@ public class AccountWithdrawLogServiceImpl implements AccountWithdrawLogService 
         BigDecimal amount = account.getBalance().add(account.getVipRebate()).add(account.getAffiliateRebate());
         if (amount.compareTo(request.getWithdrawAmount()) < 0){
             return BaseResponse.failed("Insufficient balance");
+        }
+
+        List<AccountWithdrawLog> accountWithdrawLogs = accountWithdrawLogDao.selectAccountPendingWithdrawRequest(account.getId());
+        if (ListUtils.isNotEmpty(accountWithdrawLogs)){
+            BigDecimal withdrawAmount = BigDecimal.ZERO;
+            for (AccountWithdrawLog accountWithdrawLog : accountWithdrawLogs) {
+                withdrawAmount = withdrawAmount.add(accountWithdrawLog.getWithdrawAmount());
+            }
+            if (withdrawAmount.add(request.getWithdrawAmount()).compareTo(amount) == 1){
+                return BaseResponse.failed("There is a withdrawal request in process");
+            }
         }
 
         AccountWithdrawLog accountWithdrawLog = request.toWithdrawLog(session);
