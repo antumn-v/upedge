@@ -370,9 +370,7 @@
                 lock_stock = '0'
         where variant_id = #{variantId}
         and warehouse_code = #{warehouseCode}
-        and stock_state = '1'
-        and purchase_stock = '0'
-        and lock_stock = '0';
+        and stock_state = '1';
     </update>
 
     <update id="restoreStockByLockStock">

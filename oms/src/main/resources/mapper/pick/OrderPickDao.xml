@@ -232,35 +232,34 @@
 
     <sql id="Query_Condition">
         <if test="t != null">
-            where
+            where pick_state != '-1'
             <trim prefix=" " suffix=" " suffixOverrides=" and ">
-                1 = 1 and
                 <if test="t.id != null">
-                    id = #{t.id} and
+                    and id = #{t.id}
                 </if>
                 <if test="t.pickType != null">
-                    pick_type = #{t.pickType} and
+                    and pick_type = #{t.pickType} and
                 </if>
                 <if test="t.shipMethodId != null">
-                    ship_method_id = #{t.shipMethodId} and
+                    and ship_method_id = #{t.shipMethodId} and
                 </if>
                 <if test="t.pickState != null">
-                    pick_state = #{t.pickState} and
+                    and pick_state = #{t.pickState} and
                 </if>
                 <if test="t.skuQuantity != null">
-                    sku_quantity = #{t.skuQuantity} and
+                    and sku_quantity = #{t.skuQuantity} and
                 </if>
                 <if test="t.skuType != null">
-                    sku_type = #{t.skuType} and
+                    and sku_type = #{t.skuType} and
                 </if>
                 <if test="t.createTime != null">
-                    create_time = #{t.createTime} and
+                    and create_time = #{t.createTime} and
                 </if>
                 <if test="t.updateTime != null">
-                    update_time = #{t.updateTime} and
+                    and update_time = #{t.updateTime} and
                 </if>
                 <if test="t.operatorId != null">
-                    operator_id = #{t.operatorId} and
+                    and operator_id = #{t.operatorId} and
                 </if>
             </trim>
         </if>

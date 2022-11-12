@@ -103,7 +103,7 @@ public class OrderPickServiceImpl implements OrderPickService {
                 }
             }
         }
-        if (!hasExStockOrder){
+        if (hasExStockOrder){
             orderPickDao.updatePickWaveRelease(waveNo);
         }
         orderService.updateOrderWaveRelease(waveNo);

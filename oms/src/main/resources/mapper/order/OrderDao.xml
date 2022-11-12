@@ -342,6 +342,12 @@
                 <if test="t.stockState != null">
                     and o.stock_state = #{t.stockState}
                 </if>
+                <if test="t.pickState != null">
+                    and o.pick_state = #{t.pickState}
+                </if>
+                <if test="t.isPrintLabel != null">
+                    and o.is_print_label = #{t.isPrintLabel}
+                </if>
                 <if test="t.shipMethodId != null">
                     and o.ship_method_id = #{t.shipMethodId}
                 </if>
@@ -2531,6 +2537,5 @@
         and pay_state = '1'
         and refund_state = '0'
         and ship_state = '0'
-        and pack_state != '1'
     </update>
 </mapper>

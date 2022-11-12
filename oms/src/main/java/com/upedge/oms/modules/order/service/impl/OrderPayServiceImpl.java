@@ -8,6 +8,7 @@ import com.upedge.common.constant.key.RedisKey;
 import com.upedge.common.constant.key.RocketMqConfig;
 import com.upedge.common.enums.TransactionConstant;
 import com.upedge.common.exception.CustomerException;
+import com.upedge.common.feign.PmsFeignClient;
 import com.upedge.common.feign.TmsFeignClient;
 import com.upedge.common.feign.UmsFeignClient;
 import com.upedge.common.model.account.AccountPaymentRequest;
@@ -124,6 +125,9 @@ public class OrderPayServiceImpl implements OrderPayService {
 
     @Autowired
     private MqOnSaiheService mqOnSaiheService;
+
+    @Autowired
+    PmsFeignClient pmsFeignClient;
 
     /**
      * 冗余订单物流单元信息
@@ -949,22 +953,30 @@ public class OrderPayServiceImpl implements OrderPayService {
 
     }
 
+
     @Override
     public void sendCheckOrderStockMessage(OrderItemQuantityDto orderItemQuantityDto) {
-        List<OrderItemQuantityVo> orderItemQuantityVos = orderService.selectOrderItemQuantities(orderItemQuantityDto);
-        if (ListUtils.isNotEmpty(orderItemQuantityVos)) {
-            List<Message> messages = new ArrayList<>();
-            orderItemQuantityVos.forEach(orderItemQuantityVo -> {
-                Message message = new Message(RocketMqConfig.TOPIC_ORDER_CHECK_STOCK, "", orderItemQuantityVo.getOrderId().toString(), JSON.toJSONBytes(orderItemQuantityVo));
-                messages.add(message);
-            });
-            try {
-                defaultMQProducer.send(messages);
-            } catch (Exception e) {
-                e.printStackTrace();
-                log.warn("paymentId:{},订单检查库存消息发送失败", orderItemQuantityDto.toString());
+        threadPoolExecutor.submit(new Runnable() {
+            @Override
+            public void run() {
+                List<OrderItemQuantityVo> orderItemQuantityVos = orderService.selectOrderItemQuantities(orderItemQuantityDto);
+                pmsFeignClient.orderCheckStock(orderItemQuantityVos);
             }
-        }
+        },threadPoolExecutor);
+
+//        if (ListUtils.isNotEmpty(orderItemQuantityVos)) {
+//            List<Message> messages = new ArrayList<>();
+//            orderItemQuantityVos.forEach(orderItemQuantityVo -> {
+//                Message message = new Message(RocketMqConfig.TOPIC_ORDER_CHECK_STOCK, "", orderItemQuantityVo.getOrderId().toString(), JSON.toJSONBytes(orderItemQuantityVo));
+//                messages.add(message);
+//            });
+//            try {
+//                defaultMQProducer.send(messages);
+//            } catch (Exception e) {
+//                e.printStackTrace();
+//                log.warn("paymentId:{},订单检查库存消息发送失败", orderItemQuantityDto.toString());
+//            }
+//        }
     }
 
 }
