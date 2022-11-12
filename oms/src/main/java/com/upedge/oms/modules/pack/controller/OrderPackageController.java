@@ -2,6 +2,7 @@ package com.upedge.oms.modules.pack.controller;
 
 import com.upedge.common.base.BaseResponse;
 import com.upedge.common.model.user.vo.Session;
+import com.upedge.common.utils.ListUtils;
 import com.upedge.common.web.util.UserUtil;
 import com.upedge.oms.modules.fulfillment.service.OrderFulfillmentService;
 import com.upedge.oms.modules.pack.entity.OrderLabelPrintLog;
@@ -138,6 +139,14 @@ public class OrderPackageController {
     @PostMapping("/exStock")
     public BaseResponse packExStock(@RequestBody@Valid PackageExStockRequest request) {
         Session session = UserUtil.getSession(redisTemplate);
+        List<Long> packNos = request.getPackNos();
+        if (ListUtils.isNotEmpty(packNos)){
+            for (Long packNo : packNos) {
+                request.setScanNo(packNo.toString());
+                orderPackageService.packageExStock(request,session);
+            }
+            return BaseResponse.success();
+        }
         return orderPackageService.packageExStock(request, session);
     }
 

@@ -232,7 +232,7 @@ public class OrderPackageServiceImpl implements OrderPackageService {
         if (orderPackage.getPackageState() != 0) {
             return BaseResponse.failed("包裹已出库或已搁置");
         }
-        if (!company.equals(orderPackage.getTrackingCompany())){
+        if (StringUtils.isNotBlank(company) && !company.equals(orderPackage.getTrackingCompany())){
             return BaseResponse.failed("该包裹所属物流公司不是" + company);
         }
         boolean isUploadStore = orderPackage.getIsUploadStore();
@@ -282,6 +282,7 @@ public class OrderPackageServiceImpl implements OrderPackageService {
 
         return BaseResponse.success(orderPackageInfoVo);
     }
+
 
     @Override
     public BaseResponse orderRevokePackage(OrderPackRevokeRequest request, Session session) {
