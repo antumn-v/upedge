@@ -5,10 +5,7 @@ import com.upedge.common.constant.key.RedisKey;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.web.util.UserUtil;
 import com.upedge.oms.modules.pick.entity.OrderPick;
-import com.upedge.oms.modules.pick.request.OrderPickCreateRequest;
-import com.upedge.oms.modules.pick.request.OrderPickListRequest;
-import com.upedge.oms.modules.pick.request.OrderPickPreviewListRequest;
-import com.upedge.oms.modules.pick.request.TwicePickSubmitRequest;
+import com.upedge.oms.modules.pick.request.*;
 import com.upedge.oms.modules.pick.service.OrderPickService;
 import com.upedge.oms.modules.pick.vo.OrderPickWaveInfoVo;
 import io.swagger.annotations.Api;
@@ -103,5 +100,11 @@ public class OrderPickController {
         return BaseResponse.success();
     }
 
+    @ApiOperation("释放波次")
+    @PostMapping("/releaseWave")
+    public BaseResponse releaseWave(@RequestBody@Valid OrderPickWaveReleaseRequest request){
+        Session session = UserUtil.getSession(redisTemplate);
+        return orderPickService.releaseOrderWave(request,session);
+    }
 
 }

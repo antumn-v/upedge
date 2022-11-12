@@ -1333,6 +1333,9 @@
                     <if test="t.pickType != null">
                         and pick_type = #{pickType}
                     </if>
+                    <if test="t.waveNo != null">
+                        and wave_no = #{t.waveNo}
+                    </if>
                 </if>
                 <if test="condition != null">
                     and ${condition}
@@ -1347,12 +1350,6 @@
         <include refid="Base_Column_List"/>
         from `order`
         <include refid="Query_Condition"/>
-        <if test="bagFlag != null and bagFlag == 0">
-            and saihe_order_code is null
-        </if>
-        <if test="bagFlag != null and bagFlag == 1">
-            and saihe_order_code is not null
-        </if>
         order by id desc
         <if test="pageNum != null and pageSize != null ">
             limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
@@ -2350,7 +2347,7 @@
         where pay_state = '1'
           and saihe_order_code is null
           and order_status = '0'
-        order by pay_time asc limit 100
+        order by pay_time asc limit 200
     </select>
 
     <update id="updateWarehouseByMethodId">
@@ -2523,5 +2520,17 @@
           and pay_state = '1'
           and refund_state = '0'
           and ship_state = '0'
+    </update>
+
+    <update id="updateOrderWaveRelease">
+        update `order`
+            set wave_no = null,
+                pick_state = '0',
+                is_print_label = '0'
+        where wave_no = #{waveNo}
+        and pay_state = '1'
+        and refund_state = '0'
+        and ship_state = '0'
+        and pack_state != '1'
     </update>
 </mapper>

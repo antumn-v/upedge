@@ -35,6 +35,10 @@ import java.util.Set;
  */
 public interface OrderService{
 
+    int updateOrderWaveRelease(Integer waveNo);
+
+    List<Order> selectByWaveNo(Integer waveNo);
+
     BaseResponse updateActualShipMethod(OrderUpdateActualShipMethodRequest request,Session session);
 
     int updateOrderAsTracked( Long id,

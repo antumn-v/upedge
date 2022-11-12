@@ -1328,6 +1328,22 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
+    public int updateOrderWaveRelease(Integer waveNo) {
+        return orderDao.updateOrderWaveRelease(waveNo);
+    }
+
+    @Override
+    public List<Order> selectByWaveNo(Integer waveNo) {
+        Page<Order> page = new Page<>();
+        Order order = new Order();
+        order.setWaveNo(waveNo);
+        page.setT(order);
+        page.setPageSize(-1);
+        List<Order> orders = select(page);
+        return orders;
+    }
+
+    @Override
     public BaseResponse updateActualShipMethod(OrderUpdateActualShipMethodRequest request, Session session) {
         Long actualMethodId = request.getShipMethodId();
         Long orderId = request.getOrderId();

@@ -193,7 +193,6 @@ public class CustomerProductQuoteServiceImpl implements CustomerProductQuoteServ
         return BaseResponse.success();
     }
 
-    @Transactional
     @Override
     public BaseResponse updateCustomerProductQuote(CustomerProductQuoteUpdateRequest request, Session session) {
         Long storeVariantId = request.getStoreVariantId();
@@ -379,7 +378,6 @@ public class CustomerProductQuoteServiceImpl implements CustomerProductQuoteServ
         String tag = "quote";
         String key = UUID.randomUUID().toString();
         Message message = new Message(RocketMqConfig.TOPIC_CUSTOMER_PRODUCT_QUOTE_UPDATE, tag, key, JSON.toJSONBytes(customerProductQuoteVos));
-        message.setDelayTimeLevel(0);
         return productMqProducer.sendMessage(message);
     }
 

@@ -419,6 +419,12 @@ public class VariantWarehouseStockServiceImpl implements VariantWarehouseStockSe
         for (Map.Entry<Long,Integer> map:variantChangeQuantity.entrySet()){
             int i = variantWarehouseStockDao.updateVariantWarehouseAvailableStock(map.getKey(), warehouseCode,map.getValue());
             if (i == 0){
+                VariantWarehouseStock variantWarehouseStock = selectByPrimaryKey(map.getKey(), warehouseCode);
+                if (null != variantWarehouseStock){
+                    VariantWarehouseStockModel variantWarehouseStockModel = new VariantWarehouseStockModel();
+                    BeanUtils.copyProperties(variantWarehouseStock,variantWarehouseStockModel);
+                    redisTemplate.opsForHash().put(RedisKey.HASH_VARIANT_WAREHOUSE_STOCK+warehouseCode,map.getKey().toString(),variantWarehouseStockModel);
+                }
                 throw new Exception("库存不足");
             }
         }
@@ -647,7 +653,7 @@ public class VariantWarehouseStockServiceImpl implements VariantWarehouseStockSe
         redisTemplate.opsForHash().put(RedisKey.HASH_VARIANT_WAREHOUSE_STOCK+variantWarehouseStock.getWarehouseCode(),variantWarehouseStock.getVariantId().toString(),variantWarehouseStockModel);
 
         OrderItemQuantityDto orderItemQuantityDto = new OrderItemQuantityDto();
-        orderItemQuantityDto.setVariantId(variantWarehouseStock.getVariantId());
+        orderItemQuantityDto.setVariantId(productVariant.getId());
         orderItemQuantityDto.setStockType(1);
         omsFeignClient.checkStock(orderItemQuantityDto);
 

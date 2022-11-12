@@ -15,6 +15,8 @@ import java.util.List;
  */
 public interface OrderPickDao {
 
+    int updatePickWaveRelease(Integer waveNo);
+
     OrderPick selectByWaveNo(Integer waveNo);
 
     Integer selectMaxWaveNo();

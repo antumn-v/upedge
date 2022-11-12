@@ -44,7 +44,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ThreadPoolExecutor;
 
 
@@ -154,7 +153,6 @@ public class QuoteApplyServiceImpl implements QuoteApplyService {
         return BaseResponse.success();
     }
 
-    @Transactional
     @Override
     public BaseResponse processQuoteApply(QuoteApplyProcessRequest request, Long quoteApplyId, Session session) throws CustomerException {
         QuoteApply quoteApply = quoteApplyDao.selectByPrimaryKey(quoteApplyId);
@@ -281,19 +279,10 @@ public class QuoteApplyServiceImpl implements QuoteApplyService {
         if (ListUtils.isNotEmpty(productQuoteRecords)) {
             productQuoteRecordService.insertByBatch(productQuoteRecords);
         }
-        CompletableFuture.runAsync(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    Thread.sleep(3 * 1000L);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                CustomerProductQuoteSearchRequest customerProductQuoteSearchRequest = new CustomerProductQuoteSearchRequest();
-                customerProductQuoteSearchRequest.setStoreVariantIds(storeVariantIds);
-                customerProductQuoteService.sendCustomerProductQuoteUpdateMessage(storeVariantIds);
-            }
-        },threadPoolExecutor);
+
+        CustomerProductQuoteSearchRequest customerProductQuoteSearchRequest = new CustomerProductQuoteSearchRequest();
+        customerProductQuoteSearchRequest.setStoreVariantIds(storeVariantIds);
+        customerProductQuoteService.sendCustomerProductQuoteUpdateMessage(storeVariantIds);
 
         redisDeleteQuotingVariant(storeVariantIds);
         return BaseResponse.success();
@@ -343,7 +332,7 @@ public class QuoteApplyServiceImpl implements QuoteApplyService {
         List<QuoteApplyItem> quoteApplyItems = new ArrayList<>();
         List<Long> quotingVariantIds = new ArrayList<>();
         List<StoreProductVariant> storeProductVariants = storeProductVariantDao.selectByIds(storeVariantIds);
-//        storeProductService.toNormalProduct(storeProductVariants.get(0).getProductId(),0L);
+        storeProductService.toNormalProduct(storeProductVariants.get(0).getProductId(),0L);
         for (StoreProductVariant storeProductVariant : storeProductVariants) {
             //判断产品是否已报价
             String key = RedisKey.STRING_QUOTED_STORE_VARIANT + storeProductVariant.getId();

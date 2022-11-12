@@ -140,7 +140,6 @@ public class VariantWarehouseStockController {
         for (OrderItemQuantityVo orderItemQuantityVo : orderItemQuantityVos) {
             try {
                 boolean b = variantWarehouseStockService.orderCheckStock(orderItemQuantityVo);
-                log.warn("orderID:{},结果：{}",orderItemQuantityVo.getOrderId(),b);
             } catch (Exception e) {
                 return BaseResponse.failed(e.getMessage());
             }

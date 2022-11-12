@@ -316,6 +316,7 @@
         and o.pick_state = '0'
         and o.pack_state = '1'
         and oi.quantity > '0'
+        and o.wave_no is null
         and o.ship_method_id in
         <foreach collection="shipMethodIds" item="methodId" open="(" close=")" separator=",">
             #{methodId}
@@ -398,4 +399,10 @@
         from order_pick
         where wave_no = #{waveNo}
     </select>
+
+    <update id="updatePickWaveRelease">
+        update order_pick
+            set pick_state = '-1'
+        where wave_no = #{waveNo}
+    </update>
 </mapper>

@@ -88,6 +88,8 @@ public class AppOrderListDto {
 
     private List<String> tagList;
 
+    private Boolean isPrintLabel;
+
     public AppOrderListDto() {
 //        initDateRange();
         initOrderState();

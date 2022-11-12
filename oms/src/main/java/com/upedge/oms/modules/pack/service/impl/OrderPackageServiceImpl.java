@@ -312,16 +312,10 @@ public class OrderPackageServiceImpl implements OrderPackageService {
             orderService.updateStockState(orderId, 0);
         }
 
-        Long packNo = null;
-        OrderPackage orderPackage = orderPackageDao.selectByOrderId(orderId);
-        if (null != orderPackage) {
-            if (StringUtils.isNotBlank(reason)) {
-                if (StringUtils.isNotBlank(orderPackage.getRemark())) {
-                    reason = orderPackage.getRemark() + "," + reason;
-                }
-            }
-            orderPackageDao.revokePackageById(orderPackage.getId(), reason);
-            packNo = orderPackage.getPackageNo();
+        Long packNo = order.getPackNo();
+
+        if (null != packNo) {
+            orderPackageDao.revokePackageById(packNo, reason);
         }
 
         orderService.updateOrderPackInfo(orderId, -1, packNo);

@@ -22,6 +22,7 @@ import com.upedge.oms.modules.pick.dao.OrderPickDao;
 import com.upedge.oms.modules.pick.entity.OrderPick;
 import com.upedge.oms.modules.pick.request.OrderPickCreateRequest;
 import com.upedge.oms.modules.pick.request.OrderPickPreviewListRequest;
+import com.upedge.oms.modules.pick.request.OrderPickWaveReleaseRequest;
 import com.upedge.oms.modules.pick.request.TwicePickSubmitRequest;
 import com.upedge.oms.modules.pick.service.OrderPickService;
 import com.upedge.oms.modules.pick.vo.*;
@@ -78,6 +79,35 @@ public class OrderPickServiceImpl implements OrderPickService {
     @Transactional
     public int insertSelective(OrderPick record) {
         return orderPickDao.insert(record);
+    }
+
+    @Override
+    public BaseResponse releaseOrderWave(OrderPickWaveReleaseRequest request, Session session) {
+        Integer waveNo = request.getWaveNo();
+        OrderPick orderPick = orderPickDao.selectByWaveNo(waveNo);
+        if (orderPick == null){
+            return BaseResponse.failed("拣货信息不存在");
+        }
+        if (orderPick.getPickState() == -1){
+            return BaseResponse.success();
+        }
+        String message = "success";
+        boolean hasExStockOrder = false;
+        List<Order> orders = orderService.selectByWaveNo(waveNo);
+        if (ListUtils.isEmpty(orders)){
+            for (Order order : orders) {
+                if (order.getPackState() == 1 || order.getShipState() == 1){
+                    hasExStockOrder = true;
+                    message = "波次包含已出库的订单，波次保留，其他订单已释放";
+                    break;
+                }
+            }
+        }
+        if (!hasExStockOrder){
+            orderPickDao.updatePickWaveRelease(waveNo);
+        }
+        orderService.updateOrderWaveRelease(waveNo);
+        return BaseResponse.success(message);
     }
 
     @Override
@@ -388,7 +418,7 @@ public class OrderPickServiceImpl implements OrderPickService {
             || order.getPackState() != 1
             || order.getPickState() != 0
             || order.getWaveNo() != null){
-                continue;
+                return BaseResponse.failed("包含不符合条件的订单");
             }
             ShippingMethodRedis shippingMethodRedis = (ShippingMethodRedis) redisTemplate.opsForHash().get(RedisKey.SHIPPING_METHOD,order.getShipMethodId().toString());
             if (i == 0){
