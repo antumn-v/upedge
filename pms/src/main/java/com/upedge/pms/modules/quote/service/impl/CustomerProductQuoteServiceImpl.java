@@ -1,10 +1,9 @@
 package com.upedge.pms.modules.quote.service.impl;
 
-import com.alibaba.fastjson.JSON;
 import com.upedge.common.base.BaseResponse;
 import com.upedge.common.base.Page;
 import com.upedge.common.constant.key.RedisKey;
-import com.upedge.common.constant.key.RocketMqConfig;
+import com.upedge.common.feign.OmsFeignClient;
 import com.upedge.common.model.pms.quote.CustomerProductQuoteVo;
 import com.upedge.common.model.pms.request.CustomerProductQuoteSearchRequest;
 import com.upedge.common.model.pms.request.QuotedProductSelectBySkuRequest;
@@ -30,7 +29,6 @@ import com.upedge.pms.modules.quote.service.ProductQuoteRecordService;
 import com.upedge.pms.modules.quote.service.QuoteApplyService;
 import com.upedge.pms.mq.producer.ProductMqProducer;
 import jodd.util.StringUtil;
-import org.apache.rocketmq.common.message.Message;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -41,7 +39,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.UUID;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.stream.Collectors;
 
 
@@ -80,6 +78,12 @@ public class CustomerProductQuoteServiceImpl implements CustomerProductQuoteServ
 
     @Autowired
     RedisTemplate redisTemplate;
+
+    @Autowired
+    OmsFeignClient omsFeignClient;
+
+    @Autowired
+    private ThreadPoolExecutor threadPoolExecutor;
 
 
     /**
@@ -364,21 +368,29 @@ public class CustomerProductQuoteServiceImpl implements CustomerProductQuoteServ
     }
 
     @Override
-    public boolean sendCustomerProductQuoteUpdateMessage(List<Long> storeVariantIds) {
-        CustomerProductQuoteSearchRequest request = new CustomerProductQuoteSearchRequest();
-        request.setStoreVariantIds(storeVariantIds);
-        List<CustomerProductQuoteVo> customerProductQuoteVos = selectQuoteDetail(request);
-        if (ListUtils.isEmpty(customerProductQuoteVos)){
-            return false;
-        }
-        for (CustomerProductQuoteVo customerProductQuoteVo : customerProductQuoteVos) {
-            String key = RedisKey.STRING_QUOTED_STORE_VARIANT + customerProductQuoteVo.getStoreVariantId();
-            redisTemplate.opsForValue().set(key,customerProductQuoteVo);
-        }
-        String tag = "quote";
-        String key = UUID.randomUUID().toString();
-        Message message = new Message(RocketMqConfig.TOPIC_CUSTOMER_PRODUCT_QUOTE_UPDATE, tag, key, JSON.toJSONBytes(customerProductQuoteVos));
-        return productMqProducer.sendMessage(message);
+    public void sendCustomerProductQuoteUpdateMessage(List<Long> storeVariantIds) {
+        threadPoolExecutor.submit(new Runnable() {
+            @Override
+            public void run() {
+                CustomerProductQuoteSearchRequest request = new CustomerProductQuoteSearchRequest();
+                request.setStoreVariantIds(storeVariantIds);
+                List<CustomerProductQuoteVo> customerProductQuoteVos = selectQuoteDetail(request);
+                if (ListUtils.isEmpty(customerProductQuoteVos)){
+                    return ;
+                }
+                for (CustomerProductQuoteVo customerProductQuoteVo : customerProductQuoteVos) {
+                    String key = RedisKey.STRING_QUOTED_STORE_VARIANT + customerProductQuoteVo.getStoreVariantId();
+                    redisTemplate.opsForValue().set(key,customerProductQuoteVo);
+                }
+//        String tag = "quote";
+//        String key = UUID.randomUUID().toString();
+//        Message message = new Message(RocketMqConfig.TOPIC_CUSTOMER_PRODUCT_QUOTE_UPDATE, tag, key, JSON.toJSONBytes(customerProductQuoteVos));
+//        return productMqProducer.sendMessage(message);
+                omsFeignClient.updateQuoteDetail(customerProductQuoteVos);
+            }
+        },threadPoolExecutor);
+
+
     }
 
     /**

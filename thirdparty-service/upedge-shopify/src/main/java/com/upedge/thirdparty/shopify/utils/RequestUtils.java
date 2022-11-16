@@ -1,11 +1,8 @@
 package com.upedge.thirdparty.shopify.utils;
 
 
-
-
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
@@ -14,9 +11,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.*;
-
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
-import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.concurrent.TimeUnit;
@@ -52,7 +47,7 @@ public class RequestUtils {
         }catch (Exception e) {
             if (e.getMessage().contains("429 Too Many Requests")){
                 try {
-                    Thread.sleep(3000L);
+                    Thread.sleep(1000L);
                 } catch (Exception ex) {
                     ex.printStackTrace();
                 }

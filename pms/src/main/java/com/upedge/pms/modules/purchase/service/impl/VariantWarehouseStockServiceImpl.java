@@ -375,6 +375,7 @@ public class VariantWarehouseStockServiceImpl implements VariantWarehouseStockSe
         List<VariantWarehouseStockRecord> records = new ArrayList<>();
 //        List<VariantWarehouseStock> variantWarehouseStocks = variantWarehouseStockDao.selectByVariantIdsAndWarehouseCode(variantIds,warehouseCode);
         //判断订单下所有产品是否都有货
+        List<ItemQuantityVo> changeItems = new ArrayList<>();
         for (ItemQuantityVo itemQuantityVo : itemQuantityVos) {
             Integer changeQuantity = itemQuantityVo.getQuantity() - itemQuantityVo.getLockedQuantity();
             if (changeQuantity == 0){
@@ -413,6 +414,7 @@ public class VariantWarehouseStockServiceImpl implements VariantWarehouseStockSe
                     changeQuantity += variantChangeQuantity.get(variantId);
                 }
                 variantChangeQuantity.put(variantId,changeQuantity);
+                changeItems.add(itemQuantityVo);
             }
         }
         //挨个修改锁定库存数量，修改失败则回滚
@@ -428,14 +430,17 @@ public class VariantWarehouseStockServiceImpl implements VariantWarehouseStockSe
                 throw new Exception("库存不足");
             }
         }
-        OrderStockStateUpdateRequest orderStockStateUpdateRequest = new OrderStockStateUpdateRequest();
-        orderStockStateUpdateRequest.setStockState(orderItemQuantityVo.getStockState());
-        orderStockStateUpdateRequest.setOrderId(orderItemQuantityVo.getOrderId());
-        orderStockStateUpdateRequest.setItemQuantityVos(itemQuantityVos);
-        int i = omsFeignClient.updateStockState(orderStockStateUpdateRequest);
-        if (i != 1){
-            throw new Exception("订单异常");
+        if (ListUtils.isNotEmpty(changeItems)){
+            OrderStockStateUpdateRequest orderStockStateUpdateRequest = new OrderStockStateUpdateRequest();
+            orderStockStateUpdateRequest.setStockState(orderItemQuantityVo.getStockState());
+            orderStockStateUpdateRequest.setOrderId(orderItemQuantityVo.getOrderId());
+            orderStockStateUpdateRequest.setItemQuantityVos(itemQuantityVos);
+            int i = omsFeignClient.updateStockState(orderStockStateUpdateRequest);
+            if (i != 1){
+                throw new Exception("订单异常");
+            }
         }
+
         variantWarehouseStockRecordService.insertByBatch(records);
         variantWarehouseStockModelMap.forEach((variantId,model) ->{
             redisTemplate.opsForHash().put(RedisKey.HASH_VARIANT_WAREHOUSE_STOCK+warehouseCode,variantId.toString(),model);

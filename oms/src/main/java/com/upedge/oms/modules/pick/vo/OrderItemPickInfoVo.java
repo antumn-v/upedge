@@ -24,4 +24,10 @@ public class OrderItemPickInfoVo {
     private Integer quantity;
 
     private Integer pickedQuantity;
+
+    private String storeVariantImage;
+
+    private String storeVariantSku;
+
+    private String storeVariantName;
 }

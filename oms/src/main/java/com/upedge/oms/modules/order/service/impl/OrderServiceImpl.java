@@ -1452,10 +1452,10 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public int updateStockState(Long id, Integer stockState) {
-        Order order = selectByPrimaryKey(id);
-        if (order != null && order.getStockState() == stockState){
-            return 1;
-        }
+//        Order order = selectByPrimaryKey(id);
+//        if (order != null && order.getStockState() == stockState){
+//            return 1;
+//        }
         return orderDao.updateStockState(id, stockState);
     }
 
@@ -1467,6 +1467,7 @@ public class OrderServiceImpl implements OrderService {
         if(ListUtils.isEmpty(orderItems)){
             return 0;
         }
+        List<OrderItem> updateItems = new ArrayList<>();
         a:
         for (OrderItem orderItem : orderItems) {
             Integer unLockQuantity = orderItem.getQuantity() - orderItem.getLockedQuantity();
@@ -1477,7 +1478,6 @@ public class OrderServiceImpl implements OrderService {
                         //do nothing
                     }else {
                         if (lockQuantity > unLockQuantity){//分配库存数量＞所需数量
-                            log.warn("分配库存数量＞所需数量,{}",itemQuantityVo);
                             return 0;
                         }
                         if (lockQuantity < unLockQuantity){//分配库存数量＜所需数量  订单状态修改为缺货
@@ -1485,6 +1485,7 @@ public class OrderServiceImpl implements OrderService {
                         }
                     }
                     orderItem.setLockedQuantity(lockQuantity);
+                    updateItems.add(orderItem);
                     itemQuantityVos.remove(itemQuantityVo);
                     continue a;
                 }
@@ -1495,7 +1496,9 @@ public class OrderServiceImpl implements OrderService {
             log.warn("库存分配异常:{}",itemQuantityVos.toString());
         }
         updateStockState(id,stockState);
-        orderItemDao.increaseLockQuantity(orderItems);
+        if (ListUtils.isNotEmpty(updateItems)){
+            orderItemDao.increaseLockQuantity(updateItems);
+        }
         return 1;
     }
 

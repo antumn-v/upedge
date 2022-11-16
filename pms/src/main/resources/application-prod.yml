@@ -102,8 +102,8 @@ rocketmq:
 upedge:
   thread:
     coreSize: 20
-    maxSize: 200
-    keepAliveTime: 10
+    maxSize: 2000
+    keepAliveTime: 60
 
 
 seata:

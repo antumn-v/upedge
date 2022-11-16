@@ -4,8 +4,6 @@ import com.alibaba.logistics.param.AlibabaLogisticsOpenPlatformLogisticsTrace;
 import com.alibaba.trade.param.AlibabaOpenplatformTradeModelTradeInfo;
 import com.upedge.common.base.BaseResponse;
 import com.upedge.common.component.annotation.Permission;
-import com.upedge.common.constant.Constant;
-import com.upedge.common.constant.ResultCode;
 import com.upedge.common.exception.CustomerException;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.utils.ListUtils;
@@ -14,9 +12,7 @@ import com.upedge.pms.modules.purchase.entity.PurchaseOrder;
 import com.upedge.pms.modules.purchase.request.PurchaseOrderEditStateUpdateRequest;
 import com.upedge.pms.modules.purchase.request.PurchaseOrderListRequest;
 import com.upedge.pms.modules.purchase.request.PurchaseOrderReceiveRequest;
-import com.upedge.pms.modules.purchase.response.PurchaseOrderListResponse;
 import com.upedge.pms.modules.purchase.service.PurchaseOrderService;
-import com.upedge.pms.modules.purchase.vo.PurchaseOrderVo;
 import com.upedge.thirdparty.ali1688.service.Ali1688Service;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -63,12 +59,8 @@ public class PurchaseOrderController {
     @ApiOperation("订单列表")
     @RequestMapping(value="/list", method=RequestMethod.POST)
     @Permission(permission = "purchase:purchaseorder:list")
-    public PurchaseOrderListResponse list(@RequestBody @Valid PurchaseOrderListRequest request) {
-        List<PurchaseOrderVo> results = purchaseOrderService.orderList(request);
-        Long total = purchaseOrderService.countPurchaseOrder(request);
-        request.setTotal(total);
-        PurchaseOrderListResponse res = new PurchaseOrderListResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS,results,request);
-        return res;
+    public BaseResponse list(@RequestBody @Valid PurchaseOrderListRequest request) {
+        return purchaseOrderService.orderList(request);
     }
 
     @ApiOperation("订单物流信息")

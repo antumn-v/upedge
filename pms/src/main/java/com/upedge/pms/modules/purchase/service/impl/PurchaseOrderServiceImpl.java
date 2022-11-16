@@ -389,7 +389,7 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
     }
 
     @Override
-    public List<PurchaseOrderVo> orderList(PurchaseOrderListRequest request) {
+    public BaseResponse orderList(PurchaseOrderListRequest request) {
         PurchaseOrderListDto purchaseOrderListDto = request.getT();
         if (null == purchaseOrderListDto){
             purchaseOrderListDto = new PurchaseOrderListDto();
@@ -416,8 +416,10 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
 
         purchaseOrderListDto.setIds(orderIds);
         List<PurchaseOrder> purchaseOrders = purchaseOrderDao.selectPurchaseOrders(request);
+        Long total = purchaseOrderDao.countPurchaseOrders(request);
+        request.setTotal(total);
         if (ListUtils.isEmpty(purchaseOrders)) {
-            return new ArrayList<>();
+            return BaseResponse.success();
         }
         //如果刚才没查询到变体,但是查询到订单则重新根据订单查询变体
         if (ListUtils.isEmpty(purchaseOrderItems)){
@@ -449,7 +451,8 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
             purchaseOrderVos.add(purchaseOrderVo);
         }
 
-        return purchaseOrderVos;
+
+        return BaseResponse.success(purchaseOrderVos,request);
     }
 
     /**

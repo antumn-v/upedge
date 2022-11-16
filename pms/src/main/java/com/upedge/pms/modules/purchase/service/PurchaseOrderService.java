@@ -32,7 +32,7 @@ public interface PurchaseOrderService{
 
     BaseResponse refreshFrom1688(Long id);
 
-    List<PurchaseOrderVo> orderList(PurchaseOrderListRequest request);
+    BaseResponse orderList(PurchaseOrderListRequest request);
 
     PurchaseOrder selectByPrimaryKey(Long id);
 

@@ -49,9 +49,9 @@ public enum  OrderTagEnum {
      */
     PACK_FAILED(1,0,null,null,null,0,null,null),
     //有货
-    IN_STOCK(1,0,null,null,1,1,null,null),
+    IN_STOCK(1,0,null,null,1,1,false,0),
     //缺货
-    OUT_STOCK(1,0,null,null,0,1,null,null),
+    OUT_STOCK(1,0,null,null,0,1,false,0),
     //已发货
     ADMIN_SHIPPED(1,1,null,null,null,null,null,null),
     //已搁置

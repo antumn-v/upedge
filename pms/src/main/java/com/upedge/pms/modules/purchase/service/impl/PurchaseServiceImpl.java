@@ -405,28 +405,26 @@ public class PurchaseServiceImpl implements PurchaseService {
         Set<String> purchaseSkus = new HashSet<>();
         for (PurchasePlan purchasePlan : purchasePlans) {
             purchaseSkus.add(purchasePlan.getPurchaseSku());
-            skuPurchasePlanMap.put(purchasePlan.getSpecId(), purchasePlan);
+            skuPurchasePlanMap.put(purchasePlan.getSpecId() + purchasePlan.getPurchaseLink(), purchasePlan);
         }
-        List<ProductPurchaseInfo> productPurchaseInfos = productPurchaseInfoService.selectByPurchaseSkus(purchaseSkus);
+//        List<ProductPurchaseInfo> productPurchaseInfos = productPurchaseInfoService.selectByPurchaseSkus(purchaseSkus);
 
         Map<String, List<Integer>> supplierPurchasePlans = new HashMap<>();
         Map<String, List<AlibabaTradeFastCargo>> supplierCargosMap = new HashMap<>();
 
         for (PurchasePlan purchasePlan : purchasePlans) {
-            if (!supplierCargosMap.containsKey(purchasePlan.getSupplierName())) {
-                supplierCargosMap.put(purchasePlan.getSupplierName(), new ArrayList<AlibabaTradeFastCargo>());
-                supplierPurchasePlans.put(purchasePlan.getSupplierName(), new ArrayList<>());
+            String supplierName = purchasePlan.getSupplierName();
+            if (!supplierCargosMap.containsKey(supplierName)) {
+                supplierCargosMap.put(supplierName, new ArrayList<>());
+                supplierPurchasePlans.put(supplierName, new ArrayList<>());
             }
-            supplierPurchasePlans.get(purchasePlan.getSupplierName()).add(purchasePlan.getId());
-            for (ProductPurchaseInfo productPurchaseInfo : productPurchaseInfos) {
-                if (productPurchaseInfo.getPurchaseSku().equals(purchasePlan.getPurchaseSku())) {
-                    AlibabaTradeFastCargo alibabaTradeFastCargo = new AlibabaTradeFastCargo();
-                    alibabaTradeFastCargo.setOfferId(Long.parseLong(productPurchaseInfo.getPurchaseLink()));
-                    alibabaTradeFastCargo.setSpecId(productPurchaseInfo.getSpecId());
-                    alibabaTradeFastCargo.setQuantity(purchasePlan.getQuantity().doubleValue());
-                    supplierCargosMap.get(purchasePlan.getSupplierName()).add(alibabaTradeFastCargo);
-                }
-            }
+            supplierPurchasePlans.get(supplierName).add(purchasePlan.getId());
+
+            AlibabaTradeFastCargo alibabaTradeFastCargo = new AlibabaTradeFastCargo();
+            alibabaTradeFastCargo.setOfferId(Long.parseLong(purchasePlan.getPurchaseLink()));
+            alibabaTradeFastCargo.setSpecId(purchasePlan.getSpecId());
+            alibabaTradeFastCargo.setQuantity(purchasePlan.getQuantity().doubleValue());
+            supplierCargosMap.get(supplierName).add(alibabaTradeFastCargo);
         }
 
         AlibabaApiVo alibabaApiVo = (AlibabaApiVo) redisTemplate.opsForValue().get(RedisKey.STRING_ALI1688_API);
@@ -459,7 +457,7 @@ public class PurchaseServiceImpl implements PurchaseService {
             List<PurchaseOrderItem> purchaseItems = new ArrayList<>();
             Double purchaseQuantity = 0.0;
             for (AlibabaTradeFastCargo tradeFastCargo : tradeFastCargos) {
-                PurchasePlan purchasePlan = skuPurchasePlanMap.get(tradeFastCargo.getSpecId());
+                PurchasePlan purchasePlan = skuPurchasePlanMap.get(tradeFastCargo.getSpecId()+tradeFastCargo.getOfferId());
                 if (null == purchasePlan) {
                     continue;
                 }

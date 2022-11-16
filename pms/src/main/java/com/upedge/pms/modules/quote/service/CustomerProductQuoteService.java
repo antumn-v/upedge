@@ -36,7 +36,7 @@ public interface CustomerProductQuoteService{
 
     CustomerProductQuote selectByPrimaryKey(Long storeVariantId);
 
-    boolean sendCustomerProductQuoteUpdateMessage(List<Long> storeVariantIds);
+    void sendCustomerProductQuoteUpdateMessage(List<Long> storeVariantIds);
 
     int deleteByPrimaryKey(Long customerId);
 

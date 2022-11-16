@@ -24,7 +24,7 @@ public class Constant {
 	/**
 	 * token过期时间
 	 */
-	public static final long TOKEN_EXPIRE_TIME = 3;
+	public static final long TOKEN_EXPIRE_TIME = 12;
 	
 	/**
 	 * 部门根节点编码

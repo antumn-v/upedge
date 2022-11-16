@@ -148,4 +148,11 @@ public class CustomerProductQuoteController {
         List<CustomerProductQuoteVo> customerProductQuoteVos =  customerProductQuoteService.selectQuoteProductBySkus(request);
         return new QuotedProductSelectBySkuResponse(ResultCode.SUCCESS_CODE,customerProductQuoteVos,customerProductQuoteVos);
     }
+
+
+    @PostMapping("/test")
+    public BaseResponse test(@RequestBody List<Long> storeVariantIds){
+        customerProductQuoteService.sendCustomerProductQuoteUpdateMessage(storeVariantIds);
+        return BaseResponse.success();
+    }
 }

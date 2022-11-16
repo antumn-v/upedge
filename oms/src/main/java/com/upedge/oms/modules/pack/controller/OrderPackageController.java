@@ -173,4 +173,15 @@ public class OrderPackageController {
     }
 
 
+    @PostMapping("/reUploadStore")
+    public BaseResponse reUploadStore(@RequestBody List<Long> packNos){
+        for (Long packNo : packNos) {
+            OrderPackage orderPackage = orderPackageService.selectByPrimaryKey(packNo);
+            orderPackage.setIsUploadStore(false);
+            orderFulfillmentService.orderFulfillment(orderPackage,false);
+        }
+        return BaseResponse.success();
+    }
+
+
 }

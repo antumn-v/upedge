@@ -207,24 +207,19 @@ public class OrderFulfillmentServiceImpl implements OrderFulfillmentService {
 
             String finalTrackCode = trackCode;
             OrderPackage finalOrderPackage = orderPackage;
-            storeOrderRelates.forEach(storeOrderRelate -> {
+            for (StoreOrderRelate storeOrderRelate : storeOrderRelates) {
                 List<StoreOrderItem> storeOrderItems = storeOrderItemDao.selectByStoreOrderAndOrder(orderId, storeOrderRelate.getStoreOrderId());
                 if(ListUtils.isEmpty(storeOrderItems)){
-                    return;
+                    continue;
                 }
                 String platOrderId = storeOrderItems.get(0).getPlatOrderId();
                 Long storeOrderId = storeOrderRelate.getStoreOrderId();
-                switch (storeVo.getStoreType()) {//0=shopify，1=woocommerce，2=shoplazza
-                    case 0:
-                        boolean b = shopifyOrderFulfill(storeOrderItems, finalTrackCode, finalOrderPackage.getTrackingCompany(), storeVo, platOrderId, storeOrderId,orderId);
-                        if (!b){
-                            return;
-                        }
-                        break;
-                    default:
-                        break;
+                boolean b = shopifyOrderFulfill(storeOrderItems, finalTrackCode, finalOrderPackage.getTrackingCompany(), storeVo, platOrderId, storeOrderId,orderId);
+                if (!b){
+                    return false;
                 }
-            });
+            }
+
         } catch (Exception e) {
             e.printStackTrace();
             return false;

@@ -78,6 +78,7 @@ import java.io.*;
 import java.math.BigDecimal;
 import java.net.URL;
 import java.util.*;
+import java.util.concurrent.ThreadPoolExecutor;
 
 @Service
 public class OrderPackageServiceImpl implements OrderPackageService {
@@ -115,6 +116,9 @@ public class OrderPackageServiceImpl implements OrderPackageService {
     @Autowired
     DefaultMQProducer defaultMQProducer;
 
+    @Autowired
+    ThreadPoolExecutor threadPoolExecutor;
+
     @Value("${files.pdf.local}")
     private String pdfLocalPath;
     @Value("${files.pdf.prefix}")
@@ -146,7 +150,10 @@ public class OrderPackageServiceImpl implements OrderPackageService {
         if (orderPackage != null){
             packNo = orderPackage.getId();
             orderPackageDao.restoreRevokedPackage(packNo);
-            orderService.updateOrderPackInfo(orderId, 0, packNo);
+            orderService.updateOrderPackInfo(orderId, 1, packNo);
+            OrderItemQuantityDto orderItemQuantityDto = new OrderItemQuantityDto();
+            orderItemQuantityDto.setOrderId(orderId);
+            orderPayService.sendCheckOrderStockMessage(orderItemQuantityDto);
         }else {
             orderService.updateOrderPackInfo(orderId, 0, null);
             createPackage(orderId);
@@ -262,11 +269,11 @@ public class OrderPackageServiceImpl implements OrderPackageService {
         OrderPackageInfoVo orderPackageInfoVo = new OrderPackageInfoVo();
         BeanUtils.copyProperties(orderPackage, orderPackageInfoVo);
 
-        orderPackage = new OrderPackage();
-        orderPackage.setId(packNo);
-        orderPackage.setPackageState(1);
-        orderPackage.setSendTime(new Date());
-        updateByPrimaryKeySelective(orderPackage);
+        OrderPackage aPackage = new OrderPackage();
+        aPackage.setId(packNo);
+        aPackage.setPackageState(1);
+        aPackage.setSendTime(new Date());
+        updateByPrimaryKeySelective(aPackage);
 
         AppOrderVo appOrderVo = orderService.appOrderDetail(orderId);
         orderPackageInfoVo.setOrderVo(appOrderVo);
@@ -277,7 +284,13 @@ public class OrderPackageServiceImpl implements OrderPackageService {
         if (isUploadStore) {
             orderService.updateOrderAsTracked(orderId, trackCode);
         } else {
-            sendPackageFulfillmentMessage(packNo);
+            threadPoolExecutor.submit(new Runnable() {
+                @Override
+                public void run() {
+                    orderFulfillmentService.orderFulfillment(orderPackage,false);
+                }
+            },threadPoolExecutor);
+
         }
 
         return BaseResponse.success(orderPackageInfoVo);

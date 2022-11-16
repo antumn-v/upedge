@@ -33,6 +33,9 @@
             <result property="barcode" column="barcode"/>
             <result property="quantity" column="quantity"/>
             <result property="variantImage" column="admin_variant_image"/>
+            <result property="storeVariantImage" column="store_variant_image"/>
+            <result property="storeVariantName" column="store_variant_name"/>
+            <result property="storeVariantSku" column="store_variant_sku"/>
             <result property="storeName" column="store_name"/>
             <result property="platOrderName" column="plat_order_name"/>
         </collection>
@@ -373,6 +376,9 @@
                oi.picked_quantity    as `pickedQuantity`,
                oi.admin_variant_image,
                oi.admin_variant_name as `variantName`,
+                oi.store_variant_image,
+                oi.store_variant_sku,
+                oi.store_variant_name,
                o.pack_no,
                o.pick_type,
                sor.store_name,

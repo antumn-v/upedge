@@ -454,13 +454,23 @@ public class Ali1688Service {
 
 
     public static void main(String[] args) {
-        List<AlibabaLogisticsOpenPlatformLogisticsTrace> alibabaLogisticsOpenPlatformLogisticsTraces = null;
+//        List<AlibabaLogisticsOpenPlatformLogisticsTrace> alibabaLogisticsOpenPlatformLogisticsTraces = null;
+//        try {
+//            alibabaLogisticsOpenPlatformLogisticsTraces = orderShipDetail(2770474212376530454L,null);
+//        } catch (CustomerException e) {
+//            e.printStackTrace();
+//        }
+//        System.out.println(alibabaLogisticsOpenPlatformLogisticsTraces);
+
         try {
-            alibabaLogisticsOpenPlatformLogisticsTraces = orderShipDetail(2770474212376530454L,null);
+            AlibabaOpenplatformTradeModelTradeInfo alibabaOpenplatformTradeModelTradeInfo = orderDetail(3032043950842530454L,null);
+            AlibabaOpenplatformTradeModelProductItemInfo[] alibabaOpenplatformTradeModelProductItemInfos = alibabaOpenplatformTradeModelTradeInfo.getProductItems();
+            for (AlibabaOpenplatformTradeModelProductItemInfo alibabaOpenplatformTradeModelProductItemInfo : alibabaOpenplatformTradeModelProductItemInfos) {
+                System.out.println(alibabaOpenplatformTradeModelProductItemInfo.getSpecId() + "---->" + alibabaOpenplatformTradeModelProductItemInfo.getProductID());
+            }
         } catch (CustomerException e) {
             e.printStackTrace();
         }
-        System.out.println(alibabaLogisticsOpenPlatformLogisticsTraces);
 
 //        AlibabaOpenplatformTradeModelTradeInfo alibabaOpenplatformTradeModelTradeInfo = null;
 //        try {

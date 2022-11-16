@@ -7,6 +7,8 @@ import com.upedge.common.model.oms.order.OrderStockClearRequest;
 import com.upedge.common.model.order.OrderItemQuantityDto;
 import com.upedge.common.model.order.request.OrderStockStateUpdateRequest;
 import com.upedge.common.model.order.vo.UplodaSaiheOnMqVo;
+import com.upedge.common.model.pms.quote.CustomerProductQuoteVo;
+import com.upedge.common.utils.ListUtils;
 import com.upedge.oms.modules.common.service.MqOnSaiheService;
 import com.upedge.oms.modules.common.service.OrderCommonService;
 import com.upedge.oms.modules.order.entity.Order;
@@ -102,6 +104,26 @@ public class OrderCommonController {
     public BaseResponse itemStockClear(@RequestBody OrderStockClearRequest request){
         orderItemService.updateLockedQuantityClear(request);
         return BaseResponse.success();
+    }
+
+    @PostMapping("/updateQuoteDetail")
+    public void itemUpdateQuoteDetail(@RequestBody List<CustomerProductQuoteVo> customerProductQuoteVos){
+        if (ListUtils.isNotEmpty(customerProductQuoteVos)){
+            for (CustomerProductQuoteVo customerProductQuoteVo : customerProductQuoteVos) {
+                try {
+                    if (customerProductQuoteVo.getStoreParentVariantId() == null
+                            || customerProductQuoteVo.getStoreParentVariantId().equals(0L)){
+                        orderItemService.updateItemQuoteDetail(customerProductQuoteVo);
+                    }else {
+                        //组合产品更新报价信息
+                        orderItemService.updateSplitVariantItemQuoteDetail(customerProductQuoteVo);
+                    }
+                    orderItemService.updatePaidOrderItemQuoteDetail(customerProductQuoteVo);
+                } catch (CustomerException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
     }
 
 }

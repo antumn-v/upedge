@@ -570,7 +570,6 @@ public class ProductServiceImpl implements ProductService {
         return new BaseResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS);
     }
 
-    @Transactional
     @Override
     public BaseResponse importFrom1688(AlibabaProductVo alibabaProductVo, Long operatorId) {
 
