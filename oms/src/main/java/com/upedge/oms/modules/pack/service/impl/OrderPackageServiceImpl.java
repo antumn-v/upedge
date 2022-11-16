@@ -22,6 +22,7 @@ import com.upedge.common.utils.DateUtils;
 import com.upedge.common.utils.IdGenerate;
 import com.upedge.common.utils.ListUtils;
 import com.upedge.common.web.util.RedisUtil;
+import com.upedge.oms.modules.common.service.OrderCommonService;
 import com.upedge.oms.modules.fulfillment.service.OrderFulfillmentService;
 import com.upedge.oms.modules.order.entity.Order;
 import com.upedge.oms.modules.order.entity.OrderAddress;
@@ -118,6 +119,9 @@ public class OrderPackageServiceImpl implements OrderPackageService {
 
     @Autowired
     ThreadPoolExecutor threadPoolExecutor;
+
+    @Autowired
+    OrderCommonService orderCommonService;
 
     @Value("${files.pdf.local}")
     private String pdfLocalPath;
@@ -245,6 +249,7 @@ public class OrderPackageServiceImpl implements OrderPackageService {
         boolean isUploadStore = orderPackage.getIsUploadStore();
         String trackCode = orderPackage.getLogisticsOrderNo();
 
+        Long customerId = orderPackage.getCustomerId();
         Long packNo = orderPackage.getPackageNo();
         String key = "order:package:ex:" + packNo;
         boolean b = RedisUtil.lock(redisTemplate, key, 10L, 60 * 1000L);
@@ -290,8 +295,9 @@ public class OrderPackageServiceImpl implements OrderPackageService {
                     orderFulfillmentService.orderFulfillment(orderPackage,false);
                 }
             },threadPoolExecutor);
-
         }
+
+        orderCommonService.addCustomerCommission(orderId,customerId);
 
         return BaseResponse.success(orderPackageInfoVo);
     }

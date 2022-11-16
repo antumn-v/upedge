@@ -119,8 +119,8 @@ files:
 
 upedge:
   thread:
-    coreSize: 20
+    coreSize: 50
     maxSize: 2000
-    keepAliveTime: 60
+    keepAliveTime: 120
 
 ifUploadSaihe: true

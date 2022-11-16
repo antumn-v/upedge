@@ -63,6 +63,8 @@ public interface OrderCommonService {
     boolean getTrackingFromSaihe(Long id, Integer orderType) ;
 
 
+    void addCustomerCommission(Long orderId, Long customerId);
+
     /**
      * 修改订单模块业务数据的客户经理Code
      * @param changeManagerVos

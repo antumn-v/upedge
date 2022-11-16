@@ -57,9 +57,9 @@ public enum  OrderTagEnum {
     //已搁置
     SHUNT(1,null,null,null,null,-1,null,null),
     //面单已打印
-    LABEL_PRINTED(1,0,null,null,1,1,true,null),
+    LABEL_PRINTED(1,0,null,null,1,1,true,1),
     //已拣货
-    PICKED(1,0,null,null,1,1,null,1);
+    PICKED(1,0,null,null,1,1,false,1);
 
 
 

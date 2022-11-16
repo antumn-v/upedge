@@ -669,7 +669,7 @@ public class OrderCommonServiceImpl implements OrderCommonService {
         return false;
     }
 
-
+    @Override
     public void addCustomerCommission(Long orderId,Long customerId){
         CompletableFuture affiliateCommission = CompletableFuture.runAsync(new Runnable() {
             @Override
