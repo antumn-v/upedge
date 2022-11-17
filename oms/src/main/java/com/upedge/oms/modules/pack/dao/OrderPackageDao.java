@@ -11,6 +11,8 @@ import java.util.List;
  */
 public interface OrderPackageDao {
 
+    List<OrderPackage> selectExStockUnUploadPackages();
+
     int restoreRevokedPackage(Long id);
 
     List<OrderPackage> selectUploadStoreFailedPackages();

@@ -12,6 +12,7 @@ import com.upedge.common.constant.key.RocketMqConfig;
 import com.upedge.common.exception.CustomerException;
 import com.upedge.common.feign.PmsFeignClient;
 import com.upedge.common.model.oms.order.OrderItemQuantityVo;
+import com.upedge.common.model.oms.order.OrderStockClearRequest;
 import com.upedge.common.model.order.OrderItemQuantityDto;
 import com.upedge.common.model.ship.vo.ShippingMethodRedis;
 import com.upedge.common.model.user.vo.CustomerIossVo;
@@ -129,6 +130,11 @@ public class OrderPackageServiceImpl implements OrderPackageService {
     private String pdfUrlPrefix;
 
     @Override
+    public List<OrderPackage> selectExStockUnUploadPackages() {
+        return orderPackageDao.selectExStockUnUploadPackages();
+    }
+
+    @Override
     public void saveAllLabelUrl() {
         Page<OrderPackage> page = new Page<>();
         page.setPageSize(-1);
@@ -145,20 +151,20 @@ public class OrderPackageServiceImpl implements OrderPackageService {
     @Override
     public BaseResponse restoreRevokedPackage(Long orderId, Session session) {
         Order order = orderService.selectByPrimaryKey(orderId);
-        if (order.getPackState() != -1){
+        if (order.getPackState() != -1) {
             return BaseResponse.failed("订单非搁置状态");
         }
 
         OrderPackage orderPackage = orderPackageDao.selectByOrderId(orderId);
         Long packNo = null;
-        if (orderPackage != null){
+        if (orderPackage != null) {
             packNo = orderPackage.getId();
             orderPackageDao.restoreRevokedPackage(packNo);
             orderService.updateOrderPackInfo(orderId, 1, packNo);
             OrderItemQuantityDto orderItemQuantityDto = new OrderItemQuantityDto();
             orderItemQuantityDto.setOrderId(orderId);
             orderPayService.sendCheckOrderStockMessage(orderItemQuantityDto);
-        }else {
+        } else {
             orderService.updateOrderPackInfo(orderId, 0, null);
             createPackage(orderId);
         }
@@ -243,7 +249,7 @@ public class OrderPackageServiceImpl implements OrderPackageService {
         if (orderPackage.getPackageState() != 0) {
             return BaseResponse.failed("包裹已出库或已搁置");
         }
-        if (StringUtils.isNotBlank(company) && !company.equals(orderPackage.getTrackingCompany())){
+        if (StringUtils.isNotBlank(company) && !company.equals(orderPackage.getTrackingCompany())) {
             return BaseResponse.failed("该包裹所属物流公司不是" + company);
         }
         boolean isUploadStore = orderPackage.getIsUploadStore();
@@ -288,16 +294,9 @@ public class OrderPackageServiceImpl implements OrderPackageService {
         //物流已上传店铺，直接修改订单发货状态
         if (isUploadStore) {
             orderService.updateOrderAsTracked(orderId, trackCode);
-        } else {
-            threadPoolExecutor.submit(new Runnable() {
-                @Override
-                public void run() {
-                    orderFulfillmentService.orderFulfillment(orderPackage,false);
-                }
-            },threadPoolExecutor);
         }
 
-        orderCommonService.addCustomerCommission(orderId,customerId);
+        orderCommonService.addCustomerCommission(orderId, customerId);
 
         return BaseResponse.success(orderPackageInfoVo);
     }
@@ -495,7 +494,7 @@ public class OrderPackageServiceImpl implements OrderPackageService {
         }
 
         OrderPackage orderPackage = orderPackageDao.selectByOrderId(orderId);
-        if (orderPackage != null) {
+        if (orderPackage != null && orderPackage.getPackageState() > -1) {
             return BaseResponse.failed("订单已生成包裹");
         }
 
@@ -525,26 +524,26 @@ public class OrderPackageServiceImpl implements OrderPackageService {
         }
     }
 
-    @Transactional
     @Override
     public void reCreatePackage(Long orderId) {
-        OrderPackage orderPackage = orderPackageDao.selectByOrderId(orderId);
-        if (null != orderPackage) {
-            Order order = orderService.selectByPrimaryKey(orderId);
-            if (order.getStockState() == 1) {
-                OrderItemQuantityVo orderItemQuantityVo = orderService.selectOrderItemQuantitiesByOrderId(orderId);
-                if (null == orderItemQuantityVo) {
-                    return;
-                }
-                int i = pmsFeignClient.orderCancelShip(orderItemQuantityVo);
-                if (i == 0) {
-                    return;
-                }
-                orderService.updateStockState(orderId, 0);
-            }
-
-            deleteByPrimaryKey(orderPackage.getId());
+        Order order = orderService.selectByPrimaryKey(orderId);
+        if (order.getPackNo() != null) {
+            deleteByPrimaryKey(order.getPackNo());
+            orderService.updateOrderPackInfo(orderId, 0, null);
         }
+
+        OrderItemQuantityVo orderItemQuantityVo = orderService.selectOrderItemQuantitiesByOrderId(orderId);
+        if (null == orderItemQuantityVo) {
+            return;
+        }
+        int i = pmsFeignClient.orderCancelShip(orderItemQuantityVo);
+        if (i == 0) {
+            return;
+        }
+        OrderStockClearRequest orderStockClearRequest = new OrderStockClearRequest();
+        orderStockClearRequest.setOrderId(orderId);
+        orderItemService.updateLockedQuantityClear(orderStockClearRequest);
+
         createPackage(orderId);
     }
 

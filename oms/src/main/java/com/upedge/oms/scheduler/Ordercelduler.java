@@ -2,7 +2,10 @@ package com.upedge.oms.scheduler;
 
 import com.upedge.common.exception.CustomerException;
 import com.upedge.common.utils.ListUtils;
+import com.upedge.oms.modules.fulfillment.service.OrderFulfillmentService;
 import com.upedge.oms.modules.order.service.OrderService;
+import com.upedge.oms.modules.pack.entity.OrderPackage;
+import com.upedge.oms.modules.pack.service.OrderPackageService;
 import com.upedge.oms.modules.stock.request.CreateProcurementRequest;
 import com.upedge.oms.modules.stock.service.AdminStockService;
 import com.upedge.oms.modules.stock.service.StockOrderService;
@@ -27,6 +30,12 @@ public class Ordercelduler {
 
     @Autowired
     AdminStockService adminStockService;
+
+    @Autowired
+    OrderPackageService orderPackageService;
+
+    @Autowired
+    OrderFulfillmentService orderFulfillmentService;
 
     @Autowired
     RedisTemplate<String, Object> redisTemplate;
@@ -69,6 +78,20 @@ public class Ordercelduler {
                 continue;
             }
         }
+    }
 
+
+    @Scheduled(cron = "0 */10 * ? * *")
+    public void packageExStockUploadStore(){
+        if (!ifUploadSaihe) {
+            return ;
+        }
+        List<OrderPackage> orderPackages = orderPackageService.selectExStockUnUploadPackages();
+        if (ListUtils.isEmpty(orderPackages)){
+            return;
+        }
+        for (OrderPackage orderPackage : orderPackages) {
+            orderFulfillmentService.orderFulfillment(orderPackage,false);
+        }
     }
 }

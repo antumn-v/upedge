@@ -1404,7 +1404,13 @@
         on o.id = oi.order_id
             set oi.locked_quantity = '0', o.stock_state = '0',o.pick_state = '0',o.is_print_label = '0'
         where o.ship_state = '0'
-          and oi.admin_variant_id = #{variantId}
-        and o.shipping_warehouse = #{warehouseCode}
+            <if test="variantId != null and warehouseCode != null">
+                and oi.admin_variant_id = #{variantId}
+                and o.shipping_warehouse = #{warehouseCode}
+            </if>
+        <if test="orderId != null">
+            and o.id = #{orderId}
+        </if>
+
     </update>
 </mapper>

@@ -25,7 +25,8 @@
     </resultMap>
 
     <sql id="Base_Column_List">
-        `id`,`customer_id`,`store_id`,`org_path`,`package_no`,`order_id`,`wave_no`,ifnull(`tracking_code`,'') as `tracking_code`,`logistics_order_no`,
+        `id`
+                ,`customer_id`,`store_id`,`org_path`,`package_no`,`order_id`,`wave_no`,ifnull(`tracking_code`,'') as `tracking_code`,`logistics_order_no`,
         `tracking_company`,`tracking_method_name`,`tracking_method_code`,`plat_id`,`package_state`,`create_time`,`send_time`,
         `receive_time`,`is_upload_store`
     </sql>
@@ -480,8 +481,19 @@
 
     <update id="restoreRevokedPackage">
         update order_package
-            set package_state = '0'
+        set package_state = '0'
         where id = #{id}
-        and package_state = '-1';
+          and package_state = '-1';
     </update>
+
+    <select id="selectExStockUnUploadPackages" resultMap="BaseResultMap">
+        select op.*
+        from order_package op
+        inner join `order` o
+       on o.pack_no = op.id
+        where o.ship_state = '0'
+       and op.package_state = '1'
+        order by send_time desc
+        limit 100
+    </select>
 </mapper>

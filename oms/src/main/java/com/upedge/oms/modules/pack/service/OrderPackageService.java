@@ -17,6 +17,8 @@ import java.util.List;
 
 public interface OrderPackageService {
 
+    List<OrderPackage> selectExStockUnUploadPackages();
+
     void saveAllLabelUrl();
 
     BaseResponse restoreRevokedPackage(Long orderId,Session session);

@@ -8,4 +8,6 @@ public class OrderStockClearRequest {
     private Long variantId;
 
     private String warehouseCode;
+
+    private Long orderId;
 }
