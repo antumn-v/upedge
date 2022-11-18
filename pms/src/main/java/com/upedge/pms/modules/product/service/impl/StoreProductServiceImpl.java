@@ -39,6 +39,7 @@ import com.upedge.thirdparty.shopify.moudles.product.entity.ShopifyVariant;
 import com.upedge.thirdparty.shoplazza.moudles.product.entity.ShoplazzaProduct;
 import com.upedge.thirdparty.shoplazza.moudles.product.entity.ShoplazzaVariant;
 import com.upedge.thirdparty.woocommerce.moudles.product.controller.WoocommerceProductApi;
+import com.upedge.thirdparty.woocommerce.moudles.product.entity.WoocImage;
 import com.upedge.thirdparty.woocommerce.moudles.product.entity.WoocProduct;
 import com.upedge.thirdparty.woocommerce.moudles.product.entity.WoocVariant;
 import lombok.extern.slf4j.Slf4j;
@@ -713,6 +714,7 @@ public class StoreProductServiceImpl implements StoreProductService {
             attribute.setState(0);
             attribute.setStoreName(storeVo.getStoreName());
             attribute.setImportTime(new Date());
+            attribute.setTransformState(0);
             storeProductAttributeDao.insert(attribute);
 
             StoreProductVariant variant = woocProductToVariant(attribute);
@@ -765,7 +767,13 @@ public class StoreProductServiceImpl implements StoreProductService {
                                                     Date importTime) {
         StoreProductVariant variant = new StoreProductVariant();
         if (null != woocVariant.getImage()) {
-            variant.setImage(woocVariant.getImage().getSrc());
+            WoocImage woocImage = woocVariant.getImage();
+            String image = woocImage.getSrc();
+            ImageUploadRecord imageUploadRecord = imageUploadRecordService.uploadImageByUrl(image,woocVariant.getImage().getId());
+            if (null != imageUploadRecord){
+                image = imageUploadRecord.getNewImage();
+            }
+            variant.setImage(image);
         }
         StringBuffer title = new StringBuffer();
         woocVariant.getAttributes().forEach(attr -> {
@@ -780,6 +788,7 @@ public class StoreProductServiceImpl implements StoreProductService {
         variant.setImportTime(importTime);
         variant.setState(1);
         variant.setParentVariantId(0L);
+        variant.setSplitType(0);
 
         return variant;
     }

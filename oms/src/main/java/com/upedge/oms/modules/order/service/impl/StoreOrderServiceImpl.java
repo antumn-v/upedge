@@ -281,9 +281,7 @@ public class StoreOrderServiceImpl implements StoreOrderService {
             e.printStackTrace();
             return null;
         }
-        if (!woocommerceOrder.getStatus().equals("processing")) {
-            return null;
-        }
+
         String platOrderId = woocommerceOrder.getId();
         String key = RedisKey.STRING_STORE_PALT_ORDER_UPDATE + storeVo.getId() + ":" + platOrderId;
         boolean flag = RedisUtil.lock(redisTemplate, key, 3L, 10 * 1000L);
@@ -296,6 +294,9 @@ public class StoreOrderServiceImpl implements StoreOrderService {
         boolean b = false;
         Date date = new Date();
         if (null == storeOrder) {
+            if (!woocommerceOrder.getStatus().equals("processing")) {
+                return null;
+            }
             storeAddressId = IdGenerate.nextId();
             storeOrderId = IdGenerate.nextId();
             storeOrder = new StoreOrder(woocommerceOrder);
@@ -320,11 +321,11 @@ public class StoreOrderServiceImpl implements StoreOrderService {
             storeOrderAddress = new StoreOrderAddress(woocommerceOrder.getShipping());
             if (StringUtils.isNotBlank(storeOrderAddress.getCountryCode())) {
                 AreaSelectRequest areaSelectRequest = new AreaSelectRequest();
-                areaSelectRequest.setAreaCode(storeOrderAddress.getCountryCode());
+                areaSelectRequest.setEnName(storeOrderAddress.getCountry());
                 BaseResponse response = tmsFeignClient.areaSelect(areaSelectRequest);
                 if (ResultCode.SUCCESS_CODE == response.getCode()) {
                     AreaVo areaVo = JSONObject.parseObject(JSON.toJSON(response.getData()).toString()).toJavaObject(AreaVo.class);
-                    storeOrderAddress.setCountry(areaVo.getEnName());
+                    storeOrderAddress.setCountryCode(areaVo.getAreaCode());
                 }
             }
         } else {

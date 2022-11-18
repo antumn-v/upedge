@@ -3,6 +3,8 @@ package com.upedge.oms.modules.common.controller;
 
 import com.upedge.common.base.BaseResponse;
 import com.upedge.common.exception.CustomerException;
+import com.upedge.common.feign.PmsFeignClient;
+import com.upedge.common.model.oms.order.OrderItemQuantityVo;
 import com.upedge.common.model.oms.order.OrderStockClearRequest;
 import com.upedge.common.model.order.OrderItemQuantityDto;
 import com.upedge.common.model.order.request.OrderStockStateUpdateRequest;
@@ -42,6 +44,9 @@ public class OrderCommonController {
 
     @Autowired
     PackageScheduler packageScheduler;
+
+    @Autowired
+    PmsFeignClient pmsFeignClient;
 
     @PostMapping("/jsonTest")
     public BaseResponse jsonTest(){
@@ -87,6 +92,13 @@ public class OrderCommonController {
         return BaseResponse.success();
     }
 
+
+    @PostMapping("/customCheckStock")
+    public BaseResponse customCheckStock(@RequestBody OrderItemQuantityDto orderItemQuantityDto){
+        List<OrderItemQuantityVo> orderItemQuantityVos = orderService.selectOrderItemQuantities(orderItemQuantityDto);
+        pmsFeignClient.orderCheckStock(orderItemQuantityVos);
+        return BaseResponse.success();
+    }
 
     @PostMapping("/checkStock")
     public void checkStock(@RequestBody OrderItemQuantityDto orderItemQuantityDto){

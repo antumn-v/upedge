@@ -188,7 +188,7 @@ public class StoreOrder {
         this.createTime = woocommerceOrder.getDate_created();
         this.updateTime = woocommerceOrder.getDate_modified();
         this.platOrderId = woocommerceOrder.getId();
-        this.platOrderName = "#" + woocommerceOrder.getId();
+        this.platOrderName = "#" + woocommerceOrder.getNumber();
         switch (woocommerceOrder.getStatus()) {
             case "processing":
                 this.financialStatus = 0;
@@ -198,7 +198,7 @@ public class StoreOrder {
                 this.financialStatus = 2;
                 break;
             case "completed":
-                this.fulfillmentStatus = 1;
+                this.fulfillmentStatus = 2;
                 break;
             default:
                 this.fulfillmentStatus = 0;

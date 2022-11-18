@@ -23,7 +23,6 @@ import com.upedge.thirdparty.shopify.moudles.shop.controller.ShopifyShopApi;
 import com.upedge.thirdparty.shoplazza.moudles.shop.api.ShoplazzaShopApi;
 import com.upedge.thirdparty.shoplazza.moudles.shop.entity.ShoplazzaShop;
 import com.upedge.thirdparty.woocommerce.entity.AuthParam;
-import com.upedge.thirdparty.woocommerce.moudles.shop.api.WoocommerceShopApi;
 import com.upedge.ums.async.StoreAsync;
 import com.upedge.ums.enums.ShopifyAttr;
 import com.upedge.ums.enums.WoocommerceAttr;
@@ -387,13 +386,7 @@ public class StoreServiceImpl implements StoreService {
         store.setCustomerId(session.getCustomerId());
         store.setStatus(1);
 
-        try {
-            JSONObject jsonObject = WoocommerceShopApi.shopSystemStatus(auth);
-            store.setCurrency(jsonObject.getJSONObject("settings").getString("currency"));
-            store.setTimezone(jsonObject.getJSONObject("environment").getString("default_timezone"));
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+
 
         store.setStoreType(StoreConfig.woocommerce_store);
         store.setUpdateTime(new Date());
@@ -418,6 +411,14 @@ public class StoreServiceImpl implements StoreService {
 
         String accessToken = getStoreToken(store.getStoreType(), attrs);
         store.setApiToken(accessToken);
+        auth.setToken(accessToken);
+//        try {
+//            JSONObject jsonObject = WoocommerceShopApi.shopSystemStatus(auth);
+//            store.setCurrency(jsonObject.getJSONObject("settings").getString("currency"));
+//            store.setTimezone(jsonObject.getJSONObject("environment").getString("default_timezone"));
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
 
         if (b) {
             organizationDao.updateByPrimaryKeySelective(organization);

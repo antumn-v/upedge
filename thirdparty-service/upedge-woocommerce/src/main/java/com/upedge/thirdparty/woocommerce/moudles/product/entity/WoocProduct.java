@@ -20,7 +20,7 @@ public class WoocProduct {
     private Date date_modified_gmt;
     private String type;
     private String status;
-    private Boolean featured;
+    private String featured;
     private String catalog_visibility;
     private String description;
     private String short_description;
@@ -38,14 +38,14 @@ public class WoocProduct {
     private Integer total_sales;
     private Boolean virtual;
     private Boolean downloadable;
-    private Integer download_limit;
-    private Integer download_expiry;
+    private String download_limit;
+    private String download_expiry;
     private String external_url;
     private String button_text;
     private String tax_status;
     private String tax_class;
-    private Boolean manage_stock;
-    private Integer stock_quantity;
+    private String manage_stock;
+    private String stock_quantity;
     private String stock_status;
     private String backorders;
     private Boolean backorders_allowed;
@@ -55,13 +55,13 @@ public class WoocProduct {
     private Boolean shipping_required;
     private Boolean shipping_taxable;
     private String shipping_class;
-    private Integer shipping_class_id;
+    private String shipping_class_id;
     private Boolean reviews_allowed;
     private String average_rating;
-    private Integer rating_count;
-    private Integer parent_id;
+    private String rating_count;
+    private String parent_id;
     private String purchase_note;
-    private Integer menu_order;
+    private String menu_order;
 
     private List<String> tags;
     private List<WoocImage> images;

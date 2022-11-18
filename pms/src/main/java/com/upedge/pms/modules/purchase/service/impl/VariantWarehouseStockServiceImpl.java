@@ -349,28 +349,28 @@ public class VariantWarehouseStockServiceImpl implements VariantWarehouseStockSe
         List<String> keys = new ArrayList<>();
         List<ItemQuantityVo> itemQuantityVos = orderItemQuantityVo.getItemQuantityVos();
         String warehouseCode = orderItemQuantityVo.getWarehouseCode();
-        Set<Long> variantIds = new HashSet<>();
+//        Set<Long> variantIds = new HashSet<>();
         //所有对应发货仓库的产品先加锁
-        for (ItemQuantityVo itemQuantityVo : itemQuantityVos) {
-            String key = RedisKey.KEY_VARIANT_WAREHOUSE_STOCK_LOCK+warehouseCode+":"+itemQuantityVo.getVariantId();
-            if (keys.contains(key)){
-                continue;
-            }
-            boolean b = RedisUtil.lock(redisTemplate,key,10L,10*1000L);
-            if (!b){
-                if (ListUtils.isNotEmpty(keys)){
-                    for (String s : keys) {
-                        RedisUtil.unLock(redisTemplate,s);
-                    }
-                    return false;
-                }
-            }
-            keys.add(key);
-            variantIds.add(itemQuantityVo.getVariantId());
-        }
+//        for (ItemQuantityVo itemQuantityVo : itemQuantityVos) {
+//            String key = RedisKey.KEY_VARIANT_WAREHOUSE_STOCK_LOCK+warehouseCode+":"+itemQuantityVo.getVariantId();
+//            if (keys.contains(key)){
+//                continue;
+//            }
+//            boolean b = RedisUtil.lock(redisTemplate,key,10L,10*1000L);
+//            if (!b){
+//                if (ListUtils.isNotEmpty(keys)){
+//                    for (String s : keys) {
+//                        RedisUtil.unLock(redisTemplate,s);
+//                    }
+//                    return false;
+//                }
+//            }
+//            keys.add(key);
+//            variantIds.add(itemQuantityVo.getVariantId());
+//        }
 
         orderItemQuantityVo.setStockState(1);
-        Map<Long,VariantWarehouseStockModel> variantWarehouseStockModelMap = new HashMap<>();
+        Map<Long,VariantWarehouseStock> variantWarehouseStockModelMap = new HashMap<>();
         Map<Long,Integer> variantChangeQuantity = new HashMap<>();
         List<VariantWarehouseStockRecord> records = new ArrayList<>();
 //        List<VariantWarehouseStock> variantWarehouseStocks = variantWarehouseStockDao.selectByVariantIdsAndWarehouseCode(variantIds,warehouseCode);
@@ -385,9 +385,9 @@ public class VariantWarehouseStockServiceImpl implements VariantWarehouseStockSe
             Long variantId = itemQuantityVo.getVariantId();
             //先从map里拿库存信息，没有就从redis拿
 
-            VariantWarehouseStockModel variantWarehouseStock = variantWarehouseStockModelMap.get(variantId);
+            VariantWarehouseStock variantWarehouseStock = variantWarehouseStockModelMap.get(variantId);
             if (null == variantWarehouseStock){
-                variantWarehouseStock = (VariantWarehouseStockModel) redisTemplate.opsForHash().get(RedisKey.HASH_VARIANT_WAREHOUSE_STOCK+warehouseCode,variantId.toString());
+                variantWarehouseStock = selectByPrimaryKey(variantId,warehouseCode);
             }
             if (null == variantWarehouseStock || variantWarehouseStock.getAvailableStock() == 0){
                 itemQuantityVo.setLockQuantity(0);
@@ -443,11 +443,13 @@ public class VariantWarehouseStockServiceImpl implements VariantWarehouseStockSe
 
         variantWarehouseStockRecordService.insertByBatch(records);
         variantWarehouseStockModelMap.forEach((variantId,model) ->{
-            redisTemplate.opsForHash().put(RedisKey.HASH_VARIANT_WAREHOUSE_STOCK+warehouseCode,variantId.toString(),model);
+            VariantWarehouseStockModel variantWarehouseStockModel = new VariantWarehouseStockModel();
+            BeanUtils.copyProperties(model,variantWarehouseStockModel);
+            redisTemplate.opsForHash().put(RedisKey.HASH_VARIANT_WAREHOUSE_STOCK+warehouseCode,variantId.toString(),variantWarehouseStockModel);
         });
-        for (String key : keys) {
-            RedisUtil.unLock(redisTemplate,key);
-        }
+//        for (String key : keys) {
+//            RedisUtil.unLock(redisTemplate,key);
+//        }
         //修改订单缺货状态
         return true;
     }

@@ -2448,6 +2448,7 @@
                 #{id}
             </foreach>
         </if>
+        order by o.pay_time asc
     </select>
 
     <update id="updatePickType">

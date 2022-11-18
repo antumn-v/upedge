@@ -215,8 +215,8 @@ public class StoreController {
         }
     }
 
-    //    @ApiOperation("请求授权woocommerce店铺")
-//    @PostMapping("/auth/woocommerce")
+    @ApiOperation("请求授权woocommerce店铺")
+    @PostMapping("/auth/woocommerce")
     public WoocommerceAuthResponse woocommerceAuth(@RequestBody @Valid WoocommerceAuthRequest request) {
         return storeService.woocommerceAuth(request);
     }

@@ -52,6 +52,10 @@ public class WoocommerceOrderApi {
         return null;
     }
 
+    public static void main(String[] args) {
+        System.out.println(getWoocommerceOrderCount("Y2tfMmI3ZmM4NjY1ZmMzMzAyY2UyNWY1YjBjYzVhMWI2ZDBiZTcyNmYxODpjc180NGJhNmU0ZGY1ZjQwZTg5N2M3ZDQ5YjQ1Nzc4NzIxNDRhN2M4Mjk3","www.evershape.at",null));
+    }
+
 
     public static JSONArray getOrderRefund(String token, String shopName, String orderId){
         String url = "https://"+shopName+"/wp-json/wc/v3/orders/" + orderId + "/refunds";

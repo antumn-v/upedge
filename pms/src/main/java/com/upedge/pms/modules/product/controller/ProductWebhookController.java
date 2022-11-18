@@ -4,9 +4,8 @@ package com.upedge.pms.modules.product.controller;
 import com.upedge.common.model.store.StoreVo;
 import com.upedge.common.model.store.request.StoreApiRequest;
 import com.upedge.pms.modules.product.service.StoreProductService;
-
 import com.upedge.thirdparty.shopify.moudles.product.entity.ShopifyProduct;
-
+import com.upedge.thirdparty.woocommerce.moudles.product.entity.WoocProduct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -44,9 +43,16 @@ public class ProductWebhookController {
         storeProductService.storeProductDeleteByStore(id,storeVo.getId());
     }
 
-//    @PostMapping("/woocommerce/webhook/product/update")
-//    public void updateWoocommerceProduct(@RequestBody @Valid StoreApiRequest request){
-//        WoocProduct product = request.getJsonObject().toJavaObject(WoocProduct.class);
-//        Long storeProductId = storeProductService.saveWoocProduct(product,request.getStoreVo());
-//    }
+    @PostMapping("/woocommerce/webhook/product/update")
+    public void updateWoocommerceProduct(@RequestBody @Valid StoreApiRequest request){
+        WoocProduct product = null;
+        try {
+            product = request.getJsonObject().toJavaObject(WoocProduct.class);
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.out.println(request);
+            return;
+        }
+        Long storeProductId = storeProductService.saveWoocProduct(product,request.getStoreVo());
+    }
 }
