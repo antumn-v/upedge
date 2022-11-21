@@ -319,15 +319,22 @@ public class StoreOrderServiceImpl implements StoreOrderService {
         StoreOrderAddress storeOrderAddress = null;
         if (null != woocommerceOrder) {
             storeOrderAddress = new StoreOrderAddress(woocommerceOrder.getShipping());
-            if (StringUtils.isNotBlank(storeOrderAddress.getCountryCode())) {
+            String country = storeOrderAddress.getCountry();
+            if (StringUtils.isNotBlank(country)){
                 AreaSelectRequest areaSelectRequest = new AreaSelectRequest();
-                areaSelectRequest.setEnName(storeOrderAddress.getCountry());
+                if (country.length() == 2){
+                    areaSelectRequest.setAreaCode(country);
+                }else {
+                    areaSelectRequest.setEnName(country);
+                }
                 BaseResponse response = tmsFeignClient.areaSelect(areaSelectRequest);
-                if (ResultCode.SUCCESS_CODE == response.getCode()) {
+                if (ResultCode.SUCCESS_CODE == response.getCode() && response.getData() != null) {
                     AreaVo areaVo = JSONObject.parseObject(JSON.toJSON(response.getData()).toString()).toJavaObject(AreaVo.class);
                     storeOrderAddress.setCountryCode(areaVo.getAreaCode());
+                    storeOrderAddress.setCountry(areaVo.getEnName());
                 }
             }
+
         } else {
             storeOrderAddress = new StoreOrderAddress();
         }
@@ -391,6 +398,11 @@ public class StoreOrderServiceImpl implements StoreOrderService {
         storeOrder.setAddress(storeOrderAddress);
         RedisUtil.unLock(redisTemplate, key);
         return storeOrder;
+    }
+
+    public static void main(String[] args) {
+        String s = "US";
+        System.out.println(s.length());
     }
 
     @Override

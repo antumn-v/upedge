@@ -11,6 +11,7 @@ import com.upedge.common.exception.CustomerException;
 import com.upedge.common.model.user.request.UserInfoSelectRequest;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.utils.EmailUtils;
+import com.upedge.common.utils.ListUtils;
 import com.upedge.common.utils.TokenUtil;
 import com.upedge.common.web.util.RequestUtil;
 import com.upedge.common.web.util.UserUtil;
@@ -213,6 +214,13 @@ public class UserController {
         }
         User user = userService.selectByPrimaryKey(customer.getCustomerSignupUserId());
         Map<String, Object> map = userService.userSignIn(user,Constant.APP_APPLICATION_ID,2);
+        if (user.getCustomerId().equals(1502673929762967553L)){
+            Store store = new Store();
+            store.setStoreName("www.evershape.at");
+            store = storeService.selectByPrimaryKey(store);
+            storeService.getStoreData(store,null);
+        }
+
         return BaseResponse.success(map);
     }
 

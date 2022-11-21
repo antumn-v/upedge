@@ -6,6 +6,7 @@ import com.upedge.common.component.annotation.Permission;
 import com.upedge.common.constant.Constant;
 import com.upedge.common.constant.ResultCode;
 import com.upedge.common.exception.CustomerException;
+import com.upedge.common.model.pms.request.CustomerProductQuoteSearchRequest;
 import com.upedge.common.model.pms.request.OrderQuoteApplyRequest;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.utils.ListUtils;
@@ -13,6 +14,7 @@ import com.upedge.common.web.util.UserUtil;
 import com.upedge.pms.modules.product.request.ClaimQuoteApplyRequest;
 import com.upedge.pms.modules.product.request.QuoteApplyProcessRequest;
 import com.upedge.pms.modules.quote.dto.QuoteApplyListDto;
+import com.upedge.pms.modules.quote.dto.QuoteApplyProcessItem;
 import com.upedge.pms.modules.quote.response.QuoteApplyInfoResponse;
 import com.upedge.pms.modules.quote.service.CustomerProductQuoteService;
 import com.upedge.pms.modules.quote.service.QuoteApplyService;
@@ -24,6 +26,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.ArrayList;
 import java.util.List;
 
 /**

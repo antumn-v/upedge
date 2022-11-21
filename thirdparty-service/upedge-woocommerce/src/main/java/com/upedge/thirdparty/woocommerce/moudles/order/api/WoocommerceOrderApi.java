@@ -28,6 +28,9 @@ public class WoocommerceOrderApi {
 
     public static JSONArray getWoocommerceOrders(String token, String shopName,String param){
         String url = "https://"+shopName+"/wp-json/wc/v3/orders" ;
+        if(StringUtils.isNotBlank(param)){
+            url = url + "?" + param;
+        }
 
         String data =
                 OkHttpRequest.woocommerceRequest(null,token,url,param,HttpMethod.GET);

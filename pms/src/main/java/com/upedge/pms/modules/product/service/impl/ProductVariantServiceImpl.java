@@ -214,16 +214,16 @@ public class ProductVariantServiceImpl implements ProductVariantService {
         return BaseResponse.success();
     }
 
-    public void updatePurchaseSku(String purchaseSku,Long id,ProductVariant productVariant, Session session){
+    public BaseResponse updatePurchaseSku(String purchaseSku,Long id,ProductVariant productVariant, Session session){
         if (null == productVariant){
-            return;
+            return BaseResponse.failed();
         }
         if (productVariant.getPurchaseSku() != null && productVariant.getPurchaseSku().equals(purchaseSku)){
-            return ;
+            return BaseResponse.success();
         }
         ProductPurchaseInfo productPurchaseInfo = productPurchaseInfoService.selectByPrimaryKey(purchaseSku);
         if (null == productPurchaseInfo){
-            return;
+            return BaseResponse.failed("1688采购信息异常");
         }
         productVariant = new ProductVariant();
         productVariant.setPurchaseSku(purchaseSku);
@@ -232,14 +232,15 @@ public class ProductVariantServiceImpl implements ProductVariantService {
 
         VariantSkuUpdateLog updateLog = new VariantSkuUpdateLog(id,purchaseSku,session.getId(),1);
         variantSkuUpdateLogService.insert(updateLog);
+        return BaseResponse.success();
     }
 
-    public void updateVariantSku(String sku,Long id,ProductVariant productVariant, Session session) {
+    public BaseResponse updateVariantSku(String sku,Long id,ProductVariant productVariant, Session session) {
         if (null == productVariant){
-            return;
+            return BaseResponse.failed("变体不存在");
         }
         if (productVariant.getVariantSku().equals(sku)){
-            return ;
+            return BaseResponse.success();
         }
         String oldSku = productVariant.getVariantSku();
         productVariant = new ProductVariant();
@@ -251,6 +252,7 @@ public class ProductVariantServiceImpl implements ProductVariantService {
         variantSkuUpdateLogService.insert(updateLog);
 
         redisTemplate.opsForHash().put(RedisKey.HASH_VARIANT_UPDATE_SKU_LOG,oldSku,id);
+        return BaseResponse.success();
     }
 
     @Transactional

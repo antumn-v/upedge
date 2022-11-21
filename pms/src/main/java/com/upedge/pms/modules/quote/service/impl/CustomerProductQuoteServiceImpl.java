@@ -39,6 +39,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.stream.Collectors;
 
@@ -369,7 +370,8 @@ public class CustomerProductQuoteServiceImpl implements CustomerProductQuoteServ
 
     @Override
     public void sendCustomerProductQuoteUpdateMessage(List<Long> storeVariantIds) {
-        threadPoolExecutor.submit(new Runnable() {
+
+        CompletableFuture<Void> completableFuture = CompletableFuture.runAsync(new Runnable() {
             @Override
             public void run() {
                 CustomerProductQuoteSearchRequest request = new CustomerProductQuoteSearchRequest();
@@ -382,15 +384,15 @@ public class CustomerProductQuoteServiceImpl implements CustomerProductQuoteServ
                     String key = RedisKey.STRING_QUOTED_STORE_VARIANT + customerProductQuoteVo.getStoreVariantId();
                     redisTemplate.opsForValue().set(key,customerProductQuoteVo);
                 }
-//        String tag = "quote";
-//        String key = UUID.randomUUID().toString();
-//        Message message = new Message(RocketMqConfig.TOPIC_CUSTOMER_PRODUCT_QUOTE_UPDATE, tag, key, JSON.toJSONBytes(customerProductQuoteVos));
-//        return productMqProducer.sendMessage(message);
                 omsFeignClient.updateQuoteDetail(customerProductQuoteVos);
             }
         },threadPoolExecutor);
 
 
+//        String tag = "quote";
+//        String key = UUID.randomUUID().toString();
+//        Message message = new Message(RocketMqConfig.TOPIC_CUSTOMER_PRODUCT_QUOTE_UPDATE, tag, key, JSON.toJSONBytes(customerProductQuoteVos));
+//        return productMqProducer.sendMessage(message);
     }
 
     /**

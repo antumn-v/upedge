@@ -129,7 +129,34 @@ public class StoreAsync {
 
 
     public static void main(String[] args) {
+        String shop = "www.evershape.at";
+        String token = "Y2tfMmI3ZmM4NjY1ZmMzMzAyY2UyNWY1YjBjYzVhMWI2ZDBiZTcyNmYxODpjc180NGJhNmU0ZGY1ZjQwZTg5N2M3ZDQ5YjQ1Nzc4NzIxNDRhN2M4Mjk3";
+        JSONArray array = WoocommerceOrderApi.getWoocommerceOrderCount(token,shop,null);
 
+
+        Integer counts = 0;
+        for (int i = 0; i < array.size(); i++) {
+            JSONObject report = array.getJSONObject(i);
+            if(report.getString("slug").equals("processing")){
+                counts = report.getInteger("total");
+                break;
+            }
+        }
+        Integer pageNum = 1;
+        if(counts % 10 == 0){
+            pageNum = counts / 10;
+        }else if(counts / 10 == 0){
+            pageNum = 1;
+        }else if(counts % 10 > 0) {
+            pageNum = counts / 10 + 1;
+        }
+        for (int j = 1; j <= pageNum; j++) {
+            String param = "page="+j + "&status=processing";
+            JSONArray orderArray = WoocommerceOrderApi.getWoocommerceOrders(token,shop,param);
+            for (int k = 0; k < orderArray.size(); k++) {
+                System.out.printf(orderArray.toJSONString());
+            }
+        }
     }
 
     public void createShopifyWebhook(String token, String shop) {
