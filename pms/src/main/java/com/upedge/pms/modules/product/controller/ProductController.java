@@ -75,6 +75,12 @@ public class ProductController {
         return productService.importFrom1688Url(request.getUrl(),session.getId());
     }
 
+    @ApiOperation("更新1688产品")
+    @PostMapping("/update1688/{id}")
+    public BaseResponse update1688Product(@PathVariable Long id){
+        return productService.refresh1688Product(id);
+    }
+
     @ApiOperation("产品展示详情")
     @GetMapping("/showDetail/{id}")
     public BaseResponse productShowDetail(@PathVariable Long id) {

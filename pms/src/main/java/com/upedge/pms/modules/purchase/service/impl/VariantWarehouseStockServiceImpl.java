@@ -9,7 +9,6 @@ import com.upedge.common.feign.OmsFeignClient;
 import com.upedge.common.model.oms.order.ItemQuantityVo;
 import com.upedge.common.model.oms.order.OrderItemQuantityVo;
 import com.upedge.common.model.oms.order.OrderStockClearRequest;
-import com.upedge.common.model.order.OrderItemQuantityDto;
 import com.upedge.common.model.order.request.OrderStockStateUpdateRequest;
 import com.upedge.common.model.pms.vo.VariantPreSaleQuantity;
 import com.upedge.common.model.pms.vo.VariantWarehouseStockModel;
@@ -547,11 +546,11 @@ public class VariantWarehouseStockServiceImpl implements VariantWarehouseStockSe
 
         redisTemplate.opsForHash().put(RedisKey.HASH_VARIANT_WAREHOUSE_STOCK + warehouseCode,variantId.toString(),variantWarehouseStockModel);
 
-        if (request.getStock() > 0 && variantWarehouseStockRecord.getOriginalStock() != variantWarehouseStockRecord.getNowStock()){
-            OrderItemQuantityDto orderItemQuantityDto = new OrderItemQuantityDto();
-            orderItemQuantityDto.setVariantId(variantWarehouseStock.getVariantId());
-            omsFeignClient.checkStock(orderItemQuantityDto);
-        }
+//        if (request.getStock() > 0 && variantWarehouseStockRecord.getOriginalStock() != variantWarehouseStockRecord.getNowStock()){
+//            OrderItemQuantityDto orderItemQuantityDto = new OrderItemQuantityDto();
+//            orderItemQuantityDto.setVariantId(variantWarehouseStock.getVariantId());
+//            omsFeignClient.checkStock(orderItemQuantityDto);
+//        }
         RedisUtil.unLock(redisTemplate,key);
         return BaseResponse.success();
     }
@@ -659,10 +658,10 @@ public class VariantWarehouseStockServiceImpl implements VariantWarehouseStockSe
         BeanUtils.copyProperties(variantWarehouseStock,variantWarehouseStockModel);
         redisTemplate.opsForHash().put(RedisKey.HASH_VARIANT_WAREHOUSE_STOCK+variantWarehouseStock.getWarehouseCode(),variantWarehouseStock.getVariantId().toString(),variantWarehouseStockModel);
 
-        OrderItemQuantityDto orderItemQuantityDto = new OrderItemQuantityDto();
-        orderItemQuantityDto.setVariantId(productVariant.getId());
-        orderItemQuantityDto.setStockType(1);
-        omsFeignClient.checkStock(orderItemQuantityDto);
+//        OrderItemQuantityDto orderItemQuantityDto = new OrderItemQuantityDto();
+//        orderItemQuantityDto.setVariantId(productVariant.getId());
+//        orderItemQuantityDto.setStockType(1);
+//        omsFeignClient.checkStock(orderItemQuantityDto);
 
         RedisUtil.unLock(redisTemplate,key);
         return BaseResponse.success();

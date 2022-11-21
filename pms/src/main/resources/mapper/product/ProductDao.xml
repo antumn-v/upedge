@@ -693,4 +693,12 @@
         where original_id = #{storeProductId}
         and product_source = '4'
     </select>
+
+    <select id="selectCopyProduct" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from product
+        where original_id = #{productId}
+        and product_source = '2'
+    </select>
 </mapper>

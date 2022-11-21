@@ -93,7 +93,7 @@ public class OrderCommonController {
     }
 
 
-    @PostMapping("/customCheckStock")
+    @PostMapping("/customAssignStock")
     public BaseResponse customCheckStock(@RequestBody OrderItemQuantityDto orderItemQuantityDto){
         List<OrderItemQuantityVo> orderItemQuantityVos = orderService.selectOrderItemQuantities(orderItemQuantityDto);
         pmsFeignClient.orderCheckStock(orderItemQuantityVos);
@@ -101,8 +101,9 @@ public class OrderCommonController {
     }
 
     @PostMapping("/checkStock")
-    public void checkStock(@RequestBody OrderItemQuantityDto orderItemQuantityDto){
+    public BaseResponse checkStock(@RequestBody OrderItemQuantityDto orderItemQuantityDto){
         orderPayService.sendCheckOrderStockMessage(orderItemQuantityDto);
+        return BaseResponse.success();
     }
 
     @PostMapping("/updateStockState")

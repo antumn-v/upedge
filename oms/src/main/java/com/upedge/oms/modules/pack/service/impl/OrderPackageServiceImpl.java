@@ -163,7 +163,7 @@ public class OrderPackageServiceImpl implements OrderPackageService {
             orderService.updateOrderPackInfo(orderId, 1, packNo);
             OrderItemQuantityDto orderItemQuantityDto = new OrderItemQuantityDto();
             orderItemQuantityDto.setOrderId(orderId);
-            orderPayService.sendCheckOrderStockMessage(orderItemQuantityDto);
+//            orderPayService.sendCheckOrderStockMessage(orderItemQuantityDto);
         } else {
             orderService.updateOrderPackInfo(orderId, 0, null);
             createPackage(orderId);
@@ -914,7 +914,7 @@ public class OrderPackageServiceImpl implements OrderPackageService {
 
         OrderItemQuantityDto orderItemQuantityDto = new OrderItemQuantityDto();
         orderItemQuantityDto.setOrderId(orderId);
-        orderPayService.sendCheckOrderStockMessage(orderItemQuantityDto);
+//        orderPayService.sendCheckOrderStockMessage(orderItemQuantityDto);
         return orderPackage;
     }
 

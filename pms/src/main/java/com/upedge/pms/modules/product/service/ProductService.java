@@ -24,6 +24,8 @@ import java.util.List;
  */
 public interface ProductService{
 
+    BaseResponse refresh1688Product(Long productId);
+
     BaseResponse copyProduct(Long productId,Session session);
 
     BaseResponse test();

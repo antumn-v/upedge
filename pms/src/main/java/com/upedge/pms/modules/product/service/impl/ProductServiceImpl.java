@@ -683,26 +683,24 @@ public class ProductServiceImpl implements ProductService {
         productInfoService.insert(productInfo);
 
         addNewAlibabaProductVariants(alibabaProductVo.getProductVariantVoList(), productId,alibabaProductVo);
-
-        //更新价格区间
-        refreshProductPriceRange(productId);
     }
 
     public void updateAlibabaProduct(AlibabaProductVo alibabaProductVo,Long productId){
-
-        List<ProductVariantVo> productVariantVoList = alibabaProductVo.getProductVariantVoList();
-
-        addNewAlibabaProductVariants(productVariantVoList,productId,alibabaProductVo);
 
         Product product = new Product();
         product.setId(productId);
         product.setUpdateTime(new Date());
         productDao.updateByPrimaryKeySelective(product);
 
-        refreshProductPriceRange(productId);
+
+        List<ProductVariantVo> productVariantVoList = alibabaProductVo.getProductVariantVoList();
+
+        addNewAlibabaProductVariants(productVariantVoList,productId,alibabaProductVo);
+
     }
 
     public void addNewAlibabaProductVariants(List<ProductVariantVo> productVariantVoList, Long productId, AlibabaProductVo alibabaProductVo){
+
         List<ProductPurchaseInfo> productPurchaseInfos = new ArrayList<>();
 
         String mainImage = alibabaProductVo.getProductImage();
@@ -758,14 +756,16 @@ public class ProductServiceImpl implements ProductService {
                 productVariant.setVariantImage(imageUploadRecord.getNewImage());
             }
             productVariantList.add(productVariant);
-            productVariantVo.getVariantAttrVoList().forEach(productVariantAttrVo -> {
+            List<ProductVariantAttrVo> productVariantAttrVos = productVariantVo.getVariantAttrVoList();
+            for (ProductVariantAttrVo productVariantAttrVo : productVariantAttrVos) {
                 ProductVariantAttr productVariantAttr = new ProductVariantAttr();
                 BeanUtils.copyProperties(productVariantAttrVo, productVariantAttr);
                 productVariantAttr.setId(IdGenerate.nextId());
                 productVariantAttr.setProductId(productId);
                 productVariantAttr.setVariantId(variantId);
                 productVariantAttrList.add(productVariantAttr);
-            });
+            }
+
 
             ProductPurchaseInfo productPurchaseInfo = new ProductPurchaseInfo();
             productPurchaseInfo.setPurchaseSku(productVariantVo.getVariantSku());
@@ -775,7 +775,6 @@ public class ProductServiceImpl implements ProductService {
             productPurchaseInfo.setSupplierName(supplierName);
             productPurchaseInfo.setSpecId(productVariantVo.getSpecId());
             productPurchaseInfos.add(productPurchaseInfo);
-
         }
         if (ListUtils.isNotEmpty(productVariantList)){
             productPurchaseInfoService.insertByBatch(productPurchaseInfos);
@@ -783,6 +782,34 @@ public class ProductServiceImpl implements ProductService {
         }
         if (ListUtils.isNotEmpty(productVariantAttrList)){
             productVariantAttrService.insertByBatch(productVariantAttrList);
+        }
+        refreshProductPriceRange(productId);
+        syncCopyProductVariant(productId,productVariantList,productVariantAttrList);
+    }
+
+    private void syncCopyProductVariant(Long productId,List<ProductVariant> productVariants,List<ProductVariantAttr> productVariantAttrs){
+        if (ListUtils.isNotEmpty(productVariants) && ListUtils.isNotEmpty(productVariantAttrs)){
+            return;
+        }
+
+        List<Product> products = productDao.selectCopyProduct(productId);
+        if (ListUtils.isEmpty(products)){
+            return;
+        }
+        for (Product product : products) {
+            Long copyProductId = product.getId();
+            for (ProductVariant productVariant : productVariants) {
+                productVariant.setId(IdGenerate.nextId());
+                productVariant.setVariantSku(IdGenerate.nextId().toString());
+                productVariant.setProductId(copyProductId);
+            }
+            for (ProductVariantAttr productVariantAttr : productVariantAttrs) {
+                productVariantAttr.setId(IdGenerate.nextId());
+                productVariantAttr.setProductId(copyProductId);
+            }
+            productVariantService.insertByBatch(productVariants);
+            productVariantAttrService.insertByBatch(productVariantAttrs);
+            refreshProductPriceRange(copyProductId);
         }
     }
 
@@ -1195,11 +1222,30 @@ public class ProductServiceImpl implements ProductService {
         return apiImportProductInfo;
     }
 
+    @Override
+    public BaseResponse refresh1688Product(Long productId) {
+        Product product = selectByPrimaryKey(productId);
+        if (null == product ){
+            return BaseResponse.failed("产品不存在");
+        }
+        if (product.getProductSource() == 2){
+            product = selectByPrimaryKey(Long.parseLong(product.getOriginalId()));
+            productId = product.getId();
+        }
+        if (product.getProductSource() == 0 || product.getProductSource() == 2){
+            AlibabaApiVo alibabaApiVo = (AlibabaApiVo) redisTemplate.opsForValue().get(RedisKey.STRING_ALI1688_API);
+            AlibabaProductVo alibabaProductVo = Ali1688Service.getProduct(product.getOriginalId(), alibabaApiVo);
+            updateAlibabaProduct(alibabaProductVo,productId);
+            return BaseResponse.success();
+        }
+        return BaseResponse.failed("不是1688导入产品");
+    }
+
     @Transactional
     @Override
     public BaseResponse copyProduct(Long productId, Session session) {
         Product product = productDao.selectByPrimaryKey(productId);
-        if(null == product){
+        if(null == product || product.getProductSource() != 0){
             return BaseResponse.failed();
         }
         ProductAttribute productAttribute = productAttributeService.selectByProductId(productId);

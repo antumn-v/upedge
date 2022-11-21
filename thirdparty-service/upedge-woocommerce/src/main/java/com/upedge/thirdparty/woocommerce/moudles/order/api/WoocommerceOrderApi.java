@@ -12,7 +12,7 @@ import java.util.List;
 
 public class WoocommerceOrderApi {
 
-    public static JSONObject getOrder(String token, String shopName, Long orderId){
+    public static JSONObject getOrder(String token, String shopName, String orderId){
         String url = "https://"+shopName+"/wp-json/wc/v3/orders/" + orderId;
 
         String data =
