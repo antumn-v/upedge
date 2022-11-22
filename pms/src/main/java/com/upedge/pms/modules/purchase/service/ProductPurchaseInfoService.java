@@ -13,6 +13,8 @@ public interface ProductPurchaseInfoService{
 
     List<ProductPurchaseInfo> selectByPurchaseSkus( Set<String> purchaseSkus);
 
+    List<ProductPurchaseInfo> selectByPurchaseLink( String purchaseLink);
+
     ProductPurchaseInfo selectByPrimaryKey(String purchaseSku);
 
     int deleteByPrimaryKey(String purchaseSku);

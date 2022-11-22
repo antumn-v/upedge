@@ -52,7 +52,7 @@ public interface ProductService{
 
     BaseResponse importFrom1688Url(String url, Long operatorId);
 
-    Product selectByProductSku(String productSku);
+    List<Product> selectByProductSku(String productSku);
 
     Product select1688Product(String alibabaProductId);
 

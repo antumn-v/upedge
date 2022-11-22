@@ -48,7 +48,7 @@ public interface ProductDao {
 
     Product selectStoreTransformProduct(String storeProductId);
 
-    Product selectByProductSku(String productSku);
+    List<Product> selectByProductSku(String productSku);
 
     Product selectByOriginalId(String originalId);
 

@@ -209,4 +209,11 @@
             #{sku}
         </foreach>
     </select>
+
+    <select id="selectByPurchaseLink" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from product_purchase_info
+        where purchase_link = #{purchaseLink}
+    </select>
 </mapper>

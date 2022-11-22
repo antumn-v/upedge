@@ -707,9 +707,15 @@ public class ProductServiceImpl implements ProductService {
         String supplierName = alibabaProductVo.getSupplierVo().getSupplierName();
         String purchaseLink = alibabaProductVo.getProductSku();
         List<ProductVariant> productVariants = productVariantService.selectByProductId(productId);
+
+        List<ProductPurchaseInfo> productPurchaseInfoList = productPurchaseInfoService.selectByPurchaseLink(alibabaProductVo.getProductSku());
+        List<String> originalPurchaseSkus = new ArrayList<>();
         List<String> originalVariantIds = new ArrayList<>();
         productVariants.forEach(variant -> {
             originalVariantIds.add(variant.getOriginalVariantId());
+        });
+        productPurchaseInfoList.forEach(productPurchaseInfo -> {
+            originalPurchaseSkus.add(productPurchaseInfo.getPurchaseSku());
         });
 
         //产品变体
@@ -734,6 +740,7 @@ public class ProductServiceImpl implements ProductService {
             List<String> enNameList = productVariantVo.getVariantAttrVoList().stream().map(ProductVariantAttrVo::getVariantAttrEvalue).collect(Collectors.toList());
             productVariant.setCnName(cnNameList.toString());
             productVariant.setEnName(enNameList.toString());
+            productVariant.setVariantSku(IdGenerate.nextId().toString());
             productVariant.setPurchaseSku(productVariantVo.getVariantSku());
             //变体价格
             productVariant.setVariantPrice(productVariantVo.getVariantPrice());
@@ -766,7 +773,9 @@ public class ProductServiceImpl implements ProductService {
                 productVariantAttrList.add(productVariantAttr);
             }
 
-
+            if (originalPurchaseSkus.contains(productVariantVo.getVariantSku())){
+                continue;
+            }
             ProductPurchaseInfo productPurchaseInfo = new ProductPurchaseInfo();
             productPurchaseInfo.setPurchaseSku(productVariantVo.getVariantSku());
             productPurchaseInfo.setVariantImage(productVariant.getVariantImage());
@@ -777,27 +786,40 @@ public class ProductServiceImpl implements ProductService {
             productPurchaseInfos.add(productPurchaseInfo);
         }
         if (ListUtils.isNotEmpty(productVariantList)){
-            productPurchaseInfoService.insertByBatch(productPurchaseInfos);
             productVariantService.insertByBatch(productVariantList);
         }
         if (ListUtils.isNotEmpty(productVariantAttrList)){
             productVariantAttrService.insertByBatch(productVariantAttrList);
         }
+        if (ListUtils.isNotEmpty(productPurchaseInfos)){
+            productPurchaseInfoService.insertByBatch(productPurchaseInfos);
+        }
         refreshProductPriceRange(productId);
-        syncCopyProductVariant(productId,productVariantList,productVariantAttrList);
+        CompletableFuture<Void> completableFuture = CompletableFuture.runAsync(new Runnable() {
+            @Override
+            public void run() {
+                syncCopyProductVariant(productId,productVariantList,productVariantAttrList);
+            }
+        },threadPoolExecutor);
+
     }
 
     private void syncCopyProductVariant(Long productId,List<ProductVariant> productVariants,List<ProductVariantAttr> productVariantAttrs){
         if (ListUtils.isNotEmpty(productVariants) && ListUtils.isNotEmpty(productVariantAttrs)){
             return;
         }
+        Product p = selectByPrimaryKey(productId);
 
-        List<Product> products = productDao.selectCopyProduct(productId);
+        List<Product> products = selectByProductSku(p.getProductSku());
         if (ListUtils.isEmpty(products)){
             return;
         }
         for (Product product : products) {
             Long copyProductId = product.getId();
+            boolean b = (product.getProductSource() == 0 || product.getProductSource() == 2);
+            if (copyProductId.equals(productId) || !b){
+                continue;
+            }
             for (ProductVariant productVariant : productVariants) {
                 productVariant.setId(IdGenerate.nextId());
                 productVariant.setVariantSku(IdGenerate.nextId().toString());
@@ -814,7 +836,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public Product selectByProductSku(String productSku) {
+    public List<Product> selectByProductSku(String productSku) {
         return productDao.selectByProductSku(productSku);
     }
 
@@ -1228,13 +1250,12 @@ public class ProductServiceImpl implements ProductService {
         if (null == product ){
             return BaseResponse.failed("产品不存在");
         }
-        if (product.getProductSource() == 2){
-            product = selectByPrimaryKey(Long.parseLong(product.getOriginalId()));
-            productId = product.getId();
-        }
-        if (product.getProductSource() == 0 || product.getProductSource() == 2){
+        if (product.getProductSource() == 2 || product.getProductSource() == 0){
             AlibabaApiVo alibabaApiVo = (AlibabaApiVo) redisTemplate.opsForValue().get(RedisKey.STRING_ALI1688_API);
-            AlibabaProductVo alibabaProductVo = Ali1688Service.getProduct(product.getOriginalId(), alibabaApiVo);
+            AlibabaProductVo alibabaProductVo = Ali1688Service.getProduct(product.getProductSku(), alibabaApiVo);
+            if (null == alibabaProductVo){
+                return BaseResponse.failed("1688产品信息不存在");
+            }
             updateAlibabaProduct(alibabaProductVo,productId);
             return BaseResponse.success();
         }

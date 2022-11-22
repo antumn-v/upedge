@@ -7,6 +7,7 @@ import com.upedge.pms.modules.product.service.ProductService;
 import com.upedge.pms.modules.purchase.dao.ProductPurchaseInfoDao;
 import com.upedge.pms.modules.purchase.entity.ProductPurchaseInfo;
 import com.upedge.pms.modules.purchase.service.ProductPurchaseInfoService;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -67,6 +68,14 @@ public class ProductPurchaseInfoServiceImpl implements ProductPurchaseInfoServic
             return new ArrayList<>();
         }
         return productPurchaseInfoDao.selectByPurchaseSkus(purchaseSkus);
+    }
+
+    @Override
+    public List<ProductPurchaseInfo> selectByPurchaseLink(String purchaseLink) {
+        if (StringUtils.isBlank(purchaseLink)){
+            return new ArrayList<>();
+        }
+        return productPurchaseInfoDao.selectByPurchaseLink(purchaseLink);
     }
 
     /**

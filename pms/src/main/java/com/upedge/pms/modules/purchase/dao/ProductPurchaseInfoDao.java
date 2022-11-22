@@ -12,6 +12,8 @@ import java.util.Set;
  */
 public interface ProductPurchaseInfoDao {
 
+    List<ProductPurchaseInfo> selectByPurchaseLink( String purchaseLink);
+
     List<ProductPurchaseInfo> selectByPurchaseSkus(@Param("purchaseSkus") Set<String> purchaseSkus);
 
     ProductPurchaseInfo selectByPrimaryKey(ProductPurchaseInfo record);

@@ -79,7 +79,7 @@ public class WoocommerceProductApi {
     }
 
     public static JSONArray getProductAllVariants(String token,String shopName,String productId){
-        String url = "https://"+shopName+"/wp-json/wc/v3/products/" + productId + "/variations";
+        String url = "https://"+shopName+"/wp-json/wc/v3/products/" + productId + "/variations?per_page=100";
 
         String data =
                 OkHttpRequest.woocommerceRequest(null,token,url,null, HttpMethod.GET);

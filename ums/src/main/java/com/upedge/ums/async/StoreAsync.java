@@ -203,7 +203,7 @@ public class StoreAsync {
     }
     //woocommerce店铺数据
     public void getWoocommerceStoreData(Store store){
-        getWoocommerceStoreProducts(store);
+//        getWoocommerceStoreProducts(store);
         getWoocommerceStoreOrders(store);
     }
 
