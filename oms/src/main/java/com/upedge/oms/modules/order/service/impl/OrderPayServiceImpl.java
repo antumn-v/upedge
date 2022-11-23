@@ -769,7 +769,7 @@ public class OrderPayServiceImpl implements OrderPayService {
         for (TransactionDetail transactionDetail : transactionDetails) {
             orderIds.add(transactionDetail.getOrderId());
         }
-        sendCreatePackageMessage(orderIds);
+//        sendCreatePackageMessage(orderIds);
     }
 
 

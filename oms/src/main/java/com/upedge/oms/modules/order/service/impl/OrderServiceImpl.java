@@ -1329,6 +1329,11 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
+    public int updateOrderPackStateToPending(Long id) {
+        return orderDao.updateOrderPackStateToPending(id);
+    }
+
+    @Override
     public int updateOrderWaveRelease(Integer waveNo) {
         return orderDao.updateOrderWaveRelease(waveNo);
     }

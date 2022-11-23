@@ -165,6 +165,13 @@ public class OrderPackageController {
         return orderPackageService.preUploadStore(request,session);
     }
 
+    @ApiOperation("包裹设置为处理中")
+    @PostMapping("/returnToPending")
+    public BaseResponse packReturnToPending(@RequestBody@Valid PackageReturnToPendingRequest request){
+        Session session = UserUtil.getSession(redisTemplate);
+        return orderPackageService.packReturnToPending(request,session);
+    }
+
 
     @PostMapping("/saveLabelUrl")
     public BaseResponse saveLabelUrl() {

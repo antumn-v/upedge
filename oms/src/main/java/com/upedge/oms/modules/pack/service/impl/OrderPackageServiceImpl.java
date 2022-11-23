@@ -36,10 +36,7 @@ import com.upedge.oms.modules.order.vo.AppOrderVo;
 import com.upedge.oms.modules.pack.dao.OrderPackageDao;
 import com.upedge.oms.modules.pack.entity.OrderLabelPrintLog;
 import com.upedge.oms.modules.pack.entity.OrderPackage;
-import com.upedge.oms.modules.pack.request.OrderPackRevokeRequest;
-import com.upedge.oms.modules.pack.request.OrderPackageInfoGetRequest;
-import com.upedge.oms.modules.pack.request.PackageExStockRequest;
-import com.upedge.oms.modules.pack.request.PackagePreUploadStoreRequest;
+import com.upedge.oms.modules.pack.request.*;
 import com.upedge.oms.modules.pack.service.OrderLabelPrintLogService;
 import com.upedge.oms.modules.pack.service.OrderPackageService;
 import com.upedge.oms.modules.pack.vo.OrderPackageInfoVo;
@@ -128,6 +125,57 @@ public class OrderPackageServiceImpl implements OrderPackageService {
     private String pdfLocalPath;
     @Value("${files.pdf.prefix}")
     private String pdfUrlPrefix;
+
+    @Override
+    public BaseResponse packReturnToPending(PackageReturnToPendingRequest request, Session session) {
+        List<Long> orderIds = request.getOrderIds();
+        for (Long orderId : orderIds) {
+            String message = packReturnToPending(orderId);
+            if (!message.equals("success")){
+                return BaseResponse.failed(message);
+            }
+        }
+        return BaseResponse.success();
+    }
+
+    @Transactional
+    public String packReturnToPending(Long orderId) {
+        Order order = orderService.selectByPrimaryKey(orderId);
+        if (order == null){
+            return order + ": 订单不存在";
+        }
+        if (order.getPackState() == 0){
+            return "success";
+        }
+        Long packNo = order.getPackNo();
+        OrderPackage orderPackage = selectByPrimaryKey(packNo);
+        if (null == orderPackage){
+            return packNo + "：包裹不存在";
+        }
+        if (orderPackage.getPackageState() == 1){
+            return packNo + ": 包裹已出库";
+        }
+
+        OrderItemQuantityVo orderItemQuantityVo = orderService.selectOrderItemQuantitiesByOrderId(orderId);
+        if (null == orderItemQuantityVo) {
+            return packNo + "：订单错误";
+        }
+        int i = pmsFeignClient.orderCancelShip(orderItemQuantityVo);//恢复库存
+        if (i == 0) {
+            return packNo + ": 库存异常";
+        }
+        OrderStockClearRequest orderStockClearRequest = new OrderStockClearRequest();
+        orderStockClearRequest.setOrderId(orderId);
+        orderItemService.updateLockedQuantityClear(orderStockClearRequest);//订单库存清0
+
+        orderService.updateOrderPackStateToPending(orderId);//订单修改包裹状态为处理中
+
+        deleteByPrimaryKey(packNo);//包裹设置为取消发货
+
+        return "success";
+    }
+
+
 
     @Override
     public List<OrderPackage> selectExStockUnUploadPackages() {
@@ -319,17 +367,20 @@ public class OrderPackageServiceImpl implements OrderPackageService {
             return;
         }
         Order order = orderService.selectByPrimaryKey(orderId);
-        if (order.getStockState() == 1) {
-            OrderItemQuantityVo orderItemQuantityVo = orderService.selectOrderItemQuantitiesByOrderId(orderId);
-            if (null == orderItemQuantityVo) {
-                return;
-            }
-            int i = pmsFeignClient.orderCancelShip(orderItemQuantityVo);
-            if (i == 0) {
-                return;
-            }
-            orderService.updateStockState(orderId, 0);
+
+        OrderItemQuantityVo orderItemQuantityVo = orderService.selectOrderItemQuantitiesByOrderId(orderId);
+        if (null == orderItemQuantityVo) {
+            return;
         }
+        int i = pmsFeignClient.orderCancelShip(orderItemQuantityVo);
+        if (i == 0) {
+            return;
+        }
+        OrderStockClearRequest request = new OrderStockClearRequest();
+        request.setOrderId(orderId);
+        orderItemService.updateLockedQuantityClear(request);
+//        orderService.updateStockState(orderId, 0);
+
 
         Long packNo = order.getPackNo();
 
@@ -516,9 +567,11 @@ public class OrderPackageServiceImpl implements OrderPackageService {
                 case "Yanwen":
                     return createYanwenPackage(order, shippingMethodRedis);
                 default:
+                    orderService.updateOrderPackInfo(orderId,2,null);
                     return BaseResponse.failed("物流公司未对接");
             }
         } catch (Exception e) {
+            orderService.updateOrderPackInfo(orderId,2,null);
             e.printStackTrace();
             return BaseResponse.failed(e.getMessage());
         }

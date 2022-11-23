@@ -39,6 +39,8 @@ import java.util.Set;
  */
 public interface OrderDao {
 
+    int updateOrderPackStateToPending(Long id);
+
     int updateOrderWaveRelease(Integer waveNo);
 
     int updateActualShipMethodById(@Param("orderId") Long orderId, @Param("shipMethodId") Long shipMethodId);

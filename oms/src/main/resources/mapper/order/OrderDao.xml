@@ -2539,4 +2539,17 @@
         and refund_state = '0'
         and ship_state = '0'
     </update>
+
+    <update id="updateOrderPackStateToPending">
+        update `order`
+            set pack_no = null,
+                pack_state = '0',
+                pick_state = '0',
+                is_print_label = '0',
+                stock_state = '0'
+        where id = #{id}
+        and pay_state = '1'
+        and refund_state = '0'
+        and ship_state = '0'
+    </update>
 </mapper>

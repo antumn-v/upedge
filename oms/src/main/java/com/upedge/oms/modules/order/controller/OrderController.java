@@ -499,7 +499,7 @@ public class OrderController {
                 orderService.matchShipRule(order.getId());
             }else if (!request.getNeedPay()){
                 orderService.initPickType(order.getId());
-                orderPackageService.createPackage(order.getId());
+//                orderPackageService.createPackage(order.getId());
             }
             return response;
         }

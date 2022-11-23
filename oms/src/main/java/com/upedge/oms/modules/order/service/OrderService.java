@@ -35,6 +35,8 @@ import java.util.Set;
  */
 public interface OrderService{
 
+    int updateOrderPackStateToPending(Long id);
+
     int updateOrderWaveRelease(Integer waveNo);
 
     List<Order> selectByWaveNo(Integer waveNo);

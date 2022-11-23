@@ -106,9 +106,12 @@ public class VariantWarehouseStockServiceImpl implements VariantWarehouseStockSe
     public int orderCancelShip(OrderItemQuantityVo orderItemQuantityVo) throws Exception {
         List<ItemQuantityVo> itemQuantityVos = orderItemQuantityVo.getItemQuantityVos();
         for (ItemQuantityVo itemQuantityVo : itemQuantityVos) {
-           int i = variantWarehouseStockDao.restoreStockByLockStock(itemQuantityVo.getVariantId(), orderItemQuantityVo.getWarehouseCode(),itemQuantityVo.getQuantity());
-            if (i == 0){
-                throw new Exception("锁定库存异常");
+            Integer lockedQuantity = itemQuantityVo.getLockedQuantity();
+            if (lockedQuantity > 0){
+                int i = variantWarehouseStockDao.restoreStockByLockStock(itemQuantityVo.getVariantId(), orderItemQuantityVo.getWarehouseCode(),lockedQuantity);
+                if (i == 0){
+                    throw new Exception("锁定库存异常");
+                }
             }
         }
         return 1;
