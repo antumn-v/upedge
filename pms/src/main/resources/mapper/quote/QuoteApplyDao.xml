@@ -45,6 +45,7 @@
             <result property="variantImage" column="variant_image"/>
             <result property="quotePrice" column="quote_price"/>
             <result property="quoteApplyId" column="quote_apply_id"/>
+            <result property="storeName" column="store_name"/>
         </collection>
     </resultMap>
 
@@ -324,7 +325,7 @@
         select qa.*,qai.`id` as `itemId`,qai.`product_id`,qai.`variant_id`,qai.`store_product_id`,
         qai.`store_variant_id`,qai.`store_variant_name`,qai.`store_product_title`,qai.`store_variant_sku`,qai.`store_variant_image`,
         qai.`product_title`,qai.`variant_name`,qai.`variant_sku`,qai.`variant_image`,qai.`quote_price`,qai.`quote_apply_id`,
-        spa.handle
+        spa.handle,spa.store_name
         from quote_apply qa
         left join quote_apply_item qai
         on qa.id = qai.quote_apply_id

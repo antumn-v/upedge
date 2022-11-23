@@ -214,7 +214,17 @@ public class OrderFulfillmentServiceImpl implements OrderFulfillmentService {
                 }
                 String platOrderId = storeOrderItems.get(0).getPlatOrderId();
                 Long storeOrderId = storeOrderRelate.getStoreOrderId();
-                boolean b = shopifyOrderFulfill(storeOrderItems, finalTrackCode, finalOrderPackage.getTrackingCompany(), storeVo, platOrderId, storeOrderId,orderId);
+                boolean b = false;
+                switch (storeVo.getStoreType()){
+                    case 0:
+                        b = shopifyOrderFulfill(storeOrderItems, finalTrackCode, finalOrderPackage.getTrackingCompany(), storeVo, platOrderId, storeOrderId,orderId);
+                        break;
+                    case 1:
+                        b = woocommerceOrderFulfill(orderPackage,platOrderId,storeOrderId);
+                        break;
+                    default:
+                        break;
+                }
                 if (!b){
                     return false;
                 }
@@ -228,7 +238,7 @@ public class OrderFulfillmentServiceImpl implements OrderFulfillmentService {
         orderPackage.setId(packNo);
         orderPackage.setIsUploadStore(true);
         orderPackageService.updateByPrimaryKeySelective(orderPackage);
-        if (!isPreUpload){//预上传不修改订单发货状态
+        if (!isPreUpload || orderPackage.getPackageState() == 1){//预上传不修改订单发货状态
             orderDao.updateOrderAsTracked(orderId,trackCode);
         }
         return true;
@@ -479,11 +489,64 @@ public class OrderFulfillmentServiceImpl implements OrderFulfillmentService {
         woocommerceOrderNote.setNote(note);
         woocommerceOrderNote.setCustomer_note(storeVo.isEmailPrompt());
         woocommerceOrderNote = WoocommerceOrderApi.postOrderNote(platOrderId, storeVo.getStoreUrl(), storeVo.getApiToken(), woocommerceOrderNote);
+        WoocommerceOrderApi.completeOrder(storeVo.getApiToken(),storeVo.getStoreUrl(),platOrderId);
         saveStoreOrderFulfillment(woocommerceOrderNote,storeVo,orderTracking,platOrderId,fulfillment_post,storeOrderId);
         if (null == woocommerceOrderNote) {
             return false;
         }
         woocommerceShipmentTracking(orderTracking, storeVo, platOrderId);
+        return true;
+    }
+
+    boolean woocommerceOrderFulfill(OrderPackage orderPackage, String platOrderId, Long storeOrderId) {
+
+        if(orderPackage == null){
+            return false;
+        }
+        if (orderPackage.getIsUploadStore()){
+            return true;
+        }
+        Long orderId = orderPackage.getOrderId();
+        Order order = orderDao.selectByPrimaryKey(orderId);
+        if (order == null){
+            return false;
+        }
+        StoreVo storeVo = getStoreVo(order.getStoreId());
+
+        Long customerId = orderPackage.getCustomerId();
+        String trackCode = null;
+        String uploadStoreTrackCodeType = (String) redisTemplate.opsForHash().get(RedisKey.HASH_CUSTOMER_SETTING + customerId, CustomerSettingEnum.upload_store_track_code_type.name());
+        if (uploadStoreTrackCodeType == null || uploadStoreTrackCodeType.equals("0")){
+            trackCode = orderPackage.getLogisticsOrderNo();
+        }else {
+            trackCode = orderPackage.getTrackingCode();
+        }
+        if (StringUtils.isBlank(trackCode)){
+            return false;
+        }
+
+        List<WoocommerceOrderNote> woocommerceOrderNotes = WoocommerceOrderApi.getOrderNotes(platOrderId, storeVo.getStoreUrl(), storeVo.getApiToken());
+        if (ListUtils.isNotEmpty(woocommerceOrderNotes)) {
+            for (WoocommerceOrderNote woocommerceOrderNote : woocommerceOrderNotes) {
+                if (woocommerceOrderNote.getNote().contains(trackCode)) {
+                    woocommerceShipmentTracking(orderPackage, storeVo, platOrderId);
+                    return true;
+                }
+            }
+        }
+
+        String note = "Shipping Method: " + orderPackage.getTrackingCompany() + " ; Tracking Number: " + trackCode;
+        WoocommerceOrderNote woocommerceOrderNote = new WoocommerceOrderNote();
+        woocommerceOrderNote.setAuthor("UPEDGE");
+        woocommerceOrderNote.setNote(note);
+        woocommerceOrderNote.setCustomer_note(storeVo.isEmailPrompt());
+        woocommerceOrderNote = WoocommerceOrderApi.postOrderNote(platOrderId, storeVo.getStoreUrl(), storeVo.getApiToken(), woocommerceOrderNote);
+        WoocommerceOrderApi.completeOrder(storeVo.getApiToken(),storeVo.getStoreUrl(),platOrderId);
+        saveStoreOrderFulfillment(woocommerceOrderNote,storeVo,orderId,platOrderId,fulfillment_post,storeOrderId);
+        if (null == woocommerceOrderNote) {
+            return false;
+        }
+        woocommerceShipmentTracking(orderPackage, storeVo, platOrderId);
         return true;
     }
 
@@ -494,6 +557,18 @@ public class OrderFulfillmentServiceImpl implements OrderFulfillmentService {
             woocommerceOrderShipment.setTracking_link(storeVo.getTrackingUrl() + orderTracking.getTrackingCode());
             woocommerceOrderShipment.setTracking_number(orderTracking.getTrackingCode());
             woocommerceOrderShipment.setTracking_provider(orderTracking.getShippingMethodName());
+            WoocommerceOrderApi.postOrderShipmentTracking(platOrderId, storeVo.getStoreUrl(), storeVo.getApiToken(), woocommerceOrderShipment);
+        } catch (Exception e) {
+            log.warn("store:{},platOrderId:{},Exception:{}", storeVo.getId(), platOrderId, e.getMessage());
+        }
+    }
+
+    void woocommerceShipmentTracking(OrderPackage orderPackage, StoreVo storeVo, String platOrderId) {
+        try {
+            WoocommerceOrderShipment woocommerceOrderShipment = new WoocommerceOrderShipment();
+            woocommerceOrderShipment.setTracking_link(storeVo.getTrackingUrl() + orderPackage.getTrackingCode());
+            woocommerceOrderShipment.setTracking_number(orderPackage.getTrackingCode());
+            woocommerceOrderShipment.setTracking_provider(orderPackage.getTrackingCompany());
             WoocommerceOrderApi.postOrderShipmentTracking(platOrderId, storeVo.getStoreUrl(), storeVo.getApiToken(), woocommerceOrderShipment);
         } catch (Exception e) {
             log.warn("store:{},platOrderId:{},Exception:{}", storeVo.getId(), platOrderId, e.getMessage());

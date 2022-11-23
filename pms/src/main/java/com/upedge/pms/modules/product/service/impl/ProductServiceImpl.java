@@ -515,9 +515,7 @@ public class ProductServiceImpl implements ProductService {
         BeanUtils.copyProperties(addProductVo, product);
         product.setId(productId);
         product.setState(1);
-        if (null == product.getCateType()){
-            product.setCateType(0);
-        }
+        product.setCateType(0);
         product.setUserId(session.getId());
 
         product.setOriginalId(null);

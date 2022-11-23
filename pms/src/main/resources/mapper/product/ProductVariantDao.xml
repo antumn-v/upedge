@@ -551,7 +551,7 @@
         pv.weight,pv.volume_weight as `volume`,p.product_title as `productTitle`,
         p.shipping_id as productShippingId,p.id as productId,'1' as quote_scale,
         pv.width,pv.height,pv.length,'1' as `quoteScale`,
-        '1' as quoteType,'1' as quote_state
+        '1' as quoteType,'1' as quote_state,pv.barcode
         from product_variant pv
         left join product p
         on p.id = pv.product_id

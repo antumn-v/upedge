@@ -858,6 +858,7 @@ public class OrderServiceImpl implements OrderService {
             orderItem.setQuantity(quantity);
             orderItem.setStoreVariantId(0L);
             orderItem.setId(IdGenerate.nextId());
+            orderItem.setBarcode(customerProductQuoteVo.getBarcode());
             orderItem.quoteProductToItem(customerProductQuoteVo);
             customerProductQuoteVo.setQuoteScale(1);
             cnyProductAmount = cnyProductAmount.add(orderItem.getCnyPrice().multiply(itemQuantity));

@@ -83,6 +83,8 @@ public class CustomerProductQuote{
 
 	private String originalId;
 
+	private String storeName;
+
 	public CustomerProductQuote(StoreProductVariant storeProductVariant) {
 		this.storeProductId = storeProductVariant.getProductId();
 		this.storeProductTitle = storeProductVariant.getTitle();

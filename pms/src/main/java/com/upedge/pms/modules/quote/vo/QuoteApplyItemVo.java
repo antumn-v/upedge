@@ -66,4 +66,6 @@ public class QuoteApplyItemVo {
      *
      */
     private Long quoteApplyId;
+
+    private String storeName;
 }

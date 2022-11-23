@@ -387,7 +387,7 @@
         inner join order_item oi
         on o.id = oi.order_id
         inner join store_order_relate sor
-        on sor.order_id = oi.order_id
+        on sor.store_order_id = oi.store_order_id
         where o.wave_no = #{waveNo}
           and oi.quantity > '0'
         order by o.id desc

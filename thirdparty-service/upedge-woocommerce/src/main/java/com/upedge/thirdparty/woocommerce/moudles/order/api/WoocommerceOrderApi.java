@@ -25,6 +25,22 @@ public class WoocommerceOrderApi {
         return null;
     }
 
+    public static JSONObject completeOrder(String token, String shopName, String orderId){
+        String url = "https://"+shopName+"/wp-json/wc/v3/orders/" + orderId;
+
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("status","completed");
+
+        String data =
+                OkHttpRequest.woocommerceRequest(jsonObject,token,url,null,HttpMethod.POST);
+
+        if(StringUtils.isNotBlank(data)){
+            return JSONObject.parseObject(data);
+        }
+
+        return null;
+    }
+
 
     public static JSONArray getWoocommerceOrders(String token, String shopName,String param){
         String url = "https://"+shopName+"/wp-json/wc/v3/orders" ;
@@ -56,7 +72,8 @@ public class WoocommerceOrderApi {
     }
 
     public static void main(String[] args) {
-        System.out.println(getWoocommerceOrderCount("Y2tfMmI3ZmM4NjY1ZmMzMzAyY2UyNWY1YjBjYzVhMWI2ZDBiZTcyNmYxODpjc180NGJhNmU0ZGY1ZjQwZTg5N2M3ZDQ5YjQ1Nzc4NzIxNDRhN2M4Mjk3","www.evershape.at",null));
+
+        System.out.println(completeOrder("Y2tfMmI3ZmM4NjY1ZmMzMzAyY2UyNWY1YjBjYzVhMWI2ZDBiZTcyNmYxODpjc180NGJhNmU0ZGY1ZjQwZTg5N2M3ZDQ5YjQ1Nzc4NzIxNDRhN2M4Mjk3","www.evershape.at","17064"));
     }
 
 
