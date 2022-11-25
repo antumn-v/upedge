@@ -80,7 +80,7 @@ public interface OrderService{
 
     List<Long> selectUnPaidIdsByShipRule( OrderShipRuleVo shipRuleVo,  Long areaId);
 
-    BaseResponse orderCancelUploadSaihe(Long orderId);
+    BaseResponse orderCancelUploadSaihe(List<Long> orderIds);
 
     int cancelOrderByIds(@Param("ids") List<Long> ids);
 

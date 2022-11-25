@@ -3,8 +3,10 @@ package com.upedge.pms.modules.purchase.controller;
 import com.upedge.common.base.BaseResponse;
 import com.upedge.common.component.annotation.Permission;
 import com.upedge.common.constant.key.RedisKey;
+import com.upedge.common.model.oms.order.ItemQuantityVo;
 import com.upedge.common.model.oms.order.OrderItemQuantityVo;
 import com.upedge.common.model.pms.request.VariantStockRestoreLockQuantityRequest;
+import com.upedge.common.model.pms.vo.VariantWarehouseStockModel;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.utils.IdGenerate;
 import com.upedge.common.web.util.RedisUtil;
@@ -19,6 +21,7 @@ import com.upedge.pms.modules.purchase.service.VariantWarehouseStockService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.*;
@@ -118,6 +121,19 @@ public class VariantWarehouseStockController {
     public int orderCancelShip(@RequestBody OrderItemQuantityVo orderItemQuantityVo){
         try {
             int i = variantWarehouseStockService.orderCancelShip(orderItemQuantityVo);
+            if (i == 1){
+                List<ItemQuantityVo> itemQuantityVos = orderItemQuantityVo.getItemQuantityVos();
+                String warehouseCode = orderItemQuantityVo.getWarehouseCode();
+                for (ItemQuantityVo itemQuantityVo : itemQuantityVos) {
+                    Long variantId = itemQuantityVo.getVariantId();
+                    VariantWarehouseStock variantWarehouseStock = variantWarehouseStockService.selectByPrimaryKey(itemQuantityVo.getVariantId(), orderItemQuantityVo.getWarehouseCode());
+                    if(null != variantWarehouseStock){
+                        VariantWarehouseStockModel variantWarehouseStockModel = new VariantWarehouseStockModel();
+                        BeanUtils.copyProperties(variantWarehouseStock,variantWarehouseStockModel);
+                        redisTemplate.opsForHash().put(RedisKey.HASH_VARIANT_WAREHOUSE_STOCK + warehouseCode,variantId.toString(),variantWarehouseStockModel);
+                    }
+                }
+            }
             return i;
         } catch (Exception e) {
             e.printStackTrace();

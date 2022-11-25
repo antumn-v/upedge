@@ -1593,14 +1593,11 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public BaseResponse orderCancelUploadSaihe(Long orderId) {
-        Order order = selectByPrimaryKey(orderId);
-        if (order == null
-                || order.getPayState() != OrderConstant.PAY_STATE_PAID
-                || order.getSaiheOrderCode() != null){
-            return BaseResponse.failed("订单不存在或未支付或已上传赛盒");
+    public BaseResponse orderCancelUploadSaihe(List<Long> orderIds) {
+        if (ListUtils.isEmpty(orderIds)){
+            return BaseResponse.failed();
         }
-        orderDao.orderCancelUploadSaihe(orderId);
+        orderDao.orderCancelUploadSaihe(orderIds);
         return BaseResponse.success();
     }
 
@@ -2561,7 +2558,7 @@ public class OrderServiceImpl implements OrderService {
         }
         List<AppOrderVo> appOrderVos = selectAppOrderList(request);
         appOrderVos.forEach(appOrderVo -> {
-            if (appOrderVo.getPackState() == 0){
+            if (appOrderVo.getPackState() == 2){
                 String reason = (String) redisTemplate.opsForHash().get(RedisKey.HASH_ORDER_CREATE_PACKAGE_FAILED_REASON,appOrderVo.getId().toString());
                 appOrderVo.setCreatePackFailedReason(reason);
             }

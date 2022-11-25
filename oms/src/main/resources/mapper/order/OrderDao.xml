@@ -349,10 +349,10 @@
                     and o.is_print_label = #{t.isPrintLabel}
                 </if>
                 <if test="t.shipMethodId != null">
-                    and o.ship_method_id = #{t.shipMethodId}
+                    and o.actual_ship_method_id = #{t.shipMethodId}
                 </if>
                 <if test="t.shipMethodIds != null and t.shipMethodIds.size() > 0">
-                    and o.ship_method_id in
+                    and o.actual_ship_method_id in
                     <foreach collection="t.shipMethodIds" item="methodId" open="(" separator="," close=")">
                         #{methodId}
                     </foreach>
@@ -2406,7 +2406,10 @@
     <update id="orderCancelUploadSaihe">
         update `order`
         set saihe_order_code = '0'
-        where id = #{id}
+        where id in
+        <foreach collection="ids" item="id" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
           and pay_state = '1'
           and saihe_order_code is null
     </update>
@@ -2546,7 +2549,8 @@
                 pack_state = '0',
                 pick_state = '0',
                 is_print_label = '0',
-                stock_state = '0'
+                stock_state = '0',
+                wave_no = null
         where id = #{id}
         and pay_state = '1'
         and refund_state = '0'

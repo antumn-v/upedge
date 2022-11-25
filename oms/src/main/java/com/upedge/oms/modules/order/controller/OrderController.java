@@ -643,8 +643,8 @@ public class OrderController {
     @ApiOperation("订单取消上传赛盒")
     @PostMapping("/cancelUploadSaihe")
     public BaseResponse orderCancelUploadSaihe(@RequestBody OrderImportSaiheRequest request){
-        Long orderId = request.getOrderId();
-        return orderService.orderCancelUploadSaihe(orderId);
+
+        return orderService.orderCancelUploadSaihe(request.getOrderIds());
     }
 
     /**

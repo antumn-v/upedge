@@ -16,7 +16,6 @@ import com.upedge.common.model.product.AlibabaApiVo;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.utils.IdGenerate;
 import com.upedge.common.utils.ListUtils;
-import com.upedge.common.web.util.RedisUtil;
 import com.upedge.pms.modules.product.entity.ProductVariant;
 import com.upedge.pms.modules.product.service.ProductVariantService;
 import com.upedge.pms.modules.purchase.entity.*;
@@ -390,11 +389,11 @@ public class PurchaseServiceImpl implements PurchaseService {
 
     @Override
     public List<Long> createPurchaseOrder(PurchaseOrderCreateRequest request, Session session) throws CustomerException {
-        String key = "key:createPurchaseOrder";
-        boolean b = RedisUtil.lock(redisTemplate, key, 10L, 60 * 1000L);
-        if (!b) {
-            throw new CustomerException("其他采购单正在生成中，请稍候。");
-        }
+//        String key = "key:createPurchaseOrder";
+//        boolean b = RedisUtil.lock(redisTemplate, key, 10L, 60 * 1000L);
+//        if (!b) {
+//            throw new CustomerException("其他采购单正在生成中，请稍候。");
+//        }
 
         List<PurchasePlan> purchasePlans = purchasePlanService.selectByIds(request.getIds());
         if (ListUtils.isEmpty(purchasePlans)) {
@@ -480,7 +479,7 @@ public class PurchaseServiceImpl implements PurchaseService {
             variantWarehouseStockService.updateVariantPurchaseStockByPlan(purchasePlanList);
 
         }
-        RedisUtil.unLock(redisTemplate, key);
+//        RedisUtil.unLock(redisTemplate, key);
         return orderIds;
     }
 

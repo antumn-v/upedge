@@ -142,7 +142,7 @@ public class OrderPackageServiceImpl implements OrderPackageService {
     public String packReturnToPending(Long orderId) {
         Order order = orderService.selectByPrimaryKey(orderId);
         if (order == null){
-            return order + ": 订单不存在";
+            return orderId + ": 订单不存在";
         }
         if (order.getPackState() == 0){
             return "success";
@@ -245,7 +245,7 @@ public class OrderPackageServiceImpl implements OrderPackageService {
 
     @Override
     public void packageRefreshTrackCode(OrderPackage orderPackage) {
-        if (StringUtils.isNotBlank(orderPackage.getTrackingCode())) {
+        if (orderPackage == null || StringUtils.isNotBlank(orderPackage.getTrackingCode())) {
             return;
         }
         Long packNo = orderPackage.getId();
@@ -257,12 +257,16 @@ public class OrderPackageServiceImpl implements OrderPackageService {
                     break;
                 case "YunExpress":
                     YunExpressGetTrackNumDto yunExpressGetTrackNumDto = YunexpressApi.getTrackNum(orderPackage.getOrderId());
-                    trackCode = yunExpressGetTrackNumDto.getTrackingNumber();
+                    if (yunExpressGetTrackNumDto != null){
+                        trackCode = yunExpressGetTrackNumDto.getTrackingNumber();
+                    }
                     break;
                 case "4PX":
                     try {
                         FpxOrderDto fpxOrderDto = FpxOrderApi.getFpxOrder(orderPackage.getLogisticsOrderNo());
-                        trackCode = fpxOrderDto.getFpxTrackingNo();
+                        if (fpxOrderDto != null){
+                            trackCode = fpxOrderDto.getFpxTrackingNo();
+                        }
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -539,7 +543,7 @@ public class OrderPackageServiceImpl implements OrderPackageService {
         Order order = orderService.selectByPrimaryKey(orderId);
 
         if (order.getPayState() != 1
-                || order.getPackState() != 0
+                || order.getPackState() == 1
                 || order.getRefundState() != 0) {
             return BaseResponse.failed("订单未支付或已生成包裹或退款中");
         }

@@ -1,9 +1,11 @@
 package com.upedge.oms.modules.pack.controller;
 
 import com.upedge.common.base.BaseResponse;
+import com.upedge.common.base.Page;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.utils.ListUtils;
 import com.upedge.common.web.util.UserUtil;
+import com.upedge.oms.modules.common.service.OrderCommonService;
 import com.upedge.oms.modules.fulfillment.service.OrderFulfillmentService;
 import com.upedge.oms.modules.pack.entity.OrderLabelPrintLog;
 import com.upedge.oms.modules.pack.entity.OrderPackage;
@@ -36,6 +38,9 @@ public class OrderPackageController {
 
     @Autowired
     ThreadPoolExecutor threadPoolExecutor;
+
+    @Autowired
+    OrderCommonService orderCommonService;
 
     @Autowired
     RedisTemplate redisTemplate;
@@ -173,6 +178,16 @@ public class OrderPackageController {
     }
 
 
+    @PostMapping("/getTrackingCode")
+    public BaseResponse packageGetTrackingCode(@RequestBody List<Long> packNos){
+        for (Long packNo : packNos) {
+            OrderPackage orderPackage = orderPackageService.selectByPrimaryKey(packNo);
+            orderPackageService.packageRefreshTrackCode(orderPackage);
+        }
+        return BaseResponse.success();
+    }
+
+
     @PostMapping("/saveLabelUrl")
     public BaseResponse saveLabelUrl() {
         orderPackageService.saveAllLabelUrl();
@@ -186,6 +201,20 @@ public class OrderPackageController {
             OrderPackage orderPackage = orderPackageService.selectByPrimaryKey(packNo);
             orderPackage.setIsUploadStore(false);
             orderFulfillmentService.orderFulfillment(orderPackage,false);
+        }
+        return BaseResponse.success();
+    }
+
+    @PostMapping("/test")
+    public BaseResponse test(){
+        Page<OrderPackage> page = new Page<>();
+        OrderPackage orderPackage = new OrderPackage();
+        orderPackage.setPackageState(1);
+        page.setT(orderPackage);
+        page.setPageSize(-1);
+        List<OrderPackage> packages = orderPackageService.select(page);
+        for (OrderPackage aPackage : packages) {
+            orderCommonService.addCustomerCommission(aPackage.getOrderId(),aPackage.getCustomerId());
         }
         return BaseResponse.success();
     }

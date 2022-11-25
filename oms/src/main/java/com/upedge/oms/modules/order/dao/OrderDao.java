@@ -53,7 +53,7 @@ public interface OrderDao {
 
     int updateShipState(@Param("id") Long id, @Param("shipState") Integer shipState);
 
-    void orderCancelUploadSaihe(Long id);
+    void orderCancelUploadSaihe(@Param("ids") List<Long> ids);
 
     List<Order> selectByIds(@Param("ids") List<Long> ids);
 

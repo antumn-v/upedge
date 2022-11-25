@@ -2,12 +2,13 @@ package com.upedge.oms.modules.order.request;
 
 import lombok.Data;
 
-import javax.validation.constraints.NotNull;
+import java.util.List;
 
 @Data
 public class OrderImportSaiheRequest {
 
-    @NotNull
     private Long orderId;
+
+    private List<Long> orderIds;
 
 }

@@ -49,10 +49,10 @@ public class RequestUtils {
                 try {
                     Thread.sleep(1000L);
                 } catch (Exception ex) {
-                    ex.printStackTrace();
+                    System.out.println(e.getMessage());
                 }
             }
-            e.printStackTrace();
+            System.out.println(e.getMessage());
         }
         return response;
     }

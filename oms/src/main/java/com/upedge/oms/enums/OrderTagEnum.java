@@ -47,21 +47,21 @@ public enum  OrderTagEnum {
     /**
      * 生包失败
      */
-    PACK_FAILED(1,0,null,null,null,2,null,null),
+    PACK_FAILED(1,0,0,null,null,2,null,null),
     //处理中
     PACK_PENDING(1,0,0,null,null,0,null,null),
     //有货
-    IN_STOCK(1,0,null,null,1,1,false,0),
+    IN_STOCK(1,0,0,null,1,1,false,0),
     //缺货
-    OUT_STOCK(1,0,null,null,0,1,false,0),
+    OUT_STOCK(1,0,0,null,0,1,false,0),
     //已发货
-    ADMIN_SHIPPED(1,1,null,null,null,null,null,null),
+    ADMIN_SHIPPED(1,1,0,null,null,null,null,null),
     //已搁置
-    SHUNT(1,null,null,null,null,-1,null,null),
+    SHUNT(1,0,0,null,null,-1,null,null),
     //面单已打印
-    LABEL_PRINTED(1,0,null,null,1,1,true,1),
+    LABEL_PRINTED(1,0,0,null,1,1,true,1),
     //已拣货
-    PICKED(1,0,null,null,1,1,false,1);
+    PICKED(1,0,0,null,1,1,false,1);
 
 
 

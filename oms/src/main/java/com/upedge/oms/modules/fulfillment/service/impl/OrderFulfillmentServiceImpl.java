@@ -234,13 +234,14 @@ public class OrderFulfillmentServiceImpl implements OrderFulfillmentService {
             e.printStackTrace();
             return false;
         }
+        if (!isPreUpload || orderPackage.getPackageState() == 1){//预上传不修改订单发货状态
+            orderDao.updateOrderAsTracked(orderId,trackCode);
+        }
         orderPackage = new OrderPackage();
         orderPackage.setId(packNo);
         orderPackage.setIsUploadStore(true);
         orderPackageService.updateByPrimaryKeySelective(orderPackage);
-        if (!isPreUpload || orderPackage.getPackageState() == 1){//预上传不修改订单发货状态
-            orderDao.updateOrderAsTracked(orderId,trackCode);
-        }
+
         return true;
     }
 

@@ -1247,10 +1247,10 @@
 
     <select id="selectUnStockOrderItems" resultMap="BaseResultMap"
             parameterType="com.upedge.common.model.order.request.OrderItemPurchaseAdviceRequest">
-        select oi.admin_variant_id, o.customer_id, sum(oi.quantity) as `quantity`
+        select oi.admin_variant_id, o.customer_id, sum(oi.quantity - oi.locked_quantity) as `quantity`
         from `order` o
-                     inner join `order_item` oi
-                on o.id = oi.order_id
+        inner join `order_item` oi
+        on o.id = oi.order_id
         where o.pay_state = '1'
           and o.refund_state = '0'
           and o.ship_state = '0'

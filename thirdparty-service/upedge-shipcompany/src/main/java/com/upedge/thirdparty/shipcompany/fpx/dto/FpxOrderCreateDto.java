@@ -188,7 +188,7 @@ public class FpxOrderCreateDto {
     @Data
     public static class SenderDTO {
         @JSONField(name = "first_name")
-        private String firstName = "郭";
+        private String firstName = "guo";
         @JSONField(name = "last_name")
         private String lastName = "xin";
         @JSONField(name = "company")
@@ -204,13 +204,13 @@ public class FpxOrderCreateDto {
         @JSONField(name = "country")
         private String country = "CN";
         @JSONField(name = "state")
-        private String state = "浙江省";
+        private String state = "zhejiang";
         @JSONField(name = "city")
-        private String city = "杭州市";
+        private String city = "hangzhou";
         @JSONField(name = "district")
-        private String district = "余杭区";
+        private String district = "yuhang";
         @JSONField(name = "street")
-        private String street = "五常街道";
+        private String street = "wuchangjiedao";
         @JSONField(name = "house_number")
         private String houseNumber = "406";
         @JSONField(name = "certificate_info")
