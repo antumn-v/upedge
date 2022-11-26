@@ -12,9 +12,11 @@ import java.util.List;
 /**
  * @author author
  */
-public interface AffiliateDao{
+public interface AffiliateDao {
 
     List<RefereeCommissionVo> searchCommissionByReferee(Long referrerId);
+
+    int updateRebateStateByRefereeId(@Param("refereeId") Long refereeId, @Param("rebateState") Boolean rebateState);
 
     void updateRefereeCommission(@Param("refereeId") Long refereeId,
                                  @Param("commission") BigDecimal commission);
@@ -45,7 +47,7 @@ public interface AffiliateDao{
 
     Affiliate selectAffiliateVoByRefereeId(@Param("customerId") Long customerId);
 
-    BigDecimal selectTotalByReferrerId( Long customerId);
+    BigDecimal selectTotalByReferrerId(Long customerId);
 
     List<Affiliate> allAffiliates();
 }

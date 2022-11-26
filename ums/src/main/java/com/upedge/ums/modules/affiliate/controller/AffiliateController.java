@@ -13,6 +13,7 @@ import com.upedge.ums.modules.affiliate.entity.Affiliate;
 import com.upedge.ums.modules.affiliate.entity.AffiliateCodeRecord;
 import com.upedge.ums.modules.affiliate.request.AffiliateAddRequest;
 import com.upedge.ums.modules.affiliate.request.AffiliateListRequest;
+import com.upedge.ums.modules.affiliate.request.DisableAffiliateRebateRequest;
 import com.upedge.ums.modules.affiliate.response.AffiliateAddResponse;
 import com.upedge.ums.modules.affiliate.response.AffiliateCommissionRecordListResponse;
 import com.upedge.ums.modules.affiliate.response.AffiliateInfoResponse;
@@ -173,6 +174,20 @@ public class AffiliateController {
     public BaseResponse addAffiliateCommissionRecord(@RequestBody@Valid CommissionRecordVo commissionRecordVo){
         affiliateService.addAffiliateCommissionRecord(commissionRecordVo);
         return BaseResponse.success();
+    }
+
+    @ApiOperation("关闭联盟佣金提成")
+    @PostMapping("/disableRebate")
+    public BaseResponse disable(@RequestBody@Valid DisableAffiliateRebateRequest request){
+        Session session = UserUtil.getSession(redisTemplate);
+        return affiliateService.disableAffiliateRebate(request,session);
+    }
+
+    @ApiOperation("开启联盟佣金提成")
+    @PostMapping("/enableRebate")
+    public BaseResponse enable(@RequestBody@Valid DisableAffiliateRebateRequest request){
+        Session session = UserUtil.getSession(redisTemplate);
+        return affiliateService.enableAffiliateRebate(request,session);
     }
 
 

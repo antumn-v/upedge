@@ -126,6 +126,9 @@ public class RedisInit {
         List<Affiliate> affiliates = affiliateService.allAffiliates();
         Map<String, AffiliateVo> map = new HashMap<>();
         for (Affiliate affiliate : affiliates) {
+            if (!affiliate.getRebateState()){
+                continue;
+            }
             AffiliateVo affiliateVo = new AffiliateVo();
             BeanUtils.copyProperties(affiliate,affiliateVo);
             map.put(affiliate.getRefereeId().toString(),affiliateVo);

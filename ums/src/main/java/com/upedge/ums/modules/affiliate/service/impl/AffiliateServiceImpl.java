@@ -1,5 +1,6 @@
 package com.upedge.ums.modules.affiliate.service.impl;
 
+import com.upedge.common.base.BaseResponse;
 import com.upedge.common.base.Page;
 import com.upedge.common.constant.Constant;
 import com.upedge.common.constant.ResultCode;
@@ -20,6 +21,7 @@ import com.upedge.ums.modules.affiliate.entity.AffiliateCommissionRecord;
 import com.upedge.ums.modules.affiliate.entity.AffiliateCommissionWithdrawal;
 import com.upedge.ums.modules.affiliate.request.AffiliateAddRequest;
 import com.upedge.ums.modules.affiliate.request.AffiliateCommissionWithdrawalAddRequest;
+import com.upedge.ums.modules.affiliate.request.DisableAffiliateRebateRequest;
 import com.upedge.ums.modules.affiliate.response.*;
 import com.upedge.ums.modules.affiliate.service.AffiliateCodeRecordService;
 import com.upedge.ums.modules.affiliate.service.AffiliateService;
@@ -92,6 +94,35 @@ public class AffiliateServiceImpl implements AffiliateService {
     @Transactional
     public int insertSelective(Affiliate record) {
         return affiliateDao.insert(record);
+    }
+
+    @Override
+    public BaseResponse disableAffiliateRebate(DisableAffiliateRebateRequest request, Session session) {
+        Long refereeId = request.getRefereeId();
+        Affiliate affiliate = affiliateDao.queryAffiliateByReferee(refereeId);
+        if (affiliate == null){
+            return BaseResponse.failed();
+        }
+        if (!affiliate.getRebateState()){
+            return BaseResponse.success();
+        }
+        redisTemplate.opsForHash().delete(RedisKey.HASH_AFFILIATE_REFEREE,refereeId.toString());
+        affiliateDao.updateRebateStateByRefereeId(refereeId,false);
+        return BaseResponse.success();
+    }
+
+    @Override
+    public BaseResponse enableAffiliateRebate(DisableAffiliateRebateRequest request, Session session) {
+        Long refereeId = request.getRefereeId();
+        Affiliate affiliate = affiliateDao.queryAffiliateByReferee(refereeId);
+        if (affiliate == null){
+            return BaseResponse.failed();
+        }
+        AffiliateVo affiliateVo = new AffiliateVo();
+        BeanUtils.copyProperties(affiliate,affiliateVo);
+        redisTemplate.opsForHash().put(RedisKey.HASH_AFFILIATE_REFEREE,refereeId.toString(),affiliateVo);
+        affiliateDao.updateRebateStateByRefereeId(refereeId,true);
+        return BaseResponse.success();
     }
 
     @Override

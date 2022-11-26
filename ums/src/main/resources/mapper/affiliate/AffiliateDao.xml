@@ -14,10 +14,11 @@
         <result property="createTime" column="create_time"/>
         <result property="updateTime" column="update_time"/>
         <result property="source" column="source"/>
+        <result property="rebateState" column="rebate_state"/>
     </resultMap>
 
     <sql id="Base_Column_List">
-        `id`,`referrer_id`,`referee_id`,`referee_commission`,`commission_amount`,`order_count`,`create_time`,`update_time`,`source`
+        `id`,`referrer_id`,`referee_id`,`referee_commission`,`commission_amount`,`order_count`,`create_time`,`update_time`,`source`,`rebate_state`
     </sql>
 
     <select id="searchCommissionByReferee" resultType="com.upedge.ums.modules.affiliate.vo.RefereeCommissionVo">
@@ -27,6 +28,7 @@
         left join customer c
         on aff.referee_id = c.id
         where aff.referrer_id = #{referrerId}
+        and (rebate_state = '1' or  commission_amount > '0')
   </select>
 
     <update id="updateRefereeCommission">
@@ -270,4 +272,10 @@
         from affiliate
         where referrer_id = #{customerId}
     </select>
+
+    <update id="updateRebateStateByRefereeId">
+        update affiliate
+            set rebate_state = #{rebateState}
+        where referee_id = #{refereeId}
+    </update>
 </mapper>

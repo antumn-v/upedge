@@ -44,4 +44,6 @@ public class Affiliate{
 	 */
     private Integer source;
 
+	private Boolean rebateState;
+
 }
