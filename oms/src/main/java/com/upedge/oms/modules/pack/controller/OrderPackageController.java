@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.List;
+import java.util.Random;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -62,7 +63,7 @@ public class OrderPackageController {
     public BaseResponse createPackageBatch(@RequestBody List<Long> orderIds) {
 
         CountDownLatch latch = new CountDownLatch(orderIds.size());
-
+        Random random = new Random();
         for (Long orderId : orderIds) {
             threadPoolExecutor.submit(new Callable<Integer>() {
                 @Override
@@ -86,6 +87,7 @@ public class OrderPackageController {
         }
         return BaseResponse.success();
     }
+
 
     @ApiOperation("搁置发货")
     @PostMapping("/revoke")
