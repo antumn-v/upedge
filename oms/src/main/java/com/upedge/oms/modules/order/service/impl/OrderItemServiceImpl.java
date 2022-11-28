@@ -101,6 +101,19 @@ public class OrderItemServiceImpl implements OrderItemService {
         return orderItemDao.insert(record);
     }
 
+    @Override
+    public int insertByBatch(List<OrderItem> orderItems) {
+        if (ListUtils.isEmpty(orderItems)){
+            return 0;
+        }
+        for (OrderItem orderItem : orderItems) {
+            if (orderItem.getQuoteScale() == null || orderItem.getQuoteScale() == 0){
+                orderItem.setQuoteScale(1);
+            }
+        }
+        return orderItemDao.insertByBatch(orderItems);
+    }
+
     /**
      *
      */

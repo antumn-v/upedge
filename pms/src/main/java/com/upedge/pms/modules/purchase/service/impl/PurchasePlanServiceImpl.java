@@ -2,6 +2,7 @@ package com.upedge.pms.modules.purchase.service.impl;
 
 import com.upedge.common.base.BaseResponse;
 import com.upedge.common.base.Page;
+import com.upedge.common.constant.key.RedisKey;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.utils.ListUtils;
 import com.upedge.pms.modules.product.entity.Product;
@@ -186,6 +187,7 @@ public class PurchasePlanServiceImpl implements PurchasePlanService {
         }else {
             purchasePlanDao.addQuantityById(purchasePlan.getId(), quantity);
         }
+        redisTemplate.opsForHash().delete(RedisKey.HASH_PURCHASE_ADVICE_LIST, variantId.toString() );
         return "success";
     }
 

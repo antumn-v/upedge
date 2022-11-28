@@ -23,6 +23,7 @@ import com.upedge.oms.modules.order.request.SplitNormalOrderRequest;
 import com.upedge.oms.modules.order.request.SplitNormalOrderRequest.OrderSplitModule;
 import com.upedge.oms.modules.order.request.SplitNormalOrderRequest.OrderSplitModule.ItemQuantity;
 import com.upedge.oms.modules.order.service.OrderActionService;
+import com.upedge.oms.modules.order.service.OrderItemService;
 import com.upedge.oms.modules.order.service.OrderService;
 import com.upedge.oms.modules.order.vo.AppOrderItemVo;
 import com.upedge.oms.modules.order.vo.AppOrderVo;
@@ -47,6 +48,9 @@ public class OrderActionServiceImpl implements OrderActionService {
 
     @Autowired
     OrderItemDao orderItemDao;
+
+    @Autowired
+    OrderItemService orderItemService;
 
     @Autowired
     OrderAddressDao orderAddressDao;
@@ -225,7 +229,7 @@ public class OrderActionServiceImpl implements OrderActionService {
             storeOrderRelates.add(newRelate);
         }
         orderDao.insertByBatch(orders);
-        orderItemDao.insertByBatch(orderItems);
+        orderItemService.insertByBatch(orderItems);
         orderActionLogDao.insertByBatch(actionLogs);
         orderAddressDao.insertByBatch(orderAddresses);
         storeOrderRelateDao.insertByBatch(storeOrderRelates);
@@ -327,7 +331,7 @@ public class OrderActionServiceImpl implements OrderActionService {
         order.setOrderType(0);
         order.setCnyProductAmount(BigDecimal.ZERO);
         orderDao.insert(order);
-        orderItemDao.insertByBatch(items);
+        orderItemService.insertByBatch(items);
         orderActionLogDao.insertByBatch(orderActionLogs);
 
         StoreOrderRelate storeOrderRelate = storeOrderRelates.get(0);

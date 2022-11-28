@@ -2351,9 +2351,11 @@
         select id
         from `order`
         where pay_state = '1'
+          and refund_state = '0'
+          and ship_state = '0'
           and saihe_order_code is null
           and order_status = '0'
-        order by pay_time asc limit 200
+        order by pay_time desc limit 1000
     </select>
 
     <update id="updateWarehouseByMethodId">

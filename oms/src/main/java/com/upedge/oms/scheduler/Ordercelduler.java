@@ -44,7 +44,7 @@ public class Ordercelduler {
     Boolean ifUploadSaihe;
 
 
-    @Scheduled(cron = "0 */10 * ? * *")
+    @Scheduled(cron = "0 00 */1 ? * *")
     public void reUploadOrderToSaihe(){
         if (!ifUploadSaihe) {
             return ;
@@ -81,7 +81,7 @@ public class Ordercelduler {
     }
 
 
-    @Scheduled(cron = "0 */10 * ? * *")
+    @Scheduled(cron = "0 00 */1 ? * *")
     public void packageExStockUploadStore(){
         if (!ifUploadSaihe) {
             return ;

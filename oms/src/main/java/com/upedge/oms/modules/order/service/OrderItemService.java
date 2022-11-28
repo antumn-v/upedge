@@ -81,6 +81,8 @@ public interface OrderItemService {
 
     int insert(OrderItem record);
 
+    int insertByBatch(List<OrderItem> record);
+
     int insertSelective(OrderItem record);
 
     List<OrderItem> select(Page<OrderItem> record);

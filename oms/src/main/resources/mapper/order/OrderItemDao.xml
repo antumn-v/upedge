@@ -1167,10 +1167,8 @@
                 inner join `order` o
         on o.id = oi.order_id
                 set oi.quantity = (#{quantity} * oi.quote_scale)
-        where o.pay_state
-         &lt; '1'
+        where o.pay_state &lt; '1'
           and oi.store_order_item_id = #{storeOrderItemId}
-          and quote_scale is not null
     </update>
 
     <select id="selectOrderIdsByStoreOrderItemIds" resultType="java.lang.Long">

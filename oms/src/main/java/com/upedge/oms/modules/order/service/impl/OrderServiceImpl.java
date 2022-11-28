@@ -57,6 +57,7 @@ import com.upedge.oms.modules.order.entity.*;
 import com.upedge.oms.modules.order.request.*;
 import com.upedge.oms.modules.order.response.OrderListResponse;
 import com.upedge.oms.modules.order.response.OrderUpdateResponse;
+import com.upedge.oms.modules.order.service.OrderItemService;
 import com.upedge.oms.modules.order.service.OrderPayService;
 import com.upedge.oms.modules.order.service.OrderService;
 import com.upedge.oms.modules.order.service.OrderTrackingService;
@@ -164,6 +165,9 @@ public class OrderServiceImpl implements OrderService {
 
     @Autowired
     private OrderTrackingService orderTrackingService;
+    
+    @Autowired
+    OrderItemService orderItemService;
 
     /**
      * 批发订单和普通订单共用service
@@ -776,7 +780,7 @@ public class OrderServiceImpl implements OrderService {
             order.setProductAmount(productAmount);
             order.setTotalWeight(totalWeight);
             orderDao.insert(order);
-            orderItemDao.insertByBatch(items);
+            orderItemService.insertByBatch(items);
             orderAddressDao.insert(orderAddress);
 
             StoreOrderRelate storeOrderRelate = new StoreOrderRelate();
@@ -900,7 +904,7 @@ public class OrderServiceImpl implements OrderService {
         order.setProductAmount(productAmount);
         order.setTotalWeight(totalWeight);
         orderDao.insert(order);
-        orderItemDao.insertByBatch(items);
+        orderItemService.insertByBatch(items);
         orderAddressDao.insert(orderAddress);
 
         StoreOrderRelate storeOrderRelate = new StoreOrderRelate();
@@ -1310,7 +1314,7 @@ public class OrderServiceImpl implements OrderService {
         order.setProductAmount(productAmount);
         order.setTotalWeight(totalWeight);
         orderDao.insert(order);
-        orderItemDao.insertByBatch(items);
+        orderItemService.insertByBatch(items);
         orderAddressDao.insert(address);
         if (ListUtils.isNotEmpty(storeOrderItemIds)) {
             storeOrderItemDao.updateStateByIds(storeOrderItemIds, 1);
@@ -1572,7 +1576,7 @@ public class OrderServiceImpl implements OrderService {
             addItems.add(orderItem);
         }
         if (ListUtils.isNotEmpty(addItems)) {
-            orderItemDao.insertByBatch(addItems);
+            orderItemService.insertByBatch(addItems);
         }
         return BaseResponse.success();
     }
@@ -1733,7 +1737,7 @@ public class OrderServiceImpl implements OrderService {
         reshipOrder.setTotalWeight(totalWeight);
 
         orderDao.insert(reshipOrder);
-        orderItemDao.insertByBatch(reshipOrderItems);
+        orderItemService.insertByBatch(reshipOrderItems);
 
         OrderAddress orderAddress = orderAddressDao.selectByOrderId(id);
         orderAddress.setOrderId(reshipOrderId);
@@ -2499,7 +2503,7 @@ public class OrderServiceImpl implements OrderService {
         orderAddress.setId(IdGenerate.nextId());
         orderAddress.setOrderId(orderId);
 
-        orderItemDao.insertByBatch(orderItems);
+        orderItemService.insertByBatch(orderItems);
         orderReshipInfoDao.insert(orderReshipInfo);
         orderAddressDao.insert(orderAddress);
         orderDao.insert(order);
@@ -3230,7 +3234,7 @@ public class OrderServiceImpl implements OrderService {
             }
             storeOrderRelateDao.insert(storeOrderRelate);
         }
-        orderItemDao.insertByBatch(orderItems);
+        orderItemService.insertByBatch(orderItems);
         platformTransactionManager.commit(transaction);
         initQuoteState(orderId);
 //        matchShipRule(orderId);

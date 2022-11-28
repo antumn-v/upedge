@@ -5,6 +5,7 @@ import com.upedge.thirdparty.shopify.moudles.order.entity.ShopifyLineItem;
 import com.upedge.thirdparty.shoplazza.moudles.order.entity.ShoplazzaOrder.ShoplazzaLineItems;
 import com.upedge.thirdparty.woocommerce.moudles.order.entity.WoocommerceOrderItem;
 import lombok.Data;
+import org.apache.commons.lang3.StringUtils;
 
 import java.math.BigDecimal;
 
@@ -78,10 +79,14 @@ public class StoreOrderItem{
 		this.price = lineItem.getPrice();
 		this.quantity = lineItem.getQuantity();
 		this.storeProductTitle = lineItem.getTitle();
-		this.storeVariantName = lineItem.getVariant_title();
 		this.storeVariantSku = lineItem.getSku();
 		this.platVariantId = lineItem.getVariant_id();
 		this.platProductId = lineItem.getProduct_id();
+		if (StringUtils.isNotBlank(lineItem.getVariant_title())){
+			this.storeVariantName = lineItem.getVariant_title();
+		}else {
+			this.storeVariantName = lineItem.getName();
+		}
 	}
 
 

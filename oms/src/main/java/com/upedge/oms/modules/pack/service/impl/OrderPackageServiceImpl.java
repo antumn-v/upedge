@@ -279,13 +279,14 @@ public class OrderPackageServiceImpl implements OrderPackageService {
         }
 
         if (StringUtils.isNotBlank(trackCode)) {
-            orderPackage = new OrderPackage();
-            orderPackage.setId(packNo);
-            orderPackage.setTrackingCode(trackCode);
-            updateByPrimaryKeySelective(orderPackage);
+            OrderPackage a = new OrderPackage();
+            a.setId(packNo);
+            a.setTrackingCode(trackCode);
+            updateByPrimaryKeySelective(a);
         }
+        orderPackage.setTrackingCode(trackCode);
         if (orderPackage.getPackageState() == 1 && !orderPackage.getIsUploadStore()) {
-            sendPackageFulfillmentMessage(packNo);
+            orderFulfillmentService.orderFulfillment(orderPackage,false);
         }
     }
 

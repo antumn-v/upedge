@@ -494,6 +494,6 @@
         where o.ship_state = '0'
        and op.package_state = '1'
         order by send_time desc
-        limit 100
+        limit 500
     </select>
 </mapper>
