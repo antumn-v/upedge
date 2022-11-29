@@ -347,4 +347,18 @@
             #{id}
         </foreach>
     </select>
+
+    <select id="selectRepeatOrder" resultMap="BaseResultMap">
+        select t.store_name,t.plat_order_name
+        from
+        (
+        select sor.store_name,sor.plat_order_name,count(o.id) as total
+        from `order` o
+        inner join store_order_relate sor
+        on o.id = sor.order_id
+        where o.order_type = '0'
+        group by sor.store_name,sor.plat_order_name
+        ) t
+        where t.total > '1'
+    </select>
 </mapper>

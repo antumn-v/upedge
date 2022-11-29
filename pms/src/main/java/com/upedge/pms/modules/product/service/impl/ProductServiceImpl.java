@@ -1264,7 +1264,7 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public BaseResponse copyProduct(Long productId, Session session) {
         Product product = productDao.selectByPrimaryKey(productId);
-        if(null == product || product.getProductSource() != 0){
+        if(null == product){
             return BaseResponse.failed();
         }
         ProductAttribute productAttribute = productAttributeService.selectByProductId(productId);

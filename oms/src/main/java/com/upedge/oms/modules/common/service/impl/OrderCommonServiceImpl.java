@@ -616,7 +616,9 @@ public class OrderCommonServiceImpl implements OrderCommonService {
                         orderTracking.setTrackType(shippingMethod.getTrackType());
                         orderTracking.setTrackingCode(logisticsOrderNo);
                         orderTracking.setTrackingCompany(shippingMethod.getTrackingCompany());
+                        Integer trackingCodeType = 0;
                         if (shippingMethod.getTrackType() == 0){
+                            trackingCodeType = 1;
                             trackNum = orderTracking.getTrackNumbers();
                         }
                         if (shippingMethod.getTrackType() == 1){
@@ -629,7 +631,7 @@ public class OrderCommonServiceImpl implements OrderCommonService {
                         // 根据orderId和 order_tracking_type查询订单
                         OrderTracking old = orderTrackingService.queryOrderTrackingByOrderId(a.getId(), orderType);
                         if (orderType == OrderType.NORMAL) {
-                            orderDao.updateOrderAsTracked(id,trackNum);
+                            orderDao.updateOrderAsTracked(id,trackNum,trackingCodeType);
                             if (old == null) {
                                 orderTracking.setState(0);
                                 orderTracking.setId(IdGenerate.nextId());

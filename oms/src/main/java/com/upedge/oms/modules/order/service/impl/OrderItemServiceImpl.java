@@ -123,6 +123,19 @@ public class OrderItemServiceImpl implements OrderItemService {
     }
 
     @Override
+    public int updateQuantityById(Long id, Integer quantity) {
+        if (quantity != null){
+            return orderItemDao.updateQuantityById(id, quantity);
+        }
+        return 0;
+    }
+
+    @Override
+    public List<OrderItem> selectUnPaidItemByStoreOrderId(Long storeOrderId) {
+        return orderItemDao.selectUnPaidItemByStoreOrderId(storeOrderId);
+    }
+
+    @Override
     public int updateLockedQuantityClear(OrderStockClearRequest request) {
         return orderItemDao.updateLockedQuantityClear(request);
     }

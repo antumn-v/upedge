@@ -37,6 +37,7 @@
         <result property="managerCode" column="manager_code"/>
         <result property="shippingWarehouse" column="shipping_warehouse"/>
         <result property="trackingCode" column="tracking_code"/>
+        <result property="trackingCodeType" column="tracking_code_type"/>
         <result property="pickType" column="pick_type"/>
         <result property="pickState" column="pick_state"/>
         <result property="packState" column="pack_state"/>
@@ -1619,7 +1620,8 @@
     <update id="updateOrderAsTracked">
         update `order`
         set ship_state=1,
-            tracking_code = #{trackNum}
+            tracking_code = #{trackNum},
+            tracking_code_type = #{trackingCodeType}
         where id = #{id}
     </update>
     <update id="updateOrderShipMethod">
@@ -2558,4 +2560,14 @@
         and refund_state = '0'
         and ship_state = '0'
     </update>
+
+    <select id="selectByPlatOrderName" resultMap="BaseResultMap">
+        select o.*
+            from `order` o
+        inner join store_order_relate sor
+        on o.id = sor.order_id
+        where sor.store_name = #{storeName}
+        and sor.plat_order_name = #{platOrderName}
+        and o.order_type = '0'
+    </select>
 </mapper>

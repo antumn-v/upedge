@@ -19,6 +19,7 @@ import com.upedge.oms.modules.order.request.OrderItemQuoteRequest;
 import com.upedge.oms.modules.order.request.OrderItemUpdateQuantityRequest;
 import com.upedge.oms.modules.order.vo.AirwallexVo;
 import com.upedge.oms.modules.order.vo.ItemDischargeQuantityVo;
+import org.apache.ibatis.annotations.Param;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
@@ -28,6 +29,10 @@ import java.util.List;
  * @author author
  */
 public interface OrderItemService {
+
+    int updateQuantityById(Long id,  Integer quantity);
+
+    List<OrderItem> selectUnPaidItemByStoreOrderId(Long storeOrderId);
 
     int updateLockedQuantityClear(OrderStockClearRequest request);
 

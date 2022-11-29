@@ -35,6 +35,8 @@ import java.util.Set;
  */
 public interface OrderService{
 
+    BaseResponse processRepeatOrder();
+
     int updateOrderPackStateToPending(Long id);
 
     int updateOrderWaveRelease(Integer waveNo);
@@ -44,7 +46,8 @@ public interface OrderService{
     BaseResponse updateActualShipMethod(OrderUpdateActualShipMethodRequest request,Session session);
 
     int updateOrderAsTracked( Long id,
-                             String trackNum);
+                             String trackNum,
+                              Integer trackingCodeType);
 
     int initPickType(Long id);
     /**

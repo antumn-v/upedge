@@ -25,6 +25,10 @@ import java.util.Map;
  */
 public interface OrderItemDao {
 
+    List<OrderItem> selectUnPaidItemByStoreOrderId(Long storeOrderId);
+
+    int updateQuantityById(@Param("id") Long id, @Param("quantity") Integer quantity);
+
     int updateLockedQuantityClear(OrderStockClearRequest request);
 
     List<OrderItem> selectPaidItemLockedQuantityByStoreVariantId(Long storeVariantId);

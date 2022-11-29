@@ -39,6 +39,8 @@ import java.util.Set;
  */
 public interface OrderDao {
 
+    List<Order> selectByPlatOrderName(@Param("storeName") String storeName, @Param("platOrderName") String platOrderName);
+
     int updateOrderPackStateToPending(Long id);
 
     int updateOrderWaveRelease(Integer waveNo);
@@ -216,7 +218,8 @@ public interface OrderDao {
      * @return
      */
     int updateOrderAsTracked(@Param("id") Long id,
-                             @Param("trackNum") String trackNum);
+                             @Param("trackNum") String trackNum,
+                             @Param("trackingCodeType") Integer trackingCodeType);
 
     /**
      * 普通订单未导入赛盒

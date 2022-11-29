@@ -193,9 +193,11 @@ public class OrderFulfillmentServiceImpl implements OrderFulfillmentService {
         Long customerId = orderPackage.getCustomerId();
         String trackCode = null;
         String uploadStoreTrackCodeType = (String) redisTemplate.opsForHash().get(RedisKey.HASH_CUSTOMER_SETTING + customerId, CustomerSettingEnum.upload_store_track_code_type.name());
+        Integer trackingCodeType = 0;
         if (uploadStoreTrackCodeType == null || uploadStoreTrackCodeType.equals("0")){
             trackCode = orderPackage.getLogisticsOrderNo();
         }else {
+            trackingCodeType = 1;
             trackCode = orderPackage.getTrackingCode();
         }
         if (StringUtils.isBlank(trackCode)){
@@ -235,7 +237,7 @@ public class OrderFulfillmentServiceImpl implements OrderFulfillmentService {
             return false;
         }
         if (!isPreUpload || orderPackage.getPackageState() == 1){//预上传不修改订单发货状态
-            orderDao.updateOrderAsTracked(orderId,trackCode);
+            orderDao.updateOrderAsTracked(orderId,trackCode,trackingCodeType);
         }
         orderPackage = new OrderPackage();
         orderPackage.setId(packNo);

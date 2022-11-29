@@ -23,10 +23,7 @@ import com.upedge.common.utils.ListUtils;
 import com.upedge.common.web.util.RedisUtil;
 import com.upedge.oms.modules.order.dao.*;
 import com.upedge.oms.modules.order.dto.UnrecognizedStoreOrderDto;
-import com.upedge.oms.modules.order.entity.StoreOrder;
-import com.upedge.oms.modules.order.entity.StoreOrderAddress;
-import com.upedge.oms.modules.order.entity.StoreOrderItem;
-import com.upedge.oms.modules.order.entity.StoreOrderRelate;
+import com.upedge.oms.modules.order.entity.*;
 import com.upedge.oms.modules.order.request.StoreDataListRequest;
 import com.upedge.oms.modules.order.request.StoreOrderListRequest;
 import com.upedge.oms.modules.order.request.UnrecognizedStoreOrderListRequest;
@@ -193,7 +190,7 @@ public class StoreOrderServiceImpl implements StoreOrderService {
         }
         String platOrderId = shopifyOrder.getId();
         String key = RedisKey.STRING_STORE_PALT_ORDER_UPDATE + storeVo.getId() + ":" + platOrderId;
-        boolean flag = RedisUtil.lock(redisTemplate, key, 3L, 5 * 1000L);
+        boolean flag = RedisUtil.lock(redisTemplate, key, 3L, 20 * 1000L);
         if (!flag) {
             return null;
         }
@@ -739,23 +736,35 @@ public class StoreOrderServiceImpl implements StoreOrderService {
         }
 
         List<Long> storeOrderItemIds = new ArrayList<>();
-        List<StoreOrderItem> storeOrderItems = storeOrderItemDao.selectByStoreOrderId(storeOrderId);
-        for (StoreOrderItem storeOrderItem : storeOrderItems) {
-            ShopifyLineItem shopifyLineItem = lineItemMap.get(storeOrderItem.getPlatOrderItemId());
-            if (null == shopifyLineItem){
-                continue;
-            }
-            lineItemMap.remove(shopifyLineItem.getId());
 
-            Integer quantity = shopifyLineItem.getFulfillable_quantity();
-            if (quantity == null || quantity.equals(storeOrderItem.getQuantity())){
-                continue;
+        List<OrderItem> orderItems = orderItemService.selectUnPaidItemByStoreOrderId(storeOrderId);
+        if (ListUtils.isNotEmpty(orderItems)){
+            List<StoreOrderItem> storeOrderItems = storeOrderItemDao.selectByStoreOrderId(storeOrderId);
+            for (StoreOrderItem storeOrderItem : storeOrderItems) {
+                ShopifyLineItem shopifyLineItem = lineItemMap.get(storeOrderItem.getPlatOrderItemId());
+                if (null == shopifyLineItem){
+                    continue;
+                }
+                lineItemMap.remove(shopifyLineItem.getId());
+
+                Integer quantity = shopifyLineItem.getFulfillable_quantity();
+                Long storeOrderItemId = storeOrderItem.getId();
+                for (OrderItem orderItem : orderItems) {
+                    if (!storeOrderItemId.equals(orderItem.getStoreOrderItemId())){
+                       continue;
+                    }
+                    Integer scale = orderItem.getQuoteScale();
+                    if(null == scale){
+                        scale = 1;
+                    }
+                    if ((quantity * scale) != orderItem.getQuantity()){
+                        storeOrderItemIds.add(storeOrderItem.getId());
+                        orderItemService.updateQuantityById(orderItem.getId(),(quantity * scale));
+                    }
+                }
             }
-            storeOrderItemIds.add(storeOrderItem.getId());
-            storeOrderItem.setQuantity(quantity);
-            storeOrderItemDao.updateByPrimaryKey(storeOrderItem);
-            orderItemService.updateQuantityByStoreOrderItemId(storeOrderItem.getId(),quantity);
         }
+
         if (MapUtils.isNotEmpty(lineItemMap)){
             List<ShopifyLineItem> newItems = new ArrayList<>();
             lineItemMap.forEach((lineItemId,lineItem) -> {
@@ -774,12 +783,10 @@ public class StoreOrderServiceImpl implements StoreOrderService {
                     int countItemQuantity = orderItemService.selectCountQuantityByOrderId(orderId);
                     if (countItemQuantity == 0){
                     }else {
+                        orderService.initQuoteState(orderId);
                         orderService.matchShipRule(orderId);
                     }
                 }
-//                if (ListUtils.isNotEmpty(cancelIds)){
-//                    orderService.cancelOrderByIds(cancelIds);
-//                }
             }
         }
     }
@@ -800,7 +807,7 @@ public class StoreOrderServiceImpl implements StoreOrderService {
             storeOrderItem.setStoreOrderId(storeOrderId);
             storeOrderItem.setId(id);
             itemIds.add(id);
-            storeOrderItems .add(storeOrderItem);
+            storeOrderItems.add(storeOrderItem);
 
             if (shopifyLineItem.getVariant_id() != null &&
                     shopifyLineItem.getProduct_id() != null){

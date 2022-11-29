@@ -9,6 +9,7 @@ import com.upedge.common.base.Page;
 import com.upedge.common.constant.ResultCode;
 import com.upedge.common.constant.key.RedisKey;
 import com.upedge.common.constant.key.RocketMqConfig;
+import com.upedge.common.enums.CustomerSettingEnum;
 import com.upedge.common.exception.CustomerException;
 import com.upedge.common.feign.PmsFeignClient;
 import com.upedge.common.model.oms.order.OrderItemQuantityVo;
@@ -305,8 +306,7 @@ public class OrderPackageServiceImpl implements OrderPackageService {
         if (StringUtils.isNotBlank(company) && !company.equals(orderPackage.getTrackingCompany())) {
             return BaseResponse.failed("该包裹所属物流公司不是" + company);
         }
-        boolean isUploadStore = orderPackage.getIsUploadStore();
-        String trackCode = orderPackage.getLogisticsOrderNo();
+
 
         Long customerId = orderPackage.getCustomerId();
         Long packNo = orderPackage.getPackageNo();
@@ -315,6 +315,7 @@ public class OrderPackageServiceImpl implements OrderPackageService {
         if (!b) {
             return BaseResponse.failed();
         }
+
 
         Long orderId = orderPackage.getOrderId();
         OrderItemQuantityVo orderItemQuantityVo = orderService.selectOrderItemQuantitiesByOrderId(orderId);
@@ -344,10 +345,18 @@ public class OrderPackageServiceImpl implements OrderPackageService {
         orderPackageInfoVo.setPackageState(1);
         orderPackageInfoVo.setSendTime(new Date());
         RedisUtil.unLock(redisTemplate, key);
-        //物流已上传店铺，直接修改订单发货状态
-        if (isUploadStore) {
-            orderService.updateOrderAsTracked(orderId, trackCode);
+
+        //修改订单发货状态
+        String trackCode = orderPackage.getLogisticsOrderNo();
+        String uploadStoreTrackCodeType = (String) redisTemplate.opsForHash().get(RedisKey.HASH_CUSTOMER_SETTING + customerId, CustomerSettingEnum.upload_store_track_code_type.name());
+        Integer trackingCodeType = 0;
+        if (uploadStoreTrackCodeType == null || uploadStoreTrackCodeType.equals("0")){
+            trackCode = orderPackage.getLogisticsOrderNo();
+        }else {
+            trackingCodeType = 1;
+            trackCode = orderPackage.getTrackingCode();
         }
+        orderService.updateOrderAsTracked(orderId, trackCode,trackingCodeType);
 
         orderCommonService.addCustomerCommission(orderId, customerId);
 

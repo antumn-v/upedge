@@ -128,8 +128,7 @@
 
 
     <sql id="Base_Column_List">
-        `id`
-                ,`order_id`,`store_order_id`,`store_order_item_id`,`store_variant_id`,
+        `id`,`order_id`,`store_order_id`,`store_order_item_id`,`store_variant_id`,
         `admin_variant_id`,`store_product_id`,`admin_product_id`,`picked_quantity`,
         `store_variant_name`,`store_variant_sku`,`store_product_title`,`store_variant_image`,
         `admin_variant_image`,`admin_variant_sku`,`usd_price`,`usd_rate`,`cny_price`,`barcode`,`locked_quantity`,
@@ -1410,5 +1409,23 @@
             and o.id = #{orderId}
         </if>
 
+    </update>
+
+    <select id="selectUnPaidItemByStoreOrderId" resultMap="BaseResultMap">
+        select oi.*
+        from `order` o
+        inner join order_item oi
+        on o.id = oi.order_id
+        where oi.store_order_id = #{storeOrderId}
+        and o.pay_state = '0'
+    </select>
+
+    <update id="updateQuantityById">
+        update `order` o
+            inner join order_item oi
+        on o.id = oi.order_id
+        set oi.quantity = #{quantity}
+        where oi.id = #{id}
+        and o.pay_state &lt; 1
     </update>
 </mapper>

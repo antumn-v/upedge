@@ -130,6 +130,8 @@ public class Order{
 
 	private String trackingCode;
 
+	private Integer trackingCodeType;
+
 	private Integer stockState;
 
 	private Integer pickType;

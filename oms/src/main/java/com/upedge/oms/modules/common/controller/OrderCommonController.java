@@ -139,4 +139,9 @@ public class OrderCommonController {
         }
     }
 
+    @PostMapping("/processRepeatOrder")
+    public BaseResponse processRepeatOrder(){
+        return orderService.processRepeatOrder();
+    }
+
 }

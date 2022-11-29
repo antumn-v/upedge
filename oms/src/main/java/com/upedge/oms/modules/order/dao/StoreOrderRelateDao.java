@@ -53,4 +53,6 @@ public interface StoreOrderRelateDao {
     long count(Page<StoreOrderRelate> record);
 
     List<StoreOrderRelate> listStoreOrderRelateByOrderIds(@Param("orderIds") Set<Long> orderIds);
+
+    List<StoreOrderRelate> selectRepeatOrder();
 }
