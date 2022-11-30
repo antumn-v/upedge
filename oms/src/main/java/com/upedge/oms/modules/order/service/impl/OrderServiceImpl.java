@@ -1333,6 +1333,11 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
+    public int updateTrackingCodeTypeById(Long id, Integer trackingCodeType) {
+        return orderDao.updateTrackingCodeTypeById(id, trackingCodeType);
+    }
+
+    @Override
     public BaseResponse processRepeatOrder() {
         List<Long> repeatPaidOrderIds = new ArrayList<>();
         List<StoreOrderRelate> storeOrderRelates = storeOrderRelateDao.selectRepeatOrder();
@@ -1780,11 +1785,13 @@ public class OrderServiceImpl implements OrderService {
         orderAddressDao.insert(orderAddress);
 
         List<StoreOrderRelate> storeOrderRelates = storeOrderRelateDao.selectByOrderId(id);
-        StoreOrderRelate storeOrderRelate = storeOrderRelates.get(0);
-        storeOrderRelate.setOrderId(reshipOrderId);
-        storeOrderRelate.setOrderCreateTime(new Date());
-        storeOrderRelate.setId(null);
-        storeOrderRelateDao.insert(storeOrderRelate);
+        for (StoreOrderRelate storeOrderRelate : storeOrderRelates) {
+            storeOrderRelate.setOrderId(reshipOrderId);
+            storeOrderRelate.setOrderCreateTime(new Date());
+            storeOrderRelate.setId(null);
+            storeOrderRelateDao.insert(storeOrderRelate);
+        }
+
 
         OrderReshipInfo orderReshipInfo = new OrderReshipInfo();
         orderReshipInfo.setOrderId(reshipOrderId);

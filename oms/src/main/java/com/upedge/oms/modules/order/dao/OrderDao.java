@@ -39,6 +39,8 @@ import java.util.Set;
  */
 public interface OrderDao {
 
+    int updateTrackingCodeTypeById(@Param("id") Long id, @Param("trackingCodeType") Integer trackingCodeType);
+
     List<Order> selectByPlatOrderName(@Param("storeName") String storeName, @Param("platOrderName") String platOrderName);
 
     int updateOrderPackStateToPending(Long id);

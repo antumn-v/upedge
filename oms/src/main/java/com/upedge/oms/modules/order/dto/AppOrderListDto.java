@@ -92,6 +92,8 @@ public class AppOrderListDto {
 
     private Integer pickState;
 
+    private Integer trackingCodeType;
+
     public AppOrderListDto() {
 //        initDateRange();
         initOrderState();
@@ -108,6 +110,7 @@ public class AppOrderListDto {
                 this.stockState = tag.getStockState();
                 this.pickState = tag.getPickState();
                 this.isPrintLabel = tag.getPrintLabel();
+                this.trackingCodeType = tag.getTrackingCodeType();
                 if (tag.name().equals("RESHIPPED")) {
                     this.orderType = 1;
                 } else {

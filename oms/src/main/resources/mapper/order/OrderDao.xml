@@ -374,6 +374,9 @@
                         o.refund_state = '0'
                     </if>
                 </if>
+                <if test="t.trackingCodeType != null">
+                    and o.tracking_code_type = #{t.trackingCodeType}
+                </if>
                 <if test="condition != null">
                     and ${condition}
                 </if>
@@ -2570,4 +2573,11 @@
         and sor.plat_order_name = #{platOrderName}
         and o.order_type = '0'
     </select>
+
+    <update id="updateTrackingCodeTypeById">
+        update `order`
+            set tracking_code_type = #{trackingCodeType}
+        where id = #{id}
+        and ship_state = '0';
+    </update>
 </mapper>

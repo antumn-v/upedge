@@ -35,6 +35,8 @@ import java.util.Set;
  */
 public interface OrderService{
 
+    int updateTrackingCodeTypeById(Long id,Integer trackingCodeType);
+
     BaseResponse processRepeatOrder();
 
     int updateOrderPackStateToPending(Long id);
