@@ -8,9 +8,10 @@ import com.upedge.common.constant.ResultCode;
 import com.upedge.common.constant.key.RedisKey;
 import com.upedge.common.enums.CustomerExceptionEnum;
 import com.upedge.common.exception.CustomerException;
+import com.upedge.common.feign.OmsFeignClient;
+import com.upedge.common.model.order.request.CustomerSyncUnpaidOrderRequest;
 import com.upedge.common.model.user.vo.*;
 import com.upedge.common.utils.IdGenerate;
-import com.upedge.common.utils.ListUtils;
 import com.upedge.common.utils.TokenUtil;
 import com.upedge.common.web.util.UserUtil;
 import com.upedge.ums.modules.account.dao.AccountUserMapper;
@@ -30,7 +31,6 @@ import com.upedge.ums.modules.organization.service.OrganizationMenuService;
 import com.upedge.ums.modules.organization.service.OrganizationRoleService;
 import com.upedge.ums.modules.organization.service.OrganizationService;
 import com.upedge.ums.modules.organization.service.OrganizationUserService;
-import com.upedge.ums.modules.store.entity.Store;
 import com.upedge.ums.modules.store.service.StoreService;
 import com.upedge.ums.modules.user.dao.UserDao;
 import com.upedge.ums.modules.user.entity.*;
@@ -123,6 +123,9 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     AffiliateService affiliateService;
+
+    @Autowired
+    OmsFeignClient omsFeignClient;
 
     @Autowired
     RedisTemplate redisTemplate;
@@ -285,10 +288,14 @@ public class UserServiceImpl implements UserService {
             return new UserSignInResponse(ResultCode.FAIL_CODE, "user or password error");
         }
         Map<String, Object> result = userSignIn(user, applicationId);
-        List<Store> stores = storeService.selectStoreByCustomer(customer.getId());
-        if (ListUtils.isNotEmpty(stores)){
-            storeService.getStoreData(null,stores);
-        }
+        CompletableFuture<Void> completableFuture = CompletableFuture.runAsync(new Runnable() {
+            @Override
+            public void run() {
+                CustomerSyncUnpaidOrderRequest customerSyncUnpaidOrderRequest = new CustomerSyncUnpaidOrderRequest();
+                customerSyncUnpaidOrderRequest.setCustomerId(customer.getId());
+                omsFeignClient.customerSync(customerSyncUnpaidOrderRequest);
+            }
+        },threadPoolExecutor);
         return new UserSignInResponse(ResultCode.SUCCESS_CODE, "login success!", result);
     }
 

@@ -487,12 +487,12 @@
     </update>
 
     <select id="selectExStockUnUploadPackages" resultMap="BaseResultMap">
-        select op.*
+        select DISTINCT op.*
         from order_package op
-        inner join `order` o
-       on o.pack_no = op.id
-        where o.ship_state = '0'
-       and op.package_state = '1'
+        inner join store_order_relate sor
+        on op.order_id = sor.order_id
+        where op.package_state = '1'
+          and sor.fulfillment_status = '0'
         order by send_time desc
         limit 500
     </select>

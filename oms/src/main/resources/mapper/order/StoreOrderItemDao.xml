@@ -126,8 +126,6 @@
         `store_variant_name`,`store_variant_sku`,`store_variant_image`,`store_product_title`,`state`,`is_removed`
         from store_order_item
         where store_order_id = #{storeOrderId}
-        and state = '0'
-        and store_variant_id is not null
     </select>
 
     <select id="selectByStoreOrderAndOrder" resultMap="BaseResultMap">

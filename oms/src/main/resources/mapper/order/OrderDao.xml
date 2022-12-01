@@ -2580,4 +2580,13 @@
         where id = #{id}
         and ship_state = '0';
     </update>
+
+    <select id="selectUnpaidIdsByCustomer" resultType="java.lang.Long">
+        select id
+        from `order`
+        where customer_id = #{customerId}
+        and pay_state = '0'
+        and order_type = '0'
+        order by create_time desc
+    </select>
 </mapper>

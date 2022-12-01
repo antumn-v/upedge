@@ -17,10 +17,7 @@ import com.upedge.oms.modules.fulfillment.dao.StoreOrderFulfillmentDao;
 import com.upedge.oms.modules.fulfillment.entity.StoreOrderFulfillment;
 import com.upedge.oms.modules.fulfillment.service.OrderFulfillmentService;
 import com.upedge.oms.modules.order.dao.*;
-import com.upedge.oms.modules.order.entity.Order;
-import com.upedge.oms.modules.order.entity.OrderTracking;
-import com.upedge.oms.modules.order.entity.StoreOrderItem;
-import com.upedge.oms.modules.order.entity.StoreOrderRelate;
+import com.upedge.oms.modules.order.entity.*;
 import com.upedge.oms.modules.order.service.OrderTrackingService;
 import com.upedge.oms.modules.pack.entity.OrderPackage;
 import com.upedge.oms.modules.pack.service.OrderPackageService;
@@ -45,6 +42,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author 海桐
@@ -376,10 +374,11 @@ public class OrderFulfillmentServiceImpl implements OrderFulfillmentService {
     boolean uploadShopifyOrderFulfillment(Map<String,List<ShopifyLineItem>> fulfillmentItems, String trackCode,String trackCompany, StoreVo storeVo, String platOrderId, Long storeOrderId,Long orderId) {
         //shopify订单回传物流需要添加location Id，location和订单产品的关系还需要测试
         String storeLocationKey = RedisKey.STRING_STORE_SHOPIFY_LOCATIONS + storeVo.getId();
+
         List<ShopifyLocation> locations = (List<ShopifyLocation>) redisTemplate.opsForValue().get(storeLocationKey);
         if (ListUtils.isEmpty(locations)) {
             locations = ShopifyShopApi.getShopifyLocations(storeVo.getStoreName(), storeVo.getApiToken());
-            redisTemplate.opsForValue().set(storeLocationKey, locations);
+            redisTemplate.opsForValue().set(storeLocationKey, locations,1, TimeUnit.DAYS);
         }
 
         a:
@@ -544,11 +543,16 @@ public class OrderFulfillmentServiceImpl implements OrderFulfillmentService {
         woocommerceOrderNote.setNote(note);
         woocommerceOrderNote.setCustomer_note(storeVo.isEmailPrompt());
         woocommerceOrderNote = WoocommerceOrderApi.postOrderNote(platOrderId, storeVo.getStoreUrl(), storeVo.getApiToken(), woocommerceOrderNote);
-        WoocommerceOrderApi.completeOrder(storeVo.getApiToken(),storeVo.getStoreUrl(),platOrderId);
-        saveStoreOrderFulfillment(woocommerceOrderNote,storeVo,orderId,platOrderId,fulfillment_post,storeOrderId);
         if (null == woocommerceOrderNote) {
             return false;
         }
+        WoocommerceOrderApi.completeOrder(storeVo.getApiToken(),storeVo.getStoreUrl(),platOrderId);
+        StoreOrder storeOrder = new StoreOrder();
+        storeOrder.setId(storeOrderId);
+        storeOrder.setFulfillmentStatus(1);
+        storeOrder.setFinancialStatus(0);
+        storeOrderRelateDao.updateStoreStatusByStoreOrderId(storeOrder);
+        saveStoreOrderFulfillment(woocommerceOrderNote,storeVo,orderId,platOrderId,fulfillment_post,storeOrderId);
         woocommerceShipmentTracking(orderPackage, storeVo, platOrderId);
         return true;
     }

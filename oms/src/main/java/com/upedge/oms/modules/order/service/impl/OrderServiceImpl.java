@@ -57,10 +57,7 @@ import com.upedge.oms.modules.order.entity.*;
 import com.upedge.oms.modules.order.request.*;
 import com.upedge.oms.modules.order.response.OrderListResponse;
 import com.upedge.oms.modules.order.response.OrderUpdateResponse;
-import com.upedge.oms.modules.order.service.OrderItemService;
-import com.upedge.oms.modules.order.service.OrderPayService;
-import com.upedge.oms.modules.order.service.OrderService;
-import com.upedge.oms.modules.order.service.OrderTrackingService;
+import com.upedge.oms.modules.order.service.*;
 import com.upedge.oms.modules.order.vo.*;
 import com.upedge.oms.modules.orderShippingUnit.entity.OrderShippingUnit;
 import com.upedge.oms.modules.orderShippingUnit.service.OrderShippingUnitService;
@@ -185,6 +182,9 @@ public class OrderServiceImpl implements OrderService {
 
     @Autowired
     OrderPayService orderPayService;
+
+    @Autowired
+    StoreOrderService storeOrderService;
 
     @Value("${ifUploadSaihe}")
     Boolean ifUploadSaihe;
@@ -1146,8 +1146,13 @@ public class OrderServiceImpl implements OrderService {
 
         List<Long> storeVariantIds = new ArrayList<>();
         storeOrderItems.forEach(item -> {
-            storeVariantIds.add(item.getStoreVariantId());
+            if (item.getStoreVariantId() != null && item.getState() == 0){
+                storeVariantIds.add(item.getStoreVariantId());
+            }
         });
+        if (ListUtils.isEmpty(storeVariantIds)){
+            return null;
+        }
         //查询产品报价
 //        CustomerProductQuoteSearchRequest customerProductQuoteSearchRequest = new CustomerProductQuoteSearchRequest();
 //        customerProductQuoteSearchRequest.setStoreVariantIds(storeVariantIds);
@@ -1330,6 +1335,38 @@ public class OrderServiceImpl implements OrderService {
         RedisUtil.unLock(redisTemplate, key);
         orderInitShipDetail(orderId);
         return order;
+    }
+
+    public static void main(String[] args) {
+        System.out.println(Runtime.getRuntime().availableProcessors());
+    }
+
+    @Override
+    public BaseResponse syncUnpaidOrder(Long customerId) {
+        List<Long> orderIds = orderDao.selectUnpaidIdsByCustomer(customerId);
+        if (ListUtils.isEmpty(orderIds)){
+            return BaseResponse.failed("没有未支付的订单需要更新");
+        }
+        for (Long orderId : orderIds) {
+            try {
+                CompletableFuture.runAsync(new Runnable() {
+                    @Override
+                    public void run() {
+                        List<StoreOrderRelate> storeOrderRelates = storeOrderRelateDao.selectByOrderId(orderId);
+                        StoreOrderRelate storeOrderRelate = storeOrderRelates.get(0);
+                        StoreOrder storeOrder = storeOrderDao.selectByPrimaryKey(storeOrderRelate.getStoreOrderId());
+                        if(storeOrder.getStoreName().equals("www.evershape.at")){
+                            return;
+                        }
+                        storeOrderService.getSingleOrder(storeOrder.getStoreId(),storeOrder.getPlatOrderId());
+                    }
+                },threadPoolExecutor);
+
+            } catch (Exception e) {
+
+            }
+        }
+        return BaseResponse.success();
     }
 
     @Override

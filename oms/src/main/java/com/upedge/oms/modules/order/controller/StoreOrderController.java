@@ -1,12 +1,9 @@
 package com.upedge.oms.modules.order.controller;
 
-import com.alibaba.fastjson.JSONObject;
 import com.upedge.common.base.BaseResponse;
 import com.upedge.common.constant.Constant;
 import com.upedge.common.constant.ProductConstant;
 import com.upedge.common.constant.ResultCode;
-import com.upedge.common.constant.key.RedisKey;
-import com.upedge.common.model.store.StoreType;
 import com.upedge.common.model.store.StoreVo;
 import com.upedge.common.model.store.request.StoreApiRequest;
 import com.upedge.common.model.user.vo.Session;
@@ -19,8 +16,6 @@ import com.upedge.oms.modules.order.request.UnrecognizedStoreOrderListRequest;
 import com.upedge.oms.modules.order.response.StoreOrderListResponse;
 import com.upedge.oms.modules.order.service.OrderService;
 import com.upedge.oms.modules.order.service.StoreOrderService;
-import com.upedge.thirdparty.shopify.moudles.order.controller.ShopifyOrderApi;
-import com.upedge.thirdparty.woocommerce.moudles.order.api.WoocommerceOrderApi;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -72,33 +67,7 @@ public class StoreOrderController {
     @PostMapping("/getSingleOrder")
     public BaseResponse getOrder(Long storeId,String orderId){
 
-        StoreVo storeVo = (StoreVo) redisTemplate.opsForValue().get(RedisKey.STRING_STORE + storeId);
-        StoreApiRequest storeApiRequest = new StoreApiRequest();
-        storeApiRequest.setStoreVo(storeVo);
-        StoreOrder storeOrder = null;
-        JSONObject jsonObject = null;
-        switch (storeVo.getStoreType()){
-            case StoreType.WOOCOMMERCE:
-                jsonObject = WoocommerceOrderApi.getOrder(storeVo.getApiToken(),storeVo.getStoreName(),orderId);
-                if (jsonObject == null){
-                    return BaseResponse.failed();
-                }
-                storeApiRequest.setJsonObject(jsonObject);
-                storeOrder = storeOrderService.woocommerceOrderUpdate(storeApiRequest);
-                break;
-            case StoreType.SHOPIFY:
-                jsonObject = ShopifyOrderApi.getOrderDetailById(orderId,storeVo.getStoreName(),storeVo.getApiToken());
-                storeApiRequest.setJsonObject(jsonObject.getJSONObject("order"));
-                storeOrder = storeOrderService.shopifyOrderUpdate(storeApiRequest);
-                break;
-        }
-
-        if (storeOrder == null){
-            return BaseResponse.success();
-        }
-        storeOrderService.completeStoreOrderItemDetail(storeOrder.getId());
-        orderService.createOrderByStoreOrder(storeOrder.getId());
-
+        storeOrderService.getSingleOrder(storeId, orderId);
         return BaseResponse.success();
     }
 

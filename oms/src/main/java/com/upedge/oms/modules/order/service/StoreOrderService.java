@@ -21,6 +21,9 @@ import java.util.List;
  */
 public interface StoreOrderService{
 
+
+    void getSingleOrder(Long storeId,String platOrderId);
+
     List<Long> selectIdsByCreateTime();
 
     BaseResponse unrecognizedStoreOrderList(UnrecognizedStoreOrderListRequest request, Session session);

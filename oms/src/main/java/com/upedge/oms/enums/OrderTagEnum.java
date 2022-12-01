@@ -63,7 +63,7 @@ public enum  OrderTagEnum {
     //已搁置
     SHUNT(1,0,0,null,null,-1,null,null,null),
     //面单已打印
-    LABEL_PRINTED(1,0,0,null,1,1,true,1,null),
+    LABEL_PRINTED(1,0,0,null,1,1,true,1,-1),
     //已拣货
     PICKED(1,0,0,null,1,1,false,1,null),
     //已出库未上传，物流商单号

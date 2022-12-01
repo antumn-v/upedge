@@ -7,6 +7,7 @@ import com.upedge.common.constant.OrderType;
 import com.upedge.common.constant.ResultCode;
 import com.upedge.common.constant.key.RedisKey;
 import com.upedge.common.exception.CustomerException;
+import com.upedge.common.model.order.request.CustomerSyncUnpaidOrderRequest;
 import com.upedge.common.model.order.request.ManagerActualRequest;
 import com.upedge.common.model.order.vo.AllOrderAmountVo;
 import com.upedge.common.model.order.vo.ManagerActualVo;
@@ -788,6 +789,21 @@ public class OrderController {
     public BaseResponse initQuoteState(@PathVariable Long orderId){
         orderService.initQuoteState(orderId);
         return BaseResponse.success();
+    }
+
+
+    @PostMapping("/customerSync")
+    public BaseResponse customerSync(@RequestBody CustomerSyncUnpaidOrderRequest request){
+        Long customerId = request.getCustomerId();
+        String key = "key:syncCustomerUnpaidOrder:" + customerId;
+        boolean b = RedisUtil.lock(redisTemplate,key,10L,60L * 60L * 1000L);
+        if (!b){
+            return BaseResponse.failed("该客户订单正在同步中");
+        }
+        orderService.syncUnpaidOrder(customerId);
+        RedisUtil.unLock(redisTemplate,key);
+        return BaseResponse.success();
+
     }
 
 }

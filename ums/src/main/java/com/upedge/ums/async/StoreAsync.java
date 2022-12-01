@@ -193,7 +193,7 @@ public class StoreAsync {
 
     //获取shopify店铺订单产品
     public void getShopifyStoreData(Store store) {
-        getShopifyStoreProducts(store);
+//        getShopifyStoreProducts(store);
         getShopifyStoreOrders(store);
     }
     //店匠店铺

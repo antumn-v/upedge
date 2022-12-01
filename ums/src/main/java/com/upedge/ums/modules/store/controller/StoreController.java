@@ -369,7 +369,13 @@ public class StoreController {
     }
 
     @PostMapping("/getStoreData")
-    public BaseResponse getStoreData(String storeName) {
+    public BaseResponse getStoreData(String storeName,Long customerId) {
+        if(customerId != null){
+            List<Store> stores = storeService.selectStoreByCustomer(customerId);
+            for (Store store : stores) {
+                storeAsync.getStoreData(store);
+            }
+        }
         if (StringUtils.isNotBlank(storeName)) {
             Store store = new Store();
             store.setStoreName(storeName);

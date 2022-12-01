@@ -13,6 +13,7 @@ import com.upedge.common.model.oms.order.OrderStockClearRequest;
 import com.upedge.common.model.oms.stock.StockOrderVo;
 import com.upedge.common.model.order.OrderItemQuantityDto;
 import com.upedge.common.model.order.dto.OrderItemPurchaseAdviceDto;
+import com.upedge.common.model.order.request.CustomerSyncUnpaidOrderRequest;
 import com.upedge.common.model.order.request.ManagerActualRequest;
 import com.upedge.common.model.order.request.OrderDailyCountRequest;
 import com.upedge.common.model.order.request.OrderStockStateUpdateRequest;
@@ -38,6 +39,9 @@ import java.util.List;
  */
 @FeignClient(value = ServiceNameConstants.OMS_SERVICE,fallbackFactory = OmsFeignClientFallbackFactory.class,decode404 = true)
 public interface OmsFeignClient  {
+
+    @PostMapping("/order/customerSync")
+    public BaseResponse customerSync(@RequestBody CustomerSyncUnpaidOrderRequest request);
 
     @PostMapping("/orderCommon/updateQuoteDetail")
     public void updateQuoteDetail(List<CustomerProductQuoteVo> customerProductQuoteVos);

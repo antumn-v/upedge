@@ -15,6 +15,7 @@ import com.upedge.common.model.product.StoreProductVariantVo;
 import com.upedge.common.model.product.request.PlatIdSelectStoreVariantRequest;
 import com.upedge.common.model.ship.request.AreaSelectRequest;
 import com.upedge.common.model.ship.vo.AreaVo;
+import com.upedge.common.model.store.StoreType;
 import com.upedge.common.model.store.StoreVo;
 import com.upedge.common.model.store.request.StoreApiRequest;
 import com.upedge.common.model.user.vo.Session;
@@ -36,10 +37,12 @@ import com.upedge.oms.modules.order.vo.StoreOrderVariantData;
 import com.upedge.oms.modules.order.vo.StoreOrderVo;
 import com.upedge.oms.modules.statistics.request.AppUserSortRequest;
 import com.upedge.oms.modules.statistics.vo.AppUserSortVo;
+import com.upedge.thirdparty.shopify.moudles.order.controller.ShopifyOrderApi;
 import com.upedge.thirdparty.shopify.moudles.order.entity.ShopifyLineItem;
 import com.upedge.thirdparty.shopify.moudles.order.entity.ShopifyOrder;
 import com.upedge.thirdparty.shoplazza.moudles.order.entity.ShoplazzaOrder;
 import com.upedge.thirdparty.shoplazza.moudles.order.entity.ShoplazzaOrder.ShoplazzaLineItems;
+import com.upedge.thirdparty.woocommerce.moudles.order.api.WoocommerceOrderApi;
 import com.upedge.thirdparty.woocommerce.moudles.order.entity.WoocommerceOrder;
 import com.upedge.thirdparty.woocommerce.moudles.order.entity.WoocommerceOrderItem;
 import lombok.extern.slf4j.Slf4j;
@@ -136,6 +139,37 @@ public class StoreOrderServiceImpl implements StoreOrderService {
     }
 
     @Override
+    public void getSingleOrder(Long storeId, String platOrderId) {
+        StoreVo storeVo = (StoreVo) redisTemplate.opsForValue().get(RedisKey.STRING_STORE + storeId);
+        StoreApiRequest storeApiRequest = new StoreApiRequest();
+        storeApiRequest.setStoreVo(storeVo);
+        StoreOrder storeOrder = null;
+        JSONObject jsonObject = null;
+        switch (storeVo.getStoreType()){
+            case StoreType.WOOCOMMERCE:
+                jsonObject = WoocommerceOrderApi.getOrder(storeVo.getApiToken(),storeVo.getStoreName(),platOrderId);
+                if (jsonObject == null){
+                    return ;
+                }
+                storeApiRequest.setJsonObject(jsonObject);
+                storeOrder = woocommerceOrderUpdate(storeApiRequest);
+                break;
+            case StoreType.SHOPIFY:
+                jsonObject = ShopifyOrderApi.getOrderDetailById(platOrderId,storeVo.getStoreName(),storeVo.getApiToken());
+                storeApiRequest.setJsonObject(jsonObject.getJSONObject("order"));
+                storeOrder = shopifyOrderUpdate(storeApiRequest);
+                break;
+        }
+
+        if (storeOrder == null){
+            return ;
+        }
+        completeStoreOrderItemDetail(storeOrder.getId());
+        orderService.createOrderByStoreOrder(storeOrder.getId());
+
+    }
+
+    @Override
     public List<Long> selectIdsByCreateTime() {
         return storeOrderDao.selectIdsByCreateTime();
     }
@@ -190,7 +224,7 @@ public class StoreOrderServiceImpl implements StoreOrderService {
         }
         String platOrderId = shopifyOrder.getId();
         String key = RedisKey.STRING_STORE_PALT_ORDER_UPDATE + storeVo.getId() + ":" + platOrderId;
-        boolean flag = RedisUtil.lock(redisTemplate, key, 3L, 20 * 1000L);
+        boolean flag = RedisUtil.lock(redisTemplate, key, 3L, 30 * 1000L);
         if (!flag) {
             return null;
         }
@@ -783,7 +817,6 @@ public class StoreOrderServiceImpl implements StoreOrderService {
                     int countItemQuantity = orderItemService.selectCountQuantityByOrderId(orderId);
                     if (countItemQuantity == 0){
                     }else {
-                        orderService.initQuoteState(orderId);
                         orderService.matchShipRule(orderId);
                     }
                 }
