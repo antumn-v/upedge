@@ -2,6 +2,8 @@ package com.upedge.ums.modules.user.service.impl;
 
 import com.upedge.common.base.Page;
 import com.upedge.common.constant.key.RedisKey;
+import com.upedge.common.enums.CustomerSettingEnum;
+import com.upedge.common.utils.ListUtils;
 import com.upedge.ums.modules.user.dao.CustomerSettingDao;
 import com.upedge.ums.modules.user.entity.Customer;
 import com.upedge.ums.modules.user.entity.CustomerSetting;
@@ -63,20 +65,38 @@ public class CustomerSettingServiceImpl implements CustomerSettingService {
 
     @Override
     public void saveNewSetting() {
-        String settingName = "upload_store_track_code_type";
-        String settingValue = "1";
-        Page page = new Page();
+        Page<Customer> page = new Page<>();
         page.setPageSize(-1);
-        List<CustomerSetting> customerSettings = new ArrayList<>();
         List<Customer> customers = customerService.select(page);
-        customers.forEach(customer -> {
+        for (Customer customer : customers) {
+            List<CustomerSetting> customerSettings = customerSettingDao.selectByCustomerId(customer.getId());
+            if (ListUtils.isNotEmpty(customerSettings)){
+                continue;
+            }
+            saveNewSetting(customer.getId());
+        }
+
+    }
+
+    @Override
+    public void saveNewSetting(Long customerId) {
+
+        List<CustomerSetting> customerSettings = new ArrayList<>();
+        String key = RedisKey.HASH_CUSTOMER_SETTING + customerId;
+        for (CustomerSettingEnum customerSettingEnum : CustomerSettingEnum.values()) {
+
             CustomerSetting customerSetting = new CustomerSetting();
-            customerSetting.setSettingName(settingName);
-            customerSetting.setSettingValue(settingValue);
-            customerSetting.setCustomerId(customer.getId());
+            customerSetting.setCustomerId(customerId);
+            customerSetting.setSettingName(customerSettingEnum.name());
+            customerSetting.setSettingValue(customerSettingEnum.getValue());
+
+            redisTemplate.opsForHash().put(key,customerSettingEnum.name(),customerSettingEnum.getValue());
             customerSettings.add(customerSetting);
-        });
-        insertByBatch(customerSettings);
+        }
+        if (0 < customerSettings.size()) {
+            insertByBatch(customerSettings);
+        }
+
     }
 
     @Override

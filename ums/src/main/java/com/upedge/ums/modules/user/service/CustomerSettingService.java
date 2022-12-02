@@ -12,6 +12,8 @@ public interface CustomerSettingService{
 
     void saveNewSetting();
 
+    void saveNewSetting(Long customerId);
+
     CustomerSetting selectByCustomerAndSettingName(Long customerId,
                                                    String settingName);
 

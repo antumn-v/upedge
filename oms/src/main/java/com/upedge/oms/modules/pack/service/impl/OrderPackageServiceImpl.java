@@ -348,7 +348,7 @@ public class OrderPackageServiceImpl implements OrderPackageService {
         //修改订单发货状态
         String uploadStoreTrackCodeType = (String) redisTemplate.opsForHash().get(RedisKey.HASH_CUSTOMER_SETTING + customerId, CustomerSettingEnum.upload_store_track_code_type.name());
         Integer trackingCodeType = 0;
-        if (uploadStoreTrackCodeType != null && uploadStoreTrackCodeType.equals("0")){
+        if (uploadStoreTrackCodeType != null && uploadStoreTrackCodeType.equals("1")){
             trackingCodeType = 1;
         }
         orderService.updateTrackingCodeTypeById(orderId,trackingCodeType);

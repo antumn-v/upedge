@@ -408,6 +408,8 @@ public class UserServiceImpl implements UserService {
         customerApplicationService.insert(customerApplicationKey);
         userBindAccountOrgApp(userId,applicationId,account.getId(),organization.getId(),roleId);
 
+        customerSettingService.saveNewSetting(customer.getId());
+
         UserVo userVo = new UserVo();
         BeanUtils.copyProperties(user,userVo);
         redisTemplate.opsForHash().put(RedisKey.STRING_CUSTOMER_INFO,String.valueOf(customer.getId()),userVo);

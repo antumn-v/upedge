@@ -11,6 +11,8 @@ import org.apache.ibatis.annotations.Param;
  */
 public interface CustomerSettingDao{
 
+    List<CustomerSetting> selectByCustomerId(Long customerId);
+
     CustomerSetting selectByCustomerAndSettingName(@Param("customerId")Long customerId,
                                                    @Param("settingName")String settingName);
 

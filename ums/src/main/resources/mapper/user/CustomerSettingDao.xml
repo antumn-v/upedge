@@ -166,5 +166,9 @@
         and setting_name = #{settingName}
     </select>
 
-
+    <select id="selectByCustomerId" resultMap="BaseResultMap">
+        select <include refid="Base_Column_List"/>
+        from customer_setting
+        where customer_id = #{customerId}
+    </select>
 </mapper>
