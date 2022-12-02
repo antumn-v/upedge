@@ -5,7 +5,9 @@ import com.alibaba.trade.param.*;
 import com.upedge.common.base.BaseResponse;
 import com.upedge.common.base.Page;
 import com.upedge.common.constant.ResultCode;
+import com.upedge.common.constant.key.RedisKey;
 import com.upedge.common.exception.CustomerException;
+import com.upedge.common.model.product.AlibabaApiVo;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.utils.IdGenerate;
 import com.upedge.common.utils.ListUtils;
@@ -22,6 +24,7 @@ import com.upedge.thirdparty.ali1688.service.Ali1688Service;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -60,6 +63,12 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
     @Autowired
     ProductPurchaseInfoService productPurchaseInfoService;
 
+    @Autowired
+    PurchaseService purchaseService;
+
+    @Autowired
+    RedisTemplate redisTemplate;
+
 
     /**
      *
@@ -95,6 +104,7 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
         Map<Long,Integer> variantQuantityMap = new HashMap<>();
         List<Long> variantIds = new ArrayList<>();
         for (PurchasePlan purchasePlan : purchasePlans) {
+            purchasePlan.setId(IdGenerate.randomInt());
             variantIds.add(purchasePlan.getVariantId());
             variantQuantityMap.put(purchasePlan.getVariantId(),purchasePlan.getQuantity());
         }
@@ -103,11 +113,21 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
             return BaseResponse.failed("商品信息不存在");
         }
         Set<String> purchaseSkus = new HashSet<>();
+        Map<String, ProductVariant> skuVariantMap = new HashMap<>();
+        List<ProductPurchaseInfo> productPurchaseInfos = new ArrayList<>();
         for (ProductVariant productVariant : productVariants) {
+            String purchaseSku = productVariant.getPurchaseSku();
+            if (StringUtils.isBlank(purchaseSku)){
+                return BaseResponse.failed(productVariant.getBarcode() + ": 缺少采购信息");
+            }
+            ProductPurchaseInfo productPurchaseInfo = productPurchaseInfoService.selectByPrimaryKey(purchaseSku);
+            if (null == productPurchaseInfo){
+                return BaseResponse.failed(productVariant.getBarcode() + ": 采购信息异常");
+            }
             purchaseSkus.add(productVariant.getPurchaseSku());
+            skuVariantMap.put(productPurchaseInfo.getSpecId() + productPurchaseInfo.getPurchaseLink(), productVariant);
         }
 
-        List<ProductPurchaseInfo> productPurchaseInfos = productPurchaseInfoService.selectByPurchaseSkus(purchaseSkus);
 
         Map<String, List<AlibabaTradeFastCargo>> supplierCargosMap = new HashMap<>();
 
@@ -126,6 +146,51 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
                     }
                     supplierCargosMap.get(supplierName).add(alibabaTradeFastCargo);
                 }
+            }
+        }
+
+        AlibabaApiVo alibabaApiVo = (AlibabaApiVo) redisTemplate.opsForValue().get(RedisKey.STRING_ALI1688_API);
+
+        for (Map.Entry<String, List<AlibabaTradeFastCargo>> map : supplierCargosMap.entrySet()) {
+            List<AlibabaTradeFastCargo> tradeFastCargos = map.getValue();
+            AlibabaTradeFastResult alibabaTradeFastResult = null;
+            Long id = purchaseService.getNextPurchaseOrderId();
+            String message = "下单号： " + id;
+
+            try {
+                alibabaTradeFastResult = Ali1688Service.createOrder(tradeFastCargos, alibabaApiVo, message);
+            } catch (CustomerException e) {
+                return BaseResponse.success(e.getMessage());
+            }
+            if (alibabaTradeFastResult == null){
+                return BaseResponse.failed("采购单创建异常");
+            }
+
+            PurchaseOrder purchaseOrder = new PurchaseOrder(id,
+                    alibabaTradeFastResult.getOrderId(),
+                    BigDecimal.ZERO,
+                    new BigDecimal((alibabaTradeFastResult.getPostFee().doubleValue() / 100)),
+                    new BigDecimal(alibabaTradeFastResult.getTotalSuccessAmount().doubleValue() / 100),
+                    BigDecimal.ZERO,
+                    map.getKey(),
+                    0, 0, session.getId(), 0);
+
+            List<PurchaseOrderItem> purchaseItems = new ArrayList<>();
+            Double purchaseQuantity = 0.0;
+            for (AlibabaTradeFastCargo tradeFastCargo : tradeFastCargos) {
+                ProductVariant productVariant = skuVariantMap.get(tradeFastCargo.getSpecId()+tradeFastCargo.getOfferId());
+                PurchaseOrderItem purchaseItem = new PurchaseOrderItem(productVariant,tradeFastCargo);
+
+                purchaseItem.setOrderId(id);
+                purchaseItem.setId(IdGenerate.nextId());
+                purchaseItems.add(purchaseItem);
+                purchaseQuantity += tradeFastCargo.getQuantity();
+            }
+            purchaseOrder.setPurchaseQuantity(purchaseQuantity.intValue());
+            insert(purchaseOrder);
+            purchaseOrderItemService.insertByBatch(purchaseItems);
+            for (PurchaseOrderItem purchaseItem : purchaseItems) {
+                variantWarehouseStockService.updateVariantPurchaseStockByPlan(purchaseItem.getVariantId(),"CNHZ",purchaseItem.getQuantity());
             }
         }
 

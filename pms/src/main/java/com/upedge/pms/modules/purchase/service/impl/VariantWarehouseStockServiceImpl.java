@@ -259,6 +259,32 @@ public class VariantWarehouseStockServiceImpl implements VariantWarehouseStockSe
         variantWarehouseStockRecordService.insert(variantWarehouseStockRecord);
         return true;
     }
+    @Override
+    public boolean updateVariantPurchaseStockByPlan(Long variantId, String warehouseCode, Integer quantity){
+        if (StringUtils.isBlank(warehouseCode)){
+            warehouseCode = "CNHZ";
+        }
+        VariantWarehouseStock variantWarehouseStock = variantWarehouseStockDao.selectByPrimaryKey(variantId, warehouseCode);
+        if (variantWarehouseStock == null){
+            variantWarehouseStock = new VariantWarehouseStock(variantId, "CNHZ",1, 0,0,quantity,"","");
+            insert(variantWarehouseStock);
+        }else {
+            variantWarehouseStockDao.updateVariantPurchaseStock(variantId, "CNHZ",quantity);
+        }
+        VariantWarehouseStockRecord variantWarehouseStockRecord =
+                new VariantWarehouseStockRecord(variantId,
+                        "CNHZ",
+                        quantity,
+                        VariantWarehouseStockRecord.PURCHASE_UPDATE,
+                        variantWarehouseStock.getPurchaseStock(),
+                        variantWarehouseStock.getPurchaseStock() + quantity,
+                        null,
+                        new Date(),
+                        null,
+                        0L);
+        variantWarehouseStockRecordService.insert(variantWarehouseStockRecord);
+        return true;
+    }
 
 //    @Transactional(rollbackFor = Exception.class)
 //    @Override

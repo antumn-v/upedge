@@ -483,7 +483,8 @@ public class PurchaseServiceImpl implements PurchaseService {
         return orderIds;
     }
 
-    private Long getNextPurchaseOrderId() {
+    @Override
+    public Long getNextPurchaseOrderId() {
         String key = "purchase:order:no:latest";
         Long no = (Long) redisTemplate.opsForValue().get(key);
         if (null == no) {

@@ -31,6 +31,8 @@ public interface VariantWarehouseStockService{
 
     boolean updateVariantPurchaseStockByPlan(List<PurchasePlan> purchasePlans);
 
+    boolean updateVariantPurchaseStockByPlan(Long variantId, String warehouseCode, Integer quantity);
+
     boolean orderCheckStock(OrderItemQuantityVo orderItemQuantityVo) throws Exception;
 
     BaseResponse variantWarehouseStockList(VariantWarehouseStockListRequest request);

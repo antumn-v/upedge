@@ -21,4 +21,6 @@ public interface PurchaseService {
     BaseResponse previewPurchaseOrder(PurchaseOrderCreateRequest request, Session session);
 
     List<Long> createPurchaseOrder(PurchaseOrderCreateRequest request, Session session) throws CustomerException;
+
+    Long getNextPurchaseOrderId();
 }

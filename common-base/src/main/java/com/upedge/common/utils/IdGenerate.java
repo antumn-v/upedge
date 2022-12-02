@@ -44,7 +44,7 @@ public class IdGenerate {
 		return Math.abs(random.nextLong());
 	}
 
-	public static long randomInt() {
+	public static int randomInt() {
 
 		return Math.abs(random.nextInt());
 	}
