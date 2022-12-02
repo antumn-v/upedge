@@ -363,10 +363,11 @@ public class OrderPickServiceImpl implements OrderPickService {
         if (!b){
             return BaseResponse.failed();
         }
+        Integer pickType = request.getPickType();
         List<Long> orderIds = request.getOrderIds();
         if (ListUtils.isNotEmpty(orderIds)){
-            if (orderIds.size()  > 12){
-                return BaseResponse.failed("超过波次订单数量限制");
+            if (pickType == 2 && orderIds.size()  > 12){
+                return BaseResponse.failed("超过多品多件波次订单数量限制");
             }
             BaseResponse response = createWaveByOrderIds(orderIds,session.getId());
             RedisUtil.unLock(redisTemplate,key);

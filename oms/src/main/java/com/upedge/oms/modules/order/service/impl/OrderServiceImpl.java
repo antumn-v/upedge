@@ -1355,13 +1355,11 @@ public class OrderServiceImpl implements OrderService {
                         List<StoreOrderRelate> storeOrderRelates = storeOrderRelateDao.selectByOrderId(orderId);
                         StoreOrderRelate storeOrderRelate = storeOrderRelates.get(0);
                         StoreOrder storeOrder = storeOrderDao.selectByPrimaryKey(storeOrderRelate.getStoreOrderId());
-                        if(storeOrder.getStoreName().equals("www.evershape.at")){
-                            return;
+                        if(!storeOrder.getStoreName().equals("www.evershape.at")){
+                            storeOrderService.getSingleOrder(storeOrder.getStoreId(),storeOrder.getPlatOrderId());
                         }
-                        storeOrderService.getSingleOrder(storeOrder.getStoreId(),storeOrder.getPlatOrderId());
                     }
                 },threadPoolExecutor);
-
             } catch (Exception e) {
 
             }

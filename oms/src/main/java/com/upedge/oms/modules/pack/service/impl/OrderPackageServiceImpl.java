@@ -316,7 +316,6 @@ public class OrderPackageServiceImpl implements OrderPackageService {
             return BaseResponse.failed();
         }
 
-
         Long orderId = orderPackage.getOrderId();
         OrderItemQuantityVo orderItemQuantityVo = orderService.selectOrderItemQuantitiesByOrderId(orderId);
         if (null == orderItemQuantityVo) {

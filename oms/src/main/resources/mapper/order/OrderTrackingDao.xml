@@ -388,4 +388,10 @@
        where order_id=#{orderId} limit 1
     </update>
 
+    <select id="selectByOrderId" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from order_tracking
+        where order_id = #{orderId}
+    </select>
 </mapper>

@@ -62,4 +62,10 @@ public class FulfillmentController {
         return new BaseResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS);
     }
 
+    @PostMapping("/reUploadStore")
+    public BaseResponse reUploadStore(){
+        orderFulfillmentService.reUploadStore();
+        return BaseResponse.success();
+    }
+
 }

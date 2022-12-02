@@ -11,6 +11,8 @@ import java.util.List;
  */
 public interface OrderTrackingDao{
 
+    OrderTracking selectByOrderId(Long orderId);
+
     List<Long> selectOrderIdByState(Integer state);
 
     OrderTracking selectByPrimaryKey(OrderTracking record);

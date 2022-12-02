@@ -94,4 +94,9 @@ public class Ordercelduler {
             orderFulfillmentService.orderFulfillment(orderPackage,false);
         }
     }
+
+    @Scheduled(cron = "0 00 00 ? * *")
+    public void reUploadStore(){
+        orderFulfillmentService.reUploadStore();
+    }
 }

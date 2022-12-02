@@ -87,6 +87,17 @@ public class OrderFulfillmentServiceImpl implements OrderFulfillmentService {
     //修改已上传的post
     private int fulfillment_put = 1;
 
+    @Override
+    public void reUploadStore() {
+        List<Long> orderIds = orderDao.selectUploadStoreFailedOrderIds();
+        for (Long orderId : orderIds) {
+            OrderTracking orderTracking = orderTrackingDao.selectByOrderId(orderId);
+            if (null != orderTracking){
+                orderFulfillment(orderId);
+            }
+        }
+    }
+
     /**
      * 订单物流回传
      * https://www.processon.com/diagraming/606599337d9c0829db678e1a
@@ -139,6 +150,75 @@ public class OrderFulfillmentServiceImpl implements OrderFulfillmentService {
         }
         orderTracking.setTrackingCode(trackCode);
         Long orderId = order.getId();
+        StoreVo storeVo = getStoreVo(order.getStoreId());
+        List<StoreOrderRelate> storeOrderRelates = storeOrderRelateDao.selectByOrderId(orderId);
+        try {
+            storeOrderRelates.forEach(storeOrderRelate -> {
+                List<StoreOrderItem> storeOrderItems = storeOrderItemDao.selectByStoreOrderAndOrder(orderId, storeOrderRelate.getStoreOrderId());
+                if(ListUtils.isEmpty(storeOrderItems)){
+                    return;
+                }
+                String platOrderId = storeOrderItems.get(0).getPlatOrderId();
+                Long storeOrderId = storeOrderRelate.getStoreOrderId();
+                switch (storeVo.getStoreType()) {//0=shopify，1=woocommerce，2=shoplazza
+                    case 0:
+                        shopifyOrderFulfill(storeOrderItems, orderTracking, storeVo, platOrderId, storeOrderId);
+                        break;
+                    case 1:
+                        woocommerceOrderFulfill(orderTracking, storeVo, platOrderId, storeOrderId);
+                        break;
+                    case 2:
+                        shoplazzaUploadTrackingNumber(storeOrderItems, orderTracking, storeVo, platOrderId, storeOrderId);
+                        break;
+                    default:
+                        break;
+                }
+            });
+        } catch (Exception e) {
+            e.printStackTrace();
+            orderTracking.setState(-1);
+            orderTrackingDao.updateOrderTracking(orderTracking);
+            return;
+        }
+        orderTracking.setState(1);
+        orderTrackingDao.updateOrderTracking(orderTracking);
+    }
+
+    public void orderFulfillment(OrderTracking orderTracking) {
+        if (null == orderTracking) {
+            //无物流信息或物流信息已回传店铺
+            return;
+        }
+        Long orderId = orderTracking.getOrderId();
+        Order order = orderDao.selectByPrimaryKey(orderId);
+        ShippingMethodRedis shippingMethodRedis = (ShippingMethodRedis) redisTemplate.opsForHash().get(RedisKey.SHIPPING_METHOD,String.valueOf(order.getShipMethodId()));
+        if (null != shippingMethodRedis){
+            if (StringUtils.isNotBlank(shippingMethodRedis.getTrackingCompany())){
+                orderTracking.setTrackingCompany(shippingMethodRedis.getTrackingCompany());
+            }else {
+                orderTracking.setTrackingCompany(shippingMethodRedis.getName());
+            }
+            orderTracking.setState(0);
+            orderTracking.setShippingMethodName(shippingMethodRedis.getName());
+            orderTrackingDao.updateOrderTracking(orderTracking);
+        }else {
+            return;
+        }
+        String trackCode = null;
+
+        if (shippingMethodRedis.getTrackType() == 0){
+            trackCode = orderTracking.getTrackNumbers();
+
+        }
+        if (shippingMethodRedis.getTrackType() == 1){
+            trackCode = orderTracking.getLogisticsOrderNo();
+        }
+        if (StringUtils.isBlank(trackCode)){
+            orderTracking.setState(4);
+            orderTrackingDao.updateOrderTracking(orderTracking);
+            return;
+        }
+        orderTracking.setTrackingCode(trackCode);
         StoreVo storeVo = getStoreVo(order.getStoreId());
         List<StoreOrderRelate> storeOrderRelates = storeOrderRelateDao.selectByOrderId(orderId);
         try {

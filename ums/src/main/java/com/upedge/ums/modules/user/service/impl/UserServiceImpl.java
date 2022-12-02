@@ -31,6 +31,7 @@ import com.upedge.ums.modules.organization.service.OrganizationMenuService;
 import com.upedge.ums.modules.organization.service.OrganizationRoleService;
 import com.upedge.ums.modules.organization.service.OrganizationService;
 import com.upedge.ums.modules.organization.service.OrganizationUserService;
+import com.upedge.ums.modules.store.entity.Store;
 import com.upedge.ums.modules.store.service.StoreService;
 import com.upedge.ums.modules.user.dao.UserDao;
 import com.upedge.ums.modules.user.entity.*;
@@ -294,6 +295,8 @@ public class UserServiceImpl implements UserService {
                 CustomerSyncUnpaidOrderRequest customerSyncUnpaidOrderRequest = new CustomerSyncUnpaidOrderRequest();
                 customerSyncUnpaidOrderRequest.setCustomerId(customer.getId());
                 omsFeignClient.customerSync(customerSyncUnpaidOrderRequest);
+                List<Store> stores = storeService.selectStoreByCustomer(customer.getId());
+                storeService.getStoreData(null,stores);
             }
         },threadPoolExecutor);
         return new UserSignInResponse(ResultCode.SUCCESS_CODE, "login success!", result);

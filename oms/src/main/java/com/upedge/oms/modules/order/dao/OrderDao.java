@@ -39,6 +39,8 @@ import java.util.Set;
  */
 public interface OrderDao {
 
+    List<Long> selectUploadStoreFailedOrderIds();
+
     List<Long> selectUnpaidIdsByCustomer(Long customerId);
 
     int updateTrackingCodeTypeById(@Param("id") Long id, @Param("trackingCodeType") Integer trackingCodeType);

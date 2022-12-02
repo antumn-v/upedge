@@ -309,6 +309,40 @@ public class StoreAsync {
         }
     }
 
+    public void getShopifyStoreOrders(Store store,Integer size) {
+        String shop = store.getStoreName();
+
+        String token = store.getApiToken();
+
+        StoreVo storeVo = new StoreVo();
+        BeanUtils.copyProperties(store, storeVo);
+        JSONObject jsonObject = ShopifyOrderApi.getStoreOrder(shop, token, null, null, "fulfillment_status=unfulfilled&financial_status=paid&limit=" + size);
+        String key = "orders";
+
+        while (jsonObject != null && jsonObject.containsKey(key)) {
+            JSONArray array = jsonObject.getJSONArray(key);
+            log.error("店铺获取订单：店铺:{},订单长度：{}",store.getStoreName(),array.size());
+            for (int i = 0; i < array.size(); i++) {
+                JSONObject order = array.getJSONObject(i);
+                StoreApiRequest storeApiRequest = new StoreApiRequest();
+                storeApiRequest.setId(order.getString("id"));
+                storeApiRequest.setStoreVo(storeVo);
+                storeApiRequest.setJsonObject(order);
+                omsFeignClient.updateShopifyOrder(storeApiRequest);
+            }
+            String nextUrl = null;
+            if (jsonObject.containsKey("nextUrl")) {
+                nextUrl = jsonObject.getString("nextUrl");
+            }
+            if (StringUtils.isNotBlank(nextUrl)) {
+                jsonObject = ShopifyOrderApi.getStoreOrder(shop, token, null, nextUrl, null);
+            } else {
+                jsonObject = null;
+            }
+
+        }
+    }
+
     public void getShopifyStoreProducts(Store store) {
         String shop = store.getStoreName();
 
