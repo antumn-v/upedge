@@ -97,6 +97,9 @@ public class Ordercelduler {
 
     @Scheduled(cron = "0 00 00 ? * *")
     public void reUploadStore(){
+        if (!ifUploadSaihe) {
+            return ;
+        }
         orderFulfillmentService.reUploadStore();
     }
 }

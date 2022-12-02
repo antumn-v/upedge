@@ -11,6 +11,7 @@ import io.micrometer.core.instrument.util.StringUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -28,6 +29,9 @@ public class PackageScheduler {
     @Autowired
     OrderPackageService orderPackageService;
 
+    @Value("${ifUploadSaihe}")
+    Boolean ifUploadSaihe;
+
 
     /**
      * 从赛盒获取物流
@@ -43,6 +47,9 @@ public class PackageScheduler {
     @Async
     @Scheduled(cron = "0 00 19 ? * *")
     public void pullTrackingScheduledTwo(){
+        if (!ifUploadSaihe) {
+            return ;
+        }
         pullNormalTracking();
     }
 
@@ -82,6 +89,9 @@ public class PackageScheduler {
     @Async
     @Scheduled(cron = "0 00 */2 ? * *")
     public void syncPackageInfo(){
+        if (!ifUploadSaihe) {
+            return ;
+        }
         List<OrderPackage> orderPackages = orderPackageService.selectUploadStoreFailedPackages();
         for (OrderPackage orderPackage : orderPackages) {
             orderPackageService.packageRefreshTrackCode(orderPackage);

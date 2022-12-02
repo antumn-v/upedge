@@ -2601,5 +2601,6 @@
         where o.ship_state = '1'
         and sor.fulfillment_status = '0'
         and date(pay_time) > '2022-11-15'
+        and sor.store_name != 'www.evershape.at'
     </select>
 </mapper>
