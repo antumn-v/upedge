@@ -420,6 +420,25 @@ public class Ali1688Service {
         return alibabaTradeFastResult;
     }
 
+    public static AlibabaTradeCancelResult cancelOrder(Long orderId,String cancelReason,String remark) throws CustomerException {
+        ApiExecutor apiExecutor = new ApiExecutor("7715698", "DUE2C3KM9s");
+        if (StringUtils.isBlank(cancelReason)){
+            cancelReason = "others";
+        }
+        AlibabaTradeCancelParam alibabaTradeCancelParam = new AlibabaTradeCancelParam();
+        alibabaTradeCancelParam.setCancelReason(cancelReason);
+        alibabaTradeCancelParam.setTradeID(orderId);
+        alibabaTradeCancelParam.setWebSite("1688");
+        alibabaTradeCancelParam.setRemark(remark);
+
+        SDKResult<AlibabaTradeCancelResult> sdkResult =
+                apiExecutor.execute(alibabaTradeCancelParam, "e000f7e2-1353-4324-ac1e-b69b8fe80dcd");
+        if(sdkResult.getErrorMessage() != null){
+            throw new CustomerException(sdkResult.getErrorMessage());
+        }
+        AlibabaTradeCancelResult result=sdkResult.getResult();
+        return result;
+    }
 
     public static AlibabaOpenplatformTradeModelTradeInfo orderDetail(Long orderId,AlibabaApiVo alibabaApiVo) throws CustomerException {
         ApiExecutor apiExecutor = new ApiExecutor("7715698", "DUE2C3KM9s");

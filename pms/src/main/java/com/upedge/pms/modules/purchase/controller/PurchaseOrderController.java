@@ -12,6 +12,7 @@ import com.upedge.pms.modules.purchase.entity.PurchaseOrder;
 import com.upedge.pms.modules.purchase.request.PurchaseOrderEditStateUpdateRequest;
 import com.upedge.pms.modules.purchase.request.PurchaseOrderListRequest;
 import com.upedge.pms.modules.purchase.request.PurchaseOrderReceiveRequest;
+import com.upedge.pms.modules.purchase.request.PurchaseOrderRevokeRequest;
 import com.upedge.pms.modules.purchase.service.PurchaseOrderService;
 import com.upedge.thirdparty.ali1688.service.Ali1688Service;
 import io.swagger.annotations.Api;
@@ -106,6 +107,17 @@ public class PurchaseOrderController {
     public BaseResponse updateEditState(@RequestBody@Valid PurchaseOrderEditStateUpdateRequest request){
         Session session = UserUtil.getSession(redisTemplate);
         return purchaseOrderService.updateEditState(request,session);
+    }
+
+    @ApiOperation("作废采购订单")
+    @PostMapping("/revoke")
+    public BaseResponse revokeOrder(@RequestBody@Valid PurchaseOrderRevokeRequest request){
+        Session session = UserUtil.getSession(redisTemplate);
+        try {
+            return purchaseOrderService.revokePurchaseOrder(request,session);
+        } catch (CustomerException e) {
+            return BaseResponse.failed(e.getMessage());
+        }
     }
 
     @PostMapping("/completeInfo/{id}")

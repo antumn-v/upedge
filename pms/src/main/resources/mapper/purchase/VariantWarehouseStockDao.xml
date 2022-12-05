@@ -384,4 +384,12 @@
           and warehouse_code = #{warehouseCode}
           and lock_stock >= #{changeQuantity}
     </update>
+
+    <update id="updatePurchaseStockReduce">
+        update variant_warehouse_stock
+        set purchase_stock = purchase_stock - #{quantity}
+        where variant_id = #{variantId}
+          and warehouse_code = #{warehouseCode}
+          and purchase_stock >= #{quantity}
+    </update>
 </mapper>

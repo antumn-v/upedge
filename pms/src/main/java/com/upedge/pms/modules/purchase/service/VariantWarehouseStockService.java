@@ -4,6 +4,7 @@ import com.upedge.common.base.BaseResponse;
 import com.upedge.common.base.Page;
 import com.upedge.common.model.oms.order.OrderItemQuantityVo;
 import com.upedge.common.model.user.vo.Session;
+import com.upedge.pms.modules.purchase.entity.PurchaseOrderItem;
 import com.upedge.pms.modules.purchase.entity.PurchasePlan;
 import com.upedge.pms.modules.purchase.entity.VariantWarehouseStock;
 import com.upedge.pms.modules.purchase.request.*;
@@ -36,6 +37,8 @@ public interface VariantWarehouseStockService{
     boolean orderCheckStock(OrderItemQuantityVo orderItemQuantityVo) throws Exception;
 
     BaseResponse variantWarehouseStockList(VariantWarehouseStockListRequest request);
+
+    boolean purchaseOrderItemRevoke(PurchaseOrderItem purchaseOrderItem,String warehouseCode);
 
     BaseResponse updateVariantStock(VariantStockUpdateRequest request, Session session);
     /**

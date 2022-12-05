@@ -497,4 +497,11 @@
         where id = #{id}
         and edit_state != '1'
     </update>
+
+    <update id="updateOrderRevoke">
+        update purchase_order
+            set purchase_state = '-1',
+                update_time = #{date}
+        where id = #{id}
+    </update>
 </mapper>

@@ -96,6 +96,36 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
         return purchaseOrderDao.insert(record);
     }
 
+    @Transactional(rollbackFor = Exception.class)
+    @Override
+    public BaseResponse revokePurchaseOrder(PurchaseOrderRevokeRequest request, Session session) throws CustomerException {
+        Long orderId = request.getOrderId();
+        PurchaseOrder purchaseOrder = selectByPrimaryKey(orderId);
+        if (purchaseOrder == null || purchaseOrder.getPurchaseState() == 2){
+            return BaseResponse.failed("订单不存在或已完成");
+        }
+        if (purchaseOrder.getPurchaseState() == -1){
+            return BaseResponse.success();
+        }
+        //先从1688取消订单
+        AlibabaTradeCancelResult result = Ali1688Service.cancelOrder(Long.parseLong(purchaseOrder.getPurchaseId()), request.getCancelReason(), request.getRemark());
+        if (!result.getSuccess()){
+            return BaseResponse.failed(result.getErrorMessage());
+        }
+        //修改仓库采购中数量
+        List<PurchaseOrderItem> purchaseOrderItems = purchaseOrderItemService.selectByOrderId(orderId);
+        for (PurchaseOrderItem purchaseOrderItem : purchaseOrderItems) {
+            boolean b = variantWarehouseStockService.purchaseOrderItemRevoke(purchaseOrderItem,purchaseOrder.getWarehouseCode());
+            if (!b){
+                throw  new CustomerException(purchaseOrderItem.getBarcode() + ": 修改库存失败");
+            }
+        }
+        //修改订单状态
+        purchaseOrderDao.updateOrderRevoke(orderId,new Date());
+
+        return BaseResponse.success();
+    }
+
     @Transactional
     @Override
     public BaseResponse customCreate(PurchaseOrderCustomCreateRequest request, Session session) {

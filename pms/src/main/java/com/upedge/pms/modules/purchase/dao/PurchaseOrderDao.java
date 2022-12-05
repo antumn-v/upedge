@@ -6,12 +6,15 @@ import com.upedge.pms.modules.purchase.request.PurchaseOrderListRequest;
 import org.apache.ibatis.annotations.Param;
 
 import java.math.BigDecimal;
+import java.util.Date;
 import java.util.List;
 
 /**
  * @author gx
  */
 public interface PurchaseOrderDao {
+
+    int updateOrderRevoke(@Param("id") Long id, @Param("date") Date date);
 
     int updateEditState(@Param("id") Long id, @Param("editState") Integer editState);
 

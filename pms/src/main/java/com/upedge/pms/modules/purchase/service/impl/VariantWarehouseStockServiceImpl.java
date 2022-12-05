@@ -19,6 +19,7 @@ import com.upedge.common.web.util.RedisUtil;
 import com.upedge.pms.modules.product.entity.ProductVariant;
 import com.upedge.pms.modules.product.service.ProductVariantService;
 import com.upedge.pms.modules.purchase.dao.VariantWarehouseStockDao;
+import com.upedge.pms.modules.purchase.entity.PurchaseOrderItem;
 import com.upedge.pms.modules.purchase.entity.PurchasePlan;
 import com.upedge.pms.modules.purchase.entity.VariantWarehouseStock;
 import com.upedge.pms.modules.purchase.entity.VariantWarehouseStockRecord;
@@ -518,6 +519,27 @@ public class VariantWarehouseStockServiceImpl implements VariantWarehouseStockSe
         Long total = count(request);
         request.setTotal(total);
         return BaseResponse.success(variantWarehouseStockVos,request);
+    }
+
+    @Override
+    public boolean purchaseOrderItemRevoke(PurchaseOrderItem purchaseOrderItem,String warehouseCode) {
+        Integer quantity = purchaseOrderItem.getQuantity() - purchaseOrderItem.getReceiveQuantity();
+        if (quantity == 0){
+            return true;
+        }
+        Long variantId = purchaseOrderItem.getVariantId();
+        VariantWarehouseStock variantWarehouseStock = variantWarehouseStockDao.selectByPrimaryKey(purchaseOrderItem.getVariantId(), warehouseCode);
+        if (variantWarehouseStock == null || variantWarehouseStock.getPurchaseStock() < quantity){
+            return false;
+        }
+        int i = variantWarehouseStockDao.updatePurchaseStockReduce(variantWarehouseStock.getVariantId(), warehouseCode,quantity);
+        if (i == 0){
+            return false;
+        }
+        Integer nowStock = variantWarehouseStock.getPurchaseStock() - quantity;
+        VariantWarehouseStockRecord variantWarehouseStockRecord = new VariantWarehouseStockRecord(variantId,warehouseCode,quantity,6,variantWarehouseStock.getPurchaseStock(),nowStock, purchaseOrderItem.getId(), new Date(),null,0L);
+        variantWarehouseStockRecordService.insert(variantWarehouseStockRecord);
+        return true;
     }
 
     @Transactional
