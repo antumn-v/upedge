@@ -23,6 +23,7 @@
         <result property="quoteScale" column="quote_scale"/>
         <result property="storeParentVariantId" column="store_parent_variant_id"/>
         <result property="originalId" column="original_id"/>
+        <result property="productSku" column="product_sku"/>
         <result property="storeName" column="store_name"/>
     </resultMap>
 
@@ -572,7 +573,7 @@
         cpq.`store_variant_id`,cpq.`customer_id`,cpq.`store_product_id`,cpq.`product_id`,cpq.`variant_id`,
         cpq.`store_variant_name`,cpq.`store_product_title`,cpq.`store_variant_sku`,cpq.store_variant_image,
         cpq.`product_title`,cpq.`variant_name`,cpq.`variant_sku`,cpq.`variant_image`,cpq.`quote_price`,cpq.`quote_apply_id`,
-        cpq.`quote_state`,cpq.`quote_scale`,cpq.`store_parent_variant_id`,p.original_id,spa.store_name
+        cpq.`quote_state`,cpq.`quote_scale`,cpq.`store_parent_variant_id`,p.original_id,spa.store_name,p.product_sku
         from customer_product_quote cpq
         left join product p
         on p.id = cpq.product_id

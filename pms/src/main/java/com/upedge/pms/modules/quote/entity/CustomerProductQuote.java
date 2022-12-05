@@ -85,6 +85,8 @@ public class CustomerProductQuote{
 
 	private String storeName;
 
+	private String productSku;
+
 	public CustomerProductQuote(StoreProductVariant storeProductVariant) {
 		this.storeProductId = storeProductVariant.getProductId();
 		this.storeProductTitle = storeProductVariant.getTitle();

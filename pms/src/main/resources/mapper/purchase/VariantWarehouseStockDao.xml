@@ -331,6 +331,9 @@
             <if test="t.purchaseSku != null">
                 and pv.purchase_sku = #{t.purchaseSku}
             </if>
+            <if test="t.cnName != null">
+                and pv.cn_name like concat('%',#{t.cnName},'%')
+            </if>
             <if test="t.id != null">
                 and pv.id = #{t.id}
             </if>
