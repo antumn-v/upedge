@@ -1,5 +1,6 @@
 package com.upedge.oms.modules.common.service;
 
+import com.upedge.common.base.BaseResponse;
 import com.upedge.common.exception.CustomerException;
 import com.upedge.common.model.mq.ChangeManagerVo;
 import com.upedge.oms.modules.common.entity.SaiheOrderRecord;
@@ -14,6 +15,12 @@ import java.util.concurrent.ExecutionException;
  * 2021-4-29
  */
 public interface OrderCommonService {
+
+    BaseResponse processPaidRepeatProduct(List<Long> orderIds);
+
+    void  processRepeatProduct();
+
+    void processRepeatProduct(List<Long> orderIds);
 
     void refreshReferrerCommission();
 

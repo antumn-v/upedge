@@ -39,6 +39,11 @@ import java.util.Set;
  */
 public interface OrderDao {
 
+    int initProductAmountByOrderId(Long orderId);
+
+
+    List<Long> selectAllUnPaidOrder();
+
     List<Long> selectUploadStoreFailedOrderIds();
 
     List<Long> selectUnpaidIdsByCustomer(Long customerId);

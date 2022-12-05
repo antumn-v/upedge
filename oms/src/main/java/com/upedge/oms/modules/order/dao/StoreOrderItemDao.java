@@ -14,7 +14,10 @@ import java.util.List;
 /**
  * @author author
  */
+
 public interface StoreOrderItemDao{
+
+    List<StoreOrderItem> selectByStoreOrderIdAndStoreVariantId(@Param("storeOrderId") Long storeOrderId, @Param("storeVariantId") Long storeVariantId);
 
     List<StoreProductDailySales> selectStoreProductSales();
 
@@ -47,7 +50,7 @@ public interface StoreOrderItemDao{
 
     int updateStateAfterRemoveOrder(@Param("orderIds") List<Long> orderIds);
 
-    int deleteByPrimaryKey(StoreOrderItem record);
+    int deleteByPrimaryKey(Long id);
 
     int updateByPrimaryKey(StoreOrderItem record);
 

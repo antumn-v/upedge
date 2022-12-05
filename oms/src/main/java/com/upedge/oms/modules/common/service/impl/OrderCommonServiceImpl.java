@@ -33,9 +33,9 @@ import com.upedge.oms.modules.fulfillment.service.OrderFulfillmentService;
 import com.upedge.oms.modules.order.dao.OrderDao;
 import com.upedge.oms.modules.order.dao.OrderRefundDao;
 import com.upedge.oms.modules.order.dao.OrderReshipInfoDao;
-import com.upedge.oms.modules.order.entity.Order;
-import com.upedge.oms.modules.order.entity.OrderReshipInfo;
-import com.upedge.oms.modules.order.entity.OrderTracking;
+import com.upedge.oms.modules.order.dao.StoreOrderItemDao;
+import com.upedge.oms.modules.order.entity.*;
+import com.upedge.oms.modules.order.service.OrderItemService;
 import com.upedge.oms.modules.order.service.OrderService;
 import com.upedge.oms.modules.order.service.OrderTrackingService;
 import com.upedge.oms.modules.wholesale.dao.WholesaleOrderDao;
@@ -115,6 +115,12 @@ public class OrderCommonServiceImpl implements OrderCommonService {
     OrderFulfillmentService orderFulfillmentService;
 
     @Autowired
+    OrderItemService orderItemService;
+
+    @Autowired
+    StoreOrderItemDao storeOrderItemDao;
+
+    @Autowired
     ThreadPoolExecutor threadPoolExecutor;
 
     @Autowired
@@ -122,18 +128,114 @@ public class OrderCommonServiceImpl implements OrderCommonService {
 
 
     @Override
+    public BaseResponse processPaidRepeatProduct(List<Long> orderIds) {
+        Map<Long,BigDecimal> map = new HashMap<>();
+        for (Long orderId : orderIds) {
+            Order order = orderService.selectByPrimaryKey(orderId);
+            Long customerId = order.getCustomerId();
+            if (!map.containsKey(customerId)){
+                map.put(customerId,BigDecimal.ZERO);
+            }
+            BigDecimal productAmount = map.get(customerId);
+            List<OrderItem> orderItems = orderItemService.selectByOrderId(orderId);
+            if (orderItems.size() == 1) {
+                continue;
+            }
+            Set<String> platItemIds = new HashSet<>();
+            for (OrderItem orderItem : orderItems) {
+                Long storeOrderId = orderItem.getStoreOrderId();
+                Long storeVariantId = orderItem.getStoreVariantId();
+                List<StoreOrderItem> storeOrderItems = storeOrderItemDao.selectByStoreOrderIdAndStoreVariantId(storeOrderId, storeVariantId);
+                if (storeOrderItems.size() > 1) {
+                    String platItemId = storeOrderItems.get(0).getPlatOrderItemId();
+                    if (platItemIds.contains(platItemId)) {
+                        orderItemService.deleteByPrimaryKey(orderItem.getId());
+                        BigDecimal productFee = orderItem.getUsdPrice().multiply(new BigDecimal(orderItem.getQuantity()));
+                        productAmount = productAmount.add(productFee);
+                    } else {
+                        platItemIds.add(platItemId);
+                    }
+                }
+            }
+            map.put(customerId,productAmount);
+        }
+        return BaseResponse.success(map);
+    }
+
+    @Override
+    public void processRepeatProduct() {
+        List<Long> orderIds = orderDao.selectAllUnPaidOrder();
+        for (Long orderId : orderIds) {
+            List<OrderItem> orderItems = orderItemService.selectByOrderId(orderId);
+            if (orderItems.size() == 1) {
+                continue;
+            }
+            boolean b = false;
+            Set<String> platItemIds = new HashSet<>();
+            for (OrderItem orderItem : orderItems) {
+                Long storeOrderId = orderItem.getStoreOrderId();
+                Long storeVariantId = orderItem.getStoreVariantId();
+                List<StoreOrderItem> storeOrderItems = storeOrderItemDao.selectByStoreOrderIdAndStoreVariantId(storeOrderId, storeVariantId);
+                if (storeOrderItems.size() > 1) {
+                    String platItemId = storeOrderItems.get(0).getPlatOrderItemId();
+                    if (platItemIds.contains(platItemId)) {
+                        b = true;
+                        orderItemService.deleteByPrimaryKey(orderItem.getId());
+                    } else {
+                        platItemIds.add(platItemId);
+                    }
+                }
+            }
+            if (b) {
+                orderDao.initProductAmountByOrderId(orderId);
+                orderService.matchShipRule(orderId);
+            }
+        }
+    }
+    @Override
+    public void processRepeatProduct(List<Long> orderIds) {
+        for (Long orderId : orderIds) {
+            List<OrderItem> orderItems = orderItemService.selectByOrderId(orderId);
+            if (orderItems.size() == 1) {
+                return;
+            }
+            boolean b = false;
+            Set<String> platItemIds = new HashSet<>();
+            for (OrderItem orderItem : orderItems) {
+                Long storeOrderId = orderItem.getStoreOrderId();
+                Long storeVariantId = orderItem.getStoreVariantId();
+                List<StoreOrderItem> storeOrderItems = storeOrderItemDao.selectByStoreOrderIdAndStoreVariantId(storeOrderId, storeVariantId);
+                if (storeOrderItems.size() > 1) {
+                    String platItemId = storeOrderItems.get(0).getPlatOrderItemId();
+                    if (platItemIds.contains(platItemId)) {
+                        b = true;
+                        orderItemService.deleteByPrimaryKey(orderItem.getId());
+                    } else {
+                        platItemIds.add(platItemId);
+                    }
+                }
+            }
+            if (b) {
+                orderDao.initProductAmountByOrderId(orderId);
+                orderService.matchShipRule(orderId);
+            }
+        }
+
+    }
+
+    @Override
     public void refreshReferrerCommission() {
-       Map<Object, Object> map = redisTemplate.opsForHash().entries(RedisKey.HASH_AFFILIATE_REFEREE);
+        Map<Object, Object> map = redisTemplate.opsForHash().entries(RedisKey.HASH_AFFILIATE_REFEREE);
 
-       for (Map.Entry<Object,Object> entry: map.entrySet()){
-           String cId = (String) entry.getKey();
-           Long customerId = Long.parseLong(cId);
-           List<Long> orderIds = orderDao.selectShippedIdsByCustomer(customerId);
-           for (Long orderId : orderIds) {
-               addAffiliateCommission(orderId,customerId);
-           }
+        for (Map.Entry<Object, Object> entry : map.entrySet()) {
+            String cId = (String) entry.getKey();
+            Long customerId = Long.parseLong(cId);
+            List<Long> orderIds = orderDao.selectShippedIdsByCustomer(customerId);
+            for (Long orderId : orderIds) {
+                addAffiliateCommission(orderId, customerId);
+            }
 
-       }
+        }
     }
 
     /**
@@ -169,7 +271,7 @@ public class OrderCommonServiceImpl implements OrderCommonService {
             return saiheOrderRecord;
         }
         //根据运输方式获取赛盒运输信息
-        ShippingMethodRedis shippingMethodRedis = (ShippingMethodRedis) redisTemplate.opsForHash().get(RedisKey.SHIPPING_METHOD,String.valueOf(saiheOrder.getShipMethodId()));
+        ShippingMethodRedis shippingMethodRedis = (ShippingMethodRedis) redisTemplate.opsForHash().get(RedisKey.SHIPPING_METHOD, String.valueOf(saiheOrder.getShipMethodId()));
 
 //        ShippingMethodVo shippingMethodVo = (ShippingMethodVo) rsShipMethod.getData();
         saiheOrder.setTransportID(shippingMethodRedis.getSaiheTransportId());
@@ -186,11 +288,11 @@ public class OrderCommonServiceImpl implements OrderCommonService {
 
     @Override
     public boolean sendMqMessage(Message message) {
-        if( message == null){
+        if (message == null) {
             return false;
         }
         boolean b = false;
-        MqMessageLog messageLog = MqMessageLog.toMqMessageLog(message,"");
+        MqMessageLog messageLog = MqMessageLog.toMqMessageLog(message, "");
 
         String status = "failed";
         int i = 1;
@@ -199,7 +301,7 @@ public class OrderCommonServiceImpl implements OrderCommonService {
                 status = defaultMQProducer.send(message).getSendStatus().name();
             } catch (Exception e) {
                 e.printStackTrace();
-                log.warn("订单上传赛盒发送消息，key:{},交易信息发送失败,失败次数:{}",message.getKeys());
+                log.warn("订单上传赛盒发送消息，key:{},交易信息发送失败,失败次数:{}", message.getKeys());
             } finally {
                 i += 1;
             }
@@ -248,7 +350,7 @@ public class OrderCommonServiceImpl implements OrderCommonService {
         BaseResponse response = pmsFeignClient.listVariantByIds(request);
         List<LinkedHashMap> variantDetailList = (List<LinkedHashMap>) response.getData();
         for (LinkedHashMap linkedHashMap : variantDetailList) {
-            if (linkedHashMap.get("saiheSku") == null){
+            if (linkedHashMap.get("saiheSku") == null) {
                 return false;
             }
         }
@@ -324,7 +426,7 @@ public class OrderCommonServiceImpl implements OrderCommonService {
         }
         ApiUploadOrderInfo apiUploadOrderInfo = new ApiUploadOrderInfo();
         apiUploadOrderInfo.setCustomerID(SaiheConfig.CUSTOMER_ID);
-        if (customerIossVo != null){
+        if (customerIossVo != null) {
             apiUploadOrderInfo.setSenderTaxNumber(customerIossVo.getIossNum());
         }
         //获取客户经理的渠道ID 默认128
@@ -452,7 +554,7 @@ public class OrderCommonServiceImpl implements OrderCommonService {
                 orderInfo = orderInfo + " ";
             }
         }
-        UserVo userVo = (UserVo) redisTemplate.opsForHash().get(RedisKey.STRING_CUSTOMER_INFO,saiheOrder.getCustomerId().toString());
+        UserVo userVo = (UserVo) redisTemplate.opsForHash().get(RedisKey.STRING_CUSTOMER_INFO, saiheOrder.getCustomerId().toString());
         String remark = userVo.getUsername() + "|" + userVo.getRemark();
         apiUploadOrderInfo.setOrderDescription(remark + "|" + orderInfo + againInfo + vatInfo);
 
@@ -460,8 +562,8 @@ public class OrderCommonServiceImpl implements OrderCommonService {
         apiUploadOrderInfo.setWareHouseID(SaiheConfig.UPEDGE_DEFAULT_WAREHOUSE_ID);
 
         //运输方式ID ShippingService
-        ShippingMethodRedis shippingMethodRedis = (ShippingMethodRedis) redisTemplate.opsForHash().get(RedisKey.SHIPPING_METHOD,saiheOrder.getShipMethodId().toString());
-        if (null == shippingMethodRedis || null == shippingMethodRedis.getSaiheTransportId()){
+        ShippingMethodRedis shippingMethodRedis = (ShippingMethodRedis) redisTemplate.opsForHash().get(RedisKey.SHIPPING_METHOD, saiheOrder.getShipMethodId().toString());
+        if (null == shippingMethodRedis || null == shippingMethodRedis.getSaiheTransportId()) {
             saiheOrderRecord.setState(0);
             saiheOrderRecord.setFailReason("订单运输方式未匹配赛盒");
             saiheOrderRecordDao.insert(saiheOrderRecord);
@@ -587,8 +689,8 @@ public class OrderCommonServiceImpl implements OrderCommonService {
             List<ApiOrderInfo> l = apiGetOrderResponse.getGetOrdersResult().getOrderInfoList().getOrderInfoList();
             if (l != null && l.size() > 0) {
                 ApiOrderInfo apiOrderInfo = l.get(0);
-                if (apiOrderInfo.getOrderState() < 2){
-                     return false;
+                if (apiOrderInfo.getOrderState() < 2) {
+                    return false;
                 }
                 String trackNumbers = l.get(0).getTrackNumbers();
                 String orderCode = l.get(0).getOrderCode();
@@ -596,7 +698,7 @@ public class OrderCommonServiceImpl implements OrderCommonService {
                 Integer transportId = l.get(0).getTransportID();//获取运输id
                 //logger.debug("orderCode:{},trackNumbers:{},logisticsOrderNo:{}",orderCode,trackNumbers,logisticsOrderNo);
                 Long shippingMethodId = a.getShipMethodId();
-                ShippingMethodRedis shippingMethod = (ShippingMethodRedis) redisTemplate.opsForHash().get(RedisKey.SHIPPING_METHOD,String.valueOf(shippingMethodId));
+                ShippingMethodRedis shippingMethod = (ShippingMethodRedis) redisTemplate.opsForHash().get(RedisKey.SHIPPING_METHOD, String.valueOf(shippingMethodId));
                 //获取admin的运输方式
                 String shippingMethodName = "";
 
@@ -617,29 +719,29 @@ public class OrderCommonServiceImpl implements OrderCommonService {
                         orderTracking.setTrackingCode(logisticsOrderNo);
                         orderTracking.setTrackingCompany(shippingMethod.getTrackingCompany());
                         Integer trackingCodeType = 0;
-                        if (shippingMethod.getTrackType() == 0){
+                        if (shippingMethod.getTrackType() == 0) {
                             trackingCodeType = 1;
                             trackNum = orderTracking.getTrackNumbers();
                         }
-                        if (shippingMethod.getTrackType() == 1){
+                        if (shippingMethod.getTrackType() == 1) {
                             trackNum = orderTracking.getLogisticsOrderNo();
                         }
-                        if (StringUtils.isBlank(trackNum)){
+                        if (StringUtils.isBlank(trackNum)) {
                             return false;
                         }
                         orderTracking.setOrderTrackingType(orderType);
                         // 根据orderId和 order_tracking_type查询订单
                         OrderTracking old = orderTrackingService.queryOrderTrackingByOrderId(a.getId(), orderType);
                         if (orderType == OrderType.NORMAL) {
-                            orderDao.updateOrderAsTracked(id,trackNum,trackingCodeType);
+                            orderDao.updateOrderAsTracked(id, trackNum, trackingCodeType);
                             if (old == null) {
                                 orderTracking.setState(0);
                                 orderTracking.setId(IdGenerate.nextId());
                                 orderTracking.setCreateTime(new Date());
                                 //标记订单为发货
                                 orderTrackingService.insert(orderTracking);
-                                if (order.getOrderType() != 1){
-                                    addCustomerCommission(id,order.getCustomerId());
+                                if (order.getOrderType() != 1) {
+                                    addCustomerCommission(id, order.getCustomerId());
                                 }
 //                                sendMqMessage(new Message(RocketMqConfig.TOPIC_ORDER_FULFILLMENT,"",UUID.randomUUID().toString(), JSONObject.toJSONBytes(id)));
                             } else {
@@ -647,7 +749,7 @@ public class OrderCommonServiceImpl implements OrderCommonService {
                             }
                             //处于待回传状态，继续更新运输信息
                             if (orderTracking.getState() == null
-                            || orderTracking.getState() != 1){
+                                    || orderTracking.getState() != 1) {
                                 orderFulfillmentService.orderFulfillment(id);
                             }
                         }
@@ -672,30 +774,30 @@ public class OrderCommonServiceImpl implements OrderCommonService {
     }
 
     @Override
-    public void addCustomerCommission(Long orderId,Long customerId){
+    public void addCustomerCommission(Long orderId, Long customerId) {
         CompletableFuture affiliateCommission = CompletableFuture.runAsync(new Runnable() {
             @Override
             public void run() {
-                addAffiliateCommission(orderId,customerId);
+                addAffiliateCommission(orderId, customerId);
             }
-        },threadPoolExecutor);
+        }, threadPoolExecutor);
 
         CompletableFuture vipRebate = CompletableFuture.runAsync(new Runnable() {
             @Override
             public void run() {
-                addVipRebate(orderId,customerId);
+                addVipRebate(orderId, customerId);
             }
-        },threadPoolExecutor);
+        }, threadPoolExecutor);
 
         CompletableFuture managerCommission = CompletableFuture.runAsync(new Runnable() {
             @Override
             public void run() {
-                addManagerCommission(orderId,customerId);
+                addManagerCommission(orderId, customerId);
             }
-        },threadPoolExecutor);
+        }, threadPoolExecutor);
 
         try {
-            CompletableFuture.allOf(affiliateCommission,vipRebate,managerCommission).get();
+            CompletableFuture.allOf(affiliateCommission, vipRebate, managerCommission).get();
         } catch (InterruptedException e) {
             e.printStackTrace();
         } catch (ExecutionException e) {
@@ -703,9 +805,9 @@ public class OrderCommonServiceImpl implements OrderCommonService {
         }
     }
 
-    public void addManagerCommission(Long orderId,Long customerId){
-        boolean b = redisTemplate.opsForHash().hasKey(RedisKey.HASH_CUSTOMER_MANAGER_RELATE,customerId.toString());
-        if (!b){
+    public void addManagerCommission(Long orderId, Long customerId) {
+        boolean b = redisTemplate.opsForHash().hasKey(RedisKey.HASH_CUSTOMER_MANAGER_RELATE, customerId.toString());
+        if (!b) {
             return;
         }
         ManagerAddCommissionRequest request = new ManagerAddCommissionRequest();
@@ -714,9 +816,9 @@ public class OrderCommonServiceImpl implements OrderCommonService {
         umsFeignClient.addCommissionRecord(request);
     }
 
-    public void addVipRebate(Long orderId,Long customerId){
-        boolean b = redisTemplate.opsForHash().hasKey(RedisKey.HASH_CUSTOMER_VIP_REBATE,customerId.toString());
-        if (b){
+    public void addVipRebate(Long orderId, Long customerId) {
+        boolean b = redisTemplate.opsForHash().hasKey(RedisKey.HASH_CUSTOMER_VIP_REBATE, customerId.toString());
+        if (b) {
             CustomerVipAddRebateRequest request = new CustomerVipAddRebateRequest();
             request.setOrderId(orderId);
             request.setCustomerId(customerId);
@@ -724,8 +826,8 @@ public class OrderCommonServiceImpl implements OrderCommonService {
         }
     }
 
-    public void addAffiliateCommission(Long orderId,Long customerId){
-        AffiliateVo affiliateVo = (AffiliateVo) redisTemplate.opsForHash().get(RedisKey.HASH_AFFILIATE_REFEREE,customerId.toString());
+    public void addAffiliateCommission(Long orderId, Long customerId) {
+        AffiliateVo affiliateVo = (AffiliateVo) redisTemplate.opsForHash().get(RedisKey.HASH_AFFILIATE_REFEREE, customerId.toString());
         if (null == affiliateVo)
             return;
 
