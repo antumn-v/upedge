@@ -8,6 +8,7 @@ import com.upedge.common.model.store.StoreVo;
 import com.upedge.common.model.store.request.StoreApiRequest;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.web.util.UserUtil;
+import com.upedge.oms.modules.common.service.OrderCommonService;
 import com.upedge.oms.modules.order.entity.Order;
 import com.upedge.oms.modules.order.entity.StoreOrder;
 import com.upedge.oms.modules.order.request.StoreDataListRequest;
@@ -24,6 +25,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -40,6 +42,9 @@ public class StoreOrderController {
 
     @Autowired
     OrderService orderService;
+
+    @Autowired
+    OrderCommonService orderCommonService;
 
     @Autowired
     RedisTemplate<String, Object> redisTemplate;
@@ -78,8 +83,12 @@ public class StoreOrderController {
             return BaseResponse.success();
         }
         storeOrderService.completeStoreOrderItemDetail(storeOrder.getId());
-        orderService.createOrderByStoreOrder(storeOrder.getId());
-
+        Order order = orderService.createOrderByStoreOrder(storeOrder.getId());
+        if (order != null){
+            List<Long> orderIds = new ArrayList<>();
+            orderIds.add(order.getId());
+            orderCommonService.processRepeatProduct(orderIds);
+        }
         return BaseResponse.success();
     }
 

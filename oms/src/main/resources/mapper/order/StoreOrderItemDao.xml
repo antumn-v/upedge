@@ -197,7 +197,7 @@
         where id = #{id}
     </select>
 
-    <delete id="deleteByPrimaryKey" parameterType="com.upedge.oms.modules.order.entity.StoreOrderItem">
+    <delete id="deleteByPrimaryKey" >
         delete from store_order_item
         where id = #{id}
     </delete>
@@ -565,6 +565,13 @@
         left join store_order so on so.id=soi.store_order_id
         left join store_order_address soa on soa.id=so.store_address_id
         <include refid="Data_Condition"/>
+    </select>
+    <select id="selectByStoreOrderIdAndStoreVariantId"
+            resultType="com.upedge.oms.modules.order.entity.StoreOrderItem">
+        select <include refid="Base_Column_List"/>
+            from store_order_item
+        where store_order_id = #{storeOrderId}
+        and store_variant_id = #{storeVariantId}
     </select>
 
 </mapper>

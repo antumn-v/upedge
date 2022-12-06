@@ -28,6 +28,7 @@ public interface StoreOrderItemService{
     int updateByPrimaryKeySelective(StoreOrderItem record);
 
     int insert(StoreOrderItem record);
+    List<StoreOrderItem> insertByBatch(List<StoreOrderItem> storeOrderItems);
 
     int insertSelective(StoreOrderItem record);
 

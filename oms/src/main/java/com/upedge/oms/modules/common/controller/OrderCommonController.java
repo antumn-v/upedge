@@ -144,4 +144,15 @@ public class OrderCommonController {
         return orderService.processRepeatOrder();
     }
 
+    @PostMapping("/processRepeatProduct")
+    public BaseResponse processRepeatProduct(@RequestBody List<Long> orderIds){
+        orderCommonService.processRepeatProduct(orderIds);
+        return BaseResponse.success();
+    }
+    @PostMapping("/processPaidRepeatProduct")
+    public BaseResponse processPaidRepeatProduct(@RequestBody List<Long> orderIds){
+        orderCommonService.processPaidRepeatProduct(orderIds);
+        return BaseResponse.success();
+    }
+
 }

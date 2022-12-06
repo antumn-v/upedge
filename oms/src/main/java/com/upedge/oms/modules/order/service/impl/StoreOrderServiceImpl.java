@@ -29,10 +29,7 @@ import com.upedge.oms.modules.order.request.StoreDataListRequest;
 import com.upedge.oms.modules.order.request.StoreOrderListRequest;
 import com.upedge.oms.modules.order.request.UnrecognizedStoreOrderListRequest;
 import com.upedge.oms.modules.order.response.StoreOrderListResponse;
-import com.upedge.oms.modules.order.service.OrderAddressService;
-import com.upedge.oms.modules.order.service.OrderItemService;
-import com.upedge.oms.modules.order.service.OrderService;
-import com.upedge.oms.modules.order.service.StoreOrderService;
+import com.upedge.oms.modules.order.service.*;
 import com.upedge.oms.modules.order.vo.StoreOrderVariantData;
 import com.upedge.oms.modules.order.vo.StoreOrderVo;
 import com.upedge.oms.modules.statistics.request.AppUserSortRequest;
@@ -66,6 +63,8 @@ public class StoreOrderServiceImpl implements StoreOrderService {
     private StoreOrderDao storeOrderDao;
     @Autowired
     private StoreOrderItemDao storeOrderItemDao;
+    @Autowired
+    private StoreOrderItemService storeOrderItemService;
 
     @Autowired
     StoreOrderAddressDao storeOrderAddressDao;
@@ -145,24 +144,24 @@ public class StoreOrderServiceImpl implements StoreOrderService {
         storeApiRequest.setStoreVo(storeVo);
         StoreOrder storeOrder = null;
         JSONObject jsonObject = null;
-        switch (storeVo.getStoreType()){
+        switch (storeVo.getStoreType()) {
             case StoreType.WOOCOMMERCE:
-                jsonObject = WoocommerceOrderApi.getOrder(storeVo.getApiToken(),storeVo.getStoreName(),platOrderId);
-                if (jsonObject == null){
-                    return ;
+                jsonObject = WoocommerceOrderApi.getOrder(storeVo.getApiToken(), storeVo.getStoreName(), platOrderId);
+                if (jsonObject == null) {
+                    return;
                 }
                 storeApiRequest.setJsonObject(jsonObject);
                 storeOrder = woocommerceOrderUpdate(storeApiRequest);
                 break;
             case StoreType.SHOPIFY:
-                jsonObject = ShopifyOrderApi.getOrderDetailById(platOrderId,storeVo.getStoreName(),storeVo.getApiToken());
+                jsonObject = ShopifyOrderApi.getOrderDetailById(platOrderId, storeVo.getStoreName(), storeVo.getApiToken());
                 storeApiRequest.setJsonObject(jsonObject.getJSONObject("order"));
                 storeOrder = shopifyOrderUpdate(storeApiRequest);
                 break;
         }
 
-        if (storeOrder == null){
-            return ;
+        if (storeOrder == null) {
+            return;
         }
         completeStoreOrderItemDetail(storeOrder.getId());
         orderService.createOrderByStoreOrder(storeOrder.getId());
@@ -215,7 +214,7 @@ public class StoreOrderServiceImpl implements StoreOrderService {
         try {
             JSONObject jsonObject = request.getJsonObject();
             shopifyOrder = jsonObject.toJavaObject(ShopifyOrder.class);
-            if (shopifyOrder == null){
+            if (shopifyOrder == null) {
                 return null;
             }
         } catch (Exception e) {
@@ -229,13 +228,13 @@ public class StoreOrderServiceImpl implements StoreOrderService {
             return null;
         }
         StoreOrder storeOrder = storeOrderDao.selectByStorePlatId(storeVo.getId(), shopifyOrder.getId());
-        if (null != storeOrder){
-            updateShopifyStoreOrder(storeOrder,shopifyOrder,storeVo);
+        if (null != storeOrder) {
+            updateShopifyStoreOrder(storeOrder, shopifyOrder, storeVo);
             return storeOrder;
         }
         if (shopifyOrder.getFinancial_status() == null
-            || !shopifyOrder.getFinancial_status().equals("paid")
-            || shopifyOrder.getFulfillment_status() != null){
+                || !shopifyOrder.getFinancial_status().equals("paid")
+                || shopifyOrder.getFulfillment_status() != null) {
             return null;
         }
 
@@ -290,7 +289,7 @@ public class StoreOrderServiceImpl implements StoreOrderService {
             storeOrderItem.setId(IdGenerate.nextId());
             insertItems.add(storeOrderItem);
         }
-        storeOrderItemDao.insertByBatch(insertItems);
+        insertItems = storeOrderItemService.insertByBatch(insertItems);
         storeOrderAddressDao.insert(storeOrderAddress);
         storeOrderDao.insert(storeOrder);
 
@@ -351,11 +350,11 @@ public class StoreOrderServiceImpl implements StoreOrderService {
         if (null != woocommerceOrder) {
             storeOrderAddress = new StoreOrderAddress(woocommerceOrder.getShipping());
             String country = storeOrderAddress.getCountry();
-            if (StringUtils.isNotBlank(country)){
+            if (StringUtils.isNotBlank(country)) {
                 AreaSelectRequest areaSelectRequest = new AreaSelectRequest();
-                if (country.length() == 2){
+                if (country.length() == 2) {
                     areaSelectRequest.setAreaCode(country);
-                }else {
+                } else {
                     areaSelectRequest.setEnName(country);
                 }
                 BaseResponse response = tmsFeignClient.areaSelect(areaSelectRequest);
@@ -406,7 +405,7 @@ public class StoreOrderServiceImpl implements StoreOrderService {
                 storeOrderItemDao.updateRemoveState(storeOrderId, platItemIds);
             }
             int i = storeOrderAddressDao.updateByPrimaryKeySelective(storeOrderAddress);
-            if (i == 1){
+            if (i == 1) {
                 orderAddressService.updateByStoreOrderAddress(storeOrderAddress);
             }
         } else {
@@ -528,7 +527,7 @@ public class StoreOrderServiceImpl implements StoreOrderService {
                 storeOrderItemDao.updateRemoveState(storeOrderId, platItemIds);
             }
             int i = storeOrderAddressDao.updateByPrimaryKeySelective(storeOrderAddress);
-            if (i == 1){
+            if (i == 1) {
                 orderAddressService.updateByStoreOrderAddress(storeOrderAddress);
             }
         } else {
@@ -599,14 +598,14 @@ public class StoreOrderServiceImpl implements StoreOrderService {
 
         items.forEach(item -> {
             if (item.getPlatProductId() != null &&
-            item.getPlatVariantId() != null){
+                    item.getPlatVariantId() != null) {
                 StoreProductVariantVo variant = new StoreProductVariantVo();
                 variant.setPlatProductId(item.getPlatProductId());
                 variant.setPlatVariantId(item.getPlatVariantId());
                 variants.add(variant);
             }
         });
-        if (ListUtils.isNotEmpty(variants)){
+        if (ListUtils.isNotEmpty(variants)) {
             PlatIdSelectStoreVariantRequest request = new PlatIdSelectStoreVariantRequest();
             request.setStoreId(storeOrder.getStoreId());
             request.setVariantVos(variants);
@@ -722,10 +721,10 @@ public class StoreOrderServiceImpl implements StoreOrderService {
         return storeOrderDao.listAppUserSortCount(request);
     }
 
-    public void updateShopifyStoreOrder(StoreOrder storeOrder,ShopifyOrder shopifyOrder,StoreVo storeVo){
+    public void updateShopifyStoreOrder(StoreOrder storeOrder, ShopifyOrder shopifyOrder, StoreVo storeVo) {
         Long storeOrderId = storeOrder.getId();
         //更新店铺地址
-        if (null != shopifyOrder.getShipping_address()){
+        if (null != shopifyOrder.getShipping_address()) {
             StoreOrderAddress storeOrderAddress = new StoreOrderAddress(shopifyOrder.getShipping_address());
             storeOrderAddress.setNote(shopifyOrder.getNote());
             storeOrderAddress.setId(storeOrder.getStoreAddressId());
@@ -738,21 +737,21 @@ public class StoreOrderServiceImpl implements StoreOrderService {
             }
             storeOrderAddress.setStoreOrderId(storeOrderId);
             int i = storeOrderAddressDao.updateByPrimaryKey(storeOrderAddress);
-            if (i == 1){
+            if (i == 1) {
                 orderAddressService.updateByStoreOrderAddress(storeOrderAddress);
             }
-            storeOrder.setAddress( storeOrderAddress);
+            storeOrder.setAddress(storeOrderAddress);
         }
 
         //更新店铺订单状态
         StoreOrder newStoreOrder = new StoreOrder(shopifyOrder);
         if (!newStoreOrder.getFinancialStatus().equals(storeOrder.getFinancialStatus())
-        || !newStoreOrder.getFulfillmentStatus().equals(storeOrder.getFulfillmentStatus())){
+                || !newStoreOrder.getFulfillmentStatus().equals(storeOrder.getFulfillmentStatus())) {
             newStoreOrder.setId(storeOrderId);
             storeOrderDao.updateByPrimaryKeySelective(newStoreOrder);
             storeOrderRelateDao.updateStoreStatusByStoreOrderId(newStoreOrder);
             List<StoreOrderRelate> storeOrderRelates = storeOrderRelateDao.selectByStoreOrderId(storeOrderId);
-            if (shopifyOrder.getFinancial_status().equals("refunded") || shopifyOrder.getFulfillment_status().equals("fulfilled")){
+            if (shopifyOrder.getFinancial_status().equals("refunded") || shopifyOrder.getFulfillment_status().equals("fulfilled")) {
                 List<Long> cancelIds = new ArrayList<>();
                 for (StoreOrderRelate storeOrderRelate : storeOrderRelates) {
                     cancelIds.add(storeOrderRelate.getOrderId());
@@ -763,20 +762,21 @@ public class StoreOrderServiceImpl implements StoreOrderService {
         }
 
         //更新店铺产品数量
-        Map<String,ShopifyLineItem> lineItemMap = new HashMap<>();
+        Map<String, ShopifyLineItem> lineItemMap = new HashMap<>();
         List<ShopifyLineItem> shopifyLineItems = shopifyOrder.getLine_items();
         for (ShopifyLineItem shopifyLineItem : shopifyLineItems) {
-            lineItemMap.put(shopifyLineItem.getId(),shopifyLineItem);
+            lineItemMap.put(shopifyLineItem.getId(), shopifyLineItem);
         }
+
 
         List<Long> storeOrderItemIds = new ArrayList<>();
 
         List<OrderItem> orderItems = orderItemService.selectUnPaidItemByStoreOrderId(storeOrderId);
-        if (ListUtils.isNotEmpty(orderItems)){
+        if (ListUtils.isNotEmpty(orderItems)) {
             List<StoreOrderItem> storeOrderItems = storeOrderItemDao.selectByStoreOrderId(storeOrderId);
             for (StoreOrderItem storeOrderItem : storeOrderItems) {
                 ShopifyLineItem shopifyLineItem = lineItemMap.get(storeOrderItem.getPlatOrderItemId());
-                if (null == shopifyLineItem){
+                if (null == shopifyLineItem) {
                     continue;
                 }
                 lineItemMap.remove(shopifyLineItem.getId());
@@ -784,39 +784,39 @@ public class StoreOrderServiceImpl implements StoreOrderService {
                 Integer quantity = shopifyLineItem.getFulfillable_quantity();
                 Long storeOrderItemId = storeOrderItem.getId();
                 for (OrderItem orderItem : orderItems) {
-                    if (!storeOrderItemId.equals(orderItem.getStoreOrderItemId())){
-                       continue;
+                    if (!storeOrderItemId.equals(orderItem.getStoreOrderItemId())) {
+                        continue;
                     }
                     Integer scale = orderItem.getQuoteScale();
-                    if(null == scale){
+                    if (null == scale) {
                         scale = 1;
                     }
-                    if ((quantity * scale) != orderItem.getQuantity()){
+                    if ((quantity * scale) != orderItem.getQuantity()) {
                         storeOrderItemIds.add(storeOrderItem.getId());
-                        orderItemService.updateQuantityById(orderItem.getId(),(quantity * scale));
+                        orderItemService.updateQuantityById(orderItem.getId(), (quantity * scale));
                     }
                 }
             }
         }
 
-        if (MapUtils.isNotEmpty(lineItemMap)){
-            List<ShopifyLineItem> newItems = new ArrayList<>();
-            lineItemMap.forEach((lineItemId,lineItem) -> {
-                if (lineItem.getFulfillable_quantity() != null && lineItem.getFulfillable_quantity() != 0){
-                    newItems.add(lineItem);
-                }
-            });
-            List<Long> newItemIds = storeOrderAddNewItem(storeOrder,newItems);
-            storeOrderItemIds.addAll(newItemIds);
-        }
-        if (ListUtils.isNotEmpty(storeOrderItemIds)){
+//        if (MapUtils.isNotEmpty(lineItemMap)){
+//            List<ShopifyLineItem> newItems = new ArrayList<>();
+//            lineItemMap.forEach((lineItemId,lineItem) -> {
+//                if (lineItem.getFulfillable_quantity() != null && lineItem.getFulfillable_quantity() != 0){
+//                    newItems.add(lineItem);
+//                }
+//            });
+//            List<Long> newItemIds = storeOrderAddNewItem(storeOrder,newItems);
+//            storeOrderItemIds.addAll(newItemIds);
+//        }
+        if (ListUtils.isNotEmpty(storeOrderItemIds)) {
             List<Long> orderIds = orderItemService.selectOrderIdsByStoreOrderItemIds(storeOrderItemIds);
-            if (ListUtils.isNotEmpty(orderIds)){
+            if (ListUtils.isNotEmpty(orderIds)) {
                 orderService.initOrderProductAmount(orderIds);
                 for (Long orderId : orderIds) {
                     int countItemQuantity = orderItemService.selectCountQuantityByOrderId(orderId);
-                    if (countItemQuantity == 0){
-                    }else {
+                    if (countItemQuantity == 0) {
+                    } else {
                         orderService.matchShipRule(orderId);
                     }
                 }
@@ -824,9 +824,9 @@ public class StoreOrderServiceImpl implements StoreOrderService {
         }
     }
 
-    public List<Long> storeOrderAddNewItem(StoreOrder storeOrder,List<ShopifyLineItem> shopifyLineItems){
+    public List<Long> storeOrderAddNewItem(StoreOrder storeOrder, List<ShopifyLineItem> shopifyLineItems) {
 //        TransactionStatus transaction = platformTransactionManager.getTransaction(transactionDefinition);
-        if (ListUtils.isEmpty(shopifyLineItems)){
+        if (ListUtils.isEmpty(shopifyLineItems)) {
             return new ArrayList<>();
         }
         List<Long> itemIds = new ArrayList<>();
@@ -843,7 +843,7 @@ public class StoreOrderServiceImpl implements StoreOrderService {
             storeOrderItems.add(storeOrderItem);
 
             if (shopifyLineItem.getVariant_id() != null &&
-                    shopifyLineItem.getProduct_id() != null){
+                    shopifyLineItem.getProduct_id() != null) {
                 StoreProductVariantVo variant = new StoreProductVariantVo();
                 variant.setPlatProductId(shopifyLineItem.getProduct_id());
                 variant.setPlatVariantId(shopifyLineItem.getVariant_id());
@@ -854,7 +854,7 @@ public class StoreOrderServiceImpl implements StoreOrderService {
         PlatIdSelectStoreVariantRequest platIdSelectStoreVariantRequest = new PlatIdSelectStoreVariantRequest();
         platIdSelectStoreVariantRequest.setStoreId(storeOrder.getStoreId());
         platIdSelectStoreVariantRequest.setVariantVos(variants);
-        if (ListUtils.isNotEmpty(variants)){
+        if (ListUtils.isNotEmpty(variants)) {
             PlatIdSelectStoreVariantRequest request = new PlatIdSelectStoreVariantRequest();
             request.setStoreId(storeOrder.getStoreId());
             request.setVariantVos(variants);
@@ -864,7 +864,7 @@ public class StoreOrderServiceImpl implements StoreOrderService {
                 List<StoreProductVariantVo> variantVos = JSONArray.parseArray(JSON.toJSON(baseResponse.getData()).toString()).toJavaList(StoreProductVariantVo.class);
                 for (StoreOrderItem storeOrderItem : storeOrderItems) {
                     for (StoreProductVariantVo variantVo : variantVos) {
-                        if (variantVo.getPlatVariantId().equals(storeOrderItem.getPlatVariantId())){
+                        if (variantVo.getPlatVariantId().equals(storeOrderItem.getPlatVariantId())) {
                             storeOrderItem.setStoreVariantId(variantVo.getStoreVariantId());
                             storeOrderItem.setStoreProductId(variantVo.getStoreProductId());
                             storeOrderItem.setStoreVariantImage(variantVo.getImage());
@@ -874,7 +874,7 @@ public class StoreOrderServiceImpl implements StoreOrderService {
             }
         }
         storeOrderItemDao.insertByBatch(storeOrderItems);
-        orderService.addNewStoreOrderItem(storeOrder,storeOrderItems);
+        orderService.addNewStoreOrderItem(storeOrder, storeOrderItems);
 //        platformTransactionManager.commit(transaction);
         return itemIds;
     }
