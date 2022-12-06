@@ -41,6 +41,7 @@ public class AuthenticationFilter extends ZuulFilter {
 		freePaths.add("/ums/store/connectShopify");//shopify授权
 		freePaths.add("/cms/website/");
 		freePaths.add("/pms/alibabaApi/auth");
+		freePaths.add("/pms/productPurchaseInfo/syncInventory");
 	}
 	
 	private static Logger log=LoggerFactory.getLogger(AuthenticationFilter.class);
@@ -120,7 +121,7 @@ public class AuthenticationFilter extends ZuulFilter {
         		} catch (IOException e1) {
         			e1.printStackTrace();
         		}
-        		redisTemplate.expire(TokenUtil.getTokenKey(token), 3, TimeUnit.HOURS);
+        		redisTemplate.expire(TokenUtil.getTokenKey(token), 12, TimeUnit.HOURS);
         	}
         }
         return null;

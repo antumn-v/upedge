@@ -159,21 +159,21 @@ public class VariantWarehouseStockServiceImpl implements VariantWarehouseStockSe
     @Override
     public BaseResponse variantStockList(VariantStockListRequest request) {
         List<VariantWarehouseStockVo> variantWarehouseStockVos = variantWarehouseStockDao.selectVariantStocks(request);
-        List<Long> variantIds = new ArrayList<>();
-        variantWarehouseStockVos.forEach(variantWarehouseStockVo -> {
-            variantIds.add(variantWarehouseStockVo.getVariantId());
-        });
-        List<VariantPreSaleQuantity> variantPreSaleQuantities = omsFeignClient.selectVariantPreSaleQuantity(variantIds);
-        a:
-        for (VariantWarehouseStockVo variantWarehouseStockVo : variantWarehouseStockVos) {
-            for (VariantPreSaleQuantity variantPreSaleQuantity : variantPreSaleQuantities) {
-                if (variantPreSaleQuantity.getVariantId().equals(variantWarehouseStockVo.getVariantId())){
-                    variantWarehouseStockVo.setPreSaleQuantity(variantPreSaleQuantity.getPreSaleQuantity());
-                    variantPreSaleQuantities.remove(variantPreSaleQuantity);
-                    continue a;
-                }
-            }
-        }
+//        List<Long> variantIds = new ArrayList<>();
+//        variantWarehouseStockVos.forEach(variantWarehouseStockVo -> {
+//            variantIds.add(variantWarehouseStockVo.getVariantId());
+//        });
+//        List<VariantPreSaleQuantity> variantPreSaleQuantities = omsFeignClient.selectVariantPreSaleQuantity(variantIds);
+//        a:
+//        for (VariantWarehouseStockVo variantWarehouseStockVo : variantWarehouseStockVos) {
+//            for (VariantPreSaleQuantity variantPreSaleQuantity : variantPreSaleQuantities) {
+//                if (variantPreSaleQuantity.getVariantId().equals(variantWarehouseStockVo.getVariantId())){
+//                    variantWarehouseStockVo.setPreSaleQuantity(variantPreSaleQuantity.getPreSaleQuantity());
+//                    variantPreSaleQuantities.remove(variantPreSaleQuantity);
+//                    continue a;
+//                }
+//            }
+//        }
 
         long count = variantWarehouseStockDao.countVariantStocks(request);
         request.setTotal(count);

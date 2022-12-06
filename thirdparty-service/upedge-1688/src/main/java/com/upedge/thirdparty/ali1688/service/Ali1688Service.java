@@ -468,6 +468,9 @@ public class Ali1688Service {
             throw new CustomerException(sdkResult.getErrorMessage());
         }
         AlibabaTradeGetLogisticsTraceInfoBuyerViewResult result=sdkResult.getResult();
+        if (result == null || result.getLogisticsTrace() == null){
+            return new ArrayList<>();
+        }
         return Arrays.asList(result.getLogisticsTrace());
     }
 

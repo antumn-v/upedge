@@ -1,6 +1,7 @@
 package com.upedge.pms.modules.purchase.service;
 
 import com.upedge.common.base.Page;
+import com.upedge.pms.modules.purchase.dto.OfferInventoryChangeListDTO;
 import com.upedge.pms.modules.purchase.entity.ProductPurchaseInfo;
 
 import java.util.List;
@@ -10,6 +11,8 @@ import java.util.Set;
  * @author gx
  */
 public interface ProductPurchaseInfoService{
+
+    void syncPurchaseInventory(List<OfferInventoryChangeListDTO> offerInventoryChangeListDTOS);
 
     List<ProductPurchaseInfo> selectByPurchaseSkus( Set<String> purchaseSkus);
 

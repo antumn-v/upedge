@@ -11,6 +11,7 @@ import com.upedge.common.model.product.AlibabaApiVo;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.utils.IdGenerate;
 import com.upedge.common.utils.ListUtils;
+import com.upedge.common.web.util.RedisUtil;
 import com.upedge.pms.modules.product.entity.ProductVariant;
 import com.upedge.pms.modules.product.service.ProductVariantService;
 import com.upedge.pms.modules.purchase.dao.PurchaseOrderDao;
@@ -30,7 +31,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ThreadPoolExecutor;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -348,6 +351,11 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
 
     @Override
     public BaseResponse refreshFrom1688(Long id) {
+        String key = "purchase:1688info:sync:" + id;
+        boolean b = RedisUtil.lock(redisTemplate,key,5L,30 * 60 * 1000L);
+        if (!b){
+            return BaseResponse.success();
+        }
         PurchaseOrder purchaseOrder = selectByPrimaryKey(id);
         if (null == purchaseOrder) {
             return BaseResponse.failed("订单不存在");
@@ -501,6 +509,7 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
             }
         }
 
+
         String trackCode = purchaseOrderListDto.getTrackingCode();
         List<PurchaseOrderTracking> purchaseOrderTracks = purchaseOrderTrackingService.selectByTrackCode(trackCode);
         if (ListUtils.isNotEmpty(purchaseOrderTracks)){
@@ -516,6 +525,7 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
         if (ListUtils.isEmpty(purchaseOrders)) {
             return BaseResponse.success();
         }
+        syncOrderTrackingInfo(purchaseOrders);
         //如果刚才没查询到变体,但是查询到订单则重新根据订单查询变体
         if (ListUtils.isEmpty(purchaseOrderItems)){
             purchaseOrders.forEach(purchaseOrder -> {
@@ -548,6 +558,23 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
 
 
         return BaseResponse.success(purchaseOrderVos,request);
+    }
+
+    public void syncOrderTrackingInfo(List<PurchaseOrder> purchaseOrders){
+        List<CompletableFuture<Void>> completableFutures = purchaseOrders.stream().map(purchaseOrder -> {
+            CompletableFuture<Void> completableFuture = CompletableFuture.runAsync(new Runnable() {
+                @Override
+                public void run() {
+                    if (purchaseOrder.getEditState() == 1 && purchaseOrder.getPurchaseState() != -1 && purchaseOrder.getPurchaseState() != 2){
+                        refreshFrom1688(purchaseOrder.getId());
+                    }
+                }
+            }).handle((tet,ccc) -> {
+                return null;
+            });
+            return completableFuture;
+        }).collect(Collectors.toList());
+        CompletableFuture.allOf(completableFutures.toArray(new CompletableFuture[completableFutures.size()])).join();
     }
 
     /**

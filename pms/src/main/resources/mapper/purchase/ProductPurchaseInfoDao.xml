@@ -216,4 +216,11 @@
         from product_purchase_info
         where purchase_link = #{purchaseLink}
     </select>
+
+    <update id="updateInventory">
+        update product_purchase_info
+            set inventory = #{inventory}
+        where purchase_sku = #{purchaseSku}
+        and product_link = #{productLink}
+    </update>
 </mapper>

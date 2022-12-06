@@ -1,26 +1,21 @@
 package com.upedge.pms.modules.purchase.controller;
 
-import java.util.Arrays;
-import java.util.Map;
-
-import com.upedge.common.constant.ResultCode;
-import org.springframework.beans.factory.annotation.Autowired;
 import com.upedge.common.component.annotation.Permission;
-import com.upedge.pms.modules.purchase.entity.ProductPurchaseInfo;
-import com.upedge.pms.modules.purchase.service.ProductPurchaseInfoService;
-import org.springframework.web.bind.annotation.*;
-import java.util.List;
 import com.upedge.common.constant.Constant;
+import com.upedge.common.constant.ResultCode;
+import com.upedge.pms.modules.purchase.dto.OfferInventoryChangeListDTO;
+import com.upedge.pms.modules.purchase.entity.ProductPurchaseInfo;
 import com.upedge.pms.modules.purchase.request.ProductPurchaseInfoAddRequest;
 import com.upedge.pms.modules.purchase.request.ProductPurchaseInfoListRequest;
 import com.upedge.pms.modules.purchase.request.ProductPurchaseInfoUpdateRequest;
+import com.upedge.pms.modules.purchase.request.ProductVariantSyncInventoryRequest;
+import com.upedge.pms.modules.purchase.response.*;
+import com.upedge.pms.modules.purchase.service.ProductPurchaseInfoService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
 
-import com.upedge.pms.modules.purchase.response.ProductPurchaseInfoAddResponse;
-import com.upedge.pms.modules.purchase.response.ProductPurchaseInfoDelResponse;
-import com.upedge.pms.modules.purchase.response.ProductPurchaseInfoInfoResponse;
-import com.upedge.pms.modules.purchase.response.ProductPurchaseInfoListResponse;
-import com.upedge.pms.modules.purchase.response.ProductPurchaseInfoUpdateResponse;
 import javax.validation.Valid;
+import java.util.List;
 
 /**
  * 
@@ -76,6 +71,15 @@ public class ProductPurchaseInfoController {
         productPurchaseInfoService.updateByPrimaryKeySelective(entity);
         ProductPurchaseInfoUpdateResponse res = new ProductPurchaseInfoUpdateResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS);
         return res;
+    }
+
+    @PostMapping("/syncInventory")
+    public void syncPurchaseVariantInventory(@RequestBody ProductVariantSyncInventoryRequest request){
+        if (request.getData() == null){
+            return;
+        }
+        List<OfferInventoryChangeListDTO> offerInventoryChangeListDTOS = request.getData().getOfferInventoryChangeList();
+        productPurchaseInfoService.syncPurchaseInventory(offerInventoryChangeListDTOS);
     }
 
 

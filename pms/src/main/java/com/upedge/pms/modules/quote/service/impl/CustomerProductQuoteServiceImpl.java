@@ -39,7 +39,6 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.stream.Collectors;
 
@@ -371,22 +370,24 @@ public class CustomerProductQuoteServiceImpl implements CustomerProductQuoteServ
     @Override
     public void sendCustomerProductQuoteUpdateMessage(List<Long> storeVariantIds) {
 
-        CompletableFuture<Void> completableFuture = CompletableFuture.runAsync(new Runnable() {
-            @Override
-            public void run() {
-                CustomerProductQuoteSearchRequest request = new CustomerProductQuoteSearchRequest();
-                request.setStoreVariantIds(storeVariantIds);
-                List<CustomerProductQuoteVo> customerProductQuoteVos = selectQuoteDetail(request);
-                if (ListUtils.isEmpty(customerProductQuoteVos)){
-                    return ;
-                }
-                for (CustomerProductQuoteVo customerProductQuoteVo : customerProductQuoteVos) {
-                    String key = RedisKey.STRING_QUOTED_STORE_VARIANT + customerProductQuoteVo.getStoreVariantId();
-                    redisTemplate.opsForValue().set(key,customerProductQuoteVo);
-                }
-                omsFeignClient.updateQuoteDetail(customerProductQuoteVos);
-            }
-        },threadPoolExecutor);
+        CustomerProductQuoteSearchRequest request = new CustomerProductQuoteSearchRequest();
+        request.setStoreVariantIds(storeVariantIds);
+        List<CustomerProductQuoteVo> customerProductQuoteVos = selectQuoteDetail(request);
+        if (ListUtils.isEmpty(customerProductQuoteVos)){
+            return ;
+        }
+        for (CustomerProductQuoteVo customerProductQuoteVo : customerProductQuoteVos) {
+            String key = RedisKey.STRING_QUOTED_STORE_VARIANT + customerProductQuoteVo.getStoreVariantId();
+            redisTemplate.opsForValue().set(key,customerProductQuoteVo);
+        }
+        omsFeignClient.updateQuoteDetail(customerProductQuoteVos);
+
+//        CompletableFuture.runAsync(new Runnable() {
+//            @Override
+//            public void run() {
+//
+//            }
+//        });
 
 
 //        String tag = "quote";

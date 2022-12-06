@@ -11,7 +11,6 @@ import com.upedge.common.exception.CustomerException;
 import com.upedge.common.model.user.request.UserInfoSelectRequest;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.utils.EmailUtils;
-import com.upedge.common.utils.ListUtils;
 import com.upedge.common.utils.TokenUtil;
 import com.upedge.common.web.util.RequestUtil;
 import com.upedge.common.web.util.UserUtil;
@@ -270,5 +269,10 @@ public class UserController {
         return BaseResponse.success();
     }
 
+    @PostMapping("/test")
+    public BaseResponse test(){
+        long l = redisTemplate.opsForValue().getOperations().getExpire(TokenUtil.getTokenKey(UserUtil.getToken()));
+        return BaseResponse.success(l);
+    }
 
 }

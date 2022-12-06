@@ -5,6 +5,7 @@ import com.upedge.common.utils.ListUtils;
 import com.upedge.common.utils.UrlUtils;
 import com.upedge.pms.modules.product.service.ProductService;
 import com.upedge.pms.modules.purchase.dao.ProductPurchaseInfoDao;
+import com.upedge.pms.modules.purchase.dto.OfferInventoryChangeListDTO;
 import com.upedge.pms.modules.purchase.entity.ProductPurchaseInfo;
 import com.upedge.pms.modules.purchase.service.ProductPurchaseInfoService;
 import org.apache.commons.lang3.StringUtils;
@@ -60,6 +61,13 @@ public class ProductPurchaseInfoServiceImpl implements ProductPurchaseInfoServic
     @Transactional
     public int insertSelective(ProductPurchaseInfo record) {
         return productPurchaseInfoDao.insert(record);
+    }
+
+    @Override
+    public void syncPurchaseInventory(List<OfferInventoryChangeListDTO> offerInventoryChangeListDTOS) {
+        for (OfferInventoryChangeListDTO offerInventoryChangeListDTO : offerInventoryChangeListDTOS) {
+            productPurchaseInfoDao.updateInventory(offerInventoryChangeListDTO.getSkuId(),offerInventoryChangeListDTO.getOfferId(),offerInventoryChangeListDTO.getSkuOnSale());
+        }
     }
 
     @Override

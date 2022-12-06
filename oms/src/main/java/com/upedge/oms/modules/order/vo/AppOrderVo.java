@@ -114,6 +114,8 @@ public class AppOrderVo {
 
     private String country;
 
+    private String cnCountry;
+
     private String note;
 
     private Date createTime;

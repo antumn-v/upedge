@@ -12,7 +12,9 @@ import java.util.Set;
  */
 public interface ProductPurchaseInfoDao {
 
-    List<ProductPurchaseInfo> selectByPurchaseLink( String purchaseLink);
+    void updateInventory(@Param("purchaseSku") String purchaseSku, @Param("productLink") String productLink, @Param("inventory") Integer inventory);
+
+    List<ProductPurchaseInfo> selectByPurchaseLink(String purchaseLink);
 
     List<ProductPurchaseInfo> selectByPurchaseSkus(@Param("purchaseSkus") Set<String> purchaseSkus);
 
