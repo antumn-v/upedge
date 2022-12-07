@@ -591,15 +591,15 @@ public class ProductServiceImpl implements ProductService {
         if (StringUtils.isBlank(aliProductId)) {
             return new BaseResponse(ResultCode.FAIL_CODE, Constant.MESSAGE_FAIL);
         }
-//        Product p = productDao.select1688Product(aliProductId);
-//        if (null != p && p.getProductSource() == 0){
-//            Long id = p.getId();
-//            p = new Product();
-//            p.setId(id);
-//            p.setUpdateTime(new Date());
-//            productDao.updateByPrimaryKeySelective(p);
-//            return BaseResponse.success();
-//        }
+        Product p = productDao.select1688Product(aliProductId);
+        if (null != p && p.getProductSource() == 0){
+            Long id = p.getId();
+            p = new Product();
+            p.setId(id);
+            p.setUpdateTime(new Date());
+            productDao.updateByPrimaryKeySelective(p);
+            return BaseResponse.success();
+        }
         AlibabaApiVo alibabaApiVo = (AlibabaApiVo) redisTemplate.opsForValue().get(RedisKey.STRING_ALI1688_API);
         AlibabaProductVo alibabaProductVo = Ali1688Service.getProduct(aliProductId, alibabaApiVo);
         if (alibabaProductVo == null) {
