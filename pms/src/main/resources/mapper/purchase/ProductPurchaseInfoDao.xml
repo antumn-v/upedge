@@ -139,7 +139,10 @@
            supplier_name,
            spec_id,
            variant_name,
-           variant_image
+           variant_image,
+            inventory,
+            min_order_quantity,
+            mixWholeSale
         </trim>
         values
         <foreach collection="list" item="item" index="index" separator=",">
@@ -149,7 +152,10 @@
                #{item.supplierName},
                #{item.specId},
                #{item.variantName},
-               #{item.variantImage}
+               #{item.variantImage},
+                #{item.inventory},
+                #{item.minOrderQuantity},
+                #{item.mixWholeSale}
             </trim>
         </foreach>
     </insert>

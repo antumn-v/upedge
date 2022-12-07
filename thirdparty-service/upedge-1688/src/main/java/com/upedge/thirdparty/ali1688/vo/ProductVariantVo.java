@@ -38,7 +38,7 @@ public class ProductVariantVo{
 	/**
 	* 变体库存
 	*/
-	private Long inventory;
+	private Integer inventory;
 	/**
 	* 重量
 	*/

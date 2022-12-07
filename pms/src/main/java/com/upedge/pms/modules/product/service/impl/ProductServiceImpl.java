@@ -42,6 +42,7 @@ import com.upedge.pms.modules.purchase.entity.ProductPurchaseInfo;
 import com.upedge.pms.modules.purchase.service.ProductPurchaseInfoService;
 import com.upedge.pms.modules.supplier.entity.Supplier;
 import com.upedge.pms.modules.supplier.service.SupplierService;
+import com.upedge.thirdparty.ali1688.entity.product.ProductSaleInfo;
 import com.upedge.thirdparty.ali1688.vo.AlibabaProductVo;
 import com.upedge.thirdparty.ali1688.vo.ProductVariantAttrVo;
 import com.upedge.thirdparty.ali1688.vo.ProductVariantVo;
@@ -590,15 +591,15 @@ public class ProductServiceImpl implements ProductService {
         if (StringUtils.isBlank(aliProductId)) {
             return new BaseResponse(ResultCode.FAIL_CODE, Constant.MESSAGE_FAIL);
         }
-        Product p = productDao.select1688Product(aliProductId);
-        if (null != p && p.getProductSource() == 0){
-            Long id = p.getId();
-            p = new Product();
-            p.setId(id);
-            p.setUpdateTime(new Date());
-            productDao.updateByPrimaryKeySelective(p);
-            return BaseResponse.success();
-        }
+//        Product p = productDao.select1688Product(aliProductId);
+//        if (null != p && p.getProductSource() == 0){
+//            Long id = p.getId();
+//            p = new Product();
+//            p.setId(id);
+//            p.setUpdateTime(new Date());
+//            productDao.updateByPrimaryKeySelective(p);
+//            return BaseResponse.success();
+//        }
         AlibabaApiVo alibabaApiVo = (AlibabaApiVo) redisTemplate.opsForValue().get(RedisKey.STRING_ALI1688_API);
         AlibabaProductVo alibabaProductVo = Ali1688Service.getProduct(aliProductId, alibabaApiVo);
         if (alibabaProductVo == null) {
@@ -720,6 +721,8 @@ public class ProductServiceImpl implements ProductService {
         List<ProductVariant> productVariantList = new ArrayList<>();
         List<ProductVariantAttr> productVariantAttrList = new ArrayList<>();
 
+        ProductSaleInfo productSaleInfo = alibabaProductVo.getSaleInfo();
+
         for (ProductVariantVo productVariantVo : productVariantVoList) {
             if (originalVariantIds.contains(productVariantVo.getOriginalVariantId())){
                 continue;
@@ -781,6 +784,9 @@ public class ProductServiceImpl implements ProductService {
             productPurchaseInfo.setPurchaseLink(purchaseLink);
             productPurchaseInfo.setSupplierName(supplierName);
             productPurchaseInfo.setSpecId(productVariantVo.getSpecId());
+            productPurchaseInfo.setInventory(productVariantVo.getInventory());
+            productPurchaseInfo.setMinOrderQuantity(productSaleInfo.getMinOrderQuantity());
+            productPurchaseInfo.setMixWholeSale(productSaleInfo.getMixWholeSale());
             productPurchaseInfos.add(productPurchaseInfo);
         }
         if (ListUtils.isNotEmpty(productVariantList)){

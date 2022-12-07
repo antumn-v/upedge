@@ -1,8 +1,12 @@
 package com.upedge.thirdparty.ali1688.vo;
 
+
+import com.upedge.thirdparty.ali1688.entity.product.ProductSaleInfo;
 import lombok.Data;
 
 import java.util.List;
+
+;
 
 /**
  * @author author
@@ -55,6 +59,8 @@ public class AlibabaProductVo{
 	 * 产品变体列表
 	 */
 	private List<ProductVariantVo> productVariantVoList;
+
+	private ProductSaleInfo saleInfo;
 
 
 

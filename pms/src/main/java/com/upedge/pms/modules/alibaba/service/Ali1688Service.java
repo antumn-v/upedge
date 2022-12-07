@@ -56,6 +56,7 @@ public class Ali1688Service {
         alibabaProductVo.setProductSku(alibabaProductId);
         alibabaProductVo.setOriginalTitle(productInfo.getSubject());
         alibabaProductVo.setProductTitle(productInfo.getSubject());
+        alibabaProductVo.setSaleInfo(productInfo.getSaleInfo());
 
         String price = "";
         //参考价格，返回价格区间，可能为空
@@ -127,7 +128,7 @@ public class Ali1688Service {
             productVariantVo.setOriginalVariantId(skuInfos.getSkuId());
             productVariantVo.setVariantSku(skuInfos.getSkuId());
             productVariantVo.setVariantPrice(skuInfos.getPrice() == null ? new BigDecimal(price) : new BigDecimal(skuInfos.getPrice()));
-            productVariantVo.setInventory(Integer.toUnsignedLong(skuInfos.getAmountOnSale()));
+            productVariantVo.setInventory(skuInfos.getAmountOnSale());
             productVariantVo.setSpecId(skuInfos.getSpecId());
             productVariantVo.setState(1);
             if (productVariantVo.getInventory() <= 0
@@ -164,7 +165,7 @@ public class Ali1688Service {
             productVariantVo.setOriginalVariantId(alibabaProductId);
             productVariantVo.setVariantSku(alibabaProductId);
             productVariantVo.setVariantPrice(price == null ? new BigDecimal(price) : new BigDecimal(price));
-            productVariantVo.setInventory(productInfo.getSaleInfo().getAmountOnSale() == null ? 0 : productInfo.getSaleInfo().getAmountOnSale().longValue());
+            productVariantVo.setInventory(productInfo.getSaleInfo().getAmountOnSale() == null ? 0 : productInfo.getSaleInfo().getAmountOnSale());
             productVariantVo.setWeight(new BigDecimal(weight));
             productVariantVo.setVolumeWeight(new BigDecimal(weight));
             productVariantVo.setState(1);

@@ -31,4 +31,8 @@ public class ProductPurchaseInfo{
 
 	private Integer inventory;
 
+	private Integer minOrderQuantity;
+
+	private Boolean mixWholeSale;
+
 }

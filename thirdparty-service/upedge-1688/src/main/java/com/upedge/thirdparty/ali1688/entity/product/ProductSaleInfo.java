@@ -33,7 +33,7 @@ public class ProductSaleInfo {
     /**
      *可售数量，国际站无需关注此字段
      */
-    Double amountOnSale;
+    Integer amountOnSale;
 
     /**
      * 计量单位
@@ -119,11 +119,11 @@ public class ProductSaleInfo {
         this.priceRanges = priceRanges;
     }
 
-    public Double getAmountOnSale() {
+    public Integer getAmountOnSale() {
         return amountOnSale;
     }
 
-    public void setAmountOnSale(Double amountOnSale) {
+    public void setAmountOnSale(Integer amountOnSale) {
         this.amountOnSale = amountOnSale;
     }
 

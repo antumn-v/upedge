@@ -1,6 +1,7 @@
 package com.upedge.pms.modules.alibaba.entity.product;
 
 
+import com.upedge.thirdparty.ali1688.entity.product.ProductSaleInfo;
 import com.upedge.thirdparty.ali1688.vo.ProductInfoVo;
 
 import java.util.ArrayList;
@@ -179,6 +180,14 @@ public class ProductInfo {
         return attributes;
     }
 
+    public ProductSaleInfo getSaleInfo() {
+        return saleInfo;
+    }
+
+    public void setSaleInfo(ProductSaleInfo saleInfo) {
+        this.saleInfo = saleInfo;
+    }
+
     public void setAttributes(List<ProductAttribute> attributes) {
         this.attributes = attributes;
     }
@@ -263,13 +272,7 @@ public class ProductInfo {
         this.skuInfos = skuInfos;
     }
 
-    public ProductSaleInfo getSaleInfo() {
-        return saleInfo;
-    }
 
-    public void setSaleInfo(ProductSaleInfo saleInfo) {
-        this.saleInfo = saleInfo;
-    }
 
     public ProductShippingInfo getShippingInfo() {
         return shippingInfo;
