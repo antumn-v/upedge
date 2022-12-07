@@ -43,6 +43,8 @@ public interface PurchasePlanDao {
 
     List<PurchasePlan> select(PurchasePlanListRequest request);
 
+    List<PurchasePlan> selectPurchasePlanList();
+
     long count(Page<PurchasePlan> record);
 
 }

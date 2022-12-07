@@ -82,4 +82,5 @@ public class PurchasePlan{
 	 */
     private Date updateTime;
 
+	private Integer aliInventory;
 }

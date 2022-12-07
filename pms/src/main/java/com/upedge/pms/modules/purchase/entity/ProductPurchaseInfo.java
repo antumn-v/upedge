@@ -29,4 +29,6 @@ public class ProductPurchaseInfo{
 	 */
     private String specId;
 
+	private Integer inventory;
+
 }

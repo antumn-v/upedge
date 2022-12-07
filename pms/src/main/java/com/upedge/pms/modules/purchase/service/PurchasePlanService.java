@@ -16,6 +16,8 @@ import java.util.List;
  */
 public interface PurchasePlanService{
 
+    BaseResponse selectPurchasePlanList();
+
     BaseResponse updatePurchaseSku(PurchasePlanUpdateRequest request,Session session);
 
     int updatePriceById(Integer id,BigDecimal price);

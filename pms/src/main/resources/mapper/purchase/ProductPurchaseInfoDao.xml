@@ -11,10 +11,11 @@
         <result property="specId" column="spec_id"/>
         <result property="variantName" column="variant_name"/>
         <result property="variantImage" column="variant_image"/>
+        <result property="inventory" column="inventory"/>
     </resultMap>
 
     <sql id="Base_Column_List">
-        `purchase_sku`,`purchase_link`,`supplier_name`,`spec_id`,`variant_name`,`variant_image`
+        `purchase_sku`,`purchase_link`,`supplier_name`,`spec_id`,`variant_name`,`variant_image`,`inventory`
     </sql>
 
     <select id="selectByPrimaryKey" parameterType="com.upedge.pms.modules.purchase.entity.ProductPurchaseInfo" resultMap="BaseResultMap">
@@ -221,6 +222,6 @@
         update product_purchase_info
             set inventory = #{inventory}
         where purchase_sku = #{purchaseSku}
-        and product_link = #{productLink}
+        and purchase_link = #{productLink}
     </update>
 </mapper>

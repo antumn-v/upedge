@@ -31,6 +31,8 @@ public class PurchaseAdviceItemVo {
 
     private String barcode;
 
+    private Integer aliInventory;
+
 
 
 

@@ -18,6 +18,7 @@ import com.upedge.pms.modules.purchase.request.PurchasePlanUpdateRequest;
 import com.upedge.pms.modules.purchase.service.ProductPurchaseInfoService;
 import com.upedge.pms.modules.purchase.service.PurchasePlanService;
 import com.upedge.pms.modules.purchase.service.VariantWarehouseStockService;
+import com.upedge.pms.modules.purchase.vo.PurchasePlanVo;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,9 +27,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 
 @Service
@@ -78,6 +77,27 @@ public class PurchasePlanServiceImpl implements PurchasePlanService {
     @Transactional
     public int insertSelective(PurchasePlan record) {
         return purchasePlanDao.insert(record);
+    }
+
+    @Override
+    public BaseResponse selectPurchasePlanList() {
+
+        List<PurchasePlan> results = purchasePlanDao.selectPurchasePlanList();
+        Map<String,List<PurchasePlan>> map = new HashMap<>();
+        for (PurchasePlan result : results) {
+            if (!map.containsKey(result.getSupplierName())){
+                map.put(result.getSupplierName(), new ArrayList<>());
+            }
+            map.get(result.getSupplierName()).add(result);
+        }
+        List<PurchasePlanVo> purchasePlanVos = new ArrayList<>();
+        map.forEach((s, purchasePlans) -> {
+            PurchasePlanVo purchasePlanVo = new PurchasePlanVo();
+            purchasePlanVo.setSupplierName(s);
+            purchasePlanVo.setPurchasePlans(purchasePlans);
+            purchasePlanVos.add(purchasePlanVo);
+        });
+        return BaseResponse.success(purchasePlanVos);
     }
 
     @Override

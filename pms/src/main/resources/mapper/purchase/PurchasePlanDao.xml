@@ -24,6 +24,7 @@
         <result property="purchaseOrderId" column="purchase_order_id"/>
         <result property="createTime" column="create_time"/>
         <result property="updateTime" column="update_time"/>
+        <result property="aliInventory" column="inventory"/>
     </resultMap>
 
     <sql id="Base_Column_List">
@@ -455,4 +456,13 @@
         where id = #{id}
         and state = '0';
     </update>
+
+    <select id="selectPurchasePlanList" resultMap="BaseResultMap">
+        select pp.`id`,pp.`purchase_sku`,pp.`supplier_name`,pp.`product_id`,pp.`variant_id`,pp.`variant_sku`,pp.`barcode`,
+               pp.`variant_name`,pp.`variant_image`,pp.`purchase_link`,pp.`quantity`,pp.`price`,pp.require_quantity,pp.spec_id   ,ppi.inventory
+            from purchase_plan pp
+        left join product_purchase_info ppi
+        on pp.purchase_sku = ppi.purchase_sku
+        where pp.state = '0'
+    </select>
 </mapper>

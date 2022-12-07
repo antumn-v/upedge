@@ -8,9 +8,7 @@ import com.upedge.common.constant.ResultCode;
 import com.upedge.common.constant.key.RedisKey;
 import com.upedge.common.exception.CustomerException;
 import com.upedge.common.feign.PmsFeignClient;
-import com.upedge.common.model.oms.order.OrderItemQuantityVo;
 import com.upedge.common.model.oms.order.OrderStockClearRequest;
-import com.upedge.common.model.order.OrderItemQuantityDto;
 import com.upedge.common.model.order.dto.OrderItemPurchaseAdviceDto;
 import com.upedge.common.model.order.vo.OrderItemPurchaseAdviceVo;
 import com.upedge.common.model.order.vo.OrderItemUpdateImageNameRequest;
@@ -302,6 +300,9 @@ public class OrderItemServiceImpl implements OrderItemService {
         if (customerProductQuoteVo == null || customerProductQuoteVo.getQuoteState() == 0) {
             return;
         }
+
+        orderItemDao.updatePaidItemQuoteDetail(customerProductQuoteVo);
+
         Long newVariantId = customerProductQuoteVo.getVariantId();
         List<Long> orderIds = new ArrayList<>();
         Long storeVariantId = customerProductQuoteVo.getStoreVariantId();
@@ -330,12 +331,12 @@ public class OrderItemServiceImpl implements OrderItemService {
             }
         }
 
-        orderItemDao.updatePaidItemQuoteDetail(customerProductQuoteVo);
-        OrderItemQuantityDto orderItemQuantityDto = new OrderItemQuantityDto();
-        orderItemQuantityDto.setOrderIds(orderIds);
 
-        List<OrderItemQuantityVo> orderItemQuantityVos = orderDao.selectOrderItemQuantities(orderItemQuantityDto);
-        pmsFeignClient.orderCheckStock(orderItemQuantityVos);
+//        OrderItemQuantityDto orderItemQuantityDto = new OrderItemQuantityDto();
+//        orderItemQuantityDto.setOrderIds(orderIds);
+
+//        List<OrderItemQuantityVo> orderItemQuantityVos = orderDao.selectOrderItemQuantities(orderItemQuantityDto);
+//        pmsFeignClient.orderCheckStock(orderItemQuantityVos);
     }
 
     @Transactional

@@ -42,6 +42,8 @@ public interface CustomerProductQuoteService{
 
     int updateByPrimaryKey(CustomerProductQuote record);
 
+    void updateOrderQuoteDetail(List<CustomerProductQuote> customerProductQuotes);
+
     int updateByPrimaryKeySelective(CustomerProductQuote record);
 
     int insert(CustomerProductQuote record);

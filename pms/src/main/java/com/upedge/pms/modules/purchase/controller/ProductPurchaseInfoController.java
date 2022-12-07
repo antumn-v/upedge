@@ -1,5 +1,6 @@
 package com.upedge.pms.modules.purchase.controller;
 
+import com.alibaba.fastjson.JSONObject;
 import com.upedge.common.component.annotation.Permission;
 import com.upedge.common.constant.Constant;
 import com.upedge.common.constant.ResultCode;
@@ -11,6 +12,8 @@ import com.upedge.pms.modules.purchase.request.ProductPurchaseInfoUpdateRequest;
 import com.upedge.pms.modules.purchase.request.ProductVariantSyncInventoryRequest;
 import com.upedge.pms.modules.purchase.response.*;
 import com.upedge.pms.modules.purchase.service.ProductPurchaseInfoService;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,6 +25,7 @@ import java.util.List;
  *
  * @author gx
  */
+@Slf4j
 @RestController
 @RequestMapping("/productPurchaseInfo")
 public class ProductPurchaseInfoController {
@@ -74,10 +78,17 @@ public class ProductPurchaseInfoController {
     }
 
     @PostMapping("/syncInventory")
-    public void syncPurchaseVariantInventory(@RequestBody ProductVariantSyncInventoryRequest request){
-        if (request.getData() == null){
+    public void syncPurchaseVariantInventory(String message){
+        if (StringUtils.isBlank(message)){
             return;
         }
+        ProductVariantSyncInventoryRequest request = null;
+        try {
+            request = JSONObject.parseObject(message, ProductVariantSyncInventoryRequest.class);
+        } catch (Exception e) {
+            log.warn("syncInventory: {}",message);
+        }
+
         List<OfferInventoryChangeListDTO> offerInventoryChangeListDTOS = request.getData().getOfferInventoryChangeList();
         productPurchaseInfoService.syncPurchaseInventory(offerInventoryChangeListDTOS);
     }

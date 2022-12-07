@@ -39,6 +39,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.stream.Collectors;
 
@@ -370,16 +371,52 @@ public class CustomerProductQuoteServiceImpl implements CustomerProductQuoteServ
     @Override
     public void sendCustomerProductQuoteUpdateMessage(List<Long> storeVariantIds) {
 
-        CustomerProductQuoteSearchRequest request = new CustomerProductQuoteSearchRequest();
-        request.setStoreVariantIds(storeVariantIds);
-        List<CustomerProductQuoteVo> customerProductQuoteVos = selectQuoteDetail(request);
-        if (ListUtils.isEmpty(customerProductQuoteVos)){
-            return ;
+
+
+        CompletableFuture.runAsync(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    Thread.sleep(200L);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                CustomerProductQuoteSearchRequest request = new CustomerProductQuoteSearchRequest();
+                request.setStoreVariantIds(storeVariantIds);
+                List<CustomerProductQuoteVo> customerProductQuoteVos = selectQuoteDetail(request);
+                if (ListUtils.isEmpty(customerProductQuoteVos)){
+                    return ;
+                }
+                for (CustomerProductQuoteVo customerProductQuoteVo : customerProductQuoteVos) {
+                    String key = RedisKey.STRING_QUOTED_STORE_VARIANT + customerProductQuoteVo.getStoreVariantId();
+                    redisTemplate.opsForValue().set(key,customerProductQuoteVo);
+                }
+                omsFeignClient.updateQuoteDetail(customerProductQuoteVos);
+            }
+        });
+
+
+//        String tag = "quote";
+//        String key = UUID.randomUUID().toString();
+//        Message message = new Message(RocketMqConfig.TOPIC_CUSTOMER_PRODUCT_QUOTE_UPDATE, tag, key, JSON.toJSONBytes(customerProductQuoteVos));
+//        return productMqProducer.sendMessage(message);
+    }
+
+    @Override
+    public void updateOrderQuoteDetail(List<CustomerProductQuote> customerProductQuotes) {
+        if (ListUtils.isEmpty(customerProductQuotes)){
+            return;
         }
-        for (CustomerProductQuoteVo customerProductQuoteVo : customerProductQuoteVos) {
+
+        List<CustomerProductQuoteVo> customerProductQuoteVos = new ArrayList<>();
+        for (CustomerProductQuote customerProductQuote : customerProductQuotes) {
+            CustomerProductQuoteVo customerProductQuoteVo = new CustomerProductQuoteVo();
+            BeanUtils.copyProperties(customerProductQuote,customerProductQuoteVo);
             String key = RedisKey.STRING_QUOTED_STORE_VARIANT + customerProductQuoteVo.getStoreVariantId();
             redisTemplate.opsForValue().set(key,customerProductQuoteVo);
+            customerProductQuoteVos.add(customerProductQuoteVo);
         }
+
         omsFeignClient.updateQuoteDetail(customerProductQuoteVos);
 
 //        CompletableFuture.runAsync(new Runnable() {
