@@ -300,6 +300,8 @@ public class PurchaseServiceImpl implements PurchaseService {
                         purchaseAdviceVo.setWarehouseCode(warehouseCode);
                     }
                     purchaseAdviceItemVo.setAliInventory(productPurchaseInfo.getInventory());
+                    purchaseAdviceItemVo.setMinOrderQuantity(productPurchaseInfo.getMinOrderQuantity());
+                    purchaseAdviceItemVo.setMixWholeSale(productPurchaseInfo.getMixWholeSale());
                     purchaseAdviceVo.getPurchaseAdviceItemVos().add(purchaseAdviceItemVo);
                     purchaseAdviceVoMap.put(supplierName, purchaseAdviceVo);
                     continue a;

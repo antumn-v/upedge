@@ -83,4 +83,8 @@ public class PurchasePlan{
     private Date updateTime;
 
 	private Integer aliInventory;
+
+	private Integer minOrderQuantity;
+
+	private Boolean mixWholeSale;
 }

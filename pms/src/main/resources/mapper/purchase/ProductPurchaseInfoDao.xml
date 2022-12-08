@@ -12,6 +12,8 @@
         <result property="variantName" column="variant_name"/>
         <result property="variantImage" column="variant_image"/>
         <result property="inventory" column="inventory"/>
+        <result property="minOrderQuantity" column="min_order_quantity"/>
+        <result property="mixWholeSale" column="mixWholeSale"/>
     </resultMap>
 
     <sql id="Base_Column_List">
@@ -47,6 +49,15 @@
             </if>
             <if test="variantImage != null">
                 variant_image = #{variantImage},
+            </if>
+            <if test="inventory != null">
+                inventory = #{inventory},
+            </if>
+            <if test="minOrderQuantity != null">
+                min_order_quantity = #{minOrderQuantity},
+            </if>
+            <if test="mixWholeSale != null">
+                mixWholeSale = #{mixWholeSale},
             </if>
         </set>
         where purchase_sku = #{purchaseSku}

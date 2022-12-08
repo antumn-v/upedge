@@ -1354,10 +1354,8 @@ public class ProductServiceImpl implements ProductService {
         Page<Product> page = new Page<>();
         Product product = new Product();
         product.setProductSource(0);
-        product.setId(1547223688078925824L);
         page.setT(product);
         page.setPageSize(-1);
-        page.initFromNum();
         AlibabaApiVo alibabaApiVo = (AlibabaApiVo) redisTemplate.opsForValue().get(RedisKey.STRING_ALI1688_API);
         List<Product> products = select(page);
         for (Product product1 : products) {
@@ -1365,21 +1363,17 @@ public class ProductServiceImpl implements ProductService {
             if (null == productInfoVo){
                 continue;
             }
+            ProductSaleInfo productSaleInfo = productInfoVo.getSaleInfo();
             List<ProductVariantVo> variantVos =productInfoVo.getProductVariantVoList();
-            List<ProductPurchaseInfo> productPurchaseInfos = new ArrayList<>();
             for (ProductVariantVo variant : variantVos) {
                 ProductPurchaseInfo productPurchaseInfo = new ProductPurchaseInfo();
-                productPurchaseInfo.setPurchaseLink(productInfoVo.getProductSku());
-                productPurchaseInfo.setSupplierName(productInfoVo.getSupplierVo().getSupplierName());
                 productPurchaseInfo.setPurchaseSku(variant.getVariantSku());
-                productPurchaseInfo.setVariantImage(variant.getVariantImage());
-                List<ProductVariantAttrVo> variantAttrVoList = variant.getVariantAttrVoList();
-
-                productPurchaseInfo.setVariantName(variantAttrVoList.stream().map(ProductVariantAttrVo::getVariantAttrCvalue).collect(Collectors.toList()).toString());
-                productPurchaseInfo.setSpecId(variant.getSpecId());
-                productPurchaseInfos.add(productPurchaseInfo);
+                productPurchaseInfo.setMixWholeSale(productSaleInfo.getMixWholeSale());
+                productPurchaseInfo.setInventory(variant.getInventory());
+                productPurchaseInfo.setMinOrderQuantity(productSaleInfo.getMinOrderQuantity());
+                productPurchaseInfoService.updateByPrimaryKeySelective(productPurchaseInfo);
             }
-            productPurchaseInfoService.insertByBatch(productPurchaseInfos);
+            addNewAlibabaProductVariants(variantVos,product1.getId(),productInfoVo);
         }
 
         return BaseResponse.success();

@@ -763,16 +763,19 @@ public class StoreOrderServiceImpl implements StoreOrderService {
 
         //更新店铺产品数量
         Map<String, ShopifyLineItem> lineItemMap = new HashMap<>();
-        List<ShopifyLineItem> shopifyLineItems = shopifyOrder.getLine_items();
-        for (ShopifyLineItem shopifyLineItem : shopifyLineItems) {
-            lineItemMap.put(shopifyLineItem.getId(), shopifyLineItem);
-        }
+
 
 
         List<Long> storeOrderItemIds = new ArrayList<>();
 
         List<OrderItem> orderItems = orderItemService.selectUnPaidItemByStoreOrderId(storeOrderId);
         if (ListUtils.isNotEmpty(orderItems)) {
+
+            List<ShopifyLineItem> shopifyLineItems = shopifyOrder.getLine_items();
+            for (ShopifyLineItem shopifyLineItem : shopifyLineItems) {
+                lineItemMap.put(shopifyLineItem.getId(), shopifyLineItem);
+            }
+
             List<StoreOrderItem> storeOrderItems = storeOrderItemDao.selectByStoreOrderId(storeOrderId);
             for (StoreOrderItem storeOrderItem : storeOrderItems) {
                 ShopifyLineItem shopifyLineItem = lineItemMap.get(storeOrderItem.getPlatOrderItemId());
@@ -797,18 +800,20 @@ public class StoreOrderServiceImpl implements StoreOrderService {
                     }
                 }
             }
+        }else {
+            return;
         }
 
-//        if (MapUtils.isNotEmpty(lineItemMap)){
-//            List<ShopifyLineItem> newItems = new ArrayList<>();
-//            lineItemMap.forEach((lineItemId,lineItem) -> {
-//                if (lineItem.getFulfillable_quantity() != null && lineItem.getFulfillable_quantity() != 0){
-//                    newItems.add(lineItem);
-//                }
-//            });
-//            List<Long> newItemIds = storeOrderAddNewItem(storeOrder,newItems);
-//            storeOrderItemIds.addAll(newItemIds);
-//        }
+        if (MapUtils.isNotEmpty(lineItemMap)){
+            List<ShopifyLineItem> newItems = new ArrayList<>();
+            lineItemMap.forEach((lineItemId,lineItem) -> {
+                if (lineItem.getFulfillable_quantity() != null && lineItem.getFulfillable_quantity() != 0){
+                    newItems.add(lineItem);
+                }
+            });
+            List<Long> newItemIds = storeOrderAddNewItem(storeOrder,newItems);
+            storeOrderItemIds.addAll(newItemIds);
+        }
         if (ListUtils.isNotEmpty(storeOrderItemIds)) {
             List<Long> orderIds = orderItemService.selectOrderIdsByStoreOrderItemIds(storeOrderItemIds);
             if (ListUtils.isNotEmpty(orderIds)) {

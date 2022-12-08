@@ -33,7 +33,8 @@ public class PurchaseAdviceItemVo {
 
     private Integer aliInventory;
 
+    private Integer minOrderQuantity;
 
-
+    private Boolean mixWholeSale;
 
 }
