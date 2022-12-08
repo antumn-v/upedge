@@ -516,7 +516,7 @@ public class UserServiceImpl implements UserService {
 //        UserInfo userInfo = userInfoService.selectByPrimaryKey(userId);
 //        session.setUserName(userInfo.getUsername());
 //        session.setLoginpass(user.getLoginPass());
-        UserUtil.setUser(redisTemplate, token, session);
+        UserUtil.setUser(redisTemplate, token, session,applicationId);
         user.setLastLoginTime(new Date());
         userDao.refreshLoginData(user);
         Boolean guideNotice = guideNotice(userId);

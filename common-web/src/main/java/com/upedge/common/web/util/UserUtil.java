@@ -91,6 +91,15 @@ public class UserUtil {
                 Constant.TOKEN_EXPIRE_TIME, TimeUnit.HOURS);
     }
 
+    public static void setUser(RedisTemplate<String, Object> redisTemplate, String token, Session session,Long applicationId) {
+        if (applicationId.equals(Constant.ADMIN_APPLICATION_ID)){
+            redisTemplate.opsForValue().set(TokenUtil.getTokenKey(token), session);
+        }else {
+            redisTemplate.opsForValue().set(TokenUtil.getTokenKey(token), session,
+                    Constant.TOKEN_EXPIRE_TIME, TimeUnit.HOURS);
+        }
+    }
+
 
     /**
      * 加密密码

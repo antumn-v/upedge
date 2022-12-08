@@ -19,7 +19,6 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 @RefreshScope
 @Component
@@ -121,7 +120,7 @@ public class AuthenticationFilter extends ZuulFilter {
         		} catch (IOException e1) {
         			e1.printStackTrace();
         		}
-        		redisTemplate.expire(TokenUtil.getTokenKey(token), 12, TimeUnit.HOURS);
+//        		redisTemplate.expire(TokenUtil.getTokenKey(token), 12, TimeUnit.HOURS);
         	}
         }
         return null;
