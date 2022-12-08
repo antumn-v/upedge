@@ -11,4 +11,6 @@ public class CreatePurchaseOrderRequest {
     private Long stockOrderId;
 
     private List<CreatePurchaseOrderDto> createPurchaseOrderDtos;
+
+    private boolean isPreview;
 }

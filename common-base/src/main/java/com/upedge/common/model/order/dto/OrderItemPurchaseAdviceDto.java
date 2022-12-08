@@ -17,5 +17,7 @@ public class OrderItemPurchaseAdviceDto {
 
     private Long adminProductId;
 
+    private String barcode;
+
 
 }

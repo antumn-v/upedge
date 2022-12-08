@@ -167,6 +167,7 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
             skuVariantMap.put(productPurchaseInfo.getSpecId() + productPurchaseInfo.getPurchaseLink(), productVariant);
         }
 
+        boolean isPreview = request.isPreview();
 
         Map<String, List<AlibabaTradeFastCargo>> supplierCargosMap = new HashMap<>();
         //不同供应商分组
@@ -198,7 +199,16 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
             String message = "下单号： " + id;
 
             try {
-                alibabaTradeFastResult = Ali1688Service.createOrder(tradeFastCargos, alibabaApiVo, message);
+                if (isPreview){
+                    AlibabaCreateOrderPreviewResult previewResult = Ali1688Service.createOrderPreview(tradeFastCargos, alibabaApiVo);
+                    if (!previewResult.getSuccess()){
+                        return BaseResponse.failed(previewResult.getErrorMsg());
+                    }else {
+                        continue;
+                    }
+                }else {
+                    alibabaTradeFastResult = Ali1688Service.createOrder(tradeFastCargos, alibabaApiVo, message);
+                }
             } catch (CustomerException e) {
                 return BaseResponse.success(e.getMessage());
             }
