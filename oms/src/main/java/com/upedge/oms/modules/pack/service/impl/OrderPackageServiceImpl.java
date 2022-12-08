@@ -607,7 +607,7 @@ public class OrderPackageServiceImpl implements OrderPackageService {
         orderStockClearRequest.setOrderId(orderId);
         orderItemService.updateLockedQuantityClear(orderStockClearRequest);
 
-        createPackage(orderId);
+//        createPackage(orderId);
     }
 
     public BaseResponse createYanwenPackage(Order order, ShippingMethodRedis shippingMethodRedis) throws CustomerException {
