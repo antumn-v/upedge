@@ -3,9 +3,13 @@ package com.upedge.pms.modules.purchase.service;
 import com.upedge.common.base.BaseResponse;
 import com.upedge.common.base.Page;
 import com.upedge.common.exception.CustomerException;
+import com.upedge.common.model.pms.request.CreatePurchaseOrderRequest;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.pms.modules.purchase.entity.PurchaseOrder;
-import com.upedge.pms.modules.purchase.request.*;
+import com.upedge.pms.modules.purchase.request.PurchaseOrderEditStateUpdateRequest;
+import com.upedge.pms.modules.purchase.request.PurchaseOrderListRequest;
+import com.upedge.pms.modules.purchase.request.PurchaseOrderReceiveRequest;
+import com.upedge.pms.modules.purchase.request.PurchaseOrderRevokeRequest;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -18,7 +22,7 @@ public interface PurchaseOrderService{
 
     BaseResponse revokePurchaseOrder(PurchaseOrderRevokeRequest request,Session session) throws CustomerException;
 
-    BaseResponse customCreate(PurchaseOrderCustomCreateRequest request,Session session);
+    BaseResponse customCreate(CreatePurchaseOrderRequest request, Session session);
 
     void completeOrderInfo(Long orderId);
 

@@ -5,6 +5,7 @@ import com.alibaba.trade.param.AlibabaOpenplatformTradeModelTradeInfo;
 import com.upedge.common.base.BaseResponse;
 import com.upedge.common.component.annotation.Permission;
 import com.upedge.common.exception.CustomerException;
+import com.upedge.common.model.pms.request.CreatePurchaseOrderRequest;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.utils.ListUtils;
 import com.upedge.common.web.util.UserUtil;
@@ -118,6 +119,13 @@ public class PurchaseOrderController {
         } catch (CustomerException e) {
             return BaseResponse.failed(e.getMessage());
         }
+    }
+
+
+    @PostMapping("/customCreate")
+    public BaseResponse customCreate(@RequestBody CreatePurchaseOrderRequest request){
+        Session session = UserUtil.getSession(redisTemplate);
+        return purchaseOrderService.customCreate(request,session);
     }
 
     @PostMapping("/completeInfo/{id}")

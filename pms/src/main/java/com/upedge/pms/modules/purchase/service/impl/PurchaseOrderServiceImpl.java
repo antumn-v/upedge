@@ -7,6 +7,8 @@ import com.upedge.common.base.Page;
 import com.upedge.common.constant.ResultCode;
 import com.upedge.common.constant.key.RedisKey;
 import com.upedge.common.exception.CustomerException;
+import com.upedge.common.model.pms.dto.CreatePurchaseOrderDto;
+import com.upedge.common.model.pms.request.CreatePurchaseOrderRequest;
 import com.upedge.common.model.product.AlibabaApiVo;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.utils.IdGenerate;
@@ -131,20 +133,24 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
 
     @Transactional
     @Override
-    public BaseResponse customCreate(PurchaseOrderCustomCreateRequest request, Session session) {
-        List<PurchasePlan> purchasePlans = request.getPurchasePlans();
+    public BaseResponse customCreate(CreatePurchaseOrderRequest request, Session session) {
+        List<CreatePurchaseOrderDto> createPurchaseOrderDtos = request.getCreatePurchaseOrderDtos();
+        if (ListUtils.isEmpty(createPurchaseOrderDtos)){
+            return BaseResponse.failed();
+        }
 
         Map<Long,Integer> variantQuantityMap = new HashMap<>();
         List<Long> variantIds = new ArrayList<>();
-        for (PurchasePlan purchasePlan : purchasePlans) {
-            purchasePlan.setId(IdGenerate.randomInt());
-            variantIds.add(purchasePlan.getVariantId());
-            variantQuantityMap.put(purchasePlan.getVariantId(),purchasePlan.getQuantity());
+        for (CreatePurchaseOrderDto createPurchaseOrderDto : createPurchaseOrderDtos) {
+            variantIds.add(createPurchaseOrderDto.getVariantId());
+            variantQuantityMap.put(createPurchaseOrderDto.getVariantId(),createPurchaseOrderDto.getQuantity());
         }
+        //获取产品信息
         List<ProductVariant> productVariants = productVariantService.listVariantByIds(variantIds);
         if (ListUtils.isEmpty(productVariants)){
             return BaseResponse.failed("商品信息不存在");
         }
+        //获取商品采购信息
         Set<String> purchaseSkus = new HashSet<>();
         Map<String, ProductVariant> skuVariantMap = new HashMap<>();
         List<ProductPurchaseInfo> productPurchaseInfos = new ArrayList<>();
@@ -163,7 +169,7 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
 
 
         Map<String, List<AlibabaTradeFastCargo>> supplierCargosMap = new HashMap<>();
-
+        //不同供应商分组
         for (ProductVariant productVariant : productVariants) {
 
             for (ProductPurchaseInfo productPurchaseInfo : productPurchaseInfos) {
@@ -182,8 +188,9 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
             }
         }
 
+        StringBuffer stringBuffer = new StringBuffer();
         AlibabaApiVo alibabaApiVo = (AlibabaApiVo) redisTemplate.opsForValue().get(RedisKey.STRING_ALI1688_API);
-
+        //根据供应商创建采购单
         for (Map.Entry<String, List<AlibabaTradeFastCargo>> map : supplierCargosMap.entrySet()) {
             List<AlibabaTradeFastCargo> tradeFastCargos = map.getValue();
             AlibabaTradeFastResult alibabaTradeFastResult = null;
@@ -225,9 +232,13 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
             for (PurchaseOrderItem purchaseItem : purchaseItems) {
                 variantWarehouseStockService.updateVariantPurchaseStockByPlan(purchaseItem.getVariantId(),"CNHZ",purchaseItem.getQuantity());
             }
+            if (StringUtils.isBlank(stringBuffer)){
+                stringBuffer = stringBuffer.append(id);
+            }else {
+                stringBuffer = stringBuffer.append(",").append(id);
+            }
         }
-
-        return null;
+        return BaseResponse.success(stringBuffer.toString());
     }
 
     @Override
