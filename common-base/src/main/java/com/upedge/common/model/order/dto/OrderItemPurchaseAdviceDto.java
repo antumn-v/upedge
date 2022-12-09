@@ -19,5 +19,8 @@ public class OrderItemPurchaseAdviceDto {
 
     private String barcode;
 
+    private String variantSku;
+
+
 
 }

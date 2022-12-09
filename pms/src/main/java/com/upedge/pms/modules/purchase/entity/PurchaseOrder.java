@@ -15,6 +15,8 @@ public class PurchaseOrder{
 	 * 
 	 */
     private Long id;
+
+	private String relateId;
 	/**
 	 * 
 	 */

@@ -32,6 +32,7 @@ import com.upedge.common.model.store.request.StoreApiRequest;
 import feign.hystrix.FallbackFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import org.springframework.web.bind.annotation.RequestBody;
 
 import javax.validation.Valid;
 import java.util.ArrayList;
@@ -90,7 +91,7 @@ public class OmsFeignClientFallbackFactory implements FallbackFactory<OmsFeignCl
             }
 
             @Override
-            public OrderItemPurchaseAdviceVo purchaseItems() {
+            public OrderItemPurchaseAdviceVo purchaseItems(@RequestBody OrderItemPurchaseAdviceDto orderItemPurchaseAdviceDto) {
                 return null;
             }
 

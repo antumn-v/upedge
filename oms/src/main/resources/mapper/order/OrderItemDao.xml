@@ -128,7 +128,8 @@
 
 
     <sql id="Base_Column_List">
-        `id`,`order_id`,`store_order_id`,`store_order_item_id`,`store_variant_id`,
+        `id`
+                ,`order_id`,`store_order_id`,`store_order_item_id`,`store_variant_id`,
         `admin_variant_id`,`store_product_id`,`admin_product_id`,`picked_quantity`,
         `store_variant_name`,`store_variant_sku`,`store_product_title`,`store_variant_image`,
         `admin_variant_image`,`admin_variant_sku`,`usd_price`,`usd_rate`,`cny_price`,`barcode`,`locked_quantity`,
@@ -1166,7 +1167,8 @@
                 inner join `order` o
         on o.id = oi.order_id
                 set oi.quantity = (#{quantity} * oi.quote_scale)
-        where o.pay_state &lt; '1'
+        where o.pay_state
+         &lt; '1'
           and oi.store_order_item_id = #{storeOrderItemId}
     </update>
 
@@ -1243,17 +1245,41 @@
     </select>
 
     <select id="selectUnStockOrderItems" resultMap="BaseResultMap"
-            parameterType="com.upedge.common.model.order.request.OrderItemPurchaseAdviceRequest">
+            parameterType="com.upedge.common.model.order.dto.OrderItemPurchaseAdviceDto">
         select oi.admin_variant_id, o.customer_id, sum(oi.quantity - oi.locked_quantity) as `quantity`
         from `order` o
         inner join `order_item` oi
         on o.id = oi.order_id
         where o.pay_state = '1'
-          and o.refund_state = '0'
-          and o.ship_state = '0'
-          and o.stock_state = '0'
-          and o.pack_state = '1'
-          and oi.admin_variant_id is not null
+        and o.refund_state = '0'
+        and o.ship_state = '0'
+        and o.stock_state = '0'
+        and o.pack_state = '1'
+        and oi.admin_variant_id is not null
+        <if test="storeVariantSku != null">
+            and oi.store_variant_sku = #{storeVariantSku}
+        </if>
+        <if test="storeProductId != null">
+            and oi.store_product_id = #{storeProductId}
+        </if>
+        <if test="orderId != null">
+            and o.id = #{orderId,jdbcType=BIGINT}
+        </if>
+        <if test="customerId != null">
+            and o.customer_id = #{customerId}
+        </if>
+        <if test="adminVariantId != null">
+            and oi.admin_variant_id = #{adminVariantId}
+        </if>
+        <if test="adminProductId != null">
+            and oi.admin_product_id = #{adminProductId}
+        </if>
+        <if test="barcode != null">
+            and oi.barcode = #{barcode}
+        </if>
+        <if test="variantSku != null">
+            and admin_variant_sku = #{variantSku}
+        </if>
         group by oi.admin_variant_id, o.customer_id
         order by `quantity` desc
     </select>
@@ -1397,35 +1423,35 @@
 
     <update id="updateLockedQuantityClear">
         update `order` o
-                inner join order_item oi
+        inner join order_item oi
         on o.id = oi.order_id
-            set oi.locked_quantity = '0', o.stock_state = '0',o.pick_state = '0',o.is_print_label = '0'
+        set oi.locked_quantity = '0', o.stock_state = '0',o.pick_state = '0',o.is_print_label = '0'
         where o.ship_state = '0'
-            <if test="variantId != null and warehouseCode != null">
-                and oi.admin_variant_id = #{variantId}
-                and o.shipping_warehouse = #{warehouseCode}
-            </if>
+        <if test="variantId != null and warehouseCode != null">
+            and oi.admin_variant_id = #{variantId}
+            and o.shipping_warehouse = #{warehouseCode}
+        </if>
         <if test="orderId != null">
             and o.id = #{orderId}
         </if>
-
     </update>
 
     <select id="selectUnPaidItemByStoreOrderId" resultMap="BaseResultMap">
         select oi.*
         from `order` o
-        inner join order_item oi
-        on o.id = oi.order_id
+                     inner join order_item oi
+                on o.id = oi.order_id
         where oi.store_order_id = #{storeOrderId}
-        and o.pay_state = '0'
+          and o.pay_state = '0'
     </select>
 
     <update id="updateQuantityById">
         update `order` o
-            inner join order_item oi
+                inner join order_item oi
         on o.id = oi.order_id
-        set oi.quantity = #{quantity}
+                set oi.quantity = #{quantity}
         where oi.id = #{id}
-        and o.pay_state &lt; 1
+          and o.pay_state
+         &lt; 1
     </update>
 </mapper>

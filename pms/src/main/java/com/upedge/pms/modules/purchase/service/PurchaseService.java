@@ -16,6 +16,8 @@ public interface PurchaseService {
 
     BaseResponse purchaseAdvice();
 
+    BaseResponse purchaseAdvice(PurchaseAdviceRequest request);
+
     BaseResponse purchaseAdviceCache(PurchaseAdviceRequest request);
 
     BaseResponse previewPurchaseOrder(PurchaseOrderCreateRequest request, Session session);

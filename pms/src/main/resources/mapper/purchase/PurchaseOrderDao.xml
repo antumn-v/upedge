@@ -135,6 +135,7 @@
         <trim prefix="(" suffix=")" suffixOverrides=",">
             id,
             purchase_id,
+            relate_id,
             product_amount,
             original_product_amount,
             ship_price,
@@ -159,6 +160,7 @@
         values (
         #{id},
         #{purchaseId},
+        #{relateId},
         #{productAmount},
         #{originalProductAmount},
         #{shipPrice},

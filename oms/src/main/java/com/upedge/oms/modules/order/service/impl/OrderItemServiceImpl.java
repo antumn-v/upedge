@@ -627,8 +627,8 @@ public class OrderItemServiceImpl implements OrderItemService {
     }
 
     @Override
-    public OrderItemPurchaseAdviceVo selectUnStockOrderItems() {
-        List<OrderItem> orderItems = orderItemDao.selectUnStockOrderItems();
+    public OrderItemPurchaseAdviceVo selectUnStockOrderItems(OrderItemPurchaseAdviceDto orderItemPurchaseAdviceDto) {
+        List<OrderItem> orderItems = orderItemDao.selectUnStockOrderItems(orderItemPurchaseAdviceDto);
         if (ListUtils.isEmpty(orderItems)) {
             return null;
         }

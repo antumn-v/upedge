@@ -156,7 +156,7 @@ public interface OrderItemDao {
 
     List<VariantPreSaleQuantity> selectVariantPreSaleQuantity(@Param("variantIds") List<Long> variantIds);
 
-    List<OrderItem> selectUnStockOrderItems();
+    List<OrderItem> selectUnStockOrderItems(OrderItemPurchaseAdviceDto orderItemPurchaseAdviceDto);
 
     long countUnStockOrderItems(OrderItemPurchaseAdviceRequest request);
 }

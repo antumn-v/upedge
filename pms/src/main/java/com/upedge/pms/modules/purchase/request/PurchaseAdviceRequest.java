@@ -8,9 +8,6 @@ import javax.validation.constraints.NotNull;
 @Data
 public class PurchaseAdviceRequest extends OrderItemPurchaseAdviceDto {
 
-    private String variantSku;
-
-    private String barcode;
 
     //1=正常采购  0=取消采购  -1=搁置
     @NotNull

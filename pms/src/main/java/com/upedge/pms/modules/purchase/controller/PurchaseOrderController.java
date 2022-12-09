@@ -4,6 +4,7 @@ import com.alibaba.logistics.param.AlibabaLogisticsOpenPlatformLogisticsTrace;
 import com.alibaba.trade.param.AlibabaOpenplatformTradeModelTradeInfo;
 import com.upedge.common.base.BaseResponse;
 import com.upedge.common.component.annotation.Permission;
+import com.upedge.common.constant.ResultCode;
 import com.upedge.common.exception.CustomerException;
 import com.upedge.common.model.pms.request.CreatePurchaseOrderRequest;
 import com.upedge.common.model.user.vo.Session;
@@ -126,6 +127,18 @@ public class PurchaseOrderController {
     public BaseResponse customCreate(@RequestBody CreatePurchaseOrderRequest request){
         Session session = UserUtil.getSession(redisTemplate);
         return purchaseOrderService.customCreate(request,session);
+    }
+
+    @PostMapping("/createByCustomerStockOrder")
+    public BaseResponse createByCustomerStockOrder(@RequestBody CreatePurchaseOrderRequest request){
+        Session session = UserUtil.getSession(redisTemplate);
+        request.setPreview(true);
+        BaseResponse response = purchaseOrderService.customCreate(request,session);
+        if (response.getCode() == ResultCode.SUCCESS_CODE){
+            request.setPreview(false);
+            purchaseOrderService.customCreate(request,session);
+        }
+        return response;
     }
 
     @PostMapping("/completeInfo/{id}")

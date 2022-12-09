@@ -224,7 +224,7 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
                     BigDecimal.ZERO,
                     map.getKey(),
                     0, 0, session.getId(), 0);
-
+            purchaseOrder.setRelateId(request.getStockOrderId().toString());
             List<PurchaseOrderItem> purchaseItems = new ArrayList<>();
             Double purchaseQuantity = 0.0;
             for (AlibabaTradeFastCargo tradeFastCargo : tradeFastCargos) {

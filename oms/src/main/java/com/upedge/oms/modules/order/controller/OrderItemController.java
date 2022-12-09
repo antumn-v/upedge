@@ -86,8 +86,8 @@ public class OrderItemController {
     }
 
     @PostMapping("/purchaseItems")
-    public OrderItemPurchaseAdviceVo purchaseItems(){
-        return orderItemService.selectUnStockOrderItems();
+    public OrderItemPurchaseAdviceVo purchaseItems(@RequestBody OrderItemPurchaseAdviceDto orderItemPurchaseAdviceDto){
+        return orderItemService.selectUnStockOrderItems(orderItemPurchaseAdviceDto);
     }
 
     @PostMapping("/selectItemAdminVariantIds")

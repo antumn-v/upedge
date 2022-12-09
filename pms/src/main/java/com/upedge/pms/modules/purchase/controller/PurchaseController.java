@@ -42,8 +42,8 @@ public class PurchaseController {
 
     @ApiOperation("采购建议")
     @PostMapping("/adviceList")
-    public BaseResponse adviceList(){
-        return purchaseService.purchaseAdvice();
+    public BaseResponse adviceList(@RequestBody@Valid PurchaseAdviceRequest request){
+        return purchaseService.purchaseAdvice(request);
     }
 
     @ApiOperation("采购建议")

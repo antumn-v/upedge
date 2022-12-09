@@ -68,7 +68,7 @@ public interface OmsFeignClient  {
     public List<VariantPreSaleQuantity> selectVariantPreSaleQuantity(@RequestBody List<Long> variantIds);
 
     @PostMapping("/orderItem/purchaseItems")
-    public OrderItemPurchaseAdviceVo purchaseItems();
+    public OrderItemPurchaseAdviceVo purchaseItems(@RequestBody OrderItemPurchaseAdviceDto orderItemPurchaseAdviceDto);
 
     @PostMapping("/orderItem/selectItemAdminVariantIds")
     public List<Long> selectItemAdminVariantIds(@RequestBody OrderItemPurchaseAdviceDto orderItemPurchaseAdviceDto);

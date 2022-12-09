@@ -29,7 +29,7 @@ public class PurchaseAdviceItemVo {
 
     private Long customerId;
 
-    private String barcode;
+    private Long barcode;
 
     private Integer aliInventory;
 
