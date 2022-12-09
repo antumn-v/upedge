@@ -257,9 +257,6 @@ public class OrderFulfillmentServiceImpl implements OrderFulfillmentService {
         if(orderPackage == null){
             return false;
         }
-        if (orderPackage.getIsUploadStore()){
-            return true;
-        }
         Long packNo = orderPackage.getId();
         Long orderId = orderPackage.getOrderId();
         Order order = orderDao.selectByPrimaryKey(orderId);
@@ -281,6 +278,15 @@ public class OrderFulfillmentServiceImpl implements OrderFulfillmentService {
         if (StringUtils.isBlank(trackCode)){
             return false;
         }
+
+        if (orderPackage.getIsUploadStore()){
+            if (order.getShipState() == 0){
+                orderDao.updateOrderAsTracked(orderId,trackCode,trackingCodeType);
+            }
+            return true;
+        }
+
+
 
         List<StoreOrderRelate> storeOrderRelates = storeOrderRelateDao.selectByOrderId(orderId);
         try {

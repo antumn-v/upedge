@@ -1207,6 +1207,9 @@ public class OrderServiceImpl implements OrderService {
         Integer quotingItem = 0;
 
         for (StoreOrderItem item : storeOrderItems) {
+            if (item.getStoreVariantId() == null){
+                continue;
+            }
             //判断是否是拆分的变体
             List<Long> splitVariantIds = (List<Long>) redisTemplate.opsForHash().get(RedisKey.HASH_STORE_SPLIT_VARIANT, String.valueOf(item.getStoreVariantId()));
             if (ListUtils.isNotEmpty(splitVariantIds)) {
