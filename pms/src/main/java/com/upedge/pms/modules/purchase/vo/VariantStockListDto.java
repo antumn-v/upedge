@@ -5,6 +5,8 @@ import lombok.Data;
 @Data
 public class VariantStockListDto {
 
+    private Long customerId;
+
     private String variantSku;
 
     private String purchaseSku;

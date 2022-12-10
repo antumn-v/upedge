@@ -320,6 +320,10 @@
         from variant_warehouse_stock vws
         inner join product_variant pv
         on vws.variant_id = pv.id
+        <if test="t != null and t.customerId != null">
+            inner join customer_product_quote cpq
+            on cpq.variant_id = vws.variant_id
+        </if>
         <where>
             stock_state = '1'
             <if test="t.variantSku != null">
@@ -336,6 +340,9 @@
             </if>
             <if test="t.id != null">
                 and pv.id = #{t.id}
+            </if>
+            <if test="t.customerId != null">
+                and cpq.customer_id = #{t.customerId}
             </if>
         </where>
         order by available_stock desc
