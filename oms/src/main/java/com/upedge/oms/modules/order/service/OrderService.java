@@ -35,6 +35,8 @@ import java.util.Set;
  */
 public interface OrderService{
 
+    BaseResponse selectCustomerOrderCount(AppOrderListRequest request);
+
     BaseResponse syncUnpaidOrder(Long customerId);
 
     int updateTrackingCodeTypeById(Long id,Integer trackingCodeType);

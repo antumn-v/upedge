@@ -212,6 +212,12 @@ public class OrderController {
         return new OrderListResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS, map, appOrderListRequest);
     }
 
+    @ApiOperation("客户运输方式订单数量")
+    @PostMapping("/customerCount")
+    public BaseResponse customerShipMethodCount(@RequestBody AppOrderListRequest appOrderListRequest){
+        return orderService.selectCustomerOrderCount(appOrderListRequest);
+    }
+
 
     @PostMapping("/tagCount")
     public BaseResponse singleCount(@RequestBody AppOrderListRequest appOrderListRequest){

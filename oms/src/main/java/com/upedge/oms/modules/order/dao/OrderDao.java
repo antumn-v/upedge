@@ -39,6 +39,9 @@ import java.util.Set;
  */
 public interface OrderDao {
 
+    List<CustomerOrderCountVo> selectCustomerOrderCount(AppOrderListRequest request);
+    List<CustomerOrderCountVo> selectShipMethodOrderCount(AppOrderListRequest request);
+
     int initProductAmountByOrderId(Long orderId);
 
 

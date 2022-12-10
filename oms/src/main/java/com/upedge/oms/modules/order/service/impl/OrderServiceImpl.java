@@ -40,6 +40,7 @@ import com.upedge.common.model.tms.ShippingUnitVo;
 import com.upedge.common.model.tms.WarehouseVo;
 import com.upedge.common.model.user.vo.CustomerVo;
 import com.upedge.common.model.user.vo.Session;
+import com.upedge.common.model.user.vo.UserVo;
 import com.upedge.common.utils.DateTools;
 import com.upedge.common.utils.IdGenerate;
 import com.upedge.common.utils.ListUtils;
@@ -1343,6 +1344,34 @@ public class OrderServiceImpl implements OrderService {
 
     public static void main(String[] args) {
         System.out.println(Runtime.getRuntime().availableProcessors());
+    }
+
+    @Override
+    public BaseResponse selectCustomerOrderCount(AppOrderListRequest request) {
+        request.init();
+        List<CustomerOrderCountVo> customerOrderCountVos = orderDao.selectCustomerOrderCount(request);
+        List<CustomerOrderCountVo> shipMethodOrderCountVos = orderDao.selectShipMethodOrderCount(request);
+        for (CustomerOrderCountVo customerOrderCountVo : customerOrderCountVos) {
+
+            Long customerId = customerOrderCountVo.getCustomerId();
+            UserVo userVo = (UserVo) redisTemplate.opsForHash().get(RedisKey.STRING_CUSTOMER_INFO, String.valueOf(customerId));
+            if(userVo != null){
+                customerOrderCountVo.setUsername(userVo.getUsername());
+            }
+        }
+
+        for (CustomerOrderCountVo shipMethodOrderCountVo : shipMethodOrderCountVos) {
+            Long shipMethodId = shipMethodOrderCountVo.getActualShipMethodId();
+            ShippingMethodRedis shippingMethodRedis = (ShippingMethodRedis) redisTemplate.opsForHash().get(RedisKey.SHIPPING_METHOD, String.valueOf(shipMethodId));
+            if (null != shippingMethodRedis){
+                shipMethodOrderCountVo.setShipMethodName(shippingMethodRedis.getDesc());
+            }
+        }
+
+        Map<String,List<CustomerOrderCountVo>> map = new HashMap<>();
+        map.put("customer",customerOrderCountVos);
+        map.put("ship",shipMethodOrderCountVos);
+        return BaseResponse.success(map);
     }
 
     @Override

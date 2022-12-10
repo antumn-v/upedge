@@ -3,6 +3,7 @@ package com.upedge.oms.modules.order.request;
 import com.upedge.common.base.Page;
 import com.upedge.oms.modules.order.dto.AppOrderListDto;
 import lombok.Data;
+import org.apache.commons.lang3.StringUtils;
 
 @Data
 public class AppOrderListRequest extends Page<AppOrderListDto> {
@@ -52,6 +53,33 @@ public class AppOrderListRequest extends Page<AppOrderListDto> {
 //            this.setCondition("o.pay_state > 0 and o.ship_state != 1");
 //        }
         if (appOrderListDto.getTags().equals("REFUNDS")) {
+            appOrderListDto.setRefundState(null);
+            this.setCondition("o.refund_state > 0");
+        }
+
+        this.setT(appOrderListDto);
+    }
+
+    public void init(){
+        AppOrderListDto appOrderListDto = this.getT();
+        if (null == appOrderListDto) {
+            appOrderListDto = new AppOrderListDto();
+        } else {
+            appOrderListDto.initOrderState();
+        }
+//        if (null != appOrderListDto.getEndTime()){
+//            Date endTime = appOrderListDto.getEndTime();
+//            endTime = DateUtils.addDays(endTime,2);
+//            appOrderListDto.setEndTime(endTime);
+//        }
+
+        this.initFromNum();
+//        if (appOrderListDto.getTags().equals("PAID")) {
+//            appOrderListDto.setPayState(null);
+//            this.setCondition("o.pay_state > 0 and o.ship_state != 1");
+//        }
+        String tags = appOrderListDto.getTags();
+        if (StringUtils.isNotBlank(tags) && tags.equals("REFUNDS")) {
             appOrderListDto.setRefundState(null);
             this.setCondition("o.refund_state > 0");
         }

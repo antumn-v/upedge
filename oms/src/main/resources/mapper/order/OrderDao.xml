@@ -2629,4 +2629,31 @@
         where pay_state ='0'
         and order_type = '0'
     </select>
+
+    <select id="selectCustomerOrderCount" resultType="com.upedge.oms.modules.order.vo.CustomerOrderCountVo">
+        select customer_id as `customerId`,count(distinct o.id) as `total`
+        from `order` o
+        inner join store_order_relate r
+        on o.id = r.order_id
+        <if test="t != null and (t.productTitle != null or t.sku != null or t.barcode != null)">
+            inner join order_item oi
+            on oi.order_id = o.id
+        </if>
+        <include refid="App_Order_Condition"/>
+        group by customer_id
+        order by `total` desc
+    </select>
+    <select id="selectShipMethodOrderCount" resultType="com.upedge.oms.modules.order.vo.CustomerOrderCountVo">
+        select actual_ship_method_id as `actualShipMethodId`,count(distinct o.id) as `total`
+        from `order` o
+        inner join store_order_relate r
+        on o.id = r.order_id
+        <if test="t != null and (t.productTitle != null or t.sku != null or t.barcode != null)">
+            inner join order_item oi
+            on oi.order_id = o.id
+        </if>
+        <include refid="App_Order_Condition"/>
+        group by actual_ship_method_id
+        order by `total` desc
+    </select>
 </mapper>
