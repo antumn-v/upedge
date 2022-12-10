@@ -78,7 +78,7 @@ public class PurchaseOrderTrackingServiceImpl implements PurchaseOrderTrackingSe
         List<PurchaseOrderTracking> purchaseOrderTrackings = selectByOrderId(orderId);
         a:
         for (AlibabaLogisticsOpenPlatformLogisticsTrace alibabaLogisticsOpenPlatformLogisticsTrace : alibabaLogisticsOpenPlatformLogisticsTraces) {
-            String trackingCode = alibabaLogisticsOpenPlatformLogisticsTrace.getLogisticsId();
+            String trackingCode = alibabaLogisticsOpenPlatformLogisticsTrace.getLogisticsBillNo();
             if (alibabaLogisticsOpenPlatformLogisticsTrace.getLogisticsSteps() == null
             && alibabaLogisticsOpenPlatformLogisticsTrace.getLogisticsSteps().length == 0){
                 continue;

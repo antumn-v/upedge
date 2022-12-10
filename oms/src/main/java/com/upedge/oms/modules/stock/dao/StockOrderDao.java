@@ -18,7 +18,9 @@ import java.util.Set;
 /**
  * @author author
  */
-public interface StockOrderDao{
+public interface StockOrderDao {
+
+    int updatePurchaseInfo(@Param("id") Long id, @Param("purchaseIds") String purchaseIds, @Param("purchaseState") Integer purchaseState);
 
     List<Long> selectUploadSaiheFailedIds();
 
@@ -32,6 +34,7 @@ public interface StockOrderDao{
 
     /**
      * 根据交易id修改支付状态，无法修改已支付订单的交易状态
+     *
      * @param paymentId
      * @param payState
      * @return
@@ -51,7 +54,9 @@ public interface StockOrderDao{
 
     List<StockOrderVo> selectOrderByIds(@Param("ids") List<Long> ids);
 
-    /**修改订单支付状态，已支付的订单无法修改
+    /**
+     * 修改订单支付状态，已支付的订单无法修改
+     *
      * @param order
      * @return
      */
@@ -82,21 +87,27 @@ public interface StockOrderDao{
     long count(Page<StockOrder> record);
 
     List<AdminStockOrderVo> selectAdminStockOrderList(AdminStockOrderListRequest request);
+
     Long countAdminStockOrderList(AdminStockOrderListRequest request);
 
     //检查备库订单未同步的子体sku数量
     long countWithOutSaiheSku(Long id);
+
     //标记备库订单已上传赛盒
     int markStockOrder(Long id);
+
     //更新状态创建备库单成功
     void updateOrderStockedSuccess(StockOrder stockOrder);
+
     //备库单待同步赛盒产品SKU列表
     List<String> listVariantSkuForRefresh(Long id);
+
     //修改备库单为退款中
     Integer applyStockOrderRefund(Long id);
 
     /**
      * todo 备库订单状态改为 已付款
+     *
      * @param id
      * @return
      */
@@ -104,6 +115,7 @@ public interface StockOrderDao{
 
     /**
      * 修改备库订单状态
+     *
      * @param id
      * @param state
      * @return
@@ -112,12 +124,14 @@ public interface StockOrderDao{
 
     /**
      * 备库订单待处理
+     *
      * @return
      */
     long orderHandleImportData(@Param("userManager") String userManager);
 
     /**
      * 根据paymentId 查询支付号下的所有订单
+     *
      * @param paymentId
      * @return
      */

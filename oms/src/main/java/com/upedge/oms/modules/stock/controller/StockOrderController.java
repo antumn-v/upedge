@@ -296,4 +296,13 @@ public class StockOrderController {
         return stockOrderService.orderConfirmReceipt(stockOrderVo);
     }
 
+    @ApiOperation("创建采购订单")
+    @PostMapping("/createPurchaseOrder")
+    public BaseResponse createPurchaseOrder(@RequestBody List<Long> orderIds){
+        for (Long orderId : orderIds) {
+            stockOrderService.createPurchaseOrder(orderId);
+        }
+        return BaseResponse.success();
+    }
+
 }

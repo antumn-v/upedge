@@ -1,9 +1,6 @@
 package com.upedge.pms.modules.purchase.service.impl;
 
-import com.alibaba.trade.param.AlibabaCreateOrderPreviewResultCargoModel;
-import com.alibaba.trade.param.AlibabaCreateOrderPreviewResultModel;
-import com.alibaba.trade.param.AlibabaTradeFastCargo;
-import com.alibaba.trade.param.AlibabaTradeFastResult;
+import com.alibaba.trade.param.*;
 import com.upedge.common.base.BaseResponse;
 import com.upedge.common.constant.key.RedisKey;
 import com.upedge.common.exception.CustomerException;
@@ -93,7 +90,7 @@ public class PurchaseServiceImpl implements PurchaseService {
     public BaseResponse purchaseAdvice() {
         String warehouseCode = "CNHZ";
         redisTemplate.delete(RedisKey.HASH_PURCHASE_ADVICE_LIST);
-        OrderItemPurchaseAdviceVo purchaseAdviceVo = omsFeignClient.purchaseItems();
+        OrderItemPurchaseAdviceVo purchaseAdviceVo = omsFeignClient.purchaseItems(null);
         if (purchaseAdviceVo == null) {
             return BaseResponse.success(new ArrayList<>());
         }
@@ -122,28 +119,45 @@ public class PurchaseServiceImpl implements PurchaseService {
         variantIds.removeAll(shuntPurchaseVariantIds);
 
         List<PurchaseAdviceVo> adviceVos = getPurchaseAdvices(variantIds, warehouseCode, purchaseAdviceItemVos);
-//        Map<String,List<PurchaseAdviceVo>> map = new HashMap<>();
-//        CompletableFuture<Void> advice = CompletableFuture.runAsync(new Runnable() {
-//            @Override
-//            public void run() {
-//
-//                map.put("advice",adviceVos);
-//            }
-//        },threadPoolExecutor);
-//
-//        CompletableFuture<Void> cancel = CompletableFuture.runAsync(new Runnable() {
-//            @Override
-//            public void run() {
-//                List<PurchaseAdviceVo> adviceVos = getPurchaseAdvices(cancelPurchaseVariantIds,warehouseCode,purchaseAdviceItemVos);
-//                map.put("cancel",adviceVos);
-//            }
-//        },threadPoolExecutor);
-//
-//        try {
-//            CompletableFuture.allOf(advice,cancel).get();
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
+
+        return BaseResponse.success(adviceVos);
+    }
+
+    @Override
+    public BaseResponse purchaseAdvice(PurchaseAdviceRequest request) {
+        String warehouseCode = "CNHZ";
+        OrderItemPurchaseAdviceVo purchaseAdviceVo = omsFeignClient.purchaseItems(request);
+        if (purchaseAdviceVo == null) {
+            return BaseResponse.success(new ArrayList<>());
+        }
+
+        List<PurchaseAdviceItemVo> purchaseAdviceItemVos = purchaseAdviceVo.getPurchaseAdviceItemVos();
+        if (ListUtils.isNotEmpty(purchaseAdviceItemVos)) {
+            List<Long> planingVariantIds = purchasePlanService.selectPlaningVariantIds();
+            if (null == planingVariantIds) {
+                planingVariantIds = new ArrayList<>();
+            }
+            List<PurchaseAdviceItemVo> removeItems = new ArrayList<>();
+            for (PurchaseAdviceItemVo purchaseAdviceItemVo : purchaseAdviceItemVos) {
+                if (planingVariantIds.contains(purchaseAdviceItemVo.getVariantId())){
+                    removeItems.add(purchaseAdviceItemVo);
+                }
+            }
+            purchaseAdviceItemVos.removeAll(removeItems);
+        }
+
+        List<Long> variantIds = new ArrayList<>();
+        for (PurchaseAdviceItemVo purchaseAdviceItemVo : purchaseAdviceItemVos) {
+            variantIds.add(purchaseAdviceItemVo.getVariantId());
+        }
+
+
+        List<Long> cancelPurchaseVariantIds = redisTemplate.opsForList().range(RedisKey.STRING_VARIANT_CANCEL_PURCHASE_LIST, 0, -1);
+        List<Long> shuntPurchaseVariantIds = redisTemplate.opsForList().range(RedisKey.STRING_VARIANT_SHUNT_PURCHASE_LIST, 0, -1);
+        variantIds.removeAll(cancelPurchaseVariantIds);
+        variantIds.removeAll(shuntPurchaseVariantIds);
+
+        List<PurchaseAdviceVo> adviceVos = getPurchaseAdvices(variantIds, warehouseCode, purchaseAdviceItemVos);
 
         return BaseResponse.success(adviceVos);
     }
@@ -355,7 +369,8 @@ public class PurchaseServiceImpl implements PurchaseService {
         List<PurchaseOrderVo> purchaseOrderVos = new ArrayList<>();
         for (Map.Entry<String, List<AlibabaTradeFastCargo>> map : supplierCargosMap.entrySet()) {
             try {
-                List<AlibabaCreateOrderPreviewResultModel> previewResultModels = Ali1688Service.createOrderPreview(map.getValue(), alibabaApiVo);
+                AlibabaCreateOrderPreviewResult alibabaCreateOrderPreviewResult = Ali1688Service.createOrderPreview(map.getValue(), alibabaApiVo);
+                List<AlibabaCreateOrderPreviewResultModel> previewResultModels = Arrays.asList(alibabaCreateOrderPreviewResult.getOrderPreviewResuslt());
                 for (AlibabaCreateOrderPreviewResultModel previewResultModel : previewResultModels) {
                     PurchaseOrderVo purchaseOrderVo = new PurchaseOrderVo();
                     purchaseOrderVo.setShipPrice(new BigDecimal(previewResultModel.getSumCarriage() / 100));

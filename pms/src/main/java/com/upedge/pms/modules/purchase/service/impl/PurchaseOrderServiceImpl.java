@@ -138,7 +138,7 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
         if (ListUtils.isEmpty(createPurchaseOrderDtos)){
             return BaseResponse.failed();
         }
-
+        Long stockOrderId = request.getStockOrderId();
         Map<Long,Integer> variantQuantityMap = new HashMap<>();
         List<Long> variantIds = new ArrayList<>();
         for (CreatePurchaseOrderDto createPurchaseOrderDto : createPurchaseOrderDtos) {
@@ -165,6 +165,7 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
             }
             purchaseSkus.add(productVariant.getPurchaseSku());
             skuVariantMap.put(productPurchaseInfo.getSpecId() + productPurchaseInfo.getPurchaseLink(), productVariant);
+            productPurchaseInfos.add(productPurchaseInfo);
         }
 
         boolean isPreview = request.isPreview();
@@ -204,6 +205,7 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
                     if (!previewResult.getSuccess()){
                         return BaseResponse.failed(previewResult.getErrorMsg());
                     }else {
+                        stringBuffer = stringBuffer.append(",").append(id);
                         continue;
                     }
                 }else {
@@ -215,7 +217,7 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
             if (alibabaTradeFastResult == null){
                 return BaseResponse.failed("采购单创建异常");
             }
-
+            redisTemplate.opsForHash().put(RedisKey.HASH_CUSTOMER_STOCK_RELATE_PURCHASE,stockOrderId.toString(),id);
             PurchaseOrder purchaseOrder = new PurchaseOrder(id,
                     alibabaTradeFastResult.getOrderId(),
                     BigDecimal.ZERO,

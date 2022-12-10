@@ -157,4 +157,6 @@ public class RedisKey {
     public static final String HASH_VARIANT_WAREHOUSE_STOCK = "variant:stock:warehouse:";
     //备库建议列表
     public static final String HASH_PURCHASE_ADVICE_LIST = "purchase:advice:list:cache";
+    //客户备库订单和采购订单关联
+    public static final String HASH_CUSTOMER_STOCK_RELATE_PURCHASE = "customer:stock:relate:purchase";
 }

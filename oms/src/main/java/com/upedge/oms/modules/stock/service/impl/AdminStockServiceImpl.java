@@ -45,10 +45,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.LinkedHashMap;
-import java.util.List;
+import java.util.*;
 
 @Service
 @Slf4j
@@ -97,6 +94,19 @@ public class AdminStockServiceImpl implements AdminStockService {
         stockOrder.setRefundState(0);
 
         List<AdminStockOrderVo> results = stockOrderDao.selectAdminStockOrderList(request);
+        for (AdminStockOrderVo result : results) {
+            String purchaseOrderIds = result.getPurchaseOrderIds();
+            if (StringUtils.isBlank(purchaseOrderIds)){
+                continue;
+            }
+            List<String> purchaseIds = new ArrayList<>();
+            if (purchaseOrderIds.contains(",")){
+                purchaseIds = Arrays.asList(purchaseOrderIds.split(","));
+            }else {
+                purchaseIds.add(purchaseOrderIds);
+            }
+            result.setPurchaseIds(purchaseIds);
+        }
         Long total = stockOrderDao.countAdminStockOrderList(request);
         request.setTotal(total);
         StockOrderListResponse res = new StockOrderListResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS,results,request);

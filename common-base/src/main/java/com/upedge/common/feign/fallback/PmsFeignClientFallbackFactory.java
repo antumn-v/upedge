@@ -29,6 +29,11 @@ public class PmsFeignClientFallbackFactory implements FallbackFactory<PmsFeignCl
     public PmsFeignClient create(Throwable cause) {
         return new PmsFeignClient() {
             @Override
+            public BaseResponse createByCustomerStockOrder(CreatePurchaseOrderRequest request) {
+                return BaseResponse.failed("system error");
+            }
+
+            @Override
             public int orderCancelShip(OrderItemQuantityVo orderItemQuantityVo) {
                 return 0;
             }

@@ -76,6 +76,12 @@ public class AdminStockOrderVo {
      */
     private String saiheCode;
 
+    private Integer purchaseState;
+
+    private String purchaseOrderIds;
+
     private List<AdminStockOrderItemVo> items;
+
+    private List<String> purchaseIds;
 
 }

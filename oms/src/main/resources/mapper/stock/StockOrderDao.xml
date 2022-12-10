@@ -71,6 +71,8 @@
         <result property="saiheState" column="saihe_state"/>
         <result property="managerCode" column="manager_code"/>
         <result property="saiheCode" column="saihe_code"/>
+        <result property="purchaseState" column="purchase_state"/>
+        <result property="purchaseOrderIds" column="purchase_order_ids"/>
         <collection property="items" ofType="com.upedge.oms.modules.stock.vo.AdminStockOrderItemVo">
             <result property="id" column="itemId"/>
             <result property="productId" column="product_id"/>
@@ -667,6 +669,8 @@
         o.saihe_state,
         o.manager_code,
         o.saihe_code,
+        o.purchase_state,
+        o.purchase_order_ids,
         item.id as itemId,
         item.product_id,
         item.order_id,
@@ -874,4 +878,12 @@
         order by pay_time desc
         limit 20
     </select>
+
+    <update id="updatePurchaseInfo">
+        update stock_order
+            set purchase_order_ids = #{purchaseIds},
+                purchase_state = #{purchaseState}
+        where id = #{id}
+        and pay_state = '1';
+    </update>
 </mapper>

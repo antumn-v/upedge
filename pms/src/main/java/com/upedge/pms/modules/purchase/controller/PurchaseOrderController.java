@@ -135,8 +135,8 @@ public class PurchaseOrderController {
         request.setPreview(true);
         BaseResponse response = purchaseOrderService.customCreate(request,session);
         if (response.getCode() == ResultCode.SUCCESS_CODE){
-            request.setPreview(false);
-            purchaseOrderService.customCreate(request,session);
+//            request.setPreview(false);
+//            purchaseOrderService.customCreate(request,session);
         }
         return response;
     }

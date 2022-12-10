@@ -473,23 +473,23 @@ public class Ali1688Service {
 
 
     public static void main(String[] args) {
-//        List<AlibabaLogisticsOpenPlatformLogisticsTrace> alibabaLogisticsOpenPlatformLogisticsTraces = null;
-//        try {
-//            alibabaLogisticsOpenPlatformLogisticsTraces = orderShipDetail(2770474212376530454L,null);
-//        } catch (CustomerException e) {
-//            e.printStackTrace();
-//        }
-//        System.out.println(alibabaLogisticsOpenPlatformLogisticsTraces);
-
+        List<AlibabaLogisticsOpenPlatformLogisticsTrace> alibabaLogisticsOpenPlatformLogisticsTraces = null;
         try {
-            AlibabaOpenplatformTradeModelTradeInfo alibabaOpenplatformTradeModelTradeInfo = orderDetail(3032043950842530454L,null);
-            AlibabaOpenplatformTradeModelProductItemInfo[] alibabaOpenplatformTradeModelProductItemInfos = alibabaOpenplatformTradeModelTradeInfo.getProductItems();
-            for (AlibabaOpenplatformTradeModelProductItemInfo alibabaOpenplatformTradeModelProductItemInfo : alibabaOpenplatformTradeModelProductItemInfos) {
-                System.out.println(alibabaOpenplatformTradeModelProductItemInfo.getSpecId() + "---->" + alibabaOpenplatformTradeModelProductItemInfo.getProductID());
-            }
+            alibabaLogisticsOpenPlatformLogisticsTraces = orderShipDetail(3079616906399530454L,null);
         } catch (CustomerException e) {
             e.printStackTrace();
         }
+        System.out.println(alibabaLogisticsOpenPlatformLogisticsTraces);
+
+//        try {
+//            AlibabaOpenplatformTradeModelTradeInfo alibabaOpenplatformTradeModelTradeInfo = orderDetail(3079616906399530454L,null);
+//            AlibabaOpenplatformTradeModelProductItemInfo[] alibabaOpenplatformTradeModelProductItemInfos = alibabaOpenplatformTradeModelTradeInfo.getProductItems();
+//            for (AlibabaOpenplatformTradeModelProductItemInfo alibabaOpenplatformTradeModelProductItemInfo : alibabaOpenplatformTradeModelProductItemInfos) {
+//                System.out.println(alibabaOpenplatformTradeModelProductItemInfo.getSpecId() + "---->" + alibabaOpenplatformTradeModelProductItemInfo.getProductID());
+//            }
+//        } catch (CustomerException e) {
+//            e.printStackTrace();
+//        }
 
 //        AlibabaOpenplatformTradeModelTradeInfo alibabaOpenplatformTradeModelTradeInfo = null;
 //        try {

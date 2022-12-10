@@ -20,6 +20,8 @@ import com.upedge.common.model.oms.stock.StockOrderVo;
 import com.upedge.common.model.order.PaymentDetail;
 import com.upedge.common.model.order.TransactionDetail;
 import com.upedge.common.model.order.request.CustomerOrderDailyCountUpdateRequest;
+import com.upedge.common.model.pms.dto.CreatePurchaseOrderDto;
+import com.upedge.common.model.pms.request.CreatePurchaseOrderRequest;
 import com.upedge.common.model.product.ListVariantsRequest;
 import com.upedge.common.model.product.VariantDetail;
 import com.upedge.common.model.product.VariantQuantity;
@@ -140,6 +142,31 @@ public class StockOrderServiceImpl implements StockOrderService {
     @Override
     public int insertSelective(StockOrder record) {
         return stockOrderDao.insert(record);
+    }
+
+    @Override
+    public BaseResponse createPurchaseOrder(Long orderId) {
+        StockOrder stockOrder = selectByPrimaryKey(orderId);
+        if (stockOrder == null || stockOrder.getPayState() != 1 || stockOrder.getPurchaseState() != 0){
+            return BaseResponse.failed();
+        }
+
+        List<StockOrderItem> stockOrderItems = stockOrderItemDao.listOrderItemByOrderId(orderId);
+        List<CreatePurchaseOrderDto> createPurchaseOrderDtos = new ArrayList<>();
+        for (StockOrderItem stockOrderItem : stockOrderItems) {
+            CreatePurchaseOrderDto createPurchaseOrderDto = new CreatePurchaseOrderDto();
+            createPurchaseOrderDto.setQuantity(stockOrderItem.getQuantity());
+            createPurchaseOrderDto.setVariantId(stockOrderItem.getVariantId());
+            createPurchaseOrderDtos.add(createPurchaseOrderDto);
+        }
+        CreatePurchaseOrderRequest createPurchaseOrderRequest = new CreatePurchaseOrderRequest();
+        createPurchaseOrderRequest.setCreatePurchaseOrderDtos(createPurchaseOrderDtos);
+        createPurchaseOrderRequest.setStockOrderId(orderId);
+        BaseResponse response = pmsFeignClient.createByCustomerStockOrder(createPurchaseOrderRequest);
+        if (response.getCode() == ResultCode.SUCCESS_CODE){
+            stockOrderDao.updatePurchaseInfo(orderId,response.getData().toString(),1);
+        }
+        return response;
     }
 
     @Override
@@ -527,6 +554,8 @@ public class StockOrderServiceImpl implements StockOrderService {
         customerOrderDailyCountUpdateRequest.setPaymentId(paymentId);
         customerOrderDailyCountUpdateRequest.setPayTime(payTime);
         orderDailyPayCountService.updateCustomerOrderDailyCount(customerOrderDailyCountUpdateRequest);
+
+
         //保存交易流水
         PaymentDetail detail = new PaymentDetail();
         detail.setPaymentId(paymentId);
@@ -536,7 +565,7 @@ public class StockOrderServiceImpl implements StockOrderService {
         detail.setPayAmount(amount);
         detail.setOrderType(OrderType.STOCK);
         detail.setPayTime(payTime);
-        sendSavePaymentDetailMessage(detail);
+        umsFeignClient.saveTransactionDetails(detail);
         return detail;
     }
 
