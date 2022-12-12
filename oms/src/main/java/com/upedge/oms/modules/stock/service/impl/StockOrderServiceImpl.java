@@ -565,7 +565,7 @@ public class StockOrderServiceImpl implements StockOrderService {
         detail.setPayAmount(amount);
         detail.setOrderType(OrderType.STOCK);
         detail.setPayTime(payTime);
-        umsFeignClient.saveTransactionDetails(detail);
+        sendSavePaymentDetailMessage(detail);
         return detail;
     }
 

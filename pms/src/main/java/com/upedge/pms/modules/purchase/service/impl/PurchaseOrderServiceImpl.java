@@ -420,25 +420,26 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
         purchaseOrder.setDiscountAmount(new BigDecimal(baseInfo.getDiscount()));
         purchaseOrder.setUpdateTime(new Date());
         AlibabaOpenplatformTradeModelNativeLogisticsInfo alibabaOpenplatformTradeModelNativeLogisticsInfo = alibabaOpenplatformTradeModelTradeInfo.getNativeLogistics();
-        if (alibabaOpenplatformTradeModelNativeLogisticsInfo != null) {
+        if (alibabaOpenplatformTradeModelNativeLogisticsInfo != null && alibabaOpenplatformTradeModelNativeLogisticsInfo.getLogisticsItems() != null) {
             List<AlibabaOpenplatformTradeModelNativeLogisticsItemsInfo> logisticsItemsInfos = Arrays.asList(alibabaOpenplatformTradeModelNativeLogisticsInfo.getLogisticsItems());
             if (ListUtils.isNotEmpty(logisticsItemsInfos)) {
                 List<PurchaseOrderTracking> orderTrackingList = new ArrayList<>();
                 StringBuffer code = new StringBuffer();
                 for (int i = 0; i < logisticsItemsInfos.size(); i++) {
                     AlibabaOpenplatformTradeModelNativeLogisticsItemsInfo logisticsItemsInfo = logisticsItemsInfos.get(i);
-                    if (logisticsItemsInfo.getLogisticsCode() == null){
+                    String logisticsBillNo = logisticsItemsInfo.getLogisticsBillNo();
+                    if (logisticsBillNo == null){
                         continue;
                     }
                     if (code == null) {
-                        code = code.append(logisticsItemsInfo.getLogisticsCode());
+                        code = code.append(logisticsBillNo);
                     } else {
-                        code = code.append(",").append(logisticsItemsInfo.getLogisticsCode());
+                        code = code.append(",").append(logisticsBillNo);
                     }
-                    if (trackingCode.contains(logisticsItemsInfo.getLogisticsCode())) {
+                    if (trackingCode.contains(logisticsBillNo)) {
                         continue;
                     }
-                    PurchaseOrderTracking purchaseOrderTracking = new PurchaseOrderTracking(id, purchaseId, logisticsItemsInfo.getLogisticsCode(), logisticsItemsInfo.getLogisticsCompanyName());
+                    PurchaseOrderTracking purchaseOrderTracking = new PurchaseOrderTracking(id, purchaseId, logisticsBillNo, logisticsItemsInfo.getLogisticsCompanyName());
                     purchaseOrderTracking.setUpdateTime(logisticsItemsInfo.getDeliveredTime());
                     orderTrackingList.add(purchaseOrderTracking);
                 }

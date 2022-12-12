@@ -185,6 +185,10 @@ public class OrderController {
             if (session.getApplicationId() == Constant.APP_APPLICATION_ID){
                 request.init(session.getCustomerId());
             }
+            if (tag.name().equals("REFUNDS")){
+                request.getT().setRefundState(null);
+                request.setCondition("o.refund_state > 0");;
+            }
             Long total = orderService.selectAppOrderCount(request);
             map.put(tag.name(), total);
 //            threadPoolExecutor.submit(new Callable<Boolean>() {

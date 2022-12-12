@@ -91,6 +91,14 @@ public class PurchaseOrderController {
         return purchaseOrderService.refreshFrom1688(id);
     }
 
+    @PostMapping("/refreshAll")
+    public BaseResponse refreshAll(@RequestBody List<Long> ids){
+        for (Long id : ids) {
+            purchaseOrderService.refreshFrom1688(id);
+        }
+        return BaseResponse.success();
+    }
+
     @ApiOperation("销单入库")
     @PostMapping("/receive")
     public BaseResponse orderReceive(@RequestBody@Valid PurchaseOrderReceiveRequest request){
