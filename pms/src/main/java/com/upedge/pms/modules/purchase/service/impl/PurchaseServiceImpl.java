@@ -11,6 +11,7 @@ import com.upedge.common.model.pms.vo.PurchaseAdviceItemVo;
 import com.upedge.common.model.pms.vo.PurchaseAdviceVo;
 import com.upedge.common.model.product.AlibabaApiVo;
 import com.upedge.common.model.user.vo.Session;
+import com.upedge.common.model.user.vo.UserVo;
 import com.upedge.common.utils.IdGenerate;
 import com.upedge.common.utils.ListUtils;
 import com.upedge.pms.modules.product.entity.ProductVariant;
@@ -19,6 +20,7 @@ import com.upedge.pms.modules.purchase.entity.*;
 import com.upedge.pms.modules.purchase.request.PurchaseAdviceRequest;
 import com.upedge.pms.modules.purchase.request.PurchaseOrderCreateRequest;
 import com.upedge.pms.modules.purchase.service.*;
+import com.upedge.pms.modules.purchase.vo.CustomerPurchaseCountVo;
 import com.upedge.pms.modules.purchase.vo.PurchaseOrderVo;
 import com.upedge.thirdparty.ali1688.service.Ali1688Service;
 import org.apache.commons.collections.MapUtils;
@@ -63,6 +65,54 @@ public class PurchaseServiceImpl implements PurchaseService {
     @Autowired
     ThreadPoolExecutor threadPoolExecutor;
 
+
+    @Override
+    public BaseResponse customerPurchaseCount() {
+        OrderItemPurchaseAdviceVo purchaseAdviceVo = omsFeignClient.purchaseItems(new OrderItemPurchaseAdviceDto());
+        if (purchaseAdviceVo == null) {
+            return BaseResponse.success(new ArrayList<>());
+        }
+        Map<Long, CustomerPurchaseCountVo> customerPurchaseCountVoMap = new HashMap<>();
+        List<PurchaseAdviceItemVo> purchaseAdviceItemVos = purchaseAdviceVo.getPurchaseAdviceItemVos();
+        if (ListUtils.isEmpty(purchaseAdviceItemVos)){
+            return BaseResponse.success(new ArrayList<>());
+        }
+        List<Long> planingVariantIds = purchasePlanService.selectPlaningVariantIds();
+        for (PurchaseAdviceItemVo purchaseAdviceItemVo : purchaseAdviceItemVos) {
+            Long variantId = purchaseAdviceItemVo.getVariantId();
+            if (planingVariantIds.contains(variantId)){
+                continue;
+            }
+            Long customerId = purchaseAdviceItemVo.getCustomerId();
+
+            CustomerPurchaseCountVo customerPurchaseCountVo = customerPurchaseCountVoMap.get(customerId);
+            if (customerPurchaseCountVo == null){
+                UserVo userVo = (UserVo) redisTemplate.opsForHash().get(RedisKey.STRING_CUSTOMER_INFO,customerId.toString());
+                customerPurchaseCountVo = new CustomerPurchaseCountVo();
+                customerPurchaseCountVo.setUsername(userVo.getUsername());
+                customerPurchaseCountVo.setCustomerId(customerId);
+                customerPurchaseCountVo.setTotal(0);
+                customerPurchaseCountVoMap.put(customerId,customerPurchaseCountVo);
+            }
+
+            Integer total = customerPurchaseCountVo.getTotal() + purchaseAdviceItemVo.getOrderQuantity();
+            VariantWarehouseStock variantWarehouseStock = variantWarehouseStockService.selectByPrimaryKey(variantId,"CNHZ");
+            if (variantWarehouseStock != null){
+                total = total- variantWarehouseStock.getPurchaseStock() - variantWarehouseStock.getAvailableStock() ;
+            }
+
+            customerPurchaseCountVo.setTotal(total);
+        }
+
+        List<CustomerPurchaseCountVo> customerPurchaseCountVos = new ArrayList<>();
+        customerPurchaseCountVoMap.forEach((customerId,itemVo) -> {
+            if (itemVo.getTotal() > 0){
+                customerPurchaseCountVos.add(itemVo);
+            }
+        });
+
+        return BaseResponse.success(customerPurchaseCountVos);
+    }
 
     @Override
     public BaseResponse cancelPurchase(List<Long> variantIds, Session session) {

@@ -314,7 +314,7 @@
     </update>
 
     <select id="selectVariantStocks" resultType="com.upedge.pms.modules.purchase.vo.VariantWarehouseStockVo" parameterType="com.upedge.pms.modules.purchase.request.VariantStockListRequest">
-        select vws.`variant_id`,vws.`safe_stock`,vws.`warehouse_code`,vws.`stock_scale`,vws.`available_stock`,
+        select distinct vws.`variant_id`,vws.`safe_stock`,vws.`warehouse_code`,vws.`stock_scale`,vws.`available_stock`,
         vws.`lock_stock`,vws.`purchase_stock`,vws.`remark`,vws.`shelf_num`,vws.`update_time`,
         pv.cn_name,pv.purchase_sku,pv.variant_sku,pv.variant_image,pv.barcode
         from variant_warehouse_stock vws
@@ -345,17 +345,20 @@
                 and cpq.customer_id = #{t.customerId}
             </if>
         </where>
-        order by available_stock desc
         <if test="pageNum != null and pageSize != null">
             limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
         </if>
     </select>
 
     <select id="countVariantStocks" resultType="java.lang.Long" parameterType="com.upedge.pms.modules.purchase.request.VariantStockListRequest">
-        select count(pv.id)
+        select count(distinct pv.id)
             from variant_warehouse_stock vws
         inner join product_variant pv
         on vws.variant_id = pv.id
+        <if test="t != null and t.customerId != null">
+            inner join customer_product_quote cpq
+            on cpq.variant_id = vws.variant_id
+        </if>
         <where>
             stock_state = '1'
             <if test="t.variantSku != null">
@@ -369,6 +372,9 @@
             </if>
             <if test="t.id != null">
                 and pv.id = #{id}
+            </if>
+            <if test="t.customerId != null">
+                and cpq.customer_id = #{t.customerId}
             </if>
         </where>
     </select>

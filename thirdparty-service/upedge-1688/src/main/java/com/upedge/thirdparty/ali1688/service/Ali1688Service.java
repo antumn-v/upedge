@@ -336,6 +336,17 @@ public class Ali1688Service {
 
     }
 
+    private static List<AlibabaTradeReceiveAddressItem> getAlibabaAddresses(){
+
+        AlibabaTradeReceiveAddressGetParam param = new AlibabaTradeReceiveAddressGetParam();
+
+        ApiExecutor apiExecutor = new ApiExecutor("7715698", "DUE2C3KM9s");
+        SDKResult<AlibabaTradeReceiveAddressGetResult> sdkResult =
+                apiExecutor.execute(param, "e000f7e2-1353-4324-ac1e-b69b8fe80dcd");
+        AlibabaTradeReceiveAddressResult result= sdkResult.getResult().getResult();
+        return Arrays.asList(result.getReceiveAddressItems());
+    }
+
     /**
      * 加入产品铺货列表
      */
@@ -395,7 +406,7 @@ public class Ali1688Service {
         addressParam.setCityText("金华市");
         addressParam.setAreaText("义乌市");
         addressParam.setTownText("后宅街道");
-        addressParam.setAddress("遗安二区42幢1单元三楼");
+        addressParam.setAddress("柳青路1568号2栋7层");
         addressParam.setPhone("13751135729");
 
         AlibabaTradeFastCreateOrderParam createOrderPreviewParam = new AlibabaTradeFastCreateOrderParam();
@@ -473,13 +484,15 @@ public class Ali1688Service {
 
 
     public static void main(String[] args) {
-        List<AlibabaLogisticsOpenPlatformLogisticsTrace> alibabaLogisticsOpenPlatformLogisticsTraces = null;
-        try {
-            alibabaLogisticsOpenPlatformLogisticsTraces = orderShipDetail(3079616906399530454L,null);
-        } catch (CustomerException e) {
-            e.printStackTrace();
-        }
-        System.out.println(alibabaLogisticsOpenPlatformLogisticsTraces);
+//        List<AlibabaLogisticsOpenPlatformLogisticsTrace> alibabaLogisticsOpenPlatformLogisticsTraces = null;
+//        try {
+//            alibabaLogisticsOpenPlatformLogisticsTraces = orderShipDetail(3079616906399530454L,null);
+//        } catch (CustomerException e) {
+//            e.printStackTrace();
+//        }
+//        System.out.println(alibabaLogisticsOpenPlatformLogisticsTraces);
+
+        System.out.println(getAlibabaAddresses());
 
 //        try {
 //            AlibabaOpenplatformTradeModelTradeInfo alibabaOpenplatformTradeModelTradeInfo = orderDetail(3079616906399530454L,null);

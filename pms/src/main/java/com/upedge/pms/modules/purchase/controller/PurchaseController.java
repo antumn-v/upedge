@@ -52,6 +52,12 @@ public class PurchaseController {
         return purchaseService.purchaseAdviceCache(request);
     }
 
+    @ApiOperation("客户待备库产品数量")
+    @PostMapping("/customerCount")
+    public BaseResponse customerPurchaseCount(){
+        return purchaseService.customerPurchaseCount();
+    }
+
     @ApiOperation("取消采购")
     @PostMapping("/cancel")
     public BaseResponse cancelPurchase(@RequestBody List<Long> variantIds){

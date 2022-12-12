@@ -13,5 +13,7 @@ public class CustomerOrderCountVo {
 
     private String shipMethodName;
 
+    private Integer pickType;
+
     private Long total;
 }

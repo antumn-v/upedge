@@ -10,6 +10,8 @@ import java.util.List;
 
 public interface PurchaseService {
 
+    BaseResponse customerPurchaseCount();
+
     BaseResponse cancelPurchase(List<Long> variantIds,Session session);
 
     BaseResponse restorePurchase(List<Long> variantIds,Session session);

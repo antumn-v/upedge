@@ -1351,6 +1351,7 @@ public class OrderServiceImpl implements OrderService {
         request.init();
         List<CustomerOrderCountVo> customerOrderCountVos = orderDao.selectCustomerOrderCount(request);
         List<CustomerOrderCountVo> shipMethodOrderCountVos = orderDao.selectShipMethodOrderCount(request);
+        List<CustomerOrderCountVo> pickTypeCountVos = orderDao.selectPickTypeCount(request);
         for (CustomerOrderCountVo customerOrderCountVo : customerOrderCountVos) {
 
             Long customerId = customerOrderCountVo.getCustomerId();
@@ -1371,6 +1372,7 @@ public class OrderServiceImpl implements OrderService {
         Map<String,List<CustomerOrderCountVo>> map = new HashMap<>();
         map.put("customer",customerOrderCountVos);
         map.put("ship",shipMethodOrderCountVos);
+        map.put("pickType",pickTypeCountVos);
         return BaseResponse.success(map);
     }
 
