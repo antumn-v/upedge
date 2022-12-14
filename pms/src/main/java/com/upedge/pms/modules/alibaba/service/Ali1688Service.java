@@ -304,6 +304,15 @@ public class Ali1688Service {
         return alibabaProductVo;
     }
 
+    public static ProductInfo getProductWithoutTranslate(String alibabaProductId, AlibabaApiVo alibabaApiVo) {
+        ProductInfo productInfo = getAlibabaProductDetail(alibabaProductId, alibabaApiVo);
+        if (productInfo == null) {
+            return null;
+        }
+
+        return productInfo;
+    }
+
     /**
      * 通过1688产品id获取产品信息
      */

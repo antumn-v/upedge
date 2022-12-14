@@ -1,9 +1,15 @@
 package com.upedge.pms.modules.purchase.service.impl;
 
 import com.upedge.common.base.Page;
+import com.upedge.common.constant.key.RedisKey;
 import com.upedge.common.model.pms.dto.VariantPurchaseInfoDto;
+import com.upedge.common.model.product.AlibabaApiVo;
 import com.upedge.common.utils.ListUtils;
 import com.upedge.common.utils.UrlUtils;
+import com.upedge.common.web.util.RedisUtil;
+import com.upedge.pms.modules.alibaba.entity.product.ProductInfo;
+import com.upedge.pms.modules.alibaba.entity.product.ProductSKUInfo;
+import com.upedge.pms.modules.alibaba.service.Ali1688Service;
 import com.upedge.pms.modules.product.service.ProductService;
 import com.upedge.pms.modules.purchase.dao.ProductPurchaseInfoDao;
 import com.upedge.pms.modules.purchase.dto.OfferInventoryChangeListDTO;
@@ -11,6 +17,7 @@ import com.upedge.pms.modules.purchase.entity.ProductPurchaseInfo;
 import com.upedge.pms.modules.purchase.service.ProductPurchaseInfoService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,6 +34,9 @@ public class ProductPurchaseInfoServiceImpl implements ProductPurchaseInfoServic
 
     @Autowired
     ProductService productService;
+
+    @Autowired
+    RedisTemplate redisTemplate;
 
 
 
@@ -62,6 +72,28 @@ public class ProductPurchaseInfoServiceImpl implements ProductPurchaseInfoServic
     @Transactional
     public int insertSelective(ProductPurchaseInfo record) {
         return productPurchaseInfoDao.insert(record);
+    }
+
+    @Override
+    public void refreshAlibabaProductInventory(String productLink) {
+        String key = "key:1688product:refresh:inventory:" + productLink;
+        boolean b = RedisUtil.lock(redisTemplate,key,0L,10 * 60 * 1000L);
+        if (!b){
+            return;
+        }
+        AlibabaApiVo alibabaApiVo = (AlibabaApiVo) redisTemplate.opsForValue().get(RedisKey.STRING_ALI1688_API);
+        ProductInfo productInfo = Ali1688Service.getProductWithoutTranslate(productLink,alibabaApiVo);
+        if (productInfo == null){
+            return;
+        }
+        List<ProductSKUInfo> skuInfos = productInfo.getSkuInfos();
+        if (ListUtils.isEmpty(skuInfos)){
+            return;
+        }
+        for (ProductSKUInfo skuInfo : skuInfos) {
+            productPurchaseInfoDao.updateInventory(skuInfo.getSkuId(),productLink,skuInfo.getAmountOnSale());
+        }
+
     }
 
     @Override
