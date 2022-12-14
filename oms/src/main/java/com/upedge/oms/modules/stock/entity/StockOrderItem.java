@@ -67,4 +67,10 @@ public class StockOrderItem{
 
 	private String warehouseCode;
 
+	private String barcode;
+
+	private String purchaseSku;
+
+	private String supplierName;
+
 }

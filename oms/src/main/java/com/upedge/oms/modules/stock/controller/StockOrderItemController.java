@@ -1,6 +1,7 @@
 package com.upedge.oms.modules.stock.controller;
 
 import com.upedge.common.base.BaseResponse;
+import com.upedge.common.model.pms.dto.VariantPurchaseInfoDto;
 import com.upedge.oms.modules.stock.request.StockOrderItemUpdatePurchaseNoRequest;
 import com.upedge.oms.modules.stock.service.StockOrderItemService;
 import com.upedge.oms.modules.stock.service.StockOrderService;
@@ -32,6 +33,11 @@ public class StockOrderItemController {
     @PostMapping("/updatePurchaseNo")
     public BaseResponse updateItemPurchaseNo(@RequestBody @Valid StockOrderItemUpdatePurchaseNoRequest request){
         return stockOrderService.updateOrderItemPurchaseNo(request);
+    }
+
+    @PostMapping("/updatePurchaseInfo")
+    public int updatePurchaseInfo(@RequestBody VariantPurchaseInfoDto variantPurchaseInfoDto){
+        return stockOrderItemService.updatePurchaseInfo(variantPurchaseInfoDto.getVariantId(), variantPurchaseInfoDto.getPurchaseSku(), variantPurchaseInfoDto.getSupplierName());
     }
 
 }

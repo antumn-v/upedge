@@ -2,8 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="com.upedge.pms.modules.purchase.dao.ProductPurchaseInfoDao">
-
-	<!-- 可根据自己的需求，是否要使用 -->
+    <!-- 可根据自己的需求，是否要使用 -->
     <resultMap type="com.upedge.pms.modules.purchase.entity.ProductPurchaseInfo" id="BaseResultMap">
         <result property="purchaseSku" column="purchase_sku"/>
         <result property="purchaseLink" column="purchase_link"/>
@@ -17,18 +16,21 @@
     </resultMap>
 
     <sql id="Base_Column_List">
-        `purchase_sku`,`purchase_link`,`supplier_name`,`spec_id`,`variant_name`,`variant_image`,`inventory`
+        `purchase_sku`
+                ,`purchase_link`,`supplier_name`,`spec_id`,`variant_name`,`variant_image`,`inventory`
     </sql>
 
-    <select id="selectByPrimaryKey" parameterType="com.upedge.pms.modules.purchase.entity.ProductPurchaseInfo" resultMap="BaseResultMap">
+    <select id="selectByPrimaryKey" parameterType="com.upedge.pms.modules.purchase.entity.ProductPurchaseInfo"
+            resultMap="BaseResultMap">
         select
-        <include refid="Base_Column_List" />
+        <include refid="Base_Column_List"/>
         from product_purchase_info
         where purchase_sku = #{purchaseSku}
     </select>
 
     <delete id="deleteByPrimaryKey" parameterType="com.upedge.pms.modules.purchase.entity.ProductPurchaseInfo">
-        delete from product_purchase_info
+        delete
+        from product_purchase_info
         where purchase_sku = #{purchaseSku}
     </delete>
 
@@ -66,17 +68,18 @@
     <update id="updateByPrimaryKey" parameterType="com.upedge.pms.modules.purchase.entity.ProductPurchaseInfo">
         update product_purchase_info
         <set>
-        purchase_sku = #{purchaseSku},
-        purchase_link = #{purchaseLink},
-        supplier_name = #{supplierName},
-        spec_id = #{specId},
-        variant_name = #{variantName},
-        variant_image = #{variantImage},
+            purchase_sku = #{purchaseSku},
+            purchase_link = #{purchaseLink},
+            supplier_name = #{supplierName},
+            spec_id = #{specId},
+            variant_name = #{variantName},
+            variant_image = #{variantImage},
         </set>
         where purchase_sku = #{purchaseSku}
     </update>
 
-    <insert id="insert" keyColumn="purchase_sku" keyProperty="purchaseSku" parameterType="com.upedge.pms.modules.purchase.entity.ProductPurchaseInfo" useGeneratedKeys="true">
+    <insert id="insert" keyColumn="purchase_sku" keyProperty="purchaseSku"
+            parameterType="com.upedge.pms.modules.purchase.entity.ProductPurchaseInfo" useGeneratedKeys="true">
         insert into product_purchase_info
         <trim prefix="(" suffix=")" suffixOverrides=",">
             purchase_sku,
@@ -96,61 +99,60 @@
         )
     </insert>
 
-    <insert id="insertSelective"  keyColumn="purchase_sku" keyProperty="purchaseSku"  parameterType="com.upedge.pms.modules.purchase.entity.ProductPurchaseInfo" useGeneratedKeys="true">
+    <insert id="insertSelective" keyColumn="purchase_sku" keyProperty="purchaseSku"
+            parameterType="com.upedge.pms.modules.purchase.entity.ProductPurchaseInfo" useGeneratedKeys="true">
         insert into product_purchase_info
         <trim prefix="(" suffix=")" suffixOverrides=",">
-            <if test="purchaseSku != null" >
-              purchase_sku
+            <if test="purchaseSku != null">
+                purchase_sku
             </if>
-            <if test="purchaseLink != null" >
-              purchase_link
+            <if test="purchaseLink != null">
+                purchase_link
             </if>
-            <if test="supplierName != null" >
-              supplier_name
+            <if test="supplierName != null">
+                supplier_name
             </if>
-            <if test="specId != null" >
-              spec_id
+            <if test="specId != null">
+                spec_id
             </if>
-            <if test="variantName != null" >
-              variant_name
+            <if test="variantName != null">
+                variant_name
             </if>
-            <if test="variantImage != null" >
-              variant_image
+            <if test="variantImage != null">
+                variant_image
             </if>
-
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
-            <if test="purchaseSku != null" >
+            <if test="purchaseSku != null">
                 #{purchaseSku}
             </if>
-            <if test="purchaseLink != null" >
+            <if test="purchaseLink != null">
                 #{purchaseLink}
             </if>
-            <if test="supplierName != null" >
+            <if test="supplierName != null">
                 #{supplierName}
             </if>
-            <if test="specId != null" >
+            <if test="specId != null">
                 #{specId}
             </if>
-            <if test="variantName != null" >
+            <if test="variantName != null">
                 #{variantName}
             </if>
-            <if test="variantImage != null" >
+            <if test="variantImage != null">
                 #{variantImage}
             </if>
-
         </trim>
     </insert>
 
     <insert id="insertByBatch" parameterType="java.util.List">
         insert into product_purchase_info
         <trim prefix="(" suffix=")" suffixOverrides=",">
-           purchase_sku,
-           purchase_link,
-           supplier_name,
-           spec_id,
-           variant_name,
-           variant_image,
+            purchase_sku,
+            purchase_link,
+            supplier_name,
+            spec_id,
+            variant_name,
+            variant_image,
             inventory,
             min_order_quantity,
             mixWholeSale
@@ -158,12 +160,12 @@
         values
         <foreach collection="list" item="item" index="index" separator=",">
             <trim prefix="(" suffix=")" suffixOverrides=",">
-               #{item.purchaseSku},
-               #{item.purchaseLink},
-               #{item.supplierName},
-               #{item.specId},
-               #{item.variantName},
-               #{item.variantImage},
+                #{item.purchaseSku},
+                #{item.purchaseLink},
+                #{item.supplierName},
+                #{item.specId},
+                #{item.variantName},
+                #{item.variantImage},
                 #{item.inventory},
                 #{item.minOrderQuantity},
                 #{item.mixWholeSale}
@@ -176,31 +178,31 @@
             where
             <trim prefix=" " suffix=" " suffixOverrides=" and ">
                 1 = 1 and
-                    <if test="t.purchaseSku != null">
-                        purchase_sku = #{t.purchaseSku} and
-                    </if>
-                    <if test="t.purchaseLink != null">
-                        purchase_link = #{t.purchaseLink} and
-                    </if>
-                    <if test="t.supplierName != null">
-                        supplier_name = #{t.supplierName} and
-                    </if>
-                    <if test="t.specId != null">
-                        spec_id = #{t.specId} and
-                    </if>
-                    <if test="t.variantName != null">
-                        variant_name = #{t.variantName} and
-                    </if>
-                    <if test="t.variantImage != null">
-                        variant_image = #{t.variantImage} and
-                    </if>
+                <if test="t.purchaseSku != null">
+                    purchase_sku = #{t.purchaseSku} and
+                </if>
+                <if test="t.purchaseLink != null">
+                    purchase_link = #{t.purchaseLink} and
+                </if>
+                <if test="t.supplierName != null">
+                    supplier_name = #{t.supplierName} and
+                </if>
+                <if test="t.specId != null">
+                    spec_id = #{t.specId} and
+                </if>
+                <if test="t.variantName != null">
+                    variant_name = #{t.variantName} and
+                </if>
+                <if test="t.variantImage != null">
+                    variant_image = #{t.variantImage} and
+                </if>
             </trim>
         </if>
     </sql>
 
     <select id="select" parameterType="com.upedge.common.base.Page" resultMap="BaseResultMap">
         select
-        <include refid="Base_Column_List" />
+        <include refid="Base_Column_List"/>
         from product_purchase_info
         <include refid="Query_Condition"/>
         <if test="orderBy != null">
@@ -237,8 +239,19 @@
 
     <update id="updateInventory">
         update product_purchase_info
-            set inventory = #{inventory}
+        set inventory = #{inventory}
         where purchase_sku = #{purchaseSku}
-        and purchase_link = #{productLink}
+          and purchase_link = #{productLink}
     </update>
+
+    <select id="selectByVariantIds" resultType="com.upedge.common.model.pms.dto.VariantPurchaseInfoDto">
+        select pv.barcode,pv.id as `variantId`,ppi.purchase_sku as `purchaseSku`,ppi.supplier_name as `supplierName`
+        from product_purchase_info ppi
+        inner join product_variant pv
+        on ppi.purchase_sku = pv.purchase_sku
+        where pv.id in
+        <foreach collection="variantIds" item="variantId" open="(" separator="," close=")">
+            #{variantId}
+        </foreach>
+    </select>
 </mapper>

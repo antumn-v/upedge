@@ -195,22 +195,27 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
         //根据供应商创建采购单
         for (Map.Entry<String, List<AlibabaTradeFastCargo>> map : supplierCargosMap.entrySet()) {
             List<AlibabaTradeFastCargo> tradeFastCargos = map.getValue();
+
+            if (isPreview){
+                AlibabaCreateOrderPreviewResult previewResult = null;
+                try {
+                    previewResult = Ali1688Service.createOrderPreview(tradeFastCargos, alibabaApiVo);
+                } catch (CustomerException e) {
+                    return BaseResponse.failed(e.getMessage());
+                }
+                if (!previewResult.getSuccess()){
+                    return BaseResponse.failed(previewResult.getErrorMsg());
+                }else {
+                    continue;
+                }
+            }
+
             AlibabaTradeFastResult alibabaTradeFastResult = null;
             Long id = purchaseService.getNextPurchaseOrderId();
             String message = "下单号： " + id;
 
             try {
-                if (isPreview){
-                    AlibabaCreateOrderPreviewResult previewResult = Ali1688Service.createOrderPreview(tradeFastCargos, alibabaApiVo);
-                    if (!previewResult.getSuccess()){
-                        return BaseResponse.failed(previewResult.getErrorMsg());
-                    }else {
-                        stringBuffer = stringBuffer.append(",").append(id);
-                        continue;
-                    }
-                }else {
-                    alibabaTradeFastResult = Ali1688Service.createOrder(tradeFastCargos, alibabaApiVo, message);
-                }
+                alibabaTradeFastResult = Ali1688Service.createOrder(tradeFastCargos, alibabaApiVo, message);
             } catch (CustomerException e) {
                 return BaseResponse.success(e.getMessage());
             }
@@ -225,7 +230,7 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
                     new BigDecimal(alibabaTradeFastResult.getTotalSuccessAmount().doubleValue() / 100),
                     BigDecimal.ZERO,
                     map.getKey(),
-                    0, 0, session.getId(), 0);
+                    0, 0, 0L, 0);
             purchaseOrder.setRelateId(request.getStockOrderId().toString());
             List<PurchaseOrderItem> purchaseItems = new ArrayList<>();
             Double purchaseQuantity = 0.0;

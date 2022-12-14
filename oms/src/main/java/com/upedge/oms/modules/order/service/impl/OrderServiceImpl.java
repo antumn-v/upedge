@@ -275,6 +275,7 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public List<AppOrderVo> selectAppOrderList(AppOrderListRequest request) {
         request.initFromNum();
+        request = selectOrderListByShipNumber(request);
         AppOrderListDto appOrderListDto = request.getT();
         if (appOrderListDto != null && StringUtils.isNotBlank(appOrderListDto.getShipCompany())){
             appOrderListDto.setShipMethodIds(getShipMethodIdsByCompany(appOrderListDto.getShipCompany()));
@@ -332,6 +333,7 @@ public class OrderServiceImpl implements OrderService {
         return appOrderVos;
     }
 
+
     private List<Long> getShipMethodIdsByCompany(String company){
         List<ShippingMethodRedis> shippingMethodRedisList = redisTemplate.opsForHash().values(RedisKey.SHIPPING_METHOD);
         List<Long> methodIds = new ArrayList<>();
@@ -386,11 +388,29 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public Long selectAppOrderCount(AppOrderListRequest request) {
+        request = selectOrderListByShipNumber(request);
         Long total = orderDao.selectAppOrderCount(request);
         if (null == total) {
             total = 0L;
         }
         return total;
+    }
+
+    private AppOrderListRequest selectOrderListByShipNumber(AppOrderListRequest request){
+        if (request == null || request.getT() == null){
+            return request;
+        }
+        AppOrderListDto appOrderListDto = request.getT();
+        String shipNumber = appOrderListDto.getShipNumber();
+        if (StringUtils.isBlank(shipNumber)){
+            return request;
+        }
+        OrderPackage orderPackage = orderPackageService.selectByScanNo(shipNumber);
+        if (null != orderPackage){
+            appOrderListDto.setOrderId(orderPackage.getOrderId());
+            request.setT(appOrderListDto);
+        }
+        return request;
     }
 
     @Override

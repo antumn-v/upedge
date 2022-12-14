@@ -50,4 +50,10 @@ public class StockOrderItemVo {
      *
      */
     private String variantImage;
+
+    private String supplierName;
+
+    private String purchaseSku;
+
+    private String barcode;
 }

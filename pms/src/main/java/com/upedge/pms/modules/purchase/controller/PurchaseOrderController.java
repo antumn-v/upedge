@@ -9,6 +9,7 @@ import com.upedge.common.exception.CustomerException;
 import com.upedge.common.model.pms.request.CreatePurchaseOrderRequest;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.utils.ListUtils;
+import com.upedge.common.web.util.RedisUtil;
 import com.upedge.common.web.util.UserUtil;
 import com.upedge.pms.modules.purchase.entity.PurchaseOrder;
 import com.upedge.pms.modules.purchase.request.PurchaseOrderEditStateUpdateRequest;
@@ -139,13 +140,16 @@ public class PurchaseOrderController {
 
     @PostMapping("/createByCustomerStockOrder")
     public BaseResponse createByCustomerStockOrder(@RequestBody CreatePurchaseOrderRequest request){
+        String key = "key:createByCustomerStockOrder:" + request.getStockOrderId();
+        boolean b = RedisUtil.lock(redisTemplate,key,5L,30*1000L);
         Session session = UserUtil.getSession(redisTemplate);
         request.setPreview(true);
         BaseResponse response = purchaseOrderService.customCreate(request,session);
         if (response.getCode() == ResultCode.SUCCESS_CODE){
-//            request.setPreview(false);
-//            purchaseOrderService.customCreate(request,session);
+            request.setPreview(false);
+            purchaseOrderService.customCreate(request,session);
         }
+        RedisUtil.unLock(redisTemplate,key);
         return response;
     }
 

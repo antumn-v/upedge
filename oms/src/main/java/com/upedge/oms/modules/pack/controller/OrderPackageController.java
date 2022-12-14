@@ -161,7 +161,7 @@ public class OrderPackageController {
     @PostMapping("/uploadStore/{packNo}")
     public BaseResponse uploadStore(@PathVariable Long packNo) {
         OrderPackage orderPackage = orderPackageService.selectByPrimaryKey(packNo);
-        orderFulfillmentService.orderFulfillment(orderPackage,false);
+        orderFulfillmentService.orderFulfillment(orderPackage,true);
         return BaseResponse.success();
     }
 

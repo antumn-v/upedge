@@ -80,7 +80,7 @@ public class AdminStockOrderVo {
 
     private String purchaseOrderIds;
 
-    private List<AdminStockOrderItemVo> items;
+    private List<StockOrderSupplierItemVo> supplierItemVos;
 
     private List<String> purchaseIds;
 

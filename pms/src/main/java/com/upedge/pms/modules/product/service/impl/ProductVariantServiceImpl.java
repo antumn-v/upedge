@@ -6,6 +6,8 @@ import com.upedge.common.constant.Constant;
 import com.upedge.common.constant.ResultCode;
 import com.upedge.common.constant.key.RedisKey;
 import com.upedge.common.exception.CustomerException;
+import com.upedge.common.feign.OmsFeignClient;
+import com.upedge.common.model.pms.dto.VariantPurchaseInfoDto;
 import com.upedge.common.model.pms.quote.CustomerProductQuoteVo;
 import com.upedge.common.model.product.VariantDetail;
 import com.upedge.common.model.user.vo.Session;
@@ -64,6 +66,9 @@ public class ProductVariantServiceImpl implements ProductVariantService {
 
     @Autowired
     CustomerProductQuoteService customerProductQuoteService;
+
+    @Autowired
+    OmsFeignClient omsFeignClient;
 
     @Autowired
     RedisTemplate redisTemplate;
@@ -232,6 +237,13 @@ public class ProductVariantServiceImpl implements ProductVariantService {
 
         VariantSkuUpdateLog updateLog = new VariantSkuUpdateLog(id,purchaseSku,session.getId(),1);
         variantSkuUpdateLogService.insert(updateLog);
+
+        VariantPurchaseInfoDto variantPurchaseInfoDto = new VariantPurchaseInfoDto();
+        variantPurchaseInfoDto.setPurchaseSku(purchaseSku);
+        variantPurchaseInfoDto.setVariantId(id);
+        variantPurchaseInfoDto.setSupplierName(productPurchaseInfo.getSupplierName());
+        omsFeignClient.updatePurchaseInfo(variantPurchaseInfoDto);
+
         return BaseResponse.success();
     }
 

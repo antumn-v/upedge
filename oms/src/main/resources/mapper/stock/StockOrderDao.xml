@@ -73,16 +73,6 @@
         <result property="saiheCode" column="saihe_code"/>
         <result property="purchaseState" column="purchase_state"/>
         <result property="purchaseOrderIds" column="purchase_order_ids"/>
-        <collection property="items" ofType="com.upedge.oms.modules.stock.vo.AdminStockOrderItemVo">
-            <result property="id" column="itemId"/>
-            <result property="productId" column="product_id"/>
-            <result property="orderId" column="order_id"/>
-            <result property="price" column="price"/>
-            <result property="quantity" column="quantity"/>
-            <result property="variantName" column="variant_name"/>
-            <result property="variantSku" column="variant_sku"/>
-            <result property="variantImage" column="variant_image"/>
-        </collection>
     </resultMap>
 
     <sql id="Base_Column_List">
@@ -653,8 +643,7 @@
 
 
     <select id="selectAdminStockOrderList" resultMap="AdminStockOrderVo" parameterType="com.upedge.common.base.Page">
-        select
-        DISTINCT o.id,
+        select o.id,
         o.warehouse_code,
         o.customer_id,
         o.pay_method,
@@ -670,20 +659,10 @@
         o.manager_code,
         o.saihe_code,
         o.purchase_state,
-        o.purchase_order_ids,
-        item.id as itemId,
-        item.product_id,
-        item.order_id,
-        item.price,
-        item.quantity,
-        item.variant_name,
-        item.variant_sku,
-        item.variant_image
+        o.purchase_order_ids
         from stock_order o
-        inner join stock_order_item item
-        on o.id = item.order_id
         <include refid="Query_Condition"/>
-        order by o.update_time desc
+        order by o.pay_time desc
         <if test="pageNum != null and pageSize != null">
             limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
         </if>

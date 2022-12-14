@@ -45,6 +45,11 @@ public class StockOrderItemServiceImpl implements StockOrderItemService {
         return stockOrderItemDao.insert(record);
     }
 
+    @Override
+    public int updatePurchaseInfo(Long variantId, String purchaseSku, String supplierName) {
+        return stockOrderItemDao.updatePurchaseInfo(variantId, purchaseSku, supplierName);
+    }
+
     /**
      *
      */

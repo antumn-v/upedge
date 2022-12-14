@@ -152,7 +152,7 @@ public class OrderActionServiceImpl implements OrderActionService {
             BigDecimal productAmount = BigDecimal.ZERO;
             BigDecimal cnyProductAmount = BigDecimal.ZERO;
             List<ItemQuantity> itemQuantities = module.getItemQuantities();
-            Integer totalQuantity = 0;
+
             for (ItemQuantity itemQuantity : itemQuantities) {
                 Long itemId = itemQuantity.getItemId();
                 OrderItem orderItem = null;
@@ -180,7 +180,6 @@ public class OrderActionServiceImpl implements OrderActionService {
                 if (itemQuantity.getQuantity() < 1){
                     continue;
                 }
-                totalQuantity += itemQuantity.getQuantity();
                 OrderItem newItem = new OrderItem();
                 BeanUtils.copyProperties(orderItem, newItem);
                 newItem.setId(newItemId);
@@ -200,9 +199,7 @@ public class OrderActionServiceImpl implements OrderActionService {
 
             }
             BeanUtils.copyProperties(order, newOrder);
-            if (totalQuantity < 1){
-                continue;
-            }
+
             newOrder.setId(newOrderId);
             newOrder.setCreateTime(date);
             newOrder.setUpdateTime(date);

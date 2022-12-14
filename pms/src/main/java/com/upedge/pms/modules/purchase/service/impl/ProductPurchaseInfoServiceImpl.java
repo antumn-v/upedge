@@ -1,6 +1,7 @@
 package com.upedge.pms.modules.purchase.service.impl;
 
 import com.upedge.common.base.Page;
+import com.upedge.common.model.pms.dto.VariantPurchaseInfoDto;
 import com.upedge.common.utils.ListUtils;
 import com.upedge.common.utils.UrlUtils;
 import com.upedge.pms.modules.product.service.ProductService;
@@ -61,6 +62,14 @@ public class ProductPurchaseInfoServiceImpl implements ProductPurchaseInfoServic
     @Transactional
     public int insertSelective(ProductPurchaseInfo record) {
         return productPurchaseInfoDao.insert(record);
+    }
+
+    @Override
+    public List<VariantPurchaseInfoDto> selectByVariantIds(List<Long> variantIds) {
+        if (ListUtils.isEmpty(variantIds)){
+            return new ArrayList<>();
+        }
+        return productPurchaseInfoDao.selectByVariantIds(variantIds);
     }
 
     @Override

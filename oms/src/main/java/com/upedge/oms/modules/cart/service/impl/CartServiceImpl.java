@@ -6,6 +6,7 @@ import com.upedge.common.constant.key.RedisKey;
 import com.upedge.common.feign.PmsFeignClient;
 import com.upedge.common.feign.TmsFeignClient;
 import com.upedge.common.model.cart.request.CartAddRequest;
+import com.upedge.common.model.pms.dto.VariantPurchaseInfoDto;
 import com.upedge.common.model.pms.quote.CustomerProductQuoteVo;
 import com.upedge.common.model.product.ListVariantsRequest;
 import com.upedge.common.model.product.VariantDetail;
@@ -121,6 +122,7 @@ public class CartServiceImpl implements CartService {
 
         List<StockOrderItem> orderItems = new ArrayList<>();
         List<Long> cartIds = new ArrayList<>();
+        List<Long> variantIds = new ArrayList<>();
         for (Cart cart : carts) {
             StockOrderItem item = new StockOrderItem();
             BeanUtils.copyProperties(cart, item);
@@ -132,7 +134,9 @@ public class CartServiceImpl implements CartService {
             if (0 != cart.getId()) {
                 cartIds.add(cart.getId());
             }
+            variantIds.add(cart.getVariantId());
         }
+        orderItems = completeItemPurchaseInfo(variantIds,orderItems);
         stockOrderItemDao.insertByBatch(orderItems);
         if (ListUtils.isNotEmpty(cartIds)) {
             cartDao.updateStateByIds(cartIds, 1);
@@ -145,6 +149,7 @@ public class CartServiceImpl implements CartService {
         order.setPayState(0);
         order.setRefundState(0);
         order.setSaiheState(0);
+        order.setPurchaseState(0);
         order.setShipPrice(BigDecimal.ZERO);
         order.setPaypalFee(BigDecimal.ZERO);
         order.setWarehouseCode(request.getWarehouseCode());
@@ -159,6 +164,22 @@ public class CartServiceImpl implements CartService {
         stockOrderDao.insert(order);
         return orderId;
     }
+    
+    private List<StockOrderItem> completeItemPurchaseInfo(List<Long> variantIds,List<StockOrderItem> orderItems){
+        List<VariantPurchaseInfoDto> variantPurchaseInfoDtos = pmsFeignClient.variantPurchaseInfo(variantIds);
+        if (ListUtils.isEmpty(variantIds)){
+            return orderItems;
+        }
+        for (StockOrderItem orderItem : orderItems) {
+            for (VariantPurchaseInfoDto variantPurchaseInfoDto : variantPurchaseInfoDtos) {
+                if (orderItem.getVariantId().equals(variantPurchaseInfoDto.getVariantId())){
+                    BeanUtils.copyProperties(variantPurchaseInfoDto,orderItem);
+                }
+            }
+        }
+        return orderItems;
+    }
+    
 
     /**
      * 购物车提交批发订单，批发订单初始化运输方式

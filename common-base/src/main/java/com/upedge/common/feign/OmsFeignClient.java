@@ -21,6 +21,7 @@ import com.upedge.common.model.order.vo.AllOrderAmountVo;
 import com.upedge.common.model.order.vo.OrderItemPurchaseAdviceVo;
 import com.upedge.common.model.order.vo.OrderItemUpdateImageNameRequest;
 import com.upedge.common.model.order.vo.UplodaSaiheOnMqVo;
+import com.upedge.common.model.pms.dto.VariantPurchaseInfoDto;
 import com.upedge.common.model.pms.quote.CustomerProductQuoteVo;
 import com.upedge.common.model.pms.vo.VariantPreSaleQuantity;
 import com.upedge.common.model.statistics.request.ManagerPackageStatisticsRequest;
@@ -39,6 +40,9 @@ import java.util.List;
  */
 @FeignClient(value = ServiceNameConstants.OMS_SERVICE,fallbackFactory = OmsFeignClientFallbackFactory.class,decode404 = true)
 public interface OmsFeignClient  {
+
+    @PostMapping("/stockOrderItem/updatePurchaseInfo")
+    public int updatePurchaseInfo(@RequestBody VariantPurchaseInfoDto variantPurchaseInfoDto);
 
     @PostMapping("/order/customerSync")
     public BaseResponse customerSync(@RequestBody CustomerSyncUnpaidOrderRequest request);

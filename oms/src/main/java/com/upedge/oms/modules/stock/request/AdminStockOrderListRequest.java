@@ -9,4 +9,6 @@ public class AdminStockOrderListRequest  extends Page<StockOrder> {
 
     private String variantSku;
 
+    private String barcode;
+
 }

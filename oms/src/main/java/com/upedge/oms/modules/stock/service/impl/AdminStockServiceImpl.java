@@ -10,6 +10,7 @@ import com.upedge.common.exception.CustomerException;
 import com.upedge.common.feign.PmsFeignClient;
 import com.upedge.common.feign.UmsFeignClient;
 import com.upedge.common.model.account.AccountOrderRefundedRequest;
+import com.upedge.common.model.oms.stock.StockOrderItemVo;
 import com.upedge.common.model.product.ListVariantsRequest;
 import com.upedge.common.model.product.ProductSaiheInventoryVo;
 import com.upedge.common.model.product.ProductVariantTo;
@@ -27,6 +28,7 @@ import com.upedge.oms.modules.stock.service.AdminStockService;
 import com.upedge.oms.modules.stock.vo.AdminStockOrderVo;
 import com.upedge.oms.modules.stock.vo.CustomerProductStockVo;
 import com.upedge.oms.modules.stock.vo.CustomerStockRecordVo;
+import com.upedge.oms.modules.stock.vo.StockOrderSupplierItemVo;
 import com.upedge.thirdparty.saihe.config.SaiheConfig;
 import com.upedge.thirdparty.saihe.entity.createProcurement.ApiCreateProcurementProductList;
 import com.upedge.thirdparty.saihe.entity.createProcurement.ApiCreateProcurementResponse;
@@ -93,8 +95,11 @@ public class AdminStockServiceImpl implements AdminStockService {
         //退款状态:0=未退款，1=申请中，2=驳回，3=部分退款，4=全部退款
         stockOrder.setRefundState(0);
 
+        List<Long> orderIds = new ArrayList<>();
         List<AdminStockOrderVo> results = stockOrderDao.selectAdminStockOrderList(request);
+
         for (AdminStockOrderVo result : results) {
+            orderIds.add(result.getId());
             String purchaseOrderIds = result.getPurchaseOrderIds();
             if (StringUtils.isBlank(purchaseOrderIds)){
                 continue;
@@ -107,6 +112,45 @@ public class AdminStockServiceImpl implements AdminStockService {
             }
             result.setPurchaseIds(purchaseIds);
         }
+
+        Map<Long,AdminStockOrderVo> stockOrderVoMap = new HashMap<>();
+        Map<Long,List<StockOrderItemVo>> map = new HashMap<>();
+        if (ListUtils.isNotEmpty(orderIds)){
+            List<StockOrderItemVo> stockOrderItemVos = stockOrderItemDao.selectItemVoByOrderIds(orderIds);
+            for (AdminStockOrderVo stockOrderVo : results) {
+                List<StockOrderItemVo> storeOrderItemVoList = new ArrayList<>();
+                Long orderId = stockOrderVo.getId();
+                stockOrderVoMap.put(orderId,stockOrderVo);
+                for (StockOrderItemVo stockOrderItemVo : stockOrderItemVos) {
+                    if (orderId.equals(stockOrderItemVo.getOrderId())) {
+                        storeOrderItemVoList.add(stockOrderItemVo);
+                    }
+                }
+                map.put(orderId,storeOrderItemVoList);
+                stockOrderItemVos.removeAll(storeOrderItemVoList);
+            }
+        }
+        map.forEach((orderId,itemVos) -> {
+            AdminStockOrderVo orderVo = stockOrderVoMap.get(orderId);
+            orderVo.setSupplierItemVos(new ArrayList<>());
+            Map<String, StockOrderSupplierItemVo> supplierItemVoMap = new HashMap<>();
+            for (StockOrderItemVo itemVo : itemVos) {
+                String supplierName = itemVo.getSupplierName();
+                if (StringUtils.isBlank(supplierName)){
+                    supplierName = "缺少供应商信息";
+                }
+                StockOrderSupplierItemVo stockOrderSupplierItemVo = supplierItemVoMap.get(supplierName);
+                if (stockOrderSupplierItemVo == null){
+                    stockOrderSupplierItemVo = new StockOrderSupplierItemVo();
+                    stockOrderSupplierItemVo.setSupplierName(supplierName);
+                    stockOrderSupplierItemVo.setItems(new ArrayList<>());
+                    supplierItemVoMap.put(supplierName,stockOrderSupplierItemVo);
+                    orderVo.getSupplierItemVos().add(stockOrderSupplierItemVo);
+                }
+                stockOrderSupplierItemVo.getItems().add(itemVo);
+            }
+        });
+
         Long total = stockOrderDao.countAdminStockOrderList(request);
         request.setTotal(total);
         StockOrderListResponse res = new StockOrderListResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS,results,request);

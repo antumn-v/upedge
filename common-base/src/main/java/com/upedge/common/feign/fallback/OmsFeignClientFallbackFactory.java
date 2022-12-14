@@ -22,6 +22,7 @@ import com.upedge.common.model.order.vo.AllOrderAmountVo;
 import com.upedge.common.model.order.vo.OrderItemPurchaseAdviceVo;
 import com.upedge.common.model.order.vo.OrderItemUpdateImageNameRequest;
 import com.upedge.common.model.order.vo.UplodaSaiheOnMqVo;
+import com.upedge.common.model.pms.dto.VariantPurchaseInfoDto;
 import com.upedge.common.model.pms.quote.CustomerProductQuoteVo;
 import com.upedge.common.model.pms.vo.VariantPreSaleQuantity;
 import com.upedge.common.model.statistics.request.ManagerPackageStatisticsRequest;
@@ -45,6 +46,11 @@ public class OmsFeignClientFallbackFactory implements FallbackFactory<OmsFeignCl
     public OmsFeignClient create(Throwable cause) {
         return new OmsFeignClient() {
 
+
+            @Override
+            public int updatePurchaseInfo(VariantPurchaseInfoDto variantPurchaseInfoDto) {
+                return 0;
+            }
 
             @Override
             public BaseResponse customerSync(CustomerSyncUnpaidOrderRequest request) {

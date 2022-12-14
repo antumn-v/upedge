@@ -26,7 +26,7 @@ public class AppOrderListDto {
 
     String platOrderName;
 
-    String orderId;
+    Long orderId;
 
     List<Long> orderIds;
 

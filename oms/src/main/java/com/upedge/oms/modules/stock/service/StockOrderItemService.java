@@ -10,6 +10,8 @@ import java.util.List;
  */
 public interface StockOrderItemService{
 
+    int updatePurchaseInfo(Long variantId,String purchaseSku,String supplierName);
+
     StockOrderItem selectByPrimaryKey(Long id);
 
     int deleteByPrimaryKey(Long id);

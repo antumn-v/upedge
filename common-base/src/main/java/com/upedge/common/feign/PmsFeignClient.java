@@ -4,6 +4,7 @@ import com.upedge.common.base.BaseResponse;
 import com.upedge.common.constant.ServiceNameConstants;
 import com.upedge.common.feign.fallback.PmsFeignClientFallbackFactory;
 import com.upedge.common.model.oms.order.OrderItemQuantityVo;
+import com.upedge.common.model.pms.dto.VariantPurchaseInfoDto;
 import com.upedge.common.model.pms.quote.CustomerProductQuoteVo;
 import com.upedge.common.model.pms.request.*;
 import com.upedge.common.model.pms.response.QuotedProductSelectBySkuResponse;
@@ -25,6 +26,9 @@ import java.util.List;
  */
 @FeignClient(name = ServiceNameConstants.PMS_SERVICE,fallbackFactory = PmsFeignClientFallbackFactory.class,decode404 = true)
 public interface PmsFeignClient {
+
+    @PostMapping("/productPurchaseInfo/variants")
+    public List<VariantPurchaseInfoDto> variantPurchaseInfo(@RequestBody List<Long> variantIds);
 
     @PostMapping("/purchaseOrder/createByCustomerStockOrder")
     public BaseResponse createByCustomerStockOrder(@RequestBody CreatePurchaseOrderRequest request);

@@ -11,7 +11,9 @@ import java.util.List;
 /**
  * @author author
  */
-public interface StockOrderItemDao{
+public interface StockOrderItemDao {
+
+    int updatePurchaseInfo(@Param("variantId") Long variantId, @Param("purchaseSku") String purchaseSku, @Param("supplierName") String supplierName);
 
     List<StockOrderItem> selectByOrderId(Long orderId);
 
@@ -21,6 +23,7 @@ public interface StockOrderItemDao{
                                @Param("price") BigDecimal price);
 
     List<StockOrderItem> countVariantQuantityByOrderPaymentId(Long paymentId);
+
     List<StockOrderItem> countVariantQuantityByOrderId(Long orderId);
 
     StockOrderItem selectByPrimaryKey(StockOrderItem record);

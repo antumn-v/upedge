@@ -1,8 +1,10 @@
 package com.upedge.pms.modules.purchase.service;
 
 import com.upedge.common.base.Page;
+import com.upedge.common.model.pms.dto.VariantPurchaseInfoDto;
 import com.upedge.pms.modules.purchase.dto.OfferInventoryChangeListDTO;
 import com.upedge.pms.modules.purchase.entity.ProductPurchaseInfo;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 import java.util.Set;
@@ -11,6 +13,8 @@ import java.util.Set;
  * @author gx
  */
 public interface ProductPurchaseInfoService{
+
+    List<VariantPurchaseInfoDto> selectByVariantIds(List<Long> variantIds);
 
     void syncPurchaseInventory(List<OfferInventoryChangeListDTO> offerInventoryChangeListDTOS);
 

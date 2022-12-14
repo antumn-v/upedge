@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.upedge.common.component.annotation.Permission;
 import com.upedge.common.constant.Constant;
 import com.upedge.common.constant.ResultCode;
+import com.upedge.common.model.pms.dto.VariantPurchaseInfoDto;
 import com.upedge.pms.modules.purchase.dto.OfferInventoryChangeListDTO;
 import com.upedge.pms.modules.purchase.entity.ProductPurchaseInfo;
 import com.upedge.pms.modules.purchase.request.ProductPurchaseInfoAddRequest;
@@ -31,6 +32,11 @@ import java.util.List;
 public class ProductPurchaseInfoController {
     @Autowired
     private ProductPurchaseInfoService productPurchaseInfoService;
+
+    @PostMapping("/variants")
+    public List<VariantPurchaseInfoDto> variantPurchaseInfo(@RequestBody List<Long> variantIds){
+        return productPurchaseInfoService.selectByVariantIds(variantIds);
+    }
 
 
     @RequestMapping(value="/info/{id}", method=RequestMethod.GET)

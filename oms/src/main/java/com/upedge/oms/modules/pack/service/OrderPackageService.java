@@ -14,6 +14,8 @@ import java.util.List;
 
 public interface OrderPackageService {
 
+    OrderPackage selectByScanNo(String scanNo);
+
     BaseResponse packReturnToPending(PackageReturnToPendingRequest request,Session session);
 
     List<OrderPackage> selectExStockUnUploadPackages();

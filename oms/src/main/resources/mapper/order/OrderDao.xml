@@ -331,9 +331,9 @@
                 <if test="t.barcode != null">
                     and oi.barcode = #{t.barcode}
                 </if>
-                <if test="t.shipNumber != null">
-                    and o.tracking_code = #{t.shipNumber}
-                </if>
+<!--                <if test="t.shipNumber != null">-->
+<!--                    and o.tracking_code = #{t.shipNumber}-->
+<!--                </if>-->
                 <if test="t.customer != null">
                     and r.order_customer_name = #{t.customer}
                 </if>

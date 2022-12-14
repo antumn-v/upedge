@@ -128,6 +128,11 @@ public class OrderPackageServiceImpl implements OrderPackageService {
     private String pdfUrlPrefix;
 
     @Override
+    public OrderPackage selectByScanNo(String scanNo) {
+        return orderPackageDao.selectByScanNo(scanNo);
+    }
+
+    @Override
     public BaseResponse packReturnToPending(PackageReturnToPendingRequest request, Session session) {
         List<Long> orderIds = request.getOrderIds();
         for (Long orderId : orderIds) {
