@@ -2,15 +2,18 @@ package com.upedge.pms.modules.purchase.service.impl;
 
 import com.upedge.common.base.BaseResponse;
 import com.upedge.common.base.Page;
+import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.utils.ListUtils;
 import com.upedge.pms.modules.purchase.dao.PurchaseOrderItemDao;
 import com.upedge.pms.modules.purchase.dto.PurchaseOrderListDto;
 import com.upedge.pms.modules.purchase.entity.PurchaseOrder;
 import com.upedge.pms.modules.purchase.entity.PurchaseOrderItem;
+import com.upedge.pms.modules.purchase.request.PurchaseOrderItemDeleteRequest;
 import com.upedge.pms.modules.purchase.request.PurchaseOrderItemUpdatePriceRequest;
 import com.upedge.pms.modules.purchase.request.PurchaseOrderItemUpdateQuantityRequest;
 import com.upedge.pms.modules.purchase.service.PurchaseOrderItemService;
 import com.upedge.pms.modules.purchase.service.PurchaseOrderService;
+import com.upedge.pms.modules.purchase.service.VariantWarehouseStockService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,6 +31,9 @@ public class PurchaseOrderItemServiceImpl implements PurchaseOrderItemService {
 
     @Autowired
     PurchaseOrderService purchaseOrderService;
+
+    @Autowired
+    VariantWarehouseStockService variantWarehouseStockService;
 
 
 
@@ -63,6 +69,29 @@ public class PurchaseOrderItemServiceImpl implements PurchaseOrderItemService {
     @Transactional
     public int insertSelective(PurchaseOrderItem record) {
         return purchaseOrderItemDao.insert(record);
+    }
+
+    @Override
+    public BaseResponse deleteItem(PurchaseOrderItemDeleteRequest request, Session session) {
+        Long orderId = request.getOrderId();
+        Long itemId = request.getItemId();
+        PurchaseOrder purchaseOrder = purchaseOrderService.selectByPrimaryKey(orderId);
+        if (purchaseOrder.getPurchaseState() != -2){
+            return BaseResponse.failed();
+        }
+        PurchaseOrderItem purchaseOrderItem = selectByPrimaryKey(itemId);
+        if (null == purchaseOrderItem){
+            return BaseResponse.failed("产品不存在");
+        }
+        if (purchaseOrderItem.getState() == 0){
+            return BaseResponse.success();
+        }
+        variantWarehouseStockService.purchaseOrderItemRevoke(purchaseOrderItem,purchaseOrder.getWarehouseCode());
+        purchaseOrderItem = new PurchaseOrderItem();
+        purchaseOrderItem.setId(itemId);
+        purchaseOrderItem.setState(0);
+        updateByPrimaryKeySelective(purchaseOrderItem);
+        return BaseResponse.success();
     }
 
     @Override

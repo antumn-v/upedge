@@ -101,6 +101,47 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
         return purchaseOrderDao.insert(record);
     }
 
+    @Override
+    public BaseResponse create1688PurchaseOrder(Long orderId, Session session) {
+        PurchaseOrder purchaseOrder = selectByPrimaryKey(orderId);
+        if (purchaseOrder == null || purchaseOrder.getPurchaseState() != -2){
+            return BaseResponse.failed("订单不存在或不是待创建状态");
+        }
+
+        List<PurchaseOrderItem> purchaseOrderItems = purchaseOrderItemService.selectByOrderId(orderId);
+        List<AlibabaTradeFastCargo> alibabaTradeFastCargos = new ArrayList<>();
+        for (PurchaseOrderItem purchaseOrderItem : purchaseOrderItems) {
+            AlibabaTradeFastCargo alibabaTradeFastCargo = new AlibabaTradeFastCargo();
+            alibabaTradeFastCargo.setOfferId(Long.parseLong(purchaseOrderItem.getPurchaseLink()));
+            alibabaTradeFastCargo.setSpecId(purchaseOrderItem.getSpecId());
+            alibabaTradeFastCargo.setQuantity(purchaseOrderItem.getQuantity().doubleValue());
+            alibabaTradeFastCargos.add(alibabaTradeFastCargo);
+        }
+
+        AlibabaApiVo alibabaApiVo = (AlibabaApiVo) redisTemplate.opsForValue().get(RedisKey.STRING_ALI1688_API);
+
+        AlibabaTradeFastResult alibabaTradeFastResult = null;
+        String message = "下单号： " + orderId;
+
+        try {
+            alibabaTradeFastResult = Ali1688Service.createOrder(alibabaTradeFastCargos, alibabaApiVo, message);
+        } catch (CustomerException e) {
+            redisTemplate.opsForHash().put(RedisKey.HASH_PURCHASE_ORDER_CREATE_FAILED_REASON,orderId.toString(),e.getMessage());
+            return BaseResponse.failed(e.getMessage());
+        }
+        purchaseOrder = new PurchaseOrder();
+        purchaseOrder.setId(orderId);
+        purchaseOrder.setPurchaseId(alibabaTradeFastResult.getOrderId());
+        purchaseOrder.setShipPrice(new BigDecimal((alibabaTradeFastResult.getPostFee().doubleValue() / 100)));
+        purchaseOrder.setAmount(new BigDecimal(alibabaTradeFastResult.getTotalSuccessAmount().doubleValue() / 100));
+        purchaseOrder.setUpdateTime(new Date());
+        purchaseOrder.setPurchaseState(-1);
+        updateByPrimaryKeySelective(purchaseOrder);
+
+        completeOrderInfo(orderId);
+        return BaseResponse.success();
+    }
+
     @Transactional(rollbackFor = Exception.class)
     @Override
     public BaseResponse revokePurchaseOrder(PurchaseOrderRevokeRequest request, Session session) throws CustomerException {
@@ -360,7 +401,7 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
         for (PurchaseOrderItem purchaseOrderItem : purchaseOrderItems) {
             for (PurchaseOrderItemReceiveDto itemReceiveDto : itemReceiveDtos) {
                 if (purchaseOrderItem.getId().equals(itemReceiveDto.getItemId())
-                        && itemReceiveDto.getQuantity() > 0) {
+                        && itemReceiveDto.getQuantity() > 0 && purchaseOrderItem.getState() == 1) {
                     recordUpdateRequest.setQuantity(itemReceiveDto.getQuantity());
                     recordUpdateRequest.setVariantSku(purchaseOrderItem.getVariantSku());
                     recordUpdateRequest.setRelateId(purchaseOrderItem.getId());
@@ -538,7 +579,6 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
             }
         }
 
-
         String trackCode = purchaseOrderListDto.getTrackingCode();
         List<PurchaseOrderTracking> purchaseOrderTracks = purchaseOrderTrackingService.selectByTrackCode(trackCode);
         if (ListUtils.isNotEmpty(purchaseOrderTracks)){
@@ -571,7 +611,7 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
             PurchaseOrderVo purchaseOrderVo = new PurchaseOrderVo();
             BeanUtils.copyProperties(purchaseOrder, purchaseOrderVo);
             for (PurchaseOrderItem orderItem : purchaseOrderItems) {
-                if (orderItem.getOrderId().equals(purchaseOrder.getId())) {
+                if (orderItem.getOrderId().equals(purchaseOrder.getId()) && orderItem.getState() == 1) {
                     orderItems.add(orderItem);
                 }
             }

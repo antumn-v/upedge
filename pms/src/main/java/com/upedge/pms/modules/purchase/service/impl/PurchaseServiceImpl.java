@@ -552,6 +552,59 @@ public class PurchaseServiceImpl implements PurchaseService {
     }
 
     @Override
+    public BaseResponse createPurchaseOrder(PurchaseOrderCreateRequest request, Session session,Integer i)  {
+
+        List<PurchasePlan> purchasePlans = purchasePlanService.selectByIds(request.getIds());
+        if (ListUtils.isEmpty(purchasePlans)) {
+            return BaseResponse.failed();
+        }
+
+        Map<String,List<PurchasePlan>> supplierPlanMap = new HashMap<>();
+        for (PurchasePlan purchasePlan : purchasePlans) {
+            String supplierName = purchasePlan.getSupplierName();
+            if (!supplierPlanMap.containsKey(supplierName)){
+                supplierPlanMap.put(supplierName,new ArrayList<>());
+            }
+            supplierPlanMap.get(supplierName).add(purchasePlan);
+        }
+
+        supplierPlanMap.forEach((supplierName,plans) -> {
+            Long id = getNextPurchaseOrderId();
+            Integer purchaseQuantity = 0;
+            PurchaseOrder purchaseOrder = new PurchaseOrder(id,
+                    null,
+                    BigDecimal.ZERO,
+                    null,
+                    null,
+                    BigDecimal.ZERO,
+                    supplierName,
+                    -2, 0, session.getId(), 0);
+
+            List<PurchaseOrderItem> purchaseItems = new ArrayList<>();
+            List<Integer> planIds = new ArrayList<>();
+            for (PurchasePlan purchasePlan : plans) {
+                planIds.add(purchasePlan.getId());
+                PurchaseOrderItem purchaseItem = new PurchaseOrderItem();
+                BeanUtils.copyProperties(purchasePlan, purchaseItem);
+                purchaseItem.setOriginalPrice(purchasePlan.getPrice());
+                purchaseItem.setOriginalQuantity(purchasePlan.getQuantity());
+                purchaseItem.setOrderId(id);
+                purchaseItem.setId(IdGenerate.nextId());
+                purchaseItems.add(purchaseItem);
+
+                purchaseQuantity += purchasePlan.getQuantity();
+            }
+            purchaseOrder.setPurchaseQuantity(purchaseQuantity);
+            purchaseOrderService.insert(purchaseOrder);
+            purchaseOrderItemService.insertByBatch(purchaseItems);
+            purchasePlanService.updatePurchaseOrderIdByIds(planIds, id);
+            variantWarehouseStockService.updateVariantPurchaseStockByPlan(plans);
+        });
+
+        return BaseResponse.success();
+    }
+
+    @Override
     public Long getNextPurchaseOrderId() {
         String key = "purchase:order:no:latest";
         Long no = (Long) redisTemplate.opsForValue().get(key);

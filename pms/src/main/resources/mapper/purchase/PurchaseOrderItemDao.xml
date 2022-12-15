@@ -23,11 +23,12 @@
         <result property="originalPrice" column="original_price"/>
         <result property="specId" column="spec_id"/>
         <result property="weight" column="weight"/>
+        <result property="state" column="state"/>
     </resultMap>
 
     <sql id="Base_Column_List">
         `id`,`order_id`,`variant_id`,`product_id`,`purchase_link`,`variant_name`,`barcode`,original_price,original_quantity,
-        `variant_image`,`variant_sku`,`purchase_sku`,`quantity`,`price`,`spec_id`,`receive_quantity`,require_quantity
+        `variant_image`,`variant_sku`,`purchase_sku`,`quantity`,`price`,`spec_id`,`receive_quantity`,require_quantity,`state`
     </sql>
 
     <select id="selectByPrimaryKey" parameterType="com.upedge.pms.modules.purchase.entity.PurchaseOrderItem" resultMap="BaseResultMap">
@@ -79,7 +80,10 @@
                 spec_id = #{specId},
             </if>
             <if test="receiveQuantity != null">
-                receive_quantity = #{receiveQuantity}
+                receive_quantity = #{receiveQuantity},
+            </if>
+            <if test="state != null">
+                `state` = #{state}
             </if>
         </set>
         where id = #{id}
@@ -330,7 +334,7 @@
         select
         poi.`id`,poi.`order_id`,poi.`variant_id`,poi.`product_id`,poi.`purchase_link`,poi.`variant_name`,poi.`variant_image`,poi.`variant_sku`,
         poi.`purchase_sku`,poi.`quantity`,poi.`price`,poi.`spec_id`,poi.`receive_quantity`,pv.weight,pv.barcode,
-        poi.original_quantity,poi.original_price,poi.require_quantity
+        poi.original_quantity,poi.original_price,poi.require_quantity,poi.state
         from purchase_order_item poi
         left join product_variant pv
         on poi.variant_id = pv.id

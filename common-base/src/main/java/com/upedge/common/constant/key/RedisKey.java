@@ -159,4 +159,6 @@ public class RedisKey {
     public static final String HASH_PURCHASE_ADVICE_LIST = "purchase:advice:list:cache";
     //客户备库订单和采购订单关联
     public static final String HASH_CUSTOMER_STOCK_RELATE_PURCHASE = "customer:stock:relate:purchase";
+    //采购订单创建1688采购订单失败原因
+    public static final String HASH_PURCHASE_ORDER_CREATE_FAILED_REASON = "purchase:1688:order:create:failed:reason";
 }

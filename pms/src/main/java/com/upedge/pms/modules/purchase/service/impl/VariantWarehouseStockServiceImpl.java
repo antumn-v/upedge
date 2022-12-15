@@ -186,7 +186,10 @@ public class VariantWarehouseStockServiceImpl implements VariantWarehouseStockSe
         Set<Long> variantIds = new HashSet<>();
         List<ItemQuantityVo> itemQuantityVos = orderItemQuantityVo.getItemQuantityVos();
         for (ItemQuantityVo itemQuantityVo : itemQuantityVos) {
-            VariantWarehouseStock variantWarehouseStock = variantWarehouseStockDao.selectByPrimaryKey(itemQuantityVo.getVariantId(), "CNHz");
+            if (itemQuantityVo.getQuantity() == 0){
+                continue;
+            }
+            VariantWarehouseStock variantWarehouseStock = variantWarehouseStockDao.selectByPrimaryKey(itemQuantityVo.getVariantId(), "CNHZ");
             if (variantWarehouseStock == null || variantWarehouseStock.getLockStock() < itemQuantityVo.getQuantity()){
                 throw new Exception("库存不足");
             }

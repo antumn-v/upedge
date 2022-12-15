@@ -111,4 +111,10 @@ public class PurchaseController {
         }
     }
 
+    @PostMapping("/createOrderTest")
+    public BaseResponse createOrderTest(@RequestBody@Valid PurchaseOrderCreateRequest request){
+        Session session = UserUtil.getSession(redisTemplate);
+        return purchaseService.createPurchaseOrder(request,session,1);
+    }
+
 }

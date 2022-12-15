@@ -73,6 +73,8 @@ public class PurchaseOrderItem{
 
 	private BigDecimal weight;
 
+	private Integer state;
+
 	public PurchaseOrderItem(ProductVariant productVariant, AlibabaTradeFastCargo tradeFastCargo) {
 		this.variantImage = productVariant.getVariantImage();
 		this.variantSku = productVariant.getVariantSku();

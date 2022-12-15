@@ -19,6 +19,7 @@ import java.util.List;
  */
 public interface PurchaseOrderService{
 
+    BaseResponse create1688PurchaseOrder(Long orderId,Session session);
 
     BaseResponse revokePurchaseOrder(PurchaseOrderRevokeRequest request,Session session) throws CustomerException;
 
