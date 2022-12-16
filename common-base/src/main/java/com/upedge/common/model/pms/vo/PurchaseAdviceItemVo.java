@@ -37,4 +37,6 @@ public class PurchaseAdviceItemVo {
 
     private Boolean mixWholeSale;
 
+    private String purchaseLink;
+
 }

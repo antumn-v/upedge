@@ -19,5 +19,7 @@ public class PurchaseOrderVo extends PurchaseOrder {
 
     private List<AlibabaTradePromotionModel> cargoPromotionList;
 
+    private String createFailedReason;
+
 
 }

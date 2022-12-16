@@ -91,8 +91,8 @@ public class PurchaseController {
     }
 
 
-    @ApiOperation("创建1688采购单")
-    @PostMapping("/createOrder")
+
+    @PostMapping("/createOrderTest")
     public BaseResponse createOrder(@RequestBody@Valid PurchaseOrderCreateRequest request){
         Session session = UserUtil.getSession(redisTemplate);
         try {
@@ -111,7 +111,8 @@ public class PurchaseController {
         }
     }
 
-    @PostMapping("/createOrderTest")
+    @ApiOperation("创建1688采购单")
+    @PostMapping("/createOrder")
     public BaseResponse createOrderTest(@RequestBody@Valid PurchaseOrderCreateRequest request){
         Session session = UserUtil.getSession(redisTemplate);
         return purchaseService.createPurchaseOrder(request,session,1);

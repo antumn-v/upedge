@@ -24,6 +24,8 @@
         <result property="specId" column="spec_id"/>
         <result property="weight" column="weight"/>
         <result property="state" column="state"/>
+        <result property="inventory" column="inventory"/>
+        <result property="minOrderQuantity" column="min_order_quantity"/>
     </resultMap>
 
     <sql id="Base_Column_List">
@@ -334,10 +336,12 @@
         select
         poi.`id`,poi.`order_id`,poi.`variant_id`,poi.`product_id`,poi.`purchase_link`,poi.`variant_name`,poi.`variant_image`,poi.`variant_sku`,
         poi.`purchase_sku`,poi.`quantity`,poi.`price`,poi.`spec_id`,poi.`receive_quantity`,pv.weight,pv.barcode,
-        poi.original_quantity,poi.original_price,poi.require_quantity,poi.state
+        poi.original_quantity,poi.original_price,poi.require_quantity,poi.state,ppi.inventory,ppi.min_order_quantity
         from purchase_order_item poi
         left join product_variant pv
         on poi.variant_id = pv.id
+        left join product_purchase_info ppi
+        on poi.purchase_sku = ppi.purchase_sku
         where poi.order_id in
         <foreach collection="orderIds" item="orderId" open="(" separator="," close=")">
             #{orderId}
@@ -354,7 +358,7 @@
     <select id="selectByOrderListDto" resultMap="BaseResultMap">
         select poi.`id`,poi.`order_id`,poi.`variant_id`,poi.`product_id`,poi.`purchase_link`,poi.`variant_name`,poi.`variant_image`,poi.`variant_sku`,
         poi.`purchase_sku`,poi.`quantity`,poi.`price`,poi.`spec_id`,poi.`receive_quantity`,pv.weight,pv.barcode,
-        poi.original_quantity,poi.original_price,poi.require_quantity
+        poi.original_quantity,poi.original_price,poi.require_quantity,poi.state
         from purchase_order_item poi
         left join product_variant pv
         on poi.variant_id = pv.id
@@ -389,7 +393,7 @@
     <update id="updatePriceBySpecId">
         <foreach collection="items" item="item" separator=";">
             update purchase_order_item
-            set price = #{item.price},original_price = #{originalPrice}
+            set price = #{item.price},original_price = #{item.originalPrice}
             where order_id = #{item.orderId}
             and spec_id = #{item.specId}
         </foreach>

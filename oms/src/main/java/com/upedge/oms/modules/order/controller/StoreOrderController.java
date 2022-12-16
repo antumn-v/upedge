@@ -25,7 +25,6 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -84,11 +83,11 @@ public class StoreOrderController {
         }
         storeOrderService.completeStoreOrderItemDetail(storeOrder.getId());
         Order order = orderService.createOrderByStoreOrder(storeOrder.getId());
-        if (order != null){
-            List<Long> orderIds = new ArrayList<>();
-            orderIds.add(order.getId());
-            orderCommonService.processRepeatProduct(orderIds);
-        }
+//        if (order != null){
+//            List<Long> orderIds = new ArrayList<>();
+//            orderIds.add(order.getId());
+//            orderCommonService.processRepeatProduct(orderIds);
+//        }
         return BaseResponse.success();
     }
 

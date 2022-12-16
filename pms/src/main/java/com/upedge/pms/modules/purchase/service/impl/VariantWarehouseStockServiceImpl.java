@@ -614,7 +614,7 @@ public class VariantWarehouseStockServiceImpl implements VariantWarehouseStockSe
     @Override
     public BaseResponse variantStockEx(VariantStockExImRecordUpdateRequest request, Session session) {
 
-        ProductVariant productVariant = productVariantService.selectBySku(request.getVariantSku());
+        ProductVariant productVariant = productVariantService.selectByBarcode(request.getBarcode());
         if (null == productVariant){
             return BaseResponse.failed("变体不存在");
         }

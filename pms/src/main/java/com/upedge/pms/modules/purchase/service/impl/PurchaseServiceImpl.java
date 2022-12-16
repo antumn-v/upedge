@@ -32,6 +32,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.stream.Collectors;
 
@@ -176,6 +177,7 @@ public class PurchaseServiceImpl implements PurchaseService {
     @Override
     public BaseResponse purchaseAdvice(PurchaseAdviceRequest request) {
         String warehouseCode = "CNHZ";
+        Integer type = request.getType();
         OrderItemPurchaseAdviceVo purchaseAdviceVo = omsFeignClient.purchaseItems(request);
         if (purchaseAdviceVo == null) {
             return BaseResponse.success(new ArrayList<>());
@@ -206,6 +208,18 @@ public class PurchaseServiceImpl implements PurchaseService {
         List<Long> shuntPurchaseVariantIds = redisTemplate.opsForList().range(RedisKey.STRING_VARIANT_SHUNT_PURCHASE_LIST, 0, -1);
         variantIds.removeAll(cancelPurchaseVariantIds);
         variantIds.removeAll(shuntPurchaseVariantIds);
+        switch (type){
+            case 0:
+                variantIds = cancelPurchaseVariantIds;
+                break;
+            case 1:
+                break;
+            case -1:
+                variantIds = shuntPurchaseVariantIds;
+                break;
+            default:
+                break;
+        }
 
         List<PurchaseAdviceVo> adviceVos = getPurchaseAdvices(variantIds, warehouseCode, purchaseAdviceItemVos);
 
@@ -363,6 +377,7 @@ public class PurchaseServiceImpl implements PurchaseService {
                         purchaseAdviceVo.setSupplierName(supplierName);
                         purchaseAdviceVo.setWarehouseCode(warehouseCode);
                     }
+                    purchaseAdviceItemVo.setPurchaseLink(productPurchaseInfo.getPurchaseLink());
                     purchaseAdviceItemVo.setAliInventory(productPurchaseInfo.getInventory());
                     purchaseAdviceItemVo.setMinOrderQuantity(productPurchaseInfo.getMinOrderQuantity());
                     purchaseAdviceItemVo.setMixWholeSale(productPurchaseInfo.getMixWholeSale());
@@ -558,7 +573,7 @@ public class PurchaseServiceImpl implements PurchaseService {
         if (ListUtils.isEmpty(purchasePlans)) {
             return BaseResponse.failed();
         }
-
+        List<String> purchaseLinks = new ArrayList<>();
         Map<String,List<PurchasePlan>> supplierPlanMap = new HashMap<>();
         for (PurchasePlan purchasePlan : purchasePlans) {
             String supplierName = purchasePlan.getSupplierName();
@@ -566,6 +581,9 @@ public class PurchaseServiceImpl implements PurchaseService {
                 supplierPlanMap.put(supplierName,new ArrayList<>());
             }
             supplierPlanMap.get(supplierName).add(purchasePlan);
+            if (!purchaseLinks.contains(purchasePlan.getPurchaseLink())){
+                purchaseLinks.add(purchasePlan.getPurchaseLink());
+            }
         }
 
         supplierPlanMap.forEach((supplierName,plans) -> {
@@ -578,7 +596,7 @@ public class PurchaseServiceImpl implements PurchaseService {
                     null,
                     BigDecimal.ZERO,
                     supplierName,
-                    -2, 0, session.getId(), 0);
+                    0, 0, session.getId(), 0);
 
             List<PurchaseOrderItem> purchaseItems = new ArrayList<>();
             List<Integer> planIds = new ArrayList<>();
@@ -601,6 +619,14 @@ public class PurchaseServiceImpl implements PurchaseService {
             variantWarehouseStockService.updateVariantPurchaseStockByPlan(plans);
         });
 
+        CompletableFuture.runAsync(new Runnable() {
+            @Override
+            public void run() {
+                for (String purchaseLink : purchaseLinks) {
+                    productPurchaseInfoService.refreshAlibabaProductInventory(purchaseLink);
+                }
+            }
+        },threadPoolExecutor);
         return BaseResponse.success();
     }
 

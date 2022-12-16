@@ -240,6 +240,10 @@
     <update id="updateInventory">
         update product_purchase_info
         set inventory = #{inventory}
+          <if test="minOrderQuantity != null">
+              ,min_order_quantity = #{minOrderQuantity}
+          </if>
+
         where purchase_sku = #{purchaseSku}
           and purchase_link = #{productLink}
     </update>

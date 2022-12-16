@@ -158,4 +158,14 @@ public class PurchaseOrderController {
         purchaseOrderService.completeOrderInfo(id);
         return BaseResponse.success();
     }
+
+    @ApiOperation("创建1688采购订单")
+    @PostMapping("/create1688Order")
+    public BaseResponse create1688Order(@RequestBody List<Long> orderIds){
+        Session session = UserUtil.getSession(redisTemplate);
+        for (Long orderId : orderIds) {
+            purchaseOrderService.create1688PurchaseOrder(orderId,session);
+        }
+        return BaseResponse.success();
+    }
 }

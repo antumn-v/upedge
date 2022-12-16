@@ -75,6 +75,10 @@ public class PurchaseOrderItem{
 
 	private Integer state;
 
+	private Integer inventory;
+
+	private Integer minOrderQuantity;
+
 	public PurchaseOrderItem(ProductVariant productVariant, AlibabaTradeFastCargo tradeFastCargo) {
 		this.variantImage = productVariant.getVariantImage();
 		this.variantSku = productVariant.getVariantSku();

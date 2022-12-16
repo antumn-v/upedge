@@ -15,6 +15,7 @@ import com.upedge.pms.modules.purchase.dao.ProductPurchaseInfoDao;
 import com.upedge.pms.modules.purchase.dto.OfferInventoryChangeListDTO;
 import com.upedge.pms.modules.purchase.entity.ProductPurchaseInfo;
 import com.upedge.pms.modules.purchase.service.ProductPurchaseInfoService;
+import com.upedge.thirdparty.ali1688.entity.product.ProductSaleInfo;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -81,17 +82,22 @@ public class ProductPurchaseInfoServiceImpl implements ProductPurchaseInfoServic
         if (!b){
             return;
         }
-        AlibabaApiVo alibabaApiVo = (AlibabaApiVo) redisTemplate.opsForValue().get(RedisKey.STRING_ALI1688_API);
-        ProductInfo productInfo = Ali1688Service.getProductWithoutTranslate(productLink,alibabaApiVo);
-        if (productInfo == null){
-            return;
-        }
-        List<ProductSKUInfo> skuInfos = productInfo.getSkuInfos();
-        if (ListUtils.isEmpty(skuInfos)){
-            return;
-        }
-        for (ProductSKUInfo skuInfo : skuInfos) {
-            productPurchaseInfoDao.updateInventory(skuInfo.getSkuId(),productLink,skuInfo.getAmountOnSale());
+        try {
+            AlibabaApiVo alibabaApiVo = (AlibabaApiVo) redisTemplate.opsForValue().get(RedisKey.STRING_ALI1688_API);
+            ProductInfo productInfo = Ali1688Service.getProductWithoutTranslate(productLink,alibabaApiVo);
+            if (productInfo == null){
+                return;
+            }
+            List<ProductSKUInfo> skuInfos = productInfo.getSkuInfos();
+            if (ListUtils.isEmpty(skuInfos)){
+                return;
+            }
+            ProductSaleInfo productSaleInfo = productInfo.getSaleInfo();
+            for (ProductSKUInfo skuInfo : skuInfos) {
+                productPurchaseInfoDao.updateInventory(skuInfo.getSkuId(),productLink,skuInfo.getAmountOnSale(),productSaleInfo.getMinOrderQuantity());
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
 
     }
@@ -107,7 +113,7 @@ public class ProductPurchaseInfoServiceImpl implements ProductPurchaseInfoServic
     @Override
     public void syncPurchaseInventory(List<OfferInventoryChangeListDTO> offerInventoryChangeListDTOS) {
         for (OfferInventoryChangeListDTO offerInventoryChangeListDTO : offerInventoryChangeListDTOS) {
-            productPurchaseInfoDao.updateInventory(offerInventoryChangeListDTO.getSkuId(),offerInventoryChangeListDTO.getOfferId(),offerInventoryChangeListDTO.getSkuOnSale());
+            productPurchaseInfoDao.updateInventory(offerInventoryChangeListDTO.getSkuId(),offerInventoryChangeListDTO.getOfferId(),offerInventoryChangeListDTO.getSkuOnSale(),null);
         }
     }
 

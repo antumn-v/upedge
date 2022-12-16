@@ -104,7 +104,7 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
     @Override
     public BaseResponse create1688PurchaseOrder(Long orderId, Session session) {
         PurchaseOrder purchaseOrder = selectByPrimaryKey(orderId);
-        if (purchaseOrder == null || purchaseOrder.getPurchaseState() != -2){
+        if (purchaseOrder == null || StringUtils.isNotBlank(purchaseOrder.getPurchaseId())){
             return BaseResponse.failed("订单不存在或不是待创建状态");
         }
 
@@ -153,11 +153,15 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
         if (purchaseOrder.getPurchaseState() == -1){
             return BaseResponse.success();
         }
-        //先从1688取消订单
-        AlibabaTradeCancelResult result = Ali1688Service.cancelOrder(Long.parseLong(purchaseOrder.getPurchaseId()), request.getCancelReason(), request.getRemark());
-        if (!result.getSuccess()){
-            return BaseResponse.failed(result.getErrorMessage());
+        String purchaseId = purchaseOrder.getPurchaseId();
+        if (StringUtils.isNotBlank(purchaseId)){
+            //先从1688取消订单
+            AlibabaTradeCancelResult result = Ali1688Service.cancelOrder(Long.parseLong(purchaseOrder.getPurchaseId()), request.getCancelReason(), request.getRemark());
+            if (!result.getSuccess()){
+                return BaseResponse.failed(result.getErrorMessage());
+            }
         }
+
         //修改仓库采购中数量
         List<PurchaseOrderItem> purchaseOrderItems = purchaseOrderItemService.selectByOrderId(orderId);
         for (PurchaseOrderItem purchaseOrderItem : purchaseOrderItems) {
@@ -607,11 +611,13 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
         //匹配同个订单下的数据
         List<PurchaseOrderVo> purchaseOrderVos = new ArrayList<>();
         for (PurchaseOrder purchaseOrder : purchaseOrders) {
+            Long orderId = purchaseOrder.getId();
+
             List<PurchaseOrderItem> orderItems = new ArrayList<>();
             PurchaseOrderVo purchaseOrderVo = new PurchaseOrderVo();
             BeanUtils.copyProperties(purchaseOrder, purchaseOrderVo);
             for (PurchaseOrderItem orderItem : purchaseOrderItems) {
-                if (orderItem.getOrderId().equals(purchaseOrder.getId()) && orderItem.getState() == 1) {
+                if (orderItem.getOrderId().equals(orderId) && orderItem.getState() == 1) {
                     orderItems.add(orderItem);
                 }
             }
@@ -622,6 +628,12 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
             }
             purchaseOrderItems.removeAll(orderItems);
             purchaseOrderVo.setPurchaseItemVos(orderItems);
+
+            String purchaseId = purchaseOrder.getPurchaseId();
+            if (StringUtils.isBlank(purchaseId)){
+                purchaseOrderVo.setCreateFailedReason((String) redisTemplate.opsForHash().get(RedisKey.HASH_PURCHASE_ORDER_CREATE_FAILED_REASON,orderId.toString()));
+            }
+
             purchaseOrderVos.add(purchaseOrderVo);
         }
 

@@ -13,6 +13,7 @@ import com.upedge.pms.modules.product.dao.StoreProductAttributeDao;
 import com.upedge.pms.modules.product.dao.StoreProductVariantDao;
 import com.upedge.pms.modules.product.entity.Product;
 import com.upedge.pms.modules.product.entity.ProductVariant;
+import com.upedge.pms.modules.product.entity.StoreProductAttribute;
 import com.upedge.pms.modules.product.entity.StoreProductVariant;
 import com.upedge.pms.modules.product.service.ProductService;
 import com.upedge.pms.modules.product.service.ProductVariantService;
@@ -215,6 +216,8 @@ public class CustomerProductQuoteServiceImpl implements CustomerProductQuoteServ
             StoreProductVariant storeProductVariant = storeProductVariantDao.selectByPrimaryKey(storeVariantId);
             customerProductQuote = new CustomerProductQuote(storeProductVariant);
         }
+
+
         if (customerProductQuote.getQuotePrice() != null &&
                 StringUtil.isNotBlank(customerProductQuote.getVariantSku()) &&
                 customerProductQuote.getQuotePrice().compareTo(request.getQuotePrice()) == 0
@@ -234,6 +237,8 @@ public class CustomerProductQuoteServiceImpl implements CustomerProductQuoteServ
         if (null == product.getShippingId()) {
             return BaseResponse.failed("产品运输属性不能为空！");
         }
+        StoreProductAttribute storeProductAttribute = storeProductAttributeDao.selectByPrimaryKey(customerProductQuote.getStoreProductId());
+        customerProductQuote.setStoreProductTitle(storeProductAttribute.getTitle());
         customerProductQuote.setProductId(productVariant.getProductId());
         customerProductQuote.setProductTitle(product.getProductTitle());
         customerProductQuote.setVariantId(productVariant.getId());

@@ -14,13 +14,11 @@ import com.upedge.pms.modules.product.dao.ProductVariantDao;
 import com.upedge.pms.modules.product.dao.StoreProductVariantDao;
 import com.upedge.pms.modules.product.entity.Product;
 import com.upedge.pms.modules.product.entity.ProductVariant;
+import com.upedge.pms.modules.product.entity.StoreProductAttribute;
 import com.upedge.pms.modules.product.entity.StoreProductVariant;
 import com.upedge.pms.modules.product.request.ClaimQuoteApplyRequest;
 import com.upedge.pms.modules.product.request.QuoteApplyProcessRequest;
-import com.upedge.pms.modules.product.service.ProductService;
-import com.upedge.pms.modules.product.service.ProductVariantService;
-import com.upedge.pms.modules.product.service.StoreProductService;
-import com.upedge.pms.modules.product.service.StoreProductVariantService;
+import com.upedge.pms.modules.product.service.*;
 import com.upedge.pms.modules.quote.dao.CustomerProductQuoteDao;
 import com.upedge.pms.modules.quote.dao.QuoteApplyDao;
 import com.upedge.pms.modules.quote.dao.QuoteApplyItemDao;
@@ -86,6 +84,8 @@ public class QuoteApplyServiceImpl implements QuoteApplyService {
     @Autowired
     StoreProductService storeProductService;
 
+    @Autowired
+    StoreProductAttributeService storeProductAttributeService;
     @Autowired
     ProductMqProducer productMqProducer;
 
@@ -332,7 +332,9 @@ public class QuoteApplyServiceImpl implements QuoteApplyService {
         List<QuoteApplyItem> quoteApplyItems = new ArrayList<>();
         List<Long> quotingVariantIds = new ArrayList<>();
         List<StoreProductVariant> storeProductVariants = storeProductVariantDao.selectByIds(storeVariantIds);
-        storeProductService.toNormalProduct(storeProductVariants.get(0).getProductId(),0L);
+        Long storeProductId = storeProductVariants.get(0).getProductId();
+        storeProductService.toNormalProduct(storeProductId,0L);
+        StoreProductAttribute storeProductAttribute = storeProductAttributeService.selectByPrimaryKey(storeProductId);
         for (StoreProductVariant storeProductVariant : storeProductVariants) {
             //判断产品是否已报价
             String key = RedisKey.STRING_QUOTED_STORE_VARIANT + storeProductVariant.getId();
@@ -346,7 +348,7 @@ public class QuoteApplyServiceImpl implements QuoteApplyService {
             quoteApplyItem.setStoreVariantId(storeProductVariant.getId());
             quoteApplyItem.setStoreVariantImage(storeProductVariant.getImage());
             quoteApplyItem.setStoreVariantName(storeProductVariant.getTitle());
-            quoteApplyItem.setStoreProductTitle(storeProductVariant.getTitle());
+            quoteApplyItem.setStoreProductTitle(storeProductAttribute.getTitle());
             quoteApplyItem.setQuoteApplyId(applyId);
             quoteApplyItem.setState(0);
             quoteApplyItems.add(quoteApplyItem);

@@ -15,7 +15,7 @@ public interface ProductPurchaseInfoDao {
 
     List<VariantPurchaseInfoDto> selectByVariantIds(@Param("variantIds") List<Long> variantIds);
 
-    void updateInventory(@Param("purchaseSku") String purchaseSku, @Param("productLink") String productLink, @Param("inventory") Integer inventory);
+    void updateInventory(@Param("purchaseSku") String purchaseSku, @Param("productLink") String productLink, @Param("inventory") Integer inventory,@Param("minOrderQuantity") Integer minOrderQuantity);
 
     List<ProductPurchaseInfo> selectByPurchaseLink(String purchaseLink);
 

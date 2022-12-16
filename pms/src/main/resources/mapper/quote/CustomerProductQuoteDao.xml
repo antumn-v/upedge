@@ -369,7 +369,7 @@
                     store_variant_name = #{t.storeVariantName} and
                 </if>
                 <if test="t.storeProductTitle != null">
-                    store_product_title = #{t.storeProductTitle} and
+                    store_product_title like concat('%', #{t.storeProductTitle} ,'%') and
                 </if>
                 <if test="t.storeVariantSku != null">
                     store_variant_sku like concat(#{t.storeVariantSku},'%') and
