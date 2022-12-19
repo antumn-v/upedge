@@ -35,6 +35,8 @@ import java.math.BigDecimal;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ThreadPoolExecutor;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 
@@ -104,13 +106,16 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
     @Override
     public BaseResponse create1688PurchaseOrder(Long orderId, Session session) {
         PurchaseOrder purchaseOrder = selectByPrimaryKey(orderId);
-        if (purchaseOrder == null || StringUtils.isNotBlank(purchaseOrder.getPurchaseId())){
+        if (purchaseOrder == null || StringUtils.isNotBlank(purchaseOrder.getPurchaseId()) || purchaseOrder.getEditState() == -1){
             return BaseResponse.failed("订单不存在或不是待创建状态");
         }
-
+        purchaseOrderItemService.updateStateInitByOrderId(orderId);
         List<PurchaseOrderItem> purchaseOrderItems = purchaseOrderItemService.selectByOrderId(orderId);
         List<AlibabaTradeFastCargo> alibabaTradeFastCargos = new ArrayList<>();
         for (PurchaseOrderItem purchaseOrderItem : purchaseOrderItems) {
+            if(purchaseOrderItem.getState() == 0){
+                continue;
+            }
             AlibabaTradeFastCargo alibabaTradeFastCargo = new AlibabaTradeFastCargo();
             alibabaTradeFastCargo.setOfferId(Long.parseLong(purchaseOrderItem.getPurchaseLink()));
             alibabaTradeFastCargo.setSpecId(purchaseOrderItem.getSpecId());
@@ -121,14 +126,21 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
         AlibabaApiVo alibabaApiVo = (AlibabaApiVo) redisTemplate.opsForValue().get(RedisKey.STRING_ALI1688_API);
 
         AlibabaTradeFastResult alibabaTradeFastResult = null;
+
+        AlibabaTradeFastCreateOrderResult result = null;
         String message = "下单号： " + orderId;
 
         try {
-            alibabaTradeFastResult = Ali1688Service.createOrder(alibabaTradeFastCargos, alibabaApiVo, message);
+            result = Ali1688Service.createOrder(alibabaTradeFastCargos, alibabaApiVo, message);
+            boolean b = process1688OrderFailedReason(orderId,result);
+            if (!b){
+                return BaseResponse.failed(result.getMessage());
+            }
         } catch (CustomerException e) {
             redisTemplate.opsForHash().put(RedisKey.HASH_PURCHASE_ORDER_CREATE_FAILED_REASON,orderId.toString(),e.getMessage());
             return BaseResponse.failed(e.getMessage());
         }
+        alibabaTradeFastResult = result.getResult();
         purchaseOrder = new PurchaseOrder();
         purchaseOrder.setId(orderId);
         purchaseOrder.setPurchaseId(alibabaTradeFastResult.getOrderId());
@@ -165,6 +177,9 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
         //修改仓库采购中数量
         List<PurchaseOrderItem> purchaseOrderItems = purchaseOrderItemService.selectByOrderId(orderId);
         for (PurchaseOrderItem purchaseOrderItem : purchaseOrderItems) {
+            if (purchaseOrderItem.getState() != 1){
+                continue;
+            }
             boolean b = variantWarehouseStockService.purchaseOrderItemRevoke(purchaseOrderItem,purchaseOrder.getWarehouseCode());
             if (!b){
                 throw  new CustomerException(purchaseOrderItem.getBarcode() + ": 修改库存失败");
@@ -254,13 +269,17 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
                     continue;
                 }
             }
-
+            AlibabaTradeFastCreateOrderResult result = null;
             AlibabaTradeFastResult alibabaTradeFastResult = null;
             Long id = purchaseService.getNextPurchaseOrderId();
             String message = "下单号： " + id;
 
             try {
-                alibabaTradeFastResult = Ali1688Service.createOrder(tradeFastCargos, alibabaApiVo, message);
+                result = Ali1688Service.createOrder(tradeFastCargos, alibabaApiVo, message);
+                if (!result.getSuccess()){
+                    return BaseResponse.failed(result.getMessage());
+                }
+                alibabaTradeFastResult = result.getResult();
             } catch (CustomerException e) {
                 return BaseResponse.success(e.getMessage());
             }
@@ -331,6 +350,9 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
         Long id = request.getId();
         Integer state = request.getEditState();
         PurchaseOrder purchaseOrder = selectByPrimaryKey(id);
+        if(purchaseOrder.getPurchaseId() == null){
+            return BaseResponse.failed("订单未创建1688采购订单");
+        }
         if (purchaseOrder.getEditState() == 1){
             return BaseResponse.failed("已提交的订单无法修改状态");
         }
@@ -617,9 +639,13 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
             PurchaseOrderVo purchaseOrderVo = new PurchaseOrderVo();
             BeanUtils.copyProperties(purchaseOrder, purchaseOrderVo);
             for (PurchaseOrderItem orderItem : purchaseOrderItems) {
-                if (orderItem.getOrderId().equals(orderId) && orderItem.getState() == 1) {
+                if (orderItem.getState() == 0){
+                    continue;
+                }
+                if (orderItem.getOrderId().equals(orderId)) {
                     orderItems.add(orderItem);
                 }
+
             }
             for (PurchaseOrderTracking orderTracking : orderTrackings) {
                 if (orderTracking.getPurchaseOrderId().equals(purchaseOrder.getId())) {
@@ -627,6 +653,10 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
                 }
             }
             purchaseOrderItems.removeAll(orderItems);
+            if (StringUtils.isBlank(purchaseOrder.getPurchaseId())){
+                checkOrderItems(orderItems);
+            }
+
             purchaseOrderVo.setPurchaseItemVos(orderItems);
 
             String purchaseId = purchaseOrder.getPurchaseId();
@@ -639,6 +669,44 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
 
 
         return BaseResponse.success(purchaseOrderVos,request);
+    }
+
+    public void checkOrderItems(List<PurchaseOrderItem> orderItems){
+        Map<String,Integer> productMoq = new HashMap<>();
+        Map<String,Integer> productQty = new HashMap<>();
+        for (PurchaseOrderItem orderItem : orderItems) {
+            if (orderItem.getState() == 0){
+                continue;
+            }
+            Integer quantity = orderItem.getQuantity();
+            if (orderItem.getInventory() < quantity){
+                orderItem.setState(-1);
+                continue;
+            }
+            String productLink = orderItem.getPurchaseLink();
+            if (!productMoq.containsKey(productLink)){
+                productMoq.put(productLink,orderItem.getMinOrderQuantity());
+            }else {
+                quantity += productQty.get(productLink);
+            }
+            productQty.put(productLink,quantity);
+        }
+
+        for (PurchaseOrderItem orderItem : orderItems) {
+            if (orderItem.getState() < 1){
+                continue;
+            }
+            String productLink = orderItem.getPurchaseLink();
+            if (!productMoq.containsKey(productLink)){
+                continue;
+            }
+            Integer moq = productMoq.get(productLink);
+            Integer total = productQty.get(productLink);
+            if (total < moq){
+                orderItem.setState(-1);
+            }
+        }
+
     }
 
     public void syncOrderTrackingInfo(List<PurchaseOrder> purchaseOrders){
@@ -702,5 +770,35 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
     public long countPurchaseOrder(PurchaseOrderListRequest request) {
         return purchaseOrderDao.countPurchaseOrders(request);
     }
+
+
+    private boolean process1688OrderFailedReason(Long orderId,AlibabaTradeFastCreateOrderResult result){
+        if (result.getSuccess()){
+            return true;
+        }
+        redisTemplate.opsForHash().put(RedisKey.HASH_PURCHASE_ORDER_CREATE_FAILED_REASON,orderId.toString(),result.getMessage());
+        List<String> ids = getStringsInBrackets(result.getMessage());
+        if (ListUtils.isNotEmpty(ids)){
+            CompletableFuture.runAsync(new Runnable() {
+                @Override
+                public void run() {
+                    for (String id : ids) {
+                        productPurchaseInfoService.refreshAlibabaProductInventory(id);
+                    }
+                }
+            },threadPoolExecutor);
+//            purchaseOrderItemService.updateStateByOrderIdAndPurchaseLink(orderId,ids,-1);
+        }
+        return false;
+    }
+
+    public static List<String> getStringsInBrackets(String s) {
+        Pattern p = Pattern.compile("\\[(.*?)\\]");
+        Matcher m = p.matcher(s);
+        List<String> list = new ArrayList<String>();
+        while (m.find()) { list.add(m.group(1)); }
+        return list;
+    }
+
 
 }

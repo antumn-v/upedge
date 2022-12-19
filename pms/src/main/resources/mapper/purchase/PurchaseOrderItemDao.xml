@@ -2,8 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="com.upedge.pms.modules.purchase.dao.PurchaseOrderItemDao">
-
-	<!-- 可根据自己的需求，是否要使用 -->
+    <!-- 可根据自己的需求，是否要使用 -->
     <resultMap type="com.upedge.pms.modules.purchase.entity.PurchaseOrderItem" id="BaseResultMap">
         <result property="id" column="id"/>
         <result property="orderId" column="order_id"/>
@@ -29,19 +28,22 @@
     </resultMap>
 
     <sql id="Base_Column_List">
-        `id`,`order_id`,`variant_id`,`product_id`,`purchase_link`,`variant_name`,`barcode`,original_price,original_quantity,
+        `id`
+        ,`order_id`,`variant_id`,`product_id`,`purchase_link`,`variant_name`,`barcode`,original_price,original_quantity,
         `variant_image`,`variant_sku`,`purchase_sku`,`quantity`,`price`,`spec_id`,`receive_quantity`,require_quantity,`state`
     </sql>
 
-    <select id="selectByPrimaryKey" parameterType="com.upedge.pms.modules.purchase.entity.PurchaseOrderItem" resultMap="BaseResultMap">
+    <select id="selectByPrimaryKey" parameterType="com.upedge.pms.modules.purchase.entity.PurchaseOrderItem"
+            resultMap="BaseResultMap">
         select
-        <include refid="Base_Column_List" />
+        <include refid="Base_Column_List"/>
         from purchase_order_item
         where id = #{id}
     </select>
 
     <delete id="deleteByPrimaryKey" parameterType="com.upedge.pms.modules.purchase.entity.PurchaseOrderItem">
-        delete from purchase_order_item
+        delete
+        from purchase_order_item
         where id = #{id}
     </delete>
 
@@ -94,23 +96,24 @@
     <update id="updateByPrimaryKey" parameterType="com.upedge.pms.modules.purchase.entity.PurchaseOrderItem">
         update purchase_order_item
         <set>
-        id = #{id},
-        order_id = #{orderId},
-        variant_id = #{variantId},
-        product_id = #{productId},
-        purchase_link = #{purchaseLink},
-        variant_name = #{variantName},
-        variant_image = #{variantImage},
-        variant_sku = #{variantSku},
-        purchase_sku = #{purchaseSku},
-        quantity = #{quantity},
-        price = #{price},
-        spec_id = #{specId},
+            id = #{id},
+            order_id = #{orderId},
+            variant_id = #{variantId},
+            product_id = #{productId},
+            purchase_link = #{purchaseLink},
+            variant_name = #{variantName},
+            variant_image = #{variantImage},
+            variant_sku = #{variantSku},
+            purchase_sku = #{purchaseSku},
+            quantity = #{quantity},
+            price = #{price},
+            spec_id = #{specId},
         </set>
         where id = #{id}
     </update>
 
-    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.upedge.pms.modules.purchase.entity.PurchaseOrderItem" useGeneratedKeys="true">
+    <insert id="insert" keyColumn="id" keyProperty="id"
+            parameterType="com.upedge.pms.modules.purchase.entity.PurchaseOrderItem" useGeneratedKeys="true">
         insert into purchase_order_item
         <trim prefix="(" suffix=")" suffixOverrides=",">
             id,
@@ -144,125 +147,124 @@
         )
     </insert>
 
-    <insert id="insertSelective"  keyColumn="id" keyProperty="id"  parameterType="com.upedge.pms.modules.purchase.entity.PurchaseOrderItem" useGeneratedKeys="true">
+    <insert id="insertSelective" keyColumn="id" keyProperty="id"
+            parameterType="com.upedge.pms.modules.purchase.entity.PurchaseOrderItem" useGeneratedKeys="true">
         insert into purchase_order_item
         <trim prefix="(" suffix=")" suffixOverrides=",">
-            <if test="id != null" >
-              id
+            <if test="id != null">
+                id
             </if>
-            <if test="orderId != null" >
-              order_id
+            <if test="orderId != null">
+                order_id
             </if>
-            <if test="variantId != null" >
-              variant_id
+            <if test="variantId != null">
+                variant_id
             </if>
-            <if test="productId != null" >
-              product_id
+            <if test="productId != null">
+                product_id
             </if>
-            <if test="purchaseLink != null" >
-              purchase_link
+            <if test="purchaseLink != null">
+                purchase_link
             </if>
-            <if test="variantName != null" >
-              variant_name
+            <if test="variantName != null">
+                variant_name
             </if>
-            <if test="variantImage != null" >
-              variant_image
+            <if test="variantImage != null">
+                variant_image
             </if>
-            <if test="variantSku != null" >
-              variant_sku
+            <if test="variantSku != null">
+                variant_sku
             </if>
-            <if test="purchaseSku != null" >
-              purchase_sku
+            <if test="purchaseSku != null">
+                purchase_sku
             </if>
-            <if test="quantity != null" >
-              quantity
+            <if test="quantity != null">
+                quantity
             </if>
-            <if test="price != null" >
-              price
+            <if test="price != null">
+                price
             </if>
-            <if test="specId != null" >
-              spec_id
+            <if test="specId != null">
+                spec_id
             </if>
-
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
-            <if test="id != null" >
+            <if test="id != null">
                 #{id}
             </if>
-            <if test="orderId != null" >
+            <if test="orderId != null">
                 #{orderId}
             </if>
-            <if test="variantId != null" >
+            <if test="variantId != null">
                 #{variantId}
             </if>
-            <if test="productId != null" >
+            <if test="productId != null">
                 #{productId}
             </if>
-            <if test="purchaseLink != null" >
+            <if test="purchaseLink != null">
                 #{purchaseLink}
             </if>
-            <if test="variantName != null" >
+            <if test="variantName != null">
                 #{variantName}
             </if>
-            <if test="variantImage != null" >
+            <if test="variantImage != null">
                 #{variantImage}
             </if>
-            <if test="variantSku != null" >
+            <if test="variantSku != null">
                 #{variantSku}
             </if>
-            <if test="purchaseSku != null" >
+            <if test="purchaseSku != null">
                 #{purchaseSku}
             </if>
-            <if test="quantity != null" >
+            <if test="quantity != null">
                 #{quantity}
             </if>
-            <if test="price != null" >
+            <if test="price != null">
                 #{price}
             </if>
-            <if test="specId != null" >
+            <if test="specId != null">
                 #{specId}
             </if>
-
         </trim>
     </insert>
 
     <insert id="insertByBatch" parameterType="java.util.List">
         insert into purchase_order_item
         <trim prefix="(" suffix=")" suffixOverrides=",">
-           id,
-           order_id,
-           variant_id,
-           product_id,
-           purchase_link,
-           variant_name,
-           variant_image,
-           variant_sku,
-           purchase_sku,
-           quantity,
-           original_quantity,
+            id,
+            order_id,
+            variant_id,
+            product_id,
+            purchase_link,
+            variant_name,
+            variant_image,
+            variant_sku,
+            purchase_sku,
+            quantity,
+            original_quantity,
             require_quantity,
-           price,
-           original_price,
-           spec_id
+            price,
+            original_price,
+            spec_id
         </trim>
         values
         <foreach collection="list" item="item" index="index" separator=",">
             <trim prefix="(" suffix=")" suffixOverrides=",">
-               #{item.id},
-               #{item.orderId},
-               #{item.variantId},
-               #{item.productId},
-               #{item.purchaseLink},
-               #{item.variantName},
-               #{item.variantImage},
-               #{item.variantSku},
-               #{item.purchaseSku},
-               #{item.quantity},
-               #{item.originalQuantity},
-               #{item.requireQuantity},
-               #{item.price},
-               #{item.originalPrice},
-               #{item.specId}
+                #{item.id},
+                #{item.orderId},
+                #{item.variantId},
+                #{item.productId},
+                #{item.purchaseLink},
+                #{item.variantName},
+                #{item.variantImage},
+                #{item.variantSku},
+                #{item.purchaseSku},
+                #{item.quantity},
+                #{item.originalQuantity},
+                #{item.requireQuantity},
+                #{item.price},
+                #{item.originalPrice},
+                #{item.specId}
             </trim>
         </foreach>
     </insert>
@@ -272,49 +274,49 @@
             where
             <trim prefix=" " suffix=" " suffixOverrides=" and ">
                 1 = 1 and
-                    <if test="t.id != null">
-                        id = #{t.id} and
-                    </if>
-                    <if test="t.orderId != null">
-                        order_id = #{t.orderId} and
-                    </if>
-                    <if test="t.variantId != null">
-                        variant_id = #{t.variantId} and
-                    </if>
-                    <if test="t.productId != null">
-                        product_id = #{t.productId} and
-                    </if>
-                    <if test="t.purchaseLink != null">
-                        purchase_link = #{t.purchaseLink} and
-                    </if>
-                    <if test="t.variantName != null">
-                        variant_name = #{t.variantName} and
-                    </if>
-                    <if test="t.variantImage != null">
-                        variant_image = #{t.variantImage} and
-                    </if>
-                    <if test="t.variantSku != null">
-                        variant_sku = #{t.variantSku} and
-                    </if>
-                    <if test="t.purchaseSku != null">
-                        purchase_sku = #{t.purchaseSku} and
-                    </if>
-                    <if test="t.quantity != null">
-                        quantity = #{t.quantity} and
-                    </if>
-                    <if test="t.price != null">
-                        price = #{t.price} and
-                    </if>
-                    <if test="t.specId != null">
-                        spec_id = #{t.specId} and
-                    </if>
+                <if test="t.id != null">
+                    id = #{t.id} and
+                </if>
+                <if test="t.orderId != null">
+                    order_id = #{t.orderId} and
+                </if>
+                <if test="t.variantId != null">
+                    variant_id = #{t.variantId} and
+                </if>
+                <if test="t.productId != null">
+                    product_id = #{t.productId} and
+                </if>
+                <if test="t.purchaseLink != null">
+                    purchase_link = #{t.purchaseLink} and
+                </if>
+                <if test="t.variantName != null">
+                    variant_name = #{t.variantName} and
+                </if>
+                <if test="t.variantImage != null">
+                    variant_image = #{t.variantImage} and
+                </if>
+                <if test="t.variantSku != null">
+                    variant_sku = #{t.variantSku} and
+                </if>
+                <if test="t.purchaseSku != null">
+                    purchase_sku = #{t.purchaseSku} and
+                </if>
+                <if test="t.quantity != null">
+                    quantity = #{t.quantity} and
+                </if>
+                <if test="t.price != null">
+                    price = #{t.price} and
+                </if>
+                <if test="t.specId != null">
+                    spec_id = #{t.specId} and
+                </if>
             </trim>
         </if>
     </sql>
 
     <select id="select" parameterType="com.upedge.common.base.Page" resultMap="BaseResultMap">
         select
-        <include refid="Base_Column_List" />
+        <include refid="Base_Column_List"/>
         from purchase_order_item
         <include refid="Query_Condition"/>
         <if test="orderBy != null">
@@ -350,13 +352,14 @@
 
     <select id="selectByOrderId" resultMap="BaseResultMap">
         select
-        <include refid="Base_Column_List" />
+        <include refid="Base_Column_List"/>
         from purchase_order_item
         where order_id = #{orderId}
     </select>
 
     <select id="selectByOrderListDto" resultMap="BaseResultMap">
-        select poi.`id`,poi.`order_id`,poi.`variant_id`,poi.`product_id`,poi.`purchase_link`,poi.`variant_name`,poi.`variant_image`,poi.`variant_sku`,
+        select
+        poi.`id`,poi.`order_id`,poi.`variant_id`,poi.`product_id`,poi.`purchase_link`,poi.`variant_name`,poi.`variant_image`,poi.`variant_sku`,
         poi.`purchase_sku`,poi.`quantity`,poi.`price`,poi.`spec_id`,poi.`receive_quantity`,pv.weight,pv.barcode,
         poi.original_quantity,poi.original_price,poi.require_quantity,poi.state
         from purchase_order_item poi
@@ -364,31 +367,29 @@
         on poi.variant_id = pv.id
         <include refid="Order_List_Dto"/>
     </select>
-     <sql id="Order_List_Dto">
-
-             where 1 = 1
-             <trim prefix=" " suffix=" " suffixOverrides=" and ">
-
-                 <if test="id != null">
-                     and poi.order_id = #{id} and
-                 </if>
-                 <if test="productId != null">
-                     and pv.product_id = #{productId} and
-                 </if>
-                 <if test="variantName != null">
-                     and pv.variant_name = #{variantName} and
-                 </if>
-                 <if test="variantSku != null">
-                     and pv.variant_sku = #{variantSku} and
-                 </if>
-                 <if test="purchaseSku != null">
-                     and pv.purchase_sku = #{purchaseSku} and
-                 </if>
-                 <if test="barcode != null">
-                     and pv.barcode = #{barcode} and
-                 </if>
-             </trim>
-     </sql>
+    <sql id="Order_List_Dto">
+        where 1 = 1
+        <trim prefix=" " suffix=" " suffixOverrides=" and ">
+            <if test="id != null">
+                and poi.order_id = #{id} and
+            </if>
+            <if test="productId != null">
+                and pv.product_id = #{productId} and
+            </if>
+            <if test="variantName != null">
+                and pv.variant_name = #{variantName} and
+            </if>
+            <if test="variantSku != null">
+                and pv.variant_sku = #{variantSku} and
+            </if>
+            <if test="purchaseSku != null">
+                and pv.purchase_sku = #{purchaseSku} and
+            </if>
+            <if test="barcode != null">
+                and pv.barcode = #{barcode} and
+            </if>
+        </trim>
+    </sql>
 
     <update id="updatePriceBySpecId">
         <foreach collection="items" item="item" separator=";">
@@ -396,6 +397,25 @@
             set price = #{item.price},original_price = #{item.originalPrice}
             where order_id = #{item.orderId}
             and spec_id = #{item.specId}
+        </foreach>
+    </update>
+
+
+    <update id="updateStateInitByOrderId">
+        update purchase_order_item
+        set state = '1'
+        where order_id = #{orderId}
+          and state != '0'
+    </update>
+
+    <update id="updateStateByOrderIdAndPurchaseLink">
+        update purchase_order_item
+        set state = #{state}
+        where order_id = #{orderId}
+        and state != '0'
+        and purchase_link in
+        <foreach collection="purchaseLinks" item="purchaseLink" open="(" close=")" separator=",">
+            #{purchaseLink}
         </foreach>
     </update>
 </mapper>

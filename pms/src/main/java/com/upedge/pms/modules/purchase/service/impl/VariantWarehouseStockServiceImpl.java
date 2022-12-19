@@ -102,6 +102,16 @@ public class VariantWarehouseStockServiceImpl implements VariantWarehouseStockSe
         return variantWarehouseStockDao.insert(record);
     }
 
+    @Override
+    public int updatePurchaseStockReduce(Long variantId, String warehouseCode, Integer quantity) {
+        return variantWarehouseStockDao.updatePurchaseStockReduce(variantId, warehouseCode, quantity);
+    }
+
+    @Override
+    public int updateVariantPurchaseStock(Long variantId, String warehouseCode, Integer changeQuantity) {
+        return variantWarehouseStockDao.updateVariantPurchaseStock(variantId, warehouseCode, changeQuantity);
+    }
+
     @Transactional(rollbackFor = Exception.class)
     @Override
     public int orderCancelShip(OrderItemQuantityVo orderItemQuantityVo) throws Exception {

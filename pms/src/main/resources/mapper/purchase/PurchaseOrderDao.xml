@@ -503,6 +503,7 @@
     <update id="updateOrderRevoke">
         update purchase_order
             set purchase_state = '-1',
+                edit_state = '0',
                 update_time = #{date}
         where id = #{id}
     </update>

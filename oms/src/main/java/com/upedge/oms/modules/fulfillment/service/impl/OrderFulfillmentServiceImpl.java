@@ -319,7 +319,7 @@ public class OrderFulfillmentServiceImpl implements OrderFulfillmentService {
         } catch (Exception e) {
             return false;
         }
-        if (!isPreUpload || orderPackage.getPackageState() == 1){//预上传不修改订单发货状态
+        if (orderPackage.getPackageState() == 1){//预上传不修改订单发货状态
             orderDao.updateOrderAsTracked(orderId,trackCode,trackingCodeType);
         }
         orderPackage = new OrderPackage();

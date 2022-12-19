@@ -517,10 +517,15 @@ public class PurchaseServiceImpl implements PurchaseService {
 
             List<AlibabaTradeFastCargo> tradeFastCargos = map.getValue();
             AlibabaTradeFastResult alibabaTradeFastResult = null;
+            AlibabaTradeFastCreateOrderResult result = null;
             Long id = getNextPurchaseOrderId();
             String message = "下单号： " + id;
 
-            alibabaTradeFastResult = Ali1688Service.createOrder(tradeFastCargos, alibabaApiVo, message);
+            result = Ali1688Service.createOrder(tradeFastCargos, alibabaApiVo, message);
+            if (!result.getSuccess()){
+                continue;
+            }
+            alibabaTradeFastResult = result.getResult();
 
             if (alibabaTradeFastResult == null) {
                 continue;

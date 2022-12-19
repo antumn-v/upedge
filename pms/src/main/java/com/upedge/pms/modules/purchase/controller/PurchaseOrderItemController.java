@@ -4,6 +4,8 @@ import com.upedge.common.base.BaseResponse;
 import com.upedge.common.component.annotation.Permission;
 import com.upedge.common.constant.Constant;
 import com.upedge.common.constant.ResultCode;
+import com.upedge.common.model.user.vo.Session;
+import com.upedge.common.web.util.UserUtil;
 import com.upedge.pms.modules.purchase.entity.PurchaseOrderItem;
 import com.upedge.pms.modules.purchase.request.*;
 import com.upedge.pms.modules.purchase.response.*;
@@ -67,12 +69,9 @@ public class PurchaseOrderItemController {
         return res;
     }
 
-    @RequestMapping(value="/del/{id}", method=RequestMethod.POST)
-    @Permission(permission = "purchase:purchaseorderitem:del:id")
-    public PurchaseOrderItemDelResponse del(@PathVariable Long id) {
-        purchaseOrderItemService.deleteByPrimaryKey(id);
-        PurchaseOrderItemDelResponse res = new PurchaseOrderItemDelResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS);
-        return res;
+    @RequestMapping(value="/del", method=RequestMethod.POST)
+    public BaseResponse del(@RequestBody PurchaseOrderItemDeleteRequest request) {
+        return purchaseOrderItemService.deleteItem(request,null);
     }
 
     @RequestMapping(value="/update/{id}", method=RequestMethod.POST)

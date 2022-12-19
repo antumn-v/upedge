@@ -12,6 +12,12 @@ import java.util.List;
  */
 public interface PurchaseOrderItemDao {
 
+    List<String> selectUnMeetMoqProductLinks(Long orderId);
+
+    int updateStateByOrderIdAndPurchaseLink(@Param("orderId") Long orderId, @Param("purchaseLinks") List<String> purchaseLinks, @Param("state") Integer state);
+
+    int updateStateInitByOrderId(Long orderId);
+
     int updatePriceBySpecId(@Param("items") List<PurchaseOrderItem> items);
 
     List<PurchaseOrderItem> selectByOrderId(Long orderId);

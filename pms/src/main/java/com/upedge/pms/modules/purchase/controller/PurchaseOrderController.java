@@ -48,7 +48,7 @@ public class PurchaseOrderController {
     @Permission(permission = "purchase:purchaseorder:info:id")
     public BaseResponse info(@PathVariable Long id) {
         PurchaseOrder purchaseOrder = purchaseOrderService.selectByPrimaryKey(id);
-        if (null == purchaseOrder || purchaseOrder.getPurchaseType() != 0){
+        if (null == purchaseOrder || purchaseOrder.getPurchaseType() != 0 || purchaseOrder.getPurchaseId() == null){
             return BaseResponse.failed();
         }
         AlibabaOpenplatformTradeModelTradeInfo alibabaOpenplatformTradeModelTradeInfo = null;

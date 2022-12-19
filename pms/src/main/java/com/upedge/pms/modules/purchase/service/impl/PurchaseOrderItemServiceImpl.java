@@ -14,6 +14,7 @@ import com.upedge.pms.modules.purchase.request.PurchaseOrderItemUpdateQuantityRe
 import com.upedge.pms.modules.purchase.service.PurchaseOrderItemService;
 import com.upedge.pms.modules.purchase.service.PurchaseOrderService;
 import com.upedge.pms.modules.purchase.service.VariantWarehouseStockService;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -72,11 +73,24 @@ public class PurchaseOrderItemServiceImpl implements PurchaseOrderItemService {
     }
 
     @Override
+    public int updateStateByOrderIdAndPurchaseLink(Long orderId, List<String> purchaseLinks, Integer state) {
+        if (ListUtils.isEmpty(purchaseLinks)){
+            return 0;
+        }
+        return purchaseOrderItemDao.updateStateByOrderIdAndPurchaseLink(orderId, purchaseLinks, state);
+    }
+
+    @Override
+    public int updateStateInitByOrderId(Long orderId) {
+        return purchaseOrderItemDao.updateStateInitByOrderId(orderId);
+    }
+
+    @Override
     public BaseResponse deleteItem(PurchaseOrderItemDeleteRequest request, Session session) {
         Long orderId = request.getOrderId();
         Long itemId = request.getItemId();
         PurchaseOrder purchaseOrder = purchaseOrderService.selectByPrimaryKey(orderId);
-        if (purchaseOrder.getPurchaseState() != -2){
+        if (purchaseOrder == null || StringUtils.isNotBlank(purchaseOrder.getPurchaseId())){
             return BaseResponse.failed();
         }
         PurchaseOrderItem purchaseOrderItem = selectByPrimaryKey(itemId);
@@ -141,9 +155,11 @@ public class PurchaseOrderItemServiceImpl implements PurchaseOrderItemService {
         if (null == purchaseOrderItem){
             return BaseResponse.failed();
         }
-        if (quantity == purchaseOrderItem.getQuantity()){
+        Integer oldQuantity = purchaseOrderItem.getQuantity();
+        if (quantity == oldQuantity){
             return BaseResponse.success();
         }
+        Long variantId = purchaseOrderItem.getVariantId();
         Long orderId = purchaseOrderItem.getOrderId();
         PurchaseOrder purchaseOrder = purchaseOrderService.selectByPrimaryKey(orderId);
         if (purchaseOrder.getEditState() != 0){
@@ -153,6 +169,14 @@ public class PurchaseOrderItemServiceImpl implements PurchaseOrderItemService {
         purchaseOrderItem.setId(id);
         purchaseOrderItem.setQuantity(quantity);
         updateByPrimaryKeySelective(purchaseOrderItem);
+
+        quantity = quantity - oldQuantity;
+        if (quantity > 0){
+            variantWarehouseStockService.updateVariantPurchaseStock(variantId,"CNHZ",quantity);
+        }else {
+            quantity = quantity * -1;
+            variantWarehouseStockService.updatePurchaseStockReduce(variantId,"CNHZ",quantity);
+        }
 
         updateOrderProductAmount(orderId);
         return BaseResponse.success();

@@ -8,6 +8,7 @@ import com.upedge.pms.modules.purchase.entity.PurchaseOrderItem;
 import com.upedge.pms.modules.purchase.entity.PurchasePlan;
 import com.upedge.pms.modules.purchase.entity.VariantWarehouseStock;
 import com.upedge.pms.modules.purchase.request.*;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -16,6 +17,9 @@ import java.util.List;
  */
 public interface VariantWarehouseStockService{
 
+    int updatePurchaseStockReduce(Long variantId, String warehouseCode, Integer quantity);
+
+    int updateVariantPurchaseStock(Long variantId, String warehouseCode, Integer changeQuantity);
     int orderCancelShip(OrderItemQuantityVo orderItemQuantityVo) throws Exception;
 
     BaseResponse deleteVariantStock(VariantWarehouseStockDeleteRequest request,Session session);
