@@ -92,7 +92,7 @@ public class OrderFulfillmentServiceImpl implements OrderFulfillmentService {
         List<Long> orderIds = orderDao.selectUploadStoreFailedOrderIds();
         for (Long orderId : orderIds) {
             OrderTracking orderTracking = orderTrackingDao.selectByOrderId(orderId);
-            if (null != orderTracking){
+            if (null != orderTracking) {
                 orderFulfillment(orderId);
             }
         }
@@ -108,7 +108,7 @@ public class OrderFulfillmentServiceImpl implements OrderFulfillmentService {
     @Override
     public void orderFulfillment(Long id) {
         Order order = orderDao.selectByPrimaryKey(id);
-        if (order == null){
+        if (order == null) {
             return;
         }
         OrderTracking orderTracking = orderTrackingService.queryOrderTrackingByOrderId(id, OrderType.NORMAL);
@@ -116,17 +116,17 @@ public class OrderFulfillmentServiceImpl implements OrderFulfillmentService {
             //无物流信息或物流信息已回传店铺
             return;
         }
-        ShippingMethodRedis shippingMethodRedis = (ShippingMethodRedis) redisTemplate.opsForHash().get(RedisKey.SHIPPING_METHOD,String.valueOf(order.getShipMethodId()));
-        if (null != shippingMethodRedis){
-            if (StringUtils.isNotBlank(shippingMethodRedis.getTrackingCompany())){
+        ShippingMethodRedis shippingMethodRedis = (ShippingMethodRedis) redisTemplate.opsForHash().get(RedisKey.SHIPPING_METHOD, String.valueOf(order.getShipMethodId()));
+        if (null != shippingMethodRedis) {
+            if (StringUtils.isNotBlank(shippingMethodRedis.getTrackingCompany())) {
                 orderTracking.setTrackingCompany(shippingMethodRedis.getTrackingCompany());
-            }else {
+            } else {
                 orderTracking.setTrackingCompany(shippingMethodRedis.getName());
             }
             orderTracking.setState(0);
             orderTracking.setShippingMethodName(shippingMethodRedis.getName());
             orderTrackingDao.updateOrderTracking(orderTracking);
-        }else {
+        } else {
             return;
         }
         String trackCode = null;
@@ -136,14 +136,14 @@ public class OrderFulfillmentServiceImpl implements OrderFulfillmentService {
 //        }else {
 //            trackCode = orderTracking.getTrackNumbers();
 //        }
-        if (shippingMethodRedis.getTrackType() == 0){
+        if (shippingMethodRedis.getTrackType() == 0) {
             trackCode = orderTracking.getTrackNumbers();
 
         }
-        if (shippingMethodRedis.getTrackType() == 1){
+        if (shippingMethodRedis.getTrackType() == 1) {
             trackCode = orderTracking.getLogisticsOrderNo();
         }
-        if (StringUtils.isBlank(trackCode)){
+        if (StringUtils.isBlank(trackCode)) {
             orderTracking.setState(4);
             orderTrackingDao.updateOrderTracking(orderTracking);
             return;
@@ -155,7 +155,7 @@ public class OrderFulfillmentServiceImpl implements OrderFulfillmentService {
         try {
             storeOrderRelates.forEach(storeOrderRelate -> {
                 List<StoreOrderItem> storeOrderItems = storeOrderItemDao.selectByStoreOrderAndOrder(orderId, storeOrderRelate.getStoreOrderId());
-                if(ListUtils.isEmpty(storeOrderItems)){
+                if (ListUtils.isEmpty(storeOrderItems)) {
                     return;
                 }
                 String platOrderId = storeOrderItems.get(0).getPlatOrderId();
@@ -191,29 +191,29 @@ public class OrderFulfillmentServiceImpl implements OrderFulfillmentService {
         }
         Long orderId = orderTracking.getOrderId();
         Order order = orderDao.selectByPrimaryKey(orderId);
-        ShippingMethodRedis shippingMethodRedis = (ShippingMethodRedis) redisTemplate.opsForHash().get(RedisKey.SHIPPING_METHOD,String.valueOf(order.getShipMethodId()));
-        if (null != shippingMethodRedis){
-            if (StringUtils.isNotBlank(shippingMethodRedis.getTrackingCompany())){
+        ShippingMethodRedis shippingMethodRedis = (ShippingMethodRedis) redisTemplate.opsForHash().get(RedisKey.SHIPPING_METHOD, String.valueOf(order.getShipMethodId()));
+        if (null != shippingMethodRedis) {
+            if (StringUtils.isNotBlank(shippingMethodRedis.getTrackingCompany())) {
                 orderTracking.setTrackingCompany(shippingMethodRedis.getTrackingCompany());
-            }else {
+            } else {
                 orderTracking.setTrackingCompany(shippingMethodRedis.getName());
             }
             orderTracking.setState(0);
             orderTracking.setShippingMethodName(shippingMethodRedis.getName());
             orderTrackingDao.updateOrderTracking(orderTracking);
-        }else {
+        } else {
             return;
         }
         String trackCode = null;
 
-        if (shippingMethodRedis.getTrackType() == 0){
+        if (shippingMethodRedis.getTrackType() == 0) {
             trackCode = orderTracking.getTrackNumbers();
 
         }
-        if (shippingMethodRedis.getTrackType() == 1){
+        if (shippingMethodRedis.getTrackType() == 1) {
             trackCode = orderTracking.getLogisticsOrderNo();
         }
-        if (StringUtils.isBlank(trackCode)){
+        if (StringUtils.isBlank(trackCode)) {
             orderTracking.setState(4);
             orderTrackingDao.updateOrderTracking(orderTracking);
             return;
@@ -224,7 +224,7 @@ public class OrderFulfillmentServiceImpl implements OrderFulfillmentService {
         try {
             storeOrderRelates.forEach(storeOrderRelate -> {
                 List<StoreOrderItem> storeOrderItems = storeOrderItemDao.selectByStoreOrderAndOrder(orderId, storeOrderRelate.getStoreOrderId());
-                if(ListUtils.isEmpty(storeOrderItems)){
+                if (ListUtils.isEmpty(storeOrderItems)) {
                     return;
                 }
                 String platOrderId = storeOrderItems.get(0).getPlatOrderId();
@@ -253,14 +253,14 @@ public class OrderFulfillmentServiceImpl implements OrderFulfillmentService {
         orderTrackingDao.updateOrderTracking(orderTracking);
     }
 
-    public boolean orderFulfillment(OrderPackage orderPackage,boolean isPreUpload) {
-        if(orderPackage == null){
+    public boolean orderFulfillment(OrderPackage orderPackage, boolean isPreUpload) {
+        if (orderPackage == null) {
             return false;
         }
         Long packNo = orderPackage.getId();
         Long orderId = orderPackage.getOrderId();
         Order order = orderDao.selectByPrimaryKey(orderId);
-        if (order == null){
+        if (order == null) {
             return false;
         }
         StoreVo storeVo = getStoreVo(order.getStoreId());
@@ -269,23 +269,20 @@ public class OrderFulfillmentServiceImpl implements OrderFulfillmentService {
         String trackCode = null;
         String uploadStoreTrackCodeType = (String) redisTemplate.opsForHash().get(RedisKey.HASH_CUSTOMER_SETTING + customerId, CustomerSettingEnum.upload_store_track_code_type.name());
         Integer trackingCodeType = 0;
-        if (uploadStoreTrackCodeType == null || uploadStoreTrackCodeType.equals("0")){
+        if (uploadStoreTrackCodeType == null || uploadStoreTrackCodeType.equals("0")) {
             trackCode = orderPackage.getLogisticsOrderNo();
-        }else {
+        } else {
             trackingCodeType = 1;
             trackCode = orderPackage.getTrackingCode();
         }
-        if (StringUtils.isBlank(trackCode)){
+        if (StringUtils.isBlank(trackCode)) {
             return false;
         }
 
-        if (orderPackage.getIsUploadStore()){
-            if (order.getShipState() == 0){
-                orderDao.updateOrderAsTracked(orderId,trackCode,trackingCodeType);
-            }
+        if (orderPackage.getIsUploadStore() && orderPackage.getPackageState() == 1) {
+            orderDao.updateOrderAsTracked(orderId, trackCode, trackingCodeType);
             return true;
         }
-
 
 
         List<StoreOrderRelate> storeOrderRelates = storeOrderRelateDao.selectByOrderId(orderId);
@@ -295,23 +292,23 @@ public class OrderFulfillmentServiceImpl implements OrderFulfillmentService {
             OrderPackage finalOrderPackage = orderPackage;
             for (StoreOrderRelate storeOrderRelate : storeOrderRelates) {
                 List<StoreOrderItem> storeOrderItems = storeOrderItemDao.selectByStoreOrderAndOrder(orderId, storeOrderRelate.getStoreOrderId());
-                if(ListUtils.isEmpty(storeOrderItems)){
+                if (ListUtils.isEmpty(storeOrderItems)) {
                     continue;
                 }
                 String platOrderId = storeOrderItems.get(0).getPlatOrderId();
                 Long storeOrderId = storeOrderRelate.getStoreOrderId();
                 boolean b = false;
-                switch (storeVo.getStoreType()){
+                switch (storeVo.getStoreType()) {
                     case 0:
-                        b = shopifyOrderFulfill(storeOrderItems, finalTrackCode, finalOrderPackage.getTrackingCompany(), storeVo, platOrderId, storeOrderId,orderId);
+                        b = shopifyOrderFulfill(storeOrderItems, finalTrackCode, finalOrderPackage.getTrackingCompany(), storeVo, platOrderId, storeOrderId, orderId);
                         break;
                     case 1:
-                        b = woocommerceOrderFulfill(orderPackage,platOrderId,storeOrderId);
+                        b = woocommerceOrderFulfill(orderPackage, platOrderId, storeOrderId);
                         break;
                     default:
                         break;
                 }
-                if (!b){
+                if (!b) {
                     return false;
                 }
             }
@@ -319,8 +316,8 @@ public class OrderFulfillmentServiceImpl implements OrderFulfillmentService {
         } catch (Exception e) {
             return false;
         }
-        if (orderPackage.getPackageState() == 1){//预上传不修改订单发货状态
-            orderDao.updateOrderAsTracked(orderId,trackCode,trackingCodeType);
+        if (orderPackage.getPackageState() == 1) {//预上传不修改订单发货状态
+            orderDao.updateOrderAsTracked(orderId, trackCode, trackingCodeType);
         }
         orderPackage = new OrderPackage();
         orderPackage.setId(packNo);
@@ -341,33 +338,33 @@ public class OrderFulfillmentServiceImpl implements OrderFulfillmentService {
             return false;
         }
         ShopifyOrder shopifyOrder = jsonObject.getJSONObject("order").toJavaObject(ShopifyOrder.class);
-        Map<String,List<ShopifyLineItem>> fulfillmentItems = new HashMap<>();
+        Map<String, List<ShopifyLineItem>> fulfillmentItems = new HashMap<>();
         List<ShopifyLineItem> shopifyLineItems = shopifyOrder.getLine_items();
         for (ShopifyLineItem shopifyLineItem : shopifyLineItems) {
-            if (shopifyLineItem.getFulfillable_quantity() == 0){
+            if (shopifyLineItem.getFulfillable_quantity() == 0) {
                 continue;
             }
             String fulfillmentService = shopifyLineItem.getFulfillmentService();
             List<ShopifyLineItem> lineItems = fulfillmentItems.get(fulfillmentService);
-            if (ListUtils.isEmpty(lineItems)){
+            if (ListUtils.isEmpty(lineItems)) {
                 lineItems = new ArrayList<>();
             }
             lineItems.add(shopifyLineItem);
-            fulfillmentItems.put(fulfillmentService,lineItems);
+            fulfillmentItems.put(fulfillmentService, lineItems);
         }
         //更新已回传物流的订单产品的物流信息
         List<ShopifyFulfillment> shopifyFulfillments = shopifyOrder.getFulfillments();
         if (ListUtils.isNotEmpty(shopifyFulfillments)) {
-            shopifyUpdateFulfillment(shopifyFulfillments, platOrderItemIds, orderTracking, storeVo, platOrderId,storeOrderId);
+            shopifyUpdateFulfillment(shopifyFulfillments, platOrderItemIds, orderTracking, storeVo, platOrderId, storeOrderId);
         }
 
         if (ListUtils.isNotEmpty(platOrderItemIds)) {
-            return uploadShopifyOrderFulfillment(fulfillmentItems, orderTracking, storeVo, platOrderId,storeOrderId);
+            return uploadShopifyOrderFulfillment(fulfillmentItems, orderTracking, storeVo, platOrderId, storeOrderId);
         }
         return true;
     }
 
-    public boolean shopifyOrderFulfill(List<StoreOrderItem> storeOrderItems, String trackCode,String trackCompany, StoreVo storeVo, String platOrderId, Long storeOrderId,Long orderId) {
+    public boolean shopifyOrderFulfill(List<StoreOrderItem> storeOrderItems, String trackCode, String trackCompany, StoreVo storeVo, String platOrderId, Long storeOrderId, Long orderId) {
         List<String> platOrderItemIds = new ArrayList<>();
         storeOrderItems.forEach(storeOrderItem -> {
             platOrderItemIds.add(storeOrderItem.getPlatOrderItemId());
@@ -377,34 +374,34 @@ public class OrderFulfillmentServiceImpl implements OrderFulfillmentService {
             return false;
         }
         ShopifyOrder shopifyOrder = jsonObject.getJSONObject("order").toJavaObject(ShopifyOrder.class);
-        Map<String,List<ShopifyLineItem>> fulfillmentItems = new HashMap<>();
+        Map<String, List<ShopifyLineItem>> fulfillmentItems = new HashMap<>();
         List<ShopifyLineItem> shopifyLineItems = shopifyOrder.getLine_items();
         for (ShopifyLineItem shopifyLineItem : shopifyLineItems) {
-            if (shopifyLineItem.getFulfillable_quantity() == 0){
+            if (shopifyLineItem.getFulfillable_quantity() == 0) {
                 continue;
             }
             String fulfillmentService = shopifyLineItem.getFulfillmentService();
             List<ShopifyLineItem> lineItems = fulfillmentItems.get(fulfillmentService);
-            if (ListUtils.isEmpty(lineItems)){
+            if (ListUtils.isEmpty(lineItems)) {
                 lineItems = new ArrayList<>();
             }
             lineItems.add(shopifyLineItem);
-            fulfillmentItems.put(fulfillmentService,lineItems);
+            fulfillmentItems.put(fulfillmentService, lineItems);
         }
         //更新已回传物流的订单产品的物流信息
         List<ShopifyFulfillment> shopifyFulfillments = shopifyOrder.getFulfillments();
         if (ListUtils.isNotEmpty(shopifyFulfillments)) {
-            shopifyUpdateFulfillment(shopifyFulfillments, platOrderItemIds, trackCode,trackCompany, storeVo, platOrderId,storeOrderId,orderId);
+            shopifyUpdateFulfillment(shopifyFulfillments, platOrderItemIds, trackCode, trackCompany, storeVo, platOrderId, storeOrderId, orderId);
         }
 
         if (ListUtils.isNotEmpty(platOrderItemIds)) {
-            return uploadShopifyOrderFulfillment(fulfillmentItems, trackCode,trackCompany, storeVo, platOrderId,storeOrderId,orderId);
+            return uploadShopifyOrderFulfillment(fulfillmentItems, trackCode, trackCompany, storeVo, platOrderId, storeOrderId, orderId);
         }
         return true;
     }
 
     //上传shopify订单物流信息
-    boolean uploadShopifyOrderFulfillment(Map<String,List<ShopifyLineItem>> fulfillmentItems, OrderTracking orderTracking, StoreVo storeVo, String platOrderId, Long storeOrderId) {
+    boolean uploadShopifyOrderFulfillment(Map<String, List<ShopifyLineItem>> fulfillmentItems, OrderTracking orderTracking, StoreVo storeVo, String platOrderId, Long storeOrderId) {
         List<ShopifyLineItem> lineItems = new ArrayList<>();
 
         //shopify订单回传物流需要添加location Id，location和订单产品的关系还需要测试
@@ -416,24 +413,24 @@ public class OrderFulfillmentServiceImpl implements OrderFulfillmentService {
         }
 
         a:
-        for (Map.Entry<String,List<ShopifyLineItem>> fulfillmentServiceItemsEntry: fulfillmentItems.entrySet() ){
+        for (Map.Entry<String, List<ShopifyLineItem>> fulfillmentServiceItemsEntry : fulfillmentItems.entrySet()) {
             List<ShopifyLineItem> lineItemList = fulfillmentServiceItemsEntry.getValue();
-            if (ListUtils.isEmpty(lineItemList)){
-                continue ;
+            if (ListUtils.isEmpty(lineItemList)) {
+                continue;
             }
-            Map<String,Object> fulfillmentMap = new HashMap<>();
+            Map<String, Object> fulfillmentMap = new HashMap<>();
             Map<String, Object> map = new HashMap<>();
             map.put("tracking_number", orderTracking.getTrackingCode());
             map.put("tracking_company", orderTracking.getTrackingCompany());
             map.put("notify_customer", true);
-            map.put("tracking_url","https://t.17track.net/en#nums=" + orderTracking.getTrackingCode());
+            map.put("tracking_url", "https://t.17track.net/en#nums=" + orderTracking.getTrackingCode());
             map.put("line_items", lineItemList);
-            String locationId = (String) redisTemplate.opsForHash().get(RedisKey.HASH_STORE_FULFILLMENT_SERVICE_LOCATION+storeVo.getId(),fulfillmentServiceItemsEntry.getKey());
-            if (StringUtils.isNotBlank(locationId)){
+            String locationId = (String) redisTemplate.opsForHash().get(RedisKey.HASH_STORE_FULFILLMENT_SERVICE_LOCATION + storeVo.getId(), fulfillmentServiceItemsEntry.getKey());
+            if (StringUtils.isNotBlank(locationId)) {
                 map.put("location_id", locationId);
-                fulfillmentMap.put("fulfillment",map);
+                fulfillmentMap.put("fulfillment", map);
                 ShopifyFulfillment fulfillment = ShopifyOrderApi.orderFulfillment(platOrderId, storeVo.getStoreName(), storeVo.getApiToken(), fulfillmentMap);
-                saveStoreOrderFulfillment(fulfillment,storeVo,orderTracking,platOrderId,fulfillment_post,storeOrderId);
+                saveStoreOrderFulfillment(fulfillment, storeVo, orderTracking, platOrderId, fulfillment_post, storeOrderId);
                 if (null != fulfillment && fulfillment.getStatus().equals("success")) {
                     continue a;
                 }
@@ -441,11 +438,11 @@ public class OrderFulfillmentServiceImpl implements OrderFulfillmentService {
 
             for (ShopifyLocation location : locations) {
                 map.put("location_id", location.getId());
-                fulfillmentMap.put("fulfillment",map);
+                fulfillmentMap.put("fulfillment", map);
                 ShopifyFulfillment fulfillment = ShopifyOrderApi.orderFulfillment(platOrderId, storeVo.getStoreName(), storeVo.getApiToken(), fulfillmentMap);
-                saveStoreOrderFulfillment(fulfillment,storeVo,orderTracking,platOrderId,fulfillment_post,storeOrderId);
+                saveStoreOrderFulfillment(fulfillment, storeVo, orderTracking, platOrderId, fulfillment_post, storeOrderId);
                 if (null != fulfillment && fulfillment.getStatus().equals("success")) {
-                    redisTemplate.opsForHash().put(RedisKey.HASH_STORE_FULFILLMENT_SERVICE_LOCATION+storeVo.getId(),fulfillmentServiceItemsEntry.getKey(),location.getId());
+                    redisTemplate.opsForHash().put(RedisKey.HASH_STORE_FULFILLMENT_SERVICE_LOCATION + storeVo.getId(), fulfillmentServiceItemsEntry.getKey(), location.getId());
                     continue a;
                 }
             }
@@ -456,35 +453,35 @@ public class OrderFulfillmentServiceImpl implements OrderFulfillmentService {
         return true;
     }
 
-    boolean uploadShopifyOrderFulfillment(Map<String,List<ShopifyLineItem>> fulfillmentItems, String trackCode,String trackCompany, StoreVo storeVo, String platOrderId, Long storeOrderId,Long orderId) {
+    boolean uploadShopifyOrderFulfillment(Map<String, List<ShopifyLineItem>> fulfillmentItems, String trackCode, String trackCompany, StoreVo storeVo, String platOrderId, Long storeOrderId, Long orderId) {
         //shopify订单回传物流需要添加location Id，location和订单产品的关系还需要测试
         String storeLocationKey = RedisKey.STRING_STORE_SHOPIFY_LOCATIONS + storeVo.getId();
 
         List<ShopifyLocation> locations = (List<ShopifyLocation>) redisTemplate.opsForValue().get(storeLocationKey);
         if (ListUtils.isEmpty(locations)) {
             locations = ShopifyShopApi.getShopifyLocations(storeVo.getStoreName(), storeVo.getApiToken());
-            redisTemplate.opsForValue().set(storeLocationKey, locations,1, TimeUnit.DAYS);
+            redisTemplate.opsForValue().set(storeLocationKey, locations, 1, TimeUnit.DAYS);
         }
 
         a:
-        for (Map.Entry<String,List<ShopifyLineItem>> fulfillmentServiceItemsEntry: fulfillmentItems.entrySet() ){
+        for (Map.Entry<String, List<ShopifyLineItem>> fulfillmentServiceItemsEntry : fulfillmentItems.entrySet()) {
             List<ShopifyLineItem> lineItemList = fulfillmentServiceItemsEntry.getValue();
-            if (ListUtils.isEmpty(lineItemList)){
-                continue ;
+            if (ListUtils.isEmpty(lineItemList)) {
+                continue;
             }
-            Map<String,Object> fulfillmentMap = new HashMap<>();
+            Map<String, Object> fulfillmentMap = new HashMap<>();
             Map<String, Object> map = new HashMap<>();
             map.put("tracking_number", trackCode);
             map.put("tracking_company", trackCompany);
             map.put("notify_customer", true);
-            map.put("tracking_url","https://t.17track.net/en#nums=" + trackCode);
+            map.put("tracking_url", "https://t.17track.net/en#nums=" + trackCode);
             map.put("line_items", lineItemList);
-            String locationId = (String) redisTemplate.opsForHash().get(RedisKey.HASH_STORE_FULFILLMENT_SERVICE_LOCATION+storeVo.getId(),fulfillmentServiceItemsEntry.getKey());
-            if (StringUtils.isNotBlank(locationId)){
+            String locationId = (String) redisTemplate.opsForHash().get(RedisKey.HASH_STORE_FULFILLMENT_SERVICE_LOCATION + storeVo.getId(), fulfillmentServiceItemsEntry.getKey());
+            if (StringUtils.isNotBlank(locationId)) {
                 map.put("location_id", locationId);
-                fulfillmentMap.put("fulfillment",map);
+                fulfillmentMap.put("fulfillment", map);
                 ShopifyFulfillment fulfillment = ShopifyOrderApi.orderFulfillment(platOrderId, storeVo.getStoreName(), storeVo.getApiToken(), fulfillmentMap);
-                saveStoreOrderFulfillment(fulfillment,storeVo,orderId,platOrderId,fulfillment_post,storeOrderId);
+                saveStoreOrderFulfillment(fulfillment, storeVo, orderId, platOrderId, fulfillment_post, storeOrderId);
                 if (null != fulfillment && fulfillment.getStatus().equals("success")) {
                     continue a;
                 }
@@ -492,11 +489,11 @@ public class OrderFulfillmentServiceImpl implements OrderFulfillmentService {
 
             for (ShopifyLocation location : locations) {
                 map.put("location_id", location.getId());
-                fulfillmentMap.put("fulfillment",map);
+                fulfillmentMap.put("fulfillment", map);
                 ShopifyFulfillment fulfillment = ShopifyOrderApi.orderFulfillment(platOrderId, storeVo.getStoreName(), storeVo.getApiToken(), fulfillmentMap);
-                saveStoreOrderFulfillment(fulfillment,storeVo,orderId,platOrderId,fulfillment_post,storeOrderId);
+                saveStoreOrderFulfillment(fulfillment, storeVo, orderId, platOrderId, fulfillment_post, storeOrderId);
                 if (null != fulfillment && fulfillment.getStatus().equals("success")) {
-                    redisTemplate.opsForHash().put(RedisKey.HASH_STORE_FULFILLMENT_SERVICE_LOCATION+storeVo.getId(),fulfillmentServiceItemsEntry.getKey(),location.getId());
+                    redisTemplate.opsForHash().put(RedisKey.HASH_STORE_FULFILLMENT_SERVICE_LOCATION + storeVo.getId(), fulfillmentServiceItemsEntry.getKey(), location.getId());
                     continue a;
                 }
             }
@@ -523,16 +520,16 @@ public class OrderFulfillmentServiceImpl implements OrderFulfillmentService {
                 map.put("tracking_number", orderTracking.getTrackingCode());
                 map.put("tracking_company", orderTracking.getTrackingCompany());
                 map.put("notify_customer", true);
-                map.put("tracking_url","https://t.17track.net/en#nums=" + orderTracking.getTrackingCode());
+                map.put("tracking_url", "https://t.17track.net/en#nums=" + orderTracking.getTrackingCode());
                 fulfillment.put("fulfillment", map);
                 ShopifyFulfillment updateShopFulfillment = ShopifyOrderApi.orderFulfillmentUpdate(fulfillment, storeVo.getApiToken(), storeVo.getStoreName(), platOrderId, shopifyFulfillment.getId());
-                saveStoreOrderFulfillment(updateShopFulfillment,storeVo,orderTracking,platOrderId,fulfillment_post,storeOrderId);
+                saveStoreOrderFulfillment(updateShopFulfillment, storeVo, orderTracking, platOrderId, fulfillment_post, storeOrderId);
 
             }
         });
     }
 
-    void shopifyUpdateFulfillment(List<ShopifyFulfillment> shopifyFulfillments, List<String> platOrderItemIds, String trackCode,String trackCompany, StoreVo storeVo, String platOrderId, Long storeOrderId,Long orderId) {
+    void shopifyUpdateFulfillment(List<ShopifyFulfillment> shopifyFulfillments, List<String> platOrderItemIds, String trackCode, String trackCompany, StoreVo storeVo, String platOrderId, Long storeOrderId, Long orderId) {
         shopifyFulfillments.forEach(shopifyFulfillment -> {
             List<String> fulfillmentItemIds = new ArrayList<>();
             List<ShopifyLineItem> shopifyLineItems = shopifyFulfillment.getLine_items();
@@ -548,10 +545,10 @@ public class OrderFulfillmentServiceImpl implements OrderFulfillmentService {
                 map.put("tracking_number", trackCode);
                 map.put("tracking_company", trackCompany);
                 map.put("notify_customer", true);
-                map.put("tracking_url","https://t.17track.net/en#nums=" + trackCode);
+                map.put("tracking_url", "https://t.17track.net/en#nums=" + trackCode);
                 fulfillment.put("fulfillment", map);
                 ShopifyFulfillment updateShopFulfillment = ShopifyOrderApi.orderFulfillmentUpdate(fulfillment, storeVo.getApiToken(), storeVo.getStoreName(), platOrderId, shopifyFulfillment.getId());
-                saveStoreOrderFulfillment(updateShopFulfillment,storeVo,orderId,platOrderId,fulfillment_post,storeOrderId);
+                saveStoreOrderFulfillment(updateShopFulfillment, storeVo, orderId, platOrderId, fulfillment_post, storeOrderId);
 
             }
         });
@@ -576,8 +573,8 @@ public class OrderFulfillmentServiceImpl implements OrderFulfillmentService {
         woocommerceOrderNote.setNote(note);
         woocommerceOrderNote.setCustomer_note(storeVo.isEmailPrompt());
         woocommerceOrderNote = WoocommerceOrderApi.postOrderNote(platOrderId, storeVo.getStoreUrl(), storeVo.getApiToken(), woocommerceOrderNote);
-        WoocommerceOrderApi.completeOrder(storeVo.getApiToken(),storeVo.getStoreUrl(),platOrderId);
-        saveStoreOrderFulfillment(woocommerceOrderNote,storeVo,orderTracking,platOrderId,fulfillment_post,storeOrderId);
+        WoocommerceOrderApi.completeOrder(storeVo.getApiToken(), storeVo.getStoreUrl(), platOrderId);
+        saveStoreOrderFulfillment(woocommerceOrderNote, storeVo, orderTracking, platOrderId, fulfillment_post, storeOrderId);
         if (null == woocommerceOrderNote) {
             return false;
         }
@@ -587,15 +584,15 @@ public class OrderFulfillmentServiceImpl implements OrderFulfillmentService {
 
     boolean woocommerceOrderFulfill(OrderPackage orderPackage, String platOrderId, Long storeOrderId) {
 
-        if(orderPackage == null){
+        if (orderPackage == null) {
             return false;
         }
-        if (orderPackage.getIsUploadStore()){
+        if (orderPackage.getIsUploadStore()) {
             return true;
         }
         Long orderId = orderPackage.getOrderId();
         Order order = orderDao.selectByPrimaryKey(orderId);
-        if (order == null){
+        if (order == null) {
             return false;
         }
         StoreVo storeVo = getStoreVo(order.getStoreId());
@@ -603,12 +600,12 @@ public class OrderFulfillmentServiceImpl implements OrderFulfillmentService {
         Long customerId = orderPackage.getCustomerId();
         String trackCode = null;
         String uploadStoreTrackCodeType = (String) redisTemplate.opsForHash().get(RedisKey.HASH_CUSTOMER_SETTING + customerId, CustomerSettingEnum.upload_store_track_code_type.name());
-        if (uploadStoreTrackCodeType == null || uploadStoreTrackCodeType.equals("0")){
+        if (uploadStoreTrackCodeType == null || uploadStoreTrackCodeType.equals("0")) {
             trackCode = orderPackage.getLogisticsOrderNo();
-        }else {
+        } else {
             trackCode = orderPackage.getTrackingCode();
         }
-        if (StringUtils.isBlank(trackCode)){
+        if (StringUtils.isBlank(trackCode)) {
             return false;
         }
 
@@ -631,13 +628,13 @@ public class OrderFulfillmentServiceImpl implements OrderFulfillmentService {
         if (null == woocommerceOrderNote) {
             return false;
         }
-        WoocommerceOrderApi.completeOrder(storeVo.getApiToken(),storeVo.getStoreUrl(),platOrderId);
+        WoocommerceOrderApi.completeOrder(storeVo.getApiToken(), storeVo.getStoreUrl(), platOrderId);
         StoreOrder storeOrder = new StoreOrder();
         storeOrder.setId(storeOrderId);
         storeOrder.setFulfillmentStatus(1);
         storeOrder.setFinancialStatus(0);
         storeOrderRelateDao.updateStoreStatusByStoreOrderId(storeOrder);
-        saveStoreOrderFulfillment(woocommerceOrderNote,storeVo,orderId,platOrderId,fulfillment_post,storeOrderId);
+        saveStoreOrderFulfillment(woocommerceOrderNote, storeVo, orderId, platOrderId, fulfillment_post, storeOrderId);
         woocommerceShipmentTracking(orderPackage, storeVo, platOrderId);
         return true;
     }
@@ -691,7 +688,7 @@ public class OrderFulfillmentServiceImpl implements OrderFulfillmentService {
                         updateFulfullment.setTracking_company(orderTracking.getShippingMethodName());
                         updateFulfullment.setTracking_number(orderTracking.getTrackingCode());
                         updateFulfullment = ShoplazzaOrderApi.putOrderFulfillment(storeVo.getStoreUrl(), storeVo.getApiToken(), platOrderId, fulfilliment.getId(), updateFulfullment);
-                        saveStoreOrderFulfillment(updateFulfullment,storeVo,orderTracking,platOrderId,fulfillment_put,storeOrderId);
+                        saveStoreOrderFulfillment(updateFulfullment, storeVo, orderTracking, platOrderId, fulfillment_put, storeOrderId);
                     }
                 }
             }
@@ -704,7 +701,7 @@ public class OrderFulfillmentServiceImpl implements OrderFulfillmentService {
             jsonObject.put("tracking_number", orderTracking.getTrackingCode());
             jsonObject.put("tracking_company", orderTracking.getShippingMethodName());
             ShoplazzaFulfilliment fulfilliment = ShoplazzaOrderApi.postOrderFulfillment(storeVo.getStoreUrl(), storeVo.getApiToken(), platOrderId, jsonObject.toJSONString());
-            saveStoreOrderFulfillment(fulfilliment,storeVo,orderTracking,platOrderId,fulfillment_post,storeOrderId);
+            saveStoreOrderFulfillment(fulfilliment, storeVo, orderTracking, platOrderId, fulfillment_post, storeOrderId);
             if (fulfilliment != null) {
                 return true;
             }
@@ -747,7 +744,7 @@ public class OrderFulfillmentServiceImpl implements OrderFulfillmentService {
                 default:
                     break;
             }
-        }else {
+        } else {
             storeOrderFulfillment.setFulfillmentResult(false);
         }
         storeOrderFulfillmentDao.insert(storeOrderFulfillment);
@@ -784,7 +781,7 @@ public class OrderFulfillmentServiceImpl implements OrderFulfillmentService {
                 default:
                     break;
             }
-        }else {
+        } else {
             storeOrderFulfillment.setFulfillmentResult(false);
         }
         storeOrderFulfillmentDao.insert(storeOrderFulfillment);
@@ -813,11 +810,11 @@ public class OrderFulfillmentServiceImpl implements OrderFulfillmentService {
     }
 
 
-    public ShippingMethodRedis getShipMethodByTransportId(Integer transportId){
+    public ShippingMethodRedis getShipMethodByTransportId(Integer transportId) {
         List<Object> shippingMethodObjects = redisTemplate.opsForHash().values(RedisKey.SHIPPING_METHOD);
         for (Object shippingMethodObject : shippingMethodObjects) {
             ShippingMethodRedis shippingMethodRedis = (ShippingMethodRedis) shippingMethodObject;
-            if(shippingMethodRedis.getSaiheTransportId().equals(transportId)){
+            if (shippingMethodRedis.getSaiheTransportId().equals(transportId)) {
                 return shippingMethodRedis;
             }
         }
