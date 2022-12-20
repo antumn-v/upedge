@@ -128,6 +128,14 @@ public class OrderPackageServiceImpl implements OrderPackageService {
     private String pdfUrlPrefix;
 
     @Override
+    public List<Long> selectOrderIdsByTrackingCodes(List<String> trackingCodes) {
+        if (ListUtils.isEmpty(trackingCodes)){
+            return new ArrayList<>();
+        }
+        return orderPackageDao.selectOrderIdsByTrackingCodes(trackingCodes);
+    }
+
+    @Override
     public OrderPackage selectByScanNo(String scanNo) {
         return orderPackageDao.selectByScanNo(scanNo);
     }

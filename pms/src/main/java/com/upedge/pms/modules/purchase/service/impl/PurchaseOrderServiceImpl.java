@@ -106,7 +106,7 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
     @Override
     public BaseResponse create1688PurchaseOrder(Long orderId, Session session) {
         PurchaseOrder purchaseOrder = selectByPrimaryKey(orderId);
-        if (purchaseOrder == null || StringUtils.isNotBlank(purchaseOrder.getPurchaseId()) || purchaseOrder.getEditState() == -1){
+        if (purchaseOrder == null || StringUtils.isNotBlank(purchaseOrder.getPurchaseId()) || purchaseOrder.getEditState() != 0){
             return BaseResponse.failed("订单不存在或不是待创建状态");
         }
         purchaseOrderItemService.updateStateInitByOrderId(orderId);
@@ -147,7 +147,7 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
         purchaseOrder.setShipPrice(new BigDecimal((alibabaTradeFastResult.getPostFee().doubleValue() / 100)));
         purchaseOrder.setAmount(new BigDecimal(alibabaTradeFastResult.getTotalSuccessAmount().doubleValue() / 100));
         purchaseOrder.setUpdateTime(new Date());
-        purchaseOrder.setPurchaseState(-1);
+        purchaseOrder.setPurchaseState(0);
         updateByPrimaryKeySelective(purchaseOrder);
 
         completeOrderInfo(orderId);
@@ -159,10 +159,10 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
     public BaseResponse revokePurchaseOrder(PurchaseOrderRevokeRequest request, Session session) throws CustomerException {
         Long orderId = request.getOrderId();
         PurchaseOrder purchaseOrder = selectByPrimaryKey(orderId);
-        if (purchaseOrder == null || purchaseOrder.getPurchaseState() == 2){
-            return BaseResponse.failed("订单不存在或已完成");
+        if (purchaseOrder == null || purchaseOrder.getEditState() == 1){
+            return BaseResponse.failed("订单不存在或已提交");
         }
-        if (purchaseOrder.getPurchaseState() == -1){
+        if (purchaseOrder.getEditState() == -1){
             return BaseResponse.success();
         }
         String purchaseId = purchaseOrder.getPurchaseId();

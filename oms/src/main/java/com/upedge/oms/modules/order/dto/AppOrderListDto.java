@@ -94,6 +94,8 @@ public class AppOrderListDto {
 
     private Integer trackingCodeType;
 
+    private List<String> trackingCodes;
+
     public AppOrderListDto() {
 //        initDateRange();
         initOrderState();

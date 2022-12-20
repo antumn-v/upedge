@@ -26,7 +26,7 @@
 
     <sql id="Base_Column_List">
         `id`
-                ,`customer_id`,`store_id`,`org_path`,`package_no`,`order_id`,`wave_no`,ifnull(`tracking_code`,'') as `tracking_code`,`logistics_order_no`,
+        ,`customer_id`,`store_id`,`org_path`,`package_no`,`order_id`,`wave_no`,ifnull(`tracking_code`,'') as `tracking_code`,`logistics_order_no`,
         `tracking_company`,`tracking_method_name`,`tracking_method_code`,`plat_id`,`package_state`,`create_time`,`send_time`,
         `receive_time`,`is_upload_store`
     </sql>
@@ -489,11 +489,26 @@
     <select id="selectExStockUnUploadPackages" resultMap="BaseResultMap">
         select DISTINCT op.*
         from order_package op
-        inner join `order` o
-        on op.order_id = o.id
+                 inner join `order` o
+                            on op.order_id = o.id
         where op.package_state = '1'
-        and o.ship_state = '0'
-        order by send_time desc
-        limit 500
+          and o.ship_state = '0'
+        order by send_time desc limit 500
+    </select>
+
+    <select id="selectOrderIdsByTrackingCodes" resultType="java.lang.Long">
+        select order_id
+        from order_package
+        where logistics_order_no in
+        <foreach collection="trackingCodes" item="trackingCode" open="(" separator="," close=")">
+            #{trackingCode}
+        </foreach>
+        union
+        select order_id
+        from order_package
+        where tracking_code in
+        <foreach collection="trackingCodes" item="trackingCode" open="(" separator="," close=")">
+            #{trackingCode}
+        </foreach>
     </select>
 </mapper>

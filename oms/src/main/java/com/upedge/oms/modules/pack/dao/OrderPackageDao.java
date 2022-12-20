@@ -11,6 +11,8 @@ import java.util.List;
  */
 public interface OrderPackageDao {
 
+    List<Long> selectOrderIdsByTrackingCodes(@Param("trackingCodes") List<String> trackingCodes);
+
     List<OrderPackage> selectExStockUnUploadPackages();
 
     int restoreRevokedPackage(Long id);

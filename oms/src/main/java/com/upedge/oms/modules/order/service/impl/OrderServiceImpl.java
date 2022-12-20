@@ -401,15 +401,21 @@ public class OrderServiceImpl implements OrderService {
             return request;
         }
         AppOrderListDto appOrderListDto = request.getT();
+
         String shipNumber = appOrderListDto.getShipNumber();
-        if (StringUtils.isBlank(shipNumber)){
-            return request;
+        if (StringUtils.isNotBlank(shipNumber)){
+            OrderPackage orderPackage = orderPackageService.selectByScanNo(shipNumber);
+            if (null != orderPackage){
+                appOrderListDto.setOrderId(orderPackage.getOrderId());
+            }
         }
-        OrderPackage orderPackage = orderPackageService.selectByScanNo(shipNumber);
-        if (null != orderPackage){
-            appOrderListDto.setOrderId(orderPackage.getOrderId());
-            request.setT(appOrderListDto);
+
+        List<String> trackingCodes = appOrderListDto.getTrackingCodes();
+        List<Long> orderIds = orderPackageService.selectOrderIdsByTrackingCodes(trackingCodes);
+        if (ListUtils.isNotEmpty(orderIds)){
+            appOrderListDto.setOrderIds(orderIds);
         }
+        request.setT(appOrderListDto);
         return request;
     }
 
