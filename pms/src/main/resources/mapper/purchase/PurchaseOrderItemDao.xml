@@ -371,22 +371,22 @@
         where 1 = 1
         <trim prefix=" " suffix=" " suffixOverrides=" and ">
             <if test="id != null">
-                and poi.order_id = #{id} and
+                and poi.order_id = #{id}
             </if>
             <if test="productId != null">
-                and pv.product_id = #{productId} and
+                and pv.product_id = #{productId}
             </if>
             <if test="variantName != null">
-                and pv.variant_name = #{variantName} and
+                and pv.variant_name = #{variantName}
             </if>
             <if test="variantSku != null">
-                and pv.variant_sku = #{variantSku} and
+                and pv.variant_sku = #{variantSku}
             </if>
             <if test="purchaseSku != null">
-                and pv.purchase_sku = #{purchaseSku} and
+                and pv.purchase_sku = #{purchaseSku}
             </if>
             <if test="barcode != null">
-                and pv.barcode = #{barcode} and
+                and pv.barcode = #{barcode}
             </if>
         </trim>
     </sql>
@@ -418,4 +418,15 @@
             #{purchaseLink}
         </foreach>
     </update>
+
+    <select id="selectByIds" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from purchase_order_item
+        where order_id = #{orderId}
+        and id in
+        <foreach collection="ids" item="id" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+    </select>
 </mapper>

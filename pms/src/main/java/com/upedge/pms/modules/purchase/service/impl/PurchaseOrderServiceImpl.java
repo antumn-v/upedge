@@ -103,6 +103,34 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
         return purchaseOrderDao.insert(record);
     }
 
+    @Transactional
+    @Override
+    public BaseResponse partItemRecreateOrder(PurchasePartItemRecreateOrderRequest request, Session session) {
+        List<Long> itemIds = request.getItemIds();
+        Long orderId = request.getOrderId();
+        List<PurchaseOrderItem> purchaseOrderItems = purchaseOrderItemService.selectByIds(itemIds,orderId);
+        if (ListUtils.isNotEmpty(purchaseOrderItems)){
+            return BaseResponse.failed();
+        }
+        List<CreatePurchaseOrderDto> createPurchaseOrderDtos = new ArrayList<>();
+        for (PurchaseOrderItem purchaseOrderItem : purchaseOrderItems) {
+            Long variantId = purchaseOrderItem.getVariantId();
+            Integer quantity = purchaseOrderItem.getQuantity();
+            Integer receivedQuantity = purchaseOrderItem.getReceiveQuantity();
+            Integer reduceQuantity = quantity - receivedQuantity;
+            if (reduceQuantity > 0){
+                variantWarehouseStockService.updatePurchaseStockReduce(variantId,"CNHZ",reduceQuantity);
+            }
+            CreatePurchaseOrderDto createPurchaseOrderDto = new CreatePurchaseOrderDto();
+            createPurchaseOrderDto.setQuantity(quantity);
+            createPurchaseOrderDto.setVariantId(variantId);
+            createPurchaseOrderDtos.add(createPurchaseOrderDto);
+        }
+        CreatePurchaseOrderRequest createPurchaseOrderRequest = new CreatePurchaseOrderRequest();
+        createPurchaseOrderRequest.setCreatePurchaseOrderDtos(createPurchaseOrderDtos);
+        return customCreate(createPurchaseOrderRequest,session);
+    }
+
     @Override
     public BaseResponse create1688PurchaseOrder(Long orderId, Session session) {
         PurchaseOrder purchaseOrder = selectByPrimaryKey(orderId);
@@ -193,7 +221,7 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
 
     @Transactional
     @Override
-    public BaseResponse customCreate(CreatePurchaseOrderRequest request, Session session) {
+    public BaseResponse createByCustomerStockOrder(CreatePurchaseOrderRequest request, Session session) {
         List<CreatePurchaseOrderDto> createPurchaseOrderDtos = request.getCreatePurchaseOrderDtos();
         if (ListUtils.isEmpty(createPurchaseOrderDtos)){
             return BaseResponse.failed();
@@ -320,6 +348,102 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
             }
         }
         return BaseResponse.success(stringBuffer.toString());
+    }
+
+    @Transactional
+    @Override
+    public BaseResponse customCreate(CreatePurchaseOrderRequest request, Session session) {
+        List<CreatePurchaseOrderDto> createPurchaseOrderDtos = request.getCreatePurchaseOrderDtos();
+        if (ListUtils.isEmpty(createPurchaseOrderDtos)){
+            return BaseResponse.failed();
+        }
+        //变体数量
+        Map<Long,Integer> variantQuantityMap = new HashMap<>();
+        List<Long> variantIds = new ArrayList<>();
+        for (CreatePurchaseOrderDto createPurchaseOrderDto : createPurchaseOrderDtos) {
+            variantIds.add(createPurchaseOrderDto.getVariantId());
+            variantQuantityMap.put(createPurchaseOrderDto.getVariantId(),createPurchaseOrderDto.getQuantity());
+        }
+        //获取产品信息
+        List<ProductVariant> productVariants = productVariantService.listVariantByIds(variantIds);
+        if (ListUtils.isEmpty(productVariants)){
+            return BaseResponse.failed("商品信息不存在");
+        }
+        //获取商品采购信息
+        List<ProductPurchaseInfo> productPurchaseInfos = new ArrayList<>();
+        Map<String,ProductPurchaseInfo> purchaseInfoMap = new HashMap<>();
+        for (ProductVariant productVariant : productVariants) {
+            String purchaseSku = productVariant.getPurchaseSku();
+            if (StringUtils.isBlank(purchaseSku)){
+                return BaseResponse.failed(productVariant.getBarcode() + ": 缺少采购信息");
+            }
+            ProductPurchaseInfo productPurchaseInfo = productPurchaseInfoService.selectByPrimaryKey(purchaseSku);
+            if (null == productPurchaseInfo){
+                return BaseResponse.failed(productVariant.getBarcode() + ": 采购信息异常");
+            }
+            productPurchaseInfos.add(productPurchaseInfo);
+            purchaseInfoMap.put(purchaseSku,productPurchaseInfo);
+        }
+
+
+        Map<String, List<ProductVariant>> supplierVariantMap = new HashMap<>();
+        //不同供应商分组
+        for (ProductVariant productVariant : productVariants) {
+
+            for (ProductPurchaseInfo productPurchaseInfo : productPurchaseInfos) {
+                String supplierName = productPurchaseInfo.getSupplierName();
+                if (productPurchaseInfo.getPurchaseSku().equals(productVariant.getPurchaseSku())) {
+
+                    if (!supplierVariantMap.containsKey(supplierName)) {
+                        supplierVariantMap.put(supplierName, new ArrayList<ProductVariant>());
+                    }
+                    supplierVariantMap.get(supplierName).add(productVariant);
+                }
+            }
+        }
+
+        //根据供应商创建采购单
+        for (Map.Entry<String, List<ProductVariant>> map : supplierVariantMap.entrySet()) {
+            List<ProductVariant> variants = map.getValue();
+
+            Long id = purchaseService.getNextPurchaseOrderId();
+
+            PurchaseOrder purchaseOrder = new PurchaseOrder(id,
+                    null,
+                    BigDecimal.ZERO,
+                    null,
+                    null,
+                    BigDecimal.ZERO,
+                    map.getKey(),
+                    0, 0, 0L, 0);
+            List<PurchaseOrderItem> purchaseItems = new ArrayList<>();
+            Double purchaseQuantity = 0.0;
+            for (ProductVariant productVariant : variants) {
+                Long variantId = productVariant.getId();
+                String purchaseSku = productVariant.getPurchaseSku();
+
+                Integer quantity = variantQuantityMap.get(variantId);
+                ProductPurchaseInfo productPurchaseInfo = purchaseInfoMap.get(purchaseSku);
+
+                PurchaseOrderItem purchaseItem = new PurchaseOrderItem(productVariant);
+                purchaseItem.setQuantity(quantity);
+                purchaseItem.setOriginalQuantity(quantity);
+                purchaseItem.setSpecId(productPurchaseInfo.getSpecId());
+                purchaseItem.setPurchaseLink(productPurchaseInfo.getPurchaseLink());
+                purchaseItem.setOrderId(id);
+                purchaseItem.setId(IdGenerate.nextId());
+                purchaseItems.add(purchaseItem);
+
+                purchaseQuantity += quantity;
+            }
+            purchaseOrder.setPurchaseQuantity(purchaseQuantity.intValue());
+            insert(purchaseOrder);
+            purchaseOrderItemService.insertByBatch(purchaseItems);
+            for (PurchaseOrderItem purchaseItem : purchaseItems) {
+                variantWarehouseStockService.updateVariantPurchaseStockByPlan(purchaseItem.getVariantId(),"CNHZ",purchaseItem.getQuantity());
+            }
+        }
+        return BaseResponse.success();
     }
 
     @Override
@@ -702,7 +826,7 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
             }
             Integer moq = productMoq.get(productLink);
             Integer total = productQty.get(productLink);
-            if (total < moq){
+            if (moq == null || total ==null || total < moq){
                 orderItem.setState(-1);
             }
         }

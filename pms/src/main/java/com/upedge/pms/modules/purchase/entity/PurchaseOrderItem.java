@@ -94,6 +94,17 @@ public class PurchaseOrderItem{
 		this.price = productVariant.getVariantPrice();
 		this.originalPrice = productVariant.getVariantPrice();
 	}
+	public PurchaseOrderItem(ProductVariant productVariant) {
+		this.variantImage = productVariant.getVariantImage();
+		this.variantSku = productVariant.getVariantSku();
+		this.variantName = productVariant.getCnName();
+		this.variantId = productVariant.getId();
+		this.productId = productVariant.getProductId();
+		this.purchaseSku = productVariant.getPurchaseSku();
+		this.barcode = productVariant.getBarcode();
+		this.price = productVariant.getVariantPrice();
+		this.originalPrice = productVariant.getVariantPrice();
+	}
 
 	public PurchaseOrderItem() {
 	}

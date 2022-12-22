@@ -17,6 +17,8 @@ import java.util.List;
  */
 public interface PurchaseOrderItemService{
 
+    List<PurchaseOrderItem> selectByIds(List<Long> ids,Long orderId);
+
     int updateStateByOrderIdAndPurchaseLink(Long orderId, List<String> purchaseLinks,Integer state);
 
     int updateStateInitByOrderId(Long orderId);

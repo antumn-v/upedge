@@ -12,10 +12,7 @@ import com.upedge.common.utils.ListUtils;
 import com.upedge.common.web.util.RedisUtil;
 import com.upedge.common.web.util.UserUtil;
 import com.upedge.pms.modules.purchase.entity.PurchaseOrder;
-import com.upedge.pms.modules.purchase.request.PurchaseOrderEditStateUpdateRequest;
-import com.upedge.pms.modules.purchase.request.PurchaseOrderListRequest;
-import com.upedge.pms.modules.purchase.request.PurchaseOrderReceiveRequest;
-import com.upedge.pms.modules.purchase.request.PurchaseOrderRevokeRequest;
+import com.upedge.pms.modules.purchase.request.*;
 import com.upedge.pms.modules.purchase.service.PurchaseOrderService;
 import com.upedge.thirdparty.ali1688.service.Ali1688Service;
 import io.swagger.annotations.Api;
@@ -132,6 +129,7 @@ public class PurchaseOrderController {
     }
 
 
+    @ApiOperation("直接创建采购订单")
     @PostMapping("/customCreate")
     public BaseResponse customCreate(@RequestBody CreatePurchaseOrderRequest request){
         Session session = UserUtil.getSession(redisTemplate);
@@ -144,10 +142,10 @@ public class PurchaseOrderController {
         boolean b = RedisUtil.lock(redisTemplate,key,5L,30*1000L);
         Session session = UserUtil.getSession(redisTemplate);
         request.setPreview(true);
-        BaseResponse response = purchaseOrderService.customCreate(request,session);
+        BaseResponse response = purchaseOrderService.createByCustomerStockOrder(request,session);
         if (response.getCode() == ResultCode.SUCCESS_CODE){
             request.setPreview(false);
-            purchaseOrderService.customCreate(request,session);
+            purchaseOrderService.createByCustomerStockOrder(request,session);
         }
         RedisUtil.unLock(redisTemplate,key);
         return response;
@@ -165,5 +163,12 @@ public class PurchaseOrderController {
         Session session = UserUtil.getSession(redisTemplate);
         Long orderId = orderIds.get(0);
         return purchaseOrderService.create1688PurchaseOrder(orderId,session);
+    }
+
+    @ApiOperation("部分产品重新创建采购订单")
+    @PostMapping("/partItemRecreate")
+    public BaseResponse partItemRecreateOrder(@RequestBody@Valid PurchasePartItemRecreateOrderRequest request){
+        Session session = UserUtil.getSession(redisTemplate);
+        return purchaseOrderService.partItemRecreateOrder(request,session);
     }
 }

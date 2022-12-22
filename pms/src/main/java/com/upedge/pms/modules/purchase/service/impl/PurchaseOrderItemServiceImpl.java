@@ -73,6 +73,14 @@ public class PurchaseOrderItemServiceImpl implements PurchaseOrderItemService {
     }
 
     @Override
+    public List<PurchaseOrderItem> selectByIds(List<Long> ids, Long orderId) {
+        if (null == orderId || ListUtils.isEmpty(ids)){
+            return new ArrayList<>();
+        }
+        return purchaseOrderItemDao.selectByIds(ids, orderId);
+    }
+
+    @Override
     public int updateStateByOrderIdAndPurchaseLink(Long orderId, List<String> purchaseLinks, Integer state) {
         if (ListUtils.isEmpty(purchaseLinks)){
             return 0;
