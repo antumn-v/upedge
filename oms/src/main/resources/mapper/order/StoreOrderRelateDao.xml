@@ -361,4 +361,12 @@
         ) t
         where t.total > '1'
     </select>
+
+    <select id="selectByStockOrderInfo" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from store_order_relate
+        where store_name = #{storeName}
+        and plat_order_name = #{platOrderName}
+    </select>
 </mapper>

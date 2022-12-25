@@ -62,6 +62,24 @@ public class Ordercelduler {
 
     }
 
+    @Scheduled(cron = "0 00 */4 ? * *")
+    public void reFulfillmentOrder(){
+        if (!ifUploadSaihe) {
+            return ;
+        }
+        List<Long> ids = orderService.selectUploadStoreFailedOrders();
+        if (ListUtils.isNotEmpty(ids)){
+            for (Long id : ids) {
+                try {
+                    orderFulfillmentService.reFulfillment(id);
+                }catch (Exception e){
+                    log.warn("订单ID：{}，失败原因：{}",id,e.getMessage());
+                }
+            }
+        }
+
+    }
+
     @Scheduled(cron = "0 */10 * ? * *")
     public void reUploadStockOrderToSaihe(){
         if (!ifUploadSaihe) {

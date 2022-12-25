@@ -2670,4 +2670,5 @@
         group by pick_type
         order by `total` desc
     </select>
+
 </mapper>

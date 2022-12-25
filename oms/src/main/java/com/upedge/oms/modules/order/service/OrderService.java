@@ -35,6 +35,7 @@ import java.util.Set;
  */
 public interface OrderService{
 
+    List<Long> selectUploadStoreFailedOrders();
     BaseResponse selectCustomerOrderCount(AppOrderListRequest request);
 
     BaseResponse syncUnpaidOrder(Long customerId);

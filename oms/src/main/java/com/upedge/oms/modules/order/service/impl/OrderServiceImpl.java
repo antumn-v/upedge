@@ -1373,6 +1373,11 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
+    public List<Long> selectUploadStoreFailedOrders() {
+        return orderDao.selectUploadStoreFailedOrderIds();
+    }
+
+    @Override
     public BaseResponse selectCustomerOrderCount(AppOrderListRequest request) {
         request.init();
         List<CustomerOrderCountVo> customerOrderCountVos = orderDao.selectCustomerOrderCount(request);

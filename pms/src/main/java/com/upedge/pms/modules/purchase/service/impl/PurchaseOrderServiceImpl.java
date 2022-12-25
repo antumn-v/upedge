@@ -803,7 +803,7 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
                 continue;
             }
             Integer quantity = orderItem.getQuantity();
-            if (orderItem.getInventory() < quantity){
+            if (orderItem.getInventory() == null || orderItem.getInventory() < quantity){
                 orderItem.setState(-1);
                 continue;
             }

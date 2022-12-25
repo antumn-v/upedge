@@ -6,6 +6,8 @@ import java.util.List;
 
 public interface StoreOrderRelateService {
 
+    List<StoreOrderRelate> selectByStockOrderInfo(String storeName,String platOrderName);
+
     List<StoreOrderRelate> selectUnPaidByStoreOrderId(List<Long> storeOrderIds);
 
     List<StoreOrderRelate> selectByStoreOrderId(Long storeOrderId);

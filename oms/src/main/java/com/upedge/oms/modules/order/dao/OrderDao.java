@@ -39,6 +39,7 @@ import java.util.Set;
  */
 public interface OrderDao {
 
+    List<Long> selectUploadStoreFailedOrders();
     List<CustomerOrderCountVo> selectCustomerOrderCount(AppOrderListRequest request);
     List<CustomerOrderCountVo> selectPickTypeCount(AppOrderListRequest request);
     List<CustomerOrderCountVo> selectShipMethodOrderCount(AppOrderListRequest request);

@@ -4,6 +4,8 @@ import com.upedge.oms.modules.pack.entity.OrderPackage;
 
 public interface OrderFulfillmentService {
 
+    void reFulfillment(Long id);
+
     void  reUploadStore();
 
     void orderFulfillment(Long id);

@@ -16,6 +16,8 @@ import java.util.concurrent.ExecutionException;
  */
 public interface OrderCommonService {
 
+    void cancelSaiheOrder(Long orderId);
+
     BaseResponse processPaidRepeatProduct(List<Long> orderIds);
 
     void  processRepeatProduct();

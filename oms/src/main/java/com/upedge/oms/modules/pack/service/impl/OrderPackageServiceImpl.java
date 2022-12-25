@@ -29,12 +29,11 @@ import com.upedge.oms.modules.fulfillment.service.OrderFulfillmentService;
 import com.upedge.oms.modules.order.entity.Order;
 import com.upedge.oms.modules.order.entity.OrderAddress;
 import com.upedge.oms.modules.order.entity.OrderItem;
-import com.upedge.oms.modules.order.service.OrderAddressService;
-import com.upedge.oms.modules.order.service.OrderItemService;
-import com.upedge.oms.modules.order.service.OrderPayService;
-import com.upedge.oms.modules.order.service.OrderService;
+import com.upedge.oms.modules.order.entity.StoreOrderRelate;
+import com.upedge.oms.modules.order.service.*;
 import com.upedge.oms.modules.order.vo.AppOrderVo;
 import com.upedge.oms.modules.pack.dao.OrderPackageDao;
+import com.upedge.oms.modules.pack.dto.PackageInfoImportDto;
 import com.upedge.oms.modules.pack.entity.OrderLabelPrintLog;
 import com.upedge.oms.modules.pack.entity.OrderPackage;
 import com.upedge.oms.modules.pack.request.*;
@@ -97,6 +96,9 @@ public class OrderPackageServiceImpl implements OrderPackageService {
 
     @Autowired
     OrderPickService orderPickService;
+    
+    @Autowired
+    StoreOrderRelateService storeOrderRelateService;
 
     @Autowired
     OrderLabelPrintLogService orderLabelPrintLogService;
@@ -126,6 +128,65 @@ public class OrderPackageServiceImpl implements OrderPackageService {
     private String pdfLocalPath;
     @Value("${files.pdf.prefix}")
     private String pdfUrlPrefix;
+
+    @Override
+    public BaseResponse packageImport(PackageInfoImportRequest request, Session session) {
+        
+        List<PackageInfoImportDto> packageInfoImportDtos = request.getPackageInfoImportDtos();
+        a:
+        for (PackageInfoImportDto packageInfoImportDto : packageInfoImportDtos) {
+            String storeName = packageInfoImportDto.getStoreName();
+            String platOrderName = packageInfoImportDto.getPlatOrderName();
+            String trackingCode = packageInfoImportDto.getTrackingCode();
+            String trackingCompany = packageInfoImportDto.getTrackingCompany();
+            String shipMethod = packageInfoImportDto.getShipMethod();
+
+            List<StoreOrderRelate> storeOrderRelates = storeOrderRelateService.selectByStockOrderInfo(storeName,platOrderName);
+            if (ListUtils.isEmpty(storeOrderRelates)){
+                continue a;
+            }
+            b:
+            for (StoreOrderRelate storeOrderRelate : storeOrderRelates) {
+                Long orderId = storeOrderRelate.getOrderId();
+                Order order = orderService.selectByPrimaryKey(orderId);
+                if (order.getPayState() != 1 || order.getShipState() == 1){
+                    return BaseResponse.failed(storeOrderRelate.getPlatOrderName() + ": 订单未支付或已发货");
+                }
+                OrderPackage orderPackage = null;
+                Long packNo = order.getPackNo();
+                if (packNo != null){
+                    orderPackage = orderPackageDao.selectByPrimaryKey(packNo);
+                    if (orderPackage.getPackageState() == 1){
+                        return BaseResponse.failed(storeOrderRelate.getPlatOrderName() + ": admin包裹已出库");
+                    }else {
+                        orderPackageDao.revokePackageById(packNo,"其他平台发货");
+                    }
+                }
+                try {
+                    packNo = getPackageNo();
+                } catch (CustomerException e) {
+                    packNo = IdGenerate.nextId();
+                }
+                orderPackage = new OrderPackage();
+                orderPackage.setOrderId(orderId);
+                orderPackage.setPackageState(1);
+                orderPackage.setPackageNo(packNo);
+                orderPackage.setId(packNo);
+                orderPackage.setCreateTime(new Date());
+                orderPackage.setCustomerId(order.getCustomerId());
+                orderPackage.setIsUploadStore(false);
+                orderPackage.setPlatId(packageInfoImportDto.getPlatId());
+                orderPackage.setLogisticsOrderNo(trackingCode);
+                orderPackage.setTrackingCode(trackingCode);
+                orderPackage.setSendTime(new Date());
+                orderPackage.setStoreId(order.getStoreId());
+                orderPackage.setTrackingMethodName(shipMethod);
+                orderPackage.setTrackingCompany(trackingCompany);
+                insert(orderPackage);
+            }
+        }
+        return BaseResponse.success();
+    }
 
     @Override
     public List<Long> selectOrderIdsByTrackingCodes(List<String> trackingCodes) {
@@ -217,7 +278,7 @@ public class OrderPackageServiceImpl implements OrderPackageService {
             return BaseResponse.failed("订单非搁置状态");
         }
 
-        OrderPackage orderPackage = orderPackageDao.selectByOrderId(orderId);
+        OrderPackage orderPackage = orderPackageDao.selectByPrimaryKey(order.getPackNo());
         Long packNo = null;
         if (orderPackage != null) {
             packNo = orderPackage.getId();
@@ -565,11 +626,14 @@ public class OrderPackageServiceImpl implements OrderPackageService {
                 || order.getRefundState() != 0) {
             return BaseResponse.failed("订单未支付或已生成包裹或退款中");
         }
-
-        OrderPackage orderPackage = orderPackageDao.selectByOrderId(orderId);
-        if (orderPackage != null && orderPackage.getPackageState() > -1) {
-            return BaseResponse.failed("订单已生成包裹");
+        if (order.getPackNo() != null){
+            OrderPackage orderPackage = orderPackageDao.selectByPrimaryKey(order.getPackNo());
+            if (orderPackage != null && orderPackage.getPackageState() > -1) {
+                return BaseResponse.failed("订单已生成包裹");
+            }
         }
+
+
 
         ShippingMethodRedis shippingMethodRedis = (ShippingMethodRedis) redisTemplate.opsForHash().get(RedisKey.SHIPPING_METHOD, order.getActualShipMethodId().toString());
         String shipCompany = shippingMethodRedis.getTrackingCompany();
@@ -1072,7 +1136,7 @@ public class OrderPackageServiceImpl implements OrderPackageService {
     public Long getPackageNo() throws CustomerException {
         String lockKey = "order:package:no:lock";
 
-        boolean b = RedisUtil.lock(redisTemplate, lockKey, 50L, 100L);
+        boolean b = RedisUtil.lock(redisTemplate, lockKey, 90L, 100L);
         if (!b) {
             throw new CustomerException("获取包裹号失败，请重试");
         }

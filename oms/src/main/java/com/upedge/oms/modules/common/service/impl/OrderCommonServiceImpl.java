@@ -126,6 +126,27 @@ public class OrderCommonServiceImpl implements OrderCommonService {
     @Autowired
     PmsFeignClient pmsFeignClient;
 
+    @Override
+    public void cancelSaiheOrder(Long orderId)  {
+
+        Order order = orderService.selectByPrimaryKey(orderId);
+
+        String saiheOrderCode = order.getSaiheOrderCode();
+        if (StringUtils.isBlank(saiheOrderCode)){
+            return;
+        }
+
+        //赛盒未发货 取消订单
+        //获取订单的赛盒code
+        ApiOrderInfo apiOrderInfo = null;
+        try {
+            apiOrderInfo = orderService.revokeSaiheOrder(saiheOrderCode);
+            redisTemplate.opsForHash().delete("test:revoke:saihe:order:failed",saiheOrderCode);
+        } catch (CustomerException e) {
+            redisTemplate.opsForHash().put("test:revoke:saihe:order:failed",saiheOrderCode,e.getMessage());
+        }
+
+    }
 
     @Override
     public BaseResponse processPaidRepeatProduct(List<Long> orderIds) {

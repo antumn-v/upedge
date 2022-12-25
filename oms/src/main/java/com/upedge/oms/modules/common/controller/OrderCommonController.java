@@ -18,10 +18,13 @@ import com.upedge.oms.modules.order.service.OrderItemService;
 import com.upedge.oms.modules.order.service.OrderPayService;
 import com.upedge.oms.modules.order.service.OrderService;
 import com.upedge.oms.scheduler.PackageScheduler;
+import com.upedge.thirdparty.saihe.entity.getOrderByCode.ApiOrderInfo;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Set;
 
 @RestController
 @RequestMapping("/orderCommon")
@@ -47,6 +50,9 @@ public class OrderCommonController {
 
     @Autowired
     PmsFeignClient pmsFeignClient;
+
+    @Autowired
+    RedisTemplate redisTemplate;
 
     @PostMapping("/jsonTest")
     public BaseResponse jsonTest(){
@@ -152,6 +158,21 @@ public class OrderCommonController {
     @PostMapping("/processPaidRepeatProduct")
     public BaseResponse processPaidRepeatProduct(@RequestBody List<Long> orderIds){
         orderCommonService.processPaidRepeatProduct(orderIds);
+        return BaseResponse.success();
+    }
+
+    @PostMapping("/revokeSaiheOrder")
+    public BaseResponse revokeSaiheOrder(){
+        Set<String> saiheOrderCodes  = redisTemplate.opsForHash().keys("test:revoke:saihe:order:failed");
+        for (String saiheOrderCode : saiheOrderCodes) {
+            ApiOrderInfo apiOrderInfo = null;
+            try {
+                apiOrderInfo = orderService.revokeSaiheOrder(saiheOrderCode);
+                redisTemplate.opsForHash().delete("test:revoke:saihe:order:failed",saiheOrderCode);
+            } catch (CustomerException e) {
+                redisTemplate.opsForHash().put("test:revoke:saihe:order:failed",saiheOrderCode,e.getMessage());
+            }
+        }
         return BaseResponse.success();
     }
 

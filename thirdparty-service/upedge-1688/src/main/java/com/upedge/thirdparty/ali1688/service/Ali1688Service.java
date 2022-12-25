@@ -340,9 +340,9 @@ public class Ali1688Service {
 
         AlibabaTradeReceiveAddressGetParam param = new AlibabaTradeReceiveAddressGetParam();
 
-        ApiExecutor apiExecutor = new ApiExecutor("7715698", "DUE2C3KM9s");
+        ApiExecutor apiExecutor = new ApiExecutor("2624027", "AjUpNF9IwS");
         SDKResult<AlibabaTradeReceiveAddressGetResult> sdkResult =
-                apiExecutor.execute(param, "e000f7e2-1353-4324-ac1e-b69b8fe80dcd");
+                apiExecutor.execute(param, "d7a22f94-4c35-4872-a8fd-56e5d9bb4d63");
         AlibabaTradeReceiveAddressResult result= sdkResult.getResult().getResult();
         return Arrays.asList(result.getReceiveAddressItems());
     }
@@ -396,7 +396,7 @@ public class Ali1688Service {
     }
 
     public static AlibabaTradeFastCreateOrderResult createOrder(List<AlibabaTradeFastCargo> alibabaTradeFastCargos,AlibabaApiVo alibabaApiVo,String message) throws CustomerException {
-        ApiExecutor apiExecutor = new ApiExecutor("7715698", "DUE2C3KM9s");
+        ApiExecutor apiExecutor = new ApiExecutor("2624027", "AjUpNF9IwS");
 
         AlibabaTradeFastAddress addressParam = new AlibabaTradeFastAddress();
         addressParam.setAddressId(0L);
@@ -416,7 +416,7 @@ public class Ali1688Service {
         createOrderPreviewParam.setMessage(message);
 
         SDKResult<AlibabaTradeFastCreateOrderResult> sdkResult =
-                apiExecutor.execute(createOrderPreviewParam, "e000f7e2-1353-4324-ac1e-b69b8fe80dcd");
+                apiExecutor.execute(createOrderPreviewParam, "d7a22f94-4c35-4872-a8fd-56e5d9bb4d63");
         if(sdkResult.getErrorMessage() != null){
             throw new CustomerException(sdkResult.getErrorMessage());
         }
@@ -430,7 +430,7 @@ public class Ali1688Service {
     }
 
     public static AlibabaTradeCancelResult cancelOrder(Long orderId,String cancelReason,String remark) throws CustomerException {
-        ApiExecutor apiExecutor = new ApiExecutor("7715698", "DUE2C3KM9s");
+        ApiExecutor apiExecutor = new ApiExecutor("2624027", "AjUpNF9IwS");
         if (StringUtils.isBlank(cancelReason)){
             cancelReason = "others";
         }
@@ -441,7 +441,7 @@ public class Ali1688Service {
         alibabaTradeCancelParam.setRemark(remark);
 
         SDKResult<AlibabaTradeCancelResult> sdkResult =
-                apiExecutor.execute(alibabaTradeCancelParam, "e000f7e2-1353-4324-ac1e-b69b8fe80dcd");
+                apiExecutor.execute(alibabaTradeCancelParam, "d7a22f94-4c35-4872-a8fd-56e5d9bb4d63");
         if(sdkResult.getErrorMessage() != null){
             throw new CustomerException(sdkResult.getErrorMessage());
         }
@@ -450,13 +450,13 @@ public class Ali1688Service {
     }
 
     public static AlibabaOpenplatformTradeModelTradeInfo orderDetail(Long orderId,AlibabaApiVo alibabaApiVo) throws CustomerException {
-        ApiExecutor apiExecutor = new ApiExecutor("7715698", "DUE2C3KM9s");
+        ApiExecutor apiExecutor = new ApiExecutor("2624027", "AjUpNF9IwS");
         AlibabaTradeGetBuyerViewParam alibabaTradeGetBuyerViewParam = new AlibabaTradeGetBuyerViewParam();
         alibabaTradeGetBuyerViewParam.setOrderId(orderId);
         alibabaTradeGetBuyerViewParam.setWebSite("1688");
 
         SDKResult<AlibabaTradeGetBuyerViewResult> sdkResult =
-                apiExecutor.execute(alibabaTradeGetBuyerViewParam, "e000f7e2-1353-4324-ac1e-b69b8fe80dcd");
+                apiExecutor.execute(alibabaTradeGetBuyerViewParam, "d7a22f94-4c35-4872-a8fd-56e5d9bb4d63");
         if(sdkResult.getErrorMessage() != null){
             throw new CustomerException(sdkResult.getErrorMessage());
         }
@@ -466,13 +466,13 @@ public class Ali1688Service {
 
 
     public static List<AlibabaLogisticsOpenPlatformLogisticsTrace> orderShipDetail(Long orderId, AlibabaApiVo alibabaApiVo) throws CustomerException {
-        ApiExecutor apiExecutor = new ApiExecutor("7715698", "DUE2C3KM9s");
+        ApiExecutor apiExecutor = new ApiExecutor("2624027", "AjUpNF9IwS");
         AlibabaTradeGetLogisticsTraceInfoBuyerViewParam param = new AlibabaTradeGetLogisticsTraceInfoBuyerViewParam();
         param.setOrderId(orderId);
         param.setWebSite("1688");
 
         SDKResult<AlibabaTradeGetLogisticsTraceInfoBuyerViewResult> sdkResult =
-                apiExecutor.execute(param, "e000f7e2-1353-4324-ac1e-b69b8fe80dcd");
+                apiExecutor.execute(param, "d7a22f94-4c35-4872-a8fd-56e5d9bb4d63");
         if(sdkResult.getErrorMessage() != null){
             throw new CustomerException(sdkResult.getErrorMessage());
         }

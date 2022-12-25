@@ -421,6 +421,8 @@
         <include refid="Base_Column_List"/>
         from order_package
         where order_id = #{orderId}
+        and package_state != '-1'
+        limit 1
     </select>
 
     <select id="selectByTrackingCode" resultMap="BaseResultMap">

@@ -15,6 +15,8 @@ import java.util.List;
 
 public interface OrderPackageService {
 
+    BaseResponse packageImport(PackageInfoImportRequest request,Session session);
+
     List<Long> selectOrderIdsByTrackingCodes(List<String> trackingCodes);
 
     OrderPackage selectByScanNo(String scanNo);

@@ -9,10 +9,7 @@ import com.upedge.oms.modules.order.entity.OrderTracking;
 import com.upedge.oms.modules.order.service.OrderService;
 import com.upedge.oms.modules.order.service.OrderTrackingService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -63,8 +60,10 @@ public class FulfillmentController {
     }
 
     @PostMapping("/reUploadStore")
-    public BaseResponse reUploadStore(){
-        orderFulfillmentService.reUploadStore();
+    public BaseResponse reUploadStore(@RequestBody List<Long> orderIds){
+        for (Long orderId : orderIds) {
+            orderFulfillmentService.reFulfillment(orderId);
+        }
         return BaseResponse.success();
     }
 

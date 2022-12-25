@@ -13,6 +13,8 @@ import java.util.Set;
  */
 public interface StoreOrderRelateDao {
 
+    List<StoreOrderRelate> selectByStockOrderInfo(@Param("storeName") String storeName, @Param("platOrderName") String platOrderName);
+
     int deleteByOrderId(@Param("orderIds") List<Long> orderIds);
 
     int updateStoreStatusByStoreOrderId(StoreOrder storeOrder);
