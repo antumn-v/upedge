@@ -36,8 +36,10 @@ import com.upedge.oms.modules.pack.dao.OrderPackageDao;
 import com.upedge.oms.modules.pack.dto.PackageInfoImportDto;
 import com.upedge.oms.modules.pack.entity.OrderLabelPrintLog;
 import com.upedge.oms.modules.pack.entity.OrderPackage;
+import com.upedge.oms.modules.pack.entity.OrderPackageImportLog;
 import com.upedge.oms.modules.pack.request.*;
 import com.upedge.oms.modules.pack.service.OrderLabelPrintLogService;
+import com.upedge.oms.modules.pack.service.OrderPackageImportLogService;
 import com.upedge.oms.modules.pack.service.OrderPackageService;
 import com.upedge.oms.modules.pack.vo.OrderPackageInfoVo;
 import com.upedge.oms.modules.pick.service.OrderPickService;
@@ -96,7 +98,7 @@ public class OrderPackageServiceImpl implements OrderPackageService {
 
     @Autowired
     OrderPickService orderPickService;
-    
+
     @Autowired
     StoreOrderRelateService storeOrderRelateService;
 
@@ -124,6 +126,9 @@ public class OrderPackageServiceImpl implements OrderPackageService {
     @Autowired
     OrderCommonService orderCommonService;
 
+    @Autowired
+    OrderPackageImportLogService orderPackageImportLogService;
+
     @Value("${files.pdf.local}")
     private String pdfLocalPath;
     @Value("${files.pdf.prefix}")
@@ -131,7 +136,7 @@ public class OrderPackageServiceImpl implements OrderPackageService {
 
     @Override
     public BaseResponse packageImport(PackageInfoImportRequest request, Session session) {
-        
+
         List<PackageInfoImportDto> packageInfoImportDtos = request.getPackageInfoImportDtos();
         a:
         for (PackageInfoImportDto packageInfoImportDto : packageInfoImportDtos) {
@@ -141,48 +146,81 @@ public class OrderPackageServiceImpl implements OrderPackageService {
             String trackingCompany = packageInfoImportDto.getTrackingCompany();
             String shipMethod = packageInfoImportDto.getShipMethod();
 
-            List<StoreOrderRelate> storeOrderRelates = storeOrderRelateService.selectByStockOrderInfo(storeName,platOrderName);
-            if (ListUtils.isEmpty(storeOrderRelates)){
-                continue a;
+            platOrderName = "#" + platOrderName.substring(platOrderName.indexOf("-") + 1);
+
+            OrderPackageImportLog orderPackageImportLog = orderPackageImportLogService.selectByOrderInfo(storeName, platOrderName, trackingCode);
+            if (orderPackageImportLog != null) {
+                continue ;
             }
-            b:
+
+            List<StoreOrderRelate> storeOrderRelates = storeOrderRelateService.selectByStockOrderInfo(storeName, platOrderName);
+            if (ListUtils.isEmpty(storeOrderRelates)) {
+                return BaseResponse.failed(platOrderName + "订单信息不存在");
+            }
+
             for (StoreOrderRelate storeOrderRelate : storeOrderRelates) {
                 Long orderId = storeOrderRelate.getOrderId();
+                //订单判断
                 Order order = orderService.selectByPrimaryKey(orderId);
-                if (order.getPayState() != 1 || order.getShipState() == 1){
-                    return BaseResponse.failed(storeOrderRelate.getPlatOrderName() + ": 订单未支付或已发货");
+                String reason = "";
+                if (order.getPayState() != 1 || order.getShipState() == 1 || order.getRefundState() != 0) {
+                    reason = "订单未支付或已发货或已退款";
                 }
+                //作废包裹
                 OrderPackage orderPackage = null;
                 Long packNo = order.getPackNo();
-                if (packNo != null){
+                if (packNo != null) {
                     orderPackage = orderPackageDao.selectByPrimaryKey(packNo);
-                    if (orderPackage.getPackageState() == 1){
-                        return BaseResponse.failed(storeOrderRelate.getPlatOrderName() + ": admin包裹已出库");
-                    }else {
-                        orderPackageDao.revokePackageById(packNo,"其他平台发货");
+                    if (orderPackage.getPackageState() == 1) {
+                        reason = reason + "  admin包裹已出库";
+                    } else {
+                        orderPackageDao.revokePackageById(packNo, "其他平台发货");
                     }
                 }
-                try {
-                    packNo = getPackageNo();
-                } catch (CustomerException e) {
-                    packNo = IdGenerate.nextId();
+                if (StringUtils.isBlank(reason)) {
+                    try {
+                        packNo = getPackageNo();
+                    } catch (CustomerException e) {
+                        packNo = IdGenerate.nextId();
+                    }
+                    orderPackage = new OrderPackage();
+                    orderPackage.setOrderId(orderId);
+                    orderPackage.setPackageState(1);
+                    orderPackage.setPackageNo(packNo);
+                    orderPackage.setId(packNo);
+                    orderPackage.setCreateTime(new Date());
+                    orderPackage.setCustomerId(order.getCustomerId());
+                    orderPackage.setIsUploadStore(true);
+                    orderPackage.setPlatId(packageInfoImportDto.getPlatId());
+                    orderPackage.setLogisticsOrderNo(trackingCode);
+                    orderPackage.setTrackingCode(trackingCode);
+                    orderPackage.setSendTime(new Date());
+                    orderPackage.setStoreId(order.getStoreId());
+                    orderPackage.setTrackingMethodName(shipMethod);
+                    orderPackage.setTrackingCompany(trackingCompany);
+                    insert(orderPackage);
+
+                    String uploadStoreTrackCodeType = (String) redisTemplate.opsForHash().get(RedisKey.HASH_CUSTOMER_SETTING + order.getCustomerId(), CustomerSettingEnum.upload_store_track_code_type.name());
+                    Integer trackingCodeType = 0;
+                    if (uploadStoreTrackCodeType != null && uploadStoreTrackCodeType.equals("1")) {
+                        trackingCodeType = 1;
+                    }
+                    orderService.updateOrderAsTracked(orderId, trackingCode, trackingCodeType);
                 }
-                orderPackage = new OrderPackage();
-                orderPackage.setOrderId(orderId);
-                orderPackage.setPackageState(1);
-                orderPackage.setPackageNo(packNo);
-                orderPackage.setId(packNo);
-                orderPackage.setCreateTime(new Date());
-                orderPackage.setCustomerId(order.getCustomerId());
-                orderPackage.setIsUploadStore(false);
-                orderPackage.setPlatId(packageInfoImportDto.getPlatId());
-                orderPackage.setLogisticsOrderNo(trackingCode);
-                orderPackage.setTrackingCode(trackingCode);
-                orderPackage.setSendTime(new Date());
-                orderPackage.setStoreId(order.getStoreId());
-                orderPackage.setTrackingMethodName(shipMethod);
-                orderPackage.setTrackingCompany(trackingCompany);
-                insert(orderPackage);
+
+                orderPackageImportLog = new OrderPackageImportLog();
+                orderPackageImportLog.setImportTime(new Date());
+                orderPackageImportLog.setStoreName(storeName);
+                orderPackageImportLog.setPlatOrderName(platOrderName);
+                orderPackageImportLog.setTrackingCode(trackingCode);
+                orderPackageImportLog.setLogisticsOrderNo(trackingCode);
+                orderPackageImportLog.setTrackingMethodName(shipMethod);
+                orderPackageImportLog.setTrackingCompany(trackingCompany);
+                orderPackageImportLog.setImportSource(1);
+                orderPackageImportLog.setState(true);
+                orderPackageImportLog.setFailReason(reason);
+                orderPackageImportLog.setOrderId(orderId);
+                orderPackageImportLogService.insert(orderPackageImportLog);
             }
         }
         return BaseResponse.success();
@@ -190,7 +228,7 @@ public class OrderPackageServiceImpl implements OrderPackageService {
 
     @Override
     public List<Long> selectOrderIdsByTrackingCodes(List<String> trackingCodes) {
-        if (ListUtils.isEmpty(trackingCodes)){
+        if (ListUtils.isEmpty(trackingCodes)) {
             return new ArrayList<>();
         }
         return orderPackageDao.selectOrderIdsByTrackingCodes(trackingCodes);
@@ -206,7 +244,7 @@ public class OrderPackageServiceImpl implements OrderPackageService {
         List<Long> orderIds = request.getOrderIds();
         for (Long orderId : orderIds) {
             String message = packReturnToPending(orderId);
-            if (!message.equals("success")){
+            if (!message.equals("success")) {
                 return BaseResponse.failed(message);
             }
         }
@@ -216,18 +254,18 @@ public class OrderPackageServiceImpl implements OrderPackageService {
     @Transactional
     public String packReturnToPending(Long orderId) {
         Order order = orderService.selectByPrimaryKey(orderId);
-        if (order == null){
+        if (order == null) {
             return orderId + ": 订单不存在";
         }
-        if (order.getPackState() == 0){
+        if (order.getPackState() == 0) {
             return "success";
         }
         Long packNo = order.getPackNo();
         OrderPackage orderPackage = selectByPrimaryKey(packNo);
-        if (null == orderPackage){
+        if (null == orderPackage) {
             return packNo + "：包裹不存在";
         }
-        if (orderPackage.getPackageState() == 1){
+        if (orderPackage.getPackageState() == 1) {
             return packNo + ": 包裹已出库";
         }
 
@@ -249,7 +287,6 @@ public class OrderPackageServiceImpl implements OrderPackageService {
 
         return "success";
     }
-
 
 
     @Override
@@ -277,20 +314,20 @@ public class OrderPackageServiceImpl implements OrderPackageService {
         if (order.getPackState() != -1) {
             return BaseResponse.failed("订单非搁置状态");
         }
-
-        OrderPackage orderPackage = orderPackageDao.selectByPrimaryKey(order.getPackNo());
-        Long packNo = null;
-        if (orderPackage != null) {
-            packNo = orderPackage.getId();
-            orderPackageDao.restoreRevokedPackage(packNo);
-            orderService.updateOrderPackInfo(orderId, 1, packNo);
-            OrderItemQuantityDto orderItemQuantityDto = new OrderItemQuantityDto();
-            orderItemQuantityDto.setOrderId(orderId);
-//            orderPayService.sendCheckOrderStockMessage(orderItemQuantityDto);
-        } else {
-            orderService.updateOrderPackInfo(orderId, 0, null);
-            createPackage(orderId);
-        }
+        orderService.updateOrderPackInfo(orderId, 0, null);
+//        OrderPackage orderPackage = orderPackageDao.selectByPrimaryKey(order.getPackNo());
+//        Long packNo = null;
+//        if (orderPackage != null) {
+//            packNo = orderPackage.getId();
+////            orderPackageDao.restoreRevokedPackage(packNo);
+//            orderService.updateOrderPackInfo(orderId, 0, null);
+//            OrderItemQuantityDto orderItemQuantityDto = new OrderItemQuantityDto();
+//            orderItemQuantityDto.setOrderId(orderId);
+////            orderPayService.sendCheckOrderStockMessage(orderItemQuantityDto);
+//        } else {
+//            orderService.updateOrderPackInfo(orderId, 0, null);
+////            createPackage(orderId);
+//        }
         return BaseResponse.success();
     }
 
@@ -332,14 +369,14 @@ public class OrderPackageServiceImpl implements OrderPackageService {
                     break;
                 case "YunExpress":
                     YunExpressGetTrackNumDto yunExpressGetTrackNumDto = YunexpressApi.getTrackNum(packNo);
-                    if (yunExpressGetTrackNumDto != null){
+                    if (yunExpressGetTrackNumDto != null) {
                         trackCode = yunExpressGetTrackNumDto.getTrackingNumber();
                     }
                     break;
                 case "4PX":
                     try {
                         FpxOrderDto fpxOrderDto = FpxOrderApi.getFpxOrder(orderPackage.getLogisticsOrderNo());
-                        if (fpxOrderDto != null){
+                        if (fpxOrderDto != null) {
                             trackCode = fpxOrderDto.getFpxTrackingNo();
                         }
                     } catch (Exception e) {
@@ -361,7 +398,7 @@ public class OrderPackageServiceImpl implements OrderPackageService {
         }
         orderPackage.setTrackingCode(trackCode);
         if (orderPackage.getPackageState() == 1 && !orderPackage.getIsUploadStore()) {
-            orderFulfillmentService.orderFulfillment(orderPackage,false);
+            orderFulfillmentService.orderFulfillment(orderPackage, false);
         }
     }
 
@@ -422,10 +459,10 @@ public class OrderPackageServiceImpl implements OrderPackageService {
         //修改订单发货状态
         String uploadStoreTrackCodeType = (String) redisTemplate.opsForHash().get(RedisKey.HASH_CUSTOMER_SETTING + customerId, CustomerSettingEnum.upload_store_track_code_type.name());
         Integer trackingCodeType = 0;
-        if (uploadStoreTrackCodeType != null && uploadStoreTrackCodeType.equals("1")){
+        if (uploadStoreTrackCodeType != null && uploadStoreTrackCodeType.equals("1")) {
             trackingCodeType = 1;
         }
-        orderService.updateTrackingCodeTypeById(orderId,trackingCodeType);
+        orderService.updateTrackingCodeTypeById(orderId, trackingCodeType);
 
         orderCommonService.addCustomerCommission(orderId, customerId);
 
@@ -626,13 +663,12 @@ public class OrderPackageServiceImpl implements OrderPackageService {
                 || order.getRefundState() != 0) {
             return BaseResponse.failed("订单未支付或已生成包裹或退款中");
         }
-        if (order.getPackNo() != null){
+        if (order.getPackNo() != null) {
             OrderPackage orderPackage = orderPackageDao.selectByPrimaryKey(order.getPackNo());
             if (orderPackage != null && orderPackage.getPackageState() > -1) {
                 return BaseResponse.failed("订单已生成包裹");
             }
         }
-
 
 
         ShippingMethodRedis shippingMethodRedis = (ShippingMethodRedis) redisTemplate.opsForHash().get(RedisKey.SHIPPING_METHOD, order.getActualShipMethodId().toString());
@@ -654,11 +690,11 @@ public class OrderPackageServiceImpl implements OrderPackageService {
                     return createYanwenPackage(order, shippingMethodRedis);
                 default:
                     redisTemplate.opsForHash().put(RedisKey.HASH_ORDER_CREATE_PACKAGE_FAILED_REASON, orderId.toString(), "物流公司未对接");
-                    orderService.updateOrderPackInfo(orderId,2,null);
+                    orderService.updateOrderPackInfo(orderId, 2, null);
                     return BaseResponse.failed("物流公司未对接");
             }
         } catch (Exception e) {
-            orderService.updateOrderPackInfo(orderId,2,null);
+            orderService.updateOrderPackInfo(orderId, 2, null);
             redisTemplate.opsForHash().put(RedisKey.HASH_ORDER_CREATE_PACKAGE_FAILED_REASON, orderId.toString(), e.getMessage());
             return BaseResponse.failed(e.getMessage());
         }

@@ -253,6 +253,9 @@ public class QuoteApplyServiceImpl implements QuoteApplyService {
                 BeanUtils.copyProperties(quoteApplyItem, customerProductQuote);
                 customerProductQuote.setProductTitle(product.getProductTitle());
                 customerProductQuote.setQuoteState(1);
+
+                StoreProductAttribute storeProductAttribute = storeProductAttributeService.selectByPrimaryKey(quoteApplyItem.getStoreProductId());
+                customerProductQuote.setStoreId(storeProductAttribute.getStoreId());
                 customerProductQuote.setUpdateTime(new Date());
                 if(StringUtils.isBlank(customerProductQuote.getStoreVariantImage())){
                     customerProductQuote.setStoreVariantImage(productVariant.getVariantImage());

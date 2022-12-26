@@ -7,6 +7,7 @@ import javax.validation.constraints.NotBlank;
 @Data
 public class StoreFuzzySearchRequest {
 
-    @NotBlank
+    private Long customerId;
+
     private String storeName;
 }

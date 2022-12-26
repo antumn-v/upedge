@@ -87,6 +87,10 @@ public class CustomerProductQuote{
 
 	private String productSku;
 
+	private Long storeId;
+
+	private String barcode;
+
 	public CustomerProductQuote(StoreProductVariant storeProductVariant) {
 		this.storeProductId = storeProductVariant.getProductId();
 		this.storeProductTitle = storeProductVariant.getTitle();

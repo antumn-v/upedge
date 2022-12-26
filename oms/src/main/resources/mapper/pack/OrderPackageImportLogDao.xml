@@ -1,0 +1,304 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.upedge.oms.modules.pack.dao.OrderPackageImportLogDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.upedge.oms.modules.pack.entity.OrderPackageImportLog" id="BaseResultMap">
+        <result property="id" column="id"/>
+        <result property="storeName" column="store_name"/>
+        <result property="platOrderName" column="plat_order_name"/>
+        <result property="trackingCode" column="tracking_code"/>
+        <result property="logisticsOrderNo" column="logistics_order_no"/>
+        <result property="trackingCompany" column="tracking_company"/>
+        <result property="trackingMethodName" column="tracking_method_name"/>
+        <result property="state" column="state"/>
+        <result property="importTime" column="import_time"/>
+        <result property="failReason" column="fail_reason"/>
+        <result property="importSource" column="import_source"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        `id`,`store_name`,`plat_order_name`,`tracking_code`,`logistics_order_no`,`tracking_company`,`tracking_method_name`,`state`,`import_time`,`fail_reason`,`import_source`
+    </sql>
+
+    <select id="selectByPrimaryKey" parameterType="com.upedge.oms.modules.pack.entity.OrderPackageImportLog" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from order_package_import_log
+        where id = #{id}
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="com.upedge.oms.modules.pack.entity.OrderPackageImportLog">
+        delete from order_package_import_log
+        where id = #{id}
+    </delete>
+
+    <update id="updateByPrimaryKeySelective" parameterType="com.upedge.oms.modules.pack.entity.OrderPackageImportLog">
+        update order_package_import_log
+        <set>
+            <if test="storeName != null">
+                store_name = #{storeName},
+            </if>
+            <if test="platOrderName != null">
+                plat_order_name = #{platOrderName},
+            </if>
+            <if test="trackingCode != null">
+                tracking_code = #{trackingCode},
+            </if>
+            <if test="logisticsOrderNo != null">
+                logistics_order_no = #{logisticsOrderNo},
+            </if>
+            <if test="trackingCompany != null">
+                tracking_company = #{trackingCompany},
+            </if>
+            <if test="trackingMethodName != null">
+                tracking_method_name = #{trackingMethodName},
+            </if>
+            <if test="state != null">
+                state = #{state},
+            </if>
+            <if test="importTime != null">
+                import_time = #{importTime},
+            </if>
+            <if test="failReason != null">
+                fail_reason = #{failReason},
+            </if>
+            <if test="importSource != null">
+                import_source = #{importSource},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <update id="updateByPrimaryKey" parameterType="com.upedge.oms.modules.pack.entity.OrderPackageImportLog">
+        update order_package_import_log
+        <set>
+        id = #{id},
+        store_name = #{storeName},
+        plat_order_name = #{platOrderName},
+        tracking_code = #{trackingCode},
+        logistics_order_no = #{logisticsOrderNo},
+        tracking_company = #{trackingCompany},
+        tracking_method_name = #{trackingMethodName},
+        state = #{state},
+        import_time = #{importTime},
+        fail_reason = #{failReason},
+        import_source = #{importSource},
+        </set>
+        where id = #{id}
+    </update>
+
+    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.upedge.oms.modules.pack.entity.OrderPackageImportLog" useGeneratedKeys="true">
+        insert into order_package_import_log
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            id,
+            store_name,
+            order_id,
+            plat_order_name,
+            tracking_code,
+            logistics_order_no,
+            tracking_company,
+            tracking_method_name,
+            state,
+            import_time,
+            fail_reason,
+            import_source
+        </trim>
+        values (
+        #{id},
+        #{storeName},
+        #{orderId},
+        #{platOrderName},
+        #{trackingCode},
+        #{logisticsOrderNo},
+        #{trackingCompany},
+        #{trackingMethodName},
+        #{state},
+        #{importTime},
+        #{failReason},
+        #{importSource}
+        )
+    </insert>
+
+    <insert id="insertSelective"  keyColumn="id" keyProperty="id"  parameterType="com.upedge.oms.modules.pack.entity.OrderPackageImportLog" useGeneratedKeys="true">
+        insert into order_package_import_log
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null" >
+              id
+            </if>
+            <if test="storeName != null" >
+              store_name
+            </if>
+            <if test="platOrderName != null" >
+              plat_order_name
+            </if>
+            <if test="trackingCode != null" >
+              tracking_code
+            </if>
+            <if test="logisticsOrderNo != null" >
+              logistics_order_no
+            </if>
+            <if test="trackingCompany != null" >
+              tracking_company
+            </if>
+            <if test="trackingMethodName != null" >
+              tracking_method_name
+            </if>
+            <if test="state != null" >
+              state
+            </if>
+            <if test="importTime != null" >
+              import_time
+            </if>
+            <if test="failReason != null" >
+              fail_reason
+            </if>
+            <if test="importSource != null" >
+              import_source
+            </if>
+
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null" >
+                #{id}
+            </if>
+            <if test="storeName != null" >
+                #{storeName}
+            </if>
+            <if test="platOrderName != null" >
+                #{platOrderName}
+            </if>
+            <if test="trackingCode != null" >
+                #{trackingCode}
+            </if>
+            <if test="logisticsOrderNo != null" >
+                #{logisticsOrderNo}
+            </if>
+            <if test="trackingCompany != null" >
+                #{trackingCompany}
+            </if>
+            <if test="trackingMethodName != null" >
+                #{trackingMethodName}
+            </if>
+            <if test="state != null" >
+                #{state}
+            </if>
+            <if test="importTime != null" >
+                #{importTime}
+            </if>
+            <if test="failReason != null" >
+                #{failReason}
+            </if>
+            <if test="importSource != null" >
+                #{importSource}
+            </if>
+
+        </trim>
+    </insert>
+
+    <insert id="insertByBatch" parameterType="java.util.List">
+        insert into order_package_import_log
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+           id,
+           store_name,
+           plat_order_name,
+           tracking_code,
+           logistics_order_no,
+           tracking_company,
+           tracking_method_name,
+           state,
+           import_time,
+           fail_reason,
+           import_source
+        </trim>
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+               #{item.id},
+               #{item.storeName},
+               #{item.platOrderName},
+               #{item.trackingCode},
+               #{item.logisticsOrderNo},
+               #{item.trackingCompany},
+               #{item.trackingMethodName},
+               #{item.state},
+               #{item.importTime},
+               #{item.failReason},
+               #{item.importSource}
+            </trim>
+        </foreach>
+    </insert>
+
+    <sql id="Query_Condition">
+        <if test="t != null">
+            where
+            <trim prefix=" " suffix=" " suffixOverrides=" and ">
+                1 = 1 and
+                    <if test="t.id != null">
+                        id = #{t.id} and
+                    </if>
+                    <if test="t.storeName != null">
+                        store_name = #{t.storeName} and
+                    </if>
+                    <if test="t.platOrderName != null">
+                        plat_order_name = #{t.platOrderName} and
+                    </if>
+                    <if test="t.trackingCode != null">
+                        tracking_code = #{t.trackingCode} and
+                    </if>
+                    <if test="t.logisticsOrderNo != null">
+                        logistics_order_no = #{t.logisticsOrderNo} and
+                    </if>
+                    <if test="t.trackingCompany != null">
+                        tracking_company = #{t.trackingCompany} and
+                    </if>
+                    <if test="t.trackingMethodName != null">
+                        tracking_method_name = #{t.trackingMethodName} and
+                    </if>
+                    <if test="t.state != null">
+                        state = #{t.state} and
+                    </if>
+                    <if test="t.importTime != null">
+                        import_time = #{t.importTime} and
+                    </if>
+                    <if test="t.failReason != null">
+                        fail_reason = #{t.failReason} and
+                    </if>
+                    <if test="t.importSource != null">
+                        import_source = #{t.importSource} and
+                    </if>
+            </trim>
+        </if>
+    </sql>
+
+    <select id="select" parameterType="com.upedge.common.base.Page" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from order_package_import_log
+        <include refid="Query_Condition"/>
+        <if test="orderBy != null">
+            order by ${orderBy}
+        </if>
+        <if test="pageNum != null and pageSize != null">
+            limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+        </if>
+    </select>
+
+    <select id="count" parameterType="com.upedge.common.base.Page" resultType="java.lang.Long">
+        select
+        count(1)
+        from order_package_import_log
+        <include refid="Query_Condition"/>
+    </select>
+
+    <select id="selectByOrderInfo" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from order_package_import_log
+        where store_name = #{storeName}
+        and plat_order_name = #{platOrderName}
+        and tracking_code = #{trackingCode}
+        limit 1
+    </select>
+</mapper>

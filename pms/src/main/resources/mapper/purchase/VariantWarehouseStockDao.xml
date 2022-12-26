@@ -318,9 +318,9 @@
         vws.`lock_stock`,vws.`purchase_stock`,vws.`remark`,vws.`shelf_num`,vws.`update_time`,
         pv.cn_name,pv.purchase_sku,pv.variant_sku,pv.variant_image,pv.barcode
         from variant_warehouse_stock vws
-        inner join product_variant pv
+        left join product_variant pv
         on vws.variant_id = pv.id
-        <if test="t != null and t.customerId != null">
+        <if test="t != null and (t.customerId != null || t.storeId != null)">
             inner join customer_product_quote cpq
             on cpq.variant_id = vws.variant_id
         </if>
@@ -344,6 +344,9 @@
             <if test="t.customerId != null">
                 and cpq.customer_id = #{t.customerId}
             </if>
+            <if test="t.storeId != null">
+                and cpq.store_id = #{t.storeId}
+            </if>
         </where>
         <if test="pageNum != null and pageSize != null">
             limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
@@ -351,11 +354,11 @@
     </select>
 
     <select id="countVariantStocks" resultType="java.lang.Long" parameterType="com.upedge.pms.modules.purchase.request.VariantStockListRequest">
-        select count(distinct pv.id)
+        select count(distinct vws.variant_id)
             from variant_warehouse_stock vws
-        inner join product_variant pv
+        left join product_variant pv
         on vws.variant_id = pv.id
-        <if test="t != null and t.customerId != null">
+        <if test="t != null and (t.customerId != null || t.storeId != null)">
             inner join customer_product_quote cpq
             on cpq.variant_id = vws.variant_id
         </if>
@@ -367,6 +370,9 @@
             <if test="t.barcode != null">
                 and pv.barcode = #{t.barcode}
             </if>
+            <if test="t.cnName != null">
+                and pv.cn_name like concat('%',#{t.cnName},'%')
+            </if>
             <if test="t.purchaseSku != null">
                 and pv.purchase_sku = #{t.purchaseSku}
             </if>
@@ -375,6 +381,9 @@
             </if>
             <if test="t.customerId != null">
                 and cpq.customer_id = #{t.customerId}
+            </if>
+            <if test="t.storeId != null">
+                and cpq.store_id = #{t.storeId}
             </if>
         </where>
     </select>

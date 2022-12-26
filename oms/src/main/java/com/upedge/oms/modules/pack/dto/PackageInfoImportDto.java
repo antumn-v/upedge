@@ -18,4 +18,7 @@ public class PackageInfoImportDto {
     private String trackingCompany;
 
     private String shipMethod;
+
+
+
 }

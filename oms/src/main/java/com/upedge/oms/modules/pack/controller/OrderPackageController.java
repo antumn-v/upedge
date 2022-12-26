@@ -97,10 +97,13 @@ public class OrderPackageController {
     }
 
     @ApiOperation("恢复搁置发货的订单")
-    @PostMapping("/restore/{orderId}")
-    public BaseResponse restoreRevokedPackage(@PathVariable Long orderId){
+    @PostMapping("/restore")
+    public BaseResponse restoreRevokedPackage(@RequestBody List<Long> orderIds){
         Session session = UserUtil.getSession(redisTemplate);
-        return orderPackageService.restoreRevokedPackage(orderId,session);
+        for (Long orderId : orderIds) {
+            orderPackageService.restoreRevokedPackage(orderId,session);
+        }
+        return BaseResponse.success();
     }
 
     @ApiOperation("包裹列表")
@@ -205,6 +208,13 @@ public class OrderPackageController {
             orderFulfillmentService.orderFulfillment(orderPackage,false);
         }
         return BaseResponse.success();
+    }
+
+    @ApiOperation("店小秘包裹导入")
+    @PostMapping("/import/dxm")
+    public BaseResponse packageImportByDxm(@RequestBody@Valid PackageInfoImportRequest request){
+        Session session = UserUtil.getSession(redisTemplate);
+        return orderPackageService.packageImport(request,session);
     }
 
     @PostMapping("/test")

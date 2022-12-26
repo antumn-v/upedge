@@ -7,6 +7,8 @@ public class VariantStockListDto {
 
     private Long customerId;
 
+    private Long storeId;
+
     private String variantSku;
 
     private String purchaseSku;

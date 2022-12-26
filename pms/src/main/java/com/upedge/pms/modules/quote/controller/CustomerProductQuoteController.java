@@ -11,6 +11,7 @@ import com.upedge.common.model.pms.quote.CustomerProductQuoteVo;
 import com.upedge.common.model.pms.request.CustomerProductQuoteSearchRequest;
 import com.upedge.common.model.pms.request.QuotedProductSelectBySkuRequest;
 import com.upedge.common.model.pms.response.QuotedProductSelectBySkuResponse;
+import com.upedge.common.model.store.StoreVo;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.utils.PriceUtils;
 import com.upedge.common.web.util.UserUtil;
@@ -80,6 +81,16 @@ public class CustomerProductQuoteController {
     @PostMapping("/all")
     public BaseResponse allProductQuote(@RequestBody AllCustomerQuoteProductSearchRequest request){
         List<CustomerProductQuote> customerProductQuotes = customerProductQuoteService.all(request);
+        for (CustomerProductQuote customerProductQuote : customerProductQuotes) {
+            Long storeId = customerProductQuote.getStoreId();
+            if (storeId == null){
+                continue;
+            }
+            StoreVo storeVo = (StoreVo) redisTemplate.opsForValue().get(RedisKey.STRING_STORE + storeId);
+            if (storeVo!= null){
+                customerProductQuote.setStoreName(storeVo.getStoreName());
+            }
+        }
         long total = customerProductQuoteService.countAllQuoteProduct(request);
         request.setTotal(total);
         return BaseResponse.success(customerProductQuotes,request);

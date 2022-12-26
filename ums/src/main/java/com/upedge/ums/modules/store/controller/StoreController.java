@@ -338,13 +338,20 @@ public class StoreController {
 
     @ApiOperation("店铺名模糊搜索")
     @PostMapping("/fuzzySearch")
-    public BaseResponse fuzzySearch(@RequestBody@Valid StoreFuzzySearchRequest request) {
+    public BaseResponse fuzzySearch(@RequestBody StoreFuzzySearchRequest request) {
         String storeName = request.getStoreName();
+        Long customerId = request.getCustomerId();
+        if (storeName == null && customerId == null){
+            return BaseResponse.success();
+        }
         List<StoreVo> storeVos = new ArrayList<>();
         Set<String> keys = redisTemplate.keys(RedisKey.STRING_STORE + "*");
         for (String key : keys) {
             StoreVo storeVo = (StoreVo) redisTemplate.opsForValue().get(key);
-            if (storeVo.getStoreName().contains(storeName)){
+            if (customerId != null && storeVo.getCustomerId().equals(customerId)){
+                storeVos.add(storeVo);
+            }
+            if (storeName != null && storeVo.getStoreName().contains(storeName)){
                 storeVos.add(storeVo);
             }
         }

@@ -5,6 +5,8 @@ import lombok.Data;
 @Data
 public class AllCustomerQuoteProductSearchDto {
 
+    private String storeId;
+
     private String storeVariantName;
 
     private String storeVariantSku;
