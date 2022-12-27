@@ -3,13 +3,14 @@ package com.upedge.common.utils;
 import com.aliyun.oss.OSS;
 import com.aliyun.oss.OSSClientBuilder;
 import com.aliyun.oss.model.CannedAccessControlList;
+import com.aliyun.oss.model.PutObjectResult;
 
 import java.io.InputStream;
 import java.net.URL;
 
 public class AliYunOssService {
 
-    static String endPoint = "oss-cn-hangzhou.aliyuncs.com";
+    static String endPoint = "label-pdf.oss-accelerate.aliyuncs.com";
     static String keyId = "LTAI4G11r85nKNnKxhtHrAQ6";
     static String keySecret = "51qt1QMGeGez01wKCqqA1od6U5RROb";
     static String bucketName = "label-pdf";
@@ -46,5 +47,6 @@ public class AliYunOssService {
         //返回url地址
         return "https://" + bucketName + "." + endPoint + "/" + key;
     }
+
 
 }

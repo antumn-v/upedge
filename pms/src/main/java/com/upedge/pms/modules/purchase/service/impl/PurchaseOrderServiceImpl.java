@@ -8,6 +8,7 @@ import com.upedge.common.constant.ResultCode;
 import com.upedge.common.constant.key.RedisKey;
 import com.upedge.common.exception.CustomerException;
 import com.upedge.common.model.pms.dto.CreatePurchaseOrderDto;
+import com.upedge.common.model.pms.dto.CustomerStockPurchaseOrderRefundVo;
 import com.upedge.common.model.pms.request.CreatePurchaseOrderRequest;
 import com.upedge.common.model.product.AlibabaApiVo;
 import com.upedge.common.model.user.vo.Session;
@@ -348,6 +349,13 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
             }
         }
         return BaseResponse.success(stringBuffer.toString());
+    }
+
+    @Override
+    public BaseResponse refundByCustomerStockOrder(CustomerStockPurchaseOrderRefundVo customerStockPurchaseOrderRefundVo) {
+
+
+        return null;
     }
 
     @Transactional

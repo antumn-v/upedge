@@ -79,6 +79,7 @@ import java.io.*;
 import java.math.BigDecimal;
 import java.net.URL;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ThreadPoolExecutor;
 
 @Service
@@ -1082,11 +1083,19 @@ public class OrderPackageServiceImpl implements OrderPackageService {
         orderService.updateOrderPackInfo(orderId, 1, packageNo);
         redisTemplate.opsForHash().delete(RedisKey.HASH_ORDER_CREATE_PACKAGE_FAILED_REASON, orderId.toString());
 
-        try {
-            savePrintLabel(orderPackage);
-        } catch (CustomerException e) {
 
-        }
+        CompletableFuture.runAsync(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    Thread.sleep(5000L);
+                    savePrintLabel(orderPackage);
+                } catch (Exception e) {
+
+                }
+            }
+        });
+
 
         OrderItemQuantityDto orderItemQuantityDto = new OrderItemQuantityDto();
         orderItemQuantityDto.setOrderId(orderId);

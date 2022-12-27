@@ -21,5 +21,9 @@ public class OrderPickInfoVo {
 
     private Integer seq;
 
+    private String trackingCode;
+
+    private String logisticsOrderNo;
+
     List<OrderItemPickInfoVo> orderItemPickInfoVos;
 }

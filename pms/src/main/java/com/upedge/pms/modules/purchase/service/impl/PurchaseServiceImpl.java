@@ -84,6 +84,7 @@ public class PurchaseServiceImpl implements PurchaseService {
             if (planingVariantIds.contains(variantId)){
                 continue;
             }
+            Integer quantity = purchaseAdviceItemVo.getOrderQuantity();
             Long customerId = purchaseAdviceItemVo.getCustomerId();
 
             CustomerPurchaseCountVo customerPurchaseCountVo = customerPurchaseCountVoMap.get(customerId);
@@ -96,10 +97,13 @@ public class PurchaseServiceImpl implements PurchaseService {
                 customerPurchaseCountVoMap.put(customerId,customerPurchaseCountVo);
             }
 
-            Integer total = customerPurchaseCountVo.getTotal() + purchaseAdviceItemVo.getOrderQuantity();
+            Integer total = customerPurchaseCountVo.getTotal();
             VariantWarehouseStock variantWarehouseStock = variantWarehouseStockService.selectByPrimaryKey(variantId,"CNHZ");
             if (variantWarehouseStock != null){
-                total = total- variantWarehouseStock.getPurchaseStock() - variantWarehouseStock.getAvailableStock() ;
+                quantity = quantity- variantWarehouseStock.getPurchaseStock() - variantWarehouseStock.getAvailableStock() ;
+            }
+            if (quantity > 0){
+                total += quantity;
             }
 
             customerPurchaseCountVo.setTotal(total);

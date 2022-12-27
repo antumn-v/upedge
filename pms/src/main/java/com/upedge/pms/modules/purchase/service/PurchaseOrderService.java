@@ -3,6 +3,7 @@ package com.upedge.pms.modules.purchase.service;
 import com.upedge.common.base.BaseResponse;
 import com.upedge.common.base.Page;
 import com.upedge.common.exception.CustomerException;
+import com.upedge.common.model.pms.dto.CustomerStockPurchaseOrderRefundVo;
 import com.upedge.common.model.pms.request.CreatePurchaseOrderRequest;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.pms.modules.purchase.entity.PurchaseOrder;
@@ -23,6 +24,8 @@ public interface PurchaseOrderService{
     BaseResponse revokePurchaseOrder(PurchaseOrderRevokeRequest request,Session session) throws CustomerException;
 
     BaseResponse createByCustomerStockOrder(CreatePurchaseOrderRequest request, Session session);
+
+    BaseResponse refundByCustomerStockOrder(CustomerStockPurchaseOrderRefundVo customerStockPurchaseOrderRefundVo);
 
     BaseResponse customCreate(CreatePurchaseOrderRequest request, Session session);
 

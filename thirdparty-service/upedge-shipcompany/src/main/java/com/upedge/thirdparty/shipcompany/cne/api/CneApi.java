@@ -113,7 +113,11 @@ public class CneApi {
     }
 
     public static void main(String[] args) {
-        System.out.println(getTrackNumber("3A5V612110279"));
+        try {
+            System.out.println(getLabel("3A5V620469712"));
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
 }
