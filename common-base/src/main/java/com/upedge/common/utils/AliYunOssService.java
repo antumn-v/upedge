@@ -10,7 +10,7 @@ import java.net.URL;
 
 public class AliYunOssService {
 
-    static String endPoint = "label-pdf.oss-accelerate.aliyuncs.com";
+    static String endPoint = "oss-accelerate.aliyuncs.com";
     static String keyId = "LTAI4G11r85nKNnKxhtHrAQ6";
     static String keySecret = "51qt1QMGeGez01wKCqqA1od6U5RROb";
     static String bucketName = "label-pdf";

@@ -572,7 +572,7 @@ public class OrderPackageServiceImpl implements OrderPackageService {
                     break;
                 case "CNE":
                     labelUrl = CneApi.getLabel(orderPackage.getLogisticsOrderNo());
-                    labelUrl = AliYunOssService.uploadLabel(labelUrl, "CNE", orderPackage.getId() + ".pdf");
+//                    labelUrl = AliYunOssService.uploadLabel(labelUrl, "CNE", orderPackage.getId() + ".pdf");
                     break;
                 case "Yanwen":
                     String baseString = YanwenApi.getTrackLabel(orderPackage.getLogisticsOrderNo(), pdfLocalPath);
@@ -598,7 +598,7 @@ public class OrderPackageServiceImpl implements OrderPackageService {
         String fileName = packNo + ".pdf";
         String id = IdGenerate.uuid();
 
-        String endPoint = "oss-cn-hangzhou.aliyuncs.com";
+        String endPoint = "oss-accelerate.aliyuncs.com";
         String keyId = "LTAI4G11r85nKNnKxhtHrAQ6";
         String keySecret = "51qt1QMGeGez01wKCqqA1od6U5RROb";
         String bucketName = "label-pdf";

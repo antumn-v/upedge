@@ -58,6 +58,8 @@ public class PurchaseOrderItem{
 	private Integer receiveQuantity;
 
 	private Integer requireQuantity;
+
+	private Integer refundQuantity;
 	/**
 	 * 
 	 */

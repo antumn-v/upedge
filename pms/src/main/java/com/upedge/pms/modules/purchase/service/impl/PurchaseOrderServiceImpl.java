@@ -8,6 +8,7 @@ import com.upedge.common.constant.ResultCode;
 import com.upedge.common.constant.key.RedisKey;
 import com.upedge.common.exception.CustomerException;
 import com.upedge.common.model.pms.dto.CreatePurchaseOrderDto;
+import com.upedge.common.model.pms.dto.CustomerStockPurchaseOrderRefundItemVo;
 import com.upedge.common.model.pms.dto.CustomerStockPurchaseOrderRefundVo;
 import com.upedge.common.model.pms.request.CreatePurchaseOrderRequest;
 import com.upedge.common.model.product.AlibabaApiVo;
@@ -353,7 +354,39 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
 
     @Override
     public BaseResponse refundByCustomerStockOrder(CustomerStockPurchaseOrderRefundVo customerStockPurchaseOrderRefundVo) {
-
+        Long stockOrderId = customerStockPurchaseOrderRefundVo.getOrderId();
+        List<CustomerStockPurchaseOrderRefundItemVo> refundItemVos = customerStockPurchaseOrderRefundVo.getRefundItemVos();
+        List<PurchaseOrder> purchaseOrders = purchaseOrderDao.selectByRelateId(stockOrderId);
+        if (ListUtils.isEmpty(purchaseOrders)){
+            return BaseResponse.failed("该备库订单未生成采购订单");
+        }
+        List<PurchaseOrderItem> purchaseOrderItems = new ArrayList<>();
+        for (PurchaseOrder purchaseOrder : purchaseOrders) {
+            if (purchaseOrder.getPurchaseState() == 2){
+                continue;
+            }
+            List<PurchaseOrderItem> items = purchaseOrderItemService.selectByOrderId(purchaseOrder.getId());
+            purchaseOrderItems.addAll(items);
+        }
+        Map<Long,Integer> itemRefundQuantityMap = new HashMap<>();
+        if (ListUtils.isNotEmpty(purchaseOrderItems)){
+            for (PurchaseOrderItem purchaseOrderItem : purchaseOrderItems) {
+                for (CustomerStockPurchaseOrderRefundItemVo refundItemVo : refundItemVos) {
+                    if (purchaseOrderItem.getVariantId().equals(refundItemVo.getVariantId())){
+                        Integer refundQuantity = refundItemVo.getRefundQuantity();
+                        Integer availableQuantity = purchaseOrderItem.getQuantity() - purchaseOrderItem.getRefundQuantity();
+                        if (refundQuantity > availableQuantity){
+                            return BaseResponse.failed(purchaseOrderItem.getBarcode() + ": 可退款数量不足");
+                        }
+                        itemRefundQuantityMap.put(purchaseOrderItem.getId(),refundQuantity);
+                        refundItemVos.remove(refundItemVo);
+                    }
+                }
+            }
+        }
+        if (ListUtils.isNotEmpty(refundItemVos)){
+            return BaseResponse.failed("备库订单产品信息异常");
+        }
 
         return null;
     }

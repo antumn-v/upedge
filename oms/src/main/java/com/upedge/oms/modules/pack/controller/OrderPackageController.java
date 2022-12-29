@@ -4,6 +4,7 @@ import com.upedge.common.base.BaseResponse;
 import com.upedge.common.base.Page;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.utils.ListUtils;
+import com.upedge.common.web.util.RedisUtil;
 import com.upedge.common.web.util.UserUtil;
 import com.upedge.oms.modules.common.service.OrderCommonService;
 import com.upedge.oms.modules.fulfillment.service.OrderFulfillmentService;
@@ -25,6 +26,7 @@ import java.util.Random;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 @Api(tags = "订单包裹")
 @RestController
@@ -133,7 +135,13 @@ public class OrderPackageController {
 
     @ApiOperation("获取包裹面单")
     @PostMapping("/label")
-    public BaseResponse getLabel(@RequestBody OrderPackageGetLabelRequest request) {
+    public BaseResponse getLabel(@RequestBody@Valid OrderPackageGetLabelRequest request) {
+        Long packNo = request.getPackNo();
+        String key = "lock:pack:print:label:" + packNo;
+        boolean b = RedisUtil.lock(redisTemplate,key,0L,10 * 1000L);
+        if (!b){
+            return BaseResponse.failed("同一包裹面单10秒内不能重复打印");
+        }
         Session session = UserUtil.getSession(redisTemplate);
         return orderPackageService.printPackLabel(request, session);
     }

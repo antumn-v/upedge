@@ -114,7 +114,7 @@ public class CneApi {
 
     public static void main(String[] args) {
         try {
-            System.out.println(getLabel("3A5V620469712"));
+            System.out.println(getLabel("3A5V620504526"));
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

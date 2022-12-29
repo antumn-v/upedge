@@ -482,7 +482,7 @@ public class OrderFulfillmentServiceImpl implements OrderFulfillmentService {
         if (ListUtils.isNotEmpty(platOrderItemIds)) {
             return uploadShopifyOrderFulfillment(fulfillmentItems, trackCode, trackCompany, storeVo, platOrderId, storeOrderId, orderId);
         }
-        return false;
+        return true;
     }
 
     //上传shopify订单物流信息
@@ -626,6 +626,9 @@ public class OrderFulfillmentServiceImpl implements OrderFulfillmentService {
 
     void shopifyUpdateFulfillment(List<ShopifyFulfillment> shopifyFulfillments, List<String> platOrderItemIds, String trackCode, String trackCompany, StoreVo storeVo, String platOrderId, Long storeOrderId, Long orderId) {
         shopifyFulfillments.forEach(shopifyFulfillment -> {
+            if (shopifyFulfillment.getTracking_number().equals(trackCode)){
+                return;
+            }
             List<String> fulfillmentItemIds = new ArrayList<>();
             List<ShopifyLineItem> shopifyLineItems = shopifyFulfillment.getLine_items();
             shopifyLineItems.forEach(shopifyLineItem -> {

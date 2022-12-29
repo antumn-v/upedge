@@ -507,4 +507,11 @@
                 update_time = #{date}
         where id = #{id}
     </update>
+
+    <select id="selectByRelateId" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from purchase_order
+        where relate_id = #{relateId}
+    </select>
 </mapper>
