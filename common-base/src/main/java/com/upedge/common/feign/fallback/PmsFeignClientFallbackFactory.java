@@ -4,6 +4,7 @@ import com.upedge.common.base.BaseResponse;
 import com.upedge.common.constant.ResultCode;
 import com.upedge.common.feign.PmsFeignClient;
 import com.upedge.common.model.oms.order.OrderItemQuantityVo;
+import com.upedge.common.model.pms.dto.CustomerStockPurchaseOrderRefundVo;
 import com.upedge.common.model.pms.dto.VariantPurchaseInfoDto;
 import com.upedge.common.model.pms.quote.CustomerProductQuoteVo;
 import com.upedge.common.model.pms.request.*;
@@ -29,6 +30,11 @@ public class PmsFeignClientFallbackFactory implements FallbackFactory<PmsFeignCl
     @Override
     public PmsFeignClient create(Throwable cause) {
         return new PmsFeignClient() {
+            @Override
+            public BaseResponse refundByCustomerStockOrder(CustomerStockPurchaseOrderRefundVo customerStockPurchaseOrderRefundVo) {
+                return BaseResponse.failed();
+            }
+
             @Override
             public List<VariantPurchaseInfoDto> variantPurchaseInfo(List<Long> variantIds) {
                 return new ArrayList<>();

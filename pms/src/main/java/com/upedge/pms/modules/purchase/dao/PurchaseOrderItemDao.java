@@ -12,7 +12,9 @@ import java.util.List;
  */
 public interface PurchaseOrderItemDao {
 
-    List<PurchaseOrderItem> selectByIds(@Param("ids") List<Long> ids,@Param("orderId")Long orderId);
+    int updateRefundQuantityById(@Param("id") Long id, @Param("refundQuantity") Integer refundQuantity);
+
+    List<PurchaseOrderItem> selectByIds(@Param("ids") List<Long> ids, @Param("orderId") Long orderId);
 
     int updateStateByOrderIdAndPurchaseLink(@Param("orderId") Long orderId, @Param("purchaseLinks") List<String> purchaseLinks, @Param("state") Integer state);
 

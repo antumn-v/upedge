@@ -73,6 +73,14 @@ public class PurchaseOrderItemServiceImpl implements PurchaseOrderItemService {
     }
 
     @Override
+    public int updateRefundQuantityById(Long id, Integer refundQuantity) {
+        if (refundQuantity == 0){
+            return 1;
+        }
+        return purchaseOrderItemDao.updateRefundQuantityById(id, refundQuantity);
+    }
+
+    @Override
     public List<PurchaseOrderItem> selectByIds(List<Long> ids, Long orderId) {
         if (null == orderId || ListUtils.isEmpty(ids)){
             return new ArrayList<>();

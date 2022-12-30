@@ -5,7 +5,6 @@ import com.upedge.oms.modules.stock.entity.StockOrderRefund;
 import com.upedge.oms.modules.stock.entity.StockOrderRefundItem;
 import lombok.Data;
 
-import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.util.Date;
@@ -16,8 +15,10 @@ public class ApplyStockOrderRefundRequest {
 
     @NotNull
     private Long orderId;
-    @NotBlank
+
     private String reason;
+
+    private boolean diretcRefund;
 
     @Size(min = 1)
     List<StockOrderRefundItem> refundItemList;

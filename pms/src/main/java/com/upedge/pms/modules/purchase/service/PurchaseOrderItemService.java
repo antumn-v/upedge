@@ -8,7 +8,6 @@ import com.upedge.pms.modules.purchase.entity.PurchaseOrderItem;
 import com.upedge.pms.modules.purchase.request.PurchaseOrderItemDeleteRequest;
 import com.upedge.pms.modules.purchase.request.PurchaseOrderItemUpdatePriceRequest;
 import com.upedge.pms.modules.purchase.request.PurchaseOrderItemUpdateQuantityRequest;
-import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -16,6 +15,8 @@ import java.util.List;
  * @author gx
  */
 public interface PurchaseOrderItemService{
+
+    int updateRefundQuantityById(Long id,Integer refundQuantity);
 
     List<PurchaseOrderItem> selectByIds(List<Long> ids,Long orderId);
 

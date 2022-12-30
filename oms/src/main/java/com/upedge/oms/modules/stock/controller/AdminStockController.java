@@ -129,7 +129,7 @@ public class  AdminStockController {
 
     @ApiOperation("备库订单申请退款")
     @RequestMapping(value = "/applyRefund", method= RequestMethod.POST)
-    public ApplyStockOrderRefundResponse applyRefund(@RequestBody @Valid ApplyStockOrderRefundRequest request) {
+    public BaseResponse applyRefund(@RequestBody @Valid ApplyStockOrderRefundRequest request) {
         String key=RedisUtil.KEY_STOCK_APPLY_REFUND+request.getOrderId();
         boolean flag= RedisUtil.lock(redisTemplate,key,2L,1000L*2*60);
         //获取锁成功
@@ -140,7 +140,15 @@ public class  AdminStockController {
         log.debug("获取锁:{}",key);
         Session session = UserUtil.getSession(redisTemplate);
         try {
-            return adminStockService.applyRefund(request,session);
+            ApplyStockOrderRefundResponse response = adminStockService.applyRefund(request,session);
+            if (response.getCode() == ResultCode.SUCCESS_CODE){
+                if (request.isDiretcRefund()){
+                    ConfirmStockOrderRefundRequest confirmStockOrderRefundRequest = new ConfirmStockOrderRefundRequest();
+                    confirmStockOrderRefundRequest.setId(response.getStockOrderRefundId());
+                    return adminStockService.confirmRefund(confirmStockOrderRefundRequest,session);
+                }
+            }
+            return response;
         } catch (CustomerException e) {
             return new ApplyStockOrderRefundResponse(ResultCode.FAIL_CODE,e.getMessage());
         }finally {

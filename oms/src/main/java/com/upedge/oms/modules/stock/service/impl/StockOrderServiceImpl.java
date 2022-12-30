@@ -6,7 +6,6 @@ import com.upedge.common.base.BaseResponse;
 import com.upedge.common.base.Page;
 import com.upedge.common.constant.*;
 import com.upedge.common.constant.key.RedisKey;
-import com.upedge.common.constant.key.RocketMqConfig;
 import com.upedge.common.enums.TransactionConstant;
 import com.upedge.common.feign.PmsFeignClient;
 import com.upedge.common.feign.UmsFeignClient;
@@ -14,7 +13,6 @@ import com.upedge.common.model.account.AccountPaymentRequest;
 import com.upedge.common.model.account.PaypalOrder;
 import com.upedge.common.model.account.PaypalOrder.PaypalOrderItem;
 import com.upedge.common.model.account.vo.InvoiceProductVo;
-import com.upedge.common.model.log.MqMessageLog;
 import com.upedge.common.model.oms.stock.StockOrderItemVo;
 import com.upedge.common.model.oms.stock.StockOrderVo;
 import com.upedge.common.model.order.PaymentDetail;
@@ -57,8 +55,6 @@ import com.upedge.oms.modules.stock.service.StockOrderService;
 import io.seata.spring.annotation.GlobalTransactional;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.rocketmq.client.producer.DefaultMQProducer;
-import org.apache.rocketmq.client.producer.SendStatus;
-import org.apache.rocketmq.common.message.Message;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
@@ -781,30 +777,31 @@ public class StockOrderServiceImpl implements StockOrderService {
             return;
         }
         detail.setOrderTransactions(transactionDetails);
-        Message message = new Message(RocketMqConfig.TOPIC_SAVE_ORDER_TRANSACTION, "stock_order", "stock:order:transaction:" + paymentId, JSON.toJSONBytes(detail));
-        message.setDelayTimeLevel(1);
-        MqMessageLog messageLog = MqMessageLog.toMqMessageLog(message, detail.toString());
-        log.warn("交易ID：{},消息：{}", paymentId, detail);
-        String status = "failed";
-        int i = 1;
-        while (i < 4 && !status.equals(SendStatus.SEND_OK.name())) {
-            try {
-                status = defaultMQProducer.send(message).getSendStatus().name();
-            } catch (Exception e) {
-                e.printStackTrace();
-                log.warn("payment Id:{},交易信息发送失败,失败次数:{}", paymentId, i);
-            } finally {
-                i += 1;
-            }
-        }
-        if (status.equals(SendStatus.SEND_OK.name())) {
-            messageLog.setIsSendSuccess(1);
-            log.warn("payment Id:{},交易信息发送成功", paymentId);
-        } else {
-            messageLog.setIsSendSuccess(0);
-            log.warn("payment Id:{},交易信息发送失败", paymentId);
-        }
-        umsFeignClient.saveMqLog(messageLog);
+        umsFeignClient.saveTransactionDetails(detail);
+//        Message message = new Message(RocketMqConfig.TOPIC_SAVE_ORDER_TRANSACTION, "stock_order", "stock:order:transaction:" + paymentId, JSON.toJSONBytes(detail));
+//        message.setDelayTimeLevel(1);
+//        MqMessageLog messageLog = MqMessageLog.toMqMessageLog(message, detail.toString());
+//        log.warn("交易ID：{},消息：{}", paymentId, detail);
+//        String status = "failed";
+//        int i = 1;
+//        while (i < 4 && !status.equals(SendStatus.SEND_OK.name())) {
+//            try {
+//                status = defaultMQProducer.send(message).getSendStatus().name();
+//            } catch (Exception e) {
+//                e.printStackTrace();
+//                log.warn("payment Id:{},交易信息发送失败,失败次数:{}", paymentId, i);
+//            } finally {
+//                i += 1;
+//            }
+//        }
+//        if (status.equals(SendStatus.SEND_OK.name())) {
+//            messageLog.setIsSendSuccess(1);
+//            log.warn("payment Id:{},交易信息发送成功", paymentId);
+//        } else {
+//            messageLog.setIsSendSuccess(0);
+//            log.warn("payment Id:{},交易信息发送失败", paymentId);
+//        }
+//        umsFeignClient.saveMqLog(messageLog);
     }
 
     /**

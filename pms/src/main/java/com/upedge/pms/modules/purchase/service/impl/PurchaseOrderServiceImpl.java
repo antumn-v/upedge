@@ -26,6 +26,7 @@ import com.upedge.pms.modules.purchase.request.*;
 import com.upedge.pms.modules.purchase.service.*;
 import com.upedge.pms.modules.purchase.vo.PurchaseOrderVo;
 import com.upedge.thirdparty.ali1688.service.Ali1688Service;
+import io.seata.spring.annotation.GlobalTransactional;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -304,24 +305,27 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
             Long id = purchaseService.getNextPurchaseOrderId();
             String message = "下单号： " + id;
 
-            try {
-                result = Ali1688Service.createOrder(tradeFastCargos, alibabaApiVo, message);
-                if (!result.getSuccess()){
-                    return BaseResponse.failed(result.getMessage());
-                }
-                alibabaTradeFastResult = result.getResult();
-            } catch (CustomerException e) {
-                return BaseResponse.success(e.getMessage());
-            }
-            if (alibabaTradeFastResult == null){
-                return BaseResponse.failed("采购单创建异常");
-            }
+//            try {
+//                result = Ali1688Service.createOrder(tradeFastCargos, alibabaApiVo, message);
+//                if (!result.getSuccess()){
+//                    return BaseResponse.failed(result.getMessage());
+//                }
+//                alibabaTradeFastResult = result.getResult();
+//            } catch (CustomerException e) {
+//                return BaseResponse.success(e.getMessage());
+//            }
+//            if (alibabaTradeFastResult == null){
+//                return BaseResponse.failed("采购单创建异常");
+//            }
             redisTemplate.opsForHash().put(RedisKey.HASH_CUSTOMER_STOCK_RELATE_PURCHASE,stockOrderId.toString(),id);
             PurchaseOrder purchaseOrder = new PurchaseOrder(id,
-                    alibabaTradeFastResult.getOrderId(),
+                    "0",
+//                    alibabaTradeFastResult.getOrderId(),
                     BigDecimal.ZERO,
-                    new BigDecimal((alibabaTradeFastResult.getPostFee().doubleValue() / 100)),
-                    new BigDecimal(alibabaTradeFastResult.getTotalSuccessAmount().doubleValue() / 100),
+//                    new BigDecimal((alibabaTradeFastResult.getPostFee().doubleValue() / 100)),
+//                    new BigDecimal(alibabaTradeFastResult.getTotalSuccessAmount().doubleValue() / 100),
+                    BigDecimal.ZERO,
+                    BigDecimal.ZERO,
                     BigDecimal.ZERO,
                     map.getKey(),
                     0, 0, 0L, 0);
@@ -352,6 +356,7 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
         return BaseResponse.success(stringBuffer.toString());
     }
 
+    @GlobalTransactional
     @Override
     public BaseResponse refundByCustomerStockOrder(CustomerStockPurchaseOrderRefundVo customerStockPurchaseOrderRefundVo) {
         Long stockOrderId = customerStockPurchaseOrderRefundVo.getOrderId();
@@ -362,24 +367,19 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
         }
         List<PurchaseOrderItem> purchaseOrderItems = new ArrayList<>();
         for (PurchaseOrder purchaseOrder : purchaseOrders) {
-            if (purchaseOrder.getPurchaseState() == 2){
-                continue;
-            }
             List<PurchaseOrderItem> items = purchaseOrderItemService.selectByOrderId(purchaseOrder.getId());
             purchaseOrderItems.addAll(items);
         }
         Map<Long,Integer> itemRefundQuantityMap = new HashMap<>();
         if (ListUtils.isNotEmpty(purchaseOrderItems)){
+            a:
             for (PurchaseOrderItem purchaseOrderItem : purchaseOrderItems) {
                 for (CustomerStockPurchaseOrderRefundItemVo refundItemVo : refundItemVos) {
                     if (purchaseOrderItem.getVariantId().equals(refundItemVo.getVariantId())){
                         Integer refundQuantity = refundItemVo.getRefundQuantity();
-                        Integer availableQuantity = purchaseOrderItem.getQuantity() - purchaseOrderItem.getRefundQuantity();
-                        if (refundQuantity > availableQuantity){
-                            return BaseResponse.failed(purchaseOrderItem.getBarcode() + ": 可退款数量不足");
-                        }
                         itemRefundQuantityMap.put(purchaseOrderItem.getId(),refundQuantity);
                         refundItemVos.remove(refundItemVo);
+                        continue a;
                     }
                 }
             }
@@ -387,8 +387,11 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
         if (ListUtils.isNotEmpty(refundItemVos)){
             return BaseResponse.failed("备库订单产品信息异常");
         }
+        itemRefundQuantityMap.forEach((id,refundQuantity) -> {
+            purchaseOrderItemService.updateRefundQuantityById(id,refundQuantity);
+        });
 
-        return null;
+        return BaseResponse.success();
     }
 
     @Transactional

@@ -4,7 +4,7 @@
 <mapper namespace="com.upedge.pms.modules.purchase.dao.PurchaseOrderItemDao">
     <!-- 可根据自己的需求，是否要使用 -->
     <resultMap type="com.upedge.pms.modules.purchase.entity.PurchaseOrderItem" id="BaseResultMap">
-        <result property="id" column="id"/>
+        <id property="id" column="id"/>
         <result property="orderId" column="order_id"/>
         <result property="variantId" column="variant_id"/>
         <result property="barcode" column="barcode"/>
@@ -338,7 +338,7 @@
         select
         poi.`id`,poi.`order_id`,poi.`variant_id`,poi.`product_id`,poi.`purchase_link`,poi.`variant_name`,poi.`variant_image`,poi.`variant_sku`,
         poi.`purchase_sku`,poi.`quantity`,poi.`price`,poi.`spec_id`,poi.`receive_quantity`,pv.weight,pv.barcode,
-        poi.original_quantity,poi.original_price,poi.require_quantity,poi.state,ppi.inventory,ppi.min_order_quantity
+        poi.original_quantity,poi.original_price,poi.require_quantity,poi.state,ppi.inventory,ppi.min_order_quantity,poi.refund_quantity
         from purchase_order_item poi
         left join product_variant pv
         on poi.variant_id = pv.id
@@ -361,7 +361,7 @@
         select
         poi.`id`,poi.`order_id`,poi.`variant_id`,poi.`product_id`,poi.`purchase_link`,poi.`variant_name`,poi.`variant_image`,poi.`variant_sku`,
         poi.`purchase_sku`,poi.`quantity`,poi.`price`,poi.`spec_id`,poi.`receive_quantity`,pv.weight,pv.barcode,
-        poi.original_quantity,poi.original_price,poi.require_quantity,poi.state
+        poi.original_quantity,poi.original_price,poi.require_quantity,poi.state,poi.refund_quantity
         from purchase_order_item poi
         left join product_variant pv
         on poi.variant_id = pv.id
@@ -429,4 +429,10 @@
             #{id}
         </foreach>
     </select>
+
+    <update id="updateRefundQuantityById">
+        update purchase_order_item
+            set refund_quantity = refund_quantity + #{refundQuantity}
+        where  id = #{id}
+    </update>
 </mapper>

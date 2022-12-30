@@ -11,6 +11,8 @@ import com.upedge.common.feign.PmsFeignClient;
 import com.upedge.common.feign.UmsFeignClient;
 import com.upedge.common.model.account.AccountOrderRefundedRequest;
 import com.upedge.common.model.oms.stock.StockOrderItemVo;
+import com.upedge.common.model.pms.dto.CustomerStockPurchaseOrderRefundItemVo;
+import com.upedge.common.model.pms.dto.CustomerStockPurchaseOrderRefundVo;
 import com.upedge.common.model.product.ListVariantsRequest;
 import com.upedge.common.model.product.ProductSaiheInventoryVo;
 import com.upedge.common.model.product.ProductVariantTo;
@@ -93,7 +95,7 @@ public class AdminStockServiceImpl implements AdminStockService {
         //支付状态,待支付=0，已支付=1，取消订单=-1
         stockOrder.setPayState(1);
         //退款状态:0=未退款，1=申请中，2=驳回，3=部分退款，4=全部退款
-        stockOrder.setRefundState(0);
+
 
         List<Long> orderIds = new ArrayList<>();
         List<AdminStockOrderVo> results = stockOrderDao.selectAdminStockOrderList(request);
@@ -393,8 +395,8 @@ public class AdminStockServiceImpl implements AdminStockService {
         //已付款
         //支付状态,待支付=0，已支付=1，取消订单=-1
         //退款状态:0=未退款，1=申请中 2=部分退款，3=全部退款
-        if(stockOrder.getPayState()!=1&&stockOrder.getRefundState()!=0){
-            return new ApplyStockOrderRefundResponse(ResultCode.FAIL_CODE,"状态过期");
+        if(stockOrder.getPayState()!=1){
+            return new ApplyStockOrderRefundResponse(ResultCode.FAIL_CODE,"订单未支付");
         }
         List<StockOrderRefundItem> refundItemList=request.getRefundItemList();
 
@@ -413,9 +415,11 @@ public class AdminStockServiceImpl implements AdminStockService {
             if(stockOrderItem==null||stockOrderItem.getQuantity()==null){
                 return new ApplyStockOrderRefundResponse(ResultCode.FAIL_CODE,"参数异常");
             }
-            if(quantity>stockOrderItem.getQuantity()){
+            Integer availableQuantity = stockOrderItem.getQuantity() - stockOrderItem.getRefundQuantity();
+            if(quantity>availableQuantity){
                 return new ApplyStockOrderRefundResponse(ResultCode.FAIL_CODE,"退款数量超出范围");
             }
+            stockOrderItemDao.updateRefundQuantityById(stockOrderItemId,quantity);
             item.setStockRefundId(stockRefundId);
             item.setPrice(stockOrderItem.getPrice());
             item.setProductId(stockOrderItem.getProductId());
@@ -432,9 +436,9 @@ public class AdminStockServiceImpl implements AdminStockService {
         //支付状态,待支付=0，已支付=1，取消订单=-1
         //退款状态:0=未退款，1=申请中 2=部分退款，3=全部退款
         Integer res=stockOrderDao.applyStockOrderRefund(stockOrder.getId());
-        if(res==0){
-            throw new CustomerException("申请退款失败!");
-        }
+//        if(res==0){
+//            throw new CustomerException("申请退款失败!");
+//        }
         StockOrderRefund stockOrderRefund=request.toStockOrderRefund(stockOrder,session.getLoginname());
         stockOrderRefund.setId(stockRefundId);
         stockOrderRefund.setReason(request.getReason());
@@ -442,7 +446,7 @@ public class AdminStockServiceImpl implements AdminStockService {
         stockOrderRefund.setAmount(amount);
         stockOrderRefundDao.insert(stockOrderRefund);
         stockOrderRefundItemDao.insertByBatch(refundItemList);
-        return new ApplyStockOrderRefundResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS);
+        return new ApplyStockOrderRefundResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS,stockRefundId);
     }
 
     /**
@@ -586,13 +590,15 @@ public class AdminStockServiceImpl implements AdminStockService {
         }
         //更新状态 已确认
         stockOrderRefund.setState(1);
-        String userCode= String.valueOf(session.getId());
 
         stockOrderRefund.setUpdateTime(new Date());
         int rsOrderRefund=stockOrderRefundDao.updateConfirmRefund(stockOrderRefund);
         if(rsOrderRefund==0){
             throw new CustomerException(ResultCode.FAIL_CODE,"修改退款单状态异常");
         }
+
+        CustomerStockPurchaseOrderRefundVo customerStockPurchaseOrderRefundVo = new CustomerStockPurchaseOrderRefundVo();
+        List<CustomerStockPurchaseOrderRefundItemVo> refundItemVos = new ArrayList<>();
 
         for(StockOrderRefundItem item:stockOrderRefundItems){
             //检查库存每个退款项的库存
@@ -607,12 +613,16 @@ public class AdminStockServiceImpl implements AdminStockService {
                 throw new CustomerException(ResultCode.FAIL_CODE,"库存不足");
             }
             //扣库存
-            log.info("用户当前库存:Id{},UserId{},ProductId{},VariantId{},库存{},扣减{}",customerProductStock.getId(),stockOrderRefund.getCustomerId(),customerProductStock.getProductId(),customerProductStock.getVariantId(),customerProductStock.getStock(),item.getQuantity());
-
             Integer rs=customerProductStockDao.subStockForRefund(customerProductStock.getId(),item.getQuantity());
             if(rs<=0){
                 throw new CustomerException(ResultCode.FAIL_CODE,"扣库存失败");
             }
+
+            CustomerStockPurchaseOrderRefundItemVo customerStockPurchaseOrderRefundItemVo = new CustomerStockPurchaseOrderRefundItemVo();
+            customerStockPurchaseOrderRefundItemVo.setItemId(item.getId());
+            customerStockPurchaseOrderRefundItemVo.setVariantId(item.getVariantId());
+            customerStockPurchaseOrderRefundItemVo.setRefundQuantity(item.getQuantity());
+            refundItemVos.add(customerStockPurchaseOrderRefundItemVo);
             //增加扣库存记录
             CustomerStockRecord customerStockRecord=new CustomerStockRecord();
             customerStockRecord.setCustomerId(IdGenerate.nextId());
@@ -629,9 +639,13 @@ public class AdminStockServiceImpl implements AdminStockService {
             customerStockRecord.setUpdateTime(new Date());
             customerStockRecord.setVariantImage(item.getVariantImage());
             customerStockRecordDao.insert(customerStockRecord);
-
         }
-
+        customerStockPurchaseOrderRefundVo.setRefundItemVos(refundItemVos);
+        customerStockPurchaseOrderRefundVo.setOrderId(orderId);
+        BaseResponse response = pmsFeignClient.refundByCustomerStockOrder(customerStockPurchaseOrderRefundVo);
+        if (response.getCode() != ResultCode.SUCCESS_CODE){
+            throw new CustomerException(ResultCode.FAIL_CODE,response.getMsg());
+        }
         AccountOrderRefundedRequest accountOrderRefundedRequest=new AccountOrderRefundedRequest();
         accountOrderRefundedRequest.setOrderId(stockOrder.getId());
         accountOrderRefundedRequest.setRefundId(request.getId());
@@ -641,8 +655,10 @@ public class AdminStockServiceImpl implements AdminStockService {
         accountOrderRefundedRequest.setOrderType(OrderType.STOCK);
         //账户退款
 
-        BaseResponse response=umsFeignClient.accountOrderRefunded(accountOrderRefundedRequest);
-
+        response=umsFeignClient.accountOrderRefunded(accountOrderRefundedRequest);
+        if(response.getCode()!=1){
+            throw new CustomerException(ResultCode.FAIL_CODE,response.getMsg());
+        }
 
         // 统计退款信息
         OrderRefundDailyCountRequest orderRefundDailyCountRequest = new OrderRefundDailyCountRequest();
@@ -650,9 +666,7 @@ public class AdminStockServiceImpl implements AdminStockService {
         orderRefundDailyCountRequest.setOrderType(OrderType.STOCK);
         orderRefundDailyCountRequest.setRefundTime(new Date());
         redisTemplate.opsForList().leftPush(RedisKey.LIST_CUSTOMER_ORDER_DAILY_REFUND_COUNT_UPDATE,orderRefundDailyCountRequest);
-        if(response.getCode()!=1){
-            throw new CustomerException(ResultCode.FAIL_CODE,response.getMsg());
-        }
+
         return new BaseResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS);
     }
 
