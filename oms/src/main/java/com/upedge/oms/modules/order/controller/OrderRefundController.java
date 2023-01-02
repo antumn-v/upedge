@@ -12,6 +12,7 @@ import com.upedge.oms.modules.order.entity.Order;
 import com.upedge.oms.modules.order.entity.OrderRefund;
 import com.upedge.oms.modules.order.entity.OrderRefundItem;
 import com.upedge.oms.modules.order.request.*;
+import com.upedge.oms.modules.order.response.OrderApplyRefundResponse;
 import com.upedge.oms.modules.order.response.OrderRefundInfoResponse;
 import com.upedge.oms.modules.order.response.OrderRefundListResponse;
 import com.upedge.oms.modules.order.service.OrderRefundItemService;
@@ -141,7 +142,7 @@ public class OrderRefundController {
         }
         Session session = UserUtil.getSession(redisTemplate);
         try {
-            BaseResponse response = orderRefundService.applyRefund(request,session);
+            OrderApplyRefundResponse response = orderRefundService.applyRefund(request,session);
             if (response.getCode() == ResultCode.SUCCESS_CODE
             && request.isDirectRefund()){
                 OrderRefund orderRefund = (OrderRefund) response.getData();

@@ -3,7 +3,7 @@ package com.upedge.thirdparty.shopify.config;
 
 public class Shopify {
 
-    public static String version = "2021-07";
+    public static String version = "2023-01";
 
     static String scope = "read_products,write_products,read_orders,write_orders,read_fulfillments,write_fulfillments,write_resource_feedbacks,read_inventory,write_inventory,read_locations," +
             "read_shipping,write_shipping,read_translations,write_translations,read_shopify_payments_payouts,read_shopify_payments_disputes,read_checkouts,write_checkouts," +

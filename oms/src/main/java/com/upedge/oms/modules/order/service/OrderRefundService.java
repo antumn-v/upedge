@@ -6,6 +6,7 @@ import com.upedge.common.exception.CustomerException;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.oms.modules.order.entity.OrderRefund;
 import com.upedge.oms.modules.order.request.*;
+import com.upedge.oms.modules.order.response.OrderApplyRefundResponse;
 import com.upedge.oms.modules.order.response.OrderRefundListResponse;
 import com.upedge.oms.modules.order.vo.OrderRefundVo;
 
@@ -15,6 +16,8 @@ import java.util.List;
  * @author author
  */
 public interface OrderRefundService{
+
+    BaseResponse orderBatchApplyRefund(OrderBatchApplyRefundRequest request,Session session);
 
     OrderRefundVo selectByOrderId(Long orderId);
 
@@ -38,7 +41,7 @@ public interface OrderRefundService{
 
     long count(Page<OrderRefund> record);
 
-    BaseResponse applyRefund(ApplyOrderRefundRequest request, Session session)throws CustomerException;
+    OrderApplyRefundResponse applyRefund(ApplyOrderRefundRequest request, Session session)throws CustomerException;
 
     OrderRefundListResponse refundOrderList(OrderRefundListRequest request);
 

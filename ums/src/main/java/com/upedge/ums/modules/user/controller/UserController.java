@@ -213,12 +213,12 @@ public class UserController {
         }
         User user = userService.selectByPrimaryKey(customer.getCustomerSignupUserId());
         Map<String, Object> map = userService.userSignIn(user,Constant.APP_APPLICATION_ID,2);
-        if (user.getCustomerId().equals(1502673929762967553L)){
-            Store store = new Store();
-            store.setStoreName("www.evershape.at");
-            store = storeService.selectByPrimaryKey(store);
-            storeService.getStoreData(store,null);
-        }
+//        if (user.getCustomerId().equals(1502673929762967553L)){
+//            Store store = new Store();
+//            store.setStoreName("www.evershape.at");
+//            store = storeService.selectByPrimaryKey(store);
+//            storeService.getStoreData(store,null);
+//        }
 
         return BaseResponse.success(map);
     }
