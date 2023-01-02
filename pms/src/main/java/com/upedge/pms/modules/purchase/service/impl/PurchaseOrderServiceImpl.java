@@ -518,9 +518,9 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
         Long id = request.getId();
         Integer state = request.getEditState();
         PurchaseOrder purchaseOrder = selectByPrimaryKey(id);
-        if(purchaseOrder.getPurchaseId() == null){
-            return BaseResponse.failed("订单未创建1688采购订单");
-        }
+//        if(purchaseOrder.getPurchaseId() == null){
+//            return BaseResponse.failed("订单未创建1688采购订单");
+//        }
         if (purchaseOrder.getEditState() == 1){
             return BaseResponse.failed("已提交的订单无法修改状态");
         }
