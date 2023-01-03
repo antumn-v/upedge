@@ -22,6 +22,8 @@ public interface CustomerStockRecordService{
 
     int insert(CustomerStockRecord record);
 
+    int insertByBatch(List<CustomerStockRecord> records);
+
     int insertSelective(CustomerStockRecord record);
 
     List<CustomerStockRecord> select(Page<CustomerStockRecord> record);

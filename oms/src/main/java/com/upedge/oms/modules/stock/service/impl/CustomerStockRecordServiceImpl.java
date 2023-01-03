@@ -45,6 +45,14 @@ public class CustomerStockRecordServiceImpl implements CustomerStockRecordServic
         return customerStockRecordDao.insert(record);
     }
 
+    @Override
+    public int insertByBatch(List<CustomerStockRecord> records) {
+        if (ListUtils.isNotEmpty(records)){
+            return customerStockRecordDao.insertByBatch(records);
+        }
+        return 0;
+    }
+
     /**
      *
      */

@@ -470,7 +470,7 @@ public class OrderActionServiceImpl implements OrderActionService {
                 }
             } else {
                 Order newOrder = new Order();
-                newOrderId = orderActionLog.getOldOrderId();
+                newOrderId = IdGenerate.nextId();
                 BeanUtils.copyProperties(order, newOrder);
                 newOrder.setId(newOrderId);
                 newOrder.setOrderType(0);

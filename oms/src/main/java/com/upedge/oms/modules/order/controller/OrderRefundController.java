@@ -83,6 +83,14 @@ public class OrderRefundController {
         return res;
     }
 
+
+    @ApiOperation("订单批量申请退款")
+    @PostMapping("/batchApply")
+    public BaseResponse batchApplyRefund(@RequestBody OrderBatchApplyRefundRequest request){
+        Session session = UserUtil.getSession(redisTemplate);
+        return orderRefundService.orderBatchApplyRefund(request,session);
+    }
+
     @RequestMapping(value="/list", method=RequestMethod.POST)
     @Permission(permission = "order:orderrefund:list")
     public OrderRefundListResponse list(@RequestBody @Valid OrderRefundListRequest request) {

@@ -29,6 +29,7 @@ import com.upedge.oms.modules.statistics.request.OrderRefundDailyCountRequest;
 import com.upedge.oms.modules.statistics.service.OrderDailyRefundCountService;
 import com.upedge.oms.modules.stock.entity.CustomerStockRecord;
 import com.upedge.oms.modules.stock.service.CustomerProductStockService;
+import com.upedge.oms.modules.stock.service.CustomerStockRecordService;
 import com.upedge.thirdparty.saihe.entity.getOrderByCode.ApiGetOrderResponse;
 import com.upedge.thirdparty.saihe.entity.getOrderByCode.ApiOrderInfo;
 import com.upedge.thirdparty.saihe.service.SaiheService;
@@ -64,6 +65,9 @@ public class OrderRefundServiceImpl implements OrderRefundService {
     RedisTemplate<String, Object> redisTemplate;
     @Autowired
     private OrderRefundItemService orderRefundItemService;
+
+    @Autowired
+    CustomerStockRecordService customerStockRecordService;
 
     @Autowired
     OrderDailyRefundCountService orderDailyRefundCountService;
@@ -229,7 +233,11 @@ public class OrderRefundServiceImpl implements OrderRefundService {
         request.initFromNum();
         List<OrderRefundVo> results = orderRefundDao.refundOrderList(request);
         for (OrderRefundVo result : results) {
-            result.initMaxRefundAmount();
+            try {
+                result.initMaxRefundAmount();
+            } catch (Exception e) {
+                continue;
+            }
         }
 
 
@@ -683,14 +691,15 @@ public class OrderRefundServiceImpl implements OrderRefundService {
             }
             OrderItem orderItem = itemMap.get(refundItem.getOrderItemId());
             Integer quantity = orderItem.getQuantity();
-            Integer costRefundQuantity = refundItem.getCostRefundQuantity();
+            Integer stockRefundQuantity = orderItem.getDischargeQuantity();
+            Integer costRefundQuantity = quantity - stockRefundQuantity;
             if (costRefundQuantity == null){
                 costRefundQuantity = refundItem.getQuantity();
             }
             if (costRefundQuantity > quantity){
                 throw new CustomerException("产品退款数量不得大于支付数量");
             }
-            Integer stockRefundQuantity = quantity - costRefundQuantity;
+
 
 //            if (stockRefundQuantity > orderItem.getDischargeQuantity()){
 //                throw new CustomerException("订单产品库存退款数量不能大于使用数量");
@@ -721,8 +730,8 @@ public class OrderRefundServiceImpl implements OrderRefundService {
                                 0,
                                 1);
                 customerStockRecords.add(customerStockRecord);
-
             }
+            customerStockRecordService.insertByBatch(customerStockRecords);
         }
         map.put("refundProductAmount",refundProductAmount);
         map.put("customerStockRecords",customerStockRecords);
@@ -814,7 +823,10 @@ public class OrderRefundServiceImpl implements OrderRefundService {
                     confirmRefundRequest.setRefundVatAmount(orderRefundRequest.getVatAmount());
                     confirmRefundRequest.setServiceFee(orderRefundRequest.getServiceFee());
                     confirmRefundRequest.setActualRefundAmount(orderRefund.getRefundAmount());
-                    confirmRefund(confirmRefundRequest,session);
+                    response = confirmRefund(confirmRefundRequest,session);
+                    if (response.getCode() != ResultCode.SUCCESS_CODE){
+                        return response;
+                    }
                 }else {
                     return response;
                 }
@@ -823,7 +835,7 @@ public class OrderRefundServiceImpl implements OrderRefundService {
             }
         }
 
-        return null;
+        return BaseResponse.success();
     }
 
     @Override
