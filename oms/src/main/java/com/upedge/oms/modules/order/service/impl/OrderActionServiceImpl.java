@@ -491,6 +491,7 @@ public class OrderActionServiceImpl implements OrderActionService {
                 OrderAddress address = new OrderAddress();
                 BeanUtils.copyProperties(storeOrderAddress, address);
                 address.setOrderId(newOrderId);
+                address.setId(IdGenerate.nextId());
                 orderAddresses.add(address);
 
                 orderItemMap.put(newOrderId, new ArrayList<>());
