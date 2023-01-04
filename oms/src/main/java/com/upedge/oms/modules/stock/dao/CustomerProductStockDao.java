@@ -13,7 +13,9 @@ import java.util.List;
 /**
  * @author author
  */
-public interface CustomerProductStockDao{
+public interface CustomerProductStockDao {
+
+    List<CustomerProductStock> selectCustomerStockByVariantIds(@Param("customerId") Long customerId, @Param("variantIds") List<Long> variantIds);
 
     List<String> selectCustomerStockWarehouses(Long customerId);
 
@@ -22,8 +24,8 @@ public interface CustomerProductStockDao{
     List<CustomerWarehouseVariantStockVo> selectCustomerWarehouseVariantStock(Long customerId);
 
     long selectVariantStockByCustomer(@Param("customerId") Long customerId,
-                                     @Param("variantId") Long variantId,
-                                     @Param("warehouseCode")String warehouseCode);
+                                      @Param("variantId") Long variantId,
+                                      @Param("warehouseCode") String warehouseCode);
 
     int increaseVariantStock(@Param("stocks") List<CustomerProductStock> stocks);
 
@@ -34,6 +36,7 @@ public interface CustomerProductStockDao{
 
     /**
      * 支付订单时锁定已使用的库存
+     *
      * @param customerId
      * @param items
      * @return
@@ -43,6 +46,7 @@ public interface CustomerProductStockDao{
 
     /**
      * 从锁定的库存中减少库存（支付订单已完成）
+     *
      * @param customerId
      * @param items
      * @return
@@ -52,6 +56,7 @@ public interface CustomerProductStockDao{
 
     /**
      * 从锁定的库存中恢复库存（支付订单失败）
+     *
      * @param customerId
      * @param items
      * @return
@@ -91,7 +96,7 @@ public interface CustomerProductStockDao{
 
     CustomerProductStock selectStockByVariantAndCustomerId(@Param("variantId") Long variantId,
                                                            @Param("customerId") Long customerId,
-                                                           @Param("warehouseCode")String warehouseCode);
+                                                           @Param("warehouseCode") String warehouseCode);
 
     int customUpdateCustomerProductStock(CustomerProductStockCustomUpdateRequest request);
 }

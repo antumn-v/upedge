@@ -6,6 +6,7 @@ import com.upedge.common.constant.key.RedisKey;
 import com.upedge.common.enums.CustomerExceptionEnum;
 import com.upedge.common.exception.CustomerException;
 import com.upedge.common.feign.PmsFeignClient;
+import com.upedge.common.model.oms.stock.CustomerStockVo;
 import com.upedge.common.model.order.vo.CustomerProductStockNumVo;
 import com.upedge.common.model.product.ProductSaiheInventoryVo;
 import com.upedge.common.model.product.VariantDetail;
@@ -370,6 +371,22 @@ public class CustomerProductStockServiceImpl implements CustomerProductStockServ
         return BaseResponse.success();
 
 
+    }
+
+    @Override
+    public List<CustomerStockVo> selectCustomerStockByVariantIds(Long customerId, List<Long> variantIds) {
+        if (customerId == null || ListUtils.isEmpty(variantIds)){
+            return new ArrayList<>();
+        }
+        List<CustomerStockVo> customerStockVos = new ArrayList<>();
+        List<CustomerProductStock> customerProductStocks = customerProductStockDao.selectCustomerStockByVariantIds(customerId,variantIds);
+        for (CustomerProductStock customerProductStock : customerProductStocks) {
+            CustomerStockVo customerStockVo = new CustomerStockVo();
+            customerStockVo.setStock(customerProductStock.getStock());
+            customerStockVo.setVariantId(customerProductStock.getVariantId());
+            customerStockVos.add(customerStockVo);
+        }
+        return customerStockVos;
     }
 
     @Transactional

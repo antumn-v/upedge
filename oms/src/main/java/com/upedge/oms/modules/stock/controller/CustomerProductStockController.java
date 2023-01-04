@@ -6,6 +6,8 @@ import com.upedge.common.component.annotation.Permission;
 import com.upedge.common.constant.Constant;
 import com.upedge.common.constant.ResultCode;
 import com.upedge.common.exception.CustomerException;
+import com.upedge.common.model.oms.stock.CustomerStockSearchRequest;
+import com.upedge.common.model.oms.stock.CustomerStockVo;
 import com.upedge.common.model.tms.WarehouseVo;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.web.util.UserUtil;
@@ -180,6 +182,11 @@ public class CustomerProductStockController {
         customerProductStock.setCustomerShowState(request.getState());
         customerProductStockService.updateByPrimaryKeySelective(customerProductStock);
         return BaseResponse.success();
+    }
+
+    @PostMapping("/searchByVariants")
+    public List<CustomerStockVo> searchByVariants(CustomerStockSearchRequest request){
+        return customerProductStockService.selectCustomerStockByVariantIds(request.getCustomerId(),request.getVariantIds());
     }
 
 }

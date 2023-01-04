@@ -6,11 +6,14 @@ import com.upedge.common.constant.OrderConstant;
 import com.upedge.common.constant.OrderType;
 import com.upedge.common.constant.ResultCode;
 import com.upedge.common.feign.OmsFeignClient;
+import com.upedge.common.feign.PmsFeignClient;
 import com.upedge.common.feign.UmsFeignClient;
 import com.upedge.common.model.account.AccountPaymentRequest;
 import com.upedge.common.model.cart.request.CartSelectByIdsRequest;
 import com.upedge.common.model.cart.request.CartSubmitRequest;
 import com.upedge.common.model.cart.request.CartVo;
+import com.upedge.common.model.oms.stock.CustomerStockSearchRequest;
+import com.upedge.common.model.oms.stock.CustomerStockVo;
 import com.upedge.common.model.order.PaymentDetail;
 import com.upedge.common.model.order.TransactionDetail;
 import com.upedge.common.model.user.vo.Session;
@@ -65,6 +68,9 @@ public class WholesaleOrderServiceImpl implements WholesaleOrderService {
 
     @Autowired
     UmsFeignClient umsFeignClient;
+
+    @Autowired
+    PmsFeignClient pmsFeignClient;
 
 
 
@@ -152,6 +158,27 @@ public class WholesaleOrderServiceImpl implements WholesaleOrderService {
         wholesaleOrderVo.setAddress(wholesaleOrderAddress);
 
         List<WholesaleOrderItem> orderItems = wholesaleOrderItemService.selectByOrderId(orderId);
+        List<Long> variantIds = new ArrayList<>();
+        for (WholesaleOrderItem orderItem : orderItems) {
+            variantIds.add(orderItem.getVariantId());
+        }
+        CustomerStockSearchRequest request = new CustomerStockSearchRequest();
+        request.setCustomerId(wholesaleOrder.getCustomerId());
+        request.setVariantIds(variantIds);
+        List<CustomerStockVo> customerStockVos = omsFeignClient.searchByVariants(request);
+        Integer quantity = 0;
+        Integer dischargeQuantity = 0;
+        Integer stock = 0;
+        if (ListUtils.isNotEmpty(customerStockVos)){
+            for (WholesaleOrderItem orderItem : orderItems) {
+                for (CustomerStockVo customerStockVo : customerStockVos) {
+                    if (orderItem.getVariantId().equals(customerStockVo.getVariantId())){
+                        quantity = orderItem.getQuantity();
+                        stock = customerStockVo.getStock();
+                    }
+                }
+            }
+        }
         wholesaleOrderVo.setWholesaleOrderItems(orderItems);
 
         List<ServiceOrderFreight> freights = serviceOrderFreightService.selectByOrderId(orderId);
