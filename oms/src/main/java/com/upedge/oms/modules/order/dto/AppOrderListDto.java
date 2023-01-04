@@ -96,6 +96,10 @@ public class AppOrderListDto {
 
     private List<String> trackingCodes;
 
+    private String sendBeginTime;
+
+    private String sendEndTime;
+
     public AppOrderListDto() {
 //        initDateRange();
         initOrderState();

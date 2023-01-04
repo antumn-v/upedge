@@ -15,6 +15,8 @@ import java.util.List;
 
 public interface OrderPackageService {
 
+    List<Long> selectOrderIdsBySendTime(String sendBeginTime,String sendEndTime);
+
     BaseResponse packageImport(PackageInfoImportRequest request,Session session);
 
     List<Long> selectOrderIdsByTrackingCodes(List<String> trackingCodes);

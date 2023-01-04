@@ -625,12 +625,12 @@ public class AdminStockServiceImpl implements AdminStockService {
             refundItemVos.add(customerStockPurchaseOrderRefundItemVo);
             //增加扣库存记录
             CustomerStockRecord customerStockRecord=new CustomerStockRecord();
-            customerStockRecord.setCustomerId(IdGenerate.nextId());
+            customerStockRecord.setId(IdGenerate.nextId());
             customerStockRecord.setCustomerId(stockOrderRefund.getCustomerId());
             customerStockRecord.setProductId(item.getProductId());
             customerStockRecord.setVariantId(item.getVariantId());
             customerStockRecord.setWarehouseCode(stockOrderRefund.getWarehouseCode());
-            customerStockRecord.setRelateId(stockOrderRefund.getId());
+            customerStockRecord.setRelateId(item.getId());
             //交易类型  增加=0，抵扣=1，退款=2
             customerStockRecord.setType(2);
             customerStockRecord.setOrderType(OrderType.STOCK);
@@ -640,12 +640,16 @@ public class AdminStockServiceImpl implements AdminStockService {
             customerStockRecord.setVariantImage(item.getVariantImage());
             customerStockRecordDao.insert(customerStockRecord);
         }
-        customerStockPurchaseOrderRefundVo.setRefundItemVos(refundItemVos);
-        customerStockPurchaseOrderRefundVo.setOrderId(orderId);
-        BaseResponse response = pmsFeignClient.refundByCustomerStockOrder(customerStockPurchaseOrderRefundVo);
-        if (response.getCode() != ResultCode.SUCCESS_CODE){
-            throw new CustomerException(ResultCode.FAIL_CODE,response.getMsg());
+        BaseResponse response = null;
+        if(stockOrder.getPurchaseState() == 1){
+            customerStockPurchaseOrderRefundVo.setRefundItemVos(refundItemVos);
+            customerStockPurchaseOrderRefundVo.setOrderId(orderId);
+            response = pmsFeignClient.refundByCustomerStockOrder(customerStockPurchaseOrderRefundVo);
+            if (response.getCode() != ResultCode.SUCCESS_CODE){
+                throw new CustomerException(ResultCode.FAIL_CODE,response.getMsg());
+            }
         }
+
         AccountOrderRefundedRequest accountOrderRefundedRequest=new AccountOrderRefundedRequest();
         accountOrderRefundedRequest.setOrderId(stockOrder.getId());
         accountOrderRefundedRequest.setRefundId(request.getId());

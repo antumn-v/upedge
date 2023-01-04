@@ -136,6 +136,14 @@ public class OrderPackageServiceImpl implements OrderPackageService {
     private String pdfUrlPrefix;
 
     @Override
+    public List<Long> selectOrderIdsBySendTime(String sendBeginTime, String sendEndTime) {
+        if (null == sendBeginTime || null == sendEndTime){
+            return new ArrayList<>();
+        }
+        return orderPackageDao.selectOrderIdsBySendTime(sendBeginTime, sendEndTime);
+    }
+
+    @Override
     public BaseResponse packageImport(PackageInfoImportRequest request, Session session) {
 
         List<PackageInfoImportDto> packageInfoImportDtos = request.getPackageInfoImportDtos();

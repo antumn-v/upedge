@@ -409,9 +409,26 @@ public class OrderServiceImpl implements OrderService {
                 appOrderListDto.setOrderId(orderPackage.getOrderId());
             }
         }
-
+        List<Long> orderIds = new ArrayList<>();
         List<String> trackingCodes = appOrderListDto.getTrackingCodes();
-        List<Long> orderIds = orderPackageService.selectOrderIdsByTrackingCodes(trackingCodes);
+        List<Long> trackingOrderIds = orderPackageService.selectOrderIdsByTrackingCodes(trackingCodes);
+
+
+        String sendBeginTime = appOrderListDto.getSendBeginTime();
+        String sendEndTime = appOrderListDto.getSendEndTime();
+        List<Long> sendOrderIds = orderPackageService.selectOrderIdsBySendTime(sendBeginTime,sendEndTime);
+        if(ListUtils.isNotEmpty(trackingOrderIds) && ListUtils.isNotEmpty(sendOrderIds)){
+            for (Long sendOrderId : sendOrderIds) {
+                if(trackingOrderIds.contains(sendOrderId)){
+                    orderIds.add(sendOrderId);
+                }
+            }
+        }else if (ListUtils.isNotEmpty(sendOrderIds)){
+            orderIds = sendOrderIds;
+        }else  if (ListUtils.isNotEmpty(trackingOrderIds)){
+            orderIds = trackingOrderIds;
+        }
+
         if (ListUtils.isNotEmpty(orderIds)){
             appOrderListDto.setOrderIds(orderIds);
         }

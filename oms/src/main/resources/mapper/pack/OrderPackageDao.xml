@@ -513,4 +513,11 @@
             #{trackingCode}
         </foreach>
     </select>
+
+    <select id="selectOrderIdsBySendTime" resultType="java.lang.Long">
+        select distinct order_id
+        from  order_package
+        where package_state = '1'
+        and date(send_time) between #{sendBeginTime} and #{sendEndTime}
+    </select>
 </mapper>

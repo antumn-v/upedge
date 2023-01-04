@@ -11,6 +11,8 @@ import java.util.List;
  */
 public interface OrderPackageDao {
 
+    List<Long> selectOrderIdsBySendTime(@Param("sendBeginTime") String sendBeginTime, @Param("sendEndTime") String sendEndTime);
+
     List<Long> selectOrderIdsByTrackingCodes(@Param("trackingCodes") List<String> trackingCodes);
 
     List<OrderPackage> selectExStockUnUploadPackages();
