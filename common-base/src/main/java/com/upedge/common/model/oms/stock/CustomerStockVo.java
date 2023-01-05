@@ -8,4 +8,6 @@ public class CustomerStockVo {
     private Long variantId;
 
     private Integer stock;
+
+    private Integer totalStock;
 }

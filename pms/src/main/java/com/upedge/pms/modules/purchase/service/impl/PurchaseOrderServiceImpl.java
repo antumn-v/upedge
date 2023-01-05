@@ -112,7 +112,7 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
         List<Long> itemIds = request.getItemIds();
         Long orderId = request.getOrderId();
         List<PurchaseOrderItem> purchaseOrderItems = purchaseOrderItemService.selectByIds(itemIds,orderId);
-        if (ListUtils.isNotEmpty(purchaseOrderItems)){
+        if (ListUtils.isEmpty(purchaseOrderItems)){
             return BaseResponse.failed();
         }
         List<CreatePurchaseOrderDto> createPurchaseOrderDtos = new ArrayList<>();

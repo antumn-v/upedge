@@ -55,6 +55,11 @@ public class WholesaleOrderItemServiceImpl implements WholesaleOrderItemService 
     }
 
     @Override
+    public int updateDischargeQuantityById(Long id, Integer dischargeQuantity) {
+        return wholesaleOrderItemDao.updateDischargeQuantityById(id,dischargeQuantity);
+    }
+
+    @Override
     public List<WholesaleOrderItem> selectByOrderId(Long orderId) {
         return wholesaleOrderItemDao.selectByOrderId(orderId);
     }

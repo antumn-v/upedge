@@ -731,7 +731,6 @@ public class OrderRefundServiceImpl implements OrderRefundService {
                                 1);
                 customerStockRecords.add(customerStockRecord);
             }
-            customerStockRecordService.insertByBatch(customerStockRecords);
         }
         map.put("refundProductAmount",refundProductAmount);
         map.put("customerStockRecords",customerStockRecords);

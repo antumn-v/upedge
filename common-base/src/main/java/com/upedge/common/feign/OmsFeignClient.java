@@ -44,7 +44,7 @@ import java.util.List;
 public interface OmsFeignClient  {
 
     @PostMapping("/customer/stock/searchByVariants")
-    public List<CustomerStockVo> searchByVariants(CustomerStockSearchRequest request);
+    public List<CustomerStockVo> searchByVariants(@RequestBody CustomerStockSearchRequest request);
 
     @PostMapping("/stockOrderItem/updatePurchaseInfo")
     public int updatePurchaseInfo(@RequestBody VariantPurchaseInfoDto variantPurchaseInfoDto);

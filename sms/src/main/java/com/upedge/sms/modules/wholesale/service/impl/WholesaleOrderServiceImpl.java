@@ -158,32 +158,66 @@ public class WholesaleOrderServiceImpl implements WholesaleOrderService {
         wholesaleOrderVo.setAddress(wholesaleOrderAddress);
 
         List<WholesaleOrderItem> orderItems = wholesaleOrderItemService.selectByOrderId(orderId);
-        List<Long> variantIds = new ArrayList<>();
-        for (WholesaleOrderItem orderItem : orderItems) {
-            variantIds.add(orderItem.getVariantId());
-        }
-        CustomerStockSearchRequest request = new CustomerStockSearchRequest();
-        request.setCustomerId(wholesaleOrder.getCustomerId());
-        request.setVariantIds(variantIds);
-        List<CustomerStockVo> customerStockVos = omsFeignClient.searchByVariants(request);
-        Integer quantity = 0;
-        Integer dischargeQuantity = 0;
-        Integer stock = 0;
-        if (ListUtils.isNotEmpty(customerStockVos)){
-            for (WholesaleOrderItem orderItem : orderItems) {
-                for (CustomerStockVo customerStockVo : customerStockVos) {
-                    if (orderItem.getVariantId().equals(customerStockVo.getVariantId())){
-                        quantity = orderItem.getQuantity();
-                        stock = customerStockVo.getStock();
-                    }
-                }
-            }
+        if (wholesaleOrder.getPayState() == 0){
+            checkStock(orderItems,wholesaleOrderVo);
         }
         wholesaleOrderVo.setWholesaleOrderItems(orderItems);
 
         List<ServiceOrderFreight> freights = serviceOrderFreightService.selectByOrderId(orderId);
         wholesaleOrderVo.setOrderFreights(freights);
         return wholesaleOrderVo;
+    }
+
+
+    private void checkStock(List<WholesaleOrderItem> orderItems,WholesaleOrderVo wholesaleOrderVo){
+        List<Long> variantIds = new ArrayList<>();
+        for (WholesaleOrderItem orderItem : orderItems) {
+            variantIds.add(orderItem.getVariantId());
+        }
+        BigDecimal dischargeAmount = BigDecimal.ZERO;
+        CustomerStockSearchRequest request = new CustomerStockSearchRequest();
+        request.setCustomerId(wholesaleOrderVo.getCustomerId());
+        request.setVariantIds(variantIds);
+        List<CustomerStockVo> customerStockVos = omsFeignClient.searchByVariants(request);
+        for (CustomerStockVo customerStockVo : customerStockVos) {
+            customerStockVo.setTotalStock(customerStockVo.getStock());
+        }
+        Integer quantity = 0;
+        Integer dischargeQuantity = 0;
+        Integer stock = 0;
+        if (ListUtils.isNotEmpty(customerStockVos)){
+            a:
+            for (WholesaleOrderItem orderItem : orderItems) {
+                dischargeQuantity = orderItem.getDischargeQuantity();
+                quantity = orderItem.getQuantity();
+                if (dischargeQuantity == null){
+                    dischargeQuantity = 0;
+                }
+                for (CustomerStockVo customerStockVo : customerStockVos) {
+                    if (orderItem.getVariantId().equals(customerStockVo.getVariantId())){
+                        stock = customerStockVo.getStock();
+                        if (stock > quantity){
+                            if (dischargeQuantity == 0){
+                                dischargeQuantity = quantity;
+                            }
+                            stock -= dischargeQuantity;
+
+                        }else {
+                            dischargeQuantity = stock;
+                            stock = 0;
+                        }
+                        orderItem.setDischargeQuantity(dischargeQuantity);
+                        orderItem.setTotalStock(customerStockVo.getTotalStock());
+                        customerStockVo.setStock(stock);
+                        wholesaleOrderItemService.updateDischargeQuantityById(orderItem.getId(),dischargeQuantity);
+                        dischargeAmount = dischargeAmount.add(new BigDecimal(dischargeQuantity).multiply(orderItem.getPrice()));
+
+                        continue a;
+                    }
+                }
+            }
+        }
+        wholesaleOrderVo.setProductDischargeAmount(dischargeAmount);
     }
 
     @Transactional

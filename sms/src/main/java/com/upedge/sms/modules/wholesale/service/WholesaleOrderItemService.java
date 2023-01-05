@@ -1,13 +1,16 @@
 package com.upedge.sms.modules.wholesale.service;
 
-import com.upedge.sms.modules.wholesale.entity.WholesaleOrderItem;
 import com.upedge.common.base.Page;
+import com.upedge.sms.modules.wholesale.entity.WholesaleOrderItem;
+
 import java.util.List;
 
 /**
  * @author gx
  */
 public interface WholesaleOrderItemService{
+
+    int updateDischargeQuantityById(Long id, Integer dischargeQuantity);
 
     List<WholesaleOrderItem> selectByOrderId(Long orderId);
 

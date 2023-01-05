@@ -18,7 +18,6 @@ import com.upedge.oms.modules.fulfillment.entity.StoreOrderFulfillment;
 import com.upedge.oms.modules.fulfillment.service.OrderFulfillmentService;
 import com.upedge.oms.modules.order.dao.*;
 import com.upedge.oms.modules.order.entity.*;
-import com.upedge.oms.modules.order.service.OrderService;
 import com.upedge.oms.modules.order.service.OrderTrackingService;
 import com.upedge.oms.modules.pack.entity.OrderPackage;
 import com.upedge.oms.modules.pack.service.OrderPackageService;
@@ -36,6 +35,7 @@ import com.upedge.thirdparty.woocommerce.moudles.order.api.WoocommerceOrderApi;
 import com.upedge.thirdparty.woocommerce.moudles.order.entity.WoocommerceOrderNote;
 import com.upedge.thirdparty.woocommerce.moudles.order.entity.WoocommerceOrderShipment;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -479,7 +479,7 @@ public class OrderFulfillmentServiceImpl implements OrderFulfillmentService {
             shopifyUpdateFulfillment(shopifyFulfillments, platOrderItemIds, trackCode, trackCompany, storeVo, platOrderId, storeOrderId, orderId);
         }
 
-        if (ListUtils.isNotEmpty(platOrderItemIds)) {
+        if (MapUtils.isNotEmpty(fulfillmentItems)) {
             return uploadShopifyOrderFulfillment(fulfillmentItems, trackCode, trackCompany, storeVo, platOrderId, storeOrderId, orderId);
         }
         return true;

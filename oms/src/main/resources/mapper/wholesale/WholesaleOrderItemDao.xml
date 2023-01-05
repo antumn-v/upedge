@@ -461,4 +461,5 @@
          WHERE oi.admin_variant_id = #{variantId}  and  o.pay_state = 0
     </select>
 
+
 </mapper>

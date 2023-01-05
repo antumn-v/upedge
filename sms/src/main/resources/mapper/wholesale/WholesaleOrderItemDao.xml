@@ -350,4 +350,10 @@
         from wholesale_order_item
         where order_id = #{orderId}
     </select>
+
+    <update id="updateDischargeQuantityById">
+        update wholesale_order_item
+        set discharge_quantity = #{dischargeQuantity}
+        where  id = #{id}
+    </update>
 </mapper>

@@ -185,7 +185,7 @@ public class CustomerProductStockController {
     }
 
     @PostMapping("/searchByVariants")
-    public List<CustomerStockVo> searchByVariants(CustomerStockSearchRequest request){
+    public List<CustomerStockVo> searchByVariants(@RequestBody CustomerStockSearchRequest request){
         return customerProductStockService.selectCustomerStockByVariantIds(request.getCustomerId(),request.getVariantIds());
     }
 

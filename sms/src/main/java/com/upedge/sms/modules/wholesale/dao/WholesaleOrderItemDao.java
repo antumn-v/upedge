@@ -2,6 +2,7 @@ package com.upedge.sms.modules.wholesale.dao;
 
 import com.upedge.common.base.Page;
 import com.upedge.sms.modules.wholesale.entity.WholesaleOrderItem;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -9,6 +10,8 @@ import java.util.List;
  * @author gx
  */
 public interface WholesaleOrderItemDao{
+
+    int updateDischargeQuantityById(@Param("id") Long id, @Param("dischargeQuantity") Integer dischargeQuantity);
 
     List<WholesaleOrderItem> selectByOrderId(Long orderId);
 

@@ -46,6 +46,8 @@ public class WholesaleOrderItem{
 	 * 
 	 */
     private Integer dischargeQuantity;
+
+	private Integer totalStock;
 	/**
 	 * 
 	 */
