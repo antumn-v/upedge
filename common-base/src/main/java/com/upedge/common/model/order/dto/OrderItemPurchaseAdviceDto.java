@@ -13,6 +13,8 @@ public class OrderItemPurchaseAdviceDto {
 
     private Long customerId;
 
+    private Long storeId;
+
     private Long adminVariantId;
 
     private Long adminProductId;

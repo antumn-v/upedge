@@ -1268,6 +1268,9 @@
         <if test="customerId != null">
             and o.customer_id = #{customerId}
         </if>
+        <if test="storeId != null">
+            and o.store_id = #{storeId}
+        </if>
         <if test="adminVariantId != null">
             and oi.admin_variant_id = #{adminVariantId}
         </if>
