@@ -2,9 +2,9 @@ package com.upedge.sms.modules.wholesale.service.impl;
 
 import com.upedge.common.base.BaseResponse;
 import com.upedge.common.base.Page;
+import com.upedge.common.constant.ResultCode;
 import com.upedge.common.feign.OmsFeignClient;
-import com.upedge.common.model.oms.stock.CustomerStockSearchRequest;
-import com.upedge.common.model.oms.stock.CustomerStockVo;
+import com.upedge.common.model.oms.WholesaleOrderItemLockStockRequest;
 import com.upedge.common.utils.ListUtils;
 import com.upedge.sms.modules.wholesale.dao.WholesaleOrderItemDao;
 import com.upedge.sms.modules.wholesale.entity.WholesaleOrder;
@@ -16,7 +16,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
 
 
@@ -82,18 +81,21 @@ public class WholesaleOrderItemServiceImpl implements WholesaleOrderItemService 
         if (dischargeQuantity > wholesaleOrderItem.getQuantity()){
             return BaseResponse.failed();
         }
-        List<Long> variantIds = new ArrayList<>();
-        variantIds.add(wholesaleOrderItem.getVariantId());
-        CustomerStockSearchRequest customerStockSearchRequest = new CustomerStockSearchRequest();
-        customerStockSearchRequest.setCustomerId(wholesaleOrder.getCustomerId());
-        customerStockSearchRequest.setVariantIds(variantIds);
-        List<CustomerStockVo> customerStockVos = omsFeignClient.searchByVariants(customerStockSearchRequest);
-        if (ListUtils.isEmpty(customerStockVos)){
-            return BaseResponse.failed();
+        Integer originalDischargeQuantity = wholesaleOrderItem.getDischargeQuantity();
+        if (originalDischargeQuantity == null){
+            originalDischargeQuantity = 0;
         }
-        CustomerStockVo customerStockVo = customerStockVos.get(0);
-        if (customerStockVo.getStock() < dischargeQuantity){
-            return BaseResponse.failed();
+        if (originalDischargeQuantity.equals(dischargeQuantity)){
+            return BaseResponse.success();
+        }
+        WholesaleOrderItemLockStockRequest wholesaleOrderItemLockStockRequest = new WholesaleOrderItemLockStockRequest();
+        wholesaleOrderItemLockStockRequest.setDischargeQuantity(dischargeQuantity);
+        wholesaleOrderItemLockStockRequest.setOriginalDischargeQuantity(originalDischargeQuantity);
+        wholesaleOrderItemLockStockRequest.setVariantId(wholesaleOrderItem.getVariantId());
+        wholesaleOrderItemLockStockRequest.setCustomerId(wholesaleOrder.getCustomerId());
+        BaseResponse response = omsFeignClient.lockByWholesale(wholesaleOrderItemLockStockRequest);
+        if (response.getCode() == ResultCode.FAIL_CODE){
+            return response;
         }
         updateDischargeQuantityById(itemId,dischargeQuantity);
         return BaseResponse.success();

@@ -3,6 +3,7 @@ package com.upedge.oms.modules.stock.service;
 import com.upedge.common.base.BaseResponse;
 import com.upedge.common.base.Page;
 import com.upedge.common.exception.CustomerException;
+import com.upedge.common.model.oms.WholesaleOrderItemLockStockRequest;
 import com.upedge.common.model.oms.stock.CustomerStockVo;
 import com.upedge.common.model.order.vo.CustomerProductStockNumVo;
 import com.upedge.common.model.sms.WholesaleOrderItemDischargeStockVo;
@@ -22,6 +23,8 @@ import java.util.List;
 public interface CustomerProductStockService{
 
     BaseResponse reduceByWholesale(List<WholesaleOrderItemDischargeStockVo> itemDischargeStockVos);
+
+    BaseResponse lockByWholesaleOrder(WholesaleOrderItemLockStockRequest request);
 
     List<CustomerStockVo> selectCustomerStockByVariantIds(Long customerId,List<Long> variantIds);
 

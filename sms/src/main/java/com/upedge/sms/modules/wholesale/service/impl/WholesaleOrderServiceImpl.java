@@ -169,12 +169,12 @@ public class WholesaleOrderServiceImpl implements WholesaleOrderService {
         }
 
         Integer dischargeQuantity = 0;
-        Integer stock = 0;
+
         if (ListUtils.isEmpty(customerStockVos)) {
             return BigDecimal.ZERO;
         }
         List<WholesaleOrderItemDischargeStockVo> wholesaleOrderItemDischargeStockVos = new ArrayList<>();
-        a:
+
         for (WholesaleOrderItem orderItem : orderItems) {
 
             dischargeQuantity = orderItem.getDischargeQuantity();
@@ -191,21 +191,8 @@ public class WholesaleOrderServiceImpl implements WholesaleOrderService {
             wholesaleOrderItemDischargeStockVo.setId(orderItem.getId());
             wholesaleOrderItemDischargeStockVos.add(wholesaleOrderItemDischargeStockVo);
 
-            for (CustomerStockVo customerStockVo : customerStockVos) {
-                if (orderItem.getVariantId().equals(customerStockVo.getVariantId())) {
-                    stock = customerStockVo.getStock();
-                    if (stock >= dischargeQuantity) {
-                        stock -= dischargeQuantity;
-                    } else {
-                        return null;
-                    }
-                    customerStockVo.setStock(stock);
-                    dischargeAmount = dischargeAmount.add(new BigDecimal(dischargeQuantity).multiply(orderItem.getPrice()));
+            dischargeAmount = dischargeAmount.add(new BigDecimal(dischargeQuantity).multiply(orderItem.getPrice()));
 
-                    continue a;
-                }
-            }
-            return null;
         }
         BaseResponse baseResponse = omsFeignClient.reduceByWholesale(wholesaleOrderItemDischargeStockVos);
         if (baseResponse.getCode() != ResultCode.SUCCESS_CODE){
@@ -244,7 +231,6 @@ public class WholesaleOrderServiceImpl implements WholesaleOrderService {
         for (WholesaleOrderItem orderItem : orderItems) {
             variantIds.add(orderItem.getVariantId());
         }
-        BigDecimal dischargeAmount = BigDecimal.ZERO;
         CustomerStockSearchRequest request = new CustomerStockSearchRequest();
         request.setCustomerId(wholesaleOrderVo.getCustomerId());
         request.setVariantIds(variantIds);
@@ -252,46 +238,24 @@ public class WholesaleOrderServiceImpl implements WholesaleOrderService {
         for (CustomerStockVo customerStockVo : customerStockVos) {
             customerStockVo.setTotalStock(customerStockVo.getStock());
         }
-        Integer quantity = 0;
-        Integer dischargeQuantity = 0;
-        Integer stock = 0;
-        if (ListUtils.isNotEmpty(customerStockVos)) {
-            a:
-            for (WholesaleOrderItem orderItem : orderItems) {
-                dischargeQuantity = orderItem.getDischargeQuantity();
-                quantity = orderItem.getQuantity();
-                if (dischargeQuantity == null) {
-                    dischargeQuantity = 0;
-                }
-                for (CustomerStockVo customerStockVo : customerStockVos) {
-                    if (orderItem.getVariantId().equals(customerStockVo.getVariantId())) {
-                        stock = customerStockVo.getStock();
-                        if (stock > quantity) {
-                            if (dischargeQuantity == 0) {
-                                dischargeQuantity = quantity;
-                            }
-                            stock -= dischargeQuantity;
+        BigDecimal dischargeAmount = BigDecimal.ZERO;
 
-                        } else {
-                            dischargeQuantity = stock;
-                            stock = 0;
-                        }
-                        orderItem.setDischargeQuantity(dischargeQuantity);
-                        orderItem.setTotalStock(customerStockVo.getTotalStock());
-                        customerStockVo.setStock(stock);
-                        wholesaleOrderItemService.updateDischargeQuantityById(orderItem.getId(), dischargeQuantity);
-                        dischargeAmount = dischargeAmount.add(new BigDecimal(dischargeQuantity).multiply(orderItem.getPrice()));
-
-                        continue a;
-                    }
+        Integer dischargeQuantity = null;
+        for (WholesaleOrderItem orderItem : orderItems) {
+            for (CustomerStockVo customerStockVo : customerStockVos) {
+                if (customerStockVo.getVariantId().equals(orderItem.getVariantId())){
+                    orderItem.setTotalStock(customerStockVo.getStock());
                 }
             }
-        }else {
-            for (WholesaleOrderItem orderItem : orderItems) {
-                orderItem.setTotalStock(0);
-                orderItem.setDischargeQuantity(0);
-                wholesaleOrderItemService.updateDischargeQuantityById(orderItem.getId(), 0);
+            dischargeQuantity = orderItem.getDischargeQuantity();
+            if (dischargeQuantity == null) {
+                dischargeQuantity = 0;
             }
+            if (dischargeQuantity == 0){
+                continue ;
+            }
+            orderItem.setDischargeQuantity(dischargeQuantity);
+            dischargeAmount = dischargeAmount.add(new BigDecimal(dischargeQuantity).multiply(orderItem.getPrice()));
         }
         wholesaleOrderVo.setProductDischargeAmount(dischargeAmount);
     }

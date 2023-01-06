@@ -10,6 +10,7 @@ import com.upedge.common.model.cart.request.CartAddRequest;
 import com.upedge.common.model.cart.request.CartSelectByIdsRequest;
 import com.upedge.common.model.cart.request.CartSubmitRequest;
 import com.upedge.common.model.cart.request.CartVo;
+import com.upedge.common.model.oms.WholesaleOrderItemLockStockRequest;
 import com.upedge.common.model.oms.order.OrderStockClearRequest;
 import com.upedge.common.model.oms.stock.CustomerStockSearchRequest;
 import com.upedge.common.model.oms.stock.CustomerStockVo;
@@ -53,6 +54,11 @@ public class OmsFeignClientFallbackFactory implements FallbackFactory<OmsFeignCl
             @Override
             public List<CustomerStockVo> searchByVariants(CustomerStockSearchRequest request) {
                 return new ArrayList<>();
+            }
+
+            @Override
+            public BaseResponse lockByWholesale(WholesaleOrderItemLockStockRequest request) {
+                return BaseResponse.failed();
             }
 
             @Override

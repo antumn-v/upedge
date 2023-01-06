@@ -510,4 +510,12 @@
             #{variantId}
         </foreach>
     </select>
+
+    <update id="updateByWholesaleOrderItem">
+        update customer_product_stock
+        set stock = stock + #{originalDischargeQuantity} - #{dischargeQuantity}
+        where customer_id = #{customerId}
+          and variant_id = #{variantId}
+          and warehouse_code = #{warehouseCode}
+    </update>
 </mapper>

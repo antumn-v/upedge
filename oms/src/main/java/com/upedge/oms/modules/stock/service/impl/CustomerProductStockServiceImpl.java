@@ -6,6 +6,7 @@ import com.upedge.common.constant.key.RedisKey;
 import com.upedge.common.enums.CustomerExceptionEnum;
 import com.upedge.common.exception.CustomerException;
 import com.upedge.common.feign.PmsFeignClient;
+import com.upedge.common.model.oms.WholesaleOrderItemLockStockRequest;
 import com.upedge.common.model.oms.stock.CustomerStockVo;
 import com.upedge.common.model.order.vo.CustomerProductStockNumVo;
 import com.upedge.common.model.product.ProductSaiheInventoryVo;
@@ -378,17 +379,9 @@ public class CustomerProductStockServiceImpl implements CustomerProductStockServ
     @GlobalTransactional
     @Override
     public BaseResponse reduceByWholesale(List<WholesaleOrderItemDischargeStockVo> itemDischargeStockVos)  {
-        List<ItemDischargeQuantityVo> items = new ArrayList<>();
         List<CustomerStockRecord> customerStockRecords = new ArrayList<>();
         Long customerId = null;
         for (WholesaleOrderItemDischargeStockVo itemDischargeStockVo : itemDischargeStockVos) {
-            if (customerId == null){
-                customerId = itemDischargeStockVo.getCustomerId();
-            }
-            long stock = customerProductStockDao.selectVariantStockByCustomer(itemDischargeStockVo.getCustomerId(),itemDischargeStockVo.getVariantId(),"CNHZ");
-            if (stock < itemDischargeStockVo.getDischargeQuantity()){
-                return BaseResponse.failed("Out of Stock");
-            }
             CustomerStockRecord customerStockRecord = new CustomerStockRecord();
             customerStockRecord.setCustomerId(customerId);
             customerStockRecord.setCustomerShowState(1);
@@ -399,15 +392,24 @@ public class CustomerProductStockServiceImpl implements CustomerProductStockServ
             customerStockRecord.setOrderType(4);
             customerStockRecord.setType(1);
             customerStockRecords.add(customerStockRecord);
-
-            ItemDischargeQuantityVo itemDischargeQuantityVo = new ItemDischargeQuantityVo();
-            itemDischargeQuantityVo.setDischargeQuantity(itemDischargeStockVo.getDischargeQuantity());
-            itemDischargeQuantityVo.setVariantId(itemDischargeStockVo.getVariantId());
-            itemDischargeQuantityVo.setShippingWarehouse("CNHZ");
-            items.add(itemDischargeQuantityVo);
         }
-        customerProductStockDao.reduceCustomerStockAfterDeduct(customerId,items);
         customerStockRecordDao.insertByBatch(customerStockRecords);
+        return BaseResponse.success();
+    }
+
+    @Override
+    public BaseResponse lockByWholesaleOrder(WholesaleOrderItemLockStockRequest request) {
+        Integer dischargeQuantity = request.getDischargeQuantity();
+        Integer originalDischargeQuantity = request.getOriginalDischargeQuantity();
+        if (dischargeQuantity.equals(originalDischargeQuantity)){
+            return BaseResponse.success();
+        }
+        CustomerProductStock customerProductStock = customerProductStockDao.selectStockByVariantAndCustomerId(request.getVariantId(),request.getCustomerId(),"CNHZ");
+        Integer stock = customerProductStock.getStock() + originalDischargeQuantity;
+        if (stock < dischargeQuantity){
+            return BaseResponse.failed();
+        }
+        customerProductStockDao.updateByWholesaleOrderItem(request.getVariantId(),request.getCustomerId(),"CNHZ",dischargeQuantity,originalDischargeQuantity);
         return BaseResponse.success();
     }
 

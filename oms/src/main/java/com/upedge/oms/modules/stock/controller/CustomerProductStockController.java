@@ -6,6 +6,7 @@ import com.upedge.common.component.annotation.Permission;
 import com.upedge.common.constant.Constant;
 import com.upedge.common.constant.ResultCode;
 import com.upedge.common.exception.CustomerException;
+import com.upedge.common.model.oms.WholesaleOrderItemLockStockRequest;
 import com.upedge.common.model.oms.stock.CustomerStockSearchRequest;
 import com.upedge.common.model.oms.stock.CustomerStockVo;
 import com.upedge.common.model.sms.WholesaleOrderItemDischargeStockVo;
@@ -193,5 +194,10 @@ public class CustomerProductStockController {
     @PostMapping("/reduceByWholesale")
     public BaseResponse reduceByWholesale(@RequestBody List<WholesaleOrderItemDischargeStockVo> wholesaleOrderItemDischargeStockVos){
         return customerProductStockService.reduceByWholesale(wholesaleOrderItemDischargeStockVos);
+    }
+
+    @PostMapping("/lockByWholesale")
+    public BaseResponse lockByWholesale(@RequestBody WholesaleOrderItemLockStockRequest request){
+        return customerProductStockService.lockByWholesaleOrder(request);
     }
 }
