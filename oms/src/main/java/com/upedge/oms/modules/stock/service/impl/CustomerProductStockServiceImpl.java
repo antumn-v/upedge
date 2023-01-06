@@ -380,10 +380,15 @@ public class CustomerProductStockServiceImpl implements CustomerProductStockServ
     @Override
     public BaseResponse reduceByWholesale(List<WholesaleOrderItemDischargeStockVo> itemDischargeStockVos)  {
         List<CustomerStockRecord> customerStockRecords = new ArrayList<>();
-        Long customerId = null;
         for (WholesaleOrderItemDischargeStockVo itemDischargeStockVo : itemDischargeStockVos) {
+
             CustomerStockRecord customerStockRecord = new CustomerStockRecord();
-            customerStockRecord.setCustomerId(customerId);
+            CustomerProductStock customerProductStock = customerProductStockDao.selectStockByVariantAndCustomerId(itemDischargeStockVo.getVariantId(),itemDischargeStockVo.getCustomerId(),"CNHZ");
+            customerStockRecord.setProductId(customerProductStock.getProductId());
+            customerStockRecord.setVariantImage(customerProductStock.getVariantImage());
+            customerStockRecord.setVariantName(customerStockRecord.getVariantName());
+            customerStockRecord.setVariantSku(customerStockRecord.getVariantSku());
+            customerStockRecord.setCustomerId(itemDischargeStockVo.getCustomerId());
             customerStockRecord.setCustomerShowState(1);
             customerStockRecord.setRevokeState(0);
             customerStockRecord.setCreateTime(new Date());
