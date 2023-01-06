@@ -10,6 +10,7 @@ import com.upedge.common.model.oms.stock.CustomerStockVo;
 import com.upedge.common.model.order.vo.CustomerProductStockNumVo;
 import com.upedge.common.model.product.ProductSaiheInventoryVo;
 import com.upedge.common.model.product.VariantDetail;
+import com.upedge.common.model.sms.WholesaleOrderItemDischargeStockVo;
 import com.upedge.common.model.tms.WarehouseVo;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.utils.IdGenerate;
@@ -29,6 +30,7 @@ import com.upedge.thirdparty.saihe.entity.GetProductInventory.ApiProductInventor
 import com.upedge.thirdparty.saihe.entity.GetProductInventory.ProductInventoryList;
 import com.upedge.thirdparty.saihe.response.GetProductInventoryResponse;
 import com.upedge.thirdparty.saihe.service.SaiheService;
+import io.seata.spring.annotation.GlobalTransactional;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -371,6 +373,42 @@ public class CustomerProductStockServiceImpl implements CustomerProductStockServ
         return BaseResponse.success();
 
 
+    }
+
+    @GlobalTransactional
+    @Override
+    public BaseResponse reduceByWholesale(List<WholesaleOrderItemDischargeStockVo> itemDischargeStockVos)  {
+        List<ItemDischargeQuantityVo> items = new ArrayList<>();
+        List<CustomerStockRecord> customerStockRecords = new ArrayList<>();
+        Long customerId = null;
+        for (WholesaleOrderItemDischargeStockVo itemDischargeStockVo : itemDischargeStockVos) {
+            if (customerId == null){
+                customerId = itemDischargeStockVo.getCustomerId();
+            }
+            long stock = customerProductStockDao.selectVariantStockByCustomer(itemDischargeStockVo.getCustomerId(),itemDischargeStockVo.getVariantId(),"CNHZ");
+            if (stock < itemDischargeStockVo.getDischargeQuantity()){
+                return BaseResponse.failed("Out of Stock");
+            }
+            CustomerStockRecord customerStockRecord = new CustomerStockRecord();
+            customerStockRecord.setCustomerId(customerId);
+            customerStockRecord.setCustomerShowState(1);
+            customerStockRecord.setRevokeState(0);
+            customerStockRecord.setCreateTime(new Date());
+            customerStockRecord.setVariantId(itemDischargeStockVo.getVariantId());
+            customerStockRecord.setQuantity(itemDischargeStockVo.getDischargeQuantity());
+            customerStockRecord.setOrderType(4);
+            customerStockRecord.setType(1);
+            customerStockRecords.add(customerStockRecord);
+
+            ItemDischargeQuantityVo itemDischargeQuantityVo = new ItemDischargeQuantityVo();
+            itemDischargeQuantityVo.setDischargeQuantity(itemDischargeStockVo.getDischargeQuantity());
+            itemDischargeQuantityVo.setVariantId(itemDischargeStockVo.getVariantId());
+            itemDischargeQuantityVo.setShippingWarehouse("CNHZ");
+            items.add(itemDischargeQuantityVo);
+        }
+        customerProductStockDao.reduceCustomerStockAfterDeduct(customerId,items);
+        customerStockRecordDao.insertByBatch(customerStockRecords);
+        return BaseResponse.success();
     }
 
     @Override

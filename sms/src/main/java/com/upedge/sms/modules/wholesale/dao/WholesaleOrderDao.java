@@ -2,14 +2,17 @@ package com.upedge.sms.modules.wholesale.dao;
 
 import com.upedge.common.base.Page;
 import com.upedge.sms.modules.wholesale.entity.WholesaleOrder;
+import org.apache.ibatis.annotations.Param;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 /**
  * @author gx
  */
-public interface WholesaleOrderDao{
+public interface WholesaleOrderDao {
 
+    int updateDischargeAmountById(@Param("id") Long id, @Param("dischargeAmount") BigDecimal dischargeAmount);
 
     int updateOrderAsPaid(WholesaleOrder wholesaleOrder);
 

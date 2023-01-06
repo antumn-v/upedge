@@ -91,8 +91,6 @@ public class StockOrderController {
             request.setT(new StockOrderListDto());
         }
 
-        request.initFromNum();
-
         StockOrderListDto stockOrderListDto = request.getT();
 
         stockOrderListDto.setCustomerId(session.getCustomerId());

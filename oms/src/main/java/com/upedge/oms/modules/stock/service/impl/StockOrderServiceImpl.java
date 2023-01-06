@@ -430,6 +430,7 @@ public class StockOrderServiceImpl implements StockOrderService {
 
     @Override
     public List<StockOrderVo> selectOrderList(StockOrderListRequest request) {
+        request.initFromNum();
         List<StockOrderVo> stockOrderVos = stockOrderDao.selectOrderList(request);
         if (ListUtils.isEmpty(stockOrderVos)) {
             return new ArrayList<>();

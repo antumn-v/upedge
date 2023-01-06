@@ -1,7 +1,9 @@
 package com.upedge.sms.modules.wholesale.service;
 
+import com.upedge.common.base.BaseResponse;
 import com.upedge.common.base.Page;
 import com.upedge.sms.modules.wholesale.entity.WholesaleOrderItem;
+import com.upedge.sms.modules.wholesale.request.WholesaleOrderItemUpdateDischargeQuantityRequest;
 
 import java.util.List;
 
@@ -9,6 +11,8 @@ import java.util.List;
  * @author gx
  */
 public interface WholesaleOrderItemService{
+
+    BaseResponse customUpdateDischargeQuantity(WholesaleOrderItemUpdateDischargeQuantityRequest request);
 
     int updateDischargeQuantityById(Long id, Integer dischargeQuantity);
 

@@ -5,6 +5,7 @@ import com.upedge.common.base.Page;
 import com.upedge.common.exception.CustomerException;
 import com.upedge.common.model.oms.stock.CustomerStockVo;
 import com.upedge.common.model.order.vo.CustomerProductStockNumVo;
+import com.upedge.common.model.sms.WholesaleOrderItemDischargeStockVo;
 import com.upedge.common.model.tms.WarehouseVo;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.oms.modules.order.vo.ItemDischargeQuantityVo;
@@ -20,8 +21,9 @@ import java.util.List;
  */
 public interface CustomerProductStockService{
 
-    List<CustomerStockVo> selectCustomerStockByVariantIds(Long customerId,List<Long> variantIds);
+    BaseResponse reduceByWholesale(List<WholesaleOrderItemDischargeStockVo> itemDischargeStockVos);
 
+    List<CustomerStockVo> selectCustomerStockByVariantIds(Long customerId,List<Long> variantIds);
 
     BaseResponse customUpdateCustomerProductStock(CustomerProductStockCustomUpdateRequest request, Session session);
 

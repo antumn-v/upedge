@@ -26,6 +26,7 @@ import com.upedge.common.model.order.vo.UplodaSaiheOnMqVo;
 import com.upedge.common.model.pms.dto.VariantPurchaseInfoDto;
 import com.upedge.common.model.pms.quote.CustomerProductQuoteVo;
 import com.upedge.common.model.pms.vo.VariantPreSaleQuantity;
+import com.upedge.common.model.sms.WholesaleOrderItemDischargeStockVo;
 import com.upedge.common.model.statistics.request.ManagerPackageStatisticsRequest;
 import com.upedge.common.model.statistics.request.OrderStatisticsRequest;
 import com.upedge.common.model.statistics.response.ManagerOrderCountResponse;
@@ -45,6 +46,9 @@ public interface OmsFeignClient  {
 
     @PostMapping("/customer/stock/searchByVariants")
     public List<CustomerStockVo> searchByVariants(@RequestBody CustomerStockSearchRequest request);
+
+    @PostMapping("/customer/stock/reduceByWholesale")
+    public BaseResponse reduceByWholesale(@RequestBody List<WholesaleOrderItemDischargeStockVo> wholesaleOrderItemDischargeStockVos);
 
     @PostMapping("/stockOrderItem/updatePurchaseInfo")
     public int updatePurchaseInfo(@RequestBody VariantPurchaseInfoDto variantPurchaseInfoDto);

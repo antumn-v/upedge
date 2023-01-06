@@ -16,6 +16,7 @@ import com.upedge.common.model.oms.stock.CustomerStockSearchRequest;
 import com.upedge.common.model.oms.stock.CustomerStockVo;
 import com.upedge.common.model.order.PaymentDetail;
 import com.upedge.common.model.order.TransactionDetail;
+import com.upedge.common.model.sms.WholesaleOrderItemDischargeStockVo;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.utils.IdGenerate;
 import com.upedge.common.utils.ListUtils;
@@ -73,7 +74,6 @@ public class WholesaleOrderServiceImpl implements WholesaleOrderService {
     PmsFeignClient pmsFeignClient;
 
 
-
     /**
      *
      */
@@ -107,7 +107,7 @@ public class WholesaleOrderServiceImpl implements WholesaleOrderService {
         Long orderId = request.getOrderId();
         WholesaleOrder wholesaleOrder = selectByPrimaryKey(orderId);
         if (null == wholesaleOrder
-                || wholesaleOrder.getPayState() != 0){
+                || wholesaleOrder.getPayState() != 0) {
             return BaseResponse.failed("Order does not exist or has been paid!");
         }
         //检查运费
@@ -115,20 +115,24 @@ public class WholesaleOrderServiceImpl implements WholesaleOrderService {
         BigDecimal shipPrice = request.getShipPrice();
         ServiceOrderFreight ServiceOrderFreight = serviceOrderFreightService.selectByOrderIdAndShipType(orderId, shipType);
         if (null == ServiceOrderFreight
-                || shipPrice.compareTo(ServiceOrderFreight.getShipPrice()) != 0){
+                || shipPrice.compareTo(ServiceOrderFreight.getShipPrice()) != 0) {
             return BaseResponse.failed("Shipping has been updated, please refresh the page");
         }
         //检查支付金额
         BigDecimal payAmount = request.getPayAmount();
         BigDecimal productAmount = wholesaleOrder.getProductAmount();
-        if (payAmount.compareTo(productAmount.add(shipPrice)) != 0){
+        BigDecimal dischargeAmount = checkDischargeDetail(wholesaleOrder);
+        if(null == dischargeAmount){
+            return BaseResponse.failed("Abnormal inventory");
+        }
+        if (payAmount.compareTo(productAmount.add(shipPrice).subtract(dischargeAmount)) != 0) {
             return BaseResponse.failed("Incorrect payment amount!");
         }
         //账户支付
         Long paymentId = IdGenerate.nextId();
-        AccountPaymentRequest accountPaymentRequest = new AccountPaymentRequest(paymentId,session.getId(),session.getAccountId(),session.getCustomerId(),OrderType.EXTRA_SERVICE_OVERSEA_WAREHOUSE,payAmount,BigDecimal.ZERO,0);
+        AccountPaymentRequest accountPaymentRequest = new AccountPaymentRequest(paymentId, session.getId(), session.getAccountId(), session.getCustomerId(), OrderType.EXTRA_SERVICE_OVERSEA_WAREHOUSE, payAmount, BigDecimal.ZERO, 0);
         BaseResponse paymentResponse = umsFeignClient.accountPayment(accountPaymentRequest);
-        if (paymentResponse.getCode() != ResultCode.SUCCESS_CODE){
+        if (paymentResponse.getCode() != ResultCode.SUCCESS_CODE) {
             return paymentResponse;
         }
         //修改状态
@@ -139,27 +143,93 @@ public class WholesaleOrderServiceImpl implements WholesaleOrderService {
         wholesaleOrder.setShipPrice(shipPrice);
         wholesaleOrder.setShipType(shipType);
         wholesaleOrderDao.updateOrderAsPaid(wholesaleOrder);
-        serviceOrderService.updateToPaidByRelateId(orderId,OrderType.EXTRA_SERVICE_WHOLESALE,payAmount,payTime);
+        serviceOrderService.updateToPaidByRelateId(orderId, OrderType.EXTRA_SERVICE_WHOLESALE, payAmount, payTime);
         //发送消息
 //        sendSaveTransactionRecordMessage(session.getId(),wholesaleOrder);
         return BaseResponse.success();
     }
 
+    private BigDecimal checkDischargeDetail(WholesaleOrder wholesaleOrder) {
+        if (wholesaleOrder.getPayState() != 0) {
+            return null;
+        }
+        Long customerId = wholesaleOrder.getCustomerId();
+        List<WholesaleOrderItem> orderItems = wholesaleOrderItemService.selectByOrderId(wholesaleOrder.getId());
+        List<Long> variantIds = new ArrayList<>();
+        for (WholesaleOrderItem orderItem : orderItems) {
+            variantIds.add(orderItem.getVariantId());
+        }
+        BigDecimal dischargeAmount = BigDecimal.ZERO;
+        CustomerStockSearchRequest request = new CustomerStockSearchRequest();
+        request.setCustomerId(customerId);
+        request.setVariantIds(variantIds);
+        List<CustomerStockVo> customerStockVos = omsFeignClient.searchByVariants(request);
+        for (CustomerStockVo customerStockVo : customerStockVos) {
+            customerStockVo.setTotalStock(customerStockVo.getStock());
+        }
+
+        Integer dischargeQuantity = 0;
+        Integer stock = 0;
+        if (ListUtils.isEmpty(customerStockVos)) {
+            return BigDecimal.ZERO;
+        }
+        List<WholesaleOrderItemDischargeStockVo> wholesaleOrderItemDischargeStockVos = new ArrayList<>();
+        a:
+        for (WholesaleOrderItem orderItem : orderItems) {
+
+            dischargeQuantity = orderItem.getDischargeQuantity();
+            if (dischargeQuantity == null) {
+                dischargeQuantity = 0;
+            }
+            if (dischargeQuantity == 0) {
+                continue;
+            }
+            WholesaleOrderItemDischargeStockVo wholesaleOrderItemDischargeStockVo = new WholesaleOrderItemDischargeStockVo();
+            wholesaleOrderItemDischargeStockVo.setDischargeQuantity(dischargeQuantity);
+            wholesaleOrderItemDischargeStockVo.setVariantId(orderItem.getVariantId());
+            wholesaleOrderItemDischargeStockVo.setCustomerId(customerId);
+            wholesaleOrderItemDischargeStockVo.setId(orderItem.getId());
+            wholesaleOrderItemDischargeStockVos.add(wholesaleOrderItemDischargeStockVo);
+
+            for (CustomerStockVo customerStockVo : customerStockVos) {
+                if (orderItem.getVariantId().equals(customerStockVo.getVariantId())) {
+                    stock = customerStockVo.getStock();
+                    if (stock >= dischargeQuantity) {
+                        stock -= dischargeQuantity;
+                    } else {
+                        return null;
+                    }
+                    customerStockVo.setStock(stock);
+                    dischargeAmount = dischargeAmount.add(new BigDecimal(dischargeQuantity).multiply(orderItem.getPrice()));
+
+                    continue a;
+                }
+            }
+            return null;
+        }
+        BaseResponse baseResponse = omsFeignClient.reduceByWholesale(wholesaleOrderItemDischargeStockVos);
+        if (baseResponse.getCode() != ResultCode.SUCCESS_CODE){
+            return null;
+        }
+        wholesaleOrderDao.updateDischargeAmountById(wholesaleOrder.getId(), dischargeAmount);
+        return dischargeAmount;
+    }
+
     @Override
     public WholesaleOrderVo orderDetail(Long orderId) {
         WholesaleOrder wholesaleOrder = selectByPrimaryKey(orderId);
-        if (null == wholesaleOrder){
+        if (null == wholesaleOrder) {
             return null;
         }
         WholesaleOrderVo wholesaleOrderVo = new WholesaleOrderVo();
-        BeanUtils.copyProperties(wholesaleOrder,wholesaleOrderVo);
+        BeanUtils.copyProperties(wholesaleOrder, wholesaleOrderVo);
 
         WholesaleOrderAddress wholesaleOrderAddress = wholesaleOrderAddressService.selectByOrderId(orderId);
         wholesaleOrderVo.setAddress(wholesaleOrderAddress);
 
         List<WholesaleOrderItem> orderItems = wholesaleOrderItemService.selectByOrderId(orderId);
-        if (wholesaleOrder.getPayState() == 0){
-            checkStock(orderItems,wholesaleOrderVo);
+        if (wholesaleOrder.getPayState() == 0) {
+            checkStock(orderItems, wholesaleOrderVo);
         }
         wholesaleOrderVo.setWholesaleOrderItems(orderItems);
 
@@ -169,7 +239,7 @@ public class WholesaleOrderServiceImpl implements WholesaleOrderService {
     }
 
 
-    private void checkStock(List<WholesaleOrderItem> orderItems,WholesaleOrderVo wholesaleOrderVo){
+    private void checkStock(List<WholesaleOrderItem> orderItems, WholesaleOrderVo wholesaleOrderVo) {
         List<Long> variantIds = new ArrayList<>();
         for (WholesaleOrderItem orderItem : orderItems) {
             variantIds.add(orderItem.getVariantId());
@@ -185,36 +255,42 @@ public class WholesaleOrderServiceImpl implements WholesaleOrderService {
         Integer quantity = 0;
         Integer dischargeQuantity = 0;
         Integer stock = 0;
-        if (ListUtils.isNotEmpty(customerStockVos)){
+        if (ListUtils.isNotEmpty(customerStockVos)) {
             a:
             for (WholesaleOrderItem orderItem : orderItems) {
                 dischargeQuantity = orderItem.getDischargeQuantity();
                 quantity = orderItem.getQuantity();
-                if (dischargeQuantity == null){
+                if (dischargeQuantity == null) {
                     dischargeQuantity = 0;
                 }
                 for (CustomerStockVo customerStockVo : customerStockVos) {
-                    if (orderItem.getVariantId().equals(customerStockVo.getVariantId())){
+                    if (orderItem.getVariantId().equals(customerStockVo.getVariantId())) {
                         stock = customerStockVo.getStock();
-                        if (stock > quantity){
-                            if (dischargeQuantity == 0){
+                        if (stock > quantity) {
+                            if (dischargeQuantity == 0) {
                                 dischargeQuantity = quantity;
                             }
                             stock -= dischargeQuantity;
 
-                        }else {
+                        } else {
                             dischargeQuantity = stock;
                             stock = 0;
                         }
                         orderItem.setDischargeQuantity(dischargeQuantity);
                         orderItem.setTotalStock(customerStockVo.getTotalStock());
                         customerStockVo.setStock(stock);
-                        wholesaleOrderItemService.updateDischargeQuantityById(orderItem.getId(),dischargeQuantity);
+                        wholesaleOrderItemService.updateDischargeQuantityById(orderItem.getId(), dischargeQuantity);
                         dischargeAmount = dischargeAmount.add(new BigDecimal(dischargeQuantity).multiply(orderItem.getPrice()));
 
                         continue a;
                     }
                 }
+            }
+        }else {
+            for (WholesaleOrderItem orderItem : orderItems) {
+                orderItem.setTotalStock(0);
+                orderItem.setDischargeQuantity(0);
+                wholesaleOrderItemService.updateDischargeQuantityById(orderItem.getId(), 0);
             }
         }
         wholesaleOrderVo.setProductDischargeAmount(dischargeAmount);
@@ -228,7 +304,7 @@ public class WholesaleOrderServiceImpl implements WholesaleOrderService {
         cartSelectByIdsRequest.setIds(request.getCartIds());
         cartSelectByIdsRequest.setCustomerId(session.getCustomerId());
         List<CartVo> cartVos = omsFeignClient.selectByIds(cartSelectByIdsRequest);
-        if (ListUtils.isEmpty(cartVos)){
+        if (ListUtils.isEmpty(cartVos)) {
             return BaseResponse.failed();
         }
         Long orderId = IdGenerate.nextId();
@@ -239,7 +315,7 @@ public class WholesaleOrderServiceImpl implements WholesaleOrderService {
         for (CartVo cartVo : cartVos) {
             BigDecimal quantity = new BigDecimal(cartVo.getQuantity());
             WholesaleOrderItem orderItem = new WholesaleOrderItem();
-            BeanUtils.copyProperties(cartVo,orderItem);
+            BeanUtils.copyProperties(cartVo, orderItem);
             orderItem.setOrderId(orderId);
             orderItem.setId(IdGenerate.nextId());
             orderItem.setCartId(cartVo.getId());
@@ -265,7 +341,8 @@ public class WholesaleOrderServiceImpl implements WholesaleOrderService {
         wholesaleOrderAddressService.insert(wholesaleOrderAddress);
 
         List<ServiceOrderFreight> orderFreights = new ArrayList<>();
-        List<Integer> shipTypes = request.getLogistics();;
+        List<Integer> shipTypes = request.getLogistics();
+
         for (Integer shipType : shipTypes) {
             ServiceOrderFreight serviceOrderFreight = new ServiceOrderFreight();
             serviceOrderFreight.setId(IdGenerate.nextId());
@@ -301,40 +378,40 @@ public class WholesaleOrderServiceImpl implements WholesaleOrderService {
     /**
      *
      */
-    public WholesaleOrder selectByPrimaryKey(Long id){
+    public WholesaleOrder selectByPrimaryKey(Long id) {
         WholesaleOrder record = new WholesaleOrder();
         record.setId(id);
         return wholesaleOrderDao.selectByPrimaryKey(record);
     }
 
     /**
-    *
-    */
+     *
+     */
     @Transactional
     public int updateByPrimaryKeySelective(WholesaleOrder record) {
         return wholesaleOrderDao.updateByPrimaryKeySelective(record);
     }
 
     /**
-    *
-    */
+     *
+     */
     @Transactional
     public int updateByPrimaryKey(WholesaleOrder record) {
         return wholesaleOrderDao.updateByPrimaryKey(record);
     }
 
     /**
-    *
-    */
-    public List<WholesaleOrder> select(Page<WholesaleOrder> record){
+     *
+     */
+    public List<WholesaleOrder> select(Page<WholesaleOrder> record) {
         record.initFromNum();
         return wholesaleOrderDao.select(record);
     }
 
     /**
-    *
-    */
-    public long count(Page<WholesaleOrder> record){
+     *
+     */
+    public long count(Page<WholesaleOrder> record) {
         return wholesaleOrderDao.count(record);
     }
 
@@ -342,7 +419,7 @@ public class WholesaleOrderServiceImpl implements WholesaleOrderService {
     @Override
     public void saveTransactionRecordMessage(Long userId, Long orderId) {
         WholesaleOrder order = selectByPrimaryKey(orderId);
-        if (order.getPayState() != OrderConstant.PAY_STATE_PAID){
+        if (order.getPayState() != OrderConstant.PAY_STATE_PAID) {
             return;
         }
         PaymentDetail detail = new PaymentDetail();
