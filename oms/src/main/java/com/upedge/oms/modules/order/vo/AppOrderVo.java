@@ -1,5 +1,6 @@
 package com.upedge.oms.modules.order.vo;
 
+import com.upedge.oms.modules.common.entity.OrderErrorMessage;
 import com.upedge.oms.modules.order.entity.OrderAddress;
 import com.upedge.oms.modules.pack.entity.OrderPackage;
 import lombok.Data;
@@ -128,6 +129,8 @@ public class AppOrderVo {
 
     private Integer stockState;
 
+    private Integer errorType;
+
     private BigDecimal vatAmount = BigDecimal.ZERO;
 
     private Long reshipCreateSource;
@@ -135,6 +138,8 @@ public class AppOrderVo {
     private String shippingWarehouse;
 
     private String createPackFailedReason;
+
+    private OrderErrorMessage errorMessage;
 
     private OrderPackage packageInfo = new OrderPackage();
 

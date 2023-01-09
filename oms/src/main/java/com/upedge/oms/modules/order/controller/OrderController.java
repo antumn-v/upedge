@@ -476,6 +476,13 @@ public class OrderController {
         return BaseResponse.success();
     }
 
+
+    @ApiOperation("修改订单异常状态")
+    @PostMapping("/updateErrorType")
+    public BaseResponse updateErrorType(@RequestBody OrderErrorTypeUpdateRequest request){
+        return orderService.updateErrorType(request);
+    }
+
     //===============================admin===================================
 
 

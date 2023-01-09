@@ -257,6 +257,14 @@
                 <if test="t.orgId != null">
                     and o.org_id = #{t.orgId}
                 </if>
+                <if test="t.errorType != null">
+                    <if test="t.errorType == -1">
+                        and o.error_type > '0'
+                    </if>
+                    <if test="t.error != -1">
+                        and o.error_type = #{t.errorType}
+                    </if>
+                </if>
                 <if test="t.orgIds != null and t.orgIds.length > 0">
                     and o.org_id in
                     <foreach collection="t.orgIds" item="sId" open="(" close=")" separator=",">
@@ -541,7 +549,7 @@
         o.pay_time,o.payment_id,o.pay_state,o.refund_state,o.ship_state,o.order_type,o.to_area_id,
         o.vat_amount,o.create_time,o.store_id,r.plat_order_create_time,o.quote_state,o.saihe_order_code,
         o.shipping_warehouse,o.tracking_code,o.pick_type,o.wave_no,o.pick_state,o.pack_state,o.pack_no,
-        o.is_print_label,o.actual_ship_method_id
+        o.is_print_label,o.actual_ship_method_id,o.error_type
         from `order` o
         left join store_order_relate r
         on o.id = r.order_id
@@ -2671,4 +2679,10 @@
         order by `total` desc
     </select>
 
+    <update id="updateErrorType">
+        update `order`
+            set error_type = #{errorType}
+        where  id = #{orderId}
+        and ship_state = '0';
+    </update>
 </mapper>

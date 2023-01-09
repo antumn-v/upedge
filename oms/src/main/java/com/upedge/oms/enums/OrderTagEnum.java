@@ -5,73 +5,73 @@ public enum  OrderTagEnum {
     /**
      * 查所有
      */
-    ALL(null,null,null,null,null,null,null,null,null),
+    ALL(null,null,null,null,null,null,null,null,null,null),
 
-    UNQUOTED(0,0,0,0,null,null,null,null,null),
+    UNQUOTED(0,0,0,0,null,null,null,null,null,0),
 
-    QUOTING(0,0,0,1,null,null,null,null,null),
+    QUOTING(0,0,0,1,null,null,null,null,null,0),
 
-    PART_QUOTED(0,0,0,2,null,null,null,null,null),
+    PART_QUOTED(0,0,0,2,null,null,null,null,null,0),
 
     /**
      * 未付款
      */
-    QUOTED(0,0,0,3,null,null,null,null,null),
+    QUOTED(0,0,0,3,null,null,null,null,null,0),
 
     /**
      * 已付款未发货
      */
-    PAID(1,0,0,null,null,null,null,null,null),
+    PAID(1,0,0,null,null,null,null,null,null,0),
 
     /**
      * 已发货
      */
-    SHIPPED(1,1,0,null,null,null,null,null,null),
+    SHIPPED(1,1,0,null,null,null,null,null,null,0),
 
     /**
      * 取消订单
      */
-    CANCELED(-1,0,0,null,null,null,null,null,null),
+    CANCELED(-1,0,0,null,null,null,null,null,null,0),
 
     /**
      * 退款：包括退款申请中 部分退款  全部退款
      */
-    REFUNDS(1,null,1,null,null,null,null,null,null),
+    REFUNDS(1,null,1,null,null,null,null,null,null,0),
 
     /**
      * 补发
      */
-    RESHIPPED(1,0,1,null,null,null,null,null,null),
+    RESHIPPED(1,0,1,null,null,null,null,null,null,0),
 
-    ADMIN_ALL(1,null,null,null,null,null,null,null,null),
+    ADMIN_ALL(1,null,null,null,null,null,null,null,null,0),
     /**
      * 生包失败
      */
-    PACK_FAILED(1,0,0,null,null,2,null,null,null),
+    PACK_FAILED(1,0,0,null,null,2,null,null,null,0),
     //处理中
-    PACK_PENDING(1,0,0,null,null,0,null,null,null),
+    PACK_PENDING(1,0,0,null,null,0,null,null,null,0),
     //有货
-    IN_STOCK(1,0,0,null,1,1,false,0,null),
+    IN_STOCK(1,0,0,null,1,1,false,0,null,0),
     //缺货
-    OUT_STOCK(1,0,0,null,0,1,false,0,null),
+    OUT_STOCK(1,0,0,null,0,1,false,0,null,0),
     //已发货
-    ADMIN_SHIPPED(1,1,0,null,null,null,null,null,null),
+    ADMIN_SHIPPED(1,1,0,null,null,null,null,null,null,0),
     //真实追踪号发货
-    ADMIN_SHIPPED_1(1,1,0,null,null,null,null,null,1),
+    ADMIN_SHIPPED_1(1,1,0,null,null,null,null,null,1,0),
     //物流商单号发货
-    ADMIN_SHIPPED_0(1,1,0,null,null,null,null,null,0),
+    ADMIN_SHIPPED_0(1,1,0,null,null,null,null,null,0,0),
     //已搁置
-    SHUNT(1,0,0,null,null,-1,null,null,null),
+    SHUNT(1,0,0,null,null,-1,null,null,null,0),
     //面单已打印
-    LABEL_PRINTED(1,0,0,null,1,1,true,1,-1),
+    LABEL_PRINTED(1,0,0,null,1,1,true,1,-1,0),
     //已拣货
-    PICKED(1,0,0,null,1,1,false,1,null),
+    PICKED(1,0,0,null,1,1,false,1,null,0),
     //已出库未上传，物流商单号
-    PACKAGE_UPLOADING_0(1,0,0,null,1,1,true,1,0),
+    PACKAGE_UPLOADING_0(1,0,0,null,1,1,true,1,0,0),
     //已出库未上传，真实追踪号
-    PACKAGE_UPLOADING_1(1,0,0,null,1,1,true,1,1);
-
-
+    PACKAGE_UPLOADING_1(1,0,0,null,1,1,true,1,1,0),
+    //异常订单
+    ERROR_ORDER(1,0,0,null,null,null,null,null,null,-1);
 
     Integer payState;
 
@@ -91,8 +91,10 @@ public enum  OrderTagEnum {
 
     Integer trackingCodeType;
 
+    Integer errorType;
 
-    OrderTagEnum(Integer payState, Integer shipState, Integer refundState, Integer quoteState, Integer stockState, Integer packState,Boolean isPrintLabel,Integer pickState,Integer trackingCodeType) {
+
+    OrderTagEnum(Integer payState, Integer shipState, Integer refundState, Integer quoteState, Integer stockState, Integer packState,Boolean isPrintLabel,Integer pickState,Integer trackingCodeType,Integer errorType) {
         this.payState = payState;
         this.shipState = shipState;
         this.refundState = refundState;
@@ -102,6 +104,7 @@ public enum  OrderTagEnum {
         this.isPrintLabel = isPrintLabel;
         this.pickState = pickState;
         this.trackingCodeType = trackingCodeType;
+        this.errorType = errorType;
     }
 
     public Integer getPayState() {

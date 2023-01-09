@@ -47,6 +47,7 @@ import com.upedge.common.utils.ListUtils;
 import com.upedge.common.utils.PriceUtils;
 import com.upedge.common.web.util.RedisUtil;
 import com.upedge.oms.enums.OrderAttrEnum;
+import com.upedge.oms.modules.common.entity.OrderErrorMessage;
 import com.upedge.oms.modules.common.service.OrderCommonService;
 import com.upedge.oms.modules.fulfillment.service.OrderFulfillmentService;
 import com.upedge.oms.modules.order.dao.*;
@@ -286,6 +287,12 @@ public class OrderServiceImpl implements OrderService {
         }
         List<Long> orderIds = new ArrayList<>();
         appOrderVos.forEach(appOrderVo -> {
+            if (appOrderVo.getErrorType() != null && appOrderVo.getErrorType() > 0 && appOrderVo.getPayState() == 1 && appOrderVo.getShipState() == 0){
+                OrderErrorMessage orderErrorMessage = (OrderErrorMessage) redisTemplate.opsForHash().get(RedisKey.HASH_ORDER_ERROR_MESSAGE,appOrderVo.getErrorType().toString());
+                if (orderErrorMessage != null){
+                    appOrderVo.setErrorMessage(orderErrorMessage);
+                }
+            }
             orderIds.add(appOrderVo.getId());
         });
 
@@ -1387,6 +1394,16 @@ public class OrderServiceImpl implements OrderService {
 
     public static void main(String[] args) {
         System.out.println(Runtime.getRuntime().availableProcessors());
+    }
+
+    @Override
+    public BaseResponse updateErrorType(OrderErrorTypeUpdateRequest request) {
+        List<Long> orderIds = request.getOrderIds();
+        for (Long orderId : orderIds) {
+            orderDao.updateErrorType(orderId,request.getErrorTypeId());
+        }
+
+        return BaseResponse.success();
     }
 
     @Override

@@ -7,7 +7,7 @@ spring:
     type: com.alibaba.druid.pool.DruidDataSource
     #MySQL配置
     driverClassName: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://rm-0xiq09n2322l690179o.mysql.rds.aliyuncs.com:3306/oms?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai&allowMultiQueries=true&useAffectedRows=true
+    url: jdbc:mysql://rm-bp10n01g868v2qmqioo.mysql.rds.aliyuncs.com:3306/oms?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai&allowMultiQueries=true&useAffectedRows=true
     username: guoxing
     password: HssMy@5Tygcs#7
     #oracle配置

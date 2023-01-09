@@ -82,6 +82,8 @@ public class AppOrderListDto {
 
     Integer waveNo;
 
+    private Integer errorType;
+
     private String shipCompany;
 
     List<Long> shipMethodIds;
