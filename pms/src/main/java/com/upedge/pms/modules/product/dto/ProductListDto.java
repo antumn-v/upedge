@@ -10,4 +10,6 @@ public class ProductListDto extends Product {
 
     private String customerId;
 
+    private Long storeId;
+
 }

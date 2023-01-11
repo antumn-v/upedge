@@ -405,7 +405,7 @@
                     product_title = #{t.productTitle} and
                 </if>
                 <if test="t.variantName != null">
-                    variant_name = #{t.variantName} and
+                    variant_name like  concat('%',#{t.variantName},'%') and
                 </if>
                 <if test="t.stockType != null">
                     stock_type = #{t.stockType} and

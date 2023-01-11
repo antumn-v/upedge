@@ -41,4 +41,6 @@ public class QuoteApplyListDto {
     private String storeVariantSku;
 
     private Integer itemQuoteState;
+
+    private Long storeId;
 }

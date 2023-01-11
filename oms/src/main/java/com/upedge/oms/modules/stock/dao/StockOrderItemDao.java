@@ -15,6 +15,8 @@ public interface StockOrderItemDao {
 
     int updateRefundQuantityById(@Param("id") Long id, @Param("refundQuantity") Integer refundQuantity);
 
+    int updateRefundQuantityReduceById(@Param("id") Long id, @Param("refundQuantity") Integer refundQuantity);
+
     int updatePurchaseInfo(@Param("variantId") Long variantId, @Param("purchaseSku") String purchaseSku, @Param("supplierName") String supplierName);
 
     List<StockOrderItem> selectByOrderId(Long orderId);

@@ -10,6 +10,8 @@ import java.util.List;
  */
 public interface StockOrderRefundItemDao{
 
+    List<StockOrderRefundItem> selectByRefundId(Long refundId);
+
     StockOrderRefundItem selectByPrimaryKey(StockOrderRefundItem record);
 
     int deleteByPrimaryKey(StockOrderRefundItem record);

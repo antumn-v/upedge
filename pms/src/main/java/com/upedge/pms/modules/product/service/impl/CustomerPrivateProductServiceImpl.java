@@ -63,6 +63,10 @@ public class CustomerPrivateProductServiceImpl implements CustomerPrivateProduct
     public BaseResponse allocationPrivateProduct(AllocationPrivateProductRequest request, Session session) {
         List<Long> productIds = request.getProductIds();
         List<Long> customerIds = request.getCustomerIds();
+        List<Long> storeIds = request.getStoreIds();
+        if(ListUtils.isNotEmpty(customerIds) && ListUtils.isNotEmpty(storeIds)){
+            return BaseResponse.failed();
+        }
 
         if (ListUtils.isEmpty(productIds)) {
             return BaseResponse.failed("产品列表不能为空");
@@ -79,19 +83,37 @@ public class CustomerPrivateProductServiceImpl implements CustomerPrivateProduct
         List<String> customerProductIds = new ArrayList<>();
         List<CustomerPrivateProduct> customerPrivateProducts = new ArrayList<>();
 
+        String customerProductId = "";
         for (Long productId : productIds) {
-
-            for (Long customerId : customerIds) {
-                String customerProductId = customerId + "-" + productId;
-                if (customerProductIds.contains(customerProductId)) {
-                    continue;
+            if (ListUtils.isNotEmpty(customerIds)){
+                for (Long customerId : customerIds) {
+                    customerProductId = customerId + "-" + productId;
+                    if (customerProductIds.contains(customerProductId)) {
+                        continue;
+                    }
+                    customerProductIds.add(customerProductId);
+                    CustomerPrivateProduct customerPrivateProduct = new CustomerPrivateProduct();
+                    customerPrivateProduct.setProductId(productId);
+                    customerPrivateProduct.setCustomerId(customerId);
+                    customerPrivateProduct.setStoreId(0L);
+                    customerPrivateProducts.add(customerPrivateProduct);
                 }
-                customerProductIds.add(customerProductId);
-                CustomerPrivateProduct customerPrivateProduct = new CustomerPrivateProduct();
-                customerPrivateProduct.setProductId(productId);
-                customerPrivateProduct.setCustomerId(customerId);
-                customerPrivateProducts.add(customerPrivateProduct);
+            }else {
+                for (Long storeId : storeIds) {
+                    customerProductId = storeId + "-" + productId;
+                    if (customerProductIds.contains(customerProductId)) {
+                        continue;
+                    }
+                    customerProductIds.add(customerProductId);
+                    CustomerPrivateProduct customerPrivateProduct = new CustomerPrivateProduct();
+                    customerPrivateProduct.setProductId(productId);
+                    customerPrivateProduct.setCustomerId(0L);
+                    customerPrivateProduct.setStoreId(storeId);
+                    customerPrivateProducts.add(customerPrivateProduct);
+                }
             }
+
+
         }
         if (ListUtils.isNotEmpty(customerPrivateProducts)){
             customerPrivateProductDao.insertByBatch(customerPrivateProducts);
@@ -109,7 +131,7 @@ public class CustomerPrivateProductServiceImpl implements CustomerPrivateProduct
      */
     public CustomerPrivateProduct selectByPrimaryKey(Long id) {
         CustomerPrivateProduct record = new CustomerPrivateProduct();
-        return null;
+        return record;
     }
 
     /**

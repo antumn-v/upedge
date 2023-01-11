@@ -12,4 +12,6 @@ public class AllocationPrivateProductRequest {
     List<Long> productIds;
 
     List<Long> customerIds;
+
+    List<Long> storeIds;
 }

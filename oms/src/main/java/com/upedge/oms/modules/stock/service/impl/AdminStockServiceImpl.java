@@ -710,6 +710,8 @@ public class AdminStockServiceImpl implements AdminStockService {
         if(res==0){
             throw new CustomerException(ResultCode.FAIL_CODE,"驳回失败");
         }
+
+        List<StockOrderRefundItem> stockOrderRefundItems = stockOrderRefundItemDao.
         return new BaseResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS);
     }
 }

@@ -89,13 +89,15 @@
         insert into customer_private_product
         <trim prefix="(" suffix=")" suffixOverrides=",">
             product_id,
-            customer_id
+            customer_id,
+            store_id
         </trim>
         values
         <foreach collection="list" item="item" index="index" separator=",">
             <trim prefix="(" suffix=")" suffixOverrides=",">
                 #{item.productId},
-                #{item.customerId}
+                #{item.customerId},
+                #{item.storeId}
             </trim>
         </foreach>
     </insert>

@@ -426,4 +426,10 @@
             set refund_quantity = refund_quantity + #{refundQuantity}
         where id = #{id}
     </update>
+
+    <update id="updateRefundQuantityReduceById">
+        update stock_order_item
+        set refund_quantity = refund_quantity - #{refundQuantity}
+        where id = #{id}
+    </update>
 </mapper>

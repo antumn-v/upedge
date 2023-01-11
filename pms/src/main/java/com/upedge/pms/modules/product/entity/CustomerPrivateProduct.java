@@ -17,4 +17,6 @@ public class CustomerPrivateProduct{
 	 */
     private Long customerId;
 
+	private Long storeId;
+
 }

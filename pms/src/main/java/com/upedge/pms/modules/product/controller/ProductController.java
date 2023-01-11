@@ -381,7 +381,7 @@ public class ProductController {
             }
         }
 
-        if (productListDto.getCustomerId() != null){
+        if (productListDto.getCustomerId() != null || productListDto.getStoreId() != null){
             return productService.selectCustomerPrivateProduct(request);
         }
 
