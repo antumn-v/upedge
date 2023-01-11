@@ -124,6 +124,7 @@ public class AppOrderListDto {
                 } else {
                     this.orderType = null;
                 }
+                this.errorType = tag.getErrorType();
                 return;
             }
         }

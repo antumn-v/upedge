@@ -139,7 +139,7 @@ public class AppOrderVo {
 
     private String createPackFailedReason;
 
-    private OrderErrorMessage errorMessage;
+    private OrderErrorMessage errorMessage = new OrderErrorMessage();
 
     private OrderPackage packageInfo = new OrderPackage();
 

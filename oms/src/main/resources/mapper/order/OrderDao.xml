@@ -80,6 +80,7 @@
         <result property="packNo" column="pack_no"/>
         <result property="stockState" column="stock_state"/>
         <result property="isPrintLabel" column="is_print_label"/>
+        <result property="errorType" column="error_type"/>
         <collection ofType="com.upedge.oms.modules.order.vo.AppStoreOrderVo" property="storeOrderVos">
             <id property="storeOrderId" column="store_order_id"/>
             <result property="platOrderName" column="plat_order_name"/>
@@ -261,7 +262,7 @@
                     <if test="t.errorType == -1">
                         and o.error_type > '0'
                     </if>
-                    <if test="t.error != -1">
+                    <if test="t.errorType != -1">
                         and o.error_type = #{t.errorType}
                     </if>
                 </if>
@@ -2683,6 +2684,9 @@
         update `order`
             set error_type = #{errorType}
         where  id = #{orderId}
+        and pay_state = '1'
+        and refund_state = '0'
+        and pick_state = '0'
         and ship_state = '0';
     </update>
 </mapper>

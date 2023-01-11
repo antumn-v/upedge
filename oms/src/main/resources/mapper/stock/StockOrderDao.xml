@@ -704,6 +704,7 @@
     <update id="applyStockOrderRefund">
         update stock_order set refund_state=1
         where id=#{id}
+        and refund_state != '3'
     </update>
 
     <update id="restoreStockOrderAsPaid">

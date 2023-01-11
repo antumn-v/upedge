@@ -599,7 +599,9 @@ public class AccountServiceImpl implements AccountService {
         //支付流水列表
         //交易类型 transaction_type  支付/扣款 = 0，退款/收款 = 1，还款 = 2
         //支付资金流水
-        AccountLog accountLog= accountLogDao.selectPayedAccountLogByTransactionId(request.getOrderId(), TransactionConstant.TransactionType.PAY_CUT_PAYMENT.getCode());
+        Long transactionId = request.getOrderId();
+
+        AccountLog accountLog= accountLogDao.selectPayedAccountLogByTransactionId(transactionId, TransactionConstant.TransactionType.PAY_CUT_PAYMENT.getCode());
         if(accountLog==null){
             return new BaseResponse(ResultCode.FAIL_CODE, "流水异常!");
         }
@@ -642,13 +644,16 @@ public class AccountServiceImpl implements AccountService {
         accountMapper.addBalanceAndBenefits(account.getId(), refundBalance, refundAffiliateRebate,refundVipRebate);
 
         log.debug("实际退款余额:{},实际退款联盟返点:{}，vip返点：{}", refundBalance, refundAffiliateRebate,refundVipRebate);
+        if (request.getOrderType() == TransactionConstant.OrderType.STOCK_ORDER.getCode()){
+            transactionId = request.getRefundId();
+        }
         //增加退款流水
         AccountLog refundFlow = new AccountLog(account.getId(),
                 customerId,
                 TransactionConstant.TransactionType.REFUND_GAIN_AMOUNT.getCode(),
                 TransactionConstant.OrderType.NORMAL_ORDER.getCode(),
                 TransactionConstant.PayMethod.ACCOUNT.getCode(),
-                request.getOrderId(),
+                transactionId,
                 refundBalance,
                 refundAffiliateRebate,
                 refundVipRebate,

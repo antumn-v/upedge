@@ -71,7 +71,7 @@ public enum  OrderTagEnum {
     //已出库未上传，真实追踪号
     PACKAGE_UPLOADING_1(1,0,0,null,1,1,true,1,1,0),
     //异常订单
-    ERROR_ORDER(1,0,0,null,null,null,null,null,null,-1);
+    ERROR_ORDER(1,null,0,null,null,null,null,0,null,-1);
 
     Integer payState;
 
@@ -177,5 +177,13 @@ public enum  OrderTagEnum {
 
     public void setTrackingCodeType(Integer trackingCodeType) {
         this.trackingCodeType = trackingCodeType;
+    }
+
+    public Integer getErrorType() {
+        return errorType;
+    }
+
+    public void setErrorType(Integer errorType) {
+        this.errorType = errorType;
     }
 }
