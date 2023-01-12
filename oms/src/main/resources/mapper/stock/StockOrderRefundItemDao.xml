@@ -296,4 +296,11 @@
         from stock_order_refund_item
         where stock_refund_id = #{stockRefundId}
     </select>
+
+    <select id="selectByRefundId" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from stock_order_refund_item
+        where stock_refund_id = #{refundId}
+    </select>
 </mapper>

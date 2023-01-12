@@ -711,7 +711,10 @@ public class AdminStockServiceImpl implements AdminStockService {
             throw new CustomerException(ResultCode.FAIL_CODE,"驳回失败");
         }
 
-        List<StockOrderRefundItem> stockOrderRefundItems = stockOrderRefundItemDao.
+        List<StockOrderRefundItem> stockOrderRefundItems = stockOrderRefundItemDao.selectByRefundId(stockOrderRefund.getId());
+        for (StockOrderRefundItem stockOrderRefundItem : stockOrderRefundItems) {
+            stockOrderItemDao.updateRefundQuantityReduceById(stockOrderRefundItem.getStockOrderItemId(),stockOrderRefundItem.getQuantity());
+        }
         return new BaseResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS);
     }
 }
