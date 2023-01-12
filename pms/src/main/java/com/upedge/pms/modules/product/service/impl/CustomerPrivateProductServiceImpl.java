@@ -68,17 +68,10 @@ public class CustomerPrivateProductServiceImpl implements CustomerPrivateProduct
             return BaseResponse.failed();
         }
 
-        if (ListUtils.isEmpty(productIds)) {
-            return BaseResponse.failed("产品列表不能为空");
+        if (ListUtils.isEmpty(productIds) && ListUtils.isEmpty(customerIds) && ListUtils.isEmpty(storeIds)) {
+            return BaseResponse.failed();
         }
 
-        for (Long productId : productIds) {
-            customerPrivateProductDao.deleteByProductId(productId);
-        }
-
-        if (ListUtils.isEmpty(customerIds)){
-            return BaseResponse.success();
-        }
         //判断去重字符串
         List<String> customerProductIds = new ArrayList<>();
         List<CustomerPrivateProduct> customerPrivateProducts = new ArrayList<>();
@@ -86,6 +79,7 @@ public class CustomerPrivateProductServiceImpl implements CustomerPrivateProduct
         String customerProductId = "";
         for (Long productId : productIds) {
             if (ListUtils.isNotEmpty(customerIds)){
+                customerPrivateProductDao.deleteCustomerByProductId(productId);
                 for (Long customerId : customerIds) {
                     customerProductId = customerId + "-" + productId;
                     if (customerProductIds.contains(customerProductId)) {
@@ -99,6 +93,7 @@ public class CustomerPrivateProductServiceImpl implements CustomerPrivateProduct
                     customerPrivateProducts.add(customerPrivateProduct);
                 }
             }else {
+                customerPrivateProductDao.deleteStoreByProductId(productId);
                 for (Long storeId : storeIds) {
                     customerProductId = storeId + "-" + productId;
                     if (customerProductIds.contains(customerProductId)) {

@@ -6,11 +6,12 @@
     <!-- 可根据自己的需求，是否要使用 -->
     <resultMap type="com.upedge.pms.modules.product.entity.CustomerPrivateProduct" id="BaseResultMap">
         <result property="productId" column="product_id"/>
+        <result property="storeId" column="store_id"/>
         <result property="customerId" column="customer_id"/>
     </resultMap>
 
     <sql id="Base_Column_List">
-        `product_id`,`customer_id`
+        `product_id`,`customer_id`,`store_id`
     </sql>
 
     <select id="selectByPrimaryKey" parameterType="com.upedge.pms.modules.product.entity.CustomerPrivateProduct"
@@ -220,5 +221,17 @@
     <delete id="deleteByProductId">
         delete from customer_private_product
         where product_id = #{productId}
+    </delete>
+
+    <delete id="deleteStoreByProductId">
+        delete from customer_private_product
+        where product_id = #{productId}
+        and store_id != '0'
+    </delete>
+
+    <delete id="deleteCustomerByProductId">
+        delete from customer_private_product
+        where product_id = #{productId}
+          and customer_id != '0'
     </delete>
 </mapper>

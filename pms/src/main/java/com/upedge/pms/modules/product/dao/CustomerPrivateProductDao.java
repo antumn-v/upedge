@@ -39,5 +39,7 @@ public interface CustomerPrivateProductDao{
     long count(Page<CustomerPrivateProduct> record);
 
     void deleteByProductId(Long productId);
+    void deleteCustomerByProductId(Long productId);
+    void deleteStoreByProductId(Long productId);
 
 }

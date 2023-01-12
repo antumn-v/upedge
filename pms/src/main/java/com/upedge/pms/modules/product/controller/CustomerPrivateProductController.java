@@ -5,6 +5,7 @@ import com.upedge.common.component.annotation.Permission;
 import com.upedge.common.constant.Constant;
 import com.upedge.common.constant.ResultCode;
 import com.upedge.common.constant.key.RedisKey;
+import com.upedge.common.model.store.StoreVo;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.model.user.vo.UserVo;
 import com.upedge.common.utils.ListUtils;
@@ -22,7 +23,9 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 
@@ -54,14 +57,23 @@ public class CustomerPrivateProductController {
         customerPrivateProduct.setProductId(productId);
         request.setT(customerPrivateProduct);
         request.setPageSize(-1);
+        Map<String,Object> map = new HashMap<>();
         List<CustomerPrivateProduct> customerPrivateProducts = customerPrivateProductService.select(request);
         if (ListUtils.isNotEmpty(customerPrivateProducts)){
             List<UserVo> userVos = new ArrayList<>();
+            List<StoreVo> storeVos = new ArrayList<>();
             for (CustomerPrivateProduct privateProduct : customerPrivateProducts) {
-                UserVo userVo = (UserVo) redisTemplate.opsForHash().get(RedisKey.STRING_CUSTOMER_INFO,String.valueOf(privateProduct.getCustomerId()));
-                userVos.add(userVo);
+                if (privateProduct.getCustomerId() != null && !privateProduct.getCustomerId().equals(0L)){
+                    UserVo userVo = (UserVo) redisTemplate.opsForHash().get(RedisKey.STRING_CUSTOMER_INFO,String.valueOf(privateProduct.getCustomerId()));
+                    userVos.add(userVo);
+                }else if ((privateProduct.getStoreId() != null) && !privateProduct.getStoreId().equals(0L)){
+                    StoreVo storeVo = (StoreVo) redisTemplate.opsForValue().get(RedisKey.STRING_STORE + privateProduct.getStoreId());
+                    storeVos.add(storeVo);
+                }
             }
-            return BaseResponse.success(userVos);
+            map.put("store",storeVos);
+            map.put("user",userVos);
+            return BaseResponse.success(map);
         }
         return BaseResponse.success(new ArrayList<>());
     }
