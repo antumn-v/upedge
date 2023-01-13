@@ -518,4 +518,14 @@
           and variant_id = #{variantId}
           and warehouse_code = #{warehouseCode}
     </update>
+
+    <select id="selectByCustomerIds" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from customer_product_stock
+        where customer_id in
+        <foreach collection="customerIds" item="customerId" open="(" separator="," close=")">
+            #{customerId}
+        </foreach>
+    </select>
 </mapper>

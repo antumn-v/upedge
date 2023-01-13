@@ -163,4 +163,6 @@ public class RedisKey {
     public static final String HASH_PURCHASE_ORDER_CREATE_FAILED_REASON = "purchase:1688:order:create:failed:reason";
 
     public static final String HASH_ORDER_ERROR_MESSAGE = "order:error:message:info";
+
+    public static final String HASH_PACKAGE_REPLACE_CODE_RECORD = "package:replace:code:record";
 }

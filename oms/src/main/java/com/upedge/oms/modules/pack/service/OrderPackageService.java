@@ -8,12 +8,15 @@ import com.upedge.oms.modules.pack.entity.OrderPackage;
 import com.upedge.oms.modules.pack.request.*;
 import com.upedge.oms.modules.pack.vo.OrderPackageInfoVo;
 import com.upedge.thirdparty.shipcompany.fpx.request.OrderPackageGetLabelRequest;
-import org.apache.ibatis.annotations.Param;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 public interface OrderPackageService {
+
+    BaseResponse reCreatePackage(PackageRecreateRequest request,Session session);
+
+    BaseResponse packageReplaceLabel(PackageReplaceCodeRequest request,Session session);
 
     List<Long> selectOrderIdsBySendTime(String sendBeginTime,String sendEndTime);
 

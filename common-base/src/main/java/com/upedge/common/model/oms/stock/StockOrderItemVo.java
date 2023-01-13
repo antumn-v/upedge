@@ -58,4 +58,6 @@ public class StockOrderItemVo {
     private String purchaseSku;
 
     private String barcode;
+
+    private Integer stock;
 }

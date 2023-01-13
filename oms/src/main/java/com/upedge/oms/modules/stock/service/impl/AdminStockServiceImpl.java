@@ -99,9 +99,10 @@ public class AdminStockServiceImpl implements AdminStockService {
 
         List<Long> orderIds = new ArrayList<>();
         List<AdminStockOrderVo> results = stockOrderDao.selectAdminStockOrderList(request);
-
+        List<Long> customerIds = new ArrayList<>();
         for (AdminStockOrderVo result : results) {
             orderIds.add(result.getId());
+            customerIds.add(result.getCustomerId());
             String purchaseOrderIds = result.getPurchaseOrderIds();
             if (StringUtils.isBlank(purchaseOrderIds)){
                 continue;
@@ -115,6 +116,7 @@ public class AdminStockServiceImpl implements AdminStockService {
             result.setPurchaseIds(purchaseIds);
         }
 
+        List<CustomerProductStock> customerProductStocks = customerProductStockDao.selectByCustomerIds(customerIds);
         Map<Long,AdminStockOrderVo> stockOrderVoMap = new HashMap<>();
         Map<Long,List<StockOrderItemVo>> map = new HashMap<>();
         if (ListUtils.isNotEmpty(orderIds)){
@@ -122,10 +124,18 @@ public class AdminStockServiceImpl implements AdminStockService {
             for (AdminStockOrderVo stockOrderVo : results) {
                 List<StockOrderItemVo> storeOrderItemVoList = new ArrayList<>();
                 Long orderId = stockOrderVo.getId();
+                Long customerId = stockOrderVo.getCustomerId();
                 stockOrderVoMap.put(orderId,stockOrderVo);
                 for (StockOrderItemVo stockOrderItemVo : stockOrderItemVos) {
+                    stockOrderItemVo.setStock(0);
                     if (orderId.equals(stockOrderItemVo.getOrderId())) {
                         storeOrderItemVoList.add(stockOrderItemVo);
+                    }
+                    Long variantId = stockOrderItemVo.getVariantId();
+                    for (CustomerProductStock customerProductStock : customerProductStocks) {
+                        if (customerProductStock.getCustomerId().equals(customerId) && customerProductStock.getVariantId().equals(variantId)){
+                            stockOrderItemVo.setStock(customerProductStock.getStock());
+                        }
                     }
                 }
                 map.put(orderId,storeOrderItemVoList);

@@ -99,6 +99,9 @@
             <if test="isUploadStore != null">
                 is_upload_store = #{isUploadStore},
             </if>
+            <if test="isReplaced != null">
+                is_replaced = #{isReplaced},
+            </if>
         </set>
         where id = #{id}
     </update>
@@ -520,4 +523,13 @@
         where package_state = '1'
         and date(send_time) between #{sendBeginTime} and #{sendEndTime}
     </select>
+
+    <update id="updatePackageCode">
+        update order_package
+        set tracking_code = #{trackingCode},
+            logistics_order_no = #{logisticsOrderNo},
+            is_upload_store = '0',
+            is_replaced = '1'
+        where id = #{packNo}
+    </update>
 </mapper>

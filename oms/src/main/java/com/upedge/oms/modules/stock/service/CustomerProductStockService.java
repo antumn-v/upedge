@@ -22,6 +22,8 @@ import java.util.List;
  */
 public interface CustomerProductStockService{
 
+    List<CustomerProductStock> selectByCustomerIds(List<Long> customerIds);
+
     BaseResponse reduceByWholesale(List<WholesaleOrderItemDischargeStockVo> itemDischargeStockVos);
 
     BaseResponse lockByWholesaleOrder(WholesaleOrderItemLockStockRequest request);

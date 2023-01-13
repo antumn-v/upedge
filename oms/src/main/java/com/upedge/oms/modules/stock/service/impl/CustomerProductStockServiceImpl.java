@@ -376,6 +376,14 @@ public class CustomerProductStockServiceImpl implements CustomerProductStockServ
 
     }
 
+    @Override
+    public List<CustomerProductStock> selectByCustomerIds(List<Long> customerIds) {
+        if (ListUtils.isEmpty(customerIds)){
+            return new ArrayList<>();
+        }
+        return customerProductStockDao.selectByCustomerIds(customerIds);
+    }
+
     @GlobalTransactional
     @Override
     public BaseResponse reduceByWholesale(List<WholesaleOrderItemDischargeStockVo> itemDischargeStockVos)  {

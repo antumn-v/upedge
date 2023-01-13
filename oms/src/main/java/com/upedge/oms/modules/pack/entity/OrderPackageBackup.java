@@ -8,12 +8,16 @@ import java.util.Date;
  * @author gx
  */
 @Data
-public class OrderPackage{
+public class OrderPackageBackup{
 
+	/**
+	 * 包裹号
+	 */
+    private Long id;
 	/**
 	 * 
 	 */
-    private Long id;
+    private Long packNo;
 	/**
 	 * 
 	 */
@@ -29,15 +33,11 @@ public class OrderPackage{
 	/**
 	 * 
 	 */
-    private Long packageNo;
-	/**
-	 * 
-	 */
     private Long orderId;
 	/**
 	 * 
 	 */
-    private Integer waveNo;
+    private Long pickId;
 	/**
 	 * 真实追踪号
 	 */
@@ -63,7 +63,7 @@ public class OrderPackage{
 	 */
     private String platId;
 	/**
-	 * 0=待发货，1=已发货
+	 * 0=未出库，1=已出库，-1=取消发货
 	 */
     private Integer packageState;
 	/**
@@ -78,10 +78,21 @@ public class OrderPackage{
 	 * 
 	 */
     private Date receiveTime;
+	/**
+	 * 包裹备注
+	 */
+    private String remark;
+	/**
+	 * 
+	 */
+    private Integer waveNo;
+	/**
+	 * 是否已上传店铺
+	 */
+    private Boolean isUploadStore;
+	/**
+	 * 
+	 */
+    private Date backupTime;
 
-	private String remark;
-
-	private Boolean isUploadStore;
-
-	private Boolean isReplaced;
 }

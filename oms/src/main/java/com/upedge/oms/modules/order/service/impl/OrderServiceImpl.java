@@ -2792,6 +2792,7 @@ public class OrderServiceImpl implements OrderService {
         for (AppOrderVo appOrderVo : appOrderVos) {
             for (OrderPackage orderPackage : orderPackages) {
                 if (appOrderVo.getId().equals(orderPackage.getOrderId())){
+
                     appOrderVo.setPackageInfo(orderPackage);
                     orderPackages.remove(orderPackage);
                     continue a;

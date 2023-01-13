@@ -26,7 +26,6 @@ import java.util.Random;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 
 @Api(tags = "订单包裹")
 @RestController
@@ -53,6 +52,20 @@ public class OrderPackageController {
     public BaseResponse packageInfo(@RequestBody OrderPackageInfoGetRequest request) {
         OrderPackageInfoVo orderPackageInfoVo = orderPackageService.packageInfo(request);
         return BaseResponse.success(orderPackageInfoVo);
+    }
+
+    @ApiOperation("包裹换单")
+    @PostMapping("/replaceCode")
+    public BaseResponse packageReplaceCode(@RequestBody PackageReplaceCodeRequest request){
+        Session session = UserUtil.getSession(redisTemplate);
+        return orderPackageService.packageReplaceLabel(request,session);
+    }
+
+    @ApiOperation("已出库包裹重新生成")
+    @PostMapping("/reCreate")
+    public BaseResponse reCreatePackage(@RequestBody PackageRecreateRequest request){
+        Session session = UserUtil.getSession(redisTemplate);
+        return orderPackageService.reCreatePackage(request,session);
     }
 
     @ApiOperation("生成包裹")
