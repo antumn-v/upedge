@@ -45,6 +45,11 @@ public class OrderPackageBackupServiceImpl implements OrderPackageBackupService 
         return orderPackageBackupDao.insert(record);
     }
 
+    @Override
+    public List<OrderPackageBackup> selectByOrderIds(List<Long> orderIds) {
+        return orderPackageBackupDao.selectByOrderIds(orderIds);
+    }
+
     /**
      *
      */

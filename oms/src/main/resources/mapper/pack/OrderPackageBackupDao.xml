@@ -470,5 +470,14 @@
         <include refid="Query_Condition"/>
     </select>
 
-
+    <select id="selectByOrderIds" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from order_package_backup
+        where order_id in
+        <foreach collection="orderIds" item="orderId" open="(" close=")" separator=",">
+            #{orderId}
+        </foreach>
+        order by backup_time desc
+    </select>
 </mapper>

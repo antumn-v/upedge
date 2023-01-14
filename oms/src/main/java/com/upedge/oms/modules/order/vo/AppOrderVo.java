@@ -3,6 +3,7 @@ package com.upedge.oms.modules.order.vo;
 import com.upedge.oms.modules.common.entity.OrderErrorMessage;
 import com.upedge.oms.modules.order.entity.OrderAddress;
 import com.upedge.oms.modules.pack.entity.OrderPackage;
+import com.upedge.oms.modules.pack.entity.OrderPackageBackup;
 import lombok.Data;
 
 import java.math.BigDecimal;
@@ -142,6 +143,8 @@ public class AppOrderVo {
     private OrderErrorMessage errorMessage = new OrderErrorMessage();
 
     private OrderPackage packageInfo = new OrderPackage();
+
+    private OrderPackageBackup packageBackup = new OrderPackageBackup();
 
     private Set<AppStoreOrderVo> storeOrderVos;
 

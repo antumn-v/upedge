@@ -88,7 +88,6 @@ public class RechargeController {
         }
         if (session.getApplicationId().equals(Constant.APP_APPLICATION_ID)) {
             request.getT().setCustomerId(session.getCustomerId());
-            request.getT().setAccountId(session.getAccountId());
         }
         if(session.getApplicationId().equals(Constant.ADMIN_APPLICATION_ID)){
             if(session.getUserType() != BaseCode.USER_ROLE_SUPERADMIN){

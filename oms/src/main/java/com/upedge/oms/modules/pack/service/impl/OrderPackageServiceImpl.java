@@ -155,6 +155,9 @@ public class OrderPackageServiceImpl implements OrderPackageService {
                 return BaseResponse.failed();
             }
             OrderPackage orderPackage = selectByPrimaryKey(packNo);
+            if(orderPackage == null){
+                return BaseResponse.failed();
+            }
             if (orderPackage.getPackageState() != 1){
                 return BaseResponse.failed();
             }
@@ -1199,6 +1202,7 @@ public class OrderPackageServiceImpl implements OrderPackageService {
             OrderPackageBackup orderPackageBackup = new OrderPackageBackup();
             BeanUtils.copyProperties(orderPackage,orderPackageBackup);
             orderPackageBackup.setPackNo(packageNo);
+            orderPackageBackup.setId(null);
             orderPackageBackup.setBackupTime(new Date());
             orderPackageBackupService.insert(orderPackageBackup);
 
@@ -1209,7 +1213,10 @@ public class OrderPackageServiceImpl implements OrderPackageService {
             orderPackage.setTrackingMethodCode(shippingMethodRedis.getMethodCode());
             orderPackage.setTrackingCompany(shippingMethodRedis.getTrackingCompany());
             orderPackage.setIsReplaced(true);
+            orderPackage.setIsUploadStore(false);
             updateByPrimaryKeySelective(orderPackage);
+
+            orderService.updateShipState(orderId,0);
         }
 
         redisTemplate.opsForHash().delete(RedisKey.HASH_ORDER_CREATE_PACKAGE_FAILED_REASON, orderId.toString());

@@ -2,13 +2,16 @@ package com.upedge.oms.modules.pack.dao;
 
 import com.upedge.common.base.Page;
 import com.upedge.oms.modules.pack.entity.OrderPackageBackup;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
 /**
  * @author gx
  */
-public interface OrderPackageBackupDao{
+public interface OrderPackageBackupDao {
+
+    List<OrderPackageBackup> selectByOrderIds(@Param("orderIds") List<Long> orderIds);
 
     OrderPackageBackup selectByPrimaryKey(OrderPackageBackup record);
 

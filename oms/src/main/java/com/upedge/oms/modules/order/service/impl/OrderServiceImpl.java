@@ -64,6 +64,8 @@ import com.upedge.oms.modules.order.vo.*;
 import com.upedge.oms.modules.orderShippingUnit.entity.OrderShippingUnit;
 import com.upedge.oms.modules.orderShippingUnit.service.OrderShippingUnitService;
 import com.upedge.oms.modules.pack.entity.OrderPackage;
+import com.upedge.oms.modules.pack.entity.OrderPackageBackup;
+import com.upedge.oms.modules.pack.service.OrderPackageBackupService;
 import com.upedge.oms.modules.pack.service.OrderPackageService;
 import com.upedge.oms.modules.redis.OmsRedisService;
 import com.upedge.oms.modules.rules.dto.ShipRuleConditionDto;
@@ -167,6 +169,9 @@ public class OrderServiceImpl implements OrderService {
     
     @Autowired
     OrderItemService orderItemService;
+
+    @Autowired
+    OrderPackageBackupService orderPackageBackupService;
 
     /**
      * 批发订单和普通订单共用service
@@ -2788,8 +2793,14 @@ public class OrderServiceImpl implements OrderService {
             orderIds.add(appOrderVo.getId());
         });
         List<OrderPackage> orderPackages = orderPackageService.selectByOrderIds(orderIds);
+        List<OrderPackageBackup> orderPackageBackups = orderPackageBackupService.selectByOrderIds(orderIds);
         a:
         for (AppOrderVo appOrderVo : appOrderVos) {
+            for (OrderPackageBackup orderPackageBackup : orderPackageBackups) {
+                if (orderPackageBackup.getOrderId().equals(appOrderVo.getId())){
+                    appOrderVo.setPackageBackup(orderPackageBackup);
+                }
+            }
             for (OrderPackage orderPackage : orderPackages) {
                 if (appOrderVo.getId().equals(orderPackage.getOrderId())){
 

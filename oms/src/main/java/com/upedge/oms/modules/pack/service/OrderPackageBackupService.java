@@ -2,12 +2,16 @@ package com.upedge.oms.modules.pack.service;
 
 import com.upedge.oms.modules.pack.entity.OrderPackageBackup;
 import com.upedge.common.base.Page;
+import org.apache.ibatis.annotations.Param;
+
 import java.util.List;
 
 /**
  * @author gx
  */
 public interface OrderPackageBackupService{
+
+    List<OrderPackageBackup> selectByOrderIds(List<Long> orderIds);
 
     OrderPackageBackup selectByPrimaryKey(Long id);
 

@@ -22,12 +22,13 @@
         <result property="sendTime" column="send_time"/>
         <result property="receiveTime" column="receive_time"/>
         <result property="isUploadStore" column="is_upload_store"/>
+        <result property="isReplaced" column="is_replaced"/>
     </resultMap>
 
     <sql id="Base_Column_List">
         `id`
         ,`customer_id`,`store_id`,`org_path`,`package_no`,`order_id`,`wave_no`,ifnull(`tracking_code`,'') as `tracking_code`,`logistics_order_no`,
-        `tracking_company`,`tracking_method_name`,`tracking_method_code`,`plat_id`,`package_state`,`create_time`,`send_time`,
+        `tracking_company`,`tracking_method_name`,`tracking_method_code`,`plat_id`,`package_state`,`create_time`,`send_time`,`is_replaced`,
         `receive_time`,`is_upload_store`
     </sql>
 
