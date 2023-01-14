@@ -1402,6 +1402,11 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
+    public int updateActualShipMethodById(Long orderId, Long shipMethodId) {
+        return orderDao.updateActualShipMethodById(orderId,shipMethodId);
+    }
+
+    @Override
     public BaseResponse updateErrorType(OrderErrorTypeUpdateRequest request) {
         List<Long> orderIds = request.getOrderIds();
         for (Long orderId : orderIds) {

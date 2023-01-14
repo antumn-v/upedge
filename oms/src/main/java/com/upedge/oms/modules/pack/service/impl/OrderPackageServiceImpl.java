@@ -149,8 +149,11 @@ public class OrderPackageServiceImpl implements OrderPackageService {
         List<Long> orderIds = request.getOrderIds();
         List<Order> orders = orderService.selectByIds(orderIds);
         BaseResponse response = null;
+        Long packNo = null;
+        Long orderId = null;
         for (Order order : orders) {
-            Long packNo = order.getPackNo();
+            packNo = order.getPackNo();
+            orderId = order.getId();
             if (packNo == null){
                 return BaseResponse.failed();
             }
@@ -188,6 +191,10 @@ public class OrderPackageServiceImpl implements OrderPackageService {
             if (response.getCode() != ResultCode.SUCCESS_CODE){
                 return response;
             }
+            order = new Order();
+            order.setId(orderId);
+            order.setActualShipMethodId(shipMethodId);
+            orderService.updateByPrimaryKeySelective(order);
         }
         return BaseResponse.success();
     }

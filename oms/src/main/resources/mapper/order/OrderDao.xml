@@ -791,6 +791,9 @@
             <if test="shipMethodId != null">
                 ship_method_id = #{shipMethodId},
             </if>
+            <if test="actualShipMethodId != null">
+                actual_ship_method_id = #{actualShipMethodId},
+            </if>
             <if test="shipPrice != null">
                 ship_price = #{shipPrice},
             </if>

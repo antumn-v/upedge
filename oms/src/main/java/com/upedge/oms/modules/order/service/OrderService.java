@@ -35,6 +35,8 @@ import java.util.Set;
  */
 public interface OrderService{
 
+    int updateActualShipMethodById(Long orderId, Long shipMethodId);
+
     BaseResponse updateErrorType(OrderErrorTypeUpdateRequest request);
 
     List<Long> selectUploadStoreFailedOrders();
