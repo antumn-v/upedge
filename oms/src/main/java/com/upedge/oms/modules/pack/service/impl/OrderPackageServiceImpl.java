@@ -880,10 +880,8 @@ public class OrderPackageServiceImpl implements OrderPackageService {
         try {
             createdExpressDTO = YanwenApi.createExpress(yanwenExpressDto);
         } catch (CustomerException e) {
-            if (packNo == null){
-                orderService.updateOrderPackInfo(orderId, 2, null);
-                redisTemplate.opsForHash().put(RedisKey.HASH_ORDER_CREATE_PACKAGE_FAILED_REASON, orderId.toString(), e.getMessage());
-            }
+            orderService.updateOrderPackInfo(orderId, 2, null);
+            redisTemplate.opsForHash().put(RedisKey.HASH_ORDER_CREATE_PACKAGE_FAILED_REASON, orderId.toString(), e.getMessage());
             return BaseResponse.failed(e.getMessage());
         }
 
@@ -944,10 +942,8 @@ public class OrderPackageServiceImpl implements OrderPackageService {
         try {
             cneOrderDto = CneApi.createCneOrder(request);
         } catch (Exception e) {
-            if (packNo == null){
-                orderService.updateOrderPackInfo(orderId, 2, null);
-                redisTemplate.opsForHash().put(RedisKey.HASH_ORDER_CREATE_PACKAGE_FAILED_REASON, orderId.toString(), e.getMessage());
-            }
+            orderService.updateOrderPackInfo(orderId, 2, null);
+            redisTemplate.opsForHash().put(RedisKey.HASH_ORDER_CREATE_PACKAGE_FAILED_REASON, orderId.toString(), e.getMessage());
             return BaseResponse.failed(e.getMessage());
         }
 
@@ -1071,18 +1067,13 @@ public class OrderPackageServiceImpl implements OrderPackageService {
             wayBillItemVo = wayBillCreateResponse.getItemVos().get(0);
 
             if (wayBillItemVo.getSuccess() != 1) {
-                if (packNo == null){
-                    orderService.updateOrderPackInfo(orderId, 2, null);
-                    redisTemplate.opsForHash().put(RedisKey.HASH_ORDER_CREATE_PACKAGE_FAILED_REASON, orderId.toString(), wayBillItemVo.getRemark());
-                }
+                orderService.updateOrderPackInfo(orderId, 2, null);
+                redisTemplate.opsForHash().put(RedisKey.HASH_ORDER_CREATE_PACKAGE_FAILED_REASON, orderId.toString(), wayBillItemVo.getRemark());
                 return BaseResponse.failed(wayBillItemVo.getRemark());
             }
         } catch (Exception e) {
-            if (packNo == null){
-                orderService.updateOrderPackInfo(orderId, 2, null);
-                redisTemplate.opsForHash().put(RedisKey.HASH_ORDER_CREATE_PACKAGE_FAILED_REASON, orderId.toString(), e.getMessage());
-            }
-
+            orderService.updateOrderPackInfo(orderId, 2, null);
+            redisTemplate.opsForHash().put(RedisKey.HASH_ORDER_CREATE_PACKAGE_FAILED_REASON, orderId.toString(), e.getMessage());
             return BaseResponse.failed(e.getMessage());
         }
 
@@ -1167,10 +1158,8 @@ public class OrderPackageServiceImpl implements OrderPackageService {
         try {
             fpxCreateOrderDataDTO = FpxOrderApi.createFpxOrder(fpxOrderCreateDto);
         } catch (Exception e) {
-            if (packNo == null){
-                orderService.updateOrderPackInfo(orderId, 2, null);
-                redisTemplate.opsForHash().put(RedisKey.HASH_ORDER_CREATE_PACKAGE_FAILED_REASON, orderId.toString(), e.getMessage());
-            }
+            orderService.updateOrderPackInfo(orderId, 2, null);
+            redisTemplate.opsForHash().put(RedisKey.HASH_ORDER_CREATE_PACKAGE_FAILED_REASON, orderId.toString(), e.getMessage());
             return BaseResponse.failed(e.getMessage());
         }
 
@@ -1187,7 +1176,7 @@ public class OrderPackageServiceImpl implements OrderPackageService {
 
 
         OrderPackage orderPackage = selectByPrimaryKey(packageNo);
-        if (packageNo == null){
+        if (orderPackage == null){
             orderPackage = new OrderPackage();
             orderPackage.setId(packageNo);
             orderPackage.setPackageNo(packageNo);

@@ -306,13 +306,16 @@ public class OrderFulfillmentServiceImpl implements OrderFulfillmentService {
 
             String finalTrackCode = trackCode;
             OrderPackage finalOrderPackage = orderPackage;
+            String platOrderId = null;
+            Long storeOrderId = null;
             for (StoreOrderRelate storeOrderRelate : storeOrderRelates) {
+
                 List<StoreOrderItem> storeOrderItems = storeOrderItemDao.selectByStoreOrderAndOrder(orderId, storeOrderRelate.getStoreOrderId());
                 if (ListUtils.isEmpty(storeOrderItems)) {
-                    continue;
+                    storeOrderItems = storeOrderItemDao.selectByStoreOrderId(storeOrderRelate.getStoreOrderId());
                 }
-                String platOrderId = storeOrderItems.get(0).getPlatOrderId();
-                Long storeOrderId = storeOrderRelate.getStoreOrderId();
+                platOrderId = storeOrderItems.get(0).getPlatOrderId();
+                storeOrderId = storeOrderRelate.getStoreOrderId();
                 boolean b = false;
                 switch (storeVo.getStoreType()) {
                     case 0:
