@@ -674,6 +674,10 @@ public class VariantWarehouseStockServiceImpl implements VariantWarehouseStockSe
     public BaseResponse variantStockIm(VariantStockExImRecordUpdateRequest request, Session session) {
         String sku = request.getVariantSku();
         String barcode = request.getBarcode();
+        Integer imStock = request.getQuantity();//入库库存
+        if (imStock < 1){
+            return BaseResponse.failed();
+        }
         ProductVariant productVariant = null;
         if (StringUtils.isNotBlank(sku)){
             productVariant = productVariantService.selectBySku(request.getVariantSku());
@@ -690,12 +694,14 @@ public class VariantWarehouseStockServiceImpl implements VariantWarehouseStockSe
             return BaseResponse.failed();
         }
         int i = 0;
+        Integer originalAvailableStock = 0;//原可用库存数量
         VariantWarehouseStock variantWarehouseStock = variantWarehouseStockDao.selectByPrimaryKey(productVariant.getId(), request.getWarehouseCode());
         if (null == variantWarehouseStock){
-            variantWarehouseStock = new VariantWarehouseStock(productVariant.getId(), request.getWarehouseCode(), 0, request.getQuantity(), 0,0,"","");
+            variantWarehouseStock = new VariantWarehouseStock(productVariant.getId(), request.getWarehouseCode(), 0, imStock, 0,0,"","");
             i = insert(variantWarehouseStock);
         }else {
-            i = variantWarehouseStockDao.updateVariantStockIm(productVariant.getId(), request.getWarehouseCode(), request.getQuantity(), request.getProcessType());
+            originalAvailableStock = variantWarehouseStock.getAvailableStock();
+            i = variantWarehouseStockDao.updateVariantStockIm(productVariant.getId(), request.getWarehouseCode(), imStock, request.getProcessType());
         }
 
         if (i == 0){
@@ -708,15 +714,15 @@ public class VariantWarehouseStockServiceImpl implements VariantWarehouseStockSe
                         request.getWarehouseCode(),
                         request.getQuantity(),
                         request.getProcessType(),
-                        variantWarehouseStock.getAvailableStock(),
-                        variantWarehouseStock.getAvailableStock() + request.getQuantity(),
+                        originalAvailableStock,
+                        originalAvailableStock + imStock,
                         request.getRelateId(),
                         new Date(),
                         "",
                         session.getId());
         variantWarehouseStockRecordService.insert(variantWarehouseStockRecord);
 
-        variantWarehouseStock.setAvailableStock(variantWarehouseStockRecord.getNowStock());
+        variantWarehouseStock.setAvailableStock(originalAvailableStock + imStock);
 
         VariantWarehouseStockModel variantWarehouseStockModel = new VariantWarehouseStockModel();
         BeanUtils.copyProperties(variantWarehouseStock,variantWarehouseStockModel);

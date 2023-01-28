@@ -60,7 +60,7 @@ public class ProductVariantAddRequest{
         productVariant.setVariantImage(variantImage);
         productVariant.setVariantPrice(variantPrice);
         productVariant.setUsdPrice(PriceUtils.cnyToUsdByDefaultRate(variantPrice));
-        productVariant.setInventory(9999L);
+        productVariant.setInventory(9999);
         productVariant.setWeight(weight);
         productVariant.setState(state);
         productVariant.setVolumeWeight(BigDecimal.ONE);

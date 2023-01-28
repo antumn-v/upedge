@@ -282,24 +282,24 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
         }
 
         StringBuffer stringBuffer = new StringBuffer();
-        AlibabaApiVo alibabaApiVo = (AlibabaApiVo) redisTemplate.opsForValue().get(RedisKey.STRING_ALI1688_API);
+//        AlibabaApiVo alibabaApiVo = (AlibabaApiVo) redisTemplate.opsForValue().get(RedisKey.STRING_ALI1688_API);
         //根据供应商创建采购单
         for (Map.Entry<String, List<AlibabaTradeFastCargo>> map : supplierCargosMap.entrySet()) {
             List<AlibabaTradeFastCargo> tradeFastCargos = map.getValue();
 
-            if (isPreview){
-                AlibabaCreateOrderPreviewResult previewResult = null;
-                try {
-                    previewResult = Ali1688Service.createOrderPreview(tradeFastCargos, alibabaApiVo);
-                } catch (CustomerException e) {
-                    return BaseResponse.failed(e.getMessage());
-                }
-                if (!previewResult.getSuccess()){
-                    return BaseResponse.failed(previewResult.getErrorMsg());
-                }else {
-                    continue;
-                }
-            }
+//            if (isPreview){
+//                AlibabaCreateOrderPreviewResult previewResult = null;
+//                try {
+//                    previewResult = Ali1688Service.createOrderPreview(tradeFastCargos, alibabaApiVo);
+//                } catch (CustomerException e) {
+//                    return BaseResponse.failed(e.getMessage());
+//                }
+//                if (!previewResult.getSuccess()){
+//                    return BaseResponse.failed(previewResult.getErrorMsg());
+//                }else {
+//                    continue;
+//                }
+//            }
             AlibabaTradeFastCreateOrderResult result = null;
             AlibabaTradeFastResult alibabaTradeFastResult = null;
             Long id = purchaseService.getNextPurchaseOrderId();
@@ -319,8 +319,9 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
 //            }
             redisTemplate.opsForHash().put(RedisKey.HASH_CUSTOMER_STOCK_RELATE_PURCHASE,stockOrderId.toString(),id);
             PurchaseOrder purchaseOrder = new PurchaseOrder(id,
-                    "0",
+//                    "0",
 //                    alibabaTradeFastResult.getOrderId(),
+                    null,
                     BigDecimal.ZERO,
 //                    new BigDecimal((alibabaTradeFastResult.getPostFee().doubleValue() / 100)),
 //                    new BigDecimal(alibabaTradeFastResult.getTotalSuccessAmount().doubleValue() / 100),

@@ -144,7 +144,7 @@ public class PurchaseOrderController {
         String key = "key:createByCustomerStockOrder:" + request.getStockOrderId();
         boolean b = RedisUtil.lock(redisTemplate,key,5L,30*1000L);
         Session session = UserUtil.getSession(redisTemplate);
-        request.setPreview(true);
+//        request.setPreview(true);
 //        BaseResponse response = purchaseOrderService.createByCustomerStockOrder(request,session);
 //        if (response.getCode() == ResultCode.SUCCESS_CODE){
             request.setPreview(false);
@@ -160,7 +160,7 @@ public class PurchaseOrderController {
         return purchaseOrderService.refundByCustomerStockOrder(customerStockPurchaseOrderRefundVo);
     }
 
-    @PostMapping("/completeInfo /{id}")
+    @PostMapping("/completeInfo/{id}")
     public BaseResponse completeOrderInfo(@PathVariable Long id){
         purchaseOrderService.completeOrderInfo(id);
         return BaseResponse.success();

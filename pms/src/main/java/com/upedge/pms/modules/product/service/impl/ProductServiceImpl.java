@@ -499,7 +499,7 @@ public class ProductServiceImpl implements ProductService {
                 strList.clear();
                 strList.add(variantAttrCvalue);
                 productVariant.setUsdPrice(PriceUtils.cnyToUsdByDefaultRate(productVariant.getVariantPrice()));
-                productVariant.setInventory(999L);
+                productVariant.setInventory(999);
                 productVariantAttr.setVariantId(variantId);
                 productVariantAttr.setProductId(productId);
                 productVariantAttr.setOriginalAttrCvalue(productVariantAttr.getVariantAttrCvalue());
@@ -751,6 +751,7 @@ public class ProductServiceImpl implements ProductService {
             productVariant.setWidth(BigDecimal.ONE);
             productVariant.setLength(BigDecimal.ONE);
             productVariant.setVolumeWeight(BigDecimal.ONE);
+            productVariant.setInventory(productVariantVo.getInventory());
             if (null == productVariant.getWeight()) {
                 productVariant.setWeight(BigDecimal.ZERO);
             }

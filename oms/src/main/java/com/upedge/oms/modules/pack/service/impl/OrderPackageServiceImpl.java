@@ -885,7 +885,7 @@ public class OrderPackageServiceImpl implements OrderPackageService {
             return BaseResponse.failed(e.getMessage());
         }
 
-        OrderPackage orderPackage = savePackage(order, shippingMethodRedis, createdExpressDTO.getWaybillNumber(), createdExpressDTO.getReferenceNumber(), createdExpressDTO.getYanwenNumber());
+        OrderPackage orderPackage = savePackage(order, shippingMethodRedis, createdExpressDTO.getWaybillNumber(), createdExpressDTO.getWaybillNumber(), createdExpressDTO.getYanwenNumber());
 
         return BaseResponse.success(orderPackage);
     }
