@@ -31,6 +31,11 @@ public class PmsFeignClientFallbackFactory implements FallbackFactory<PmsFeignCl
     public PmsFeignClient create(Throwable cause) {
         return new PmsFeignClient() {
             @Override
+            public void updateLatestOrderTime(List<Long> storeVariantIds) {
+
+            }
+
+            @Override
             public BaseResponse refundByCustomerStockOrder(CustomerStockPurchaseOrderRefundVo customerStockPurchaseOrderRefundVo) {
                 return BaseResponse.failed();
             }

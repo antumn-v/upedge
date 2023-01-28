@@ -28,6 +28,9 @@ import java.util.List;
 @FeignClient(name = ServiceNameConstants.PMS_SERVICE,fallbackFactory = PmsFeignClientFallbackFactory.class,decode404 = true)
 public interface PmsFeignClient {
 
+    @PostMapping("/customerProductQuote/updateLatestOrderTime")
+    public void updateLatestOrderTime(@RequestBody List<Long> storeVariantIds);
+
     @PostMapping("/purchaseOrder/refundByCustomerStockOrder")
     public BaseResponse refundByCustomerStockOrder(@RequestBody CustomerStockPurchaseOrderRefundVo customerStockPurchaseOrderRefundVo);
 

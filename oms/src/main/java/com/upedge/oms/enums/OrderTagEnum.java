@@ -36,7 +36,7 @@ public enum  OrderTagEnum {
     /**
      * 退款：包括退款申请中 部分退款  全部退款
      */
-    REFUNDS(1,null,1,null,null,null,null,null,null,0),
+    REFUNDS(1,null,1,null,null,null,null,null,null,null),
 
     /**
      * 补发

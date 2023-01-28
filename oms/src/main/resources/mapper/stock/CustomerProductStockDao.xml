@@ -402,7 +402,7 @@
                     variant_sku = #{t.variantSku} and
                 </if>
                 <if test="t.productTitle != null">
-                    product_title = #{t.productTitle} and
+                    product_title like  concat('%',#{t.productTitle},'%') and
                 </if>
                 <if test="t.variantName != null">
                     variant_name like  concat('%',#{t.variantName},'%') and
@@ -528,4 +528,6 @@
             #{customerId}
         </foreach>
     </select>
+
+
 </mapper>

@@ -166,4 +166,9 @@ public class CustomerProductQuoteController {
         customerProductQuoteService.sendCustomerProductQuoteUpdateMessage(storeVariantIds);
         return BaseResponse.success();
     }
+
+    @PostMapping("/updateLatestOrderTime")
+    public void updateLatestOrderTime(@RequestBody List<Long> storeVariantIds){
+        customerProductQuoteService.updateLatestOrderTime(storeVariantIds);
+    }
 }

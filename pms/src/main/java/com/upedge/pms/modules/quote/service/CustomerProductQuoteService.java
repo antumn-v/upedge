@@ -19,6 +19,8 @@ import java.util.List;
  */
 public interface CustomerProductQuoteService{
 
+    void updateLatestOrderTime(List<Long> storeVariantIds);
+
     int updateVariantImageByVariantIds(String variantImage, List<Long> variantIds);
 
     int updateStoreVariantImageById(Long storeVariantId, String image);

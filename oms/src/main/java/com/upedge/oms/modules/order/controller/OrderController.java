@@ -533,6 +533,15 @@ public class OrderController {
         return orderService.revokeReshipOrder(orderId,session);
     }
 
+    @PostMapping("/revokeReshipOrders")
+    public BaseResponse revokeReshipOrder(@RequestBody List<Long> orderIds){
+        Session session = UserUtil.getSession(redisTemplate);
+        for (Long orderId : orderIds) {
+            orderService.revokeReshipOrder(orderId,session);
+        }
+        return BaseResponse.success();
+    }
+
     @ApiOperation("订单添加产品")
     @PostMapping("/addItem")
     public BaseResponse orderAddItem(@RequestBody@Valid OrderAddItemRequest request){

@@ -147,6 +147,14 @@ public class CustomerProductQuoteServiceImpl implements CustomerProductQuoteServ
     }
 
     @Override
+    public void updateLatestOrderTime(List<Long> storeVariantIds) {
+        if (ListUtils.isEmpty(storeVariantIds)){
+            return;
+        }
+        customerProductQuoteDao.updateLatestOrderTime(storeVariantIds,System.currentTimeMillis());
+    }
+
+    @Override
     public int updateVariantImageByVariantIds(String variantImage, List<Long> variantIds) {
         if (StringUtil.isBlank(variantImage) || ListUtils.isEmpty(variantIds)){
             return 0;

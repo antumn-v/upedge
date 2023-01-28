@@ -200,4 +200,7 @@ public class CustomerProductStockController {
     public BaseResponse lockByWholesale(@RequestBody WholesaleOrderItemLockStockRequest request){
         return customerProductStockService.lockByWholesaleOrder(request);
     }
+
+
+
 }

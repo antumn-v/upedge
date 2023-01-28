@@ -15,6 +15,8 @@ import java.util.List;
  */
 public interface CustomerProductQuoteDao {
 
+    void updateLatestOrderTime(@Param("storeVariantIds") List<Long> storeVariantIds, @Param("currentTime") long currentTime);
+
     int updateVariantImageByVariantIds(@Param("variantImage") String variantImage, @Param("variantIds") List<Long> variantIds);
 
     int updateStoreVariantImageById(@Param("storeVariantId") Long storeVariantId, @Param("image") String image);

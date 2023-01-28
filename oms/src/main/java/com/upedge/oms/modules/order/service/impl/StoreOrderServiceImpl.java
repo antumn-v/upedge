@@ -605,6 +605,7 @@ public class StoreOrderServiceImpl implements StoreOrderService {
                 variants.add(variant);
             }
         });
+        List<Long> storeVariantIds = new ArrayList<>();
         if (ListUtils.isNotEmpty(variants)) {
             PlatIdSelectStoreVariantRequest request = new PlatIdSelectStoreVariantRequest();
             request.setStoreId(storeOrder.getStoreId());
@@ -614,7 +615,15 @@ public class StoreOrderServiceImpl implements StoreOrderService {
             if (response.getCode() == ResultCode.SUCCESS_CODE && null != response.getData()) {
                 List<StoreProductVariantVo> variantVos = JSONArray.parseArray(JSON.toJSON(response.getData()).toString()).toJavaList(StoreProductVariantVo.class);
                 storeOrderItemDao.completeItemDetail(storeOrderId, variantVos);
+                for (StoreProductVariantVo variantVo : variantVos) {
+                    storeVariantIds.add(variantVo.getStoreVariantId());
+                }
             }
+        }
+        try {
+            pmsFeignClient.updateLatestOrderTime(storeVariantIds);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
         RedisUtil.unLock(redisTemplate, key);
     }
@@ -764,45 +773,47 @@ public class StoreOrderServiceImpl implements StoreOrderService {
         //更新店铺产品数量
         Map<String, ShopifyLineItem> lineItemMap = new HashMap<>();
 
-
-
         List<Long> storeOrderItemIds = new ArrayList<>();
 
-        List<OrderItem> orderItems = orderItemService.selectUnPaidItemByStoreOrderId(storeOrderId);
-        if (ListUtils.isNotEmpty(orderItems)) {
+        List<ShopifyLineItem> shopifyLineItems = shopifyOrder.getLine_items();
+        for (ShopifyLineItem shopifyLineItem : shopifyLineItems) {
+            lineItemMap.put(shopifyLineItem.getId(), shopifyLineItem);
+        }
 
-            List<ShopifyLineItem> shopifyLineItems = shopifyOrder.getLine_items();
-            for (ShopifyLineItem shopifyLineItem : shopifyLineItems) {
-                lineItemMap.put(shopifyLineItem.getId(), shopifyLineItem);
+        List<StoreOrderItem> storeOrderItems = storeOrderItemDao.selectByStoreOrderId(storeOrderId);
+        for (StoreOrderItem storeOrderItem : storeOrderItems) {
+            ShopifyLineItem shopifyLineItem = lineItemMap.get(storeOrderItem.getPlatOrderItemId());
+            if (null == shopifyLineItem) {
+                continue;
             }
+            lineItemMap.remove(shopifyLineItem.getId());
 
-            List<StoreOrderItem> storeOrderItems = storeOrderItemDao.selectByStoreOrderId(storeOrderId);
-            for (StoreOrderItem storeOrderItem : storeOrderItems) {
-                ShopifyLineItem shopifyLineItem = lineItemMap.get(storeOrderItem.getPlatOrderItemId());
-                if (null == shopifyLineItem) {
+            Integer quantity = shopifyLineItem.getFulfillable_quantity();
+            Long storeOrderItemId = storeOrderItem.getId();
+
+            List<OrderItem> orderItems = orderItemService.selectUnPaidItemByStoreOrderId(storeOrderId);
+            for (OrderItem orderItem : orderItems) {
+                if (!storeOrderItemId.equals(orderItem.getStoreOrderItemId())) {
                     continue;
                 }
-                lineItemMap.remove(shopifyLineItem.getId());
-
-                Integer quantity = shopifyLineItem.getFulfillable_quantity();
-                Long storeOrderItemId = storeOrderItem.getId();
-                for (OrderItem orderItem : orderItems) {
-                    if (!storeOrderItemId.equals(orderItem.getStoreOrderItemId())) {
-                        continue;
-                    }
-                    Integer scale = orderItem.getQuoteScale();
-                    if (null == scale) {
-                        scale = 1;
-                    }
-                    if ((quantity * scale) != orderItem.getQuantity()) {
-                        storeOrderItemIds.add(storeOrderItem.getId());
-                        orderItemService.updateQuantityById(orderItem.getId(), (quantity * scale));
-                    }
+                Integer scale = orderItem.getQuoteScale();
+                if (null == scale) {
+                    scale = 1;
+                }
+                if ((quantity * scale) != orderItem.getQuantity()) {
+                    storeOrderItemIds.add(storeOrderItem.getId());
+                    orderItemService.updateQuantityById(orderItem.getId(), (quantity * scale));
                 }
             }
-        }else {
-            return;
         }
+
+
+//        if (ListUtils.isNotEmpty(orderItems)) {
+//
+//
+//        }else {
+//            return;
+//        }
 
         if (MapUtils.isNotEmpty(lineItemMap)){
             List<ShopifyLineItem> newItems = new ArrayList<>();

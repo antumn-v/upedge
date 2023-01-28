@@ -91,6 +91,8 @@ public class CustomerProductQuote{
 
 	private String barcode;
 
+	private Long latestOrderTime;
+
 	public CustomerProductQuote(StoreProductVariant storeProductVariant) {
 		this.storeProductId = storeProductVariant.getProductId();
 		this.storeProductTitle = storeProductVariant.getTitle();

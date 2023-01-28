@@ -376,6 +376,8 @@ public class CustomerProductStockServiceImpl implements CustomerProductStockServ
 
     }
 
+
+
     @Override
     public List<CustomerProductStock> selectByCustomerIds(List<Long> customerIds) {
         if (ListUtils.isEmpty(customerIds)){

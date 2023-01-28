@@ -3300,7 +3300,7 @@ public class OrderServiceImpl implements OrderService {
             orderId = order.getId();
         }
         if(newOrder){
-            return;
+            orderId = IdGenerate.nextId();
         }
         Integer quoteProducts = 0;
         Integer quoteState = 0;
@@ -3387,50 +3387,50 @@ public class OrderServiceImpl implements OrderService {
             orderItem.setId(IdGenerate.nextId());
             orderItems.add(orderItem);
         }
-//        if (newOrder){
-//            OrderAddress orderAddress = new OrderAddress();
-//            StoreOrderAddress storeOrderAddress = storeOrder.getAddress();
-//            BeanUtils.copyProperties(storeOrderAddress,orderAddress);
-//            orderAddress.setOrderId(orderId);
-//            orderAddress.setId(IdGenerate.nextId());
-//            orderAddressDao.insert(orderAddress);
-//
-//            Order nOrder = new Order();
-//            BeanUtils.copyProperties(storeOrder,nOrder);
-//            nOrder.initOrder();
-//            nOrder.setTotalWeight(BigDecimal.ZERO);
-//            nOrder.setProductAmount(BigDecimal.ZERO);
-//            nOrder.setOrderType(0);
-//            if (orderAddress.getCountry() != null) {
-//                nOrder.setToAreaId((Long) redisTemplate.opsForHash().get(RedisKey.HASH_COUNTRY_AREA_ID, orderAddress.getCountry()));
-//            }
-//            nOrder.setId(orderId);
-//
-//            if (quoteState != OrderConstant.QUOTE_STATE_QUOTING) {
-//                if (quoteFailed == orderItems.size()) {
-//                    quoteState = OrderConstant.QUOTE_STATE_PART_UNQUOTED;
-//                } else {
-//                    if (quoteProducts == 0) {
-//                        quoteState = OrderConstant.QUOTE_STATE_UNQUOTED;
-//                    } else if (quoteProducts == orderItems.size()) {
-//                        quoteState = OrderConstant.QUOTE_STATE_QUOTED;
-//                    } else {
-//                        quoteState = OrderConstant.QUOTE_STATE_PART_UNQUOTED;
-//                    }
-//                }
-//            }
-//            nOrder.setQuoteState(quoteState);
-//            insert(nOrder);
-//
-//            StoreOrderRelate storeOrderRelate = new StoreOrderRelate(storeOrder);
-//            storeOrderRelate.setOrderId(orderId);
-//            storeOrderRelate.setOrderCreateTime(new Date());
-//            storeOrderRelate.setStoreName(storeOrder.getStoreName());
-//            if (null != orderAddress) {
-//                storeOrderRelate.setOrderCustomerName(orderAddress.getFirstName() + " " + orderAddress.getLastName());
-//            }
-//            storeOrderRelateDao.insert(storeOrderRelate);
-//        }
+        if (newOrder){
+            OrderAddress orderAddress = new OrderAddress();
+            StoreOrderAddress storeOrderAddress = storeOrder.getAddress();
+            BeanUtils.copyProperties(storeOrderAddress,orderAddress);
+            orderAddress.setOrderId(orderId);
+            orderAddress.setId(IdGenerate.nextId());
+            orderAddressDao.insert(orderAddress);
+
+            Order nOrder = new Order();
+            BeanUtils.copyProperties(storeOrder,nOrder);
+            nOrder.initOrder();
+            nOrder.setTotalWeight(BigDecimal.ZERO);
+            nOrder.setProductAmount(BigDecimal.ZERO);
+            nOrder.setOrderType(0);
+            if (orderAddress.getCountry() != null) {
+                nOrder.setToAreaId((Long) redisTemplate.opsForHash().get(RedisKey.HASH_COUNTRY_AREA_ID, orderAddress.getCountry()));
+            }
+            nOrder.setId(orderId);
+
+            if (quoteState != OrderConstant.QUOTE_STATE_QUOTING) {
+                if (quoteFailed == orderItems.size()) {
+                    quoteState = OrderConstant.QUOTE_STATE_PART_UNQUOTED;
+                } else {
+                    if (quoteProducts == 0) {
+                        quoteState = OrderConstant.QUOTE_STATE_UNQUOTED;
+                    } else if (quoteProducts == orderItems.size()) {
+                        quoteState = OrderConstant.QUOTE_STATE_QUOTED;
+                    } else {
+                        quoteState = OrderConstant.QUOTE_STATE_PART_UNQUOTED;
+                    }
+                }
+            }
+            nOrder.setQuoteState(quoteState);
+            insert(nOrder);
+
+            StoreOrderRelate storeOrderRelate = new StoreOrderRelate(storeOrder);
+            storeOrderRelate.setOrderId(orderId);
+            storeOrderRelate.setOrderCreateTime(new Date());
+            storeOrderRelate.setStoreName(storeOrder.getStoreName());
+            if (null != orderAddress) {
+                storeOrderRelate.setOrderCustomerName(orderAddress.getFirstName() + " " + orderAddress.getLastName());
+            }
+            storeOrderRelateDao.insert(storeOrderRelate);
+        }
         orderItemService.insertByBatch(orderItems);
         platformTransactionManager.commit(transaction);
         initQuoteState(orderId);
