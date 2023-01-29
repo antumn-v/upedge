@@ -17,6 +17,7 @@ import com.upedge.oms.modules.order.entity.OrderItem;
 import com.upedge.oms.modules.order.request.AirwallexRequest;
 import com.upedge.oms.modules.order.request.OrderItemQuoteRequest;
 import com.upedge.oms.modules.order.request.OrderItemUpdateQuantityRequest;
+import com.upedge.oms.modules.order.request.OrderItemUpdateVariantRequest;
 import com.upedge.oms.modules.order.vo.AirwallexVo;
 import com.upedge.oms.modules.order.vo.ItemDischargeQuantityVo;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,6 +29,8 @@ import java.util.List;
  * @author author
  */
 public interface OrderItemService {
+
+    BaseResponse updateVariant(OrderItemUpdateVariantRequest request,Session session);
 
     int updateQuantityById(Long id,  Integer quantity);
 

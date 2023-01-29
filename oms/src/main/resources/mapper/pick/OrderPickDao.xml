@@ -24,6 +24,7 @@
         <result property="shipState" column="shipState"/>
         <result property="waveNo" column="waveNo"/>
         <result property="packNo" column="pack_no"/>
+        <result property="shipMethodId" column="shipMethodId"/>
         <result property="trackingCode" column="tracking_code"/>
         <result property="logisticsOrderNo" column="logistics_order_no"/>
         <collection property="orderItemPickInfoVos" ofType="com.upedge.oms.modules.pick.vo.OrderItemPickInfoVo">
@@ -369,6 +370,7 @@
                o.pick_type           as `pickType`,
                o.ship_state          as `shipState`,
                o.wave_no             as `waveNo`,
+                o.actual_ship_method_id as `shipMethodId`,
                 o.is_print_label,
                oi.id                 as `itemId`,
                oi.barcode,

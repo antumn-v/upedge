@@ -15,5 +15,7 @@ public class OrderPrintVo {
 
     private Integer skuQuantity;
 
+    private String shipMethodName;
+
     private List<OrderItemPickInfoVo> orderItemPickInfoVos;
 }

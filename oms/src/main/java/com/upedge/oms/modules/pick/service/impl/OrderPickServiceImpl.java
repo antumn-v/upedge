@@ -170,9 +170,12 @@ public class OrderPickServiceImpl implements OrderPickService {
 
         Integer quantity = 0;
         List<Long> variantIds = new ArrayList<>();
-
+        Long shipMethodId = null;
         Map<Long,OrderItemPickInfoVo> map = new HashMap<>();
         for (OrderPickInfoVo orderPickInfoVo : orderPickInfoVoList) {
+            if (shipMethodId == null){
+                shipMethodId = orderPickInfoVo.getShipMethodId();
+            }
             List<OrderItemPickInfoVo> orderItemPickInfoVos = orderPickInfoVo.getOrderItemPickInfoVos();
             for (OrderItemPickInfoVo orderItemPickInfoVo : orderItemPickInfoVos) {
                 quantity += orderItemPickInfoVo.getQuantity();
@@ -205,8 +208,11 @@ public class OrderPickServiceImpl implements OrderPickService {
             orderItemPickInfoVos.add(item);
         });
 
+        ShippingMethodRedis shippingMethodRedis = (ShippingMethodRedis) redisTemplate.opsForHash().get(RedisKey.SHIPPING_METHOD,shipMethodId.toString());
+
         OrderPrintVo orderPrintVo = new OrderPrintVo();
         orderPrintVo.setWaveNo(orderPick.getWaveNo());
+        orderPrintVo.setShipMethodName(shippingMethodRedis.getDesc());
         orderPrintVo.setOrderItemPickInfoVos(orderItemPickInfoVos);
         orderPrintVo.setSkuQuantity(quantity);
         orderPrintVo.setSkuType(map.size());

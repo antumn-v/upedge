@@ -1,5 +1,6 @@
 package com.upedge.oms.modules.order.service.impl;
 
+import com.alibaba.fastjson.JSON;
 import com.upedge.common.base.BaseResponse;
 import com.upedge.common.base.Page;
 import com.upedge.common.constant.OrderConstant;
@@ -17,9 +18,7 @@ import com.upedge.common.model.pms.request.OrderQuoteApplyRequest;
 import com.upedge.common.model.pms.request.VariantStockRestoreLockQuantityRequest;
 import com.upedge.common.model.pms.vo.PurchaseAdviceItemVo;
 import com.upedge.common.model.pms.vo.VariantPreSaleQuantity;
-import com.upedge.common.model.product.RelateDetailVo;
-import com.upedge.common.model.product.RelateVariantVo;
-import com.upedge.common.model.product.VariantDetail;
+import com.upedge.common.model.product.*;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.utils.IdGenerate;
 import com.upedge.common.utils.ListUtils;
@@ -34,6 +33,7 @@ import com.upedge.oms.modules.order.entity.StoreOrderItem;
 import com.upedge.oms.modules.order.request.AirwallexRequest;
 import com.upedge.oms.modules.order.request.OrderItemQuoteRequest;
 import com.upedge.oms.modules.order.request.OrderItemUpdateQuantityRequest;
+import com.upedge.oms.modules.order.request.OrderItemUpdateVariantRequest;
 import com.upedge.oms.modules.order.service.OrderItemService;
 import com.upedge.oms.modules.order.service.OrderPayService;
 import com.upedge.oms.modules.order.service.OrderService;
@@ -50,6 +50,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 
 
@@ -118,6 +119,33 @@ public class OrderItemServiceImpl implements OrderItemService {
     @Transactional
     public int insertSelective(OrderItem record) {
         return orderItemDao.insert(record);
+    }
+
+    @Override
+    public BaseResponse updateVariant(OrderItemUpdateVariantRequest request, Session session) {
+        Long itemId = request.getItemId();
+        OrderItem orderItem = selectByPrimaryKey(itemId);
+        if (null == orderItem || orderItem.getLockedQuantity() > 0){
+            return BaseResponse.failed();
+        }
+        Order order = orderService.selectByPrimaryKey(orderItem.getOrderId());
+        if (order.getPayState() != 1 && order.getShipState() != 0 && order.getRefundState() != 0 && order.getPackState() != 0){
+            return BaseResponse.failed("未支付、已退款、已发货、已生包的订单无法修改订单产品信息");
+        }
+
+        Long variantId = request.getVariantId();
+        List<Long> variantIds = new ArrayList<>();
+        variantIds.add(variantId);
+        ListVariantsRequest listVariantsRequest = new ListVariantsRequest();
+        listVariantsRequest.setVariantIds(variantIds);
+        BaseResponse response = pmsFeignClient.listVariantByIds(listVariantsRequest);
+        if (null == response.getData()){
+            return BaseResponse.failed("产品信息异常");
+        }
+        List<LinkedHashMap> variantDetailList = (List<LinkedHashMap>) response.getData();
+        ProductVariantTo variantDetail = JSON.parseObject(JSON.toJSONString(variantDetailList.get(0)), ProductVariantTo.class);
+        orderItemDao.update
+        return null;
     }
 
     @Override

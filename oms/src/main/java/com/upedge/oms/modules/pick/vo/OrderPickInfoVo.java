@@ -25,5 +25,9 @@ public class OrderPickInfoVo {
 
     private String logisticsOrderNo;
 
+    private Long shipMethodId;
+
+    private String shipMethodName;
+
     List<OrderItemPickInfoVo> orderItemPickInfoVos;
 }

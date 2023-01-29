@@ -60,4 +60,6 @@ public class ProductVariantTo {
 	private String enName;
 
 	private String saiheSku;
+
+	private String barcode;
 }

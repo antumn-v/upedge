@@ -43,7 +43,7 @@ public enum  OrderTagEnum {
      */
     RESHIPPED(1,0,1,null,null,null,null,null,null,0),
 
-    ADMIN_ALL(1,null,null,null,null,null,null,null,null,0),
+    ADMIN_ALL(1,null,null,null,null,null,null,null,null,null),
     /**
      * 生包失败
      */

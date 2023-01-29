@@ -13,6 +13,7 @@ import com.upedge.common.web.util.UserUtil;
 import com.upedge.oms.modules.order.request.AirwallexRequest;
 import com.upedge.oms.modules.order.request.OrderItemQuoteRequest;
 import com.upedge.oms.modules.order.request.OrderItemUpdateQuantityRequest;
+import com.upedge.oms.modules.order.request.OrderItemUpdateVariantRequest;
 import com.upedge.oms.modules.order.service.OrderItemService;
 import com.upedge.oms.modules.order.service.OrderService;
 import io.swagger.annotations.Api;
@@ -53,6 +54,13 @@ public class OrderItemController {
             return BaseResponse.success();
         }
         return BaseResponse.failed();
+    }
+
+    @ApiOperation("待处理订单修改产品信息")
+    @PostMapping("/updateVariantInfo")
+    public BaseResponse updateVariantInfo(@RequestBody@Valid OrderItemUpdateVariantRequest request){
+        Session session = UserUtil.getSession(redisTemplate);
+        return orderItemService.updateVariant(request,session);
     }
 
 

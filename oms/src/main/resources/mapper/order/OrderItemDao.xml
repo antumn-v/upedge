@@ -1457,4 +1457,23 @@
           and o.pay_state
          &lt; 1
     </update>
+
+    <update id="updateItemVariantInfo">
+        update order_item oi
+                inner join `order` o
+        on oi.order_id = o.id
+                set oi.admin_product_id = #{productVariantTo.productId},
+                        oi.admin_variant_id = #{productVariantTo.id},
+                        oi.admin_variant_sku = #{productVariantTo.variantSku},
+                        oi.admin_variant_image = #{productVariantTo.variantImage},
+                        oi.admin_variant_name = #{productVariantTo.cnName},
+                        oi.barcode = #{productVariantTo.barcode},
+                        oi.locked_quantity = '0',
+                        o.stock_state = '0'
+        where oi.id = #{itemId}
+          and o.pay_state = '1'
+          and o.pack_state = '0'
+          and o.ship_state = '0'
+          and o.refund_state = '0'
+    </update>
 </mapper>

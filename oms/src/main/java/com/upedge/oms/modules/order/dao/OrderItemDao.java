@@ -7,6 +7,7 @@ import com.upedge.common.model.order.request.OrderItemPurchaseAdviceRequest;
 import com.upedge.common.model.order.vo.OrderItemUpdateImageNameRequest;
 import com.upedge.common.model.pms.quote.CustomerProductQuoteVo;
 import com.upedge.common.model.pms.vo.VariantPreSaleQuantity;
+import com.upedge.common.model.product.ProductVariantTo;
 import com.upedge.common.model.product.RelateVariantVo;
 import com.upedge.common.model.product.VariantDetail;
 import com.upedge.oms.modules.order.entity.OrderItem;
@@ -80,6 +81,8 @@ public interface OrderItemDao {
                                                            @Param("customerId") Long customerId);
 
     void updateItemQuoteDetail(CustomerProductQuoteVo customerProductQuoteVo);
+
+    void updateItemVariantInfo(@Param("productVariantTo") ProductVariantTo productVariantTo, @Param("itemId") Long itemId);
 
     void updatePaidItemQuoteDetail(CustomerProductQuoteVo customerProductQuoteVo);
 
