@@ -52,6 +52,8 @@ public interface ProductService{
 
     BaseResponse importFrom1688Url(String url, Long operatorId);
 
+    void completedPurchaseInfo(AlibabaProductVo alibabaProductVo, Long productId, String productLink);
+
     List<Product> selectByProductSku(String productSku);
 
     Product select1688Product(String alibabaProductId);

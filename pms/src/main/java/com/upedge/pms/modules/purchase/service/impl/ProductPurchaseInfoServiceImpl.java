@@ -10,6 +10,7 @@ import com.upedge.common.web.util.RedisUtil;
 import com.upedge.pms.modules.alibaba.entity.product.ProductInfo;
 import com.upedge.pms.modules.alibaba.entity.product.ProductSKUInfo;
 import com.upedge.pms.modules.alibaba.service.Ali1688Service;
+import com.upedge.pms.modules.product.entity.Product;
 import com.upedge.pms.modules.product.service.ProductService;
 import com.upedge.pms.modules.purchase.dao.ProductPurchaseInfoDao;
 import com.upedge.pms.modules.purchase.dto.OfferInventoryChangeListDTO;
@@ -170,6 +171,8 @@ public class ProductPurchaseInfoServiceImpl implements ProductPurchaseInfoServic
             productService.importFrom1688Url(id,0L);
             productPurchaseInfo.setPurchaseLink(id);
             record.setT(productPurchaseInfo);
+            Product product = productService.select1688Product(id);
+            productService.completedPurchaseInfo(null,product.getId(),productPurchaseInfo.getPurchaseLink());
         }
         record.initFromNum();
         return productPurchaseInfoDao.select(record);

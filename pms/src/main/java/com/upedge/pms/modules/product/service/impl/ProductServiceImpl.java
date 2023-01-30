@@ -577,7 +577,7 @@ public class ProductServiceImpl implements ProductService {
             addNewProduct(alibabaProductVo,operatorId);
         } else {
             updateAlibabaProduct(alibabaProductVo, p.getId());
-            completedPurchaseInfo(alibabaProductVo,p.getId());
+//            completedPurchaseInfo(alibabaProductVo,p.getId(),alibabaProductVo.getProductSku());
         }
         return new BaseResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS);
 
@@ -610,7 +610,15 @@ public class ProductServiceImpl implements ProductService {
         return importFrom1688(alibabaProductVo, operatorId);
     }
 
-    public void completedPurchaseInfo(AlibabaProductVo alibabaProductVo,Long productId){
+    @Override
+    public void completedPurchaseInfo(AlibabaProductVo alibabaProductVo, Long productId, String productLink){
+        if (alibabaProductVo == null && productLink == null){
+            return;
+        }
+        if (alibabaProductVo == null && productLink != null){
+            AlibabaApiVo alibabaApiVo = (AlibabaApiVo) redisTemplate.opsForValue().get(RedisKey.STRING_ALI1688_API);
+            alibabaProductVo = Ali1688Service.getProduct(productLink,alibabaApiVo,false);
+        }
         if (alibabaProductVo == null){
             return;
         }
