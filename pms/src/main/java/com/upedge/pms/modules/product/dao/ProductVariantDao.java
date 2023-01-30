@@ -15,6 +15,7 @@ import java.util.Map;
  */
 public interface ProductVariantDao {
 
+    int updatePurchaseSkuByOriginalId(Long productId);
 
     int refreshTransformVariant(@Param("productId") Long productId, @Param("storeProductId") Long storeProductId);
 

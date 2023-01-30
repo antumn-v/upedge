@@ -17,6 +17,8 @@ import com.upedge.common.utils.PriceUtils;
 import com.upedge.common.web.util.UserUtil;
 import com.upedge.pms.modules.product.entity.ProductVariant;
 import com.upedge.pms.modules.product.service.ProductVariantService;
+import com.upedge.pms.modules.purchase.entity.VariantWarehouseStock;
+import com.upedge.pms.modules.purchase.service.VariantWarehouseStockService;
 import com.upedge.pms.modules.quote.entity.CustomerProductQuote;
 import com.upedge.pms.modules.quote.request.AllCustomerQuoteProductSearchRequest;
 import com.upedge.pms.modules.quote.request.CustomerProductQuoteListRequest;
@@ -52,6 +54,9 @@ public class CustomerProductQuoteController {
 
     @Autowired
     RedisTemplate redisTemplate;
+
+    @Autowired
+    VariantWarehouseStockService variantWarehouseStockService;
 
 
     @ApiOperation("客户查看已报价产品")
@@ -162,8 +167,18 @@ public class CustomerProductQuoteController {
 
 
     @PostMapping("/test")
-    public BaseResponse test(@RequestBody List<Long> storeVariantIds){
-        customerProductQuoteService.sendCustomerProductQuoteUpdateMessage(storeVariantIds);
+    public BaseResponse test(){
+        List<CustomerProductQuoteVo> customerProductQuoteVos = customerProductQuoteService.selectAllQuoteDetail();
+        for (CustomerProductQuoteVo customerProductQuoteVo : customerProductQuoteVos) {
+            if (customerProductQuoteVo.getVariantId() == null){
+                continue;
+            }
+            VariantWarehouseStock variantWarehouseStock = variantWarehouseStockService.selectByPrimaryKey(customerProductQuoteVo.getVariantId(), "CNHZ");
+            if (variantWarehouseStock == null){
+                variantWarehouseStock = new VariantWarehouseStock(customerProductQuoteVo.getVariantId(), "CNHZ", 0, 0, 0,0,"","");
+                variantWarehouseStockService.insert(variantWarehouseStock);
+            }
+        }
         return BaseResponse.success();
     }
 

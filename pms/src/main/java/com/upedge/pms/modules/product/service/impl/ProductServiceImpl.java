@@ -237,7 +237,7 @@ public class ProductServiceImpl implements ProductService {
             productSku = UrlUtils.getNameByUrl(productSku);
             if (StringUtils.isNotBlank(productSku)) {
                 AlibabaApiVo alibabaApiVo = (AlibabaApiVo) redisTemplate.opsForValue().get(RedisKey.STRING_ALI1688_API);
-                AlibabaProductVo alibabaProductVo = Ali1688Service.getProduct(productSku, alibabaApiVo);
+                AlibabaProductVo alibabaProductVo = Ali1688Service.getProduct(productSku, alibabaApiVo,false);
 
 
                 if (null != alibabaProductVo) {
@@ -577,6 +577,7 @@ public class ProductServiceImpl implements ProductService {
             addNewProduct(alibabaProductVo,operatorId);
         } else {
             updateAlibabaProduct(alibabaProductVo, p.getId());
+            completedPurchaseInfo(alibabaProductVo,p.getId());
         }
         return new BaseResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS);
 
@@ -601,11 +602,46 @@ public class ProductServiceImpl implements ProductService {
             return BaseResponse.success();
         }
         AlibabaApiVo alibabaApiVo = (AlibabaApiVo) redisTemplate.opsForValue().get(RedisKey.STRING_ALI1688_API);
-        AlibabaProductVo alibabaProductVo = Ali1688Service.getProduct(aliProductId, alibabaApiVo);
+        AlibabaProductVo alibabaProductVo = Ali1688Service.getProduct(aliProductId, alibabaApiVo,true);
+
         if (alibabaProductVo == null) {
             return new BaseResponse(ResultCode.FAIL_CODE, Constant.MESSAGE_FAIL);
         }
         return importFrom1688(alibabaProductVo, operatorId);
+    }
+
+    public void completedPurchaseInfo(AlibabaProductVo alibabaProductVo,Long productId){
+        if (alibabaProductVo == null){
+            return;
+        }
+        List<ProductVariantVo> skuInfos = alibabaProductVo.getProductVariantVoList();
+        if (ListUtils.isEmpty(skuInfos)){
+            return;
+        }
+        productVariantService.updatePurchaseSkuByOriginalId(productId);
+        String supplierName = alibabaProductVo.getSupplierVo().getSupplierName();
+        ProductSaleInfo productSaleInfo = alibabaProductVo.getSaleInfo();
+        List<ProductPurchaseInfo> productPurchaseInfos = new ArrayList<>();
+        for (ProductVariantVo skuInfo : skuInfos) {
+            String sku = skuInfo.getVariantSku();
+            ProductPurchaseInfo productPurchaseInfo = productPurchaseInfoService.selectByPrimaryKey(sku);
+            if (null != productPurchaseInfo){
+                continue;
+            }
+            productPurchaseInfo = new ProductPurchaseInfo();
+            List<String> cnNameList = skuInfo.getVariantAttrVoList().stream().map(ProductVariantAttrVo::getVariantAttrCvalue).collect(Collectors.toList());
+            productPurchaseInfo.setPurchaseSku(sku);
+            productPurchaseInfo.setVariantImage(skuInfo.getVariantImage());
+            productPurchaseInfo.setVariantName(cnNameList.toString());
+            productPurchaseInfo.setPurchaseLink(alibabaProductVo.getProductSku());
+            productPurchaseInfo.setSupplierName(supplierName);
+            productPurchaseInfo.setSpecId(skuInfo.getSpecId());
+            productPurchaseInfo.setInventory(skuInfo.getInventory());
+            productPurchaseInfo.setMinOrderQuantity(productSaleInfo.getMinOrderQuantity());
+            productPurchaseInfo.setMixWholeSale(productSaleInfo.getMixWholeSale());
+            productPurchaseInfos.add(productPurchaseInfo);
+        }
+        productPurchaseInfoService.insertByBatch(productPurchaseInfos);
     }
 
 
@@ -1257,7 +1293,7 @@ public class ProductServiceImpl implements ProductService {
         }
         if (product.getProductSource() == 2 || product.getProductSource() == 0){
             AlibabaApiVo alibabaApiVo = (AlibabaApiVo) redisTemplate.opsForValue().get(RedisKey.STRING_ALI1688_API);
-            AlibabaProductVo alibabaProductVo = Ali1688Service.getProduct(product.getProductSku(), alibabaApiVo);
+            AlibabaProductVo alibabaProductVo = Ali1688Service.getProduct(product.getProductSku(), alibabaApiVo,true);
             if (null == alibabaProductVo){
                 return BaseResponse.failed("1688产品信息不存在");
             }
@@ -1360,7 +1396,7 @@ public class ProductServiceImpl implements ProductService {
         AlibabaApiVo alibabaApiVo = (AlibabaApiVo) redisTemplate.opsForValue().get(RedisKey.STRING_ALI1688_API);
         List<Product> products = select(page);
         for (Product product1 : products) {
-            AlibabaProductVo productInfoVo = Ali1688Service.getProduct(product1.getProductSku(),alibabaApiVo);
+            AlibabaProductVo productInfoVo = Ali1688Service.getProduct(product1.getProductSku(),alibabaApiVo,true);
             if (null == productInfoVo){
                 continue;
             }

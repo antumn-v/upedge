@@ -45,7 +45,7 @@ public class Ali1688Service {
     /**
      * 获取1688产品
      */
-    public static AlibabaProductVo getProduct(String alibabaProductId, AlibabaApiVo alibabaApiVo) {
+    public static AlibabaProductVo getProduct(String alibabaProductId, AlibabaApiVo alibabaApiVo,boolean translate) {
         AlibabaProductVo alibabaProductVo = new AlibabaProductVo();
         long s = System.currentTimeMillis();
         ProductInfo productInfo = getAlibabaProductDetail(alibabaProductId, alibabaApiVo);
@@ -234,27 +234,33 @@ public class Ali1688Service {
         List<String> translateAttr = new ArrayList<>(attrSet);
         translateAttr.add(productInfo.getSubject());
         translateAttr.add(simpleAccountInfo.getCategoryName());
-        TranslateResult translateResult = TranslateService.translate(translateAttr);
-        if (translateResult != null && translateResult.getResult() != null) {
-            //报关英文名
-            String enCategoryName = translateResult.getResult().get(simpleAccountInfo.getCategoryName());
-            if (!StringUtils.isBlank(enCategoryName)) {
-                productAttributeVo.setEntryEname(enCategoryName);
-            }
-            //标题
-            if (translateResult != null && translateResult.getResult() != null) {
-                String enTitle = translateResult.getResult().get(productInfo.getSubject());
-                if (!StringUtils.isBlank(enTitle)) {
-                    alibabaProductVo.setProductTitle(enTitle);
-                }
-
-            }
-        }
+        TranslateResult translateResult = null;
+        TranslateResult descTranslateResult = null;
         //翻译产品描述
+        String enDesc = null;
         List<String> descAttr = new ArrayList<>();
         descAttr.add(productInfoVo.getCnDesc());
-        TranslateResult descTranslateResult = TranslateService.translate(descAttr);
-        String enDesc = descTranslateResult.getResult().get(productInfoVo.getCnDesc());
+        if (translate){
+            translateResult = TranslateService.translate(translateAttr);
+            if (translateResult != null && translateResult.getResult() != null) {
+                //报关英文名
+                String enCategoryName = translateResult.getResult().get(simpleAccountInfo.getCategoryName());
+                if (!StringUtils.isBlank(enCategoryName)) {
+                    productAttributeVo.setEntryEname(enCategoryName);
+                }
+                //标题
+                if (translateResult != null && translateResult.getResult() != null) {
+                    String enTitle = translateResult.getResult().get(productInfo.getSubject());
+                    if (!StringUtils.isBlank(enTitle)) {
+                        alibabaProductVo.setProductTitle(enTitle);
+                    }
+
+                }
+            }
+            descTranslateResult = TranslateService.translate(descAttr);
+            enDesc = descTranslateResult.getResult().get(productInfoVo.getCnDesc());
+        }
+
         if (StringUtils.isNotBlank(enDesc)) {
             productInfoVo.setProductDesc(enDesc);
         } else {
@@ -275,17 +281,24 @@ public class Ali1688Service {
             i++;
             if (i / 10 == 1){
                 i = 1;
-                TranslateResult attrResult = TranslateService.translate(variantAttr);
-                if (attrResult.getResult() != null){
-                    result.putAll(attrResult.getResult());
+                TranslateResult attrResult = null;
+                if (translate){
+                    attrResult = TranslateService.translate(variantAttr);
+                    if (attrResult.getResult() != null){
+                        result.putAll(attrResult.getResult());
+                    }
                 }
                 variantAttr = new ArrayList<>();
             }
         }
-        TranslateResult attrResult = TranslateService.translate(variantAttr);
-        if (attrResult.getResult() != null){
-            result.putAll(attrResult.getResult());
+        TranslateResult attrResult = null;
+        if (translate){
+            attrResult = TranslateService.translate(variantAttr);
+            if (attrResult.getResult() != null){
+                result.putAll(attrResult.getResult());
+            }
         }
+
         alibabaProductVo.getProductVariantVoList().forEach(variant -> {
             List<ProductVariantAttrVo> variantAttrVoList = variant.getVariantAttrVoList();
             for (ProductVariantAttrVo attr : variantAttrVoList) {

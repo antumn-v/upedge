@@ -1,10 +1,15 @@
 package com.upedge.pms.modules.purchase.controller;
 
 import com.alibaba.fastjson.JSONObject;
+import com.upedge.common.base.BaseResponse;
 import com.upedge.common.component.annotation.Permission;
 import com.upedge.common.constant.Constant;
 import com.upedge.common.constant.ResultCode;
+import com.upedge.common.constant.key.RedisKey;
 import com.upedge.common.model.pms.dto.VariantPurchaseInfoDto;
+import com.upedge.common.model.product.AlibabaApiVo;
+import com.upedge.common.utils.ListUtils;
+import com.upedge.pms.modules.alibaba.service.Ali1688Service;
 import com.upedge.pms.modules.purchase.dto.OfferInventoryChangeListDTO;
 import com.upedge.pms.modules.purchase.entity.ProductPurchaseInfo;
 import com.upedge.pms.modules.purchase.request.ProductPurchaseInfoAddRequest;
@@ -13,13 +18,20 @@ import com.upedge.pms.modules.purchase.request.ProductPurchaseInfoUpdateRequest;
 import com.upedge.pms.modules.purchase.request.ProductVariantSyncInventoryRequest;
 import com.upedge.pms.modules.purchase.response.*;
 import com.upedge.pms.modules.purchase.service.ProductPurchaseInfoService;
+import com.upedge.thirdparty.ali1688.entity.product.ProductSaleInfo;
+import com.upedge.thirdparty.ali1688.vo.AlibabaProductVo;
+import com.upedge.thirdparty.ali1688.vo.ProductVariantAttrVo;
+import com.upedge.thirdparty.ali1688.vo.ProductVariantVo;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * 
@@ -32,6 +44,9 @@ import java.util.List;
 public class ProductPurchaseInfoController {
     @Autowired
     private ProductPurchaseInfoService productPurchaseInfoService;
+
+    @Autowired
+    RedisTemplate redisTemplate;
 
     @PostMapping("/variants")
     public List<VariantPurchaseInfoDto> variantPurchaseInfo(@RequestBody List<Long> variantIds){
@@ -97,6 +112,44 @@ public class ProductPurchaseInfoController {
 
         List<OfferInventoryChangeListDTO> offerInventoryChangeListDTOS = request.getData().getOfferInventoryChangeList();
         productPurchaseInfoService.syncPurchaseInventory(offerInventoryChangeListDTOS);
+    }
+
+
+    @PostMapping("/save/{aliProductId}")
+    public BaseResponse save(@PathVariable String aliProductId){
+        AlibabaApiVo alibabaApiVo = (AlibabaApiVo) redisTemplate.opsForValue().get(RedisKey.STRING_ALI1688_API);
+        AlibabaProductVo alibabaProductVo = Ali1688Service.getProduct(aliProductId, alibabaApiVo,false);
+        if (alibabaProductVo == null){
+            return BaseResponse.failed();
+        }
+        List<ProductVariantVo> skuInfos = alibabaProductVo.getProductVariantVoList();
+        if (ListUtils.isEmpty(skuInfos)){
+            return BaseResponse.failed();
+        }
+        String supplierName = alibabaProductVo.getSupplierVo().getSupplierName();
+        ProductSaleInfo productSaleInfo = alibabaProductVo.getSaleInfo();
+        List<ProductPurchaseInfo> productPurchaseInfos = new ArrayList<>();
+        for (ProductVariantVo skuInfo : skuInfos) {
+            String sku = skuInfo.getVariantSku();
+            ProductPurchaseInfo productPurchaseInfo = productPurchaseInfoService.selectByPrimaryKey(sku);
+            if (null != productPurchaseInfo){
+                continue;
+            }
+            productPurchaseInfo = new ProductPurchaseInfo();
+            List<String> cnNameList = skuInfo.getVariantAttrVoList().stream().map(ProductVariantAttrVo::getVariantAttrCvalue).collect(Collectors.toList());
+            productPurchaseInfo.setPurchaseSku(sku);
+            productPurchaseInfo.setVariantImage(skuInfo.getVariantImage());
+            productPurchaseInfo.setVariantName(cnNameList.toString());
+            productPurchaseInfo.setPurchaseLink(aliProductId);
+            productPurchaseInfo.setSupplierName(supplierName);
+            productPurchaseInfo.setSpecId(skuInfo.getSpecId());
+            productPurchaseInfo.setInventory(skuInfo.getInventory());
+            productPurchaseInfo.setMinOrderQuantity(productSaleInfo.getMinOrderQuantity());
+            productPurchaseInfo.setMixWholeSale(productSaleInfo.getMixWholeSale());
+            productPurchaseInfos.add(productPurchaseInfo);
+        }
+        productPurchaseInfoService.insertByBatch(productPurchaseInfos);
+        return BaseResponse.success();
     }
 
 

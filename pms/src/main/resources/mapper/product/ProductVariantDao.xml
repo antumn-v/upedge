@@ -591,4 +591,11 @@
         where pv.product_id = #{productId}
         and spv.product_id = #{storeProductId}
     </update>
+
+    <update id="updatePurchaseSkuByOriginalId">
+        update product_variant
+        set purchase_sku = original_variant_id
+        where product_id = #{productId}
+        and purchase_sku is null
+    </update>
 </mapper>

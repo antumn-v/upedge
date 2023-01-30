@@ -144,8 +144,8 @@ public class OrderItemServiceImpl implements OrderItemService {
         }
         List<LinkedHashMap> variantDetailList = (List<LinkedHashMap>) response.getData();
         ProductVariantTo variantDetail = JSON.parseObject(JSON.toJSONString(variantDetailList.get(0)), ProductVariantTo.class);
-        orderItemDao.update
-        return null;
+        orderItemDao.updateItemVariantInfo(variantDetail,itemId);
+        return BaseResponse.success();
     }
 
     @Override

@@ -183,6 +183,11 @@ public class ProductVariantServiceImpl implements ProductVariantService {
     }
 
     @Override
+    public int updatePurchaseSkuByOriginalId(Long productId) {
+        return productVariantDao.updatePurchaseSkuByOriginalId(productId);
+    }
+
+    @Override
     public void refreshTransformVariant( Long storeProductId) {
 
         Product product = productService.selectByOriginalId(storeProductId.toString());

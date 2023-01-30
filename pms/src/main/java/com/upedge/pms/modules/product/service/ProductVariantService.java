@@ -22,6 +22,8 @@ import java.util.Set;
  */
 public interface ProductVariantService{
 
+    int updatePurchaseSkuByOriginalId(Long productId);
+
     void refreshTransformVariant(Long storeProductId);
 
     ProductVariant selectByBarcode(String barcode);
