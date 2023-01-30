@@ -406,8 +406,15 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
         Map<Long,Integer> variantQuantityMap = new HashMap<>();
         List<Long> variantIds = new ArrayList<>();
         for (CreatePurchaseOrderDto createPurchaseOrderDto : createPurchaseOrderDtos) {
-            variantIds.add(createPurchaseOrderDto.getVariantId());
-            variantQuantityMap.put(createPurchaseOrderDto.getVariantId(),createPurchaseOrderDto.getQuantity());
+            Long variantId = createPurchaseOrderDto.getVariantId();
+            if (variantIds.contains(variantId)){
+                Integer quantity = variantQuantityMap.get(variantId);
+                quantity += createPurchaseOrderDto.getQuantity();
+                variantQuantityMap.put(variantId,quantity);
+            }else {
+                variantIds.add(variantId);
+                variantQuantityMap.put(variantId,createPurchaseOrderDto.getQuantity());
+            }
         }
         //获取产品信息
         List<ProductVariant> productVariants = productVariantService.listVariantByIds(variantIds);
