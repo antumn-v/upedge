@@ -12,6 +12,7 @@ import com.upedge.oms.modules.stock.request.StockOrderListRequest;
 import com.upedge.oms.modules.stock.request.StockOrderUpdateShipRequest;
 import com.upedge.oms.modules.stock.request.StockOrderUpdateTrackRequest;
 import com.upedge.common.model.oms.stock.StockOrderVo;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -19,6 +20,8 @@ import java.util.List;
  * @author author
  */
 public interface StockOrderService{
+
+    int updatePurchaseState(Long id, Integer purchaseState);
 
     BaseResponse createPurchaseOrder(Long orderId);
 

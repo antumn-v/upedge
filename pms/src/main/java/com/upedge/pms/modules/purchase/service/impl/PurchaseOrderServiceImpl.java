@@ -7,9 +7,11 @@ import com.upedge.common.base.Page;
 import com.upedge.common.constant.ResultCode;
 import com.upedge.common.constant.key.RedisKey;
 import com.upedge.common.exception.CustomerException;
+import com.upedge.common.feign.OmsFeignClient;
 import com.upedge.common.model.pms.dto.CreatePurchaseOrderDto;
 import com.upedge.common.model.pms.dto.CustomerStockPurchaseOrderRefundItemVo;
 import com.upedge.common.model.pms.dto.CustomerStockPurchaseOrderRefundVo;
+import com.upedge.common.model.pms.dto.StockPurchaseOrderItemReceiveDto;
 import com.upedge.common.model.pms.request.CreatePurchaseOrderRequest;
 import com.upedge.common.model.product.AlibabaApiVo;
 import com.upedge.common.model.user.vo.Session;
@@ -78,6 +80,9 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
 
     @Autowired
     RedisTemplate redisTemplate;
+
+    @Autowired
+    OmsFeignClient omsFeignClient;
 
 
     /**
@@ -581,6 +586,13 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
         if (purchaseOrder == null || purchaseOrder.getEditState() != 1) {
             return BaseResponse.failed("订单不存在或编辑未完成");
         }
+        Long stockOrderId = null;
+        try {
+            stockOrderId = Long.parseLong(purchaseOrder.getRelateId());
+        } catch (NumberFormatException e) {
+
+        }
+
         List<PurchaseOrderItemReceiveDto> itemReceiveDtos = request.getItemReceiveDtos();
         List<PurchaseOrderItem> purchaseOrderItems = purchaseOrderItemService.selectByOrderId(orderId);
 
@@ -599,6 +611,7 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
         recordUpdateRequest.setProcessType(VariantWarehouseStockRecord.PURCHASE_ADD);
         recordUpdateRequest.setWarehouseCode(purchaseOrder.getWarehouseCode());
         recordUpdateRequest.setTrackingCode(recordUpdateRequest.getTrackingCode());
+        List<StockPurchaseOrderItemReceiveDto> stockPurchaseOrderItemReceiveDtos = new ArrayList<>();
         a:
         for (PurchaseOrderItem purchaseOrderItem : purchaseOrderItems) {
             for (PurchaseOrderItemReceiveDto itemReceiveDto : itemReceiveDtos) {
@@ -613,9 +626,26 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
                     }
                     purchaseOrderItem.setReceiveQuantity(itemReceiveDto.getQuantity() + purchaseOrderItem.getReceiveQuantity());
                     purchaseOrderItemService.updateByPrimaryKeySelective(purchaseOrderItem);
+
+                    //修改客户备库订单产品入库数据
+                    if (stockOrderId != null && !stockOrderId.equals(0L)){
+                        StockPurchaseOrderItemReceiveDto stockPurchaseOrderItemReceiveDto = new StockPurchaseOrderItemReceiveDto();
+                        stockPurchaseOrderItemReceiveDto.setOrderId(orderId);
+                        stockPurchaseOrderItemReceiveDto.setVariantId(purchaseOrderItem.getVariantId());
+                        stockPurchaseOrderItemReceiveDto.setQuantity(itemReceiveDto.getQuantity());
+                    }
+
                     continue a;
                 }
             }
+        }
+        //修改客户备库订单产品入库数据
+        try {
+            if (ListUtils.isNotEmpty(stockPurchaseOrderItemReceiveDtos)){
+                omsFeignClient.updateInboundQuantity(stockPurchaseOrderItemReceiveDtos);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
         return BaseResponse.success();
     }

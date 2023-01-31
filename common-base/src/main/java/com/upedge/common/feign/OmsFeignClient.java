@@ -24,6 +24,7 @@ import com.upedge.common.model.order.vo.AllOrderAmountVo;
 import com.upedge.common.model.order.vo.OrderItemPurchaseAdviceVo;
 import com.upedge.common.model.order.vo.OrderItemUpdateImageNameRequest;
 import com.upedge.common.model.order.vo.UplodaSaiheOnMqVo;
+import com.upedge.common.model.pms.dto.StockPurchaseOrderItemReceiveDto;
 import com.upedge.common.model.pms.dto.VariantPurchaseInfoDto;
 import com.upedge.common.model.pms.quote.CustomerProductQuoteVo;
 import com.upedge.common.model.pms.vo.VariantPreSaleQuantity;
@@ -45,11 +46,13 @@ import java.util.List;
 @FeignClient(value = ServiceNameConstants.OMS_SERVICE,fallbackFactory = OmsFeignClientFallbackFactory.class,decode404 = true)
 public interface OmsFeignClient  {
 
+    @PostMapping("/stockOrderItem/updateInboundQuantity")
+    public BaseResponse updateInboundQuantity(@RequestBody List<StockPurchaseOrderItemReceiveDto> purchaseOrderItemReceiveDtos);
+
     @PostMapping("/customer/stock/searchByVariants")
     public List<CustomerStockVo> searchByVariants(@RequestBody CustomerStockSearchRequest request);
 
-
-    @PostMapping("/customer/stock//lockByWholesale")
+    @PostMapping("/customer/stock/lockByWholesale")
     public BaseResponse lockByWholesale(@RequestBody WholesaleOrderItemLockStockRequest request);
 
     @PostMapping("/customer/stock/reduceByWholesale")

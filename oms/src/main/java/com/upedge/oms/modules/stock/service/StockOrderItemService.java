@@ -1,6 +1,8 @@
 package com.upedge.oms.modules.stock.service;
 
+import com.upedge.common.base.BaseResponse;
 import com.upedge.common.base.Page;
+import com.upedge.common.model.pms.dto.StockPurchaseOrderItemReceiveDto;
 import com.upedge.oms.modules.stock.entity.StockOrderItem;
 
 import java.util.List;
@@ -9,6 +11,8 @@ import java.util.List;
  * @author author
  */
 public interface StockOrderItemService{
+
+    BaseResponse updateInboundQuantity(StockPurchaseOrderItemReceiveDto stockPurchaseOrderItemReceiveDto);
 
     int updatePurchaseInfo(Long variantId,String purchaseSku,String supplierName);
 

@@ -13,6 +13,10 @@ import java.util.List;
  */
 public interface StockOrderItemDao {
 
+    int updateInboundQuantity(@Param("id") Long id, @Param("quantity") Integer quantity);
+
+    StockOrderItem selectByOrderIdAndVariant(@Param("orderId") Long orderId, @Param("variantId") Long variantId);
+
     int updateRefundQuantityById(@Param("id") Long id, @Param("refundQuantity") Integer refundQuantity);
 
     int updateRefundQuantityReduceById(@Param("id") Long id, @Param("refundQuantity") Integer refundQuantity);

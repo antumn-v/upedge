@@ -20,6 +20,8 @@ import java.util.Set;
  */
 public interface StockOrderDao {
 
+    int updatePurchaseState(@Param("id") Long id, @Param("purchaseState") Integer purchaseState);
+
     int updatePurchaseInfo(@Param("id") Long id, @Param("purchaseIds") String purchaseIds, @Param("purchaseState") Integer purchaseState);
 
     List<Long> selectUploadSaiheFailedIds();

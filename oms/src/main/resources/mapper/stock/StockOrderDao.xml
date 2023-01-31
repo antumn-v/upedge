@@ -866,4 +866,11 @@
         where id = #{id}
         and pay_state = '1';
     </update>
+
+    <update id="updatePurchaseState">
+        update stock_order
+        set purchase_state = #{purchaseState}
+        where id = #{id}
+        and pay_state = '1';
+    </update>
 </mapper>

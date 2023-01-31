@@ -141,6 +141,11 @@ public class StockOrderServiceImpl implements StockOrderService {
     }
 
     @Override
+    public int updatePurchaseState(Long id, Integer purchaseState) {
+        return stockOrderDao.updatePurchaseState(id, purchaseState);
+    }
+
+    @Override
     public BaseResponse createPurchaseOrder(Long orderId) {
         StockOrder stockOrder = selectByPrimaryKey(orderId);
         if (stockOrder == null || stockOrder.getPayState() != 1 || stockOrder.getPurchaseState() != 0){
