@@ -8,6 +8,7 @@ import com.upedge.common.constant.key.RedisKey;
 import com.upedge.common.model.user.vo.AffiliateVo;
 import com.upedge.common.model.user.vo.CommissionRecordVo;
 import com.upedge.common.model.user.vo.Session;
+import com.upedge.common.model.user.vo.UserVo;
 import com.upedge.common.web.util.UserUtil;
 import com.upedge.ums.modules.account.dao.AccountUserMapper;
 import com.upedge.ums.modules.account.entity.Account;
@@ -38,6 +39,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -94,6 +96,20 @@ public class AffiliateServiceImpl implements AffiliateService {
     @Transactional
     public int insertSelective(Affiliate record) {
         return affiliateDao.insert(record);
+    }
+
+    @Override
+    public BaseResponse searchReferrerCommissionByMonth(Long referrerId) {
+        List<RefereeMonthCommissionVo> refereeMonthCommissionVos = affiliateCommissionRecordDao.searchReferrerCommissionByMonth(referrerId);
+        List<RefereeCommissionVo> refereeCommissionVos = new ArrayList<>();
+        for (RefereeMonthCommissionVo refereeMonthCommissionVo : refereeMonthCommissionVos) {
+            RefereeCommissionVo refereeCommissionVo = new RefereeCommissionVo();
+            BeanUtils.copyProperties(refereeMonthCommissionVo,refereeCommissionVo);
+            UserVo userVo = (UserVo) redisTemplate.opsForHash().get(RedisKey.STRING_CUSTOMER_INFO,refereeCommissionVo.getRefereeId().toString());
+            refereeCommissionVo.setUsername(userVo.getUsername());
+            refereeCommissionVos.add(refereeCommissionVo);
+        }
+        return BaseResponse.success(refereeCommissionVos);
     }
 
     @Override

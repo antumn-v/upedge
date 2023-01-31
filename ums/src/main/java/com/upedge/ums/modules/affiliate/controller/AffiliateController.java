@@ -147,6 +147,13 @@ public class AffiliateController {
         return affiliateService.refereeCommissionList(session.getCustomerId());
     }
 
+    @ApiOperation("推荐人佣金按月统计")
+    @GetMapping("/referee/monthCommission")
+    public BaseResponse refereeMonthCommissions(){
+        Session session = UserUtil.getSession(redisTemplate);
+        return affiliateService.searchReferrerCommissionByMonth(session.getCustomerId());
+    }
+
     @RequestMapping(value="/info/{id}", method=RequestMethod.GET)
     @Permission(permission = "affiliate:affiliate:info:id")
     public AffiliateInfoResponse info(@PathVariable Long id) {

@@ -19,6 +19,8 @@ import java.util.List;
  */
 public interface AffiliateService{
 
+    BaseResponse searchReferrerCommissionByMonth(Long referrerId);
+
     BaseResponse disableAffiliateRebate(DisableAffiliateRebateRequest request, Session session);
 
     BaseResponse enableAffiliateRebate(DisableAffiliateRebateRequest request, Session session);

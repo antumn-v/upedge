@@ -137,6 +137,11 @@ public class OrderPackageServiceImpl implements OrderPackageService {
     private String pdfUrlPrefix;
 
     @Override
+    public List<OrderPackage> selectByIds(List<Long> ids) {
+        return orderPackageDao.selectByIds(ids);
+    }
+
+    @Override
     public BaseResponse reCreatePackage(PackageRecreateRequest request, Session session) {
 
         Long shipMethodId = request.getShipMethodId();
@@ -969,9 +974,10 @@ public class OrderPackageServiceImpl implements OrderPackageService {
 
     private BaseResponse createYunExpressPackage(Order order, ShippingMethodRedis shippingMethodRedis,Long packNo) throws CustomerException {
         Long orderId = order.getId();
-        if (packNo == null){
-            packNo = getPackageNo();
-        }
+        packNo = getPackageNo();
+//        if (packNo == null){
+//
+//        }
         order.setPackNo(packNo);
         WayBillCreateDto wayBillCreateDto = new WayBillCreateDto();
         WayBillCreateDto.ReceiverDTO receiverDTO = new WayBillCreateDto.ReceiverDTO();

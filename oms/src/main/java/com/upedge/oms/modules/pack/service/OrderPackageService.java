@@ -8,11 +8,14 @@ import com.upedge.oms.modules.pack.entity.OrderPackage;
 import com.upedge.oms.modules.pack.request.*;
 import com.upedge.oms.modules.pack.vo.OrderPackageInfoVo;
 import com.upedge.thirdparty.shipcompany.fpx.request.OrderPackageGetLabelRequest;
+import org.apache.ibatis.annotations.Param;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 public interface OrderPackageService {
+
+    List<OrderPackage> selectByIds(List<Long> ids);
 
     BaseResponse reCreatePackage(PackageRecreateRequest request,Session session);
 

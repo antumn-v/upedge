@@ -30,6 +30,15 @@
         order by createTime desc
     </select>
 
+    <select id="searchReferrerCommissionByMonth" resultType="com.upedge.ums.modules.affiliate.vo.RefereeMonthCommissionVo">
+        select referee_id as `refereeId`, DATE_FORMAT(record.create_time,"%Y-%m") as `createTime`,sum(record.commission) as `commission`
+        from affiliate_commission_record record
+        where record.referrer_id = #{referrerId}
+            and record.state = '1'
+        group by referee_id,createTime
+        order by createTime desc
+    </select>
+
     <select id="selectByPrimaryKey" parameterType="com.upedge.ums.modules.affiliate.entity.AffiliateCommissionRecord"
             resultMap="BaseResultMap">
         select

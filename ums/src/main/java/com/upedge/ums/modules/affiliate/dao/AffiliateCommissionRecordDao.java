@@ -16,6 +16,8 @@ public interface AffiliateCommissionRecordDao {
 
     List<RefereeMonthCommissionVo> searchCommissionByMonth(Long referrerId);
 
+    List<RefereeMonthCommissionVo> searchReferrerCommissionByMonth(Long referrerId);
+
     AffiliateCommissionRecord selectByPrimaryKey(AffiliateCommissionRecord record);
 
     int deleteByPrimaryKey(AffiliateCommissionRecord record);

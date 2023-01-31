@@ -64,7 +64,6 @@ import com.upedge.oms.modules.order.vo.*;
 import com.upedge.oms.modules.orderShippingUnit.entity.OrderShippingUnit;
 import com.upedge.oms.modules.orderShippingUnit.service.OrderShippingUnitService;
 import com.upedge.oms.modules.pack.entity.OrderPackage;
-import com.upedge.oms.modules.pack.entity.OrderPackageBackup;
 import com.upedge.oms.modules.pack.service.OrderPackageBackupService;
 import com.upedge.oms.modules.pack.service.OrderPackageService;
 import com.upedge.oms.modules.redis.OmsRedisService;
@@ -2793,19 +2792,19 @@ public class OrderServiceImpl implements OrderService {
         if (ListUtils.isEmpty(appOrderVos)){
             return appOrderVos;
         }
-        List<Long> orderIds = new ArrayList<>();
+        List<Long> packNos = new ArrayList<>();
         appOrderVos.forEach(appOrderVo -> {
-            orderIds.add(appOrderVo.getId());
+            packNos.add(appOrderVo.getPackNo());
         });
-        List<OrderPackage> orderPackages = orderPackageService.selectByOrderIds(orderIds);
-        List<OrderPackageBackup> orderPackageBackups = orderPackageBackupService.selectByOrderIds(orderIds);
+        List<OrderPackage> orderPackages = orderPackageService.selectByIds(packNos);
+//        List<OrderPackageBackup> orderPackageBackups = orderPackageBackupService.selectByOrderIds(orderIds);
         a:
         for (AppOrderVo appOrderVo : appOrderVos) {
-            for (OrderPackageBackup orderPackageBackup : orderPackageBackups) {
-                if (orderPackageBackup.getOrderId().equals(appOrderVo.getId())){
-                    appOrderVo.setPackageBackup(orderPackageBackup);
-                }
-            }
+//            for (OrderPackageBackup orderPackageBackup : orderPackageBackups) {
+//                if (orderPackageBackup.getOrderId().equals(appOrderVo.getId())){
+//                    appOrderVo.setPackageBackup(orderPackageBackup);
+//                }
+//            }
             for (OrderPackage orderPackage : orderPackages) {
                 if (appOrderVo.getId().equals(orderPackage.getOrderId())){
 
