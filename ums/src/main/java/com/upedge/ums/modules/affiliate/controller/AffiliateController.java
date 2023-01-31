@@ -18,6 +18,7 @@ import com.upedge.ums.modules.affiliate.response.AffiliateAddResponse;
 import com.upedge.ums.modules.affiliate.response.AffiliateCommissionRecordListResponse;
 import com.upedge.ums.modules.affiliate.response.AffiliateInfoResponse;
 import com.upedge.ums.modules.affiliate.response.AffiliateListResponse;
+import com.upedge.ums.modules.affiliate.service.AdminAffiliateService;
 import com.upedge.ums.modules.affiliate.service.AffiliateCodeRecordService;
 import com.upedge.ums.modules.affiliate.service.AffiliateService;
 import com.upedge.ums.modules.user.service.CustomerService;
@@ -57,6 +58,9 @@ public class AffiliateController {
 
     @Autowired
     CustomerService customerService;
+
+    @Autowired
+    AdminAffiliateService adminAffiliateService;
 
     @ApiOperation("被推荐人佣金列表")
     @RequestMapping(value="/customer/referee", method=RequestMethod.POST)
@@ -155,11 +159,11 @@ public class AffiliateController {
     @RequestMapping(value="/list", method=RequestMethod.POST)
     @Permission(permission = "affiliate:affiliate:list")
     public AffiliateListResponse list(@RequestBody @Valid AffiliateListRequest request) {
-        List<Affiliate> results = affiliateService.select(request);
-        Long total = affiliateService.count(request);
-        request.setTotal(total);
-        AffiliateListResponse res = new AffiliateListResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS,results,request);
-        return res;
+        return adminAffiliateService.affiliateList(request);
+//        Long total = affiliateService.count(request);
+//        request.setTotal(total);
+//        AffiliateListResponse res = new AffiliateListResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS,results,request);
+//        return res;
     }
 
     @ApiOperation("手动增加联盟")

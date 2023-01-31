@@ -2,7 +2,9 @@ package com.upedge.ums.modules.affiliate.service.impl;
 
 import com.upedge.common.constant.Constant;
 import com.upedge.common.constant.ResultCode;
+import com.upedge.common.constant.key.RedisKey;
 import com.upedge.common.model.user.vo.CustomerAffiliateVo;
+import com.upedge.common.model.user.vo.UserVo;
 import com.upedge.ums.modules.affiliate.entity.Affiliate;
 import com.upedge.ums.modules.affiliate.entity.AffiliateCommissionRecord;
 import com.upedge.ums.modules.affiliate.entity.AffiliateCommissionWithdrawal;
@@ -22,10 +24,10 @@ import com.upedge.ums.modules.affiliate.vo.AdminAffiliateVo;
 import com.upedge.ums.modules.affiliate.vo.AdminCommissionRecordVo;
 import com.upedge.ums.modules.affiliate.vo.AdminWithdrawalVo;
 import com.upedge.ums.modules.user.dao.UserInfoDao;
-import com.upedge.ums.modules.user.entity.UserInfo;
 import com.upedge.ums.modules.user.service.CustomerService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -47,6 +49,9 @@ public class AdminAffiliateServiceImpl implements AdminAffiliateService {
     @Autowired
     CustomerService customerService;
 
+    @Autowired
+    RedisTemplate redisTemplate;
+
     /**
      * 联盟名单列表
      * @param request
@@ -61,11 +66,13 @@ public class AdminAffiliateServiceImpl implements AdminAffiliateService {
         results.forEach(affiliate -> {
             AdminAffiliateVo adminAffiliateVo=new AdminAffiliateVo();
             BeanUtils.copyProperties(affiliate,adminAffiliateVo);
-            UserInfo referrer=userInfoMapper.selectByPrimaryKey(affiliate.getReferrerId());
+
+            UserVo referrer = (UserVo) redisTemplate.opsForHash().get(RedisKey.STRING_CUSTOMER_INFO,adminAffiliateVo.getReferrerId().toString());
             adminAffiliateVo.setReferrerName(referrer.getUsername());
             adminAffiliateVo.setReferrerEmail(referrer.getEmail());
             adminAffiliateVo.setReferrerLoginName(referrer.getEmail());
-            UserInfo referee=userInfoMapper.selectByPrimaryKey(affiliate.getRefereeId());
+
+            UserVo referee = (UserVo) redisTemplate.opsForHash().get(RedisKey.STRING_CUSTOMER_INFO,adminAffiliateVo.getRefereeId().toString());
             adminAffiliateVo.setRefereeName(referee.getUsername());
             adminAffiliateVo.setRefereeEmail(referee.getEmail());
             adminAffiliateVo.setRefereeLoginName(referee.getEmail());

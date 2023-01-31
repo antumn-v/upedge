@@ -49,6 +49,8 @@ public class AdminAffiliateVo {
      * 被推荐人的提成
      */
     private BigDecimal refereeCommission;
+
+    private BigDecimal commissionAmount;
     /**
      *
      */
