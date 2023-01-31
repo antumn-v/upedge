@@ -1255,6 +1255,7 @@
         and o.ship_state = '0'
         and o.stock_state = '0'
         and o.pack_state = '1'
+        and o.error_type = '0'
         and oi.admin_variant_id is not null
         <if test="storeVariantSku != null">
             and oi.store_variant_sku = #{storeVariantSku}
