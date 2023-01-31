@@ -16,6 +16,8 @@ import java.util.List;
  */
 public interface PurchaseOrderItemService{
 
+    List<PurchaseOrderItem> selectGroupByPurchaseSku(Long orderId);
+
     int updateRefundQuantityById(Long id,Integer refundQuantity);
 
     List<PurchaseOrderItem> selectByIds(List<Long> ids,Long orderId);

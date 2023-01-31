@@ -12,6 +12,8 @@ import java.util.List;
  */
 public interface PurchaseOrderItemDao {
 
+    List<PurchaseOrderItem> selectGroupByPurchaseSku(Long orderId);
+
     int updateRefundQuantityById(@Param("id") Long id, @Param("refundQuantity") Integer refundQuantity);
 
     List<PurchaseOrderItem> selectByIds(@Param("ids") List<Long> ids, @Param("orderId") Long orderId);

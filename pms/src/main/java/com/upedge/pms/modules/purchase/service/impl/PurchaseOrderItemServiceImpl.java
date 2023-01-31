@@ -73,6 +73,11 @@ public class PurchaseOrderItemServiceImpl implements PurchaseOrderItemService {
     }
 
     @Override
+    public List<PurchaseOrderItem> selectGroupByPurchaseSku(Long orderId) {
+        return purchaseOrderItemDao.selectGroupByPurchaseSku(orderId);
+    }
+
+    @Override
     public int updateRefundQuantityById(Long id, Integer refundQuantity) {
         if (refundQuantity == 0){
             return 1;

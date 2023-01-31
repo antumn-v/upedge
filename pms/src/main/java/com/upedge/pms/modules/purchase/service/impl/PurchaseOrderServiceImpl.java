@@ -116,8 +116,8 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
     public BaseResponse partItemRecreateOrder(PurchasePartItemRecreateOrderRequest request, Session session) {
         List<Long> itemIds = request.getItemIds();
         Long orderId = request.getOrderId();
-        List<PurchaseOrderItem> purchaseOrderItems = purchaseOrderItemService.selectByIds(itemIds,orderId);
-        if (ListUtils.isEmpty(purchaseOrderItems)){
+        List<PurchaseOrderItem> purchaseOrderItems = purchaseOrderItemService.selectByIds(itemIds, orderId);
+        if (ListUtils.isEmpty(purchaseOrderItems)) {
             return BaseResponse.failed();
         }
         List<CreatePurchaseOrderDto> createPurchaseOrderDtos = new ArrayList<>();
@@ -126,8 +126,8 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
             Integer quantity = purchaseOrderItem.getQuantity();
             Integer receivedQuantity = purchaseOrderItem.getReceiveQuantity();
             Integer reduceQuantity = quantity - receivedQuantity;
-            if (reduceQuantity > 0){
-                variantWarehouseStockService.updatePurchaseStockReduce(variantId,"CNHZ",reduceQuantity);
+            if (reduceQuantity > 0) {
+                variantWarehouseStockService.updatePurchaseStockReduce(variantId, "CNHZ", reduceQuantity);
             }
             CreatePurchaseOrderDto createPurchaseOrderDto = new CreatePurchaseOrderDto();
             createPurchaseOrderDto.setQuantity(quantity);
@@ -136,22 +136,20 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
         }
         CreatePurchaseOrderRequest createPurchaseOrderRequest = new CreatePurchaseOrderRequest();
         createPurchaseOrderRequest.setCreatePurchaseOrderDtos(createPurchaseOrderDtos);
-        return customCreate(createPurchaseOrderRequest,session);
+        return customCreate(createPurchaseOrderRequest, session);
     }
 
     @Override
     public BaseResponse create1688PurchaseOrder(Long orderId, Session session) {
         PurchaseOrder purchaseOrder = selectByPrimaryKey(orderId);
-        if (purchaseOrder == null || StringUtils.isNotBlank(purchaseOrder.getPurchaseId()) || purchaseOrder.getEditState() != 0){
+        if (purchaseOrder == null || StringUtils.isNotBlank(purchaseOrder.getPurchaseId()) || purchaseOrder.getEditState() != 0) {
             return BaseResponse.failed("订单不存在或不是待创建状态");
         }
         purchaseOrderItemService.updateStateInitByOrderId(orderId);
-        List<PurchaseOrderItem> purchaseOrderItems = purchaseOrderItemService.selectByOrderId(orderId);
+        List<PurchaseOrderItem> purchaseOrderItems = purchaseOrderItemService.selectGroupByPurchaseSku(orderId);
         List<AlibabaTradeFastCargo> alibabaTradeFastCargos = new ArrayList<>();
         for (PurchaseOrderItem purchaseOrderItem : purchaseOrderItems) {
-            if(purchaseOrderItem.getState() == 0){
-                continue;
-            }
+
             AlibabaTradeFastCargo alibabaTradeFastCargo = new AlibabaTradeFastCargo();
             alibabaTradeFastCargo.setOfferId(Long.parseLong(purchaseOrderItem.getPurchaseLink()));
             alibabaTradeFastCargo.setSpecId(purchaseOrderItem.getSpecId());
@@ -168,12 +166,12 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
 
         try {
             result = Ali1688Service.createOrder(alibabaTradeFastCargos, alibabaApiVo, message);
-            boolean b = process1688OrderFailedReason(orderId,result);
-            if (!b){
+            boolean b = process1688OrderFailedReason(orderId, result);
+            if (!b) {
                 return BaseResponse.failed(result.getMessage());
             }
         } catch (CustomerException e) {
-            redisTemplate.opsForHash().put(RedisKey.HASH_PURCHASE_ORDER_CREATE_FAILED_REASON,orderId.toString(),e.getMessage());
+            redisTemplate.opsForHash().put(RedisKey.HASH_PURCHASE_ORDER_CREATE_FAILED_REASON, orderId.toString(), e.getMessage());
             return BaseResponse.failed(e.getMessage());
         }
         alibabaTradeFastResult = result.getResult();
@@ -195,17 +193,17 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
     public BaseResponse revokePurchaseOrder(PurchaseOrderRevokeRequest request, Session session) throws CustomerException {
         Long orderId = request.getOrderId();
         PurchaseOrder purchaseOrder = selectByPrimaryKey(orderId);
-        if (purchaseOrder == null || purchaseOrder.getEditState() == 1){
+        if (purchaseOrder == null || purchaseOrder.getEditState() == 1) {
             return BaseResponse.failed("订单不存在或已提交");
         }
-        if (purchaseOrder.getEditState() == -1){
+        if (purchaseOrder.getEditState() == -1) {
             return BaseResponse.success();
         }
         String purchaseId = purchaseOrder.getPurchaseId();
-        if (StringUtils.isNotBlank(purchaseId)){
+        if (StringUtils.isNotBlank(purchaseId)) {
             //先从1688取消订单
             AlibabaTradeCancelResult result = Ali1688Service.cancelOrder(Long.parseLong(purchaseOrder.getPurchaseId()), request.getCancelReason(), request.getRemark());
-            if (!result.getSuccess()){
+            if (!result.getSuccess()) {
                 return BaseResponse.failed(result.getErrorMessage());
             }
         }
@@ -213,16 +211,16 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
         //修改仓库采购中数量
         List<PurchaseOrderItem> purchaseOrderItems = purchaseOrderItemService.selectByOrderId(orderId);
         for (PurchaseOrderItem purchaseOrderItem : purchaseOrderItems) {
-            if (purchaseOrderItem.getState() != 1){
+            if (purchaseOrderItem.getState() != 1) {
                 continue;
             }
-            boolean b = variantWarehouseStockService.purchaseOrderItemRevoke(purchaseOrderItem,purchaseOrder.getWarehouseCode());
-            if (!b){
-                throw  new CustomerException(purchaseOrderItem.getBarcode() + ": 修改库存失败");
+            boolean b = variantWarehouseStockService.purchaseOrderItemRevoke(purchaseOrderItem, purchaseOrder.getWarehouseCode());
+            if (!b) {
+                throw new CustomerException(purchaseOrderItem.getBarcode() + ": 修改库存失败");
             }
         }
         //修改订单状态
-        purchaseOrderDao.updateOrderRevoke(orderId,new Date());
+        purchaseOrderDao.updateOrderRevoke(orderId, new Date());
 
         return BaseResponse.success();
     }
@@ -231,19 +229,19 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
     @Override
     public BaseResponse createByCustomerStockOrder(CreatePurchaseOrderRequest request, Session session) {
         List<CreatePurchaseOrderDto> createPurchaseOrderDtos = request.getCreatePurchaseOrderDtos();
-        if (ListUtils.isEmpty(createPurchaseOrderDtos)){
+        if (ListUtils.isEmpty(createPurchaseOrderDtos)) {
             return BaseResponse.failed();
         }
         Long stockOrderId = request.getStockOrderId();
-        Map<Long,Integer> variantQuantityMap = new HashMap<>();
+        Map<Long, Integer> variantQuantityMap = new HashMap<>();
         List<Long> variantIds = new ArrayList<>();
         for (CreatePurchaseOrderDto createPurchaseOrderDto : createPurchaseOrderDtos) {
             variantIds.add(createPurchaseOrderDto.getVariantId());
-            variantQuantityMap.put(createPurchaseOrderDto.getVariantId(),createPurchaseOrderDto.getQuantity());
+            variantQuantityMap.put(createPurchaseOrderDto.getVariantId(), createPurchaseOrderDto.getQuantity());
         }
         //获取产品信息
         List<ProductVariant> productVariants = productVariantService.listVariantByIds(variantIds);
-        if (ListUtils.isEmpty(productVariants)){
+        if (ListUtils.isEmpty(productVariants)) {
             return BaseResponse.failed("商品信息不存在");
         }
         //获取商品采购信息
@@ -252,11 +250,11 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
         List<ProductPurchaseInfo> productPurchaseInfos = new ArrayList<>();
         for (ProductVariant productVariant : productVariants) {
             String purchaseSku = productVariant.getPurchaseSku();
-            if (StringUtils.isBlank(purchaseSku)){
+            if (StringUtils.isBlank(purchaseSku)) {
                 return BaseResponse.failed(productVariant.getBarcode() + ": 缺少采购信息");
             }
             ProductPurchaseInfo productPurchaseInfo = productPurchaseInfoService.selectByPrimaryKey(purchaseSku);
-            if (null == productPurchaseInfo){
+            if (null == productPurchaseInfo) {
                 return BaseResponse.failed(productVariant.getBarcode() + ": 采购信息异常");
             }
             purchaseSkus.add(productVariant.getPurchaseSku());
@@ -322,7 +320,7 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
 //            if (alibabaTradeFastResult == null){
 //                return BaseResponse.failed("采购单创建异常");
 //            }
-            redisTemplate.opsForHash().put(RedisKey.HASH_CUSTOMER_STOCK_RELATE_PURCHASE,stockOrderId.toString(),id);
+            redisTemplate.opsForHash().put(RedisKey.HASH_CUSTOMER_STOCK_RELATE_PURCHASE, stockOrderId.toString(), id);
             PurchaseOrder purchaseOrder = new PurchaseOrder(id,
 //                    "0",
 //                    alibabaTradeFastResult.getOrderId(),
@@ -339,8 +337,8 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
             List<PurchaseOrderItem> purchaseItems = new ArrayList<>();
             Double purchaseQuantity = 0.0;
             for (AlibabaTradeFastCargo tradeFastCargo : tradeFastCargos) {
-                ProductVariant productVariant = skuVariantMap.get(tradeFastCargo.getSpecId()+tradeFastCargo.getOfferId());
-                PurchaseOrderItem purchaseItem = new PurchaseOrderItem(productVariant,tradeFastCargo);
+                ProductVariant productVariant = skuVariantMap.get(tradeFastCargo.getSpecId() + tradeFastCargo.getOfferId());
+                PurchaseOrderItem purchaseItem = new PurchaseOrderItem(productVariant, tradeFastCargo);
 
                 purchaseItem.setOrderId(id);
                 purchaseItem.setId(IdGenerate.nextId());
@@ -351,11 +349,11 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
             insert(purchaseOrder);
             purchaseOrderItemService.insertByBatch(purchaseItems);
             for (PurchaseOrderItem purchaseItem : purchaseItems) {
-                variantWarehouseStockService.updateVariantPurchaseStockByPlan(purchaseItem.getVariantId(),"CNHZ",purchaseItem.getQuantity());
+                variantWarehouseStockService.updateVariantPurchaseStockByPlan(purchaseItem.getVariantId(), "CNHZ", purchaseItem.getQuantity());
             }
-            if (StringUtils.isBlank(stringBuffer)){
+            if (StringUtils.isBlank(stringBuffer)) {
                 stringBuffer = stringBuffer.append(id);
-            }else {
+            } else {
                 stringBuffer = stringBuffer.append(",").append(id);
             }
         }
@@ -368,7 +366,7 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
         Long stockOrderId = customerStockPurchaseOrderRefundVo.getOrderId();
         List<CustomerStockPurchaseOrderRefundItemVo> refundItemVos = customerStockPurchaseOrderRefundVo.getRefundItemVos();
         List<PurchaseOrder> purchaseOrders = purchaseOrderDao.selectByRelateId(stockOrderId);
-        if (ListUtils.isEmpty(purchaseOrders)){
+        if (ListUtils.isEmpty(purchaseOrders)) {
             return BaseResponse.failed("该备库订单未生成采购订单");
         }
         List<PurchaseOrderItem> purchaseOrderItems = new ArrayList<>();
@@ -376,25 +374,25 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
             List<PurchaseOrderItem> items = purchaseOrderItemService.selectByOrderId(purchaseOrder.getId());
             purchaseOrderItems.addAll(items);
         }
-        Map<Long,Integer> itemRefundQuantityMap = new HashMap<>();
-        if (ListUtils.isNotEmpty(purchaseOrderItems)){
+        Map<Long, Integer> itemRefundQuantityMap = new HashMap<>();
+        if (ListUtils.isNotEmpty(purchaseOrderItems)) {
             a:
             for (PurchaseOrderItem purchaseOrderItem : purchaseOrderItems) {
                 for (CustomerStockPurchaseOrderRefundItemVo refundItemVo : refundItemVos) {
-                    if (purchaseOrderItem.getVariantId().equals(refundItemVo.getVariantId())){
+                    if (purchaseOrderItem.getVariantId().equals(refundItemVo.getVariantId())) {
                         Integer refundQuantity = refundItemVo.getRefundQuantity();
-                        itemRefundQuantityMap.put(purchaseOrderItem.getId(),refundQuantity);
+                        itemRefundQuantityMap.put(purchaseOrderItem.getId(), refundQuantity);
                         refundItemVos.remove(refundItemVo);
                         continue a;
                     }
                 }
             }
         }
-        if (ListUtils.isNotEmpty(refundItemVos)){
+        if (ListUtils.isNotEmpty(refundItemVos)) {
             return BaseResponse.failed("备库订单产品信息异常");
         }
-        itemRefundQuantityMap.forEach((id,refundQuantity) -> {
-            purchaseOrderItemService.updateRefundQuantityById(id,refundQuantity);
+        itemRefundQuantityMap.forEach((id, refundQuantity) -> {
+            purchaseOrderItemService.updateRefundQuantityById(id, refundQuantity);
         });
 
         return BaseResponse.success();
@@ -404,59 +402,57 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
     @Override
     public BaseResponse customCreate(CreatePurchaseOrderRequest request, Session session) {
         List<CreatePurchaseOrderDto> createPurchaseOrderDtos = request.getCreatePurchaseOrderDtos();
-        if (ListUtils.isEmpty(createPurchaseOrderDtos)){
+        if (ListUtils.isEmpty(createPurchaseOrderDtos)) {
             return BaseResponse.failed();
         }
         //变体数量
-        Map<Long,Integer> variantQuantityMap = new HashMap<>();
+        Map<Long, Integer> variantQuantityMap = new HashMap<>();
         List<Long> variantIds = new ArrayList<>();
         for (CreatePurchaseOrderDto createPurchaseOrderDto : createPurchaseOrderDtos) {
             Long variantId = createPurchaseOrderDto.getVariantId();
-            if (variantIds.contains(variantId)){
+            if (variantIds.contains(variantId)) {
                 Integer quantity = variantQuantityMap.get(variantId);
                 quantity += createPurchaseOrderDto.getQuantity();
-                variantQuantityMap.put(variantId,quantity);
-            }else {
+                variantQuantityMap.put(variantId, quantity);
+            } else {
                 variantIds.add(variantId);
-                variantQuantityMap.put(variantId,createPurchaseOrderDto.getQuantity());
+                variantQuantityMap.put(variantId, createPurchaseOrderDto.getQuantity());
             }
         }
         //获取产品信息
         List<ProductVariant> productVariants = productVariantService.listVariantByIds(variantIds);
-        if (ListUtils.isEmpty(productVariants)){
+        if (ListUtils.isEmpty(productVariants)) {
             return BaseResponse.failed("商品信息不存在");
         }
         //获取商品采购信息
-        List<ProductPurchaseInfo> productPurchaseInfos = new ArrayList<>();
-        Map<String,ProductPurchaseInfo> purchaseInfoMap = new HashMap<>();
+        Map<String, ProductPurchaseInfo> purchaseInfoMap = new HashMap<>();
         for (ProductVariant productVariant : productVariants) {
             String purchaseSku = productVariant.getPurchaseSku();
-            if (StringUtils.isBlank(purchaseSku)){
+            if (StringUtils.isBlank(purchaseSku)) {
                 return BaseResponse.failed(productVariant.getBarcode() + ": 缺少采购信息");
             }
             ProductPurchaseInfo productPurchaseInfo = productPurchaseInfoService.selectByPrimaryKey(purchaseSku);
-            if (null == productPurchaseInfo){
+            if (null == productPurchaseInfo) {
                 return BaseResponse.failed(productVariant.getBarcode() + ": 采购信息异常");
             }
-            productPurchaseInfos.add(productPurchaseInfo);
-            purchaseInfoMap.put(purchaseSku,productPurchaseInfo);
+            purchaseInfoMap.put(purchaseSku, productPurchaseInfo);
         }
 
 
         Map<String, List<ProductVariant>> supplierVariantMap = new HashMap<>();
         //不同供应商分组
         for (ProductVariant productVariant : productVariants) {
-
-            for (ProductPurchaseInfo productPurchaseInfo : productPurchaseInfos) {
-                String supplierName = productPurchaseInfo.getSupplierName();
-                if (productPurchaseInfo.getPurchaseSku().equals(productVariant.getPurchaseSku())) {
-
-                    if (!supplierVariantMap.containsKey(supplierName)) {
-                        supplierVariantMap.put(supplierName, new ArrayList<ProductVariant>());
-                    }
-                    supplierVariantMap.get(supplierName).add(productVariant);
-                }
+            String purchaseSku = productVariant.getPurchaseSku();
+            ProductPurchaseInfo productPurchaseInfo = purchaseInfoMap.get(purchaseSku);
+            if (null == productPurchaseInfo){
+                continue;
             }
+            String supplierName = productPurchaseInfo.getSupplierName();
+            if (!supplierVariantMap.containsKey(supplierName)) {
+                supplierVariantMap.put(supplierName, new ArrayList<ProductVariant>());
+            }
+            supplierVariantMap.get(supplierName).add(productVariant);
+
         }
 
         //根据供应商创建采购单
@@ -497,7 +493,7 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
             insert(purchaseOrder);
             purchaseOrderItemService.insertByBatch(purchaseItems);
             for (PurchaseOrderItem purchaseItem : purchaseItems) {
-                variantWarehouseStockService.updateVariantPurchaseStockByPlan(purchaseItem.getVariantId(),"CNHZ",purchaseItem.getQuantity());
+                variantWarehouseStockService.updateVariantPurchaseStockByPlan(purchaseItem.getVariantId(), "CNHZ", purchaseItem.getQuantity());
             }
         }
         return BaseResponse.success();
@@ -507,7 +503,7 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
     public void completeOrderInfo(Long id) {
         PurchaseOrder purchaseOrder = selectByPrimaryKey(id);
         if (null == purchaseOrder) {
-            return ;
+            return;
         }
         String purchaseId = purchaseOrder.getPurchaseId();
         AlibabaOpenplatformTradeModelTradeInfo alibabaOpenplatformTradeModelTradeInfo = null;
@@ -517,7 +513,7 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
             e.printStackTrace();
             return;
         }
-        updateBaseInfo(id,purchaseOrder.getPurchaseId(),purchaseOrder.getTrackingCode(),alibabaOpenplatformTradeModelTradeInfo);
+        updateBaseInfo(id, purchaseOrder.getPurchaseId(), purchaseOrder.getTrackingCode(), alibabaOpenplatformTradeModelTradeInfo);
         completeItemPrice(id, alibabaOpenplatformTradeModelTradeInfo);
     }
 
@@ -534,13 +530,13 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
 //        if(purchaseOrder.getPurchaseId() == null){
 //            return BaseResponse.failed("订单未创建1688采购订单");
 //        }
-        if (purchaseOrder.getEditState() == 1){
+        if (purchaseOrder.getEditState() == 1) {
             return BaseResponse.failed("已提交的订单无法修改状态");
         }
-        if (state == purchaseOrder.getEditState()){
+        if (state == purchaseOrder.getEditState()) {
             return BaseResponse.success();
         }
-        purchaseOrderDao.updateEditState(id,state);
+        purchaseOrderDao.updateEditState(id, state);
         return BaseResponse.success();
     }
 
@@ -628,7 +624,7 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
                     purchaseOrderItemService.updateByPrimaryKeySelective(purchaseOrderItem);
 
                     //修改客户备库订单产品入库数据
-                    if (stockOrderId != null && !stockOrderId.equals(0L)){
+                    if (stockOrderId != null && !stockOrderId.equals(0L)) {
                         StockPurchaseOrderItemReceiveDto stockPurchaseOrderItemReceiveDto = new StockPurchaseOrderItemReceiveDto();
                         stockPurchaseOrderItemReceiveDto.setOrderId(orderId);
                         stockPurchaseOrderItemReceiveDto.setVariantId(purchaseOrderItem.getVariantId());
@@ -641,7 +637,7 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
         }
         //修改客户备库订单产品入库数据
         try {
-            if (ListUtils.isNotEmpty(stockPurchaseOrderItemReceiveDtos)){
+            if (ListUtils.isNotEmpty(stockPurchaseOrderItemReceiveDtos)) {
                 omsFeignClient.updateInboundQuantity(stockPurchaseOrderItemReceiveDtos);
             }
         } catch (Exception e) {
@@ -653,8 +649,8 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
     @Override
     public BaseResponse refreshFrom1688(Long id) {
         String key = "purchase:1688info:sync:" + id;
-        boolean b = RedisUtil.lock(redisTemplate,key,5L,30 * 60 * 1000L);
-        if (!b){
+        boolean b = RedisUtil.lock(redisTemplate, key, 5L, 30 * 60 * 1000L);
+        if (!b) {
             return BaseResponse.success();
         }
         PurchaseOrder purchaseOrder = selectByPrimaryKey(id);
@@ -679,7 +675,7 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
 
 
     void updateBaseInfo(Long id, String purchaseId, String trackingCode) throws CustomerException {
-        if (StringUtils.isBlank(trackingCode)){
+        if (StringUtils.isBlank(trackingCode)) {
             trackingCode = "";
         }
         AlibabaOpenplatformTradeModelTradeInfo alibabaOpenplatformTradeModelTradeInfo = null;
@@ -706,7 +702,7 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
                 for (int i = 0; i < logisticsItemsInfos.size(); i++) {
                     AlibabaOpenplatformTradeModelNativeLogisticsItemsInfo logisticsItemsInfo = logisticsItemsInfos.get(i);
                     String logisticsBillNo = logisticsItemsInfo.getLogisticsBillNo();
-                    if (logisticsBillNo == null){
+                    if (logisticsBillNo == null) {
                         continue;
                     }
                     if (code == null) {
@@ -730,10 +726,9 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
         updateByPrimaryKeySelective(purchaseOrder);
 
 
-
     }
 
-    void updateBaseInfo(Long id,String purchaseId,String trackingCode,AlibabaOpenplatformTradeModelTradeInfo alibabaOpenplatformTradeModelTradeInfo) {
+    void updateBaseInfo(Long id, String purchaseId, String trackingCode, AlibabaOpenplatformTradeModelTradeInfo alibabaOpenplatformTradeModelTradeInfo) {
 
 
         PurchaseOrder purchaseOrder = new PurchaseOrder();
@@ -750,7 +745,7 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
         if (alibabaOpenplatformTradeModelNativeLogisticsInfo != null) {
             AlibabaOpenplatformTradeModelNativeLogisticsItemsInfo[] logisticsInfoLogisticsItems = alibabaOpenplatformTradeModelNativeLogisticsInfo.getLogisticsItems();
             if (logisticsInfoLogisticsItems != null
-            && logisticsInfoLogisticsItems.length > 0){
+                    && logisticsInfoLogisticsItems.length > 0) {
                 List<AlibabaOpenplatformTradeModelNativeLogisticsItemsInfo> logisticsItemsInfos = Arrays.asList(alibabaOpenplatformTradeModelNativeLogisticsInfo.getLogisticsItems());
                 if (ListUtils.isNotEmpty(logisticsItemsInfos)) {
                     List<PurchaseOrderTracking> orderTrackingList = new ArrayList<>();
@@ -779,7 +774,7 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
         updateByPrimaryKeySelective(purchaseOrder);
     }
 
-    void completeItemPrice(Long id, AlibabaOpenplatformTradeModelTradeInfo alibabaOpenplatformTradeModelTradeInfo){
+    void completeItemPrice(Long id, AlibabaOpenplatformTradeModelTradeInfo alibabaOpenplatformTradeModelTradeInfo) {
         List<AlibabaOpenplatformTradeModelProductItemInfo> productItems = Arrays.asList(alibabaOpenplatformTradeModelTradeInfo.getProductItems());
         List<PurchaseOrderItem> purchaseOrderItems = new ArrayList<>();
         for (AlibabaOpenplatformTradeModelProductItemInfo productItem : productItems) {
@@ -796,7 +791,7 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
     @Override
     public BaseResponse orderList(PurchaseOrderListRequest request) {
         PurchaseOrderListDto purchaseOrderListDto = request.getT();
-        if (null == purchaseOrderListDto){
+        if (null == purchaseOrderListDto) {
             purchaseOrderListDto = new PurchaseOrderListDto();
         }
         List<Long> orderIds = new ArrayList<>();
@@ -813,7 +808,7 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
 
         String trackCode = purchaseOrderListDto.getTrackingCode();
         List<PurchaseOrderTracking> purchaseOrderTracks = purchaseOrderTrackingService.selectByTrackCode(trackCode);
-        if (ListUtils.isNotEmpty(purchaseOrderTracks)){
+        if (ListUtils.isNotEmpty(purchaseOrderTracks)) {
             for (PurchaseOrderTracking purchaseOrderTrack : purchaseOrderTracks) {
                 orderIds.add(purchaseOrderTrack.getPurchaseOrderId());
             }
@@ -828,7 +823,7 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
         }
         syncOrderTrackingInfo(purchaseOrders);
         //如果刚才没查询到变体,但是查询到订单则重新根据订单查询变体
-        if (ListUtils.isEmpty(purchaseOrderItems)){
+        if (ListUtils.isEmpty(purchaseOrderItems)) {
             purchaseOrders.forEach(purchaseOrder -> {
                 orderIds.add(purchaseOrder.getId());
             });
@@ -845,7 +840,7 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
             PurchaseOrderVo purchaseOrderVo = new PurchaseOrderVo();
             BeanUtils.copyProperties(purchaseOrder, purchaseOrderVo);
             for (PurchaseOrderItem orderItem : purchaseOrderItems) {
-                if (orderItem.getState() == 0){
+                if (orderItem.getState() == 0) {
                     continue;
                 }
                 if (orderItem.getOrderId().equals(orderId)) {
@@ -859,72 +854,72 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
                 }
             }
             purchaseOrderItems.removeAll(orderItems);
-            if (StringUtils.isBlank(purchaseOrder.getPurchaseId())){
+            if (StringUtils.isBlank(purchaseOrder.getPurchaseId())) {
                 checkOrderItems(orderItems);
             }
 
             purchaseOrderVo.setPurchaseItemVos(orderItems);
 
             String purchaseId = purchaseOrder.getPurchaseId();
-            if (StringUtils.isBlank(purchaseId)){
-                purchaseOrderVo.setCreateFailedReason((String) redisTemplate.opsForHash().get(RedisKey.HASH_PURCHASE_ORDER_CREATE_FAILED_REASON,orderId.toString()));
+            if (StringUtils.isBlank(purchaseId)) {
+                purchaseOrderVo.setCreateFailedReason((String) redisTemplate.opsForHash().get(RedisKey.HASH_PURCHASE_ORDER_CREATE_FAILED_REASON, orderId.toString()));
             }
 
             purchaseOrderVos.add(purchaseOrderVo);
         }
 
 
-        return BaseResponse.success(purchaseOrderVos,request);
+        return BaseResponse.success(purchaseOrderVos, request);
     }
 
-    public void checkOrderItems(List<PurchaseOrderItem> orderItems){
-        Map<String,Integer> productMoq = new HashMap<>();
-        Map<String,Integer> productQty = new HashMap<>();
+    public void checkOrderItems(List<PurchaseOrderItem> orderItems) {
+        Map<String, Integer> productMoq = new HashMap<>();
+        Map<String, Integer> productQty = new HashMap<>();
         for (PurchaseOrderItem orderItem : orderItems) {
-            if (orderItem.getState() == 0){
+            if (orderItem.getState() == 0) {
                 continue;
             }
             Integer quantity = orderItem.getQuantity();
-            if (orderItem.getInventory() == null || orderItem.getInventory() < quantity){
+            if (orderItem.getInventory() == null || orderItem.getInventory() < quantity) {
                 orderItem.setState(-1);
                 continue;
             }
             String productLink = orderItem.getPurchaseLink();
-            if (!productMoq.containsKey(productLink)){
-                productMoq.put(productLink,orderItem.getMinOrderQuantity());
-            }else {
+            if (!productMoq.containsKey(productLink)) {
+                productMoq.put(productLink, orderItem.getMinOrderQuantity());
+            } else {
                 quantity += productQty.get(productLink);
             }
-            productQty.put(productLink,quantity);
+            productQty.put(productLink, quantity);
         }
 
         for (PurchaseOrderItem orderItem : orderItems) {
-            if (orderItem.getState() < 1){
+            if (orderItem.getState() < 1) {
                 continue;
             }
             String productLink = orderItem.getPurchaseLink();
-            if (!productMoq.containsKey(productLink)){
+            if (!productMoq.containsKey(productLink)) {
                 continue;
             }
             Integer moq = productMoq.get(productLink);
             Integer total = productQty.get(productLink);
-            if (moq == null || total ==null || total < moq){
+            if (moq == null || total == null || total < moq) {
                 orderItem.setState(-1);
             }
         }
 
     }
 
-    public void syncOrderTrackingInfo(List<PurchaseOrder> purchaseOrders){
+    public void syncOrderTrackingInfo(List<PurchaseOrder> purchaseOrders) {
         List<CompletableFuture<Void>> completableFutures = purchaseOrders.stream().map(purchaseOrder -> {
             CompletableFuture<Void> completableFuture = CompletableFuture.runAsync(new Runnable() {
                 @Override
                 public void run() {
-                    if (purchaseOrder.getEditState() == 1 && purchaseOrder.getPurchaseState() != -1 && purchaseOrder.getPurchaseState() != 2){
+                    if (purchaseOrder.getEditState() == 1 && purchaseOrder.getPurchaseState() != -1 && purchaseOrder.getPurchaseState() != 2) {
                         refreshFrom1688(purchaseOrder.getId());
                     }
                 }
-            }).handle((tet,ccc) -> {
+            }).handle((tet, ccc) -> {
                 return null;
             });
             return completableFuture;
@@ -978,13 +973,13 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
     }
 
 
-    private boolean process1688OrderFailedReason(Long orderId,AlibabaTradeFastCreateOrderResult result){
-        if (result.getSuccess()){
+    private boolean process1688OrderFailedReason(Long orderId, AlibabaTradeFastCreateOrderResult result) {
+        if (result.getSuccess()) {
             return true;
         }
-        redisTemplate.opsForHash().put(RedisKey.HASH_PURCHASE_ORDER_CREATE_FAILED_REASON,orderId.toString(),result.getMessage());
+        redisTemplate.opsForHash().put(RedisKey.HASH_PURCHASE_ORDER_CREATE_FAILED_REASON, orderId.toString(), result.getMessage());
         List<String> ids = getStringsInBrackets(result.getMessage());
-        if (ListUtils.isNotEmpty(ids)){
+        if (ListUtils.isNotEmpty(ids)) {
             CompletableFuture.runAsync(new Runnable() {
                 @Override
                 public void run() {
@@ -992,7 +987,7 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
                         productPurchaseInfoService.refreshAlibabaProductInventory(id);
                     }
                 }
-            },threadPoolExecutor);
+            }, threadPoolExecutor);
 //            purchaseOrderItemService.updateStateByOrderIdAndPurchaseLink(orderId,ids,-1);
         }
         return false;
@@ -1002,7 +997,9 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
         Pattern p = Pattern.compile("\\[(.*?)\\]");
         Matcher m = p.matcher(s);
         List<String> list = new ArrayList<String>();
-        while (m.find()) { list.add(m.group(1)); }
+        while (m.find()) {
+            list.add(m.group(1));
+        }
         return list;
     }
 

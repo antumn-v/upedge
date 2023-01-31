@@ -436,4 +436,11 @@
         where  id = #{id}
     </update>
 
+    <select id="selectGroupByPurchaseSku" resultMap="BaseResultMap">
+        select `purchase_link`,`spec_id`,sum(quantity) as `quantity`
+            from purchase_order_item
+        where order_id = #{orderId}
+        and state = '1'
+        group by `purchase_link`,`spec_id`
+    </select>
 </mapper>
