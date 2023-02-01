@@ -34,6 +34,7 @@ import javax.annotation.Resource;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -123,18 +124,17 @@ public class RedisInit {
 
 
     public void affiliateInit(){
+        Set<String> keys = redisTemplate.keys(RedisKey.HASH_AFFILIATE_REFEREE + "*");
+        redisTemplate.delete(keys);
         List<Affiliate> affiliates = affiliateService.allAffiliates();
-        Map<String, AffiliateVo> map = new HashMap<>();
         for (Affiliate affiliate : affiliates) {
             if (!affiliate.getRebateState()){
                 continue;
             }
             AffiliateVo affiliateVo = new AffiliateVo();
             BeanUtils.copyProperties(affiliate,affiliateVo);
-            map.put(affiliate.getRefereeId().toString(),affiliateVo);
+            redisTemplate.opsForList().leftPush(RedisKey.HASH_AFFILIATE_REFEREE + affiliateVo.getRefereeId(),affiliateVo);
         }
-        redisTemplate.delete(RedisKey.HASH_AFFILIATE_REFEREE);
-        redisTemplate.opsForHash().putAll(RedisKey.HASH_AFFILIATE_REFEREE,map);
     }
 
     public void storeInit(){

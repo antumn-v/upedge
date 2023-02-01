@@ -37,6 +37,7 @@ public class AffiliateAddRequest{
         affiliate.setCreateTime(new Date());
         affiliate.setUpdateTime(new Date());
         affiliate.setSource(source);
+        affiliate.setRebateState(false);
         return affiliate;
     }
 

@@ -848,18 +848,22 @@ public class OrderCommonServiceImpl implements OrderCommonService {
     }
 
     public void addAffiliateCommission(Long orderId, Long customerId) {
-        AffiliateVo affiliateVo = (AffiliateVo) redisTemplate.opsForHash().get(RedisKey.HASH_AFFILIATE_REFEREE, customerId.toString());
-        if (null == affiliateVo)
+        List<Object> affiliateVos = redisTemplate.opsForList().range(RedisKey.HASH_AFFILIATE_REFEREE + customerId,0,-1);
+        if (null == affiliateVos)
             return;
 
-        CommissionRecordVo commissionRecordVo = new CommissionRecordVo();
-        commissionRecordVo.setOrderId(orderId);
-        commissionRecordVo.setCommission(affiliateVo.getRefereeCommission());
-        commissionRecordVo.setRefereeId(affiliateVo.getRefereeId());
-        commissionRecordVo.setReferrerId(affiliateVo.getReferrerId());
-        commissionRecordVo.setOrderType(OrderType.NORMAL);
-        commissionRecordVo.setState(1);
-        umsFeignClient.addAffiliateCommissionRecord(commissionRecordVo);
+        for (Object object : affiliateVos) {
+            AffiliateVo affiliateVo = (AffiliateVo) object;
+            CommissionRecordVo commissionRecordVo = new CommissionRecordVo();
+            commissionRecordVo.setOrderId(orderId);
+            commissionRecordVo.setCommission(affiliateVo.getRefereeCommission());
+            commissionRecordVo.setRefereeId(affiliateVo.getRefereeId());
+            commissionRecordVo.setReferrerId(affiliateVo.getReferrerId());
+            commissionRecordVo.setOrderType(OrderType.NORMAL);
+            commissionRecordVo.setState(1);
+            umsFeignClient.addAffiliateCommissionRecord(commissionRecordVo);
+        }
+
     }
 
 

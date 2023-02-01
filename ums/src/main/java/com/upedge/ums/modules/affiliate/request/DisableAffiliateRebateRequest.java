@@ -9,4 +9,7 @@ public class DisableAffiliateRebateRequest {
 
     @NotNull
     private Long refereeId;
+
+    @NotNull
+    private Long referrerId;
 }

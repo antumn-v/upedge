@@ -115,28 +115,38 @@ public class AffiliateServiceImpl implements AffiliateService {
     @Override
     public BaseResponse disableAffiliateRebate(DisableAffiliateRebateRequest request, Session session) {
         Long refereeId = request.getRefereeId();
-        Affiliate affiliate = affiliateDao.queryAffiliateByReferee(refereeId);
+        Affiliate affiliate = affiliateDao.queryAffiliateByReferee(refereeId, request.getReferrerId());
         if (affiliate == null){
             return BaseResponse.failed();
         }
         if (!affiliate.getRebateState()){
             return BaseResponse.success();
         }
-        redisTemplate.opsForHash().delete(RedisKey.HASH_AFFILIATE_REFEREE,refereeId.toString());
         affiliateDao.updateRebateStateByRefereeId(refereeId,false);
+
+        redisTemplate.delete(RedisKey.HASH_AFFILIATE_REFEREE + refereeId);
+        List<Affiliate> affiliates = affiliateDao.selectByRefereeId(refereeId);
+        for (Affiliate affiliate1 : affiliates) {
+            if (affiliate1.getRebateState()){
+                AffiliateVo affiliateVo = new AffiliateVo();
+                BeanUtils.copyProperties(affiliate1,affiliateVo);
+                redisTemplate.opsForList().leftPush(RedisKey.HASH_AFFILIATE_REFEREE + refereeId,affiliateVo);
+            }
+        }
+
         return BaseResponse.success();
     }
 
     @Override
     public BaseResponse enableAffiliateRebate(DisableAffiliateRebateRequest request, Session session) {
         Long refereeId = request.getRefereeId();
-        Affiliate affiliate = affiliateDao.queryAffiliateByReferee(refereeId);
+        Affiliate affiliate = affiliateDao.queryAffiliateByReferee(refereeId,request.getReferrerId());
         if (affiliate == null){
             return BaseResponse.failed();
         }
         AffiliateVo affiliateVo = new AffiliateVo();
         BeanUtils.copyProperties(affiliate,affiliateVo);
-        redisTemplate.opsForHash().put(RedisKey.HASH_AFFILIATE_REFEREE,refereeId.toString(),affiliateVo);
+        redisTemplate.opsForList().leftPush(RedisKey.HASH_AFFILIATE_REFEREE+refereeId.toString(),affiliateVo);
         affiliateDao.updateRebateStateByRefereeId(refereeId,true);
         return BaseResponse.success();
     }
@@ -190,9 +200,6 @@ public class AffiliateServiceImpl implements AffiliateService {
         request.setReferrerId(affiliateCodeRecord.getCustomerId());
         request.setSource(0);
         addAffiliate(request);
-
-
-
     }
 
     /**
@@ -285,8 +292,8 @@ public class AffiliateServiceImpl implements AffiliateService {
 
 
     @Override
-    public Affiliate queryAffiliateByReferee(Long refereeId) {
-        return affiliateDao.queryAffiliateByReferee(refereeId);
+    public Affiliate queryAffiliateByReferee(Long refereeId,Long referrerId) {
+        return affiliateDao.queryAffiliateByReferee(refereeId,referrerId);
     }
 
     @Override
@@ -300,7 +307,7 @@ public class AffiliateServiceImpl implements AffiliateService {
             return new AffiliateAddResponse(ResultCode.FAIL_CODE,"推荐人和被推荐人相同！");
         }
         //检查被推荐人是否已经加入了联盟
-        Affiliate a=queryAffiliateByReferee(request.getRefereeId());
+        Affiliate a=queryAffiliateByReferee(request.getRefereeId(), request.getReferrerId());
         if(a!=null){
             return new AffiliateAddResponse(ResultCode.SUCCESS_CODE,"被推荐人已经加入了联盟！");
         }
@@ -310,9 +317,9 @@ public class AffiliateServiceImpl implements AffiliateService {
         }
         insert(affiliate);
 
-        AffiliateVo affiliateVo = new AffiliateVo();
-        BeanUtils.copyProperties(affiliate,affiliateVo);
-        redisTemplate.opsForHash().put(RedisKey.HASH_AFFILIATE_REFEREE,affiliateVo.getRefereeId().toString(),affiliateVo);
+//        AffiliateVo affiliateVo = new AffiliateVo();
+//        BeanUtils.copyProperties(affiliate,affiliateVo);
+//        redisTemplate.opsForList().leftPush(RedisKey.HASH_AFFILIATE_REFEREE+affiliateVo.getRefereeId(),affiliateVo);
 
         return new AffiliateAddResponse(ResultCode.SUCCESS_CODE,Constant.MESSAGE_SUCCESS);
     }

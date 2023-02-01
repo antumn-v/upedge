@@ -99,7 +99,8 @@
             order_count,
             create_time,
             update_time,
-            source
+            source,
+            rebate_state
         </trim>
         values (
         #{id},
@@ -110,7 +111,8 @@
         '0',
         #{createTime},
         #{createTime},
-        #{source}
+        #{source},
+        #{rebateState}
         )
     </insert>
 
@@ -248,6 +250,7 @@
         <include refid="Base_Column_List" />
         from affiliate
         where referee_id = #{refereeId}
+        and referrer_id = #{referrerId}
     </select>
     <select id="selectAffiliateVoByRefereeId" resultType="com.upedge.ums.modules.affiliate.entity.Affiliate">
         select    <include refid="Base_Column_List" />
@@ -278,4 +281,11 @@
             set rebate_state = #{rebateState}
         where referee_id = #{refereeId}
     </update>
+
+    <select id="selectByRefereeId" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from affiliate
+        where referee_id = #{refereeId}
+    </select>
 </mapper>

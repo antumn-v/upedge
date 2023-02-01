@@ -58,7 +58,7 @@ public interface AffiliateService{
 
     long count(Page<Affiliate> record);
 
-    Affiliate queryAffiliateByReferee(Long refereeId);
+    Affiliate queryAffiliateByReferee(Long refereeId,Long referrerId);
 
     Affiliate selectAffiliateVoByRefereeId(@Param("customerId") Long customerId);
 

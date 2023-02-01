@@ -14,6 +14,8 @@ import java.util.List;
  */
 public interface AffiliateDao {
 
+    List<Affiliate> selectByRefereeId(Long refereeId);
+
     List<RefereeCommissionVo> searchCommissionByReferee(Long referrerId);
 
     int updateRebateStateByRefereeId(@Param("refereeId") Long refereeId, @Param("rebateState") Boolean rebateState);
@@ -39,7 +41,7 @@ public interface AffiliateDao {
 
     long count(Page<Affiliate> record);
 
-    Affiliate queryAffiliateByReferee(Long refereeId);
+    Affiliate queryAffiliateByReferee(@Param("refereeId") Long refereeId, @Param("referrerId") Long referrerId);
 
     void subAffiliateCommission(@Param("id") Long id,
                                 @Param("commission") BigDecimal commission,

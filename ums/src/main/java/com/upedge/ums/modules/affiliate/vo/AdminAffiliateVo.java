@@ -64,4 +64,6 @@ public class AdminAffiliateVo {
      */
     private Integer source;
 
+    private Boolean rebateState;
+
 }

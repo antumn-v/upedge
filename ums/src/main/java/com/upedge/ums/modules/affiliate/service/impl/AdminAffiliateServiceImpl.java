@@ -144,7 +144,7 @@ public class AdminAffiliateServiceImpl implements AdminAffiliateService {
 //            return new AffiliateAddResponse(ResultCode.FAIL_CODE,Constant.MESSAGE_FAIL);
 //        }
         //检查被推荐人是否已经加入了联盟
-        Affiliate a=affiliateService.queryAffiliateByReferee(request.getRefereeId());
+        Affiliate a=affiliateService.queryAffiliateByReferee(request.getRefereeId(), request.getReferrerId());
         if(a!=null){
             return new AffiliateAddResponse(ResultCode.SUCCESS_CODE,"被推荐人已经加入了联盟！");
         }
