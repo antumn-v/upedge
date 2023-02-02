@@ -35,6 +35,8 @@ public class StockOrderItemVo {
      */
     private Integer quantity;
 
+    private Integer inboundQuantity;
+
     private Integer refundQuantity;
     /**
      *

@@ -17,6 +17,8 @@ import java.util.List;
  */
 public interface PurchaseOrderService{
 
+    BaseResponse check(Long orderId);
+
     BaseResponse partItemRecreateOrder(PurchasePartItemRecreateOrderRequest request,Session session);
 
     BaseResponse create1688PurchaseOrder(Long orderId,Session session);

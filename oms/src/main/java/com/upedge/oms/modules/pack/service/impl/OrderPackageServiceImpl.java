@@ -772,7 +772,6 @@ public class OrderPackageServiceImpl implements OrderPackageService {
             }
         }
 
-
         ShippingMethodRedis shippingMethodRedis = (ShippingMethodRedis) redisTemplate.opsForHash().get(RedisKey.SHIPPING_METHOD, order.getActualShipMethodId().toString());
         String shipCompany = shippingMethodRedis.getTrackingCompany();
         if (StringUtils.isBlank(shipCompany) || StringUtils.isBlank(shippingMethodRedis.getMethodCode())) {

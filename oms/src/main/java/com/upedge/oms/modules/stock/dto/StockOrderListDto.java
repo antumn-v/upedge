@@ -28,6 +28,8 @@ public class StockOrderListDto  {
      */
     private Integer refundState;
 
+    private Integer purchaseState;
+
 
     /**
      * create_time,pay_time

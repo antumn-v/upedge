@@ -180,4 +180,10 @@ public class PurchaseOrderController {
         Session session = UserUtil.getSession(redisTemplate);
         return purchaseOrderService.partItemRecreateOrder(request,session);
     }
+
+
+    @PostMapping("/check/{id}")
+    public BaseResponse check(@PathVariable Long orderId){
+        return purchaseOrderService.check(orderId);
+    }
 }

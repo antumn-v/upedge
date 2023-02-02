@@ -394,7 +394,7 @@
 
     <select id="selectItemVoByOrderIds" resultType="com.upedge.common.model.oms.stock.StockOrderItemVo">
         select
-                item.id,item.product_id,item.variant_id,item.order_id,
+                item.id,item.product_id,item.variant_id,item.order_id,item.inbound_quantity,
                 item.price,item.quantity,item.product_title,item.variant_name,item.refund_quantity,
                 item.variant_sku,item.variant_image,item.barcode,item.supplier_name,item.purchase_sku
         from stock_order_item item

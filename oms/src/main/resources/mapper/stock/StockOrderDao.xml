@@ -154,10 +154,10 @@
             </if>
             <if test="t.refundState != null">
                 <if test="t.refundState == 0">
-                    o.refund_state between '0' and '2' and
+                    o.refund_state = '0' and
                 </if>
                 <if test="t.refundState != 0">
-                    o.refund_state = #{t.refundState} and
+                    o.refund_state > '0' and
                 </if>
             </if>
             <if test="t.shipReview != null">
@@ -171,6 +171,14 @@
             </if>
             <if test="t.variantSku != null">
                 item.variant_sku = #{t.variantSku} and
+            </if>
+            <if test="t.purchaseState != null">
+                <if test="t.purchaseState == 0">
+                    o.purchase_state between '0' and '1' and
+                </if>
+                <if test="t.purchaseState != 0">
+                    o.purchase_state > '1' and
+                </if>
             </if>
             <if test="t.dateType != null and t.dateBegin != null and t.dateEnd != null">
                 ${t.dateType} between #{t.dateBegin,jdbcType=TIMESTAMP} and #{t.dateEnd,jdbcType=TIMESTAMP} and

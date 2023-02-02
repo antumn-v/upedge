@@ -98,6 +98,7 @@ public class StockOrderController {
         StockOrderTagEnum enums = StockOrderTagEnum.valueOf(request.getTag());
         stockOrderListDto.setPayState(enums.getPayState());
         stockOrderListDto.setRefundState(enums.getRefundState());
+        stockOrderListDto.setPurchaseState(enums.getPurchaseState());
 
         List<StockOrderVo> results = stockOrderService.selectOrderList(request);
         Long total = stockOrderService.countOrderList(request);

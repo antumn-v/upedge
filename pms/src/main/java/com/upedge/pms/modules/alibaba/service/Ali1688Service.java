@@ -353,6 +353,26 @@ public class Ali1688Service {
 
     }
 
+    public static void main(String[] args) {
+
+        Long[] productIdList = new Long[1];
+        productIdList[0] = 561418754161L;
+
+        //获取产品信息
+        ApiExecutor apiExecutor = new ApiExecutor("1819149", "w6IOzTeQoH1");
+
+        AlibabaCrossProductInfoParam param = new AlibabaCrossProductInfoParam();
+
+        param.setProductId(561418754161L);
+
+        SDKResult<AlibabaCrossProductInfoResult> sdkResult =
+                apiExecutor.execute(param, "e97d22fe-981b-4c47-a780-34e99c649b89");
+
+        ProductInfo productInfo = sdkResult.getResult().getProductInfo();
+
+        System.out.println(productInfo);
+    }
+
     /**
      * 根据供应商登录id获取供应商信息
      */

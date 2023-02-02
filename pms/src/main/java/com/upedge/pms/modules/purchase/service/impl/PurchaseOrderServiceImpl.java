@@ -111,6 +111,30 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
         return purchaseOrderDao.insert(record);
     }
 
+    @Override
+    public BaseResponse check(Long orderId) {
+
+        PurchaseOrder purchaseOrder = selectByPrimaryKey(orderId);
+        if (purchaseOrder == null){
+            return BaseResponse.failed();
+        }
+        Long stockOrderId = Long.parseLong(purchaseOrder.getRelateId());
+        if (stockOrderId != null && !stockOrderId.equals(0L)) {
+            return BaseResponse.failed();
+        }
+        List<PurchaseOrderItem> purchaseOrderItems = purchaseOrderItemService.selectByOrderId(orderId);
+        List<StockPurchaseOrderItemReceiveDto> stockPurchaseOrderItemReceiveDtos = new ArrayList<>();
+        for (PurchaseOrderItem purchaseOrderItem : purchaseOrderItems) {
+            StockPurchaseOrderItemReceiveDto stockPurchaseOrderItemReceiveDto = new StockPurchaseOrderItemReceiveDto();
+            stockPurchaseOrderItemReceiveDto.setOrderId(orderId);
+            stockPurchaseOrderItemReceiveDto.setVariantId(purchaseOrderItem.getVariantId());
+            stockPurchaseOrderItemReceiveDto.setQuantity(purchaseOrderItem.getReceiveQuantity());
+            stockPurchaseOrderItemReceiveDtos.add(stockPurchaseOrderItemReceiveDto);
+        }
+        omsFeignClient.updateInboundQuantity(stockPurchaseOrderItemReceiveDtos);
+        return BaseResponse.success();
+    }
+
     @Transactional
     @Override
     public BaseResponse partItemRecreateOrder(PurchasePartItemRecreateOrderRequest request, Session session) {
@@ -193,8 +217,8 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
     public BaseResponse revokePurchaseOrder(PurchaseOrderRevokeRequest request, Session session) throws CustomerException {
         Long orderId = request.getOrderId();
         PurchaseOrder purchaseOrder = selectByPrimaryKey(orderId);
-        if (purchaseOrder == null || purchaseOrder.getEditState() == 1) {
-            return BaseResponse.failed("订单不存在或已提交");
+        if (purchaseOrder == null || purchaseOrder.getPurchaseState() > 0) {
+            return BaseResponse.failed("订单不存在或产品已入库");
         }
         if (purchaseOrder.getEditState() == -1) {
             return BaseResponse.success();
@@ -629,8 +653,8 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
                         stockPurchaseOrderItemReceiveDto.setOrderId(orderId);
                         stockPurchaseOrderItemReceiveDto.setVariantId(purchaseOrderItem.getVariantId());
                         stockPurchaseOrderItemReceiveDto.setQuantity(itemReceiveDto.getQuantity());
+                        stockPurchaseOrderItemReceiveDtos.add(stockPurchaseOrderItemReceiveDto);
                     }
-
                     continue a;
                 }
             }
