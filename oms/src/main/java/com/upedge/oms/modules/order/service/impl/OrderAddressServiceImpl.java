@@ -48,12 +48,18 @@ public class OrderAddressServiceImpl implements OrderAddressService {
         String name = storeOrderAddress.getFirstName() + " " + storeOrderAddress.getLastName();
         for (StoreOrderRelate storeOrderRelate : storeOrderRelateList) {
             Order order = orderService.selectByPrimaryKey(storeOrderRelate.getOrderId());
-            if (order.getPayState() > 0){
+            if (order.getPackState() == 1 || order.getShipState() == 1){
                 continue;
             }
+
             OrderAddress orderAddress = orderAddressDao.selectByOrderId(storeOrderRelate.getOrderId());
             if (orderAddress.getIfEdited()){
                 continue;
+            }
+            if (order.getPayState() == 1){
+                if (!orderAddress.getCountry().equals(storeOrderAddress.getCountry())){
+                    continue;
+                }
             }
             Long orderAddressId = orderAddress.getId();
             if (StringUtils.isBlank(orderAddress.getCountry())
