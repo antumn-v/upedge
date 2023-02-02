@@ -18,6 +18,7 @@
         <result property="adminVariantImage" column="admin_variant_image"/>
         <result property="adminVariantSku" column="admin_variant_sku"/>
         <result property="usdPrice" column="usd_price"/>
+        <result property="declarePrice" column="declare_price"/>
         <result property="usdRate" column="usd_rate"/>
         <result property="cnyPrice" column="cny_price"/>
         <result property="quantity" column="quantity"/>
@@ -128,8 +129,7 @@
 
 
     <sql id="Base_Column_List">
-        `id`
-                ,`order_id`,`store_order_id`,`store_order_item_id`,`store_variant_id`,
+        `id`,`order_id`,`store_order_id`,`store_order_item_id`,`store_variant_id`,`declare_price`,
         `admin_variant_id`,`store_product_id`,`admin_product_id`,`picked_quantity`,
         `store_variant_name`,`store_variant_sku`,`store_product_title`,`store_variant_image`,
         `admin_variant_image`,`admin_variant_sku`,`usd_price`,`usd_rate`,`cny_price`,`barcode`,`locked_quantity`,
@@ -282,6 +282,7 @@
                         `admin_variant_volume` = #{r.volume},
                         `admin_product_id` = #{r.productId},
                         `usd_price` = #{r.usdPrice},
+                        declare_price = #{r.usdPrice},
                         `admin_variant_image` = #{r.image}
         where store_variant_id = #{storeVariantId}
           and o.pay_state = '0'
@@ -304,7 +305,8 @@
         update order_item oi
                 inner join `order` o
         on oi.order_id = o.id
-                set oi.usd_price = #{usdPrice}
+                set oi.usd_price = #{usdPrice},
+                        oi.declare_price = #{usdPrice}
         where oi.admin_variant_id = #{adminVariantId}
           and o.pay_state = '0'
           and oi.quote_state = '6'
@@ -915,6 +917,7 @@
         oi.admin_variant_name = #{cnName},
         oi.shipping_id = #{productShippingId},
         oi.usd_price = #{usdPrice},
+        oi.declare_price = #{usdPrice},
         oi.cny_price = #{cnyPrice},
         oi.discharge_quantity = '0',
         oi.quote_state = '1',
@@ -1476,5 +1479,11 @@
           and o.pack_state = '0'
           and o.ship_state = '0'
           and o.refund_state = '0'
+    </update>
+
+    <update id="updateDeclarePriceById">
+        update order_item
+            set declare_price = #{declarePrice}
+        where id = #{id}
     </update>
 </mapper>

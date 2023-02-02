@@ -166,7 +166,7 @@
         #{variantName},
         #{variantSku},
         #{variantImage},
-        #{inboundQuantity},
+        '0',
         #{purchaseNo}
         )
     </insert>
@@ -293,7 +293,7 @@
                 #{item.variantName},
                 #{item.variantSku},
                 #{item.variantImage},
-                #{item.inboundQuantity},
+                '0',
                 #{item.purchaseNo},
                 #{item.barcode},
                 #{item.purchaseSku},

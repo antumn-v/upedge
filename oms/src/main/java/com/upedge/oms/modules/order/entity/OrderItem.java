@@ -75,6 +75,8 @@ public class OrderItem{
 	 */
     private BigDecimal usdPrice;
 
+	private BigDecimal declarePrice;
+
     private BigDecimal cnyPrice;
 
     private BigDecimal usdRate;

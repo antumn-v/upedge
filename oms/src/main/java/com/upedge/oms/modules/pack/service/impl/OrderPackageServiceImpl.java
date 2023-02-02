@@ -863,7 +863,7 @@ public class OrderPackageServiceImpl implements OrderPackageService {
             }
             yanwenProductListDTO.setGoodsNameCh(entryCName);
             yanwenProductListDTO.setGoodsNameEn(entryEName);
-            yanwenProductListDTO.setPrice(orderItem.getUsdPrice());
+            yanwenProductListDTO.setPrice(orderItem.getDeclarePrice());
             yanwenProductListDTO.setWeight(orderItem.getAdminVariantWeight().intValue());
             yanwenProductListDTO.setQuantity(orderItem.getQuantity());
             yanwenProductListDTOS.add(yanwenProductListDTO);
@@ -938,7 +938,7 @@ public class OrderPackageServiceImpl implements OrderPackageService {
             cneGoodsListDTO.setCxGoodsA(entryEName);
             cneGoodsListDTO.setCxGCodeA(orderItem.getBarcode());
             cneGoodsListDTO.setIxQuantity(orderItem.getQuantity());
-            cneGoodsListDTO.setFxPrice(orderItem.getUsdPrice());
+            cneGoodsListDTO.setFxPrice(orderItem.getDeclarePrice());
             cneGoodsListDTOS.add(cneGoodsListDTO);
         }
         recListDTO.setGoodsList(cneGoodsListDTOS);
@@ -1028,7 +1028,7 @@ public class OrderPackageServiceImpl implements OrderPackageService {
             parcelsDTO.setHSCode(orderItem.getBarcode());
             parcelsDTO.setSKU(orderItem.getBarcode());
             parcelsDTO.setQuantity(orderItem.getQuantity());
-            parcelsDTO.setUnitPrice(orderItem.getUsdPrice());
+            parcelsDTO.setUnitPrice(orderItem.getDeclarePrice());
             parcelsDTO.setInvoiceRemark(orderItem.getBarcode());
             parcelsDTO.setRemark(orderItem.getBarcode());
             parcelsDTO.setUnitWeight(orderItem.getAdminVariantWeight().divide(new BigDecimal("1000"), 2, BigDecimal.ROUND_UP));
@@ -1132,8 +1132,8 @@ public class OrderPackageServiceImpl implements OrderPackageService {
             declareProductInfoDTO.setDeclareProductNameCn(entryCName);
             declareProductInfoDTO.setDeclareProductCode(orderItem.getBarcode());
             declareProductInfoDTO.setDeclareProductCodeQty(orderItem.getQuantity());
-            declareProductInfoDTO.setDeclareUnitPriceExport(orderItem.getUsdPrice());
-            declareProductInfoDTO.setDeclareUnitPriceImport(orderItem.getUsdPrice());
+            declareProductInfoDTO.setDeclareUnitPriceExport(orderItem.getDeclarePrice());
+            declareProductInfoDTO.setDeclareUnitPriceImport(orderItem.getDeclarePrice());
             declareProductInfoDTO.setPackageRemarks(orderItem.getBarcode() + "*" + orderItem.getQuantity());
             declareProductInfoDTOS.add(declareProductInfoDTO);
         }

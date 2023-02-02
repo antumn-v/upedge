@@ -10,10 +10,7 @@ import com.upedge.common.model.order.vo.OrderItemUpdateImageNameRequest;
 import com.upedge.common.model.pms.vo.VariantPreSaleQuantity;
 import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.web.util.UserUtil;
-import com.upedge.oms.modules.order.request.AirwallexRequest;
-import com.upedge.oms.modules.order.request.OrderItemQuoteRequest;
-import com.upedge.oms.modules.order.request.OrderItemUpdateQuantityRequest;
-import com.upedge.oms.modules.order.request.OrderItemUpdateVariantRequest;
+import com.upedge.oms.modules.order.request.*;
 import com.upedge.oms.modules.order.service.OrderItemService;
 import com.upedge.oms.modules.order.service.OrderService;
 import io.swagger.annotations.Api;
@@ -63,6 +60,11 @@ public class OrderItemController {
         return orderItemService.updateVariant(request,session);
     }
 
+    @PostMapping("/updateDeclarePrice")
+    public BaseResponse updateDeclarePrice(@RequestBody@Valid OrderItemDeclarePriceUpdateRequest request){
+        Session session = UserUtil.getSession(redisTemplate);
+        return orderItemService.updateDeclarePrice(request,session);
+    }
 
     @PostMapping("/updateImageNameByStoreVariantId")
     public BaseResponse updateImageNameByStoreVariantId(@RequestBody OrderItemUpdateImageNameRequest request){

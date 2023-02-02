@@ -26,6 +26,8 @@ import java.util.Map;
  */
 public interface OrderItemDao {
 
+    int updateDeclarePriceById(@Param("id") Long id, @Param("declarePrice") BigDecimal declarePrice);
+
     List<OrderItem> selectUnPaidItemByStoreOrderId(Long storeOrderId);
 
     int updateQuantityById(@Param("id") Long id, @Param("quantity") Integer quantity);

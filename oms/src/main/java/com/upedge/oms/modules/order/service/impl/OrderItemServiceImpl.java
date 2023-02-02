@@ -30,10 +30,7 @@ import com.upedge.oms.modules.order.dao.StoreOrderItemDao;
 import com.upedge.oms.modules.order.entity.Order;
 import com.upedge.oms.modules.order.entity.OrderItem;
 import com.upedge.oms.modules.order.entity.StoreOrderItem;
-import com.upedge.oms.modules.order.request.AirwallexRequest;
-import com.upedge.oms.modules.order.request.OrderItemQuoteRequest;
-import com.upedge.oms.modules.order.request.OrderItemUpdateQuantityRequest;
-import com.upedge.oms.modules.order.request.OrderItemUpdateVariantRequest;
+import com.upedge.oms.modules.order.request.*;
 import com.upedge.oms.modules.order.service.OrderItemService;
 import com.upedge.oms.modules.order.service.OrderPayService;
 import com.upedge.oms.modules.order.service.OrderService;
@@ -119,6 +116,13 @@ public class OrderItemServiceImpl implements OrderItemService {
     @Transactional
     public int insertSelective(OrderItem record) {
         return orderItemDao.insert(record);
+    }
+
+    @Override
+    public BaseResponse updateDeclarePrice(OrderItemDeclarePriceUpdateRequest request, Session session) {
+        orderItemDao.updateDeclarePriceById(request.getItemId(), request.getDeclarePrice());
+
+        return BaseResponse.success();
     }
 
     @Override

@@ -49,6 +49,8 @@ public class AppOrderItemVo {
      */
     private BigDecimal price;
 
+    private BigDecimal declarePrice;
+
     private BigDecimal adminVariantWeight;
 
     private BigDecimal adminVariantVolume;
