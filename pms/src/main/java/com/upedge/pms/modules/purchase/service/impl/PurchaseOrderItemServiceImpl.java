@@ -169,7 +169,8 @@ public class PurchaseOrderItemServiceImpl implements PurchaseOrderItemService {
     public BaseResponse updateQuantityById(PurchaseOrderItemUpdateQuantityRequest request) {
         Long id = request.getId();
         Integer quantity = request.getQuantity();
-        if (quantity < 0){
+        Integer requireQuantity = request.getRequireQuantity();
+        if (quantity < 0 || requireQuantity < 0){
             return BaseResponse.failed();
         }
         PurchaseOrderItem purchaseOrderItem = selectByPrimaryKey(id);
@@ -177,7 +178,8 @@ public class PurchaseOrderItemServiceImpl implements PurchaseOrderItemService {
             return BaseResponse.failed();
         }
         Integer oldQuantity = purchaseOrderItem.getQuantity();
-        if (quantity == oldQuantity){
+        Integer oldRequireQuantity = purchaseOrderItem.getRequireQuantity();
+        if (quantity == oldQuantity && oldRequireQuantity.equals(requireQuantity)){
             return BaseResponse.success();
         }
         Long variantId = purchaseOrderItem.getVariantId();
@@ -189,14 +191,15 @@ public class PurchaseOrderItemServiceImpl implements PurchaseOrderItemService {
         purchaseOrderItem = new PurchaseOrderItem();
         purchaseOrderItem.setId(id);
         purchaseOrderItem.setQuantity(quantity);
+        purchaseOrderItem.setRequireQuantity(requireQuantity);
         updateByPrimaryKeySelective(purchaseOrderItem);
 
-        quantity = quantity - oldQuantity;
-        if (quantity > 0){
-            variantWarehouseStockService.updateVariantPurchaseStock(variantId,"CNHZ",quantity);
+        requireQuantity = requireQuantity - oldRequireQuantity;
+        if (requireQuantity > 0){
+            variantWarehouseStockService.updateVariantPurchaseStock(variantId,"CNHZ",requireQuantity);
         }else {
-            quantity = quantity * -1;
-            variantWarehouseStockService.updatePurchaseStockReduce(variantId,"CNHZ",quantity);
+            requireQuantity = quantity * -1;
+            variantWarehouseStockService.updatePurchaseStockReduce(variantId,"CNHZ",requireQuantity);
         }
 
         updateOrderProductAmount(orderId);

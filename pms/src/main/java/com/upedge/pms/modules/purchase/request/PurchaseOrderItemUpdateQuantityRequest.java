@@ -13,4 +13,7 @@ public class PurchaseOrderItemUpdateQuantityRequest {
 
     @NotNull
     private Integer quantity;
+
+    @NotNull
+    private Integer requireQuantity;
 }

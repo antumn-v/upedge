@@ -9,4 +9,6 @@ public class CreatePurchaseOrderDto {
     private Long variantId;
 
     private Integer quantity;
+
+    private Integer requireQuantity;
 }

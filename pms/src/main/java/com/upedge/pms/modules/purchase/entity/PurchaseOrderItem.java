@@ -95,6 +95,7 @@ public class PurchaseOrderItem{
 		this.purchaseLink = tradeFastCargo.getOfferId().toString();
 		this.price = productVariant.getVariantPrice();
 		this.originalPrice = productVariant.getVariantPrice();
+		this.requireQuantity = tradeFastCargo.getQuantity().intValue();
 	}
 	public PurchaseOrderItem(ProductVariant productVariant) {
 		this.variantImage = productVariant.getVariantImage();

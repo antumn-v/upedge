@@ -536,7 +536,7 @@ public class VariantWarehouseStockServiceImpl implements VariantWarehouseStockSe
 
     @Override
     public boolean purchaseOrderItemRevoke(PurchaseOrderItem purchaseOrderItem,String warehouseCode) {
-        Integer quantity = purchaseOrderItem.getQuantity() - purchaseOrderItem.getReceiveQuantity();
+        Integer quantity = purchaseOrderItem.getRequireQuantity() - purchaseOrderItem.getReceiveQuantity();
         if (quantity == 0){
             return true;
         }

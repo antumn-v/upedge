@@ -151,14 +151,16 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
         for (PurchaseOrderItem purchaseOrderItem : purchaseOrderItems) {
             Long variantId = purchaseOrderItem.getVariantId();
             Integer quantity = purchaseOrderItem.getQuantity();
+            Integer requireQuantity = purchaseOrderItem.getRequireQuantity();
             Integer receivedQuantity = purchaseOrderItem.getReceiveQuantity();
-            Integer reduceQuantity = quantity - receivedQuantity;
+            Integer reduceQuantity = requireQuantity - receivedQuantity;
             if (reduceQuantity > 0) {
                 variantWarehouseStockService.updatePurchaseStockReduce(variantId, "CNHZ", reduceQuantity);
             }
             CreatePurchaseOrderDto createPurchaseOrderDto = new CreatePurchaseOrderDto();
             createPurchaseOrderDto.setQuantity(quantity);
             createPurchaseOrderDto.setVariantId(variantId);
+            createPurchaseOrderDto.setRequireQuantity(requireQuantity);
             createPurchaseOrderDtos.add(createPurchaseOrderDto);
         }
         CreatePurchaseOrderRequest createPurchaseOrderRequest = new CreatePurchaseOrderRequest();
@@ -227,7 +229,7 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
             return BaseResponse.success();
         }
         String purchaseId = purchaseOrder.getPurchaseId();
-        if (StringUtils.isNotBlank(purchaseId)) {
+        if (StringUtils.isNotBlank(purchaseId) && !purchaseId.equals("0")) {
             //先从1688取消订单
             AlibabaTradeCancelResult result = Ali1688Service.cancelOrder(Long.parseLong(purchaseOrder.getPurchaseId()), request.getCancelReason(), request.getRemark());
             if (!result.getSuccess() && !result.getErrorMessage().equals("该订单已经取消")) {
@@ -433,17 +435,19 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
             return BaseResponse.failed();
         }
         //变体数量
-        Map<Long, Integer> variantQuantityMap = new HashMap<>();
+        Map<Long, CreatePurchaseOrderDto> variantQuantityMap = new HashMap<>();
         List<Long> variantIds = new ArrayList<>();
         for (CreatePurchaseOrderDto createPurchaseOrderDto : createPurchaseOrderDtos) {
             Long variantId = createPurchaseOrderDto.getVariantId();
             if (variantIds.contains(variantId)) {
-                Integer quantity = variantQuantityMap.get(variantId);
+                CreatePurchaseOrderDto purchaseOrderDto = variantQuantityMap.get(variantId);
+                Integer quantity = purchaseOrderDto.getQuantity();
                 quantity += createPurchaseOrderDto.getQuantity();
-                variantQuantityMap.put(variantId, quantity);
+                createPurchaseOrderDto.setQuantity(quantity);
+                variantQuantityMap.put(variantId, createPurchaseOrderDto);
             } else {
                 variantIds.add(variantId);
-                variantQuantityMap.put(variantId, createPurchaseOrderDto.getQuantity());
+                variantQuantityMap.put(variantId, createPurchaseOrderDto);
             }
         }
         //获取产品信息
@@ -501,12 +505,13 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
             for (ProductVariant productVariant : variants) {
                 Long variantId = productVariant.getId();
                 String purchaseSku = productVariant.getPurchaseSku();
-
-                Integer quantity = variantQuantityMap.get(variantId);
+                CreatePurchaseOrderDto createPurchaseOrderDto = variantQuantityMap.get(variantId);
+                Integer quantity = createPurchaseOrderDto.getQuantity();
                 ProductPurchaseInfo productPurchaseInfo = purchaseInfoMap.get(purchaseSku);
 
                 PurchaseOrderItem purchaseItem = new PurchaseOrderItem(productVariant);
                 purchaseItem.setQuantity(quantity);
+                purchaseItem.setRequireQuantity(createPurchaseOrderDto.getRequireQuantity());
                 purchaseItem.setOriginalQuantity(quantity);
                 purchaseItem.setSpecId(productPurchaseInfo.getSpecId());
                 purchaseItem.setPurchaseLink(productPurchaseInfo.getPurchaseLink());
@@ -520,7 +525,7 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
             insert(purchaseOrder);
             purchaseOrderItemService.insertByBatch(purchaseItems);
             for (PurchaseOrderItem purchaseItem : purchaseItems) {
-                variantWarehouseStockService.updateVariantPurchaseStockByPlan(purchaseItem.getVariantId(), "CNHZ", purchaseItem.getQuantity());
+                variantWarehouseStockService.updateVariantPurchaseStockByPlan(purchaseItem.getVariantId(), "CNHZ", purchaseItem.getRequireQuantity());
             }
         }
         return BaseResponse.success();

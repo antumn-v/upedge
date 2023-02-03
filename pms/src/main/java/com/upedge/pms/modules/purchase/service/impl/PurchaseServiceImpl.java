@@ -556,7 +556,7 @@ public class PurchaseServiceImpl implements PurchaseService {
                 BeanUtils.copyProperties(purchasePlan, purchaseItem);
                 purchaseItem.setOriginalPrice(purchasePlan.getPrice());
                 purchaseItem.setOriginalQuantity(purchasePlan.getQuantity());
-
+                purchaseItem.setRequireQuantity(purchasePlan.getQuantity());
                 purchaseItem.setOrderId(id);
                 purchaseItem.setId(IdGenerate.nextId());
                 purchaseItems.add(purchaseItem);
@@ -615,6 +615,7 @@ public class PurchaseServiceImpl implements PurchaseService {
                 BeanUtils.copyProperties(purchasePlan, purchaseItem);
                 purchaseItem.setOriginalPrice(purchasePlan.getPrice());
                 purchaseItem.setOriginalQuantity(purchasePlan.getQuantity());
+                purchaseItem.setRequireQuantity(purchasePlan.getQuantity());
                 purchaseItem.setOrderId(id);
                 purchaseItem.setId(IdGenerate.nextId());
                 purchaseItems.add(purchaseItem);
