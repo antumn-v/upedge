@@ -129,8 +129,7 @@
 
 
     <sql id="Base_Column_List">
-        `id`
-                ,`order_id`,`store_order_id`,`store_order_item_id`,`store_variant_id`,`declare_price`,
+        `id`,`order_id`,`store_order_id`,`store_order_item_id`,`store_variant_id`,`declare_price`,
         `admin_variant_id`,`store_product_id`,`admin_product_id`,`picked_quantity`,
         `store_variant_name`,`store_variant_sku`,`store_product_title`,`store_variant_image`,
         `admin_variant_image`,`admin_variant_sku`,`usd_price`,`usd_rate`,`cny_price`,`barcode`,`locked_quantity`,
@@ -493,6 +492,7 @@
             admin_variant_image,
             admin_variant_sku,
             usd_price,
+            declare_price,
             usd_rate,
             cny_price,
             quantity,
@@ -522,6 +522,7 @@
         #{storeVariantImage},
         #{adminVariantImage},
         #{adminVariantSku},
+        #{usdPrice},
         #{usdPrice},
         #{usdRate},
         #{cnyPrice},
@@ -734,6 +735,7 @@
             admin_variant_image,
             admin_variant_sku,
             usd_price,
+            declare_price,
             usd_rate,
             cny_price,
             quantity,
@@ -767,6 +769,7 @@
                 #{item.storeVariantImage},
                 #{item.adminVariantImage},
                 #{item.adminVariantSku},
+                #{item.usdPrice},
                 #{item.usdPrice},
                 #{item.usdRate},
                 #{item.cnyPrice},

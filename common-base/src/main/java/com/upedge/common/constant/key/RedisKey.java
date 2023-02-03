@@ -59,8 +59,6 @@ public class RedisKey {
     public static final String STRING_ACCOUNT_COMMISSION_WITHDRAWAL = "account:commission:withdrawal:";
     //店铺订单生成订单加锁
     public static final String STRING_STORE_ORDER_CREATE = "storeOrder:create:order:";
-    //shopify店铺locations
-    public static final String STRING_STORE_SHOPIFY_LOCATIONS = "store:locations:";
     //用户获取最近一次的没有接收过的notice
     public static final String STRING_USER_RECENT_NOTICE = "user:recent:notice:";
     //订单备注

@@ -227,7 +227,7 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
         if (StringUtils.isNotBlank(purchaseId)) {
             //先从1688取消订单
             AlibabaTradeCancelResult result = Ali1688Service.cancelOrder(Long.parseLong(purchaseOrder.getPurchaseId()), request.getCancelReason(), request.getRemark());
-            if (!result.getSuccess()) {
+            if (!result.getSuccess() && !result.getErrorMessage().equals("该订单已经取消")) {
                 return BaseResponse.failed(result.getErrorMessage());
             }
         }

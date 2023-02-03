@@ -295,7 +295,7 @@ public class OrderFulfillmentServiceImpl implements OrderFulfillmentService {
             return false;
         }
 
-        if (orderPackage.getIsUploadStore() && orderPackage.getPackageState() == 1) {
+        if (orderPackage.getIsUploadStore() && orderPackage.getPackageState() == 1 || order.getOrderType() == 4) {
             orderDao.updateOrderAsTracked(orderId, trackCode, trackingCodeType);
             return true;
         }
@@ -493,7 +493,7 @@ public class OrderFulfillmentServiceImpl implements OrderFulfillmentService {
         List<ShopifyLineItem> lineItems = new ArrayList<>();
 
         //shopify订单回传物流需要添加location Id，location和订单产品的关系还需要测试
-        String storeLocationKey = RedisKey.STRING_STORE_SHOPIFY_LOCATIONS + storeVo.getId();
+        String storeLocationKey = RedisKey.HASH_STORE_FULFILLMENT_SERVICE_LOCATION + storeVo.getId();
         List<ShopifyLocation> locations = (List<ShopifyLocation>) redisTemplate.opsForValue().get(storeLocationKey);
         if (ListUtils.isEmpty(locations)) {
             locations = ShopifyShopApi.getShopifyLocations(storeVo.getStoreName(), storeVo.getApiToken());
@@ -513,17 +513,17 @@ public class OrderFulfillmentServiceImpl implements OrderFulfillmentService {
             map.put("notify_customer", true);
             map.put("tracking_url", "https://t.17track.net/en#nums=" + orderTracking.getTrackingCode());
             map.put("line_items", lineItemList);
-            String locationId = (String) redisTemplate.opsForHash().get(RedisKey.HASH_STORE_FULFILLMENT_SERVICE_LOCATION + storeVo.getId(), fulfillmentServiceItemsEntry.getKey());
-            if (StringUtils.isNotBlank(locationId)) {
-                map.put("location_id", locationId);
-                fulfillmentMap.put("fulfillment", map);
-                ShopifyFulfillment fulfillment = ShopifyOrderApi.orderFulfillment(platOrderId, storeVo.getStoreName(), storeVo.getApiToken(), fulfillmentMap);
-                saveStoreOrderFulfillment(fulfillment, storeVo, orderTracking, platOrderId, fulfillment_post, storeOrderId);
-                if (null != fulfillment && fulfillment.getStatus().equals("success")) {
-                    i ++;
-                    continue a;
-                }
-            }
+//            String locationId = (String) redisTemplate.opsForHash().get(RedisKey.HASH_STORE_FULFILLMENT_SERVICE_LOCATION + storeVo.getId(), fulfillmentServiceItemsEntry.getKey());
+//            if (StringUtils.isNotBlank(locationId)) {
+//                map.put("location_id", locationId);
+//                fulfillmentMap.put("fulfillment", map);
+//                ShopifyFulfillment fulfillment = ShopifyOrderApi.orderFulfillment(platOrderId, storeVo.getStoreName(), storeVo.getApiToken(), fulfillmentMap);
+//                saveStoreOrderFulfillment(fulfillment, storeVo, orderTracking, platOrderId, fulfillment_post, storeOrderId);
+//                if (null != fulfillment && fulfillment.getStatus().equals("success")) {
+//                    i ++;
+//                    continue a;
+//                }
+//            }
 
             for (ShopifyLocation location : locations) {
                 map.put("location_id", location.getId());
@@ -532,7 +532,7 @@ public class OrderFulfillmentServiceImpl implements OrderFulfillmentService {
                 saveStoreOrderFulfillment(fulfillment, storeVo, orderTracking, platOrderId, fulfillment_post, storeOrderId);
                 if (null != fulfillment && fulfillment.getStatus().equals("success")) {
                     i ++;
-                    redisTemplate.opsForHash().put(RedisKey.HASH_STORE_FULFILLMENT_SERVICE_LOCATION + storeVo.getId(), fulfillmentServiceItemsEntry.getKey(), location.getId());
+//                    redisTemplate.opsForHash().put(RedisKey.HASH_STORE_FULFILLMENT_SERVICE_LOCATION + storeVo.getId(), fulfillmentServiceItemsEntry.getKey(), location.getId());
                     continue a;
                 }
             }
@@ -549,7 +549,7 @@ public class OrderFulfillmentServiceImpl implements OrderFulfillmentService {
 
     boolean uploadShopifyOrderFulfillment(Map<String, List<ShopifyLineItem>> fulfillmentItems, String trackCode, String trackCompany, StoreVo storeVo, String platOrderId, Long storeOrderId, Long orderId) {
         //shopify订单回传物流需要添加location Id，location和订单产品的关系还需要测试
-        String storeLocationKey = RedisKey.STRING_STORE_SHOPIFY_LOCATIONS + storeVo.getId();
+        String storeLocationKey = RedisKey.HASH_STORE_FULFILLMENT_SERVICE_LOCATION + storeVo.getId();
 
         List<ShopifyLocation> locations = (List<ShopifyLocation>) redisTemplate.opsForValue().get(storeLocationKey);
         if (ListUtils.isEmpty(locations)) {
@@ -570,26 +570,25 @@ public class OrderFulfillmentServiceImpl implements OrderFulfillmentService {
             map.put("notify_customer", true);
             map.put("tracking_url", "https://t.17track.net/en#nums=" + trackCode);
             map.put("line_items", lineItemList);
-            String locationId = (String) redisTemplate.opsForHash().get(RedisKey.HASH_STORE_FULFILLMENT_SERVICE_LOCATION + storeVo.getId(), fulfillmentServiceItemsEntry.getKey());
-            if (StringUtils.isNotBlank(locationId)) {
-                map.put("location_id", locationId);
-                fulfillmentMap.put("fulfillment", map);
-                ShopifyFulfillment fulfillment = ShopifyOrderApi.orderFulfillment(platOrderId, storeVo.getStoreName(), storeVo.getApiToken(), fulfillmentMap);
-                saveStoreOrderFulfillment(fulfillment, storeVo, orderId, platOrderId, fulfillment_post, storeOrderId);
-                if (null != fulfillment && fulfillment.getStatus().equals("success")) {
-                    i ++;
-                    continue a;
-                }
-            }
+//            String locationId = (String) redisTemplate.opsForHash().get(RedisKey.HASH_STORE_FULFILLMENT_SERVICE_LOCATION + storeVo.getId(), fulfillmentServiceItemsEntry.getKey());
+//            if (StringUtils.isNotBlank(locationId)) {
+//                map.put("location_id", locationId);
+//                fulfillmentMap.put("fulfillment", map);
+//                ShopifyFulfillment fulfillment = ShopifyOrderApi.orderFulfillment(platOrderId, storeVo.getStoreName(), storeVo.getApiToken(), fulfillmentMap);
+//                saveStoreOrderFulfillment(fulfillment, storeVo, orderId, platOrderId, fulfillment_post, storeOrderId);
+//                if (null != fulfillment && fulfillment.getStatus().equals("success")) {
+//                    i ++;
+//                    continue a;
+//                }
+//            }
 
             for (ShopifyLocation location : locations) {
                 map.put("location_id", location.getId());
                 fulfillmentMap.put("fulfillment", map);
                 ShopifyFulfillment fulfillment = ShopifyOrderApi.orderFulfillment(platOrderId, storeVo.getStoreName(), storeVo.getApiToken(), fulfillmentMap);
-                saveStoreOrderFulfillment(fulfillment, storeVo, orderId, platOrderId, fulfillment_post, storeOrderId);
+//                saveStoreOrderFulfillment(fulfillment, storeVo, orderId, platOrderId, fulfillment_post, storeOrderId);
                 if (null != fulfillment && fulfillment.getStatus().equals("success")) {
                     i ++;
-                    redisTemplate.opsForHash().put(RedisKey.HASH_STORE_FULFILLMENT_SERVICE_LOCATION + storeVo.getId(), fulfillmentServiceItemsEntry.getKey(), location.getId());
                     continue a;
                 }
             }
