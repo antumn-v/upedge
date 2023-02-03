@@ -183,7 +183,7 @@ public class PurchaseOrderController {
 
 
     @PostMapping("/check/{id}")
-    public BaseResponse check(@PathVariable Long orderId){
-        return purchaseOrderService.check(orderId);
+    public BaseResponse check(@PathVariable Long id){
+        return purchaseOrderService.check(id);
     }
 }

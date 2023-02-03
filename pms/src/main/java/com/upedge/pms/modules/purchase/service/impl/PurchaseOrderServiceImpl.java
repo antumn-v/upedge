@@ -115,18 +115,21 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
     public BaseResponse check(Long orderId) {
 
         PurchaseOrder purchaseOrder = selectByPrimaryKey(orderId);
-        if (purchaseOrder == null){
+        if (purchaseOrder == null ||  null == purchaseOrder.getRelateId()){
             return BaseResponse.failed();
         }
-        Long stockOrderId = Long.parseLong(purchaseOrder.getRelateId());
-        if (stockOrderId != null && !stockOrderId.equals(0L)) {
-            return BaseResponse.failed();
+        Long stockOrderId = null;
+        try {
+            stockOrderId = Long.parseLong(purchaseOrder.getRelateId());
+
+        } catch (NumberFormatException e) {
+            return BaseResponse.failed(e.getMessage());
         }
         List<PurchaseOrderItem> purchaseOrderItems = purchaseOrderItemService.selectByOrderId(orderId);
         List<StockPurchaseOrderItemReceiveDto> stockPurchaseOrderItemReceiveDtos = new ArrayList<>();
         for (PurchaseOrderItem purchaseOrderItem : purchaseOrderItems) {
             StockPurchaseOrderItemReceiveDto stockPurchaseOrderItemReceiveDto = new StockPurchaseOrderItemReceiveDto();
-            stockPurchaseOrderItemReceiveDto.setOrderId(orderId);
+            stockPurchaseOrderItemReceiveDto.setOrderId(stockOrderId);
             stockPurchaseOrderItemReceiveDto.setVariantId(purchaseOrderItem.getVariantId());
             stockPurchaseOrderItemReceiveDto.setQuantity(purchaseOrderItem.getReceiveQuantity());
             stockPurchaseOrderItemReceiveDtos.add(stockPurchaseOrderItemReceiveDto);
@@ -650,7 +653,7 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
                     //修改客户备库订单产品入库数据
                     if (stockOrderId != null && !stockOrderId.equals(0L)) {
                         StockPurchaseOrderItemReceiveDto stockPurchaseOrderItemReceiveDto = new StockPurchaseOrderItemReceiveDto();
-                        stockPurchaseOrderItemReceiveDto.setOrderId(orderId);
+                        stockPurchaseOrderItemReceiveDto.setOrderId(stockOrderId);
                         stockPurchaseOrderItemReceiveDto.setVariantId(purchaseOrderItem.getVariantId());
                         stockPurchaseOrderItemReceiveDto.setQuantity(itemReceiveDto.getQuantity());
                         stockPurchaseOrderItemReceiveDtos.add(stockPurchaseOrderItemReceiveDto);
