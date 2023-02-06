@@ -18,12 +18,16 @@ import org.apache.rocketmq.client.exception.MQClientException;
 import org.apache.rocketmq.common.consumer.ConsumeFromWhere;
 import org.apache.rocketmq.common.message.Message;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
 public class CustomerIossUpdateCustomer {
-
+    
+    @Value("${rocketmq.name-server}")
+    private String nameServer;
 
     DefaultMQPushConsumer consumer;
 
@@ -33,6 +37,7 @@ public class CustomerIossUpdateCustomer {
     @Autowired
     OrderService orderService;
 
+    @Bean
     public void CustomerIossUpdateCustomer() throws MQClientException {
         consumer = new DefaultMQPushConsumer("customer_ioss_update");
         consumer.setNamesrvAddr(RocketMqConfig.NAME_SERVER);

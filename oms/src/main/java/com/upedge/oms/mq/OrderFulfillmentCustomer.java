@@ -13,11 +13,15 @@ import org.apache.rocketmq.client.exception.MQClientException;
 import org.apache.rocketmq.common.consumer.ConsumeFromWhere;
 import org.apache.rocketmq.common.message.Message;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
 public class OrderFulfillmentCustomer {
+
+    @Value("${rocketmq.name-server}")
+    private String nameServer;
 
     DefaultMQPushConsumer consumer;
 

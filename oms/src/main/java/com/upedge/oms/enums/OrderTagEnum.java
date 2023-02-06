@@ -47,7 +47,7 @@ public enum  OrderTagEnum {
     /**
      * 生包失败
      */
-    PACK_FAILED(1,0,0,null,null,2,null,null,null,0),
+    PACK_FAILED(1,0,0,null,null,2,null,null,null,null),
     //处理中
     PACK_PENDING(1,0,0,null,null,0,null,null,null,0),
     //有货

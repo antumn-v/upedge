@@ -37,9 +37,6 @@
     <update id="updateByPrimaryKeySelective" parameterType="com.upedge.pms.modules.purchase.entity.ProductPurchaseInfo">
         update product_purchase_info
         <set>
-            <if test="purchaseLink != null">
-                purchase_link = #{purchaseLink},
-            </if>
             <if test="supplierName != null">
                 supplier_name = #{supplierName},
             </if>
@@ -62,7 +59,7 @@
                 mixWholeSale = #{mixWholeSale},
             </if>
         </set>
-        where purchase_sku = #{purchaseSku}
+        where purchase_sku = #{purchaseSku} and purchase_link = #{purchaseLink}
     </update>
 
     <update id="updateByPrimaryKey" parameterType="com.upedge.pms.modules.purchase.entity.ProductPurchaseInfo">

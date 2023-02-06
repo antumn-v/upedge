@@ -634,6 +634,13 @@ public class ProductServiceImpl implements ProductService {
             String sku = skuInfo.getVariantSku();
             ProductPurchaseInfo productPurchaseInfo = productPurchaseInfoService.selectByPrimaryKey(sku);
             if (null != productPurchaseInfo){
+                if(!productPurchaseInfo.getSpecId().equals(skuInfo.getSpecId())){
+                    productPurchaseInfo.setSpecId(skuInfo.getSpecId());
+                    productPurchaseInfo.setInventory(skuInfo.getInventory());
+                    productPurchaseInfo.setMinOrderQuantity(productSaleInfo.getMinOrderQuantity());
+                    productPurchaseInfo.setMixWholeSale(productSaleInfo.getMixWholeSale());
+                    productPurchaseInfoService.updateByPrimaryKeySelective(productPurchaseInfo);
+                }
                 continue;
             }
             productPurchaseInfo = new ProductPurchaseInfo();

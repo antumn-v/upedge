@@ -293,9 +293,6 @@
         </if>
         where variant_id = #{variantId}
         and warehouse_code = #{warehouseCode}
-        <if test="processType == 1">
-            and purchase_stock >= #{quantity}
-        </if>
     </update>
 
     <update id="updateVariantSafeStock" parameterType="com.upedge.pms.modules.purchase.request.VariantSafeStockUpdateRequest">

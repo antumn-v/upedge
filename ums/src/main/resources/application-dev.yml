@@ -107,6 +107,9 @@ rocketmq:
     group: ums
     sendMsgTimeout: 9000
 
+mq:
+  nameServer: localhost:9876
+
 seata:
   enabled: true
   application-id: ${spring.application.name}
