@@ -86,6 +86,9 @@
             <if test="receiveQuantity != null">
                 receive_quantity = #{receiveQuantity},
             </if>
+            <if test="requireQuantity != null">
+                require_quantity = #{requireQuantity},
+            </if>
             <if test="state != null">
                 `state` = #{state}
             </if>

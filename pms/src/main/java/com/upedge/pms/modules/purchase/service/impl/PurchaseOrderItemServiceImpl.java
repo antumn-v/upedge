@@ -198,7 +198,7 @@ public class PurchaseOrderItemServiceImpl implements PurchaseOrderItemService {
         if (requireQuantity > 0){
             variantWarehouseStockService.updateVariantPurchaseStock(variantId,"CNHZ",requireQuantity);
         }else {
-            requireQuantity = quantity * -1;
+            requireQuantity = requireQuantity * -1;
             variantWarehouseStockService.updatePurchaseStockReduce(variantId,"CNHZ",requireQuantity);
         }
 

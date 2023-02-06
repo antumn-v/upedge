@@ -580,7 +580,7 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
 
         List<PurchaseOrderItem> items = purchaseOrderItemService.selectByOrderId(id);
         for (PurchaseOrderItem item : items) {
-            purchaseQuantity += item.getQuantity();
+            purchaseQuantity += item.getRequireQuantity();
             receiveQuantity += item.getReceiveQuantity();
         }
         if (receiveQuantity == 0) {
