@@ -14,12 +14,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.stereotype.Component;
 
 import java.util.List;
 
 @Slf4j
-@Component
+//@Component
 public class Ordercelduler {
 
     @Autowired
@@ -80,7 +79,7 @@ public class Ordercelduler {
 
     }
 
-    @Scheduled(cron = "0 */10 * ? * *")
+//    @Scheduled(cron = "0 */10 * ? * *")
     public void reUploadStockOrderToSaihe(){
         if (!ifUploadSaihe) {
             return ;
@@ -113,7 +112,7 @@ public class Ordercelduler {
         }
     }
 
-    @Scheduled(cron = "0 00 00 ? * *")
+//    @Scheduled(cron = "0 00 00 ? * *")
     public void reUploadStore(){
         if (!ifUploadSaihe) {
             return ;

@@ -2,8 +2,8 @@ package com.upedge.common.constant.key;
 
 public class RocketMqConfig {
 
-//    public final static String NAME_SERVER = "localhost:9876";
-    public final static String NAME_SERVER = "172.23.127.10:9876";
+    public final static String NAME_SERVER = "localhost:9876";
+//    public final static String NAME_SERVER = "172.23.127.10:9876";
 
     /**
      * 保存订单交易信息

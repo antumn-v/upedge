@@ -88,7 +88,7 @@ public class WebhookController {
                     apiRequest.setJsonObject(jsonObject);
                     switch (topic) {
                         case "products/update":
-                            pmsFeignClient.updateShopifyProduct(apiRequest);
+//                            pmsFeignClient.updateShopifyProduct(apiRequest);
                             break;
                         case "orders/updated":
                             omsFeignClient.updateShopifyOrder(apiRequest);

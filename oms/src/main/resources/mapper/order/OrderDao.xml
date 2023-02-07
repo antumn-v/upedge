@@ -2535,9 +2535,7 @@
                      inner join order_item oi
                 on o.id = oi.order_id
         where o.id = #{orderId}
-          and o.pay_state = '1'
-          and o.refund_state = '0'
-          and o.ship_state = '0'
+        and oi.locked_quantity > '0'
     </select>
 
     <update id="updateStockState">

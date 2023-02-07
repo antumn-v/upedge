@@ -372,13 +372,13 @@ public class OrderPackageServiceImpl implements OrderPackageService {
         }
 
         OrderItemQuantityVo orderItemQuantityVo = orderService.selectOrderItemQuantitiesByOrderId(orderId);
-        if (null == orderItemQuantityVo) {
-            return packNo + "：订单错误";
+        if (null != orderItemQuantityVo) {
+            int i = pmsFeignClient.orderCancelShip(orderItemQuantityVo);//恢复库存
+            if (i == 0) {
+                return packNo + ": 库存异常";
+            }
         }
-        int i = pmsFeignClient.orderCancelShip(orderItemQuantityVo);//恢复库存
-        if (i == 0) {
-            return packNo + ": 库存异常";
-        }
+
         OrderStockClearRequest orderStockClearRequest = new OrderStockClearRequest();
         orderStockClearRequest.setOrderId(orderId);
         orderItemService.updateLockedQuantityClear(orderStockClearRequest);//订单库存清0
@@ -591,13 +591,13 @@ public class OrderPackageServiceImpl implements OrderPackageService {
         Order order = orderService.selectByPrimaryKey(orderId);
 
         OrderItemQuantityVo orderItemQuantityVo = orderService.selectOrderItemQuantitiesByOrderId(orderId);
-        if (null == orderItemQuantityVo) {
-            return;
+        if (null != orderItemQuantityVo) {
+            int i = pmsFeignClient.orderCancelShip(orderItemQuantityVo);
+            if (i == 0) {
+                return;
+            }
         }
-        int i = pmsFeignClient.orderCancelShip(orderItemQuantityVo);
-        if (i == 0) {
-            return;
-        }
+
         OrderStockClearRequest request = new OrderStockClearRequest();
         request.setOrderId(orderId);
         orderItemService.updateLockedQuantityClear(request);
@@ -810,13 +810,13 @@ public class OrderPackageServiceImpl implements OrderPackageService {
         }
 
         OrderItemQuantityVo orderItemQuantityVo = orderService.selectOrderItemQuantitiesByOrderId(orderId);
-        if (null == orderItemQuantityVo) {
-            return;
+        if (null != orderItemQuantityVo) {
+            int i = pmsFeignClient.orderCancelShip(orderItemQuantityVo);
+            if (i == 0) {
+                return;
+            }
         }
-        int i = pmsFeignClient.orderCancelShip(orderItemQuantityVo);
-        if (i == 0) {
-            return;
-        }
+
         OrderStockClearRequest orderStockClearRequest = new OrderStockClearRequest();
         orderStockClearRequest.setOrderId(orderId);
         orderItemService.updateLockedQuantityClear(orderStockClearRequest);

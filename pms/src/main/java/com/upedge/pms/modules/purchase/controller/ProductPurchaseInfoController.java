@@ -98,7 +98,7 @@ public class ProductPurchaseInfoController {
         return res;
     }
 
-    @PostMapping("/syncInventory")
+//    @PostMapping("/syncInventory")
     public void syncPurchaseVariantInventory(String message){
         if (StringUtils.isBlank(message)){
             return;

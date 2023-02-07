@@ -45,7 +45,7 @@ public class PackageScheduler {
      * 从赛盒获取物流
      */
     @Async
-    @Scheduled(cron = "0 00 19 ? * *")
+//    @Scheduled(cron = "0 00 19 ? * *")
     public void pullTrackingScheduledTwo(){
         if (!ifUploadSaihe) {
             return ;
