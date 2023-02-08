@@ -43,6 +43,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 
 @Slf4j
 @Service
@@ -665,7 +666,12 @@ public class OrderRefundServiceImpl implements OrderRefundService {
         if (response.getCode() != 1) {
             throw new CustomerException(ResultCode.FAIL_CODE, response.getMsg());
         }
-        orderPackageService.revokePackage(orderId,orderRefund.getReason());
+        CompletableFuture.runAsync(new Runnable() {
+            @Override
+            public void run() {
+                orderPackageService.revokePackage(orderId,orderRefund.getReason());
+            }
+        });
         return new BaseResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS);
     }
 

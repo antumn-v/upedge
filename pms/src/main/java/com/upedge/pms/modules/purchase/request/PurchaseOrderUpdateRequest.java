@@ -8,12 +8,14 @@ import lombok.Data;
 @Data
 public class PurchaseOrderUpdateRequest{
 
+    private Long id;
+
     /**
      * 
      */
     private String remark;
 
-    public PurchaseOrder toPurchaseOrder(Long id){
+    public PurchaseOrder toPurchaseOrder(){
         PurchaseOrder purchaseOrder=new PurchaseOrder();
         purchaseOrder.setId(id);
         purchaseOrder.setRemark(remark);

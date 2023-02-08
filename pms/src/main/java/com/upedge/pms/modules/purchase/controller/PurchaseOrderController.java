@@ -188,9 +188,9 @@ public class PurchaseOrderController {
     }
 
 
-    @PostMapping("/update/{id}")
-    public BaseResponse updateRemark(@RequestBody PurchaseOrderUpdateRequest request,@PathVariable Long id){
-        PurchaseOrder purchaseOrder = request.toPurchaseOrder(id);
+    @PostMapping("/update")
+    public BaseResponse updateRemark(@RequestBody PurchaseOrderUpdateRequest request){
+        PurchaseOrder purchaseOrder = request.toPurchaseOrder();
         purchaseOrderService.updateByPrimaryKeySelective(purchaseOrder);
         return BaseResponse.success();
     }
