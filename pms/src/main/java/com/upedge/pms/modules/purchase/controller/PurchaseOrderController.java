@@ -186,4 +186,12 @@ public class PurchaseOrderController {
     public BaseResponse check(@PathVariable Long id){
         return purchaseOrderService.check(id);
     }
+
+
+    @PostMapping("/update/{id}")
+    public BaseResponse updateRemark(@RequestBody PurchaseOrderUpdateRequest request,@PathVariable Long id){
+        PurchaseOrder purchaseOrder = request.toPurchaseOrder(id);
+        purchaseOrderService.updateByPrimaryKeySelective(purchaseOrder);
+        return BaseResponse.success();
+    }
 }

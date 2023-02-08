@@ -191,7 +191,7 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
         AlibabaTradeFastResult alibabaTradeFastResult = null;
 
         AlibabaTradeFastCreateOrderResult result = null;
-        String message = "下单号： " + orderId;
+        String message = "下单号： " + orderId + "  " + purchaseOrder.getRemark();
 
         try {
             result = Ali1688Service.createOrder(alibabaTradeFastCargos, alibabaApiVo, message);
@@ -228,14 +228,14 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
         if (purchaseOrder.getEditState() == -1) {
             return BaseResponse.success();
         }
-        String purchaseId = purchaseOrder.getPurchaseId();
-        if (StringUtils.isNotBlank(purchaseId) && !purchaseId.equals("0")) {
-            //先从1688取消订单
-            AlibabaTradeCancelResult result = Ali1688Service.cancelOrder(Long.parseLong(purchaseOrder.getPurchaseId()), request.getCancelReason(), request.getRemark());
-            if (!result.getSuccess() && !result.getErrorMessage().equals("该订单已经取消")) {
-                return BaseResponse.failed(result.getErrorMessage());
-            }
-        }
+//        String purchaseId = purchaseOrder.getPurchaseId();
+//        if (StringUtils.isNotBlank(purchaseId) && !purchaseId.equals("0")) {
+//            //先从1688取消订单
+//            AlibabaTradeCancelResult result = Ali1688Service.cancelOrder(Long.parseLong(purchaseOrder.getPurchaseId()), request.getCancelReason(), request.getRemark());
+//            if (!result.getSuccess() && !result.getErrorMessage().equals("该订单已经取消")) {
+//                return BaseResponse.failed(result.getErrorMessage());
+//            }
+//        }
 
         //修改仓库采购中数量
         List<PurchaseOrderItem> purchaseOrderItems = purchaseOrderItemService.selectByOrderId(orderId);
