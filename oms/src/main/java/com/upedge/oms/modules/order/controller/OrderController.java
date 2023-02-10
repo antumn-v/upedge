@@ -170,49 +170,48 @@ public class OrderController {
         Session session = UserUtil.getSession(redisTemplate);
 
         HashMap<String, Long> map = new HashMap();
-//        CountDownLatch latch = new CountDownLatch(tags.size());
+        CountDownLatch latch = new CountDownLatch(tags.size());
         for (OrderTagEnum tag : OrderTagEnum.values()) {
-            if (!tags.contains(tag.name())){
-                continue;
-            }
-            AppOrderListRequest request = new AppOrderListRequest();
-            BeanUtils.copyProperties(appOrderListRequest, request);
-            AppOrderListDto appOrderList = new AppOrderListDto();
-            BeanUtils.copyProperties(appOrderListDto, appOrderList);
-            appOrderList.setTags(tag.name());
-            appOrderList.initOrderState();
-            request.setT(appOrderList);
-            if (session.getApplicationId() == Constant.APP_APPLICATION_ID){
-                request.init(session.getCustomerId());
-            }
-            if (tag.name().equals("REFUNDS")){
-                request.getT().setRefundState(null);
-                request.setCondition("o.refund_state > 0");;
-            }
-            Long total = orderService.selectAppOrderCount(request);
-            map.put(tag.name(), total);
-//            threadPoolExecutor.submit(new Callable<Boolean>() {
-//                @Override
-//                public Boolean call() throws Exception {
-//                    AppOrderListRequest request = new AppOrderListRequest();
-//                    BeanUtils.copyProperties(appOrderListRequest, request);
-//                    try {
-//
-//                        return true;
-//                    } catch (Exception e) {
-//                        e.printStackTrace();
-//                        throw e;
-//                    } finally {
-//                        latch.countDown();
-//                    }
-//                }
-//            });
+            threadPoolExecutor.submit(new Callable<Boolean>() {
+                @Override
+                public Boolean call() throws Exception {
+                    AppOrderListRequest request = new AppOrderListRequest();
+                    BeanUtils.copyProperties(appOrderListRequest, request);
+                    try {
+                        if (!tags.contains(tag.name())){
+                            return true;
+                        }
+
+                        BeanUtils.copyProperties(appOrderListRequest, request);
+                        AppOrderListDto appOrderList = new AppOrderListDto();
+                        BeanUtils.copyProperties(appOrderListDto, appOrderList);
+                        appOrderList.setTags(tag.name());
+                        appOrderList.initOrderState();
+                        request.setT(appOrderList);
+                        if (session.getApplicationId() == Constant.APP_APPLICATION_ID){
+                            request.init(session.getCustomerId());
+                        }
+                        if (tag.name().equals("REFUNDS")){
+                            request.getT().setRefundState(null);
+                            request.setCondition("o.refund_state > 0");;
+                        }
+                        Long total = orderService.selectAppOrderCount(request);
+                        map.put(tag.name(), total);
+                        return true;
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        throw e;
+                    } finally {
+                        latch.countDown();
+                    }
+                }
+            });
         }
-//        try {
-//            latch.await();
-//        } catch (InterruptedException e1) {
-//            e1.printStackTrace();
-//        }
+        try {
+            latch.await();
+        } catch (InterruptedException e1) {
+            e1.printStackTrace();
+        }
         return new OrderListResponse(ResultCode.SUCCESS_CODE, Constant.MESSAGE_SUCCESS, map, appOrderListRequest);
     }
 
@@ -232,8 +231,11 @@ public class OrderController {
         List<String> tags = appOrderListDto.getTagList();
 
         ConcurrentHashMap<String, Long> map = new ConcurrentHashMap();
-        CountDownLatch latch = new CountDownLatch(OrderTagEnum.values().length);
+        CountDownLatch latch = new CountDownLatch(tags.size());
         for (OrderTagEnum tag : OrderTagEnum.values()) {
+            if (!tags.contains(tag)){
+                continue;
+            }
             threadPoolExecutor.submit(new Callable<Boolean>() {
                 @Override
                 public Boolean call() throws Exception {

@@ -58,10 +58,12 @@ public class VariantWarehouseStockRecord {
 
     private Long operatorId;
 
+    private Integer processStatus;
+
     public VariantWarehouseStockRecord() {
     }
 
-    public VariantWarehouseStockRecord(Long variantId, String warehouseCode, Integer changeStock, Integer processType, Integer originalStock, Integer nowStock, Long relateId, Date createTime, String shelfNum,Long operatorId) {
+    public VariantWarehouseStockRecord(Long variantId, String warehouseCode, Integer changeStock, Integer processType, Integer originalStock, Integer nowStock, Long relateId, Date createTime, String shelfNum,Long operatorId,Integer processStatus) {
         this.variantId = variantId;
         this.warehouseCode = warehouseCode;
         this.changeStock = changeStock;
@@ -72,5 +74,6 @@ public class VariantWarehouseStockRecord {
         this.createTime = createTime;
         this.shelfNum = shelfNum;
         this.operatorId = operatorId;
+        this.processStatus = processStatus;
     }
 }

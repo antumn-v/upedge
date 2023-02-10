@@ -600,10 +600,17 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
     @Transactional(rollbackFor = Exception.class)
     @Override
     public BaseResponse orderReceive(PurchaseOrderReceiveRequest request, Session session) throws Exception {
+        Long id = request.getOrderId();
+        String key = "purchase:orderReceive:"+id;
+        boolean b = RedisUtil.lock(redisTemplate,key,10L,20 * 1000L);
+        if (!b){
+            return BaseResponse.failed("处理中");
+        }
         BaseResponse response = orderReceiveItemIm(request, session);
         if (response.getCode() == ResultCode.SUCCESS_CODE) {
             checkOrderReceiveQuantity(request.getOrderId());
         }
+        RedisUtil.unLock(redisTemplate,key);
         return response;
     }
 

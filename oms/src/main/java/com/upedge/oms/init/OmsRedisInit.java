@@ -1,5 +1,9 @@
 package com.upedge.oms.init;
 
+import com.upedge.common.base.Page;
+import com.upedge.common.constant.key.RedisKey;
+import com.upedge.oms.modules.common.entity.OrderErrorMessage;
+import com.upedge.oms.modules.common.service.OrderErrorMessageService;
 import com.upedge.oms.modules.order.service.OrderReshipInfoService;
 import com.upedge.oms.modules.stock.service.CustomerProductStockService;
 import com.upedge.oms.modules.vat.service.VatRuleService;
@@ -9,6 +13,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
+import java.util.List;
 
 @Slf4j
 @Component
@@ -27,10 +32,18 @@ public class OmsRedisInit {
     @Autowired
     CustomerProductStockService customerProductStockService;
 
+    @Autowired
+    OrderErrorMessageService orderErrorMessageService;
+
     @PostConstruct
     public void packageCurrentUsdRateInit(){
 //        Set<String> keys = redisTemplate.keys(RedisKey.STRING_AREA_VAT_RULE + "*");
 //        redisTemplate.delete(keys);
+
+        List<OrderErrorMessage> orderErrorMessages = orderErrorMessageService.select(new Page<>());
+        for (OrderErrorMessage orderErrorMessage : orderErrorMessages) {
+            redisTemplate.opsForHash().put(RedisKey.HASH_ORDER_ERROR_MESSAGE,orderErrorMessage.getId().toString(),orderErrorMessage);
+        }
 
         customerProductStockService.redisInit();
 

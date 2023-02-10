@@ -194,7 +194,8 @@
            now_stock,
            relate_id,
            create_time,
-           shelf_num
+           shelf_num,
+            process_status
         </trim>
         values
         <foreach collection="list" item="item" index="index" separator=",">
@@ -208,7 +209,8 @@
                #{item.nowStock},
                #{item.relateId},
                #{item.createTime},
-               #{item.shelfNum}
+               #{item.shelfNum},
+                #{item.processStatus}
             </trim>
         </foreach>
     </insert>

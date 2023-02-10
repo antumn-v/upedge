@@ -211,18 +211,18 @@ public class VariantWarehouseStockServiceImpl implements VariantWarehouseStockSe
                 throw new Exception("库存不足");
             }
             Integer nowLockQuantity = variantWarehouseStock.getLockStock() - itemQuantityVo.getQuantity();
-            VariantWarehouseStockRecord variantWarehouseStockRecord =
-                    new VariantWarehouseStockRecord(variantWarehouseStock.getVariantId(),
-                            "CNHZ",
-                            itemQuantityVo.getQuantity(),
-                            0,
-                            variantWarehouseStock.getLockStock(),
-                            nowLockQuantity,
-                            itemQuantityVo.getItemId(),
-                            new Date(),
-                            "",
-                            orderItemQuantityVo.getOperatorId());
-            variantWarehouseStockRecordService.insert(variantWarehouseStockRecord);
+//            VariantWarehouseStockRecord variantWarehouseStockRecord =
+//                    new VariantWarehouseStockRecord(variantWarehouseStock.getVariantId(),
+//                            "CNHZ",
+//                            itemQuantityVo.getQuantity(),
+//                            0,
+//                            variantWarehouseStock.getLockStock(),
+//                            nowLockQuantity,
+//                            itemQuantityVo.getItemId(),
+//                            new Date(),
+//                            "",
+//                            orderItemQuantityVo.getOperatorId());
+//            variantWarehouseStockRecordService.insert(variantWarehouseStockRecord);
             variantIds.add(itemQuantityVo.getVariantId());
         }
         return BaseResponse.success();
@@ -259,18 +259,19 @@ public class VariantWarehouseStockServiceImpl implements VariantWarehouseStockSe
         }else {
             variantWarehouseStockDao.updateVariantPurchaseStock(purchasePlan.getVariantId(), "CNHZ",purchasePlan.getQuantity());
         }
-        VariantWarehouseStockRecord variantWarehouseStockRecord =
-                new VariantWarehouseStockRecord(purchasePlan.getVariantId(),
-                        "CNHZ",
-                        purchasePlan.getQuantity(),
-                        VariantWarehouseStockRecord.PURCHASE_UPDATE,
-                        variantWarehouseStock.getPurchaseStock(),
-                        variantWarehouseStock.getPurchaseStock() + purchasePlan.getQuantity(),
-                        purchasePlan.getId().longValue(),
-                        new Date(),
-                        null,
-                        0L);
-        variantWarehouseStockRecordService.insert(variantWarehouseStockRecord);
+//        VariantWarehouseStockRecord variantWarehouseStockRecord =
+//                new VariantWarehouseStockRecord(purchasePlan.getVariantId(),
+//                        "CNHZ",
+//                        purchasePlan.getQuantity(),
+//                        VariantWarehouseStockRecord.PURCHASE_UPDATE,
+//                        variantWarehouseStock.getPurchaseStock(),
+//                        variantWarehouseStock.getPurchaseStock() + purchasePlan.getQuantity(),
+//                        purchasePlan.getId().longValue(),
+//                        new Date(),
+//                        null,
+//                        0L,
+//                        1);
+//        variantWarehouseStockRecordService.insert(variantWarehouseStockRecord);
         return true;
     }
     @Override
@@ -285,18 +286,18 @@ public class VariantWarehouseStockServiceImpl implements VariantWarehouseStockSe
         }else {
             variantWarehouseStockDao.updateVariantPurchaseStock(variantId, "CNHZ",quantity);
         }
-        VariantWarehouseStockRecord variantWarehouseStockRecord =
-                new VariantWarehouseStockRecord(variantId,
-                        "CNHZ",
-                        quantity,
-                        VariantWarehouseStockRecord.PURCHASE_UPDATE,
-                        variantWarehouseStock.getPurchaseStock(),
-                        variantWarehouseStock.getPurchaseStock() + quantity,
-                        null,
-                        new Date(),
-                        null,
-                        0L);
-        variantWarehouseStockRecordService.insert(variantWarehouseStockRecord);
+//        VariantWarehouseStockRecord variantWarehouseStockRecord =
+//                new VariantWarehouseStockRecord(variantId,
+//                        "CNHZ",
+//                        quantity,
+//                        VariantWarehouseStockRecord.PURCHASE_UPDATE,
+//                        variantWarehouseStock.getPurchaseStock(),
+//                        variantWarehouseStock.getPurchaseStock() + quantity,
+//                        null,
+//                        new Date(),
+//                        null,
+//                        0L);
+//        variantWarehouseStockRecordService.insert(variantWarehouseStockRecord);
         return true;
     }
 
@@ -446,7 +447,7 @@ public class VariantWarehouseStockServiceImpl implements VariantWarehouseStockSe
                 itemQuantityVo.setLockQuantity(changeQuantity);
                 Integer nowStock = variantWarehouseStock.getAvailableStock() - changeQuantity;
                 //保存库存锁定记录
-                VariantWarehouseStockRecord record = new VariantWarehouseStockRecord(variantId, warehouseCode, changeQuantity, VariantWarehouseStockRecord.STOCK_LOCK, variantWarehouseStock.getAvailableStock(), nowStock, itemQuantityVo.getItemId(), new Date(), "",0L);
+                VariantWarehouseStockRecord record = new VariantWarehouseStockRecord(variantId, warehouseCode, changeQuantity, VariantWarehouseStockRecord.STOCK_LOCK, variantWarehouseStock.getAvailableStock(), nowStock, itemQuantityVo.getItemId(), new Date(), "",0L,0);
                 records.add(record);
                 //更新对象最新安全库存
                 variantWarehouseStock.setAvailableStock(nowStock);
@@ -549,9 +550,9 @@ public class VariantWarehouseStockServiceImpl implements VariantWarehouseStockSe
         if (i == 0){
             return false;
         }
-        Integer nowStock = variantWarehouseStock.getPurchaseStock() - quantity;
-        VariantWarehouseStockRecord variantWarehouseStockRecord = new VariantWarehouseStockRecord(variantId,warehouseCode,quantity,6,variantWarehouseStock.getPurchaseStock(),nowStock, purchaseOrderItem.getId(), new Date(),null,0L);
-        variantWarehouseStockRecordService.insert(variantWarehouseStockRecord);
+//        Integer nowStock = variantWarehouseStock.getPurchaseStock() - quantity;
+//        VariantWarehouseStockRecord variantWarehouseStockRecord = new VariantWarehouseStockRecord(variantId,warehouseCode,quantity,6,variantWarehouseStock.getPurchaseStock(),nowStock, purchaseOrderItem.getId(), new Date(),null,0L);
+//        variantWarehouseStockRecordService.insert(variantWarehouseStockRecord);
         return true;
     }
 
@@ -605,7 +606,7 @@ public class VariantWarehouseStockServiceImpl implements VariantWarehouseStockSe
                         IdGenerate.nextId(),
                         new Date(),
                         null,
-                        session.getId());
+                        session.getId(),1);
         variantWarehouseStockRecordService.insert(variantWarehouseStockRecord);
 
         redisTemplate.opsForHash().put(RedisKey.HASH_VARIANT_WAREHOUSE_STOCK + warehouseCode,variantId.toString(),variantWarehouseStockModel);
@@ -645,20 +646,20 @@ public class VariantWarehouseStockServiceImpl implements VariantWarehouseStockSe
 
         variantWarehouseStockDao.updateVariantStockEx(productVariant.getId(), request.getWarehouseCode(), request.getQuantity());
 
-        VariantWarehouseStockRecord variantWarehouseStockRecord =
-                new VariantWarehouseStockRecord(productVariant.getId(),
-                        request.getWarehouseCode(),
-                        request.getQuantity(),
-                        request.getProcessType(),
-                        variantWarehouseStock.getAvailableStock(),
-                        variantWarehouseStock.getAvailableStock() - request.getQuantity(),
-                        request.getRelateId(),
-                        new Date(),
-                        "",
-                        session.getId());
-        variantWarehouseStockRecordService.insert(variantWarehouseStockRecord);
+//        VariantWarehouseStockRecord variantWarehouseStockRecord =
+//                new VariantWarehouseStockRecord(productVariant.getId(),
+//                        request.getWarehouseCode(),
+//                        request.getQuantity(),
+//                        request.getProcessType(),
+//                        variantWarehouseStock.getAvailableStock(),
+//                        variantWarehouseStock.getAvailableStock() - request.getQuantity(),
+//                        request.getRelateId(),
+//                        new Date(),
+//                        "",
+//                        session.getId());
+//        variantWarehouseStockRecordService.insert(variantWarehouseStockRecord);
 
-        variantWarehouseStock.setAvailableStock(variantWarehouseStockRecord.getNowStock());
+        variantWarehouseStock.setAvailableStock(variantWarehouseStock.getAvailableStock() - request.getQuantity());
 
         VariantWarehouseStockModel variantWarehouseStockModel = new VariantWarehouseStockModel();
         BeanUtils.copyProperties(variantWarehouseStock,variantWarehouseStockModel);
@@ -719,7 +720,7 @@ public class VariantWarehouseStockServiceImpl implements VariantWarehouseStockSe
                         request.getRelateId(),
                         new Date(),
                         "",
-                        session.getId());
+                        session.getId(),1);
         variantWarehouseStockRecordService.insert(variantWarehouseStockRecord);
 
         variantWarehouseStock.setAvailableStock(originalAvailableStock + imStock);

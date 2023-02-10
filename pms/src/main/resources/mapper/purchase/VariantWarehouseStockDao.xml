@@ -307,7 +307,6 @@
         set lock_stock = lock_stock - #{changeQuantity}
         where variant_id = #{variantId}
           and warehouse_code = #{warehouseCode}
-          and lock_stock >= #{changeQuantity}
     </update>
 
     <select id="selectVariantStocks" resultType="com.upedge.pms.modules.purchase.vo.VariantWarehouseStockVo" parameterType="com.upedge.pms.modules.purchase.request.VariantStockListRequest">
