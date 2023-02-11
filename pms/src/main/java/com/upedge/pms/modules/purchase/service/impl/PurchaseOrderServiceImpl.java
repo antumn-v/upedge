@@ -112,6 +112,14 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
     }
 
     @Override
+    public PurchaseOrder selectBy1688PurchaseId(String purchaseId) {
+        if (StringUtils.isBlank(purchaseId)){
+            return null;
+        }
+        return purchaseOrderDao.selectBy1688PurchaseId(purchaseId);
+    }
+
+    @Override
     public BaseResponse check(Long orderId) {
 
         PurchaseOrder purchaseOrder = selectByPrimaryKey(orderId);
@@ -860,7 +868,7 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
         if (ListUtils.isEmpty(purchaseOrders)) {
             return BaseResponse.success();
         }
-        syncOrderTrackingInfo(purchaseOrders);
+//        syncOrderTrackingInfo(purchaseOrders);
         //如果刚才没查询到变体,但是查询到订单则重新根据订单查询变体
         if (ListUtils.isEmpty(purchaseOrderItems)) {
             purchaseOrders.forEach(purchaseOrder -> {

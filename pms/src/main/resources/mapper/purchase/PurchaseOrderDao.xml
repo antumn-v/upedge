@@ -515,4 +515,12 @@
         from purchase_order
         where relate_id = #{relateId}
     </select>
+
+    <select id="selectBy1688PurchaseId" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from purchase_order
+        where purchase_id = #{purchaseId}
+        limit 1
+    </select>
 </mapper>

@@ -336,7 +336,7 @@ public class QuoteApplyServiceImpl implements QuoteApplyService {
         List<Long> quotingVariantIds = new ArrayList<>();
         List<StoreProductVariant> storeProductVariants = storeProductVariantDao.selectByIds(storeVariantIds);
         Long storeProductId = storeProductVariants.get(0).getProductId();
-        storeProductService.toNormalProduct(storeProductId,0L);
+//        storeProductService.toNormalProduct(storeProductId,0L);
         StoreProductAttribute storeProductAttribute = storeProductAttributeService.selectByPrimaryKey(storeProductId);
         for (StoreProductVariant storeProductVariant : storeProductVariants) {
             //判断产品是否已报价

@@ -87,7 +87,7 @@ public class PackageScheduler {
 
 
     @Async
-    @Scheduled(cron = "0 00 */2 ? * *")
+    @Scheduled(cron = "0 00 00 ? * *")
     public void syncPackageInfo(){
         if (!ifUploadSaihe) {
             return ;

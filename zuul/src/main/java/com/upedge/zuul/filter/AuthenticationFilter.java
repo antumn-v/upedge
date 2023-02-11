@@ -41,6 +41,7 @@ public class AuthenticationFilter extends ZuulFilter {
 		freePaths.add("/cms/website/");
 		freePaths.add("/pms/alibabaApi/auth");
 		freePaths.add("/pms/productPurchaseInfo/syncInventory");
+		freePaths.add("/pms/purchaseOrder/syncLogistics");
 	}
 	
 	private static Logger log=LoggerFactory.getLogger(AuthenticationFilter.class);

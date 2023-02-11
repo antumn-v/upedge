@@ -1,5 +1,6 @@
 package com.upedge.pms.modules.purchase.controller;
 
+import com.alibaba.fastjson.JSONObject;
 import com.alibaba.logistics.param.AlibabaLogisticsOpenPlatformLogisticsTrace;
 import com.alibaba.trade.param.AlibabaOpenplatformTradeModelTradeInfo;
 import com.upedge.common.base.BaseResponse;
@@ -11,12 +12,15 @@ import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.utils.ListUtils;
 import com.upedge.common.web.util.RedisUtil;
 import com.upedge.common.web.util.UserUtil;
+import com.upedge.pms.modules.purchase.dto.PurchaseOrderSyncLogisticsDto;
 import com.upedge.pms.modules.purchase.entity.PurchaseOrder;
 import com.upedge.pms.modules.purchase.request.*;
 import com.upedge.pms.modules.purchase.service.PurchaseOrderService;
 import com.upedge.thirdparty.ali1688.service.Ali1688Service;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.*;
@@ -31,6 +35,7 @@ import java.util.List;
  * @author gx
  */
 @Api(tags = "采购订单")
+@Slf4j
 @RestController
 @RequestMapping("/purchaseOrder")
 public class PurchaseOrderController {
@@ -90,6 +95,27 @@ public class PurchaseOrderController {
     @PostMapping("/refresh/{id}")
     public BaseResponse refreshDetail(@PathVariable Long id){
         return purchaseOrderService.refreshFrom1688(id);
+    }
+
+    @PostMapping("/syncLogistics")
+    public void syncLogistics(String message){
+        if (StringUtils.isBlank(message)){
+            return;
+        }
+        PurchaseOrderSyncLogisticsRequest request = null;
+        try {
+            request = JSONObject.parseObject(message, PurchaseOrderSyncLogisticsRequest.class);
+            PurchaseOrderSyncLogisticsDto data = request.getData();
+
+            List<PurchaseOrderSyncLogisticsDto.PurchaseOrderLogsItemsDTO> orderLogsItems = data.getOrderLogsItems();
+            for (PurchaseOrderSyncLogisticsDto.PurchaseOrderLogsItemsDTO orderLogsItem : orderLogsItems) {
+                PurchaseOrder purchaseOrder = purchaseOrderService.selectBy1688PurchaseId(orderLogsItem.getOrderId());
+                if (null != purchaseOrder)
+                purchaseOrderService.refreshFrom1688(purchaseOrder.getId());
+            }
+        } catch (Exception e) {
+            log.warn("syncLogistics: {}",message);
+        }
     }
 
     @PostMapping("/refreshAll")

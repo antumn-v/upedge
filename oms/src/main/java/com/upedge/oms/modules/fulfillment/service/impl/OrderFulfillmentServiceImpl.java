@@ -12,6 +12,7 @@ import com.upedge.common.model.ship.vo.ShippingMethodRedis;
 import com.upedge.common.model.store.StoreVo;
 import com.upedge.common.model.store.request.StoreSearchRequest;
 import com.upedge.common.utils.ListUtils;
+import com.upedge.common.web.util.RedisUtil;
 import com.upedge.oms.modules.fulfillment.dao.OrderTrackingWoocUserDao;
 import com.upedge.oms.modules.fulfillment.dao.StoreOrderFulfillmentDao;
 import com.upedge.oms.modules.fulfillment.entity.StoreOrderFulfillment;
@@ -90,6 +91,11 @@ public class OrderFulfillmentServiceImpl implements OrderFulfillmentService {
 
     @Override
     public void reFulfillment(Long id) {
+        String key = "order:reFulfillment:" + id;
+        boolean b = RedisUtil.lock(redisTemplate,key,10L,60*1000L);
+        if (!b){
+            return;
+        }
         OrderTracking orderTracking = orderTrackingService.queryOrderTrackingByOrderId(id);
         if (orderTracking != null){
             orderFulfillment(orderTracking);
@@ -274,6 +280,12 @@ public class OrderFulfillmentServiceImpl implements OrderFulfillmentService {
             return false;
         }
         Long packNo = orderPackage.getId();
+
+        String key = "order:orderFulfillment:" + packNo;
+        boolean b = RedisUtil.lock(redisTemplate,key,10L,10*1000L);
+        if (!b){
+            return false;
+        }
         Long orderId = orderPackage.getOrderId();
         Order order = orderDao.selectByPrimaryKey(orderId);
         if (order == null) {
@@ -316,7 +328,7 @@ public class OrderFulfillmentServiceImpl implements OrderFulfillmentService {
                 }
                 platOrderId = storeOrderItems.get(0).getPlatOrderId();
                 storeOrderId = storeOrderRelate.getStoreOrderId();
-                boolean b = false;
+                b = false;
                 switch (storeVo.getStoreType()) {
                     case 0:
                         b = shopifyOrderFulfill(storeOrderItems, finalTrackCode, finalOrderPackage.getTrackingCompany(), storeVo, platOrderId, storeOrderId, orderId);
