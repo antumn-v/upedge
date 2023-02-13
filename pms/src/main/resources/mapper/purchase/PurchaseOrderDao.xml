@@ -515,4 +515,12 @@
         from purchase_order
         where relate_id = #{relateId}
     </select>
+
+    <select id="selectUnFinishOrder" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from purchase_order
+        where edit_state = '1'
+        and purchase_state between '0' and '1'
+    </select>
 </mapper>

@@ -2,9 +2,10 @@ package com.upedge.pms.scheduler;
 
 import com.upedge.common.constant.key.RedisKey;
 import com.upedge.common.model.product.AlibabaApiVo;
-import com.upedge.pms.modules.alibaba.service.AlibabaApiService;
 import com.upedge.pms.modules.alibaba.entity.AlibabaApi;
 import com.upedge.pms.modules.alibaba.service.Ali1688Service;
+import com.upedge.pms.modules.alibaba.service.AlibabaApiService;
+import com.upedge.pms.modules.purchase.service.PurchaseOrderService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -16,6 +17,9 @@ public class Ali1688ApiScheduler {
 
     @Autowired
     AlibabaApiService alibabaApiService;
+
+    @Autowired
+    PurchaseOrderService purchaseOrderService;
 
     @Autowired
     RedisTemplate redisTemplate;
@@ -35,6 +39,11 @@ public class Ali1688ApiScheduler {
             alibabaApiService.updateByPrimaryKey(alibabaApi);
             redisTemplate.opsForValue().set(RedisKey.STRING_ALI1688_API, alibabaApiVo);
         }
+    }
+
+    @Scheduled(cron = "0 00 */12 ? * *")
+    public void syncUnFinishOrderTrackingInfo() {
+        purchaseOrderService.syncUnFinishOrderTrackingInfo();
     }
 
     public static void main(String[] args) {

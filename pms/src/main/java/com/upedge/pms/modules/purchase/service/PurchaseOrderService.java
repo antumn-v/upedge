@@ -17,6 +17,8 @@ import java.util.List;
  */
 public interface PurchaseOrderService{
 
+    void syncUnFinishOrderTrackingInfo();
+
     BaseResponse check(Long orderId);
 
     BaseResponse partItemRecreateOrder(PurchasePartItemRecreateOrderRequest request,Session session);

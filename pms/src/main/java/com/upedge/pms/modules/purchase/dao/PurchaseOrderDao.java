@@ -14,6 +14,8 @@ import java.util.List;
  */
 public interface PurchaseOrderDao {
 
+    List<PurchaseOrder> selectUnFinishOrder();
+
     List<PurchaseOrder> selectByRelateId(Long relateId);
 
     int updateOrderRevoke(@Param("id") Long id, @Param("date") Date date);

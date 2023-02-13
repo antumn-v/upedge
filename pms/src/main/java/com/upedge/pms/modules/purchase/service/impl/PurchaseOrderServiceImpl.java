@@ -112,6 +112,12 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
     }
 
     @Override
+    public void syncUnFinishOrderTrackingInfo() {
+        List<PurchaseOrder> purchaseOrders = purchaseOrderDao.selectUnFinishOrder();
+        syncOrderTrackingInfo(purchaseOrders);
+    }
+
+    @Override
     public BaseResponse check(Long orderId) {
 
         PurchaseOrder purchaseOrder = selectByPrimaryKey(orderId);
