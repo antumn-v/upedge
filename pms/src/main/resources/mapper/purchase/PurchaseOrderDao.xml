@@ -523,4 +523,12 @@
         where edit_state = '1'
         and purchase_state between '0' and '1'
     </select>
+
+    <select id="selectBy1688PurchaseId" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from purchase_order
+        where purchase_id = #{purchaseId}
+        limit 1
+    </select>
 </mapper>

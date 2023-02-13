@@ -62,7 +62,7 @@ public class Ordercelduler {
 
     }
 
-    @Scheduled(cron = "0 00 */4 ? * *")
+    @Scheduled(cron = "0 00 00 ? * *")
     public void reFulfillmentOrder(){
         if (!ifUploadSaihe) {
             return ;

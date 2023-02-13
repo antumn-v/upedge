@@ -118,6 +118,14 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
     }
 
     @Override
+    public PurchaseOrder selectBy1688PurchaseId(String purchaseId) {
+        if (StringUtils.isBlank(purchaseId)){
+            return null;
+        }
+        return purchaseOrderDao.selectBy1688PurchaseId(purchaseId);
+    }
+
+    @Override
     public BaseResponse check(Long orderId) {
 
         PurchaseOrder purchaseOrder = selectByPrimaryKey(orderId);

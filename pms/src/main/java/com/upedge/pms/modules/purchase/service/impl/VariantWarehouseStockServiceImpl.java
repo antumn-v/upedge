@@ -211,18 +211,18 @@ public class VariantWarehouseStockServiceImpl implements VariantWarehouseStockSe
                 throw new Exception("库存不足");
             }
             Integer nowLockQuantity = variantWarehouseStock.getLockStock() - itemQuantityVo.getQuantity();
-//            VariantWarehouseStockRecord variantWarehouseStockRecord =
-//                    new VariantWarehouseStockRecord(variantWarehouseStock.getVariantId(),
-//                            "CNHZ",
-//                            itemQuantityVo.getQuantity(),
-//                            0,
-//                            variantWarehouseStock.getLockStock(),
-//                            nowLockQuantity,
-//                            itemQuantityVo.getItemId(),
-//                            new Date(),
-//                            "",
-//                            orderItemQuantityVo.getOperatorId());
-//            variantWarehouseStockRecordService.insert(variantWarehouseStockRecord);
+            VariantWarehouseStockRecord variantWarehouseStockRecord =
+                    new VariantWarehouseStockRecord(variantWarehouseStock.getVariantId(),
+                            "CNHZ",
+                            itemQuantityVo.getQuantity(),
+                            0,
+                            variantWarehouseStock.getLockStock(),
+                            nowLockQuantity,
+                            itemQuantityVo.getItemId(),
+                            new Date(),
+                            "",
+                            orderItemQuantityVo.getOperatorId(),1);
+            variantWarehouseStockRecordService.insert(variantWarehouseStockRecord);
             variantIds.add(itemQuantityVo.getVariantId());
         }
         return BaseResponse.success();
@@ -650,18 +650,18 @@ public class VariantWarehouseStockServiceImpl implements VariantWarehouseStockSe
 
         variantWarehouseStockDao.updateVariantStockEx(productVariant.getId(), request.getWarehouseCode(), request.getQuantity());
 
-//        VariantWarehouseStockRecord variantWarehouseStockRecord =
-//                new VariantWarehouseStockRecord(productVariant.getId(),
-//                        request.getWarehouseCode(),
-//                        request.getQuantity(),
-//                        request.getProcessType(),
-//                        variantWarehouseStock.getAvailableStock(),
-//                        variantWarehouseStock.getAvailableStock() - request.getQuantity(),
-//                        request.getRelateId(),
-//                        new Date(),
-//                        "",
-//                        session.getId());
-//        variantWarehouseStockRecordService.insert(variantWarehouseStockRecord);
+        VariantWarehouseStockRecord variantWarehouseStockRecord =
+                new VariantWarehouseStockRecord(productVariant.getId(),
+                        request.getWarehouseCode(),
+                        request.getQuantity(),
+                        request.getProcessType(),
+                        variantWarehouseStock.getAvailableStock(),
+                        variantWarehouseStock.getAvailableStock() - request.getQuantity(),
+                        request.getRelateId(),
+                        new Date(),
+                        "",
+                        session.getId(),1);
+        variantWarehouseStockRecordService.insert(variantWarehouseStockRecord);
 
         variantWarehouseStock.setAvailableStock(variantWarehouseStock.getAvailableStock() - request.getQuantity());
 

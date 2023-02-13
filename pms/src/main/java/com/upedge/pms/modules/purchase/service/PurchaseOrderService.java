@@ -19,6 +19,8 @@ public interface PurchaseOrderService{
 
     void syncUnFinishOrderTrackingInfo();
 
+    PurchaseOrder selectBy1688PurchaseId(String purchaseId);
+
     BaseResponse check(Long orderId);
 
     BaseResponse partItemRecreateOrder(PurchasePartItemRecreateOrderRequest request,Session session);

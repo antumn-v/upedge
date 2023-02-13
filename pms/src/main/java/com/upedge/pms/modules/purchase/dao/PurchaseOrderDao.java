@@ -18,6 +18,8 @@ public interface PurchaseOrderDao {
 
     List<PurchaseOrder> selectByRelateId(Long relateId);
 
+    PurchaseOrder selectBy1688PurchaseId(String purchaseId);
+
     int updateOrderRevoke(@Param("id") Long id, @Param("date") Date date);
 
     int updateEditState(@Param("id") Long id, @Param("editState") Integer editState);

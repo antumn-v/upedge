@@ -463,6 +463,11 @@ public class OrderPackageServiceImpl implements OrderPackageService {
             return;
         }
         Long packNo = orderPackage.getId();
+        String key = "pack:packageRefreshTrackCode:" + packNo;
+        boolean b = RedisUtil.lock(redisTemplate,key,10L,10*1000L);
+        if (!b){
+            return;
+        }
         String trackCode = orderPackage.getTrackingCode();
         if (StringUtils.isBlank(trackCode)) {
             switch (orderPackage.getTrackingCompany()) {
