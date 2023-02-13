@@ -172,16 +172,15 @@ public class OrderController {
         HashMap<String, Long> map = new HashMap();
         CountDownLatch latch = new CountDownLatch(tags.size());
         for (OrderTagEnum tag : OrderTagEnum.values()) {
+            if (!tags.contains(tag.name())){
+                continue;
+            }
             threadPoolExecutor.submit(new Callable<Boolean>() {
                 @Override
                 public Boolean call() throws Exception {
                     AppOrderListRequest request = new AppOrderListRequest();
                     BeanUtils.copyProperties(appOrderListRequest, request);
                     try {
-                        if (!tags.contains(tag.name())){
-                            return true;
-                        }
-
                         BeanUtils.copyProperties(appOrderListRequest, request);
                         AppOrderListDto appOrderList = new AppOrderListDto();
                         BeanUtils.copyProperties(appOrderListDto, appOrderList);
@@ -233,7 +232,7 @@ public class OrderController {
         ConcurrentHashMap<String, Long> map = new ConcurrentHashMap();
         CountDownLatch latch = new CountDownLatch(tags.size());
         for (OrderTagEnum tag : OrderTagEnum.values()) {
-            if (!tags.contains(tag)){
+            if (!tags.contains(tag.name())){
                 continue;
             }
             threadPoolExecutor.submit(new Callable<Boolean>() {

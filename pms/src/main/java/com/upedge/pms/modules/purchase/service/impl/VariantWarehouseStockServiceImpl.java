@@ -389,7 +389,11 @@ public class VariantWarehouseStockServiceImpl implements VariantWarehouseStockSe
     @GlobalTransactional(rollbackFor = Exception.class)
     @Override
     public boolean orderCheckStock(OrderItemQuantityVo orderItemQuantityVo) throws Exception {
-        List<String> keys = new ArrayList<>();
+        String key = "order:check:stock:" + orderItemQuantityVo.getOrderId();
+        boolean b = RedisUtil.lock(redisTemplate,key,10L,5*1000L);
+        if (!b){
+            return false;
+        }
         List<ItemQuantityVo> itemQuantityVos = orderItemQuantityVo.getItemQuantityVos();
         String warehouseCode = orderItemQuantityVo.getWarehouseCode();
 //        Set<Long> variantIds = new HashSet<>();

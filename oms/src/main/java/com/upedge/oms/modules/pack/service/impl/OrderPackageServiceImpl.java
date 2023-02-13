@@ -656,6 +656,12 @@ public class OrderPackageServiceImpl implements OrderPackageService {
         if (null == orderPackage) {
             return null;
         }
+        String key = "pack:savePrintLabel:"+ orderPackage.getId();
+        boolean b = RedisUtil.lock(redisTemplate,key,10L,10*1000L);
+        if (!b){
+            return "处理中，请稍候再试";
+        }
+
         OrderLabelPrintLog orderLabelPrintLog = orderLabelPrintLogService.selectTheLatestPackLabel(orderPackage.getPackageNo());
         if (null != orderLabelPrintLog) {
             return orderLabelPrintLog.getLabelUrl();
@@ -758,6 +764,12 @@ public class OrderPackageServiceImpl implements OrderPackageService {
 
     @Override
     public BaseResponse createPackage(Long orderId) {
+        String key = "order:createPackage:" + orderId;
+        boolean b = RedisUtil.lock(redisTemplate,key,10L,20*1000L);
+        if(!b){
+            return BaseResponse.failed("包裹正在生成中，请稍候");
+        }
+
         Order order = orderService.selectByPrimaryKey(orderId);
 
         if (order.getPayState() != 1
