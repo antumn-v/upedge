@@ -2521,7 +2521,6 @@
             pack_no    = #{packNo}
         where id = #{id}
         and ship_state = '0'
-        and tracking_code_type = '-1'
     </update>
 
     <select id="selectOrderItemQuantitiesByOrderId" resultMap="OrderItemQuantityVo">

@@ -1423,30 +1423,57 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public BaseResponse selectCustomerOrderCount(AppOrderListRequest request) {
         request.init();
-        List<CustomerOrderCountVo> customerOrderCountVos = orderDao.selectCustomerOrderCount(request);
-        List<CustomerOrderCountVo> shipMethodOrderCountVos = orderDao.selectShipMethodOrderCount(request);
-        List<CustomerOrderCountVo> pickTypeCountVos = orderDao.selectPickTypeCount(request);
-        for (CustomerOrderCountVo customerOrderCountVo : customerOrderCountVos) {
-
-            Long customerId = customerOrderCountVo.getCustomerId();
-            UserVo userVo = (UserVo) redisTemplate.opsForHash().get(RedisKey.STRING_CUSTOMER_INFO, String.valueOf(customerId));
-            if(userVo != null){
-                customerOrderCountVo.setUsername(userVo.getUsername());
-            }
-        }
-
-        for (CustomerOrderCountVo shipMethodOrderCountVo : shipMethodOrderCountVos) {
-            Long shipMethodId = shipMethodOrderCountVo.getActualShipMethodId();
-            ShippingMethodRedis shippingMethodRedis = (ShippingMethodRedis) redisTemplate.opsForHash().get(RedisKey.SHIPPING_METHOD, String.valueOf(shipMethodId));
-            if (null != shippingMethodRedis){
-                shipMethodOrderCountVo.setShipMethodName(shippingMethodRedis.getDesc());
-            }
-        }
 
         Map<String,List<CustomerOrderCountVo>> map = new HashMap<>();
-        map.put("customer",customerOrderCountVos);
-        map.put("ship",shipMethodOrderCountVos);
-        map.put("pickType",pickTypeCountVos);
+
+
+        CompletableFuture<Void>  customerOrderCount = CompletableFuture.runAsync(new Runnable() {
+            @Override
+            public void run() {
+                List<CustomerOrderCountVo> customerOrderCountVos = orderDao.selectCustomerOrderCount(request);
+                for (CustomerOrderCountVo customerOrderCountVo : customerOrderCountVos) {
+                    Long customerId = customerOrderCountVo.getCustomerId();
+                    UserVo userVo = (UserVo) redisTemplate.opsForHash().get(RedisKey.STRING_CUSTOMER_INFO, String.valueOf(customerId));
+                    if(userVo != null){
+                        customerOrderCountVo.setUsername(userVo.getUsername());
+                    }
+                }
+                map.put("customer",customerOrderCountVos);
+            }
+        },threadPoolExecutor);
+
+        CompletableFuture<Void> shipMethodOrderCount = CompletableFuture.runAsync(new Runnable() {
+            @Override
+            public void run() {
+                List<CustomerOrderCountVo> shipMethodOrderCountVos = orderDao.selectShipMethodOrderCount(request);
+                for (CustomerOrderCountVo shipMethodOrderCountVo : shipMethodOrderCountVos) {
+                    Long shipMethodId = shipMethodOrderCountVo.getActualShipMethodId();
+                    ShippingMethodRedis shippingMethodRedis = (ShippingMethodRedis) redisTemplate.opsForHash().get(RedisKey.SHIPPING_METHOD, String.valueOf(shipMethodId));
+                    if (null != shippingMethodRedis){
+                        shipMethodOrderCountVo.setShipMethodName(shippingMethodRedis.getDesc());
+                    }
+                }
+                map.put("ship",shipMethodOrderCountVos);
+            }
+        },threadPoolExecutor);
+
+        CompletableFuture<Void> pickTypeCountVo = CompletableFuture.runAsync(new Runnable() {
+            @Override
+            public void run() {
+                List<CustomerOrderCountVo> pickTypeCountVos = orderDao.selectPickTypeCount(request);
+                map.put("pickType",pickTypeCountVos);
+            }
+        },threadPoolExecutor);
+
+
+        try {
+            CompletableFuture.allOf(shipMethodOrderCount,pickTypeCountVo,customerOrderCount).get();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        }
+
         return BaseResponse.success(map);
     }
 

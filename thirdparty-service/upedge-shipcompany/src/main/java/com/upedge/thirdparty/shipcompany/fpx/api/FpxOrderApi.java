@@ -92,7 +92,7 @@ public class FpxOrderApi {
 
     public static void main(String[] args) {
         try {
-            System.out.println(getSinglePackageLabel("4PX3000334953055CN"));
+            System.out.println(getSinglePackageLabel("4PX3000486948824CN"));
 //            System.out.println(getFpxOrder("4PX3000290016108CN"));
         } catch (Exception e) {
             e.printStackTrace();

@@ -332,13 +332,11 @@ public class OrderItemServiceImpl implements OrderItemService {
         if (customerProductQuoteVo == null || customerProductQuoteVo.getQuoteState() == 0) {
             return;
         }
-
-        orderItemDao.updatePaidItemQuoteDetail(customerProductQuoteVo);
-
-        Long newVariantId = customerProductQuoteVo.getVariantId();
-        List<Long> orderIds = new ArrayList<>();
         Long storeVariantId = customerProductQuoteVo.getStoreVariantId();
         List<OrderItem> orderItems = orderItemDao.selectPaidItemLockedQuantityByStoreVariantId(storeVariantId);
+
+        Long newVariantId = customerProductQuoteVo.getVariantId();
+
         Integer totalLockedQuantity = 0;
         for (OrderItem orderItem : orderItems) {
             Long variantId = orderItem.getAdminVariantId();
@@ -346,11 +344,9 @@ public class OrderItemServiceImpl implements OrderItemService {
                 return;
             }
             totalLockedQuantity += orderItem.getLockedQuantity();
-
-            if (!orderIds.contains(orderItem.getOrderId())){
-                orderIds.add(orderItem.getOrderId());
-            }
         }
+
+        orderItemDao.updatePaidItemQuoteDetail(customerProductQuoteVo);
 
         if (0 != totalLockedQuantity) {
             VariantStockRestoreLockQuantityRequest request = new VariantStockRestoreLockQuantityRequest();
