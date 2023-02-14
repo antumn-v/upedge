@@ -160,7 +160,7 @@ public class VatRuleServiceImpl implements VatRuleService {
             }
         }
 
-//            rule = vatRuleDao.selectVatRuleByAreaId(,areaId);
+//
 //            if(null == rule) {
 //                return BigDecimal.ZERO;
 //            }else {

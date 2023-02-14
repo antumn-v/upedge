@@ -10,13 +10,13 @@ import com.upedge.oms.modules.vat.service.VatRuleService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.stereotype.Component;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-import javax.annotation.PostConstruct;
 import java.util.List;
 
 @Slf4j
-@Component
+@RestController("/redis")
 public class OmsRedisInit {
 
 
@@ -35,7 +35,7 @@ public class OmsRedisInit {
     @Autowired
     OrderErrorMessageService orderErrorMessageService;
 
-    @PostConstruct
+    @PostMapping("/init")
     public void packageCurrentUsdRateInit(){
 //        Set<String> keys = redisTemplate.keys(RedisKey.STRING_AREA_VAT_RULE + "*");
 //        redisTemplate.delete(keys);

@@ -157,12 +157,15 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
     public BaseResponse partItemRecreateOrder(PurchasePartItemRecreateOrderRequest request, Session session) {
         List<Long> itemIds = request.getItemIds();
         Long orderId = request.getOrderId();
-        List<PurchaseOrderItem> purchaseOrderItems = purchaseOrderItemService.selectByIds(itemIds, orderId);
+        List<PurchaseOrderItem> purchaseOrderItems = purchaseOrderItemService.selectByOrderId(orderId);
         if (ListUtils.isEmpty(purchaseOrderItems)) {
             return BaseResponse.failed();
         }
         List<CreatePurchaseOrderDto> createPurchaseOrderDtos = new ArrayList<>();
         for (PurchaseOrderItem purchaseOrderItem : purchaseOrderItems) {
+            if (!itemIds.contains(purchaseOrderItem.getId())){
+                continue;
+            }
             Long variantId = purchaseOrderItem.getVariantId();
             Integer quantity = purchaseOrderItem.getQuantity();
             Integer requireQuantity = purchaseOrderItem.getRequireQuantity();
@@ -177,6 +180,10 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
             createPurchaseOrderDto.setRequireQuantity(requireQuantity);
             createPurchaseOrderDtos.add(createPurchaseOrderDto);
         }
+        if (itemIds.size() == purchaseOrderItems.size()){
+            purchaseOrderDao.updateOrderRevoke(orderId,new Date());
+        }
+        purchaseOrderItemService.updateItemDisableByIds(itemIds);
         CreatePurchaseOrderRequest createPurchaseOrderRequest = new CreatePurchaseOrderRequest();
         createPurchaseOrderRequest.setCreatePurchaseOrderDtos(createPurchaseOrderDtos);
         return customCreate(createPurchaseOrderRequest, session);
@@ -391,9 +398,9 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
             purchaseOrder.setPurchaseQuantity(purchaseQuantity.intValue());
             insert(purchaseOrder);
             purchaseOrderItemService.insertByBatch(purchaseItems);
-            for (PurchaseOrderItem purchaseItem : purchaseItems) {
-                variantWarehouseStockService.updateVariantPurchaseStockByPlan(purchaseItem.getVariantId(), "CNHZ", purchaseItem.getQuantity());
-            }
+//            for (PurchaseOrderItem purchaseItem : purchaseItems) {
+//                variantWarehouseStockService.updateVariantPurchaseStockByPlan(purchaseItem.getVariantId(), "CNHZ", purchaseItem.getQuantity());
+//            }
             if (StringUtils.isBlank(stringBuffer)) {
                 stringBuffer = stringBuffer.append(id);
             } else {

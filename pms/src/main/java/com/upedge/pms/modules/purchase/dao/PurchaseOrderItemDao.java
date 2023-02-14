@@ -24,6 +24,7 @@ public interface PurchaseOrderItemDao {
 
     int updatePriceBySpecId(@Param("items") List<PurchaseOrderItem> items);
 
+    int updateItemDisableByIds(@Param("itemIds") List<Long> itemIds);
 
 
     List<PurchaseOrderItem> selectByOrderId(Long orderId);

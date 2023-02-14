@@ -8,6 +8,7 @@ import com.upedge.pms.modules.purchase.entity.PurchaseOrderItem;
 import com.upedge.pms.modules.purchase.request.PurchaseOrderItemDeleteRequest;
 import com.upedge.pms.modules.purchase.request.PurchaseOrderItemUpdatePriceRequest;
 import com.upedge.pms.modules.purchase.request.PurchaseOrderItemUpdateQuantityRequest;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -15,6 +16,8 @@ import java.util.List;
  * @author gx
  */
 public interface PurchaseOrderItemService{
+
+    int updateItemDisableByIds(List<Long> itemIds);
 
     List<PurchaseOrderItem> selectGroupByPurchaseSku(Long orderId);
 

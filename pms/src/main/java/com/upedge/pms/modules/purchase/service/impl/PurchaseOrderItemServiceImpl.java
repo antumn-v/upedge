@@ -73,6 +73,11 @@ public class PurchaseOrderItemServiceImpl implements PurchaseOrderItemService {
     }
 
     @Override
+    public int updateItemDisableByIds(List<Long> itemIds) {
+        return purchaseOrderItemDao.updateItemDisableByIds(itemIds);
+    }
+
+    @Override
     public List<PurchaseOrderItem> selectGroupByPurchaseSku(Long orderId) {
         return purchaseOrderItemDao.selectGroupByPurchaseSku(orderId);
     }

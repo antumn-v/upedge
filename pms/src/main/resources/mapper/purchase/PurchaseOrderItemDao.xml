@@ -446,4 +446,14 @@
         and state = '1'
         group by `purchase_link`,`spec_id`
     </select>
+
+    <update id="updateItemDisableByIds">
+        update purchase_order_item
+        set state  = '0'
+        where id in
+            <foreach collection="itemIds" item="id" open="(" separator="," close=")">
+                #{id}
+            </foreach>
+        and require_quantity > receive_quantity
+    </update>
 </mapper>

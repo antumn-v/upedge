@@ -1342,7 +1342,7 @@ public class OrderServiceImpl implements OrderService {
                     try {
                         cnyProductAmount = cnyProductAmount.add(orderItem.getCnyPrice().multiply(itemQuantity));
                     } catch (Exception e) {
-                        continue;
+
                     }
                     productAmount = productAmount.add(orderItem.getUsdPrice().multiply(itemQuantity));
                     totalWeight = totalWeight.add(customerProductQuoteVo.getWeight().multiply(itemQuantity));

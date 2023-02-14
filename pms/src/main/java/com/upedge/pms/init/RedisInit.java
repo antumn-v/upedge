@@ -19,9 +19,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.stereotype.Component;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-import javax.annotation.PostConstruct;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -30,7 +30,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ThreadPoolExecutor;
 
 @Slf4j
-@Component
+@RestController("/redis")
 public class RedisInit {
 
     @Autowired
@@ -57,7 +57,7 @@ public class RedisInit {
     /**
      * 1688token
      */
-    @PostConstruct
+    @PostMapping("/init")
     public void AlibabaConfigInit(){
         long now = System.currentTimeMillis();
         AlibabaApi alibabaApi = alibabaApiService.selectAlibabaApi();
@@ -73,12 +73,14 @@ public class RedisInit {
             alibabaApiService.updateByPrimaryKey(alibabaApi);
         }
         redisTemplate.opsForValue().set(RedisKey.STRING_ALI1688_API,alibabaApiVo);
+
+        splitVariantIdListInit();
     }
 
     /**
      * 拆分变体集合
      */
-    @PostConstruct
+//    @PostConstruct
     public void splitVariantIdListInit(){
         CompletableFuture<Void> split = CompletableFuture.runAsync(new Runnable() {
             @Override

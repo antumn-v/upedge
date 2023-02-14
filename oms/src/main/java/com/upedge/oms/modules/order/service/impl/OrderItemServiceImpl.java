@@ -49,6 +49,8 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ThreadPoolExecutor;
 
 
 @Service
@@ -78,6 +80,9 @@ public class OrderItemServiceImpl implements OrderItemService {
     @Autowired
     RedisTemplate redisTemplate;
 
+    @Autowired
+    ThreadPoolExecutor threadPoolExecutor;
+
 
     /**
      *
@@ -99,11 +104,11 @@ public class OrderItemServiceImpl implements OrderItemService {
 
     @Override
     public int insertByBatch(List<OrderItem> orderItems) {
-        if (ListUtils.isEmpty(orderItems)){
+        if (ListUtils.isEmpty(orderItems)) {
             return 0;
         }
         for (OrderItem orderItem : orderItems) {
-            if (orderItem.getQuoteScale() == null || orderItem.getQuoteScale() == 0){
+            if (orderItem.getQuoteScale() == null || orderItem.getQuoteScale() == 0) {
                 orderItem.setQuoteScale(1);
             }
         }
@@ -129,11 +134,11 @@ public class OrderItemServiceImpl implements OrderItemService {
     public BaseResponse updateVariant(OrderItemUpdateVariantRequest request, Session session) {
         Long itemId = request.getItemId();
         OrderItem orderItem = selectByPrimaryKey(itemId);
-        if (null == orderItem || orderItem.getLockedQuantity() > 0){
+        if (null == orderItem || orderItem.getLockedQuantity() > 0) {
             return BaseResponse.failed();
         }
         Order order = orderService.selectByPrimaryKey(orderItem.getOrderId());
-        if (order.getPayState() != 1 && order.getShipState() != 0 && order.getRefundState() != 0 && order.getPackState() != 0){
+        if (order.getPayState() != 1 && order.getShipState() != 0 && order.getRefundState() != 0 && order.getPackState() != 0) {
             return BaseResponse.failed("未支付、已退款、已发货、已生包的订单无法修改订单产品信息");
         }
 
@@ -143,18 +148,18 @@ public class OrderItemServiceImpl implements OrderItemService {
         ListVariantsRequest listVariantsRequest = new ListVariantsRequest();
         listVariantsRequest.setVariantIds(variantIds);
         BaseResponse response = pmsFeignClient.listVariantByIds(listVariantsRequest);
-        if (null == response.getData()){
+        if (null == response.getData()) {
             return BaseResponse.failed("产品信息异常");
         }
         List<LinkedHashMap> variantDetailList = (List<LinkedHashMap>) response.getData();
         ProductVariantTo variantDetail = JSON.parseObject(JSON.toJSONString(variantDetailList.get(0)), ProductVariantTo.class);
-        orderItemDao.updateItemVariantInfo(variantDetail,itemId);
+        orderItemDao.updateItemVariantInfo(variantDetail, itemId);
         return BaseResponse.success();
     }
 
     @Override
     public int updateQuantityById(Long id, Integer quantity) {
-        if (quantity != null){
+        if (quantity != null) {
             return orderItemDao.updateQuantityById(id, quantity);
         }
         return 0;
@@ -322,7 +327,12 @@ public class OrderItemServiceImpl implements OrderItemService {
             orderDao.initProductAmountById(orderIds);
             //修改订单运输方式
             for (Long orderId : orderIds) {
-                orderService.matchShipRule(orderId);
+                CompletableFuture.runAsync(new Runnable() {
+                    @Override
+                    public void run() {
+                        orderService.matchShipRule(orderId);
+                    }
+                }, threadPoolExecutor);
             }
         }
     }
@@ -340,7 +350,7 @@ public class OrderItemServiceImpl implements OrderItemService {
         Integer totalLockedQuantity = 0;
         for (OrderItem orderItem : orderItems) {
             Long variantId = orderItem.getAdminVariantId();
-            if (variantId.equals(newVariantId)){
+            if (variantId.equals(newVariantId)) {
                 return;
             }
             totalLockedQuantity += orderItem.getLockedQuantity();
