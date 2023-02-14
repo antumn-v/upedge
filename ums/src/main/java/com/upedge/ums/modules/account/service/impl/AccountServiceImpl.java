@@ -663,7 +663,7 @@ public class AccountServiceImpl implements AccountService {
         accountLogDao.insert(refundFlow);
         //保存联盟佣金退款记录
         if (refundAffiliateRebate.compareTo(BigDecimal.ZERO) > 0){
-            AffiliateCommissionRecord affiliateCommissionRecord = new AffiliateCommissionRecord(0L,customerId, request.getOrderId(),
+            AffiliateCommissionRecord affiliateCommissionRecord = new AffiliateCommissionRecord(0L,customerId, transactionId,
                     TransactionConstant.OrderType.NORMAL_ORDER.getCode(),
                     refundAffiliateRebate,AffiliateCommissionRecord.ORDER_REFUND,new Date(),new Date());
             affiliateCommissionRecordDao.insert(affiliateCommissionRecord);
@@ -673,7 +673,7 @@ public class AccountServiceImpl implements AccountService {
             CustomerVipRebateRecord customerVipRebateRecord =
                     new CustomerVipRebateRecord(customerId,
                             account.getId(),
-                            request.getOrderId(),
+                            transactionId,
                             refundVipRebate,
                             CustomerVipRebateRecord.ORDER_REFUND,
                             new Date());
