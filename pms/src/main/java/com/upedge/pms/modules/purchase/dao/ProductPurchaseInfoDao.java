@@ -13,9 +13,11 @@ import java.util.Set;
  */
 public interface ProductPurchaseInfoDao {
 
+    void updateDisableByPurchaseId(@Param("purchaseLink") String purchaseLink, @Param("skus") List<String> skus);
+
     List<VariantPurchaseInfoDto> selectByVariantIds(@Param("variantIds") List<Long> variantIds);
 
-    void updateInventory(@Param("purchaseSku") String purchaseSku, @Param("productLink") String productLink, @Param("inventory") Integer inventory,@Param("minOrderQuantity") Integer minOrderQuantity);
+    void updateInventory(@Param("purchaseSku") String purchaseSku, @Param("productLink") String productLink, @Param("inventory") Integer inventory, @Param("minOrderQuantity") Integer minOrderQuantity);
 
     List<ProductPurchaseInfo> selectByPurchaseLink(String purchaseLink);
 

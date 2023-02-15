@@ -602,7 +602,7 @@ public class ProductServiceImpl implements ProductService {
             return BaseResponse.success();
         }
         AlibabaApiVo alibabaApiVo = (AlibabaApiVo) redisTemplate.opsForValue().get(RedisKey.STRING_ALI1688_API);
-        AlibabaProductVo alibabaProductVo = Ali1688Service.getProduct(aliProductId, alibabaApiVo,true);
+        AlibabaProductVo alibabaProductVo = Ali1688Service.getProduct(aliProductId, alibabaApiVo,false);
 
         if (alibabaProductVo == null) {
             return new BaseResponse(ResultCode.FAIL_CODE, Constant.MESSAGE_FAIL);
@@ -626,24 +626,31 @@ public class ProductServiceImpl implements ProductService {
         if (ListUtils.isEmpty(skuInfos)){
             return;
         }
+
         productVariantService.updatePurchaseSkuByOriginalId(productId);
         String supplierName = alibabaProductVo.getSupplierVo().getSupplierName();
         ProductSaleInfo productSaleInfo = alibabaProductVo.getSaleInfo();
+        List<ProductPurchaseInfo> productPurchaseInfoList = productPurchaseInfoService.selectByPurchaseLink(productLink);
         List<ProductPurchaseInfo> productPurchaseInfos = new ArrayList<>();
+        List<String> skus = new ArrayList<>();
+        a:
         for (ProductVariantVo skuInfo : skuInfos) {
             String sku = skuInfo.getVariantSku();
-            ProductPurchaseInfo productPurchaseInfo = productPurchaseInfoService.selectByPrimaryKey(sku);
-            if (null != productPurchaseInfo){
-                if(!productPurchaseInfo.getSpecId().equals(skuInfo.getSpecId())){
-                    productPurchaseInfo.setSpecId(skuInfo.getSpecId());
-                    productPurchaseInfo.setInventory(skuInfo.getInventory());
-                    productPurchaseInfo.setMinOrderQuantity(productSaleInfo.getMinOrderQuantity());
-                    productPurchaseInfo.setMixWholeSale(productSaleInfo.getMixWholeSale());
-                    productPurchaseInfoService.updateByPrimaryKeySelective(productPurchaseInfo);
+            skus.add(sku);
+            for (ProductPurchaseInfo productPurchaseInfo : productPurchaseInfoList) {
+                if (productPurchaseInfo.getPurchaseSku().equals(sku)){
+                    if(!productPurchaseInfo.getSpecId().equals(skuInfo.getSpecId())){
+                        productPurchaseInfo.setSpecId(skuInfo.getSpecId());
+                        productPurchaseInfo.setInventory(skuInfo.getInventory());
+                        productPurchaseInfo.setMinOrderQuantity(productSaleInfo.getMinOrderQuantity());
+                        productPurchaseInfo.setMixWholeSale(productSaleInfo.getMixWholeSale());
+                        productPurchaseInfoService.updateByPrimaryKeySelective(productPurchaseInfo);
+                    }
+                    continue a;
                 }
-                continue;
             }
-            productPurchaseInfo = new ProductPurchaseInfo();
+
+            ProductPurchaseInfo productPurchaseInfo = new ProductPurchaseInfo();
             List<String> cnNameList = skuInfo.getVariantAttrVoList().stream().map(ProductVariantAttrVo::getVariantAttrCvalue).collect(Collectors.toList());
             productPurchaseInfo.setPurchaseSku(sku);
             productPurchaseInfo.setVariantImage(skuInfo.getVariantImage());
@@ -654,8 +661,10 @@ public class ProductServiceImpl implements ProductService {
             productPurchaseInfo.setInventory(skuInfo.getInventory());
             productPurchaseInfo.setMinOrderQuantity(productSaleInfo.getMinOrderQuantity());
             productPurchaseInfo.setMixWholeSale(productSaleInfo.getMixWholeSale());
+            productPurchaseInfo.setState(1);
             productPurchaseInfos.add(productPurchaseInfo);
         }
+        productPurchaseInfoService.updateDisableByPurchaseId(productLink,skus);
         productPurchaseInfoService.insertByBatch(productPurchaseInfos);
     }
 
@@ -839,6 +848,7 @@ public class ProductServiceImpl implements ProductService {
             productPurchaseInfo.setInventory(productVariantVo.getInventory());
             productPurchaseInfo.setMinOrderQuantity(productSaleInfo.getMinOrderQuantity());
             productPurchaseInfo.setMixWholeSale(productSaleInfo.getMixWholeSale());
+            productPurchaseInfo.setState(1);
             productPurchaseInfos.add(productPurchaseInfo);
         }
         if (ListUtils.isNotEmpty(productVariantList)){

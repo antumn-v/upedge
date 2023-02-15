@@ -58,6 +58,9 @@
             <if test="mixWholeSale != null">
                 mixWholeSale = #{mixWholeSale},
             </if>
+            <if test="state != null">
+                `state` = #{state},
+            </if>
         </set>
         where purchase_sku = #{purchaseSku} and purchase_link = #{purchaseLink}
     </update>
@@ -152,7 +155,8 @@
             variant_image,
             inventory,
             min_order_quantity,
-            mixWholeSale
+            mixWholeSale,
+            `state`
         </trim>
         values
         <foreach collection="list" item="item" index="index" separator=",">
@@ -165,7 +169,8 @@
                 #{item.variantImage},
                 #{item.inventory},
                 #{item.minOrderQuantity},
-                #{item.mixWholeSale}
+                #{item.mixWholeSale},
+                #{item.state}
             </trim>
         </foreach>
     </insert>
@@ -192,6 +197,9 @@
                 </if>
                 <if test="t.variantImage != null">
                     variant_image = #{t.variantImage} and
+                </if>
+                <if test="t.state != null">
+                    state = #{t.state}
                 </if>
             </trim>
         </if>
@@ -255,4 +263,15 @@
             #{variantId}
         </foreach>
     </select>
+
+    <update id="updateDisableByPurchaseId">
+        update product_purchase_info
+            set state = '0'
+        where purchase_link = #{purchaseLink}
+        and state = '1'
+        and purchase_sku not in
+            <foreach collection="skus" item="sku" open="(" close=")" separator=",">
+                #{sku}
+            </foreach>
+    </update>
 </mapper>

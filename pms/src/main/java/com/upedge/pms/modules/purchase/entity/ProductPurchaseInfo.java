@@ -35,4 +35,6 @@ public class ProductPurchaseInfo{
 
 	private Boolean mixWholeSale;
 
+	private Integer state;
+
 }

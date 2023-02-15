@@ -13,6 +13,8 @@ import java.util.Set;
  */
 public interface ProductPurchaseInfoService{
 
+    void updateDisableByPurchaseId(String purchaseLink,List<String> skus);
+
     void refreshAlibabaProductInventory(String productLink);
 
     List<VariantPurchaseInfoDto> selectByVariantIds(List<Long> variantIds);

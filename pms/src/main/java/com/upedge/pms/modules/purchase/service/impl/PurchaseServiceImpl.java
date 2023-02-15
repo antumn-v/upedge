@@ -543,7 +543,7 @@ public class PurchaseServiceImpl implements PurchaseService {
                     new BigDecimal(alibabaTradeFastResult.getTotalSuccessAmount().doubleValue() / 100),
                     BigDecimal.ZERO,
                     map.getKey(),
-                    0, 0, session.getId(), 0);
+                    0, 0, session.getId(), 0,0);
 
             List<PurchaseOrderItem> purchaseItems = new ArrayList<>();
             Double purchaseQuantity = 0.0;
@@ -605,7 +605,7 @@ public class PurchaseServiceImpl implements PurchaseService {
                     null,
                     BigDecimal.ZERO,
                     supplierName,
-                    0, 0, session.getId(), 0);
+                    0, 0, session.getId(), 0,0);
 
             List<PurchaseOrderItem> purchaseItems = new ArrayList<>();
             List<Integer> planIds = new ArrayList<>();

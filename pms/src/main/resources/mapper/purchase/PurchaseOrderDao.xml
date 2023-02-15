@@ -28,12 +28,13 @@
         <result property="createTime" column="create_time"/>
         <result property="updateTime" column="update_time"/>
         <result property="relateId" column="relate_id"/>
+        <result property="orderType" column="order_type"/>
     </resultMap>
 
     <sql id="Base_Column_List">
         `id`,`purchase_id`,`product_amount`,`ship_price`,`amount`,`discount_amount`,`edit_state`,`original_product_amount`,
         `supplier_name`,`purchase_status`,`purchase_state`,`purchase_type`,`operator_id`,`purchase_quantity`,`original_amount`,
-        `warehouse_code`,`remark`,`tracking_code`,`delivered_time`,`receive_time`,`create_time`,`update_time`,`relate_id`
+        `warehouse_code`,`remark`,`tracking_code`,`delivered_time`,`receive_time`,`create_time`,`update_time`,`relate_id`,`order_type`
     </sql>
 
     <select id="selectByPrimaryKey" parameterType="com.upedge.pms.modules.purchase.entity.PurchaseOrder" resultMap="BaseResultMap">
@@ -156,7 +157,8 @@
             receive_time,
             create_time,
             update_time,
-            purchase_quantity
+            purchase_quantity,
+            order_type
         </trim>
         values (
         #{id},
@@ -181,7 +183,8 @@
         #{receiveTime},
         #{createTime},
         #{updateTime},
-        #{purchaseQuantity}
+        #{purchaseQuantity},
+        #{orderType}
         )
     </insert>
 

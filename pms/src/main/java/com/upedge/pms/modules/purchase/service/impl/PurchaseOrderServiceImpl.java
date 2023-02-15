@@ -312,8 +312,6 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
             productPurchaseInfos.add(productPurchaseInfo);
         }
 
-        boolean isPreview = request.isPreview();
-
         Map<String, List<AlibabaTradeFastCargo>> supplierCargosMap = new HashMap<>();
         //不同供应商分组
         for (ProductVariant productVariant : productVariants) {
@@ -340,49 +338,17 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
         for (Map.Entry<String, List<AlibabaTradeFastCargo>> map : supplierCargosMap.entrySet()) {
             List<AlibabaTradeFastCargo> tradeFastCargos = map.getValue();
 
-//            if (isPreview){
-//                AlibabaCreateOrderPreviewResult previewResult = null;
-//                try {
-//                    previewResult = Ali1688Service.createOrderPreview(tradeFastCargos, alibabaApiVo);
-//                } catch (CustomerException e) {
-//                    return BaseResponse.failed(e.getMessage());
-//                }
-//                if (!previewResult.getSuccess()){
-//                    return BaseResponse.failed(previewResult.getErrorMsg());
-//                }else {
-//                    continue;
-//                }
-//            }
-            AlibabaTradeFastCreateOrderResult result = null;
-            AlibabaTradeFastResult alibabaTradeFastResult = null;
             Long id = purchaseService.getNextPurchaseOrderId();
-            String message = "下单号： " + id;
 
-//            try {
-//                result = Ali1688Service.createOrder(tradeFastCargos, alibabaApiVo, message);
-//                if (!result.getSuccess()){
-//                    return BaseResponse.failed(result.getMessage());
-//                }
-//                alibabaTradeFastResult = result.getResult();
-//            } catch (CustomerException e) {
-//                return BaseResponse.success(e.getMessage());
-//            }
-//            if (alibabaTradeFastResult == null){
-//                return BaseResponse.failed("采购单创建异常");
-//            }
             redisTemplate.opsForHash().put(RedisKey.HASH_CUSTOMER_STOCK_RELATE_PURCHASE, stockOrderId.toString(), id);
             PurchaseOrder purchaseOrder = new PurchaseOrder(id,
-//                    "0",
-//                    alibabaTradeFastResult.getOrderId(),
                     null,
                     BigDecimal.ZERO,
-//                    new BigDecimal((alibabaTradeFastResult.getPostFee().doubleValue() / 100)),
-//                    new BigDecimal(alibabaTradeFastResult.getTotalSuccessAmount().doubleValue() / 100),
                     BigDecimal.ZERO,
                     BigDecimal.ZERO,
                     BigDecimal.ZERO,
                     map.getKey(),
-                    0, 0, 0L, 0);
+                    0, 0, 0L, 0,0);
             purchaseOrder.setRelateId(request.getStockOrderId().toString());
             List<PurchaseOrderItem> purchaseItems = new ArrayList<>();
             Double purchaseQuantity = 0.0;
@@ -398,9 +364,9 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
             purchaseOrder.setPurchaseQuantity(purchaseQuantity.intValue());
             insert(purchaseOrder);
             purchaseOrderItemService.insertByBatch(purchaseItems);
-//            for (PurchaseOrderItem purchaseItem : purchaseItems) {
-//                variantWarehouseStockService.updateVariantPurchaseStockByPlan(purchaseItem.getVariantId(), "CNHZ", purchaseItem.getQuantity());
-//            }
+            for (PurchaseOrderItem purchaseItem : purchaseItems) {
+                variantWarehouseStockService.updateVariantPurchaseStockByPlan(purchaseItem.getVariantId(), "CNHZ", purchaseItem.getQuantity());
+            }
             if (StringUtils.isBlank(stringBuffer)) {
                 stringBuffer = stringBuffer.append(id);
             } else {
@@ -520,7 +486,7 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
                     null,
                     BigDecimal.ZERO,
                     map.getKey(),
-                    0, 0, 0L, 0);
+                    0, 0, 0L, 0,0);
             List<PurchaseOrderItem> purchaseItems = new ArrayList<>();
             Double purchaseQuantity = 0.0;
             for (ProductVariant productVariant : variants) {

@@ -94,11 +94,13 @@ public class PurchaseOrder{
 	 */
     private Date updateTime;
 
+	private Integer orderType;
+
 
 	public PurchaseOrder() {
 	}
 
-	public PurchaseOrder(Long id, String purchaseId, BigDecimal productAmount, BigDecimal shipPrice, BigDecimal amount, BigDecimal discountAmount, String supplierName,  Integer purchaseState, Integer purchaseType, Long operatorId,Integer purchaseQuantity) {
+	public PurchaseOrder(Long id, String purchaseId, BigDecimal productAmount, BigDecimal shipPrice, BigDecimal amount, BigDecimal discountAmount, String supplierName,  Integer purchaseState, Integer purchaseType, Long operatorId,Integer purchaseQuantity,Integer orderType) {
 		this.id = id;
 		this.purchaseId = purchaseId;
 		this.productAmount = productAmount;
@@ -116,5 +118,6 @@ public class PurchaseOrder{
 		this.updateTime = new Date();
 		this.purchaseQuantity = purchaseQuantity;
 		this.editState = 0;
+		this.orderType = orderType;
 	}
 }

@@ -77,6 +77,11 @@ public class ProductPurchaseInfoServiceImpl implements ProductPurchaseInfoServic
     }
 
     @Override
+    public void updateDisableByPurchaseId(String purchaseLink,List<String> skus) {
+        productPurchaseInfoDao.updateDisableByPurchaseId(purchaseLink,skus);
+    }
+
+    @Override
     public void refreshAlibabaProductInventory(String productLink) {
         String key = "key:1688product:refresh:inventory:" + productLink;
         boolean b = RedisUtil.lock(redisTemplate,key,0L,10 * 60 * 1000L);
@@ -173,6 +178,7 @@ public class ProductPurchaseInfoServiceImpl implements ProductPurchaseInfoServic
             record.setT(productPurchaseInfo);
             Product product = productService.select1688Product(id);
             productService.completedPurchaseInfo(null,product.getId(),productPurchaseInfo.getPurchaseLink());
+            productPurchaseInfo.setState(1);
         }
         record.initFromNum();
         return productPurchaseInfoDao.select(record);
