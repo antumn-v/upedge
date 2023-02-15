@@ -2,6 +2,7 @@ package com.upedge.pms.modules.purchase.dao;
 
 import com.upedge.common.base.Page;
 import com.upedge.pms.modules.purchase.dto.PurchaseOrderListDto;
+import com.upedge.pms.modules.purchase.entity.ProductPurchaseInfo;
 import com.upedge.pms.modules.purchase.entity.PurchaseOrderItem;
 import org.apache.ibatis.annotations.Param;
 
@@ -11,6 +12,8 @@ import java.util.List;
  * @author gx
  */
 public interface PurchaseOrderItemDao {
+
+    int updatePurchaseInfoByVariantId(@Param("variantId") Long variantId, @Param("productPurchaseInfo") ProductPurchaseInfo productPurchaseInfo);
 
     List<PurchaseOrderItem> selectGroupByPurchaseSku(Long orderId);
 

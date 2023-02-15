@@ -123,6 +123,10 @@ public class OrderRefundServiceImpl implements OrderRefundService {
         if (1 != order.getPayState() || 0 != order.getRefundState()) {
             return BaseResponse.failed();
         }
+        OrderReshipInfo orderReshipInfo = orderReshipInfoDao.selectByPrimaryKey(orderId);
+        if (orderReshipInfo != null && !orderReshipInfo.getNeedPay()){
+            return BaseResponse.success("未支付的补发订单无法申请退款");
+        }
         if (request.getShipPrice().compareTo(order.getShipPrice().add(order.getServiceFee())) > 0
                 || request.getVatAmount().compareTo(order.getVatAmount()) > 0) {
             return BaseResponse.failed("The refund amount cannot be greater than the actual payment amount");
@@ -592,6 +596,11 @@ public class OrderRefundServiceImpl implements OrderRefundService {
         if (order == null) {
             return new BaseResponse(ResultCode.FAIL_CODE, "找不到订单");
         }
+        OrderReshipInfo orderReshipInfo = orderReshipInfoDao.selectByPrimaryKey(orderId);
+        if (orderReshipInfo != null && !orderReshipInfo.getNeedPay()){
+            return BaseResponse.success("未支付的补发订单无法申请退款");
+        }
+
         if (StringUtils.isBlank(order.getShippingWarehouse())){
             return new BaseResponse(ResultCode.FAIL_CODE, "订单仓库信息异常");
         }
@@ -784,6 +793,10 @@ public class OrderRefundServiceImpl implements OrderRefundService {
         for (Long orderId : orderIds) {
             Order order = orderService.selectByPrimaryKey(orderId);
             if (order == null || order.getPayState() != 1 || order.getRefundState() != 0){
+                continue;
+            }
+            OrderReshipInfo orderReshipInfo = orderReshipInfoDao.selectByPrimaryKey(orderId);
+            if (orderReshipInfo != null && !orderReshipInfo.getNeedPay()){
                 continue;
             }
             Long refundId = IdGenerate.nextId();

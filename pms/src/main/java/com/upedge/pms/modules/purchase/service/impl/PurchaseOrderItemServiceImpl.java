@@ -6,6 +6,7 @@ import com.upedge.common.model.user.vo.Session;
 import com.upedge.common.utils.ListUtils;
 import com.upedge.pms.modules.purchase.dao.PurchaseOrderItemDao;
 import com.upedge.pms.modules.purchase.dto.PurchaseOrderListDto;
+import com.upedge.pms.modules.purchase.entity.ProductPurchaseInfo;
 import com.upedge.pms.modules.purchase.entity.PurchaseOrder;
 import com.upedge.pms.modules.purchase.entity.PurchaseOrderItem;
 import com.upedge.pms.modules.purchase.request.PurchaseOrderItemDeleteRequest;
@@ -70,6 +71,11 @@ public class PurchaseOrderItemServiceImpl implements PurchaseOrderItemService {
     @Transactional
     public int insertSelective(PurchaseOrderItem record) {
         return purchaseOrderItemDao.insert(record);
+    }
+
+    @Override
+    public int updatePurchaseInfoByVariantId(Long variantId, ProductPurchaseInfo productPurchaseInfo) {
+        return purchaseOrderItemDao.updatePurchaseInfoByVariantId(variantId, productPurchaseInfo);
     }
 
     @Override

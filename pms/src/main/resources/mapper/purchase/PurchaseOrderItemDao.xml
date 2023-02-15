@@ -456,4 +456,15 @@
             </foreach>
         and require_quantity > receive_quantity
     </update>
+
+    <update id="updatePurchaseInfoByVariantId">
+        update purchase_order po
+            inner join purchase_order_item poi
+        on po.id = poi.order_id
+        set poi.purchase_sku = #{productPurchaseInfo.purchaseSku},
+        poi.spec_id = #{productPurchaseInfo.specId},
+            poi.purchase_link = #{productPurchaseInfo.purchaseLink}
+        where po.edit_state = '0'
+        and poi.variant_id = #{variantId}
+    </update>
 </mapper>

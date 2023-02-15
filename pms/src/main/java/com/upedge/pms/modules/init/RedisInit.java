@@ -1,4 +1,4 @@
-package com.upedge.pms.init;
+package com.upedge.pms.modules.init;
 
 import com.upedge.common.base.Page;
 import com.upedge.common.constant.key.RedisKey;
@@ -20,6 +20,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.ArrayList;
@@ -30,7 +31,8 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ThreadPoolExecutor;
 
 @Slf4j
-@RestController("/redis")
+@RestController
+@RequestMapping("/redis")
 public class RedisInit {
 
     @Autowired

@@ -3338,12 +3338,16 @@ public class OrderServiceImpl implements OrderService {
             }
             List<Long> splitVariantIds = (List<Long>) redisTemplate.opsForHash().get(RedisKey.HASH_STORE_SPLIT_VARIANT, String.valueOf(storeVariantId));
             if (ListUtils.isNotEmpty(splitVariantIds)) {
+
+                CustomerProductQuoteSearchRequest customerProductQuoteSearchRequest = new CustomerProductQuoteSearchRequest();
+                customerProductQuoteSearchRequest.setStoreVariantIds(splitVariantIds);
+                List<CustomerProductQuoteVo> customerProductQuoteVos = pmsFeignClient.searchCustomerProductQuote(customerProductQuoteSearchRequest);
                 //判断拆分的变体是否已报价
-                for (Long splitVariantId : splitVariantIds) {
-                    CustomerProductQuoteVo customerProductQuoteVo = (CustomerProductQuoteVo) redisTemplate.opsForValue().get(RedisKey.STRING_QUOTED_STORE_VARIANT + splitVariantId);
-                    if (customerProductQuoteVo == null) {
-                        continue;
-                    }
+                for (CustomerProductQuoteVo customerProductQuoteVo : customerProductQuoteVos) {
+//                     = (CustomerProductQuoteVo) redisTemplate.opsForValue().get(RedisKey.STRING_QUOTED_STORE_VARIANT + splitVariantId);
+//                    if (customerProductQuoteVo == null) {
+//                        continue;
+//                    }
                     if (customerProductQuoteVo.getQuoteScale() == null) {
                         customerProductQuoteVo.setQuoteScale(1);
                     }
@@ -3370,7 +3374,13 @@ public class OrderServiceImpl implements OrderService {
                 }
                 OrderItem orderItem = new OrderItem();
                 BeanUtils.copyProperties(item, orderItem);
+                orderItem.setStoreOrderItemId(item.getId());
+                orderItem.setOrderId(orderId);
+                orderItem.setQuoteState(0);
+                orderItem.setQuoteScale(1);
+                orderItem.setItemType(0);
                 orderItem.setOriginalQuantity(item.getQuantity());
+                orderItems.add(orderItem);
                 continue;
             }
 
@@ -3412,6 +3422,9 @@ public class OrderServiceImpl implements OrderService {
             orderItem.setItemType(0);
             orderItem.setId(IdGenerate.nextId());
             orderItems.add(orderItem);
+        }
+        if (ListUtils.isEmpty(orderItems)){
+            return;
         }
         if (newOrder){
             OrderAddress orderAddress = new OrderAddress();
@@ -3458,6 +3471,7 @@ public class OrderServiceImpl implements OrderService {
             storeOrderRelateDao.insert(storeOrderRelate);
         }
         orderItemService.insertByBatch(orderItems);
+        storeOrderItemDao.insertByBatch(storeOrderItems);
         platformTransactionManager.commit(transaction);
         initQuoteState(orderId);
 //        matchShipRule(orderId);

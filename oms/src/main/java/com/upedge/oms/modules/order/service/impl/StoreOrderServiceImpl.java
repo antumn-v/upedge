@@ -781,6 +781,7 @@ public class StoreOrderServiceImpl implements StoreOrderService {
         }
 
         List<StoreOrderItem> storeOrderItems = storeOrderItemDao.selectByStoreOrderId(storeOrderId);
+        List<OrderItem> orderItems = orderItemService.selectUnPaidItemByStoreOrderId(storeOrderId);
         for (StoreOrderItem storeOrderItem : storeOrderItems) {
             ShopifyLineItem shopifyLineItem = lineItemMap.get(storeOrderItem.getPlatOrderItemId());
             if (null == shopifyLineItem) {
@@ -791,7 +792,6 @@ public class StoreOrderServiceImpl implements StoreOrderService {
             Integer quantity = shopifyLineItem.getFulfillable_quantity();
             Long storeOrderItemId = storeOrderItem.getId();
 
-            List<OrderItem> orderItems = orderItemService.selectUnPaidItemByStoreOrderId(storeOrderId);
             for (OrderItem orderItem : orderItems) {
                 if (!storeOrderItemId.equals(orderItem.getStoreOrderItemId())) {
                     continue;
@@ -889,7 +889,6 @@ public class StoreOrderServiceImpl implements StoreOrderService {
                 }
             }
         }
-        storeOrderItemDao.insertByBatch(storeOrderItems);
         orderService.addNewStoreOrderItem(storeOrder, storeOrderItems);
 //        platformTransactionManager.commit(transaction);
         return itemIds;

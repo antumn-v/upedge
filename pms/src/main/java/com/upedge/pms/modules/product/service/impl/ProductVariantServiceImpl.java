@@ -26,6 +26,7 @@ import com.upedge.pms.modules.product.vo.VariantAttrVo;
 import com.upedge.pms.modules.product.vo.VariantValVo;
 import com.upedge.pms.modules.purchase.entity.ProductPurchaseInfo;
 import com.upedge.pms.modules.purchase.service.ProductPurchaseInfoService;
+import com.upedge.pms.modules.purchase.service.PurchaseOrderItemService;
 import com.upedge.pms.modules.quote.service.CustomerProductQuoteService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -66,6 +67,9 @@ public class ProductVariantServiceImpl implements ProductVariantService {
 
     @Autowired
     CustomerProductQuoteService customerProductQuoteService;
+
+    @Autowired
+    PurchaseOrderItemService purchaseOrderItemService;
 
     @Autowired
     OmsFeignClient omsFeignClient;
@@ -242,6 +246,8 @@ public class ProductVariantServiceImpl implements ProductVariantService {
 
         VariantSkuUpdateLog updateLog = new VariantSkuUpdateLog(id,purchaseSku,session.getId(),1);
         variantSkuUpdateLogService.insert(updateLog);
+
+        purchaseOrderItemService.updatePurchaseInfoByVariantId(id,productPurchaseInfo);
 
         VariantPurchaseInfoDto variantPurchaseInfoDto = new VariantPurchaseInfoDto();
         variantPurchaseInfoDto.setPurchaseSku(purchaseSku);
