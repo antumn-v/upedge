@@ -545,7 +545,6 @@ public class VariantWarehouseStockServiceImpl implements VariantWarehouseStockSe
         if (quantity == 0){
             return true;
         }
-        Long variantId = purchaseOrderItem.getVariantId();
         VariantWarehouseStock variantWarehouseStock = variantWarehouseStockDao.selectByPrimaryKey(purchaseOrderItem.getVariantId(), warehouseCode);
         if (variantWarehouseStock == null || variantWarehouseStock.getPurchaseStock() < quantity){
             return false;
@@ -554,9 +553,6 @@ public class VariantWarehouseStockServiceImpl implements VariantWarehouseStockSe
         if (i == 0){
             return false;
         }
-//        Integer nowStock = variantWarehouseStock.getPurchaseStock() - quantity;
-//        VariantWarehouseStockRecord variantWarehouseStockRecord = new VariantWarehouseStockRecord(variantId,warehouseCode,quantity,6,variantWarehouseStock.getPurchaseStock(),nowStock, purchaseOrderItem.getId(), new Date(),null,0L);
-//        variantWarehouseStockRecordService.insert(variantWarehouseStockRecord);
         return true;
     }
 

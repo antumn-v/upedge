@@ -408,6 +408,5 @@
         set purchase_stock = purchase_stock - #{quantity}
         where variant_id = #{variantId}
           and warehouse_code = #{warehouseCode}
-          and purchase_stock >= #{quantity}
     </update>
 </mapper>

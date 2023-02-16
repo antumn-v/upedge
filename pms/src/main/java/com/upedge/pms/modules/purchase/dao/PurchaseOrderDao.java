@@ -30,7 +30,7 @@ public interface PurchaseOrderDao {
 
     long countPurchaseOrders(PurchaseOrderListRequest request);
 
-    PurchaseOrder selectByPrimaryKey(PurchaseOrder record);
+    PurchaseOrder selectByPrimaryKey(Long id);
 
     int deleteByPrimaryKey(PurchaseOrder record);
 

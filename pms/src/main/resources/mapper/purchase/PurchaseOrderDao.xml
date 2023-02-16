@@ -37,7 +37,7 @@
         `warehouse_code`,`remark`,`tracking_code`,`delivered_time`,`receive_time`,`create_time`,`update_time`,`relate_id`,`order_type`
     </sql>
 
-    <select id="selectByPrimaryKey" parameterType="com.upedge.pms.modules.purchase.entity.PurchaseOrder" resultMap="BaseResultMap">
+    <select id="selectByPrimaryKey" resultMap="BaseResultMap">
         select
         <include refid="Base_Column_List" />
         from purchase_order
@@ -441,7 +441,7 @@
         <include refid="Base_Column_List"/>
         from purchase_order
         <include refid="Search_Condition"/>
-        order by create_time desc
+        order by create_time desc,receive_time desc
         <if test="pageNum != null and pageSize != null">
             limit #{fromNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
         </if>

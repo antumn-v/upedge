@@ -1088,9 +1088,13 @@ public class OrderPackageServiceImpl implements OrderPackageService {
         wayBillCreateDto.setShippingMethodCode(shippingMethodRedis.getMethodCode());
         wayBillCreateDto.setPackageCount(1);
         wayBillCreateDto.setWeight(order.getTotalWeight().divide(new BigDecimal("1000"), 2, BigDecimal.ROUND_UP));
-        String iossNo = getIossNo(order.getCustomerId());
-        if (StringUtils.isNotBlank(iossNo)) {
-            wayBillCreateDto.setIossCode(iossNo);
+        CustomerIossVo customerIossVo = null;
+        String key = RedisKey.STRING_CUSTOMER_IOSS + order.getCustomerId();
+        if (redisTemplate.hasKey(key)) {
+            customerIossVo = (CustomerIossVo) redisTemplate.opsForValue().get(key);
+        }
+        if (customerIossVo != null) {
+            wayBillCreateDto.setIossCode(customerIossVo.getIossNum());
         } else {
             WayBillCreateDto.OrderExtraDTO extraDTO = new WayBillCreateDto.OrderExtraDTO();
             extraDTO.setExtraCode("V1");

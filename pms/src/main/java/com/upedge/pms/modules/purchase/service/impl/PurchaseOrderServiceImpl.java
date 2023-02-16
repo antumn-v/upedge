@@ -161,6 +161,7 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
         if (ListUtils.isEmpty(purchaseOrderItems)) {
             return BaseResponse.failed();
         }
+        PurchaseOrder purchaseOrder = purchaseOrderDao.selectByPrimaryKey(orderId);
         List<CreatePurchaseOrderDto> createPurchaseOrderDtos = new ArrayList<>();
         for (PurchaseOrderItem purchaseOrderItem : purchaseOrderItems) {
             if (!itemIds.contains(purchaseOrderItem.getId())){
@@ -185,6 +186,7 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
         }
         purchaseOrderItemService.updateItemDisableByIds(itemIds);
         CreatePurchaseOrderRequest createPurchaseOrderRequest = new CreatePurchaseOrderRequest();
+        createPurchaseOrderRequest.setStockOrderId(purchaseOrder.getId());
         createPurchaseOrderRequest.setCreatePurchaseOrderDtos(createPurchaseOrderDtos);
         return customCreate(createPurchaseOrderRequest, session);
     }
@@ -243,20 +245,13 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
     public BaseResponse revokePurchaseOrder(PurchaseOrderRevokeRequest request, Session session) throws CustomerException {
         Long orderId = request.getOrderId();
         PurchaseOrder purchaseOrder = selectByPrimaryKey(orderId);
-        if (purchaseOrder == null || purchaseOrder.getPurchaseState() > 0) {
+        if (purchaseOrder == null || purchaseOrder.getPurchaseState() == 2) {
             return BaseResponse.failed("订单不存在或产品已入库");
         }
         if (purchaseOrder.getEditState() == -1) {
             return BaseResponse.success();
         }
-//        String purchaseId = purchaseOrder.getPurchaseId();
-//        if (StringUtils.isNotBlank(purchaseId) && !purchaseId.equals("0")) {
-//            //先从1688取消订单
-//            AlibabaTradeCancelResult result = Ali1688Service.cancelOrder(Long.parseLong(purchaseOrder.getPurchaseId()), request.getCancelReason(), request.getRemark());
-//            if (!result.getSuccess() && !result.getErrorMessage().equals("该订单已经取消")) {
-//                return BaseResponse.failed(result.getErrorMessage());
-//            }
-//        }
+
 
         //修改仓库采购中数量
         List<PurchaseOrderItem> purchaseOrderItems = purchaseOrderItemService.selectByOrderId(orderId);
@@ -509,6 +504,10 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
                 purchaseQuantity += quantity;
             }
             purchaseOrder.setPurchaseQuantity(purchaseQuantity.intValue());
+            if (request.getStockOrderId() != null){
+                purchaseOrder.setOrderType(1);
+                purchaseOrder.setRelateId(request.getStockOrderId().toString());
+            }
             insert(purchaseOrder);
             purchaseOrderItemService.insertByBatch(purchaseItems);
             for (PurchaseOrderItem purchaseItem : purchaseItems) {
@@ -597,6 +596,10 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
         if (response.getCode() == ResultCode.SUCCESS_CODE) {
             checkOrderReceiveQuantity(request.getOrderId());
         }
+        PurchaseOrder purchaseOrder = new PurchaseOrder();
+        purchaseOrder.setId(id);
+        purchaseOrder.setReceiveTime(new Date());
+        updateByPrimaryKeySelective(purchaseOrder);
         RedisUtil.unLock(redisTemplate,key);
         return response;
     }
@@ -715,7 +718,6 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
         purchaseOrder.setPurchaseStatus(baseInfo.getStatus());
         purchaseOrder.setReceiveTime(baseInfo.getReceivingTime());
         purchaseOrder.setDeliveredTime(baseInfo.getAllDeliveredTime());
-        purchaseOrder.setRemark(baseInfo.getRemark());
         purchaseOrder.setShipPrice(baseInfo.getShippingFee());
         purchaseOrder.setDiscountAmount(new BigDecimal(baseInfo.getDiscount()));
         purchaseOrder.setUpdateTime(new Date());
@@ -957,9 +959,7 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
      *
      */
     public PurchaseOrder selectByPrimaryKey(Long id) {
-        PurchaseOrder record = new PurchaseOrder();
-        record.setId(id);
-        return purchaseOrderDao.selectByPrimaryKey(record);
+        return purchaseOrderDao.selectByPrimaryKey(id);
     }
 
     /**
