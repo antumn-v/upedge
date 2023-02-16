@@ -657,6 +657,35 @@ public class OrderPackageServiceImpl implements OrderPackageService {
         }
     }
 
+    @Override
+    public BaseResponse getPackLabel(Long packNo) {
+        String labelUrl = "";
+        OrderPackage orderPackage = selectByPrimaryKey(packNo);
+        if (null == orderPackage) {
+            return BaseResponse.failed("包裹不存在");
+        }
+        Map<String, String> map = new HashMap<>();
+        map.put("company", orderPackage.getTrackingCompany());
+
+        OrderLabelPrintLog orderLabelPrintLog = orderLabelPrintLogService.selectTheLatestPackLabel(packNo);
+        if (null != orderLabelPrintLog) {
+            labelUrl = orderLabelPrintLog.getLabelUrl();
+        } else {
+            try {
+                labelUrl = savePrintLabel(orderPackage);
+            } catch (CustomerException e) {
+                return BaseResponse.failed(e.getMessage());
+            }
+        }
+
+        map.put("labelUrl", labelUrl);
+        if (StringUtils.isNotBlank(labelUrl)) {
+            return BaseResponse.success(map);
+        } else {
+            return BaseResponse.failed("包裹号：" + packNo + " 获取面单失败");
+        }
+    }
+
 
     private String savePrintLabel(OrderPackage orderPackage) throws CustomerException {
         if (null == orderPackage) {
@@ -1004,12 +1033,6 @@ public class OrderPackageServiceImpl implements OrderPackageService {
         List<WayBillCreateDto.OrderExtraDTO> orderExtraDTOs = new ArrayList<>();
         List<WayBillCreateDto.ChildOrdersDTO> childOrdersDTOS = new ArrayList<>();
 
-        CustomerIossVo customerIossVo = null;
-        String key = RedisKey.STRING_CUSTOMER_IOSS + order.getCustomerId();
-        if (redisTemplate.hasKey(key)) {
-            customerIossVo = (CustomerIossVo) redisTemplate.opsForValue().get(key);
-        }
-
         List<WayBillCreateDto.ChildOrdersDTO.ChildDetailsDTO> childDetailsDTOS = new ArrayList<>();
 
         List<OrderItem> orderItems = orderItemService.selectByOrderId(orderId);
@@ -1065,8 +1088,9 @@ public class OrderPackageServiceImpl implements OrderPackageService {
         wayBillCreateDto.setShippingMethodCode(shippingMethodRedis.getMethodCode());
         wayBillCreateDto.setPackageCount(1);
         wayBillCreateDto.setWeight(order.getTotalWeight().divide(new BigDecimal("1000"), 2, BigDecimal.ROUND_UP));
-        if (customerIossVo != null) {
-            wayBillCreateDto.setIossCode(customerIossVo.getIossNum());
+        String iossNo = getIossNo(order.getCustomerId());
+        if (StringUtils.isNotBlank(iossNo)) {
+            wayBillCreateDto.setIossCode(iossNo);
         } else {
             WayBillCreateDto.OrderExtraDTO extraDTO = new WayBillCreateDto.OrderExtraDTO();
             extraDTO.setExtraCode("V1");
@@ -1107,6 +1131,21 @@ public class OrderPackageServiceImpl implements OrderPackageService {
         return orderPackage;
     }
 
+
+    private String getIossNo(Long customerId){
+        String iossNo = null;
+        CustomerIossVo customerIossVo = null;
+        String key = RedisKey.STRING_CUSTOMER_IOSS + customerId;
+        if (redisTemplate.hasKey(key)) {
+            customerIossVo = (CustomerIossVo) redisTemplate.opsForValue().get(key);
+            iossNo = customerIossVo.getIossNum();
+        }
+        if (StringUtils.isBlank(iossNo)){
+            iossNo = "IM4420001201";
+        }
+        return iossNo;
+    }
+
     public OrderPackage createFpxPackage(Order order,boolean reCreate) throws CustomerException {
         Long orderId = order.getId();
         Long packNo = IdGenerate.nextId();
@@ -1115,12 +1154,6 @@ public class OrderPackageServiceImpl implements OrderPackageService {
 
         UserVo userVo = (UserVo) redisTemplate.opsForHash().get(RedisKey.STRING_CUSTOMER_INFO, order.getCustomerId().toString());
 
-        CustomerIossVo customerIossVo = null;
-        String key = RedisKey.STRING_CUSTOMER_IOSS + order.getCustomerId();
-        if (redisTemplate.hasKey(key)) {
-            customerIossVo = (CustomerIossVo) redisTemplate.opsForValue().get(key);
-        }
-
         ShippingMethodRedis shippingMethodRedis = (ShippingMethodRedis) redisTemplate.opsForHash().get(RedisKey.SHIPPING_METHOD, order.getShipMethodId().toString());
 
         OrderAddress orderAddress = orderService.getOrderAddress(orderId);
@@ -1128,9 +1161,8 @@ public class OrderPackageServiceImpl implements OrderPackageService {
         FpxOrderCreateDto fpxOrderCreateDto = new FpxOrderCreateDto();
         fpxOrderCreateDto.setRefNo(order.getPackNo().toString());
         fpxOrderCreateDto.setBuyerId(userVo.getUsername());
-        if (customerIossVo != null) {
-            fpxOrderCreateDto.setVatNo(customerIossVo.getIossNum());
-        }
+        fpxOrderCreateDto.setVatNo(getIossNo(order.getCustomerId()));
+        fpxOrderCreateDto.setIossNo(getIossNo(order.getCustomerId()));
 
         List<ParcelListDTO> parcelListDTOS = new ArrayList<>();
 

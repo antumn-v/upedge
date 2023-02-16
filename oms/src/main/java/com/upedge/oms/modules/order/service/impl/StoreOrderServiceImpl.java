@@ -807,14 +807,6 @@ public class StoreOrderServiceImpl implements StoreOrderService {
             }
         }
 
-
-//        if (ListUtils.isNotEmpty(orderItems)) {
-//
-//
-//        }else {
-//            return;
-//        }
-
         if (MapUtils.isNotEmpty(lineItemMap)){
             List<ShopifyLineItem> newItems = new ArrayList<>();
             lineItemMap.forEach((lineItemId,lineItem) -> {

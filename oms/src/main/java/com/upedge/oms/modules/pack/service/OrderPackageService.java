@@ -56,6 +56,8 @@ public interface OrderPackageService {
 
     BaseResponse printPackLabel(OrderPackageGetLabelRequest request, Session session);
 
+    BaseResponse getPackLabel(Long packNo);
+
     OrderPackageInfoVo packageInfo(OrderPackageInfoGetRequest request);
 
     BaseResponse createPackage(Long orderId);

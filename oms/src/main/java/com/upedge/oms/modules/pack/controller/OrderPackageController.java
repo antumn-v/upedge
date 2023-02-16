@@ -144,9 +144,9 @@ public class OrderPackageController {
         return packageList(request);
     }
 
-    @ApiOperation("获取包裹面单")
+    @ApiOperation("打印包裹面单")
     @PostMapping("/label")
-    public BaseResponse getLabel(@RequestBody@Valid OrderPackageGetLabelRequest request) {
+    public BaseResponse printLabel(@RequestBody@Valid OrderPackageGetLabelRequest request) {
         Long packNo = request.getPackNo();
         String key = "lock:pack:print:label:" + packNo;
         boolean b = RedisUtil.lock(redisTemplate,key,0L,10 * 1000L);
@@ -155,6 +155,12 @@ public class OrderPackageController {
         }
         Session session = UserUtil.getSession(redisTemplate);
         return orderPackageService.printPackLabel(request, session);
+    }
+
+    @ApiOperation("获取包裹面单")
+    @PostMapping("/getLabel/{packNo}")
+    public BaseResponse getLabel(@PathVariable Long packNo) {
+        return orderPackageService.getPackLabel(packNo);
     }
 
     @ApiOperation("面单打印记录")

@@ -51,9 +51,9 @@ public enum  OrderTagEnum {
     //处理中
     PACK_PENDING(1,0,0,null,null,0,null,null,null,0),
     //有货
-    IN_STOCK(1,0,0,null,1,1,null,0,null,0),
+    IN_STOCK(1,0,0,null,1,1,false,0,null,0),
     //缺货
-    OUT_STOCK(1,0,0,null,0,1,null,0,null,0),
+    OUT_STOCK(1,0,0,null,0,1,false,0,null,0),
     //已发货
     ADMIN_SHIPPED(1,1,0,null,null,null,null,null,null,0),
     //真实追踪号发货
@@ -65,7 +65,7 @@ public enum  OrderTagEnum {
     //面单已打印
     LABEL_PRINTED(1,0,0,null,1,1,true,1,-1,0),
     //已拣货
-    PICKED(1,0,0,null,1,1,null,1,null,0),
+    PICKED(1,0,0,null,1,1,false,1,null,0),
     //已出库未上传，物流商单号
     PACKAGE_UPLOADING_0(1,0,0,null,1,1,null,1,0,0),
     //已出库未上传，真实追踪号

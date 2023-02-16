@@ -32,6 +32,8 @@ public class FpxOrderCreateDto {
     private String vatNo;
     @JSONField(name = "eori_no")
     private String eoriNo;
+    @JSONField(name = "ioss_no")
+    private String iossNo;
     /**
      * 客户名
      */

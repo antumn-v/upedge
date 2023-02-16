@@ -61,6 +61,9 @@ public class OrderRefundController {
             return BaseResponse.failed();
         }
         Order order = orderService.selectByPrimaryKey(result.getOrderId());
+        if (order == null){
+            return BaseResponse.failed("订单不存在");
+        }
         OrderRefundVo orderRefundVo = new OrderRefundVo();
         BeanUtils.copyProperties(order,orderRefundVo);
         BeanUtils.copyProperties(result,orderRefundVo);

@@ -1261,6 +1261,7 @@ public class OrderServiceImpl implements OrderService {
         Integer unQuotedItem = 0;
         Integer quotingItem = 0;
 
+        a:
         for (StoreOrderItem item : storeOrderItems) {
             if (item.getStoreVariantId() == null){
                 continue;
@@ -1268,14 +1269,18 @@ public class OrderServiceImpl implements OrderService {
             //判断是否是拆分的变体
             List<Long> splitVariantIds = (List<Long>) redisTemplate.opsForHash().get(RedisKey.HASH_STORE_SPLIT_VARIANT, String.valueOf(item.getStoreVariantId()));
             if (ListUtils.isNotEmpty(splitVariantIds)) {
-                //判断拆分的变体是否已报价
-                boolean quoted = false;
+                List<OrderItem> splitItems = new ArrayList<>();
+                b:
                 for (Long splitVariantId : splitVariantIds) {
                     CustomerProductQuoteVo customerProductQuoteVo = (CustomerProductQuoteVo) redisTemplate.opsForValue().get(RedisKey.STRING_QUOTED_STORE_VARIANT + splitVariantId);
-                    if (customerProductQuoteVo != null && customerProductQuoteVo.getQuotePrice() != null) {
-                        quoted = true;
+                    if (customerProductQuoteVo == null || customerProductQuoteVo.getQuoteState() != 0){
+                        continue b;
+                    }
+                    if (customerProductQuoteVo.getQuotePrice() != null) {
+                        quotedItem++;
                     } else {
-                        continue;
+                        unQuotedItem++;
+                        continue b;
                     }
                     if (customerProductQuoteVo.getQuoteScale() == null) {
                         customerProductQuoteVo.setQuoteScale(1);
@@ -1296,7 +1301,7 @@ public class OrderServiceImpl implements OrderService {
                     try {
                         cnyProductAmount = cnyProductAmount.add(orderItem.getCnyPrice().multiply(itemQuantity));
                     } catch (Exception e) {
-                        continue;
+
                     }
                     productAmount = productAmount.add(orderItem.getUsdPrice().multiply(itemQuantity));
                     totalWeight = totalWeight.add(customerProductQuoteVo.getWeight().multiply(itemQuantity));
@@ -1307,14 +1312,13 @@ public class OrderServiceImpl implements OrderService {
                     orderItem.setItemType(2);
                     orderItem.setId(IdGenerate.nextId());
                     strings.add(RedisKey.SHIPPING_TEMPLATED_METHODS + orderItem.getShippingId());
-                    items.add(orderItem);
+                    splitItems.add(orderItem);
+
                 }
-                if (quoted) {
-                    quotedItem++;
-                } else {
-                    unQuotedItem++;
+                if (ListUtils.isNotEmpty(splitItems)){
+                    items.addAll(splitItems);
+                    continue a;
                 }
-                continue;
             }
             OrderItem orderItem = new OrderItem();
             BeanUtils.copyProperties(item, orderItem);
@@ -1363,6 +1367,9 @@ public class OrderServiceImpl implements OrderService {
             orderItem.setId(IdGenerate.nextId());
             strings.add(RedisKey.SHIPPING_TEMPLATED_METHODS + orderItem.getShippingId());
             items.add(orderItem);
+        }
+        if (ListUtils.isEmpty(items)){
+            return null;
         }
         order.setQuoteState(Order.QUOTE_PARTIAL);
         if (quotedItem == itemSize) {
