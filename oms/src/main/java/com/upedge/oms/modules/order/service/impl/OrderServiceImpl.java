@@ -1695,9 +1695,13 @@ public class OrderServiceImpl implements OrderService {
         if(ListUtils.isEmpty(orderItems)){
             return 0;
         }
+        Integer totalQuantity =0;
         List<OrderItem> updateItems = new ArrayList<>();
+        Set<Long> adminVariantIds = new HashSet<>();
         a:
         for (OrderItem orderItem : orderItems) {
+            adminVariantIds.add(orderItem.getAdminVariantId());
+            totalQuantity += orderItem.getQuantity();
             Integer unLockQuantity = orderItem.getQuantity() - orderItem.getLockedQuantity();
             for (ItemQuantityVo itemQuantityVo : itemQuantityVos) {
                 if (itemQuantityVo.getItemId().equals(orderItem.getId())){
@@ -1727,6 +1731,13 @@ public class OrderServiceImpl implements OrderService {
         if (ListUtils.isNotEmpty(updateItems)){
             orderItemDao.increaseLockQuantity(updateItems);
         }
+        Integer pickType = 0;
+        if (adminVariantIds.size() > 1){
+            pickType = 2;
+        }else if (adminVariantIds.size() == 1 && totalQuantity > 1){
+            pickType = 1;
+        }
+        orderDao.updatePickType(id,pickType);
         return 1;
     }
 

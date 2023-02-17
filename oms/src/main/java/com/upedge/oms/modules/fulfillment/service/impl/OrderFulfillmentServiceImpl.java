@@ -306,8 +306,12 @@ public class OrderFulfillmentServiceImpl implements OrderFulfillmentService {
         if (StringUtils.isBlank(trackCode)) {
             return false;
         }
+        if (order.getOrderType() == 4){
+            orderDao.updateOrderAsTracked(orderId, trackCode, trackingCodeType);
+            return true;
+        }
 
-        if (orderPackage.getIsUploadStore() && orderPackage.getPackageState() == 1 || order.getOrderType() == 4) {
+        if (orderPackage.getIsUploadStore() && orderPackage.getPackageState() == 1) {
             orderDao.updateOrderAsTracked(orderId, trackCode, trackingCodeType);
             return true;
         }
@@ -325,6 +329,9 @@ public class OrderFulfillmentServiceImpl implements OrderFulfillmentService {
                 List<StoreOrderItem> storeOrderItems = storeOrderItemDao.selectByStoreOrderAndOrder(orderId, storeOrderRelate.getStoreOrderId());
                 if (ListUtils.isEmpty(storeOrderItems)) {
                     storeOrderItems = storeOrderItemDao.selectByStoreOrderId(storeOrderRelate.getStoreOrderId());
+                }
+                if (ListUtils.isEmpty(storeOrderItems)){
+                    continue;
                 }
                 platOrderId = storeOrderItems.get(0).getPlatOrderId();
                 storeOrderId = storeOrderRelate.getStoreOrderId();

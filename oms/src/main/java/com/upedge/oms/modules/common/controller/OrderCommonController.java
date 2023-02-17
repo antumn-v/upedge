@@ -176,4 +176,12 @@ public class OrderCommonController {
         return BaseResponse.success();
     }
 
+    @PostMapping("/initPickType")
+    public BaseResponse initPickType(@RequestBody List<Long> orderIds){
+        for (Long orderId : orderIds) {
+            orderService.initPickType(orderId);
+        }
+        return BaseResponse.success();
+    }
+
 }

@@ -307,7 +307,7 @@ public class StoreProductServiceImpl implements StoreProductService {
         }
         String platProductId = product.getId();
         String key = RedisKey.STRING_STORE_PLAT_PRODUCT + storeVo.getId() + ":" + platProductId;
-        boolean b = RedisUtil.lock(redisTemplate, key, 5L, 5 * 1000L);
+        boolean b = RedisUtil.lock(redisTemplate, key, 5L, 60 * 60 * 1000L);
         if (!b) {
             return null;
         }
@@ -352,9 +352,9 @@ public class StoreProductServiceImpl implements StoreProductService {
                 //比较新老变体图片属性名sku
                 try {
                     StoreProductVariant oldVariant = storeProductVariantMap.get(variant.getId());
-                    boolean titleCompare = StringUtils.isNotBlank(oldVariant.getTitle()) && oldVariant.getTitle().equals(storeVariant.getTitle());
-                    boolean skuCompare = StringUtils.isNotBlank(oldVariant.getSku()) && oldVariant.getSku().equals(storeVariant.getSku());
-                    boolean imageCompare = StringUtils.isNotBlank(oldVariant.getImage()) && oldVariant.getImage().equals(storeVariant.getImage());
+                    boolean titleCompare = oldVariant.getTitle() != null && oldVariant.getTitle().equals(storeVariant.getTitle());
+                    boolean skuCompare = oldVariant.getSku() != null && oldVariant.getSku().equals(storeVariant.getSku());
+                    boolean imageCompare = oldVariant.getImage() != null && oldVariant.getImage().equals(storeVariant.getImage());
                     if (!titleCompare
                     || !skuCompare
                     || !imageCompare){
@@ -390,22 +390,6 @@ public class StoreProductServiceImpl implements StoreProductService {
         if (importAttribute != null && insertVariants.size() > 0) {
             storeProductVariantService.updateAdminVariantIdByImportId(importAttribute.getId(), storeProductId);
         }
-//        uploadShopifyImage(product.getImages(),storeProductId,storeProductVariantMap);
-//        String price = attribute.getPrice();
-//        attribute = new StoreProductAttribute();
-//        attribute.setId(storeProductId);
-//        if (variantPrices.size() > 1) {
-//            variantPrices.descendingSet();
-//            attribute.setPrice(variantPrices.first() + "~" + variantPrices.last());
-//        } else {
-//            attribute.setPrice(variantPrices.last() + "");
-//        }
-//        if (price == null
-//        || !attribute.getPrice().equals(price)){
-//            storeProductAttributeDao.updateByPrimaryKeySelective(attribute);
-//        }
-
-        RedisUtil.unLock(redisTemplate, key);
         return attribute.getId();
     }
 
@@ -424,22 +408,6 @@ public class StoreProductServiceImpl implements StoreProductService {
             if (StringUtils.isNotBlank(newImage)){
                 imageMap.put(shopifyImage.getId(),newImage);
             }
-//            for (String platVariantId : platVariantIds) {
-//                StoreProductVariant storeProductVariant = storeProductVariantMap.get(platVariantId);
-//                if(null == storeProductVariant){
-//                    continue;
-//                }
-//                String image = storeProductVariant.getImage();
-//                if (image != null && image.equals(newImage)){
-//                    platVariantIds.remove(storeProductVariant.getPlatVariantId());
-//                }else {
-//                    customerProductQuoteService.updateStoreVariantImageById(storeProductVariant.getId(),newImage);
-//                }
-//            }
-//
-//            if (ListUtils.isNotEmpty(platVariantIds)){
-//                storeProductVariantService.updateImageByPlatVariantIds(newImage,storeProductId,platVariantIds);
-//            }
         });
         return imageMap;
     }
